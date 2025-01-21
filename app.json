@@ -8,10 +8,16 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "jsEngine": "hermes",
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true
+    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.deedaw22.frosting",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -35,9 +41,6 @@
       ],
       "expo-sqlite"
     ],
-    "experiments": {
-      "typedRoutes": true
-    },
     "extra": {
       "router": {
         "origin": false
