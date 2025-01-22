@@ -24,7 +24,7 @@ export default function Onboarding() {
     username: string;
     profilePicture: string;
     primaryColor: string;
-    backgroundStyle: 'gradient' | 'opaque' | 'wallpaper-0' | 'wallpaper-1' | 'wallpaper-2' | 'wallpaper-3' | 'wallpaper-4' | 'wallpaper-5';// | 'custom';
+    backgroundStyle: 'gradient' | 'opaque' | 'wallpaper-0' | 'wallpaper-1' | 'wallpaper-2' | 'wallpaper-3' | 'wallpaper-4' | 'wallpaper-5';
     zipCode: string;
   };
 

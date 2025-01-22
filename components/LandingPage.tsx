@@ -20,6 +20,11 @@ import { StatusCard } from './StatusCard'
 import { TaskCard } from './TaskCard'
 import { NewTaskModal } from './NewTaskModal'
 import { getCategoryColor } from './utils'
+import { getWallpaperPath } from '../constants/BackgroundStyles'
+import { TemperatureCard } from '../utils/TemperatureCard'
+import { WifiCard } from '../utils/WifiCard'
+import { PortfolioCard } from '../utils/PortfolioCard'
+import { ClockCard } from '../utils/ClockCard'
 
 type ProjectState = {
   toggleTaskCompletion: (id: string) => void
@@ -75,7 +80,7 @@ const userHydrated = useUserStore(s => s.hydrated)
       case 7:
         return 'Good afternoon'
       case 8:
-        return 'Hang in there'
+        return 'Whats good'
       case 9:
         return 'Good evening'
       case 10:
@@ -142,15 +147,7 @@ const userHydrated = useUserStore(s => s.hydrated)
         
       default:
         if (backgroundStyle.startsWith('wallpaper-')) {
-          const number = backgroundStyle.split('-')[1];
-    
-          const wallpaper = 
-            number === '0' ? require('../assets/wallpapers/wallpapers.png') :
-            number === '1' ? require('../assets/wallpapers/wallpapers-1.png') :
-            number === '2' ? require('../assets/wallpapers/wallpapers-2.png') :
-            number === '3' ? require('../assets/wallpapers/wallpapers-3.png') :
-            number === '4' ? require('../assets/wallpapers/wallpapers-4.png') :
-            number === '5' ? require('../assets/wallpapers/wallpapers-5.jpg') : null;
+          const wallpaper = getWallpaperPath(backgroundStyle);
           
           return wallpaper ? (
             <Stack position="absolute" width="100%" height="100%">
@@ -162,6 +159,17 @@ const userHydrated = useUserStore(s => s.hydrated)
                   height: '100%',
                   resizeMode: 'cover',
                 }}
+                onError={(error) => {
+                  console.warn('Wallpaper load error:', error.nativeEvent);
+                  // Fallback to gradient if wallpaper fails to load
+                  if (backgroundStyle === 'wallpaper-1') {
+                    useUserStore.getState().setPreferences({
+                      backgroundStyle: 'gradient'
+                    });
+                  }
+                }}
+                // Enable caching
+                loadingIndicatorSource={wallpaper}
               />
               <BlurView
                 intensity={20}
@@ -259,6 +267,7 @@ const userHydrated = useUserStore(s => s.hydrated)
                 <Text
                   fontFamily="$SpaceMono"
                   fontSize={20}
+                  paddingHorizontal={4}
                   color="#dbd0c6"
                   fontWeight="bold"
                   numberOfLines={1}
@@ -273,17 +282,12 @@ const userHydrated = useUserStore(s => s.hydrated)
               </XStack>
             </XStack>
 
-            {/* Status Cards */}
             <XStack marginTop="$2" gap="$2" flexWrap="nowrap">
-              <StatusCard label="Status" value="Active" color="#4CAF50" />
-              <StatusCard
-                label="Tasks"
-                value={`${completedTasksCount}/${todaysTasks.length}`}
-                color="#2196F3"
-              />
-              <StatusCard label="Focus Time" value="2h 30m" color="#FF9800" />
-              <StatusCard label="Break Time" value="15m" color="#F44336" />
-            </XStack>
+            <TemperatureCard />
+            <WifiCard />
+            <PortfolioCard />
+            <ClockCard />
+          </XStack>
           </Stack>
 
           {/* Tasks Section */}

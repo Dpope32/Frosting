@@ -20,7 +20,7 @@
       "package": "com.deedaw22.frosting",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1e1e1e"
       }
     },
     "web": {
@@ -44,6 +44,10 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "openWeatherApiKey": {
+        "development": "OPENWEATHER_API_KEY",
+        "production": "OPENWEATHER_API_KEY"
       },
       "eas": {
         "projectId": "22727130-682f-425f-bedd-d8fd9ab0b3e0"

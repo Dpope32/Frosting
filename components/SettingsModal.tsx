@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { Sheet, Button, Input, YStack, XStack, Text, Circle, ScrollView } from 'tamagui'
+import { Sheet, Button, Input, YStack, XStack, Text, Circle, ScrollView, Stack } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import * as ImagePicker from 'expo-image-picker'
 import { Image } from 'react-native'
 import { colorOptions } from '../constants/ColorOptions'
-import { backgroundStyles, BackgroundStyle } from '../constants/BackgroundStyles'
+import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../constants/BackgroundStyles'
 
 interface SettingsModalProps {
   open: boolean
@@ -82,6 +82,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 borderColor="rgba(255,255,255,0.2)"
                 borderStyle="dashed"
                 backgroundColor="#333"
+                marginLeft="$4"
                 onPress={pickImage}
               >
                 {settings.profilePicture ? (
@@ -95,7 +96,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </Circle>
 
               {/* Background Style Selection */}
-              <YStack gap="$2" flex={1} alignItems="flex-end">
+              <YStack gap="$2" flex={1} alignItems="flex-end" paddingRight="$8">
+                <Text fontSize={14} color="#fff" alignSelf="flex-end" paddingBottom="$2" paddingRight="$4.5">Background</Text>
                 {backgroundStyles.slice(0, 2).map(style => (
                   <Button
                     key={style.value}
@@ -174,49 +176,78 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               {settings.backgroundStyle.startsWith('wallpaper-') && (
                 <YStack gap="$2">
                   <Text fontSize={14} color="#fff">Wallpaper Selection</Text>
-                  <XStack flexWrap="wrap" justifyContent="flex-start" gap="$2">
-                    {backgroundStyles.slice(2).map(style => {
-                      const imageSource = 
-                        style.value === 'wallpaper-0' ? require('../assets/wallpapers/wallpapers.png') :
-                        style.value === 'wallpaper-1' ? require('../assets/wallpapers/wallpapers-1.png') :
-                        style.value === 'wallpaper-2' ? require('../assets/wallpapers/wallpapers-2.png') :
-                        style.value === 'wallpaper-3' ? require('../assets/wallpapers/wallpapers-3.png') :
-                        style.value === 'wallpaper-4' ? require('../assets/wallpapers/wallpapers-4.png') :
-                        style.value === 'wallpaper-5' ? require('../assets/wallpapers/wallpapers-5.jpg') :
-                        null;
-                      return (
-                        <Button
-                          key={style.value}
-                          size="$3"
-                          width={80}
-                          height={50}
-                          padding={0}
-                          backgroundColor={settings.backgroundStyle === style.value ? settings.primaryColor : '#333'}
-                          borderColor="rgba(255,255,255,0.1)"
-                          onPress={() => {
-                            console.log('Wallpaper button pressed:', style.value);
-                            setSettings(prev => {
-                              console.log('Previous settings:', prev);
-                              const updatedSettings = {...prev, backgroundStyle: style.value };
-                              console.log('Updated settings:', updatedSettings);
-                              return updatedSettings;
-                            });
-                          }}
-                        >
-                          {imageSource ? (
-                            <Image
-                              source={imageSource}
-                              style={{ width: '100%', height: '100%', borderRadius: 4 }}
-                              resizeMode="cover"
-                              onError={(error) => console.error('Image load error:', style.value, error)}
-                            />
-                          ) : (
-                            <YStack backgroundColor="#555" width="100%" height="100%" borderRadius={4} />
-                          )}
-                        </Button>
-                      )
-                    })}
-                  </XStack>
+                  <YStack width="100%">
+                    <XStack width="100%" justifyContent="space-between" marginBottom="$4">
+                      {backgroundStyles.slice(2, 5).map((style, index) => {
+                        const imageSource = getWallpaperPath(style.value);
+                        return (
+                          <Button
+                            key={style.value}
+                            size="$3"
+                            width={110}
+                            height={70}
+                            padding={0}
+                            backgroundColor={settings.backgroundStyle === style.value ? settings.primaryColor : '#333'}
+                            borderColor="rgba(255,255,255,0.1)"
+                            onPress={() => {
+                              setSettings(prev => ({...prev, backgroundStyle: style.value }));
+                            }}
+                          >
+                            {imageSource ? (
+                              <YStack width={110} height={70} overflow="hidden" borderRadius={4}>
+                                <Image
+                                  source={imageSource}
+                                  style={{ 
+                                    width: 110, 
+                                    height: 70,
+                                    borderRadius: 4
+                                  }}
+                                  resizeMode="cover"
+                                />
+                              </YStack>
+                            ) : (
+                              <YStack backgroundColor="#555" width="100%" height="100%" borderRadius={4} />
+                            )}
+                          </Button>
+                        )
+                      })}
+                    </XStack>
+                    <XStack width="100%" justifyContent="space-between">
+                      {backgroundStyles.slice(5, 8).map((style, index) => {
+                        const imageSource = getWallpaperPath(style.value);
+                        return (
+                          <Button
+                            key={style.value}
+                            size="$3"
+                            width={110}
+                            height={70}
+                            padding={0}
+                            backgroundColor={settings.backgroundStyle === style.value ? settings.primaryColor : '#333'}
+                            borderColor="rgba(255,255,255,0.1)"
+                            onPress={() => {
+                              setSettings(prev => ({...prev, backgroundStyle: style.value }));
+                            }}
+                          >
+                            {imageSource ? (
+                              <YStack width={110} height={70} overflow="hidden" borderRadius={4}>
+                                <Image
+                                  source={imageSource}
+                                  style={{ 
+                                    width: 110, 
+                                    height: 70,
+                                    borderRadius: 4
+                                  }}
+                                  resizeMode="cover"
+                                />
+                              </YStack>
+                            ) : (
+                              <YStack backgroundColor="#555" width="100%" height="100%" borderRadius={4} />
+                            )}
+                          </Button>
+                        )
+                      })}
+                    </XStack>
+                  </YStack>
                 </YStack>
               )}
             </YStack>

@@ -27,7 +27,7 @@ export function Header({ title }: HeaderProps) {
         zIndex={50}
       >
         <YStack
-          backgroundColor={colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.7)'}
+          backgroundColor={colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.0)'}
         >
           <XStack 
             alignItems="center" 

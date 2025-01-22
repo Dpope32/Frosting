@@ -1,3 +1,15 @@
+import { Image } from 'react-native';
+
+// Define wallpapers with static requires
+const wallpapers = {
+  'wallpaper-0': require('../assets/wallpapers-optimized/wallpapers.jpg'),
+  'wallpaper-1': require('../assets/wallpapers-optimized/wallpapers-1.jpg'),
+  'wallpaper-2': require('../assets/wallpapers-optimized/wallpapers-2.jpg'),
+  'wallpaper-3': require('../assets/wallpapers-optimized/wallpapers-3.jpg'),
+  'wallpaper-4': require('../assets/wallpapers-optimized/wallpapers-4.jpg'),
+  'wallpaper-5': require('../assets/wallpapers-optimized/wallpapers-5.jpg'),
+} as const;
+
 export const backgroundStyles = [
   { label: 'Primary-Gradient', value: 'gradient' },
   { label: 'Primary-Opaque', value: 'opaque' },
@@ -7,29 +19,20 @@ export const backgroundStyles = [
   { label: 'Arc Purple', value: 'wallpaper-3' },
   { label: 'Arc Green', value: 'wallpaper-4' },
   { label: 'Nemo Blue', value: 'wallpaper-5' },
-//  { label: 'Custom', value: 'custom' },
 ] as const;
 
 export type BackgroundStyle = typeof backgroundStyles[number]['value'];
 
+// Centralized wallpaper loading with type safety
 export const getWallpaperPath = (style: BackgroundStyle) => {
   if (style.startsWith('wallpaper-')) {
-    const number = style.split('-')[1];
-    switch (number) {
-      case '0':
-        return require('../assets/wallpapers/wallpapers.png');
-      case '1':
-        return require('../assets/wallpapers/wallpapers-1.png');
-      case '2':
-        return require('../assets/wallpapers/wallpapers-2.png');
-      case '3':
-        return require('../assets/wallpapers/wallpapers-3.png');
-      case '4':
-        return require('../assets/wallpapers/wallpapers-4.png');
-      case '5':
-        return require('../assets/wallpapers/wallpapers-5.jpg');
-      default:
-        return null;
+    try {
+      const source = wallpapers[style as keyof typeof wallpapers];
+      console.log(`Loading wallpaper for ${style}:`, source);
+      return source || null;
+    } catch (error) {
+      console.error(`Error loading wallpaper ${style}:`, error);
+      return null;
     }
   }
   return null;
