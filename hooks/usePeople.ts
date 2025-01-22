@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { StorageUtils } from '@/components/store/MMKV';
-import { usePeopleStore } from '@/components/store/People';
+import { StorageUtils } from '@/store/MMKV';
+import { usePeopleStore } from '@/store/People';
 import type { Person, Family } from '@/types/people';
 
 // Storage keys

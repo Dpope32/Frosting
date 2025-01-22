@@ -42,4 +42,17 @@ export default {
   input: '#EEE9F0',
   selected: '#F7F2F9',
   dark: '#2F2D32',
+  // Additional colors
+  error: '#FF3B30',
+  success: '#34C759',
+  warning: '#FF9500',
+  info: '#007AFF',
+  purple: '#AF52DE',
+  indigo: '#5856D6',
+  coral: '#FF7F50',
+  slate: '#708090',
+  inputBorder: '#555555',
+  inputBackground: '#333333',
+  placeholder: '#A0A0A0',
+  disabled: '#666666'
 };

@@ -1,1 +1,1 @@
-// export { default } from '@/components/ChatPage';
+export { default } from '@/components/ChatPage';
