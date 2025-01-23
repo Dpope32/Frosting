@@ -66,9 +66,23 @@ const createTaskFilter = () => {
     lastTasks = tasks;
 
     // Filter and sort tasks
-    const filtered = Object.values(tasks).filter(task => 
-      task.isOneTime || task.schedule.includes(today)
-    );
+    const filtered = Object.values(tasks).filter(task => {
+      // For recurring tasks, check if scheduled for today
+      if (!task.isOneTime) {
+        return task.schedule.includes(today);
+      }
+      
+      // For one-time tasks:
+      // 1. Check if it's completed - if so, don't show it
+      if (task.completed) {
+        return false;
+      }
+      
+      // 2. Check if it was created today
+      const taskDate = new Date(task.createdAt).toDateString();
+      const currentDate = new Date().toDateString();
+      return taskDate === currentDate;
+    });
 
     const sorted = [...filtered].sort((a, b) => {
       // Incomplete first

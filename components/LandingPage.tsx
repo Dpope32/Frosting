@@ -363,7 +363,7 @@ export function LandingPage() {
             padding="$3"
             borderWidth={2}
             borderColor="rgba(255, 255, 255, 0.1)"
-            minHeight={400} 
+            minHeight={450} 
           >
             <Text
               color="#dbd0c6"
@@ -424,7 +424,7 @@ export function LandingPage() {
             <Stack gap="$1" paddingHorizontal={10} flex={1}> 
               {todaysTasks.length === 0 ? (
                 <Stack
-                  backgroundColor="rgba(0, 0, 0, 0.3)"
+                  backgroundColor="rgba(0, 0, 0, 0.2)"
                   borderRadius={8}
                   padding="$4"
                   alignItems="center"

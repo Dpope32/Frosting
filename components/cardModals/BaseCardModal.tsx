@@ -15,20 +15,20 @@ export function BaseCardModal({ open, onOpenChange, title, children }: BaseCardM
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[70]}
+      snapPoints={[80]}
       position={0}
       dismissOnSnapToBottom
       zIndex={100000}
     >
       <Sheet.Overlay
-        animation="lazy"
+        animation="quick"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
         backgroundColor="rgba(0,0,0,0.5)"
       />
       <Sheet.Frame
-        padding="$4"
-        backgroundColor="rgba(28,28,28,0.95)"
+        padding="$5"
+        backgroundColor="rgba(17,17,17,1)"
         borderTopLeftRadius={20}
         borderTopRightRadius={20}
         borderWidth={1}
@@ -39,7 +39,7 @@ export function BaseCardModal({ open, onOpenChange, title, children }: BaseCardM
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
-          <Text fontSize={24} fontWeight="700" color="#fff" marginBottom="$4">
+          <Text fontSize={22} fontWeight="700" color="#fff" marginBottom="$4">
             {title}
           </Text>
           <Sheet.ScrollView bounces={false}>

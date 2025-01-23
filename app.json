@@ -3,6 +3,10 @@
     "name": "frosting",
     "slug": "frosting",
     "version": "1.0.0",
+    "assetBundlePatterns": [
+      "assets/wallpapers-optimized/*",
+      "assets/images/*"
+    ],
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",

@@ -28,9 +28,25 @@ export const getWallpaperPath = (style: BackgroundStyle) => {
   if (style.startsWith('wallpaper-')) {
     try {
       const source = wallpapers[style as keyof typeof wallpapers];
-      return source || null;
+      if (!source) {
+        console.error(`Wallpaper not found for style: ${style}`);
+        return null;
+      }
+      // Log successful wallpaper loading
+      console.log(`Successfully loaded wallpaper for style: ${style}`, { source });
+      return source;
     } catch (error) {
-      console.error(`Error loading wallpaper ${style}:`, error);
+      // Enhanced error logging for debugging
+      if (error instanceof Error) {
+        console.error(`Error loading wallpaper ${style}:`, {
+          error,
+          errorName: error.name,
+          errorMessage: error.message,
+          stackTrace: error.stack
+        });
+      } else {
+        console.error(`Unknown error loading wallpaper ${style}:`, error);
+      }
       return null;
     }
   }

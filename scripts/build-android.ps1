@@ -14,7 +14,7 @@
 
 # Get package name from app.json
 try {
-    $appJson = Get-Content -Raw -Path "app.json" | ConvertFrom-Json
+    $appJson = Get-Content -Raw -Path "../app.json" | ConvertFrom-Json
     $packageName = $appJson.expo.android.package
     if (-not $packageName) {
         Write-Host "Error: Could not find Android package name in app.json"
@@ -52,8 +52,8 @@ Get-Process -Name "node" -ErrorAction SilentlyContinue | Where-Object { $_.Comma
 # Kill any existing Gradle daemon processes
 Write-Host "Stopping any existing Gradle processes..."
 try {
-    if (Test-Path "./android/gradlew") {
-        Start-Process "./android/gradlew" -ArgumentList "--stop" -NoNewWindow -Wait -ErrorAction Stop
+    if (Test-Path "../android/gradlew") {
+        Start-Process "../android/gradlew" -ArgumentList "--stop" -NoNewWindow -Wait -ErrorAction Stop
         Write-Host "Successfully stopped Gradle daemon"
     } else {
         Write-Host "Gradle wrapper not found, skipping Gradle daemon stop"
@@ -64,8 +64,8 @@ try {
 
 # Clear Android build folder
 Write-Host "Clearing Android build folder..."
-if (Test-Path "android/app/build") {
-    Remove-Item -Recurse -Force "android/app/build"
+if (Test-Path "../android/app/build") {
+    Remove-Item -Recurse -Force "../android/app/build"
 }
 
 # Clear Metro bundler cache
@@ -75,12 +75,14 @@ Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:TEMP\metro-*"
 
 # Run the build
 Write-Host "Starting Android build..."
-$deviceId = (adb devices | Select-String "device$").ToString().Split()[0]
-if ($deviceId) {
+$devices = adb devices
+$deviceMatch = $devices | Select-String "(\S+)\s+device$"
+if ($deviceMatch) {
+    $deviceId = $deviceMatch.Matches[0].Groups[1].Value
     Write-Host "Building for device: $deviceId"
     Write-Host "Building with Gradle..."
-    if (Test-Path "./android/gradlew") {
-        Set-Location android
+    if (Test-Path "../android/gradlew") {
+        Set-Location ../android
         ./gradlew assembleDebug
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Installing APK..."
@@ -89,7 +91,11 @@ if ($deviceId) {
             Write-Host "Gradle build failed"
             exit 1
         }
-        Set-Location ..
+        Set-Location ..  # Move back to project root from android directory
+        
+        # Start Metro bundler after successful installation
+        Write-Host "Starting Metro bundler..."
+        Start-Process "npx" -ArgumentList "expo start --clear" -NoNewWindow
     } else {
         Write-Host "Error: Gradle wrapper not found"
         exit 1
@@ -98,3 +104,5 @@ if ($deviceId) {
     Write-Host "Error: No device found"
     exit 1
 }
+
+Write-Host "Build and installation completed successfully!"
