@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import AnimatedIntro from '@/components/AnimatedIntro';
 import { useUserStore } from '@/store/UserStore';
-import Onboarding from '@/components/Onboarding';
+import Onboarding from '../screens/onboarding';
 import { LandingPage } from '@/components/LandingPage';
 import { Colors } from '@/constants/Colors';
 

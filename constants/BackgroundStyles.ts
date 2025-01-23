@@ -11,8 +11,8 @@ const wallpapers = {
 } as const;
 
 export const backgroundStyles = [
-  { label: 'Primary-Gradient', value: 'gradient' },
-  { label: 'Primary-Opaque', value: 'opaque' },
+  { label: 'Gradient', value: 'gradient' },
+  { label: 'Opaque', value: 'opaque' },
   { label: 'Arc Sky', value: 'wallpaper-0' },
   { label: 'Arc Default', value: 'wallpaper-1' },
   { label: 'Arc Bright', value: 'wallpaper-2' },
@@ -28,7 +28,6 @@ export const getWallpaperPath = (style: BackgroundStyle) => {
   if (style.startsWith('wallpaper-')) {
     try {
       const source = wallpapers[style as keyof typeof wallpapers];
-      console.log(`Loading wallpaper for ${style}:`, source);
       return source || null;
     } catch (error) {
       console.error(`Error loading wallpaper ${style}:`, error);

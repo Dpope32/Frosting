@@ -14,7 +14,8 @@
       "tsconfigPaths": true
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.deedaw22.frosting"
     },
     "android": {
       "package": "com.deedaw22.frosting",
@@ -48,6 +49,10 @@
       "openWeatherApiKey": {
         "development": "OPENWEATHER_API_KEY",
         "production": "OPENWEATHER_API_KEY"
+      },
+      "alphaVantageApiKey": {
+        "development": "process.env.ALPHA_VANTAGE_API_KEY",
+         "production": "process.env.ALPHA_VANTAGE_API_KEY"
       },
       "eas": {
         "projectId": "22727130-682f-425f-bedd-d8fd9ab0b3e0"

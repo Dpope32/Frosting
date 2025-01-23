@@ -53,7 +53,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[85]}
+      snapPoints={[90]}
       zIndex={100000}
     >
       <Sheet.Overlay
@@ -66,12 +66,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       />
       <Sheet.Frame
         backgroundColor="rgba(28,28,28,0.95)"  // Changed from "#1e1e1e"
-        padding="$4"
-        gap="$4"
+        padding="$3"
+        gap="$3"
       >
       <Sheet.Handle backgroundColor="rgba(85,85,85,0.5)" /> 
         <ScrollView showsVerticalScrollIndicator={false}>
-          <YStack gap="$4" pb="$8">
+          <YStack gap="$2" pb="$5">
             <Text fontSize={20} fontWeight="600" color="#fff">Settings</Text>
             
             {/* Profile Section */}
@@ -83,6 +83,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 borderStyle="dashed"
                 backgroundColor="#333"
                 marginLeft="$4"
+                marginTop="$4"
                 onPress={pickImage}
               >
                 {settings.profilePicture ? (
@@ -96,8 +97,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </Circle>
 
               {/* Background Style Selection */}
-              <YStack gap="$2" flex={1} alignItems="flex-end" paddingRight="$8">
-                <Text fontSize={14} color="#fff" alignSelf="flex-end" paddingBottom="$2" paddingRight="$4.5">Background</Text>
+              <YStack gap="$2" flex={1} alignItems="flex-end" paddingRight="$8" marginTop={-30} paddingBottom="$4">
+                <Text fontSize={14} color="#fff" alignSelf="flex-end" paddingBottom="$1" paddingRight="$4.5">Background</Text>
                 {backgroundStyles.slice(0, 2).map(style => (
                   <Button
                     key={style.value}

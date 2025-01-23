@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Image, TextInput } from 'react-native';
+import { useRef, useState, useEffect } from 'react';
+import { Image, TextInput, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import { useUserStore } from '@/store/UserStore';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -15,11 +15,13 @@ import {
   Label,
 } from 'tamagui';
 
-import { colorOptions } from '../constants/ColorOptions'
-import { backgroundStyles } from '../constants/BackgroundStyles'
+import { colorOptions } from '../../constants/ColorOptions'
+import { backgroundStyles } from '../../constants/BackgroundStyles'
 
 export default function Onboarding() {
   const [step, setStep] = useState(0);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  
   type FormData = {
     username: string;
     profilePicture: string;
@@ -38,6 +40,20 @@ export default function Onboarding() {
   
   const setPreferences = useUserStore((state) => state.setPreferences);
   const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    const keyboardWillShow = Keyboard.addListener('keyboardWillShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardWillHide = Keyboard.addListener('keyboardWillHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardWillShow.remove();
+      keyboardWillHide.remove();
+    };
+  }, []);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -99,24 +115,58 @@ export default function Onboarding() {
       case 1:
         return (
           <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
+            <YStack gap="$2" alignItems="center">
+              <Label 
+                size="$8" 
+                textAlign="center" 
+                color="$gray12Dark"
+              >
+                Add a profile picture
+              </Label>
+              <Text 
+                fontSize="$4" 
+                textAlign="center" 
+                color="$gray9Dark"
+                opacity={0.8}
+                fontWeight="400"
+              >
+                Tap the circle to choose a photo
+              </Text>
+            </YStack>
+            
             <Circle 
               size={180} 
-              borderWidth={1}
+              borderWidth={2}
               borderColor="$gray8Dark"
               borderStyle="dashed"
               backgroundColor="$gray4Dark"
               onPress={pickImage}
+              pressStyle={{
+                scale: 0.98,
+                backgroundColor: '$gray5Dark'
+              }}
             >
               {formData.profilePicture ? (
                 <Image source={{ uri: formData.profilePicture }} style={{ width: 180, height: 180, borderRadius: 90 }} />
               ) : (
-                <Text color="$gray12Dark">Add a PFP</Text>
+                <YStack alignItems="center" gap="$2">
+                  <Circle
+                    size={60}
+                    backgroundColor="$gray6Dark"
+                  >
+                    <Text fontSize={24}>👤</Text>
+                  </Circle>
+                  <Text color="$gray11Dark" fontSize="$4">
+                    Upload Photo
+                  </Text>
+                </YStack>
               )}
             </Circle>
             <Button 
               chromeless 
               onPress={() => setStep(prev => prev + 1)}
               color="$blue10Dark"
+              marginTop="$4"
             >
               Skip for now
             </Button>
@@ -158,7 +208,7 @@ export default function Onboarding() {
               {backgroundStyles.map((style) => (
                 <Button
                   key={style.value}
-                  backgroundColor={formData.backgroundStyle === style.value ? "$blue9Dark" : "$gray4Dark"}
+                  backgroundColor={formData.backgroundStyle === style.value ? formData.primaryColor : "$gray4Dark"}
                   borderColor="$gray8Dark"
                   onPress={() => setFormData(prev => ({ ...prev, backgroundStyle: style.value }))}
                 >
@@ -226,38 +276,52 @@ export default function Onboarding() {
 
   return (
     <View flex={1} backgroundColor="$gray1Dark">
-      <AnimatePresence>
-        {renderStep()}
-      </AnimatePresence>
-      <XStack gap="$3" padding="$4">
-        {step > 0 && (
-          <Button 
-            flex={1} 
-            variant="outlined"
-            onPress={() => setStep(prev => prev - 1)}
-            backgroundColor="$gray4Dark"
-            borderColor="$gray8Dark"
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View flex={1}>
+          <AnimatePresence>
+            {renderStep()}
+          </AnimatePresence>
+          <View 
+            position="absolute" 
+            bottom={0} 
+            left={0} 
+            right={0} 
+            padding="$4"
+            paddingBottom={keyboardVisible ? "$4" : "$6"}
+            backgroundColor="$gray1Dark"
           >
-            <Text color="$gray12Dark">Back</Text>
-          </Button>
-        )}
-        <Button
-          flex={2}
-          backgroundColor={formData.primaryColor} // Remove opacity from background
-          borderColor={formData.primaryColor}
-          borderWidth={1}
-          opacity={!canProceed() ? 0.5 : 1}
-          disabled={!canProceed()}
-          onPress={() => {
-            if (step === 4) handleComplete();
-            else setStep(prev => prev + 1);
-          }}
-        >
-          <Text color="white" fontWeight="bold"> {/* Fixed text color to white for better contrast */}
-            {step === 4 ? 'Complete' : 'Continue'}
-          </Text>
-        </Button>
-      </XStack>
+            <XStack gap="$3">
+              {step > 0 && (
+                <Button 
+                  flex={1} 
+                  variant="outlined"
+                  onPress={() => setStep(prev => prev - 1)}
+                  backgroundColor="$gray4Dark"
+                  borderColor="$gray8Dark"
+                >
+                  <Text color="$gray12Dark">Back</Text>
+                </Button>
+              )}
+              <Button
+                flex={2}
+                backgroundColor={formData.primaryColor}
+                borderColor={formData.primaryColor}
+                borderWidth={1}
+                opacity={!canProceed() ? 0.5 : 1}
+                disabled={!canProceed()}
+                onPress={() => {
+                  if (step === 4) handleComplete();
+                  else setStep(prev => prev + 1);
+                }}
+              >
+                <Text color="white" fontWeight="bold">
+                  {step === 4 ? 'Complete' : 'Continue'}
+                </Text>
+              </Button>
+            </XStack>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
     </View>
   );
 }

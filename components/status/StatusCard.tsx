@@ -1,12 +1,13 @@
-import { Stack, Text, XStack } from 'tamagui';
+import { Stack, Text } from 'tamagui';
 
 interface StatusCardProps {
   label: string;
-  value: string;
+  value: string | number;
   color?: string;
+  valueColor?: string;
 }
 
-export function StatusCard({ label, value, color = '#4CAF50' }: StatusCardProps) {
+export function StatusCard({ label, value, color = '#4CAF50', valueColor }: StatusCardProps) {
   return (
     <Stack
       backgroundColor="rgba(0, 0, 0, 0.3)"
@@ -19,7 +20,7 @@ export function StatusCard({ label, value, color = '#4CAF50' }: StatusCardProps)
       justifyContent="center"
     >
       <Text
-        color={color}
+        color="white"
         fontSize={11}
         opacity={0.9}
         marginBottom="$0.5"
@@ -27,7 +28,7 @@ export function StatusCard({ label, value, color = '#4CAF50' }: StatusCardProps)
         {label}
       </Text>
       <Text
-        color="white"
+        color={valueColor || 'white'}
         fontSize={14}
         fontWeight="bold"
       >

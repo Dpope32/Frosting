@@ -1,7 +1,7 @@
 import { Message, Role } from '@/utils/Interfaces';
 import * as SQLite from 'expo-sqlite';
 
-interface SQLResultSet {
+export interface SQLResultSet {
   insertId?: number;
   rowsAffected: number;
   rows: {
@@ -11,12 +11,12 @@ interface SQLResultSet {
   };
 }
 
-interface SQLError {
+export interface SQLError {
   code: number;
   message: string;
 }
 
-interface SQLTransaction {
+export interface SQLTransaction {
   executeSql: (
     sqlStatement: string,
     args?: any[],
@@ -25,7 +25,7 @@ interface SQLTransaction {
   ) => void;
 }
 
-type Database = {
+export type Database = {
   transaction: (
     callback: (transaction: SQLTransaction) => void,
     errorCallback?: (error: SQLError) => void,

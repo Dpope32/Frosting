@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import * as SQLite from 'expo-sqlite';
+import { SQLiteProvider, SQLiteDatabase } from 'expo-sqlite';
 import 'react-native-reanimated';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
@@ -16,8 +16,6 @@ import { useUserStore } from '@/store/UserStore';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-const database = SQLite.openDatabaseSync('app.db');
 
 export default function RootLayout() {
   console.log('[RootLayout] Rendering');
@@ -33,7 +31,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
-  console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
+  //console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
 
   if (!loaded) {
     return null;

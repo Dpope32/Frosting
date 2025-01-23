@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { View, useWindowDimensions, Image, Alert } from 'react-native'
+import { View, useWindowDimensions, Image, Alert, Pressable } from 'react-native'
 import { BlurView } from 'expo-blur'
 import MyTracker from '@splicer97/react-native-mytracker'
 import { useUserStore } from '@/store/UserStore'
@@ -16,7 +16,7 @@ import Animated, {
   withTiming,
   useSharedValue,
 } from 'react-native-reanimated'
-import { StatusCard } from './StatusCard'
+import { StatusCard } from './status/StatusCard'
 import { TaskCard } from './TaskCard'
 import { NewTaskModal } from './NewTaskModal'
 import { getCategoryColor } from './utils'
@@ -24,30 +24,79 @@ import { getWallpaperPath } from '../constants/BackgroundStyles'
 import { TemperatureCard } from '../utils/TemperatureCard'
 import { WifiCard } from '../utils/WifiCard'
 import { PortfolioCard } from '../utils/PortfolioCard'
+import { TemperatureModal } from './cardModals/TemperatureModal'
+import { WifiModal } from './cardModals/WifiModal'
+import { PortfolioModal } from './cardModals/PortfolioModal'
 import { ClockCard } from '../utils/ClockCard'
+import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
+import { Ionicons } from '@expo/vector-icons'
 
 type ProjectState = {
   toggleTaskCompletion: (id: string) => void
   todaysTasks: Task[]
 }
 
-export function LandingPage() {
+export const QuoteSection = () => {
+  const { data, isLoading } = useStoicQuote();
+  const refreshQuote = useRefreshStoicQuote();
 
+  if (isLoading || !data) return null;
+
+  return (
+    <Stack marginTop="$4">
+      <XStack alignItems="center" gap="$2">
+        <YStack flex={1}>
+          <Text
+            fontFamily="$SpaceMono"
+            fontSize={14}
+            color="#dbd0c6"
+            fontWeight="600"
+            style={{
+              textShadowColor: 'rgba(0, 0, 0, 0.5)',
+              textShadowOffset: { width: 1, height: 1 },
+              textShadowRadius: 3,
+            }}
+          >
+            {data.data.quote}
+          </Text>
+          <Text
+            fontFamily="$SpaceMono"
+            fontSize={12}
+            color="#dbd0c6"
+            opacity={0.9}
+            marginTop="$1"
+            style={{
+              textShadowColor: 'rgba(0, 0, 0, 0.5)',
+              textShadowOffset: { width: 1, height: 1 },
+              textShadowRadius: 3,
+            }}
+          >
+            - {data.data.author}
+          </Text>
+        </YStack>
+        <Pressable onPress={refreshQuote} style={{ marginTop: -38 }}>
+          <Ionicons name="refresh" size={14} color="#dbd0c6" />
+        </Pressable>
+      </XStack>
+    </Stack>
+  );
+};
+
+export function LandingPage() {
   // Initialize once
   useEffect(() => {
     MyTracker.initTracker('initTracker')
   }, [])
 
-const username = useUserStore(s => s.preferences.username)
-const primaryColor = useUserStore(s => s.preferences.primaryColor)
-const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
-const userHydrated = useUserStore(s => s.hydrated)
+  const username = useUserStore(s => s.preferences.username)
+  const primaryColor = useUserStore(s => s.preferences.primaryColor)
+  const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
+  const userHydrated = useUserStore(s => s.hydrated)
 
-  const toggleTaskCompletion = useProjectStore( React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
+  const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
   const projectHydrated = useStoreHydrated()
-  const todaysTasks = useProjectStore( React.useCallback((s: ProjectState) => s.todaysTasks, []))
+  const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.todaysTasks, []))
 
-  
   // If either store hasn't hydrated, show "Loading..."
   if (!userHydrated || !projectHydrated) {
     return (
@@ -57,8 +106,11 @@ const userHydrated = useUserStore(s => s.hydrated)
     )
   }
 
-  // State for the NewTaskModal
+  // Modal states
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [tempModalOpen, setTempModalOpen] = useState(false);
+  const [wifiModalOpen, setWifiModalOpen] = useState(false);
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
 
   const getGreeting = useCallback(() => {
     const hour = new Date().getHours()
@@ -94,15 +146,24 @@ const userHydrated = useUserStore(s => s.hydrated)
     const startTime = Date.now()
     setSheetOpen(true)
     
-    // Use setTimeout to measure after the state update and render
     setTimeout(() => {
       const endTime = Date.now()
       const duration = endTime - startTime
       console.log('Modal Open Time', `Time taken: ${duration}ms`)
-     // Alert.alert('Modal Open Time', `Time taken: ${duration}ms`)
     }, 0)
   }
 
+  const handleTemperaturePress = () => {
+    setTempModalOpen(true);
+  };
+  
+  const handleWifiPress = () => {
+    setWifiModalOpen(true);
+  };
+  
+  const handlePortfolioPress = () => {
+    setPortfolioModalOpen(true);
+  };
 
   const adjustColor = useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
@@ -161,18 +222,16 @@ const userHydrated = useUserStore(s => s.hydrated)
                 }}
                 onError={(error) => {
                   console.warn('Wallpaper load error:', error.nativeEvent);
-                  // Fallback to gradient if wallpaper fails to load
                   if (backgroundStyle === 'wallpaper-1') {
                     useUserStore.getState().setPreferences({
                       backgroundStyle: 'gradient'
                     });
                   }
                 }}
-                // Enable caching
                 loadingIndicatorSource={wallpaper}
               />
               <BlurView
-                intensity={20}
+                intensity={10}
                 tint="dark"
                 style={{
                   position: 'absolute',
@@ -198,12 +257,11 @@ const userHydrated = useUserStore(s => s.hydrated)
     translateX.value = withRepeat(withTiming(-screenWidth, animationConfig), -1, false)
     translateY.value = withRepeat(withTiming(-screenHeight / 2, animationConfig), -1, false)
     
-    // Cleanup animations on unmount
     return () => {
       translateX.value = 0
       translateY.value = 0
     }
-  }, []) // Remove dependencies to prevent re-running
+  }, [])
 
   const starsAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
@@ -246,7 +304,6 @@ const userHydrated = useUserStore(s => s.hydrated)
 
       <ScrollView flex={1} paddingHorizontal="$4">
         <YStack paddingTop={100} gap="$4">
-          {/* Header Section */}
           <Stack backgroundColor="rgba(0, 0, 0, 0.7)" borderRadius={12} padding="$4">
             <XStack alignItems="center" justifyContent="space-between">
               <XStack alignItems="center" gap="$1">
@@ -282,27 +339,35 @@ const userHydrated = useUserStore(s => s.hydrated)
               </XStack>
             </XStack>
 
-            <XStack marginTop="$2" gap="$2" flexWrap="nowrap">
-            <TemperatureCard />
-            <WifiCard />
-            <PortfolioCard />
-            <ClockCard />
-          </XStack>
+            <XStack marginTop="$2" gap="$2.5" flexWrap="nowrap">
+              <Pressable onPress={handleTemperaturePress}>
+                <TemperatureCard />
+              </Pressable>
+              <Pressable onPress={handleWifiPress}>
+                <WifiCard />
+              </Pressable>
+              <Pressable onPress={handlePortfolioPress}>
+                <PortfolioCard />
+              </Pressable>
+              <ClockCard />
+            </XStack>
+
+            <QuoteSection />
           </Stack>
 
-          {/* Tasks Section */}
           <Stack
             backgroundColor="rgba(0, 0, 0, 0.7)"
             borderRadius={12}
             padding="$3"
             borderWidth={2}
             borderColor="rgba(255, 255, 255, 0.1)"
+            minHeight={400} 
           >
             <Text
               color="#dbd0c6"
-              fontSize={16}
+              fontSize={17}
               fontWeight="bold"
-              marginBottom="$4"
+              marginBottom="$2"
               paddingLeft={4}
             >
               {new Date().toLocaleDateString('en-US', {
@@ -313,7 +378,6 @@ const userHydrated = useUserStore(s => s.hydrated)
               })}
             </Text>
 
-            {/* Tasks Header with New Task Button */}
             <XStack
               justifyContent="space-between"
               alignItems="center"
@@ -326,10 +390,10 @@ const userHydrated = useUserStore(s => s.hydrated)
                 Todays Tasks ({completedTasksCount}/{todaysTasks.length})
               </Text>
               <Button
-                backgroundColor="rgba(255, 255, 255, 0.00)"
+                backgroundColor="rgba(255, 255, 255, 0.05)"
                 borderRadius={8}
                 paddingHorizontal="$2"
-                paddingVertical="$1"
+                paddingVertical="$0.5"
                 onPress={handleNewTaskPress}
               >
                 <Text color="#fff" fontSize={14} fontWeight="400" backgroundColor="#transparent">
@@ -338,17 +402,15 @@ const userHydrated = useUserStore(s => s.hydrated)
               </Button>
             </XStack>
 
-            {/* New Task Modal */}
-            {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
-
-            {/* Tasks List */}
-            <Stack gap="$2">
+            <Stack gap="$1" paddingHorizontal={10} flex={1}> 
               {todaysTasks.length === 0 ? (
                 <Stack
                   backgroundColor="rgba(0, 0, 0, 0.3)"
                   borderRadius={8}
                   padding="$4"
                   alignItems="center"
+                  flex={1} 
+                  justifyContent="center"  
                 >
                   <Text color="white" opacity={0.7}>
                     No tasks for today
@@ -372,6 +434,29 @@ const userHydrated = useUserStore(s => s.hydrated)
           </Stack>
         </YStack>
       </ScrollView>
+
+      {/* Modals */}
+      <TemperatureModal 
+        open={tempModalOpen}
+        onOpenChange={setTempModalOpen}
+        temperature="21°F"
+      />
+      
+      <WifiModal 
+        open={wifiModalOpen}
+        onOpenChange={setWifiModalOpen}
+        speed="169ms"
+      />
+      
+      <PortfolioModal 
+        open={portfolioModalOpen}
+        onOpenChange={setPortfolioModalOpen}
+        value="$1,234.56"
+        change="+$123.45"
+        changePercentage="10.0%"
+      />
+
+      {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
     </Stack>
   )
 }

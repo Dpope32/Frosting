@@ -8,12 +8,23 @@
       "distribution": "internal",
       "android": {
         "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "simulator": false
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      }
     },
-    "production": {}
+    "production": {
+      "ios": {
+        "distribution": "internal",
+        "simulator": false
+      }
+    }
   },
   "submit": {
     "production": {}

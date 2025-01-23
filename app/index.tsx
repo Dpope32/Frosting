@@ -1,7 +1,5 @@
-import { View } from 'react-native';
+
 import { useUserStore } from '@/store/UserStore';
-import AnimatedIntro from '@/components/AnimatedIntro';
-import { LandingPage } from '@/components/LandingPage';
 import { useState, useEffect } from 'react';
 import { Redirect } from 'expo-router';
 
