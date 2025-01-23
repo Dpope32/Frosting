@@ -18,9 +18,9 @@ export default function Index() {
 
   // If onboarding is not completed, go to onboarding
   if (!hasCompletedOnboarding) {
-    return <Redirect href="/onboarding" />;
+    return <Redirect href="/screens/onboarding" />;
   }
   
-  // If onboarding is completed, go to drawer layout
-  return <Redirect href="/(drawer)" />;
+  // If onboarding is completed, go to drawer tabs layout
+  return <Redirect href="/(drawer)/(tabs)" />;
 }

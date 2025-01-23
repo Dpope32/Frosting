@@ -304,7 +304,7 @@ export function LandingPage() {
       {background}
       {stars}
 
-      <ScrollView flex={1} paddingHorizontal="$4">
+      <ScrollView flex={1} paddingHorizontal="$4" contentContainerStyle={{ paddingBottom: 80 }}>
         <YStack paddingTop={100} gap="$4">
           <Stack backgroundColor="rgba(0, 0, 0, 0.7)" borderRadius={12} padding="$4">
             <XStack alignItems="center" justifyContent="space-between">

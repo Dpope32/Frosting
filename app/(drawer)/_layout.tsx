@@ -4,7 +4,6 @@ import { Header } from '@/components/Header';
 import { View } from 'react-native';
 
 export default function DrawerLayout() {
-  console.log('[DrawerLayout] Rendering drawer layout');
   const colorScheme = useColorScheme();
 
   return (
@@ -21,13 +20,28 @@ export default function DrawerLayout() {
           },
           drawerActiveTintColor: '#2196F3',
           drawerInactiveTintColor: colorScheme === 'dark' ? '#fff' : '#fff',
-
-        }}>
+        }}
+      >
         <Drawer.Screen
           name="index"
           options={{
-            title: ' ',
+            title: 'Home',
             drawerLabel: 'Home',
+          }}
+        />
+        <Drawer.Screen
+          name="calendar"
+          options={{
+            title: 'Calendar',
+            drawerLabel: 'Calendar',
+          }}
+        />
+        <Drawer.Screen
+          name="(tabs)"
+          options={{
+            title: 'Home',
+            drawerLabel: 'Home',
+            drawerItemStyle: { display: 'none' }
           }}
         />
       </Drawer>

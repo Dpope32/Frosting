@@ -13,6 +13,7 @@ import config from '../tamagui.config';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { queryClient } from '@/lib/query';
 import { useUserStore } from '@/store/UserStore';
+import { Toast } from '@/components/Toast';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -41,21 +42,19 @@ export default function RootLayout() {
       <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
       <QueryClientProvider client={queryClient}>
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-          <Stack.Screen 
-            name="index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="screens/onboarding"
-            options={{ headerShown: false, gestureEnabled: false }}
-          />
-          <Stack.Screen 
-            name="(drawer)"
-            options={{ headerShown: false }}
-          />
-        </Stack>
-          <StatusBar style="auto" />
+          <>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen 
+                name="screens/onboarding"
+                options={{ gestureEnabled: false }}
+              />
+              <Stack.Screen 
+                name="(drawer)"
+              />
+            </Stack>
+            <Toast />
+            <StatusBar style="auto" />
+          </>
         </NavigationThemeProvider>
       </QueryClientProvider>
     </TamaguiProvider>

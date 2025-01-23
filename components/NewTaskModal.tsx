@@ -4,6 +4,7 @@ import InputField from '@/components/shared/InputField'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay } from '@/store/ToDo'
 import { KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
+import { useToastStore } from '@/store/ToastStore'
 
 const WEEKDAYS: Record<string, WeekDay> = {
   'sun': 'sunday',
@@ -46,6 +47,7 @@ const TIME_OPTIONS = generateTimeOptions()
 export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
+  const { showToast } = useToastStore()
   const [showPrioritySelect, setShowPrioritySelect] = useState(false)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(defaultTask)
@@ -108,10 +110,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const handleAddTask = useCallback(() => {
     if (newTask.name.trim() && (newTask.isOneTime || newTask.schedule.length > 0)) {
       addTask(newTask)
+      showToast('Task added successfully')
       setNewTask(defaultTask)
       onOpenChange(false)
     }
-  }, [newTask, addTask, onOpenChange])
+  }, [newTask, addTask, onOpenChange, showToast])
 
   return (
     <Sheet
