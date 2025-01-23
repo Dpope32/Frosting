@@ -1,6 +1,8 @@
 import React from 'react'
-import { YStack, Text, XStack } from 'tamagui'
+import { YStack, Text, XStack, ScrollView } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
+import { usePortfolioStore } from '../../store/PortfolioStore'
+import { portfolioData } from '../../utils/Portfolio'
 
 interface PortfolioModalProps {
   open: boolean
@@ -29,7 +31,7 @@ export function PortfolioModal({ open, onOpenChange, value, change, changePercen
         >
           <Text color="#fff" fontSize={16} fontWeight="500">Current Value</Text>
           <Text color="#a0a0a0" fontSize={32} marginTop="$2">
-            {value || '$0.00'}
+            ${(usePortfolioStore.getState().totalValue || 0).toFixed(2)}
           </Text>
         </YStack>
         <YStack
@@ -65,9 +67,34 @@ export function PortfolioModal({ open, onOpenChange, value, change, changePercen
           borderWidth={1}
         >
           <Text color="#fff" fontSize={16} fontWeight="500">Holdings</Text>
-          <Text color="#a0a0a0" fontSize={14} marginTop="$2">
-            Coming soon...
-          </Text>
+          <ScrollView maxHeight={200} marginTop="$2">
+            <YStack gap="$2">
+              {portfolioData.map((stock) => {
+                const currentPrice = usePortfolioStore.getState().prices[stock.symbol] || 0
+                const totalValue = currentPrice * stock.quantity
+                
+                return (
+                  <YStack 
+                    key={stock.symbol}
+                    backgroundColor="rgba(35,35,35,0.8)"
+                    borderRadius={8}
+                    padding="$3"
+                  >
+                    <XStack justifyContent="space-between">
+                      <YStack>
+                        <Text color="#fff" fontSize={16} fontWeight="500">{stock.symbol}</Text>
+                        <Text color="#a0a0a0" fontSize={12}>{stock.name}</Text>
+                      </YStack>
+                      <YStack alignItems="flex-end">
+                        <Text color="#fff" fontSize={16}>${totalValue.toFixed(2)}</Text>
+                        <Text color="#a0a0a0" fontSize={12}>{stock.quantity} shares @ ${currentPrice.toFixed(2)}</Text>
+                      </YStack>
+                    </XStack>
+                  </YStack>
+                )
+              })}
+            </YStack>
+          </ScrollView>
         </YStack>
       </YStack>
     </BaseCardModal>

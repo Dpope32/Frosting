@@ -1,0 +1,32 @@
+# Exclude common development files and directories
+node_modules/
+.git/
+.github/
+__tests__/
+*.test.js
+*.spec.js
+
+# Exclude development configurations
+.vscode/
+.idea/
+*.log
+
+# Exclude documentation
+docs/
+*.md
+
+# Exclude source maps
+*.map
+
+# Exclude build artifacts
+android/app/build/
+ios/build/
+
+# Exclude large assets not needed for build
+assets/wallpapers/
+!assets/wallpapers-optimized/
+
+# Exclude backup files
+*.bak
+*.backup
+*~

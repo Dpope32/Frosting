@@ -15,6 +15,10 @@ interface WeatherPeriod {
   icon: string;
   windSpeed: string;
   windDirection: string;
+  probabilityOfPrecipitation: {
+    value: number | null;
+    unitCode: string;
+  };
 }
 
 interface WeatherState {

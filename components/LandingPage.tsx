@@ -27,6 +27,7 @@ import { PortfolioCard } from '../utils/PortfolioCard'
 import { TemperatureModal } from './cardModals/TemperatureModal'
 import { WifiModal } from './cardModals/WifiModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
+import { TaskListModal } from './cardModals/TaskListModal'
 import { ClockCard } from '../utils/ClockCard'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
@@ -111,6 +112,7 @@ export function LandingPage() {
   const [tempModalOpen, setTempModalOpen] = useState(false);
   const [wifiModalOpen, setWifiModalOpen] = useState(false);
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+  const [taskListModalOpen, setTaskListModalOpen] = useState(false);
 
   const getGreeting = useCallback(() => {
     const hour = new Date().getHours()
@@ -370,12 +372,29 @@ export function LandingPage() {
               marginBottom="$2"
               paddingLeft={4}
             >
-              {new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              <XStack alignItems="center" justifyContent="space-between" width="100%">
+                <Text
+                  color="#dbd0c6"
+                  fontSize={17}
+                  fontWeight="bold"
+                >
+                  {new Date().toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </Text>
+                <Pressable
+                  onPress={() => setTaskListModalOpen(true)}
+                  style={({ pressed }) => ({
+                    opacity: pressed ? 0.7 : 1,
+                    padding: 4,
+                  })}
+                >
+                  <Ionicons name="list-circle-outline" size={24} color="#dbd0c6" />
+                </Pressable>
+              </XStack>
             </Text>
 
             <XStack
@@ -457,6 +476,7 @@ export function LandingPage() {
       />
 
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
+      <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />
     </Stack>
   )
 }
