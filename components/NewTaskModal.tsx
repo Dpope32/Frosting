@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Sheet, Button, Switch, Form, YStack, XStack, Text, ScrollView } from 'tamagui'
-import InputField from '@/components/shared/InputField'
+import InputField, { InputFieldRef } from '@/components/shared/InputField'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay } from '@/store/ToDo'
 import { KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
@@ -21,13 +21,20 @@ interface NewTaskModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-const defaultTask: Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'> = {
-  name: '',
-  schedule: [],
-  time: undefined,
-  priority: 'medium' as TaskPriority,
-  category: 'personal' as TaskCategory,
-  isOneTime: false
+const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'> => {
+  // Get current day of week in lowercase (e.g., 'sun', 'mon', etc.)
+  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
+  // Get the full day name from our WEEKDAYS mapping
+  const fullDay = WEEKDAYS[currentDay as keyof typeof WEEKDAYS]
+  
+  return {
+    name: '',
+    schedule: fullDay ? [fullDay] : [],
+    time: undefined,
+    priority: 'medium' as TaskPriority,
+    category: 'personal' as TaskCategory,
+    isOneTime: false
+  }
 }
 
 // Generate time options for the select
@@ -48,17 +55,37 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
+  const inputRef = useRef<InputFieldRef>(null)
   const [showPrioritySelect, setShowPrioritySelect] = useState(false)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
-  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(defaultTask)
+  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [showTimeSelect, setShowTimeSelect] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
+    let focusTimeout: NodeJS.Timeout
+    let resetTimeout: NodeJS.Timeout
+
     if (!open) {
-      setShowPrioritySelect(false)
-      setShowCategorySelect(false)
-      setNewTask(defaultTask)
-      setShowTimeSelect(false)
+      // Use timeout to ensure state updates happen after modal animation
+      resetTimeout = setTimeout(() => {
+        setShowPrioritySelect(false)
+        setShowCategorySelect(false)
+        setNewTask(getDefaultTask())
+        setShowTimeSelect(false)
+        setIsSubmitting(false)
+      }, 300) // Delay reset until after modal close animation
+    } else {
+      // Focus input when modal opens
+      focusTimeout = setTimeout(() => {
+        inputRef.current?.focus()
+      }, 100)
+    }
+
+    // Cleanup timeouts to prevent memory leaks
+    return () => {
+      if (focusTimeout) clearTimeout(focusTimeout)
+      if (resetTimeout) clearTimeout(resetTimeout)
     }
   }, [open])
 
@@ -107,21 +134,60 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
     setNewTask(prev => ({ ...prev, isOneTime: checked }))
   }, [])
 
-  const handleAddTask = useCallback(() => {
-    if (newTask.name.trim() && (newTask.isOneTime || newTask.schedule.length > 0)) {
-      addTask(newTask)
-      showToast('Task added successfully')
-      setNewTask(defaultTask)
+  const handleAddTask = useCallback(async () => {
+    // Prevent double submission
+    if (isSubmitting) return
+    
+    try {
+      // Basic validation
+      if (!newTask.name.trim()) {
+        showToast('Please enter a task name')
+        return
+      }
+      
+      if (!newTask.isOneTime && newTask.schedule.length === 0) {
+        showToast('Please select at least one day or mark as one-time task')
+        return
+      }
+
+      setIsSubmitting(true)
+
+      // Create a clean copy of the task data
+      const taskToAdd = {
+        ...newTask,
+        name: newTask.name.trim()
+      }
+
+      // Close modal first to prevent UI glitches
       onOpenChange(false)
+
+      // Small delay to ensure modal is closed before state updates
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Add task
+      try {
+        await Promise.resolve(addTask(taskToAdd)) // Ensure addTask is treated as async
+        showToast('Task added successfully')
+      } catch (error) {
+        console.error('Failed to add task:', error)
+        showToast('Failed to add task. Please try again.')
+        return
+      }
+
+    } catch (error) {
+      console.error('Error in handleAddTask:', error)
+      showToast('An error occurred. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
-  }, [newTask, addTask, onOpenChange, showToast])
+  }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
 
   return (
     <Sheet
       modal={true}
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[80]}
+      snapPoints={[70]}
       zIndex={100000}
       unmountChildrenWhenHidden={false}
     >
@@ -160,7 +226,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
             </Text>
             <Form gap="$5" onSubmit={handleAddTask}>
               <InputField
-                label="Task Name"
+                ref={inputRef}
                 placeholder="Enter task name"
                 value={newTask.name}
                 onChangeText={handleTextChange}
@@ -445,9 +511,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   shadowOpacity={0.1}
                   shadowRadius={4}
                   elevation={3}
+                  disabled={isSubmitting}
+                  opacity={isSubmitting ? 0.7 : 1}
                 >
                   <Text color="white" fontWeight="600" fontSize={18}>
-                    Add Task
+                    {isSubmitting ? 'Adding...' : 'Add Task'}
                   </Text>
                 </Button>
               </Form.Trigger>
