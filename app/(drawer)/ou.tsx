@@ -32,22 +32,6 @@ export default function OUPage() {
     const gameTime = game.status?.type?.shortDetail || 'TBD';
     const formattedTime = gameTime === 'TBD' ? 'TBD' : format(gameDate, 'h:mm a');
 
-    const renderTeam = (teamName: string, isOU: boolean) => (
-      <View style={styles.teamContainer}>
-        {isOU && (
-          <Image 
-            source={require('../../assets/images/ou.png')}
-            style={styles.teamLogo}
-            resizeMode="contain"
-          />
-        )}
-        <Text style={[
-          styles.team, 
-          isOU && styles.highlight
-        ]}>{teamName}</Text>
-      </View>
-    );
-
     return (
       <View style={styles.gameCard}>
         <View style={styles.dateContainer}>
@@ -56,9 +40,45 @@ export default function OUPage() {
         </View>
         
         <View style={styles.teamsContainer}>
-          {renderTeam(awayTeam, !isHome)}
+          <View style={styles.teamWrapper}>
+            {homeTeam.includes('Oklahoma') && (
+              <Image 
+                source={require('../../assets/images/ou.png')}
+                style={styles.teamLogo}
+                resizeMode="contain"
+              />
+            )}
+            <Text 
+              style={[
+                styles.team,
+                styles.homeTeam,
+                homeTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam
+              ]} 
+              numberOfLines={1}
+            >
+              {homeTeam}
+            </Text>
+          </View>
           <Text style={styles.at}>@</Text>
-          {renderTeam(homeTeam, isHome)}
+          <View style={[styles.teamWrapper, styles.awayWrapper]}>
+            {awayTeam.includes('Oklahoma') && (
+              <Image 
+                source={require('../../assets/images/ou.png')}
+                style={styles.teamLogo}
+                resizeMode="contain"
+              />
+            )}
+            <Text 
+              style={[
+                styles.team,
+                styles.awayTeam,
+                awayTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam
+              ]} 
+              numberOfLines={1}
+            >
+              {awayTeam}
+            </Text>
+          </View>
         </View>
         
         <Text style={styles.venue}>{venue}</Text>
@@ -149,31 +169,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 4,
     marginBottom: 4,
   },
-  teamContainer: {
+  teamWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  team: {
-    fontSize: 16,
-    color: '#fff',
-    flex: 1,
+  awayWrapper: {
+    justifyContent: 'flex-end',
   },
   teamLogo: {
     width: 20,
     height: 20,
-    marginRight: 8,
+    marginHorizontal: 4,
+  },
+  team: {
+    fontSize: 15,
+  },
+  homeTeam: {
+    textAlign: 'left',
+  },
+  awayTeam: {
+    textAlign: 'right',
   },
   highlight: {
     color: OU_CRIMSON,
     fontWeight: '600',
   },
+  opposingTeam: {
+    color: '#fff',
+  },
   at: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
     marginHorizontal: 12,
+    width: 20,
+    textAlign: 'center',
   },
   venue: {
     fontSize: 12,

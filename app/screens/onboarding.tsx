@@ -230,7 +230,7 @@ export default function Onboarding() {
                   letterSpacing={-1}
                   fontWeight="700"
                 >
-                  What's your zip code?
+                  What's your zip?
                 </Label>
                 <Text 
                   fontSize="$4" 
@@ -275,9 +275,13 @@ export default function Onboarding() {
   };
 
   return (
-    <View flex={1} backgroundColor="$gray1Dark">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View flex={1}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
+      <View flex={1} backgroundColor="$gray1Dark">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View flex={1}>
           <AnimatePresence>
             {renderStep()}
           </AnimatePresence>
@@ -287,8 +291,12 @@ export default function Onboarding() {
             left={0} 
             right={0} 
             padding="$4"
-            paddingBottom={keyboardVisible ? "$4" : "$6"}
+            paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 0 : 24) : 24}
             backgroundColor="$gray1Dark"
+            style={{
+              borderTopWidth: keyboardVisible ? 0 : 1,
+              borderTopColor: 'rgba(255,255,255,0.1)',
+            }}
           >
             <XStack gap="$3">
               {step > 0 && (
@@ -320,8 +328,9 @@ export default function Onboarding() {
               </Button>
             </XStack>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+    </KeyboardAvoidingView>
   );
 }

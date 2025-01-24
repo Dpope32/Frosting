@@ -32,25 +32,28 @@ export default function RootLayout() {
   }, [loaded]);
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
-  //console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
+  console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
 
   if (!loaded) {
     return null;
   }
 
   return (
-      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'light'}>
+      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
       <QueryClientProvider client={queryClient}>
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <>
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen 
-                name="screens/onboarding"
-                options={{ gestureEnabled: false }}
-              />
-              <Stack.Screen 
-                name="(drawer)"
-              />
+              {!hasCompletedOnboarding ? (
+                <Stack.Screen 
+                  name="screens/onboarding"
+                  options={{ gestureEnabled: false }}
+                />
+              ) : (
+                <Stack.Screen 
+                  name="(drawer)"
+                />
+              )}
             </Stack>
             <Toast />
             <StatusBar style="auto" />

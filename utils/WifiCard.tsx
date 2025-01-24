@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as Network from 'expo-network';
-import { StatusCard } from '@/components/status/StatusCard';
+import { Stack, Text } from 'tamagui';
 import { getValueColor } from '@/constants/valueHelper';
 
 export function WifiCard() {
@@ -45,11 +45,33 @@ export function WifiCard() {
   const valueColor = ping !== null ? getValueColor('wifi', ping, '') : 'white';
 
   return (
-    <StatusCard
-      label={connectionType === Network.NetworkStateType.CELLULAR ? 'Cell' : 'WiFi'}
-      value={getConnectionDisplay()}
-      color="#2196F3"
-      valueColor={valueColor}
-    />
+    <Stack
+      backgroundColor="rgba(0, 0, 0, 0.3)"
+      borderRadius={12}
+      padding="$3"
+      borderWidth={1}
+      borderColor="rgba(255, 255, 255, 0.1)"
+      minWidth={90}
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Text
+        color="#dbd0c6"
+        fontSize={13}
+        opacity={0.9}
+        marginBottom="$1"
+        fontFamily="$SpaceMono"
+      >
+        {connectionType === Network.NetworkStateType.CELLULAR ? 'Cell' : 'WiFi'}
+      </Text>
+      <Text
+        color={valueColor}
+        fontSize={18}
+        fontWeight="bold"
+        fontFamily="$SpaceMono"
+      >
+        {getConnectionDisplay()}
+      </Text>
+    </Stack>
   );
 }

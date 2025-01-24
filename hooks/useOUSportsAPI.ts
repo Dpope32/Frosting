@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Game } from '../types/espn';
 
-const ESPN_API_URL = 'http://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/201/schedule';
+const ESPN_API_URL = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/teams/201/schedule';
 
 interface ESPNResponse {
   events: Game[];
@@ -24,5 +24,7 @@ export const useOUSportsAPI = () => {
   return useQuery<Game[], Error>({
     queryKey: ['ou-schedule'],
     queryFn: fetchOUSchedule,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
   });
 };

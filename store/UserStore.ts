@@ -30,14 +30,14 @@ const defaultPreferences: UserPreferences = {
 
 // Create a custom storage adapter for MMKV
 const mmkvStorage = {
-  getItem: async (name: string): Promise<string | null> => {
+  getItem: (name: string): string | null => {
     const value = StorageUtils.get<string>(name);
     return value ?? null;
   },
-  setItem: async (name: string, value: string): Promise<void> => {
+  setItem: (name: string, value: string): void => {
     StorageUtils.set(name, value);
   },
-  removeItem: async (name: string): Promise<void> => {
+  removeItem: (name: string): void => {
     StorageUtils.delete(name);
   },
 };

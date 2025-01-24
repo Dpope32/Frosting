@@ -105,14 +105,14 @@ const taskFilter = createTaskFilter();
 
 // Custom MMKV-based storage
 const mmkvStorage = {
-  getItem: async (name: string) => {
+  getItem: (name: string) => {
     const value = StorageUtils.get<string>(name)
     return value ?? null
   },
-  setItem: async (name: string, value: string) => {
+  setItem: (name: string, value: string) => {
     StorageUtils.set(name, value)
   },
-  removeItem: async (name: string) => {
+  removeItem: (name: string) => {
     StorageUtils.delete(name)
   },
 }

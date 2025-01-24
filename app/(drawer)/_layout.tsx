@@ -17,14 +17,14 @@ export default function DrawerLayout() {
         drawerContent={(props: DrawerContentComponentProps) => (
           <View style={{ flex: 1 }}>
             <View style={{ 
-              paddingTop: 60,
+              paddingTop: 50,
               paddingBottom: 20,
               paddingHorizontal: 16,
               borderBottomWidth: 1,
               borderBottomColor: 'rgba(255, 255, 255, 0.1)',
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: 'rgba(30, 30, 30, 0.8)',
+              backgroundColor: 'rgba(30, 30, 30, 0.95)',
             }}>
               <Image 
                 source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
@@ -45,10 +45,17 @@ export default function DrawerLayout() {
             </View>
             <View style={{ 
               flex: 1,
-              backgroundColor: 'rgba(30, 30, 30, 0.8)',
-              paddingTop: 20,
+              backgroundColor: 'rgba(30, 30, 30, 0.925)',
             }}>
-              <DrawerContentScrollView {...props}>
+              <DrawerContentScrollView 
+                {...props}
+                contentContainerStyle={{
+                  paddingTop: 0
+                }}
+                style={{
+                  marginTop: 10
+                }}
+              >
                 <DrawerItemList {...props} />
               </DrawerContentScrollView>
             </View>
@@ -62,26 +69,21 @@ export default function DrawerLayout() {
           drawerStyle: {
             backgroundColor: 'transparent',
             width: '60%',
-            borderTopRightRadius: 20,
-            borderBottomRightRadius: 20,
             overflow: 'hidden',
           },
-          drawerActiveTintColor: primaryColor,
-          drawerInactiveTintColor: '#fff',
+          drawerActiveTintColor: '#fff',
+          drawerInactiveTintColor:'rgba(255, 255, 255, 0.5)',
           drawerActiveBackgroundColor: `${primaryColor}20`,
           drawerItemStyle: {
             borderRadius: 12,
-            marginHorizontal: 2,
-            marginVertical: 4,
             padding: 4,
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -16,
+            marginLeft: -20,
           },
           drawerContentStyle: {
-            paddingTop: 0,
             backgroundColor: 'rgba(30, 30, 30, 0.8)',
           },
           drawerType: 'slide',
@@ -89,12 +91,12 @@ export default function DrawerLayout() {
         }}
       >
         <Drawer.Screen
-          name="index"
+          name="(tabs)"
           options={{
             title: 'Home',
             drawerLabel: 'Home',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="home" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialCommunityIcons name="sphere" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />
@@ -126,14 +128,6 @@ export default function DrawerLayout() {
             drawerIcon: ({ color }) => (
               <MaterialCommunityIcons name="football" size={24} color={color} style={{ marginRight: 20 }} />
             ),
-          }}
-        />
-        <Drawer.Screen
-          name="(tabs)"
-          options={{
-            title: 'Home',
-            drawerLabel: 'Home',
-            drawerItemStyle: { display: 'none' }
           }}
         />
       </Drawer>

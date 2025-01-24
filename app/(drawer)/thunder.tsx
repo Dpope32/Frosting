@@ -26,13 +26,45 @@ export default function ThunderPage() {
         </View>
         
         <View style={styles.teamsContainer}>
-          <Text style={[styles.team, styles.homeTeam]} numberOfLines={1}>
-            {game.homeTeam.replace('Oklahoma City ', '')}
-          </Text>
+          <View style={styles.teamWrapper}>
+            {game.homeTeam.includes('Thunder') && (
+              <Image 
+                source={require('../../assets/images/okc.png')}
+                style={styles.teamLogo}
+                resizeMode="contain"
+              />
+            )}
+            <Text 
+              style={[
+                styles.team,
+                styles.homeTeam,
+                game.homeTeam.includes('Thunder') ? styles.thunderTeam : styles.opposingTeam
+              ]} 
+              numberOfLines={1}
+            >
+              {game.homeTeam.replace('Oklahoma City ', '')}
+            </Text>
+          </View>
           <Text style={styles.vs}>@</Text>
-          <Text style={[styles.team, styles.awayTeam]} numberOfLines={1}>
-            {game.awayTeam.replace('Oklahoma City ', '')}
-          </Text>
+          <View style={[styles.teamWrapper, styles.awayWrapper]}>
+            {game.awayTeam.includes('Thunder') && (
+              <Image 
+                source={require('../../assets/images/okc.png')}
+                style={styles.teamLogo}
+                resizeMode="contain"
+              />
+            )}
+            <Text 
+              style={[
+                styles.team,
+                styles.awayTeam,
+                game.awayTeam.includes('Thunder') ? styles.thunderTeam : styles.opposingTeam
+              ]} 
+              numberOfLines={1}
+            >
+              {game.awayTeam.replace('Oklahoma City ', '')}
+            </Text>
+          </View>
         </View>
   
         {game.status === 'finished' && (
@@ -55,7 +87,7 @@ export default function ThunderPage() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.headerTitle}>Thunder Schedule</Text>
+        <Text style={styles.headerTitle}>2024-2025 Schedule</Text>
       </View>
       
       {error ? (
@@ -89,9 +121,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#222',
-    backgroundColor: '#1a1a1a',
   },
   headerTitle: {
     fontSize: 20,
@@ -138,14 +167,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 4,
   },
+  teamWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  awayWrapper: {
+    justifyContent: 'flex-end',
+  },
+  teamLogo: {
+    width: 20,
+    height: 20,
+    marginHorizontal: 4,
+  },
   team: {
     fontSize: 15,
+  },
+  thunderTeam: {
+    color: '#007AFF',
+  },
+  opposingTeam: {
     color: '#fff',
-    flex: 1,
   },
   homeTeam: {
     textAlign: 'left',
-    color: '#007AFF',
   },
   awayTeam: {
     textAlign: 'right',
