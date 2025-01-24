@@ -32,8 +32,7 @@ export const getWallpaperPath = (style: BackgroundStyle) => {
         console.error(`Wallpaper not found for style: ${style}`);
         return null;
       }
-      // Log successful wallpaper loading
-      console.log(`Successfully loaded wallpaper for style: ${style}`, { source });
+      //console.log(`Successfully loaded wallpaper for style: ${style}`, { source });
       return source;
     } catch (error) {
       // Enhanced error logging for debugging

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useThunderStore } from '../store/ThunderStore';
 import type { Game } from '../store/ThunderStore';
 
-const ESPN_API_URL = 'http://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/okc/schedule';
+const ESPN_API_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/okc/schedule';
 
 export const useSportsAPI = () => {
   const { setGames, setLoading, setError } = useThunderStore();
@@ -12,7 +12,12 @@ export const useSportsAPI = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${ESPN_API_URL}?season=2025`);
+      const response = await fetch(`${ESPN_API_URL}?season=2025`, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

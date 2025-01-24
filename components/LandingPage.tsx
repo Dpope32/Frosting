@@ -307,51 +307,52 @@ export function LandingPage() {
       <ScrollView flex={1} paddingHorizontal="$4" contentContainerStyle={{ paddingBottom: 80 }}>
         <YStack paddingTop={100} gap="$4">
           <Stack backgroundColor="rgba(0, 0, 0, 0.7)" borderRadius={12} padding="$4">
-            <XStack alignItems="center" justifyContent="space-between">
-              <XStack alignItems="center" gap="$1">
-                <Text
-                  fontFamily="$SpaceMono"
-                  fontSize={20}
-                  color="#dbd0c6"
-                  fontWeight="bold"
-                  numberOfLines={1}
-                  style={{
-                    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                    textShadowOffset: { width: 1, height: 1 },
-                    textShadowRadius: 3,
-                  }}
-                >
-                  {getGreeting()},
-                </Text>
-                <Text
-                  fontFamily="$SpaceMono"
-                  fontSize={20}
-                  paddingHorizontal={4}
-                  color="#dbd0c6"
-                  fontWeight="bold"
-                  numberOfLines={1}
-                  style={{
-                    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                    textShadowOffset: { width: 1, height: 1 },
-                    textShadowRadius: 3,
-                  }}
-                >
-                  {username}
-                </Text>
+            <XStack alignItems="center" justifyContent="space-between" marginBottom="$2">
+              <XStack alignItems="center" gap="$2">
+                <XStack alignItems="center" gap="$1">
+                  <Text
+                    fontFamily="$SpaceMono"
+                    fontSize={24}
+                    color="#dbd0c6"
+                    fontWeight="bold"
+                    numberOfLines={1}
+                    style={{
+                      textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                      textShadowOffset: { width: 1, height: 1 },
+                      textShadowRadius: 3,
+                    }}
+                  >
+                    {getGreeting()},
+                  </Text>
+                  <Text
+                    fontFamily="$SpaceMono"
+                    fontSize={24}
+                    color="#dbd0c6"
+                    fontWeight="bold"
+                    numberOfLines={1}
+                    style={{
+                      textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                      textShadowOffset: { width: 1, height: 1 },
+                      textShadowRadius: 3,
+                    }}
+                  >
+                    {username}
+                  </Text>
+                </XStack>
               </XStack>
+              <ClockCard />
             </XStack>
 
             <XStack marginTop="$2" gap="$2.5" flexWrap="nowrap">
+            <Pressable onPress={handlePortfolioPress}>
+                <PortfolioCard />
+              </Pressable>
               <Pressable onPress={handleTemperaturePress}>
                 <TemperatureCard />
               </Pressable>
               <Pressable onPress={handleWifiPress}>
                 <WifiCard />
               </Pressable>
-              <Pressable onPress={handlePortfolioPress}>
-                <PortfolioCard />
-              </Pressable>
-              <ClockCard />
             </XStack>
 
             <QuoteSection />
@@ -424,16 +425,12 @@ export function LandingPage() {
             <Stack gap="$1" paddingHorizontal={10} flex={1}> 
               {todaysTasks.length === 0 ? (
                 <Stack
-                  backgroundColor="rgba(0, 0, 0, 0.2)"
                   borderRadius={8}
                   padding="$4"
                   alignItems="center"
                   flex={1} 
                   justifyContent="center"  
                 >
-                  <Text color="white" opacity={0.7}>
-                    No tasks for today
-                  </Text>
                 </Stack>
               ) : (
                 todaysTasks.map((task: Task) => (

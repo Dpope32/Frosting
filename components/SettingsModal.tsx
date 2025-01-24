@@ -53,19 +53,18 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[90]}
+      snapPoints={[83]}
       zIndex={100000}
     >
       <Sheet.Overlay
         animation="quick"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
-        backgroundColor="rgba(0,0,0,0.5)"  // Changed from "#000"
+        backgroundColor="rgba(0,0,0,0.5)" 
         opacity={0.8}
-        backdropFilter="blur(8px)"  // Added to match NewTaskModal
       />
       <Sheet.Frame
-        backgroundColor="rgba(28,28,28,0.95)"  // Changed from "#1e1e1e"
+        backgroundColor="rgba(28,28,28,0.95)"  
         padding="$3"
         gap="$3"
       >
@@ -189,7 +188,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                             height={70}
                             padding={0}
                             backgroundColor={settings.backgroundStyle === style.value ? settings.primaryColor : '#333'}
-                            borderColor="rgba(255,255,255,0.1)"
+                            borderColor={settings.backgroundStyle === style.value ? "white" : "rgba(255,255,255,0.1)"}
+                            borderWidth={settings.backgroundStyle === style.value ? 2 : 1}
+                            scale={settings.backgroundStyle === style.value ? 1.1 : 1}
+                            animation="quick"
                             onPress={() => {
                               setSettings(prev => ({...prev, backgroundStyle: style.value }));
                             }}
@@ -224,7 +226,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                             height={70}
                             padding={0}
                             backgroundColor={settings.backgroundStyle === style.value ? settings.primaryColor : '#333'}
-                            borderColor="rgba(255,255,255,0.1)"
+                            borderColor={settings.backgroundStyle === style.value ? "white" : "rgba(255,255,255,0.1)"}
+                            borderWidth={settings.backgroundStyle === style.value ? 2 : 1}
+                            scale={settings.backgroundStyle === style.value ? 1.1 : 1}
+                            animation="quick"
                             onPress={() => {
                               setSettings(prev => ({...prev, backgroundStyle: style.value }));
                             }}

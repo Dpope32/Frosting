@@ -1,8 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 type TabBarIconProps = {

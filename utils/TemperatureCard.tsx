@@ -30,26 +30,28 @@ export function TemperatureCard() {
  return (
    <Stack
      backgroundColor="rgba(0, 0, 0, 0.3)"
-     borderRadius={8}
-     padding="$2"
+     borderRadius={12}
+     padding="$3"
      borderWidth={1}
-     borderColor="rgba(255, 255, 255, 0.5)"
-     minWidth={70}
+     borderColor="rgba(255, 255, 255, 0.1)"
+     minWidth={90}
      alignItems="center"
      justifyContent="center"
    >
      <Text
-       color="white"
-       fontSize={11}
+       color="#dbd0c6"
+       fontSize={13}
        opacity={0.9}
-       marginBottom="$0.5"
+       marginBottom="$1"
+       fontFamily="$SpaceMono"
      >
        Temp
      </Text>
      <Text
        color={valueColor}
-       fontSize={14}
+       fontSize={18}
        fontWeight="bold"
+       fontFamily="$SpaceMono"
      >
        {displayTemp}
      </Text>

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { StatusCard } from '@/components/status/StatusCard';
-import { getValueColor } from '@/constants/valueHelper';
-import { useUserStore } from '@/store/UserStore';
+import { Stack, Text } from 'tamagui';
 
 export function ClockCard() {
-  const primaryColor = useUserStore(s => s.preferences.primaryColor);
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -23,11 +20,25 @@ export function ClockCard() {
   };
 
   return (
-    <StatusCard
-      label="Time"
-      value={formatTime(time)}
-      color="#F44336"
-      valueColor={getValueColor('time', 0, primaryColor)}
-    />
+    <Stack
+      backgroundColor="rgba(0, 0, 0, 0.3)"
+      borderRadius={8}
+      paddingHorizontal="$3"
+      paddingVertical="$2"
+    >
+      <Text
+        fontFamily="$SpaceMono"
+        fontSize={18}
+        color="#dbd0c6"
+        fontWeight="bold"
+        style={{
+          textShadowColor: 'rgba(0, 0, 0, 0.5)',
+          textShadowOffset: { width: 1, height: 1 },
+          textShadowRadius: 3,
+        }}
+      >
+        {formatTime(time)}
+      </Text>
+    </Stack>
   );
 }
