@@ -91,11 +91,10 @@ if ($deviceMatch) {
             Write-Host "Gradle build failed"
             exit 1
         }
-        Set-Location ..  # Move back to project root from android directory
+        Set-Location .. 
         
-        # Start Metro bundler after successful installation
         Write-Host "Starting Metro bundler..."
-        Start-Process "npx" -ArgumentList "expo start --clear" -NoNewWindow
+        Start-Process "npx" -ArgumentList "expo start --clear" 
     } else {
         Write-Host "Error: Gradle wrapper not found"
         exit 1

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { YStack, Text, Spinner } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
-import { useNetworkStore, getWifiDetails } from '@/store/NetworkStore'
+import { useNetworkStore } from '@/store/NetworkStore'
+import { getWifiDetails } from '@/services/wifiServices'
 
 interface WifiModalProps {
   open: boolean

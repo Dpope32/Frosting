@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { StorageUtils } from './MMKV';
-import { BackgroundStyle } from '../constants/BackgroundStyles';
+import { BackgroundStyle } from '../constants/Backgrounds';
 
 interface UserPreferences {
   username: string;

@@ -54,15 +54,6 @@ export function PortfolioCard() {
       gap="$1"
     >
       <Text
-        color="#dbd0c6"
-        fontSize={13}
-        opacity={0.9}
-        marginBottom="$1"
-        fontFamily="$SpaceMono"
-      >
-        Portfolio
-      </Text>
-      <Text
         color={valueColor}
         fontSize={18}
         fontWeight="bold"

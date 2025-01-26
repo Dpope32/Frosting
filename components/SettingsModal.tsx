@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { Sheet, Button, Input, YStack, XStack, Text, Circle, ScrollView, Stack } from 'tamagui'
+import { Sheet, Button, Input, YStack, XStack, Text, Circle, ScrollView } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import * as ImagePicker from 'expo-image-picker'
 import { Image } from 'react-native'
-import { colorOptions } from '../constants/ColorOptions'
-import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../constants/BackgroundStyles'
+import { colorOptions } from '../constants/Colors'
+import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../constants/Backgrounds'
 
 interface SettingsModalProps {
   open: boolean

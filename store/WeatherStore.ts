@@ -49,7 +49,7 @@ export const useWeatherQuery = (zipCode: string | null | undefined) => {
         `https://geocoding-api.open-meteo.com/v1/search?name=${zipCode}&count=1&language=en&format=json`
       );
       const geoData = await geoResponse.json();
-      console.log('[WeatherStore] Geocoding response:', geoData);
+     // console.log('[WeatherStore] Geocoding response:', geoData);
       
       if (!geoData.results?.[0]) {
         console.error('[WeatherStore] Location not found for ZIP:', zipCode);

@@ -36,10 +36,3 @@ export const useNetworkStore = create<NetworkState>((set) => ({
   }
 }));
 
-// Helper function to get WiFi details safely
-export const getWifiDetails = (state: NetInfoState | null): NetInfoWifiState['details'] | null => {
-  if (state?.type === 'wifi' && state.details) {
-    return state.details;
-  }
-  return null;
-};

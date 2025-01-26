@@ -56,3 +56,22 @@ export default {
   placeholder: '#A0A0A0',
   disabled: '#666666'
 };
+
+export const colorOptions = [
+  { label: 'Default', value: '#000000' },
+  { label: 'Light', value: '#2C2C2C' },
+  { label: 'Offwhite', value: '#c4b7a6' }, 
+  { label: 'Green', value: '#008f0f' },
+  { label: 'Pink', value: '#cc00ad' },
+  { label: 'Purple', value: '#6800b3' },
+  { label: 'Yellow1', value: '#FFCC00' },
+  { label: 'Blue1', value: '#546C8C' },        
+  { label: 'Orange1', value: '#66CCFF' },    
+  { label: 'Dark', value: '#0e0e0e' },
+  { label: 'Cream', value: '#70685c' },       
+  { label: 'Purple1', value: '#816687' },    
+  { label: 'Yellow2', value: '#D4B483' },      
+  { label: 'Lime1', value: '#CCFF99' },        
+  { label: 'Blue2', value: '#22AAFF' },
+  { label: 'Red2', value: '#DD4444' },
+] as const;

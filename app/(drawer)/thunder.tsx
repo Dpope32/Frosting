@@ -2,7 +2,7 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { ThemedView } from '../../components/theme/ThemedView';
+import { ThemedView } from '../../theme/ThemedView';
 import { useSportsAPI } from '../../hooks/useSportsAPI';
 import { format, isSameDay } from 'date-fns';
 import type { Game } from '../../store/ThunderStore';

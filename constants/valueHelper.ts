@@ -24,10 +24,12 @@ export const getValueColor = (valueType: string, value: string | number, primary
       if (numericValue >= -16) return '#F0FFFF'; // Azure
       return 'white';
     case 'wifi':
-      if (numericValue > 100) return '#2E7D32';  // Dark Green
-      if (numericValue >= 40) return '#FFFF00';  // Yellow
-      if (numericValue >= 10) return '#FFA500';  // Orange
-      return '#FF0000';                          // Red
+      // For ping/latency - lower is better
+      if (numericValue < 20) return '#2E7D32';   // Excellent (<20ms)
+      if (numericValue < 50) return '#4CAF50';   // Very Good (<50ms)
+      if (numericValue < 100) return '#FFEB3B';  // Good (<100ms)
+      if (numericValue < 150) return '#FFA500';  // Fair (<150ms)
+      return '#FF0000';                          // Poor (>=150ms)
     case 'portfolio':
       return '#2E7D32';                          // Dark Green
     case 'time':

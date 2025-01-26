@@ -81,7 +81,7 @@ export function AIChatbot() {
             scrollViewRef.current?.scrollToEnd({ animated: true });
           }}
         >
-          <YStack space={16}>
+          <YStack gap={16}>
             {messages.map((msg, index) => (
               <XStack 
                 key={index}

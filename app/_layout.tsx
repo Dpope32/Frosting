@@ -4,7 +4,6 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { SQLiteProvider, SQLiteDatabase } from 'expo-sqlite';
 import 'react-native-reanimated';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
@@ -39,14 +38,14 @@ export default function RootLayout() {
   }
 
   return (
-      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
+    <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
       <QueryClientProvider client={queryClient}>
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <>
             <Stack screenOptions={{ headerShown: false }}>
               {!hasCompletedOnboarding ? (
                 <Stack.Screen 
-                  name="screens/onboarding"
+                  name="screens/onboarding/index"
                   options={{ gestureEnabled: false }}
                 />
               ) : (

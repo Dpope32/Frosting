@@ -39,15 +39,6 @@ export function TemperatureCard() {
      justifyContent="center"
    >
      <Text
-       color="#dbd0c6"
-       fontSize={13}
-       opacity={0.9}
-       marginBottom="$1"
-       fontFamily="$SpaceMono"
-     >
-       Temp
-     </Text>
-     <Text
        color={valueColor}
        fontSize={18}
        fontWeight="bold"
