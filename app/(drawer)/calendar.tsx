@@ -1,207 +1,212 @@
-/* CalendarScreen.tsx */
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, GestureResponderEvent, PanResponder, PanResponderGestureState, LayoutRectangle } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useCalendarStore } from '@/store/CalendarStore';
+import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore';
+import { useUserStore } from '@/store/UserStore';
+import { Ionicons } from '@expo/vector-icons';
+import { EventPreview } from '@/components/calendar/EventPreview';
+import { Month } from '@/components/calendar/Month';
 
 export default function CalendarScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  const { events, addEvent, updateEvent, deleteEvent } = useCalendarStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [gridLayout, setGridLayout] = useState<LayoutRectangle | null>(null);
-  const lastToggledDate = useRef<string | null>(null);
+  const [isEventModalVisible, setIsEventModalVisible] = useState(false);
+  const [isViewEventModalVisible, setIsViewEventModalVisible] = useState(false);
+  const [newEventTitle, setNewEventTitle] = useState('');
+  const [newEventDescription, setNewEventDescription] = useState('');
+  const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([]);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [months, setMonths] = useState<Date[]>([]);
 
-  const busyDays = useCalendarStore((state) => state.busyDays);
-  const toggleBusyDay = useCalendarStore((state) => state.toggleBusyDay);
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
-    return { daysInMonth, firstDayOfMonth };
-  };
-
-  const { daysInMonth, firstDayOfMonth } = getDaysInMonth(currentDate);
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
-
-  const monthName = currentDate.toLocaleString('default', { month: 'long' });
-  const year = currentDate.getFullYear();
-
-  const prevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
-    setSelectedDate(null);
-  };
-
-  const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
-    setSelectedDate(null);
-  };
-
-  const handleDatePress = (day: number, longPress = false) => {
-    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    setSelectedDate(newDate);
-    
-    if (longPress) {
-      setIsDragging(true);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  useEffect(() => {
+    const today = new Date();
+    today.setDate(1);
+    const arr = [];
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      arr.push(d);
     }
-    
-    const dateKey = newDate.toISOString().split('T')[0];
-    if (dateKey !== lastToggledDate.current) {
-      toggleBusyDay(dateKey);
-      lastToggledDate.current = dateKey;
-      if (!longPress) {
-        Haptics.selectionAsync();
+    setMonths(arr);
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (scrollViewRef.current) {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+        const approximateRow = Math.floor((now.getDate() + startOfMonth) / 7);
+        const approximateCellHeight = 50;
+        const offset = approximateRow * approximateCellHeight;
+        scrollViewRef.current.scrollTo({ y: offset, animated: false });
       }
+    }, 300);
+  }, [months]);
+
+  const handleDayPress = (date: Date) => {
+    setSelectedDate(date);
+    const dateKey = date.toISOString().split('T')[0];
+    const dayEvents = events.filter((event) => event.date === dateKey);
+    if (dayEvents.length > 0) {
+      setSelectedEvents(dayEvents);
+      setIsViewEventModalVisible(true);
+    } else {
+      setIsEventModalVisible(true);
     }
   };
 
-  const getDayFromPoint = (x: number, y: number): number | null => {
-    if (!gridLayout) return null;
-
-    const cellWidth = gridLayout.width / 7;
-    const cellHeight = cellWidth; // Square cells
-    
-    const row = Math.floor(y / cellHeight);
-    const col = Math.floor(x / cellWidth);
-    const dayIndex = row * 7 + col - firstDayOfMonth;
-    
-    if (dayIndex >= 0 && dayIndex < daysInMonth) {
-      return dayIndex + 1;
+  const handleAddEvent = () => {
+    if (selectedDate && newEventTitle.trim()) {
+      if (editingEvent) {
+        updateEvent(editingEvent.id, {
+          title: newEventTitle.trim(),
+          description: newEventDescription.trim(),
+        });
+      } else {
+        addEvent({
+          date: selectedDate.toISOString().split('T')[0],
+          title: newEventTitle.trim(),
+          description: newEventDescription.trim(),
+        });
+      }
+      setIsEventModalVisible(false);
+      setNewEventTitle('');
+      setNewEventDescription('');
+      setEditingEvent(null);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    return null;
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (event: GestureResponderEvent) => {
-        const { locationX, locationY } = event.nativeEvent;
-        const day = getDayFromPoint(locationX, locationY);
-        if (day !== null) {
-          handleDatePress(day, true);
-        }
-      },
-      onPanResponderMove: (event: GestureResponderEvent) => {
-        if (!isDragging) return;
-        
-        const { locationX, locationY } = event.nativeEvent;
-        const day = getDayFromPoint(locationX, locationY);
-        if (day !== null) {
-          const dateKey = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-            .toISOString()
-            .split('T')[0];
-          
-          if (dateKey !== lastToggledDate.current) {
-            toggleBusyDay(dateKey);
-            lastToggledDate.current = dateKey;
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          }
-        }
-      },
-      onPanResponderRelease: () => {
-        if (isDragging) {
-          setIsDragging(false);
-          lastToggledDate.current = null;
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
-      },
-    })
-  ).current;
+  const handleEditEvent = (event: CalendarEvent) => {
+    setEditingEvent(event);
+    setNewEventTitle(event.title);
+    setNewEventDescription(event.description);
+    setIsViewEventModalVisible(false);
+    setIsEventModalVisible(true);
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    deleteEvent(eventId);
+    if (selectedEvents.length === 1) {
+      setIsViewEventModalVisible(false);
+    } else {
+      setSelectedEvents(selectedEvents.filter((event) => event.id !== eventId));
+    }
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={[styles.calendar, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={prevMonth} style={styles.navButtonContainer}>
-            <Text style={[styles.navButton, { color: isDark ? '#ffffff' : '#000000' }]}>←</Text>
-          </TouchableOpacity>
-          <Text style={[styles.monthText, { color: isDark ? '#ffffff' : '#000000' }]}>
-            {monthName} {year}
-          </Text>
-          <TouchableOpacity onPress={nextMonth} style={styles.navButtonContainer}>
-            <Text style={[styles.navButton, { color: isDark ? '#ffffff' : '#000000' }]}>→</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.weekDays}>
-          {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day) => (
-            <Text
-              key={day}
-              style={[styles.weekDay, { color: isDark ? '#ffffff' : '#000000' }]}
-            >
-              {day}
+      <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+        {months.map((date, index) => (
+          <Month
+            key={index}
+            date={date}
+            events={events}
+            onDayPress={handleDayPress}
+            isDark={isDark}
+            primaryColor={primaryColor}
+          />
+        ))}
+      </ScrollView>
+      <Modal
+        visible={isEventModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setIsEventModalVisible(false);
+          setEditingEvent(null);
+          setNewEventTitle('');
+          setNewEventDescription('');
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
+            <Text style={[styles.modalTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
+              {editingEvent ? 'Edit Event' : 'Add Event'} for {selectedDate?.toLocaleDateString()}
             </Text>
-          ))}
-        </View>
-
-        <View 
-          style={styles.daysGrid}
-          onLayout={(e) => setGridLayout(e.nativeEvent.layout)}
-          {...panResponder.panHandlers}
-        >
-          {blanks.map((blank) => (
-            <View key={`blank-${blank}`} style={styles.dayCell} />
-          ))}
-          {days.map((day) => {
-            const isToday =
-              day === new Date().getDate() &&
-              currentDate.getMonth() === new Date().getMonth() &&
-              currentDate.getFullYear() === new Date().getFullYear();
-
-            const isSelected =
-              selectedDate &&
-              day === selectedDate.getDate() &&
-              currentDate.getMonth() === selectedDate.getMonth() &&
-              currentDate.getFullYear() === selectedDate.getFullYear();
-
-            const dateKey = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-              .toISOString()
-              .split('T')[0];
-            const isBusy = !!busyDays[dateKey];
-
-            const backgroundStyle = (() => {
-              if (isSelected && isBusy) return styles.selectedBusy;
-              if (isSelected) return styles.selected;
-              if (isBusy) return styles.busy;
-              if (isToday) return styles.today;
-              return undefined;
-            })();
-
-            const textStyle = (() => {
-              if (isSelected || isToday || isBusy) return styles.selectedText;
-              return { color: isDark ? '#ffffff' : '#000000' };
-            })();
-
-            return (
+            <TextInput
+              style={[styles.input, { color: isDark ? '#ffffff' : '#000000' }]}
+              placeholder="Event Title"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
+              value={newEventTitle}
+              onChangeText={setNewEventTitle}
+            />
+            <TextInput
+              style={[styles.input, { color: isDark ? '#ffffff' : '#000000' }]}
+              placeholder="Event Description"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
+              value={newEventDescription}
+              onChangeText={setNewEventDescription}
+              multiline
+            />
+            <View style={styles.modalButtons}>
               <TouchableOpacity
-                key={day}
-                style={[
-                  styles.dayCell,
-                  backgroundStyle,
-                  isDragging && styles.dragging
-                ]}
-                onPress={() => handleDatePress(day)}
-                onLongPress={() => handleDatePress(day, true)}
-                onPressOut={() => {}}
-                onPressIn={() => !isDragging && Haptics.selectionAsync()}
-                delayLongPress={200}
+                style={[styles.button, styles.cancelButton]}
+                onPress={() => {
+                  setIsEventModalVisible(false);
+                  setEditingEvent(null);
+                  setNewEventTitle('');
+                  setNewEventDescription('');
+                }}
               >
-                <Text style={[styles.dayText, textStyle]}>
-                  {day}
-                </Text>
+                <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
-            );
-          })}
+              <TouchableOpacity
+                style={[styles.button, styles.addButton, { backgroundColor: primaryColor }]}
+                onPress={handleAddEvent}
+              >
+                <Text style={styles.buttonText}>{editingEvent ? 'Update' : 'Add'} Event</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </View>
+      </Modal>
+      <Modal
+        visible={isViewEventModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsViewEventModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
+                Events for {selectedDate?.toLocaleDateString()}
+              </Text>
+              <TouchableOpacity
+                style={[styles.addEventButton, { backgroundColor: primaryColor }]}
+                onPress={() => {
+                  setIsViewEventModalVisible(false);
+                  setIsEventModalVisible(true);
+                }}
+              >
+                <Ionicons name="add" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            {selectedEvents.map((event) => (
+              <EventPreview
+                key={event.id}
+                event={event}
+                onEdit={() => handleEditEvent(event)}
+                onDelete={() => handleDeleteEvent(event.id)}
+                isDark={isDark}
+                primaryColor={primaryColor}
+              />
+            ))}
+            <TouchableOpacity
+              style={[styles.button, styles.closeButton, { backgroundColor: primaryColor }]}
+              onPress={() => setIsViewEventModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -210,123 +215,70 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 100,
-    paddingHorizontal: 16
   },
-  calendar: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    padding: 20,
     borderRadius: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    padding: 16,
-    margin: 16,
-    backgroundColor: '#fff'
+    elevation: 5,
   },
-  header: {
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#cccccc',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 16,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  button: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 8,
+  },
+  cancelButton: {
+    backgroundColor: '#666666',
+  },
+  addButton: {
+    backgroundColor: '#4CAF50',
+  },
+  closeButton: {
+    marginVertical: 16,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
+    marginVertical: 4,
+  },
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
-    height: 48
   },
-  monthText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    flex: 1,
-    marginHorizontal: 16
-  },
-  navButtonContainer: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  navButton: {
-    fontSize: 24,
+  addEventButton: {
     width: 40,
     height: 40,
-    lineHeight: 40,
-    textAlign: 'center',
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.05)'
-  },
-  weekDays: {
-    flexDirection: 'row',
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-    paddingBottom: 8
-  },
-  weekDay: {
-    width: `${100 / 7}%`,
-    textAlign: 'center',
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666'
-  },
-  daysGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap'
-  },
-  dayCell: {
-    width: `${100 / 7}%`,
-    aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 2
   },
-  dayText: {
-    fontSize: 16,
-    fontWeight: '500'
-  },
-  dragging: {
-    transform: [{ scale: 0.95 }]
-  },
-  today: {
-    backgroundColor: '#2196F3',
-    elevation: 4,
-    shadowColor: '#2196F3',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    borderWidth: 2,
-    borderColor: '#1976D2'
-  },
-  selected: {
-    backgroundColor: '#4CAF50',
-    elevation: 4,
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    borderWidth: 2,
-    borderColor: '#388E3C'
-  },
-  busy: {
-    backgroundColor: '#F44336',
-    elevation: 4,
-    shadowColor: '#F44336',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    borderWidth: 2,
-    borderColor: '#D32F2F'
-  },
-  selectedBusy: {
-    backgroundColor: '#9C27B0',
-    elevation: 5,
-    shadowColor: '#9C27B0',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    borderWidth: 2,
-    borderColor: '#7B1FA2'
-  },
-  selectedText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 16
-  }
 });

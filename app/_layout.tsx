@@ -14,15 +14,12 @@ import { queryClient } from '@/lib/query';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  console.log('[RootLayout] Rendering');
+  //console.log('[RootLayout] Rendering');
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [loaded] = useFonts({SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf')});
 
   useEffect(() => {
     if (loaded) {
@@ -31,7 +28,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
-  console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
+  //console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
 
   if (!loaded) {
     return null;

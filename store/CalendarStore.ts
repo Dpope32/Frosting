@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { storage } from './MMKV';
 
-// Create a storage adapter that implements the StateStorage interface
 const mmkvStorage: StateStorage = {
   getItem: (name: string) => {
     const value = storage.getString(name);
@@ -16,28 +15,61 @@ const mmkvStorage: StateStorage = {
   },
 };
 
-interface BusyDays {
-  [key: string]: boolean;
+export interface CalendarEvent {
+  id: string;
+  date: string;
+  title: string;
+  description: string;
+  createdAt: string; 
+  updatedAt: string; 
 }
 
 interface CalendarState {
-  busyDays: BusyDays;
-  toggleBusyDay: (date: string) => void;
-  clearBusyDays: () => void;
+  events: CalendarEvent[];
+  addEvent: (event: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateEvent: (id: string, eventUpdate: Partial<Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>>) => void;
+  deleteEvent: (id: string) => void;
+  getEventsForDate: (date: string) => CalendarEvent[];
+  clearAllEvents: () => void;
 }
 
 export const useCalendarStore = create<CalendarState>()(
   persist(
-    (set) => ({
-      busyDays: {},
-      toggleBusyDay: (date) =>
-        set((state) => ({
-          busyDays: {
-            ...state.busyDays,
-            [date]: !state.busyDays[date],
-          },
-        })),
-      clearBusyDays: () => set({ busyDays: {} }),
+    (set, get) => ({
+      events: [],
+      
+      addEvent: (eventData) => set((state) => {
+        const newEvent: CalendarEvent = {
+          ...eventData,
+          id: Math.random().toString(36).substr(2, 9),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        return { events: [...state.events, newEvent] };
+      }),
+
+      updateEvent: (id, eventUpdate) => set((state) => ({
+        events: state.events.map(event => 
+          event.id === id
+            ? {
+                ...event,
+                ...eventUpdate,
+                updatedAt: new Date().toISOString(),
+              }
+            : event
+        ),
+      })),
+
+      deleteEvent: (id) => set((state) => ({
+        events: state.events.filter(event => event.id !== id),
+      })),
+
+      getEventsForDate: (date) => {
+        const state = get();
+        return state.events.filter(event => event.date === date);
+      },
+
+      clearAllEvents: () => set({ events: [] }),
     }),
     {
       name: 'calendar-storage',

@@ -1,50 +1,70 @@
-# Welcome to your Expo app 👋
+<div align="center">
+   <div>
+    <a href="https://dokploy.com" target="_blank" rel="noopener">
+        <img style="object-fit: cover;" align="center" width="100%"src=".github/sponsors/logo.png" alt="Dokploy - Open Source Alternative to Vercel, Heroku and Netlify." />
+    </a>
+</div>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+</br>
+<div align="center">
+  <div>Welcome to Frosting!</div>
+  </br>
+  <a href="https://discord.gg/2tBnJ3jDJc">
+    <img src="https://discordapp.com/api/guilds/1234073262418563112/widget.png?style=banner2" alt="Discord Shield"/>
+  </a>
+</div>
+</div>
+<br />
+Frosting is a free, self-hostable Mobile App that simplifies the deployment and management of data.
 
-## Get started
+### Features
 
-1. Install dependencies
+Frostbite includes multiple features to make your life easier.
 
-   ```bash
-   npm install
-   ```
+- **Task Manager**: Deploy any type of application (Node.js, PHP, Python, Go, Ruby, etc.).
+- **Immich**: Create and manage databases with support for MySQL, PostgreSQL, MongoDB, MariaDB, and Redis.
+- **Backups**: Automate backups for databases to an external storage destination.
+- **AI Chat**: Native support for Docker Compose to manage complex applications.
+- **NBA**: See live NBA stats and historical results from your favorite team.
+- **NCAAF**: Look at your favorite sports teams schedule.
+- **Traefik Integration**: Automatically integrates with Traefik for routing and load balancing.
+- **Real-time Monitoring**: Monitor CPU, memory, storage, and network usage for every resource.
+- **Docker Management**: Easily deploy and manage Docker containers.
+- **CLI/API**: Manage your applications and databases using the command line or through the API.
+- **Notifications**: Get notified when your deployments succeed or fail (via Slack, Discord, Telegram, Email, etc.).
+- **Multi Server**: Deploy and manage your applications remotely to external servers.
+- **Self-Hosted**: Self-host Dokploy on your VPS.
 
-2. Start the app
+## Sponsors
 
-   ```bash
-    npx expo start
-   ```
+### Premium Supporters 🥇
 
-In the output, you'll find options to open the app in a
+<div style="display: flex; gap: 30px; flex-wrap: wrap;">
+<a href="https://supafort.com/?ref=dokploy" target="_blank"><img src="https://supafort.com/build/q-4Ht4rBZR.webp" alt="Supafort.com" width="190"/></a>
+</div>
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Supporting Members 🥉
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+<div style="display: flex; gap: 30px; flex-wrap: wrap;">
+<a href="https://lightspeed.run/?ref=dokploy"><img src="https://github.com/lightspeedrun.png" width="60px" alt="Lightspeed.run"/></a>
+<a href="https://cloudblast.io/?ref=dokploy "><img src="https://cloudblast.io/img/logo-icon.193cf13e.svg" width="250px" alt="Cloudblast.io"/></a>
+<a href="https://startupfa.me/?ref=dokploy "><img src=".github/sponsors/startupfame.png" width="65px" alt="Startupfame"/></a>
+<a href="https://itsdb-center.com?ref=dokploy "><img src=".github/sponsors/its.png" width="65px" alt="Itsdb-center"/></a>
+</div>
 
-## Get a fresh project
+### Community Backers 🤝
 
-When you're ready, run:
+<div style="display: flex; gap: 30px; flex-wrap: wrap;">
+<a href="https://steamsets.com/?ref=dokploy"><img src="https://avatars.githubusercontent.com/u/111978405?s=200&v=4" width="60px" alt="Steamsets.com"/></a>
+<a href="https://rivo.gg/?ref=dokploy"><img src="https://avatars.githubusercontent.com/u/126797452?s=200&v=4" width="60px" alt="Rivo.gg"/></a>
+<a href="https://photoquest.wedding/?ref=dokploy"><img src="https://photoquest.wedding/favicon/android-chrome-512x512.png" width="60px" alt="Rivo.gg"/></a>
 
-```bash
-npm run reset-project
-```
+</div>
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+#### Organizations:
 
-## Learn more
+[![Sponsors on Open Collective](https://opencollective.com/dokploy/organizations.svg?width=890)](https://opencollective.com/dokploy)
 
-To learn more about developing your project with Expo, look at the following resources:
+## Contributing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Check out the [Contributing Guide](CONTRIBUTING.md) for more information.

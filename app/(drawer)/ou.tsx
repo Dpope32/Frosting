@@ -1,4 +1,3 @@
-
 // pages/ou.tsx
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -8,7 +7,7 @@ import { useOUSportsAPI } from '../../hooks/useOUSportsAPI';
 import { format } from 'date-fns';
 import type { Game } from '../../types/espn';
 
-const OU_CRIMSON = '#841617';  // OU's official crimson color
+const OU_CRIMSON = '#841617'; 
 
 export default function OUPage() {
   const { data: schedule, isLoading, error } = useOUSportsAPI();

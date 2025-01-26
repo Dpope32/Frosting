@@ -7,7 +7,7 @@ export default function ResetScreen() {
   const clearPreferences = useUserStore(state => state.clearPreferences);
   
   const handleReset = () => {
-    console.log('[Reset] Clearing all storage and preferences');
+   // console.log('[Reset] Clearing all storage and preferences');
     StorageUtils.clear();
     clearPreferences();
     router.replace('/');

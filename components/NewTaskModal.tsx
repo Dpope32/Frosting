@@ -1,43 +1,35 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Sheet, Button, Switch, Form, YStack, XStack, Text, ScrollView } from 'tamagui'
+import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, ThemeableStack } from 'tamagui'
+import { KeyboardAvoidingView, Platform, Keyboard, TouchableOpacity } from 'react-native'
 import InputField, { InputFieldRef } from '@/components/shared/InputField'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay } from '@/store/ToDo'
-import { KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
+import { Ionicons } from '@expo/vector-icons';
 
 const WEEKDAYS: Record<string, WeekDay> = {
-  'sun': 'sunday',
-  'mon': 'monday',
-  'tue': 'tuesday',
-  'wed': 'wednesday',
-  'thu': 'thursday',
-  'fri': 'friday',
-  'sat': 'saturday',
-}
-
-interface NewTaskModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  sun: 'sunday',
+  mon: 'monday',
+  tue: 'tuesday',
+  wed: 'wednesday',
+  thu: 'thursday',
+  fri: 'friday',
+  sat: 'saturday',
 }
 
 const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'> => {
-  // Get current day of week in lowercase (e.g., 'sun', 'mon', etc.)
   const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
-  // Get the full day name from our WEEKDAYS mapping
   const fullDay = WEEKDAYS[currentDay as keyof typeof WEEKDAYS]
-  
   return {
     name: '',
     schedule: fullDay ? [fullDay] : [],
     time: undefined,
-    priority: 'medium' as TaskPriority,
-    category: 'personal' as TaskCategory,
-    isOneTime: false
+    priority: null as unknown as TaskPriority,
+    category: null as unknown as TaskCategory,
+    isOneTime: false,
   }
 }
 
-// Generate time options for the select
 const generateTimeOptions = () => {
   const options = []
   for (let hour = 0; hour < 24; hour++) {
@@ -51,6 +43,11 @@ const generateTimeOptions = () => {
 
 const TIME_OPTIONS = generateTimeOptions()
 
+interface NewTaskModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
 export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
@@ -58,8 +55,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const inputRef = useRef<InputFieldRef>(null)
   const [showPrioritySelect, setShowPrioritySelect] = useState(false)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
-  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [showTimeSelect, setShowTimeSelect] = useState(false)
+  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -67,22 +64,19 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
     let resetTimeout: NodeJS.Timeout
 
     if (!open) {
-      // Use timeout to ensure state updates happen after modal animation
       resetTimeout = setTimeout(() => {
         setShowPrioritySelect(false)
         setShowCategorySelect(false)
         setNewTask(getDefaultTask())
         setShowTimeSelect(false)
         setIsSubmitting(false)
-      }, 300) // Delay reset until after modal close animation
+      }, 200)
     } else {
-      // Focus input when modal opens
       focusTimeout = setTimeout(() => {
         inputRef.current?.focus()
-      }, 100)
+      }, 50)
     }
 
-    // Cleanup timeouts to prevent memory leaks
     return () => {
       if (focusTimeout) clearTimeout(focusTimeout)
       if (resetTimeout) clearTimeout(resetTimeout)
@@ -90,21 +84,21 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   }, [open])
 
   const handleTextChange = useCallback((text: string) => {
-    setNewTask(prev => ({ ...prev, name: text }))
+    setNewTask((prev) => ({ ...prev, name: text }))
   }, [])
 
   const toggleDay = useCallback((day: string) => {
     const fullDay = WEEKDAYS[day]
-    setNewTask(prev => ({
+    setNewTask((prev) => ({
       ...prev,
       schedule: prev.schedule.includes(fullDay)
-        ? prev.schedule.filter(d => d !== fullDay)
-        : [...prev.schedule, fullDay]
+        ? prev.schedule.filter((d) => d !== fullDay)
+        : [...prev.schedule, fullDay],
     }))
   }, [])
 
   const handleTimeSelect = useCallback((time: string) => {
-    setNewTask(prev => ({ ...prev, time }))
+    setNewTask((prev) => ({ ...prev, time }))
     setShowTimeSelect(false)
   }, [])
 
@@ -113,67 +107,54 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   }, [])
 
   const handlePrioritySelect = useCallback((value: TaskPriority) => {
-    setNewTask(prev => ({ ...prev, priority: value }))
+    setNewTask((prev) => ({ ...prev, priority: value }))
     setShowPrioritySelect(false)
   }, [])
 
   const handlePriorityPress = useCallback(() => {
-    setShowPrioritySelect(true)
-  }, [])
+    setShowPrioritySelect(!showPrioritySelect)
+    setShowCategorySelect(false)
+    setShowTimeSelect(false)
+  }, [showPrioritySelect])
 
   const handleCategorySelect = useCallback((value: TaskCategory) => {
-    setNewTask(prev => ({ ...prev, category: value }))
+    setNewTask((prev) => ({ ...prev, category: value }))
     setShowCategorySelect(false)
   }, [])
 
   const handleCategoryPress = useCallback(() => {
-    setShowCategorySelect(true)
-  }, [])
+    setShowCategorySelect(!showCategorySelect)
+    setShowPrioritySelect(false)
+    setShowTimeSelect(false)
+  }, [showCategorySelect])
 
   const handleOneTimeChange = useCallback((checked: boolean) => {
-    setNewTask(prev => ({ ...prev, isOneTime: checked }))
+    setNewTask((prev) => ({ ...prev, isOneTime: checked }))
   }, [])
 
   const handleAddTask = useCallback(async () => {
-    // Prevent double submission
     if (isSubmitting) return
-    
     try {
-      // Basic validation
       if (!newTask.name.trim()) {
         showToast('Please enter a task name')
         return
       }
-      
       if (!newTask.isOneTime && newTask.schedule.length === 0) {
         showToast('Please select at least one day or mark as one-time task')
         return
       }
-
       setIsSubmitting(true)
-
-      // Create a clean copy of the task data
-      const taskToAdd = {
-        ...newTask,
-        name: newTask.name.trim()
-      }
-
-      // Close modal first to prevent UI glitches
+      const taskToAdd = { ...newTask, name: newTask.name.trim() }
       onOpenChange(false)
-
-      // Small delay to ensure modal is closed before state updates
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Add task
+      await new Promise((resolve) => setTimeout(resolve, 80))
       try {
-        await Promise.resolve(addTask(taskToAdd)) // Ensure addTask is treated as async
+        await Promise.resolve(addTask(taskToAdd))
         showToast('Task added successfully')
       } catch (error) {
         console.error('Failed to add task:', error)
         showToast('Failed to add task. Please try again.')
         return
       }
-
     } catch (error) {
       console.error('Error in handleAddTask:', error)
       showToast('An error occurred. Please try again.')
@@ -184,19 +165,15 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
 
   return (
     <Sheet
-      modal={true}
+      modal
       open={open}
       onOpenChange={onOpenChange}
       snapPoints={[70]}
-      zIndex={100000}
+      animation="quick"
       unmountChildrenWhenHidden={false}
+      zIndex={100000}
     >
-      <Sheet.Overlay
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-        backgroundColor="rgba(0,0,0,0.5)"
-        backdropFilter="blur(8px)"
-      />
+      <Sheet.Overlay backgroundColor="rgba(0,0,0,0.5)" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Frame
         backgroundColor="rgba(28,28,28,0.95)"
         padding="$5"
@@ -208,10 +185,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
         shadowRadius={8}
         elevation={10}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <ScrollView bounces={false}>
             <Sheet.Handle
               backgroundColor="rgba(85,85,85,0.5)"
@@ -241,9 +215,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                         key={shortDay}
                         size="$4"
                         backgroundColor={
-                          newTask.schedule.includes(fullDay)
-                            ? preferences.primaryColor
-                            : 'rgba(45,45,45,0.8)'
+                          newTask.schedule.includes(fullDay) ? preferences.primaryColor : 'rgba(45,45,45,0.8)'
                         }
                         color="#fff"
                         pressStyle={{ opacity: 0.8, scale: 0.98 }}
@@ -252,7 +224,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                         paddingHorizontal="$2"
                         paddingVertical="$2.5"
                         borderWidth={1}
-                        borderColor={newTask.schedule.includes(fullDay) ? 'transparent' : 'rgba(85,85,85,0.5)'}
+                        borderColor={
+                          newTask.schedule.includes(fullDay) ? 'transparent' : 'rgba(85,85,85,0.5)'
+                        }
                         shadowColor="black"
                         shadowOffset={{ width: 0, height: 2 }}
                         shadowOpacity={0.1}
@@ -271,8 +245,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   </XStack>
                 </ScrollView>
               </YStack>
-
-              {/* Time Select */}
               <YStack position="relative">
                 <Button
                   onPress={handleTimePress}
@@ -285,13 +257,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   pressStyle={{ opacity: 0.8 }}
                 >
                   <XStack gap="$2" flex={1} alignItems="center">
-                    <Text color="#fff" fontSize={16} fontWeight="500">Time:</Text>
+                    <Text color="#fff" fontSize={16} fontWeight="500">
+                      Time:
+                    </Text>
                     <Text color="#a0a0a0" textTransform="capitalize" fontSize={16}>
-                      {newTask.time || 'Select Time'}
+                      {newTask.time || (showTimeSelect ? '▲' : '▼')}
                     </Text>
                   </XStack>
                 </Button>
-
                 {showTimeSelect && (
                   <YStack
                     position="absolute"
@@ -308,16 +281,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     shadowRadius={8}
                     height={250}
                   >
-                    <ScrollView bounces={false} showsVerticalScrollIndicator={true}>
+                    <ScrollView bounces={false} showsVerticalScrollIndicator>
                       <YStack elevation={8}>
                         {TIME_OPTIONS.map((time) => (
                           <Button
                             key={time}
                             onPress={() => handleTimeSelect(time)}
                             backgroundColor={
-                              newTask.time === time
-                                ? preferences.primaryColor
-                                : 'transparent'
+                              newTask.time === time ? preferences.primaryColor : 'transparent'
                             }
                             height={45}
                             justifyContent="center"
@@ -329,7 +300,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                               color={newTask.time === time ? '#fff' : '#a0a0a0'}
                               textTransform="capitalize"
                               fontSize={16}
-                              fontWeight={newTask.time === time ? "600" : "400"}
+                              fontWeight={newTask.time === time ? '600' : '400'}
                             >
                               {time}
                             </Text>
@@ -340,10 +311,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   </YStack>
                 )}
               </YStack>
-
-              {/* Priority and Category Selects */}
               <XStack gap="$4" width="100%">
-                {/* Priority Select */}
                 <YStack flex={1} position="relative">
                   <Button
                     onPress={handlePriorityPress}
@@ -356,9 +324,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     pressStyle={{ opacity: 0.8 }}
                   >
                     <XStack gap="$2" flex={1} alignItems="center">
-                      <Text color="#fff" fontSize={16} fontWeight="500">Priority:</Text>
+                      <Text color="#fff" fontSize={16} fontWeight="500">
+                        Priority:
+                      </Text>
                       <Text color="#a0a0a0" textTransform="capitalize" fontSize={16}>
-                        {newTask.priority}
+                        {newTask.priority || (showPrioritySelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
                   </Button>
@@ -383,9 +353,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                           key={priority}
                           onPress={() => handlePrioritySelect(priority)}
                           backgroundColor={
-                            newTask.priority === priority
-                              ? preferences.primaryColor
-                              : 'transparent'
+                            newTask.priority === priority ? preferences.primaryColor : 'transparent'
                           }
                           height={45}
                           justifyContent="center"
@@ -397,7 +365,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                             color={newTask.priority === priority ? '#fff' : '#a0a0a0'}
                             textTransform="capitalize"
                             fontSize={16}
-                            fontWeight={newTask.priority === priority ? "600" : "400"}
+                            fontWeight={newTask.priority === priority ? '600' : '400'}
                           >
                             {priority}
                           </Text>
@@ -406,8 +374,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     </YStack>
                   )}
                 </YStack>
-
-                {/* Category Select */}
                 <YStack flex={1} position="relative">
                   <Button
                     onPress={handleCategoryPress}
@@ -420,9 +386,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     pressStyle={{ opacity: 0.8 }}
                   >
                     <XStack gap="$2" flex={1} alignItems="center">
-                      <Text color="#fff" fontSize={16} fontWeight="500">Category:</Text>
+                      <Text color="#fff" fontSize={16} fontWeight="500">
+                        Category:
+                      </Text>
                       <Text color="#a0a0a0" textTransform="capitalize" fontSize={16}>
-                        {newTask.category}
+                        {newTask.category || (showCategorySelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
                   </Button>
@@ -442,16 +410,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                       shadowRadius={8}
                       height={200}
                     >
-                      <ScrollView bounces={false} showsVerticalScrollIndicator={true}>
+                      <ScrollView bounces={false} showsVerticalScrollIndicator>
                         <YStack elevation={8}>
-                          {(['work', 'health', 'personal', 'career', 'wealth', 'skills'] as const).map((category) => (
+                          {(['work', 'health', 'personal', 'career', 'wealth', 'skills'] as const).map((cat) => (
                             <Button
-                              key={category}
-                              onPress={() => handleCategorySelect(category)}
+                              key={cat}
+                              onPress={() => handleCategorySelect(cat)}
                               backgroundColor={
-                                newTask.category === category
-                                  ? preferences.primaryColor
-                                  : 'transparent'
+                                newTask.category === cat ? preferences.primaryColor : 'transparent'
                               }
                               height={45}
                               justifyContent="center"
@@ -460,12 +426,12 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                               borderColor="rgba(85,85,85,0.2)"
                             >
                               <Text
-                                color={newTask.category === category ? '#fff' : '#a0a0a0'}
+                                color={newTask.category === cat ? '#fff' : '#a0a0a0'}
                                 textTransform="capitalize"
                                 fontSize={16}
-                                fontWeight={newTask.category === category ? "600" : "400"}
+                                fontWeight={newTask.category === cat ? '600' : '400'}
                               >
-                                {category}
+                                {cat}
                               </Text>
                             </Button>
                           ))}
@@ -475,8 +441,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   )}
                 </YStack>
               </XStack>
-
-              {/* One-time switch */}
               <YStack>
                 <XStack
                   alignItems="center"
@@ -488,16 +452,25 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   borderRadius={12}
                   height={60}
                 >
-                  <Text fontSize={16} color="#fff" fontWeight="500">One-time task</Text>
-                  <Switch
-                    checked={newTask.isOneTime}
-                    onCheckedChange={handleOneTimeChange}
-                    backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'rgba(85,85,85,0.5)'}
-                  />
+                  <Text fontSize={16} color="#fff" fontWeight="500">
+                    One-time task
+                  </Text>
+                  <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>
+                    <YStack
+                      width={24}
+                      height={24}
+                      borderWidth={2}
+                      borderColor={preferences.primaryColor}
+                      borderRadius={4}
+                      backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'transparent'}
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      {newTask.isOneTime && <Ionicons name="checkmark" size={16} color="#fff" />}
+                    </YStack>
+                  </TouchableOpacity>
                 </XStack>
               </YStack>
-
-              {/* Submit button */}
               <Form.Trigger asChild>
                 <Button
                   backgroundColor={preferences.primaryColor}
