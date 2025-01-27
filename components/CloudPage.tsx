@@ -1,11 +1,15 @@
-import React, { useState, useCallback, useMemo, memo } from 'react';
-import { Text, Button, XStack, YStack, Image } from 'tamagui';
+import React, { useState, useCallback, useMemo, memo, useEffect } from 'react';
+import { Text, Button, XStack, YStack, Image, ScrollView, Spinner } from 'tamagui';
 import { FlashList } from '@shopify/flash-list';
 import { Ionicons } from '@expo/vector-icons';
+import { useUserStore } from '@/store/UserStore';
+import * as ImagePicker from 'expo-image-picker';
+import { Alert } from 'react-native';
+import { listUserPhotos, listUserFolders } from '@/utils/S3Storage';
 
 interface Photo {
   id: string;
-  uri: any;
+  uri: string;
   date: string;
   folder: string;
 }
@@ -16,105 +20,136 @@ interface Folder {
   count: number;
 }
 
-// Mock data
-const mockPhotos: Photo[] = [
-  { id: '1', uri: require('@/assets/images/ph4.png'), date: '2024-01-26', folder: 'Family' },
-  { id: '2', uri: require('@/assets/images/ph3.png'), date: '2024-01-26', folder: 'Family' },
-  { id: '3', uri: require('@/assets/images/ph2.png'), date: '2024-01-25', folder: 'Vacation' },
-  { id: '4', uri: require('@/assets/images/ph1.png'), date: '2024-01-25', folder: 'Vacation' },
-];
-
-const mockFolders: Folder[] = [
-  { id: '1', name: 'Family', count: 156 },
-  { id: '2', name: 'Vacation', count: 243 },
-  { id: '3', name: 'Screenshots', count: 45 },
-];
-
-interface PhotoItemProps {
-  uri: any;
-  date: string;
-}
-
-const PhotoItem = memo(({ uri, date }: PhotoItemProps) => (
+const PhotoItem = memo(({ uri }: { uri: string }) => (
   <YStack 
     width={120} 
     height={120} 
     margin={4} 
     borderRadius="$4" 
     overflow="hidden"
-    animation="lazy"
     pressStyle={{ scale: 0.98 }}
   >
     <Image 
-      source={uri}
+      source={{ uri }}
       alt="gallery item"
-      resizeMode="cover"
+      objectFit="cover"
       width={120}
       height={120}
     />
   </YStack>
 ));
 
-interface FolderItemProps {
-  name: string;
-  count: number;
-  onSelect: (name: string) => void;
-}
-
-const FolderItem = memo(({ name, count, onSelect }: FolderItemProps) => (
-  <YStack 
-    backgroundColor="$gray8"
-    padding="$3"
-    margin={4}
-    borderRadius="$4"
-    width={160}
-    animation="bouncy"
-    pressStyle={{ scale: 0.98 }}
-    onPress={() => onSelect(name)}
+const FolderButton = memo(({ name, isSelected, onPress }: { 
+  name: string, 
+  isSelected: boolean,
+  onPress: () => void 
+}) => (
+  <Button
+    backgroundColor={isSelected ? '$blue8' : '$gray8'}
+    paddingHorizontal="$4"
+    paddingVertical="$2"
+    margin="$2"
+    borderRadius="$6"
+    onPress={onPress}
   >
-    <XStack alignItems="center" gap="$2">
-      <Ionicons name="folder-outline" size={16} color="#fff" />
-      <YStack>
-        <Text color="$color" fontSize="$4" fontFamily="$body">
-          {name}
-        </Text>
-        <Text color="$gray11" fontSize="$3" fontFamily="$body">
-          {count} items
-        </Text>
-      </YStack>
-    </XStack>
-  </YStack>
+    <Text color="$color">{name}</Text>
+  </Button>
 ));
 
-type ViewType = 'grid' | 'folders';
-
 export default function CloudPage() {
-  const [activeView, setActiveView] = useState<ViewType>('grid');
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
-  
-  const photos = useMemo(() => mockPhotos, []);
-  const folders = useMemo(() => mockFolders, []);
+  const username = useUserStore(state => state.preferences.username);
+  const [selectedFolder, setSelectedFolder] = useState<string>('photos');
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleFolderSelect = useCallback((name: string) => {
-    setSelectedFolder(name);
-    setActiveView('grid');
-  }, []);
+  useEffect(() => {
+    loadFolders();
+    loadPhotos();
+  }, [username]);
 
-  const handleViewChange = useCallback((view: ViewType) => {
-    setActiveView(view);
-  }, []);
+  const loadFolders = async () => {
+    try {
+      const userFolders = await listUserFolders(username);
+      const folderObjects = userFolders.map(folder => ({
+        id: folder,
+        name: folder.charAt(0).toUpperCase() + folder.slice(1),
+        count: 0
+      }));
+      setFolders([{ id: 'photos', name: 'All Photos', count: 0 }, ...folderObjects]);
+    } catch (error) {
+      console.error('Failed to load folders:', error);
+    }
+  };
 
-  const renderPhotoItem = useCallback(({ item }: { item: Photo }) => (
-    <PhotoItem uri={item.uri} date={item.date} />
-  ), []);
+  const loadPhotos = async () => {
+    try {
+      setLoading(true);
+      const s3Objects = await listUserPhotos(username, selectedFolder === 'photos' ? undefined : selectedFolder);
+      const photoObjects = s3Objects.map(obj => ({
+        id: obj.key,
+        uri: obj.uri,
+        date: obj.lastModified?.toISOString() || new Date().toISOString(),
+        folder: selectedFolder
+      }));
+      setPhotos(photoObjects);
+    } catch (error) {
+      console.error('Failed to load photos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const renderFolderItem = useCallback(({ item }: { item: Folder }) => (
-    <FolderItem 
-      name={item.name} 
-      count={item.count} 
-      onSelect={handleFolderSelect}
-    />
-  ), [handleFolderSelect]);
+  useEffect(() => {
+    loadPhotos();
+  }, [selectedFolder]);
+
+  const handleAddPhoto = async () => {
+    setLoading(true);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const response = await fetch(result.assets[0].uri);
+        const blob = await response.blob();
+        
+        const fileName = `${Date.now()}.jpg`;
+        const path = `users/${username}/${selectedFolder}/${fileName}`;
+        
+        const uploadResponse = await fetch(`${process.env.EXPO_PUBLIC_S3_BUCKET_URL}/${path}`, {
+          method: 'PUT',
+          body: blob,
+          headers: {
+            'Content-Type': 'image/jpeg',
+            'x-amz-acl': 'private'
+          }
+        });
+
+        if (uploadResponse.ok) {
+          // Add the new photo to the state
+          const newPhoto = {
+            id: fileName,
+            uri: `${process.env.EXPO_PUBLIC_S3_BUCKET_URL}/${path}`,
+            date: new Date().toISOString(),
+            folder: selectedFolder
+          };
+          setPhotos(prev => [newPhoto, ...prev]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to upload photo:', error);
+      Alert.alert('Upload Error', 'Failed to upload photo. Please try again.');
+    }
+  };
+
+  const filteredPhotos = useMemo(() => {
+    if (selectedFolder === 'All Photos') return photos;
+    return photos.filter(photo => photo.folder === selectedFolder);
+  }, [photos, selectedFolder]);
 
   return (
     <YStack flex={1} backgroundColor="$background">
@@ -126,72 +161,39 @@ export default function CloudPage() {
         alignItems="center"
       >
         <Text color="$color" fontSize="$6" fontWeight="bold" fontFamily="$body">
-          {selectedFolder || 'Gallery'}
+          Photos
         </Text>
-      </XStack>
-
-      <XStack padding="$2" gap="$2">
         <Button
-          theme={activeView === 'grid' ? 'active' : undefined}
-          onPress={() => handleViewChange('grid')}
-          icon={<Ionicons name="grid-outline" size={20} color="#fff" />}
-          pressStyle={{ scale: 0.98 }}
-          animation="quick"
-        >
-          Grid
-        </Button>
-        <Button
-          theme={activeView === 'folders' ? 'active' : undefined}
-          onPress={() => handleViewChange('folders')}
-          icon={<Ionicons name="folder-outline" size={20} color="#fff" />}
-          pressStyle={{ scale: 0.98 }}
-          animation="quick"
-        >
-          Folders
-        </Button>
-
-        <XStack gap="$3" paddingLeft={32}>
-          <Button 
-            icon={<Ionicons name="add-circle-outline" size={24} color="#fff" />}
-            size="$3"
-            circular
-            backgroundColor="$backgroundHover"
-            pressStyle={{ scale: 0.96 }}
-            animation="quick"
-            onPress={() => console.log('Add photos')}
-          />
-          <Button 
-            icon={<Ionicons name="duplicate-outline" size={24} color="#fff" />}
-            size="$3"
-            circular
-            backgroundColor="$backgroundHover"
-            pressStyle={{ scale: 0.96 }}
-            animation="quick"
-            onPress={() => console.log('Upload Folder')}
-          />
-        </XStack>
-
-      </XStack>
-
-      {activeView === 'grid' ? (
-        <FlashList
-          data={photos}
-          renderItem={renderPhotoItem}
-          estimatedItemSize={120}
-          numColumns={3}
-          removeClippedSubviews
-          initialScrollIndex={0}
-
-          contentContainerStyle={{ padding: 4 }}
+          icon={<Ionicons name="add-circle-outline" size={24} color="#fff" />}
+          size="$3"
+          circular
+          backgroundColor="$backgroundHover"
+          pressStyle={{ scale: 0.96 }}
+          onPress={handleAddPhoto}
         />
+      </XStack>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} padding="$2">
+        {folders.map(folder => (
+          <FolderButton
+            key={folder.id}
+            name={folder.name}
+            isSelected={selectedFolder === folder.name}
+            onPress={() => setSelectedFolder(folder.name)}
+          />
+        ))}
+      </ScrollView>
+
+      {loading ? (
+        <YStack flex={1} justifyContent="center" alignItems="center">
+          <Spinner size="large" color="$blue8" />
+        </YStack>
       ) : (
         <FlashList
-          data={folders}
-          renderItem={renderFolderItem}
-          estimatedItemSize={64}
-          removeClippedSubviews
-
-
+          data={filteredPhotos}
+          renderItem={({ item }) => <PhotoItem uri={item.uri} />}
+          estimatedItemSize={120}
+          numColumns={3}
           contentContainerStyle={{ padding: 4 }}
         />
       )}

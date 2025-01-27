@@ -14,12 +14,22 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
   const { details, isLoading, error, fetchNetworkInfo, startNetworkListener } = useNetworkStore()
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    
     if (open) {
-      fetchNetworkInfo()
-      const unsubscribe = startNetworkListener()
-      return () => unsubscribe()
+      fetchNetworkInfo();
+      // Only start a new listener if we don't have one
+      if (!unsubscribe) {
+        unsubscribe = startNetworkListener();
+      }
     }
-  }, [open, fetchNetworkInfo, startNetworkListener])
+    
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [open]);
 
   const wifiDetails = getWifiDetails(details)
 

@@ -1,6 +1,11 @@
 import { YStack, Text, Button, Circle, Label } from 'tamagui'
 import { Image } from 'react-native'
 import { FormData } from '@/types'
+import { useUserStore } from '@/store/UserStore'
+import { useState } from 'react'
+
+// Array of DiceBear styles to cycle through
+const avatarStyles = ['adventurer', 'avataaars', 'bottts', 'pixel-art', 'lorelei']
 
 export default function Step1({
   formData,
@@ -11,6 +16,7 @@ export default function Step1({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   pickImage: () => void
 }) {
+  const [styleIndex, setStyleIndex] = useState(0)
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$1" alignItems="center">
@@ -33,6 +39,7 @@ export default function Step1({
             <Image
               source={{ uri: formData.profilePicture }}
               style={{ width: 180, height: 180, borderRadius: 90 }}
+              onError={(e) => console.error('Image loading error:', e.nativeEvent.error)}
             />
           ) : (
             <YStack alignItems="center" gap="$2">
@@ -67,11 +74,25 @@ export default function Step1({
         <Button
           chromeless
           onPress={() => {
-            // skipping = just go forward
+            // Get current style and increment index (cycling back to 0 if needed)
+            const currentStyle = avatarStyles[styleIndex]
+            setStyleIndex((prev) => (prev + 1) % avatarStyles.length)
+            
+            // Generate avatar URL using current DiceBear style
+            const avatarUrl = `https://api.dicebear.com/6.x/${currentStyle}/png?seed=${encodeURIComponent(formData.username)}`
+            
+            console.log('Generated avatar URL:', avatarUrl)
+            console.log('Current username:', formData.username)
+            console.log('Current style:', currentStyle)
+            
+            // Update both formData and userStore with the generated avatar
             setFormData((prev) => ({
               ...prev,
-              profilePicture: prev.profilePicture || '', 
+              profilePicture: avatarUrl
             }))
+            useUserStore.getState().setPreferences({
+              profilePicture: avatarUrl
+            })
           }}
           color="$blue10Dark"
           marginTop="$1"

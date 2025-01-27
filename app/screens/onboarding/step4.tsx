@@ -1,5 +1,6 @@
-import { YStack, Input, Label, Text } from 'tamagui'
+import { YStack, Input, Label, Text, Button } from 'tamagui'
 import { FormData } from '@/types'
+import { Alert } from 'react-native'
 
 export default function Step4({
   formData,
@@ -57,6 +58,32 @@ export default function Step4({
           scale: 1.02,
         }}
       />
+      
+      <Button
+        chromeless
+        onPress={() => {
+          Alert.alert(
+            "Skip Zip Code?",
+            "Weather data won't be accurate for your location. Continue anyway?",
+            [
+              {
+                text: "No",
+                style: "cancel"
+              },
+              {
+                text: "Yes",
+                onPress: () => {
+                  // Set Dallas, TX zip code as default
+                  setFormData(prev => ({ ...prev, zipCode: "75201" }))
+                }
+              }
+            ]
+          )
+        }}
+        color="$blue10Dark"
+      >
+        Skip for now
+      </Button>
     </YStack>
   )
 }

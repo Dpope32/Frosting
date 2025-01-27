@@ -4,12 +4,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '../store/UserStore';
 import { useChatStore } from '../store/ChatStore';
 import { AnimatedText } from './AnimatedText';
-import { 
-  TouchableOpacity, 
-  ScrollView as RNScrollView, 
+import {
+  TouchableOpacity,
+  ScrollView as RNScrollView,
   Platform,
   Keyboard,
-  View
+  View,
+  Alert
 } from 'react-native';
 
 export function AIChatbot() {
@@ -21,11 +22,17 @@ export function AIChatbot() {
   const { messages, sendMessage, isLoading, currentStreamingMessage, error } = useChatStore();
 
   const handleSend = async () => {
-    if (!message.trim() || isLoading) return;
-    const currentMessage = message;
+    if (isLoading) return;
+
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      Alert.alert('Error', 'Please enter a message');
+      return;
+    }
+
     setMessage('');
     Keyboard.dismiss();
-    await sendMessage(currentMessage);
+    await sendMessage(trimmedMessage);
   };
 
   // Auto scroll when messages change or when streaming
@@ -35,7 +42,7 @@ export function AIChatbot() {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100); // Small delay to ensure content is rendered
     };
-    
+
     scrollToBottom();
   }, [currentStreamingMessage, messages]);
 
@@ -45,7 +52,9 @@ export function AIChatbot() {
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (e) => setKeyboardHeight(e.endCoordinates.height)
     );
-    
+
+     // console.log('Keyboard will show', e.endCoordinates.height); // commented out
+
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => setKeyboardHeight(0)
@@ -56,6 +65,29 @@ export function AIChatbot() {
       keyboardWillHide.remove();
     };
   }, []);
+
+  const getErrorMessage = (error: string) => {
+    if (error.includes("Error processing stream")) {
+      return "Failed to get response. Please try again.";
+    }
+    if (error.includes("API key")) {
+      return "API key not configured. Please check settings.";
+    }
+    if (error.includes("empty response")) {
+      return "No response received. Please try again.";
+    }
+    return error;
+  };
+
+  const handleRetry = () => {
+    if (messages.length > 1) {
+      const lastUserMessage = messages[messages.length - 1];
+      if (lastUserMessage.role === 'user') {
+        useChatStore.getState().setError(null);
+        sendMessage(lastUserMessage.content);
+      }
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -72,17 +104,28 @@ export function AIChatbot() {
             zIndex={1000}
             alignItems="center"
             justifyContent="center"
+            animation="bouncy"
+            enterStyle={{ opacity: 0, scale: 0.9 }}
+            exitStyle={{ opacity: 0, scale: 0.9 }}
           >
             <XStack flex={1} alignItems="center" justifyContent="space-between">
               <Text color="white" flex={1} textAlign="center">
-                {error}
+                {getErrorMessage(error)}
               </Text>
-              <TouchableOpacity 
-                onPress={() => useChatStore.getState().setError(null)}
-                style={{ marginLeft: 8 }}
-              >
-                <Ionicons name="close" size={24} color="white" />
-              </TouchableOpacity>
+              <XStack gap={8}>
+                <TouchableOpacity
+                  onPress={handleRetry}
+                  style={{ marginLeft: 8 }}
+                >
+                  <Ionicons name="refresh" size={24} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => useChatStore.getState().setError(null)}
+                  style={{ marginLeft: 8 }}
+                >
+                  <Ionicons name="close" size={24} color="white" />
+                </TouchableOpacity>
+              </XStack>
             </XStack>
           </XStack>
         )}
@@ -94,8 +137,8 @@ export function AIChatbot() {
             </Text>
           </Stack>
         ) : (
-          <ScrollView 
-            flex={1} 
+          <ScrollView
+            flex={1}
             padding={16}
             paddingTop={100}
             paddingBottom={140}
@@ -109,7 +152,7 @@ export function AIChatbot() {
               {messages
                 .filter(msg => msg.role !== 'system')
                 .map((msg, index) => (
-                  <XStack 
+                  <XStack
                     key={index}
                     backgroundColor={msg.role === 'user' ? '$blue9' : '#333'}
                     padding={12}
@@ -117,20 +160,28 @@ export function AIChatbot() {
                     alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
                     maxWidth="80%"
                   >
-                    <Text color="white" fontSize={16}>
-                      {msg.content}
-                    </Text>
+                    {msg.role === 'user' ? (
+                      <Text color="white" fontSize={16}>
+                        {msg.content}
+                      </Text>
+                    ) : (
+                      <AnimatedText
+                        text={msg.content}
+                        color="white"
+                        fontSize={16}
+                      />
+                    )}
                   </XStack>
                 ))}
               {currentStreamingMessage && (
-                <XStack 
+                <XStack
                   backgroundColor="#333"
                   padding={12}
                   borderRadius={16}
                   alignSelf="flex-start"
                   maxWidth="80%"
                 >
-                  <AnimatedText 
+                  <AnimatedText
                     text={currentStreamingMessage}
                     color="white"
                     fontSize={16}
@@ -138,7 +189,7 @@ export function AIChatbot() {
                 </XStack>
               )}
               {isLoading && !currentStreamingMessage && (
-                <XStack 
+                <XStack
                   backgroundColor="#333"
                   padding={12}
                   borderRadius={16}
@@ -153,7 +204,7 @@ export function AIChatbot() {
             </YStack>
           </ScrollView>
         )}
-        
+
         <XStack
           backgroundColor="$gray12"
           borderRadius={28}
@@ -163,7 +214,7 @@ export function AIChatbot() {
           alignItems="center"
           borderWidth={1}
           borderColor="$gray11"
-          opacity={1}
+          opacity={isLoading ? 0.7 : 1}
           elevation={2}
         >
           <Ionicons name="attach" size={24} color="#666" />
@@ -181,18 +232,20 @@ export function AIChatbot() {
             onSubmitEditing={handleSend}
             multiline
             maxHeight={80}
+            editable={!isLoading}
           />
           {isLoading ? (
             <Spinner size="small" color={primaryColor} />
           ) : (
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleSend}
               activeOpacity={0.7}
+              disabled={!message.trim()}
             >
-              <Ionicons 
-                name="send" 
-                size={24} 
-                color={primaryColor} 
+              <Ionicons
+                name="send"
+                size={24}
+                color={message.trim() ? primaryColor : '#666'}
               />
             </TouchableOpacity>
           )}

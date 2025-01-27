@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, ThemeableStack } from 'tamagui'
+import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, Input } from 'tamagui'
 import { KeyboardAvoidingView, Platform, Keyboard, TouchableOpacity } from 'react-native'
-import InputField, { InputFieldRef } from '@/components/shared/InputField'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons'
 
 const WEEKDAYS: Record<string, WeekDay> = {
   sun: 'sunday',
@@ -19,10 +18,11 @@ const WEEKDAYS: Record<string, WeekDay> = {
 
 const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'> => {
   const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
-  const fullDay = WEEKDAYS[currentDay as keyof typeof WEEKDAYS]
   return {
     name: '',
-    schedule: fullDay ? [fullDay] : [],
+    schedule: WEEKDAYS[currentDay as keyof typeof WEEKDAYS]
+      ? [WEEKDAYS[currentDay as keyof typeof WEEKDAYS]]
+      : [],
     time: undefined,
     priority: null as unknown as TaskPriority,
     category: null as unknown as TaskCategory,
@@ -31,11 +31,13 @@ const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'createdAt' | 'update
 }
 
 const generateTimeOptions = () => {
-  const options = []
+  const options: string[] = []
   for (let hour = 0; hour < 24; hour++) {
     for (let minute = 0; minute < 60; minute += 15) {
-      const timeString = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-      options.push(timeString)
+      const h12 = hour % 12 === 0 ? 12 : hour % 12
+      const ampm = hour < 12 ? 'AM' : 'PM'
+      const minStr = minute.toString().padStart(2, '0')
+      options.push(`${h12}:${minStr} ${ampm}`)
     }
   }
   return options
@@ -52,17 +54,16 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
-  const inputRef = useRef<InputFieldRef>(null)
   const [showPrioritySelect, setShowPrioritySelect] = useState(false)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
   const [showTimeSelect, setShowTimeSelect] = useState(false)
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const inputRef = useRef<any>(null)
 
   useEffect(() => {
     let focusTimeout: NodeJS.Timeout
     let resetTimeout: NodeJS.Timeout
-
     if (!open) {
       resetTimeout = setTimeout(() => {
         setShowPrioritySelect(false)
@@ -76,7 +77,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
         inputRef.current?.focus()
       }, 50)
     }
-
     return () => {
       if (focusTimeout) clearTimeout(focusTimeout)
       if (resetTimeout) clearTimeout(resetTimeout)
@@ -103,7 +103,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   }, [])
 
   const handleTimePress = useCallback(() => {
-    setShowTimeSelect(true)
+    setShowTimeSelect((prev) => !prev)
+    setShowPrioritySelect(false)
+    setShowCategorySelect(false)
   }, [])
 
   const handlePrioritySelect = useCallback((value: TaskPriority) => {
@@ -151,12 +153,10 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
         await Promise.resolve(addTask(taskToAdd))
         showToast('Task added successfully')
       } catch (error) {
-        console.error('Failed to add task:', error)
         showToast('Failed to add task. Please try again.')
         return
       }
-    } catch (error) {
-      console.error('Error in handleAddTask:', error)
+    } catch {
       showToast('An error occurred. Please try again.')
     } finally {
       setIsSubmitting(false)
@@ -168,22 +168,20 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[70]}
+      snapPoints={[65]}
       animation="quick"
       unmountChildrenWhenHidden={false}
       zIndex={100000}
     >
-      <Sheet.Overlay backgroundColor="rgba(0,0,0,0.5)" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Frame
-        backgroundColor="rgba(28,28,28,0.95)"
-        padding="$5"
+        backgroundColor="rgba(16,16,16,1)"
+        padding="$4"
         gap="$5"
         borderRadius="$6"
         shadowColor="rgba(0,0,0,0.3)"
         shadowOffset={{ width: 0, height: -2 }}
         shadowOpacity={0.3}
         shadowRadius={8}
-        elevation={10}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <ScrollView bounces={false}>
@@ -198,14 +196,19 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
             <Text fontSize={24} fontWeight="700" color="#fff" marginBottom={20}>
               New Task
             </Text>
-            <Form gap="$5" onSubmit={handleAddTask}>
-              <InputField
+            <Form gap="$4" onSubmit={handleAddTask}>
+              <Input
                 ref={inputRef}
                 placeholder="Enter task name"
                 value={newTask.name}
                 onChangeText={handleTextChange}
-                returnKeyType="done"
-                onSubmitEditing={Keyboard.dismiss}
+                borderWidth={1}
+                borderColor="rgba(85,85,85,0.5)"
+                backgroundColor="rgba(45,45,45,0.8)"
+                color="#fff"
+                borderRadius={12}
+                paddingHorizontal="$3"
+                height={50}
               />
               <YStack gap="$3">
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -245,72 +248,103 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   </XStack>
                 </ScrollView>
               </YStack>
-              <YStack position="relative">
-                <Button
-                  onPress={handleTimePress}
-                  backgroundColor="rgba(45,45,45,0.8)"
-                  borderRadius={12}
-                  height={50}
-                  borderColor="rgba(85,85,85,0.5)"
-                  borderWidth={1}
-                  paddingHorizontal="$3"
-                  pressStyle={{ opacity: 0.8 }}
-                >
-                  <XStack gap="$2" flex={1} alignItems="center">
-                    <Text color="#fff" fontSize={16} fontWeight="500">
-                      Time:
-                    </Text>
-                    <Text color="#a0a0a0" textTransform="capitalize" fontSize={16}>
-                      {newTask.time || (showTimeSelect ? '▲' : '▼')}
-                    </Text>
-                  </XStack>
-                </Button>
-                {showTimeSelect && (
-                  <YStack
-                    position="absolute"
-                    top="110%"
-                    left={0}
-                    right={0}
-                    backgroundColor="rgba(45,45,45,0.95)"
+              <XStack gap="$4" width="100%">
+                <YStack flex={1} position="relative">
+                  <Button
+                    onPress={handleTimePress}
+                    backgroundColor="rgba(45,45,45,0.8)"
                     borderRadius={12}
-                    zIndex={1000}
-                    overflow="hidden"
-                    shadowColor="black"
-                    shadowOffset={{ width: 0, height: 4 }}
-                    shadowOpacity={0.2}
-                    shadowRadius={8}
-                    height={250}
+                    height={50}
+                    borderColor="rgba(85,85,85,0.5)"
+                    borderWidth={1}
+                    paddingHorizontal="$3"
+                    pressStyle={{ opacity: 0.8 }}
                   >
-                    <ScrollView bounces={false} showsVerticalScrollIndicator>
-                      <YStack elevation={8}>
-                        {TIME_OPTIONS.map((time) => (
-                          <Button
-                            key={time}
-                            onPress={() => handleTimeSelect(time)}
-                            backgroundColor={
-                              newTask.time === time ? preferences.primaryColor : 'transparent'
-                            }
-                            height={45}
-                            justifyContent="center"
-                            pressStyle={{ opacity: 0.8 }}
-                            borderBottomWidth={1}
-                            borderColor="rgba(85,85,85,0.2)"
-                          >
-                            <Text
-                              color={newTask.time === time ? '#fff' : '#a0a0a0'}
-                              textTransform="capitalize"
-                              fontSize={16}
-                              fontWeight={newTask.time === time ? '600' : '400'}
+                    <XStack gap="$2" flex={1} alignItems="center">
+                      <Text color="#fff" fontSize={16} fontWeight="500">
+                        Time:
+                      </Text>
+                      <Text color="#a0a0a0" fontSize={16}>
+                        {newTask.time || (showTimeSelect ? '▲' : '▼')}
+                      </Text>
+                    </XStack>
+                  </Button>
+                  {showTimeSelect && (
+                    <YStack
+                      position="absolute"
+                      top="110%"
+                      left={0}
+                      right={0}
+                      backgroundColor="rgba(45,45,45,0.95)"
+                      borderRadius={12}
+                      zIndex={1000}
+                      overflow="hidden"
+                      shadowColor="black"
+                      shadowOffset={{ width: 0, height: 4 }}
+                      shadowOpacity={0.2}
+                      shadowRadius={8}
+                      height={250}
+                    >
+                      <ScrollView bounces={false} showsVerticalScrollIndicator>
+                        <YStack elevation={8}>
+                          {TIME_OPTIONS.map((time) => (
+                            <Button
+                              key={time}
+                              onPress={() => handleTimeSelect(time)}
+                              backgroundColor={
+                                newTask.time === time ? preferences.primaryColor : 'transparent'
+                              }
+                              height={45}
+                              justifyContent="center"
+                              pressStyle={{ opacity: 0.8 }}
+                              borderBottomWidth={1}
+                              borderColor="rgba(85,85,85,0.2)"
                             >
-                              {time}
-                            </Text>
-                          </Button>
-                        ))}
+                              <Text
+                                color={newTask.time === time ? '#fff' : '#a0a0a0'}
+                                fontSize={16}
+                                fontWeight={newTask.time === time ? '600' : '400'}
+                              >
+                                {time}
+                              </Text>
+                            </Button>
+                          ))}
+                        </YStack>
+                      </ScrollView>
+                    </YStack>
+                  )}
+                </YStack>
+                <YStack flex={1}>
+                  <XStack
+                    alignItems="center"
+                    justifyContent="space-between"
+                    backgroundColor="rgba(45,45,45,0.8)"
+                    paddingHorizontal="$4"
+                    borderColor="rgba(85,85,85,0.5)"
+                    borderWidth={1}
+                    borderRadius={12}
+                    height={50}
+                  >
+                    <Text fontSize={16} color="#fff" fontWeight="500">
+                      One-time
+                    </Text>
+                    <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>
+                      <YStack
+                        width={24}
+                        height={24}
+                        borderWidth={2}
+                        borderColor={preferences.primaryColor}
+                        borderRadius={4}
+                        backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'transparent'}
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        {newTask.isOneTime && <Ionicons name="checkmark" size={16} color="#fff" />}
                       </YStack>
-                    </ScrollView>
-                  </YStack>
-                )}
-              </YStack>
+                    </TouchableOpacity>
+                  </XStack>
+                </YStack>
+              </XStack>
               <XStack gap="$4" width="100%">
                 <YStack flex={1} position="relative">
                   <Button
@@ -327,7 +361,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                       <Text color="#fff" fontSize={16} fontWeight="500">
                         Priority:
                       </Text>
-                      <Text color="#a0a0a0" textTransform="capitalize" fontSize={16}>
+                      <Text color="#a0a0a0" fontSize={16}>
                         {newTask.priority || (showPrioritySelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
@@ -363,7 +397,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                         >
                           <Text
                             color={newTask.priority === priority ? '#fff' : '#a0a0a0'}
-                            textTransform="capitalize"
                             fontSize={16}
                             fontWeight={newTask.priority === priority ? '600' : '400'}
                           >
@@ -389,7 +422,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                       <Text color="#fff" fontSize={16} fontWeight="500">
                         Category:
                       </Text>
-                      <Text color="#a0a0a0" textTransform="capitalize" fontSize={16}>
+                      <Text color="#a0a0a0" fontSize={16}>
                         {newTask.category || (showCategorySelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
@@ -427,7 +460,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                             >
                               <Text
                                 color={newTask.category === cat ? '#fff' : '#a0a0a0'}
-                                textTransform="capitalize"
                                 fontSize={16}
                                 fontWeight={newTask.category === cat ? '600' : '400'}
                               >
@@ -441,36 +473,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   )}
                 </YStack>
               </XStack>
-              <YStack>
-                <XStack
-                  alignItems="center"
-                  justifyContent="space-between"
-                  backgroundColor="rgba(45,45,45,0.8)"
-                  padding="$4"
-                  borderColor="rgba(85,85,85,0.5)"
-                  borderWidth={1}
-                  borderRadius={12}
-                  height={60}
-                >
-                  <Text fontSize={16} color="#fff" fontWeight="500">
-                    One-time task
-                  </Text>
-                  <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>
-                    <YStack
-                      width={24}
-                      height={24}
-                      borderWidth={2}
-                      borderColor={preferences.primaryColor}
-                      borderRadius={4}
-                      backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'transparent'}
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      {newTask.isOneTime && <Ionicons name="checkmark" size={16} color="#fff" />}
-                    </YStack>
-                  </TouchableOpacity>
-                </XStack>
-              </YStack>
               <Form.Trigger asChild>
                 <Button
                   backgroundColor={preferences.primaryColor}

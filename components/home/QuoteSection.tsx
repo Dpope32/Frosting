@@ -1,21 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { View, useWindowDimensions, Image, Alert, Pressable } from 'react-native'
-import { BlurView } from 'expo-blur'
-import MyTracker from '@splicer97/react-native-mytracker'
-import { useUserStore } from '@/store/UserStore'
-import {
-  useProjectStore,
-  useStoreHydrated,
-  Task,
-} from '@/store/ToDo'
-import { LinearGradient } from 'expo-linear-gradient'
-import { YStack, Text, Stack, XStack, ScrollView, Button } from 'tamagui'
-import Animated, {
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  useSharedValue,
-} from 'react-native-reanimated'
+import React from 'react'
+import { Pressable } from 'react-native'
+import { YStack, Text, Stack, XStack } from 'tamagui'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -26,7 +11,7 @@ export const QuoteSection = () => {
     if (isLoading || !data) return null;
   
     return (
-      <Stack marginTop="$4">
+      <Stack marginTop="$0">
         <XStack alignItems="center" gap="$2">
           <YStack flex={1}>
             <Text

@@ -1,5 +1,5 @@
 // src/components/TemperatureCard.tsx
-import { Stack, Text } from 'tamagui';
+import { Stack, Text, Spinner } from 'tamagui';
 import React, { useEffect, useRef } from 'react';
 import { useUserStore } from '@/store/UserStore';
 import { useWeatherQuery, useWeatherStore } from '@/store/WeatherStore';
@@ -45,14 +45,21 @@ export function TemperatureCard() {
       alignItems="center"
       justifyContent="center"
     >
-      <Text
-        color={valueColor}
-        fontSize={18}
-        fontWeight="bold"
-        fontFamily="$SpaceMono"
-      >
-        {displayTemp}
-      </Text>
+      {isLoading ? (
+        <Spinner
+          color={valueColor}
+          size="small"
+        />
+      ) : (
+        <Text
+          color={valueColor}
+          fontSize={18}
+          fontWeight="bold"
+          fontFamily="$SpaceMono"
+        >
+          {currentTemp !== null ? `${currentTemp}°F` : 'N/A'}
+        </Text>
+      )}
     </Stack>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Stack, Text, YStack } from 'tamagui';
+import { WifiModal } from '@/components/cardModals/WifiModal';
 import { getValueColor } from '@/constants/valueHelper';
 import { useNetworkStore } from '@/store/NetworkStore';
 import { getWifiDetails } from '@/services/wifiServices';
@@ -7,6 +8,7 @@ import { getWifiDetails } from '@/services/wifiServices';
 export function WifiCard() {
   const { details, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
   const [ping, setPing] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const wifiDetails = getWifiDetails(details);
   const isConnected = details?.isConnected ?? false;
   const isWifi = details?.type === 'wifi';
@@ -68,16 +70,19 @@ export function WifiCard() {
   };
 
   return (
-    <Stack
-      backgroundColor="rgba(0, 0, 0, 0.3)"
-      borderRadius={12}
-      padding="$3"
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)"
-      minWidth={100}
-      alignItems="center"
-      justifyContent="center"
-    >
+    <>
+      <Stack
+        backgroundColor="rgba(0, 0, 0, 0.3)"
+        borderRadius={12}
+        padding="$3"
+        borderWidth={1}
+        borderColor="rgba(255, 255, 255, 0.1)"
+        minWidth={100}
+        alignItems="center"
+        justifyContent="center"
+        pressStyle={{ opacity: 0.8 }}
+        onPress={() => setModalOpen(true)}
+      >
       <YStack alignItems="center">
         <Text
           color={getSpeedColor()}
@@ -88,6 +93,12 @@ export function WifiCard() {
           {getSpeedDisplay()}
         </Text>
       </YStack>
-    </Stack>
+      </Stack>
+      <WifiModal 
+        open={modalOpen} 
+        onOpenChange={setModalOpen} 
+        speed={getSpeedDisplay()} 
+      />
+    </>
   );
 }
