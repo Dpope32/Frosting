@@ -304,7 +304,7 @@ export function LandingPage() {
             padding="$3"
             borderWidth={2}
             borderColor="rgba(255, 255, 255, 0.1)"
-            minHeight={450} 
+            minHeight={300} 
           >
             <Text
               color="#dbd0c6"

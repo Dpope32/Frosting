@@ -91,7 +91,7 @@ export default function DrawerLayout() {
         }}
       >
         <Drawer.Screen
-          name="(tabs)"
+          name="(tabs)/index"
           options={{
             title: 'Home',
             drawerLabel: 'Home',
@@ -127,6 +127,26 @@ export default function DrawerLayout() {
             drawerLabel: 'OU',
             drawerIcon: ({ color }) => (
               <MaterialCommunityIcons name="football" size={24} color={color} style={{ marginRight: 20 }} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="ai"
+          options={{
+            title: 'Chatbot',
+            drawerLabel: 'Chatbot',
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="anchor" size={24} color={color} style={{ marginRight: 20 }} />
+            ),
+          }}
+        />
+         <Drawer.Screen
+          name="cloud"
+          options={{
+            title: 'Cloud',
+            drawerLabel: 'Cloud',
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="cloud" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />

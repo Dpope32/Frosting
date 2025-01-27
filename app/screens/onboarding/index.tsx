@@ -1,9 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
-import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Alert } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native'
 import {  XStack, Button, Text, View } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
-import { initUserStorage, uploadProfilePicture } from '@/utils/S3Storage'
 
 import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors'
@@ -44,43 +43,12 @@ export default function Onboarding() {
     }
   }, [])
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (step === 4) {
-      try {
-        // Initialize user's S3 storage structure
-        const storageInitialized = await initUserStorage(formData.username);
-        if (!storageInitialized) {
-          Alert.alert('Setup Error', 'Failed to initialize storage. Please try again.');
-          return;
-        }
-
-        // If they have a profile picture, upload it to S3
-        let s3ProfilePicture = formData.profilePicture;
-        if (formData.profilePicture) {
-          const uploadedUrl = await uploadProfilePicture(formData.username, formData.profilePicture);
-          if (uploadedUrl) {
-            s3ProfilePicture = uploadedUrl;
-          }
-        }
-
-        // Update preferences with S3 profile picture URL if uploaded
-        setPreferences({ 
-          ...formData, 
-          profilePicture: s3ProfilePicture,
-          hasCompletedOnboarding: true 
-        });
-        
-        router.replace('/(drawer)');
-      } catch (error) {
-        console.error('Failed to complete onboarding:', error);
-        Alert.alert(
-          'Error', 
-          'Failed to complete setup. Please try again.',
-          [{ text: 'OK' }]
-        );
-      }
+      setPreferences({ ...formData, hasCompletedOnboarding: true })
+      router.replace('/(drawer)')
     } else {
-      setStep((prev) => prev + 1);
+      setStep((prev) => prev + 1)
     }
   }
 
@@ -194,7 +162,7 @@ export default function Onboarding() {
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
-                  onPress={() => handleNext()}>
+                  onPress={handleNext}>
                   <Text color="white" fontWeight="bold">
                     {step === 4 ? 'Complete' : 'Continue'}
                   </Text>

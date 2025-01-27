@@ -163,26 +163,35 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
     }
   }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
 
-  return (
-    <Sheet
-      modal
-      open={open}
-      onOpenChange={onOpenChange}
-      snapPoints={[65]}
-      animation="quick"
-      unmountChildrenWhenHidden={false}
-      zIndex={100000}
-    >
-      <Sheet.Frame
-        backgroundColor="rgba(16,16,16,1)"
-        padding="$4"
-        gap="$5"
-        borderRadius="$6"
-        shadowColor="rgba(0,0,0,0.3)"
-        shadowOffset={{ width: 0, height: -2 }}
-        shadowOpacity={0.3}
-        shadowRadius={8}
+
+    return (
+      <Sheet
+        modal
+        open={open}
+        onOpenChange={onOpenChange}
+        snapPoints={[65]}
+        dismissOnSnapToBottom
+        dismissOnOverlayPress
+        animation="quick"
+        unmountChildrenWhenHidden={false}
+        zIndex={100000}
       >
+        <Sheet.Overlay 
+          animation="lazy" 
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
+        <Sheet.Frame
+          backgroundColor="rgba(16,16,16,1)"
+          padding="$4"
+          gap="$5"
+          borderTopLeftRadius="$6"
+          borderTopRightRadius="$6"
+          shadowColor="rgba(0,0,0,0.3)"
+          shadowOffset={{ width: 0, height: -2 }}
+          shadowOpacity={0.3}
+          shadowRadius={8}
+        >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
           <ScrollView bounces={false}>
             <Sheet.Handle
@@ -260,11 +269,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     paddingHorizontal="$3"
                     pressStyle={{ opacity: 0.8 }}
                   >
-                    <XStack gap="$2" flex={1} alignItems="center">
-                      <Text color="#fff" fontSize={16} fontWeight="500">
+                    <XStack gap="$2" flex={1}  justifyContent= 'flex-start'>
+                    <Text color="#fff" fontSize={16} fontWeight="500" marginRight={72}>
                         Time:
                       </Text>
-                      <Text color="#a0a0a0" fontSize={16}>
+                      <Text color="#a0a0a0" fontSize={16}  display= 'flex'> 
                         {newTask.time || (showTimeSelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
@@ -357,11 +366,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     paddingHorizontal="$3"
                     pressStyle={{ opacity: 0.8 }}
                   >
-                    <XStack gap="$2" flex={1} alignItems="center">
-                      <Text color="#fff" fontSize={16} fontWeight="500">
+                    <XStack gap="$2" flex={1}  justifyContent= 'flex-start'>
+                    <Text color="#fff" fontSize={16} fontWeight="500" marginRight={60}>
                         Priority:
                       </Text>
-                      <Text color="#a0a0a0" fontSize={16}>
+                      <Text color="#a0a0a0" fontSize={16}  display= 'flex' justifyContent= 'flex-end'> 
                         {newTask.priority || (showPrioritySelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
@@ -418,11 +427,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                     paddingHorizontal="$3"
                     pressStyle={{ opacity: 0.8 }}
                   >
-                    <XStack gap="$2" flex={1} alignItems="center">
-                      <Text color="#fff" fontSize={16} fontWeight="500">
+                    <XStack gap="$2" flex={1}  justifyContent= 'flex-start'>
+                      <Text color="#fff" fontSize={16} fontWeight="500" marginRight={48}>
                         Category:
                       </Text>
-                      <Text color="#a0a0a0" fontSize={16}>
+                      <Text color="#a0a0a0" fontSize={16}  display= 'flex' justifyContent= 'flex-end'> 
                         {newTask.category || (showCategorySelect ? '▲' : '▼')}
                       </Text>
                     </XStack>
@@ -480,6 +489,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   pressStyle={{ opacity: 0.8, scale: 0.98 }}
                   borderRadius={12}
                   alignSelf="center"
+                  marginTop={50}
                   width="100%"
                   shadowColor="black"
                   shadowOffset={{ width: 0, height: 2 }}
@@ -489,7 +499,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   disabled={isSubmitting}
                   opacity={isSubmitting ? 0.7 : 1}
                 >
-                  <Text color="white" fontWeight="600" fontSize={18}>
+                  <Text color="white" fontWeight="600" fontSize={18} >
                     {isSubmitting ? 'Adding...' : 'Add Task'}
                   </Text>
                 </Button>
@@ -497,7 +507,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
             </Form>
           </ScrollView>
         </KeyboardAvoidingView>
-      </Sheet.Frame>
+        </Sheet.Frame>
     </Sheet>
   )
 }
