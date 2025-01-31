@@ -135,11 +135,8 @@ export const useProjectStore = create<ProjectStore>()(
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
-
         tasks[id] = newTask
-        console.time('addTask');
         set({ tasks, todaysTasks: taskFilter(tasks) })
-        console.timeEnd('addTask');
       },
 
       deleteTask: (id) => {

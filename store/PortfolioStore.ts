@@ -56,29 +56,29 @@ export const usePortfolioQuery = () => {
             }
           });
           
-          const results = await Promise.all(requests);
+          const results = await Promise.allSettled(requests);
           const priceData: Record<string, number> = {};
           let total = 0;
           let hasErrors = false;
   
-          results.forEach(({ symbol, price, error }) => {
-            const stock = portfolioData.find(s => s.symbol === symbol);
-            if (!stock) return;
-  
-            if (error) {
+          results.forEach(result => {
+            if (result.status === 'fulfilled') {
+              const { symbol, price, error } = result.value;
+              const stock = portfolioData.find(s => s.symbol === symbol);
+              if (!stock) return;
+    
+              if (error) {
+                hasErrors = true;
+                if (__DEV__) console.warn(`[PortfolioStore] Error fetching ${symbol}:`, error);
+              }
+    
+              priceData[symbol] = price;
+              total += price * stock.quantity;
+            } else {
               hasErrors = true;
-              if (__DEV__) console.warn(`[PortfolioStore] Error fetching ${symbol}:`, error);
+              if (__DEV__) console.warn(`[PortfolioStore] Error fetching:`, result.reason);
             }
-  
-            priceData[symbol] = price;
-            total += price * stock.quantity;
-            
           });
-  
-         // if (__DEV__) {
-         //   console.log('[PortfolioStore] Final prices:', priceData);
-         // }
-  
           // Only store new data if we got at least some valid prices
           if (!hasErrors || Object.values(priceData).some(price => price > 0)) {
             storage.set('portfolio_prices', JSON.stringify(priceData));

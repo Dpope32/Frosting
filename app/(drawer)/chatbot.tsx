@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Stack, Text, Input, XStack, ScrollView, YStack, Spinner } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
-import { useUserStore } from '../store/UserStore';
-import { useChatStore } from '../store/ChatStore';
-import { AnimatedText } from './AnimatedText';
+import { useUserStore } from '@/store/UserStore';
+import { useChatStore } from '@/store/ChatStore';
+import { AnimatedText } from '@/components/AnimatedText';
 import {
   TouchableOpacity,
   ScrollView as RNScrollView,
@@ -13,54 +13,53 @@ import {
   Alert
 } from 'react-native';
 
-export function AIChatbot() {
+export default function Chatbot() {
   const scrollViewRef = useRef<RNScrollView>(null);
   const [message, setMessage] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const username = useUserStore((state) => state.preferences.username);
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const { messages, sendMessage, isLoading, currentStreamingMessage, error } = useChatStore();
+  const { messages, sendMessage, isLoading, currentStreamingMessage, error, currentPersona, setPersona } = useChatStore();
 
   const handleSend = async () => {
     if (isLoading) return;
-
+  
     const trimmedMessage = message.trim();
     if (!trimmedMessage) {
       Alert.alert('Error', 'Please enter a message');
       return;
     }
-
+  
     setMessage('');
     Keyboard.dismiss();
-    await sendMessage(trimmedMessage);
+    try {
+      await sendMessage(trimmedMessage);
+    } catch (error) {
+      console.error('Send message error:', error);
+    }
   };
-
-  // Auto scroll when messages change or when streaming
-  useEffect(() => {
-    const scrollToBottom = () => {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100); // Small delay to ensure content is rendered
-    };
-
-    scrollToBottom();
-  }, [currentStreamingMessage, messages]);
 
   // Keyboard handling
   useEffect(() => {
+    console.log('Keyboard effect mounted');
     const keyboardWillShow = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => setKeyboardHeight(e.endCoordinates.height)
+      (e) => {
+        console.log('Keyboard will show with height:', e.endCoordinates.height);
+        setKeyboardHeight(e.endCoordinates.height);
+      }
     );
-
-     // console.log('Keyboard will show', e.endCoordinates.height); // commented out
 
     const keyboardWillHide = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => setKeyboardHeight(0)
+      () => {
+        console.log('Keyboard will hide');
+        setKeyboardHeight(0);
+      }
     );
 
     return () => {
+      console.log('Keyboard listeners removed');
       keyboardWillShow.remove();
       keyboardWillHide.remove();
     };
@@ -165,11 +164,12 @@ export function AIChatbot() {
                         {msg.content}
                       </Text>
                     ) : (
-                      <AnimatedText
-                        text={msg.content}
+                      <Text
                         color="white"
                         fontSize={16}
-                      />
+                      >
+                        {msg.content}
+                      </Text>
                     )}
                   </XStack>
                 ))}
@@ -181,11 +181,12 @@ export function AIChatbot() {
                   alignSelf="flex-start"
                   maxWidth="80%"
                 >
-                  <AnimatedText
-                    text={currentStreamingMessage}
+                  <Text
                     color="white"
                     fontSize={16}
-                  />
+                  >
+                    {currentStreamingMessage}
+                  </Text>
                 </XStack>
               )}
               {isLoading && !currentStreamingMessage && (
@@ -217,14 +218,38 @@ export function AIChatbot() {
           opacity={isLoading ? 0.7 : 1}
           elevation={2}
         >
-          <Ionicons name="attach" size={24} color="#666" />
+          <TouchableOpacity
+            onPress={() => {
+              Alert.alert(
+                'Select Persona',
+                'Choose your chat assistant',
+                [
+                  {
+                    text: '👑 Dedle',
+                    onPress: () => setPersona('dedle')
+                  },
+                  {
+                    text: '🖥️ Gilfoyle',
+                    onPress: () => setPersona('gilfoyle')
+                  }
+                ],
+                { cancelable: true }
+              );
+            }}
+          >
+            <Ionicons 
+              name="person-circle" 
+              size={24} 
+              color={currentPersona === 'dedle' ? '#FFD700' : '#666'} 
+            />
+          </TouchableOpacity>
+          <Ionicons name="attach" size={24} color="#666" style={{ marginLeft: 12 }} />
           <Input
             flex={1}
             marginHorizontal={12}
             backgroundColor="transparent"
             placeholder="Message"
             placeholderTextColor="$gray10"
-            textAlignVertical="center"
             borderWidth={0}
             color="$gray10Dark"
             value={message}

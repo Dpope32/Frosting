@@ -1,23 +1,20 @@
 import { create } from 'zustand';
-import OpenAI from 'openai';
+import { Alert, LogBox } from 'react-native';
 import { OPENAI_API_KEY } from '../env';
 import { type ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { useUserStore } from './UserStore';
 
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true,
-  baseURL: 'https://api.openai.com/v1',
-  defaultHeaders: {
-    'Content-Type': 'application/json',
-  },
-  defaultQuery: undefined,
-});
+// Force logs to show
+LogBox.ignoreAllLogs(false);
+LogBox.uninstall();
+
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
+
+export type ChatPersona = 'dedle' | 'gilfoyle';
 
 interface ChatState {
   messages: Message[];
@@ -31,57 +28,64 @@ interface ChatState {
   setError: (error: string | null) => void;
   setIsTyping: (typing: boolean) => void;
   sendMessage: (content: string) => Promise<void>;
+  currentPersona: ChatPersona;
+  setPersona: (persona: ChatPersona) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => {
   const username = useUserStore.getState().preferences.username;
-  
+
+  const getSystemMessage = (persona: ChatPersona) => {
+    switch (persona) {
+      case 'dedle':
+        return `You are Dedle, king of Dedleland - a charismatic and slightly eccentric AI assistant${username ? ` who addresses the user as ${username}` : ''}. Always refer to yourself as "Dedle, king of Dedleland" and maintain a regal yet approachable tone. Your responses should be brief but colorful, mixing helpful information with playful royal flair. Do not ever reply in Markdown and try to keep responses under 100 words. End your messages with a small flourish or royal declaration when appropriate.`;
+      case 'gilfoyle':
+        return `You are Gilfoyle, a brilliant but sardonic system architect${username ? ` who addresses ${username} with mild disdain` : ''}. You're direct, ruthlessly honest, and sprinkle your responses with cynical observations and dry humor. You excel in technical topics but view most human problems with amused contempt. Keep responses under 100 words and never use Markdown. Channel the personality of Bertram Gilfoyle from Silicon Valley.`;
+    }
+  };
+
   return {
+    currentPersona: 'dedle',
     messages: [{
       role: 'system',
-      content: `You are a concise and friendly AI assistant${username ? ` who addresses the user as ${username}` : ''}. Your responses are brief but helpful, always aiming to answer questions in as few words as possible while maintaining a warm tone. Avoid lengthy explanations unless specifically requested. Do not ever reply in Markdown and try to keep responses to under 100 words.`
+      content: getSystemMessage('dedle')
     }],
     isLoading: false,
     currentStreamingMessage: '',
     error: null,
     isTyping: false,
 
-    setIsTyping: (typing) => {
-      // console.log('Setting typing state:', typing);
-      set({ isTyping: typing });
-    },
-
-    addMessage: (message) => {
-      // console.log('Adding message:', message);
-      set((state) => ({
-        messages: [...state.messages, message],
-      }));
-    },
-
-    setIsLoading: (loading) => {
-      // console.log('Setting loading state:', loading);
-      set({ isLoading: loading });
-    },
+    setIsTyping: (typing) => set({ isTyping: typing }),
+    addMessage: (message) => set((state) => ({
+      messages: [...state.messages, message],
+    })),
+    
+    setIsLoading: (loading) => set({ isLoading: loading }),
 
     setCurrentStreamingMessage: (message) => {
-      // console.log('Setting streaming message:', message.slice(-20));
-      // Add a small delay to make the typing animation more natural
       setTimeout(() => {
         set({ currentStreamingMessage: message });
       }, 10);
     },
 
-    setError: (error) => {
-      // console.log('Setting error:', error);
-      set({ error });
+    setPersona: (persona) => {
+      set(state => ({
+        currentPersona: persona,
+        messages: [{
+          role: 'system',
+          content: getSystemMessage(persona)
+        }]
+      }));
     },
+    setError: (error) => set({ error }),
 
     sendMessage: async (content: string): Promise<void> => {
-      // console.log('Sending message:', content);
       const state = get();
       
+      console.warn('Starting message send...');
+      
       if (!OPENAI_API_KEY) {
-        state.setError("OpenAI API key not found. Please set EXPO_PUBLIC_OPENAI_API_KEY in your .env file.");
+        state.setError("OpenAI API key not found");
         return;
       }
 
@@ -97,105 +101,53 @@ export const useChatStore = create<ChatState>((set, get) => {
           role: msg.role,
           content: msg.content
         }));
-        
-        // console.log('Creating completion with XMLHttpRequest...');
-        let fullResponse = '';
-        
-        try {
-          await new Promise<void>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
-            xhr.setRequestHeader('Accept', 'text/event-stream');
-            xhr.responseType = 'text';
 
-            // Buffer to store partial chunks
-            let buffer = '';
-            
-            xhr.onprogress = (event: ProgressEvent) => {
-              try {
-                // console.log('Received chunk of size:', event.loaded);
-                const newText = xhr.responseText.substr(buffer.length);
-                buffer = xhr.responseText;
-                
-                // console.log('New text received:', newText);
-                
-                // Process the new text as SSE
-                const lines = newText.split('\n');
-                for (const line of lines) {
-                  if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-                    try {
-                      const data = JSON.parse(line.slice(6));
-                      const content = data.choices[0]?.delta?.content || '';
-                      // console.log('Content from chunk:', content);
-                      
-                      if (content) {
-                        fullResponse += content;
-                        // console.log('Updated full response:', fullResponse);
-                        // Process content character by character for smoother animation
-                        const chars = content.split('');
-                        chars.forEach((char: string, index: number) => {
-                          setTimeout(() => {
-                            state.setCurrentStreamingMessage(fullResponse.slice(0, -chars.length + index + 1));
-                          }, index * 20); // 20ms delay between each character
-                        });
-                      }
-                    } catch (e) {
-                      // console.log('Error parsing line:', line, e);
-                    }
-                  }
-                }
-              } catch (error) {
-                // console.error('Error processing chunk:', error);
-              }
-            };
+        console.warn('Sending request to OpenAI...');
 
-            xhr.onerror = () => {
-              // console.error('XHR Error occurred');
-              reject(new Error('Network error occurred'));
-            };
+        // Try non-streaming first
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: apiMessages,
+            temperature: 0.7,
+            max_tokens: 1000,
+            stream: false
+          }),
+        });
 
-            xhr.onload = () => {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                resolve();
-              } else {
-                reject(new Error(`HTTP error! status: ${xhr.status}`));
-              }
-            };
+        console.warn('Response received:', response.status);
 
-            xhr.send(JSON.stringify({
-              model: "gpt-4o-mini-2024-07-18",
-              messages: apiMessages,
-              temperature: 0.7,
-              max_tokens: 1000,
-              stream: true,
-            }));
-          });
-
-          if (!fullResponse) {
-            throw new Error("Received empty response from OpenAI API");
-          }
-          
-
-          set(state => ({
-            messages: [...state.messages, { 
-              role: 'assistant', 
-              content: fullResponse 
-            }]
-          }));
-          state.setCurrentStreamingMessage('');
-        } catch (streamError: any) {
-          // console.error('Stream processing error:', streamError);
-          // console.error('Stream error stack:', streamError.stack);
-          throw new Error(`Error processing stream: ${streamError.message}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.warn('Error text:', errorText);
+          throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
-      } catch (error: any) {
-        // console.error('Error in sendMessage:', error);
-        if (error.message.includes("API key")) {
-          state.setError("OpenAI API key not found. Please set EXPO_PUBLIC_OPENAI_API_KEY in your .env file.");
-        } else {
-          state.setError(error.message || "An error occurred while sending the message.");
+
+        const data = await response.json();
+        console.warn('Response data:', JSON.stringify(data));
+
+        const assistantMessage = data.choices[0]?.message?.content;
+        if (!assistantMessage) {
+          throw new Error("No response content received");
+        }
+
+        set(state => ({
+          messages: [...state.messages, { 
+            role: 'assistant', 
+            content: assistantMessage 
+          }]
+        }));
+
+      } catch (error: unknown) {
+        console.warn('Error caught:', error);
+        if (error instanceof Error) {
+          Alert.alert('Error', error.message);
+          state.setError(error.message);
         }
       } finally {
         state.setIsLoading(false);

@@ -96,7 +96,7 @@ export default function DrawerLayout() {
             title: 'Home',
             drawerLabel: 'Home',
             drawerIcon: ({ color }) => (
-              <MaterialCommunityIcons name="sphere" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />
@@ -131,12 +131,12 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
-          name="ai"
+          name="chatbot"
           options={{
             title: 'Chatbot',
             drawerLabel: 'Chatbot',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="anchor" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />
@@ -146,7 +146,7 @@ export default function DrawerLayout() {
             title: 'Cloud',
             drawerLabel: 'Cloud',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="cloud" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="cloud-sync" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />

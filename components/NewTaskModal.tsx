@@ -150,7 +150,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
       onOpenChange(false)
       await new Promise((resolve) => setTimeout(resolve, 80))
       try {
-        await Promise.resolve(addTask(taskToAdd))
+        addTask(taskToAdd) 
         showToast('Task added successfully')
       } catch (error) {
         showToast('Failed to add task. Please try again.')
@@ -192,8 +192,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
           shadowOpacity={0.3}
           shadowRadius={8}
         >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-          <ScrollView bounces={false}>
+       
+       <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
             <Sheet.Handle
               backgroundColor="rgba(85,85,85,0.5)"
               width={40}
@@ -506,7 +506,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
               </Form.Trigger>
             </Form>
           </ScrollView>
-        </KeyboardAvoidingView>
         </Sheet.Frame>
     </Sheet>
   )
