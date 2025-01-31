@@ -3,7 +3,6 @@ import { Stack, Text, Input, XStack, ScrollView, YStack, Spinner } from 'tamagui
 import { Ionicons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useChatStore } from '@/store/ChatStore';
-import { AnimatedText } from '@/components/AnimatedText';
 import {
   TouchableOpacity,
   ScrollView as RNScrollView,
@@ -12,6 +11,22 @@ import {
   View,
   Alert
 } from 'react-native';
+
+
+const THEME = {
+  inputBg: '#222222',
+  inputBorder: '#383838',
+  dedle: {
+    primary: '#FFD700',
+    secondary: '#FFA500',
+    bg: '#2D2A20'
+  },
+  gilfoyle: {
+    primary: '#FF4444',
+    secondary: '#8B0000',
+    bg: '#2A2020'
+  }
+};
 
 export default function Chatbot() {
   const scrollViewRef = useRef<RNScrollView>(null);
@@ -207,16 +222,17 @@ export default function Chatbot() {
         )}
 
         <XStack
-          backgroundColor="$gray12"
-          borderRadius={28}
+          backgroundColor={THEME.inputBg}
+          borderRadius={20}
           margin={16}
           marginBottom={Platform.OS === 'ios' ? keyboardHeight + 16 : 16}
-          paddingHorizontal={24}
-          alignItems="center"
+          paddingVertical={12}
+          paddingHorizontal={12}
+          alignItems="flex-end"
           borderWidth={1}
-          borderColor="$gray11"
+          borderColor={THEME.inputBorder}
           opacity={isLoading ? 0.7 : 1}
-          elevation={2}
+          minHeight={50}
         >
           <TouchableOpacity
             onPress={() => {
@@ -225,55 +241,73 @@ export default function Chatbot() {
                 'Choose your chat assistant',
                 [
                   {
-                    text: '👑 Dedle',
+                    text: '👑 Dedle - Friendly & Professional',
                     onPress: () => setPersona('dedle')
                   },
                   {
-                    text: '🖥️ Gilfoyle',
+                    text: '🖥️ Gilfoyle - Sarcastic & Technical',
                     onPress: () => setPersona('gilfoyle')
                   }
                 ],
                 { cancelable: true }
               );
             }}
+            style={{
+              padding: 6,
+              borderRadius: 12,
+              backgroundColor: currentPersona === 'dedle' ? THEME.dedle.bg : 
+                             currentPersona === 'gilfoyle' ? THEME.gilfoyle.bg : 
+                             'transparent',
+              marginRight: 8
+            }}
           >
             <Ionicons 
               name="person-circle" 
               size={24} 
-              color={currentPersona === 'dedle' ? '#FFD700' : '#666'} 
+              color={currentPersona === 'dedle' ? THEME.dedle.primary : 
+                     currentPersona === 'gilfoyle' ? THEME.gilfoyle.primary : 
+                     '#666'} 
             />
           </TouchableOpacity>
-          <Ionicons name="attach" size={24} color="#666" style={{ marginLeft: 12 }} />
+
           <Input
             flex={1}
-            marginHorizontal={12}
             backgroundColor="transparent"
             placeholder="Message"
-            placeholderTextColor="$gray10"
+            placeholderTextColor="#666"
             borderWidth={0}
-            color="$gray10Dark"
+            color="white"
             value={message}
             onChangeText={setMessage}
             onSubmitEditing={handleSend}
             multiline
-            maxHeight={80}
+            minHeight={24}
+            maxHeight={120}
             editable={!isLoading}
+            fontSize={16}
+            paddingVertical={0}
+            lineHeight={20}
+            alignContent='center'
+            alignSelf='center'
           />
-          {isLoading ? (
-            <Spinner size="small" color={primaryColor} />
-          ) : (
-            <TouchableOpacity
-              onPress={handleSend}
-              activeOpacity={0.7}
-              disabled={!message.trim()}
-            >
-              <Ionicons
-                name="send"
-                size={24}
-                color={message.trim() ? primaryColor : '#666'}
-              />
-            </TouchableOpacity>
-          )}
+
+          <TouchableOpacity
+            onPress={handleSend}
+            activeOpacity={0.7}
+            disabled={!message.trim()}
+            style={{
+              padding: 6,
+              marginLeft: 8,
+              opacity: message.trim() ? 1 : 0.5,
+              alignSelf: 'flex-end'
+            }}
+          >
+            <Ionicons
+              name="send"
+              size={24}
+              color={message.trim() ? primaryColor : '#666'}
+            />
+          </TouchableOpacity>
         </XStack>
       </Stack>
     </View>

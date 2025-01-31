@@ -111,22 +111,12 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
-          name="thunder"
+          name="sports"
           options={{
-            title: 'Thunder',
-            drawerLabel: 'Thunder',
+            title: 'Sports',
+            drawerLabel: 'Sports',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="flash-on" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
-          }}
-        />
-        <Drawer.Screen
-          name="ou"
-          options={{
-            title: 'OU',
-            drawerLabel: 'OU',
-            drawerIcon: ({ color }) => (
-              <MaterialCommunityIcons name="football" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />
@@ -140,16 +130,46 @@ export default function DrawerLayout() {
             ),
           }}
         />
-         <Drawer.Screen
-          name="cloud"
+       <Drawer.Screen
+          name="crm"
           options={{
-            title: 'Cloud',
-            drawerLabel: 'Cloud',
+            title: 'CRM',
+            drawerLabel: 'CRM',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="cloud-sync" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
         />
+       <Drawer.Screen
+          name="storage"
+          options={{
+            title: 'Storage',
+            drawerLabel: 'Storage',
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
+            ),
+          }}
+        />
+        <Drawer.Screen
+          name="vault"
+          options={{
+            title: 'Vault',
+            drawerLabel: 'Vault',
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 20 }} />
+            ),
+          }}
+        />
+       <Drawer.Screen
+          name="spotify"
+          options={{
+            title: 'Spotify',
+            drawerLabel: 'Spotify',
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
+            ),
+          }}
+        />        
       </Drawer>
       <BlurView 
         intensity={20}

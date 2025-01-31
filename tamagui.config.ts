@@ -73,7 +73,7 @@ const spaceMonoFont = createFont({
 })
 
 const config = createTamagui({
-  defaultTheme: 'light',
+  defaultTheme: 'dark',
   shouldAddPrefersColorThemes: true,
   themeClassNameOnRoot: true,
   shorthands,

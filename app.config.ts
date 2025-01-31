@@ -55,6 +55,8 @@ export default {
       openWeatherApiKey: process.env.OPENWEATHER_API_KEY,
       alphaVantageApiKey: process.env.ALPHA_VANTAGE_API_KEY,
       openaiApiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+      POCKETBASE_URL: process.env.POCKETBASE_URL,
+      POCKETBASE_PIN: process.env.POCKETBASE_PIN,
       eas: {
         projectId: "22727130-682f-425f-bedd-d8fd9ab0b3e0"
       }

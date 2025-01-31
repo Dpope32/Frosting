@@ -4,8 +4,7 @@ import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
 import { useState } from 'react'
 
-// Array of DiceBear styles to cycle through
-const avatarStyles = ['adventurer', 'avataaars', 'bottts', 'pixel-art', 'lorelei']
+const avatarStyles = ['avataaars', 'bottts', 'pixel-art', 'lorelei']
 
 export default function Step1({
   formData,
@@ -74,18 +73,15 @@ export default function Step1({
         <Button
           chromeless
           onPress={() => {
-            // Get current style and increment index (cycling back to 0 if needed)
             const currentStyle = avatarStyles[styleIndex]
             setStyleIndex((prev) => (prev + 1) % avatarStyles.length)
             
-            // Generate avatar URL using current DiceBear style
             const avatarUrl = `https://api.dicebear.com/6.x/${currentStyle}/png?seed=${encodeURIComponent(formData.username)}`
             
             console.log('Generated avatar URL:', avatarUrl)
             console.log('Current username:', formData.username)
             console.log('Current style:', currentStyle)
             
-            // Update both formData and userStore with the generated avatar
             setFormData((prev) => ({
               ...prev,
               profilePicture: avatarUrl

@@ -12,16 +12,19 @@
     ╚══════════════════════════════════════════════════════════════════════════════╝
 #>
 
-# Get package name from app.json
+# Get package name from app.config.ts
 try {
-    $appJson = Get-Content -Raw -Path "../app.json" | ConvertFrom-Json
-    $packageName = $appJson.expo.android.package
-    if (-not $packageName) {
-        Write-Host "Error: Could not find Android package name in app.json"
+    $appConfigContent = Get-Content -Raw -Path "../app.config.ts"
+    # Use regex to extract the package name
+    if ($appConfigContent -match 'android:\s*{\s*package:\s*"([^"]+)"') {
+        $packageName = $matches[1]
+        Write-Host "Found package name: $packageName"
+    } else {
+        Write-Host "Error: Could not find Android package name in app.config.ts"
         exit 1
     }
 } catch {
-    Write-Host "Error: Could not read app.json or parse package name"
+    Write-Host "Error: Could not read app.config.ts or parse package name"
     exit 1
 }
 

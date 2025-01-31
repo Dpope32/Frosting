@@ -33,6 +33,10 @@ export type Person = {
     platform: string;
     username: string;
   }>;
+  occupation?: string; // New attribute
+  favoriteColor?: string; // New attribute
+  relationship?: string; // New attribute
+  additionalInfo?: string; // New attribute
   createdAt: string;
   updatedAt: string;
 };
