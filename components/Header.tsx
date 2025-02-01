@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Platform, StyleSheet, Pressable } from 'react-native';
+import { Platform, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Stack, XStack, YStack } from 'tamagui';
 import { Text } from 'tamagui';
@@ -16,6 +16,8 @@ export function Header({ title }: HeaderProps) {
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
   const [showSettings, setShowSettings] = useState(false);
+
+  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#001';
 
   return (
     <>
@@ -41,12 +43,12 @@ export function Header({ title }: HeaderProps) {
                 onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
                 style={{ padding: 8, marginLeft: -8 }}
               >
-                <Ionicons name="menu" size={28} color="white" />
+                <Ionicons name="menu" size={28} color={textColor} />
               </Pressable>
               <Text 
-                fontSize={18}
+                fontSize={20}
                 fontWeight="600"
-                color="white"
+                color={textColor}
                 numberOfLines={1}
                 fontFamily="$SpaceMono"
               >
@@ -58,7 +60,7 @@ export function Header({ title }: HeaderProps) {
                 onPress={() => setShowSettings(true)}
                 style={{ padding: 8, marginRight: -8 }}
               >
-                <Ionicons name="settings-outline" size={24} color="white" />
+                <Ionicons name="settings-outline" size={24} color={textColor} />
               </Pressable>
             </Stack>
           </XStack>

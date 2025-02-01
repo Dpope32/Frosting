@@ -24,6 +24,11 @@ export interface Competitor {
     id: string;
     date: string;
     name?: string;
+    time?: string;
+    homeTeam?: string;
+    awayTeam?: string;
+    venue?: string;
+    isHome?: boolean;
     shortName?: string;
     competitions?: Competition[];
     status?: GameStatus;

@@ -12,6 +12,41 @@ import {
   Alert
 } from 'react-native'
 
+interface ChatErrorBoundaryProps {
+  children: React.ReactNode
+}
+
+interface ChatErrorBoundaryState {
+  hasError: boolean
+  error: Error | null
+}
+
+class ChatErrorBoundary extends React.Component<ChatErrorBoundaryProps, ChatErrorBoundaryState> {
+  constructor(props: ChatErrorBoundaryProps) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error): ChatErrorBoundaryState {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Chatbot error boundary caught an error', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#1a1a1a', justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: 'white', fontSize: 18 }}>Something went wrong.</Text>
+        </View>
+      )
+    }
+    return this.props.children
+  }
+}
+
 const THEME = {
   inputBg: '#222222',
   inputBorder: '#383838',
@@ -27,7 +62,7 @@ const THEME = {
   }
 }
 
-export default function Chatbot() {
+function ChatbotInner() {
   const scrollViewRef = useRef<RNScrollView>(null)
   const [message, setMessage] = useState('')
   const [keyboardHeight, setKeyboardHeight] = useState(0)
@@ -261,5 +296,13 @@ export default function Chatbot() {
         </XStack>
       </Stack>
     </View>
+  )
+}
+
+export default function Chatbot() {
+  return (
+    <ChatErrorBoundary>
+      <ChatbotInner />
+    </ChatErrorBoundary>
   )
 }

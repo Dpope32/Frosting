@@ -123,7 +123,7 @@ export default function DrawerLayout() {
         <Drawer.Screen
           name="chatbot"
           options={{
-            title: 'Chatbot',
+            title: ' ',
             drawerLabel: 'Chatbot',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 20 }} />

@@ -254,7 +254,6 @@ export function LandingPage() {
                   </Text>
                 </XStack>
               </XStack>
-              <ClockCard />
             </XStack>
             <XStack marginTop="$3" gap="$3" flexWrap="nowrap">
               <Pressable onPress={handlePortfolioPress}>

@@ -1,4 +1,4 @@
-// ThunderPage.tsx
+// components/sports/ThunderPage.tsx 
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
@@ -6,6 +6,7 @@ import { ThemedView } from '../../theme/ThemedView';
 import { useSportsAPI } from '../../hooks/useSportsAPI';
 import { format, isSameDay } from 'date-fns';
 import type { Game } from '../../store/ThunderStore';
+import { GameCardSkeleton } from './GameCardSkeleton';
 
 export default function ThunderPage() {
   const { data: schedule, isLoading, error } = useSportsAPI();
@@ -94,17 +95,13 @@ export default function ThunderPage() {
         <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
       ) : (
         <FlashList
-          data={schedule || []}
-          renderItem={renderGame}
+          data={isLoading ? Array(6).fill({}) : schedule || []}
+          renderItem={isLoading ? 
+            () => <GameCardSkeleton /> : 
+            renderGame
+          }
           estimatedItemSize={80}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            isLoading ? (
-              <Text style={styles.loadingText}>Loading schedule...</Text>
-            ) : (
-              <Text style={styles.emptyText}>No games found</Text>
-            )
-          }
         />
       )}
     </ThemedView>
