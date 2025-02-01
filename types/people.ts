@@ -1,50 +1,49 @@
+// types/people.ts
 export type PaymentMethod = {
-  platform: 'cashapp' | 'venmo' | 'paypal' | 'zelle';
-  username: string;
-};
+  type: string
+  details?: string
+}
+
+export type SocialLink = {
+  platform: string
+  username: string
+}
+
+export type ImportantDate = {
+  date: string
+  description: string
+  recurring: boolean
+}
+
+export type Address = {
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+}
 
 export type Person = {
-  id: string;
-  familyId: string;
-  profilePicture?: string;
-  name: string;
-  nickname?: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  birthday: string; // ISO date string
-  registered: boolean;
-  payments: PaymentMethod[];
-  phoneNumber: string;
-  email?: string;
-  notes?: string;
-  tags?: string[];
-  lastContactDate?: string;
-  importantDates?: Array<{
-    date: string;
-    description: string;
-    recurring: boolean;
-  }>;
-  socialMedia?: Array<{
-    platform: string;
-    username: string;
-  }>;
-  occupation?: string; // New attribute
-  favoriteColor?: string; // New attribute
-  relationship?: string; // New attribute
-  additionalInfo?: string; // New attribute
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type Family = {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-};
+  id: string
+  familyId: string
+  profilePicture?: string
+  name: string
+  nickname?: string
+  address: Address
+  birthday: string
+  registered: boolean
+  payments: PaymentMethod[]
+  phoneNumber: string
+  email?: string
+  notes?: string
+  tags?: string[]
+  lastContactDate?: string
+  importantDates?: ImportantDate[]
+  socialMedia?: SocialLink[]
+  occupation?: string
+  favoriteColor?: string
+  relationship?: string
+  additionalInfo?: string
+  createdAt: string
+  updatedAt: string
+}

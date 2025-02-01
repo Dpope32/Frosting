@@ -1,138 +1,68 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { StorageUtils } from '@/store/MMKV';
-import { usePeopleStore } from '@/store/People';
-import type { Person, Family } from '@/types/people';
+// hooks/usePeople.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { StorageUtils } from '@/store/MMKV'
+import { usePeopleStore } from '@/store/People'
+import type { Person } from '@/types/people'
 
-// Storage keys
-const STORAGE_KEYS = {
-  PEOPLE: 'people-store',
-  FAMILIES: 'families-store',
-};
+const STORAGE_KEY = 'contacts-store'
 
-// Query Hooks
-export const usePeople = () => {
+export const useContacts = () => {
   return useQuery({
-    queryKey: ['people'],
-    queryFn: () => StorageUtils.get<Record<string, Person>>(STORAGE_KEYS.PEOPLE, {}),
+    queryKey: ['contacts'],
+    queryFn: () => StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {}),
     initialData: {},
-  });
-};
+  })
+}
 
-export const useFamilies = () => {
-  return useQuery({
-    queryKey: ['families'],
-    queryFn: () => StorageUtils.get<Record<string, Family>>(STORAGE_KEYS.FAMILIES, {}),
-    initialData: {},
-  });
-};
-
-export const usePersonById = (id: string) => {
-  const people = usePeople();
+export const useContactById = (id: string) => {
+  const { data, ...rest } = useContacts()
   return {
-    ...people,
-    data: people.data ? people.data[id] : undefined,
-  };
-};
+    ...rest,
+    data: data ? data[id] : undefined,
+  }
+}
 
-export const useFamilyById = (id: string) => {
-  const families = useFamilies();
-  return {
-    ...families,
-    data: families.data ? families.data[id] : undefined,
-  };
-};
-
-export const usePeopleByFamilyId = (familyId: string) => {
-  const people = usePeople();
-  return {
-    ...people,
-    data: Object.values(people.data || {}).filter(
-      (person: Person) => person.familyId === familyId
-    ),
-  };
-};
-
-// Mutation Hooks
 export const useAddPerson = () => {
-  const queryClient = useQueryClient();
-  
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (person: Person) => {
-      usePeopleStore.getState().addPerson(person);
-      return Promise.resolve(person);
+      usePeopleStore.getState().addPerson(person)
+      return person
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['people'] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
     },
-  });
-};
+  })
+}
 
 export const useUpdatePerson = () => {
-  const queryClient = useQueryClient();
-  
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Person> }) => {
-      usePeopleStore.getState().updatePerson(id, updates);
-      return Promise.resolve(updates);
+    mutationFn: async ({
+      id,
+      updates,
+    }: {
+      id: string
+      updates: Partial<Person>
+    }) => {
+      usePeopleStore.getState().updatePerson(id, updates)
+      return updates
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['people'] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
     },
-  });
-};
+  })
+}
 
 export const useDeletePerson = () => {
-  const queryClient = useQueryClient();
-  
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      usePeopleStore.getState().deletePerson(id);
-      return Promise.resolve(id);
+      usePeopleStore.getState().deletePerson(id)
+      return id
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['people'] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
     },
-  });
-};
-
-export const useAddFamily = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (family: Family) => {
-      usePeopleStore.getState().addFamily(family);
-      return Promise.resolve(family);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['families'] });
-    },
-  });
-};
-
-export const useUpdateFamily = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Family> }) => {
-      usePeopleStore.getState().updateFamily(id, updates);
-      return Promise.resolve(updates);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['families'] });
-    },
-  });
-};
-
-export const useDeleteFamily = () => {
-  const queryClient = useQueryClient();
-  
-  return useMutation({
-    mutationFn: async (id: string) => {
-      usePeopleStore.getState().deleteFamily(id);
-      return Promise.resolve(id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['families'] });
-    },
-  });
-};
+  })
+}

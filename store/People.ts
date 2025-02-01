@@ -1,100 +1,45 @@
-import { create } from 'zustand';
-import { StorageUtils } from './MMKV';
-import type { Person, Family } from '@/types/people';
+// store/People.ts
+import { create } from 'zustand'
+import { StorageUtils } from '@/store/MMKV'
+import type { Person } from '@/types/people'
 
-// Storage keys
-const STORAGE_KEYS = {
-  PEOPLE: 'people-store',
-  FAMILIES: 'families-store',
-};
+const STORAGE_KEY = 'contacts-store'
 
 type PeopleStore = {
-  people: Record<string, Person>;
-  families: Record<string, Family>;
-  setPeople: (people: Record<string, Person>) => void;
-  setFamilies: (families: Record<string, Family>) => void;
-  addPerson: (person: Person) => void;
-  updatePerson: (id: string, updates: Partial<Person>) => void;
-  deletePerson: (id: string) => void;
-  addFamily: (family: Family) => void;
-  updateFamily: (id: string, updates: Partial<Family>) => void;
-  deleteFamily: (id: string) => void;
-};
+  contacts: Record<string, Person>
+  addPerson: (person: Person) => void
+  updatePerson: (id: string, updates: Partial<Person>) => void
+  deletePerson: (id: string) => void
+}
 
-// Create store with persistence
 export const usePeopleStore = create<PeopleStore>((set, get) => ({
-  people: StorageUtils.get<Record<string, Person>>(STORAGE_KEYS.PEOPLE, {}) ?? {},
-  families: StorageUtils.get<Record<string, Family>>(STORAGE_KEYS.FAMILIES, {}) ?? {},
-  
-  setPeople: (people) => {
-    StorageUtils.set(STORAGE_KEYS.PEOPLE, people);
-    set({ people });
-  },
-  
-  setFamilies: (families) => {
-    StorageUtils.set(STORAGE_KEYS.FAMILIES, families);
-    set({ families });
-  },
-  
+  contacts: StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {}) ?? {},
   addPerson: (person) => {
-    const people = get().people;
-    people[person.id] = {
+    const contacts = get().contacts
+    contacts[person.id] = {
       ...person,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
-    StorageUtils.set(STORAGE_KEYS.PEOPLE, people);
-    set({ people });
+    }
+    StorageUtils.set(STORAGE_KEY, contacts)
+    set({ contacts })
   },
-  
   updatePerson: (id, updates) => {
-    const people = get().people;
-    if (people[id]) {
-      people[id] = {
-        ...people[id],
+    const contacts = get().contacts
+    if (contacts[id]) {
+      contacts[id] = {
+        ...contacts[id],
         ...updates,
         updatedAt: new Date().toISOString(),
-      };
-      StorageUtils.set(STORAGE_KEYS.PEOPLE, people);
-      set({ people });
+      }
+      StorageUtils.set(STORAGE_KEY, contacts)
+      set({ contacts })
     }
   },
-  
   deletePerson: (id) => {
-    const people = get().people;
-    delete people[id];
-    StorageUtils.set(STORAGE_KEYS.PEOPLE, people);
-    set({ people });
+    const contacts = get().contacts
+    delete contacts[id]
+    StorageUtils.set(STORAGE_KEY, contacts)
+    set({ contacts })
   },
-  
-  addFamily: (family) => {
-    const families = get().families;
-    families[family.id] = {
-      ...family,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    StorageUtils.set(STORAGE_KEYS.FAMILIES, families);
-    set({ families });
-  },
-  
-  updateFamily: (id, updates) => {
-    const families = get().families;
-    if (families[id]) {
-      families[id] = {
-        ...families[id],
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      };
-      StorageUtils.set(STORAGE_KEYS.FAMILIES, families);
-      set({ families });
-    }
-  },
-  
-  deleteFamily: (id) => {
-    const families = get().families;
-    delete families[id];
-    StorageUtils.set(STORAGE_KEYS.FAMILIES, families);
-    set({ families });
-  },
-}));
+}))
