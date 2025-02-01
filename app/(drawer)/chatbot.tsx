@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Stack, Text, Input, XStack, ScrollView, YStack, Spinner } from 'tamagui';
-import { Ionicons } from '@expo/vector-icons';
-import { useUserStore } from '@/store/UserStore';
-import { useChatStore } from '@/store/ChatStore';
+import React, { useState, useRef, useEffect } from 'react'
+import { Stack, Text, Input, XStack, YStack, Spinner } from 'tamagui'
+import { Ionicons } from '@expo/vector-icons'
+import { useUserStore } from '@/store/UserStore'
+import { useChatStore } from '@/store/ChatStore'
 import {
   TouchableOpacity,
   ScrollView as RNScrollView,
@@ -10,8 +10,7 @@ import {
   Keyboard,
   View,
   Alert
-} from 'react-native';
-
+} from 'react-native'
 
 const THEME = {
   inputBg: '#222222',
@@ -26,89 +25,70 @@ const THEME = {
     secondary: '#8B0000',
     bg: '#2A2020'
   }
-};
+}
 
 export default function Chatbot() {
-  const scrollViewRef = useRef<RNScrollView>(null);
-  const [message, setMessage] = useState('');
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const username = useUserStore((state) => state.preferences.username);
-  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const { messages, sendMessage, isLoading, currentStreamingMessage, error, currentPersona, setPersona } = useChatStore();
+  const scrollViewRef = useRef<RNScrollView>(null)
+  const [message, setMessage] = useState('')
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const username = useUserStore((state) => state.preferences.username)
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor)
+  const { messages, sendMessage, isLoading, currentStreamingMessage, error, currentPersona, setPersona } = useChatStore()
 
   const handleSend = async () => {
-    if (isLoading) return;
-  
-    const trimmedMessage = message.trim();
-    if (!trimmedMessage) {
-      Alert.alert('Error', 'Please enter a message');
-      return;
+    if (isLoading) return
+    const trimmed = message.trim()
+    if (!trimmed) {
+      Alert.alert('Error', 'Please enter a message')
+      return
     }
-  
-    setMessage('');
-    Keyboard.dismiss();
+    setMessage('')
+    Keyboard.dismiss()
     try {
-      await sendMessage(trimmedMessage);
-    } catch (error) {
-      console.error('Send message error:', error);
+      await sendMessage(trimmed)
+    } catch (e) {
+      console.error(e)
     }
-  };
+  }
 
-  // Keyboard handling
   useEffect(() => {
-    console.log('Keyboard effect mounted');
-    const keyboardWillShow = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        console.log('Keyboard will show with height:', e.endCoordinates.height);
-        setKeyboardHeight(e.endCoordinates.height);
-      }
-    );
-
-    const keyboardWillHide = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        console.log('Keyboard will hide');
-        setKeyboardHeight(0);
-      }
-    );
-
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow'
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide'
+    const keyboardShow = Keyboard.addListener(showEvent, (e) => {
+      setKeyboardHeight(e.endCoordinates.height)
+    })
+    const keyboardHide = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0)
+    })
     return () => {
-      console.log('Keyboard listeners removed');
-      keyboardWillShow.remove();
-      keyboardWillHide.remove();
-    };
-  }, []);
+      keyboardShow.remove()
+      keyboardHide.remove()
+    }
+  }, [])
 
-  const getErrorMessage = (error: string) => {
-    if (error.includes("Error processing stream")) {
-      return "Failed to get response. Please try again.";
-    }
-    if (error.includes("API key")) {
-      return "API key not configured. Please check settings.";
-    }
-    if (error.includes("empty response")) {
-      return "No response received. Please try again.";
-    }
-    return error;
-  };
+  const getErrorMessage = (err: string) => {
+    if (err.includes('Error processing stream')) return 'Failed to get response. Please try again.'
+    if (err.includes('API key')) return 'API key not configured. Please check settings.'
+    if (err.includes('empty response')) return 'No response received. Please try again.'
+    return err
+  }
 
   const handleRetry = () => {
     if (messages.length > 1) {
-      const lastUserMessage = messages[messages.length - 1];
+      const lastUserMessage = messages[messages.length - 1]
       if (lastUserMessage.role === 'user') {
-        useChatStore.getState().setError(null);
-        sendMessage(lastUserMessage.content);
+        useChatStore.getState().setError(null)
+        sendMessage(lastUserMessage.content)
       }
     }
-  };
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <Stack flex={1} backgroundColor="#1a1a1a" position="relative">
         {error && (
           <XStack
-            backgroundColor="$red10"
+            backgroundColor="#AA0000"
             padding={12}
             position="absolute"
             top={100}
@@ -118,19 +98,14 @@ export default function Chatbot() {
             zIndex={1000}
             alignItems="center"
             justifyContent="center"
-            animation="bouncy"
-            enterStyle={{ opacity: 0, scale: 0.9 }}
-            exitStyle={{ opacity: 0, scale: 0.9 }}
+            style={{ transform: [{ scale: 1 }] }}
           >
             <XStack flex={1} alignItems="center" justifyContent="space-between">
               <Text color="white" flex={1} textAlign="center">
                 {getErrorMessage(error)}
               </Text>
               <XStack gap={8}>
-                <TouchableOpacity
-                  onPress={handleRetry}
-                  style={{ marginLeft: 8 }}
-                >
+                <TouchableOpacity onPress={handleRetry} style={{ marginLeft: 8 }}>
                   <Ionicons name="refresh" size={24} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -143,49 +118,37 @@ export default function Chatbot() {
             </XStack>
           </XStack>
         )}
-
-        {messages.filter(msg => msg.role !== 'system').length === 0 ? (
+        {messages.filter((m) => m.role !== 'system').length === 0 ? (
           <Stack flex={1} alignItems="center" justifyContent="center">
             <Text color="white" fontSize={20}>
               What can I help you with{username ? `, ${username}` : ''}?
             </Text>
           </Stack>
         ) : (
-          <ScrollView
-            flex={1}
-            padding={16}
-            paddingTop={100}
-            paddingBottom={140}
+          <RNScrollView
             ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ padding: 16, paddingTop: 100, paddingBottom: 140 }}
             onContentSizeChange={() => {
-              scrollViewRef.current?.scrollToEnd({ animated: true });
+              scrollViewRef.current?.scrollToEnd({ animated: true })
             }}
             showsVerticalScrollIndicator={true}
           >
             <YStack gap={16}>
               {messages
-                .filter(msg => msg.role !== 'system')
-                .map((msg, index) => (
+                .filter((m) => m.role !== 'system')
+                .map((msg, idx) => (
                   <XStack
-                    key={index}
-                    backgroundColor={msg.role === 'user' ? '$blue9' : '#333'}
+                    key={idx}
+                    backgroundColor={msg.role === 'user' ? '#0066CC' : '#333'}
                     padding={12}
                     borderRadius={16}
                     alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
                     maxWidth="80%"
                   >
-                    {msg.role === 'user' ? (
-                      <Text color="white" fontSize={16}>
-                        {msg.content}
-                      </Text>
-                    ) : (
-                      <Text
-                        color="white"
-                        fontSize={16}
-                      >
-                        {msg.content}
-                      </Text>
-                    )}
+                    <Text color="white" fontSize={16}>
+                      {msg.content}
+                    </Text>
                   </XStack>
                 ))}
               {currentStreamingMessage && (
@@ -196,10 +159,7 @@ export default function Chatbot() {
                   alignSelf="flex-start"
                   maxWidth="80%"
                 >
-                  <Text
-                    color="white"
-                    fontSize={16}
-                  >
+                  <Text color="white" fontSize={16}>
                     {currentStreamingMessage}
                   </Text>
                 </XStack>
@@ -218,9 +178,8 @@ export default function Chatbot() {
                 </XStack>
               )}
             </YStack>
-          </ScrollView>
+          </RNScrollView>
         )}
-
         <XStack
           backgroundColor={THEME.inputBg}
           borderRadius={20}
@@ -236,40 +195,35 @@ export default function Chatbot() {
         >
           <TouchableOpacity
             onPress={() => {
-              Alert.alert(
-                'Select Persona',
-                'Choose your chat assistant',
-                [
-                  {
-                    text: '👑 Dedle - Friendly & Professional',
-                    onPress: () => setPersona('dedle')
-                  },
-                  {
-                    text: '🖥️ Gilfoyle - Sarcastic & Technical',
-                    onPress: () => setPersona('gilfoyle')
-                  }
-                ],
-                { cancelable: true }
-              );
+              Alert.alert('Select Persona', 'Choose your chat assistant', [
+                { text: '👑 Dedle - Friendly & Professional', onPress: () => setPersona('dedle') },
+                { text: '🖥️ Gilfoyle - Sarcastic & Technical', onPress: () => setPersona('gilfoyle') }
+              ])
             }}
             style={{
               padding: 6,
               borderRadius: 12,
-              backgroundColor: currentPersona === 'dedle' ? THEME.dedle.bg : 
-                             currentPersona === 'gilfoyle' ? THEME.gilfoyle.bg : 
-                             'transparent',
+              backgroundColor:
+                currentPersona === 'dedle'
+                  ? THEME.dedle.bg
+                  : currentPersona === 'gilfoyle'
+                  ? THEME.gilfoyle.bg
+                  : 'transparent',
               marginRight: 8
             }}
           >
-            <Ionicons 
-              name="person-circle" 
-              size={24} 
-              color={currentPersona === 'dedle' ? THEME.dedle.primary : 
-                     currentPersona === 'gilfoyle' ? THEME.gilfoyle.primary : 
-                     '#666'} 
+            <Ionicons
+              name="person-circle"
+              size={24}
+              color={
+                currentPersona === 'dedle'
+                  ? THEME.dedle.primary
+                  : currentPersona === 'gilfoyle'
+                  ? THEME.gilfoyle.primary
+                  : '#666'
+              }
             />
           </TouchableOpacity>
-
           <Input
             flex={1}
             backgroundColor="transparent"
@@ -287,10 +241,7 @@ export default function Chatbot() {
             fontSize={16}
             paddingVertical={0}
             lineHeight={20}
-            alignContent='center'
-            alignSelf='center'
           />
-
           <TouchableOpacity
             onPress={handleSend}
             activeOpacity={0.7}
@@ -298,8 +249,7 @@ export default function Chatbot() {
             style={{
               padding: 6,
               marginLeft: 8,
-              opacity: message.trim() ? 1 : 0.5,
-              alignSelf: 'flex-end'
+              opacity: message.trim() ? 1 : 0.5
             }}
           >
             <Ionicons
@@ -311,5 +261,5 @@ export default function Chatbot() {
         </XStack>
       </Stack>
     </View>
-  );
+  )
 }
