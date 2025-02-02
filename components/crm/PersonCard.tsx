@@ -155,16 +155,12 @@ export function PersonCard({
           modal
           open={isExpanded}
           onOpenChange={(isOpen: boolean) => !isOpen && onPress?.()}
-          snapPoints={[80]}
+          snapPoints={[90]}
           dismissOnSnapToBottom
           dismissOnOverlayPress
           zIndex={100000}
         >
-          <Sheet.Overlay
-            animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
+          <Sheet.Overlay animation="quick" style={styles.overlay} />
           <Sheet.Frame
             padding="$4"
             backgroundColor="$gray1"
@@ -200,9 +196,7 @@ export function PersonCard({
                 <Ionicons name="pencil" size={24} color="#fff" />
               </TouchableOpacity>
             </XStack>
-            <YStack justifyContent="center" alignItems="center" flex={1}>
-              {renderDetails()}
-            </YStack>
+            <YStack gap="$3">{renderDetails()}</YStack>
           </Sheet.Frame>
         </Sheet>
       </View>
@@ -218,7 +212,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    borderColor: "$white9",
+    borderColor: "#ffffff",
     borderWidth: 2,
     shadowRadius: 3.84,
     elevation: 5
@@ -226,13 +220,16 @@ const styles = StyleSheet.create({
   touchable: {
     width: "100%"
   },
+  overlay: {
+    backgroundColor: "rgba(0,0,0,0.5)"
+  },
   sheetFrame: {
     borderRadius: 16,
-    maxHeight: "50%",
-    marginTop: 100,
-    width: "70%",
+    maxHeight: "80%",
+    width: "90%",
     alignSelf: "center",
-    justifyContent: "center",
-    paddingBottom: 20
+    paddingBottom: 20,
+    justifyContent: "flex-start",
+    marginVertical: 40
   }
 });

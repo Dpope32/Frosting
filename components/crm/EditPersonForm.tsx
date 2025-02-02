@@ -7,7 +7,7 @@ import {
   XStack,
   ScrollView,
   Circle,
-  Text,
+  Text
 } from "tamagui";
 import * as ImagePicker from "expo-image-picker";
 import { Image, TextInput, Switch, Pressable, Platform } from "react-native";
@@ -35,15 +35,12 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
   ({ value, onDebouncedChange, ...props }, ref) => {
     const [text, setText] = useState(value);
     const debouncedText = useDebounce(text, 500);
-
     useEffect(() => {
       onDebouncedChange(debouncedText);
     }, [debouncedText]);
-
     useEffect(() => {
       setText(value);
     }, [value]);
-
     return <Input ref={ref} {...props} value={text} onChangeText={setText} />;
   }
 );
@@ -64,7 +61,6 @@ export function EditPersonForm({
   const [selectedDate, setSelectedDate] = useState(
     person.birthday ? new Date(person.birthday) : new Date()
   );
-
   const nameRef = useRef<TextInput>(null);
   const nicknameRef = useRef<TextInput>(null);
   const phoneRef = useRef<TextInput>(null);
@@ -79,7 +75,6 @@ export function EditPersonForm({
       aspect: [1, 1],
       quality: 1,
     });
-
     if (!result.canceled) {
       setFormData((prev) => ({ ...prev, profilePicture: result.assets[0].uri }));
     }
@@ -106,13 +101,14 @@ export function EditPersonForm({
   return (
     <Sheet
       modal
-      animation="lazy"
+      animation="quick"
       open={visible}
       onOpenChange={onClose}
       snapPoints={[65]}
       dismissOnSnapToBottom
+      dismissOnOverlayPress
     >
-      <Sheet.Overlay />
+      <Sheet.Overlay animation="quick" enterStyle={{ opacity: 0.5 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Frame padding="$4" backgroundColor="$gray1">
         <Sheet.Handle />
         <YStack flex={1}>
@@ -231,8 +227,7 @@ export function EditPersonForm({
                 <DebouncedInput
                   value={
                     formData.address
-                      ? `${formData.address.street}, ${formData.address.city}, ${formData.address.state} ${formData.address.zipCode}, ${formData.address.country}`
-                          .replace(/(,\s*)+$/, "")
+                      ? `${formData.address.street}, ${formData.address.city}, ${formData.address.state} ${formData.address.zipCode}, ${formData.address.country}`.replace(/(,\s*)+$/, "")
                       : ""
                   }
                   onDebouncedChange={(text) =>

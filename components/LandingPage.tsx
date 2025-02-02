@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState, useCallback } from 'react'
-import { View, useWindowDimensions, Image, Pressable } from 'react-native'
+import { View, useWindowDimensions, Image, Pressable, Platform } from 'react-native'
 import { BlurView } from 'expo-blur'
 import MyTracker from '@splicer97/react-native-mytracker'
 import { useUserStore } from '@/store/UserStore'
@@ -262,11 +261,18 @@ export function LandingPage() {
               <Pressable onPress={handleTemperaturePress}>
                 <TemperatureCard />
               </Pressable>
-              <Pressable onPress={handleWifiPress}>
-                <WifiCard />
-              </Pressable>
+              {Platform.OS !== 'ios' && (
+                <Pressable onPress={handleWifiPress}>
+                  <WifiCard />
+                </Pressable>
+              )}
             </XStack>
           </Stack>
+
+          <Stack backgroundColor="rgba(0, 0, 0, 0.7)" borderRadius={12} padding="$3" borderWidth={2} borderColor="rgba(255, 255, 255, 0.1)">
+            <QuoteSection />
+          </Stack>
+          
           <Stack
             backgroundColor="rgba(0, 0, 0, 0.7)"
             borderRadius={12}
@@ -323,13 +329,13 @@ export function LandingPage() {
               )}
             </Stack>
           </Stack>
-          <Stack backgroundColor="rgba(0, 0, 0, 0.7)" borderRadius={12} padding="$3" borderWidth={2} borderColor="rgba(255, 255, 255, 0.1)">
-            <QuoteSection />
-          </Stack>
+
         </YStack>
       </ScrollView>
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} temperature="21°F" />
-      <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
+      {Platform.OS !== 'ios' && (
+        <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
+      )}
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} value="$1,234.56" change="+$123.45" changePercentage="10.0%" />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />

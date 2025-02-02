@@ -40,3 +40,4 @@ yarn-error.*
 
 app-example
 scripts/SuperCRUDTest.ps1
+*.cxx/

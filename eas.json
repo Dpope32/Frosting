@@ -10,19 +10,38 @@
         "gradleCommand": ":app:assembleDebug"
       },
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "env": {
+          "RUBYOPT": "--disable=gems"
+        }
+      },
+      "cache": {
+        "disabled": true
       }
     },
     "preview": {
       "distribution": "internal",
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "env": {
+          "RUBYOPT": "--disable=gems"
+        }
+      },
+      "cache": {
+        "disabled": true
       }
     },
     "production": {
       "ios": {
         "distribution": "internal",
-        "simulator": false
+        "simulator": false,
+        "autoIncrement": true,
+        "env": {
+          "RUBYOPT": "--disable=gems"
+        }
+      },
+      "cache": {
+        "disabled": true
       }
     }
   },

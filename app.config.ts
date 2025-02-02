@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 export default {
   expo: {
     name: "frosting",
@@ -13,7 +11,7 @@ export default {
     icon: "./assets/images/icon.png",
     scheme: "myapp",
     userInterfaceStyle: "automatic",
-    newArchEnabled: true,
+    newArchEnabled: false,
     jsEngine: "hermes",
     experiments: {
       typedRoutes: true,
@@ -52,11 +50,11 @@ export default {
       router: {
         origin: false
       },
-      openWeatherApiKey: process.env.OPENWEATHER_API_KEY,
-      alphaVantageApiKey: process.env.ALPHA_VANTAGE_API_KEY,
-      openaiApiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY,
-      POCKETBASE_URL: process.env.POCKETBASE_URL,
-      POCKETBASE_PIN: process.env.POCKETBASE_PIN,
+      openWeatherApiKey: process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY || "",
+      alphaVantageApiKey: process.env.ALPHA_VANTAGE_API_KEY || "",
+      openaiApiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || "",
+      POCKETBASE_URL: process.env.POCKETBASE_URL || "",
+      POCKETBASE_PIN: process.env.POCKETBASE_PIN || "",
       eas: {
         projectId: "22727130-682f-425f-bedd-d8fd9ab0b3e0"
       }

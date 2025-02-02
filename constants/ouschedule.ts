@@ -1,113 +1,269 @@
 // @constants/ouschedule.ts
-import type { Game } from '../types/espn';
+import type { Game } from '../types/espn'
 
 export const preloadedOUSchedule: Game[] = [
   {
     id: '20240829',
-    date: 'Fri, Aug 29',
-    time: 'TBD',
-    homeTeam: 'Illinois St',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-08-29T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'Illinois St' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20240905',
-    date: 'Fri, Sep 5',
-    time: 'TBD',
-    homeTeam: 'Michigan',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-09-05T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'Michigan' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20240912',
-    date: 'Fri, Sep 12',
-    time: 'TBD',
-    homeTeam: 'Oklahoma',
-    awayTeam: 'Temple',
-    venue: 'Lincoln Financial Field',
-    isHome: false,
+    date: '2024-09-12T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+          {
+            homeAway: 'away',
+            id: 'other',
+            team: { shortDisplayName: 'Temple' },
+          },
+        ],
+        venue: { fullName: 'Lincoln Financial Field' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20240919',
-    date: 'Fri, Sep 19',
-    time: 'TBD',
-    homeTeam: 'Auburn',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-09-19T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'Auburn' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241003',
-    date: 'Fri, Oct 3',
-    time: 'TBD',
-    homeTeam: 'Kent State',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-10-03T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'Kent State' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241010',
-    date: 'Fri, Oct 10',
-    time: 'TBD',
-    homeTeam: 'Oklahoma',
-    awayTeam: 'Texas',
-    venue: 'Cotton Bowl',
-    isHome: false,
+    date: '2024-10-10T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+          {
+            homeAway: 'away',
+            id: 'other',
+            team: { shortDisplayName: 'Texas' },
+          },
+        ],
+        venue: { fullName: 'Cotton Bowl' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241017',
-    date: 'Fri, Oct 17',
-    time: 'TBD',
-    homeTeam: 'Oklahoma',
-    awayTeam: 'South Carolina',
-    venue: 'Williams-Brice Stadium',
-    isHome: false,
+    date: '2024-10-17T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+          {
+            homeAway: 'away',
+            id: 'other',
+            team: { shortDisplayName: 'South Carolina' },
+          },
+        ],
+        venue: { fullName: 'Williams-Brice Stadium' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241024',
-    date: 'Fri, Oct 24',
-    time: 'TBD',
-    homeTeam: 'Ole Miss',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-10-24T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'Ole Miss' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241031',
-    date: 'Fri, Oct 31',
-    time: 'TBD',
-    homeTeam: 'Oklahoma',
-    awayTeam: 'Tennessee',
-    venue: 'Neyland Stadium',
-    isHome: false,
+    date: '2024-10-31T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+          {
+            homeAway: 'away',
+            id: 'other',
+            team: { shortDisplayName: 'Tennessee' },
+          },
+        ],
+        venue: { fullName: 'Neyland Stadium' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241114',
-    date: 'Fri, Nov 14',
-    time: 'TBD',
-    homeTeam: 'Oklahoma',
-    awayTeam: 'Alabama',
-    venue: 'Bryant-Denny Stadium',
-    isHome: false,
+    date: '2024-11-14T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+          {
+            homeAway: 'away',
+            id: 'other',
+            team: { shortDisplayName: 'Alabama' },
+          },
+        ],
+        venue: { fullName: 'Bryant-Denny Stadium' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241121',
-    date: 'Fri, Nov 21',
-    time: 'TBD',
-    homeTeam: 'Missouri',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-11-21T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'Missouri' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
   {
     id: '20241128',
-    date: 'Fri, Nov 28',
-    time: 'TBD',
-    homeTeam: 'LSU',
-    awayTeam: 'Oklahoma',
-    venue: 'Memorial Stadium (Norman, OK)',
-    isHome: true,
+    date: '2024-11-28T00:00:00Z',
+    competitions: [
+      {
+        competitors: [
+          {
+            homeAway: 'home',
+            id: 'other',
+            team: { shortDisplayName: 'LSU' },
+          },
+          {
+            homeAway: 'away',
+            id: '201',
+            team: { shortDisplayName: 'Oklahoma' },
+          },
+        ],
+        venue: { fullName: 'Memorial Stadium (Norman, OK)' },
+        status: { type: { shortDetail: 'TBD' } },
+      },
+    ],
   },
-];
+]

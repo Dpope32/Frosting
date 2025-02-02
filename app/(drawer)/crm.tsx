@@ -34,8 +34,8 @@ export default function CRM() {
     <View 
       style={{
         width: CARD_WIDTH,
-        marginLeft: index % 2 === 0 ? PADDING : GAP/2,
-        marginRight: index % 2 === 0 ? GAP/2 : PADDING,
+        marginLeft: index % 2 === 0 ? PADDING : GAP / 2,
+        marginRight: index % 2 === 0 ? GAP / 2 : PADDING,
         marginBottom: GAP,
       }}
     >

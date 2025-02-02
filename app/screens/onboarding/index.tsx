@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native'
-import {  XStack, Button, Text, View } from 'tamagui'
+import { XStack, Button, Text, View } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
 
@@ -46,7 +46,7 @@ export default function Onboarding() {
   const handleNext = () => {
     if (step === 4) {
       setPreferences({ ...formData, hasCompletedOnboarding: true })
-      router.replace('/(drawer)')
+      router.replace('/(drawer)/(tabs)' as const)
     } else {
       setStep((prev) => prev + 1)
     }
@@ -130,7 +130,11 @@ export default function Onboarding() {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 32 : 0}
+    >
       <View flex={1} backgroundColor="$gray1Dark">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View flex={1}>
@@ -141,7 +145,7 @@ export default function Onboarding() {
               left={0}
               right={0}
               padding="$4"
-              paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 0 : 24) : 24}
+              paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
               backgroundColor="$gray1Dark"
               style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: 'rgba(255,255,255,0.1)'}}>
               <XStack gap="$3">

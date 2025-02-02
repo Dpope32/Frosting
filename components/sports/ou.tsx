@@ -1,35 +1,32 @@
-//ou.tsx
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { FlashList } from '@shopify/flash-list';
-import { ThemedView } from '../../theme/ThemedView';
-import { useOUSportsAPI } from '../../hooks/useOUSportsAPI';
-import { format } from 'date-fns';
-import type { Game } from '../../types/espn';
+// ou.tsx
+import React from 'react'
+import { Image, StyleSheet, Text, View } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
+import { ThemedView } from '../../theme/ThemedView'
+import { useOUSportsAPI } from '../../hooks/useOUSportsAPI'
+import { format } from 'date-fns'
+import type { Game } from '../../types/espn'
 
-const OU_CRIMSON = '#841617'; 
+const OU_CRIMSON = '#841617'
 
 export default function OUPage() {
-  const { data: schedule, isLoading, error } = useOUSportsAPI();
+  const { data: schedule, isLoading, error } = useOUSportsAPI()
 
   const renderGame = ({ item: game }: { item: Game }) => {
-    const competition = game.competitions?.[0];
-    if (!competition) return null;
+    const competition = game.competitions?.[0]
+    if (!competition) return null
 
-    const homeCompetitor = competition.competitors?.find(c => c.homeAway === 'home');
-    const awayCompetitor = competition.competitors?.find(c => c.homeAway === 'away');
-    
-    if (!homeCompetitor || !awayCompetitor) return null;
+    const homeCompetitor = competition.competitors?.find(c => c.homeAway === 'home')
+    const awayCompetitor = competition.competitors?.find(c => c.homeAway === 'away')
+    if (!homeCompetitor || !awayCompetitor) return null
 
-    const isHome = homeCompetitor.id === '201';
-    const homeTeam = homeCompetitor.team.shortDisplayName || 'TBD';
-    const awayTeam = awayCompetitor.team.shortDisplayName || 'TBD';
-    const venue = competition.venue?.fullName || 'TBD';
-    
-    const gameDate = new Date(game.date);
-    const formattedDate = format(gameDate, 'E, MMM d');
-    const gameTime = game.status?.type?.shortDetail || 'TBD';
-    const formattedTime = gameTime === 'TBD' ? 'TBD' : format(gameDate, 'h:mm a');
+    const homeTeam = homeCompetitor.team.shortDisplayName || 'TBD'
+    const awayTeam = awayCompetitor.team.shortDisplayName || 'TBD'
+    const venue = competition.venue?.fullName || 'TBD'
+    const gameDate = new Date(game.date)
+    const formattedDate = format(gameDate, 'E, MMM d')
+    const gameTime = competition.status?.type?.shortDetail || 'TBD'
+    const formattedTime = gameTime === 'TBD' ? 'TBD' : format(gameDate, 'h:mm a')
 
     return (
       <View style={styles.gameCard}>
@@ -37,22 +34,21 @@ export default function OUPage() {
           <Text style={styles.date}>{formattedDate}</Text>
           <Text style={styles.time}>{formattedTime}</Text>
         </View>
-        
         <View style={styles.teamsContainer}>
           <View style={styles.teamWrapper}>
             {homeTeam.includes('Oklahoma') && (
-              <Image 
+              <Image
                 source={require('../../assets/images/ou.png')}
                 style={styles.teamLogo}
                 resizeMode="contain"
               />
             )}
-            <Text 
+            <Text
               style={[
                 styles.team,
                 styles.homeTeam,
-                homeTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam
-              ]} 
+                homeTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam,
+              ]}
               numberOfLines={1}
             >
               {homeTeam}
@@ -61,41 +57,39 @@ export default function OUPage() {
           <Text style={styles.at}>@</Text>
           <View style={[styles.teamWrapper, styles.awayWrapper]}>
             {awayTeam.includes('Oklahoma') && (
-              <Image 
+              <Image
                 source={require('../../assets/images/ou.png')}
                 style={styles.teamLogo}
                 resizeMode="contain"
               />
             )}
-            <Text 
+            <Text
               style={[
                 styles.team,
                 styles.awayTeam,
-                awayTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam
-              ]} 
+                awayTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam,
+              ]}
               numberOfLines={1}
             >
               {awayTeam}
             </Text>
           </View>
         </View>
-        
         <Text style={styles.venue}>{venue}</Text>
       </View>
-    );
-  };
+    )
+  }
 
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <Image 
+        <Image
           source={require('../../assets/images/ou.png')}
           style={styles.logo}
           resizeMode="contain"
         />
         <Text style={styles.headerTitle}>2024-25 Schedule</Text>
       </View>
-
       {error ? (
         <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
       ) : (
@@ -114,7 +108,7 @@ export default function OUPage() {
         />
       )}
     </ThemedView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -226,4 +220,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-});
+})

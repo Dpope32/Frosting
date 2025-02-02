@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import Constants from 'expo-constants';
 
 interface Credential {
   id: string;
@@ -15,25 +14,31 @@ interface PocketBaseResponse {
   items: Credential[];
 }
 
-const BASE_URL = Constants.expoConfig?.extra?.POCKETBASE_URL || 'http://localhost:8090';
-const PIN = Constants.expoConfig?.extra?.POCKETBASE_PIN || '0000';
+// Hardcoded values
+const BASE_URL = 'http://192.168.1.32:8090';
+const PIN = '2022';
 
 export function useVault() {
   return useQuery({
     queryKey: ['vault-credentials'],
     queryFn: async (): Promise<PocketBaseResponse> => {
+      console.log('Fetching from:', `${BASE_URL}/api/collections/credz/records`);
+      console.log('Using PIN:', PIN);
+
       const response = await fetch(`${BASE_URL}/api/collections/credz/records`, {
         headers: {
           'Content-Type': 'application/json',
           'pin': PIN
         },
       });
-      
+
       if (!response.ok) {
-        throw new Error('Failed to fetch credentials');
+        throw new Error(`Failed to fetch credentials, status: ${response.status}`);
       }
-      
-      return response.json();
+
+      const data = await response.json();
+      console.log('Fetched Vault Data:', data);
+      return data;
     }
   });
 }
