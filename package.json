@@ -40,6 +40,7 @@
     "@types/node": "^22.10.10",
     "@types/styled-components": "^5.1.34",
     "@types/styled-components-react-native": "^5.2.5",
+    "axios": "^1.7.9",
     "chalk": "^5.4.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",

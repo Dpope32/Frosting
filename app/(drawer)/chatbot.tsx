@@ -26,15 +26,12 @@ class ChatErrorBoundary extends React.Component<ChatErrorBoundaryProps, ChatErro
     super(props)
     this.state = { hasError: false, error: null }
   }
-
   static getDerivedStateFromError(error: Error): ChatErrorBoundaryState {
     return { hasError: true, error }
   }
-
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Chatbot error boundary caught an error', error, errorInfo)
   }
-
   render() {
     if (this.state.hasError) {
       return (
@@ -143,10 +140,7 @@ function ChatbotInner() {
                 <TouchableOpacity onPress={handleRetry} style={{ marginLeft: 8 }}>
                   <Ionicons name="refresh" size={24} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => useChatStore.getState().setError(null)}
-                  style={{ marginLeft: 8 }}
-                >
+                <TouchableOpacity onPress={() => useChatStore.getState().setError(null)} style={{ marginLeft: 8 }}>
                   <Ionicons name="close" size={24} color="white" />
                 </TouchableOpacity>
               </XStack>
@@ -170,22 +164,20 @@ function ChatbotInner() {
             showsVerticalScrollIndicator={true}
           >
             <YStack gap={16}>
-              {messages
-                .filter((m) => m.role !== 'system')
-                .map((msg, idx) => (
-                  <XStack
-                    key={idx}
-                    backgroundColor={msg.role === 'user' ? '#0066CC' : '#333'}
-                    padding={12}
-                    borderRadius={16}
-                    alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-                    maxWidth="80%"
-                  >
-                    <Text color="white" fontSize={16}>
-                      {msg.content}
-                    </Text>
-                  </XStack>
-                ))}
+              {messages.filter((m) => m.role !== 'system').map((msg, idx) => (
+                <XStack
+                  key={idx}
+                  backgroundColor={msg.role === 'user' ? '#0066CC' : '#333'}
+                  padding={12}
+                  borderRadius={16}
+                  alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
+                  maxWidth="80%"
+                >
+                  <Text color="white" fontSize={16}>
+                    {msg.content}
+                  </Text>
+                </XStack>
+              ))}
               {currentStreamingMessage && (
                 <XStack
                   backgroundColor="#333"
@@ -217,16 +209,16 @@ function ChatbotInner() {
         )}
         <XStack
           backgroundColor={THEME.inputBg}
-          borderRadius={20}
+          borderRadius={24}
           margin={16}
           marginBottom={Platform.OS === 'ios' ? keyboardHeight + 16 : 16}
-          paddingVertical={12}
-          paddingHorizontal={12}
-          alignItems="flex-end"
+          paddingVertical={16}
+          paddingHorizontal={16}
+          alignItems="center"
           borderWidth={1}
           borderColor={THEME.inputBorder}
           opacity={isLoading ? 0.7 : 1}
-          minHeight={50}
+          minHeight={56}
         >
           <TouchableOpacity
             onPress={() => {
@@ -236,20 +228,20 @@ function ChatbotInner() {
               ])
             }}
             style={{
-              padding: 6,
-              borderRadius: 12,
+              padding: 8,
+              borderRadius: 16,
               backgroundColor:
                 currentPersona === 'dedle'
                   ? THEME.dedle.bg
                   : currentPersona === 'gilfoyle'
                   ? THEME.gilfoyle.bg
                   : 'transparent',
-              marginRight: 8
+              marginRight: 12
             }}
           >
             <Ionicons
               name="person-circle"
-              size={24}
+              size={28}
               color={
                 currentPersona === 'dedle'
                   ? THEME.dedle.primary
@@ -274,24 +266,19 @@ function ChatbotInner() {
             maxHeight={120}
             editable={!isLoading}
             fontSize={16}
-            paddingVertical={0}
-            lineHeight={20}
+            style={{ textAlignVertical: 'center' }}
           />
           <TouchableOpacity
             onPress={handleSend}
             activeOpacity={0.7}
             disabled={!message.trim()}
             style={{
-              padding: 6,
-              marginLeft: 8,
+              padding: 8,
+              marginLeft: 12,
               opacity: message.trim() ? 1 : 0.5
             }}
           >
-            <Ionicons
-              name="send"
-              size={24}
-              color={message.trim() ? primaryColor : '#666'}
-            />
+            <Ionicons name="send" size={28} color={message.trim() ? primaryColor : '#666'} />
           </TouchableOpacity>
         </XStack>
       </Stack>

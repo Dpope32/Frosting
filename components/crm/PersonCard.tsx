@@ -1,3 +1,4 @@
+// PersonCard.tsx
 import React from "react";
 import {
   Card,
@@ -13,18 +14,35 @@ import {
   StyleSheet,
   View,
   StyleProp,
-  ViewStyle
+  ViewStyle,
+  Linking
 } from "react-native";
+import { BlurView } from "expo-blur";
+import * as Clipboard from "expo-clipboard";
 import { Ionicons } from "@expo/vector-icons";
 import type { Person } from "@/types/people";
 
 const colors = [
-  "#007AFF",
-  "#FF2D55",
-  "#FF9500",
-  "#4CD964",
-  "#5856D6",
-  "#5AC8FA"
+  "#FF5733",
+  "#33FF57",
+  "#3357FF",
+  "#FF33A8",
+  "#FF8C33",
+  "#8C33FF",
+  "#33FFF2",
+  "#F2FF33",
+  "#FF3333",
+  "#33FF33",
+  "#3333FF",
+  "#FF33FF",
+  "#33FFFF",
+  "#FFFF33",
+  "#FF9900",
+  "#99FF00",
+  "#0099FF",
+  "#9900FF",
+  "#FF0099",
+  "#00FF99"
 ];
 
 const getColorForPerson = (id: string | undefined) => {
@@ -49,66 +67,17 @@ export function PersonCard({
   containerStyle
 }: PersonCardProps) {
   const nicknameColor = getColorForPerson(person.id || person.name);
-
-  const renderDetails = () => (
-    <YStack gap="$2" paddingHorizontal="$2">
-      {person.email && (
-        <Paragraph fontSize={14} numberOfLines={2}>
-          📧 {person.email}
-        </Paragraph>
-      )}
-      {person.phoneNumber && (
-        <Paragraph fontSize={14} numberOfLines={1}>
-          📞 {person.phoneNumber}
-        </Paragraph>
-      )}
-      {person.birthday && (
-        <Paragraph fontSize={14} numberOfLines={1}>
-          🎂 {new Date(person.birthday).toLocaleDateString()}
-        </Paragraph>
-      )}
-      {person.occupation && (
-        <Paragraph fontSize={14} numberOfLines={2}>
-          💼 {person.occupation}
-        </Paragraph>
-      )}
-      <Paragraph fontSize={14} numberOfLines={1}>
-        ✅ {person.registered ? "Registered" : "Not Registered"}
-      </Paragraph>
-      {person.address && (
-        <Paragraph fontSize={14} numberOfLines={3}>
-          🏠{" "}
-          {[
-            person.address.street,
-            person.address.city,
-            person.address.state,
-            person.address.zipCode,
-            person.address.country
-          ]
-            .filter(Boolean)
-            .join(", ")}
-        </Paragraph>
-      )}
-      {person.payments && person.payments.length > 0 && (
-        <Paragraph fontSize={14} numberOfLines={2}>
-          💰 {person.payments.map((p) => `${p.type}: ${p.details}`).join(", ")}
-        </Paragraph>
-      )}
-      {person.notes && (
-        <Paragraph fontSize={14} numberOfLines={3}>
-          📝 {person.notes}
-        </Paragraph>
-      )}
-      {person.socialMedia && person.socialMedia.length > 0 && (
-        <Paragraph fontSize={14} numberOfLines={2}>
-          🌐{" "}
-          {person.socialMedia
-            .map((s) => `${s.platform}: ${s.username}`)
-            .join(", ")}
-        </Paragraph>
-      )}
-    </YStack>
-  );
+  const fullAddress =
+    person.address &&
+    [
+      person.address.street,
+      person.address.city,
+      person.address.state,
+      person.address.zipCode,
+      person.address.country
+    ]
+      .filter(Boolean)
+      .join(", ");
 
   return (
     <Theme name="dark">
@@ -120,20 +89,12 @@ export function PersonCard({
           borderRadius="$4"
           animation="quick"
           pressStyle={{ scale: 0.98 }}
-          style={styles.card}
+          style={[styles.card, { borderColor: nicknameColor }]}
         >
-          <TouchableOpacity
-            onPress={onPress}
-            activeOpacity={0.8}
-            style={styles.touchable}
-          >
+          <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable}>
             <XStack alignItems="center" gap="$3">
               <Image
-                source={{
-                  uri:
-                    person.profilePicture ||
-                    "https://via.placeholder.com/80"
-                }}
+                source={{ uri: person.profilePicture || "https://via.placeholder.com/80" }}
                 width={50}
                 height={50}
                 borderRadius={25}
@@ -150,53 +111,100 @@ export function PersonCard({
             </XStack>
           </TouchableOpacity>
         </Card>
-
         <Sheet
           modal
           open={isExpanded}
           onOpenChange={(isOpen: boolean) => !isOpen && onPress?.()}
-          snapPoints={[90]}
+          snapPoints={[85]}
           dismissOnSnapToBottom
           dismissOnOverlayPress
           zIndex={100000}
         >
           <Sheet.Overlay animation="quick" style={styles.overlay} />
-          <Sheet.Frame
-            padding="$4"
-            backgroundColor="$gray1"
-            style={styles.sheetFrame}
-          >
+          <Sheet.Frame style={styles.sheetFrameExpanded}>
+            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
             <Sheet.Handle />
-            <XStack justifyContent="space-between" alignItems="center" mb="$4">
-              <XStack alignItems="center" gap="$3" flex={1}>
-                <Image
-                  source={{
-                    uri:
-                      person.profilePicture ||
-                      "https://via.placeholder.com/80"
-                  }}
-                  width={60}
-                  height={60}
-                  borderRadius={30}
-                />
-                <Paragraph
-                  fontWeight="700"
-                  fontSize={24}
-                  color={nicknameColor}
-                  flex={1}
-                  numberOfLines={1}
-                >
-                  {person.nickname || person.name}
-                </Paragraph>
-              </XStack>
-              <TouchableOpacity
-                onPress={() => onEdit(person)}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            <YStack alignItems="center" gap="$5" mb="$4">
+              <Image
+                source={{ uri: person.profilePicture || "https://via.placeholder.com/200" }}
+                width={150}
+                height={150}
+                borderRadius={75}
+              />
+              <Paragraph
+                fontWeight="800"
+                fontSize={26}
+                color={nicknameColor}
+                textAlign="center"
               >
+                {person.nickname || person.name}
+              </Paragraph>
+            </YStack>
+            <YStack gap="$4">
+              {person.email && (
+                <Paragraph fontSize={16} fontWeight="600" numberOfLines={2}>
+                  {person.email}
+                </Paragraph>
+              )}
+              {person.phoneNumber && (
+                <Paragraph fontSize={16} fontWeight="600" numberOfLines={1}>
+                  {person.phoneNumber}
+                </Paragraph>
+              )}
+              {person.birthday && (
+                <Paragraph fontSize={16} fontWeight="600" numberOfLines={1}>
+                  {new Date(person.birthday).toLocaleDateString()}
+                </Paragraph>
+              )}
+              {person.occupation && (
+                <Paragraph fontSize={16} fontWeight="600" numberOfLines={2}>
+                  {person.occupation}
+                </Paragraph>
+              )}
+              <Paragraph fontSize={16} fontWeight="600" numberOfLines={1}>
+                {person.registered ? "Registered" : "Not Registered"}
+              </Paragraph>
+              {person.address && (
+                <Paragraph fontSize={16} fontWeight="600" numberOfLines={3}>
+                  {fullAddress}
+                </Paragraph>
+              )}
+            </YStack>
+            <XStack justifyContent="space-evenly" alignItems="center" mt="$4">
+              {person.address && (
+                <TouchableOpacity
+                  onPress={() =>
+                    Clipboard.setStringAsync(fullAddress || "")
+                  }
+                >
+                  <Ionicons name="copy-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
+              {person.email && (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`mailto:${person.email}`)}
+                >
+                  <Ionicons name="mail-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
+              {person.phoneNumber && (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
+                >
+                  <Ionicons name="call-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
+              {person.phoneNumber && (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
+                >
+                  <Ionicons name="chatbubble-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity onPress={() => onEdit(person)}>
                 <Ionicons name="pencil" size={24} color="#fff" />
               </TouchableOpacity>
             </XStack>
-            <YStack gap="$3">{renderDetails()}</YStack>
           </Sheet.Frame>
         </Sheet>
       </View>
@@ -212,7 +220,6 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
-    borderColor: "#ffffff",
     borderWidth: 2,
     shadowRadius: 3.84,
     elevation: 5
@@ -223,13 +230,14 @@ const styles = StyleSheet.create({
   overlay: {
     backgroundColor: "rgba(0,0,0,0.5)"
   },
-  sheetFrame: {
+  sheetFrameExpanded: {
     borderRadius: 16,
-    maxHeight: "80%",
-    width: "90%",
+    maxHeight: "83%",
+    width: "80%",
     alignSelf: "center",
-    paddingBottom: 20,
     justifyContent: "flex-start",
-    marginVertical: 40
+    padding: 24,
+    marginVertical: 12,
+    overflow: "hidden"
   }
 });

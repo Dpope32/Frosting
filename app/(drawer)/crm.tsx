@@ -1,3 +1,4 @@
+// crm.tsx
 import React, { useState } from "react";
 import { FlatList, View, Dimensions } from "react-native";
 import { H4, Separator, YStack, Text } from "tamagui";
@@ -7,10 +8,10 @@ import { AddPersonForm } from "@/components/crm/AddPersonForm";
 import { EditPersonForm } from "@/components/crm/EditPersonForm";
 import type { Person } from "@/types/people";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 const PADDING = 16;
 const GAP = 16;
-const CARD_WIDTH = (width - (PADDING * 2) - GAP) / 2;
+const CARD_WIDTH = (width - PADDING * 2 - GAP) / 2;
 
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
@@ -31,12 +32,12 @@ export default function CRM() {
   };
 
   const renderItem = ({ item, index }: { item: Person; index: number }) => (
-    <View 
+    <View
       style={{
         width: CARD_WIDTH,
         marginLeft: index % 2 === 0 ? PADDING : GAP / 2,
         marginRight: index % 2 === 0 ? GAP / 2 : PADDING,
-        marginBottom: GAP,
+        marginBottom: GAP
       }}
     >
       <PersonCard
@@ -54,11 +55,10 @@ export default function CRM() {
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
       <Separator borderColor="$gray8" borderWidth={1} my="$2" marginBottom={16} />
-      
       <FlatList
         data={allContacts}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={{
           paddingBottom: 100
@@ -69,9 +69,7 @@ export default function CRM() {
           </YStack>
         }
       />
-
       <AddPersonForm />
-
       {selectedPerson && (
         <EditPersonForm
           person={selectedPerson}

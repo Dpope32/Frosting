@@ -159,17 +159,7 @@ export default function DrawerLayout() {
               <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 20 }} />
             ),
           }}
-        />
-       <Drawer.Screen
-          name="spotify"
-          options={{
-            title: 'Spotify',
-            drawerLabel: 'Spotify',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
-          }}
-        />        
+        />  
       </Drawer>
       <BlurView 
         intensity={20}
