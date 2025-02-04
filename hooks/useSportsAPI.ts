@@ -78,6 +78,8 @@ export const useSportsAPI = () => {
       });
 
       setGames(games);
+      // Sync game tasks after setting new games
+      useThunderStore.getState().syncGameTasks();
       return games;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch Thunder schedule';
@@ -91,9 +93,9 @@ export const useSportsAPI = () => {
   return useQuery<Game[], Error>({
     queryKey: ['thunder-schedule'],
     queryFn: fetchThunderSchedule,
-    staleTime: 1000 * 60 * 60 * 6,
-    gcTime: 1000 * 60 * 60 * 12,
-    refetchInterval: 1000 * 60 * 60 * 24,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60 * 60 * 24, // 24 hours
+    refetchInterval: 1000 * 60 * 60 * 24, // 24 hours
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });

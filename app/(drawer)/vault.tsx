@@ -6,16 +6,25 @@ import { BlurView } from 'expo-blur';
 import { useUserStore } from '@/store/UserStore';
 
 export default function VaultScreen() {
-  const { data, isLoading } = useVault();
+  const { data, isLoading, error } = useVault();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-
-  // Array of colors for dynamic name coloring
   const nameColors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#A29BFE', '#F78FB3'];
 
   if (isLoading) {
     return (
       <YStack f={1} jc="center" ai="center" mt={80} backgroundColor="#1a1a1a">
         <Text color="#FFFFFF" fontSize="$4">Loading...</Text>
+      </YStack>
+    );
+  }
+
+  if (error) {
+    return (
+      <YStack f={1} jc="center" ai="center" mt={80} backgroundColor="#1a1a1a">
+        <Text color="#FF6B6B" fontSize="$4">Failed to load vault</Text>
+        <Text color="#FFFFFF" fontSize="$3" ta="center" px="$4" mt="$2">
+          {error instanceof Error ? error.message : 'Unknown error occurred'}
+        </Text>
       </YStack>
     );
   }

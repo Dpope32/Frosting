@@ -24,6 +24,7 @@ export interface Task {
   completed: boolean
   createdAt: string
   updatedAt: string
+  scheduledDate?: string  // ISO string date for one-time tasks
 }
 
 interface ProjectStore {
@@ -65,9 +66,10 @@ const createTaskFilter = () => {
       if (task.completed) {
         return false;
       }
-      const taskDate = new Date(task.createdAt).toDateString();
+      if (!task.scheduledDate) return false;
+      const taskDate = new Date(task.scheduledDate).toDateString();
       const currentDate = new Date().toDateString();
-      return taskDate === currentDate;
+      return taskDate === currentDate && !task.completed;
     });
     const sorted = [...filtered].sort((a, b) => {
       if (a.completed !== b.completed) return a.completed ? 1 : -1

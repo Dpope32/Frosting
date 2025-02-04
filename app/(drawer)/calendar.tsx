@@ -12,7 +12,7 @@ export default function CalendarScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const { events, addEvent, updateEvent, deleteEvent } = useCalendarStore();
+  const { events, addEvent, updateEvent, deleteEvent, syncBirthdays } = useCalendarStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isEventModalVisible, setIsEventModalVisible] = useState(false);
   const [isViewEventModalVisible, setIsViewEventModalVisible] = useState(false);
@@ -24,6 +24,7 @@ export default function CalendarScreen() {
   const [months, setMonths] = useState<Date[]>([]);
 
   useEffect(() => {
+    syncBirthdays(); // Sync birthday events when calendar loads
     const today = new Date();
     today.setDate(1);
     const arr = [];
@@ -62,6 +63,9 @@ export default function CalendarScreen() {
   const handleAddEvent = () => {
     if (selectedDate && newEventTitle.trim()) {
       if (editingEvent) {
+        if (editingEvent.type === 'birthday') {
+          return; // Prevent editing birthday events
+        }
         updateEvent(editingEvent.id, {
           title: newEventTitle.trim(),
           description: newEventDescription.trim(),
@@ -71,6 +75,7 @@ export default function CalendarScreen() {
           date: selectedDate.toISOString().split('T')[0],
           title: newEventTitle.trim(),
           description: newEventDescription.trim(),
+          type: 'regular',
         });
       }
       setIsEventModalVisible(false);
@@ -82,6 +87,9 @@ export default function CalendarScreen() {
   };
 
   const handleEditEvent = (event: CalendarEvent) => {
+    if (event.type === 'birthday') {
+      return; // Prevent editing birthday events
+    }
     setEditingEvent(event);
     setNewEventTitle(event.title);
     setNewEventDescription(event.description);
@@ -90,6 +98,10 @@ export default function CalendarScreen() {
   };
 
   const handleDeleteEvent = (eventId: string) => {
+    const event = selectedEvents.find(e => e.id === eventId);
+    if (event?.type === 'birthday') {
+      return; // Prevent deleting birthday events
+    }
     deleteEvent(eventId);
     if (selectedEvents.length === 1) {
       setIsViewEventModalVisible(false);
@@ -202,7 +214,10 @@ export default function CalendarScreen() {
               style={[styles.button, styles.closeButton, { backgroundColor: primaryColor }]}
               onPress={() => setIsViewEventModalVisible(false)}
             >
-              <Text style={styles.buttonText}>Close</Text>
+              <View style={styles.closeButtonContent}>
+                <Ionicons name="close" size={24} color="#FFF" />
+                <Text style={styles.buttonText}>Close</Text>
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -262,11 +277,17 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: '#FFF',
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '500',
-    marginVertical: 4,
+    marginLeft: 8,
+  },
+  closeButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
   },
   modalHeader: {
     flexDirection: 'row',

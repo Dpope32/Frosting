@@ -27,6 +27,8 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.deedaw22.frosting"/>
+        <data android:scheme="exp+frosting"/>
+        <data android:scheme="frosting"/>
       </intent-filter>
     </activity>
   </application>

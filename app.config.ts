@@ -2,6 +2,7 @@ export default {
   expo: {
     name: "frosting",
     slug: "frosting",
+    scheme: "frosting",
     version: "1.0.0",
     assetBundlePatterns: [
       "assets/wallpapers-optimized/*",
@@ -9,7 +10,6 @@ export default {
     ],
     orientation: "portrait",
     icon: "./assets/images/icon.png",
-    scheme: "myapp",
     userInterfaceStyle: "automatic",
     newArchEnabled: false,
     jsEngine: "hermes",

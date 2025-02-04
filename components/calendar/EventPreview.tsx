@@ -10,27 +10,58 @@ export const EventPreview: React.FC<{
     onDelete: () => void;
     isDark: boolean;
     primaryColor: string;
-  }> = ({ event, onEdit, onDelete, isDark, primaryColor }) => (
-    <View style={styles.eventItem}>
-      <TouchableOpacity style={[styles.iconButton, { backgroundColor: primaryColor }]} onPress={onEdit}>
-        <Ionicons name="filter" size={24} color="#666" />
-      </TouchableOpacity>
-      <View style={styles.eventInfo}>
-        <Text style={[styles.eventTitle, { color: isDark ? '#ffffff' : '#000000' }]}>{event.title}</Text>
-        {event.description && (
-          <Text style={[styles.eventDescription, { color: isDark ? '#dddddd' : '#666666' }]}>
-            {event.description}
+  }> = ({ event, onEdit, onDelete, isDark, primaryColor }) => {
+    const isBirthday = event.type === 'birthday';
+    
+    return (
+      <View style={[
+        styles.eventItem,
+        isBirthday && { borderColor: primaryColor, borderWidth: 2 }
+      ]}>
+        <View style={[
+          styles.iconButton,
+          { backgroundColor: isBirthday ? '#FFD700' : primaryColor }
+        ]}>
+          <Ionicons
+            name={isBirthday ? 'gift' : 'filter'}
+            size={24}
+            color={isBirthday ? '#FF69B4' : '#666'}
+          />
+        </View>
+        <View style={styles.eventInfo}>
+          <Text style={[
+            styles.eventTitle,
+            { color: isDark ? '#ffffff' : '#000000' }
+          ]}>
+            {event.title}
           </Text>
+          {event.description && (
+            <Text style={[
+              styles.eventDescription,
+              { color: isDark ? '#dddddd' : '#666666' }
+            ]}>
+              {event.description}
+            </Text>
+          )}
+          {!isBirthday && (
+            <Text style={[styles.eventMetadata, { color: isDark ? '#bbbbbb' : '#888888' }]}>
+              Created: {new Date(event.createdAt).toLocaleDateString()}
+            </Text>
+          )}
+        </View>
+        {!isBirthday && (
+          <>
+            <TouchableOpacity style={[styles.iconButton, { backgroundColor: primaryColor }]} onPress={onEdit}>
+              <Ionicons name="pencil" size={20} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.deleteButton]} onPress={onDelete}>
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </>
         )}
-        <Text style={[styles.eventMetadata, { color: isDark ? '#bbbbbb' : '#888888' }]}>
-          Created: {new Date(event.createdAt).toLocaleDateString()}
-        </Text>
       </View>
-      <TouchableOpacity style={[styles.deleteButton]} onPress={onDelete}>
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   const styles = StyleSheet.create({
     eventItem: {
@@ -41,6 +72,7 @@ export const EventPreview: React.FC<{
       borderColor: '#cccccc',
       borderRadius: 8,
       marginBottom: 8,
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
     },
     eventInfo: {
       flex: 1,

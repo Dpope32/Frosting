@@ -1,5 +1,6 @@
 // ou.tsx
 import React from 'react'
+import { GameCardSkeleton } from './GameCardSkeleton'
 import { Image, StyleSheet, Text, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { ThemedView } from '../../theme/ThemedView'
@@ -94,17 +95,13 @@ export default function OUPage() {
         <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
       ) : (
         <FlashList
-          data={schedule || []}
-          renderItem={renderGame}
+          data={isLoading ? Array(6).fill({}) : schedule || []}
+          renderItem={isLoading ? 
+            () => <GameCardSkeleton /> : 
+            renderGame
+          }
           estimatedItemSize={100}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            isLoading ? (
-              <Text style={styles.loadingText}>Loading schedule...</Text>
-            ) : (
-              <Text style={styles.emptyText}>No games found</Text>
-            )
-          }
         />
       )}
     </ThemedView>

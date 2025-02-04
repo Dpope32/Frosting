@@ -10,6 +10,7 @@ import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { queryClient } from '@/lib/query';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
@@ -19,6 +20,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   //console.log('[RootLayout] Rendering');
   const colorScheme = useColorScheme();
+  useAppInitialization();
   const [loaded] = useFonts({SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf')});
 
   useEffect(() => {
