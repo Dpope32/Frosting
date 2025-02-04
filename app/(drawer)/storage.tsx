@@ -1,107 +1,115 @@
-import { useState, useEffect } from 'react';
-import { YStack, Text, Button, Spinner, Progress, XStack } from 'tamagui';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
-import { Alert } from 'react-native';
-import { useUserStore } from '@/store/UserStore';
+import { useState, useEffect } from 'react'
+import { YStack, Text, Button, Spinner, Progress, XStack } from 'tamagui'
+import * as ImagePicker from 'expo-image-picker'
+import { MediaType, MediaTypeOptions, launchImageLibraryAsync } from 'expo-image-picker'
+import axios from 'axios'
+import { Alert } from 'react-native'
+import { useUserStore } from '@/store/UserStore'
 
-const UPLOAD_SERVER = process.env.EXPO_PUBLIC_UPLOAD_SERVER;
-const DEFAULT_STATS: FileStats = { totalSize: 0, fileCount: 0 };
+const UPLOAD_SERVER = process.env.EXPO_PUBLIC_UPLOAD_SERVER
+const DEFAULT_STATS = { totalSize: 0, fileCount: 0 }
 
 interface FileStats {
-  totalSize: number;
-  fileCount: number;
+  totalSize: number
+  fileCount: number
 }
 
 const useFileUpload = () => {
-  const [progress, setProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [stats, setStats] = useState<FileStats>(DEFAULT_STATS);
-  const [currentFileIndex, setCurrentFileIndex] = useState(0);
-  const [totalFiles, setTotalFiles] = useState(0);
-  const username = useUserStore.getState().preferences.username;
+  const [progress, setProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
+  const [stats, setStats] = useState<FileStats>(DEFAULT_STATS)
+  const [currentFileIndex, setCurrentFileIndex] = useState(0)
+  const [totalFiles, setTotalFiles] = useState(0)
+  const username = useUserStore.getState().preferences.username
 
   useEffect(() => {
-    fetchStats();
-  }, [username]);
+    fetchStats()
+  }, [username])
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${UPLOAD_SERVER}/stats/${username}`);
-      setStats(response.data);
+      const response = await axios.get(`${UPLOAD_SERVER}/stats/${username}`)
+      setStats(response.data)
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      console.error('Failed to fetch stats:', error)
     }
-  };
+  }
 
   const formatSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
-  };
+    if (!bytes) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+  }
 
   const pickAndUploadFiles = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
       if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant media library permissions to upload files.');
-        return;
+        Alert.alert('Permission needed', 'Grant media library permissions to upload.')
+        return
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+      const result = await launchImageLibraryAsync({
+        mediaTypes: MediaTypeOptions.All,
         allowsMultipleSelection: true,
-        quality: 1,
         selectionLimit: 10,
-      });
-
-      if (result.canceled || result.assets.length === 0) return;
-
-      setIsUploading(true);
-      setProgress(0);
-      setTotalFiles(result.assets.length);
+        quality: 1,
+      })
       
+      if (result.canceled || !result.assets?.length) return
+
+      setIsUploading(true)
+      setProgress(0)
+      setTotalFiles(result.assets.length)
+
       for (let i = 0; i < result.assets.length; i++) {
-        const asset = result.assets[i];
-        setCurrentFileIndex(i + 1);
-        const formData = new FormData();
+        setCurrentFileIndex(i + 1)
+        const asset = result.assets[i]
+        const formData = new FormData()
         formData.append('file', {
           uri: asset.uri,
           type: asset.mimeType || 'image/jpeg',
           name: asset.uri.split('/').pop() || 'image.jpg',
-        } as any);
-        formData.append('username', username);
+        } as any)
+        formData.append('username', username)
 
         await axios.post(`${UPLOAD_SERVER}/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              ((i + (progressEvent.loaded / (progressEvent.total ?? 100))) * 100) / result.assets.length
-            );
-            setProgress(percentCompleted);
+          onUploadProgress: (evt) => {
+            const chunk = evt.loaded / (evt.total || 1)
+            const percent = Math.round(((i + chunk) * 100) / result.assets.length)
+            setProgress(percent)
           },
-        });
+        })
       }
 
-      Alert.alert('Success', 'Files uploaded successfully!');
-      fetchStats();
+      Alert.alert('Success', 'Files uploaded successfully!')
+      fetchStats()
     } catch (error) {
-      console.error('Upload error:', error);
-      Alert.alert('Upload Failed', error instanceof Error ? error.message : 'An error occurred during upload');
+      console.error('Upload error:', error)
+      Alert.alert('Upload Failed', error instanceof Error ? error.message : 'An error occurred')
     } finally {
-      setIsUploading(false);
-      setProgress(0);
-      setCurrentFileIndex(0);
+      setIsUploading(false)
+      setProgress(0)
+      setCurrentFileIndex(0)
     }
-  };
+  }
 
-  return { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles };
-};
+  return { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles }
+}
 
 export default function StorageScreen() {
-  const { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles } = useFileUpload();
+  const {
+    pickAndUploadFiles,
+    progress,
+    isUploading,
+    stats,
+    formatSize,
+    currentFileIndex,
+    totalFiles,
+  } = useFileUpload()
 
   return (
     <YStack flex={1} padding="$6" paddingTop={100} gap="$6">
@@ -151,5 +159,5 @@ export default function StorageScreen() {
         </YStack>
       )}
     </YStack>
-  );
+  )
 }
