@@ -5,23 +5,32 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
-import { queryClient } from '@/lib/query';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+  },
+});
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  //console.log('[RootLayout] Rendering');
   const colorScheme = useColorScheme();
-  useAppInitialization();
-  const [loaded] = useFonts({SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf')});
+  const [loaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf')
+  });
 
   useEffect(() => {
     if (loaded) {
@@ -30,15 +39,14 @@ export default function RootLayout() {
   }, [loaded]);
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
-  //console.log('[RootLayout] hasCompletedOnboarding:', hasCompletedOnboarding);
 
   if (!loaded) {
     return null;
   }
 
   return (
-    <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <>
             <Stack screenOptions={{ headerShown: false }}>
@@ -57,7 +65,7 @@ export default function RootLayout() {
             <StatusBar style="auto" />
           </>
         </NavigationThemeProvider>
-      </QueryClientProvider>
-    </TamaguiProvider>
+      </TamaguiProvider>
+    </QueryClientProvider>
   );
 }

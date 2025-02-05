@@ -2,16 +2,18 @@
 import { useUserStore } from '@/store/UserStore';
 import { useState, useEffect } from 'react';
 import { Redirect } from 'expo-router';
+import { useSportsAPI } from '@/hooks/useSportsAPI';
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
+  useSportsAPI();
 
   useEffect(() => {
-    // Hide intro after 5 seconds
+    // Hide intro after 1 seconds
     const timer = setTimeout(() => {
       setShowIntro(false);
-    }, 5000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);

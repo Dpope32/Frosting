@@ -1,5 +1,4 @@
 import { Message, Role } from '@/utils/Interfaces';
-import * as SQLite from 'expo-sqlite';
 
 export interface SQLResultSet {
   insertId?: number;
@@ -32,7 +31,7 @@ export type Database = {
     successCallback?: () => void
   ) => void;
 };
-import * as FileSystem from 'expo-file-system';
+
 
 export async function migrateDbIfNeeded(db: Database) {
   // Log DB path for debugging

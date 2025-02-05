@@ -14,12 +14,23 @@ export default function OUPage() {
   const { data: schedule, isLoading, error } = useOUSportsAPI()
 
   const renderGame = ({ item: game }: { item: Game }) => {
-    const competition = game.competitions?.[0]
-    if (!competition) return null
-
+    console.log('Rendering game:', JSON.stringify(game, null, 2))
+    
+    if (!game.competitions || game.competitions.length === 0) {
+      console.log('No competitions found for game:', game.id)
+      return null
+    }
+    
+    const competition = game.competitions[0]
+    console.log('Competition:', JSON.stringify(competition, null, 2))
+    
     const homeCompetitor = competition.competitors?.find(c => c.homeAway === 'home')
     const awayCompetitor = competition.competitors?.find(c => c.homeAway === 'away')
-    if (!homeCompetitor || !awayCompetitor) return null
+    
+    if (!homeCompetitor || !awayCompetitor) {
+      console.log('Missing competitors for game:', game.id)
+      return null
+    }
 
     const homeTeam = homeCompetitor.team.shortDisplayName || 'TBD'
     const awayTeam = awayCompetitor.team.shortDisplayName || 'TBD'
@@ -91,15 +102,17 @@ export default function OUPage() {
         />
         <Text style={styles.headerTitle}>2024-25 Schedule</Text>
       </View>
-      {error ? (
+  {error ? (
         <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
       ) : (
         <FlashList
-          data={isLoading ? Array(6).fill({}) : schedule || []}
-          renderItem={isLoading ? 
-            () => <GameCardSkeleton /> : 
-            renderGame
-          }
+          data={isLoading ? Array(6).fill({ id: 'skeleton' }) : schedule || []}
+          renderItem={({ item }) => {
+            if (item.id === 'skeleton') {
+              return <GameCardSkeleton />;
+            }
+            return renderGame({ item });
+          }}
           estimatedItemSize={100}
           contentContainerStyle={styles.listContent}
         />

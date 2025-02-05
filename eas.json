@@ -1,51 +1,49 @@
 {
   "cli": {
-    "version": ">= 5.9.1"
+    "version": ">= 5.9.1",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": {
-        "gradleCommand": ":app:assembleDebug"
+      "cache": {
+        "disabled": false,
+        "key": "development-v1"
       },
       "ios": {
-        "simulator": false,
-        "env": {
-          "RUBYOPT": "--disable=gems"
-        }
-      },
-      "cache": {
-        "disabled": true
+        "simulator": false
       }
     },
     "preview": {
       "distribution": "internal",
-      "ios": {
-        "simulator": false,
-        "env": {
-          "RUBYOPT": "--disable=gems"
-        }
-      },
+      "autoIncrement": true,
       "cache": {
-        "disabled": true
+        "disabled": false,
+        "key": "preview-v1"
+      },
+      "ios": {
+        "simulator": false
       }
     },
     "production": {
       "ios": {
-        "distribution": "internal",
+        "distribution": "store",
         "simulator": false,
-        "autoIncrement": true,
-        "env": {
-          "RUBYOPT": "--disable=gems"
-        }
+        "autoIncrement": true
       },
       "cache": {
-        "disabled": true
+        "disabled": false,
+        "key": "production-v1"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "dawsom.alex32@gmail.com",
+        "appleTeamId": "8KC9WUUJRS"
+      }
+    }
   }
 }

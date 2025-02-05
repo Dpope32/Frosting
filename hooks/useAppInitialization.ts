@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import { useThunderStore } from '@/store/ThunderStore';
+import { useSportsAPI } from './useSportsAPI';
 
 export function useAppInitialization() {
-  useEffect(() => {
-    const initializeApp = async () => {
-      // Only sync tasks from existing data in the store
-      // This won't trigger any API calls
-      useThunderStore.getState().syncGameTasks();
-    };
+  // Initialize Thunder schedule
+  useSportsAPI();
 
-    initializeApp();
+  // Initial sync of existing tasks
+  useEffect(() => {
+    useThunderStore.getState().syncGameTasks();
   }, []);
 }

@@ -25,7 +25,6 @@ interface ThunderStore {
   syncGameTasks: () => void;
 }
 
-// Create MMKV storage adapter
 const mmkvStorage = {
   getItem: async (name: string): Promise<string | null> => {
     const value = StorageUtils.get<string>(name);
@@ -49,7 +48,7 @@ export const useThunderStore = create<ThunderStore>()(
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
       syncGameTasks: () => {
-        const addTask = useProjectStore.getState().addTask;
+        const { addTask } = useProjectStore.getState();
         const state = get();
         const now = new Date();
         const weekDays: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -59,20 +58,24 @@ export const useThunderStore = create<ThunderStore>()(
           const gameDate = new Date(game.date);
           if (gameDate >= now) {
             const isHome = game.homeTeam === 'Oklahoma City Thunder';
-            const opponent = isHome ? game.awayTeam : game.homeTeam;
-            const location = isHome ? 'home' : '@ ';
+            const opponent = (isHome ? game.awayTeam : game.homeTeam).replace('Oklahoma City ', '');
+            const location = isHome ? 'vs ' : '@ ';
+            const taskName = `🏀 Thunder ${location}${opponent}`;
             
+            const gameTime = new Date(game.date).toLocaleTimeString('en-US', { 
+              hour: 'numeric', 
+              minute: '2-digit'
+            });
+
+            // Add task - the addTask function now handles deduplication
             addTask({
-              name: `🏀 Thunder ${location}${opponent}`,
+              name: taskName,
               schedule: [weekDays[gameDate.getDay()]],
               priority: 'medium',
               category: 'personal',
               isOneTime: true,
               scheduledDate: game.date,
-              time: new Date(game.date).toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit'
-              })
+              time: gameTime
             });
           }
         });
@@ -87,9 +90,10 @@ export const useThunderStore = create<ThunderStore>()(
             const isHome = ouTeam?.homeAway === 'home';
             const location = isHome ? 'vs' : '@';
             const gameTime = competition.status?.type?.shortDetail;
-            
+            const taskName = `🏈 OU ${location} ${opponent?.team?.shortDisplayName ?? 'TBD'}`;
+
             addTask({
-              name: `🏈 OU ${location} ${opponent?.team?.shortDisplayName ?? 'TBD'}`,
+              name: taskName,
               schedule: [weekDays[gameDate.getDay()]],
               priority: 'medium',
               category: 'personal',
