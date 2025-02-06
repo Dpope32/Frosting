@@ -24,7 +24,7 @@ export default function CalendarScreen() {
   const [months, setMonths] = useState<Date[]>([]);
 
   useEffect(() => {
-    syncBirthdays(); // Sync birthday events when calendar loads
+    syncBirthdays();
     const today = new Date();
     today.setDate(1);
     const arr = [];
@@ -52,10 +52,14 @@ export default function CalendarScreen() {
     setSelectedDate(date);
     const dateKey = date.toISOString().split('T')[0];
     const dayEvents = events.filter((event) => event.date === dateKey);
+    
     if (dayEvents.length > 0) {
       setSelectedEvents(dayEvents);
       setIsViewEventModalVisible(true);
     } else {
+      setNewEventTitle('');
+      setNewEventDescription('');
+      setEditingEvent(null);
       setIsEventModalVisible(true);
     }
   };
@@ -63,9 +67,7 @@ export default function CalendarScreen() {
   const handleAddEvent = () => {
     if (selectedDate && newEventTitle.trim()) {
       if (editingEvent) {
-        if (editingEvent.type === 'birthday') {
-          return; // Prevent editing birthday events
-        }
+        if (editingEvent.type === 'birthday') return;
         updateEvent(editingEvent.id, {
           title: newEventTitle.trim(),
           description: newEventDescription.trim(),
@@ -87,9 +89,7 @@ export default function CalendarScreen() {
   };
 
   const handleEditEvent = (event: CalendarEvent) => {
-    if (event.type === 'birthday') {
-      return; // Prevent editing birthday events
-    }
+    if (event.type === 'birthday') return;
     setEditingEvent(event);
     setNewEventTitle(event.title);
     setNewEventDescription(event.description);
@@ -99,9 +99,7 @@ export default function CalendarScreen() {
 
   const handleDeleteEvent = (eventId: string) => {
     const event = selectedEvents.find(e => e.id === eventId);
-    if (event?.type === 'birthday') {
-      return; // Prevent deleting birthday events
-    }
+    if (event?.type === 'birthday') return;
     deleteEvent(eventId);
     if (selectedEvents.length === 1) {
       setIsViewEventModalVisible(false);
@@ -125,59 +123,8 @@ export default function CalendarScreen() {
           />
         ))}
       </ScrollView>
-      <Modal
-        visible={isEventModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => {
-          setIsEventModalVisible(false);
-          setEditingEvent(null);
-          setNewEventTitle('');
-          setNewEventDescription('');
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
-            <Text style={[styles.modalTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
-              {editingEvent ? 'Edit Event' : 'Add Event'} for {selectedDate?.toLocaleDateString()}
-            </Text>
-            <TextInput
-              style={[styles.input, { color: isDark ? '#ffffff' : '#000000' }]}
-              placeholder="Event Title"
-              placeholderTextColor={isDark ? '#888888' : '#666666'}
-              value={newEventTitle}
-              onChangeText={setNewEventTitle}
-            />
-            <TextInput
-              style={[styles.input, { color: isDark ? '#ffffff' : '#000000' }]}
-              placeholder="Event Description"
-              placeholderTextColor={isDark ? '#888888' : '#666666'}
-              value={newEventDescription}
-              onChangeText={setNewEventDescription}
-              multiline
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => {
-                  setIsEventModalVisible(false);
-                  setEditingEvent(null);
-                  setNewEventTitle('');
-                  setNewEventDescription('');
-                }}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.addButton, { backgroundColor: primaryColor }]}
-                onPress={handleAddEvent}
-              >
-                <Text style={styles.buttonText}>{editingEvent ? 'Update' : 'Add'} Event</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+
+      {/* View Events Modal */}
       <Modal
         visible={isViewEventModalVisible}
         transparent
@@ -200,25 +147,93 @@ export default function CalendarScreen() {
                 <Ionicons name="add" size={24} color="#fff" />
               </TouchableOpacity>
             </View>
-            {selectedEvents.map((event) => (
-              <EventPreview
-                key={event.id}
-                event={event}
-                onEdit={() => handleEditEvent(event)}
-                onDelete={() => handleDeleteEvent(event.id)}
-                isDark={isDark}
-                primaryColor={primaryColor}
+            
+            <ScrollView style={styles.eventsScrollView}>
+              {selectedEvents.map((event) => (
+                <EventPreview
+                  key={event.id}
+                  event={event}
+                  onEdit={() => handleEditEvent(event)}
+                  onDelete={() => handleDeleteEvent(event.id)}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                />
+              ))}
+            </ScrollView>
+
+            <View style={styles.bottomButtonContainer}>
+              <TouchableOpacity
+                style={styles.bigCloseButton}
+                onPress={() => setIsViewEventModalVisible(false)}
+              >
+                <Text style={styles.bigCloseButtonText}>CLOSE</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add/Edit Event Modal */}
+      <Modal
+        visible={isEventModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setIsEventModalVisible(false);
+          setEditingEvent(null);
+          setNewEventTitle('');
+          setNewEventDescription('');
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
+                {editingEvent ? 'Edit Event' : 'Add Event'} for {selectedDate?.toLocaleDateString()}
+              </Text>
+            </View>
+
+            <ScrollView style={styles.formScrollView}>
+              <TextInput
+                style={[styles.input, { color: isDark ? '#ffffff' : '#000000' }]}
+                placeholder="Event Title"
+                placeholderTextColor={isDark ? '#888888' : '#666666'}
+                value={newEventTitle}
+                onChangeText={setNewEventTitle}
               />
-            ))}
-            <TouchableOpacity
-              style={[styles.button, styles.closeButton, { backgroundColor: primaryColor }]}
-              onPress={() => setIsViewEventModalVisible(false)}
-            >
-              <View style={styles.closeButtonContent}>
-                <Ionicons name="close" size={24} color="#FFF" />
-                <Text style={styles.buttonText}>Close</Text>
+              <TextInput
+                style={[styles.input, { color: isDark ? '#ffffff' : '#000000', minHeight: 100 }]}
+                placeholder="Event Description"
+                placeholderTextColor={isDark ? '#888888' : '#666666'}
+                value={newEventDescription}
+                onChangeText={setNewEventDescription}
+                multiline
+              />
+            </ScrollView>
+
+            <View style={styles.bottomButtonContainer}>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.bigActionButton, styles.cancelButton]}
+                  onPress={() => {
+                    setIsEventModalVisible(false);
+                    setEditingEvent(null);
+                    setNewEventTitle('');
+                    setNewEventDescription('');
+                  }}
+                >
+                  <Text style={styles.bigButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.bigActionButton, { backgroundColor: primaryColor }]}
+                  onPress={handleAddEvent}
+                >
+                  <Text style={styles.bigButtonText}>
+                    {editingEvent ? 'Update' : 'Add'} Event
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -236,64 +251,89 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 16,
   },
   modalContent: {
-    width: '90%',
-    padding: 20,
+    width: '100%',
+    minHeight: '50%', // Ensure minimum height
+    maxHeight: '80%',
     borderRadius: 20,
     elevation: 5,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  modalHeader: {
+    padding: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 8,
+  },
+  eventsScrollView: {
+    flex: 1,
+    padding: 20,
+    minHeight: 200, // Ensure some minimum space for content
+  },
+  formScrollView: {
+    flex: 1,
+    padding: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#cccccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    borderColor: '#444',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     fontSize: 16,
   },
+  bottomButtonContainer: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: '#1e1e1e',
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+  },
+  
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 16,
+    gap: 12,
   },
-  button: {
-    flex: 1,
-    padding: 12,
+  bigCloseButton: {
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    paddingVertical: 12, // Reduced from 16
     borderRadius: 8,
-    marginHorizontal: 8,
+    borderColor: 'rgba(200,200,200,1)',
+    width: '50%',
+    borderWidth: 1,
+    color:  'rgba(255,0,0,1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bigActionButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bigCloseButtonText: {
+    color:  'rgba(255,255,255,1)',
+    fontSize: 14,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  bigButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   cancelButton: {
     backgroundColor: '#666666',
-  },
-  addButton: {
-    backgroundColor: '#4CAF50',
-  },
-  closeButton: {
-    marginVertical: 16,
-  },
-  buttonText: {
-    color: '#FFF',
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 8,
-  },
-  closeButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
   },
   addEventButton: {
     width: 40,

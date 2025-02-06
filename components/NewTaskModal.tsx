@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef, forwardRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, Input } from 'tamagui'
-import { KeyboardAvoidingView, Platform, Keyboard, TouchableOpacity } from 'react-native'
+import {  TouchableOpacity } from 'react-native'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { Ionicons } from '@expo/vector-icons'
-import { addMinutes, format } from 'date-fns'
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { format } from 'date-fns'
 
 const WEEKDAYS: Record<string, WeekDay> = {
   sun: 'sunday',
@@ -31,42 +32,24 @@ const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'createdAt' | 'update
   }
 }
 
-const generateTimeOptionsUsingDateFns = () => {
-  const options: string[] = []
-  const start = new Date(0, 0, 0, 0, 0, 0)
-  for (let i = 0; i < 96; i++) {
-    const t = addMinutes(start, i * 15)
-    options.push(format(t, 'h:mm a'))
-  }
-  return options
-}
-
-const TIME_OPTIONS = generateTimeOptionsUsingDateFns()
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value)
-  useEffect(() => {
-    const handler = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(handler)
-  }, [value, delay])
-  return debounced
-}
-
 type DebouncedInputProps = {
   value: string
   onDebouncedChange: (val: string) => void
 } & Omit<React.ComponentProps<typeof Input>, 'value'>
 
-const DebouncedInput = forwardRef<any, DebouncedInputProps>(
+const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
   ({ value, onDebouncedChange, ...props }, ref) => {
     const [text, setText] = useState(value)
-    const debouncedText = useDebounce(text, 500)
+    
     useEffect(() => {
-      onDebouncedChange(debouncedText)
-    }, [debouncedText])
+      const handler = setTimeout(() => onDebouncedChange(text), 500)
+      return () => clearTimeout(handler)
+    }, [text, onDebouncedChange])
+
     useEffect(() => {
       setText(value)
     }, [value])
+
     return <Input ref={ref} {...props} value={text} onChangeText={setText} />
   }
 )
@@ -82,30 +65,25 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   const { showToast } = useToastStore()
   const [showPrioritySelect, setShowPrioritySelect] = useState(false)
   const [showCategorySelect, setShowCategorySelect] = useState(false)
-  const [showTimeSelect, setShowTimeSelect] = useState(false)
+  const [showTimePicker, setShowTimePicker] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(new Date())
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
   const inputRef = useRef<any>(null)
 
   useEffect(() => {
-    let focusTimeout: NodeJS.Timeout
-    let resetTimeout: NodeJS.Timeout
     if (!open) {
-      resetTimeout = setTimeout(() => {
+      setTimeout(() => {
         setShowPrioritySelect(false)
         setShowCategorySelect(false)
         setNewTask(getDefaultTask())
-        setShowTimeSelect(false)
+        setShowTimePicker(false)
         setIsSubmitting(false)
       }, 200)
     } else {
-      focusTimeout = setTimeout(() => {
+      setTimeout(() => {
         inputRef.current?.focus()
       }, 50)
-    }
-    return () => {
-      if (focusTimeout) clearTimeout(focusTimeout)
-      if (resetTimeout) clearTimeout(resetTimeout)
     }
   }, [open])
 
@@ -123,38 +101,122 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
     }))
   }, [])
 
-  const handleTimeSelect = useCallback((time: string) => {
-    setNewTask(prev => ({ ...prev, time }))
-    setShowTimeSelect(false)
+  const handleTimeChange = useCallback((event: any, selectedDate?: Date) => {
+    setShowTimePicker(false)
+    if (selectedDate) {
+      setSelectedDate(selectedDate)
+      const timeString = format(selectedDate, 'h:mm a')
+      setNewTask(prev => ({ ...prev, time: timeString }))
+    }
   }, [])
 
   const handleTimePress = useCallback(() => {
-    setShowTimeSelect(prev => !prev)
+    setShowTimePicker(true)
     setShowPrioritySelect(false)
     setShowCategorySelect(false)
   }, [])
+
+  const SelectButton = ({ 
+    label, 
+    value, 
+    onPress, 
+    showDropdown = false 
+  }: { 
+    label: string
+    value: string | null
+    onPress: () => void
+    showDropdown?: boolean
+  }) => (
+    <Button
+      onPress={onPress}
+      backgroundColor="rgba(45,45,45,0.8)"
+      borderRadius={12}
+      height={50}
+      borderColor="rgba(85,85,85,0.5)"
+      borderWidth={1}
+      paddingHorizontal="$3"
+      pressStyle={{ opacity: 0.8 }}
+    >
+      <XStack flex={1} alignItems="center" justifyContent="space-between" paddingRight="$2">
+        <Text color="#fff" fontSize={16} fontWeight="500" marginRight="$2">
+          {label}
+        </Text>
+        <Text 
+          color="#a0a0a0" 
+          fontSize={16} 
+          numberOfLines={1} 
+          maxWidth="60%"
+          ellipsizeMode="tail"
+          textAlign="right"
+        >
+          {value || (showDropdown ? '▲' : '▼')}
+        </Text>
+      </XStack>
+    </Button>
+  )
+  const DropdownList = ({
+    items,
+    selectedValue,
+    onSelect,
+    maxHeight = 250
+  }: {
+    items: string[]
+    selectedValue: string | null
+    onSelect: (value: any) => void
+    maxHeight?: number
+  }) => (
+    <YStack
+      position="absolute"
+      top="110%"
+      left={0}
+      right={0}
+      backgroundColor="rgba(45,45,45,0.95)"
+      borderRadius={12}
+      zIndex={1000}
+      overflow="hidden"
+      shadowColor="black"
+      shadowOffset={{ width: 0, height: 4 }}
+      shadowOpacity={0.2}
+      shadowRadius={8}
+      maxHeight={maxHeight}
+    >
+      <ScrollView bounces={false}>
+        <YStack>
+          {items.map(item => (
+            <Button
+              key={item}
+              onPress={() => onSelect(item)}
+              backgroundColor={selectedValue === item ? preferences.primaryColor : 'transparent'}
+              height={45}
+              justifyContent="center"
+              pressStyle={{ opacity: 0.8 }}
+              borderBottomWidth={1}
+              borderColor="rgba(85,85,85,0.2)"
+              paddingHorizontal="$3"
+            >
+              <Text
+                color={selectedValue === item ? '#fff' : '#a0a0a0'}
+                fontSize={16}
+                fontWeight={selectedValue === item ? '600' : '400'}
+              >
+                {item}
+              </Text>
+            </Button>
+          ))}
+        </YStack>
+      </ScrollView>
+    </YStack>
+  )
 
   const handlePrioritySelect = useCallback((value: TaskPriority) => {
     setNewTask(prev => ({ ...prev, priority: value }))
     setShowPrioritySelect(false)
   }, [])
 
-  const handlePriorityPress = useCallback(() => {
-    setShowPrioritySelect(!showPrioritySelect)
-    setShowCategorySelect(false)
-    setShowTimeSelect(false)
-  }, [showPrioritySelect])
-
   const handleCategorySelect = useCallback((value: TaskCategory) => {
     setNewTask(prev => ({ ...prev, category: value }))
     setShowCategorySelect(false)
   }, [])
-
-  const handleCategoryPress = useCallback(() => {
-    setShowCategorySelect(!showCategorySelect)
-    setShowPrioritySelect(false)
-    setShowTimeSelect(false)
-  }, [showCategorySelect])
 
   const handleOneTimeChange = useCallback((checked: boolean) => {
     setNewTask(prev => ({ ...prev, isOneTime: checked }))
@@ -180,7 +242,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
         showToast('Task added successfully')
       } catch (error) {
         showToast('Failed to add task. Please try again.')
-        return
       }
     } catch {
       showToast('An error occurred. Please try again.')
@@ -198,30 +259,22 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
-      unmountChildrenWhenHidden={false}
       zIndex={100000}
     >
-      <Sheet.Overlay animation="lazy" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+      <Sheet.Overlay 
+        animation="lazy" 
+        enterStyle={{ opacity: 0 }} 
+        exitStyle={{ opacity: 0 }} 
+      />
       <Sheet.Frame
         backgroundColor="rgba(16,16,16,1)"
         padding="$4"
         gap="$5"
         borderTopLeftRadius="$6"
         borderTopRightRadius="$6"
-        shadowColor="rgba(0,0,0,0.3)"
-        shadowOffset={{ width: 0, height: -2 }}
-        shadowOpacity={0.3}
-        shadowRadius={8}
       >
         <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
-          <Sheet.Handle
-            backgroundColor="rgba(85,85,85,0.5)"
-            width={40}
-            height={4}
-            borderRadius={2}
-            alignSelf="center"
-            marginBottom={16}
-          />
+          <Sheet.Handle />
           <Text fontSize={24} fontWeight="700" color="#fff" marginBottom={20}>
             New Task
           </Text>
@@ -239,14 +292,18 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
               paddingHorizontal="$3"
               height={50}
             />
+            
             <YStack gap="$3">
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <XStack gap="$2" paddingVertical="$1">
                   {Object.entries(WEEKDAYS).map(([shortDay, fullDay]) => (
                     <Button
                       key={shortDay}
-                      size="$4"
-                      backgroundColor={newTask.schedule.includes(fullDay) ? preferences.primaryColor : 'rgba(45,45,45,0.8)'}
+                      backgroundColor={
+                        newTask.schedule.includes(fullDay) 
+                          ? preferences.primaryColor 
+                          : 'rgba(45,45,45,0.8)'
+                      }
                       color="#fff"
                       pressStyle={{ opacity: 0.8, scale: 0.98 }}
                       onPress={() => toggleDay(shortDay)}
@@ -254,14 +311,17 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                       paddingHorizontal="$2"
                       paddingVertical="$2.5"
                       borderWidth={1}
-                      borderColor={newTask.schedule.includes(fullDay) ? 'transparent' : 'rgba(85,85,85,0.5)'}
-                      shadowColor="black"
-                      shadowOffset={{ width: 0, height: 2 }}
-                      shadowOpacity={0.1}
-                      shadowRadius={4}
-                      elevation={2}
+                      borderColor={
+                        newTask.schedule.includes(fullDay) 
+                          ? 'transparent' 
+                          : 'rgba(85,85,85,0.5)'
+                      }
                     >
-                      <Text fontSize={14} fontWeight="600" color={newTask.schedule.includes(fullDay) ? '#fff' : '#a0a0a0'}>
+                      <Text 
+                        fontSize={14} 
+                        fontWeight="600" 
+                        color={newTask.schedule.includes(fullDay) ? '#fff' : '#a0a0a0'}
+                      >
                         {shortDay.toUpperCase()}
                       </Text>
                     </Button>
@@ -269,68 +329,21 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                 </XStack>
               </ScrollView>
             </YStack>
+
             <XStack gap="$4" width="100%">
               <YStack flex={1} position="relative">
-                <Button
+              <SelectButton
+                  label="Time:"
+                  value={newTask.time || null}
                   onPress={handleTimePress}
-                  backgroundColor="rgba(45,45,45,0.8)"
-                  borderRadius={12}
-                  height={50}
-                  borderColor="rgba(85,85,85,0.5)"
-                  borderWidth={1}
-                  paddingHorizontal="$3"
-                  pressStyle={{ opacity: 0.8 }}
-                >
-                  <XStack gap="$2" flex={1} justifyContent="flex-start">
-                    <Text color="#fff" fontSize={16} fontWeight="500" marginRight={72}>
-                      Time:
-                    </Text>
-                    <Text color="#a0a0a0" fontSize={16} display="flex">
-                      {newTask.time || (showTimeSelect ? '▲' : '▼')}
-                    </Text>
-                  </XStack>
-                </Button>
-                {showTimeSelect && (
-                  <YStack
-                    position="absolute"
-                    top="110%"
-                    left={0}
-                    right={0}
-                    backgroundColor="rgba(45,45,45,0.95)"
-                    borderRadius={12}
-                    zIndex={1000}
-                    overflow="hidden"
-                    shadowColor="black"
-                    shadowOffset={{ width: 0, height: 4 }}
-                    shadowOpacity={0.2}
-                    shadowRadius={8}
-                    height={250}
-                  >
-                    <ScrollView bounces={false} showsVerticalScrollIndicator>
-                      <YStack elevation={8}>
-                        {TIME_OPTIONS.map(time => (
-                          <Button
-                            key={time}
-                            onPress={() => handleTimeSelect(time)}
-                            backgroundColor={newTask.time === time ? preferences.primaryColor : 'transparent'}
-                            height={45}
-                            justifyContent="center"
-                            pressStyle={{ opacity: 0.8 }}
-                            borderBottomWidth={1}
-                            borderColor="rgba(85,85,85,0.2)"
-                          >
-                            <Text
-                              color={newTask.time === time ? '#fff' : '#a0a0a0'}
-                              fontSize={16}
-                              fontWeight={newTask.time === time ? '600' : '400'}
-                            >
-                              {time}
-                            </Text>
-                          </Button>
-                        ))}
-                      </YStack>
-                    </ScrollView>
-                  </YStack>
+                />
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode="time"
+                    is24Hour={false}
+                    onChange={handleTimeChange}
+                  />
                 )}
               </YStack>
               <YStack flex={1}>
@@ -364,155 +377,73 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                 </XStack>
               </YStack>
             </XStack>
+
             <XStack gap="$4" width="100%">
               <YStack flex={1} position="relative">
-                <Button
-                  onPress={handlePriorityPress}
-                  backgroundColor="rgba(45,45,45,0.8)"
-                  borderRadius={12}
-                  height={50}
-                  borderColor="rgba(85,85,85,0.5)"
-                  borderWidth={1}
-                  paddingHorizontal="$3"
-                  pressStyle={{ opacity: 0.8 }}
-                >
-                  <XStack gap="$2" flex={1} justifyContent="flex-start">
-                    <Text color="#fff" fontSize={16} fontWeight="500" marginRight={60}>
-                      Priority:
-                    </Text>
-                    <Text color="#a0a0a0" fontSize={16} display="flex" justifyContent="flex-end">
-                      {newTask.priority || (showPrioritySelect ? '▲' : '▼')}
-                    </Text>
-                  </XStack>
-                </Button>
+                <SelectButton
+                  label="Priority:"
+                  value={newTask.priority}
+                  onPress={() => {
+                    setShowPrioritySelect(!showPrioritySelect)
+                    setShowCategorySelect(false)
+                  }}
+                  showDropdown={showPrioritySelect}
+                />
                 {showPrioritySelect && (
-                  <YStack
-                    position="absolute"
-                    top="110%"
-                    left={0}
-                    right={0}
-                    backgroundColor="rgba(45,45,45,0.95)"
-                    borderRadius={12}
-                    zIndex={1000}
-                    overflow="hidden"
-                    shadowColor="black"
-                    shadowOffset={{ width: 0, height: 4 }}
-                    shadowOpacity={0.2}
-                    shadowRadius={8}
-                    elevation={8}
-                  >
-                    {(['high', 'medium', 'low'] as const).map(priority => (
-                      <Button
-                        key={priority}
-                        onPress={() => handlePrioritySelect(priority)}
-                        backgroundColor={newTask.priority === priority ? preferences.primaryColor : 'transparent'}
-                        height={45}
-                        justifyContent="center"
-                        pressStyle={{ opacity: 0.8 }}
-                        borderBottomWidth={1}
-                        borderColor="rgba(85,85,85,0.2)"
-                      >
-                        <Text
-                          color={newTask.priority === priority ? '#fff' : '#a0a0a0'}
-                          fontSize={16}
-                          fontWeight={newTask.priority === priority ? '600' : '400'}
-                        >
-                          {priority}
-                        </Text>
-                      </Button>
-                    ))}
-                  </YStack>
+                  <DropdownList
+                    items={['high', 'medium', 'low']}
+                    selectedValue={newTask.priority}
+                    onSelect={handlePrioritySelect}
+                    maxHeight={150}
+                  />
                 )}
               </YStack>
               <YStack flex={1} position="relative">
-                <Button
-                  onPress={handleCategoryPress}
-                  backgroundColor="rgba(45,45,45,0.8)"
-                  borderRadius={12}
-                  height={50}
-                  borderColor="rgba(85,85,85,0.5)"
-                  borderWidth={1}
-                  paddingHorizontal="$3"
-                  pressStyle={{ opacity: 0.8 }}
-                >
-                  <XStack gap="$2" flex={1} justifyContent="flex-start">
-                    <Text color="#fff" fontSize={16} fontWeight="500" marginRight={48}>
-                      Category:
-                    </Text>
-                    <Text color="#a0a0a0" fontSize={16} display="flex" justifyContent="flex-end">
-                      {newTask.category || 'Select category'}
-                    </Text>
-                  </XStack>
-                </Button>
+                <SelectButton
+                  label="Category:"
+                  value={newTask.category}
+                  onPress={() => {
+                    setShowCategorySelect(!showCategorySelect)
+                    setShowPrioritySelect(false)
+                  }}
+                  showDropdown={showCategorySelect}
+                />
                 {showCategorySelect && (
-                  <YStack
-                    position="absolute"
-                    top="110%"
-                    left={0}
-                    right={0}
-                    backgroundColor="rgba(45,45,45,0.95)"
-                    borderRadius={12}
-                    zIndex={1000}
-                    overflow="hidden"
-                    shadowColor="black"
-                    shadowOffset={{ width: 0, height: 4 }}
-                    shadowOpacity={0.2}
-                    shadowRadius={8}
-                    height={250}
-                  >
-                    <ScrollView bounces={false} showsVerticalScrollIndicator>
-                      <YStack elevation={8}>
-                        {(['work', 'health', 'personal', 'career', 'wealth', 'skills'] as const).map(cat => (
-                          <Button
-                            key={cat}
-                            onPress={() => handleCategorySelect(cat)}
-                            backgroundColor={newTask.category === cat ? preferences.primaryColor : 'transparent'}
-                            height={45}
-                            justifyContent="flex-start"
-                            pressStyle={{ opacity: 0.8 }}
-                            borderBottomWidth={1}
-                            borderColor="rgba(85,85,85,0.2)"
-                          >
-                            <Text
-                              color={newTask.category === cat ? '#fff' : '#a0a0a0'}
-                              fontSize={16}
-                              fontWeight={newTask.category === cat ? '600' : '400'}
-                            >
-                              {cat}
-                            </Text>
-                          </Button>
-                        ))}
-                      </YStack>
-                    </ScrollView>
-                  </YStack>
-                )}
-              </YStack>
-            </XStack>
-            <Form.Trigger asChild>
-              <Button
-                backgroundColor={preferences.primaryColor}
-                height={50}
-                pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                borderRadius={12}
-                alignSelf="center"
-                marginTop={50}
-                width="100%"
-                shadowColor="black"
-                shadowOffset={{ width: 0, height: 2 }}
-                shadowOpacity={0.1}
-                shadowRadius={4}
-                elevation={3}
-                disabled={isSubmitting}
-                opacity={isSubmitting ? 0.7 : 1}
-              >
-                <Text color="white" fontWeight="600" fontSize={18}>
-                  {isSubmitting ? 'Adding...' : 'Add Task'}
-                </Text>
-              </Button>
-            </Form.Trigger>
-          </Form>
-        </ScrollView>
-      </Sheet.Frame>
-    </Sheet>
-  )
+                  <DropdownList
+                  items={['work', 'health', 'personal', 'career', 'wealth', 'skills']}
+                  selectedValue={newTask.category}
+                  onSelect={handleCategorySelect}
+                  maxHeight={250}
+                />
+              )}
+            </YStack>
+          </XStack>
+
+          <Form.Trigger asChild>
+            <Button
+              backgroundColor={preferences.primaryColor}
+              height={50}
+              pressStyle={{ opacity: 0.8, scale: 0.98 }}
+              borderRadius={12}
+              alignSelf="center"
+              marginTop={50}
+              width="100%"
+              shadowColor="black"
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.1}
+              shadowRadius={4}
+              elevation={3}
+              disabled={isSubmitting}
+              opacity={isSubmitting ? 0.7 : 1}
+            >
+              <Text color="white" fontWeight="600" fontSize={18}>
+                {isSubmitting ? 'Adding...' : 'Add Task'}
+              </Text>
+            </Button>
+          </Form.Trigger>
+        </Form>
+      </ScrollView>
+    </Sheet.Frame>
+  </Sheet>
+)
 }

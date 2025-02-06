@@ -1,4 +1,3 @@
-// ou.tsx
 import React from 'react'
 import { GameCardSkeleton } from './GameCardSkeleton'
 import { Image, StyleSheet, Text, View } from 'react-native'
@@ -14,31 +13,28 @@ export default function OUPage() {
   const { data: schedule, isLoading, error } = useOUSportsAPI()
 
   const renderGame = ({ item: game }: { item: Game }) => {
-    console.log('Rendering game:', JSON.stringify(game, null, 2))
-    
     if (!game.competitions || game.competitions.length === 0) {
-      console.log('No competitions found for game:', game.id)
       return null
     }
     
     const competition = game.competitions[0]
-    console.log('Competition:', JSON.stringify(competition, null, 2))
+    const competitors = competition.competitors || []
     
-    const homeCompetitor = competition.competitors?.find(c => c.homeAway === 'home')
-    const awayCompetitor = competition.competitors?.find(c => c.homeAway === 'away')
+    // Find Oklahoma's team and their opponent
+    const ouTeam = competitors.find(c => c.team.shortDisplayName === 'Oklahoma')
+    const opposingTeam = competitors.find(c => c.team.shortDisplayName !== 'Oklahoma')
     
-    if (!homeCompetitor || !awayCompetitor) {
-      console.log('Missing competitors for game:', game.id)
+    if (!ouTeam || !opposingTeam) {
       return null
     }
 
-    const homeTeam = homeCompetitor.team.shortDisplayName || 'TBD'
-    const awayTeam = awayCompetitor.team.shortDisplayName || 'TBD'
+    const isOUHome = ouTeam.homeAway === 'home'
+    const homeTeam = isOUHome ? ouTeam.team.shortDisplayName : opposingTeam.team.shortDisplayName
+    const awayTeam = isOUHome ? opposingTeam.team.shortDisplayName : ouTeam.team.shortDisplayName
     const venue = competition.venue?.fullName || 'TBD'
     const gameDate = new Date(game.date)
     const formattedDate = format(gameDate, 'E, MMM d')
-    const gameTime = competition.status?.type?.shortDetail || 'TBD'
-    const formattedTime = gameTime === 'TBD' ? 'TBD' : format(gameDate, 'h:mm a')
+    const formattedTime = competition.status?.type?.shortDetail || 'TBD'
 
     return (
       <View style={styles.gameCard}>
@@ -48,7 +44,7 @@ export default function OUPage() {
         </View>
         <View style={styles.teamsContainer}>
           <View style={styles.teamWrapper}>
-            {homeTeam.includes('Oklahoma') && (
+            {homeTeam === 'Oklahoma' && (
               <Image
                 source={require('../../assets/images/ou.png')}
                 style={styles.teamLogo}
@@ -59,7 +55,7 @@ export default function OUPage() {
               style={[
                 styles.team,
                 styles.homeTeam,
-                homeTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam,
+                homeTeam === 'Oklahoma' ? styles.highlight : styles.opposingTeam,
               ]}
               numberOfLines={1}
             >
@@ -68,7 +64,7 @@ export default function OUPage() {
           </View>
           <Text style={styles.at}>@</Text>
           <View style={[styles.teamWrapper, styles.awayWrapper]}>
-            {awayTeam.includes('Oklahoma') && (
+            {awayTeam === 'Oklahoma' && (
               <Image
                 source={require('../../assets/images/ou.png')}
                 style={styles.teamLogo}
@@ -79,7 +75,7 @@ export default function OUPage() {
               style={[
                 styles.team,
                 styles.awayTeam,
-                awayTeam.includes('Oklahoma') ? styles.highlight : styles.opposingTeam,
+                awayTeam === 'Oklahoma' ? styles.highlight : styles.opposingTeam,
               ]}
               numberOfLines={1}
             >
@@ -102,20 +98,22 @@ export default function OUPage() {
         />
         <Text style={styles.headerTitle}>2024-25 Schedule</Text>
       </View>
-  {error ? (
+      {error ? (
         <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
       ) : (
-        <FlashList
-          data={isLoading ? Array(6).fill({ id: 'skeleton' }) : schedule || []}
-          renderItem={({ item }) => {
-            if (item.id === 'skeleton') {
-              return <GameCardSkeleton />;
-            }
-            return renderGame({ item });
-          }}
-          estimatedItemSize={100}
-          contentContainerStyle={styles.listContent}
-        />
+        <View style={styles.listContainer}>
+          <FlashList
+            data={isLoading ? Array(6).fill({ id: 'skeleton' }) : schedule || []}
+            renderItem={({ item }) => {
+              if (item.id === 'skeleton') {
+                return <GameCardSkeleton />
+              }
+              return renderGame({ item })
+            }}
+            estimatedItemSize={100}
+            contentContainerStyle={styles.listContent}
+          />
+        </View>
       )}
     </ThemedView>
   )
@@ -141,6 +139,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginLeft: 12,
+  },
+  listContainer: {
+    flex: 1,
   },
   listContent: {
     padding: 12,
@@ -217,16 +218,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#ff4444',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  loadingText: {
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  emptyText: {
-    color: '#666',
     textAlign: 'center',
     marginTop: 20,
   },

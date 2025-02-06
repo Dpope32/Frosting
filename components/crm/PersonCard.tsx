@@ -1,5 +1,4 @@
-// PersonCard.tsx
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Card,
   Image,
@@ -15,11 +14,13 @@ import {
   View,
   StyleProp,
   ViewStyle,
-  Linking
+  Linking,
+  ScrollView
 } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Clipboard from "expo-clipboard";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import type { Person } from "@/types/people";
 
 const colors = [
@@ -59,6 +60,50 @@ type PersonCardProps = {
   containerStyle?: StyleProp<ViewStyle>;
 };
 
+type InfoRowProps = {
+  iconName: React.ComponentProps<typeof Ionicons>["name"];
+  label: string;
+  value: string;
+};
+
+const InfoRow: React.FC<InfoRowProps> = ({ iconName, label, value }) => {
+  return (
+    <XStack alignItems="center" gap="$2" style={styles.infoRow}>
+      <Ionicons name={iconName} size={20} color="#fff" />
+      <Paragraph fontWeight="600" fontSize={16} color="#ccc" style={styles.infoLabel}>
+        {label}:
+      </Paragraph>
+      <Paragraph
+        fontWeight="700"
+        fontSize={16}
+        color="#fff"
+        numberOfLines={label === "Email" ? 1 : undefined}
+        ellipsizeMode="tail"
+        style={styles.infoValue}
+      >
+        {value}
+      </Paragraph>
+    </XStack>
+  );
+};
+
+type ActionButtonProps = {
+  iconName: React.ComponentProps<typeof Ionicons>["name"];
+  label: string;
+  onPress: () => void;
+};
+
+const ActionButton: React.FC<ActionButtonProps> = ({ iconName, label, onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.actionButton}>
+      <Ionicons name={iconName} size={16} color="#fff" />
+      <Paragraph fontWeight="600" fontSize={12} color="#fff" style={styles.actionLabel}>
+        {label}
+      </Paragraph>
+    </TouchableOpacity>
+  );
+};
+
 export function PersonCard({
   person,
   onEdit,
@@ -67,9 +112,9 @@ export function PersonCard({
   containerStyle
 }: PersonCardProps) {
   const nicknameColor = getColorForPerson(person.id || person.name);
-  const fullAddress =
-    person.address &&
-    [
+  const fullAddress = useMemo(() => {
+    if (!person.address) return "";
+    return [
       person.address.street,
       person.address.city,
       person.address.state,
@@ -78,6 +123,7 @@ export function PersonCard({
     ]
       .filter(Boolean)
       .join(", ");
+  }, [person.address]);
 
   return (
     <Theme name="dark">
@@ -93,12 +139,17 @@ export function PersonCard({
         >
           <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable}>
             <XStack alignItems="center" gap="$3">
-              <Image
-                source={{ uri: person.profilePicture || "https://via.placeholder.com/80" }}
-                width={50}
-                height={50}
-                borderRadius={25}
-              />
+              <View style={styles.avatarWrapper}>
+                <LinearGradient colors={["#FF7E5F", "#FEB47B"]} style={styles.avatarGradient}>
+                  <Image
+                    source={{ uri: person.profilePicture || "https://via.placeholder.com/80" }}
+                    width={50}
+                    height={50}
+                    borderRadius={25}
+                    style={styles.avatarImage}
+                  />
+                </LinearGradient>
+              </View>
               <Paragraph
                 fontWeight="700"
                 fontSize={18}
@@ -125,12 +176,17 @@ export function PersonCard({
             <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
             <Sheet.Handle />
             <YStack alignItems="center" gap="$5" mb="$4">
-              <Image
-                source={{ uri: person.profilePicture || "https://via.placeholder.com/200" }}
-                width={150}
-                height={150}
-                borderRadius={75}
-              />
+              <View style={styles.avatarLargeWrapper}>
+                <LinearGradient colors={["#FF7E5F", "#FEB47B"]} style={styles.avatarLargeGradient}>
+                  <Image
+                    source={{ uri: person.profilePicture || "https://via.placeholder.com/200" }}
+                    width={150}
+                    height={150}
+                    borderRadius={75}
+                    style={styles.avatarLargeImage}
+                  />
+                </LinearGradient>
+              </View>
               <Paragraph
                 fontWeight="800"
                 fontSize={26}
@@ -140,71 +196,67 @@ export function PersonCard({
                 {person.nickname || person.name}
               </Paragraph>
             </YStack>
-            <YStack gap="$4">
+            <YStack gap="$3" style={styles.infoContainer}>
               {person.email && (
-                <Paragraph fontSize={16} fontWeight="600" numberOfLines={2}>
-                  {person.email}
-                </Paragraph>
+                <InfoRow iconName="mail-outline" label="Email" value={person.email} />
               )}
               {person.phoneNumber && (
-                <Paragraph fontSize={16} fontWeight="600" numberOfLines={1}>
-                  {person.phoneNumber}
-                </Paragraph>
+                <InfoRow iconName="call-outline" label="Phone" value={person.phoneNumber} />
               )}
               {person.birthday && (
-                <Paragraph fontSize={16} fontWeight="600" numberOfLines={1}>
-                  {new Date(person.birthday).toLocaleDateString()}
-                </Paragraph>
+                <InfoRow
+                  iconName="calendar-outline"
+                  label="Birthday"
+                  value={new Date(person.birthday).toLocaleDateString()}
+                />
               )}
               {person.occupation && (
-                <Paragraph fontSize={16} fontWeight="600" numberOfLines={2}>
-                  {person.occupation}
-                </Paragraph>
+                <InfoRow iconName="briefcase-outline" label="Occupation" value={person.occupation} />
               )}
-              <Paragraph fontSize={16} fontWeight="600" numberOfLines={1}>
-                {person.registered ? "Registered" : "Not Registered"}
-              </Paragraph>
+              <InfoRow
+                iconName={person.registered ? "checkmark-circle-outline" : "close-circle-outline"}
+                label="Status"
+                value={person.registered ? "Registered" : "Not Registered"}
+              />
               {person.address && (
-                <Paragraph fontSize={16} fontWeight="600" numberOfLines={3}>
-                  {fullAddress}
-                </Paragraph>
+                <InfoRow iconName="location-outline" label="Address" value={fullAddress} />
               )}
             </YStack>
-            <XStack justifyContent="space-evenly" alignItems="center" mt="$4">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.actionButtonContainer}
+            >
               {person.address && (
-                <TouchableOpacity
-                  onPress={() =>
-                    Clipboard.setStringAsync(fullAddress || "")
-                  }
-                >
-                  <Ionicons name="copy-outline" size={24} color="#fff" />
-                </TouchableOpacity>
+                <ActionButton
+                  iconName="copy-outline"
+                  label="Copy Address"
+                  onPress={() => Clipboard.setStringAsync(fullAddress || "")}
+                />
               )}
               {person.email && (
-                <TouchableOpacity
+                <ActionButton
+                  iconName="mail-outline"
+                  label="Email"
                   onPress={() => Linking.openURL(`mailto:${person.email}`)}
-                >
-                  <Ionicons name="mail-outline" size={24} color="#fff" />
-                </TouchableOpacity>
+                />
               )}
               {person.phoneNumber && (
-                <TouchableOpacity
+                <ActionButton
+                  iconName="call-outline"
+                  label="Call"
                   onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
-                >
-                  <Ionicons name="call-outline" size={24} color="#fff" />
-                </TouchableOpacity>
+                />
               )}
               {person.phoneNumber && (
-                <TouchableOpacity
+                <ActionButton
+                  iconName="chatbubble-outline"
+                  label="SMS"
                   onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
-                >
-                  <Ionicons name="chatbubble-outline" size={24} color="#fff" />
-                </TouchableOpacity>
+                />
               )}
-              <TouchableOpacity onPress={() => onEdit(person)}>
-                <Ionicons name="pencil" size={24} color="#fff" />
-              </TouchableOpacity>
-            </XStack>
+              <ActionButton iconName="pencil" label="Edit" onPress={() => onEdit(person)} />
+            </ScrollView>
           </Sheet.Frame>
         </Sheet>
       </View>
@@ -236,8 +288,78 @@ const styles = StyleSheet.create({
     width: "80%",
     alignSelf: "center",
     justifyContent: "flex-start",
-    padding: 24,
+    padding: 16, // Reduced from 24
     marginVertical: 12,
-    overflow: "hidden"
+    overflow: "hidden",
+    backgroundColor: "rgba(20,20,20,0.9)"
+  },
+  avatarWrapper: {
+    borderWidth: 2,
+    borderColor: "#fff",
+    borderRadius: 26,
+    overflow: 'hidden'  // Make sure image doesn't overflow
+  },
+  avatarGradient: {
+    borderRadius: 27,
+    padding: 2
+  },
+  avatarImage: {
+    width: 50,
+    height: 50
+  },
+  avatarLargeWrapper: {
+    borderWidth: 3,
+    borderColor: "#fff",
+    borderRadius: 75,
+    overflow: 'hidden'
+  },
+  avatarLargeGradient: {
+    borderRadius: 77,
+    padding: 3
+  },
+  avatarLargeImage: {
+    width: 75,
+    height: 75
+  },
+  infoContainer: {
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    borderRadius: 8,
+    marginBottom: 8 // Add small margin instead of using gap
+  },
+  infoRow: {
+    paddingVertical: 4,
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  infoLabel: {
+    marginLeft: 4,
+    minWidth: 90,
+    flexShrink: 0
+  },
+  infoValue: {
+    flex: 1,
+    marginRight: 4 // Add some right margin to prevent text from touching edge
+  },
+  actionButtonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 4, // Add minimal padding
+    gap: 8
+  },
+  actionButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    flexShrink: 0,
+    minWidth: 60
+  },
+  actionLabel: {
+    marginTop: 2
   }
 });
