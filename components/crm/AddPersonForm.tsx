@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, forwardRef, useCallback } from 'react'
 import { Button, Sheet, Input, YStack, XStack, ScrollView, Circle, Text } from 'tamagui'
+import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
 import { useCalendarStore } from '@/store/CalendarStore'
 import * as ImagePicker from 'expo-image-picker'
@@ -76,6 +77,7 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
 
 export function AddPersonForm() {
   const addPersonMutation = useAddPerson()
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const [open, setOpen] = useState(false)
   const [formData, setFormData] = useState<FormData>({ ...initialFormData })
   const [inputResetKey, setInputResetKey] = useState(0)
@@ -167,13 +169,14 @@ export function AddPersonForm() {
 
   return (
     <>
-      <YStack alignItems="flex-start" padding={8}>
+      <YStack alignItems="flex-end" padding="$4" paddingBottom="$8">
         <Button 
           theme="dark" 
           mt="$4" 
           mb="$3" 
           width={150} 
           onPress={useCallback(() => setOpen(true), [])}
+          backgroundColor={primaryColor}
         >
           Add Person
         </Button>
@@ -308,8 +311,38 @@ export function AddPersonForm() {
                       key={`address-${inputResetKey}`}
                       value={addressString}
                       onDebouncedChange={text => {
-                        const [street = '', city = '', state = '', zipCode = '', country = ''] = text.split(',').map(s => s.trim())
-                        updateFormField('address', { street, city, state, zipCode, country })
+                        // First split by commas to get the main parts
+                        const parts = text.split(',').map(s => s.trim());
+                        
+                        // Initialize address components
+                        let street = '', city = '', state = '', zipCode = '', country = '';
+                        
+                        // Handle US address format
+                        if (parts.length > 0) {
+                          street = parts[0]; // First part is always street
+                          
+                          if (parts.length > 1) {
+                            // Handle city, state, zip in second part
+                            const cityStatePart = parts[1].trim();
+                            const cityStateMatch = cityStatePart.match(/^(.*?)\s*([A-Z]{2})\s*(\d{5})?$/);
+                            
+                            if (cityStateMatch) {
+                              city = cityStateMatch[1].trim();
+                              state = cityStateMatch[2];
+                              zipCode = cityStateMatch[3] || '';
+                            } else {
+                              // If no match, treat entire part as city
+                              city = cityStatePart;
+                            }
+                            
+                            // If there's a third part and it's not matched as zip code, treat as country
+                            if (parts.length > 2) {
+                              country = parts[2].trim();
+                            }
+                          }
+                        }
+                        
+                        updateFormField('address', { street, city, state, zipCode, country });
                       }}
                       placeholder="Enter full address"
                       autoCapitalize="words"
@@ -359,11 +392,11 @@ export function AddPersonForm() {
                     </Button>
                     <Button
                       onPress={handleSubmit}
-                      backgroundColor="rgba(33, 150, 243, 0.4)"
-                      borderColor="$blue10"
+                      backgroundColor={primaryColor}
+                      borderColor={primaryColor}
                       borderWidth={2}
                     >
-                      <Text color="$blue10" fontWeight="600">
+                      <Text color="white" fontWeight="600">
                         Save Contact
                       </Text>
                     </Button>

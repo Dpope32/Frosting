@@ -133,7 +133,7 @@ export default function Onboarding() {
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
       style={{ flex: 1 }}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 32 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <View flex={1} backgroundColor="$gray1Dark">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

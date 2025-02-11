@@ -26,6 +26,7 @@ export default function Step0({
           setFormData((prev) => ({ ...prev, username: text }))
         }
         autoFocus
+        autoCapitalize="sentences"
         backgroundColor="$gray4Dark"
         borderColor="$gray8Dark"
         color="$gray12Dark"

@@ -9,6 +9,7 @@ import {
   Circle,
   Text
 } from "tamagui";
+import { useUserStore } from "@/store/UserStore";
 import * as ImagePicker from "expo-image-picker";
 import { Image, TextInput, Switch, Pressable, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -57,6 +58,7 @@ export function EditPersonForm({
   onSave: (updatedPerson: Person) => void;
 }) {
   const [formData, setFormData] = useState<FormData>({ ...person });
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     person.birthday ? new Date(person.birthday) : new Date()
@@ -275,11 +277,11 @@ export function EditPersonForm({
                 </Button>
                 <Button
                   onPress={handleSubmit}
-                  backgroundColor="rgba(33, 150, 243, 0.4)"
-                  borderColor="$blue10"
+                  backgroundColor={primaryColor}
+                  borderColor={primaryColor}
                   borderWidth={2}
                 >
-                  <Text color="$blue10" fontWeight="600">
+                  <Text color="white" fontWeight="600">
                     Save Changes
                   </Text>
                 </Button>

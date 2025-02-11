@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { YStack, Text, XStack, Input, Button } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
+import { useUserStore } from '@/store/UserStore'
 import { Stock } from '@/types'
 import { portfolioData, updatePortfolioData } from '../../utils/Portfolio'
 
@@ -15,6 +16,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
   const [quantity, setQuantity] = useState(stock?.quantity.toString() || '')
   const [name, setName] = useState(stock?.name || '')
   const [error, setError] = useState('')
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor)
 
   const handleSave = () => {
     if (!ticker || !quantity || !name) {
@@ -93,7 +95,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
         )}
 
         <Button
-          backgroundColor="$blue10"
+          backgroundColor={primaryColor}
           height={45}
           pressStyle={{ opacity: 0.8 }}
           onPress={handleSave}

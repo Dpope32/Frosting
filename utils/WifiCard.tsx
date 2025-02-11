@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { Stack, Text, YStack, Spinner } from 'tamagui';
 import { WifiModal } from '@/components/cardModals/WifiModal';
 import { getValueColor } from '@/constants/valueHelper';
@@ -20,7 +21,7 @@ export function WifiCard() {
         setIsPingLoading(true);
         const startTime = Date.now();
         if (isConnected) {
-          const response = await fetch('https://8.8.8.8', { 
+          const response = await fetch('https://www.google.com', { 
             mode: 'no-cors',
             cache: 'no-cache'
           });
@@ -57,7 +58,10 @@ export function WifiCard() {
     if (isLoading || isPingLoading) return '...';
     if (!isConnected) return 'Offline';
     if (isWifi) {
-      if (!wifiDetails?.linkSpeed) return '...';
+      // On iOS, linkSpeed might not be available, so default to ping
+      if (!wifiDetails?.linkSpeed || Platform.OS === 'ios') {
+        return ping ? `${ping} ms` : '...';
+      }
       return `${wifiDetails.linkSpeed} Mbps`;
     }
     if (!ping) return '...';
@@ -67,7 +71,10 @@ export function WifiCard() {
   const getSpeedColor = () => {
     if (!isConnected) return 'white';
     if (isWifi) {
-      if (!wifiDetails?.linkSpeed) return 'white';
+      // On iOS, use ping color instead of linkSpeed color
+      if (!wifiDetails?.linkSpeed || Platform.OS === 'ios') {
+        return ping ? getValueColor('wifi', ping, '') : 'white';
+      }
       if (wifiDetails.linkSpeed >= 1000) return '#2E7D32';
       if (wifiDetails.linkSpeed >= 300) return '#4CAF50';
       if (wifiDetails.linkSpeed >= 100) return '#FFEB3B';

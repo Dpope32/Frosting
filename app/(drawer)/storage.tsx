@@ -100,6 +100,7 @@ const useFileUpload = () => {
 
 export default function StorageScreen() {
   const { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles } = useFileUpload()
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const testNotification = async () => {
     try {
       // Log existing notifications before cancelling
@@ -185,7 +186,7 @@ export default function StorageScreen() {
       </YStack>
       <Button
         size="$4"
-        backgroundColor={isUploading ? "$gray3Dark" : "$blue9"}
+        backgroundColor={isUploading ? "$gray3Dark" : primaryColor}
         borderRadius="$3"
         pressStyle={{ scale: 0.98, opacity: 0.9 }}
         disabled={isUploading}
@@ -202,7 +203,7 @@ export default function StorageScreen() {
       {isUploading && (
         <YStack gap="$1">
           <Progress value={progress} backgroundColor="$gray4Dark">
-            <Progress.Indicator animation="bouncy" backgroundColor="$blue10" />
+            <Progress.Indicator animation="bouncy" backgroundColor={primaryColor} />
           </Progress>
           <Text textAlign="center" color="$gray11Dark" fontSize="$3">
             Uploading file {currentFileIndex} of {totalFiles}

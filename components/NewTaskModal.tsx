@@ -130,7 +130,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
   }) => (
     <Button
       onPress={onPress}
-      backgroundColor="rgba(45,45,45,0.8)"
+      backgroundColor="$backgroundHover"
       borderRadius={12}
       height={50}
       borderColor="rgba(85,85,85,0.5)"
@@ -187,7 +187,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
             <Button
               key={item}
               onPress={() => onSelect(item)}
-              backgroundColor={selectedValue === item ? preferences.primaryColor : 'transparent'}
+      backgroundColor={selectedValue === item ? preferences.primaryColor : '$backgroundTransparent'}
               height={45}
               justifyContent="center"
               pressStyle={{ opacity: 0.8 }}
@@ -289,6 +289,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
               borderColor="rgba(85,85,85,0.5)"
               backgroundColor="rgba(45,45,45,0.8)"
               color="#fff"
+              autoCapitalize="sentences"
               borderRadius={12}
               paddingHorizontal="$3"
               height={50}
@@ -300,11 +301,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
                   {Object.entries(WEEKDAYS).map(([shortDay, fullDay]) => (
                     <Button
                       key={shortDay}
-                      backgroundColor={
-                        newTask.schedule.includes(fullDay) 
-                          ? preferences.primaryColor 
-                          : 'rgba(45,45,45,0.8)'
-                      }
+              backgroundColor={
+                newTask.schedule.includes(fullDay) 
+                  ? preferences.primaryColor 
+                  : '$backgroundHover'
+              }
                       color="#fff"
                       pressStyle={{ opacity: 0.8, scale: 0.98 }}
                       onPress={() => toggleDay(shortDay)}

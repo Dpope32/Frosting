@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-native';
 import { Button, Input, Text, YStack, XStack } from 'tamagui';
+import { useUserStore } from '@/store/UserStore';
 
 interface AddBillModalProps {
   isVisible: boolean;
@@ -12,6 +13,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
 
   const handleSubmit = () => {
     const amountNum = parseFloat(amount);
@@ -60,6 +62,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             placeholder="Bill Name"
             value={name}
             onChangeText={setName}
+            autoCapitalize="sentences"
             backgroundColor="$backgroundHover"
             borderColor="$borderColor"
             placeholderTextColor="$placeholderColor"
@@ -98,7 +101,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             </Button>
             <Button
               onPress={handleSubmit}
-              backgroundColor="$blue10"
+              backgroundColor={primaryColor}
               disabled={!name || !amount || !dueDate}
             >
               Save

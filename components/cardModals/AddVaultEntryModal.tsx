@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'react-native';
 import { Button, Input, Text, YStack, XStack } from 'tamagui';
+import { useUserStore } from '@/store/UserStore';
 
 interface AddVaultEntryModalProps {
   isVisible: boolean;
@@ -12,6 +13,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
 
   const handleSubmit = () => {
     if (name && username && password) {
@@ -90,7 +92,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
             </Button>
             <Button
               onPress={handleSubmit}
-              backgroundColor="$blue10"
+              backgroundColor={primaryColor}
               disabled={!name || !username || !password}
             >
               Save

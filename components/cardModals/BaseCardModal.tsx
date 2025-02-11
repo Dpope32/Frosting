@@ -19,6 +19,7 @@ export function BaseCardModal({ open, onOpenChange, title, children }: BaseCardM
       position={0}
       dismissOnSnapToBottom
       zIndex={100000}
+      disableDrag={false}
     >
       <Sheet.Overlay
         animation="quick"

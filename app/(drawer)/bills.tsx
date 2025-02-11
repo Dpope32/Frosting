@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Button, Card, H2, Paragraph, XStack, YStack } from 'tamagui';
-import { Ionicons } from '@expo/vector-icons';
+import { Plus, X } from '@tamagui/lucide-icons';
+import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { bills, addBill, deleteBill, isLoading } = useBills();
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const nameColors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#A29BFE', '#F78FB3'];
 
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => {
@@ -15,8 +17,12 @@ export default function BillsScreen() {
   };
 
   return (
-    <ScrollView style={{ paddingTop: 100 }}>
-      <YStack p="$4" gap="$4">
+    <YStack f={1} mt={90} px="$4">
+      <ScrollView contentContainerStyle={{ 
+        paddingTop: 100,
+        paddingBottom: 20
+      }}>
+        <YStack p="$4" gap="$4">
         {isLoading ? (
 
           Array.from({ length: 3 }).map((_, index) => (
@@ -65,7 +71,7 @@ export default function BillsScreen() {
                       circular
                       backgroundColor="$red10"
                       onPress={() => deleteBill(bill.id)}
-                      icon={<Ionicons name="trash-outline" size={16} color="white" />}
+                      icon={<X size={16} color="white" />}
                     />
                   </XStack>
                   <Paragraph theme="alt2" fontSize="$7" fontWeight="bold">
@@ -85,26 +91,27 @@ export default function BillsScreen() {
           onClose={() => setIsModalVisible(false)}
           onSubmit={handleAddBill}
         />
-      </YStack>
+        </YStack>
+      </ScrollView>
 
       <Button
         onPress={() => setIsModalVisible(true)}
         position="absolute"
-        bottom={20}
-        right={20}
+        bottom="$8"
+        right="$4"
         zIndex={1000}
         size="$4"
         width={120}
         height={40}
         borderRadius="$4"
-        backgroundColor="$blue10"
+        backgroundColor={primaryColor}
         pressStyle={{ scale: 0.95 }}
         animation="quick"
         elevation={4}
       >
-        <Ionicons name="add" size={18} color="white" />
+        <Plus color="white" size={18} />
         <Paragraph color="white" fontSize="$3" ml="$2">Add Bill</Paragraph>
       </Button>
-    </ScrollView>
+    </YStack>
   );
 }

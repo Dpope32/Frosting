@@ -264,11 +264,9 @@ export function LandingPage() {
               <Pressable onPress={handleTemperaturePress}>
                 <TemperatureCard />
               </Pressable>
-              {Platform.OS !== 'ios' && (
-                <Pressable onPress={handleWifiPress}>
-                  <WifiCard />
-                </Pressable>
-              )}
+              <Pressable onPress={handleWifiPress}>
+                <WifiCard />
+              </Pressable>
             </XStack>
             <Stack marginTop="$4">
               <QuoteSection />
@@ -289,43 +287,35 @@ export function LandingPage() {
               shadowRadius: 20
             }}
           >
-            <Text
-              color="#dbd0c6"
-              fontSize={17}
-              fontWeight="bold"
-              marginBottom="$2"
-              paddingLeft={4}
-            >
-              <XStack alignItems="center" justifyContent="space-between" width="100%">
-                <Text 
-                  color="#dbd0c6" 
-                  fontSize={19} 
-                  fontWeight="bold"
+            <XStack alignItems="center" justifyContent="space-between" width="100%" marginBottom="$2" paddingLeft={4}>
+              <Text 
+                color="#dbd0c6" 
+                fontSize={19} 
+                fontWeight="bold"
+                style={{
+                  textShadowColor: 'rgba(219, 208, 198, 0.25)',
+                  textShadowOffset: { width: 0, height: 0 },
+                  textShadowRadius: 8
+                }}
+              >
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </Text>
+              <Pressable
+                onPress={() => setTaskListModalOpen(true)}
+                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4 })}
+              >
+                <Ionicons 
+                  name="list-circle-outline" 
+                  size={26} 
+                  color="#dbd0c6"
                   style={{
                     textShadowColor: 'rgba(219, 208, 198, 0.25)',
                     textShadowOffset: { width: 0, height: 0 },
                     textShadowRadius: 8
                   }}
-                >
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </Text>
-                <Pressable
-                  onPress={() => setTaskListModalOpen(true)}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4 })}
-                >
-                  <Ionicons 
-                    name="list-circle-outline" 
-                    size={26} 
-                    color="#dbd0c6"
-                    style={{
-                      textShadowColor: 'rgba(219, 208, 198, 0.25)',
-                      textShadowOffset: { width: 0, height: 0 },
-                      textShadowRadius: 8
-                    }}
-                  />
-                </Pressable>
-              </XStack>
-            </Text>
+                />
+              </Pressable>
+            </XStack>
             <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" backgroundColor="rgba(0, 0, 0, 0.3)" borderRadius={10} paddingHorizontal="$4" paddingVertical="$2">
               <Text 
                 color="#dbd0c6" 
@@ -378,12 +368,10 @@ export function LandingPage() {
         </YStack>
       </ScrollView>
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} temperature="21°F" />
-      {Platform.OS !== 'ios' && (
-        <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
-      )}
+      <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} value="$1,234.56" change="+$123.45" changePercentage="10.0%" />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
-      <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />
+      {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
     </Stack>
   )
 }

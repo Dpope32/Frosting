@@ -254,6 +254,7 @@ function ChatbotInner() {
           <Input
             flex={1}
             backgroundColor="transparent"
+            autoCapitalize="sentences"
             placeholder="Message"
             placeholderTextColor="#666"
             borderWidth={0}

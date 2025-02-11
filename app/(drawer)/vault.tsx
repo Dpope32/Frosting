@@ -128,8 +128,8 @@ export default function VaultScreen() {
       <Button
         onPress={() => setIsModalVisible(true)}
         position="absolute"
-        bottom={20}
-        right={20}
+        bottom="$8"
+        right="$4"
         zIndex={1000}
         size="$4"
         width={120}
