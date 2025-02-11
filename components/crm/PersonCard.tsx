@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   Card,
   Image,
@@ -15,7 +15,7 @@ import {
   StyleProp,
   ViewStyle,
   Linking,
-  ScrollView
+  Alert
 } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Clipboard from "expo-clipboard";
@@ -23,28 +23,25 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import type { Person } from "@/types/people";
 
-const colors = [
-  "#FF5733",
-  "#33FF57",
-  "#3357FF",
-  "#FF33A8",
-  "#FF8C33",
-  "#8C33FF",
-  "#33FFF2",
-  "#F2FF33",
-  "#FF3333",
-  "#33FF33",
-  "#3333FF",
-  "#FF33FF",
-  "#33FFFF",
-  "#FFFF33",
-  "#FF9900",
-  "#99FF00",
-  "#0099FF",
-  "#9900FF",
-  "#FF0099",
-  "#00FF99"
-];
+const generateColors = (count: number) => {
+  return Array.from({ length: count }, (_, i) => {
+    const hue = (i * (360 / count)) % 360;
+    return `hsl(${hue}, 65%, 55%)`;
+  });
+};
+
+const colors = generateColors(24);
+
+const adjustColor = (color: string, amount: number): string => {
+  const hex = color.replace("#", "");
+  const num = parseInt(hex, 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amount));
+  const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount));
+  return `#${((b | (g << 8) | (r << 16)) | 0)
+    .toString(16)
+    .padStart(6, "0")}`;
+};
 
 const getColorForPerson = (id: string | undefined) => {
   if (!id) return colors[0];
@@ -58,50 +55,6 @@ type PersonCardProps = {
   isExpanded?: boolean;
   onPress?: () => void;
   containerStyle?: StyleProp<ViewStyle>;
-};
-
-type InfoRowProps = {
-  iconName: React.ComponentProps<typeof Ionicons>["name"];
-  label: string;
-  value: string;
-};
-
-const InfoRow: React.FC<InfoRowProps> = ({ iconName, label, value }) => {
-  return (
-    <XStack alignItems="center" gap="$2" style={styles.infoRow}>
-      <Ionicons name={iconName} size={20} color="#fff" />
-      <Paragraph fontWeight="600" fontSize={16} color="#ccc" style={styles.infoLabel}>
-        {label}:
-      </Paragraph>
-      <Paragraph
-        fontWeight="700"
-        fontSize={16}
-        color="#fff"
-        numberOfLines={label === "Email" ? 1 : undefined}
-        ellipsizeMode="tail"
-        style={styles.infoValue}
-      >
-        {value}
-      </Paragraph>
-    </XStack>
-  );
-};
-
-type ActionButtonProps = {
-  iconName: React.ComponentProps<typeof Ionicons>["name"];
-  label: string;
-  onPress: () => void;
-};
-
-const ActionButton: React.FC<ActionButtonProps> = ({ iconName, label, onPress }) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={styles.actionButton}>
-      <Ionicons name={iconName} size={16} color="#fff" />
-      <Paragraph fontWeight="600" fontSize={12} color="#fff" style={styles.actionLabel}>
-        {label}
-      </Paragraph>
-    </TouchableOpacity>
-  );
 };
 
 export function PersonCard({
@@ -130,8 +83,7 @@ export function PersonCard({
       <View style={[styles.container, containerStyle]}>
         <Card
           elevate
-          p="$3"
-          backgroundColor="$gray2"
+          backgroundColor="rgba(20,20,20,0.8)"
           borderRadius="$4"
           animation="quick"
           pressStyle={{ scale: 0.98 }}
@@ -139,26 +91,63 @@ export function PersonCard({
         >
           <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable}>
             <XStack alignItems="center" gap="$3">
-              <View style={styles.avatarWrapper}>
-                <LinearGradient colors={["#FF7E5F", "#FEB47B"]} style={styles.avatarGradient}>
-                  <Image
-                    source={{ uri: person.profilePicture || "https://via.placeholder.com/80" }}
-                    width={50}
-                    height={50}
-                    borderRadius={25}
-                    style={styles.avatarImage}
-                  />
-                </LinearGradient>
+              <View style={styles.avatarContainer}>
+                <View style={styles.avatarWrapper}>
+                  <LinearGradient
+                    colors={[nicknameColor, adjustColor(nicknameColor, 40)]}
+                    style={styles.avatarGradient}
+                  >
+                    <Image
+                      source={{
+                        uri: person.profilePicture || "https://via.placeholder.com/80"
+                      }}
+                      width={40}
+                      height={40}
+                      borderRadius={20}
+                      style={styles.avatarImage}
+                    />
+                  </LinearGradient>
+                </View>
+                {person.priority && (
+                  <View style={styles.starIndicator}>
+                    <Ionicons name="star" size={12} color="#FFD700" />
+                  </View>
+                )}
               </View>
-              <Paragraph
-                fontWeight="700"
-                fontSize={18}
-                color={nicknameColor}
-                numberOfLines={1}
-                flex={1}
-              >
-                {person.nickname || person.name}
-              </Paragraph>
+              <YStack flex={1} gap="$1">
+                <XStack alignItems="center" gap="$1">
+                  <XStack alignItems="center">
+                    {person.registered && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={14}
+                        color="#4CAF50"
+                        style={styles.checkmark}
+                      />
+                    )}
+                    <Paragraph
+                      fontWeight="700"
+                      fontSize={16}
+                      color={nicknameColor}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {person.nickname || person.name}
+                    </Paragraph>
+                  </XStack>
+                </XStack>
+                {person.occupation && person.occupation !== "None" && (
+                  <Paragraph
+                    fontSize={12}
+                    color="rgba(255,255,255,0.7)"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={styles.occupation}
+                  >
+                    {person.occupation}
+                  </Paragraph>
+                )}
+              </YStack>
             </XStack>
           </TouchableOpacity>
         </Card>
@@ -166,97 +155,152 @@ export function PersonCard({
           modal
           open={isExpanded}
           onOpenChange={(isOpen: boolean) => !isOpen && onPress?.()}
-          snapPoints={[85]}
+          snapPoints={[82]}
           dismissOnSnapToBottom
           dismissOnOverlayPress
           zIndex={100000}
         >
           <Sheet.Overlay animation="quick" style={styles.overlay} />
-          <Sheet.Frame style={styles.sheetFrameExpanded}>
-            <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+          <Sheet.Frame style={styles.modalContainer}>
+            <BlurView intensity={50} tint="dark" style={[StyleSheet.absoluteFill, { zIndex: 0 }]} />
             <Sheet.Handle />
-            <YStack alignItems="center" gap="$5" mb="$4">
-              <View style={styles.avatarLargeWrapper}>
-                <LinearGradient colors={["#FF7E5F", "#FEB47B"]} style={styles.avatarLargeGradient}>
-                  <Image
-                    source={{ uri: person.profilePicture || "https://via.placeholder.com/200" }}
-                    width={150}
-                    height={150}
-                    borderRadius={75}
-                    style={styles.avatarLargeImage}
-                  />
-                </LinearGradient>
+            <View style={[styles.modalContent, { zIndex: 1 }]}>
+              <View style={styles.modalHeaderIcons}>
+                <TouchableOpacity 
+                  style={styles.shareIcon}
+                  onPress={() => {
+                    const shareData = btoa(JSON.stringify(person));
+                    const shareUrl = `frosting://share?data=${shareData}`;
+                    Clipboard.setStringAsync(shareUrl);
+                    Alert.alert("Success", "Contact link copied to clipboard!");
+                  }}
+                >
+                  <Ionicons name="share-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.closeIcon}
+                  onPress={() => onPress?.()}
+                >
+                  <Ionicons name="close-outline" size={24} color="#fff" />
+                </TouchableOpacity>
               </View>
-              <Paragraph
-                fontWeight="800"
-                fontSize={26}
-                color={nicknameColor}
-                textAlign="center"
-              >
-                {person.nickname || person.name}
-              </Paragraph>
-            </YStack>
-            <YStack gap="$3" style={styles.infoContainer}>
-              {person.email && (
-                <InfoRow iconName="mail-outline" label="Email" value={person.email} />
-              )}
+              <YStack alignItems="center" gap="$4">
+              <View style={{ position: "relative", width: 120, height: 120 }}>
+                <Image
+                  source={{
+                    uri: person.profilePicture || "https://via.placeholder.com/200"
+                  }}
+                  style={[styles.modalAvatar, { width: 120, height: 120 }]}
+                  objectFit="cover"
+                />
+                {person.priority && (
+                  <View
+                    style={[
+                      styles.starIndicator,
+                      { top: 2, right: 2, bottom: undefined, left: undefined }
+                    ]}
+                  >
+                    <Ionicons name="star" size={18} color="#FFD700" />
+                  </View>
+                )}
+              </View>
+                <YStack alignItems="center" gap="$2">
+                  <XStack gap="$2" alignItems="center">
+                    <Paragraph fontSize={32} fontWeight="700" color={nicknameColor} pt={8}>
+                      {person.nickname || person.name}
+                    </Paragraph>
+                    {person.registered && (
+                      <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+                    )}
+                  </XStack>
+                  {person.occupation && person.occupation !== "None" && (
+                    <Paragraph fontSize={18} color="#999">
+                      {person.occupation}
+                    </Paragraph>
+                  )}
+                </YStack>
+              </YStack>
+              <YStack gap="$4" style={styles.infoSection}>
+                {person.birthday && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="gift-outline" size={24} color={nicknameColor} />
+                    <Paragraph fontSize={18} color="#fff">
+                      {new Date(person.birthday).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric"
+                      })}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.email && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="mail-outline" size={24} color="#fff" />
+                    <Paragraph fontSize={18} color="#fff">
+                      {person.email}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.phoneNumber && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="call-outline" size={24} color="#fff" />
+                    <Paragraph fontSize={18} color="#fff">
+                      {person.phoneNumber}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.payments && person.payments.length > 0 && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="card-outline" size={24} color="#fff" />
+                    <Paragraph fontSize={18} color="#fff">
+                      {person.payments[0].type}
+                      {person.payments[0].details ? ` - ${person.payments[0].details}` : ""}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {fullAddress && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="location-outline" size={24} color="#fff" />
+                    <Paragraph fontSize={18} color="#fff">
+                      {fullAddress}
+                    </Paragraph>
+                  </XStack>
+                )}
+              </YStack>
+            </View>
+            <View style={styles.actionBar}>
               {person.phoneNumber && (
-                <InfoRow iconName="call-outline" label="Phone" value={person.phoneNumber} />
-              )}
-              {person.birthday && (
-                <InfoRow
-                  iconName="calendar-outline"
-                  label="Birthday"
-                  value={new Date(person.birthday).toLocaleDateString()}
-                />
-              )}
-              {person.occupation && (
-                <InfoRow iconName="briefcase-outline" label="Occupation" value={person.occupation} />
-              )}
-              <InfoRow
-                iconName={person.registered ? "checkmark-circle-outline" : "close-circle-outline"}
-                label="Status"
-                value={person.registered ? "Registered" : "Not Registered"}
-              />
-              {person.address && (
-                <InfoRow iconName="location-outline" label="Address" value={fullAddress} />
-              )}
-            </YStack>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.actionButtonContainer}
-            >
-              {person.address && (
-                <ActionButton
-                  iconName="copy-outline"
-                  label="Copy Address"
-                  onPress={() => Clipboard.setStringAsync(fullAddress || "")}
-                />
+                <>
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
+                    style={styles.actionButton}
+                  >
+                    <Ionicons name="chatbubble-outline" size={28} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
+                    style={styles.actionButton}
+                  >
+                    <Ionicons name="call-outline" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </>
               )}
               {person.email && (
-                <ActionButton
-                  iconName="mail-outline"
-                  label="Email"
+                <TouchableOpacity
                   onPress={() => Linking.openURL(`mailto:${person.email}`)}
-                />
+                  style={styles.actionButton}
+                >
+                  <Ionicons name="mail-outline" size={28} color="#fff" />
+                </TouchableOpacity>
               )}
-              {person.phoneNumber && (
-                <ActionButton
-                  iconName="call-outline"
-                  label="Call"
-                  onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
-                />
+              {fullAddress && (
+                <TouchableOpacity
+                  onPress={() => Clipboard.setStringAsync(fullAddress)}
+                  style={styles.actionButton}
+                >
+                  <Ionicons name="copy-outline" size={28} color="#fff" />
+                </TouchableOpacity>
               )}
-              {person.phoneNumber && (
-                <ActionButton
-                  iconName="chatbubble-outline"
-                  label="SMS"
-                  onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
-                />
-              )}
-              <ActionButton iconName="pencil" label="Edit" onPress={() => onEdit(person)} />
-            </ScrollView>
+            </View>
           </Sheet.Frame>
         </Sheet>
       </View>
@@ -264,9 +308,41 @@ export function PersonCard({
   );
 }
 
+// Function to handle shared contact links
+export const handleSharedContact = (url: string) => {
+  try {
+    const data = url.split('?data=')[1];
+    if (!data) return;
+    
+    const decodedData = JSON.parse(atob(data));
+    const name = decodedData.name || decodedData.nickname;
+    
+    Alert.alert(
+      "Add Contact",
+      `Would you like to add ${name} to your contacts list?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Add",
+          onPress: () => {
+            const { usePeopleStore } = require('@/store/People');
+            usePeopleStore.getState().addPerson(decodedData);
+          }
+        }
+      ]
+    );
+  } catch (error) {
+    Alert.alert("Error", "Invalid contact link");
+  }
+};
+
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 2
+    marginVertical: 4,
+    marginHorizontal: 2
   },
   card: {
     shadowColor: "#000",
@@ -274,92 +350,120 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     borderWidth: 2,
     shadowRadius: 3.84,
-    elevation: 5
+    elevation: 5,
+    padding: 10,
+    backgroundColor: "rgba(20,20,20,0.85)"
   },
   touchable: {
     width: "100%"
   },
-  overlay: {
-    backgroundColor: "rgba(0,0,0,0.5)"
-  },
-  sheetFrameExpanded: {
-    borderRadius: 16,
-    maxHeight: "83%",
-    width: "80%",
-    alignSelf: "center",
-    justifyContent: "flex-start",
-    padding: 16, // Reduced from 24
-    marginVertical: 12,
-    overflow: "hidden",
-    backgroundColor: "rgba(20,20,20,0.9)"
+  avatarContainer: {
+    position: "relative"
   },
   avatarWrapper: {
     borderWidth: 2,
     borderColor: "#fff",
-    borderRadius: 26,
-    overflow: 'hidden'  // Make sure image doesn't overflow
+    borderRadius: 22,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
   },
   avatarGradient: {
-    borderRadius: 27,
+    borderRadius: 22,
     padding: 2
   },
   avatarImage: {
-    width: 50,
-    height: 50
+    width: 40,
+    height: 40
   },
-  avatarLargeWrapper: {
+  starIndicator: {
+    position: "absolute",
+    bottom: -2,
+    left: -2,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    borderRadius: 8,
+    padding: 2,
+    borderWidth: 1,
+    borderColor: "#FFD700"
+  },
+  checkmark: {
+    marginRight: 4
+  },
+  occupation: {
+    marginTop: 2
+  },
+  overlay: {
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  modalContainer: {
+    borderRadius: 16,
+    width: "90%",
+    alignSelf: "center",
+    backgroundColor: "rgba(20,20,20,0.95)",
+    borderColor: "rgba(200,200,200,0.8)",
+    borderWidth: 2,
+    padding: 0,
+    overflow: "hidden",
+    maxHeight: "80%",
+    minHeight: "50%" // Add this to ensure enough space
+  },
+  modalContent: {
+    padding: 20,
+    paddingBottom: 100,
+    position: 'relative'
+  },
+  modalHeaderIcons: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    right: 10,
+    zIndex: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  shareIcon: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20
+  },
+  closeIcon: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 20
+  },
+  modalAvatar: {
     borderWidth: 3,
     borderColor: "#fff",
-    borderRadius: 75,
+    borderRadius: 60,
     overflow: 'hidden'
   },
-  avatarLargeGradient: {
-    borderRadius: 77,
-    padding: 3
+  infoSection: {
+    marginTop: 32,
+    paddingBottom: 20 // Add some padding at the bottom
   },
-  avatarLargeImage: {
-    width: 75,
-    height: 75
-  },
-  infoContainer: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+  actionBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-around",
     backgroundColor: "rgba(0,0,0,0.3)",
-    borderRadius: 8,
-    marginBottom: 8 // Add small margin instead of using gap
-  },
-  infoRow: {
-    paddingVertical: 4,
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  infoLabel: {
-    marginLeft: 4,
-    minWidth: 90,
-    flexShrink: 0
-  },
-  infoValue: {
-    flex: 1,
-    marginRight: 4 // Add some right margin to prevent text from touching edge
-  },
-  actionButtonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 4, // Add minimal padding
-    gap: 8
+    paddingVertical: 16
   },
   actionButton: {
+    width: 60,
+    height: 60,
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 8,
-    flexShrink: 0,
-    minWidth: 60
-  },
-  actionLabel: {
-    marginTop: 2
+    justifyContent: "center"
   }
 });

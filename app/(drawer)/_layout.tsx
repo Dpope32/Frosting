@@ -24,7 +24,7 @@ export default function DrawerLayout() {
               borderBottomColor: 'rgba(255, 255, 255, 0.1)',
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: 'rgba(30, 30, 30, 0.95)',
+              backgroundColor: 'rgba(30, 30, 30, 0.95)'
             }}>
               <Image 
                 source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
@@ -32,29 +32,25 @@ export default function DrawerLayout() {
                   width: 50,
                   height: 50,
                   borderRadius: 25,
-                  marginRight: 12,
+                  marginRight: 12
                 }}
               />
               <Text style={{ 
                 color: '#fff',
                 fontSize: 18,
-                fontWeight: '600',
+                fontWeight: '600'
               }}>
                 {username || 'User'}
               </Text>
             </View>
             <View style={{ 
               flex: 1,
-              backgroundColor: 'rgba(30, 30, 30, 0.925)',
+              backgroundColor: 'rgba(30, 30, 30, 0.925)'
             }}>
               <DrawerContentScrollView 
                 {...props}
-                contentContainerStyle={{
-                  paddingTop: 0
-                }}
-                style={{
-                  marginTop: 10
-                }}
+                contentContainerStyle={{ paddingTop: 0 }}
+                style={{ marginTop: 10 }}
               >
                 <DrawerItemList {...props} />
               </DrawerContentScrollView>
@@ -68,26 +64,25 @@ export default function DrawerLayout() {
           headerTransparent: true,
           drawerStyle: {
             backgroundColor: 'transparent',
-            width: '60%',
-            overflow: 'hidden',
+            width: '60%'
           },
           drawerActiveTintColor: '#fff',
-          drawerInactiveTintColor:'rgba(255, 255, 255, 0.5)',
+          drawerInactiveTintColor: 'rgba(255, 255, 255, 0.5)',
           drawerActiveBackgroundColor: `${primaryColor}20`,
           drawerItemStyle: {
             borderRadius: 12,
-            padding: 4,
+            padding: 4
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -20,
+            marginLeft: -20
           },
           drawerContentStyle: {
-            backgroundColor: 'rgba(30, 30, 30, 0.8)',
+            backgroundColor: 'rgba(30, 30, 30, 0.8)'
           },
-          drawerType: 'slide',
-          overlayColor: 'rgba(0, 0, 0, 0.7)',
+          drawerType: 'front',
+          overlayColor: 'rgba(0, 0, 0, 0.7)'
         }}
       >
         <Drawer.Screen
@@ -97,7 +92,7 @@ export default function DrawerLayout() {
             drawerLabel: 'Home',
             drawerIcon: ({ color }) => (
               <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
         />
         <Drawer.Screen
@@ -107,7 +102,7 @@ export default function DrawerLayout() {
             drawerLabel: 'Calendar',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="calendar-today" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
         />
         <Drawer.Screen
@@ -117,7 +112,7 @@ export default function DrawerLayout() {
             drawerLabel: 'Sports',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
         />
         <Drawer.Screen
@@ -127,27 +122,27 @@ export default function DrawerLayout() {
             drawerLabel: 'Chatbot',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
         />
-       <Drawer.Screen
+        <Drawer.Screen
           name="crm"
           options={{
             title: 'CRM',
             drawerLabel: 'CRM',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
         />
-       <Drawer.Screen
+        <Drawer.Screen
           name="storage"
           options={{
             title: 'Storage',
             drawerLabel: 'Storage',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
         />
         <Drawer.Screen
@@ -157,9 +152,19 @@ export default function DrawerLayout() {
             drawerLabel: 'Vault',
             drawerIcon: ({ color }) => (
               <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 20 }} />
-            ),
+            )
           }}
-        />  
+        />
+        <Drawer.Screen
+          name="bills"
+          options={{
+            title: 'Bills',
+            drawerLabel: 'Bills',
+            drawerIcon: ({ color }) => (
+              <MaterialIcons name="attach-money" size={24} color={color} style={{ marginRight: 20 }} />
+            )
+          }}
+        />
       </Drawer>
       <BlurView 
         intensity={20}
@@ -167,7 +172,7 @@ export default function DrawerLayout() {
           position: 'absolute',
           width: '60%',
           height: '100%',
-          zIndex: -1,
+          zIndex: -1
         }}
       />
     </View>

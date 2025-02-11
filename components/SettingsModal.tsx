@@ -19,12 +19,14 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     profilePicture: string
     zipCode: string
     backgroundStyle: BackgroundStyle
+    notificationsEnabled: boolean
   }>({
     username: preferences.username,
     primaryColor: preferences.primaryColor,
     profilePicture: preferences.profilePicture || '',
     zipCode: preferences.zipCode,
-    backgroundStyle: preferences.backgroundStyle
+    backgroundStyle: preferences.backgroundStyle,
+    notificationsEnabled: preferences.notificationsEnabled
   })
 
   const pickImage = async () => {
@@ -150,6 +152,31 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   />
                 </YStack>
               </XStack>
+
+              {/* Notifications Toggle */}
+              <YStack flex={1} minWidth={150} gap="$2">
+                <Text fontSize={14} color="#fff">Notifications</Text>
+                <XStack 
+                  backgroundColor="#333"
+                  height={40}
+                  borderRadius="$3"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  paddingHorizontal="$3"
+                >
+                  <Text fontSize={14} color="#fff">Enable</Text>
+                  <Button
+                    size="$2"
+                    backgroundColor={settings.notificationsEnabled ? settings.primaryColor : '#555'}
+                    onPress={() => setSettings(prev => ({ ...prev, notificationsEnabled: !prev.notificationsEnabled }))}
+                    width={45}
+                    height={26}
+                    borderRadius="$2"
+                  >
+                    <Text color="#fff" fontSize={12}>{settings.notificationsEnabled ? 'ON' : 'OFF'}</Text>
+                  </Button>
+                </XStack>
+              </YStack>
 
               {/* Color Selection */}
               <YStack gap="$2">

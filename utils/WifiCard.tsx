@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Stack, Text, YStack } from 'tamagui';
+import { Stack, Text, YStack, Spinner } from 'tamagui';
 import { WifiModal } from '@/components/cardModals/WifiModal';
 import { getValueColor } from '@/constants/valueHelper';
 import { useNetworkStore } from '@/store/NetworkStore';
 import { getWifiDetails } from '@/services/wifiServices';
 
 export function WifiCard() {
-  const { details, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
+  const { details, isLoading, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
   const [ping, setPing] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isPingLoading, setIsPingLoading] = useState(false);
   const wifiDetails = getWifiDetails(details);
   const isConnected = details?.isConnected ?? false;
   const isWifi = details?.type === 'wifi';
@@ -16,6 +17,7 @@ export function WifiCard() {
   useEffect(() => {
     const checkConnection = async () => {
       try {
+        setIsPingLoading(true);
         const startTime = Date.now();
         if (isConnected) {
           const response = await fetch('https://8.8.8.8', { 
@@ -28,11 +30,16 @@ export function WifiCard() {
         }
       } catch (error) {
         console.error('Network error:', error);
+        setPing(null);
+      } finally {
+        setIsPingLoading(false);
       }
     };
 
     fetchNetworkInfo();
-    checkConnection();
+    if (!isLoading) {
+      checkConnection();
+    }
 
     const unsubscribeNetwork = startNetworkListener();
     const interval = setInterval(() => {
@@ -47,6 +54,7 @@ export function WifiCard() {
   }, []);
 
   const getSpeedDisplay = () => {
+    if (isLoading || isPingLoading) return '...';
     if (!isConnected) return 'Offline';
     if (isWifi) {
       if (!wifiDetails?.linkSpeed) return '...';
@@ -84,14 +92,18 @@ export function WifiCard() {
         onPress={() => setModalOpen(true)}
       >
       <YStack alignItems="center">
-        <Text
-          color={getSpeedColor()}
-          fontSize={14}
-          fontWeight="500"
-          fontFamily="$SpaceMono"
-        >
-          {getSpeedDisplay()}
-        </Text>
+        {isLoading || isPingLoading ? (
+          <Spinner size="small" color="$gray10" />
+        ) : (
+          <Text
+            color={getSpeedColor()}
+            fontSize={14}
+            fontWeight="500"
+            fontFamily="$body"
+          >
+            {getSpeedDisplay()}
+          </Text>
+        )}
       </YStack>
       </Stack>
       <WifiModal 

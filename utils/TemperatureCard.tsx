@@ -55,7 +55,7 @@ export function TemperatureCard() {
           color={valueColor}
           fontSize={18}
           fontWeight="bold"
-          fontFamily="$SpaceMono"
+          fontFamily="$body"
         >
           {currentTemp !== null ? `${currentTemp}°F` : 'N/A'}
         </Text>

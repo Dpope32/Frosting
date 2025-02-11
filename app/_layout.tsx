@@ -3,7 +3,8 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
+import { Linking } from 'react-native';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
@@ -13,6 +14,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
+import { useNotifications } from '@/hooks/useNotifications';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -28,15 +30,40 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf')
-  });
+  const [loaded] = useFonts({});
+
+  // Add this line
+  useNotifications();
 
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // Handle deep links
+  const handleDeepLink = useCallback((event: { url: string }) => {
+    if (event.url.startsWith('frosting://share')) {
+      const { handleSharedContact } = require('@/components/crm/PersonCard');
+      handleSharedContact(event.url);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Handle deep link if app was opened with one
+    Linking.getInitialURL().then(url => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+
+    // Handle deep links when app is already running
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [handleDeepLink]);
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
 

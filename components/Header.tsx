@@ -50,7 +50,12 @@ export function Header({ title }: HeaderProps) {
                 fontWeight="600"
                 color={textColor}
                 numberOfLines={1}
-                fontFamily="$SpaceMono"
+                fontFamily="$body"
+                style={{
+                  textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                  textShadowOffset: { width: 1, height: 1 },
+                  textShadowRadius: 3,
+                }}
               >
                 {title}
               </Text>

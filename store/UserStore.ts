@@ -11,6 +11,7 @@ interface UserPreferences {
   customBackground?: string;
   zipCode: string;
   hasCompletedOnboarding: boolean;
+  notificationsEnabled: boolean;
 }
 
 interface UserStore {
@@ -26,6 +27,7 @@ const defaultPreferences: UserPreferences = {
   backgroundStyle: 'gradient',
   zipCode: '',
   hasCompletedOnboarding: false,
+  notificationsEnabled: true,
 };
 
 // Create a custom storage adapter for MMKV

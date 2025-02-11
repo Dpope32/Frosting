@@ -16,13 +16,21 @@ export const usePeopleStore = create<PeopleStore>((set, get) => ({
   contacts: StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {}) ?? {},
   addPerson: (person) => {
     const contacts = get().contacts
-    contacts[person.id] = {
+    const personWithId = {
       ...person,
+      id: person.id || Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
+    contacts[personWithId.id] = personWithId
     StorageUtils.set(STORAGE_KEY, contacts)
     set({ contacts })
+
+    // Import the store function only when needed
+    if (personWithId.birthday) {
+      const { syncBirthdays } = require('./CalendarStore').useCalendarStore.getState()
+      syncBirthdays(personWithId.id)
+    }
   },
   updatePerson: (id, updates) => {
     const contacts = get().contacts

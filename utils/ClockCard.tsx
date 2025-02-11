@@ -46,7 +46,7 @@ export const ClockCard = memo(() => {
       marginRight={10}
     >
       <Text
-        fontFamily="$SpaceMono"
+        fontFamily="$body"
         fontSize={18}
         color="#dbd0c6"
         fontWeight="bold"

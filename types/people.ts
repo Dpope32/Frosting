@@ -44,6 +44,7 @@ export type Person = {
   favoriteColor?: string
   relationship?: string
   additionalInfo?: string
+  priority?: boolean
   createdAt: string
   updatedAt: string
 }

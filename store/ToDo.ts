@@ -21,7 +21,8 @@ export interface Task {
   priority: TaskPriority
   category: TaskCategory
   isOneTime: boolean
-  completed: boolean
+  completed: boolean // Kept for backward compatibility
+  completionHistory: Record<string, boolean> // Date string -> completion status
   createdAt: string
   updatedAt: string
   scheduledDate?: string
@@ -31,7 +32,7 @@ interface ProjectStore {
   tasks: Record<string, Task>
   hydrated: boolean
   todaysTasks: Task[]
-  addTask: (data: Omit<Task, 'id' | 'completed' | 'createdAt' | 'updatedAt'>) => void
+  addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
   getTodaysTasks: () => Task[]
@@ -56,6 +57,7 @@ const createTaskFilter = () => {
 
   return (tasks: Record<string, Task>): Task[] => {
     const today = dayNames[new Date().getDay()];
+    const currentDate = new Date().toISOString().split('T')[0];
     
     // Return cached result if nothing has changed
     if (lastToday === today && lastTasks === tasks && lastResult !== null) {
@@ -70,38 +72,38 @@ const createTaskFilter = () => {
     const filtered = Object.values(tasks).filter(task => {
       // For recurring tasks, check if scheduled for today
       if (!task.isOneTime) {
-        return task.schedule.includes(today);
+        const isScheduledToday = task.schedule.includes(today);
+        return isScheduledToday; // Show if scheduled today, regardless of completion
       }
       
       // For one-time tasks:
-      // 1. Check if it's completed - if so, don't show it
-      if (task.completed) {
-        return false;
-      }
-      
-      // 2. If it has a scheduled date, check if it's today
+      // If it has a scheduled date, check if it's today
       if (task.scheduledDate) {
         const taskDate = new Date(task.scheduledDate).toDateString();
-        const currentDate = new Date().toDateString();
-        return taskDate === currentDate;
+        const currentDateObj = new Date().toDateString();
+        return taskDate === currentDateObj;
       }
       
-      // 3. Otherwise, check if it was created today
+      // Otherwise, check if it was created today
       const taskDate = new Date(task.createdAt).toDateString();
-      const currentDate = new Date().toDateString();
-      return taskDate === currentDate;
+      const currentDateObj = new Date().toDateString();
+      return taskDate === currentDateObj;
     });
 
     const sorted = [...filtered].sort((a, b) => {
-      // Incomplete first
-      if (a.completed !== b.completed) return a.completed ? 1 : -1
+      // Sort by completion status for today
+      const aCompletedToday = a.completionHistory[currentDate] || false;
+      const bCompletedToday = b.completionHistory[currentDate] || false;
+      if (aCompletedToday !== bCompletedToday) return aCompletedToday ? 1 : -1;
+      
       // Then by time
-      if (a.time && b.time) return a.time.localeCompare(b.time)
-      if (a.time) return -1
-      if (b.time) return 1
+      if (a.time && b.time) return a.time.localeCompare(b.time);
+      if (a.time) return -1;
+      if (b.time) return 1;
+      
       // Finally priority
-      const priorityOrder = { high: 0, medium: 1, low: 2 }
-      return priorityOrder[a.priority] - priorityOrder[b.priority]
+      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
 
     lastResult = sorted;
@@ -138,6 +140,7 @@ export const useProjectStore = create<ProjectStore>()(
           ...data,
           id,
           completed: false,
+          completionHistory: {},
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         }
@@ -152,9 +155,23 @@ export const useProjectStore = create<ProjectStore>()(
       toggleTaskCompletion: (id) => {
         const tasks = { ...get().tasks }
         if (tasks[id]) {
+          const today = new Date().toISOString().split('T')[0];
+          const currentStatus = tasks[id].completionHistory[today] || false;
+          
+          // Clean up old completion history (older than 30 days)
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          const cleanedHistory = Object.entries(tasks[id].completionHistory)
+            .filter(([date]) => new Date(date) >= thirtyDaysAgo)
+            .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {});
+          
           tasks[id] = {
             ...tasks[id],
-            completed: !tasks[id].completed,
+            completed: !currentStatus, // Keep legacy field updated
+            completionHistory: {
+              ...cleanedHistory,
+              [today]: !currentStatus
+            },
             updatedAt: new Date().toISOString()
           }
           set({ tasks, todaysTasks: taskFilter(tasks) })
@@ -167,6 +184,35 @@ export const useProjectStore = create<ProjectStore>()(
       storage: createJSONStorage(() => mmkvStorage),
       onRehydrateStorage: () => (state, error) => {
         if (state) {
+          // Migrate existing tasks to include completionHistory if needed
+          const tasks = state.tasks;
+          let needsMigration = false;
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          
+          Object.keys(tasks).forEach(id => {
+            if (!tasks[id].completionHistory) {
+              needsMigration = true;
+              tasks[id].completionHistory = {};
+              // If task is completed, mark it as completed on the last update date
+              if (tasks[id].completed) {
+                const completionDate = new Date(tasks[id].updatedAt).toISOString().split('T')[0];
+                if (new Date(completionDate) >= thirtyDaysAgo) {
+                  tasks[id].completionHistory[completionDate] = true;
+                }
+              }
+            } else {
+              // Clean up old completion history
+              tasks[id].completionHistory = Object.entries(tasks[id].completionHistory)
+                .filter(([date]) => new Date(date) >= thirtyDaysAgo)
+                .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {});
+            }
+          });
+          
+          if (needsMigration) {
+            state.tasks = tasks;
+          }
+          
           state.hydrated = true;
           state.todaysTasks = taskFilter(state.tasks);
         } else {
@@ -176,7 +222,6 @@ export const useProjectStore = create<ProjectStore>()(
     }
   )
 )
-
 
 // Optional small selectors
 export const useStoreTasks = () => useProjectStore((s) => s.tasks)

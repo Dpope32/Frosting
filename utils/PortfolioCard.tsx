@@ -57,7 +57,7 @@ export function PortfolioCard() {
         color={valueColor}
         fontSize={18}
         fontWeight="bold"
-        fontFamily="$SpaceMono"
+        fontFamily="$body"
       >
         {displayValue}
       </Text>

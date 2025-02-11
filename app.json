@@ -19,8 +19,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deedaw22.frosting",
-      "config": {
-        "usesNonExemptEncryption": false
+      "infoPlist": {
+        "UIBackgroundModes": ["remote-notification"],
+        "NSCalendarsUsageDescription": "This app needs to access your calendar to set reminders for birthdays.",
+        "NSRemindersUsageDescription": "This app needs to send you notifications about birthdays and events."
       }
     },
     "android": {
@@ -29,7 +31,15 @@
     "plugins": [
       "expo-router",
       "expo-splash-screen",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#1e1e1e",
+          "sounds": ["default"]
+        }
+      ]
     ],
     "extra": {
       "router": {

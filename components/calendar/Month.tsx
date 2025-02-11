@@ -48,11 +48,16 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             <View key={`blank-${blank}`} style={styles.dayCell} />
           ))}
           {days.map((day) => {
-            const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
+            // Create date in UTC to match CalendarStore format
+            const currentDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), day));
             const dateKey = currentDate.toISOString().split('T')[0];
             const dayEvents = events.filter((event) => event.date === dateKey);
+            if (dayEvents.length > 0) {
+              console.log('[Month] Found events for', dateKey + ':', dayEvents.map(e => e.title).join(', '));
+            }
             const hasBirthday = dayEvents.some(event => event.type === 'birthday');
             const hasRegularEvent = dayEvents.some(event => !event.type || event.type === 'regular');
+            const hasBill = dayEvents.some(event => event.type === 'bill');
             const isToday = currentDate.toDateString() === new Date().toDateString();
             
             return (
@@ -68,21 +73,26 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                 onPressIn={() => Haptics.selectionAsync()}
               >
                 <View style={styles.dayCellContent}>
-                  <Text
-                    style={[
-                      styles.dayText,
-                      isToday && styles.selectedText,
-                      hasBirthday && !isToday && { color: '#FF69B4' },
-                      hasRegularEvent && !isToday && styles.selectedText,
-                      { color: isDark ? '#ffffff' : '#000000' },
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                  <View style={styles.indicatorContainer}>
-                    {hasRegularEvent && <View style={[styles.eventDot, { backgroundColor: '#F44336' }]} />}
-                    {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FFD700' }]} />}
+                  <View style={styles.dayWrapper}>
+                    <Text
+                      style={[
+                        styles.dayText,
+                        isToday && styles.selectedText,
+                        hasBirthday && !isToday && { color: '#FF69B4' },
+                        hasRegularEvent && !isToday && styles.selectedText,
+                        { color: isDark ? '#ffffff' : '#000000' },
+                      ]}
+                    >
+                      {day}
+                    </Text>
+                    {hasBill && <Text style={styles.billIcon}>$</Text>}
                   </View>
+                  {(hasRegularEvent || hasBirthday) && (
+                    <View style={styles.indicatorContainer}>
+                      {hasRegularEvent && <View style={[styles.eventDot, { backgroundColor: '#F44336' }]} />}
+                      {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FFD700' }]} />}
+                    </View>
+                  )}
                 </View>
               </TouchableOpacity>
             );
@@ -141,6 +151,15 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      position: 'relative',
+      padding: 2,
+    },
+    dayWrapper: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      position: 'relative',
+      minWidth: 24,
     },
     dayText: {
       fontSize: 16,
@@ -165,12 +184,24 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     indicatorContainer: {
       flexDirection: 'row',
       gap: 2,
-      marginTop: 2,
+      position: 'absolute',
+      bottom: 2,
+      left: 0,
+      right: 0,
+      justifyContent: 'center',
     },
     eventDot: {
       width: 4,
       height: 4,
       borderRadius: 2,
       marginTop: 2,
+    },
+    billIcon: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: '#4CAF50',
+      position: 'absolute',
+      right: -10,
+      top: -2,
     },
   });

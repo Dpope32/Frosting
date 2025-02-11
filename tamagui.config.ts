@@ -34,43 +34,6 @@ const animations = createAnimations({
 
 const headingFont = createInterFont()
 const bodyFont = createInterFont()
-const spaceMonoFont = createFont({
-  family: 'SpaceMono',
-  size: {
-    1: 12,
-    2: 14,
-    3: 15,
-    4: 16,
-    5: 18,
-    6: 20,
-    7: 24,
-    8: 28,
-    9: 32,
-    10: 36,
-    11: 40,
-    12: 48,
-  },
-  lineHeight: {
-    1: 17,
-    2: 19,
-    3: 20,
-    4: 21,
-    5: 23,
-    6: 25,
-    7: 29,
-    8: 33,
-    9: 37,
-    10: 41,
-    11: 45,
-    12: 53,
-  },
-  weight: {
-    4: '400',
-  },
-  letterSpacing: {
-    4: 0,
-  },
-})
 
 const config = createTamagui({
   defaultTheme: 'dark',
@@ -80,7 +43,6 @@ const config = createTamagui({
   fonts: {
     heading: headingFont,
     body: bodyFont,
-    SpaceMono: spaceMonoFont,
   },
   themes,
   tokens,

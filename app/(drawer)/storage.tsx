@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { YStack, Text, Button, Spinner, Progress, XStack } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
-import { MediaType, MediaTypeOptions, launchImageLibraryAsync } from 'expo-image-picker'
+import { MediaTypeOptions, launchImageLibraryAsync } from 'expo-image-picker'
 import axios from 'axios'
-import { Alert } from 'react-native'
+import { Alert, Platform } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
+import * as Notifications from 'expo-notifications'
+import { useCalendarStore } from '@/store/CalendarStore'
+import { SchedulableTriggerInputTypes } from 'expo-notifications'
 
 const UPLOAD_SERVER = process.env.EXPO_PUBLIC_UPLOAD_SERVER
 const DEFAULT_STATS = { totalSize: 0, fileCount: 0 }
@@ -22,9 +25,7 @@ const useFileUpload = () => {
   const [totalFiles, setTotalFiles] = useState(0)
   const username = useUserStore.getState().preferences.username
 
-  useEffect(() => {
-    fetchStats()
-  }, [username])
+  useEffect(() => { fetchStats() }, [username])
 
   const fetchStats = async () => {
     try {
@@ -50,31 +51,29 @@ const useFileUpload = () => {
         Alert.alert('Permission needed', 'Grant media library permissions to upload.')
         return
       }
-
       const result = await launchImageLibraryAsync({
         mediaTypes: MediaTypeOptions.All,
         allowsMultipleSelection: true,
         selectionLimit: 10,
         quality: 1,
       })
-      
       if (result.canceled || !result.assets?.length) return
-
       setIsUploading(true)
       setProgress(0)
       setTotalFiles(result.assets.length)
-
       for (let i = 0; i < result.assets.length; i++) {
         setCurrentFileIndex(i + 1)
         const asset = result.assets[i]
         const formData = new FormData()
-        formData.append('file', {
-          uri: asset.uri,
-          type: asset.mimeType || 'image/jpeg',
-          name: asset.uri.split('/').pop() || 'image.jpg',
-        } as any)
+        formData.append(
+          'file',
+          {
+            uri: asset.uri,
+            type: asset.mimeType || 'image/jpeg',
+            name: asset.uri.split('/').pop() || 'image.jpg',
+          } as any
+        )
         formData.append('username', username)
-
         await axios.post(`${UPLOAD_SERVER}/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
           onUploadProgress: (evt) => {
@@ -84,7 +83,6 @@ const useFileUpload = () => {
           },
         })
       }
-
       Alert.alert('Success', 'Files uploaded successfully!')
       fetchStats()
     } catch (error) {
@@ -101,18 +99,74 @@ const useFileUpload = () => {
 }
 
 export default function StorageScreen() {
-  const {
-    pickAndUploadFiles,
-    progress,
-    isUploading,
-    stats,
-    formatSize,
-    currentFileIndex,
-    totalFiles,
-  } = useFileUpload()
+  const { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles } = useFileUpload()
+  const testNotification = async () => {
+    try {
+      // Log existing notifications before cancelling
+      const existingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+      console.log('Currently scheduled notifications:', existingNotifications);
+  
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      console.log('All notifications cancelled');
+      console.log('Testing immediate notification...');
+      
+      const { status } = await Notifications.getPermissionsAsync();
+      console.log('Current permission status:', status);
+      
+      if (status !== 'granted') {
+        const { status: newStatus } = await Notifications.requestPermissionsAsync();
+        console.log('New permission status:', newStatus);
+        if (newStatus !== 'granted') {
+          Alert.alert('Error', 'Failed to get notification permissions');
+          return;
+        }
+      }
+  
+      const notifId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "🔔 Immediate Test",
+          body: "This should show right now!",
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.MAX,
+          vibrate: [0, 250, 250, 250],
+          autoDismiss: true
+        },
+        trigger: {
+          type: SchedulableTriggerInputTypes.DATE,
+          date: new Date(Date.now() + 1000), // 1 second from now
+          channelId: 'test-channel'
+        }
+      });
+      
+      console.log('Immediate notification scheduled:', notifId);
+      
+      // Log all scheduled notifications after scheduling new one
+      const updatedNotifications = await Notifications.getAllScheduledNotificationsAsync();
+      console.log('Updated scheduled notifications:', updatedNotifications);
+      
+      Alert.alert("Success", "Immediate notification sent!");
+    } catch (error) {
+      console.error('Notification error:', error);
+      Alert.alert("Error", String(error));
+    }
+  }
 
   return (
     <YStack flex={1} padding="$6" paddingTop={100} gap="$6">
+      {__DEV__ && (
+        <Button
+          size="$4"
+          backgroundColor="$red9"
+          borderRadius="$3"
+          pressStyle={{ scale: 0.98, opacity: 0.9 }}
+          onPress={testNotification}
+          marginBottom="$3"
+        >
+          <Text fontSize="$4" fontWeight="bold" color="white">
+            Test Notification
+          </Text>
+        </Button>
+      )}
       <YStack gap="$6" backgroundColor="$gray2Dark" padding="$3" borderRadius="$3">
         <XStack justifyContent="space-around">
           <YStack alignItems="center" gap="$1">

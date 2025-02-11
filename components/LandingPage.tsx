@@ -116,7 +116,10 @@ export function LandingPage() {
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
 
-  const completedTasksCount = React.useMemo(() => todaysTasks.filter((t: Task) => t.completed).length, [todaysTasks])
+  const completedTasksCount = React.useMemo(() => {
+    const currentDate = new Date().toISOString().split('T')[0];
+    return todaysTasks.filter((t: Task) => t.completionHistory[currentDate]).length;
+  }, [todaysTasks])
 
   const background = React.useMemo(() => {
     switch (backgroundStyle) {
@@ -232,7 +235,7 @@ export function LandingPage() {
               <XStack alignItems="center" gap="$2">
                 <XStack alignItems="center" gap="$1">
                   <Text
-                    fontFamily="$SpaceMono"
+                    fontFamily="$body"
                     fontSize={20}
                     color="#dbd0c6"
                     fontWeight="bold"
@@ -242,7 +245,7 @@ export function LandingPage() {
                     {getGreeting()},
                   </Text>
                   <Text
-                    fontFamily="$SpaceMono"
+                    fontFamily="$body"
                     fontSize={20}
                     color="#dbd0c6"
                     fontWeight="bold"
@@ -267,19 +270,24 @@ export function LandingPage() {
                 </Pressable>
               )}
             </XStack>
+            <Stack marginTop="$4">
+              <QuoteSection />
+            </Stack>
           </Stack>
 
-          <Stack backgroundColor="rgba(0, 0, 0, 0.7)" borderRadius={12} padding="$3" borderWidth={2} borderColor="rgba(255, 255, 255, 0.1)">
-            <QuoteSection />
-          </Stack>
-          
           <Stack
-            backgroundColor="rgba(0, 0, 0, 0.7)"
-            borderRadius={12}
-            padding="$3"
-            borderWidth={2}
-            borderColor="rgba(255, 255, 255, 0.1)"
+            backgroundColor="rgba(0, 0, 0, 0.85)"
+            borderRadius={16}
+            padding="$4"
+            borderWidth={2.5}
+            borderColor="rgba(255, 255, 255, 0.15)"
             minHeight={300}
+            style={{
+              shadowColor: "rgba(255, 255, 255, 0.1)",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.5,
+              shadowRadius: 20
+            }}
           >
             <Text
               color="#dbd0c6"
@@ -289,28 +297,65 @@ export function LandingPage() {
               paddingLeft={4}
             >
               <XStack alignItems="center" justifyContent="space-between" width="100%">
-                <Text color="#dbd0c6" fontSize={17} fontWeight="bold">
+                <Text 
+                  color="#dbd0c6" 
+                  fontSize={19} 
+                  fontWeight="bold"
+                  style={{
+                    textShadowColor: 'rgba(219, 208, 198, 0.25)',
+                    textShadowOffset: { width: 0, height: 0 },
+                    textShadowRadius: 8
+                  }}
+                >
                   {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </Text>
                 <Pressable
                   onPress={() => setTaskListModalOpen(true)}
                   style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4 })}
                 >
-                  <Ionicons name="list-circle-outline" size={24} color="#dbd0c6" />
+                  <Ionicons 
+                    name="list-circle-outline" 
+                    size={26} 
+                    color="#dbd0c6"
+                    style={{
+                      textShadowColor: 'rgba(219, 208, 198, 0.25)',
+                      textShadowOffset: { width: 0, height: 0 },
+                      textShadowRadius: 8
+                    }}
+                  />
                 </Pressable>
               </XStack>
             </Text>
-            <XStack justifyContent="space-between" alignItems="center" marginBottom="$2" backgroundColor="rgba(0, 0, 0, 0.0)" borderRadius={8} paddingHorizontal="$3">
-              <Text color="#dbd0c6" fontSize={14} fontWeight="bold">
+            <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" backgroundColor="rgba(0, 0, 0, 0.3)" borderRadius={10} paddingHorizontal="$4" paddingVertical="$2">
+              <Text 
+                color="#dbd0c6" 
+                fontSize={18} 
+                fontWeight="bold"
+                style={{
+                  textShadowColor: 'rgba(219, 208, 198, 0.3)',
+                  textShadowOffset: { width: 0, height: 0 },
+                  textShadowRadius: 10
+                }}
+              >
                 Todays Tasks ({completedTasksCount}/{todaysTasks.length})
               </Text>
               <Button backgroundColor="rgba(255, 255, 255, 0.00)" borderRadius={8} paddingHorizontal="$2" onPress={handleNewTaskPress}>
-                <Text color="#fff" fontSize={14} fontWeight="400" backgroundColor="#transparent">
+                <Text 
+                  color="#fff" 
+                  fontSize={15} 
+                  fontWeight="500" 
+                  backgroundColor="#transparent"
+                  style={{
+                    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+                    textShadowOffset: { width: 0, height: 0 },
+                    textShadowRadius: 8
+                  }}
+                >
                   + New Task
                 </Text>
               </Button>
             </XStack>
-            <Stack gap="$1" paddingHorizontal={10} flex={1}>
+            <Stack gap="$2" paddingHorizontal={6} flex={1}>
               {todaysTasks.length === 0 ? (
                 <Stack borderRadius={8} padding="$4" alignItems="center" flex={1} justifyContent="center" />
               ) : (
@@ -322,7 +367,7 @@ export function LandingPage() {
                     category={task.category}
                     status={task.isOneTime ? 'One-time' : 'Recurring'}
                     categoryColor={getCategoryColor(task.category)}
-                    checked={task.completed}
+                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
                     onCheck={() => toggleTaskCompletion(task.id)}
                   />
                 ))

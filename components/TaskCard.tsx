@@ -1,5 +1,6 @@
-import { Stack, Text, XStack, Checkbox } from 'tamagui';
-import { View } from 'react-native';
+import { Stack, Text, XStack } from 'tamagui';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface TaskCardProps {
   title: string;
@@ -49,29 +50,45 @@ export function TaskCard({
         />
       )}
       
-      <XStack justifyContent="space-between" alignItems="center" gap="$2" zIndex={2}>
-        <Checkbox 
-          checked={checked}
-          onCheckedChange={onCheck}
-          backgroundColor={checked ? categoryColor : 'transparent'}
-          borderColor="rgba(255, 255, 255, 0.2)"
-        />
-        <Text 
-          color="white" 
-          fontSize={14} 
-          fontWeight="500"
-          flex={1}
-          opacity={checked ? 0.5 : 1}
-          textDecorationLine={checked ? 'line-through' : 'none'}
-        >
-          {title}
-        </Text>
-        {time && (
-          <Text color="white" opacity={checked ? 0.4 : 0.7} fontSize={12}>
-            {time}
+      <View style={{ position: 'relative' }}>
+        <XStack justifyContent="space-between" alignItems="center" gap="$2" zIndex={2}>
+          <Pressable onPress={() => onCheck?.(!checked)}>
+            <View style={[
+              styles.checkbox,
+              { borderColor: categoryColor }
+            ]}>
+              {checked && (
+                <Ionicons 
+                  name="checkmark-sharp" 
+                  size={18} 
+                  color={categoryColor}
+                  style={{ marginTop: -1 }}
+                />
+              )}
+            </View>
+          </Pressable>
+          <Text 
+            color="white" 
+            fontSize={14} 
+            fontWeight="500"
+            flex={1}
+            opacity={checked ? 0.5 : 1}
+          >
+            {title}
           </Text>
+          {time && (
+            <Text color="white" opacity={checked ? 0.4 : 0.7} fontSize={12}>
+              {time}
+            </Text>
+          )}
+        </XStack>
+        {checked && (
+          <View style={[
+            styles.strikethrough,
+            { backgroundColor: categoryColor }
+          ]} />
         )}
-      </XStack>
+      </View>
       
       <XStack gap="$2" marginTop="$2" zIndex={2}>
         <Text
@@ -100,3 +117,24 @@ export function TaskCard({
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderWidth: 2,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  strikethrough: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '50%',
+    height: 1.5,
+    transform: [{ translateY: -0.75 }],
+    zIndex: 1,
+  },
+});

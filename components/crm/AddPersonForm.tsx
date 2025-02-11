@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, forwardRef, useCallback } from 'react'
 import { Button, Sheet, Input, YStack, XStack, ScrollView, Circle, Text } from 'tamagui'
 import { useAddPerson } from '@/hooks/usePeople'
+import { useCalendarStore } from '@/store/CalendarStore'
 import * as ImagePicker from 'expo-image-picker'
 import { Image, TextInput, Switch, Pressable, KeyboardAvoidingView, Platform } from 'react-native'
 import type { Person } from '@/types/people'
@@ -34,6 +35,7 @@ const initialFormData: FormData = {
   favoriteColor: '',
   relationship: '',
   additionalInfo: '',
+  priority: false,
 }
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -102,15 +104,19 @@ export function AddPersonForm() {
 
   const handleBirthdayChange = useCallback((text: string) => {
     try {
-      const parsedDate = parse(text, 'MM/dd/yyyy', new Date())
+      // Replace hyphens with forward slashes
+      const normalizedText = text.replace(/-/g, '/');
+      const parsedDate = parse(normalizedText, 'MM/dd/yyyy', new Date());
+      
       if (isValid(parsedDate)) {
         setFormData(prev => ({
           ...prev,
           birthday: format(parsedDate, 'yyyy-MM-dd')
-        }))
+        }));
       }
     } catch (error) {
-      setFormData(prev => ({ ...prev, birthday: text }))
+      // Don't update formData if parsing fails
+      console.log('Failed to parse date:', text);
     }
   }, [])
 
@@ -128,6 +134,10 @@ export function AddPersonForm() {
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+    }, {
+      onSuccess: () => {
+        useCalendarStore.getState().syncBirthdays()
+      }
     })
     setFormData({ ...initialFormData })
     setInputResetKey(prev => prev + 1)
@@ -157,13 +167,13 @@ export function AddPersonForm() {
 
   return (
     <>
-      <YStack alignItems="flex-end" padding={8}>
+      <YStack alignItems="flex-start" padding={8}>
         <Button 
           theme="dark" 
           mt="$4" 
           mb="$3" 
           width={150} 
-          onPress={() => setOpen(true)}
+          onPress={useCallback(() => setOpen(true), [])}
         >
           Add Person
         </Button>
@@ -172,7 +182,13 @@ export function AddPersonForm() {
         modal
         animation="quick"
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={useCallback((isOpen: boolean) => {
+          setOpen(isOpen);
+          if (!isOpen) {
+            setFormData({ ...initialFormData });
+            setInputResetKey(prev => prev + 1);
+          }
+        }, [])}
         snapPoints={[70]}
         dismissOnSnapToBottom
         dismissOnOverlayPress
@@ -217,15 +233,26 @@ export function AddPersonForm() {
                           <Text fontSize={32} color="$gray11">+</Text>
                         </Circle>
                       )}
-                      <XStack alignItems="center" gap="$2">
-                        <Text color="$gray11">Registered</Text>
-                        <Switch
-                          value={formData.registered}
-                          onValueChange={val => updateFormField('registered', val)}
-                          trackColor={{ false: '#767577', true: '#81b0ff' }}
-                          thumbColor={formData.registered ? '#2196F3' : '#f4f3f4'}
-                        />
-                      </XStack>
+                      <YStack gap="$2">
+                        <XStack alignItems="center" gap="$2">
+                          <Text color="$gray11">Registered</Text>
+                          <Switch
+                            value={formData.registered}
+                            onValueChange={val => updateFormField('registered', val)}
+                            trackColor={{ false: '#767577', true: '#81b0ff' }}
+                            thumbColor={formData.registered ? '#2196F3' : '#f4f3f4'}
+                          />
+                        </XStack>
+                        <XStack alignItems="center" gap="$2">
+                          <Text color="$gray11">Priority?</Text>
+                          <Switch
+                            value={formData.priority || false}
+                            onValueChange={val => updateFormField('priority', val)}
+                            trackColor={{ false: '#767577', true: '#FFD700' }}
+                            thumbColor={formData.priority ? '#FFA500' : '#f4f3f4'}
+                          />
+                        </XStack>
+                      </YStack>
                     </YStack>
                     <YStack flex={1.5} gap="$3">
                       <DebouncedInput
