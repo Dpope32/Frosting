@@ -19,7 +19,6 @@ export default function BillsScreen() {
   return (
     <YStack f={1} mt={90} px="$4">
       <ScrollView contentContainerStyle={{ 
-        paddingTop: 100,
         paddingBottom: 20
       }}>
         <YStack p="$4" gap="$4">

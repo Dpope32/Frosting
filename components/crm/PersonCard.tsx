@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
   Card,
   Image,
@@ -8,6 +8,7 @@ import {
   Theme,
   Sheet
 } from "tamagui";
+import { EditPersonForm } from "./EditPersonForm";
 import {
   TouchableOpacity,
   StyleSheet,
@@ -66,24 +67,32 @@ export function PersonCard({
 }: PersonCardProps) {
   const nicknameColor = getColorForPerson(person.id || person.name);
   const fullAddress = useMemo(() => {
-    if (!person.address) return "";
-    return [
-      person.address.street,
-      person.address.city,
-      person.address.state,
-      person.address.zipCode,
-      person.address.country
-    ]
-      .filter(Boolean)
-      .join(", ");
+    return person.address?.street || "";
   }, [person.address]);
+
+  const [isEditFormVisible, setIsEditFormVisible] = useState(false);
+
+  const handleEditPress = useCallback((e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsEditFormVisible(true);
+  }, []);
+
+  const handleEditClose = useCallback(() => {
+    setIsEditFormVisible(false);
+  }, []);
+
+  const handleEditSave = useCallback((updatedPerson: Person) => {
+    onEdit(updatedPerson);
+    setIsEditFormVisible(false);
+  }, [onEdit]);
 
   return (
     <Theme name="dark">
       <View style={[styles.container, containerStyle]}>
         <Card
           elevate
-          backgroundColor="rgba(20,20,20,0.8)"
+          backgroundColor={adjustColor(nicknameColor, -80)}
           borderRadius="$4"
           animation="quick"
           pressStyle={{ scale: 0.98 }}
@@ -115,38 +124,28 @@ export function PersonCard({
                 )}
               </View>
               <YStack flex={1} gap="$1">
-                <XStack alignItems="center" gap="$1">
-                  <XStack alignItems="center">
-                    {person.registered && (
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={14}
-                        color="#4CAF50"
-                        style={styles.checkmark}
-                      />
-                    )}
-                    <Paragraph
-                      fontWeight="700"
-                      fontSize={16}
-                      color={nicknameColor}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {person.nickname || person.name}
-                    </Paragraph>
-                  </XStack>
-                </XStack>
-                {person.occupation && person.occupation !== "None" && (
+                <XStack alignItems="center" gap="$2">
+                  {person.registered && (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={14}
+                      color="#4CAF50"
+                      style={styles.checkmark}
+                    />
+                  )}
                   <Paragraph
-                    fontSize={12}
-                    color="rgba(255,255,255,0.7)"
+                    fontWeight="700"
+                    fontSize={16}
+                    color={nicknameColor}
                     numberOfLines={1}
                     ellipsizeMode="tail"
-                    style={styles.occupation}
                   >
-                    {person.occupation}
+                    {person.nickname || person.name}
                   </Paragraph>
-                )}
+                </XStack>
+                <Paragraph fontSize={12} color="#999">
+                  {person.occupation}
+                </Paragraph>
               </YStack>
             </XStack>
           </TouchableOpacity>
@@ -154,7 +153,12 @@ export function PersonCard({
         <Sheet
           modal
           open={isExpanded}
-          onOpenChange={(isOpen: boolean) => !isOpen && onPress?.()}
+          onOpenChange={(isOpen: boolean) => {
+            if (isOpen) {
+              console.log('Expanded Person Details:', person);
+            }
+            !isOpen && onPress?.();
+          }}
           snapPoints={[82]}
           dismissOnSnapToBottom
           dismissOnOverlayPress
@@ -184,83 +188,114 @@ export function PersonCard({
                   <Ionicons name="close-outline" size={24} color="#fff" />
                 </TouchableOpacity>
               </View>
-              <YStack alignItems="center" gap="$4">
-              <View style={{ position: "relative", width: 120, height: 120 }}>
-                <Image
-                  source={{
-                    uri: person.profilePicture || "https://via.placeholder.com/200"
-                  }}
-                  style={[styles.modalAvatar, { width: 120, height: 120 }]}
-                  objectFit="cover"
-                />
-                {person.priority && (
-                  <View
-                    style={[
-                      styles.starIndicator,
-                      { top: 2, right: 2, bottom: undefined, left: undefined }
-                    ]}
-                  >
-                    <Ionicons name="star" size={18} color="#FFD700" />
-                  </View>
-                )}
-              </View>
-                <YStack alignItems="center" gap="$2">
-                  <XStack gap="$2" alignItems="center">
-                    <Paragraph fontSize={32} fontWeight="700" color={nicknameColor} pt={8}>
-                      {person.nickname || person.name}
-                    </Paragraph>
-                    {person.registered && (
-                      <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+                <YStack width="100%" marginTop="$4">
+                  <XStack width="100%" gap="$4">
+                    <View style={styles.modalAvatarContainer}>
+                      <Image
+                        source={{
+                          uri: person.profilePicture || "https://via.placeholder.com/200"
+                        }}
+                        style={styles.modalAvatar}
+                        objectFit="cover"
+                      />
+                      {person.priority && (
+                        <View style={styles.modalStarIndicator}>
+                          <Ionicons name="star" size={16} color="#FFD700" />
+                        </View>
+                      )}
+                    </View>
+                    <YStack flex={1} gap="$2">
+                      <XStack alignItems="center" gap="$2">
+                        {person.registered && (
+                          <Ionicons name="checkmark-circle" size={22} color="#4CAF50" />
+                        )}
+                        <Paragraph 
+                          fontSize={28} 
+                          fontWeight="700" 
+                          color={nicknameColor}
+                          style={styles.modalNameText}
+                        >
+                          {person.nickname || person.name}
+                        </Paragraph>
+                      </XStack>
+                      
+                      <XStack alignItems="center" gap="$2">
+                        <Paragraph fontSize={16} color="#999">
+                          {person.occupation}
+                        </Paragraph>
+                        {person.priority && (
+                          <Ionicons name="star" size={16} color="#FFD700" />
+                        )}
+                      </XStack>
+                    </YStack>
+                  </XStack>
+                  <XStack gap="$2" marginTop="$2" alignItems="flex-start">
+                    {person.birthday && (
+                      <View style={styles.statusPill}>
+                        <XStack alignItems="center" gap="$1">
+                          <Paragraph fontSize={12} color="#666">Notification:</Paragraph>
+                          <Paragraph fontSize={12} color="#4CAF50">Scheduled</Paragraph>
+                        </XStack>
+                      </View>
+                    )}
+                    {person.priority && person.birthday && (
+                      <View style={[styles.statusPill, styles.reminderPill]}>
+                        <XStack alignItems="center" gap="$1">
+                          <Paragraph fontSize={12} color="#666">Reminder:</Paragraph>
+                          <Paragraph fontSize={12} color="#FFD700">Scheduled</Paragraph>
+                        </XStack>
+                      </View>
                     )}
                   </XStack>
-                  {person.occupation && person.occupation !== "None" && (
-                    <Paragraph fontSize={18} color="#999">
-                      {person.occupation}
-                    </Paragraph>
-                  )}
                 </YStack>
-              </YStack>
-              <YStack gap="$4" style={styles.infoSection}>
+              <YStack gap="$3" style={styles.infoSection}>
                 {person.birthday && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="gift-outline" size={24} color={nicknameColor} />
-                    <Paragraph fontSize={18} color="#fff">
-                      {new Date(person.birthday).toLocaleDateString("en-US", {
-                        month: "long",
-                        day: "numeric"
-                      })}
+                    <Ionicons name="gift-outline" size={22} color={nicknameColor} />
+                    <Paragraph fontSize={16} color="#fff">
+                      {(() => {
+                        const date = new Date(person.birthday);
+                        date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                        return date.toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric"
+                        });
+                      })()}
                     </Paragraph>
                   </XStack>
                 )}
                 {person.email && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="mail-outline" size={24} color="#fff" />
-                    <Paragraph fontSize={18} color="#fff">
+                    <Ionicons name="mail-outline" size={22} color="#fff" />
+                    <Paragraph fontSize={16} color="#fff">
                       {person.email}
                     </Paragraph>
                   </XStack>
                 )}
                 {person.phoneNumber && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="call-outline" size={24} color="#fff" />
-                    <Paragraph fontSize={18} color="#fff">
+                    <Ionicons name="call-outline" size={22} color="#fff" />
+                    <Paragraph fontSize={16} color="#fff">
                       {person.phoneNumber}
                     </Paragraph>
                   </XStack>
                 )}
-                {person.payments && person.payments.length > 0 && (
-                  <XStack gap="$3" alignItems="center">
-                    <Ionicons name="card-outline" size={24} color="#fff" />
-                    <Paragraph fontSize={18} color="#fff">
-                      {person.payments[0].type}
-                      {person.payments[0].details ? ` - ${person.payments[0].details}` : ""}
-                    </Paragraph>
-                  </XStack>
-                )}
+                  {person.payments && person.payments.length > 0 && (
+                    <XStack gap="$3" alignItems="center">
+                      <Ionicons name="card-outline" size={22} color="#fff" />
+                      <Paragraph fontSize={16} color="#fff">
+                        {person.payments.map((payment, index) => (
+                          typeof payment === 'string' ? 
+                            payment : 
+                            payment.details || payment.type || ''
+                        )).join('\n')}
+                      </Paragraph>
+                    </XStack>
+                  )}
                 {fullAddress && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="location-outline" size={24} color="#fff" />
-                    <Paragraph fontSize={18} color="#fff">
+                    <Ionicons name="location-outline" size={22} color="#fff" />
+                    <Paragraph fontSize={16} color="#fff">
                       {fullAddress}
                     </Paragraph>
                   </XStack>
@@ -275,12 +310,14 @@ export function PersonCard({
                     style={styles.actionButton}
                   >
                     <Ionicons name="chatbubble-outline" size={28} color="#fff" />
+                    <Paragraph style={styles.actionText}>Text</Paragraph>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
                     style={styles.actionButton}
                   >
                     <Ionicons name="call-outline" size={28} color="#fff" />
+                    <Paragraph style={styles.actionText}>Call</Paragraph>
                   </TouchableOpacity>
                 </>
               )}
@@ -290,6 +327,7 @@ export function PersonCard({
                   style={styles.actionButton}
                 >
                   <Ionicons name="mail-outline" size={28} color="#fff" />
+                  <Paragraph style={styles.actionText}>Mail</Paragraph>
                 </TouchableOpacity>
               )}
               {fullAddress && (
@@ -298,12 +336,26 @@ export function PersonCard({
                   style={styles.actionButton}
                 >
                   <Ionicons name="copy-outline" size={28} color="#fff" />
+                  <Paragraph style={styles.actionText}>Copy</Paragraph>
                 </TouchableOpacity>
               )}
+              <TouchableOpacity
+                onPress={handleEditPress}
+                style={[styles.actionButton, { zIndex: 9999 }]}
+              >
+                <Ionicons name="pencil-outline" size={28} color="#fff" />
+                <Paragraph style={styles.actionText}>Edit</Paragraph>
+              </TouchableOpacity>
             </View>
           </Sheet.Frame>
         </Sheet>
       </View>
+      <EditPersonForm
+        person={person}
+        visible={isEditFormVisible}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
+      />
     </Theme>
   );
 }
@@ -344,6 +396,54 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     marginHorizontal: 2
   },
+  statusPill: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start'
+  },
+  modalAvatarContainer: {
+    position: 'relative',
+    width: 80,
+    height: 80,
+    marginBottom: 16 // Added to ensure space below for pills
+  },
+  reminderPill: {
+    backgroundColor: 'rgba(0,0,0,0.4)'
+  },
+  modalNameText: {
+    fontSize: 28,
+    lineHeight: 34,
+    marginBottom: 4,
+    paddingTop: 8,
+    flexShrink: 1,
+    maxWidth: '85%'
+  },
+  modalNotificationRow: {
+    backgroundColor: 'rgba(76,175,80,0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginBottom: 4
+  },
+  dotIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4CAF50'
+  },
+  modalReminderRow: {
+    backgroundColor: 'rgba(255,215,0,0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6
+  },
+  modalScheduledText: {
+    fontWeight: '600'
+  },
   card: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -354,11 +454,39 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(20,20,20,0.85)"
   },
+  nameText: {
+    flexShrink: 1,
+    marginRight: 8,
+    paddingVertical: 4
+  },
+  labelText: {
+    marginRight: 4,
+    flexShrink: 0
+  },
+  notificationWrapper: {
+    marginTop: 8,
+    marginBottom: 4
+  },
   touchable: {
     width: "100%"
   },
   avatarContainer: {
     position: "relative"
+  },
+  statusBadge: {
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8
+  },
+  reminderBadge: {
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  occupationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4
   },
   avatarWrapper: {
     borderWidth: 2,
@@ -408,16 +536,16 @@ const styles = StyleSheet.create({
     padding: 0,
     overflow: "hidden",
     maxHeight: "80%",
-    minHeight: "50%" // Add this to ensure enough space
+    minHeight: "50%"
   },
   modalContent: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 120, // Increased to prevent button overlap
     position: 'relative'
   },
   modalHeaderIcons: {
     position: 'absolute',
-    top: 10,
+    top: -12, // This pulls it up
     left: 10,
     right: 10,
     zIndex: 2,
@@ -441,14 +569,26 @@ const styles = StyleSheet.create({
     borderRadius: 20
   },
   modalAvatar: {
-    borderWidth: 3,
-    borderColor: "#fff",
-    borderRadius: 60,
-    overflow: 'hidden'
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: "#fff"
+  },
+  modalStarIndicator: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    borderRadius: 10,
+    padding: 2,
+    borderWidth: 1,
+    borderColor: '#FFD700'
   },
   infoSection: {
-    marginTop: 32,
-    paddingBottom: 20 // Add some padding at the bottom
+    marginTop: 16,
+    paddingBottom: 20,
+    gap: 12
   },
   actionBar: {
     position: "absolute",
@@ -457,13 +597,22 @@ const styles = StyleSheet.create({
     right: 0,
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "rgba(0,0,0,0.3)",
-    paddingVertical: 16
+    backgroundColor: "rgba(0,0,0,0.8)",
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.1)"
   },
   actionButton: {
     width: 60,
-    height: 60,
+    height: 65,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    paddingVertical: 8
+  },
+  actionText: {
+    color: "#fff",
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: "500"
   }
 });

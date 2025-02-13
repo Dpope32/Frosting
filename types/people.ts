@@ -1,6 +1,6 @@
 // types/people.ts
-export type PaymentMethod = {
-  type: string
+export type PaymentMethod = string | {
+  type?: string
   details?: string
 }
 

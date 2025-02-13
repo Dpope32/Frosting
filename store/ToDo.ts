@@ -70,27 +70,33 @@ const createTaskFilter = () => {
 
     // Filter and sort tasks
     const filtered = Object.values(tasks).filter(task => {
+      const currentDateObj = new Date().toDateString();
+      
       // For recurring tasks, check if scheduled for today
       if (!task.isOneTime) {
-        const isScheduledToday = task.schedule.includes(today);
-        return isScheduledToday; // Show if scheduled today, regardless of completion
+        return task.schedule.includes(today);
       }
       
-      // For one-time tasks:
-      // If it has a scheduled date, check if it's today
+      // For one-time tasks, prioritize scheduledDate
       if (task.scheduledDate) {
         const taskDate = new Date(task.scheduledDate).toDateString();
-        const currentDateObj = new Date().toDateString();
         return taskDate === currentDateObj;
       }
       
-      // Otherwise, check if it was created today
+      // Only use createdAt as fallback if no scheduledDate exists
       const taskDate = new Date(task.createdAt).toDateString();
-      const currentDateObj = new Date().toDateString();
       return taskDate === currentDateObj;
     });
 
-    const sorted = [...filtered].sort((a, b) => {
+    // Remove duplicate tasks by name and scheduledDate
+    const uniqueFiltered = filtered.filter((task, index, self) => 
+      index === self.findIndex((t) => 
+        t.name === task.name && 
+        t.scheduledDate === task.scheduledDate
+      )
+    );
+
+    const sorted = [...uniqueFiltered].sort((a, b) => {
       // Sort by completion status for today
       const aCompletedToday = a.completionHistory[currentDate] || false;
       const bCompletedToday = b.completionHistory[currentDate] || false;
@@ -135,17 +141,27 @@ export const useProjectStore = create<ProjectStore>()(
       todaysTasks: [],
       addTask: (data) => {
         const tasks = { ...get().tasks }
-        const id = Date.now().toString()
-        const newTask: Task = {
-          ...data,
-          id,
-          completed: false,
-          completionHistory: {},
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+        
+        // Check if a task with the same name and scheduledDate already exists
+        const existingTask = Object.values(tasks).find(task => 
+          task.name === data.name && 
+          task.scheduledDate === data.scheduledDate
+        );
+        
+        // Only add if no duplicate exists
+        if (!existingTask) {
+          const id = Date.now().toString()
+          const newTask: Task = {
+            ...data,
+            id,
+            completed: false,
+            completionHistory: {},
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+          tasks[id] = newTask
+          set({ tasks, todaysTasks: taskFilter(tasks) })
         }
-        tasks[id] = newTask
-        set({ tasks, todaysTasks: taskFilter(tasks) })
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }

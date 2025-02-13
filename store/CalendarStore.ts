@@ -59,7 +59,7 @@ export const useCalendarStore = create<CalendarState>()(
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
-          console.log('[CalendarStore] Added event:', newEvent)
+          console.log('[CalendarStore] Added event:', newEvent.title, newEvent.date)
           return { events: [...state.events, newEvent] }
         }),
 

@@ -48,17 +48,21 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             <View key={`blank-${blank}`} style={styles.dayCell} />
           ))}
           {days.map((day) => {
-            // Create date in UTC to match CalendarStore format
-            const currentDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), day));
+            const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
             const dateKey = currentDate.toISOString().split('T')[0];
             const dayEvents = events.filter((event) => event.date === dateKey);
-            if (dayEvents.length > 0) {
-              console.log('[Month] Found events for', dateKey + ':', dayEvents.map(e => e.title).join(', '));
-            }
             const hasBirthday = dayEvents.some(event => event.type === 'birthday');
             const hasRegularEvent = dayEvents.some(event => !event.type || event.type === 'regular');
             const hasBill = dayEvents.some(event => event.type === 'bill');
-            const isToday = currentDate.toDateString() === new Date().toDateString();
+            const today = new Date();
+            const isToday = currentDate.toDateString() === today.toDateString();
+            if (isToday) {
+              console.log('[Month] Date comparison:', {
+                currentDate: currentDate.toISOString(),
+                today: today.toISOString(),
+                isToday
+              });
+            }
             
             return (
               <TouchableOpacity
@@ -67,7 +71,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   styles.dayCell,
                   isToday && [styles.today, { backgroundColor: primaryColor }],
                   !isToday && hasRegularEvent && [styles.busy, { backgroundColor: '#F44336' }],
-                  !isToday && hasBirthday && !hasRegularEvent && [styles.birthdayCell, { backgroundColor: '#FFD700' }],
+                  !isToday && hasBirthday && !hasRegularEvent && styles.birthdayCell,
                 ]}
                 onPress={() => onDayPress(currentDate)}
                 onPressIn={() => Haptics.selectionAsync()}
@@ -86,11 +90,12 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                       {day}
                     </Text>
                     {hasBill && <Text style={styles.billIcon}>$</Text>}
+                    {hasBirthday && <Text style={styles.birthdayIcon}>🎉</Text>}
                   </View>
                   {(hasRegularEvent || hasBirthday) && (
                     <View style={styles.indicatorContainer}>
                       {hasRegularEvent && <View style={[styles.eventDot, { backgroundColor: '#F44336' }]} />}
-                      {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FFD700' }]} />}
+                      {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
                     </View>
                   )}
                 </View>
@@ -203,5 +208,11 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
       position: 'absolute',
       right: -10,
       top: -2,
+    },
+    birthdayIcon: {
+      fontSize: 14,
+      position: 'absolute',
+      right: -10,
+      top: -10,
     },
   });

@@ -106,9 +106,10 @@ export function EditPersonForm({
       animation="quick"
       open={visible}
       onOpenChange={onClose}
-      snapPoints={[65]}
+      snapPoints={[85]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
+      zIndex={200000}
     >
       <Sheet.Overlay animation="quick" enterStyle={{ opacity: 0.5 }} exitStyle={{ opacity: 0 }} />
       <Sheet.Frame padding="$4" backgroundColor="$gray1">
@@ -227,11 +228,7 @@ export function EditPersonForm({
               />
               <YStack gap="$3">
                 <DebouncedInput
-                  value={
-                    formData.address
-                      ? `${formData.address.street}, ${formData.address.city}, ${formData.address.state} ${formData.address.zipCode}, ${formData.address.country}`.replace(/(,\s*)+$/, "")
-                      : ""
-                  }
+                  value={formData.address?.street || ""}
                   onDebouncedChange={(text) =>
                     setFormData((prev) => ({
                       ...prev,
