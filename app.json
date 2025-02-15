@@ -37,7 +37,7 @@
         {
           "icon": "./assets/images/icon.png",
           "color": "#1e1e1e",
-          "sounds": ["default"]
+          "sounds": ["./assets/sounds/default"]
         }
       ]
     ],
