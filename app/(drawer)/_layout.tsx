@@ -5,14 +5,12 @@ import { View, Image, Text } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
-import { BlurView } from 'expo-blur';
-
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#2e2e2e' }}>
       <Drawer
         drawerContent={(props: DrawerContentComponentProps) => (
           <View style={{ flex: 1 }}>
@@ -24,7 +22,7 @@ export default function DrawerLayout() {
               borderBottomColor: 'rgba(255, 255, 255, 0.1)',
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: 'rgba(30, 30, 30, 0.95)'
+            backgroundColor: '#1A1A1A'
             }}>
               <Image 
                 source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
@@ -45,7 +43,7 @@ export default function DrawerLayout() {
             </View>
             <View style={{ 
               flex: 1,
-              backgroundColor: 'rgba(30, 30, 30, 0.925)'
+              backgroundColor: '#1A1A1A'
             }}>
               <DrawerContentScrollView 
                 {...props}
@@ -63,15 +61,18 @@ export default function DrawerLayout() {
           ),
           headerTransparent: true,
           drawerStyle: {
-            backgroundColor: 'transparent',
-            width: '50%'
+            backgroundColor: '#1A1A1A',
+            width: '50%',
+            borderRightWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.1)'
           },
           drawerActiveTintColor: '#fff',
-          drawerInactiveTintColor: 'rgba(255, 255, 255, 0.5)',
-          drawerActiveBackgroundColor: `${primaryColor}20`,
+          drawerInactiveTintColor: '#666',
+          drawerActiveBackgroundColor: primaryColor,
           drawerItemStyle: {
             borderRadius: 12,
-            padding: 4
+            padding: 4,
+            marginHorizontal: 8
           },
           drawerLabelStyle: {
             fontSize: 16,
@@ -79,10 +80,10 @@ export default function DrawerLayout() {
             marginLeft: -20
           },
           drawerContentStyle: {
-            backgroundColor: 'rgba(30, 30, 30, 0.8)'
+            backgroundColor: '#1A1A1A'
           },
           drawerType: 'front',
-          overlayColor: 'rgba(0, 0, 0, 0.7)'
+          overlayColor: '#00000099'
         }}
       >
         <Drawer.Screen
@@ -166,15 +167,6 @@ export default function DrawerLayout() {
           }}
         />
       </Drawer>
-      <BlurView 
-        intensity={20}
-        style={{
-          position: 'absolute',
-          width: '60%',
-          height: '100%',
-          zIndex: -1
-        }}
-      />
     </View>
   );
 }

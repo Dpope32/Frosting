@@ -4,6 +4,7 @@ import { StorageUtils } from './MMKV'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'career' | 'wealth' | 'skills'
+export type RecurrencePattern = 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay =
   | 'monday'
   | 'tuesday'
@@ -26,6 +27,8 @@ export interface Task {
   createdAt: string
   updatedAt: string
   scheduledDate?: string
+  recurrencePattern: RecurrencePattern
+  recurrenceDate?: string // For non-weekly patterns
 }
 
 interface ProjectStore {
@@ -49,6 +52,45 @@ const dayNames: WeekDay[] = [
   'saturday',
 ]
 
+const isTaskDue = (task: Task, date: Date): boolean => {
+  if (task.isOneTime) {
+    if (task.scheduledDate) {
+      return new Date(task.scheduledDate).toDateString() === date.toDateString();
+    }
+    return new Date(task.createdAt).toDateString() === date.toDateString();
+  }
+
+  const today = dayNames[date.getDay()];
+  
+  switch (task.recurrencePattern) {
+    case 'weekly':
+      return task.schedule.includes(today);
+    
+    case 'biweekly': {
+      if (!task.recurrenceDate) return false;
+      const startDate = new Date(task.recurrenceDate);
+      const weekDiff = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      return weekDiff % 2 === 0 && task.schedule.includes(today);
+    }
+    
+    case 'monthly': {
+      if (!task.recurrenceDate) return false;
+      const recDate = new Date(task.recurrenceDate);
+      return date.getDate() === recDate.getDate();
+    }
+    
+    case 'yearly': {
+      if (!task.recurrenceDate) return false;
+      const recDate = new Date(task.recurrenceDate);
+      return date.getMonth() === recDate.getMonth() && 
+             date.getDate() === recDate.getDate();
+    }
+    
+    default:
+      return false;
+  }
+};
+
 // Memoized task filtering
 const createTaskFilter = () => {
   let lastToday: string | null = null;
@@ -56,37 +98,20 @@ const createTaskFilter = () => {
   let lastResult: Task[] | null = null;
 
   return (tasks: Record<string, Task>): Task[] => {
-    const today = dayNames[new Date().getDay()];
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date();
+    const dateStr = currentDate.toISOString().split('T')[0];
     
     // Return cached result if nothing has changed
-    if (lastToday === today && lastTasks === tasks && lastResult !== null) {
+    if (lastToday === dateStr && lastTasks === tasks && lastResult !== null) {
       return lastResult;
     }
 
     // Update cache
-    lastToday = today;
+    lastToday = dateStr;
     lastTasks = tasks;
 
     // Filter and sort tasks
-    const filtered = Object.values(tasks).filter(task => {
-      const currentDateObj = new Date().toDateString();
-      
-      // For recurring tasks, check if scheduled for today
-      if (!task.isOneTime) {
-        return task.schedule.includes(today);
-      }
-      
-      // For one-time tasks, prioritize scheduledDate
-      if (task.scheduledDate) {
-        const taskDate = new Date(task.scheduledDate).toDateString();
-        return taskDate === currentDateObj;
-      }
-      
-      // Only use createdAt as fallback if no scheduledDate exists
-      const taskDate = new Date(task.createdAt).toDateString();
-      return taskDate === currentDateObj;
-    });
+    const filtered = Object.values(tasks).filter(task => isTaskDue(task, currentDate));
 
     // Remove duplicate tasks by name and scheduledDate
     const uniqueFiltered = filtered.filter((task, index, self) => 
@@ -98,8 +123,8 @@ const createTaskFilter = () => {
 
     const sorted = [...uniqueFiltered].sort((a, b) => {
       // Sort by completion status for today
-      const aCompletedToday = a.completionHistory[currentDate] || false;
-      const bCompletedToday = b.completionHistory[currentDate] || false;
+      const aCompletedToday = a.completionHistory[dateStr] || false;
+      const bCompletedToday = b.completionHistory[dateStr] || false;
       if (aCompletedToday !== bCompletedToday) return aCompletedToday ? 1 : -1;
       
       // Then by time
@@ -157,7 +182,8 @@ export const useProjectStore = create<ProjectStore>()(
             completed: false,
             completionHistory: {},
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            recurrencePattern: data.recurrencePattern || 'weekly' // Default to weekly
           }
           tasks[id] = newTask
           set({ tasks, todaysTasks: taskFilter(tasks) })
@@ -207,6 +233,12 @@ export const useProjectStore = create<ProjectStore>()(
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
           
           Object.keys(tasks).forEach(id => {
+            // Add recurrencePattern to existing tasks if missing
+            if (!tasks[id].recurrencePattern) {
+              tasks[id].recurrencePattern = 'weekly';
+              needsMigration = true;
+            }
+            
             if (!tasks[id].completionHistory) {
               needsMigration = true;
               tasks[id].completionHistory = {};

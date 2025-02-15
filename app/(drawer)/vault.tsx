@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { YStack, Text, Card, XStack, Button } from 'tamagui';
+import { YStack, Text, XStack, Button } from 'tamagui';
 import { useVault } from '@/hooks/useVault';
 import { BlurView } from 'expo-blur';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
 import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal';
-import { Plus, X } from '@tamagui/lucide-icons';
+import { Plus, X, Copy } from '@tamagui/lucide-icons';
 
 export default function VaultScreen() {
   const { data, isLoading, error, addVaultEntry, deleteVaultEntry } = useVault();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const nameColors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#A29BFE', '#F78FB3'];
+  const showToast = useToastStore((state) => state.showToast);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleAddEntry = (entry: { name: string; username: string; password: string }) => {
@@ -19,34 +19,21 @@ export default function VaultScreen() {
     showToast('Entry added successfully', 'success');
   };
 
-  const showToast = useToastStore((state) => state.showToast);
-
   const handleDelete = (id: string) => {
-    console.log('(NOBRIDGE) LOG [VaultScreen] Delete button clicked for id:', id);
     Alert.alert(
       "Delete Entry",
       "Are you sure you want to delete this entry?",
       [
-        { 
-          text: "Cancel", 
-          style: "cancel",
-          onPress: () => console.log('(NOBRIDGE) LOG [VaultScreen] Delete cancelled')
-        },
+        { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            console.log('(NOBRIDGE) LOG [VaultScreen] Delete confirmed, calling deleteVaultEntry...');
             try {
               await deleteVaultEntry(id);
-              console.log('(NOBRIDGE) LOG [VaultScreen] Delete completed successfully');
               showToast('Entry deleted successfully', 'success');
             } catch (error) {
-              console.log('(NOBRIDGE) LOG [VaultScreen] Delete failed:', error);
-              Alert.alert(
-                "Error",
-                "Failed to delete entry. Please try again."
-              );
+              Alert.alert("Error", "Failed to delete entry. Please try again.");
             }
           }
         }
@@ -56,18 +43,18 @@ export default function VaultScreen() {
 
   if (isLoading) {
     return (
-      <YStack f={1} jc="center" ai="center" mt={80} backgroundColor="#1a1a1a">
+      <YStack f={1} jc="center" ai="center" mt={80} bg="#000000">
         <ActivityIndicator size="large" color={primaryColor} />
-        <Text color="#FFFFFF" fontSize="$4" mt="$4">Loading vault...</Text>
+        <Text color="#FFFFFF" fontSize="$3">Loading vault...</Text>
       </YStack>
     );
   }
 
   if (error) {
     return (
-      <YStack f={1} jc="center" ai="center" mt={80} backgroundColor="#1a1a1a">
-        <Text color="#FF6B6B" fontSize="$4">Failed to load vault</Text>
-        <Text color="#FFFFFF" fontSize="$3" ta="center" px="$4" mt="$2">
+      <YStack f={1} jc="center" ai="center" mt={80} bg="#000000">
+        <Text color="#FF6B6B" fontSize="$3">Failed to load vault</Text>
+        <Text color="#FFFFFF" fontSize="$2" ta="center" px="$4" mt="$2">
           {error instanceof Error ? error.message : 'Unknown error occurred'}
         </Text>
       </YStack>
@@ -75,73 +62,92 @@ export default function VaultScreen() {
   }
 
   return (
-    <YStack f={1} mt={90} px="$4" backgroundColor="#121212">
+    <YStack f={1} mt={90} bg="#000000">
       <ScrollView 
         contentContainerStyle={{ 
-          paddingVertical: 20,
-          paddingBottom: 100
+          padding: 12,
+          paddingBottom: 80
         }}
       >
-        {data?.items.map((cred, index) => (
-          <Card
-            key={cred.id}
-            mb="$3"
-            p="$3"
-            backgroundColor="rgba(30, 30, 30, 0.95)"
-            borderRadius="$3"
-            borderWidth={1}
-            borderColor="rgba(255, 255, 255, 0.2)"
-          >
-            <XStack justifyContent="space-between" alignItems="center" mb="$2">
-              <Text
-                color={nameColors[index % nameColors.length]}
-                fontSize="$4"
-                fontWeight="bold"
-              >
-                {cred.name}
-              </Text>
-              <Button
-                size="$2"
-                circular
-                onPress={() => handleDelete(cred.id)}
-                backgroundColor="transparent"
-                pressStyle={{ scale: 0.95 }}
-                p="$1"
-              >
-                <X color="rgba(255, 255, 255, 0.5)" size={14} />
-              </Button>
+        <YStack gap="$2">
+          {data?.items.length === 0 ? (
+            <XStack 
+              bg="#1A1A1A" 
+              p="$3" 
+              borderRadius="$2"
+              ai="center"
+              jc="center"
+            >
+              <Text color="#666" fontSize="$3">No entries in vault</Text>
             </XStack>
-            <YStack gap="$1" px="$1">
-              <XStack gap="$2" alignItems="center">
-                <Text color="rgba(255, 255, 255, 0.5)" fontSize="$3" w={70}>Username:</Text>
-                <Text color="#F5F5DC" fontSize="$3" flex={1}>{cred.username}</Text>
+          ) : (
+            data?.items.map((cred) => (
+              <XStack 
+                key={cred.id}
+                bg="#1A1A1A" 
+                p="$3" 
+                borderRadius="$2"
+                ai="center"
+                animation="quick"
+              >
+                <YStack flex={1} gap="$1">
+                  <XStack jc="space-between" ai="center" mb="$1">
+                    <Text color={primaryColor} fontSize="$4" fontWeight="bold">
+                      {cred.name}
+                    </Text>
+                    <Button
+                      size="$2"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      onPress={() => handleDelete(cred.id)}
+                      icon={<X size={16} color="#666" />}
+                    />
+                  </XStack>
+                  
+                  <XStack ai="center" gap="$2">
+                    <Text color="#666" fontSize="$3" w={70}>Username:</Text>
+                    <Text color="#fff" fontSize="$3" flex={1}>{cred.username}</Text>
+                    <Button
+                      size="$1"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      onPress={() => showToast('Username copied', 'success')}
+                      icon={<Copy size={14} color="#666" />}
+                    />
+                  </XStack>
+                  
+                  <XStack ai="center" gap="$2">
+                    <Text color="#666" fontSize="$3" w={70}>Password:</Text>
+                    <Text color="#fff" fontSize="$3" flex={1}>{cred.password}</Text>
+                    <Button
+                      size="$1"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      onPress={() => showToast('Password copied', 'success')}
+                      icon={<Copy size={14} color="#666" />}
+                    />
+                  </XStack>
+                </YStack>
               </XStack>
-              <XStack gap="$2" alignItems="center">
-                <Text color="rgba(255, 255, 255, 0.5)" fontSize="$3" w={70}>Password:</Text>
-                <Text color="#F5F5DC" fontSize="$3" flex={1}>{cred.password}</Text>
-              </XStack>
-            </YStack>
-          </Card>
-        ))}
+            ))
+          )}
+        </YStack>
       </ScrollView>
 
       <Button
         onPress={() => setIsModalVisible(true)}
         position="absolute"
-        bottom="$8"
+        bottom="$6"
         right="$4"
         zIndex={1000}
         size="$4"
-        width={120}
-        height={40}
-        borderRadius="$4"
-        backgroundColor={primaryColor}
+        circular
+        bg={primaryColor}
         pressStyle={{ scale: 0.95 }}
         animation="quick"
         elevation={4}
       >
-        <Plus color="white" size={18} />
-        <Text color="white" fontSize="$3" ml="$2">Add Entry</Text>
+        <Plus color="white" size={24} />
       </Button>
 
       <AddVaultEntryModal

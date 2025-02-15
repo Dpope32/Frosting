@@ -1,115 +1,105 @@
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';
 import { Button, Card, H2, Paragraph, XStack, YStack } from 'tamagui';
-import { Plus, X } from '@tamagui/lucide-icons';
+import { Plus, X, Wifi, CreditCard, Home, Tv, ShoppingBag, Zap, Droplet, GaugeCircle, Phone, Shield, Activity, Car, DollarSign, Calendar, BookOpen, Newspaper, Cloud, Wrench, Trash, Lock, Heart, GraduationCap, PlaneTakeoff, Coffee, FileText, Percent } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
+
+const getIconForBill = (billName: string) => {
+  const name = billName.toLowerCase();
+  if (name.includes('wifi') || name.includes('internet')) return Wifi;
+  else if (name.includes('rent') || name.includes('mortgage')) return Home;
+  else if (name.includes('netflix') || name.includes('hulu') || name.includes('stream')) return Tv;
+  else if (name.includes('shopping') || name.includes('amazon') || name.includes('store')) return ShoppingBag;
+  else if (name.includes('electric') || name.includes('power') || name.includes('energy')) return Zap;
+  else if (name.includes('water') || name.includes('aqua')) return Droplet;
+  else if (name.includes('gas') || name.includes('propane')) return GaugeCircle;
+  else if (name.includes('phone') || name.includes('cellular') || name.includes('mobile')) return Phone;
+  else if (name.includes('insurance')) return Shield;
+  else if (name.includes('gym') || name.includes('fitness') || name.includes('workout')) return Activity;
+  else if (name.includes('car') || name.includes('auto') || name.includes('vehicle')) return Car;
+  else if (name.includes('loan') || name.includes('debt')) return DollarSign;
+  else if (name.includes('credit card') || name.includes('card payment')) return CreditCard;
+  else if (name.includes('cable') || name.includes('satellite')) return Tv;
+  else if (name.includes('subscription') || name.includes('membership')) return Calendar;
+  else if (name.includes('magazine') || name.includes('book')) return BookOpen;
+  else if (name.includes('newspaper') || name.includes('news')) return Newspaper;
+  else if (name.includes('cloud') || name.includes('storage')) return Cloud;
+  else if (name.includes('maintenance') || name.includes('repair')) return Wrench;
+  else if (name.includes('waste') || name.includes('garbage') || name.includes('trash')) return Trash;
+  else if (name.includes('security') || name.includes('alarm')) return Lock;
+  else if (name.includes('health') || name.includes('medical')) return Heart;
+  else if (name.includes('education') || name.includes('school') || name.includes('tuition')) return GraduationCap;
+  else if (name.includes('travel') || name.includes('transport')) return PlaneTakeoff;
+  else if (name.includes('food') || name.includes('meal')) return Coffee;
+  else if (name.includes('service fee') || name.includes('subscription fee')) return FileText;
+  else if (name.includes('tax')) return Percent;
+  else if (name.includes('water heater') || name.includes('boiler')) return Droplet;
+  else if (name.includes('vpn')) return Shield;
+  else if (name.includes('ev') || name.includes('electric car')) return Car;
+  return CreditCard;
+};
+
+const getAmountColor = (amount: number) => {
+  if (amount >= 100) return '#FF6B6B';
+  if (amount >= 50) return '#FFD93D';
+  return '#4ECDC4';
+};
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { bills, addBill, deleteBill, isLoading } = useBills();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const nameColors = ['#FF6B6B', '#4ECDC4', '#FFD93D', '#A29BFE', '#F78FB3'];
 
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => {
     addBill(billData);
   };
 
   return (
-    <YStack f={1} mt={90} px="$4">
-      <ScrollView contentContainerStyle={{ 
-        paddingBottom: 20
-      }}>
-        <YStack p="$4" gap="$4">
-        {isLoading ? (
-
-          Array.from({ length: 3 }).map((_, index) => (
-            <Card
-              key={`skeleton-${index}`}
-              elevate
-              bordered
-              animation="bouncy"
-              scale={0.95}
-            >
-              <Card.Header p="$3">
-                <YStack gap="$2">
-                  <XStack jc="space-between" ai="center">
-                    <YStack width={120} height={24} backgroundColor="$gray8" borderRadius="$2" />
-                    <YStack width={32} height={32} backgroundColor="$gray8" borderRadius="$6" />
-                  </XStack>
-                  <YStack width={100} height={32} backgroundColor="$gray8" borderRadius="$2" />
-                  <YStack width={80} height={20} backgroundColor="$gray8" borderRadius="$2" />
+    <YStack f={1} mt={90} bg="#000000">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
+        <YStack gap="$4">
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <XStack key={`skeleton-${index}`} bg="#1A1A1A" p="$4" borderRadius="$4" ai="center" pressStyle={{ opacity: 0.7 }} animation="quick">
+                <YStack width={44} height={44} bg="#333" borderRadius="$4" />
+                <YStack ml="$3" flex={1} gap="$1">
+                  <YStack width={100} height={20} bg="#333" borderRadius="$2" />
+                  <YStack width={60} height={16} bg="#333" borderRadius="$2" />
                 </YStack>
-              </Card.Header>
-            </Card>
-          ))
-        ) : bills?.length === 0 ? (
-          <Card elevate bordered animation="bouncy" scale={0.95}>
-            <Card.Header p="$3">
-              <Paragraph theme="alt2" textAlign="center">No bills added yet</Paragraph>
-            </Card.Header>
-          </Card>
-        ) : bills ? (
-          bills.sort((a, b) => a.dueDate - b.dueDate).map((bill, index) => (
-            <Card
-              key={bill.id}
-              elevate
-              bordered
-              animation="bouncy"
-              scale={0.95}
-              hoverStyle={{ scale: 0.975 }}
-              pressStyle={{ scale: 0.925 }}
-            >
-              <Card.Header p="$3">
-                <YStack gap="$2">
-                  <XStack jc="space-between" ai="center">
-                    <H2 color={nameColors[index % nameColors.length]} fontSize="$6">{bill.name}</H2>
-                    <Button
-                      size="$2"
-                      circular
-                      backgroundColor="$red10"
-                      onPress={() => deleteBill(bill.id)}
-                      icon={<X size={16} color="white" />}
-                    />
-                  </XStack>
-                  <Paragraph theme="alt2" fontSize="$7" fontWeight="bold">
-                    ${bill.amount.toFixed(2)}
-                  </Paragraph>
-                  <Paragraph theme="alt2" fontSize="$4">
-                    Due: {bill.dueDate}th
-                  </Paragraph>
-                </YStack>
-              </Card.Header>
-            </Card>
-          ))
-        ) : null}
-
-        <AddBillModal
-          isVisible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-          onSubmit={handleAddBill}
-        />
+              </XStack>
+            ))
+          ) : bills?.length === 0 ? (
+            <XStack bg="#1A1A1A" p="$6" borderRadius="$4" ai="center" jc="center">
+              <Paragraph color="#666" textAlign="center">No bills added yet</Paragraph>
+            </XStack>
+          ) : bills ? (
+            bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
+              const IconComponent = getIconForBill(bill.name);
+              const amountColor = getAmountColor(bill.amount);
+              return (
+                <XStack key={bill.id} bg="#1A1A1A" p="$4" borderRadius="$4" ai="center" pressStyle={{ opacity: 0.7 }} animation="quick">
+                  <YStack width={44} height={44} borderRadius="$4" ai="center" jc="center" bg="#333">
+                    <IconComponent size={26} color="white" />
+                  </YStack>
+                  <YStack ml="$3" flex={1}>
+                    <H2 color="white" fontSize="$6" letterSpacing={0.5}>{bill.name}</H2>
+                    <XStack ai="center" gap="$2">
+                      <Paragraph color={amountColor} fontSize="$5" fontWeight="bold">${bill.amount.toFixed(2)}</Paragraph>
+                      <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}th</Paragraph>
+                    </XStack>
+                  </YStack>
+                  <Button size="$2" bg="transparent" pressStyle={{ scale: 0.9 }} animation="quick" onPress={() => deleteBill(bill.id)} icon={<X size={18} color="#666" />} />
+                </XStack>
+              );
+            })
+          ) : null}
         </YStack>
       </ScrollView>
-
-      <Button
-        onPress={() => setIsModalVisible(true)}
-        position="absolute"
-        bottom="$8"
-        right="$4"
-        zIndex={1000}
-        size="$4"
-        width={120}
-        height={40}
-        borderRadius="$4"
-        backgroundColor={primaryColor}
-        pressStyle={{ scale: 0.95 }}
-        animation="quick"
-        elevation={4}
-      >
-        <Plus color="white" size={18} />
-        <Paragraph color="white" fontSize="$3" ml="$2">Add Bill</Paragraph>
+      <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
+      <Button onPress={() => setIsModalVisible(true)} position="absolute" bottom="$8" right="$4" zIndex={1000} size="$4" circular bg={primaryColor} pressStyle={{ scale: 0.95 }} animation="quick" elevation={4}>
+        <Plus color="white" size={24} />
       </Button>
     </YStack>
   );
