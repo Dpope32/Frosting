@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { ScrollView, Alert, ActivityIndicator, useColorScheme } from 'react-native';
 import { YStack, Text, XStack, Button } from 'tamagui';
 import { useVault } from '@/hooks/useVault';
 import { BlurView } from 'expo-blur';
@@ -13,6 +13,8 @@ export default function VaultScreen() {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const showToast = useToastStore((state) => state.showToast);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const handleAddEntry = (entry: { name: string; username: string; password: string }) => {
     addVaultEntry(entry);
@@ -43,18 +45,18 @@ export default function VaultScreen() {
 
   if (isLoading) {
     return (
-      <YStack f={1} jc="center" ai="center" mt={80} bg="#000000">
+      <YStack f={1} jc="center" ai="center" mt={80} bg={isDark ? "#000000" : "#ffffff"}>
         <ActivityIndicator size="large" color={primaryColor} />
-        <Text color="#FFFFFF" fontSize="$3">Loading vault...</Text>
+        <Text color={isDark ? "#FFFFFF" : "#000000"} fontSize="$3">Loading vault...</Text>
       </YStack>
     );
   }
 
   if (error) {
     return (
-      <YStack f={1} jc="center" ai="center" mt={80} bg="#000000">
+      <YStack f={1} jc="center" ai="center" mt={80} bg={isDark ? "#000000" : "#ffffff"}>
         <Text color="#FF6B6B" fontSize="$3">Failed to load vault</Text>
-        <Text color="#FFFFFF" fontSize="$2" ta="center" px="$4" mt="$2">
+        <Text color={isDark ? "#FFFFFF" : "#000000"} fontSize="$2" ta="center" px="$4" mt="$2">
           {error instanceof Error ? error.message : 'Unknown error occurred'}
         </Text>
       </YStack>
@@ -62,7 +64,7 @@ export default function VaultScreen() {
   }
 
   return (
-    <YStack f={1} mt={90} bg="#000000">
+    <YStack f={1} mt={90} bg={isDark ? "#000000" : "#ffffff"}>
       <ScrollView 
         contentContainerStyle={{ 
           padding: 12,
@@ -72,59 +74,60 @@ export default function VaultScreen() {
         <YStack gap="$2">
           {data?.items.length === 0 ? (
             <XStack 
-              bg="#1A1A1A" 
-              p="$3" 
+              bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+              p="$2" 
               borderRadius="$2"
               ai="center"
               jc="center"
             >
-              <Text color="#666" fontSize="$3">No entries in vault</Text>
+              <Text color={isDark ? "#666" : "#999"} fontSize="$3">No entries in vault</Text>
             </XStack>
           ) : (
             data?.items.map((cred) => (
               <XStack 
                 key={cred.id}
-                bg="#1A1A1A" 
-                p="$3" 
+                bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+                paddingVertical="$1"
+                paddingHorizontal="$4" 
                 borderRadius="$2"
                 ai="center"
                 animation="quick"
               >
                 <YStack flex={1} gap="$1">
-                  <XStack jc="space-between" ai="center" mb="$1">
+                  <XStack jc="space-between" ai="center" marginBottom={-12}>
                     <Text color={primaryColor} fontSize="$4" fontWeight="bold">
                       {cred.name}
                     </Text>
                     <Button
-                      size="$2"
+                      size="$3"
                       bg="transparent"
                       pressStyle={{ scale: 0.9 }}
                       onPress={() => handleDelete(cred.id)}
-                      icon={<X size={16} color="#666" />}
+                      icon={<X size={18} color="#ff4444" />}
                     />
                   </XStack>
                   
-                  <XStack ai="center" gap="$2">
-                    <Text color="#666" fontSize="$3" w={70}>Username:</Text>
-                    <Text color="#fff" fontSize="$3" flex={1}>{cred.username}</Text>
+                  <XStack ai="center" gap="$1" marginBottom={-12}>
+                    <Text color={isDark ? "#666" : "#666"} fontSize="$3" w={70}>Username:</Text>
+                    <Text color={isDark ? "#fff" : "#000"} fontSize="$3" flex={1}>{cred.username}</Text>
                     <Button
-                      size="$1"
+                      size="$3"
                       bg="transparent"
                       pressStyle={{ scale: 0.9 }}
                       onPress={() => showToast('Username copied', 'success')}
-                      icon={<Copy size={14} color="#666" />}
+                      icon={<Copy size={18} color={isDark ? "#666" : "#999"} />}
                     />
                   </XStack>
                   
-                  <XStack ai="center" gap="$2">
-                    <Text color="#666" fontSize="$3" w={70}>Password:</Text>
-                    <Text color="#fff" fontSize="$3" flex={1}>{cred.password}</Text>
+                  <XStack ai="center" gap="$1">
+                    <Text color={isDark ? "#666" : "#666"} fontSize="$3" w={70}>Password:</Text>
+                    <Text color={isDark ? "#fff" : "#000"} fontSize="$3" flex={1}>{cred.password}</Text>
                     <Button
-                      size="$1"
+                      size="$3"
                       bg="transparent"
                       pressStyle={{ scale: 0.9 }}
                       onPress={() => showToast('Password copied', 'success')}
-                      icon={<Copy size={14} color="#666" />}
+                      icon={<Copy size={18} color={isDark ? "#666" : "#999"} />}
                     />
                   </XStack>
                 </YStack>
@@ -158,6 +161,7 @@ export default function VaultScreen() {
 
       <BlurView
         intensity={20}
+        tint={isDark ? "dark" : "light"}
         style={{
           position: 'absolute',
           top: 0,

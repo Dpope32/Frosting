@@ -1,6 +1,6 @@
 import React from 'react'
 import { GameCardSkeleton } from './GameCardSkeleton'
-import { Image, StyleSheet, Text, View } from 'react-native'
+import { Image, StyleSheet, Text, View, useColorScheme } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { ThemedView } from '../../theme/ThemedView'
 import { useOUSportsAPI } from '../../hooks/useOUSportsAPI'
@@ -11,6 +11,8 @@ const OU_CRIMSON = '#841617'
 
 export default function OUPage() {
   const { data: schedule, isLoading, error } = useOUSportsAPI()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
 
   const renderGame = ({ item: game }: { item: Game }) => {
     if (!game.competitions || game.competitions.length === 0) {
@@ -37,9 +39,15 @@ export default function OUPage() {
     const formattedTime = competition.status?.type?.shortDetail || 'TBD'
 
     return (
-      <View style={styles.gameCard}>
+      <View style={[
+        styles.gameCard,
+        { 
+          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          borderColor: isDark ? '#333' : '#e0e0e0' 
+        }
+      ]}>
         <View style={styles.dateContainer}>
-          <Text style={styles.date}>{formattedDate}</Text>
+          <Text style={[styles.date, { color: isDark ? '#fff' : '#000' }]}>{formattedDate}</Text>
           <Text style={styles.time}>{formattedTime}</Text>
         </View>
         <View style={styles.teamsContainer}>
@@ -55,7 +63,7 @@ export default function OUPage() {
               style={[
                 styles.team,
                 styles.homeTeam,
-                homeTeam === 'Oklahoma' ? styles.highlight : styles.opposingTeam,
+                homeTeam === 'Oklahoma' ? styles.highlight : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
               ]}
               numberOfLines={1}
             >
@@ -75,7 +83,7 @@ export default function OUPage() {
               style={[
                 styles.team,
                 styles.awayTeam,
-                awayTeam === 'Oklahoma' ? styles.highlight : styles.opposingTeam,
+                awayTeam === 'Oklahoma' ? styles.highlight : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
               ]}
               numberOfLines={1}
             >
@@ -96,20 +104,18 @@ export default function OUPage() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.headerTitle}>2024-25 Schedule</Text>
+        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000' }]}>2024-25 Schedule</Text>
       </View>
       {error ? (
         <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
       ) : (
         <View style={styles.listContainer}>
           <FlashList
-            data={isLoading ? Array(6).fill({ id: 'skeleton' }) : schedule || []}
-            renderItem={({ item }) => {
-              if (item.id === 'skeleton') {
-                return <GameCardSkeleton />
-              }
-              return renderGame({ item })
-            }}
+          data={isLoading ? Array(6).fill({}) : schedule || []}
+          renderItem={isLoading ? 
+            () => <GameCardSkeleton /> : 
+            renderGame
+          }
             estimatedItemSize={100}
             contentContainerStyle={styles.listContent}
           />
@@ -122,7 +128,6 @@ export default function OUPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111',
   },
   header: {
     flexDirection: 'row',
@@ -137,7 +142,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginLeft: 12,
   },
   listContainer: {
@@ -147,12 +151,10 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   gameCard: {
-    backgroundColor: '#1a1a1a',
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#333',
   },
   dateContainer: {
     flexDirection: 'row',
@@ -161,7 +163,6 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 14,
-    color: '#fff',
     fontWeight: '600',
   },
   time: {
@@ -201,9 +202,7 @@ const styles = StyleSheet.create({
     color: OU_CRIMSON,
     fontWeight: '600',
   },
-  opposingTeam: {
-    color: '#fff',
-  },
+  opposingTeam: {},
   at: {
     fontSize: 13,
     color: '#666',

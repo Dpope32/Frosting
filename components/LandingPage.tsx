@@ -316,52 +316,48 @@ export function LandingPage() {
                 />
               </Pressable>
             </XStack>
-            <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" backgroundColor="rgba(0, 0, 0, 0.3)" borderRadius={10} paddingHorizontal="$4" paddingVertical="$2">
-              <Text 
-                color="#dbd0c6" 
-                fontSize={18} 
-                fontWeight="bold"
+            <Stack gap="$2" paddingHorizontal={6} flex={1} position="relative">
+              {todaysTasks.map((task: Task) => (
+                <TaskCard
+                  key={task.id}
+                  title={task.name}
+                  time={task.time}
+                  category={task.category}
+                  status={task.isOneTime ? 'One-time' : 'Recurring'}
+                  categoryColor={getCategoryColor(task.category)}
+                  checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
+                  onCheck={() => toggleTaskCompletion(task.id)}
+                />
+              ))}
+              <Pressable
+                onPress={handleNewTaskPress}
                 style={{
-                  textShadowColor: 'rgba(219, 208, 198, 0.3)',
-                  textShadowOffset: { width: 0, height: 0 },
-                  textShadowRadius: 10
+                  position: 'absolute',
+                  bottom: 4,
+                  right: 4,
+                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 17,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowColor: 'rgba(219, 208, 198, 0.3)',
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 8
                 }}
               >
-                Todays Tasks ({completedTasksCount}/{todaysTasks.length})
-              </Text>
-              <Button backgroundColor="rgba(255, 255, 255, 0.00)" borderRadius={8} paddingHorizontal="$2" onPress={handleNewTaskPress}>
-                <Text 
-                  color="#fff" 
-                  fontSize={15} 
-                  fontWeight="500" 
-                  backgroundColor="#transparent"
+                <Ionicons 
+                  name="add" 
+                  size={26} 
+                  color="#dbd0c6"
                   style={{
-                    textShadowColor: 'rgba(255, 255, 255, 0.3)',
+                    textShadowColor: 'rgba(219, 208, 198, 0.25)',
                     textShadowOffset: { width: 0, height: 0 },
                     textShadowRadius: 8
                   }}
-                >
-                  + New Task
-                </Text>
-              </Button>
-            </XStack>
-            <Stack gap="$2" paddingHorizontal={6} flex={1}>
-              {todaysTasks.length === 0 ? (
-                <Stack borderRadius={8} padding="$4" alignItems="center" flex={1} justifyContent="center" />
-              ) : (
-                todaysTasks.map((task: Task) => (
-                  <TaskCard
-                    key={task.id}
-                    title={task.name}
-                    time={task.time}
-                    category={task.category}
-                    status={task.isOneTime ? 'One-time' : 'Recurring'}
-                    categoryColor={getCategoryColor(task.category)}
-                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
-                    onCheck={() => toggleTaskCompletion(task.id)}
-                  />
-                ))
-              )}
+                />
+              </Pressable>
             </Stack>
           </Stack>
 
@@ -369,7 +365,7 @@ export function LandingPage() {
       </ScrollView>
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} temperature="21°F" />
       <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
-      <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} value="$1,234.56" change="+$123.45" changePercentage="10.0%" />
+      <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
     </Stack>

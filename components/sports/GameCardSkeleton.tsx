@@ -1,12 +1,14 @@
 // components/sports/GameCardSkeleton.tsx
 import React from 'react';
-import { StyleSheet, View, Animated, Dimensions } from 'react-native';
+import { StyleSheet, View, Animated, Dimensions, useColorScheme } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 export const GameCardSkeleton = () => {
   const animatedValue = React.useRef(new Animated.Value(0)).current;
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   React.useEffect(() => {
     Animated.loop(
@@ -31,11 +33,21 @@ export const GameCardSkeleton = () => {
   });
 
   return (
-    <View style={[styles.gameCard]}>
+    <View style={[
+      styles.gameCard,
+      {
+        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+        borderColor: isDark ? '#333' : '#e0e0e0',
+      }
+    ]}>
       <View style={styles.shimmerContainer}>
         <Animated.View style={[styles.shimmer, { transform: [{ translateX }] }]}>
           <LinearGradient
-            colors={['transparent', 'rgba(255,255,255,0.1)', 'transparent']}
+            colors={[
+              'transparent',
+              isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+              'transparent'
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={StyleSheet.absoluteFill}
@@ -45,15 +57,15 @@ export const GameCardSkeleton = () => {
 
       {/* Date and Time Row */}
       <View style={styles.dateTimeContainer}>
-        <View style={styles.dateSkeleton} />
-        <View style={styles.timeSkeleton} />
+        <View style={[styles.dateSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
+        <View style={[styles.timeSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
       </View>
 
       {/* Teams Row */}
       <View style={styles.teamsContainer}>
-        <View style={styles.teamSkeleton} />
-        <View style={styles.vsSkeleton} />
-        <View style={styles.teamSkeleton} />
+        <View style={[styles.teamSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
+        <View style={[styles.vsSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
+        <View style={[styles.teamSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
       </View>
     </View>
   );
@@ -61,13 +73,11 @@ export const GameCardSkeleton = () => {
 
 const styles = StyleSheet.create({
   gameCard: {
-    backgroundColor: '#1a1a1a',
     borderRadius: 8,
     padding: 12,
     marginHorizontal: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#333',
     overflow: 'hidden',
   },
   shimmerContainer: {
@@ -87,13 +97,11 @@ const styles = StyleSheet.create({
   dateSkeleton: {
     width: 80,
     height: 14,
-    backgroundColor: '#333',
     borderRadius: 4,
   },
   timeSkeleton: {
     width: 60,
     height: 14,
-    backgroundColor: '#333',
     borderRadius: 4,
   },
   teamsContainer: {
@@ -106,13 +114,11 @@ const styles = StyleSheet.create({
   teamSkeleton: {
     width: 120,
     height: 15,
-    backgroundColor: '#333',
     borderRadius: 4,
   },
   vsSkeleton: {
     width: 20,
     height: 13,
-    backgroundColor: '#333',
     borderRadius: 4,
     marginHorizontal: 12,
   },

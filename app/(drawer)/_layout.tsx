@@ -1,10 +1,11 @@
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text } from 'react-native';
+import { View, Image, Text, Platform } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
+
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
@@ -22,7 +23,7 @@ export default function DrawerLayout() {
               borderBottomColor: 'rgba(255, 255, 255, 0.1)',
               flexDirection: 'row',
               alignItems: 'center',
-            backgroundColor: '#1A1A1A'
+              backgroundColor: '#1A1A1A'
             }}>
               <Image 
                 source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
@@ -62,7 +63,7 @@ export default function DrawerLayout() {
           headerTransparent: true,
           drawerStyle: {
             backgroundColor: '#1A1A1A',
-            width: '50%',
+            width: '65%',
             borderRightWidth: 1,
             borderColor: 'rgba(255, 255, 255, 0.1)'
           },
@@ -72,18 +73,21 @@ export default function DrawerLayout() {
           drawerItemStyle: {
             borderRadius: 12,
             padding: 4,
-            marginHorizontal: 8
+            marginHorizontal: 4
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -20
+            marginLeft: -16
           },
           drawerContentStyle: {
             backgroundColor: '#1A1A1A'
           },
-          drawerType: 'front',
-          overlayColor: '#00000099'
+          drawerType: 'slide',
+          overlayColor: '#00000099',
+          swipeEnabled: true,
+          swipeEdgeWidth: 100,
+          drawerStatusBarAnimation: 'slide'
         }}
       >
         <Drawer.Screen
@@ -92,7 +96,7 @@ export default function DrawerLayout() {
             title: 'Home',
             drawerLabel: 'Home',
             drawerIcon: ({ color }) => (
-              <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -102,7 +106,7 @@ export default function DrawerLayout() {
             title: 'Calendar',
             drawerLabel: 'Calendar',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="calendar-today" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="calendar-today" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -112,7 +116,7 @@ export default function DrawerLayout() {
             title: 'Sports',
             drawerLabel: 'Sports',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -122,7 +126,7 @@ export default function DrawerLayout() {
             title: 'Chatbot',
             drawerLabel: 'Chatbot',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -132,7 +136,7 @@ export default function DrawerLayout() {
             title: 'CRM',
             drawerLabel: 'CRM',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -142,7 +146,7 @@ export default function DrawerLayout() {
             title: 'Storage',
             drawerLabel: 'Storage',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="cloud-upload" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -152,7 +156,7 @@ export default function DrawerLayout() {
             title: 'Vault',
             drawerLabel: 'Vault',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />
@@ -162,7 +166,7 @@ export default function DrawerLayout() {
             title: 'Bills',
             drawerLabel: 'Bills',
             drawerIcon: ({ color }) => (
-              <MaterialIcons name="attach-money" size={24} color={color} style={{ marginRight: 20 }} />
+              <MaterialIcons name="attach-money" size={24} color={color} style={{ marginRight: 16 }} />
             )
           }}
         />

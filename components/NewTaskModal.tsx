@@ -18,6 +18,11 @@ const WEEKDAYS: Record<string, WeekDay> = {
   sat: 'saturday',
 }
 
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+]
+
 const RECURRENCE_PATTERNS: { label: string; value: RecurrencePattern; icon: string }[] = [
   { label: 'Weekly', value: 'weekly', icon: 'calendar' },
   { label: 'Biweekly', value: 'biweekly', icon: 'calendar-outline' },
@@ -163,23 +168,23 @@ const SelectButton = ({
 }: SelectButtonProps) => (
     <Button
       onPress={onPress}
-      backgroundColor="$backgroundHover"
+      backgroundColor="$gray2Light"
       borderRadius={12}
       height={50}
-      borderColor="rgba(85,85,85,0.5)"
+      borderColor="$gray6Light"
       borderWidth={1}
       paddingHorizontal="$3"
       pressStyle={{ opacity: 0.8 }}
     >
       <XStack flex={1} alignItems="center" justifyContent="space-between" paddingRight="$2">
         <XStack alignItems="center" gap="$2">
-          {icon && <Ionicons name={icon as any} size={20} color="#fff" />}
-          <Text color="#fff" fontSize={16} fontWeight="500">
+          {icon && <Ionicons name={icon as any} size={20} color="$gray12Light" />}
+          <Text color="$gray12Light" fontSize={16} fontWeight="500">
             {label}
           </Text>
         </XStack>
         <Text 
-          color="#a0a0a0" 
+          color="$gray11Light" 
           fontSize={16} 
           numberOfLines={1} 
           maxWidth="60%"
@@ -190,7 +195,8 @@ const SelectButton = ({
         </Text>
       </XStack>
     </Button>
-  )
+);
+
 
 interface DropdownListProps<T> {
   items: Array<T | { label: string; value: T; icon?: string }>
@@ -199,11 +205,11 @@ interface DropdownListProps<T> {
   maxHeight?: number
 }
 
-function DropdownList<T extends string | RecurrencePattern | TaskPriority | TaskCategory>({
+function DropdownList<T extends string>({
   items,
   selectedValue,
   onSelect,
-  maxHeight = 250
+  maxHeight = 300
 }: DropdownListProps<T>) {
   return (
     <YStack
@@ -211,39 +217,41 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
       top="110%"
       left={0}
       right={0}
-      backgroundColor="rgba(45,45,45,0.95)"
+      backgroundColor="$gray1Light"
       borderRadius={12}
       zIndex={1000}
       overflow="hidden"
       shadowColor="black"
       shadowOffset={{ width: 0, height: 4 }}
-      shadowOpacity={0.2}
+      shadowOpacity={0.1}
       shadowRadius={8}
       maxHeight={maxHeight}
+      borderWidth={1}
+      borderColor="$gray6Light"
     >
       <ScrollView bounces={false}>
         <YStack>
           {items.map(item => {
-            const value = typeof item === 'string' ? item as T : item.value
-            const label = typeof item === 'string' ? item as string : item.label
-            const icon = typeof item === 'string' ? null : item.icon
+            const value = typeof item === 'string' ? item as T : item.value;
+            const label = typeof item === 'string' ? item as string : item.label;
+            const icon = typeof item === 'string' ? null : item.icon;
             
             return (
               <Button
                 key={value}
                 onPress={() => onSelect(value)}
-                backgroundColor={selectedValue === value ? preferences.primaryColor : '$backgroundTransparent'}
+                backgroundColor={selectedValue === value ? preferences.primaryColor : '$gray2Light'}
                 height={45}
                 justifyContent="center"
                 pressStyle={{ opacity: 0.8 }}
                 borderBottomWidth={1}
-                borderColor="rgba(85,85,85,0.2)"
+                borderColor="$gray6Light"
                 paddingHorizontal="$3"
               >
                 <XStack alignItems="center" gap="$2">
-                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : '#a0a0a0'} />}
+                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : '$gray11Light'} />}
                   <Text
-                    color={selectedValue === value ? '#fff' : '#a0a0a0'}
+                    color={selectedValue === value ? '#fff' : '$gray12Light'}
                     fontSize={16}
                     fontWeight={selectedValue === value ? '600' : '400'}
                   >
@@ -251,12 +259,12 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
                   </Text>
                 </XStack>
               </Button>
-            )
+            );
           })}
         </YStack>
       </ScrollView>
     </YStack>
-  )
+  );
 }
 
   const handlePrioritySelect = useCallback((value: TaskPriority) => {
@@ -280,12 +288,32 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
         showToast('Please enter a task name')
         return
       }
-      if (!newTask.isOneTime && newTask.schedule.length === 0 && newTask.recurrencePattern === 'weekly') {
-        showToast('Please select at least one day for weekly tasks')
+      if (!newTask.isOneTime && newTask.schedule.length === 0 && 
+          (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')) {
+        showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`)
         return
       }
+      
       setIsSubmitting(true)
-      const taskToAdd = { ...newTask, name: newTask.name.trim() }
+      const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
+      const taskToAdd = { 
+        ...newTask, 
+        name: newTask.name.trim(),
+        schedule: newTask.isOneTime ? [] : (
+          newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly'
+            ? newTask.schedule
+            : []
+        ),
+        recurrenceDate: newTask.recurrenceDate
+      }
+      
+      console.log('Adding task:', {
+        name: taskToAdd.name,
+        pattern: taskToAdd.recurrencePattern,
+        schedule: taskToAdd.schedule,
+        recurrenceDate: taskToAdd.recurrenceDate,
+        isOneTime: taskToAdd.isOneTime
+      })
       onOpenChange(false)
       await new Promise(resolve => setTimeout(resolve, 80))
       try {
@@ -313,12 +341,12 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
       zIndex={100000}
     >
       <Sheet.Overlay 
-        animation="lazy" 
+        animation="quick" 
         enterStyle={{ opacity: 0 }} 
         exitStyle={{ opacity: 0 }} 
       />
       <Sheet.Frame
-        backgroundColor="rgba(16,16,16,1)"
+        backgroundColor="rgb(21, 21, 21)"
         padding="$4"
         gap="$5"
         borderTopLeftRadius="$6"
@@ -368,7 +396,95 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
                 </YStack>
 
                 <AnimatePresence>
-                  {newTask.recurrencePattern === 'weekly' && (
+                  {(newTask.recurrencePattern === 'monthly' || newTask.recurrencePattern === 'yearly') && (
+                    <YStack gap="$3">
+                      {newTask.recurrencePattern === 'yearly' && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                          <XStack gap="$2" paddingVertical="$1">
+                            {MONTHS.map((month, index) => (
+                              <Button
+                                key={month}
+                                backgroundColor={
+                                  new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index
+                                    ? preferences.primaryColor 
+                                    : '$gray2Light'
+                                }
+                                pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                                onPress={() => {
+                                  const date = new Date(newTask.recurrenceDate || new Date().toISOString());
+                                  date.setMonth(index);
+                                  setNewTask(prev => ({
+                                    ...prev,
+                                    recurrenceDate: date.toISOString().split('T')[0]
+                                  }));
+                                }}
+                                borderRadius={24}
+                                paddingHorizontal="$2"
+                                paddingVertical="$2.5"
+                                borderWidth={1}
+                                borderColor={
+                                  new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index
+                                    ? 'transparent' 
+                                    : '$gray6Light'
+                                }
+                                minWidth={45}
+                              >
+                                <Text 
+                                  fontSize={14} 
+                                  fontWeight="600" 
+                                  color={new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index ? '#fff' : '$gray11Light'}
+                                >
+                                  {month.substring(0, 3)}
+                                </Text>
+                              </Button>
+                            ))}
+                          </XStack>
+                        </ScrollView>
+                      )}
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <XStack gap="$2" paddingVertical="$1">
+                          {Array.from({length: 31}, (_, i) => i + 1).map(day => (
+                            <Button
+                              key={day}
+                              backgroundColor={
+                                new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day
+                                  ? preferences.primaryColor 
+                                  : '$gray2Light'
+                              }
+                              pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                              onPress={() => {
+                                const date = new Date(newTask.recurrenceDate || new Date().toISOString());
+                                date.setDate(day);
+                                setNewTask(prev => ({
+                                  ...prev,
+                                  recurrenceDate: date.toISOString().split('T')[0]
+                                }));
+                              }}
+                              borderRadius={24}
+                              paddingHorizontal="$2"
+                              paddingVertical="$2.5"
+                              borderWidth={1}
+                              borderColor={
+                                new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day
+                                  ? 'transparent' 
+                                  : '$gray6Light'
+                              }
+                              minWidth={45}
+                            >
+                              <Text 
+                                fontSize={14} 
+                                fontWeight="600" 
+                                color={new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day ? '#fff' : '$gray11Light'}
+                              >
+                                {day}
+                              </Text>
+                            </Button>
+                          ))}
+                        </XStack>
+                      </ScrollView>
+                    </YStack>
+                  )}
+                  {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
                     <YStack gap="$3">
                       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <XStack gap="$2" paddingVertical="$1">
@@ -378,9 +494,8 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
                               backgroundColor={
                                 newTask.schedule.includes(fullDay) 
                                   ? preferences.primaryColor 
-                                  : '$backgroundHover'
+                                  : '$gray2Light'
                               }
-                              color="#fff"
                               pressStyle={{ opacity: 0.8, scale: 0.98 }}
                               onPress={() => toggleDay(shortDay)}
                               borderRadius={24}
@@ -390,13 +505,13 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
                               borderColor={
                                 newTask.schedule.includes(fullDay) 
                                   ? 'transparent' 
-                                  : 'rgba(85,85,85,0.5)'
+                                  : '$gray6Light'
                               }
                             >
                               <Text 
                                 fontSize={14} 
                                 fontWeight="600" 
-                                color={newTask.schedule.includes(fullDay) ? '#fff' : '#a0a0a0'}
+                                color={newTask.schedule.includes(fullDay) ? '#fff' : '$gray11Light'}
                               >
                                 {shortDay.toUpperCase()}
                               </Text>
@@ -404,16 +519,6 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
                           ))}
                         </XStack>
                       </ScrollView>
-                    </YStack>
-                  )}
-
-                  {(newTask.recurrencePattern === 'monthly' || newTask.recurrencePattern === 'yearly') && (
-                    <YStack>
-                      <DateTimePicker
-                        value={new Date(newTask.recurrenceDate || Date.now())}
-                        mode={newTask.recurrencePattern === 'monthly' ? 'date' : 'date'}
-                        onChange={handleDateSelect}
-                      />
                     </YStack>
                   )}
                 </AnimatePresence>
@@ -427,43 +532,70 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
                     onPress={handleTimePress}
                   />
                   {showTimePicker && (
-                    <DateTimePicker
-                      value={selectedDate}
-                      mode="time"
-                      is24Hour={false}
-                      onChange={handleTimeChange}
-                    />
+                    <YStack
+                      position="absolute"
+                      top="110%"
+                      left={0}
+                      right={0}
+                      backgroundColor="$gray1Light"
+                      borderRadius={12}
+                      zIndex={1000}
+                      overflow="hidden"
+                      shadowColor="black"
+                      shadowOffset={{ width: 0, height: 4 }}
+                      shadowOpacity={0.1}
+                      shadowRadius={8}
+                      borderWidth={1}
+                      borderColor="$gray6Light"
+                    >
+                      <YStack
+                        height={200}
+                        justifyContent="center"
+                        alignItems="center"
+                        padding="$4"
+                        backgroundColor="$gray1Light"
+                      >
+                        <DateTimePicker
+                          value={selectedDate}
+                          mode="time"
+                          is24Hour={false}
+                          onChange={handleTimeChange}
+                          display="spinner"
+                          themeVariant="light"
+                        />
+                      </YStack>
+                    </YStack>
                   )}
                 </YStack>
                 <YStack flex={1}>
-                  <XStack
-                    alignItems="center"
-                    justifyContent="space-between"
-                    backgroundColor="rgba(45,45,45,0.8)"
-                    paddingHorizontal="$4"
-                    borderColor="rgba(85,85,85,0.5)"
-                    borderWidth={1}
-                    borderRadius={12}
-                    height={50}
-                  >
-                    <Text fontSize={16} color="#fff" fontWeight="500">
-                      One-time
-                    </Text>
-                    <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>
-                      <YStack
-                        width={24}
-                        height={24}
-                        borderWidth={2}
-                        borderColor={preferences.primaryColor}
-                        borderRadius={4}
-                        backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'transparent'}
-                        justifyContent="center"
-                        alignItems="center"
-                      >
-                        {newTask.isOneTime && <Ionicons name="checkmark" size={16} color="#fff" />}
-                      </YStack>
-                    </TouchableOpacity>
-                  </XStack>
+                <XStack
+                  alignItems="center"
+                  justifyContent="space-between"
+                  backgroundColor="$gray2Light"
+                  paddingHorizontal="$4"
+                  borderColor="$gray6Light"
+                  borderWidth={1}
+                  borderRadius={12}
+                  height={50}
+                >
+                  <Text fontSize={16} color="$gray12Light" fontWeight="500">
+                    One-time
+                  </Text>
+                  <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>
+                    <YStack
+                      width={24}
+                      height={24}
+                      borderWidth={2}
+                      borderColor={preferences.primaryColor}
+                      borderRadius={4}
+                      backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'transparent'}
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      {newTask.isOneTime && <Ionicons name="checkmark" size={16} color="#fff" />}
+                    </YStack>
+                  </TouchableOpacity>
+                </XStack>
                 </YStack>
               </XStack>
 
@@ -511,30 +643,30 @@ function DropdownList<T extends string | RecurrencePattern | TaskPriority | Task
               </XStack>
 
               <Form.Trigger asChild>
-                <Button
-                  backgroundColor={preferences.primaryColor}
-                  height={50}
-                  pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                  borderRadius={12}
-                  alignSelf="center"
-                  marginTop={50}
-                  width="100%"
-                  shadowColor="black"
-                  shadowOffset={{ width: 0, height: 2 }}
-                  shadowOpacity={0.1}
-                  shadowRadius={4}
-                  elevation={3}
-                  disabled={isSubmitting}
-                  opacity={isSubmitting ? 0.7 : 1}
-                >
-                  <Text color="white" fontWeight="600" fontSize={18}>
-                    {isSubmitting ? 'Adding...' : 'Add Task'}
-                  </Text>
-                </Button>
-              </Form.Trigger>
-            </Form>
-          </ScrollView>
+              <Button
+                backgroundColor={preferences.primaryColor}
+                height={50}
+                pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                borderRadius={12}
+                alignSelf="center"
+                marginTop={50}
+                width="100%"
+                shadowColor="black"
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={0.1}
+                shadowRadius={4}
+                elevation={3}
+                disabled={isSubmitting}
+                opacity={isSubmitting ? 0.7 : 1}
+              >
+                <Text color="white" fontWeight="600" fontSize={18}>
+                  {isSubmitting ? 'Adding...' : 'Add Task'}
+                </Text>
+              </Button>
+            </Form.Trigger>
+          </Form>
+        </ScrollView>
       </Sheet.Frame>
     </Sheet>
-  )
+  );
 }

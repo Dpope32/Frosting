@@ -1,6 +1,5 @@
-// components/sports/ThunderPage.tsx 
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { ThemedView } from '../../theme/ThemedView';
 import { useSportsAPI } from '../../hooks/useSportsAPI';
@@ -8,9 +7,13 @@ import { format, isSameDay } from 'date-fns';
 import type { Game } from '../../store/ThunderStore';
 import { GameCardSkeleton } from './GameCardSkeleton';
 
+const THUNDER_BLUE = '#007AFF';
+
 export default function ThunderPage() {
   const { data: schedule, isLoading, error } = useSportsAPI();
   const today = new Date();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const renderGame = ({ item: game }: { item: Game }) => {
     const isHome = game.homeTeam.includes('Thunder');
@@ -20,9 +23,21 @@ export default function ThunderPage() {
     const formattedTime = format(gameDate, 'h:mm a');
   
     return (
-      <View style={styles.gameCard}>
+      <View style={[
+        styles.gameCard,
+        { 
+          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          borderColor: isDark ? '#333' : '#e0e0e0'
+        }
+      ]}>
         <View style={styles.dateTimeContainer}>
-          <Text style={[styles.date, isToday && styles.todayDate]}>{formattedDate}</Text>
+          <Text style={[
+            styles.date,
+            isToday && styles.todayDate,
+            !isToday && { color: isDark ? '#fff' : '#000' }
+          ]}>
+            {formattedDate}
+          </Text>
           <Text style={styles.time}>{formattedTime}</Text>
         </View>
         
@@ -39,7 +54,7 @@ export default function ThunderPage() {
               style={[
                 styles.team,
                 styles.homeTeam,
-                game.homeTeam.includes('Thunder') ? styles.thunderTeam : styles.opposingTeam
+                game.homeTeam.includes('Thunder') ? styles.thunderTeam : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }]
               ]} 
               numberOfLines={1}
             >
@@ -59,7 +74,7 @@ export default function ThunderPage() {
               style={[
                 styles.team,
                 styles.awayTeam,
-                game.awayTeam.includes('Thunder') ? styles.thunderTeam : styles.opposingTeam
+                game.awayTeam.includes('Thunder') ? styles.thunderTeam : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }]
               ]} 
               numberOfLines={1}
             >
@@ -70,7 +85,7 @@ export default function ThunderPage() {
   
         {game.status === 'finished' && (
           <View style={styles.scoreContainer}>
-            <Text style={styles.score}>
+            <Text style={[styles.score, { color: isDark ? '#fff' : '#000' }]}>
               {game.homeScore} - {game.awayScore}
             </Text>
             <Text style={styles.finalText}>Final</Text>
@@ -88,7 +103,7 @@ export default function ThunderPage() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.headerTitle}>2024-2025 Schedule</Text>
+        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000' }]}>2024-2025 Schedule</Text>
       </View>
       
       {error ? (
@@ -111,7 +126,6 @@ export default function ThunderPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111',
   },
   header: {
     flexDirection: 'row',
@@ -121,7 +135,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
     marginLeft: 12,
   },
   logo: {
@@ -132,13 +145,11 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   gameCard: {
-    backgroundColor: '#1a1a1a',
     borderRadius: 8,
     padding: 12,
     marginHorizontal: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#333',
   },
   dateTimeContainer: {
     flexDirection: 'row',
@@ -148,10 +159,9 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
   },
   todayDate: {
-    color: '#007AFF',
+    color: THUNDER_BLUE,
   },
   time: {
     fontSize: 14,
@@ -180,11 +190,9 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   thunderTeam: {
-    color: '#007AFF',
+    color: THUNDER_BLUE,
   },
-  opposingTeam: {
-    color: '#fff',
-  },
+  opposingTeam: {},
   homeTeam: {
     textAlign: 'left',
   },
@@ -207,7 +215,6 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
   },
   finalText: {
     fontSize: 13,
@@ -217,15 +224,5 @@ const styles = StyleSheet.create({
     color: '#ff4444',
     textAlign: 'center',
     marginTop: 20,
-  },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 20,
-    color: '#666',
-  },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 20,
-    color: '#666',
   },
 });

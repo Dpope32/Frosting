@@ -5,14 +5,7 @@ import { StorageUtils } from './MMKV'
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'career' | 'wealth' | 'skills'
 export type RecurrencePattern = 'weekly' | 'biweekly' | 'monthly' | 'yearly'
-export type WeekDay =
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday'
-  | 'sunday'
+export type WeekDay = | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface Task {
   id: string
@@ -22,13 +15,13 @@ export interface Task {
   priority: TaskPriority
   category: TaskCategory
   isOneTime: boolean
-  completed: boolean // Kept for backward compatibility
-  completionHistory: Record<string, boolean> // Date string -> completion status
+  completed: boolean 
+  completionHistory: Record<string, boolean> 
   createdAt: string
   updatedAt: string
   scheduledDate?: string
   recurrencePattern: RecurrencePattern
-  recurrenceDate?: string // For non-weekly patterns
+  recurrenceDate?: string 
 }
 
 interface ProjectStore {
@@ -41,16 +34,7 @@ interface ProjectStore {
   getTodaysTasks: () => Task[]
 }
 
-// Day names for recurring tasks
-const dayNames: WeekDay[] = [
-  'sunday',
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-]
+const dayNames: WeekDay[] = [ 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   if (task.isOneTime) {
@@ -91,7 +75,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   }
 };
 
-// Memoized task filtering
 const createTaskFilter = () => {
   let lastToday: string | null = null;
   let lastTasks: Record<string, Task> | null = null;
@@ -101,19 +84,15 @@ const createTaskFilter = () => {
     const currentDate = new Date();
     const dateStr = currentDate.toISOString().split('T')[0];
     
-    // Return cached result if nothing has changed
     if (lastToday === dateStr && lastTasks === tasks && lastResult !== null) {
       return lastResult;
     }
 
-    // Update cache
     lastToday = dateStr;
     lastTasks = tasks;
 
-    // Filter and sort tasks
     const filtered = Object.values(tasks).filter(task => isTaskDue(task, currentDate));
 
-    // Remove duplicate tasks by name and scheduledDate
     const uniqueFiltered = filtered.filter((task, index, self) => 
       index === self.findIndex((t) => 
         t.name === task.name && 
@@ -122,17 +101,13 @@ const createTaskFilter = () => {
     );
 
     const sorted = [...uniqueFiltered].sort((a, b) => {
-      // Sort by completion status for today
       const aCompletedToday = a.completionHistory[dateStr] || false;
       const bCompletedToday = b.completionHistory[dateStr] || false;
       if (aCompletedToday !== bCompletedToday) return aCompletedToday ? 1 : -1;
-      
-      // Then by time
       if (a.time && b.time) return a.time.localeCompare(b.time);
       if (a.time) return -1;
       if (b.time) return 1;
       
-      // Finally priority
       const priorityOrder = { high: 0, medium: 1, low: 2 };
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
@@ -143,8 +118,6 @@ const createTaskFilter = () => {
 };
 
 const taskFilter = createTaskFilter();
-
-// Custom MMKV-based storage
 const mmkvStorage = {
   getItem: (name: string) => {
     const value = StorageUtils.get<string>(name)
@@ -166,14 +139,11 @@ export const useProjectStore = create<ProjectStore>()(
       todaysTasks: [],
       addTask: (data) => {
         const tasks = { ...get().tasks }
-        
-        // Check if a task with the same name and scheduledDate already exists
         const existingTask = Object.values(tasks).find(task => 
           task.name === data.name && 
           task.scheduledDate === data.scheduledDate
         );
         
-        // Only add if no duplicate exists
         if (!existingTask) {
           const id = Date.now().toString()
           const newTask: Task = {
@@ -183,7 +153,7 @@ export const useProjectStore = create<ProjectStore>()(
             completionHistory: {},
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            recurrencePattern: data.recurrencePattern || 'weekly' // Default to weekly
+            recurrencePattern: data.recurrencePattern || 'weekly' 
           }
           tasks[id] = newTask
           set({ tasks, todaysTasks: taskFilter(tasks) })
@@ -199,8 +169,6 @@ export const useProjectStore = create<ProjectStore>()(
         if (tasks[id]) {
           const today = new Date().toISOString().split('T')[0];
           const currentStatus = tasks[id].completionHistory[today] || false;
-          
-          // Clean up old completion history (older than 30 days)
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
           const cleanedHistory = Object.entries(tasks[id].completionHistory)
@@ -209,7 +177,7 @@ export const useProjectStore = create<ProjectStore>()(
           
           tasks[id] = {
             ...tasks[id],
-            completed: !currentStatus, // Keep legacy field updated
+            completed: !currentStatus, 
             completionHistory: {
               ...cleanedHistory,
               [today]: !currentStatus
@@ -226,14 +194,12 @@ export const useProjectStore = create<ProjectStore>()(
       storage: createJSONStorage(() => mmkvStorage),
       onRehydrateStorage: () => (state, error) => {
         if (state) {
-          // Migrate existing tasks to include completionHistory if needed
           const tasks = state.tasks;
           let needsMigration = false;
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
           
           Object.keys(tasks).forEach(id => {
-            // Add recurrencePattern to existing tasks if missing
             if (!tasks[id].recurrencePattern) {
               tasks[id].recurrencePattern = 'weekly';
               needsMigration = true;
@@ -242,7 +208,6 @@ export const useProjectStore = create<ProjectStore>()(
             if (!tasks[id].completionHistory) {
               needsMigration = true;
               tasks[id].completionHistory = {};
-              // If task is completed, mark it as completed on the last update date
               if (tasks[id].completed) {
                 const completionDate = new Date(tasks[id].updatedAt).toISOString().split('T')[0];
                 if (new Date(completionDate) >= thirtyDaysAgo) {
@@ -250,7 +215,6 @@ export const useProjectStore = create<ProjectStore>()(
                 }
               }
             } else {
-              // Clean up old completion history
               tasks[id].completionHistory = Object.entries(tasks[id].completionHistory)
                 .filter(([date]) => new Date(date) >= thirtyDaysAgo)
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {});
@@ -270,7 +234,5 @@ export const useProjectStore = create<ProjectStore>()(
     }
   )
 )
-
-// Optional small selectors
 export const useStoreTasks = () => useProjectStore((s) => s.tasks)
 export const useStoreHydrated = () => useProjectStore((s) => s.hydrated)

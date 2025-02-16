@@ -5,9 +5,11 @@ import { Alert } from 'react-native'
 export default function Step4({
   formData,
   setFormData,
+  handleNext,
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
+  handleNext: () => void
 }) {
   return (
     <YStack gap="$6" flex={1} justifyContent="center" padding="$8">
@@ -75,6 +77,7 @@ export default function Step4({
                 onPress: () => {
                   // Set Dallas, TX zip code as default
                   setFormData(prev => ({ ...prev, zipCode: "75201" }))
+                  handleNext()
                 }
               }
             ]

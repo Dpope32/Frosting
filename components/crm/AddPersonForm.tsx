@@ -24,8 +24,10 @@ import {
   TextInput,
   Switch,
   Pressable,
-  Platform
+  Platform,
+  View
 } from 'react-native'
+import { Plus } from '@tamagui/lucide-icons'
 import type { Person } from '@/types/people'
 import { format, parse, isValid } from 'date-fns'
 
@@ -75,7 +77,30 @@ type DebouncedInputProps = {
   delay?: number
 } & Omit<React.ComponentProps<typeof Input>, 'value'>
 
-// Memoize form content
+const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
+  (
+    { value, onDebouncedChange, delay = 300, ...props },
+    ref: React.Ref<TextInput>
+  ) => {
+    const [text, setText] = useState<string>(value)
+    const debouncedText = useDebounce<string>(text, delay)
+    useEffect(() => {
+      if (debouncedText !== value) {
+        onDebouncedChange(debouncedText)
+      }
+    }, [debouncedText, onDebouncedChange, value])
+    return (
+      <Input
+        ref={ref}
+        {...props}
+        value={text}
+        onChangeText={setText}
+        theme="dark"
+      />
+    )
+  }
+)
+
 const FormContent = React.memo(({ 
   formData, 
   inputResetKey, 
@@ -95,13 +120,6 @@ const FormContent = React.memo(({
   primaryColor: string;
   setOpen: (value: boolean) => void;
 }) => {
-  const startTime = performance.now()
-  
-  useEffect(() => {
-    const endTime = performance.now()
-    console.log(`⏱️ FormContent Render: ${endTime - startTime}ms`)
-  }, [])
-
   const nameRef = useRef<TextInput>(null)
   const birthdayRef = useRef<TextInput>(null)
   const phoneRef = useRef<TextInput>(null)
@@ -334,30 +352,6 @@ const FormContent = React.memo(({
   )
 })
 
-const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
-  (
-    { value, onDebouncedChange, delay = 300, ...props },
-    ref: React.Ref<TextInput>
-  ) => {
-    const [text, setText] = useState<string>(value)
-    const debouncedText = useDebounce<string>(text, delay)
-    useEffect(() => {
-      if (debouncedText !== value) {
-        onDebouncedChange(debouncedText)
-      }
-    }, [debouncedText, onDebouncedChange, value])
-    return (
-      <Input
-        ref={ref}
-        {...props}
-        value={text}
-        onChangeText={setText}
-        theme="dark"
-      />
-    )
-  }
-)
-
 export function AddPersonForm(): JSX.Element {
   const mountStartTime = performance.now()
   
@@ -377,15 +371,12 @@ export function AddPersonForm(): JSX.Element {
 
   const pickImage = useCallback(async (): Promise<void> => {
     try {
-      const imagePickerStart = performance.now()
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
       })
-      const imagePickerEnd = performance.now()
-      console.log(`⏱️ ImagePicker: ${imagePickerEnd - imagePickerStart}ms`)
       if (!result.canceled && result.assets[0]) {
         setFormData((prev) => ({
           ...prev,
@@ -399,7 +390,6 @@ export function AddPersonForm(): JSX.Element {
 
   const handleBirthdayChange = useCallback((text: string): void => {
     try {
-      const parseStart = performance.now()
       const normalizedText = text.replace(/-/g, '/')
       const parsedDate = parse(normalizedText, 'MM/dd/yyyy', new Date())
       if (isValid(parsedDate)) {
@@ -408,8 +398,6 @@ export function AddPersonForm(): JSX.Element {
           birthday: format(parsedDate, 'yyyy-MM-dd'),
         }))
       }
-      const parseEnd = performance.now()
-      console.log(`⏱️ Birthday Parse: ${parseEnd - parseStart}ms`)
     } catch (error) {
       console.log('Failed to parse date:', text)
     }
@@ -417,7 +405,6 @@ export function AddPersonForm(): JSX.Element {
 
   const handleSubmit = useCallback((): void => {
     if (!formData.name?.trim()) return
-    const submitStart = performance.now()
     const processedFormData = {
       ...formData,
       payments: (formData.payments as { type: string; details: string }[]).map(
@@ -437,8 +424,6 @@ export function AddPersonForm(): JSX.Element {
       {
         onSuccess: (): void => {
           useCalendarStore.getState().syncBirthdays()
-          const submitEnd = performance.now()
-          console.log(`⏱️ Form Submit: ${submitEnd - submitStart}ms`)
         },
       }
     )
@@ -449,48 +434,27 @@ export function AddPersonForm(): JSX.Element {
 
   const updateFormField = useCallback(
     <K extends keyof FormData>(field: K, value: FormData[K]): void => {
-      const updateStart = performance.now()
       setFormData((prev) => ({ ...prev, [field]: value }))
-      const updateEnd = performance.now()
-      // log whats in the end form data
-
     },
     []
   )
 
-  const openDialog = useCallback((): void => {
-    const dialogOpenStart = performance.now()
-    setOpen(true)
-    console.log(`⏱️ Dialog Open Start: ${performance.now() - dialogOpenStart}ms`)
-  }, [])
-
-  const handleDialogOpenChange = useCallback((isOpen: boolean): void => {
-    const dialogChangeStart = performance.now()
-    if (isOpen) {
-      console.log(`⏱️ Dialog Opening: ${performance.now() - dialogChangeStart}ms`)
-    } else {
-      console.log(`⏱️ Dialog Closing: ${performance.now() - dialogChangeStart}ms`)
-      setFormData({ ...initialFormData })
-      setInputResetKey((prev) => prev + 1)
-    }
-    setOpen(isOpen)
-  }, [])
-
   return (
     <>
-      <YStack alignItems="flex-end" padding="$4" paddingBottom="$8">
+      <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
         <Button
-          theme="dark"
-          mt="$4"
-          mb="$3"
-          width={150}
-          onPress={openDialog}
-          backgroundColor={primaryColor}
+          size="$4"
+          circular
+          bg={primaryColor}
+          pressStyle={{ scale: 0.95 }}
+          animation="quick"
+          elevation={4}
+          onPress={() => setOpen(true)}
         >
-          Add Person
+          <Plus color="white" size={24} />
         </Button>
-      </YStack>
-      {/* Temporary test to verify Dialog.Portal bottleneck */}
+      </View>
+
       {open ? (
         <YStack
           position="absolute"

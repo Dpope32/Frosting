@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
-import { YStack, Text, XStack, Input, Button } from 'tamagui'
+import React, { useState, useEffect } from 'react'
+import { YStack, Text, Input, Button } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { useUserStore } from '@/store/UserStore'
 import { Stock } from '@/types'
-import { portfolioData, updatePortfolioData } from '../../utils/Portfolio'
+import { portfolioData, updatePortfolioData } from '@/utils/Portfolio'
 
 interface EditStockModalProps {
   open: boolean
@@ -12,96 +12,147 @@ interface EditStockModalProps {
 }
 
 export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProps) {
-  const [ticker, setTicker] = useState(stock?.symbol || '')
-  const [quantity, setQuantity] = useState(stock?.quantity.toString() || '')
-  const [name, setName] = useState(stock?.name || '')
+  const [formData, setFormData] = useState({
+    ticker: '',
+    quantity: '',
+    name: ''
+  })
   const [error, setError] = useState('')
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
 
-  const handleSave = () => {
-    if (!ticker || !quantity || !name) {
-      setError('All fields are required')
-      return
+  useEffect(() => {
+    if (stock) {
+      setFormData({
+        ticker: stock.symbol,
+        quantity: stock.quantity.toString(),
+        name: stock.name
+      })
+    } else {
+      setFormData({ ticker: '', quantity: '', name: '' })
     }
-
-    const newStock: Stock = {
-      symbol: ticker.toUpperCase(),
-      quantity: Number(quantity),
-      name
-    }
-
-    const updatedPortfolio = stock
-      ? portfolioData.map(s => s.symbol === stock.symbol ? newStock : s)
-      : [...portfolioData, newStock];
-    
-    updatePortfolioData(updatedPortfolio);
-
-    // Reset form and close modal
-    setTicker('')
-    setQuantity('')
-    setName('')
     setError('')
-    onOpenChange(false)
+  }, [stock, open])
+
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    setError('')
+  }
+
+  const handleSave = () => {
+    try {
+      if (!formData.ticker || !formData.quantity || !formData.name) {
+        setError('All fields are required')
+        return
+      }
+
+      const quantityNum = Number(formData.quantity)
+      if (isNaN(quantityNum) || quantityNum <= 0) {
+        setError('Please enter a valid quantity')
+        return
+      }
+
+      const newStock: Stock = {
+        symbol: formData.ticker.toUpperCase(),
+        quantity: quantityNum,
+        name: formData.name
+      }
+
+      const updatedPortfolio = stock
+        ? portfolioData.map(s => s.symbol === stock.symbol ? newStock : s)
+        : [...portfolioData, newStock]
+
+      updatePortfolioData(updatedPortfolio)
+      onOpenChange(false)
+    } catch (err) {
+      setError('Failed to update portfolio. Please try again.')
+    }
+  }
+
+  const inputStyle = {
+    backgroundColor: "$backgroundHover",
+    borderColor: "$borderColor",
+    color: "$color",
+    fontSize: 14,
+    height: 40,
+    borderRadius: 8,
+    paddingHorizontal: "$2",
   }
 
   return (
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
-      title={stock ? 'Edit Stock' : 'Add New Stock'}
+      title={stock ? 'Edit Stock' : 'Add Stock'}
     >
-      <YStack gap="$4">
+      <YStack gap="$3" paddingVertical="$2">
         <YStack>
-          <Text color="#fff" fontSize={14} marginBottom="$2">Ticker Symbol</Text>
+          <Text color="$colorSubdued" fontSize={12} marginBottom="$1">
+            Ticker Symbol
+          </Text>
           <Input
-            value={ticker}
-            onChangeText={setTicker}
+            value={formData.ticker}
+            onChangeText={(v) => handleChange('ticker', v)}
             placeholder="e.g. AAPL"
-            backgroundColor="rgba(35,35,35,0.8)"
-            borderColor="rgba(85,85,85,0.5)"
-            color="#fff"
+            placeholderTextColor="$colorSubdued"
+            autoCapitalize="characters"
             disabled={!!stock}
+            opacity={!!stock ? 0.6 : 1}
+            {...inputStyle}
           />
         </YStack>
 
         <YStack>
-          <Text color="#fff" fontSize={14} marginBottom="$2">Quantity</Text>
+          <Text color="$colorSubdued" fontSize={12} marginBottom="$1">
+            Quantity
+          </Text>
           <Input
-            value={quantity}
-            onChangeText={setQuantity}
+            value={formData.quantity}
+            onChangeText={(v) => handleChange('quantity', v.replace(/[^0-9]/g, ''))}
             placeholder="Number of shares"
+            placeholderTextColor="$colorSubdued"
             keyboardType="numeric"
-            backgroundColor="rgba(35,35,35,0.8)"
-            borderColor="rgba(85,85,85,0.5)"
-            color="#fff"
+            {...inputStyle}
           />
         </YStack>
 
         <YStack>
-          <Text color="#fff" fontSize={14} marginBottom="$2">Company Name</Text>
+          <Text color="$colorSubdued" fontSize={12} marginBottom="$1">
+            Company Name
+          </Text>
           <Input
-            value={name}
-            onChangeText={setName}
+            value={formData.name}
+            onChangeText={(v) => handleChange('name', v)}
             placeholder="e.g. Apple Inc"
-            backgroundColor="rgba(35,35,35,0.8)"
-            borderColor="rgba(85,85,85,0.5)"
-            color="#fff"
+            placeholderTextColor="$colorSubdued"
             disabled={!!stock}
+            opacity={!!stock ? 0.6 : 1}
+            {...inputStyle}
           />
         </YStack>
 
         {error && (
-          <Text color="#FF5252" fontSize={14}>{error}</Text>
+          <Text 
+            color="$red10" 
+            fontSize={12} 
+            textAlign="center"
+            backgroundColor="$red2"
+            padding="$2"
+            borderRadius={6}
+          >
+            {error}
+          </Text>
         )}
 
         <Button
           backgroundColor={primaryColor}
-          height={45}
-          pressStyle={{ opacity: 0.8 }}
+          height={40}
+          borderRadius={8}
+          opacity={!formData.ticker || !formData.quantity || !formData.name ? 0.5 : 1}
+          disabled={!formData.ticker || !formData.quantity || !formData.name}
+          pressStyle={{ opacity: 0.8, scale: 0.98 }}
           onPress={handleSave}
-          marginTop="$2"
         >
-          <Text color="#fff" fontWeight="500">
+          <Text color="#fff" fontWeight="500" fontSize={14}>
             {stock ? 'Update Stock' : 'Add Stock'}
           </Text>
         </Button>

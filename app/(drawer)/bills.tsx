@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, useColorScheme } from 'react-native';
 import { Button, Card, H2, Paragraph, XStack, YStack } from 'tamagui';
 import { Plus, X, Wifi, CreditCard, Home, Tv, ShoppingBag, Zap, Droplet, GaugeCircle, Phone, Shield, Activity, Car, DollarSign, Calendar, BookOpen, Newspaper, Cloud, Wrench, Trash, Lock, Heart, GraduationCap, PlaneTakeoff, Coffee, FileText, Percent } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
@@ -51,46 +51,90 @@ export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const { bills, addBill, deleteBill, isLoading } = useBills();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => {
     addBill(billData);
   };
 
   return (
-    <YStack f={1} mt={90} bg="#000000">
+    <YStack f={1} mt={90} bg={isDark ? "#000000" : "#ffffff"}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
         <YStack gap="$4">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <XStack key={`skeleton-${index}`} bg="#1A1A1A" p="$4" borderRadius="$4" ai="center" pressStyle={{ opacity: 0.7 }} animation="quick">
-                <YStack width={44} height={44} bg="#333" borderRadius="$4" />
+              <XStack 
+                key={`skeleton-${index}`} 
+                bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+                p="$4" 
+                borderRadius="$4" 
+                ai="center" 
+                pressStyle={{ opacity: 0.7 }} 
+                animation="quick"
+                borderWidth={1}
+                borderColor={isDark ? "#333" : "#e0e0e0"}
+              >
+                <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$4" />
                 <YStack ml="$3" flex={1} gap="$1">
-                  <YStack width={100} height={20} bg="#333" borderRadius="$2" />
-                  <YStack width={60} height={16} bg="#333" borderRadius="$2" />
+                  <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
+                  <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
                 </YStack>
               </XStack>
             ))
           ) : bills?.length === 0 ? (
-            <XStack bg="#1A1A1A" p="$6" borderRadius="$4" ai="center" jc="center">
-              <Paragraph color="#666" textAlign="center">No bills added yet</Paragraph>
+            <XStack 
+              bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+              p="$6" 
+              borderRadius="$4" 
+              ai="center" 
+              jc="center"
+              borderWidth={1}
+              borderColor={isDark ? "#333" : "#e0e0e0"}
+            >
+              <Paragraph color={isDark ? "#666" : "#999"} textAlign="center">No bills added yet</Paragraph>
             </XStack>
           ) : bills ? (
             bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
               const IconComponent = getIconForBill(bill.name);
               const amountColor = getAmountColor(bill.amount);
               return (
-                <XStack key={bill.id} bg="#1A1A1A" p="$4" borderRadius="$4" ai="center" pressStyle={{ opacity: 0.7 }} animation="quick">
-                  <YStack width={44} height={44} borderRadius="$4" ai="center" jc="center" bg="#333">
-                    <IconComponent size={26} color="white" />
+                <XStack 
+                  key={bill.id} 
+                  bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+                  p="$4" 
+                  borderRadius="$4" 
+                  ai="center" 
+                  pressStyle={{ opacity: 0.7 }} 
+                  animation="quick"
+                  borderWidth={1}
+                  borderColor={isDark ? "#333" : "#e0e0e0"}
+                >
+                  <YStack 
+                    width={44} 
+                    height={44} 
+                    borderRadius="$4" 
+                    ai="center" 
+                    jc="center" 
+                    bg={isDark ? "#333" : "#e0e0e0"}
+                  >
+                    <IconComponent size={26} color={isDark ? "white" : "#666"} />
                   </YStack>
                   <YStack ml="$3" flex={1}>
-                    <H2 color="white" fontSize="$6" letterSpacing={0.5}>{bill.name}</H2>
+                    <H2 color={isDark ? "white" : "black"} fontSize="$6" letterSpacing={0.5}>{bill.name}</H2>
                     <XStack ai="center" gap="$2">
                       <Paragraph color={amountColor} fontSize="$5" fontWeight="bold">${bill.amount.toFixed(2)}</Paragraph>
                       <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}th</Paragraph>
                     </XStack>
                   </YStack>
-                  <Button size="$2" bg="transparent" pressStyle={{ scale: 0.9 }} animation="quick" onPress={() => deleteBill(bill.id)} icon={<X size={18} color="#666" />} />
+                  <Button 
+                    size="$3"
+                    bg="transparent" 
+                    pressStyle={{ scale: 0.9 }} 
+                    animation="quick" 
+                    onPress={() => deleteBill(bill.id)} 
+                    icon={<X size={18} color="#ff4444" />} 
+                  />
                 </XStack>
               );
             })
@@ -98,7 +142,19 @@ export default function BillsScreen() {
         </YStack>
       </ScrollView>
       <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
-      <Button onPress={() => setIsModalVisible(true)} position="absolute" bottom="$8" right="$4" zIndex={1000} size="$4" circular bg={primaryColor} pressStyle={{ scale: 0.95 }} animation="quick" elevation={4}>
+      <Button 
+        onPress={() => setIsModalVisible(true)} 
+        position="absolute" 
+        bottom={32} 
+        right={24} 
+        zIndex={1000} 
+        size="$4" 
+        circular 
+        bg={primaryColor} 
+        pressStyle={{ scale: 0.95 }} 
+        animation="quick" 
+        elevation={4}
+      >
         <Plus color="white" size={24} />
       </Button>
     </YStack>

@@ -3,11 +3,12 @@ import { YStack, Text, Button, Spinner, Progress, XStack } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
 import { MediaTypeOptions, launchImageLibraryAsync } from 'expo-image-picker'
 import axios from 'axios'
-import { Alert, Platform } from 'react-native'
+import { Alert, Platform, View, useColorScheme } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
 import * as Notifications from 'expo-notifications'
 import { useCalendarStore } from '@/store/CalendarStore'
 import { SchedulableTriggerInputTypes } from 'expo-notifications'
+import { Plus, Bell } from '@tamagui/lucide-icons'
 
 const UPLOAD_SERVER = process.env.EXPO_PUBLIC_UPLOAD_SERVER
 const DEFAULT_STATS = { totalSize: 0, fileCount: 0 }
@@ -101,22 +102,17 @@ const useFileUpload = () => {
 export default function StorageScreen() {
   const { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles } = useFileUpload()
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+
   const testNotification = async () => {
     try {
-      // Log existing notifications before cancelling
-      const existingNotifications = await Notifications.getAllScheduledNotificationsAsync();
-      console.log('Currently scheduled notifications:', existingNotifications);
-  
       await Notifications.cancelAllScheduledNotificationsAsync();
-      console.log('All notifications cancelled');
-      console.log('Testing immediate notification...');
       
       const { status } = await Notifications.getPermissionsAsync();
-      console.log('Current permission status:', status);
       
       if (status !== 'granted') {
         const { status: newStatus } = await Notifications.requestPermissionsAsync();
-        console.log('New permission status:', newStatus);
         if (newStatus !== 'granted') {
           Alert.alert('Error', 'Failed to get notification permissions');
           return;
@@ -134,16 +130,10 @@ export default function StorageScreen() {
         },
         trigger: {
           type: SchedulableTriggerInputTypes.DATE,
-          date: new Date(Date.now() + 1000), // 1 second from now
+          date: new Date(Date.now() + 1000),
           channelId: 'test-channel'
         }
       });
-      
-      console.log('Immediate notification scheduled:', notifId);
-      
-      // Log all scheduled notifications after scheduling new one
-      const updatedNotifications = await Notifications.getAllScheduledNotificationsAsync();
-      console.log('Updated scheduled notifications:', updatedNotifications);
       
       Alert.alert("Success", "Immediate notification sent!");
     } catch (error) {
@@ -154,64 +144,73 @@ export default function StorageScreen() {
 
   return (
     <YStack flex={1} padding="$6" paddingTop={100} gap="$6">
-      {__DEV__ && (
-        <Button
-          size="$4"
-          backgroundColor="$red9"
-          borderRadius="$3"
-          pressStyle={{ scale: 0.98, opacity: 0.9 }}
-          onPress={testNotification}
-          marginBottom="$3"
-        >
-          <Text fontSize="$4" fontWeight="bold" color="white">
-            Test Notification
-          </Text>
-        </Button>
-      )}
-      <YStack gap="$6" backgroundColor="$gray2Dark" padding="$3" borderRadius="$3">
+      <YStack 
+        gap="$6" 
+        backgroundColor={isDark ? "#1a1a1a" : "#f5f5f5"}
+        padding="$4" 
+        borderRadius="$4"
+        borderWidth={1}
+        borderColor={isDark ? "#333" : "#e0e0e0"}
+      >
         <XStack justifyContent="space-around">
           <YStack alignItems="center" gap="$1">
-            <Text fontSize="$4" color="$gray11Dark">Used Space</Text>
-            <Text fontSize="$5" fontWeight="bold" color="$blue10">
+            <Text fontSize="$4" color={isDark ? "#fff" : "#000"}>Used Space</Text>
+            <Text fontSize="$5" fontWeight="bold" color={primaryColor}>
               {formatSize(stats.totalSize)}
             </Text>
           </YStack>
           <YStack alignItems="center" gap="$1">
-            <Text fontSize="$4" color="$gray11Dark">Total Files</Text>
-            <Text fontSize="$5" fontWeight="bold" color="$blue10">
+            <Text fontSize="$4" color={isDark ? "#fff" : "#000"}>Total Files</Text>
+            <Text fontSize="$5" fontWeight="bold" color={primaryColor}>
               {stats.fileCount}
             </Text>
           </YStack>
         </XStack>
       </YStack>
-      <Button
-        size="$4"
-        backgroundColor={isUploading ? "$gray3Dark" : primaryColor}
-        borderRadius="$3"
-        pressStyle={{ scale: 0.98, opacity: 0.9 }}
-        disabled={isUploading}
-        onPress={pickAndUploadFiles}
-        marginVertical="$3"
-      >
-        <XStack gap="$1" alignItems="center">
-          {isUploading && <Spinner size="small" color="$gray12Dark" />}
-          <Text fontSize="$4" fontWeight="bold" color="white">
-            {isUploading ? 'Uploading...' : 'Upload Files'}
-          </Text>
-        </XStack>
-      </Button>
+
       {isUploading && (
         <YStack gap="$1">
-          <Progress value={progress} backgroundColor="$gray4Dark">
+          <Progress value={progress} backgroundColor={isDark ? "$gray4Dark" : "$gray4Light"}>
             <Progress.Indicator animation="bouncy" backgroundColor={primaryColor} />
           </Progress>
-          <Text textAlign="center" color="$gray11Dark" fontSize="$3">
+          <Text textAlign="center" color={isDark ? "#fff" : "#000"} fontSize="$3">
             Uploading file {currentFileIndex} of {totalFiles}
           </Text>
-          <Text textAlign="center" color="$gray11Dark" fontSize="$3" fontWeight="bold">
+          <Text textAlign="center" color={isDark ? "#fff" : "#000"} fontSize="$3" fontWeight="bold">
             {progress}% Complete
           </Text>
         </YStack>
+      )}
+
+      <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
+        <Button
+          size="$4"
+          circular
+          bg={primaryColor}
+          pressStyle={{ scale: 0.95 }}
+          animation="quick"
+          elevation={4}
+          disabled={isUploading}
+          onPress={pickAndUploadFiles}
+        >
+          <Plus color="white" size={24} />
+        </Button>
+      </View>
+
+      {__DEV__ && (
+        <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000 }}>
+          <Button
+            size="$4"
+            circular
+            bg="$red9"
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={testNotification}
+          >
+            <Bell color="white" size={24} />
+          </Button>
+        </View>
       )}
     </YStack>
   )

@@ -16,7 +16,9 @@ import {
   StyleProp,
   ViewStyle,
   Linking,
-  Alert
+  Alert,
+  Platform,
+  useColorScheme
 } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Clipboard from "expo-clipboard";
@@ -71,6 +73,8 @@ export function PersonCard({
   }, [person.address]);
 
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   const handleEditPress = useCallback((e: any) => {
     e.preventDefault();
@@ -96,7 +100,13 @@ export function PersonCard({
           borderRadius="$4"
           animation="quick"
           pressStyle={{ scale: 0.98 }}
-          style={[styles.card, { borderColor: nicknameColor }]}
+          style={[
+            styles.card,
+            { 
+              borderColor: nicknameColor,
+              backgroundColor: isDark ? "rgba(40,40,40,0.85)" : "rgba(200,200,200,0.95)"
+            }
+          ]}
         >
           <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable}>
             <XStack alignItems="center" gap="$3">
@@ -123,7 +133,7 @@ export function PersonCard({
                   </View>
                 )}
               </View>
-              <YStack flex={1} gap="$1">
+              <YStack flex={1} gap={4}>
                 <XStack alignItems="center" gap="$2">
                   {person.registered && (
                     <Ionicons
@@ -143,7 +153,12 @@ export function PersonCard({
                     {person.nickname || person.name}
                   </Paragraph>
                 </XStack>
-                <Paragraph fontSize={12} color="#999">
+                <Paragraph 
+                  fontSize={12} 
+                  color={isDark ? "#999" : "#666"}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   {person.occupation}
                 </Paragraph>
               </YStack>
@@ -159,9 +174,10 @@ export function PersonCard({
             }
             !isOpen && onPress?.();
           }}
-          snapPoints={[82]}
+          snapPoints={[85, 95]}
           dismissOnSnapToBottom
           dismissOnOverlayPress
+          animation="quick"
           zIndex={100000}
         >
           <Sheet.Overlay animation="quick" style={styles.overlay} />
@@ -409,7 +425,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: 80,
     height: 80,
-    marginBottom: 16 // Added to ensure space below for pills
+    marginBottom: 16
   },
   reminderPill: {
     backgroundColor: 'rgba(0,0,0,0.4)'
@@ -451,8 +467,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     shadowRadius: 3.84,
     elevation: 5,
-    padding: 10,
-    backgroundColor: "rgba(20,20,20,0.85)"
+    padding: 8,
   },
   nameText: {
     flexShrink: 1,
@@ -540,12 +555,12 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 20,
-    paddingBottom: 120, // Increased to prevent button overlap
+    paddingBottom: 120,
     position: 'relative'
   },
   modalHeaderIcons: {
     position: 'absolute',
-    top: -12, // This pulls it up
+    top: -12,
     left: 10,
     right: 10,
     zIndex: 2,

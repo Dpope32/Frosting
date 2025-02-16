@@ -9,7 +9,8 @@ import {
   Platform,
   Keyboard,
   View,
-  Alert
+  Alert,
+  useColorScheme
 } from 'react-native'
 
 interface ChatErrorBoundaryProps {
@@ -45,8 +46,34 @@ class ChatErrorBoundary extends React.Component<ChatErrorBoundaryProps, ChatErro
 }
 
 const THEME = {
-  inputBg: '#222222',
-  inputBorder: '#383838',
+  light: {
+    background: '#ffffff',
+    inputBg: '#f5f5f5',
+    inputBorder: '#e0e0e0',
+    text: '#000000',
+    messageBg: {
+      user: '#0066CC',
+      assistant: '#f0f0f0'
+    },
+    messageText: {
+      user: '#ffffff',
+      assistant: '#000000'
+    }
+  },
+  dark: {
+    background: '#1a1a1a',
+    inputBg: '#222222',
+    inputBorder: '#383838',
+    text: '#ffffff',
+    messageBg: {
+      user: '#0066CC',
+      assistant: '#333333'
+    },
+    messageText: {
+      user: '#ffffff',
+      assistant: '#ffffff'
+    }
+  },
   dedle: {
     primary: '#FFD700',
     secondary: '#FFA500',
@@ -66,6 +93,9 @@ function ChatbotInner() {
   const username = useUserStore((state) => state.preferences.username)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const { messages, sendMessage, isLoading, currentStreamingMessage, error, currentPersona, setPersona } = useChatStore()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  const theme = isDark ? THEME.dark : THEME.light
 
   const handleSend = async () => {
     if (isLoading) return
@@ -117,7 +147,7 @@ function ChatbotInner() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Stack flex={1} backgroundColor="#1a1a1a" position="relative">
+      <Stack flex={1} backgroundColor={theme.background} position="relative">
         {error && (
           <XStack
             backgroundColor="#AA0000"
@@ -149,7 +179,7 @@ function ChatbotInner() {
         )}
         {messages.filter((m) => m.role !== 'system').length === 0 ? (
           <Stack flex={1} alignItems="center" justifyContent="center">
-            <Text color="white" fontSize={20}>
+            <Text color={theme.text} fontSize={20}>
               What can I help you with{username ? `, ${username}` : ''}?
             </Text>
           </Stack>
@@ -167,33 +197,33 @@ function ChatbotInner() {
               {messages.filter((m) => m.role !== 'system').map((msg, idx) => (
                 <XStack
                   key={idx}
-                  backgroundColor={msg.role === 'user' ? '#0066CC' : '#333'}
+                  backgroundColor={msg.role === 'user' ? theme.messageBg.user : theme.messageBg.assistant}
                   padding={12}
                   borderRadius={16}
                   alignSelf={msg.role === 'user' ? 'flex-end' : 'flex-start'}
                   maxWidth="80%"
                 >
-                  <Text color="white" fontSize={16}>
+                  <Text color={msg.role === 'user' ? theme.messageText.user : theme.messageText.assistant} fontSize={16}>
                     {msg.content}
                   </Text>
                 </XStack>
               ))}
               {currentStreamingMessage && (
                 <XStack
-                  backgroundColor="#333"
+                  backgroundColor={theme.messageBg.assistant}
                   padding={12}
                   borderRadius={16}
                   alignSelf="flex-start"
                   maxWidth="80%"
                 >
-                  <Text color="white" fontSize={16}>
+                  <Text color={theme.messageText.assistant} fontSize={16}>
                     {currentStreamingMessage}
                   </Text>
                 </XStack>
               )}
               {isLoading && !currentStreamingMessage && (
                 <XStack
-                  backgroundColor="#333"
+                  backgroundColor={theme.messageBg.assistant}
                   padding={12}
                   borderRadius={16}
                   alignSelf="flex-start"
@@ -201,24 +231,24 @@ function ChatbotInner() {
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Spinner size="small" color="white" />
+                  <Spinner size="small" color={theme.messageText.assistant} />
                 </XStack>
               )}
             </YStack>
           </RNScrollView>
         )}
         <XStack
-          backgroundColor={THEME.inputBg}
+          backgroundColor={theme.inputBg}
           borderRadius={24}
           margin={16}
           marginBottom={Platform.OS === 'ios' ? keyboardHeight + 16 : 16}
-          paddingVertical={16}
+          paddingVertical={8}
           paddingHorizontal={16}
           alignItems="center"
           borderWidth={1}
-          borderColor={THEME.inputBorder}
+          borderColor={theme.inputBorder}
           opacity={isLoading ? 0.7 : 1}
-          minHeight={56}
+          minHeight={44}
         >
           <TouchableOpacity
             onPress={() => {
@@ -256,9 +286,9 @@ function ChatbotInner() {
             backgroundColor="transparent"
             autoCapitalize="sentences"
             placeholder="Message"
-            placeholderTextColor="#666"
+            placeholderTextColor={isDark ? '#666' : '#999'}
             borderWidth={0}
-            color="white"
+            color={theme.text}
             value={message}
             onChangeText={setMessage}
             onSubmitEditing={handleSend}

@@ -4,16 +4,26 @@ import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
 import { useState } from 'react'
 
-const avatarStyles = ['avataaars', 'bottts', 'pixel-art', 'lorelei']
+// Import wallpapers
+const wallpapers = [
+  require('@/assets/wallpapers/wallpapers-1.png'),
+  require('@/assets/wallpapers/wallpapers-2.png'),
+  require('@/assets/wallpapers/wallpapers-3.png'),
+  require('@/assets/wallpapers/wallpapers-4.png'),
+  require('@/assets/wallpapers/wallpapers-5.jpg'),
+  require('@/assets/wallpapers/wallpapers.png'),
+]
 
 export default function Step1({
   formData,
   setFormData,
   pickImage,
+  handleNext,
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   pickImage: () => void
+  handleNext: () => void
 }) {
   const [styleIndex, setStyleIndex] = useState(0)
   return (
@@ -73,22 +83,21 @@ export default function Step1({
         <Button
           chromeless
           onPress={() => {
-            const currentStyle = avatarStyles[styleIndex]
-            setStyleIndex((prev) => (prev + 1) % avatarStyles.length)
+            // Select random wallpaper
+            const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)]
+            const wallpaperUri = Image.resolveAssetSource(randomWallpaper).uri
             
-            const avatarUrl = `https://api.dicebear.com/6.x/${currentStyle}/png?seed=${encodeURIComponent(formData.username)}`
-            
-            console.log('Generated avatar URL:', avatarUrl)
-            console.log('Current username:', formData.username)
-            console.log('Current style:', currentStyle)
-            
+            // Set the wallpaper as profile picture
             setFormData((prev) => ({
               ...prev,
-              profilePicture: avatarUrl
+              profilePicture: wallpaperUri
             }))
             useUserStore.getState().setPreferences({
-              profilePicture: avatarUrl
+              profilePicture: wallpaperUri
             })
+            
+            // Proceed to next step
+            handleNext()
           }}
           color="$blue10Dark"
           marginTop="$1"

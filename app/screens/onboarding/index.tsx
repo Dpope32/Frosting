@@ -98,6 +98,7 @@ export default function Onboarding() {
             formData={formData}
             setFormData={setFormData}
             pickImage={pickImage}
+            handleNext={handleNext}
           />
         )
       case 2:
@@ -122,6 +123,7 @@ export default function Onboarding() {
           <Step4
             formData={formData}
             setFormData={setFormData}
+            handleNext={handleNext}
           />
         )
       default:
