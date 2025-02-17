@@ -21,6 +21,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const [selectedStock, setSelectedStock] = useState<Stock | undefined>()
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
   const { prices, totalValue, principal } = usePortfolioStore()
+  const currentTotalValue = totalValue ?? 0
   const [isEditingPrincipal, setIsEditingPrincipal] = useState(false)
   const [principalInput, setPrincipalInput] = useState(principal.toString())
   const colorScheme = useColorScheme()
@@ -48,11 +49,18 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
     card: {
       backgroundColor: isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)",
       borderRadius: 12,
-      padding: 16,
+      padding: 10,
       borderWidth: 1,
       borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     }
   })
+
+  const calculateROI = () => {
+    if (!principal || principal === 0) return 0;
+    return ((currentTotalValue - principal) / principal) * 100;
+  };
+
+  const roi = calculateROI();
 
   return (
     <BaseCardModal
@@ -62,34 +70,27 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
     >
       <YStack gap="$4" paddingTop="$1">
         <YStack>
-          <Text 
-            color={isDark ? "#999" : "#666"} 
-            fontSize={14} 
-            marginBottom="$2"
-          >
-            Portfolio Overview
-          </Text>
           <Animated.View 
             entering={FadeIn.duration(600)}
             style={styles.card}
           >
-            <XStack justifyContent="space-between" alignItems="center">
-              <YStack flex={1}>
-                <Text color={isDark ? "#999" : "#666"} fontSize={12}>Current Value</Text>
+            <YStack gap="$1.5" paddingHorizontal="$2">
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text color={isDark ? "#999" : "#666"} fontSize={14}>Value</Text>
                 <Text 
-                  color={getStockValueColor(totalValue || 0)} 
-                  fontSize={24} 
+                  color={getStockValueColor(currentTotalValue)} 
+                  fontSize={14} 
                   fontWeight="600"
                 >
-                  ${(totalValue || 0).toLocaleString('en-US', { 
+                  ${currentTotalValue.toLocaleString('en-US', { 
                     minimumFractionDigits: 2, 
                     maximumFractionDigits: 2 
                   })}
                 </Text>
-              </YStack>
+              </XStack>
 
-              <YStack flex={1} alignItems="center">
-                <Text color={isDark ? "#999" : "#666"} fontSize={12}>Principal</Text>
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text color={isDark ? "#999" : "#666"} fontSize={14}>Principal</Text>
                 {isEditingPrincipal ? (
                   <Input
                     value={principalInput}
@@ -105,14 +106,16 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                     }}
                     backgroundColor="$backgroundHover"
                     borderColor="$borderColor"
-                    height={32}
-                    textAlign="center"
-                    fontSize={20}
+                    height={24}
+                    textAlign="right"
+                    fontSize={14}
+                    width={110}
                   />
                 ) : (
                   <Text
-                    fontSize={24}
+                    fontSize={14}
                     fontWeight="600"
+                    color={isDark ? '#ef4444' : '#b91c1c'}
                     onPress={() => {
                       setIsEditingPrincipal(true)
                       setPrincipalInput(principal.toString())
@@ -124,42 +127,53 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                     })}
                   </Text>
                 )}
-              </YStack>
+              </XStack>
 
-              <YStack flex={1} alignItems="flex-end">
-                <Text color={isDark ? "#999" : "#666"} fontSize={12}>Profit/Loss</Text>
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text color={isDark ? "#999" : "#666"} fontSize={14}>P/L</Text>
                 <Text 
-                  color={getStockValueColor((totalValue || 0) - principal)} 
-                  fontSize={24} 
+                  color={getStockValueColor(currentTotalValue - principal)} 
+                  fontSize={14} 
                   fontWeight="600"
                 >
-                  ${((totalValue || 0) - principal).toLocaleString('en-US', { 
+                  ${(currentTotalValue - principal).toLocaleString('en-US', { 
                     minimumFractionDigits: 2, 
                     maximumFractionDigits: 2 
                   })}
                 </Text>
-              </YStack>
-            </XStack>
+              </XStack>
+
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text color={isDark ? "#999" : "#666"} fontSize={12}>ROI</Text>
+                <Text
+                  color={getStockValueColor(roi)}
+                  fontSize={14}
+                  fontWeight="600"
+                >
+                  {roi.toFixed(1)}%
+                </Text>
+              </XStack>
+            </YStack>
           </Animated.View>
         </YStack>
         <YStack>
-          <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
+          <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" paddingRight="$1">
             <Text color={isDark ? "#999" : "#666"} fontSize={14}>Holdings</Text>
             <Button
-              icon={
-                <MaterialIcons 
-                  name="add" 
-                  size={20} 
-                  color={isDark ? "#fff" : "#000"} 
-                />
-              }
-              circular
-              {...iconButtonStyle}
-              pressStyle={{ opacity: 0.7 }}
+              unstyled
               onPress={() => {
                 setSelectedStock(undefined)
                 setEditModalOpen(true)
               }}
+              padding="$1"
+              pressStyle={{ opacity: 0.7 }}
+              icon={
+                <MaterialIcons 
+                  name="add" 
+                  size={32} 
+                  color={isDark ? "#fff" : "#000"}
+                />
+              }
             />
           </XStack>
 
@@ -183,7 +197,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   <Text color={isDark ? "#999" : "#666"} fontSize={14}>
                     No stocks added yet
                   </Text>
-                  <Text color={isDark ? "#666" : "#999"} fontSize={12}>
+                  <Text color={isDark ? "#666" : "#999"} fontSize={14}>
                     Tap + to add your first stock
                   </Text>
                 </YStack>
