@@ -247,7 +247,11 @@ export function EditPersonForm({
                 <DebouncedInput
                   value={
                     formData.payments
-                      .map((p) => `${p.type}: ${p.details}`)
+                      .map((p) => {
+                        if (typeof p === 'string') return p;
+                        return p.type && p.details ? `${p.type}: ${p.details}` : '';
+                      })
+                      .filter(Boolean)
                       .join("\n") || ""
                   }
                   onDebouncedChange={(text) => {
@@ -255,10 +259,11 @@ export function EditPersonForm({
                       const payments = text
                         .split("\n")
                         .map((line) => {
+                          if (!line.includes(':')) return line;
                           const [type, details] = line.split(":").map((s) => s.trim());
                           return { type, details };
                         })
-                        .filter((p) => p.type && p.details);
+                        .filter((p) => typeof p === 'string' || (p.type && p.details));
                       setFormData((prev) => ({ ...prev, payments }));
                     } catch {}
                   }}

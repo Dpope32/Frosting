@@ -48,7 +48,8 @@ export function useBills() {
         priority: 'high',
         category: 'wealth',
         isOneTime: true,
-        scheduledDate: formattedDate
+        scheduledDate: formattedDate,
+        recurrencePattern: 'monthly'
       });
     }
 

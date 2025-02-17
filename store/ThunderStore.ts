@@ -75,7 +75,8 @@ export const useThunderStore = create<ThunderStore>()(
               category: 'personal',
               isOneTime: true,
               scheduledDate: game.date,
-              time: gameTime
+              time: gameTime,
+              recurrencePattern: 'weekly'
             });
           }
         });
@@ -99,7 +100,8 @@ export const useThunderStore = create<ThunderStore>()(
               category: 'personal',
               isOneTime: true,
               scheduledDate: game.date,
-              time: gameTime !== 'TBD' ? gameTime : 'TBD'
+              time: gameTime !== 'TBD' ? gameTime : 'TBD',
+              recurrencePattern: 'weekly'
             });
           }
         });
