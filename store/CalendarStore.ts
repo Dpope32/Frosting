@@ -27,9 +27,10 @@ const mmkvStorage: StateStorage = {
 export interface CalendarEvent {
   id: string
   date: string
+  time?: string  // HH:mm in Central Time
   title: string
   description: string
-  type?: 'birthday' | 'regular' | 'bill'
+  type?: 'birthday' | 'personal' | 'work' | 'family' | 'bill'
   personId?: string
   createdAt: string
   updatedAt: string
@@ -59,7 +60,6 @@ export const useCalendarStore = create<CalendarState>()(
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
-          console.log('[CalendarStore] Added event:', newEvent.title, newEvent.date)
           return { events: [...state.events, newEvent] }
         }),
 
@@ -78,7 +78,6 @@ export const useCalendarStore = create<CalendarState>()(
       getEventsForDate: (date: string) => {
         const state = get()
         const eventsForDate = state.events.filter((event) => event.date === date)
-        console.log('[CalendarStore] Events for date', date, eventsForDate)
         return eventsForDate
       },
 
@@ -87,19 +86,12 @@ export const useCalendarStore = create<CalendarState>()(
       scheduleNotification: async (date, title, body, identifier) => {
         try {
           const { status } = await Notifications.getPermissionsAsync()
-          console.log('[CalendarStore] Current notification permission status:', status)
           if (status !== 'granted') {
             const { status: reqStatus } = await Notifications.requestPermissionsAsync()
-            console.log('[CalendarStore] Requested notification permissions, new status:', reqStatus)
             if (reqStatus !== 'granted') {
               throw new Error('Notification permissions not granted')
             }
           }
-          console.log('[CalendarStore] Scheduling notification:', {
-            title,
-            body,
-            date: date.toISOString(),
-          })
           const notifId = await Notifications.scheduleNotificationAsync({
             content: {
               title,
@@ -114,11 +106,9 @@ export const useCalendarStore = create<CalendarState>()(
             },
             identifier,
           })
-          console.log('[CalendarStore] Notification scheduled with id:', notifId)
           return notifId
         } catch (error) {
-          console.error('[CalendarStore] Failed to schedule notification:', error)
-          throw error
+          throw new Error(`Failed to schedule notification: ${error}`)
         }
       },
 
@@ -130,13 +120,11 @@ export const useCalendarStore = create<CalendarState>()(
           const scheduleNotification = get().scheduleNotification
 
           const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
-          console.log('[CalendarStore] Starting birthday sync for', Object.keys(contactsToSync).length, 'contacts')
 
           const existingEvents = state.events
           const nonBirthdayEvents = existingEvents.filter(
             (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
           )
-          console.log('[CalendarStore] Non-birthday events count:', nonBirthdayEvents.length)
 
           const years = [currentYear, currentYear + 1, currentYear + 2]
           const birthdayEvents = Object.values(contactsToSync)
@@ -161,12 +149,7 @@ export const useCalendarStore = create<CalendarState>()(
                 const birthdayDate = new Date(eventDate) // This will already be 14:00 UTC
                 const twoWeeksBefore = new Date(birthdayDate)
                 twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14)
-                console.log('[CalendarStore] Processing birthday for', person.name, 'year', year, {
-                  birthdayDate: birthdayDate.toISOString(),
-                  twoWeeksBefore: twoWeeksBefore.toISOString(),
-                })
                 if (birthdayDate > now) {
-                  console.log('[CalendarStore] Scheduling birthday notification for', person.name)
                   scheduleNotification(
                     birthdayDate,
                     `🎂 ${person.name}'s Birthday Today!`,
@@ -174,10 +157,8 @@ export const useCalendarStore = create<CalendarState>()(
                     `birthday-${person.id}-${year}-day`
                   )
                 } else {
-                  console.log('[CalendarStore] Skipped birthday notification for', person.name, 'as date is in the past')
                 }
                 if (person.priority && twoWeeksBefore > now) {
-                  console.log('[CalendarStore] Scheduling 2-week reminder for', person.name)
                   scheduleNotification(
                     twoWeeksBefore,
                     `🎁 ${person.name}'s Birthday in 2 Weeks`,
@@ -195,7 +176,6 @@ export const useCalendarStore = create<CalendarState>()(
                     'saturday',
                   ]
                   const taskName = `Get ${person.name}'s birthday present (birthday in 2 weeks)`
-                  console.log('[CalendarStore] Creating task for reminder:', taskName)
                   addTask({
                     name: taskName,
                     schedule: [weekDays[reminderDay]],
@@ -203,6 +183,7 @@ export const useCalendarStore = create<CalendarState>()(
                     category: 'personal',
                     isOneTime: true,
                     scheduledDate: twoWeeksBefore.toISOString(),
+                    recurrencePattern: 'yearly'
                   })
                 }
                 if (birthdayDate >= now) {
@@ -217,7 +198,6 @@ export const useCalendarStore = create<CalendarState>()(
                     'saturday',
                   ]
                   const taskName = `Wish ${person.name} a happy birthday! 🎂`
-                  console.log('[CalendarStore] Creating birthday task:', taskName)
                   addTask({
                     name: taskName,
                     schedule: [weekDays[birthdayDay]],
@@ -225,12 +205,12 @@ export const useCalendarStore = create<CalendarState>()(
                     category: 'personal',
                     isOneTime: true,
                     scheduledDate: birthdayDate.toISOString(),
+                    recurrencePattern: 'yearly'
                   })
                 }
                 return birthdayEvent
               })
             })
-          console.log('[CalendarStore] Sync complete. New birthday events:', birthdayEvents.length)
           return { events: [...nonBirthdayEvents, ...birthdayEvents] }
         }),
     }),

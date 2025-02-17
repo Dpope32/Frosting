@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { YStack, Text, Input, Button } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { useUserStore } from '@/store/UserStore'
 import { Stock } from '@/types'
 import { portfolioData, updatePortfolioData } from '@/utils/Portfolio'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface EditStockModalProps {
   open: boolean
@@ -33,12 +34,14 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
     setError('')
   }, [stock, open])
 
-  const handleChange = (field: keyof typeof formData, value: string) => {
+  const queryClient = useQueryClient()
+  
+  const handleChange = useCallback((field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     setError('')
-  }
+  }, [])
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     try {
       if (!formData.ticker || !formData.quantity || !formData.name) {
         setError('All fields are required')
@@ -62,13 +65,15 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
         : [...portfolioData, newStock]
 
       updatePortfolioData(updatedPortfolio)
+      // Invalidate and refetch portfolio data
+      queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
       onOpenChange(false)
     } catch (err) {
       setError('Failed to update portfolio. Please try again.')
     }
-  }
+  }, [formData, stock, onOpenChange, queryClient])
 
-  const inputStyle = {
+  const inputStyle = useMemo(() => ({
     backgroundColor: "$backgroundHover",
     borderColor: "$borderColor",
     color: "$color",
@@ -76,7 +81,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
     height: 40,
     borderRadius: 8,
     paddingHorizontal: "$2",
-  }
+  }), [])
 
   return (
     <BaseCardModal

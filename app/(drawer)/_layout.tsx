@@ -1,74 +1,145 @@
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, Platform } from 'react-native';
+import { View, Image, Text, StyleSheet, useColorScheme as RNColorScheme } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
+import { memo, useCallback } from 'react';
+
+const DrawerContent = memo(({ props, username, profilePicture, styles }: { 
+  props: DrawerContentComponentProps; 
+  username: string | undefined;
+  profilePicture: string | undefined | null;
+  styles: any;
+}) => (
+  <View style={styles.container}>
+    <View style={styles.header}>
+      <Image 
+        source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
+        style={styles.profileImage}
+      />
+      <Text style={styles.username}>
+        {username || 'User'}
+      </Text>
+    </View>
+    <View style={styles.content}>
+      <DrawerContentScrollView 
+        {...props}
+        contentContainerStyle={styles.scrollViewContent}
+        style={styles.scrollView}
+      >
+        <DrawerItemList {...props} />
+      </DrawerContentScrollView>
+    </View>
+  </View>
+));
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
+  const systemColorScheme = RNColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
 
+  const isDark = colorScheme === 'dark';
+  const backgroundColor = isDark ? '#1A1A1A' : '#F5F5F5';
+  const textColor = isDark ? '#fff' : '#000';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  const inactiveColor = isDark ? '#666' : '#999';
+
+  const styles = StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      backgroundColor
+    },
+    container: {
+      flex: 1
+    },
+    header: {
+      paddingTop: 50,
+      paddingBottom: 20,
+      paddingHorizontal: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: borderColor,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor
+    },
+    profileImage: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      marginRight: 12
+    },
+    username: {
+      color: textColor,
+      fontSize: 18,
+      fontWeight: '600'
+    },
+    content: {
+      flex: 1,
+      backgroundColor
+    },
+    scrollView: {
+      marginTop: 10
+    },
+    scrollViewContent: {
+      paddingTop: 0
+    }
+  });
+
+  const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
+    <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} />
+  ), [username, profilePicture, styles]);
+
+  const renderHomeIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderCalendarIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="calendar-today" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderSportsIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderChatbotIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderCRMIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderStorageIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="cloud-upload" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderVaultIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
+  const renderBillsIcon = useCallback(({ color }: { color: string }) => (
+    <MaterialIcons name="attach-money" size={24} color={color} style={{ marginRight: 16 }} />
+  ), []);
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#2e2e2e' }}>
+    <View style={styles.wrapper}>
       <Drawer
-        drawerContent={(props: DrawerContentComponentProps) => (
-          <View style={{ flex: 1 }}>
-            <View style={{ 
-              paddingTop: 50,
-              paddingBottom: 20,
-              paddingHorizontal: 16,
-              borderBottomWidth: 1,
-              borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: '#1A1A1A'
-            }}>
-              <Image 
-                source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  marginRight: 12
-                }}
-              />
-              <Text style={{ 
-                color: '#fff',
-                fontSize: 18,
-                fontWeight: '600'
-              }}>
-                {username || 'User'}
-              </Text>
-            </View>
-            <View style={{ 
-              flex: 1,
-              backgroundColor: '#1A1A1A'
-            }}>
-              <DrawerContentScrollView 
-                {...props}
-                contentContainerStyle={{ paddingTop: 0 }}
-                style={{ marginTop: 10 }}
-              >
-                <DrawerItemList {...props} />
-              </DrawerContentScrollView>
-            </View>
-          </View>
-        )}
+        drawerContent={renderDrawerContent}
         screenOptions={{
           header: ({ route, options }) => (
             <Header title={options.title || route.name} />
           ),
           headerTransparent: true,
           drawerStyle: {
-            backgroundColor: '#1A1A1A',
+            backgroundColor,
             width: '65%',
             borderRightWidth: 1,
-            borderColor: 'rgba(255, 255, 255, 0.1)'
+            borderColor
           },
-          drawerActiveTintColor: '#fff',
-          drawerInactiveTintColor: '#666',
+          drawerActiveTintColor: '#fff', // Always use white text for active items since they have colored background
+          drawerInactiveTintColor: inactiveColor,
           drawerActiveBackgroundColor: primaryColor,
           drawerItemStyle: {
             borderRadius: 12,
@@ -81,7 +152,7 @@ export default function DrawerLayout() {
             marginLeft: -16
           },
           drawerContentStyle: {
-            backgroundColor: '#1A1A1A'
+            backgroundColor
           },
           drawerType: 'slide',
           overlayColor: '#00000099',
@@ -95,9 +166,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Home',
             drawerLabel: 'Home',
-            drawerIcon: ({ color }) => (
-              <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderHomeIcon
           }}
         />
         <Drawer.Screen
@@ -105,9 +174,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Calendar',
             drawerLabel: 'Calendar',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="calendar-today" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderCalendarIcon
           }}
         />
         <Drawer.Screen
@@ -115,9 +182,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Sports',
             drawerLabel: 'Sports',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderSportsIcon
           }}
         />
         <Drawer.Screen
@@ -125,9 +190,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Chatbot',
             drawerLabel: 'Chatbot',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderChatbotIcon
           }}
         />
         <Drawer.Screen
@@ -135,9 +198,7 @@ export default function DrawerLayout() {
           options={{
             title: 'CRM',
             drawerLabel: 'CRM',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderCRMIcon
           }}
         />
         <Drawer.Screen
@@ -145,9 +206,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Storage',
             drawerLabel: 'Storage',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="cloud-upload" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderStorageIcon
           }}
         />
         <Drawer.Screen
@@ -155,9 +214,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Vault',
             drawerLabel: 'Vault',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderVaultIcon
           }}
         />
         <Drawer.Screen
@@ -165,9 +222,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Bills',
             drawerLabel: 'Bills',
-            drawerIcon: ({ color }) => (
-              <MaterialIcons name="attach-money" size={24} color={color} style={{ marginRight: 16 }} />
-            )
+            drawerIcon: renderBillsIcon
           }}
         />
       </Drawer>

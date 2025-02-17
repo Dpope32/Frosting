@@ -44,19 +44,18 @@ export function PortfolioCard() {
     <Stack
       backgroundColor="rgba(0, 0, 0, 0.3)"
       borderRadius={12}
-      padding="$2.5"
+      padding="$3"
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
       minWidth={90}
-      maxWidth={110}
       alignItems="center"
       justifyContent="center"
       gap="$0.5"
     >
       <Text
         color={valueColor}
-        fontSize={16}
-        fontWeight="600"
+        fontSize={18}
+        fontWeight="bold"
         textAlign="center"
         numberOfLines={1}
         style={{
@@ -67,16 +66,6 @@ export function PortfolioCard() {
       >
         {displayValue}
       </Text>
-      {lastUpdateTime && (
-        <Text 
-          color={isStale ? '$red10' : 'rgba(255,255,255,0.5)'} 
-          fontSize={10}
-          textAlign="center"
-          numberOfLines={1}
-        >
-          {lastUpdateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
-      )}
     </Stack>
   );
 }

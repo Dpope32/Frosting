@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { useColorScheme, StyleSheet } from 'react-native'
-import { YStack, Text, XStack, ScrollView, Button } from 'tamagui'
+import { YStack, Text, XStack, ScrollView, Button, Input } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BaseCardModal } from './BaseCardModal'
-import { usePortfolioStore } from '@/store/PortfolioStore'
+import { usePortfolioStore, updatePrincipal } from '@/store/PortfolioStore'
 import { portfolioData } from '@/utils/Portfolio'
 import { Stock } from '@/types'
 import { useUserStore } from '@/store/UserStore'
@@ -20,7 +20,9 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | undefined>()
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
-  const { prices, totalValue } = usePortfolioStore()
+  const { prices, totalValue, principal } = usePortfolioStore()
+  const [isEditingPrincipal, setIsEditingPrincipal] = useState(false)
+  const [principalInput, setPrincipalInput] = useState(principal.toString())
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
@@ -65,22 +67,79 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
             fontSize={14} 
             marginBottom="$2"
           >
-            Current Value
+            Portfolio Overview
           </Text>
           <Animated.View 
             entering={FadeIn.duration(600)}
             style={styles.card}
           >
-            <Text 
-              color={getStockValueColor(totalValue || 0)} 
-              fontSize={24} 
-              fontWeight="600"
-            >
-              ${(totalValue || 0).toLocaleString('en-US', { 
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 2 
-              })}
-            </Text>
+            <XStack justifyContent="space-between" alignItems="center">
+              <YStack flex={1}>
+                <Text color={isDark ? "#999" : "#666"} fontSize={12}>Current Value</Text>
+                <Text 
+                  color={getStockValueColor(totalValue || 0)} 
+                  fontSize={24} 
+                  fontWeight="600"
+                >
+                  ${(totalValue || 0).toLocaleString('en-US', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                  })}
+                </Text>
+              </YStack>
+
+              <YStack flex={1} alignItems="center">
+                <Text color={isDark ? "#999" : "#666"} fontSize={12}>Principal</Text>
+                {isEditingPrincipal ? (
+                  <Input
+                    value={principalInput}
+                    onChangeText={(v) => setPrincipalInput(v.replace(/[^0-9.]/g, ''))}
+                    keyboardType="numeric"
+                    autoFocus
+                    onBlur={() => {
+                      const newValue = parseFloat(principalInput)
+                      if (!isNaN(newValue) && newValue >= 0) {
+                        updatePrincipal(newValue)
+                      }
+                      setIsEditingPrincipal(false)
+                    }}
+                    backgroundColor="$backgroundHover"
+                    borderColor="$borderColor"
+                    height={32}
+                    textAlign="center"
+                    fontSize={20}
+                  />
+                ) : (
+                  <Text
+                    fontSize={24}
+                    fontWeight="600"
+                    onPress={() => {
+                      setIsEditingPrincipal(true)
+                      setPrincipalInput(principal.toString())
+                    }}
+                  >
+                    ${principal.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}
+                  </Text>
+                )}
+              </YStack>
+
+              <YStack flex={1} alignItems="flex-end">
+                <Text color={isDark ? "#999" : "#666"} fontSize={12}>Profit/Loss</Text>
+                <Text 
+                  color={getStockValueColor((totalValue || 0) - principal)} 
+                  fontSize={24} 
+                  fontWeight="600"
+                >
+                  ${((totalValue || 0) - principal).toLocaleString('en-US', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                  })}
+                </Text>
+              </YStack>
+            </XStack>
           </Animated.View>
         </YStack>
         <YStack>

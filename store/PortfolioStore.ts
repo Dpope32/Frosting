@@ -7,13 +7,20 @@ import { storage } from '../store/MMKV';
 interface PortfolioState {
     totalValue: number | null;
     prices: Record<string, number>;
-    lastUpdate?: Date;  
-  }
+    lastUpdate?: Date;
+    principal: number;
+}
 
 export const usePortfolioStore = create<PortfolioState>(() => ({
   totalValue: storage.getNumber('portfolio_total') ?? null,
-  prices: JSON.parse(storage.getString('portfolio_prices') ?? '{}')
+  prices: JSON.parse(storage.getString('portfolio_prices') ?? '{}'),
+  principal: storage.getNumber('portfolio_principal') ?? 1000
 }));
+
+export const updatePrincipal = (value: number) => {
+  storage.set('portfolio_principal', value);
+  usePortfolioStore.setState({ principal: value });
+};
 
 export const usePortfolioQuery = () => {
     return useQuery({

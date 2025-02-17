@@ -47,7 +47,7 @@ export default function VaultScreen() {
     return (
       <YStack f={1} jc="center" ai="center" mt={80} bg={isDark ? "#000000" : "#ffffff"}>
         <ActivityIndicator size="large" color={primaryColor} />
-        <Text color={isDark ? "#FFFFFF" : "#000000"} fontSize="$3">Loading vault...</Text>
+        <Text color={isDark ? "#FFFFFF" : "#000000"} fontSize="$3">Loading</Text>
       </YStack>
     );
   }
@@ -67,16 +67,18 @@ export default function VaultScreen() {
     <YStack f={1} mt={90} bg={isDark ? "#000000" : "#ffffff"}>
       <ScrollView 
         contentContainerStyle={{ 
-          padding: 12,
-          paddingBottom: 80
+          padding: 8,
+          paddingBottom: 100
         }}
       >
         <YStack gap="$2">
           {data?.items.length === 0 ? (
             <XStack 
               bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-              p="$2" 
-              borderRadius="$2"
+              p="$1" 
+              borderRadius="$4"
+              borderWidth={1}
+              borderColor={isDark ? "#333" : "#e0e0e0"}
               ai="center"
               jc="center"
             >
@@ -87,15 +89,17 @@ export default function VaultScreen() {
               <XStack 
                 key={cred.id}
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                paddingVertical="$1"
-                paddingHorizontal="$4" 
-                borderRadius="$2"
+                p="$1"
+                paddingHorizontal="$5"
+                borderRadius="$4"
+                borderWidth={1}
+                borderColor={isDark ? "#333" : "#e0e0e0"}
                 ai="center"
                 animation="quick"
               >
-                <YStack flex={1} gap="$1">
-                  <XStack jc="space-between" ai="center" marginBottom={-12}>
-                    <Text color={primaryColor} fontSize="$4" fontWeight="bold">
+                <YStack flex={1}>
+                  <XStack jc="space-between" mt="$1" ai="center">
+                    <Text color={isDark ? "#fff" : "#333"} mb={-12} fontSize="$4" fontWeight="bold">
                       {cred.name}
                     </Text>
                     <Button
@@ -107,7 +111,7 @@ export default function VaultScreen() {
                     />
                   </XStack>
                   
-                  <XStack ai="center" gap="$1" marginBottom={-12}>
+                  <XStack ai="center" gap="$2" mb={-12}>
                     <Text color={isDark ? "#666" : "#666"} fontSize="$3" w={70}>Username:</Text>
                     <Text color={isDark ? "#fff" : "#000"} fontSize="$3" flex={1}>{cred.username}</Text>
                     <Button
@@ -119,7 +123,7 @@ export default function VaultScreen() {
                     />
                   </XStack>
                   
-                  <XStack ai="center" gap="$1">
+                  <XStack ai="center" gap="$2">
                     <Text color={isDark ? "#666" : "#666"} fontSize="$3" w={70}>Password:</Text>
                     <Text color={isDark ? "#fff" : "#000"} fontSize="$3" flex={1}>{cred.password}</Text>
                     <Button

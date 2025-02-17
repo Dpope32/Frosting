@@ -35,6 +35,7 @@ export function LandingPage() {
   const username = useUserStore(s => s.preferences.username)
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
   const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
+  const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
   const userHydrated = useUserStore(s => s.hydrated)
 
   const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
@@ -268,9 +269,11 @@ export function LandingPage() {
                 <WifiCard />
               </Pressable>
             </XStack>
-            <Stack marginTop="$4">
-              <QuoteSection />
-            </Stack>
+            {Boolean(quoteEnabled) && (
+              <Stack marginTop="$4">
+                <QuoteSection />
+              </Stack>
+            )}
           </Stack>
 
           <Stack

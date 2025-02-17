@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Stack, Text, Input, XStack, YStack, Spinner } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { useUserStore } from '@/store/UserStore'
-import { useChatStore } from '@/store/ChatStore'
+import { useChatStore, type CustomBot, adjustColorBrightness } from '@/store/ChatStore'
+import { CustomBotModal } from '@/components/cardModals/CustomBotModal'
 import {
   TouchableOpacity,
   ScrollView as RNScrollView,
@@ -48,8 +49,8 @@ class ChatErrorBoundary extends React.Component<ChatErrorBoundaryProps, ChatErro
 const THEME = {
   light: {
     background: '#ffffff',
-    inputBg: '#f5f5f5',
-    inputBorder: '#e0e0e0',
+    inputBg: 'rgba(240, 240, 240, 0.95)',
+    inputBorder: 'rgba(0, 0, 0, 0.1)',
     text: '#000000',
     messageBg: {
       user: '#0066CC',
@@ -62,8 +63,8 @@ const THEME = {
   },
   dark: {
     background: '#1a1a1a',
-    inputBg: '#222222',
-    inputBorder: '#383838',
+    inputBg: 'rgba(48, 48, 48, 0.95)',
+    inputBorder: 'rgba(244, 240, 240, 0.1)',
     text: '#ffffff',
     messageBg: {
       user: '#0066CC',
@@ -90,9 +91,20 @@ function ChatbotInner() {
   const scrollViewRef = useRef<RNScrollView>(null)
   const [message, setMessage] = useState('')
   const [keyboardHeight, setKeyboardHeight] = useState(0)
+  const [showCustomBotModal, setShowCustomBotModal] = useState(false)
   const username = useUserStore((state) => state.preferences.username)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
-  const { messages, sendMessage, isLoading, currentStreamingMessage, error, currentPersona, setPersona } = useChatStore()
+  const { 
+    messages, 
+    sendMessage, 
+    isLoading, 
+    currentStreamingMessage, 
+    error, 
+    currentPersona, 
+    setPersona,
+    customBots,
+    addCustomBot
+  } = useChatStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const theme = isDark ? THEME.dark : THEME.light
@@ -111,6 +123,15 @@ function ChatbotInner() {
     } catch (e) {
       console.error(e)
     }
+  }
+
+  const handleCreateBot = (name: string, prompt: string, color: string, bgColor?: string) => {
+    addCustomBot({ 
+      name, 
+      prompt, 
+      color,
+      bgColor
+    })
   }
 
   useEffect(() => {
@@ -143,6 +164,38 @@ function ChatbotInner() {
         sendMessage(lastUserMessage.content)
       }
     }
+  }
+
+  const handleSelectPersona = () => {
+    const defaultOptions = [
+      {
+        text: '👑 Dedle - Friendly & Professional',
+        onPress: () => setPersona('dedle')
+      },
+      {
+        text: '🖥️ Gilfoyle - Sarcastic & Technical',
+        onPress: () => setPersona('gilfoyle')
+      }
+    ]
+
+    const customBotOptions = customBots.map(bot => ({
+      text: `🤖 ${bot.name}`,
+      onPress: () => setPersona(bot.name)
+    }))
+
+    const createBotOption = {
+      text: '🎨 Create Custom Bot',
+      onPress: () => setShowCustomBotModal(true)
+    }
+
+    const cancelOption = {
+      text: 'Cancel',
+      style: 'cancel' as const
+    }
+
+    const options = [...defaultOptions, ...customBotOptions, createBotOption, cancelOption]
+
+    Alert.alert('Select Persona', 'Choose your chat assistant', options)
   }
 
   return (
@@ -239,24 +292,29 @@ function ChatbotInner() {
         )}
         <XStack
           backgroundColor={theme.inputBg}
-          borderRadius={24}
-          margin={16}
-          marginBottom={Platform.OS === 'ios' ? keyboardHeight + 16 : 16}
-          paddingVertical={8}
+          borderTopLeftRadius={32}
+          borderTopRightRadius={32}
+          margin={0}
+          marginBottom={Platform.OS === 'ios' ? keyboardHeight : 0}
+          paddingTop={16}
+          paddingBottom={32}
           paddingHorizontal={16}
           alignItems="center"
           borderWidth={1}
           borderColor={theme.inputBorder}
           opacity={isLoading ? 0.7 : 1}
-          minHeight={44}
+          minHeight={80}
+          width="100%"
+          position="absolute"
+          bottom={0}
+          shadowColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.1)"}
+          shadowOffset={{ width: 0, height: -2 }}
+          shadowOpacity={1}
+          shadowRadius={8}
+          elevation={5}
         >
           <TouchableOpacity
-            onPress={() => {
-              Alert.alert('Select Persona', 'Choose your chat assistant', [
-                { text: '👑 Dedle - Friendly & Professional', onPress: () => setPersona('dedle') },
-                { text: '🖥️ Gilfoyle - Sarcastic & Technical', onPress: () => setPersona('gilfoyle') }
-              ])
-            }}
+            onPress={handleSelectPersona}
             style={{
               padding: 8,
               borderRadius: 16,
@@ -265,7 +323,7 @@ function ChatbotInner() {
                   ? THEME.dedle.bg
                   : currentPersona === 'gilfoyle'
                   ? THEME.gilfoyle.bg
-                  : 'transparent',
+                  : customBots.find(bot => bot.name === currentPersona)?.bgColor || 'transparent',
               marginRight: 12
             }}
           >
@@ -277,7 +335,7 @@ function ChatbotInner() {
                   ? THEME.dedle.primary
                   : currentPersona === 'gilfoyle'
                   ? THEME.gilfoyle.primary
-                  : '#666'
+                  : customBots.find(bot => bot.name === currentPersona)?.color || '#666'
               }
             />
           </TouchableOpacity>
@@ -313,6 +371,12 @@ function ChatbotInner() {
           </TouchableOpacity>
         </XStack>
       </Stack>
+
+      <CustomBotModal
+        open={showCustomBotModal}
+        onOpenChange={setShowCustomBotModal}
+        onCreateBot={handleCreateBot}
+      />
     </View>
   )
 }

@@ -124,7 +124,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                   padding: 8,
                 })}
               >
-                <Ionicons name="close-circle" size={24} color="#ff4444" />
+                <Ionicons name="close" size={24} color="#ff4444" style={{ fontWeight:200}} />
               </Pressable>
             </XStack>
               ))}

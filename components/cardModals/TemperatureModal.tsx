@@ -102,7 +102,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Temperature Details"
+      title="Weather"
     >
       <YStack gap="$4">
         <YStack

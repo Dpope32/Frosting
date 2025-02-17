@@ -29,7 +29,7 @@ export function Header({ title }: HeaderProps) {
         zIndex={50}
       >
         <YStack
-          backgroundColor={colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.0)'}
+          backgroundColor={colorScheme === 'dark' ? 'rgba(0,0,0,0.8)' : '255,255,255,1'}
         >
           <XStack 
             alignItems="center" 
@@ -51,11 +51,6 @@ export function Header({ title }: HeaderProps) {
                 color={textColor}
                 numberOfLines={1}
                 fontFamily="$body"
-                style={{
-                  textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                  textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 3,
-                }}
               >
                 {title}
               </Text>

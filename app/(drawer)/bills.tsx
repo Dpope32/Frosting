@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, useColorScheme } from 'react-native';
-import { Button, Card, H2, Paragraph, XStack, YStack } from 'tamagui';
+import { Button, Card, H2, Paragraph, XStack, YStack, Text } from 'tamagui';
 import { Plus, X, Wifi, CreditCard, Home, Tv, ShoppingBag, Zap, Droplet, GaugeCircle, Phone, Shield, Activity, Car, DollarSign, Calendar, BookOpen, Newspaper, Cloud, Wrench, Trash, Lock, Heart, GraduationCap, PlaneTakeoff, Coffee, FileText, Percent } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
@@ -60,8 +60,8 @@ export default function BillsScreen() {
 
   return (
     <YStack f={1} mt={90} bg={isDark ? "#000000" : "#ffffff"}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
-        <YStack gap="$4">
+      <ScrollView contentContainerStyle={{ padding: 8, paddingBottom: 100 }}>
+        <YStack gap="$2">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <XStack 
@@ -92,7 +92,7 @@ export default function BillsScreen() {
               borderWidth={1}
               borderColor={isDark ? "#333" : "#e0e0e0"}
             >
-              <Paragraph color={isDark ? "#666" : "#999"} textAlign="center">No bills added yet</Paragraph>
+              <Paragraph color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center">No bills added yet</Paragraph>
             </XStack>
           ) : bills ? (
             bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
@@ -102,7 +102,7 @@ export default function BillsScreen() {
                 <XStack 
                   key={bill.id} 
                   bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                  p="$4" 
+                  p="$4"
                   borderRadius="$4" 
                   ai="center" 
                   pressStyle={{ opacity: 0.7 }} 
@@ -121,9 +121,9 @@ export default function BillsScreen() {
                     <IconComponent size={26} color={isDark ? "white" : "#666"} />
                   </YStack>
                   <YStack ml="$3" flex={1}>
-                    <H2 color={isDark ? "white" : "black"} fontSize="$6" letterSpacing={0.5}>{bill.name}</H2>
+                    <Text color={isDark ? "#fff" : "#000"} fontSize="$4" fontWeight="bold">{bill.name}</Text>
                     <XStack ai="center" gap="$2">
-                      <Paragraph color={amountColor} fontSize="$5" fontWeight="bold">${bill.amount.toFixed(2)}</Paragraph>
+                      <Paragraph color={amountColor} fontSize="$4" fontWeight={400}>${bill.amount.toFixed(2)}</Paragraph>
                       <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}th</Paragraph>
                     </XStack>
                   </YStack>

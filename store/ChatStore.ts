@@ -3,18 +3,46 @@ import { Alert, LogBox } from 'react-native';
 import { OPENAI_API_KEY } from '../env';
 import { type ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { useUserStore } from './UserStore';
+import { StorageUtils } from './MMKV';
+
+const CUSTOM_BOTS_KEY = 'custom_bots';
 
 // Force logs to show
 LogBox.ignoreAllLogs(false);
 LogBox.uninstall();
-
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
 }
 
-export type ChatPersona = 'dedle' | 'gilfoyle';
+export type ChatPersona = 'dedle' | 'gilfoyle' | string;
+
+export const adjustColorBrightness = (hex: string, factor: number): string => {
+  // Remove the hash if present
+  hex = hex.replace(/^#/, '');
+
+  // Parse the hex color
+  let r = parseInt(hex.slice(0, 2), 16);
+  let g = parseInt(hex.slice(2, 4), 16);
+  let b = parseInt(hex.slice(4, 6), 16);
+
+  // Adjust brightness
+  r = Math.min(255, Math.max(0, Math.round(r * (1 + factor))));
+  g = Math.min(255, Math.max(0, Math.round(g * (1 + factor))));
+  b = Math.min(255, Math.max(0, Math.round(b * (1 + factor))));
+
+  // Convert back to hex
+  const newHex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  return newHex;
+};
+
+export interface CustomBot {
+  name: string;
+  prompt: string;
+  color: string;    // Primary color for icon
+  bgColor?: string; // Background color (optional, will be calculated from color if not provided)
+}
 
 interface ChatState {
   messages: Message[];
@@ -22,6 +50,7 @@ interface ChatState {
   currentStreamingMessage: string;
   error: string | null;
   isTyping: boolean;
+  customBots: CustomBot[];
   addMessage: (message: Message) => void;
   setIsLoading: (loading: boolean) => void;
   setCurrentStreamingMessage: (message: string) => void;
@@ -30,24 +59,31 @@ interface ChatState {
   sendMessage: (content: string) => Promise<void>;
   currentPersona: ChatPersona;
   setPersona: (persona: ChatPersona) => void;
+  addCustomBot: (bot: CustomBot) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => {
   const username = useUserStore.getState().preferences.username;
 
-  const getSystemMessage = (persona: ChatPersona) => {
+  const getSystemMessage = (persona: ChatPersona): string => {
     switch (persona) {
       case 'dedle':
         return `You are Dedle, king of Dedleland - a charismatic and slightly eccentric AI assistant${username ? ` who addresses the user as ${username}` : ''}. Always refer to yourself as "Dedle, king of Dedleland" and maintain a regal yet approachable tone. Your responses should be brief but colorful, mixing helpful information with playful royal flair. Do not ever reply in Markdown and try to keep responses under 100 words. End your messages with a small flourish or royal declaration when appropriate.`;
       case 'gilfoyle':
         return `You are Gilfoyle, a brilliant but sardonic system architect${username ? ` who addresses ${username} with mild disdain` : ''}. You're direct, ruthlessly honest, and sprinkle your responses with cynical observations and dry humor. You excel in technical topics but view most human problems with amused contempt. Keep responses under 100 words and never use Markdown. Channel the personality of Bertram Gilfoyle from Silicon Valley.`;
+      default:
+        return '';
     }
   };
 
+  // Load stored custom bots
+  const storedBots = StorageUtils.get<CustomBot[]>(CUSTOM_BOTS_KEY, []);
+
   return {
-    currentPersona: 'dedle',
+    currentPersona: 'dedle' as const,
+    customBots: storedBots || [],
     messages: [{
-      role: 'system',
+      role: 'system' as const,
       content: getSystemMessage('dedle')
     }],
     isLoading: false,
@@ -69,13 +105,41 @@ export const useChatStore = create<ChatState>((set, get) => {
     },
 
     setPersona: (persona) => {
-      set(state => ({
-        currentPersona: persona,
-        messages: [{
-          role: 'system',
-          content: getSystemMessage(persona)
-        }]
-      }));
+      set(state => {
+        const systemMessage = persona === 'dedle' || persona === 'gilfoyle'
+          ? getSystemMessage(persona)
+          : state.customBots.find(bot => bot.name === persona)?.prompt || '';
+        
+        return {
+          currentPersona: persona,
+          messages: [{
+            role: 'system' as const,
+            content: systemMessage
+          }]
+        };
+      });
+    },
+
+    addCustomBot: (bot) => {
+      const newBot = {
+        ...bot,
+        bgColor: bot.bgColor || adjustColorBrightness(bot.color, -0.3)
+      };
+      
+      set(state => {
+        const updatedBots = [...state.customBots, newBot];
+        // Persist custom bots
+        StorageUtils.set(CUSTOM_BOTS_KEY, updatedBots);
+        
+        return {
+          customBots: updatedBots,
+          currentPersona: bot.name,
+          messages: [{
+            role: 'system' as const,
+            content: bot.prompt
+          }]
+        };
+      });
     },
     setError: (error) => set({ error }),
 
@@ -104,7 +168,6 @@ export const useChatStore = create<ChatState>((set, get) => {
 
         console.warn('Sending request to OpenAI...');
 
-        // Try non-streaming first
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -138,7 +201,7 @@ export const useChatStore = create<ChatState>((set, get) => {
 
         set(state => ({
           messages: [...state.messages, { 
-            role: 'assistant', 
+            role: 'assistant' as const, 
             content: assistantMessage 
           }]
         }));

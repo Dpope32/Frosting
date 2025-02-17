@@ -19,21 +19,39 @@ export const EventPreview: React.FC<{
     ]}>
       <View style={[
         styles.iconButton,
-        { backgroundColor: isBirthday ? '#FFD700' : '#666666' }  
+        isBirthday && { backgroundColor: '#FFD700' }  
       ]}>
         <Ionicons
           name={isBirthday ? 'gift' : 'filter'}
-          size={24}
-          color={isBirthday ? '#FF69B4' : '#fff'}
+          size={20}
+          color={isBirthday ? '#FF69B4' : '#000000'}
         />
       </View>
       <View style={styles.eventInfo}>
-        <Text style={[
-          styles.eventTitle,
-          { color: isDark ? '#ffffff' : '#000000' }
-        ]}>
-          {event.title}
-        </Text>
+        <View>
+          <Text 
+            numberOfLines={1}
+            style={[
+              styles.eventTitle,
+              { color: isDark ? '#ffffff' : '#000000' }
+            ]}
+          >
+            {event.title}
+          </Text>
+          {event.time && !isBirthday && (
+            <Text style={[
+              styles.eventTime,
+              { color: isDark ? '#dddddd' : '#666666' }
+            ]}>
+              {new Date(`2000-01-01 ${event.time}`).toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true,
+                timeZone: 'America/Chicago' 
+              })} CT
+            </Text>
+          )}
+        </View>
         {event.description && (
           <Text style={[
             styles.eventDescription,
@@ -51,16 +69,16 @@ export const EventPreview: React.FC<{
       {!isBirthday && (
         <View style={styles.actionButtons}>
           <TouchableOpacity 
-            style={[styles.iconButton, { backgroundColor: primaryColor }]} 
+            style={[styles.iconButton, { backgroundColor: 'transparent' }]} 
             onPress={onEdit}
           >
-            <Ionicons name="pencil" size={20} color="#fff" />
+            <Ionicons name="pencil" size={18} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity 
-            style={styles.deleteButton} 
+            style={[styles.iconButton, { backgroundColor: 'transparent' }]} 
             onPress={onDelete}
           >
-            <Text style={styles.deleteButtonText}>Delete</Text>
+            <Ionicons name="close" size={18} color="#F44336" />
           </TouchableOpacity>
         </View>
       )}
@@ -87,6 +105,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  eventTime: {
+    fontSize: 14,
+    marginTop: 2,
+    fontWeight: '500'
+  },
   eventDescription: {
     fontSize: 14,
     marginTop: 4,
@@ -96,28 +119,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
   },
   actionButtons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8, // Add space between edit and delete buttons
-  },
-  deleteButton: {
-    backgroundColor: 'rgba(244, 67, 54, 0.1)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderColor: '#F44336',
-    borderWidth: 1,
-    borderRadius: 6,
-  },
-  deleteButtonText: {
-    color: '#F44336',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+    gap: 8,
+  }
 });

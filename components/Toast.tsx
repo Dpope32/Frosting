@@ -12,7 +12,7 @@ export function Toast() {
   return (
     <YStack
       position="absolute"
-      top={height * 0.1}
+      bottom={height * 0.1}
       left={16}
       right={16}
       gap="$2"

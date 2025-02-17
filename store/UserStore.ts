@@ -12,7 +12,9 @@ interface UserPreferences {
   zipCode: string;
   hasCompletedOnboarding: boolean;
   notificationsEnabled: boolean;
+  quoteEnabled: boolean; 
 }
+
 
 interface UserStore {
   preferences: UserPreferences;
@@ -28,9 +30,9 @@ const defaultPreferences: UserPreferences = {
   zipCode: '',
   hasCompletedOnboarding: false,
   notificationsEnabled: true,
+  quoteEnabled: true, 
 };
 
-// Create a custom storage adapter for MMKV
 const mmkvStorage = {
   getItem: (name: string): string | null => {
     const value = StorageUtils.get<string>(name);
