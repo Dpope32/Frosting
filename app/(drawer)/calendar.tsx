@@ -173,7 +173,6 @@ export default function CalendarScreen() {
         </View>
       </Modal>
 
-      {/* Add/Edit Event Modal */}
       <Modal
         visible={isEventModalVisible}
         transparent
@@ -255,7 +254,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    minHeight: '50%', // Ensure minimum height
+    minHeight: '50%', 
     maxHeight: '80%',
     borderRadius: 20,
     elevation: 5,
@@ -305,7 +304,7 @@ const styles = StyleSheet.create({
   },
   bigCloseButton: {
     backgroundColor: 'rgba(0,0,0,0.25)',
-    paddingVertical: 12, // Reduced from 16
+    paddingVertical: 12,
     borderRadius: 8,
     borderColor: 'rgba(200,200,200,1)',
     width: '50%',

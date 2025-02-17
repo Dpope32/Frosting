@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useColorScheme, StyleSheet } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BaseCardModal } from './BaseCardModal'
@@ -8,6 +9,7 @@ import { Stock } from '@/types'
 import { useUserStore } from '@/store/UserStore'
 import { EditStockModal } from './EditStockModal'
 import { getValueColor } from '@/constants/valueHelper'
+import Animated, { FadeIn } from 'react-native-reanimated'
 
 interface PortfolioModalProps {
   open: boolean
@@ -19,9 +21,20 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const [selectedStock, setSelectedStock] = useState<Stock | undefined>()
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
   const { prices, totalValue } = usePortfolioStore()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+
+  const getStockValueColor = (value: number): string => {
+    const color = getValueColor('portfolio', value, '')
+    if (!isDark) {
+      if (color === '#22c55e') return '#15803d'
+      if (color === '#ef4444') return '#b91c1c'
+    }
+    return color
+  }
 
   const iconButtonStyle = {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
     borderRadius: 16,
     width: 32,
     height: 32,
@@ -29,39 +42,58 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
     alignItems: "center" as const,
   }
 
+  const styles = StyleSheet.create({
+    card: {
+      backgroundColor: isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)",
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+    }
+  })
+
   return (
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
     >
-      <YStack gap="$4" paddingTop="$2">
-        {/* Current Value Section */}
+      <YStack gap="$4" paddingTop="$1">
         <YStack>
-          <Text color="#999" fontSize={14} marginBottom="$2">Current Value</Text>
-          <YStack
-            backgroundColor="rgba(0, 0, 0, 0.6)"
-            borderRadius={12}
-            padding="$4"
-            borderWidth={1}
-            borderColor="rgba(255, 255, 255, 0.1)"
+          <Text 
+            color={isDark ? "#999" : "#666"} 
+            fontSize={14} 
+            marginBottom="$2"
+          >
+            Current Value
+          </Text>
+          <Animated.View 
+            entering={FadeIn.duration(600)}
+            style={styles.card}
           >
             <Text 
-              color={getValueColor('portfolio', totalValue || 0, '')} 
+              color={getStockValueColor(totalValue || 0)} 
               fontSize={24} 
               fontWeight="600"
             >
-              ${(totalValue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${(totalValue || 0).toLocaleString('en-US', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+              })}
             </Text>
-          </YStack>
+          </Animated.View>
         </YStack>
-
-        {/* Holdings Section */}
         <YStack>
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
-            <Text color="#999" fontSize={14}>Holdings</Text>
+            <Text color={isDark ? "#999" : "#666"} fontSize={14}>Holdings</Text>
             <Button
-              icon={<MaterialIcons name="add" size={20} color="#fff" />}
+              icon={
+                <MaterialIcons 
+                  name="add" 
+                  size={20} 
+                  color={isDark ? "#fff" : "#000"} 
+                />
+              }
               circular
               {...iconButtonStyle}
               pressStyle={{ opacity: 0.7 }}
@@ -83,49 +115,85 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   height={100} 
                   alignItems="center" 
                   justifyContent="center"
-                  backgroundColor="rgba(0, 0, 0, 0.6)"
+                  backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
                   borderRadius={12}
+                  padding="$4"
                   borderWidth={1}
-                  borderColor="rgba(255, 255, 255, 0.1)"
+                  borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
                 >
-                  <Text color="#999" fontSize={14}>No stocks added yet</Text>
-                  <Text color="#666" fontSize={12}>Tap + to add your first stock</Text>
+                  <Text color={isDark ? "#999" : "#666"} fontSize={14}>
+                    No stocks added yet
+                  </Text>
+                  <Text color={isDark ? "#666" : "#999"} fontSize={12}>
+                    Tap + to add your first stock
+                  </Text>
                 </YStack>
               ) : (
-                portfolioData.map((stock) => {
+                portfolioData.map((stock, index) => {
                   const currentPrice = prices[stock.symbol] || 0
                   const totalValue = currentPrice * stock.quantity
                   
                   return (
-                    <YStack 
+                    <Animated.View 
                       key={stock.symbol}
-                      backgroundColor="rgba(0, 0, 0, 0.6)"
-                      borderRadius={12}
-                      padding="$4"
-                      borderWidth={1}
-                      borderColor="rgba(255, 255, 255, 0.1)"
-                      pressStyle={{ opacity: 0.8 }}
+                      entering={FadeIn.delay(index * 50)}
+                      style={styles.card}
                     >
                       <XStack justifyContent="space-between" alignItems="center">
                         <YStack flex={1}>
                           <XStack alignItems="center" gap="$2">
-                            <Text color="#fff" fontSize={16} fontWeight="500">{stock.symbol}</Text>
-                            <Text color="#999" fontSize={12}>{stock.quantity} shares</Text>
+                            <Text 
+                              color={isDark ? "#fff" : "#000"} 
+                              fontSize={16} 
+                              fontWeight="500"
+                            >
+                              {stock.symbol}
+                            </Text>
+                            <Text 
+                              color={isDark ? "#999" : "#666"} 
+                              fontSize={12}
+                            >
+                              {stock.quantity} shares
+                            </Text>
                           </XStack>
-                          <Text color="#999" fontSize={12}>{stock.name}</Text>
+                          <Text 
+                            color={isDark ? "#999" : "#666"} 
+                            fontSize={12}
+                          >
+                            {stock.name}
+                          </Text>
                         </YStack>
 
                         <YStack alignItems="flex-end" flex={1}>
-                          <Text color="#fff" fontSize={16} fontWeight="500">
-                            ${totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <Text 
+                            color={getStockValueColor(totalValue)} 
+                            fontSize={16} 
+                            fontWeight="500"
+                          >
+                            ${totalValue.toLocaleString('en-US', { 
+                              minimumFractionDigits: 2, 
+                              maximumFractionDigits: 2 
+                            })}
                           </Text>
-                          <Text color="#999" fontSize={12}>
-                            ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / share
+                          <Text 
+                            color={isDark ? "#999" : "#666"} 
+                            fontSize={12}
+                          >
+                            ${currentPrice.toLocaleString('en-US', { 
+                              minimumFractionDigits: 2, 
+                              maximumFractionDigits: 2 
+                            })} / share
                           </Text>
                         </YStack>
 
                         <Button
-                          icon={<MaterialIcons name="edit" size={16} color="#fff" />}
+                          icon={
+                            <MaterialIcons 
+                              name="edit" 
+                              size={16} 
+                              color={isDark ? "#fff" : "#000"} 
+                            />
+                          }
                           circular
                           {...iconButtonStyle}
                           marginLeft="$3"
@@ -136,7 +204,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           }}
                         />
                       </XStack>
-                    </YStack>
+                    </Animated.View>
                   )
                 })
               )}

@@ -1,7 +1,22 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity  } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalendarEvent } from '@/store/CalendarStore';
+
+// Helper function to determine if text should be dark or light
+const shouldUseDarkText = (backgroundColor: string): boolean => {
+  // Remove any alpha values and convert to RGB
+  const hex = backgroundColor.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  // Calculate relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  // Return true if the background is light
+  return luminance > 0.5;
+};
 
 interface MonthProps {
     date: Date;
@@ -26,6 +41,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   
     const monthName = date.toLocaleString('default', { month: 'long' });
     const year = date.getFullYear();
+
+    // Determine the text color for today based on primary color brightness
+    const todayTextColor = shouldUseDarkText(primaryColor) ? '#000000' : '#ffffff';
   
     return (
       <View style={[styles.calendar, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
@@ -56,13 +74,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             const hasBill = dayEvents.some(event => event.type === 'bill');
             const today = new Date();
             const isToday = currentDate.toDateString() === today.toDateString();
-            if (isToday) {
-              console.log('[Month] Date comparison:', {
-                currentDate: currentDate.toISOString(),
-                today: today.toISOString(),
-                isToday
-              });
-            }
             
             return (
               <TouchableOpacity
@@ -81,10 +92,15 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                     <Text
                       style={[
                         styles.dayText,
-                        isToday && styles.selectedText,
-                        hasBirthday && !isToday && { color: '#FF69B4' },
-                        hasRegularEvent && !isToday && styles.selectedText,
+                        // Base text color when not selected
                         { color: isDark ? '#ffffff' : '#000000' },
+                        // Override for today using calculated contrast
+                        isToday && { color: todayTextColor },
+                        // Override for other event types
+                        hasBirthday && !isToday && { color: '#FF69B4' },
+                        hasRegularEvent && !isToday && { color: '#ffffff' },
+                        // Additional styling
+                        isToday && styles.selectedText,
                       ]}
                     >
                       {day}
@@ -107,7 +123,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     );
   };
   
-
   const styles = StyleSheet.create({
     calendar: {
       borderRadius: 20,
@@ -178,7 +193,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
       borderRadius: 8,
     },
     selectedText: {
-      color: '#ffffff',
       fontWeight: 'bold',
     },
     birthdayCell: {

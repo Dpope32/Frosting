@@ -19,7 +19,7 @@ export const EventPreview: React.FC<{
     ]}>
       <View style={[
         styles.iconButton,
-        { backgroundColor: isBirthday ? '#FFD700' : '#666666' }  // Changed to gray for regular events
+        { backgroundColor: isBirthday ? '#FFD700' : '#666666' }  
       ]}>
         <Ionicons
           name={isBirthday ? 'gift' : 'filter'}

@@ -363,7 +363,7 @@ export function LandingPage() {
 
         </YStack>
       </ScrollView>
-      <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} temperature="21°F" />
+      <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
       <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}

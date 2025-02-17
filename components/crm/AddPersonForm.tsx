@@ -13,7 +13,6 @@ import {
   ScrollView,
   Circle,
   Text,
-  Dialog
 } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
@@ -25,7 +24,8 @@ import {
   Switch,
   Pressable,
   Platform,
-  View
+  View,
+  useColorScheme
 } from 'react-native'
 import { Plus } from '@tamagui/lucide-icons'
 import type { Person } from '@/types/people'
@@ -82,6 +82,8 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
     { value, onDebouncedChange, delay = 300, ...props },
     ref: React.Ref<TextInput>
   ) => {
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === 'dark'
     const [text, setText] = useState<string>(value)
     const debouncedText = useDebounce<string>(text, delay)
     useEffect(() => {
@@ -95,7 +97,9 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
         {...props}
         value={text}
         onChangeText={setText}
-        theme="dark"
+        theme={isDark ? "dark" : "light"}
+        backgroundColor={isDark ? "$gray2" : "white"}
+        borderColor={isDark ? "$gray7" : "$gray4"}
       />
     )
   }
@@ -120,6 +124,8 @@ const FormContent = React.memo(({
   primaryColor: string;
   setOpen: (value: boolean) => void;
 }) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const nameRef = useRef<TextInput>(null)
   const birthdayRef = useRef<TextInput>(null)
   const phoneRef = useRef<TextInput>(null)
@@ -165,41 +171,41 @@ const FormContent = React.memo(({
             ) : (
               <Circle
                 size={100}
-                backgroundColor="$gray5"
-                pressStyle={{ backgroundColor: '$gray6' }}
+                backgroundColor={isDark ? "$gray5" : "$gray3"}
+                pressStyle={{ backgroundColor: isDark ? '$gray6' : '$gray4' }}
                 onPress={pickImage}
               >
-                <Text fontSize={32} color="$gray11">
+                <Text fontSize={32} color={isDark ? "$gray11" : "$gray9"}>
                   +
                 </Text>
               </Circle>
             )}
             <YStack gap="$2">
               <XStack alignItems="center" gap="$2">
-                <Text color="$gray11">Registered</Text>
+                <Text color={isDark ? "$gray11" : "$gray10"}>Registered</Text>
                 <Switch
                   value={formData.registered}
                   onValueChange={(val: boolean) =>
                     updateFormField('registered', val)
                   }
                   trackColor={{
-                    false: '#767577',
-                    true: '#81b0ff',
+                    false: isDark ? '#767577' : '#E0E0E0',
+                    true: primaryColor,
                   }}
                   thumbColor={
-                    formData.registered ? '#2196F3' : '#f4f3f4'
+                    formData.registered ? '#FFFFFF' : '#f4f3f4'
                   }
                 />
               </XStack>
               <XStack alignItems="center" gap="$2">
-                <Text color="$gray11">Priority?</Text>
+                <Text color={isDark ? "$gray11" : "$gray10"}>Priority?</Text>
                 <Switch
                   value={formData.priority || false}
                   onValueChange={(val: boolean) =>
                     updateFormField('priority', val)
                   }
                   trackColor={{
-                    false: '#767577',
+                    false: isDark ? '#767577' : '#E0E0E0',
                     true: '#FFD700',
                   }}
                   thumbColor={
@@ -233,7 +239,6 @@ const FormContent = React.memo(({
               onSubmitEditing={() => phoneRef.current?.focus()}
               keyboardType="numbers-and-punctuation"
               autoCapitalize="none"
-              blurOnSubmit={false}
             />
             <DebouncedInput
               key={`phone-${inputResetKey}`}
@@ -247,7 +252,6 @@ const FormContent = React.memo(({
               onSubmitEditing={() => occupationRef.current?.focus()}
               keyboardType="phone-pad"
               autoCapitalize="none"
-              blurOnSubmit={false}
             />
             <DebouncedInput
               key={`occupation-${inputResetKey}`}
@@ -330,9 +334,9 @@ const FormContent = React.memo(({
         </YStack>
         <XStack gap="$3" justifyContent="flex-end" mt="$2">
           <Button
-            theme="dark"
+            theme={isDark ? "dark" : "light"}
             onPress={() => setOpen(false)}
-            backgroundColor="$gray5"
+            backgroundColor={isDark ? "$gray5" : "$gray3"}
           >
             Cancel
           </Button>
@@ -354,6 +358,8 @@ const FormContent = React.memo(({
 
 export function AddPersonForm(): JSX.Element {
   const mountStartTime = performance.now()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   
   useEffect(() => {
     const mountEndTime = performance.now()
@@ -365,6 +371,13 @@ export function AddPersonForm(): JSX.Element {
   const primaryColor: string = useUserStore(
     (state) => state.preferences.primaryColor
   )
+
+  // Sync birthdays after successful person addition
+  useEffect(() => {
+    if (addPersonMutation.isSuccess) {
+      useCalendarStore.getState().syncBirthdays()
+    }
+  }, [addPersonMutation.isSuccess])
   const [open, setOpen] = useState<boolean>(false)
   const [formData, setFormData] = useState<FormData>({ ...initialFormData })
   const [inputResetKey, setInputResetKey] = useState<number>(0)
@@ -414,89 +427,83 @@ export function AddPersonForm(): JSX.Element {
         })
       ),
     }
-    addPersonMutation.mutate(
-      {
-        ...processedFormData,
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        onSuccess: (): void => {
-          useCalendarStore.getState().syncBirthdays()
-        },
-      }
-    )
+    addPersonMutation.mutate({
+      ...processedFormData,
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
     setFormData({ ...initialFormData })
     setInputResetKey((prev) => prev + 1)
     setOpen(false)
-  }, [formData, addPersonMutation])
+    }, [formData, addPersonMutation])
 
-  const updateFormField = useCallback(
-    <K extends keyof FormData>(field: K, value: FormData[K]): void => {
-      setFormData((prev) => ({ ...prev, [field]: value }))
-    },
-    []
-  )
+    const updateFormField = useCallback(
+      <K extends keyof FormData>(field: K, value: FormData[K]): void => {
+        setFormData((prev) => ({ ...prev, [field]: value }))
+      },
+      []
+    )
 
-  return (
-    <>
-      <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
-        <Button
-          size="$4"
-          circular
-          bg={primaryColor}
-          pressStyle={{ scale: 0.95 }}
-          animation="quick"
-          elevation={4}
-          onPress={() => setOpen(true)}
-        >
-          <Plus color="white" size={24} />
-        </Button>
-      </View>
-
-      {open ? (
-        <YStack
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          backgroundColor="rgba(0,0,0,0.5)"
-          justifyContent="center"
-          alignItems="center"
-          zIndex={1000}
-        >
-          <YStack
-            backgroundColor="$gray1"
-            padding="$4"
-            width="95%"
-            maxHeight="85%"
-            borderRadius="$4"
+    return (
+      <>
+        <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
+          <Button
+            size="$4"
+            circular
+            bg={primaryColor}
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={() => setOpen(true)}
           >
-            <Button
-              position="absolute"
-              top="$3"
-              right="$3"
-              size="$2"
-              circular
-              onPress={() => setOpen(false)}
+            <Plus color="white" size={24} />
+          </Button>
+        </View>
+
+        {open ? (
+          <YStack
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundColor="rgba(0,0,0,0.5)"
+            justifyContent="center"
+            alignItems="center"
+            zIndex={1000}
+          >
+            <YStack
+              backgroundColor={isDark ? "$gray1" : "rgba(255,255,255,0.93)"}
+              padding="$4"
+              width="95%"
+              maxHeight="85%"
+              borderRadius="$4"
             >
-              ✕
-            </Button>
-            <FormContent
-              formData={formData}
-              inputResetKey={inputResetKey}
-              updateFormField={updateFormField}
-              handleSubmit={handleSubmit}
-              handleBirthdayChange={handleBirthdayChange}
-              pickImage={pickImage}
-              primaryColor={primaryColor}
-              setOpen={setOpen}
-            />
+              <Button
+                position="absolute"
+                top="$3"
+                right="$3"
+                size="$2"
+                circular
+                backgroundColor={isDark ? "$gray3" : "$gray4"}
+                onPress={() => setOpen(false)}
+              >
+                ✕
+              </Button>
+              <FormContent
+                formData={formData}
+                inputResetKey={inputResetKey}
+                updateFormField={updateFormField}
+                handleSubmit={handleSubmit}
+                handleBirthdayChange={handleBirthdayChange}
+                pickImage={pickImage}
+                primaryColor={primaryColor}
+                setOpen={setOpen}
+              />
+            </YStack>
           </YStack>
-        </YStack>
-      ) : null}
-    </>
-  )
-}
+        ) : null}
+      </>
+    )
+  }
