@@ -18,7 +18,7 @@ import { TemperatureModal } from './cardModals/TemperatureModal'
 import { WifiModal } from './cardModals/WifiModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
-import { ClockCard } from '../utils/ClockCard'
+//import { ClockCard } from '../utils/ClockCard'
 import { QuoteSection } from '@/components/home/QuoteSection'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -229,8 +229,14 @@ export function LandingPage() {
             backgroundColor="rgba(0, 0, 0, 0.7)"
             borderRadius={12}
             padding="$4"
-            borderColor="rgba(255, 255, 255, 0.1)"
+            borderColor="rgba(255, 255, 255, 0.05)"
             borderWidth={2}
+            style={{
+              shadowColor: "rgba(255, 255, 255, 0.05)",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.3,
+              shadowRadius: 10
+            }}
           >
             <XStack alignItems="center" justifyContent="space-between">
               <XStack alignItems="center" gap="$2">
@@ -284,10 +290,10 @@ export function LandingPage() {
             borderColor="rgba(255, 255, 255, 0.15)"
             minHeight={300}
             style={{
-              shadowColor: "rgba(255, 255, 255, 0.1)",
+              shadowColor: "rgba(255, 255, 255, 0.05)",
               shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.5,
-              shadowRadius: 20
+              shadowOpacity: 0.3,
+              shadowRadius: 10
             }}
           >
             <XStack alignItems="center" justifyContent="space-between" width="100%" marginBottom="$2" paddingLeft={4}>
@@ -296,9 +302,9 @@ export function LandingPage() {
                 fontSize={19} 
                 fontWeight="bold"
                 style={{
-                  textShadowColor: 'rgba(219, 208, 198, 0.25)',
+                  textShadowColor: 'rgba(219, 208, 198, 0.15)',
                   textShadowOffset: { width: 0, height: 0 },
-                  textShadowRadius: 8
+                  textShadowRadius: 4
                 }}
               >
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -312,9 +318,9 @@ export function LandingPage() {
                   size={26} 
                   color="#dbd0c6"
                   style={{
-                    textShadowColor: 'rgba(219, 208, 198, 0.25)',
+                    textShadowColor: 'rgba(219, 208, 198, 0.15)',
                     textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 8
+                    textShadowRadius: 4
                   }}
                 />
               </Pressable>
@@ -344,10 +350,10 @@ export function LandingPage() {
                   borderRadius: 17,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  shadowColor: 'rgba(219, 208, 198, 0.3)',
+                  shadowColor: 'rgba(219, 208, 198, 0.2)',
                   shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 8
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4
                 }}
               >
                 <Ionicons 
@@ -355,9 +361,9 @@ export function LandingPage() {
                   size={26} 
                   color="#dbd0c6"
                   style={{
-                    textShadowColor: 'rgba(219, 208, 198, 0.25)',
+                    textShadowColor: 'rgba(219, 208, 198, 0.15)',
                     textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 8
+                    textShadowRadius: 4
                   }}
                 />
               </Pressable>

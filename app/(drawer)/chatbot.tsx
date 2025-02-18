@@ -37,7 +37,7 @@ class ChatErrorBoundary extends React.Component<ChatErrorBoundaryProps, ChatErro
   render() {
     if (this.state.hasError) {
       return (
-        <View style={{ flex: 1, backgroundColor: '#1a1a1a', justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, backgroundColor: '#000000', justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ color: 'white', fontSize: 18 }}>Something went wrong.</Text>
         </View>
       )
@@ -49,7 +49,7 @@ class ChatErrorBoundary extends React.Component<ChatErrorBoundaryProps, ChatErro
 const THEME = {
   light: {
     background: '#ffffff',
-    inputBg: 'rgba(240, 240, 240, 0.95)',
+    inputBg: 'rgba(207, 207, 207, 0.95)',
     inputBorder: 'rgba(0, 0, 0, 0.1)',
     text: '#000000',
     messageBg: {
@@ -62,7 +62,7 @@ const THEME = {
     }
   },
   dark: {
-    background: '#1a1a1a',
+    background: '#000000',
     inputBg: 'rgba(48, 48, 48, 0.95)',
     inputBorder: 'rgba(244, 240, 240, 0.1)',
     text: '#ffffff',
@@ -367,7 +367,7 @@ function ChatbotInner() {
               opacity: message.trim() ? 1 : 0.5
             }}
           >
-            <Ionicons name="send" size={28} color={message.trim() ? primaryColor : '#666'} />
+            <Ionicons name="send" size={32} color={message.trim() ? primaryColor : '#000'} />
           </TouchableOpacity>
         </XStack>
       </Stack>

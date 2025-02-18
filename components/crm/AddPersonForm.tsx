@@ -360,24 +360,17 @@ export function AddPersonForm(): JSX.Element {
   const mountStartTime = performance.now()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  
-  useEffect(() => {
-    const mountEndTime = performance.now()
-    console.log(`⏱️ AddPersonForm Mount: ${mountEndTime - mountStartTime}ms`)
-    return () => console.log('AddPersonForm Unmount')
-  }, [])
-
   const addPersonMutation = useAddPerson()
   const primaryColor: string = useUserStore(
     (state) => state.preferences.primaryColor
   )
 
-  // Sync birthdays after successful person addition
   useEffect(() => {
     if (addPersonMutation.isSuccess) {
       useCalendarStore.getState().syncBirthdays()
     }
   }, [addPersonMutation.isSuccess])
+  
   const [open, setOpen] = useState<boolean>(false)
   const [formData, setFormData] = useState<FormData>({ ...initialFormData })
   const [inputResetKey, setInputResetKey] = useState<number>(0)

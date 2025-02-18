@@ -98,7 +98,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
             value={formData.ticker}
             onChangeText={(v) => handleChange('ticker', v)}
             placeholder="e.g. AAPL"
-            placeholderTextColor="$colorSubdued"
+            placeholderTextColor="$color11"
             autoCapitalize="characters"
             disabled={!!stock}
             opacity={!!stock ? 0.6 : 1}
@@ -114,7 +114,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
             value={formData.quantity}
             onChangeText={(v) => handleChange('quantity', v.replace(/[^0-9]/g, ''))}
             placeholder="Number of shares"
-            placeholderTextColor="$colorSubdued"
+            placeholderTextColor="$color11"
             keyboardType="numeric"
             {...inputStyle}
           />
@@ -128,7 +128,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
             value={formData.name}
             onChangeText={(v) => handleChange('name', v)}
             placeholder="e.g. Apple Inc"
-            placeholderTextColor="$colorSubdued"
+            placeholderTextColor="$color11"
             disabled={!!stock}
             opacity={!!stock ? 0.6 : 1}
             {...inputStyle}

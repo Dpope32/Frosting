@@ -9,6 +9,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Plus } from '@tamagui/lucide-icons';
 import { EventPreview } from '@/components/calendar/EventPreview';
 import { Month } from '@/components/calendar/Month';
+import { Legend } from '@/components/calendar/Legend';
 
 const parseTimeString = (timeStr: string): string => {
   const parts = timeStr.split(' ');
@@ -139,6 +140,7 @@ export default function CalendarScreen() {
 
   return (
     <View style={styles.container}>
+      <Legend isDark={isDark} />
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
         {months.map((date, index) => (
           <Month

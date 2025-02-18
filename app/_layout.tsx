@@ -11,7 +11,6 @@ import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useNotifications } from '@/hooks/useNotifications';

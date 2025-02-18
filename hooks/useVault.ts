@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { VAULT_DATA } from '@/constants/vaultData';
+import { vaultStorage } from '@/utils/Storage';
 
 export function useVault() {
   const queryClient = useQueryClient();
@@ -7,18 +8,26 @@ export function useVault() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['vault-credentials'],
     queryFn: async () => {
+      const storedData = vaultStorage.getString('vault-data');
+      if (storedData) {
+        return JSON.parse(storedData);
+      }
+      // Initialize with empty vault data if nothing is stored
+      vaultStorage.set('vault-data', JSON.stringify(VAULT_DATA));
       return VAULT_DATA;
     }
   });
 
   const addVaultEntry = (entry: { name: string; username: string; password: string }) => {
+    const currentData = JSON.parse(vaultStorage.getString('vault-data') || JSON.stringify(VAULT_DATA));
+    
     // Generate a unique ID using timestamp and random number
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 10000);
     let newId = `${timestamp}-${random}`;
     
     // Ensure ID is unique by checking existing items
-    while (VAULT_DATA.items.some(item => item.id === newId)) {
+    while (currentData.items.some((item: any) => item.id === newId)) {
       newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     }
     
@@ -26,41 +35,41 @@ export function useVault() {
       id: newId,
       ...entry
     };
-    VAULT_DATA.items.push(newEntry);
-    VAULT_DATA.totalItems += 1;
+    
+    const updatedData = {
+      ...currentData,
+      items: [...currentData.items, newEntry],
+      totalItems: currentData.totalItems + 1
+    };
+    
+    vaultStorage.set('vault-data', JSON.stringify(updatedData));
     queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
   };
 
   const deleteVaultEntry = async (id: string) => {
-    console.log('(NOBRIDGE) LOG [useVault] Deleting entry with id:', id);
-    const index = VAULT_DATA.items.findIndex(item => item.id === id);
-    console.log('(NOBRIDGE) LOG [useVault] Found item at index:', index);
+    const currentData = JSON.parse(vaultStorage.getString('vault-data') || JSON.stringify(VAULT_DATA));
+    const index = currentData.items.findIndex((item: any) => item.id === id);
     
     if (index !== -1) {
-      console.log('(NOBRIDGE) LOG [useVault] Current items:', VAULT_DATA.items);
-      // Create new arrays instead of mutating
-      VAULT_DATA.items = VAULT_DATA.items.filter(item => item.id !== id);
-      VAULT_DATA.totalItems -= 1;
-      console.log('(NOBRIDGE) LOG [useVault] Updated items:', VAULT_DATA.items);
+      const updatedData = {
+        ...currentData,
+        items: currentData.items.filter((item: any) => item.id !== id),
+        totalItems: currentData.totalItems - 1
+      };
       
       try {
+        // Save to storage
+        vaultStorage.set('vault-data', JSON.stringify(updatedData));
+        
         // Force a cache update
-        console.log('(NOBRIDGE) LOG [useVault] Invalidating queries...');
         await queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
         
         // Update the cache directly to ensure immediate UI update
-        console.log('(NOBRIDGE) LOG [useVault] Updating cache...');
-        queryClient.setQueryData(['vault-credentials'], {
-          items: [...VAULT_DATA.items],
-          totalItems: VAULT_DATA.totalItems
-        });
-        console.log('(NOBRIDGE) LOG [useVault] Delete operation completed');
+        queryClient.setQueryData(['vault-credentials'], updatedData);
       } catch (error) {
-        console.log('(NOBRIDGE) LOG [useVault] Error during cache update:', error);
+        console.error('Error during vault entry deletion:', error);
         throw error;
       }
-    } else {
-      console.log('(NOBRIDGE) LOG [useVault] Item not found with id:', id);
     }
   };
 

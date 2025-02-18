@@ -6,12 +6,12 @@ import { useState } from 'react'
 
 // Import wallpapers
 const wallpapers = [
-  require('@/assets/wallpapers/wallpapers-1.png'),
-  require('@/assets/wallpapers/wallpapers-2.png'),
-  require('@/assets/wallpapers/wallpapers-3.png'),
-  require('@/assets/wallpapers/wallpapers-4.png'),
-  require('@/assets/wallpapers/wallpapers-5.jpg'),
-  require('@/assets/wallpapers/wallpapers.png'),
+  require('../../../assets/wallpapers-optimized/wallpapers-1.jpg'),
+  require('../../../assets/wallpapers-optimized/wallpapers-2.jpg'),
+  require('../../../assets/wallpapers-optimized/wallpapers-3.jpg'),
+  require('../../../assets/wallpapers-optimized/wallpapers-4.jpg'),
+  require('../../../assets/wallpapers-optimized/wallpapers-5.jpg'),
+  require('../../../assets/wallpapers-optimized/wallpapers.jpg'),
 ]
 
 export default function Step1({

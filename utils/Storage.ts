@@ -11,3 +11,7 @@ export const keyStorage = new MMKV({
 export const chatStorage = new MMKV({
   id: 'chats',
 });
+
+export const vaultStorage = new MMKV({
+  id: 'vault',
+});

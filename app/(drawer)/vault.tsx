@@ -8,6 +8,13 @@ import { useToastStore } from '@/store/ToastStore';
 import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal';
 import { Plus, X, Copy } from '@tamagui/lucide-icons';
 
+interface VaultEntry {
+  id: string;
+  name: string;
+  username: string;
+  password: string;
+}
+
 export default function VaultScreen() {
   const { data, isLoading, error, addVaultEntry, deleteVaultEntry } = useVault();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
@@ -75,17 +82,17 @@ export default function VaultScreen() {
           {data?.items.length === 0 ? (
             <XStack 
               bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-              p="$1" 
-              borderRadius="$4"
+              p="$6" 
+              borderRadius="$4" 
+              ai="center" 
+              jc="center"
               borderWidth={1}
               borderColor={isDark ? "#333" : "#e0e0e0"}
-              ai="center"
-              jc="center"
             >
-              <Text color={isDark ? "#666" : "#999"} fontSize="$3">No entries in vault</Text>
+              <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center">No entries in vault</Text>
             </XStack>
           ) : (
-            data?.items.map((cred) => (
+            data?.items.map((cred: VaultEntry) => (
               <XStack 
                 key={cred.id}
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}

@@ -154,11 +154,13 @@ export default function DrawerLayout() {
           drawerContentStyle: {
             backgroundColor
           },
-          drawerType: 'slide',
+          drawerType: 'front',  // Changed to front for better performance
           overlayColor: '#00000099',
           swipeEnabled: true,
           swipeEdgeWidth: 100,
-          drawerStatusBarAnimation: 'slide'
+          drawerStatusBarAnimation: 'slide',
+          drawerHideStatusBarOnOpen: true,
+          keyboardDismissMode: 'on-drag'
         }}
       >
         <Drawer.Screen

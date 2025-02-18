@@ -35,7 +35,7 @@ export default function OUPage() {
     const awayTeam = isOUHome ? opposingTeam.team.shortDisplayName : ouTeam.team.shortDisplayName
     const venue = competition.venue?.fullName || 'TBD'
     const gameDate = new Date(game.date)
-    const formattedDate = format(gameDate, 'E, MMM d')
+    const formattedDate = format(gameDate, 'EEEE, MMM d')
     const formattedTime = competition.status?.type?.shortDetail || 'TBD'
 
     return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, Input, AnimatePresence } from 'tamagui'
-import { TouchableOpacity } from 'react-native'
+import { TouchableOpacity, useColorScheme } from 'react-native'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay, type RecurrencePattern } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
@@ -54,6 +54,8 @@ type DebouncedInputProps = {
 const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
   ({ value, onDebouncedChange, ...props }, ref) => {
     const [text, setText] = useState(value)
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === 'dark'
     
     useEffect(() => {
       const handler = setTimeout(() => onDebouncedChange(text), 500)
@@ -64,7 +66,18 @@ const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
       setText(value)
     }, [value])
 
-    return <Input ref={ref} {...props} value={text} onChangeText={setText} />
+    return (
+      <Input 
+        ref={ref} 
+        {...props} 
+        value={text} 
+        onChangeText={setText}
+        theme={isDark ? "dark" : "light"}
+        backgroundColor={isDark ? "$gray2" : "white"}
+        borderColor={isDark ? "$gray7" : "$gray4"}
+        color={isDark ? "$gray12" : "$gray11"}
+      />
+    )
   }
 )
 
@@ -73,7 +86,9 @@ interface NewTaskModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps) {
+export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
@@ -165,26 +180,31 @@ const SelectButton = ({
   onPress, 
   showDropdown = false,
   icon
-}: SelectButtonProps) => (
+}: SelectButtonProps) => {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  
+  return (
     <Button
       onPress={onPress}
-      backgroundColor="$gray2Light"
+      theme={isDark ? "dark" : "light"}
+      backgroundColor={isDark ? "$gray2" : "white"}
       borderRadius={12}
       height={50}
-      borderColor="$gray6Light"
+      borderColor={isDark ? "$gray7" : "$gray4"}
       borderWidth={1}
       paddingHorizontal="$3"
       pressStyle={{ opacity: 0.8 }}
     >
       <XStack flex={1} alignItems="center" justifyContent="space-between" paddingRight="$2">
         <XStack alignItems="center" gap="$2">
-          {icon && <Ionicons name={icon as any} size={20} color="$gray12Light" />}
-          <Text color="$gray12Light" fontSize={16} fontWeight="500">
+          {icon && <Ionicons name={icon as any} size={20} color={isDark ? "$gray12" : "$gray11"} />}
+          <Text color={isDark ? "$gray12" : "$gray11"} fontSize={16} fontWeight="500">
             {label}
           </Text>
         </XStack>
         <Text 
-          color="$gray11Light" 
+          color={isDark ? "$gray11" : "$gray10"} 
           fontSize={16} 
           numberOfLines={1} 
           maxWidth="60%"
@@ -195,7 +215,8 @@ const SelectButton = ({
         </Text>
       </XStack>
     </Button>
-);
+  );
+}
 
 
 interface DropdownListProps<T> {
@@ -211,13 +232,17 @@ function DropdownList<T extends string>({
   onSelect,
   maxHeight = 300
 }: DropdownListProps<T>) {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  const { preferences } = useUserStore()
+
   return (
     <YStack
       position="absolute"
       top="110%"
       left={0}
       right={0}
-      backgroundColor="$gray1Light"
+      backgroundColor={isDark ? "$gray1" : "white"}
       borderRadius={12}
       zIndex={1000}
       overflow="hidden"
@@ -227,7 +252,7 @@ function DropdownList<T extends string>({
       shadowRadius={8}
       maxHeight={maxHeight}
       borderWidth={1}
-      borderColor="$gray6Light"
+      borderColor={isDark ? "$gray7" : "$gray4"}
     >
       <ScrollView bounces={false}>
         <YStack>
@@ -240,18 +265,18 @@ function DropdownList<T extends string>({
               <Button
                 key={value}
                 onPress={() => onSelect(value)}
-                backgroundColor={selectedValue === value ? preferences.primaryColor : '$gray2Light'}
+                backgroundColor={selectedValue === value ? preferences.primaryColor : isDark ? "$gray2" : "white"}
                 height={45}
                 justifyContent="center"
                 pressStyle={{ opacity: 0.8 }}
                 borderBottomWidth={1}
-                borderColor="$gray6Light"
+                borderColor={isDark ? "$gray7" : "$gray4"}
                 paddingHorizontal="$3"
               >
                 <XStack alignItems="center" gap="$2">
                   {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : '$gray11Light'} />}
                   <Text
-                    color={selectedValue === value ? '#fff' : '$gray12Light'}
+                    color={selectedValue === value ? '#fff' : isDark ? "$gray12" : "$gray11"}
                     fontSize={16}
                     fontWeight={selectedValue === value ? '600' : '400'}
                   >
@@ -334,7 +359,7 @@ function DropdownList<T extends string>({
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[90]}
+      snapPoints={[70]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
@@ -346,14 +371,14 @@ function DropdownList<T extends string>({
         exitStyle={{ opacity: 0 }} 
       />
       <Sheet.Frame
-        backgroundColor="rgb(21, 21, 21)"
+        backgroundColor={isDark ? "$gray1" : "white"}
         padding="$4"
         gap="$5"
         borderTopLeftRadius="$6"
         borderTopRightRadius="$6"
       >
           <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
-            <Text fontSize={24} fontWeight="700" color="#fff" marginBottom={20}>
+            <Text fontSize={24} fontWeight="700" color={isDark ? "$gray12" : "$gray11"} marginBottom={20}>
               New Task
             </Text>
             <Form gap="$4" onSubmit={handleAddTask}>
@@ -363,13 +388,14 @@ function DropdownList<T extends string>({
                 value={newTask.name}
                 onDebouncedChange={handleTextChange}
                 borderWidth={1}
-                borderColor="rgba(85,85,85,0.5)"
-                backgroundColor="rgba(45,45,45,0.8)"
-                color="#fff"
                 autoCapitalize="sentences"
                 borderRadius={12}
                 paddingHorizontal="$3"
                 height={50}
+                theme={isDark ? "dark" : "light"}
+                backgroundColor={isDark ? "$gray2" : "white"}
+                borderColor={isDark ? "$gray7" : "$gray4"}
+                color={isDark ? "$gray12" : "$gray11"}
               />
               
               <YStack gap="$4">
@@ -407,7 +433,7 @@ function DropdownList<T extends string>({
                                 backgroundColor={
                                   new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index
                                     ? preferences.primaryColor 
-                                    : '$gray2Light'
+                                    : isDark ? "$gray2" : "white"
                                 }
                                 pressStyle={{ opacity: 0.8, scale: 0.98 }}
                                 onPress={() => {
@@ -425,14 +451,14 @@ function DropdownList<T extends string>({
                                 borderColor={
                                   new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index
                                     ? 'transparent' 
-                                    : '$gray6Light'
+                                    : isDark ? "$gray7" : "$gray4"
                                 }
                                 minWidth={45}
                               >
                                 <Text 
                                   fontSize={14} 
                                   fontWeight="600" 
-                                  color={new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index ? '#fff' : '$gray11Light'}
+                                  color={new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index ? '#fff' : isDark ? "$gray12" : "$gray11"}
                                 >
                                   {month.substring(0, 3)}
                                 </Text>
@@ -449,7 +475,7 @@ function DropdownList<T extends string>({
                               backgroundColor={
                                 new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day
                                   ? preferences.primaryColor 
-                                  : '$gray2Light'
+                                  : isDark ? "$gray2" : "white"
                               }
                               pressStyle={{ opacity: 0.8, scale: 0.98 }}
                               onPress={() => {
@@ -467,14 +493,14 @@ function DropdownList<T extends string>({
                               borderColor={
                                 new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day
                                   ? 'transparent' 
-                                  : '$gray6Light'
+                                  : isDark ? "$gray7" : "$gray4"
                               }
                               minWidth={45}
                             >
                               <Text 
                                 fontSize={14} 
                                 fontWeight="600" 
-                                color={new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day ? '#fff' : '$gray11Light'}
+                                color={new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day ? '#fff' : isDark ? "$gray12" : "$gray11"}
                               >
                                 {day}
                               </Text>
@@ -494,7 +520,7 @@ function DropdownList<T extends string>({
                               backgroundColor={
                                 newTask.schedule.includes(fullDay) 
                                   ? preferences.primaryColor 
-                                  : '$gray2Light'
+                                  : isDark ? "$gray2" : "white"
                               }
                               pressStyle={{ opacity: 0.8, scale: 0.98 }}
                               onPress={() => toggleDay(shortDay)}
@@ -505,13 +531,13 @@ function DropdownList<T extends string>({
                               borderColor={
                                 newTask.schedule.includes(fullDay) 
                                   ? 'transparent' 
-                                  : '$gray6Light'
+                                  : isDark ? "$gray7" : "$gray4"
                               }
                             >
                               <Text 
                                 fontSize={14} 
                                 fontWeight="600" 
-                                color={newTask.schedule.includes(fullDay) ? '#fff' : '$gray11Light'}
+                                color={newTask.schedule.includes(fullDay) ? '#fff' : isDark ? "$gray12" : "$gray11"}
                               >
                                 {shortDay.toUpperCase()}
                               </Text>
@@ -537,7 +563,7 @@ function DropdownList<T extends string>({
                       top="110%"
                       left={0}
                       right={0}
-                      backgroundColor="$gray1Light"
+                      backgroundColor={isDark ? "$gray1" : "white"}
                       borderRadius={12}
                       zIndex={1000}
                       overflow="hidden"
@@ -546,14 +572,14 @@ function DropdownList<T extends string>({
                       shadowOpacity={0.1}
                       shadowRadius={8}
                       borderWidth={1}
-                      borderColor="$gray6Light"
+                      borderColor={isDark ? "$gray7" : "$gray4"}
                     >
                       <YStack
                         height={200}
                         justifyContent="center"
                         alignItems="center"
                         padding="$4"
-                        backgroundColor="$gray1Light"
+                        backgroundColor={isDark ? "$gray1" : "white"}
                       >
                         <DateTimePicker
                           value={selectedDate}
@@ -561,7 +587,7 @@ function DropdownList<T extends string>({
                           is24Hour={false}
                           onChange={handleTimeChange}
                           display="spinner"
-                          themeVariant="light"
+                          themeVariant={isDark ? "dark" : "light"}
                         />
                       </YStack>
                     </YStack>
@@ -571,14 +597,14 @@ function DropdownList<T extends string>({
                 <XStack
                   alignItems="center"
                   justifyContent="space-between"
-                  backgroundColor="$gray2Light"
+                  backgroundColor={isDark ? "$gray2" : "white"}
                   paddingHorizontal="$4"
-                  borderColor="$gray6Light"
+                  borderColor={isDark ? "$gray7" : "$gray4"}
                   borderWidth={1}
                   borderRadius={12}
                   height={50}
                 >
-                  <Text fontSize={16} color="$gray12Light" fontWeight="500">
+                  <Text fontSize={16} color={isDark ? "$gray12" : "$gray11"} fontWeight="500">
                     One-time
                   </Text>
                   <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>

@@ -65,7 +65,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[80]}
+      snapPoints={[65]}
       zIndex={100000}
     >
       <Sheet.Overlay
@@ -82,7 +82,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       >
         <Sheet.Handle backgroundColor={borderColor} />
 
-        <YStack gap="$3" paddingBottom="$2">
+        <YStack gap="$3" paddingBottom="$3">
           <Text fontSize={20} fontWeight="600" color={textColor}>
             Settings
           </Text>
