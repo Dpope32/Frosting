@@ -35,14 +35,15 @@ export default function OUPage() {
     const awayTeam = isOUHome ? opposingTeam.team.shortDisplayName : ouTeam.team.shortDisplayName
     const venue = competition.venue?.fullName || 'TBD'
     const gameDate = new Date(game.date)
-    const formattedDate = format(gameDate, 'EEEE, MMM d')
+    // Ensure we're using the correct timezone by parsing the UTC date
+    const formattedDate = format(new Date(game.date), 'EEEE, MMMM d')
     const formattedTime = competition.status?.type?.shortDetail || 'TBD'
 
     return (
       <View style={[
         styles.gameCard,
         { 
-          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          backgroundColor: isDark ? '#1A1A1A' : '#f5f5f5',
           borderColor: isDark ? '#333' : '#e0e0e0' 
         }
       ]}>
@@ -97,7 +98,7 @@ export default function OUPage() {
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.container} darkColor="#000000" lightColor="#ffffff">
       <View style={styles.header}>
         <Image
           source={require('../../assets/images/ou.png')}
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    marginBottom: 8,
+    marginBottom: -4,
   },
   logo: {
     width: 36,
@@ -148,12 +149,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    padding: 12,
+    padding: 20,
   },
   gameCard: {
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
+    padding: 8,
+    marginBottom: 6,
     borderWidth: 1,
   },
   dateContainer: {
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
-    marginBottom: 4,
+    marginBottom: 0,
   },
   teamWrapper: {
     flexDirection: 'row',

@@ -32,15 +32,16 @@ export function LandingPage() {
     MyTracker.initTracker('initTracker')
   }, [])
 
-  const username = useUserStore(s => s.preferences.username)
-  const primaryColor = useUserStore(s => s.preferences.primaryColor)
-  const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
-  const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
-  const userHydrated = useUserStore(s => s.hydrated)
+const username = useUserStore(s => s.preferences.username)
+const primaryColor = useUserStore(s => s.preferences.primaryColor)
+const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
+const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
+const userHydrated = useUserStore(s => s.hydrated)
 
-  const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
-  const projectHydrated = useStoreHydrated()
-  const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.todaysTasks, []))
+const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
+const deleteTask = useProjectStore(React.useCallback((s: any) => s.deleteTask, []))
+const projectHydrated = useStoreHydrated()
+const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.todaysTasks, []))
 
   if (!userHydrated || !projectHydrated) {
     return (
@@ -226,7 +227,7 @@ export function LandingPage() {
       <ScrollView flex={1} paddingHorizontal="$3" contentContainerStyle={{ paddingBottom: 80 }}>
         <YStack paddingTop={100} gap="$2">
           <Stack
-            backgroundColor="rgba(0, 0, 0, 0.7)"
+            backgroundColor="rgba(0, 0, 0, 0.85)"
             borderRadius={12}
             padding="$4"
             borderColor="rgba(255, 255, 255, 0.05)"
@@ -238,8 +239,8 @@ export function LandingPage() {
               shadowRadius: 10
             }}
           >
-            <XStack alignItems="center" justifyContent="space-between">
-              <XStack alignItems="center" gap="$2">
+            <XStack alignItems="center" justifyContent="space-between" >
+              <XStack alignItems="center" gap="$2" paddingLeft="$3">
                 <XStack alignItems="center" gap="$1">
                   <Text
                     fontFamily="$body"
@@ -286,6 +287,7 @@ export function LandingPage() {
             backgroundColor="rgba(0, 0, 0, 0.85)"
             borderRadius={16}
             padding="$4"
+            paddingBottom="$9"
             borderWidth={2.5}
             borderColor="rgba(255, 255, 255, 0.15)"
             minHeight={300}
@@ -296,10 +298,10 @@ export function LandingPage() {
               shadowRadius: 10
             }}
           >
-            <XStack alignItems="center" justifyContent="space-between" width="100%" marginBottom="$2" paddingLeft={4}>
+            <XStack alignItems="center" justifyContent="space-between" width="100%" marginBottom="$2" paddingLeft="$4">
               <Text 
                 color="#dbd0c6" 
-                fontSize={19} 
+                fontSize={20} 
                 fontWeight="bold"
                 style={{
                   textShadowColor: 'rgba(219, 208, 198, 0.15)',
@@ -326,24 +328,41 @@ export function LandingPage() {
               </Pressable>
             </XStack>
             <Stack gap="$2" paddingHorizontal={6} flex={1} position="relative">
-              {todaysTasks.map((task: Task) => (
-                <TaskCard
-                  key={task.id}
-                  title={task.name}
-                  time={task.time}
-                  category={task.category}
-                  status={task.isOneTime ? 'One-time' : 'Recurring'}
-                  categoryColor={getCategoryColor(task.category)}
-                  checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
-                  onCheck={() => toggleTaskCompletion(task.id)}
-                />
-              ))}
+              {todaysTasks.length === 0 ? (
+                <XStack 
+                  bg="rgba(0, 0, 0, 0.85)"
+                  p="$6" 
+                  borderRadius="$4" 
+                  ai="center" 
+                  jc="center"
+                  borderWidth={1}
+                  borderColor="rgba(255, 255, 255, 0.15)"
+                >
+                  <Text color="#dbd0c6" fontSize="$3" textAlign="center">
+                    Add repeating or one-time tasks for personal, work, or anything else to get started
+                  </Text>
+                </XStack>
+              ) : (
+                todaysTasks.map((task: Task) => (
+                  <TaskCard
+                    key={task.id}
+                    title={task.name}
+                    time={task.time}
+                    category={task.category}
+                    status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
+                    categoryColor={getCategoryColor(task.category)}
+                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
+                    onCheck={() => toggleTaskCompletion(task.id)}
+                    onDelete={() => deleteTask(task.id)}
+                  />
+                ))
+              )}
               <Pressable
                 onPress={handleNewTaskPress}
                 style={{
                   position: 'absolute',
-                  bottom: 4,
-                  right: 4,
+                  bottom: -40,
+                  right: -0,
                   backgroundColor: 'rgba(219, 208, 198, 0.2)',
                   width: 34,
                   height: 34,

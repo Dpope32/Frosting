@@ -1,13 +1,13 @@
-import { Image } from 'react-native';
+// Define wallpapers with S3 URLs
+const S3_URL = process.env.EXPO_PUBLIC_S3_BUCKET_URL;
 
-// Define wallpapers with static requires
 const wallpapers = {
-  'wallpaper-0': require('../assets/wallpapers-optimized/wallpapers.jpg'),
-  'wallpaper-1': require('../assets/wallpapers-optimized/wallpapers-1.jpg'),
-  'wallpaper-2': require('../assets/wallpapers-optimized/wallpapers-2.jpg'),
-  'wallpaper-3': require('../assets/wallpapers-optimized/wallpapers-3.jpg'),
-  'wallpaper-4': require('../assets/wallpapers-optimized/wallpapers-4.jpg'),
-  'wallpaper-5': require('../assets/wallpapers-optimized/wallpapers-5.jpg'),
+  'wallpaper-0': { uri: `${S3_URL}/wallpapers/wallpapers.jpg` },
+  'wallpaper-1': { uri: `${S3_URL}/wallpapers/wallpapers-1.jpg` },
+  'wallpaper-2': { uri: `${S3_URL}/wallpapers/wallpapers-2.jpg` },
+  'wallpaper-3': { uri: `${S3_URL}/wallpapers/wallpapers-3.jpg` },
+  'wallpaper-4': { uri: `${S3_URL}/wallpapers/wallpapers-4.jpg` },
+  'wallpaper-5': { uri: `${S3_URL}/wallpapers/wallpapers-5.jpg` },
 } as const;
 
 export const backgroundStyles = [

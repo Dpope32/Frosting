@@ -2,6 +2,7 @@ import React from 'react'
 import { BaseCardModal } from './BaseCardModal'
 import { Stack, Text, XStack } from 'tamagui'
 import { useProjectStore, Task, WeekDay } from '@/store/ToDo'
+import { useThunderStore } from '@/store/ThunderStore'
 import { Pressable } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { getCategoryColor } from '../utils'
@@ -14,6 +15,7 @@ interface TaskListModalProps {
 export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   const tasks = useProjectStore(s => s.tasks)
   const deleteTask = useProjectStore(s => s.deleteTask)
+  const syncGameTasks = useThunderStore(s => s.syncGameTasks)
 
   // Group tasks by days
   const tasksByDay = React.useMemo(() => {
@@ -28,11 +30,14 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
     };
 
     Object.values(tasks).forEach(task => {
-      if (task.isOneTime) {
-        // For one-time tasks, add to all selected days
-        task.schedule.forEach(day => {
-          days[day].push(task);
-        });
+      if (task.recurrencePattern === 'one-time') {
+        // For one-time tasks, don't add to days since they use scheduledDate
+        const scheduledDate = task.scheduledDate ? new Date(task.scheduledDate) : null;
+        if (scheduledDate) {
+          const dayIndex = scheduledDate.getDay();
+          const dayName = Object.values(days)[dayIndex === 0 ? 6 : dayIndex - 1]; // Adjust for Sunday being 0
+          dayName.push(task);
+        }
       } else {
         // For recurring tasks, add to each scheduled day
         task.schedule.forEach(day => {
@@ -61,8 +66,8 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
 
   // Get schedule display text
   const getScheduleText = (task: Task) => {
-    if (task.isOneTime) {
-      return 'One-time';
+    if (task.recurrencePattern === 'one-time') {
+      return task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString() : 'One-time';
     }
     return task.schedule.map(formatDayName).join(', ');
   };
@@ -73,7 +78,29 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
       onOpenChange={onOpenChange}
       title="All Tasks"
     >
-      <Stack gap="$4">
+      <Stack gap="$4" paddingBottom="$4">
+        <XStack justifyContent="flex-end" paddingRight="$2">
+          <Pressable
+            onPress={() => {
+              syncGameTasks();
+              onOpenChange(false);
+            }}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+              backgroundColor: 'rgba(219, 208, 198, 0.1)',
+              padding: 8,
+              borderRadius: 8,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4
+            })}
+          >
+            <Ionicons name="sync" size={16} color="#dbd0c6" />
+            <Text color="#dbd0c6" fontSize={14}>
+              Sync Games
+            </Text>
+          </Pressable>
+        </XStack>
         {Object.entries(tasksByDay).map(([day, dayTasks]) => 
           dayTasks.length > 0 ? (
             <Stack key={day} gap="$2">

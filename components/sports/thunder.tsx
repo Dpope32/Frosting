@@ -26,7 +26,7 @@ export default function ThunderPage() {
       <View style={[
         styles.gameCard,
         { 
-          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          backgroundColor: isDark ? '#1A1A1A' : '#f5f5f5',
           borderColor: isDark ? '#333' : '#e0e0e0'
         }
       ]}>
@@ -96,7 +96,7 @@ export default function ThunderPage() {
   };
   
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={styles.container} darkColor="#000000" lightColor="#ffffff">
       <View style={styles.header}>
         <Image 
           source={require('../../assets/images/okc.png')}

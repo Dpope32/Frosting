@@ -23,6 +23,7 @@ interface ThunderStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   syncGameTasks: () => void;
+  deleteAllGameTasks: () => void;
 }
 
 const mmkvStorage = {
@@ -47,7 +48,17 @@ export const useThunderStore = create<ThunderStore>()(
       setGames: (games) => set({ games }),
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+      deleteAllGameTasks: () => {
+        const { tasks, deleteTask } = useProjectStore.getState();
+        Object.entries(tasks).forEach(([id, task]) => {
+          if (task.name.startsWith('🏀 Thunder') || task.name.startsWith('🏈 OU')) {
+            deleteTask(id);
+          }
+        });
+      },
       syncGameTasks: () => {
+        // First delete all existing game tasks
+        get().deleteAllGameTasks();
         const { addTask } = useProjectStore.getState();
         const state = get();
         const now = new Date();
@@ -70,13 +81,12 @@ export const useThunderStore = create<ThunderStore>()(
             // Add task - the addTask function now handles deduplication
             addTask({
               name: taskName,
-              schedule: [weekDays[gameDate.getDay()]],
+              schedule: [],
               priority: 'medium',
               category: 'personal',
-              isOneTime: true,
               scheduledDate: game.date,
               time: gameTime,
-              recurrencePattern: 'weekly'
+              recurrencePattern: 'one-time'
             });
           }
         });
@@ -95,13 +105,12 @@ export const useThunderStore = create<ThunderStore>()(
 
             addTask({
               name: taskName,
-              schedule: [weekDays[gameDate.getDay()]],
+              schedule: [],
               priority: 'medium',
               category: 'personal',
-              isOneTime: true,
               scheduledDate: game.date,
               time: gameTime !== 'TBD' ? gameTime : 'TBD',
-              recurrencePattern: 'weekly'
+              recurrencePattern: 'one-time'
             });
           }
         });

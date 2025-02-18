@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, Input, AnimatePresence } from 'tamagui'
-import { TouchableOpacity, useColorScheme } from 'react-native'
+import { TouchableOpacity, useColorScheme, Pressable } from 'react-native'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay, type RecurrencePattern } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
@@ -24,6 +24,7 @@ const MONTHS = [
 ]
 
 const RECURRENCE_PATTERNS: { label: string; value: RecurrencePattern; icon: string }[] = [
+  { label: 'One-time', value: 'one-time', icon: 'calendar-sharp' },
   { label: 'Weekly', value: 'weekly', icon: 'calendar' },
   { label: 'Biweekly', value: 'biweekly', icon: 'calendar-outline' },
   { label: 'Monthly', value: 'monthly', icon: 'calendar-clear' },
@@ -40,8 +41,7 @@ const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'completionHistory' |
     time: undefined,
     priority: null as unknown as TaskPriority,
     category: null as unknown as TaskCategory,
-    isOneTime: false,
-    recurrencePattern: 'weekly',
+    recurrencePattern: 'one-time',
     recurrenceDate: new Date().toISOString().split('T')[0]
   }
 }
@@ -157,14 +157,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
     setShowRecurrenceSelect(false)
   }, [])
 
-  const handleDateSelect = useCallback((event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      setNewTask(prev => ({
-        ...prev,
-        recurrenceDate: selectedDate.toISOString().split('T')[0]
-      }))
-    }
-  }, [])
 
 interface SelectButtonProps {
   label: string
@@ -262,28 +254,30 @@ function DropdownList<T extends string>({
             const icon = typeof item === 'string' ? null : item.icon;
             
             return (
-              <Button
+              <Pressable
                 key={value}
                 onPress={() => onSelect(value)}
-                backgroundColor={selectedValue === value ? preferences.primaryColor : isDark ? "$gray2" : "white"}
-                height={45}
-                justifyContent="center"
-                pressStyle={{ opacity: 0.8 }}
-                borderBottomWidth={1}
-                borderColor={isDark ? "$gray7" : "$gray4"}
-                paddingHorizontal="$3"
+                style={({ pressed }: { pressed: boolean }) => ({
+                  backgroundColor: selectedValue === value ? preferences.primaryColor : isDark ? "#1c1c1e" : "white",
+                  height: 45,
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.8 : 1,
+                  borderBottomWidth: 1,
+                  borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
+                  paddingHorizontal: 12
+                })}
               >
-                <XStack alignItems="center" gap="$2">
-                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : '$gray11Light'} />}
+                <XStack alignItems="center" gap="$2" paddingVertical={10}>
+                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : isDark ? '#fff' : '#000'} />}
                   <Text
-                    color={selectedValue === value ? '#fff' : isDark ? "$gray12" : "$gray11"}
+                    color={selectedValue === value ? '#fff' : isDark ? "#fff" : "#000"}
                     fontSize={16}
                     fontWeight={selectedValue === value ? '600' : '400'}
                   >
                     {label}
                   </Text>
                 </XStack>
-              </Button>
+              </Pressable>
             );
           })}
         </YStack>
@@ -302,10 +296,6 @@ function DropdownList<T extends string>({
     setShowCategorySelect(false)
   }, [])
 
-  const handleOneTimeChange = useCallback((checked: boolean) => {
-    setNewTask(prev => ({ ...prev, isOneTime: checked }))
-  }, [])
-
   const handleAddTask = useCallback(async () => {
     if (isSubmitting) return
     try {
@@ -313,7 +303,7 @@ function DropdownList<T extends string>({
         showToast('Please enter a task name')
         return
       }
-      if (!newTask.isOneTime && newTask.schedule.length === 0 && 
+      if (newTask.schedule.length === 0 && 
           (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')) {
         showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`)
         return
@@ -324,7 +314,7 @@ function DropdownList<T extends string>({
       const taskToAdd = { 
         ...newTask, 
         name: newTask.name.trim(),
-        schedule: newTask.isOneTime ? [] : (
+        schedule: newTask.recurrencePattern === 'one-time' ? [] : (
           newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly'
             ? newTask.schedule
             : []
@@ -336,8 +326,7 @@ function DropdownList<T extends string>({
         name: taskToAdd.name,
         pattern: taskToAdd.recurrencePattern,
         schedule: taskToAdd.schedule,
-        recurrenceDate: taskToAdd.recurrenceDate,
-        isOneTime: taskToAdd.isOneTime
+        recurrenceDate: taskToAdd.recurrenceDate
       })
       onOpenChange(false)
       await new Promise(resolve => setTimeout(resolve, 80))
@@ -550,80 +539,48 @@ function DropdownList<T extends string>({
                 </AnimatePresence>
               </YStack>
 
-              <XStack gap="$4" width="100%">
-                <YStack flex={1} position="relative">
-                  <SelectButton
-                    label="Time:"
-                    value={newTask.time || null}
-                    onPress={handleTimePress}
-                  />
-                  {showTimePicker && (
+              <YStack position="relative">
+                <SelectButton
+                  label="Time:"
+                  value={newTask.time || null}
+                  onPress={handleTimePress}
+                />
+                {showTimePicker && (
+                  <YStack
+                    position="absolute"
+                    top="110%"
+                    left={0}
+                    right={0}
+                    backgroundColor={isDark ? "$gray1" : "white"}
+                    borderRadius={12}
+                    zIndex={1000}
+                    overflow="hidden"
+                    shadowColor="black"
+                    shadowOffset={{ width: 0, height: 4 }}
+                    shadowOpacity={0.1}
+                    shadowRadius={8}
+                    borderWidth={1}
+                    borderColor={isDark ? "$gray7" : "$gray4"}
+                  >
                     <YStack
-                      position="absolute"
-                      top="110%"
-                      left={0}
-                      right={0}
-                      backgroundColor={isDark ? "$gray1" : "white"}
-                      borderRadius={12}
-                      zIndex={1000}
-                      overflow="hidden"
-                      shadowColor="black"
-                      shadowOffset={{ width: 0, height: 4 }}
-                      shadowOpacity={0.1}
-                      shadowRadius={8}
-                      borderWidth={1}
-                      borderColor={isDark ? "$gray7" : "$gray4"}
-                    >
-                      <YStack
-                        height={200}
-                        justifyContent="center"
-                        alignItems="center"
-                        padding="$4"
-                        backgroundColor={isDark ? "$gray1" : "white"}
-                      >
-                        <DateTimePicker
-                          value={selectedDate}
-                          mode="time"
-                          is24Hour={false}
-                          onChange={handleTimeChange}
-                          display="spinner"
-                          themeVariant={isDark ? "dark" : "light"}
-                        />
-                      </YStack>
-                    </YStack>
-                  )}
-                </YStack>
-                <YStack flex={1}>
-                <XStack
-                  alignItems="center"
-                  justifyContent="space-between"
-                  backgroundColor={isDark ? "$gray2" : "white"}
-                  paddingHorizontal="$4"
-                  borderColor={isDark ? "$gray7" : "$gray4"}
-                  borderWidth={1}
-                  borderRadius={12}
-                  height={50}
-                >
-                  <Text fontSize={16} color={isDark ? "$gray12" : "$gray11"} fontWeight="500">
-                    One-time
-                  </Text>
-                  <TouchableOpacity onPress={() => handleOneTimeChange(!newTask.isOneTime)}>
-                    <YStack
-                      width={24}
-                      height={24}
-                      borderWidth={2}
-                      borderColor={preferences.primaryColor}
-                      borderRadius={4}
-                      backgroundColor={newTask.isOneTime ? preferences.primaryColor : 'transparent'}
+                      height={200}
                       justifyContent="center"
                       alignItems="center"
+                      padding="$4"
+                      backgroundColor={isDark ? "$gray1" : "white"}
                     >
-                      {newTask.isOneTime && <Ionicons name="checkmark" size={16} color="#fff" />}
+                      <DateTimePicker
+                        value={selectedDate}
+                        mode="time"
+                        is24Hour={false}
+                        onChange={handleTimeChange}
+                        display="spinner"
+                        themeVariant={isDark ? "dark" : "light"}
+                      />
                     </YStack>
-                  </TouchableOpacity>
-                </XStack>
-                </YStack>
-              </XStack>
+                  </YStack>
+                )}
+              </YStack>
 
               <XStack gap="$4" width="100%">
                 <YStack flex={1} position="relative">

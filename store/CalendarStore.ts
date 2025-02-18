@@ -181,9 +181,8 @@ export const useCalendarStore = create<CalendarState>()(
                     schedule: [weekDays[reminderDay]],
                     priority: 'medium',
                     category: 'personal',
-                    isOneTime: true,
                     scheduledDate: twoWeeksBefore.toISOString(),
-                    recurrencePattern: 'yearly'
+                    recurrencePattern: 'one-time'
                   })
                 }
                 if (birthdayDate >= now) {
@@ -203,9 +202,8 @@ export const useCalendarStore = create<CalendarState>()(
                     schedule: [weekDays[birthdayDay]],
                     priority: 'high',
                     category: 'personal',
-                    isOneTime: true,
                     scheduledDate: birthdayDate.toISOString(),
-                    recurrencePattern: 'yearly'
+                    recurrencePattern: 'one-time'
                   })
                 }
                 return birthdayEvent

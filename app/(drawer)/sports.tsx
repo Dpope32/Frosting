@@ -9,7 +9,7 @@ export default function Sports() {
   const [activeTab, setActiveTab] = useState('thunder')
 
   return (
-    <YStack flex={1} marginTop={100}>
+    <YStack flex={1} marginTop={100} bg={useColorScheme() === 'dark' ? "#000000" : "#ffffff"}>
       <Tabs
         defaultValue="OKC"
         orientation="horizontal"

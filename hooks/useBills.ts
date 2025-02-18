@@ -47,9 +47,8 @@ export function useBills() {
         schedule: [weekDay],
         priority: 'high',
         category: 'wealth',
-        isOneTime: true,
         scheduledDate: formattedDate,
-        recurrencePattern: 'monthly'
+        recurrencePattern: 'one-time'
       });
     }
 

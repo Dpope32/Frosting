@@ -4,7 +4,7 @@ import { StorageUtils } from './MMKV'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'career' | 'wealth' | 'skills'
-export type RecurrencePattern = 'weekly' | 'biweekly' | 'monthly' | 'yearly'
+export type RecurrencePattern = 'one-time' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay = | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface Task {
@@ -14,7 +14,6 @@ export interface Task {
   time?: string
   priority: TaskPriority
   category: TaskCategory
-  isOneTime: boolean
   completed: boolean 
   completionHistory: Record<string, boolean> 
   createdAt: string
@@ -37,16 +36,14 @@ interface ProjectStore {
 const dayNames: WeekDay[] = [ 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 const isTaskDue = (task: Task, date: Date): boolean => {
-  if (task.isOneTime) {
-    if (task.scheduledDate) {
-      return new Date(task.scheduledDate).toDateString() === date.toDateString();
-    }
-    return new Date(task.createdAt).toDateString() === date.toDateString();
-  }
-
   const today = dayNames[date.getDay()];
   
   switch (task.recurrencePattern) {
+    case 'one-time':
+      if (task.scheduledDate) {
+        return new Date(task.scheduledDate).toDateString() === date.toDateString();
+      }
+      return new Date(task.createdAt).toDateString() === date.toDateString();
     case 'weekly':
       return task.schedule.includes(today);
     
@@ -153,7 +150,7 @@ export const useProjectStore = create<ProjectStore>()(
             completionHistory: {},
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            recurrencePattern: data.recurrencePattern || 'weekly' 
+            recurrencePattern: data.recurrencePattern || 'one-time'
           }
           tasks[id] = newTask
           set({ tasks, todaysTasks: taskFilter(tasks) })

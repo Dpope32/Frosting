@@ -65,7 +65,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[65]}
+      snapPoints={[75]}
       zIndex={100000}
     >
       <Sheet.Overlay
@@ -77,7 +77,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       />
       <Sheet.Frame
         backgroundColor={backgroundColor}
-        padding="$3"
+        padding="$4"
         gap="$3"
       >
         <Sheet.Handle backgroundColor={borderColor} />
@@ -249,11 +249,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
           {/* Wallpaper Grid */}
           {wallpaperSelected && (
-            <YStack gap="$2">
+            <YStack gap="$3">
               <Text fontSize={14} color={textColor}>
                 Wallpaper Selection
               </Text>
-              <XStack flexWrap="wrap" gap="$2" justifyContent="space-between">
+              <XStack flexWrap="wrap" gap="$1" rowGap="$2" justifyContent="space-between">
                 {backgroundStyles.slice(2, 8).map(style => {
                   const imageSource = getWallpaperPath(style.value)
                   const isSelected = settings.backgroundStyle === style.value
@@ -261,8 +261,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     <Button
                       key={style.value}
                       size="$3"
-                      width={105}
-                      height={65}
+                      width={100}
+                      height={62}
                       padding={0}
                       backgroundColor={isSelected ? settings.primaryColor : inputBackgroundColor}
                       borderColor={isSelected ? 'white' : borderColor}
