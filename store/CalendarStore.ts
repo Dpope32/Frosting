@@ -27,9 +27,9 @@ const mmkvStorage: StateStorage = {
 export interface CalendarEvent {
   id: string
   date: string
-  time?: string  // HH:mm in Central Time
+  time?: string  
   title: string
-  description: string
+  description?: string
   type?: 'birthday' | 'personal' | 'work' | 'family' | 'bill'
   personId?: string
   createdAt: string

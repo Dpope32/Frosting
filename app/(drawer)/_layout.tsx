@@ -214,8 +214,8 @@ export default function DrawerLayout() {
         <Drawer.Screen
           name="vault"
           options={{
-            title: 'Vault',
-            drawerLabel: 'Vault',
+            title: 'Password Vault',
+            drawerLabel: 'Password Vault',
             drawerIcon: renderVaultIcon
           }}
         />

@@ -81,7 +81,7 @@ export const useWeatherQuery = (zipCode: string | null | undefined) => {
       
       // Update store with current temperature and last fetch time
       const currentPeriod = forecastData.properties.periods[0];
-      console.log('[WeatherStore] Setting temperature:', currentPeriod.temperature);
+     // console.log('[WeatherStore] Setting temperature:', currentPeriod.temperature);
       
       useWeatherStore.setState({
         currentTemp: currentPeriod.temperature,

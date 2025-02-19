@@ -19,6 +19,9 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deedaw22.frosting",
+      "icon": {
+        "backgroundColor": "#000000"
+      },
       "infoPlist": {
         "UIBackgroundModes": ["remote-notification"],
         "NSCalendarsUsageDescription": "This app needs to access your calendar to set reminders for birthdays.",
@@ -26,7 +29,11 @@
       }
     },
     "android": {
-      "package": "com.deedaw22.frosting"
+      "package": "com.deedaw22.frosting",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#000000"
+      }
     },
     "plugins": [
       "expo-router",

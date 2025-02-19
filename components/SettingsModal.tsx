@@ -65,7 +65,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[75]}
+      snapPoints={[85]}
       zIndex={100000}
     >
       <Sheet.Overlay

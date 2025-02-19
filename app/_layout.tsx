@@ -14,6 +14,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useNotifications } from '@/hooks/useNotifications';
+import React from 'react';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -43,7 +44,7 @@ export default function RootLayout() {
   // Handle deep links
   const handleDeepLink = useCallback((event: { url: string }) => {
     if (event.url.startsWith('frosting://share')) {
-      const { handleSharedContact } = require('@/components/crm/PersonCard');
+      const { handleSharedContact } = require('@/components/crm/PersonCard/PersonCard');
       handleSharedContact(event.url);
     }
   }, []);

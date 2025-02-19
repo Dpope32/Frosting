@@ -66,10 +66,10 @@ export default function Sports() {
         
         <YStack flex={1}>
           <Tabs.Content value="thunder" flex={1}>
-            <ThunderPage />
+            {activeTab === "thunder" && <ThunderPage />}
           </Tabs.Content>
           <Tabs.Content value="ou" flex={1}>
-            <OUPage />
+            {activeTab === "ou" && <OUPage />}
           </Tabs.Content>
         </YStack>
       </Tabs>

@@ -35,13 +35,15 @@ export const usePeopleStore = create<PeopleStore>((set, get) => ({
   updatePerson: (id, updates) => {
     const contacts = get().contacts
     if (contacts[id]) {
-      contacts[id] = {
+      const updatedContact = {
         ...contacts[id],
         ...updates,
-        updatedAt: new Date().toISOString(),
-      }
-      StorageUtils.set(STORAGE_KEY, contacts)
-      set({ contacts })
+        updatedAt: new Date().toISOString()
+      };
+      // Create a new contacts object to ensure state update
+      const newContacts = { ...contacts, [id]: updatedContact };
+      StorageUtils.set(STORAGE_KEY, newContacts);
+      set({ contacts: newContacts });
     }
   },
   deletePerson: (id) => {

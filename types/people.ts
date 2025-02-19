@@ -1,9 +1,4 @@
 // types/people.ts
-export type PaymentMethod = string | {
-  type?: string
-  details?: string
-}
-
 export type SocialLink = {
   platform: string
   username: string
@@ -25,15 +20,14 @@ export type Address = {
 
 export type Person = {
   id: string
-  familyId: string
+  familyId?: string
   profilePicture?: string
   name: string
   nickname?: string
-  address: Address
+  address?: Address
   birthday: string
-  registered: boolean
-  payments: PaymentMethod[]
-  phoneNumber: string
+  registered?: boolean
+  phoneNumber?: string
   email?: string
   notes?: string
   tags?: string[]

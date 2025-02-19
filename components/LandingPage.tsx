@@ -224,7 +224,7 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <ScrollView flex={1} paddingHorizontal="$3" contentContainerStyle={{ paddingBottom: 80 }}>
+      <ScrollView flex={1} paddingHorizontal="$3" contentContainerStyle={{ paddingBottom: 100 }}>
         <YStack paddingTop={100} gap="$2">
           <Stack
             backgroundColor="rgba(0, 0, 0, 0.85)"
@@ -287,7 +287,7 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
             backgroundColor="rgba(0, 0, 0, 0.85)"
             borderRadius={16}
             padding="$4"
-            paddingBottom="$9"
+            paddingBottom="$12"
             borderWidth={2.5}
             borderColor="rgba(255, 255, 255, 0.15)"
             minHeight={300}
@@ -298,7 +298,7 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
               shadowRadius: 10
             }}
           >
-            <XStack alignItems="center" justifyContent="space-between" width="100%" marginBottom="$2" paddingLeft="$4">
+            <XStack alignItems="center" width="100%" marginBottom="$3" paddingLeft="$4">
               <Text 
                 color="#dbd0c6" 
                 fontSize={20} 
@@ -311,21 +311,6 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
               >
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </Text>
-              <Pressable
-                onPress={() => setTaskListModalOpen(true)}
-                style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4 })}
-              >
-                <Ionicons 
-                  name="list-circle-outline" 
-                  size={26} 
-                  color="#dbd0c6"
-                  style={{
-                    textShadowColor: 'rgba(219, 208, 198, 0.15)',
-                    textShadowOffset: { width: 0, height: 0 },
-                    textShadowRadius: 4
-                  }}
-                />
-              </Pressable>
             </XStack>
             <Stack gap="$2" paddingHorizontal={6} flex={1} position="relative">
               {todaysTasks.length === 0 ? (
@@ -358,10 +343,39 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 ))
               )}
               <Pressable
+                onPress={() => setTaskListModalOpen(true)}
+                style={{
+                  position: 'absolute',
+                  bottom: -55,
+                  left: -0,
+                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 17,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  shadowColor: 'rgba(219, 208, 198, 0.2)',
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4
+                }}
+              >
+                <Ionicons 
+                  name="list-circle-outline" 
+                  size={26} 
+                  color="#dbd0c6"
+                  style={{
+                    textShadowColor: 'rgba(219, 208, 198, 0.15)',
+                    textShadowOffset: { width: 0, height: 0 },
+                    textShadowRadius: 4
+                  }}
+                />
+              </Pressable>
+              <Pressable
                 onPress={handleNewTaskPress}
                 style={{
                   position: 'absolute',
-                  bottom: -40,
+                  bottom: -55,
                   right: -0,
                   backgroundColor: 'rgba(219, 208, 198, 0.2)',
                   width: 34,

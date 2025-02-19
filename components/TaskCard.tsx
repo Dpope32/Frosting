@@ -9,6 +9,7 @@ interface TaskCardProps {
   status: string;
   categoryColor?: string;
   checked?: boolean;
+  oneTime?: boolean;
   onCheck?: (checked: boolean) => void;
   onDelete?: () => void;
 }
@@ -17,65 +18,52 @@ export function TaskCard({
   title, 
   time, 
   category, 
-  status, 
+  status,
   categoryColor = '#9C27B0',
   checked = false,
+  oneTime = false,
   onCheck,
   onDelete
 }: TaskCardProps) {
   return (
     <Stack
-      backgroundColor="rgba(0, 0, 0, 0.3)"
-      borderRadius={8}
-      padding="$2"
-      marginVertical="$1"
+      backgroundColor="rgba(32, 35, 36, 0.95)"
+      borderRadius={6}
+      padding="$1.5"
+      marginVertical="$0.5"
       borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)"
+      borderColor="rgba(52, 54, 55, 0.8)"
       style={{
-        borderLeftWidth: 4,
+        borderLeftWidth: 3,
         borderLeftColor: categoryColor,
       }}
-      position="relative"
     >
-      {checked && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: 8,
-            zIndex: 1,
-          }}
-        />
-      )}
-      
-      <View style={{ position: 'relative' }}>
-        <XStack justifyContent="space-between" alignItems="center" gap="$2" zIndex={2}>
-          <Pressable onPress={() => onCheck?.(!checked)}>
-            <View style={[
-              styles.checkbox,
-              { borderColor: categoryColor }
-            ]}>
-              {checked && (
-                <Ionicons 
-                  name="checkmark-sharp" 
-                  size={18} 
-                  color={categoryColor}
-                  style={{ marginTop: -1 }}
-                />
-              )}
-            </View>
-          </Pressable>
-          <XStack flex={1} justifyContent="space-between" alignItems="center">
+      <XStack justifyContent="space-between" alignItems="center" gap="$1">
+        <Pressable 
+          onPress={() => onCheck?.(!checked)}
+          style={{ paddingHorizontal: 4 }}
+        >
+          <View style={[
+            styles.checkbox,
+            { borderColor: 'rgb(52, 54, 55)' }
+          ]}>
+            {checked && (
+              <Ionicons 
+                name="checkmark-sharp" 
+                size={14} 
+                color="#00C851"
+              />
+            )}
+          </View>
+        </Pressable>
+
+        <Stack flex={1} gap="$1">
+          <XStack justifyContent="space-between" alignItems="center" gap="$1">
             <Text 
-              color="white" 
-              fontSize={14} 
-              fontWeight="500"
+              color="rgb(232, 230, 227)" 
+              fontSize={13}
               flex={1}
-              opacity={checked ? 0.5 : 1}
+              opacity={checked ? 0.6 : 1}
             >
               {title}
             </Text>
@@ -83,13 +71,13 @@ export function TaskCard({
               onPress={() => {
                 if (onDelete) {
                   if (Platform.OS === 'web') {
-                    if (confirm('Are you sure you want to delete this task? It will not affect future tasks if recurring.')) {
+                    if (confirm('Are you sure you want to delete this task?')) {
                       onDelete();
                     }
                   } else {
                     Alert.alert(
                       'Delete Task',
-                      'Are you sure you want to delete this task? It will not affect future tasks if recurring.',
+                      'Are you sure you want to delete this task?',
                       [
                         { text: 'Cancel', style: 'cancel' },
                         { text: 'Delete', onPress: onDelete, style: 'destructive' }
@@ -100,57 +88,66 @@ export function TaskCard({
               }}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.7 : 1,
-                padding: 8
+                padding: 4
               })}
             >
-              <Text color="#ff4444" fontSize={16}>✕</Text>
+              <Text color="#ff4444" fontSize={14}>✕</Text>
             </Pressable>
           </XStack>
-        </XStack>
-        {checked && (
-          <View style={[
-            styles.strikethrough,
-            { backgroundColor: categoryColor }
-          ]} />
-        )}
-      </View>
-      
-      <XStack gap="$2" marginTop="$2" zIndex={2} alignItems="center">
-        <Text
-          color={categoryColor}
-          fontSize={10}
-          opacity={checked ? 0.6 : 0.9}
-          backgroundColor="rgba(0, 0, 0, 0.15)"
-          paddingHorizontal="$1.5"
-          paddingVertical="$0.5"
-          borderRadius={4}
-        >
-          {category}
-        </Text>
-        <Text
-          color="white"
-          fontSize={10}
-          opacity={checked ? 0.4 : 0.7}
-          backgroundColor="rgba(0, 0, 0, 0.15)"
-          paddingHorizontal="$1.5"
-          paddingVertical="$0.5"
-          borderRadius={4}
-        >
-          {status}
-        </Text>
-        {time && (
-          <Text 
-            color="white" 
-            opacity={checked ? 0.4 : 0.7} 
-            fontSize={10}
-            backgroundColor="rgba(0, 0, 0, 0.15)"
-            paddingHorizontal="$1.5"
-            paddingVertical="$0.5"
-            borderRadius={4}
-          >
-            {time}
-          </Text>
-        )}
+
+          <XStack gap="$1" alignItems="center">
+            <Text
+              color={categoryColor}
+              fontSize={10}
+              opacity={checked ? 0.6 : 0.9}
+              backgroundColor={`${categoryColor}15`}
+              paddingHorizontal="$1.5"
+              paddingVertical="$0.5"
+              borderRadius={12}
+            >
+              {category.toLowerCase()}
+            </Text>
+            {oneTime && (
+              <Text
+                color="#607d8b"
+                fontSize={10}
+                opacity={checked ? 0.6 : 0.9}
+                backgroundColor="rgba(96, 125, 139, 0.15)"
+                paddingHorizontal="$1.5"
+                paddingVertical="$0.5"
+                borderRadius={12}
+              >
+                one-time
+              </Text>
+            )}
+            <Text
+              color={checked ? "#00C851" : "#2196F3"}
+              fontSize={10}
+              opacity={checked ? 0.6 : 0.9}
+              backgroundColor={checked ? "rgba(0, 200, 81, 0.15)" : "rgba(33, 150, 243, 0.15)"}
+              paddingHorizontal="$1.5"
+              paddingVertical="$0.5"
+              borderRadius={12}
+            >
+              {status.toLowerCase()}
+            </Text>
+            {time && (
+              <Text
+                color="rgb(157, 157, 157)"
+                fontSize={10}
+                opacity={checked ? 0.6 : 0.9}
+                backgroundColor="rgba(255, 255, 255, 0.05)"
+                paddingHorizontal="$1.5"
+                paddingVertical="$0.5"
+                borderRadius={12}
+                borderWidth={1}
+                borderColor="rgb(52, 54, 55)"
+              >
+                {time}
+              </Text>
+            )}
+          </XStack>
+        </Stack>
       </XStack>
     </Stack>
   );
@@ -158,21 +155,12 @@ export function TaskCard({
 
 const styles = StyleSheet.create({
   checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 2,
+    width: 18,
+    height: 18,
+    borderWidth: 1,
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  strikethrough: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: '50%',
-    height: 1.5,
-    transform: [{ translateY: -0.75 }],
-    zIndex: 1,
-  },
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  }
 });

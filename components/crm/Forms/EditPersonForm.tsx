@@ -244,34 +244,6 @@ export function EditPersonForm({
                   placeholder="Enter full address"
                   theme="dark"
                 />
-                <DebouncedInput
-                  value={
-                    formData.payments
-                      .map((p) => {
-                        if (typeof p === 'string') return p;
-                        return p.type && p.details ? `${p.type}: ${p.details}` : '';
-                      })
-                      .filter(Boolean)
-                      .join("\n") || ""
-                  }
-                  onDebouncedChange={(text) => {
-                    try {
-                      const payments = text
-                        .split("\n")
-                        .map((line) => {
-                          if (!line.includes(':')) return line;
-                          const [type, details] = line.split(":").map((s) => s.trim());
-                          return { type, details };
-                        })
-                        .filter((p) => typeof p === 'string' || (p.type && p.details));
-                      setFormData((prev) => ({ ...prev, payments }));
-                    } catch {}
-                  }}
-                  placeholder="Payment handles (Venmo: @user)"
-                  theme="dark"
-                  multiline
-                  numberOfLines={2}
-                />
               </YStack>
               <XStack gap="$3" justifyContent="flex-end">
                 <Button theme="dark" onPress={onClose} backgroundColor="$gray5">

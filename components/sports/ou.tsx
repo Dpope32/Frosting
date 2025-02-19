@@ -4,7 +4,7 @@ import { Image, StyleSheet, Text, View, useColorScheme } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { ThemedView } from '../../theme/ThemedView'
 import { useOUSportsAPI } from '../../hooks/useOUSportsAPI'
-import { format } from 'date-fns'
+import { format, parseISO, addDays } from 'date-fns'
 import type { Game } from '../../types/espn'
 
 const OU_CRIMSON = '#841617'
@@ -34,9 +34,10 @@ export default function OUPage() {
     const homeTeam = isOUHome ? ouTeam.team.shortDisplayName : opposingTeam.team.shortDisplayName
     const awayTeam = isOUHome ? opposingTeam.team.shortDisplayName : ouTeam.team.shortDisplayName
     const venue = competition.venue?.fullName || 'TBD'
-    const gameDate = new Date(game.date)
-    // Ensure we're using the correct timezone by parsing the UTC date
-    const formattedDate = format(new Date(game.date), 'EEEE, MMMM d')
+    const date = parseISO(game.date)
+    // Add one day to UTC date to get to local Saturday
+    const localDate = addDays(date, 1)
+    const formattedDate = `${format(localDate, 'MMM d')} (${format(localDate, 'EEE')})`
     const formattedTime = competition.status?.type?.shortDetail || 'TBD'
 
     return (
@@ -112,12 +113,10 @@ export default function OUPage() {
       ) : (
         <View style={styles.listContainer}>
           <FlashList
-          data={isLoading ? Array(6).fill({}) : schedule || []}
-          renderItem={isLoading ? 
-            () => <GameCardSkeleton /> : 
-            renderGame
-          }
-            estimatedItemSize={100}
+            data={isLoading ? Array(6).fill({}) : schedule || []}
+            renderItem={isLoading ? () => <GameCardSkeleton /> : renderGame}
+            estimatedItemSize={150}
+            showsVerticalScrollIndicator={true}
             contentContainerStyle={styles.listContent}
           />
         </View>
@@ -133,12 +132,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    marginBottom: -4,
+    padding: 8,
+    marginVertical: -8,
   },
   logo: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
   },
   headerTitle: {
     fontSize: 20,
@@ -147,14 +146,17 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
+    height: '100%',
+    minHeight: 200,
   },
   listContent: {
-    padding: 20,
+    padding: 12,
   },
   gameCard: {
     borderRadius: 8,
-    padding: 8,
-    marginBottom: 6,
+    padding: 12,
+    marginHorizontal: 12,
+    marginBottom: 8,
     borderWidth: 1,
   },
   dateContainer: {
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
-    marginBottom: 0,
+    marginBottom: 4,
   },
   teamWrapper: {
     flexDirection: 'row',
@@ -186,12 +188,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   teamLogo: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     marginHorizontal: 4,
   },
   team: {
-    fontSize: 15,
+    fontSize: 16,
   },
   homeTeam: {
     textAlign: 'left',

@@ -1,7 +1,7 @@
 // src/utils/Portfolio.ts
 import { Stock } from "@/types";
 
-import { storage } from '../store/MMKV';
+import { StorageUtils } from '../store/MMKV';
 
 const defaultPortfolio: Stock[] = [
   { symbol: 'TSLA', quantity: 1, name: 'Tesla' },
@@ -11,18 +11,15 @@ const defaultPortfolio: Stock[] = [
 ];
 
 // Initialize portfolio data from storage or use default
-const storedPortfolio = storage.getString('portfolio_data');
-export const portfolioData: Stock[] = storedPortfolio 
-  ? JSON.parse(storedPortfolio) 
-  : defaultPortfolio;
+export const portfolioData: Stock[] = StorageUtils.get<Stock[]>('portfolio_data', defaultPortfolio) ?? defaultPortfolio;
 
-// Save initial portfolio if none exists
-if (!storedPortfolio) {
-  storage.set('portfolio_data', JSON.stringify(defaultPortfolio));
+// Save initial portfolio if it doesn't exist
+if (!StorageUtils.get('portfolio_data')) {
+  StorageUtils.set('portfolio_data', defaultPortfolio);
 }
 
 export const updatePortfolioData = (newPortfolio: Stock[]) => {
-  storage.set('portfolio_data', JSON.stringify(newPortfolio));
+  StorageUtils.set('portfolio_data', newPortfolio);
   // Update the reference to maintain reactivity
   portfolioData.length = 0;
   portfolioData.push(...newPortfolio);

@@ -130,7 +130,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 8,
+    marginVertical: -8,
   },
   headerTitle: {
     fontSize: 20,

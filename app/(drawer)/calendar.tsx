@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Modal, TextInput, Alert } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Plus } from '@tamagui/lucide-icons';
 import { EventPreview } from '@/components/calendar/EventPreview';
 import { Month } from '@/components/calendar/Month';
@@ -51,7 +51,6 @@ export default function CalendarScreen() {
   } | null>(null);
 
   useEffect(() => {
-    syncBirthdays();
     const today = new Date();
     today.setDate(1);
     const arr = [];
@@ -121,7 +120,7 @@ export default function CalendarScreen() {
     if (event.type === 'birthday') return;
     setEditingEvent(event);
     setNewEventTitle(event.title);
-    setNewEventDescription(event.description);
+    setNewEventDescription(event.description || '');
     setIsViewEventModalVisible(false);
     setIsEventModalVisible(true);
   };
@@ -293,7 +292,7 @@ export default function CalendarScreen() {
           <Plus size={24} color="white" />
         </TouchableOpacity>
       </View>
-      <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000 }}>
+      <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
         <TouchableOpacity
           style={[styles.debugButton, { backgroundColor: '#666666' }]}
           onPress={() => {
@@ -320,6 +319,96 @@ export default function CalendarScreen() {
         >
           <MaterialIcons name="bug-report" size={24} color="white" />
         </TouchableOpacity>
+        {__DEV__ && (
+          <>
+            <TouchableOpacity
+              style={[styles.debugButton, { backgroundColor: '#ff6b6b' }]}
+              onPress={() => {
+                const generateRandomDate = () => {
+                  const start = new Date();
+                  const end = new Date(start.getFullYear(), 11, 31);
+                  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+                };
+
+                const generateRandomTime = () => {
+                  const hours = Math.floor(Math.random() * 24);
+                  const minutes = Math.floor(Math.random() * 60);
+                  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                };
+
+                const personalEvents = [
+                  'Gym Session', 'Doctor Appointment', 'Haircut', 'Coffee with Friend',
+                  'Movie Night', 'Shopping Trip', 'Dentist Appointment', 'Yoga Class',
+                  'Book Club Meeting', 'Personal Project Time'
+                ];
+
+                const workEvents = [
+                  'Team Meeting', 'Project Deadline', 'Client Presentation', 'Performance Review',
+                  'Training Session', 'Conference Call', 'Workshop', 'Strategy Planning',
+                  'Budget Review', 'Department Meeting'
+                ];
+
+                const familyEvents = [
+                  'Family Dinner', 'Kids Soccer Game', 'Parent Teacher Meeting', 'Family Movie Night',
+                  'Weekend Getaway', 'Grocery Shopping', 'House Cleaning', 'Family BBQ',
+                  'Park Visit', 'Swimming Lessons'
+                ];
+
+                const bills = [
+                  'Rent Payment', 'Electricity Bill', 'Water Bill', 'Internet Bill',
+                  'Phone Bill', 'Car Insurance', 'Health Insurance', 'Credit Card Payment',
+                  'Gym Membership', 'Streaming Services'
+                ];
+
+                const generateEvents = (events: string[], type: CalendarEvent['type']) => {
+                  return events.map(title => ({
+                    date: generateRandomDate().toISOString().split('T')[0],
+                    time: generateRandomTime(),
+                    title,
+                    type,
+                    description: `Test ${type} event: ${title}`
+                  }));
+                };
+
+                const newEvents = [
+                  ...generateEvents(personalEvents, 'personal'),
+                  ...generateEvents(workEvents, 'work'),
+                  ...generateEvents(familyEvents, 'family'),
+                  ...generateEvents(bills, 'bill')
+                ];
+
+                newEvents.forEach(event => addEvent(event));
+                showToast('Added test events', 'success');
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }}
+            >
+              <FontAwesome5 name="database" size={20} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.debugButton, { backgroundColor: '#e74c3c' }]}
+              onPress={() => {
+                Alert.alert(
+                  'Clear All Events',
+                  'Are you sure you want to clear all events? This cannot be undone.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { 
+                      text: 'Clear All', 
+                      style: 'destructive',
+                      onPress: () => {
+                        useCalendarStore.getState().clearAllEvents();
+                        showToast('Cleared all events', 'success');
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                      }
+                    }
+                  ]
+                );
+              }}
+            >
+              <MaterialIcons name="clear-all" size={24} color="white" />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
       <Modal visible={debugModalVisible} transparent animationType="slide">
         <View style={styles.debugModalContainer}>

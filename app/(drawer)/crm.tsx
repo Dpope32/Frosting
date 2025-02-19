@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { FlatList, View, Dimensions } from "react-native";
 import { H4, Separator, YStack, Text } from "tamagui";
 import { usePeopleStore } from "@/store/People";
-import { PersonCard } from "@/components/crm/PersonCard";
-import { AddPersonForm } from "@/components/crm/AddPersonForm";
-import { EditPersonForm } from "@/components/crm/EditPersonForm";
+import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
+import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
+import { EditPersonForm } from "@/components/crm/Forms/EditPersonForm";
 import type { Person } from "@/types/people";
 
 const { width } = Dimensions.get("window");
@@ -16,6 +16,7 @@ const CARD_WIDTH = (width - PADDING * 2 - GAP) / 2;
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
   const allContacts = Object.values(contacts);
+  
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
@@ -27,8 +28,17 @@ export default function CRM() {
 
   const handleSaveEdit = (updatedPerson: Person) => {
     updatePerson(updatedPerson.id, updatedPerson);
+    handleCloseEdit();
+  };
+
+  const handleCloseEdit = () => {
+    // First close the edit modal
     setEditModalVisible(false);
-    setExpandedId(null);
+    // Wait for animation to complete before resetting other states
+    setTimeout(() => {
+      setSelectedPerson(null);
+      setExpandedId(null);
+    }, 300);
   };
 
   const renderItem = ({ item, index }: { item: Person; index: number }) => (
@@ -56,6 +66,7 @@ export default function CRM() {
       </H4>
       <Separator borderColor="$gray8" borderWidth={1} my="$2" marginBottom={16} />
       <FlatList
+        key={JSON.stringify(allContacts)} // Force re-render when contacts change
         data={allContacts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -74,10 +85,7 @@ export default function CRM() {
         <EditPersonForm
           person={selectedPerson}
           visible={isEditModalVisible}
-          onClose={() => {
-            setEditModalVisible(false);
-            setExpandedId(null);
-          }}
+          onClose={handleCloseEdit}
           onSave={handleSaveEdit}
         />
       )}

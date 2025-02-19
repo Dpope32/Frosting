@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { useQuery } from '@tanstack/react-query';
 import { portfolioData } from '../utils/Portfolio';
-import { storage } from '../store/MMKV';
+import { StorageUtils } from '../store/MMKV';
 
 interface PortfolioState {
     totalValue: number | null;
@@ -12,13 +12,13 @@ interface PortfolioState {
 }
 
 export const usePortfolioStore = create<PortfolioState>(() => ({
-  totalValue: storage.getNumber('portfolio_total') ?? null,
-  prices: JSON.parse(storage.getString('portfolio_prices') ?? '{}'),
-  principal: storage.getNumber('portfolio_principal') ?? 1000
+  totalValue: StorageUtils.get<number>('portfolio_total') ?? null,
+  prices: StorageUtils.get<Record<string, number>>('portfolio_prices') ?? {},
+  principal: StorageUtils.get<number>('portfolio_principal') ?? 1000
 }));
 
 export const updatePrincipal = (value: number) => {
-  storage.set('portfolio_principal', value);
+  StorageUtils.set('portfolio_principal', value);
   usePortfolioStore.setState({ principal: value });
 };
 
@@ -26,8 +26,8 @@ export const usePortfolioQuery = () => {
     return useQuery({
       queryKey: ['stock-prices'],
       queryFn: async () => {
-        const cachedPrices = storage.getString('portfolio_prices');
-        const cachedTotal = storage.getNumber('portfolio_total');
+        const cachedPrices = StorageUtils.get<Record<string, number>>('portfolio_prices');
+        const cachedTotal = StorageUtils.get<number>('portfolio_total');
         
         try {
           const requests = portfolioData.map(async stock => {
@@ -54,7 +54,7 @@ export const usePortfolioQuery = () => {
   
               return { symbol: stock.symbol, price, error: null };
             } catch (error) {
-              const cached = cachedPrices ? JSON.parse(cachedPrices) : {};
+              const cached = cachedPrices ?? {};
               return { 
                 symbol: stock.symbol, 
                 price: cached[stock.symbol] || 0,
@@ -88,10 +88,10 @@ export const usePortfolioQuery = () => {
           });
           // Only store new data if we got at least some valid prices
           if (!hasErrors || Object.values(priceData).some(price => price > 0)) {
-            storage.set('portfolio_prices', JSON.stringify(priceData));
-            storage.set('portfolio_total', total);
+            StorageUtils.set('portfolio_prices', priceData);
+            StorageUtils.set('portfolio_total', total);
             
-            storage.set('portfolio_last_update', new Date().toISOString());
+            StorageUtils.set('portfolio_last_update', new Date().toISOString());
   
             usePortfolioStore.setState({
               prices: priceData,
@@ -107,7 +107,7 @@ export const usePortfolioQuery = () => {
           
           // Return cached data if available
           if (cachedPrices) {
-            const prices = JSON.parse(cachedPrices);
+            const prices = cachedPrices;
             usePortfolioStore.setState({
               prices,
               totalValue: cachedTotal ?? 0

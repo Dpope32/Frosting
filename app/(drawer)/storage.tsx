@@ -1,16 +1,33 @@
 import { useState, useEffect } from 'react'
-import { YStack, Text, Button, Spinner, Progress, XStack } from 'tamagui'
+import { YStack, Text, Button, Progress, XStack } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
 import { MediaTypeOptions, launchImageLibraryAsync } from 'expo-image-picker'
 import axios from 'axios'
 import { Alert, Platform, View, useColorScheme } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
 import * as Notifications from 'expo-notifications'
-import { useCalendarStore } from '@/store/CalendarStore'
 import { SchedulableTriggerInputTypes } from 'expo-notifications'
 import { Plus, Bell } from '@tamagui/lucide-icons'
 
-const UPLOAD_SERVER = process.env.EXPO_PUBLIC_UPLOAD_SERVER
+const UPLOAD_SERVER = __DEV__ 
+  ? process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL 
+  : process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
+
+// Add a fallback for the upload server
+const getUploadServer = async () => {
+  try {
+    // Try local first
+    const response = await axios.get(`${process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL}/health`, { timeout: 1000 })
+    if (response.status === 200) {
+      return process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL
+    }
+  } catch {
+    // If local fails, use external
+    return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
+  }
+  return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
+}
+
 const DEFAULT_STATS = { totalSize: 0, fileCount: 0 }
 
 interface FileStats {
@@ -20,6 +37,7 @@ interface FileStats {
 
 const useFileUpload = () => {
   const [progress, setProgress] = useState(0)
+  const [activeServer, setActiveServer] = useState(UPLOAD_SERVER)
   const [isUploading, setIsUploading] = useState(false)
   const [stats, setStats] = useState<FileStats>(DEFAULT_STATS)
   const [currentFileIndex, setCurrentFileIndex] = useState(0)
@@ -28,14 +46,22 @@ const useFileUpload = () => {
 
   useEffect(() => { fetchStats() }, [username])
 
-  const fetchStats = async () => {
-    try {
-      const response = await axios.get(`${UPLOAD_SERVER}/stats/${username}`)
-      setStats(response.data)
-    } catch (error) {
-      console.error('Failed to fetch stats:', error)
+  useEffect(() => {
+    const initServer = async () => {
+      const server = await getUploadServer()
+      setActiveServer(server)
     }
+    initServer()
+  }, [])
+
+const fetchStats = async () => {
+  try {
+    const response = await axios.get(`${activeServer}/stats/${username}`)
+    setStats(response.data)
+  } catch (error) {
+    console.error('Failed to fetch stats:', error)
   }
+}
 
   const formatSize = (bytes: number): string => {
     if (!bytes) return '0 B'
@@ -75,7 +101,7 @@ const useFileUpload = () => {
           } as any
         )
         formData.append('username', username)
-        await axios.post(`${UPLOAD_SERVER}/upload`, formData, {
+        await axios.post(`${activeServer}/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
           onUploadProgress: (evt) => {
             const chunk = evt.loaded / (evt.total || 1)

@@ -33,29 +33,32 @@ import { format, parse, isValid } from 'date-fns'
 
 type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 
+const formatPhoneNumber = (phone: string): string => {
+  // Remove all non-digits
+  const cleaned = phone.replace(/\D/g, '');
+  // Format as XXX XXX-XXXX
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `${match[1]} ${match[2]}-${match[3]}`;
+  }
+  return phone;
+};
+
 const initialFormData: FormData = {
-  familyId: '',
-  profilePicture: '',
   name: '',
-  nickname: '',
-  address: {
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: '',
-  },
   birthday: '',
-  registered: false,
-  payments: [],
+  profilePicture: '',
+  nickname: '',
   phoneNumber: '',
   email: '',
+  occupation: '',
+  address: undefined,
+  registered: false,
   notes: '',
   tags: [],
   lastContactDate: '',
   importantDates: [],
   socialMedia: [],
-  occupation: '',
   favoriteColor: '',
   relationship: '',
   additionalInfo: '',
@@ -131,18 +134,12 @@ const FormContent = React.memo(({
   const phoneRef = useRef<TextInput>(null)
   const emailRef = useRef<TextInput>(null)
   const occupationRef = useRef<TextInput>(null)
-  const paymentsRef = useRef<TextInput>(null)
 
   const addressString: string = React.useMemo<string>(() => {
-    const { street, city, state, zipCode, country } = formData.address
-    return [street, city, state, zipCode, country].filter(Boolean).join(', ')
+    if (!formData.address) return '';
+    const { street, city, state, zipCode, country } = formData.address;
+    return [street, city, state, zipCode, country].filter(Boolean).join(', ');
   }, [formData.address])
-
-  const paymentsString: string = React.useMemo<string>(() => {
-    return (formData.payments as { type: string; details: string }[])
-      .map((p) => `${p.type || ''}: ${p.details || ''}`)
-      .join('\n')
-  }, [formData.payments])
 
   return (
     <ScrollView
@@ -184,7 +181,7 @@ const FormContent = React.memo(({
               <XStack alignItems="center" gap="$2">
                 <Text color={isDark ? "$gray11" : "$gray10"}>Registered</Text>
                 <Switch
-                  value={formData.registered}
+                  value={formData.registered || false}
                   onValueChange={(val: boolean) =>
                     updateFormField('registered', val)
                   }
@@ -223,7 +220,7 @@ const FormContent = React.memo(({
               onDebouncedChange={(text: string) =>
                 updateFormField('name', text)
               }
-              placeholder="Name"
+              placeholder="Name *"
               returnKeyType="next"
               onSubmitEditing={() => birthdayRef.current?.focus()}
               autoCapitalize="words"
@@ -234,7 +231,7 @@ const FormContent = React.memo(({
               ref={birthdayRef}
               value={formData.birthday || ''}
               onDebouncedChange={handleBirthdayChange}
-              placeholder="Birthday (MM/DD/YYYY)"
+              placeholder="Birthday (MM/DD/YYYY) *"
               returnKeyType="next"
               onSubmitEditing={() => phoneRef.current?.focus()}
               keyboardType="numbers-and-punctuation"
@@ -245,7 +242,7 @@ const FormContent = React.memo(({
               ref={phoneRef}
               value={formData.phoneNumber || ''}
               onDebouncedChange={(text: string) =>
-                updateFormField('phoneNumber', text)
+                updateFormField('phoneNumber', formatPhoneNumber(text))
               }
               placeholder="Phone Number"
               returnKeyType="next"
@@ -271,15 +268,19 @@ const FormContent = React.memo(({
         <YStack gap="$3">
           <DebouncedInput
             key={`address-${inputResetKey}`}
-            value={formData.address.street || ''}
+            value={formData.address?.street || ''}
             onDebouncedChange={(text: string) => {
-              updateFormField('address', {
-                street: text,
-                city: '',
-                state: '',
-                zipCode: '',
-                country: '',
-              })
+              if (text) {
+                updateFormField('address', {
+                  street: text,
+                  city: '',
+                  state: '',
+                  zipCode: '',
+                  country: '',
+                })
+              } else {
+                updateFormField('address', undefined)
+              }
             }}
             placeholder="Enter full address"
             autoCapitalize="words"
@@ -293,43 +294,11 @@ const FormContent = React.memo(({
               updateFormField('email', text)
             }
             placeholder="Email"
-            returnKeyType="next"
-            onSubmitEditing={() => paymentsRef.current?.focus()}
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit}
             keyboardType="email-address"
             autoCapitalize="none"
             blurOnSubmit={false}
-          />
-          <DebouncedInput
-            key={`payments-${inputResetKey}`}
-            ref={paymentsRef}
-            value={paymentsString}
-            onDebouncedChange={(text: string) => {
-              try {
-                const payments = text
-                  .split('\n')
-                  .map((line: string) => {
-                    const parts = line
-                      .split(':')
-                      .map((s: string) => s.trim())
-                    const type = parts[0] || ''
-                    const details = parts[1] || ''
-                    return { type, details }
-                  })
-                  .filter(
-                    (p: { type: string; details: string }) =>
-                      p.type && p.details
-                  )
-                updateFormField('payments', payments as any)
-              } catch (error) {
-                console.error('Error parsing payments:', error)
-              }
-            }}
-            placeholder="Payment handles (Venmo: @user)"
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
-            multiline
-            numberOfLines={2}
-            autoCapitalize="none"
           />
         </YStack>
         <XStack gap="$3" justifyContent="flex-end" mt="$2">
@@ -410,15 +379,10 @@ export function AddPersonForm(): JSX.Element {
   }, [])
 
   const handleSubmit = useCallback((): void => {
-    if (!formData.name?.trim()) return
+    if (!formData.name?.trim() || !formData.birthday?.trim()) return
     const processedFormData = {
       ...formData,
-      payments: (formData.payments as { type: string; details: string }[]).map(
-        (p) => ({
-          type: p.type?.trim() || '',
-          details: p.details?.trim() || '',
-        })
-      ),
+      phoneNumber: formData.phoneNumber ? formatPhoneNumber(formData.phoneNumber) : undefined
     }
     addPersonMutation.mutate({
       ...processedFormData,

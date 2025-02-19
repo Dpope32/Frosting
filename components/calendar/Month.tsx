@@ -29,6 +29,34 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     return { daysInMonth, firstDayOfMonth };
   };
 
+  // Pre-process events for this month into a map for O(1) lookup
+  const eventsByDate = React.useMemo(() => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const monthStart = new Date(year, month, 1).toISOString().split('T')[0];
+    const monthEnd = new Date(year, month + 1, 0).toISOString().split('T')[0];
+    
+    return events
+      .filter(event => event.date >= monthStart && event.date <= monthEnd)
+      .reduce((acc, event) => {
+        if (!acc[event.date]) {
+          acc[event.date] = {
+            birthday: false,
+            personal: false,
+            work: false,
+            family: false,
+            bill: false
+          };
+        }
+        if (event.type === 'birthday') acc[event.date].birthday = true;
+        else if (event.type === 'work') acc[event.date].work = true;
+        else if (event.type === 'family') acc[event.date].family = true;
+        else if (event.type === 'bill') acc[event.date].bill = true;
+        else acc[event.date].personal = true; // includes undefined type
+        return acc;
+      }, {} as Record<string, { birthday: boolean; personal: boolean; work: boolean; family: boolean; bill: boolean }>);
+  }, [date.getFullYear(), date.getMonth(), events]);
+
   const { daysInMonth, firstDayOfMonth } = getDaysInMonth(date);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
@@ -57,12 +85,18 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         {days.map((day) => {
           const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
           const dateKey = currentDate.toISOString().split('T')[0];
-          const dayEvents = events.filter((event) => event.date === dateKey);
-          const hasBirthday = dayEvents.some((event) => event.type === 'birthday');
-          const hasPersonalEvent = dayEvents.some((event) => !event.type || event.type === 'personal');
-          const hasWorkEvent = dayEvents.some((event) => event.type === 'work');
-          const hasFamilyEvent = dayEvents.some((event) => event.type === 'family');
-          const hasBill = dayEvents.some((event) => event.type === 'bill');
+          const dayEvents = eventsByDate[dateKey] || {
+            birthday: false,
+            personal: false,
+            work: false,
+            family: false,
+            bill: false
+          };
+          const hasBirthday = dayEvents.birthday;
+          const hasPersonalEvent = dayEvents.personal;
+          const hasWorkEvent = dayEvents.work;
+          const hasFamilyEvent = dayEvents.family;
+          const hasBill = dayEvents.bill;
           const today = new Date();
           const isToday = currentDate.toDateString() === today.toDateString();
 
@@ -151,8 +185,6 @@ const styles = StyleSheet.create({
     width: '14.28%',
     aspectRatio: 1,
     padding: 2,
-    borderWidth: 0.5,
-    borderColor: '#ccc',
   },
   dayCellContent: {
     flex: 1,

@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { Stack, Text, YStack } from 'tamagui';
 import { getValueColor } from '@/constants/valueHelper';
 import { usePortfolioQuery, usePortfolioStore } from '@/store/PortfolioStore';
-import { storage } from '@/store/MMKV';
+import { StorageUtils } from '@/store/MMKV';
 
 export function PortfolioCard() {
   const { isLoading, refetch } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
-  const lastUpdate = storage.getString('portfolio_last_update');
+  const lastUpdate = StorageUtils.get<string>('portfolio_last_update');
 
   useEffect(() => {
     const isMarketHours = () => {

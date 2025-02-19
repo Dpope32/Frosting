@@ -364,10 +364,16 @@ function ChatbotInner() {
             style={{
               padding: 8,
               marginLeft: 12,
-              opacity: message.trim() ? 1 : 0.5
+              opacity: message.trim() ? 1 : 0.5,
+              backgroundColor: "#007AFF",
+              borderRadius: 20,
+              width: 40,
+              height: 40,
+              alignItems: "center",
+              justifyContent: "center"
             }}
           >
-            <Ionicons name="send" size={32} color={message.trim() ? primaryColor : '#000'} />
+            <Ionicons name="arrow-forward" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </XStack>
       </Stack>
