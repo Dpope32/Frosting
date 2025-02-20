@@ -185,6 +185,8 @@ const styles = StyleSheet.create({
     width: '14.28%',
     aspectRatio: 1,
     padding: 2,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#eee',
   },
   dayCellContent: {
     flex: 1,
