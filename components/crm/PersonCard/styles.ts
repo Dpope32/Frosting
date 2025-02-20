@@ -40,12 +40,12 @@ export const styles = StyleSheet.create({
     marginRight: 0,
     lineHeight: 20,
     marginTop: -1,
-    marginLeft: -4
+    marginLeft: -6
   },
   occupationText: {
     lineHeight: 14,
     marginTop: 1,
-    marginLeft: -4
+    marginLeft: -6
   },
   touchable: {
     width: "100%"
@@ -94,7 +94,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(200,200,200,0.8)",
     borderWidth: 1,
     overflow: "hidden",
-    maxHeight: "85%",
+    maxHeight: "75%",
     minHeight: "50%"
   },
   modalContent: {

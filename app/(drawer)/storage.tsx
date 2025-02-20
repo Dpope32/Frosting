@@ -15,16 +15,50 @@ const UPLOAD_SERVER = __DEV__
 
 // Add a fallback for the upload server
 const getUploadServer = async () => {
+  console.log('Attempting to connect to local server...')
   try {
-    // Try local first
-    const response = await axios.get(`${process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL}/health`, { timeout: 1000 })
+    const response = await axios.get(
+      `${process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL}/health`, 
+      { 
+        timeout: 2000,
+        validateStatus: (status) => status === 200
+      }
+    )
+    console.log('Local server response:', response.status)
     if (response.status === 200) {
+      console.log('Using local server')
       return process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL
     }
-  } catch {
-    // If local fails, use external
-    return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.log('Local server failed:', error.message)
+    } else {
+      console.log('Local server failed with unknown error')
+    }
+    
+    console.log('Attempting to connect to external server...')
+    try {
+      const externalResponse = await axios.get(
+        `${process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL}/health`,
+        { 
+          timeout: 5000,
+          validateStatus: (status) => status === 200
+        }
+      )
+      console.log('External server response:', externalResponse.status)
+      if (externalResponse.status === 200) {
+        console.log('Using external server')
+        return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
+      }
+    } catch (externalError: unknown) {
+      if (externalError instanceof Error) {
+        console.log('External server failed:', externalError.message)
+      } else {
+        console.log('External server failed with unknown error')
+      }
+    }
   }
+  console.log('Falling back to external server')
   return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
 }
 

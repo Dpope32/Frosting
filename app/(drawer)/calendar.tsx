@@ -5,6 +5,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
+import { useBillStore } from '@/store/BillStore';
+import { vaultStorage } from '@/utils/Storage';
+import { VAULT_DATA } from '@/constants/vaultData';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Plus } from '@tamagui/lucide-icons';
 import { EventPreview } from '@/components/calendar/EventPreview';
@@ -47,6 +50,7 @@ export default function CalendarScreen() {
   const [debugData, setDebugData] = useState<{
     totalEvents: number;
     eventsByType: Record<string, number>;
+    vaultEntries: number;
     upcomingEvents: { title: string; date: string; type: string }[];
   } | null>(null);
 
@@ -135,6 +139,26 @@ export default function CalendarScreen() {
       setSelectedEvents(selectedEvents.filter((event) => event.id !== eventId));
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  };
+
+  const generateBillEvents = (billName: string, dueDate: number) => {
+    const events = [];
+    const start = new Date();
+    const end = new Date(start.getFullYear(), 11, 31);
+    
+    // Create an event for each month from start to end
+    let currentDate = new Date(start.getFullYear(), start.getMonth(), dueDate);
+    while (currentDate <= end) {
+      events.push({
+        date: currentDate.toISOString().split('T')[0],
+        time: '09:00',
+        title: billName,
+        type: 'bill' as CalendarEvent['type'],
+        description: `Monthly ${billName}`
+      });
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, dueDate);
+    }
+    return events;
   };
 
   return (
@@ -304,6 +328,7 @@ export default function CalendarScreen() {
                 acc[type] = (acc[type] || 0) + 1;
                 return acc;
               }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0 }),
+              vaultEntries: JSON.parse(vaultStorage.getString('vault-data') || JSON.stringify(VAULT_DATA)).totalItems,
               upcomingEvents: store.events
                 .filter((event) => new Date(event.date) >= new Date())
                 .slice(0, 5)
@@ -360,6 +385,19 @@ export default function CalendarScreen() {
                   'Gym Membership', 'Streaming Services'
                 ];
 
+                const passwords = [
+                  { name: 'Gmail', username: 'user@gmail.com', password: 'TestPass123!' },
+                  { name: 'Facebook', username: 'user.fb', password: 'FBTest456#' },
+                  { name: 'Twitter', username: 'user_twitter', password: 'TweetPass789$' },
+                  { name: 'Instagram', username: 'user.insta', password: 'InstaTest321@' },
+                  { name: 'LinkedIn', username: 'user.linkedin', password: 'LinkedTest654!' },
+                  { name: 'Amazon', username: 'user.amazon', password: 'AmazonPass987#' },
+                  { name: 'Netflix', username: 'user.netflix', password: 'NetflixTest234$' },
+                  { name: 'Spotify', username: 'user.spotify', password: 'SpotifyPass567@' },
+                  { name: 'GitHub', username: 'user.github', password: 'GitTest890!' },
+                  { name: 'Dropbox', username: 'user.dropbox', password: 'DropTest432#' }
+                ];
+
                 const generateEvents = (events: string[], type: CalendarEvent['type']) => {
                   return events.map(title => ({
                     date: generateRandomDate().toISOString().split('T')[0],
@@ -373,12 +411,42 @@ export default function CalendarScreen() {
                 const newEvents = [
                   ...generateEvents(personalEvents, 'personal'),
                   ...generateEvents(workEvents, 'work'),
-                  ...generateEvents(familyEvents, 'family'),
-                  ...generateEvents(bills, 'bill')
+                  ...generateEvents(familyEvents, 'family')
                 ];
 
+                // Add regular events to calendar
                 newEvents.forEach(event => addEvent(event));
-                showToast('Added test events', 'success');
+
+                // Add bills to BillStore and create recurring calendar events
+                const billStore = useBillStore.getState();
+                bills.forEach(billName => {
+                  const dueDate = Math.floor(Math.random() * 28) + 1;
+                  
+                  // Add to BillStore
+                  billStore.addBill({
+                    name: billName,
+                    amount: Math.floor(Math.random() * 200) + 50, // Random amount between 50-250
+                    dueDate,
+                  });
+
+                  // Add recurring calendar events
+                  const billEvents = generateBillEvents(billName, dueDate);
+                  billEvents.forEach(event => addEvent(event));
+                });
+
+                // Add test vault entries
+                const currentVaultData = JSON.parse(vaultStorage.getString('vault-data') || JSON.stringify(VAULT_DATA));
+                const newVaultData = {
+                  ...currentVaultData,
+                  items: passwords.map(entry => ({
+                    id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+                    ...entry
+                  })),
+                  totalItems: passwords.length
+                };
+                vaultStorage.set('vault-data', JSON.stringify(newVaultData));
+
+                showToast('Added test events, bills, and vault entries', 'success');
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               }}
             >
@@ -397,7 +465,10 @@ export default function CalendarScreen() {
                       style: 'destructive',
                       onPress: () => {
                         useCalendarStore.getState().clearAllEvents();
-                        showToast('Cleared all events', 'success');
+                        useBillStore.getState().clearBills();
+                        // Clear vault entries
+                        vaultStorage.set('vault-data', JSON.stringify(VAULT_DATA));
+                        showToast('Cleared all events, bills, and vault entries', 'success');
                         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                       }
                     }
@@ -425,6 +496,14 @@ export default function CalendarScreen() {
                     </Text>
                     <Text style={[styles.debugValue, { color: isDark ? '#ffffff' : '#000000' }]}>
                       {debugData.totalEvents}
+                    </Text>
+                  </View>
+                  <View style={styles.debugRow}>
+                    <Text style={[styles.debugLabel, { color: isDark ? '#ffffff' : '#000000' }]}>
+                      Vault Entries:
+                    </Text>
+                    <Text style={[styles.debugValue, { color: isDark ? '#ffffff' : '#000000' }]}>
+                      {debugData.vaultEntries}
                     </Text>
                   </View>
                   <View style={styles.debugRow}>
@@ -498,17 +577,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   modalContent: {
-    width: '100%',
-    minHeight: '50%',
-    maxHeight: '80%',
-    borderRadius: 20,
+    width: '95%',
+    minHeight: '70%',
+    maxHeight: '85%',
+    borderRadius: 16,
     elevation: 5,
     overflow: 'hidden',
     flexDirection: 'column',
   },
   modalHeader: {
-    padding: 20,
-    paddingBottom: 10,
+    padding: 12,
+    paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
@@ -518,13 +597,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   eventsScrollView: {
     flex: 1,
-    padding: 20,
-    minHeight: 200,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minHeight: 400,
   },
   formScrollView: {
     flex: 1,

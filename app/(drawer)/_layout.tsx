@@ -35,6 +35,26 @@ const DrawerContent = memo(({ props, username, profilePicture, styles }: {
   </View>
 ));
 
+type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
+type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+interface IconConfig {
+  name: MaterialIconName | MaterialCommunityIconName;
+  type: 'material' | 'community';
+}
+
+// Define icon configurations with proper typing
+const DRAWER_ICONS: Record<string, IconConfig> = {
+  '(tabs)/index': { name: 'castle' as MaterialCommunityIconName, type: 'community' },
+  calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
+  sports: { name: 'sports-baseball' as MaterialIconName, type: 'material' },
+  chatbot: { name: 'code' as MaterialIconName, type: 'material' },
+  crm: { name: 'person' as MaterialIconName, type: 'material' },
+  storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
+  vault: { name: 'lock' as MaterialIconName, type: 'material' },
+  bills: { name: 'attach-money' as MaterialIconName, type: 'material' }
+};
+
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const systemColorScheme = RNColorScheme();
@@ -91,37 +111,14 @@ export default function DrawerLayout() {
     <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} />
   ), [username, profilePicture, styles]);
 
-  const renderHomeIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialCommunityIcons name="castle" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderCalendarIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="calendar-today" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderSportsIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="sports-baseball" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderChatbotIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="code" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderCRMIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="person" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderStorageIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="cloud-upload" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderVaultIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="lock" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
-
-  const renderBillsIcon = useCallback(({ color }: { color: string }) => (
-    <MaterialIcons name="attach-money" size={24} color={color} style={{ marginRight: 16 }} />
-  ), []);
+  // Single unified icon renderer with proper typing
+  const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
+    const icon = DRAWER_ICONS[route];
+    if (icon.type === 'material') {
+      return <MaterialIcons name={icon.name as MaterialIconName} size={24} color={color} style={{ marginRight: 4 }} />;
+    }
+    return <MaterialCommunityIcons name={icon.name as MaterialCommunityIconName} size={24} color={color} style={{ marginRight: 4 }} />;
+  }, []);
 
   return (
     <View style={styles.wrapper}>
@@ -134,27 +131,27 @@ export default function DrawerLayout() {
           headerTransparent: true,
           drawerStyle: {
             backgroundColor,
-            width: '65%',
+            width: '65%', // Increased from 50% to accommodate longer text
             borderRightWidth: 1,
             borderColor
           },
-          drawerActiveTintColor: '#fff', // Always use white text for active items since they have colored background
+          drawerActiveTintColor: '#fff', 
           drawerInactiveTintColor: inactiveColor,
           drawerActiveBackgroundColor: primaryColor,
           drawerItemStyle: {
             borderRadius: 12,
-            padding: 4,
-            marginHorizontal: 4
+            paddingVertical: 8,
+            paddingLeft: 8, // Added to reduce left padding
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -16
+            marginLeft: -12 // Restored to fix icon-text spacing
           },
           drawerContentStyle: {
             backgroundColor
           },
-          drawerType: 'front',  // Changed to front for better performance
+          drawerType: 'front',  
           overlayColor: '#00000099',
           swipeEnabled: true,
           swipeEdgeWidth: 100,
@@ -168,7 +165,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Home',
             drawerLabel: 'Home',
-            drawerIcon: renderHomeIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: '(tabs)/index' })
           }}
         />
         <Drawer.Screen
@@ -176,7 +173,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Calendar',
             drawerLabel: 'Calendar',
-            drawerIcon: renderCalendarIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'calendar' })
           }}
         />
         <Drawer.Screen
@@ -184,7 +181,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Sports',
             drawerLabel: 'Sports',
-            drawerIcon: renderSportsIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'sports' })
           }}
         />
         <Drawer.Screen
@@ -192,7 +189,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Chatbot',
             drawerLabel: 'Chatbot',
-            drawerIcon: renderChatbotIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'chatbot' })
           }}
         />
         <Drawer.Screen
@@ -200,7 +197,7 @@ export default function DrawerLayout() {
           options={{
             title: 'CRM',
             drawerLabel: 'CRM',
-            drawerIcon: renderCRMIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'crm' })
           }}
         />
         <Drawer.Screen
@@ -208,7 +205,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Storage',
             drawerLabel: 'Storage',
-            drawerIcon: renderStorageIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
           }}
         />
         <Drawer.Screen
@@ -216,7 +213,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Password Vault',
             drawerLabel: 'Password Vault',
-            drawerIcon: renderVaultIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'vault' })
           }}
         />
         <Drawer.Screen
@@ -224,7 +221,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Bills',
             drawerLabel: 'Bills',
-            drawerIcon: renderBillsIcon
+            drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
           }}
         />
       </Drawer>

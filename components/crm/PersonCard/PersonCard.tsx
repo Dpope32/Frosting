@@ -90,7 +90,7 @@ export function PersonCard({
       <View style={[styles.container, containerStyle]}>
         <Card
           elevate
-          backgroundColor={adjustColor(nicknameColor, -80)}
+          backgroundColor={adjustColor(nicknameColor, -160)}
           borderRadius="$4"
           animation="quick"
           pressStyle={{ scale: 0.90 }}
@@ -133,8 +133,8 @@ export function PersonCard({
                     />
                   )}
                   <Paragraph
-                    fontWeight="700"
-                    fontSize={16}
+                    fontWeight="500"
+                    fontSize={15}
                     color={nicknameColor}
                     numberOfLines={1}
                     ellipsizeMode="tail"

@@ -10,6 +10,7 @@ type PeopleStore = {
   addPerson: (person: Person) => void
   updatePerson: (id: string, updates: Partial<Person>) => void
   deletePerson: (id: string) => void
+  clearContacts: () => void
 }
 
 export const usePeopleStore = create<PeopleStore>((set, get) => ({
@@ -51,5 +52,9 @@ export const usePeopleStore = create<PeopleStore>((set, get) => ({
     delete contacts[id]
     StorageUtils.set(STORAGE_KEY, contacts)
     set({ contacts })
+  },
+  clearContacts: () => {
+    StorageUtils.set(STORAGE_KEY, {})
+    set({ contacts: {} })
   },
 }))

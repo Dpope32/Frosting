@@ -5,6 +5,23 @@ import { Plus, X, Wifi, CreditCard, Home, Tv, ShoppingBag, Zap, Droplet, GaugeCi
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
+import { useBillStore } from '@/store/BillStore';
+
+const getOrdinalSuffix = (day: number): string => {
+  if (day >= 11 && day <= 13) {
+    return 'th';
+  }
+  switch (day % 10) {
+    case 1:
+      return 'st';
+    case 2:
+      return 'nd';
+    case 3:
+      return 'rd';
+    default:
+      return 'th';
+  }
+};
 
 const getIconForBill = (billName: string) => {
   const name = billName.toLowerCase();
@@ -124,7 +141,7 @@ export default function BillsScreen() {
                     <Text color={isDark ? "#fff" : "#000"} fontSize="$4" fontWeight="bold">{bill.name}</Text>
                     <XStack ai="center" gap="$2">
                       <Paragraph color={amountColor} fontSize="$4" fontWeight={400}>${bill.amount.toFixed(2)}</Paragraph>
-                      <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}th</Paragraph>
+                      <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
                     </XStack>
                   </YStack>
                   <Button 
