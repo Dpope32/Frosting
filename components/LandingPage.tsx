@@ -138,12 +138,6 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
           />
         )
       }
-      case 'opaque':
-        return (
-          <Stack backgroundColor={primaryColor} position="absolute" width="100%" height="100%">
-            <Stack position="absolute" width="100%" height="100%" />
-          </Stack>
-        )
       default:
         if (backgroundStyle.startsWith('wallpaper-')) {
           const wallpaper = getWallpaperPath(backgroundStyle)

@@ -10,7 +10,6 @@ export type FormData = {
   primaryColor: string;
   backgroundStyle:
     | 'gradient'
-    | 'opaque'
     | 'wallpaper-0'
     | 'wallpaper-1'
     | 'wallpaper-2'

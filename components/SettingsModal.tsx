@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker'
 import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '../constants/Colors'
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../constants/Backgrounds'
+import { ColorPickerModal } from './ColorPickerModal'
 
 interface SettingsModalProps {
   open: boolean
@@ -14,6 +15,7 @@ interface SettingsModalProps {
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)'
   const textColor = isDark ? '#fff' : '#000'
   const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
@@ -303,25 +305,32 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             <Text fontSize={14} color={textColor}>
               Primary Color
             </Text>
-            <XStack flexWrap="wrap" gap="$2">
-              {colorOptions.map(color => (
-                <Circle
-                  key={color.label}
-                  size={34}
-                  backgroundColor={color.value}
-                  borderWidth={settings.primaryColor === color.value ? 2 : 0}
-                  borderColor="white"
-                  onPress={() => setSettings(prev => ({ ...prev, primaryColor: color.value }))}
-                >
-                  {settings.primaryColor === color.value && (
-                    <Text color="#fff" fontSize={16}>
-                      ✓
-                    </Text>
-                  )}
-                </Circle>
-              ))}
+            <XStack alignItems="center" gap="$2">
+              <Circle
+                size={34}
+                backgroundColor={settings.primaryColor}
+                pressStyle={{ scale: 0.97 }}
+                onPress={() => setColorPickerOpen(true)}
+              />
+              <Button
+                size="$2"
+                backgroundColor={inputBackgroundColor}
+                onPress={() => setColorPickerOpen(true)}
+              >
+                <Text color={textColor} fontSize={12}>Customize</Text>
+              </Button>
             </XStack>
           </YStack>
+
+          {/* Color Picker Modal */}
+          <ColorPickerModal
+            open={colorPickerOpen}
+            onOpenChange={setColorPickerOpen}
+            selectedColor={settings.primaryColor}
+            onColorChange={(color) => setSettings(prev => ({ ...prev, primaryColor: color }))}
+            colorOptions={colorOptions}
+            isDark={isDark}
+          />
 
           {/* Save Button */}
           <Button

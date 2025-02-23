@@ -4,7 +4,6 @@ import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
 import { useState } from 'react'
 
-// Import wallpapers
 const wallpapers = [
   require('../../../assets/wallpapers-optimized/wallpapers-1.jpg'),
   require('../../../assets/wallpapers-optimized/wallpapers-2.jpg'),
@@ -25,7 +24,7 @@ export default function Step1({
   pickImage: () => void
   handleNext: () => void
 }) {
-  const [styleIndex, setStyleIndex] = useState(0)
+
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$1" alignItems="center">
@@ -67,27 +66,15 @@ export default function Step1({
           color="$gray9Dark"
           opacity={0.8}
           fontWeight="400"
-          paddingTop="$4"
-        >
-          Tap the circle to choose a photo.
-        </Text>
-        <Text
-          fontSize="$3"
-          textAlign="center"
-          color="$gray9Dark"
-          opacity={0.8}
-          fontWeight="400"
+          paddingTop={10}
         >
           All data is stored locally.
         </Text>
         <Button
           chromeless
           onPress={() => {
-            // Select random wallpaper
             const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)]
             const wallpaperUri = Image.resolveAssetSource(randomWallpaper).uri
-            
-            // Set the wallpaper as profile picture
             setFormData((prev) => ({
               ...prev,
               profilePicture: wallpaperUri
@@ -95,8 +82,6 @@ export default function Step1({
             useUserStore.getState().setPreferences({
               profilePicture: wallpaperUri
             })
-            
-            // Proceed to next step
             handleNext()
           }}
           color="$blue10Dark"

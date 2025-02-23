@@ -85,12 +85,6 @@ export default function Step3({
           />
         )
       }
-      case 'opaque':
-        return (
-          <Stack backgroundColor={formData.primaryColor} position="absolute" width="100%" height="100%">
-            <Stack position="absolute" width="100%" height="100%" />
-          </Stack>
-        )
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
           const wallpaper = getWallpaperPath(formData.backgroundStyle)
@@ -117,40 +111,57 @@ export default function Step3({
     }
   }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath])
   return (
-    <Stack flex={1} backgroundColor="black" pt="$12">
+    <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack gap="$4" flex={1} padding="$4">
+      <YStack flex={1} padding="$4">
         <YStack
           backgroundColor="rgba(0, 0, 0, 0.7)"
-          borderRadius={12}
-          padding="$4"
+          borderRadius={16}
+          padding="$6"
+          marginTop={40}
           borderColor="rgba(255, 255, 255, 0.1)"
           borderWidth={2}
+          gap="$6"
         >
-          <Label size="$8" textAlign="center" color="$gray12Dark" marginBottom="$2">
+          <Label size="$8" textAlign="center" color="$gray12Dark">
             Background
           </Label>
-          <XStack gap="$3" justifyContent="center" flexWrap="wrap">
-            {backgroundStyles.map((style) => (
-              <Button
-                key={style.value}
-                backgroundColor={
-                  formData.backgroundStyle === style.value
-                    ? formData.primaryColor
-                    : '$gray4Dark'
-                }
-                borderColor="$gray8Dark"
-                onPress={() =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    backgroundStyle: style.value as FormData['backgroundStyle'],
-                  }))
-                }
-              >
-                <Text color="$gray12Dark">{style.label}</Text>
-              </Button>
-            ))}
+          <XStack gap="$5" justifyContent="center" flexWrap="wrap" paddingBottom="$6">
+            {backgroundStyles.map((style) => {
+              const isSelected = formData.backgroundStyle === style.value;
+              return (
+                <Button
+                  key={style.value}
+                  size="$4"
+                  minWidth={100}
+                  backgroundColor={
+                    isSelected
+                      ? formData.primaryColor
+                      : 'rgba(255, 255, 255, 0.1)'
+                  }
+                  borderColor={isSelected ? formData.primaryColor : 'rgba(255, 255, 255, 0.2)'}
+                  borderWidth={2}
+                  pressStyle={{
+                    scale: 0.97,
+                    opacity: 0.8
+                  }}
+                  onPress={() =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      backgroundStyle: style.value as FormData['backgroundStyle'],
+                    }))
+                  }
+                >
+                  <Text
+                    color={isSelected ? 'white' : '$gray11Dark'}
+                    textAlign="center"
+                  >
+                    {style.label}
+                  </Text>
+                </Button>
+              );
+            })}
           </XStack>
         </YStack>
       </YStack>
