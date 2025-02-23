@@ -67,7 +67,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[85]}
+      snapPoints={[90]}
       zIndex={100000}
     >
       <Sheet.Overlay
@@ -237,7 +237,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 backgroundColor={wallpaperSelected ? settings.primaryColor : inputBackgroundColor}
                 borderColor={borderColor}
                 borderWidth={1}
-                onPress={() => handleSelectBackground('wallpaper-1')}
+                onPress={() => {
+                  const firstWallpaper = backgroundStyles.find(style => style.value !== 'gradient');
+                  if (firstWallpaper) {
+                    handleSelectBackground(firstWallpaper.value);
+                  }
+                }}
               >
                 <Text 
                   color={wallpaperSelected ? buttonTextColor : textColor} 
@@ -255,16 +260,16 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               <Text fontSize={14} color={textColor}>
                 Wallpaper Selection
               </Text>
-              <XStack flexWrap="wrap" gap="$1" rowGap="$2" justifyContent="space-between">
-                {backgroundStyles.slice(2, 8).map(style => {
+              <XStack flexWrap="wrap" gap="$3" rowGap="$3" justifyContent="space-between" paddingHorizontal="$1">
+                {backgroundStyles.filter(style => style.value !== 'gradient').map(style => {
                   const imageSource = getWallpaperPath(style.value)
                   const isSelected = settings.backgroundStyle === style.value
                   return (
                     <Button
                       key={style.value}
                       size="$3"
-                      width={100}
-                      height={62}
+                      width={95}
+                      height={65}
                       padding={0}
                       backgroundColor={isSelected ? settings.primaryColor : inputBackgroundColor}
                       borderColor={isSelected ? 'white' : borderColor}
@@ -300,24 +305,39 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           )}
 
-          {/* Primary Color */}
-          <YStack gap="$2" marginBottom={12}>
+          {/* Primary Color and Save Button Row */}
+          <YStack gap="$2">
             <Text fontSize={14} color={textColor}>
               Primary Color
             </Text>
-            <XStack alignItems="center" gap="$2">
-              <Circle
-                size={34}
-                backgroundColor={settings.primaryColor}
-                pressStyle={{ scale: 0.97 }}
-                onPress={() => setColorPickerOpen(true)}
-              />
+            <XStack alignItems="center" justifyContent="space-between">
+              <XStack alignItems="center" gap="$2">
+                <Circle
+                  size={34}
+                  backgroundColor={settings.primaryColor}
+                  pressStyle={{ scale: 0.97 }}
+                  onPress={() => setColorPickerOpen(true)}
+                />
+                <Button
+                  size="$2"
+                  backgroundColor={inputBackgroundColor}
+                  onPress={() => setColorPickerOpen(true)}
+                >
+                  <Text color={textColor} fontSize={12}>Customize</Text>
+                </Button>
+              </XStack>
+
+              {/* Save Button */}
               <Button
-                size="$2"
-                backgroundColor={inputBackgroundColor}
-                onPress={() => setColorPickerOpen(true)}
+                backgroundColor={settings.primaryColor}
+                height={38}
+                width={150}
+                pressStyle={{ opacity: 0.8 }}
+                onPress={handleSave}
               >
-                <Text color={textColor} fontSize={12}>Customize</Text>
+                <Text color="#fff" fontWeight="500" fontSize={13}>
+                  Save Settings
+                </Text>
               </Button>
             </XStack>
           </YStack>
@@ -331,20 +351,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             colorOptions={colorOptions}
             isDark={isDark}
           />
-
-          {/* Save Button */}
-          <Button
-            backgroundColor={settings.primaryColor}
-            height={45}
-            width={150}
-            pressStyle={{ opacity: 0.8 }}
-            onPress={handleSave}
-            alignSelf="flex-end"
-          >
-            <Text color="#fff" fontWeight="500">
-              Save Settings
-            </Text>
-          </Button>
         </YStack>
       </Sheet.Frame>
     </Sheet>
