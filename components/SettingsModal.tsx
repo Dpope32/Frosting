@@ -1,30 +1,94 @@
 import React, { useState } from 'react'
-import { useColorScheme, Image, Switch } from 'react-native'
+import { useColorScheme, Image, Switch, ScrollView } from 'react-native'
 import { Sheet, Button, Input, YStack, XStack, Text, Circle } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
 import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '../constants/Colors'
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../constants/Backgrounds'
 import { ColorPickerModal } from './ColorPickerModal'
+import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
 
 interface SettingsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
+interface WallpaperButtonProps {
+  style: { value: BackgroundStyle; label: string }
+  isSelected: boolean
+  onPress: () => void
+  settings: {
+    primaryColor: string
+    backgroundStyle: BackgroundStyle
+  }
+  inputBackgroundColor: string
+  borderColor: string
+}
+
+// Helper component for wallpaper buttons
+const WallpaperButton = ({ 
+  style, 
+  isSelected, 
+  onPress, 
+  settings, 
+  inputBackgroundColor, 
+  borderColor 
+}: WallpaperButtonProps) => {
+  const imageSource = getWallpaperPath(style.value)
+  return (
+    <Button
+      size="$3"
+      width={95}
+      height={85}
+      padding={0}
+      backgroundColor={isSelected ? settings.primaryColor : inputBackgroundColor}
+      borderColor={isSelected ? 'white' : borderColor}
+      borderWidth={isSelected ? 2 : 1}
+      scale={isSelected ? 1 : 1.05}
+      animation="quick"
+      onPress={onPress}
+    >
+      {imageSource ? (
+        <YStack width="100%" height="100%" overflow="hidden" borderRadius={4}>
+          <Image
+            source={imageSource}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: 4
+            }}
+            resizeMode="cover"
+          />
+        </YStack>
+      ) : (
+        <YStack
+          backgroundColor="#555"
+          width="100%"
+          height="100%"
+          borderRadius={4}
+        />
+      )}
+    </Button>
+  )
+}
+
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
+  const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
-  const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)'
-  const textColor = isDark ? '#fff' : '#000'
-  const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
-  const inputBackgroundColor = isDark ? '#333' : '#f5f5f5'
-  const inputTextColor = isDark ? '#fff' : '#000'
-  const buttonTextColor = '#fff'
+  const [showAllWallpapers, setShowAllWallpapers] = useState(false)
+
+  // Theme-aware colors
+  const backgroundColor = isDark ? "rgb(25, 25, 25)" : "#f5f5f5"
+  const textColor = isDark ? "#fff" : "#000"
+  const mutedTextColor = isDark ? "#a0a0a0" : "#666666"
+  const borderColor = isDark ? "rgba(255, 255, 255, 0.68)" : "rgba(0, 0, 0, 0.1)"
+  const inputBackgroundColor = isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.8)"
+  const inputTextColor = isDark ? "#fff" : "#000"
+  const buttonTextColor = "#fff"
+  const successColor = isDark ? "#22c55e" : "#16a34a"
   
-  // Rest of the state and handlers remain the same...
-  const { preferences, setPreferences } = useUserStore()
   const [settings, setSettings] = useState({
     username: preferences.username,
     primaryColor: preferences.primaryColor,
@@ -59,7 +123,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     setSettings(prev => ({ ...prev, backgroundStyle: value }))
   }
 
-  const wallpaperSelected = settings.backgroundStyle.startsWith('wallpaper-')
+  // Filter out gradient and get all wallpapers
+  const wallpapers = backgroundStyles.filter(style => style.value !== 'gradient')
+  
+  // Show only first 3 wallpapers unless "Show More" is clicked
+  const visibleWallpapers = showAllWallpapers ? wallpapers : wallpapers.slice(0, 3)
 
   return (
     <Sheet
@@ -67,7 +135,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       dismissOnSnapToBottom
-      snapPoints={[90]}
+      snapPoints={[70]}
       zIndex={100000}
     >
       <Sheet.Overlay
@@ -84,40 +152,38 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       >
         <Sheet.Handle backgroundColor={borderColor} />
 
-        <YStack gap="$3" paddingBottom="$3">
+        <YStack flex={1} gap="$3">
           <Text fontSize={20} fontWeight="600" color={textColor}>
             Settings
           </Text>
 
-          {/* Profile and Grid Layout */}
-          <XStack gap="$3">
-            {/* Profile Picture */}
-            <Circle
-              size={80}
-              borderWidth={1}
-              borderColor={borderColor}
-              borderStyle="dashed"
-              backgroundColor={inputBackgroundColor}
-              marginTop={20}
-              marginRight={12}
-              onPress={pickImage}
-              overflow="hidden"
-            >
-              {settings.profilePicture ? (
-                <Image
-                  source={{ uri: settings.profilePicture }}
-                  style={{ width: 80, height: 80, borderRadius: 40 }}
-                />
-              ) : (
-                <Text color={textColor} fontSize={11}>
-                  Profile
-                </Text>
-              )}
-            </Circle>
+          {/* Main Content */}
+          <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+            <YStack gap="$3" pb="$3">
+              {/* Profile Picture, Username, and Zip Code Row */}
+              <XStack gap="$3" alignItems="center">
+                {/* Profile Picture */}
+                <Circle
+                  size={80}
+                  borderWidth={1}
+                  borderColor={borderColor}
+                  borderStyle="dashed"
+                  backgroundColor={inputBackgroundColor}
+                  onPress={pickImage}
+                  overflow="hidden"
+                >
+                  {settings.profilePicture ? (
+                    <Image
+                      source={{ uri: settings.profilePicture }}
+                      style={{ width: 80, height: 80, borderRadius: 40 }}
+                    />
+                  ) : (
+                    <Text color={textColor} fontSize={11}>
+                      Profile
+                    </Text>
+                  )}
+                </Circle>
 
-            {/* 2x2 Grid Layout */}
-            <YStack gap="$3" flex={1}>
-              <XStack gap="$3">
                 {/* Username Input */}
                 <YStack width={120} gap="$1">
                   <Text fontSize={14} color={textColor}>
@@ -130,36 +196,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     onChangeText={text => setSettings(prev => ({ ...prev, username: text }))}
                     backgroundColor={inputBackgroundColor}
                     color={inputTextColor}
-                    borderWidth={0}
+                    borderWidth={1}
+                    borderColor={borderColor}
                   />
                 </YStack>
 
-                {/* Show Quote Toggle */}
-                <YStack width={110} gap="$1">
-                  <Text fontSize={14} color={textColor}>
-                    Show Quote
-                  </Text>
-                  <XStack
-                    backgroundColor={inputBackgroundColor}
-                    height={38}
-                    borderRadius="$3"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    paddingHorizontal="$2"
-                  >
-                    <Switch
-                      value={settings.quoteEnabled}
-                      onValueChange={val =>
-                        setSettings(prev => ({ ...prev, quoteEnabled: val }))
-                      }
-                      thumbColor="#fff"
-                      trackColor={{ false: '#555', true: settings.primaryColor }}
-                    />
-                  </XStack>
-                </YStack>
-              </XStack>
-
-              <XStack gap="$3">
                 {/* Zip Code Input */}
                 <YStack width={120} gap="$1">
                   <Text fontSize={14} color={textColor}>
@@ -172,186 +213,185 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     onChangeText={text => setSettings(prev => ({ ...prev, zipCode: text }))}
                     backgroundColor={inputBackgroundColor}
                     color={inputTextColor}
-                    borderWidth={0}
+                    borderWidth={1}
+                    borderColor={borderColor}
                   />
                 </YStack>
-
-                {/* Notifications Toggle */}
-                <YStack width={110} gap="$1">
-                  <Text fontSize={14} color={textColor}>
-                    Notifications
-                  </Text>
-                  <XStack
-                    backgroundColor={inputBackgroundColor}
-                    height={38}
-                    borderRadius="$3"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    paddingHorizontal="$2"
-                  >
-                    <Switch
-                      value={settings.notificationsEnabled}
-                      onValueChange={val =>
-                        setSettings(prev => ({ ...prev, notificationsEnabled: val }))
-                      }
-                      thumbColor="#fff"
-                      trackColor={{ false: '#555', true: settings.primaryColor }}
-                    />
-                  </XStack>
-                </YStack>
               </XStack>
-            </YStack>
-          </XStack>
 
-          {/* Background Section */}
-          <YStack gap="$2">
-            <Text fontSize={14} color={textColor}>
-              Background
-            </Text>
-            <XStack gap="$3">
-              <Button
-                size="$3"
-                flex={1}
-                backgroundColor={
-                  !wallpaperSelected && settings.backgroundStyle.includes('gradient')
-                    ? settings.primaryColor
-                    : inputBackgroundColor
-                }
-                borderColor={borderColor}
+              {/* Theme Settings Container */}
+              <YStack 
+                backgroundColor={inputBackgroundColor} 
+                padding="$3" 
+                borderRadius="$3"
                 borderWidth={1}
-                onPress={() => handleSelectBackground('gradient')}
-              >
-                <Text 
-                  color={!wallpaperSelected && settings.backgroundStyle.includes('gradient') 
-                    ? buttonTextColor 
-                    : textColor} 
-                  fontSize={12}
-                >
-                  Gradient
-                </Text>
-              </Button>
-
-              <Button
-                size="$3"
-                flex={1}
-                backgroundColor={wallpaperSelected ? settings.primaryColor : inputBackgroundColor}
                 borderColor={borderColor}
-                borderWidth={1}
-                onPress={() => {
-                  const firstWallpaper = backgroundStyles.find(style => style.value !== 'gradient');
-                  if (firstWallpaper) {
-                    handleSelectBackground(firstWallpaper.value);
-                  }
-                }}
               >
-                <Text 
-                  color={wallpaperSelected ? buttonTextColor : textColor} 
-                  fontSize={12}
-                >
-                  Wallpapers
-                </Text>
-              </Button>
-            </XStack>
-          </YStack>
+                <XStack gap="$4" justifyContent="space-between">
+                  {/* Theme Color */}
+                  <YStack width={110} gap="$1">
+                    <Text fontSize={14} color={textColor}>
+                      Theme Color
+                    </Text>
+                    <XStack gap="$2" alignItems="center">
+                      <Circle
+                        size={34}
+                        backgroundColor={settings.primaryColor}
+                        pressStyle={{ scale: 0.97 }}
+                        onPress={() => setColorPickerOpen(true)}
+                        borderWidth={1}
+                        borderColor={borderColor}
+                      />
+                      <Button
+                        size="$2"
+                        onPress={() => setColorPickerOpen(true)}
+                        backgroundColor="transparent"
+                      >
+                        <Text color={textColor} fontSize={11}>Edit</Text>
+                      </Button>
+                    </XStack>
+                  </YStack>
 
-          {/* Wallpaper Grid */}
-          {wallpaperSelected && (
-            <YStack gap="$3">
-              <Text fontSize={14} color={textColor}>
-                Wallpaper Selection
-              </Text>
-              <XStack flexWrap="wrap" gap="$3" rowGap="$3" justifyContent="space-between" paddingHorizontal="$1">
-                {backgroundStyles.filter(style => style.value !== 'gradient').map(style => {
-                  const imageSource = getWallpaperPath(style.value)
-                  const isSelected = settings.backgroundStyle === style.value
-                  return (
-                    <Button
-                      key={style.value}
-                      size="$3"
-                      width={95}
-                      height={65}
-                      padding={0}
-                      backgroundColor={isSelected ? settings.primaryColor : inputBackgroundColor}
-                      borderColor={isSelected ? 'white' : borderColor}
-                      borderWidth={isSelected ? 2 : 1}
-                      scale={isSelected ? 1.05 : 1}
-                      animation="quick"
-                      onPress={() => handleSelectBackground(style.value)}
+                  {/* Show Quote Toggle */}
+                  <YStack width={110} gap="$1">
+                    <Text fontSize={14} color={textColor}>
+                      Show Quote
+                    </Text>
+                    <XStack
+                      height={38}
+                      alignItems="center"
+                      justifyContent="space-between"
                     >
-                      {imageSource ? (
-                        <YStack width="100%" height="100%" overflow="hidden" borderRadius={4}>
-                          <Image
-                            source={imageSource}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              borderRadius: 4
-                            }}
-                            resizeMode="cover"
-                          />
-                        </YStack>
-                      ) : (
-                        <YStack
-                          backgroundColor="#555"
-                          width="100%"
-                          height="100%"
-                          borderRadius={4}
-                        />
-                      )}
-                    </Button>
-                  )
-                })}
-              </XStack>
-            </YStack>
-          )}
+                      <Switch
+                        value={settings.quoteEnabled}
+                        onValueChange={val =>
+                          setSettings(prev => ({ ...prev, quoteEnabled: val }))
+                        }
+                        thumbColor="#fff"
+                        trackColor={{ false: isDark ? '#333' : '#e5e5e5', true: successColor }}
+                      />
+                    </XStack>
+                  </YStack>
 
-          {/* Primary Color and Save Button Row */}
-          <YStack gap="$2">
-            <Text fontSize={14} color={textColor}>
-              Primary Color
-            </Text>
-            <XStack alignItems="center" justifyContent="space-between">
-              <XStack alignItems="center" gap="$2">
-                <Circle
-                  size={34}
-                  backgroundColor={settings.primaryColor}
-                  pressStyle={{ scale: 0.97 }}
-                  onPress={() => setColorPickerOpen(true)}
-                />
-                <Button
-                  size="$2"
-                  backgroundColor={inputBackgroundColor}
-                  onPress={() => setColorPickerOpen(true)}
-                >
-                  <Text color={textColor} fontSize={12}>Customize</Text>
-                </Button>
-              </XStack>
+                  {/* Notifications Toggle */}
+                  <YStack width={110} gap="$1">
+                    <Text fontSize={14} color={textColor}>
+                      Notifications
+                    </Text>
+                    <XStack
+                      height={38}
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Switch
+                        value={settings.notificationsEnabled}
+                        onValueChange={val =>
+                          setSettings(prev => ({ ...prev, notificationsEnabled: val }))
+                        }
+                        thumbColor="#fff"
+                        trackColor={{ false: isDark ? '#333' : '#e5e5e5', true: successColor }}
+                      />
+                    </XStack>
+                  </YStack>
+                </XStack>
+              </YStack>
 
-              {/* Save Button */}
-              <Button
-                backgroundColor={settings.primaryColor}
-                height={38}
-                width={150}
-                pressStyle={{ opacity: 0.8 }}
-                onPress={handleSave}
-              >
-                <Text color="#fff" fontWeight="500" fontSize={13}>
-                  Save Settings
+              {/* Wallpaper Section */}
+              <YStack gap="$2">
+                <Text fontSize={14} color={textColor}>
+                  Wallpaper
                 </Text>
-              </Button>
-            </XStack>
-          </YStack>
+                <XStack 
+                  columnGap="$1"
+                  rowGap="$2"
+                  flexWrap="wrap" 
+                  justifyContent="space-between"
+                  paddingLeft={2}
+                >
+                  {/* Gradient Option */}
+                  <Button
+                    size="$3"
+                    width={95}
+                    height={85}
+                    padding={0}
+                    backgroundColor={settings.backgroundStyle === 'gradient' ? settings.primaryColor : inputBackgroundColor}
+                    borderColor={settings.backgroundStyle === 'gradient' ? 'white' : borderColor}
+                    borderWidth={settings.backgroundStyle === 'gradient' ? 2 : 1}
+                    scale={settings.backgroundStyle === 'gradient' ? 1 : 1.05}
+                    animation="quick"
+                    onPress={() => handleSelectBackground('gradient')}
+                  >
+                    <YStack
+                      width="100%"
+                      height="100%"
+                      borderRadius={4}
+                      backgroundColor={settings.primaryColor}
+                      opacity={0.8}
+                    />
+                  </Button>
 
-          {/* Color Picker Modal */}
-          <ColorPickerModal
-            open={colorPickerOpen}
-            onOpenChange={setColorPickerOpen}
-            selectedColor={settings.primaryColor}
-            onColorChange={(color) => setSettings(prev => ({ ...prev, primaryColor: color }))}
-            colorOptions={colorOptions}
-            isDark={isDark}
-          />
+                  {/* Wallpaper Options */}
+                  {visibleWallpapers.map(style => (
+                    <WallpaperButton
+                      key={style.value}
+                      style={style}
+                      isSelected={settings.backgroundStyle === style.value}
+                      onPress={() => handleSelectBackground(style.value)}
+                      settings={settings}
+                      inputBackgroundColor={inputBackgroundColor}
+                      borderColor={borderColor}
+                    />
+                  ))}
+                </XStack>
+
+                {/* Show More/Less Button - Only show if we have more than 2 wallpapers */}
+                {wallpapers.length > 2 && (
+                  <Button
+                    size="$2"
+                    onPress={() => {
+                      setShowAllWallpapers(!showAllWallpapers)
+                    }}
+                    icon={showAllWallpapers ? ChevronUp : ChevronDown}
+                    width={95}
+                    backgroundColor="transparent"
+                  >
+                    <Text color={textColor} fontSize={11}>
+                      {showAllWallpapers ? 'Show Less' : 'Show More'}
+                    </Text>
+                  </Button>
+                )}
+              </YStack>
+            </YStack>
+          </ScrollView>
+
+          {/* Save Button */}
+          <XStack justifyContent="flex-end" padding="$3">
+            <Button
+              backgroundColor={settings.primaryColor}
+              height={38}
+              width={120}
+              pressStyle={{ opacity: 0.8 }}
+              onPress={handleSave}
+              borderWidth={1}
+              borderColor={borderColor}
+              paddingHorizontal="$3"
+            >
+              <Text color="#fff" fontWeight="500" fontSize={13}>
+                Save Settings
+              </Text>
+            </Button>
+          </XStack>
         </YStack>
+
+        {/* Color Picker Modal */}
+        <ColorPickerModal
+          open={colorPickerOpen}
+          onOpenChange={setColorPickerOpen}
+          selectedColor={settings.primaryColor}
+          onColorChange={(color) => setSettings(prev => ({ ...prev, primaryColor: color }))}
+          colorOptions={colorOptions}
+          isDark={isDark}
+        />
       </Sheet.Frame>
     </Sheet>
   )

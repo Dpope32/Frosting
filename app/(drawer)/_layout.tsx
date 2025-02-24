@@ -43,7 +43,6 @@ interface IconConfig {
   type: 'material' | 'community';
 }
 
-// Define icon configurations with proper typing
 const DRAWER_ICONS: Record<string, IconConfig> = {
   '(tabs)/index': { name: 'castle' as MaterialCommunityIconName, type: 'community' },
   calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
@@ -61,10 +60,10 @@ export default function DrawerLayout() {
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
 
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? '#1A1A1A' : '#F5F5F5';
+  const backgroundColor = isDark ? '#121212' : '#F5F5F5';
   const textColor = isDark ? '#fff' : '#000';
-  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-  const inactiveColor = isDark ? '#666' : '#999';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
+  const inactiveColor = isDark ? '#444' : '#999';
 
   const styles = StyleSheet.create({
     wrapper: {
@@ -131,31 +130,30 @@ export default function DrawerLayout() {
           headerTransparent: true,
           drawerStyle: {
             backgroundColor,
-            width: '65%', // Increased from 50% to accommodate longer text
+            width: '60%', 
             borderRightWidth: 1,
             borderColor
           },
-          drawerActiveTintColor: '#fff', 
+          drawerActiveTintColor: '#fff',
           drawerInactiveTintColor: inactiveColor,
-          drawerActiveBackgroundColor: primaryColor,
+          drawerActiveBackgroundColor: isDark ? `${primaryColor}99` : primaryColor,
           drawerItemStyle: {
-            borderRadius: 12,
-            paddingVertical: 8,
-            paddingLeft: 8, // Added to reduce left padding
+            borderRadius: 2,
+            paddingVertical: 6,
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -12 // Restored to fix icon-text spacing
+            marginLeft: -10 
           },
           drawerContentStyle: {
-            backgroundColor
+            backgroundColor 
           },
           drawerType: 'front',  
           overlayColor: '#00000099',
           swipeEnabled: true,
           swipeEdgeWidth: 100,
-          drawerStatusBarAnimation: 'slide',
+          drawerStatusBarAnimation: 'none',
           drawerHideStatusBarOnOpen: true,
           keyboardDismissMode: 'on-drag'
         }}
