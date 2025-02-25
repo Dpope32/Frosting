@@ -22,6 +22,9 @@ export default function VaultScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  
+  const isWeb = Platform.OS === 'web';
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   const handleAddEntry = (entry: { name: string; username: string; password: string }) => {
     addVaultEntry(entry);
@@ -49,35 +52,10 @@ export default function VaultScreen() {
       ]
     );
   };
-
-  if (isLoading) {
-    return (
-      <YStack f={1} jc="center" ai="center" mt={80} bg={isDark ? "#000000" : "#ffffff"}>
-        <ActivityIndicator size="large" color={primaryColor} />
-        <Text color={isDark ? "#FFFFFF" : "#000000"} fontSize="$3">Loading</Text>
-      </YStack>
-    );
-  }
-
-  if (error) {
-    return (
-      <YStack f={1} jc="center" ai="center" mt={80} bg={isDark ? "#000000" : "#ffffff"}>
-        <Text color="#FF6B6B" fontSize="$3">Failed to load vault</Text>
-        <Text color={isDark ? "#FFFFFF" : "#000000"} fontSize="$2" ta="center" px="$4" mt="$2">
-          {error instanceof Error ? error.message : 'Unknown error occurred'}
-        </Text>
-      </YStack>
-    );
-  }
-
-  const isWeb = Platform.OS === 'web';
-  
-  // Get window width for responsive layout on web
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
   // Update window width on resize for web
   useEffect(() => {
-    if (!isWeb) return;
+    if (Platform.OS !== 'web') return;
     
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -85,7 +63,7 @@ export default function VaultScreen() {
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isWeb]);
+  }, []);
   
   // Calculate number of columns based on screen width
   const getColumnCount = () => {

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ScrollView, useColorScheme } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, useColorScheme, Platform } from 'react-native';
 import { Button, Card, H2, Paragraph, XStack, YStack, Text } from 'tamagui';
 import { Plus, X, Wifi, CreditCard, Home, Tv, ShoppingBag, Zap, Droplet, GaugeCircle, Phone, Shield, Activity, Car, DollarSign, Calendar, BookOpen, Newspaper, Cloud, Wrench, Trash, Lock, Heart, GraduationCap, PlaneTakeoff, Coffee, FileText, Percent } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
@@ -71,92 +71,187 @@ export default function BillsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
+  const isWeb = Platform.OS === 'web';
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  
+  // Update window width on resize for web
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Calculate number of columns based on screen width
+  const getColumnCount = () => {
+    if (windowWidth < 768) return 1;
+    if (windowWidth < 1024) return 2;
+    if (windowWidth < 1280) return 3;
+    if (windowWidth < 1600) return 4;
+    return 5;
+  };
+  
+  const columnCount = getColumnCount();
+  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 16 / columnCount}px)`;
+
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => {
     addBill(billData);
   };
 
   return (
     <YStack f={1} mt={90} bg={isDark ? "#000000" : "#ffffff"}>
-      <ScrollView contentContainerStyle={{ padding: 8, paddingBottom: 100 }}>
-        <YStack gap="$2">
-          {isLoading ? (
-            Array.from({ length: 3 }).map((_, index) => (
+      <ScrollView 
+        contentContainerStyle={{ 
+          padding: isWeb ? 16 : 8,
+          paddingBottom: 100,
+          display: isWeb ? 'flex' : undefined,
+          flexDirection: isWeb ? 'row' : undefined,
+          flexWrap: isWeb ? 'wrap' : undefined,
+          justifyContent: isWeb ? 'flex-start' : undefined,
+          gap: isWeb ? 16 : undefined,
+          maxWidth: isWeb ? 1800 : undefined,
+          marginHorizontal: isWeb ? 'auto' : undefined
+        }}
+      >
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, index) => (
+            <XStack 
+              key={`skeleton-${index}`} 
+              bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+              p="$4" 
+              borderRadius="$4" 
+              ai="center" 
+              pressStyle={{ opacity: 0.7 }} 
+              animation="quick"
+              borderWidth={1}
+              borderColor={isDark ? "#333" : "#e0e0e0"}
+              width={isWeb ? columnWidth : "100%"}
+            >
+              <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$4" />
+              <YStack ml="$3" flex={1} gap="$1">
+                <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
+                <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
+              </YStack>
+            </XStack>
+          ))
+        ) : bills?.length === 0 ? (
+          <XStack 
+            bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+            p="$6" 
+            borderRadius="$4" 
+            ai="center" 
+            jc="center"
+            borderWidth={1}
+            borderColor={isDark ? "#333" : "#e0e0e0"}
+            width="100%"
+          >
+            <Paragraph color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center">No bills added yet</Paragraph>
+          </XStack>
+        ) : bills ? (
+          bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
+            const IconComponent = getIconForBill(bill.name);
+            const amountColor = getAmountColor(bill.amount);
+            return isWeb ? (
               <XStack 
-                key={`skeleton-${index}`} 
+                key={bill.id} 
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                p="$4" 
+                p="$4"
+                borderRadius="$4" 
+                ai="center" 
+                animation="quick"
+                borderWidth={1}
+                borderColor={isDark ? "#333" : "#e0e0e0"}
+                width={columnWidth}
+                minWidth={240}
+                maxWidth={400}
+                height={180}
+                hoverStyle={{ 
+                  transform: [{ scale: 1.02 }],
+                  borderColor: primaryColor,
+                  shadowColor: primaryColor,
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 8
+                }}
+              >
+                <YStack flex={1}>
+                  <XStack jc="space-between" mt="$1" ai="center">
+                    <Text color={isDark ? "#fff" : "#333"} mb="$2" fontSize="$5" fontWeight="bold">
+                      {bill.name}
+                    </Text>
+                    <Button
+                      size="$3"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      onPress={() => deleteBill(bill.id)}
+                      icon={<X size={18} color="#ff4444" />}
+                    />
+                  </XStack>
+                  
+                  <XStack ai="center" gap="$2" mb="$2">
+                    <YStack 
+                      width={44} 
+                      height={44} 
+                      borderRadius="$4" 
+                      ai="center" 
+                      jc="center" 
+                      bg={isDark ? "#333" : "#e0e0e0"}
+                    >
+                      <IconComponent size={26} color={isDark ? "white" : "#666"} />
+                    </YStack>
+                    <YStack flex={1}>
+                      <Paragraph color={amountColor} fontSize="$4" fontWeight={400}>${bill.amount.toFixed(2)}</Paragraph>
+                      <Paragraph color="#666" fontSize="$3">Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
+                    </YStack>
+                  </XStack>
+                </YStack>
+              </XStack>
+            ) : (
+              <XStack 
+                key={bill.id} 
+                bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+                p="$4"
                 borderRadius="$4" 
                 ai="center" 
                 pressStyle={{ opacity: 0.7 }} 
                 animation="quick"
                 borderWidth={1}
                 borderColor={isDark ? "#333" : "#e0e0e0"}
+                width="100%"
               >
-                <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$4" />
-                <YStack ml="$3" flex={1} gap="$1">
-                  <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
-                  <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
-                </YStack>
-              </XStack>
-            ))
-          ) : bills?.length === 0 ? (
-            <XStack 
-              bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-              p="$6" 
-              borderRadius="$4" 
-              ai="center" 
-              jc="center"
-              borderWidth={1}
-              borderColor={isDark ? "#333" : "#e0e0e0"}
-            >
-              <Paragraph color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center">No bills added yet</Paragraph>
-            </XStack>
-          ) : bills ? (
-            bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
-              const IconComponent = getIconForBill(bill.name);
-              const amountColor = getAmountColor(bill.amount);
-              return (
-                <XStack 
-                  key={bill.id} 
-                  bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                  p="$4"
+                <YStack 
+                  width={44} 
+                  height={44} 
                   borderRadius="$4" 
                   ai="center" 
-                  pressStyle={{ opacity: 0.7 }} 
-                  animation="quick"
-                  borderWidth={1}
-                  borderColor={isDark ? "#333" : "#e0e0e0"}
+                  jc="center" 
+                  bg={isDark ? "#333" : "#e0e0e0"}
                 >
-                  <YStack 
-                    width={44} 
-                    height={44} 
-                    borderRadius="$4" 
-                    ai="center" 
-                    jc="center" 
-                    bg={isDark ? "#333" : "#e0e0e0"}
-                  >
-                    <IconComponent size={26} color={isDark ? "white" : "#666"} />
-                  </YStack>
-                  <YStack ml="$3" flex={1}>
-                    <Text color={isDark ? "#fff" : "#000"} fontSize="$4" fontWeight="bold">{bill.name}</Text>
-                    <XStack ai="center" gap="$2">
-                      <Paragraph color={amountColor} fontSize="$4" fontWeight={400}>${bill.amount.toFixed(2)}</Paragraph>
-                      <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
-                    </XStack>
-                  </YStack>
-                  <Button 
-                    size="$3"
-                    bg="transparent" 
-                    pressStyle={{ scale: 0.9 }} 
-                    animation="quick" 
-                    onPress={() => deleteBill(bill.id)} 
-                    icon={<X size={18} color="#ff4444" />} 
-                  />
-                </XStack>
-              );
-            })
-          ) : null}
-        </YStack>
+                  <IconComponent size={26} color={isDark ? "white" : "#666"} />
+                </YStack>
+                <YStack ml="$3" flex={1}>
+                  <Text color={isDark ? "#fff" : "#000"} fontSize="$4" fontWeight="bold">{bill.name}</Text>
+                  <XStack ai="center" gap="$2">
+                    <Paragraph color={amountColor} fontSize="$4" fontWeight={400}>${bill.amount.toFixed(2)}</Paragraph>
+                    <Paragraph color="#666" fontSize="$4">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
+                  </XStack>
+                </YStack>
+                <Button 
+                  size="$3"
+                  bg="transparent" 
+                  pressStyle={{ scale: 0.9 }} 
+                  animation="quick" 
+                  onPress={() => deleteBill(bill.id)} 
+                  icon={<X size={18} color="#ff4444" />} 
+                />
+              </XStack>
+            );
+          })
+        ) : null}
       </ScrollView>
       <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
       <Button 

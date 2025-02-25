@@ -1,29 +1,5 @@
 import { getWallpapers, type S3Wallpaper } from '../services/s3Service';
 
-// Backgrounds.ts
-const wallpaperLabels: Record<string, string> = {
-  // Common wallpapers
-  'Abstract': 'Abstract',
-  'Aesthetic': 'Aesthetic',
-  'clouds': 'Cloudy Sky',
-  'Dreams': 'Dreams',
-  'Fusion': 'Fusion',
-  'space': 'Space',
-  'Spring': 'Spring',
-  
-  // Mobile-specific
-  'dark-statue': 'Dark Statue',
-  'statue': 'Statue',
-  'girl': 'Silhouette',
-  'man': 'Shadow',
-  
-  // Web-specific
-  'fog': 'Foggy Forest',
-  'jfk': 'JFK',
-  'lannister': 'Lannister',
-  'solitude': 'Solitude',
-  'stanczyk': 'Stanczyk'
-};
 
 export type BackgroundStyleOption = {
   label: string;
