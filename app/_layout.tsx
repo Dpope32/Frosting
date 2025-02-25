@@ -80,15 +80,8 @@ export default function RootLayout() {
           <>
             <Stack screenOptions={{ headerShown: false }}>
               {!hasCompletedOnboarding ? (
-                <Stack.Screen 
-                  name="screens/onboarding/index"
-                  options={{ gestureEnabled: false }}
-                />
-              ) : (
-                <Stack.Screen 
-                  name="(drawer)"
-                />
-              )}
+                <Stack.Screen  name="screens/onboarding/index" options= {{ gestureEnabled: false }}/>) : ( 
+                <Stack.Screen  name="(drawer)" />)}
             </Stack>
             <Toast />
             <StatusBar style="auto" />

@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     padding: 2,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#ddd',
   },
   lastRowCell: {
     borderBottomWidth: 0, // Remove bottom border for last row

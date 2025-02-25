@@ -12,9 +12,8 @@ interface UserPreferences {
   zipCode: string;
   hasCompletedOnboarding: boolean;
   notificationsEnabled: boolean;
-  quoteEnabled: boolean; 
+  quoteEnabled: boolean;
 }
-
 
 interface UserStore {
   preferences: UserPreferences;
@@ -30,7 +29,7 @@ const defaultPreferences: UserPreferences = {
   zipCode: '',
   hasCompletedOnboarding: false,
   notificationsEnabled: true,
-  quoteEnabled: true, 
+  quoteEnabled: true,
 };
 
 const mmkvStorage = {

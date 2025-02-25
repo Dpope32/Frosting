@@ -32,13 +32,25 @@ interface SettingsModalProps {
   onOpenChange: (open: boolean) => void
 }
 
+interface WallpaperButtonProps {
+  style: { value: BackgroundStyle; label: string }
+  isSelected: boolean
+  onPress: () => void
+  settings: {
+    primaryColor: string
+    backgroundStyle: BackgroundStyle
+  }
+  inputBackgroundColor: string
+  borderColor: string
+}
+
+
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
+  const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web'
 
-  // Store + initial settings
-  const { preferences, setPreferences } = useUserStore()
   const [wallpapersToShow, setWallpapersToShow] = useState(4)
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [settings, setSettings] = useState({
