@@ -15,7 +15,9 @@ export type FormData = {
     | 'wallpaper-2'
     | 'wallpaper-3'
     | 'wallpaper-4'
-    | 'wallpaper-5';
+    | 'wallpaper-5'
+    | 'space'
+    | 'silhouette';
   zipCode: string;
 };
 

@@ -1,7 +1,7 @@
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, StyleSheet, useColorScheme as RNColorScheme } from 'react-native';
+import { View, Image, Text, StyleSheet, useColorScheme as RNColorScheme, Platform } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
@@ -65,6 +65,14 @@ export default function DrawerLayout() {
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#666' : '#999';
+  
+  // Calculate responsive drawer width based on platform
+  const isWeb = Platform.OS === 'web';
+  const drawerWidth = isWeb 
+    ? typeof window !== 'undefined' 
+      ? Math.min(320, window.innerWidth * 0.3) // Cap at 320px or 30% of screen width
+      : 320
+    : '65%'; // Mobile width stays the same
 
   const styles = StyleSheet.create({
     wrapper: {
@@ -131,7 +139,7 @@ export default function DrawerLayout() {
           headerTransparent: true,
           drawerStyle: {
             backgroundColor,
-            width: '65%', // Increased from 50% to accommodate longer text
+            width: drawerWidth,
             borderRightWidth: 1,
             borderColor
           },
@@ -141,12 +149,12 @@ export default function DrawerLayout() {
           drawerItemStyle: {
             borderRadius: 12,
             paddingVertical: 8,
-            paddingLeft: 8, // Added to reduce left padding
+            paddingLeft: 8,
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -12 // Restored to fix icon-text spacing
+            marginLeft: -12
           },
           drawerContentStyle: {
             backgroundColor
@@ -184,6 +192,7 @@ export default function DrawerLayout() {
             drawerIcon: (props) => renderIcon({ ...props, route: 'sports' })
           }}
         />
+        {/* Chatbot screen commented out for production, but code preserved for future use
         <Drawer.Screen
           name="chatbot"
           options={{
@@ -192,6 +201,7 @@ export default function DrawerLayout() {
             drawerIcon: (props) => renderIcon({ ...props, route: 'chatbot' })
           }}
         />
+        */}
         <Drawer.Screen
           name="crm"
           options={{

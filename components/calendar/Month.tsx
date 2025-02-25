@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalendarEvent } from '@/store/CalendarStore';
 
@@ -79,9 +79,23 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         ))}
       </View>
       <View style={styles.daysGrid}>
-        {blanks.map((blank) => (
-          <View key={`blank-${blank}`} style={styles.dayCell} />
-        ))}
+        {blanks.map((blank) => {
+          // Calculate if this blank is in the last row
+          const blankIndex = blank;
+          const rowIndex = Math.floor(blankIndex / 7);
+          const totalRows = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
+          const isLastRow = rowIndex === totalRows - 1;
+
+          return (
+            <View 
+              key={`blank-${blank}`} 
+              style={[
+                styles.dayCell,
+                isLastRow && styles.lastRowCell
+              ]} 
+            />
+          );
+        })}
         {days.map((day) => {
           const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
           const dateKey = currentDate.toISOString().split('T')[0];
@@ -99,18 +113,40 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const hasBill = dayEvents.bill;
           const today = new Date();
           const isToday = currentDate.toDateString() === today.toDateString();
+          
+          // Check if date is in the past (before today)
+          const isPastDate = currentDate < new Date(today.setHours(0, 0, 0, 0));
+
+          // Calculate if this day is in the last row
+          const dayIndex = day + firstDayOfMonth - 1;
+          const rowIndex = Math.floor(dayIndex / 7);
+          const totalRows = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
+          const isLastRow = rowIndex === totalRows - 1;
 
           return (
             <TouchableOpacity
               key={day}
+              onPress={() => onDayPress(currentDate)}
+              onPressIn={() => {
+                if (Platform.OS !== 'web') {
+                  Haptics.selectionAsync();
+                }
+              }}
               style={[
                 styles.dayCell,
                 isToday && [styles.today, { backgroundColor: primaryColor }],
+                isLastRow && styles.lastRowCell, // Apply special style for last row
+                Platform.OS === 'web' && {
+                  // @ts-ignore - Web-specific CSS properties
+                  cursor: 'pointer',
+                  borderRadius: 4,
+                },
               ]}
-              onPress={() => onDayPress(currentDate)}
-              onPressIn={() => Haptics.selectionAsync()}
             >
-              <View style={styles.dayCellContent}>
+              <View style={[
+                styles.dayCellContent,
+                isPastDate && !isToday && styles.pastDateOverlay
+              ]}>
                 <View style={styles.dayWrapper}>
                   <Text
                     style={[
@@ -152,6 +188,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     padding: 16,
     margin: 16,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      // Removed maxWidth since we're displaying 2 months side by side
+    } as any : {}),
   },
   header: {
     alignItems: 'center',
@@ -188,12 +228,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: '#eee',
   },
+  lastRowCell: {
+    borderBottomWidth: 0, // Remove bottom border for last row
+  },
   dayCellContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     padding: 2,
+  },
+  pastDateOverlay: {
+    opacity: 0.3, // Make past dates darker (lower opacity value)
   },
   dayWrapper: {
     flexDirection: 'row',
@@ -223,9 +269,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   eventDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: Platform.OS === 'web' ? 6 : 4,
+    height: Platform.OS === 'web' ? 6 : 4,
+    borderRadius: Platform.OS === 'web' ? 3 : 2,
     marginTop: 2,
   },
   billIcon: {

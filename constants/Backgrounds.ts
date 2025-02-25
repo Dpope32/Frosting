@@ -1,24 +1,33 @@
 import { getWallpapers, type S3Wallpaper } from '../services/s3Service';
 
-// Function to create a friendly label from filename
-// Map of custom labels for specific wallpapers
+// Backgrounds.ts
 const wallpaperLabels: Record<string, string> = {
-  'wallpapers': 'Arc Sky',
-  'wallpapers-1': 'Arc Default',
-  'wallpapers-2': 'Arc Bright',
-  'wallpapers-3': 'Arc Purple',
-  'wallpapers-5': 'Nemo Blue',
+  // Common wallpapers
+  'Abstract': 'Abstract',
+  'Aesthetic': 'Aesthetic',
   'clouds': 'Cloudy Sky',
-  'dark-statue': 'Dark Statue',
+  'Dreams': 'Dreams',
+  'Fusion': 'Fusion',
   'space': 'Space',
+  'Spring': 'Spring',
+  
+  // Mobile-specific
+  'dark-statue': 'Dark Statue',
   'statue': 'Statue',
   'girl': 'Silhouette',
-  'man': 'Shadow'
+  'man': 'Shadow',
+  
+  // Web-specific
+  'fog': 'Foggy Forest',
+  'jfk': 'JFK',
+  'lannister': 'Lannister',
+  'solitude': 'Solitude',
+  'stanczyk': 'Stanczyk'
 };
 
 export type BackgroundStyleOption = {
   label: string;
-  value: 'gradient' | `wallpaper-${number}`;
+  value: 'gradient' | `wallpaper-${number}` | 'space' | 'silhouette';
 };
 
 const s3Wallpapers = getWallpapers();

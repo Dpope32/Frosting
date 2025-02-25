@@ -1,6 +1,6 @@
 // crm.tsx
 import React, { useState } from "react";
-import { FlatList, View, Dimensions, Alert } from "react-native";
+import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
 import { H4, Separator, YStack, Text, Button } from "tamagui";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -14,7 +14,8 @@ import { generateTestContacts } from "@/components/crm/testContacts";
 const { width } = Dimensions.get("window");
 const PADDING = 16;
 const GAP = 16;
-const CARD_WIDTH = (width - PADDING * 2 - GAP) / 2;
+const NUM_COLUMNS = Platform.OS === 'web' ? 5 : 2;
+const CARD_WIDTH = (width - PADDING * 2 - (NUM_COLUMNS - 1) * GAP) / NUM_COLUMNS;
 
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
@@ -44,23 +45,29 @@ export default function CRM() {
     }, 300);
   };
 
-  const renderItem = ({ item, index }: { item: Person; index: number }) => (
-    <View
-      style={{
-        width: CARD_WIDTH,
-        marginLeft: index % 2 === 0 ? PADDING : GAP / 2,
-        marginRight: index % 2 === 0 ? GAP / 2 : PADDING,
-        marginBottom: GAP
-      }}
-    >
-      <PersonCard
-        person={item}
-        onEdit={handleEdit}
-        isExpanded={expandedId === item.id}
-        onPress={() => setExpandedId(expandedId === item.id ? null : item.id)}
-      />
-    </View>
-  );
+  const renderItem = ({ item, index }: { item: Person; index: number }) => {
+    // Calculate margins based on position in the grid
+    const isFirstInRow = index % NUM_COLUMNS === 0;
+    const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS - 1;
+    
+    return (
+      <View
+        style={{
+          width: CARD_WIDTH,
+          marginLeft: isFirstInRow ? PADDING : GAP / 2,
+          marginRight: isLastInRow ? PADDING : GAP / 2,
+          marginBottom: GAP
+        }}
+      >
+        <PersonCard
+          person={item}
+          onEdit={handleEdit}
+          isExpanded={expandedId === item.id}
+          onPress={() => setExpandedId(expandedId === item.id ? null : item.id)}
+        />
+      </View>
+    );
+  };
 
   return (
     <YStack flex={1} paddingTop={80}>
@@ -83,21 +90,29 @@ export default function CRM() {
           animation="quick"
           elevation={4}
           onPress={() => {
-            Alert.alert(
-              'Clear All Contacts',
-              'Are you sure you want to clear all contacts? This cannot be undone.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Clear All',
-                  style: 'destructive',
-                  onPress: () => {
-                    usePeopleStore.getState().clearContacts();
-                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            if (Platform.OS === 'web') {
+              // For web, use window.confirm instead of Alert.alert
+              if (window.confirm('Are you sure you want to clear all contacts? This cannot be undone.')) {
+                usePeopleStore.getState().clearContacts();
+              }
+            } else {
+              // For mobile, use Alert.alert
+              Alert.alert(
+                'Clear All Contacts',
+                'Are you sure you want to clear all contacts? This cannot be undone.',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  {
+                    text: 'Clear All',
+                    style: 'destructive',
+                    onPress: () => {
+                      usePeopleStore.getState().clearContacts();
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    }
                   }
-                }
-              ]
-            );
+                ]
+              );
+            }
           }}
           icon={<MaterialIcons name="clear-all" size={24} color="white" />}
         />
@@ -111,7 +126,7 @@ export default function CRM() {
         data={allContacts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        numColumns={2}
+        numColumns={NUM_COLUMNS}
         contentContainerStyle={{
           paddingBottom: 100
         }}

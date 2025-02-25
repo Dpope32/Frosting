@@ -1,7 +1,27 @@
 import React, { useCallback } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import { Sheet, Button, Text, Circle, XStack, YStack } from 'tamagui'
-import ColorPicker from 'react-native-wheel-color-picker'
+
+// Define a default empty component for ColorPicker
+const EmptyColorPicker = () => null;
+
+// Only try to import the color picker on native platforms
+// This approach prevents the bundler from even trying to resolve the package on web
+let ColorPicker: any = EmptyColorPicker;
+
+// We use this pattern to completely avoid the import on web
+// The bundler won't even try to resolve the package
+if (Platform.OS !== 'web') {
+  try {
+    // Dynamic import that will be completely ignored on web
+    const wheelPickerModule = 'react-native-wheel-color-picker';
+    // @ts-ignore - This is intentional to prevent web bundling issues
+    ColorPicker = require(wheelPickerModule).default;
+  } catch (error) {
+    console.warn('Color picker not available:', error);
+    ColorPicker = EmptyColorPicker;
+  }
+}
 
 interface ColorPickerModalProps {
   open: boolean
@@ -66,14 +86,34 @@ export function ColorPickerModal({
               Custom Color
             </Text>
             <View style={styles.pickerContainer}>
-              <ColorPicker
-                color={selectedColor}
-                onColorChange={handleColorChange}
-                thumbSize={30}
-                sliderSize={30}
-                noSnap={true}
-                row={false}
-              />
+              {Platform.OS === 'web' ? (
+                // Web-compatible color input
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                  <input
+                    type="color"
+                    value={selectedColor}
+                    onChange={(e) => handleColorChange(e.target.value)}
+                    style={{ 
+                      width: '200px', 
+                      height: '200px',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backgroundColor: 'transparent'
+                    }}
+                  />
+                </View>
+              ) : (
+                // Native color picker
+                <ColorPicker
+                  color={selectedColor}
+                  onColorChange={handleColorChange}
+                  thumbSize={30}
+                  sliderSize={30}
+                  noSnap={true}
+                  row={false}
+                />
+              )}
             </View>
           </YStack>
 

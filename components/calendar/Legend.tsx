@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Platform } from 'react-native';
 
 interface LegendProps {
   isDark: boolean;
@@ -34,26 +34,30 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingBottom: 8,
+    ...(Platform.OS === 'web' ? {
+      paddingBottom: 16,
+      marginBottom: 8,
+    } : {}),
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: Platform.OS === 'web' ? 20 : 12,
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: Platform.OS === 'web' ? 8 : 4,
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: Platform.OS === 'web' ? 10 : 6,
+    height: Platform.OS === 'web' ? 10 : 6,
+    borderRadius: Platform.OS === 'web' ? 5 : 3,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '400',
+    fontSize: Platform.OS === 'web' ? 14 : 11,
+    fontWeight: Platform.OS === 'web' ? '500' : '400',
   },
 });

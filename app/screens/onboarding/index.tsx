@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native'
 import { XStack, Button, Text, View } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
@@ -28,7 +28,6 @@ export default function Onboarding() {
   })
 
   const setPreferences = useUserStore((state) => state.setPreferences)
-  const inputRef = useRef(null)
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener('keyboardWillShow', () => {
@@ -87,7 +86,6 @@ export default function Onboarding() {
       case 0:
         return (
           <Step0
-            inputRef={inputRef}
             formData={formData}
             setFormData={setFormData}
           />
@@ -138,22 +136,24 @@ export default function Onboarding() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <View flex={1} backgroundColor="$gray1Dark">
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View flex={1}>
-            {renderStep()}
-            <View
-              position="absolute"
-              bottom={0}
-              left={0}
-              right={0}
-              padding="$4"
-              paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
-              backgroundColor="$gray1Dark"
-              style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: 'rgba(255,255,255,0.1)'}}>
-              <XStack gap="$3">
+        {Platform.OS === 'ios' || Platform.OS === 'android' ? (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View flex={1}>
+              {renderStep()}
+              <View
+                position="absolute"
+                bottom={0}
+                left={0}
+                right={0}
+                padding="$4"
+                paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
+                backgroundColor="$gray1Dark"
+                style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: 'rgba(255,255,255,0.1)'}}>
+              <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
                 {step > 0 && (
                   <Button
-                    flex={1}
+                    flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
+                    width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
                     variant="outlined"
                     onPress={handleBack}
                     backgroundColor="$gray4Dark"
@@ -162,7 +162,47 @@ export default function Onboarding() {
                   </Button>
                 )}
                 <Button
-                  flex={2}
+                  flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
+                  width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
+                  backgroundColor={formData.primaryColor}
+                  borderColor="$gray8Dark"
+                  borderWidth={1}
+                  opacity={!canProceed() ? 0.5 : 1}
+                  disabled={!canProceed()}
+                  onPress={handleNext}>
+                  <Text color="white" fontWeight="bold">
+                    {step === 4 ? 'Complete' : 'Continue'}
+                  </Text>
+                </Button>
+              </XStack>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        ) : (
+          <View flex={1}>
+            {renderStep()}
+            <View
+              position="absolute"
+              bottom={0}
+              left={0}
+              right={0}
+              padding="$4"
+              paddingBottom={24}
+              backgroundColor="$gray1Dark"
+              style={{ borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)'}}>
+              <XStack gap="$3" justifyContent="center">
+                {step > 0 && (
+                  <Button
+                    width={145}
+                    variant="outlined"
+                    onPress={handleBack}
+                    backgroundColor="$gray4Dark"
+                    borderColor="$gray8Dark">
+                    <Text color="$gray12Dark">Back</Text>
+                  </Button>
+                )}
+                <Button
+                  width={300}
                   backgroundColor={formData.primaryColor}
                   borderColor="$gray8Dark"
                   borderWidth={1}
@@ -176,7 +216,7 @@ export default function Onboarding() {
               </XStack>
             </View>
           </View>
-        </TouchableWithoutFeedback>
+        )}
       </View>
     </KeyboardAvoidingView>
   )

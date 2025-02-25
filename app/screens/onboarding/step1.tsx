@@ -1,17 +1,21 @@
 import { YStack, Text, Button, Circle, Label } from 'tamagui'
-import { Image } from 'react-native'
+import { Image, Platform } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
 import { useState } from 'react'
+import { getWallpapers } from '@/services/s3Service'
 
-const wallpapers = [
+// Local assets for native platforms
+const localWallpapers = [
   require('../../../assets/wallpapers-optimized/wallpapers-1.jpg'),
   require('../../../assets/wallpapers-optimized/wallpapers-2.jpg'),
   require('../../../assets/wallpapers-optimized/wallpapers-3.jpg'),
   require('../../../assets/wallpapers-optimized/wallpapers-4.jpg'),
   require('../../../assets/wallpapers-optimized/wallpapers-5.jpg'),
-  require('../../../assets/wallpapers-optimized/wallpapers.jpg'),
 ]
+
+// S3 wallpapers for web platform
+const s3Wallpapers = getWallpapers()
 
 export default function Step1({
   formData,
@@ -73,8 +77,19 @@ export default function Step1({
         <Button
           chromeless
           onPress={() => {
-            const randomWallpaper = wallpapers[Math.floor(Math.random() * wallpapers.length)]
-            const wallpaperUri = Image.resolveAssetSource(randomWallpaper).uri
+            let wallpaperUri = '';
+            
+            // Use different approach based on platform
+            if (Platform.OS === 'ios' || Platform.OS === 'android') {
+              // For native platforms, use local assets
+              const randomLocalWallpaper = localWallpapers[Math.floor(Math.random() * localWallpapers.length)]
+              wallpaperUri = Image.resolveAssetSource(randomLocalWallpaper).uri
+            } else {
+              // For web platform, use S3 wallpapers
+              const randomS3Wallpaper = s3Wallpapers[Math.floor(Math.random() * s3Wallpapers.length)]
+              wallpaperUri = randomS3Wallpaper.uri
+            }
+            
             setFormData((prev) => ({
               ...prev,
               profilePicture: wallpaperUri

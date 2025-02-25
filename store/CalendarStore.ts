@@ -84,6 +84,11 @@ export const useCalendarStore = create<CalendarState>()(
       clearAllEvents: () => set({ events: [] }),
 
       scheduleNotification: async (date, title, body, identifier) => {
+        // Skip notification scheduling on web platforms
+        if (Platform.OS === 'web') {
+          return identifier || 'web-notification-not-supported';
+        }
+        
         try {
           const { status } = await Notifications.getPermissionsAsync()
           if (status !== 'granted') {

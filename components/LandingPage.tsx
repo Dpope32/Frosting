@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { View, useWindowDimensions, Image, Pressable, Platform } from 'react-native'
 import { BlurView } from 'expo-blur'
-import MyTracker from '@splicer97/react-native-mytracker'
+// Import MyTracker dynamically to prevent web bundling issues
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -29,7 +29,24 @@ type ProjectState = {
 
 export function LandingPage() {
   useEffect(() => {
-    MyTracker.initTracker('initTracker')
+    // Only initialize MyTracker on non-web platforms
+    if (Platform.OS !== 'web') {
+      try {
+        // Dynamically import MyTracker to prevent web bundling issues
+        const importMyTracker = async () => {
+          try {
+            const MyTrackerModule = await import('@splicer97/react-native-mytracker');
+            MyTrackerModule.default.initTracker('initTracker');
+          } catch (error) {
+            console.warn('Error importing or initializing MyTracker:', error);
+          }
+        };
+        
+        importMyTracker();
+      } catch (error) {
+        console.warn('Error in MyTracker setup:', error);
+      }
+    }
   }, [])
 
 const username = useUserStore(s => s.preferences.username)
@@ -118,11 +135,6 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
 
-  const completedTasksCount = React.useMemo(() => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    return todaysTasks.filter((t: Task) => t.completionHistory[currentDate]).length;
-  }, [todaysTasks])
-
   const background = React.useMemo(() => {
     switch (backgroundStyle) {
       case 'gradient': {
@@ -160,7 +172,7 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 loadingIndicatorSource={wallpaper}
               />
               <BlurView
-                intensity={10}
+                intensity={30}
                 tint="dark"
                 style={{ position: 'absolute', width: '100%', height: '100%' }}
               />
@@ -176,12 +188,15 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
   const translateY = useSharedValue(0)
 
   useEffect(() => {
-    const animationConfig = { duration: 60000 }
-    translateX.value = withRepeat(withTiming(-screenWidth, animationConfig), -1, false)
-    translateY.value = withRepeat(withTiming(-screenHeight / 2, animationConfig), -1, false)
-    return () => {
-      translateX.value = 0
-      translateY.value = 0
+    // Only run this animation for native platforms
+    if (Platform.OS !== 'web') {
+      const animationConfig = { duration: 60000 }
+      translateX.value = withRepeat(withTiming(-screenWidth, animationConfig), -1, false)
+      translateY.value = withRepeat(withTiming(-screenHeight / 2, animationConfig), -1, false)
+      return () => {
+        translateX.value = 0
+        translateY.value = 0
+      }
     }
   }, [])
 
@@ -189,44 +204,168 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
     transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
   }))
 
-  const stars = React.useMemo(() => (
-    <Animated.View
-      pointerEvents="none"
-      style={[
-        { position: 'absolute', width: screenWidth * 2, height: screenHeight * 2, zIndex: 1 },
-        starsAnimatedStyle,
-      ]}
-    >
-      {[...Array(100)].map((_, i) => (
-        <View
-          key={i}
-          style={{
-            position: 'absolute',
-            width: i % 3 === 0 ? 3 : 2,
-            height: i % 3 === 0 ? 3 : 2,
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            borderRadius: 1,
-            left: Math.random() * screenWidth * 2,
-            top: Math.random() * screenHeight * 2,
-          }}
-        />
-      ))}
-    </Animated.View>
-  ), [screenWidth, screenHeight, starsAnimatedStyle])
+  const stars = React.useMemo(() => {
+    // Enhanced animated stars for web using CSS animations
+    if (Platform.OS === 'web') {
+      // Create multiple layers of stars with different animation speeds
+      return (
+        <>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              zIndex: 1,
+              overflow: 'hidden'
+            }}
+          >
+            {/* Layer 1 - Slow moving stars */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '200%',
+                height: '200%',
+                animation: 'moveStarsSlow 120s linear infinite',
+                left: '-50%',
+                top: '-50%'
+              }}
+            >
+              {[...Array(30)].map((_, i) => (
+                <div
+                  key={`slow-${i}`}
+                  style={{
+                    position: 'absolute',
+                    width: i % 5 === 0 ? '3px' : '2px',
+                    height: i % 5 === 0 ? '3px' : '2px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                    borderRadius: '50%',
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    boxShadow: i % 5 === 0 ? '0 0 3px 1px rgba(255, 255, 255, 0.3)' : 'none'
+                  }}
+                />
+              ))}
+            </div>
+            
+            {/* Layer 2 - Medium moving stars */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '200%',
+                height: '200%',
+                animation: 'moveStarsMedium 80s linear infinite',
+                left: '-50%',
+                top: '-50%'
+              }}
+            >
+              {[...Array(40)].map((_, i) => (
+                <div
+                  key={`medium-${i}`}
+                  style={{
+                    position: 'absolute',
+                    width: i % 7 === 0 ? '2px' : '1px',
+                    height: i % 7 === 0 ? '2px' : '1px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    borderRadius: '50%',
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    boxShadow: i % 10 === 0 ? '0 0 2px 1px rgba(255, 255, 255, 0.2)' : 'none'
+                  }}
+                />
+              ))}
+            </div>
+            
+            {/* Layer 3 - Fast twinkling stars */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%'
+              }}
+            >
+              {[...Array(25)].map((_, i) => (
+                <div
+                  key={`twinkle-${i}`}
+                  style={{
+                    position: 'absolute',
+                    width: '1px',
+                    height: '1px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '50%',
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    animation: `twinkle ${3 + Math.random() * 5}s ease-in-out infinite`,
+                    animationDelay: `${Math.random() * 5}s`
+                  }}
+                />
+              ))}
+            </div>
+          </View>
+          
+          {/* CSS Animations */}
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes moveStarsSlow {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(-25%, -25%); }
+            }
+            
+            @keyframes moveStarsMedium {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(-50%, -25%); }
+            }
+            
+            @keyframes twinkle {
+              0%, 100% { opacity: 0.2; }
+              50% { opacity: 1; box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.5); }
+            }
+          `}} />
+        </>
+      );
+    }
+    
+    // For native platforms, use the existing animation
+    return (
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          { position: 'absolute', width: screenWidth * 2, height: screenHeight * 2, zIndex: 1 },
+          starsAnimatedStyle,
+        ]}
+      >
+        {[...Array(100)].map((_, i) => (
+          <View
+            key={i}
+            style={{
+              position: 'absolute',
+              width: i % 3 === 0 ? 3 : 2,
+              height: i % 3 === 0 ? 3 : 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.3)',
+              borderRadius: 1,
+              left: Math.random() * screenWidth * 2,
+              top: Math.random() * screenHeight * 2,
+            }}
+          />
+        ))}
+      </Animated.View>
+    );
+  }, [screenWidth, screenHeight, starsAnimatedStyle])
 
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
       <ScrollView flex={1} paddingHorizontal="$3" contentContainerStyle={{ paddingBottom: 100 }}>
-        <YStack paddingTop={100} gap="$2">
+        <YStack paddingTop={80} gap="$2">
           <Stack
             backgroundColor="rgba(0, 0, 0, 0.85)"
             borderRadius={12}
             padding="$4"
             borderColor="rgba(255, 255, 255, 0.05)"
             borderWidth={2}
-            style={{
+            style={Platform.OS === 'web' ? {
+              boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)'
+            } : {
               shadowColor: "rgba(255, 255, 255, 0.05)",
               shadowOffset: { width: 0, height: 0 },
               shadowOpacity: 0.3,
@@ -270,11 +409,11 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 <WifiCard />
               </Pressable>
             </XStack>
-            {Boolean(quoteEnabled) && (
+            {Boolean(quoteEnabled) && 
               <Stack marginTop="$4">
                 <QuoteSection />
               </Stack>
-            )}
+            }
           </Stack>
 
           <Stack
@@ -285,7 +424,9 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
             borderWidth={2.5}
             borderColor="rgba(255, 255, 255, 0.15)"
             minHeight={300}
-            style={{
+            style={Platform.OS === 'web' ? {
+              boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)'
+            } : {
               shadowColor: "rgba(255, 255, 255, 0.05)",
               shadowOffset: { width: 0, height: 0 },
               shadowOpacity: 0.3,
@@ -322,23 +463,47 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                   </Text>
                 </XStack>
               ) : (
-                todaysTasks.map((task: Task) => (
-                  <TaskCard
-                    key={task.id}
-                    title={task.name}
-                    time={task.time}
-                    category={task.category}
-                    status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                    categoryColor={getCategoryColor(task.category)}
-                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
-                    onCheck={() => toggleTaskCompletion(task.id)}
-                    onDelete={() => deleteTask(task.id)}
-                  />
-                ))
+                <XStack 
+                  flexWrap="wrap" 
+                  gap="$2"
+                  style={{
+                    ...(Platform.OS === 'web' ? {
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                      gap: '12px'
+                    } : {})
+                  }}
+                >
+                  {todaysTasks.map((task: Task) => (
+                    <TaskCard
+                      key={task.id}
+                      title={task.name}
+                      time={task.time}
+                      category={task.category}
+                      priority={task.priority}
+                      status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
+                      categoryColor={getCategoryColor(task.category)}
+                      checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
+                      onCheck={() => toggleTaskCompletion(task.id)}
+                      onDelete={() => deleteTask(task.id)}
+                    />
+                  ))}
+                </XStack>
               )}
               <Pressable
                 onPress={() => setTaskListModalOpen(true)}
-                style={{
+                style={Platform.OS === 'web' ? {
+                  position: 'absolute',
+                  bottom: -55,
+                  left: -0,
+                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 17,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0px 0px 4px rgba(219, 208, 198, 0.2)'
+                } : {
                   position: 'absolute',
                   bottom: -55,
                   left: -0,
@@ -367,7 +532,18 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
               </Pressable>
               <Pressable
                 onPress={handleNewTaskPress}
-                style={{
+                style={Platform.OS === 'web' ? {
+                  position: 'absolute',
+                  bottom: -55,
+                  right: -0,
+                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 17,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: '0px 0px 4px rgba(219, 208, 198, 0.2)'
+                } : {
                   position: 'absolute',
                   bottom: -55,
                   right: -0,

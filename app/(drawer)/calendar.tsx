@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Modal, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView, Modal, TextInput, Alert, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore';
@@ -65,18 +65,19 @@ export default function CalendarScreen() {
     setMonths(arr);
   }, []);
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (scrollViewRef.current) {
-        const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-        const approximateRow = Math.floor((now.getDate() + startOfMonth) / 7);
-        const approximateCellHeight = 50;
-        const offset = approximateRow * approximateCellHeight;
-        scrollViewRef.current.scrollTo({ y: offset, animated: false });
-      }
-    }, 300);
-  }, [months]);
+  // Auto-scroll to current date removed as per user request
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     if (scrollViewRef.current) {
+  //       const now = new Date();
+  //       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  //       const approximateRow = Math.floor((now.getDate() + startOfMonth) / 7);
+  //       const approximateCellHeight = 50;
+  //       const offset = approximateRow * approximateCellHeight;
+  //       scrollViewRef.current.scrollTo({ y: offset, animated: false });
+  //     }
+  //   }, 300);
+  // }, [months]);
 
   const handleDayPress = (date: Date) => {
     setSelectedDate(date);
@@ -116,7 +117,9 @@ export default function CalendarScreen() {
       setNewEventTitle('');
       setNewEventDescription('');
       setEditingEvent(null);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     }
   };
 
@@ -138,7 +141,9 @@ export default function CalendarScreen() {
     } else {
       setSelectedEvents(selectedEvents.filter((event) => event.id !== eventId));
     }
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
   };
 
   const generateBillEvents = (billName: string, dueDate: number) => {
@@ -165,16 +170,32 @@ export default function CalendarScreen() {
     <View style={styles.container}>
       <Legend isDark={isDark} />
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
-        {months.map((date, index) => (
-          <Month
-            key={index}
-            date={date}
-            events={events}
-            onDayPress={handleDayPress}
-            isDark={isDark}
-            primaryColor={primaryColor}
-          />
-        ))}
+        {Platform.OS === 'web' ? (
+          <View style={styles.webMonthsContainer}>
+            {months.map((date, index) => (
+              <View key={index} style={styles.webMonthWrapper}>
+                <Month
+                  date={date}
+                  events={events}
+                  onDayPress={handleDayPress}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                />
+              </View>
+            ))}
+          </View>
+        ) : (
+          months.map((date, index) => (
+            <Month
+              key={index}
+              date={date}
+              events={events}
+              onDayPress={handleDayPress}
+              isDark={isDark}
+              primaryColor={primaryColor}
+            />
+          ))
+        )}
       </ScrollView>
       <Modal
         visible={isViewEventModalVisible}
@@ -447,7 +468,9 @@ export default function CalendarScreen() {
                 vaultStorage.set('vault-data', JSON.stringify(newVaultData));
 
                 showToast('Added test events, bills, and vault entries', 'success');
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                if (Platform.OS !== 'web') {
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                }
               }}
             >
               <FontAwesome5 name="database" size={20} color="white" />
@@ -469,7 +492,9 @@ export default function CalendarScreen() {
                         // Clear vault entries
                         vaultStorage.set('vault-data', JSON.stringify(VAULT_DATA));
                         showToast('Cleared all events, bills, and vault entries', 'success');
-                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                        if (Platform.OS !== 'web') {
+                          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                        }
                       }
                     }
                   ]
@@ -512,7 +537,7 @@ export default function CalendarScreen() {
                     </Text>
                   </View>
                   {Object.entries(debugData.eventsByType).map(([type, count]) => (
-                    <View style={styles.debugRow} key={type}>
+                    <View style={styles.debugRow} key={type}>   
                       <Text style={[styles.debugKey, { color: isDark ? '#ffffff' : '#000000' }]}>
                         {type}:
                       </Text>
@@ -560,6 +585,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 100,
+    ...(Platform.OS === 'web' ? {
+      paddingTop: 80, // Reduced padding for web
+      maxWidth: 1800, // Increased from 1200 to 1800 for better use of screen space
+      marginLeft: 'auto',
+      marginRight: 'auto',
+      paddingHorizontal: 0, // No horizontal padding to maximize space
+    } as any : {}),
+  },
+  webMonthsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    padding: 0,
+  },
+  webMonthWrapper: {
+    width: '33%', // Display 3 months per row
+    padding: 0, // No padding
+    margin: 1, // Minimal margin for spacing
   },
   debugButton: {
     width: 48,

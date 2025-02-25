@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useCallback } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
@@ -32,8 +32,10 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({});
 
-  // Add this line
-  useNotifications();
+  // Only use notifications on non-web platforms
+  if (Platform.OS !== 'web') {
+    useNotifications();
+  }
 
   useEffect(() => {
     if (loaded) {

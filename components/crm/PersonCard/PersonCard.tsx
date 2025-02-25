@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
   Card,
   Image,
@@ -16,12 +16,14 @@ import {
   ViewStyle,
   Linking,
   Alert,
-  useColorScheme
+  useColorScheme,
+  Platform
 } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Ionicons } from "@expo/vector-icons";
 import type { Person } from "@/types/people";
 import { styles } from "./styles";
+import { webStyles } from "./webStyles";
 
 const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, '');
@@ -85,6 +87,11 @@ export function PersonCard({
     onEdit(person);
   }, [onEdit, person]);
 
+  // Apply web-specific styles conditionally
+  const applyWebStyle = (styleKey: keyof typeof webStyles) => {
+    return Platform.OS === 'web' ? webStyles[styleKey] as any : {};
+  };
+
   return (
     <Theme name="dark">
       <View style={[styles.container, containerStyle]}>
@@ -99,46 +106,47 @@ export function PersonCard({
             {
               borderColor: nicknameColor,
               backgroundColor: isDark ? "rgba(40,40,40,0.85)" : "rgba(200,200,200,0.95)"
-            }
-          ]}
+            },
+            applyWebStyle('card')
+          ] as any}
         >
-          <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable}>
-            <XStack alignItems="center" gap="$3" style={styles.cardContent}>
-              <View style={styles.avatarContainer}>
-                <View style={styles.avatarWrapper}>
+          <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable as any}>
+            <XStack alignItems="center" gap="$3" style={styles.cardContent as any}>
+              <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
+                <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
                   <Image
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/80"
                     }}
-                    width={40}
-                    height={40}
-                    borderRadius={20}
-                    style={styles.avatarImage}
+                    width={Platform.OS === 'web' ? 60 : 40}
+                    height={Platform.OS === 'web' ? 60 : 40}
+                    borderRadius={Platform.OS === 'web' ? 30 : 20}
+                    style={styles.avatarImage as any}
                   />
                 </View>
                 {person.priority && (
-                  <View style={styles.starIndicator}>
+                  <View style={styles.starIndicator as any}>
                     <Ionicons name="star" size={12} color="#FFD700" />
                   </View>
                 )}
               </View>
-              <View style={styles.textContainer}>
+              <View style={styles.textContainer as any}>
                 <XStack alignItems="center" gap="$2">
                   {person.registered && (
                     <Ionicons
                       name="checkmark-circle"
                       size={14}
                       color="#4CAF50"
-                      style={styles.checkmark}
+                      style={styles.checkmark as any}
                     />
                   )}
                   <Paragraph
                     fontWeight="500"
                     fontSize={15}
                     color={nicknameColor}
-                    numberOfLines={1}
+                    numberOfLines={Platform.OS === 'web' ? 2 : 1}
                     ellipsizeMode="tail"
-                    style={styles.nameText}
+                    style={[styles.nameText, applyWebStyle('nameText')] as any}
                   >
                     {person.nickname || person.name}
                   </Paragraph>
@@ -146,9 +154,9 @@ export function PersonCard({
                 <Paragraph
                   fontSize={12}
                   color={isDark ? "#999" : "#666"}
-                  numberOfLines={1}
+                  numberOfLines={Platform.OS === 'web' ? 2 : 1}
                   ellipsizeMode="tail"
-                  style={styles.occupationText}
+                  style={[styles.occupationText, applyWebStyle('occupationText')] as any}
                 >
                   {person.occupation}
                 </Paragraph>
@@ -169,13 +177,13 @@ export function PersonCard({
           animation="quick"
           zIndex={100000}
         >
-          <Sheet.Overlay animation="quick" style={styles.overlay} />
-          <Sheet.Frame style={styles.modalContainer}>
+          <Sheet.Overlay animation="quick" style={styles.overlay as any} />
+          <Sheet.Frame style={[styles.modalContainer, applyWebStyle('modalContainer')] as any}>
             <Sheet.Handle />
-            <View style={[styles.modalContent, { zIndex: 1 }]}>
-              <View style={styles.modalHeaderIcons}>
+            <View style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
+              <View style={styles.modalHeaderIcons as any}>
                 <TouchableOpacity
-                  style={styles.shareIcon}
+                  style={styles.shareIcon as any}
                   onPress={() => {
                     const shareData = btoa(JSON.stringify(person));
                     const shareUrl = `frosting://share?data=${shareData}`;
@@ -186,32 +194,32 @@ export function PersonCard({
                   <Ionicons name="share-outline" size={24} color="#fff" />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.closeIcon}
+                  style={styles.closeIcon as any}
                   onPress={() => onPress?.()}
                 >
                   <Ionicons name="close-outline" size={24} color="#fff" />
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.headerRow}>
-                <View style={[styles.modalAvatarContainer]}>
+              <View style={[styles.headerRow, applyWebStyle('headerRow')] as any}>
+                <View style={[styles.modalAvatarContainer] as any}>
                   <Image
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/200"
                     }}
-                    style={styles.modalAvatar}
+                    style={[styles.modalAvatar, applyWebStyle('modalAvatar')] as any}
                     objectFit="cover"
                   />
                   {person.priority && (
-                    <View style={styles.modalStarIndicator}>
+                    <View style={styles.modalStarIndicator as any}>
                       <Ionicons name="star" size={16} color="#FFD700"/>
                     </View>
                   )}
                 </View>
-                <View style={styles.nameColumn}>
+                <View style={styles.nameColumn as any}>
                   <Paragraph
                     color={nicknameColor}
-                    style={styles.modalNameText}
+                    style={styles.modalNameText as any}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
@@ -228,9 +236,9 @@ export function PersonCard({
                 </View>
               </View>
 
-              <XStack style={styles.pillRow}>
+              <XStack style={styles.pillRow as any}>
                 {person.birthday && (
-                  <View style={styles.statusPill}>
+                  <View style={styles.statusPill as any}>
                     <XStack alignItems="center" gap="$1">
                       <Paragraph fontSize={12} color="#666">Notification:</Paragraph>
                       <Paragraph fontSize={12} color="#4CAF50">Scheduled</Paragraph>
@@ -238,7 +246,7 @@ export function PersonCard({
                   </View>
                 )}
                 {person.priority && person.birthday && (
-                  <View style={[styles.statusPill, styles.reminderPill]}>
+                  <View style={[styles.statusPill, styles.reminderPill] as any}>
                     <XStack alignItems="center" gap="$1">
                       <Paragraph fontSize={12} color="#666">Reminder:</Paragraph>
                       <Paragraph fontSize={12} color="#FFD700">Scheduled</Paragraph>
@@ -247,7 +255,7 @@ export function PersonCard({
                 )}
               </XStack>
 
-              <YStack style={styles.infoSection}>
+              <YStack style={styles.infoSection as any}>
                 {person.birthday && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="gift-outline" size={22} color={nicknameColor} />
@@ -290,49 +298,49 @@ export function PersonCard({
               </YStack>
             </View>
 
-            <View style={styles.actionBar}>
+            <View style={[styles.actionBar, applyWebStyle('actionBar')] as any}>
               {person.phoneNumber && (
                 <>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
-                    style={styles.actionButton}
+                    style={styles.actionButton as any}
                   >
                     <Ionicons name="chatbubble-outline" size={24} color="#fff" />
-                    <Paragraph style={styles.actionText}>Text</Paragraph>
+                    <Paragraph style={styles.actionText as any}>Text</Paragraph>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
-                    style={styles.actionButton}
+                    style={styles.actionButton as any}
                   >
                     <Ionicons name="call-outline" size={24} color="#fff" />
-                    <Paragraph style={styles.actionText}>Call</Paragraph>
+                    <Paragraph style={styles.actionText as any}>Call</Paragraph>
                   </TouchableOpacity>
                 </>
               )}
               {person.email && (
                 <TouchableOpacity
                   onPress={() => Linking.openURL(`mailto:${person.email}`)}
-                  style={styles.actionButton}
+                  style={styles.actionButton as any}
                 >
                   <Ionicons name="mail-outline" size={24} color="#fff" />
-                  <Paragraph style={styles.actionText}>eMail</Paragraph>
+                  <Paragraph style={styles.actionText as any}>eMail</Paragraph>
                 </TouchableOpacity>
               )}
               {fullAddress && (
                 <TouchableOpacity
                   onPress={() => Clipboard.setStringAsync(fullAddress)}
-                  style={styles.actionButton}
+                  style={styles.actionButton as any}
                 >
                   <Ionicons name="copy-outline" size={24} color="#fff" />
-                  <Paragraph style={styles.actionText}>Copy</Paragraph>
+                  <Paragraph style={styles.actionText as any}>Copy</Paragraph>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
                 onPress={handleEditPress}
-                style={[styles.actionButton, { zIndex: 9999 }]}
+                style={[styles.actionButton, { zIndex: 9999 }] as any}
               >
                 <Ionicons name="pencil-outline" size={24} color="#fff" />
-                <Paragraph style={styles.actionText}>Edit</Paragraph>
+                <Paragraph style={styles.actionText as any}>Edit</Paragraph>
               </TouchableOpacity>
             </View>
           </Sheet.Frame>

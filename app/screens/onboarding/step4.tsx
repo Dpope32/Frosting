@@ -1,6 +1,6 @@
 import { YStack, Input, Label, Text, Button } from 'tamagui'
 import { FormData } from '@/types'
-import { Alert } from 'react-native'
+import { Alert, Platform, View } from 'react-native'
 
 export default function Step4({
   formData,
@@ -11,24 +11,24 @@ export default function Step4({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
 }) {
+  const isWeb = Platform.OS === 'web';
+
   return (
-    <YStack gap="$6" flex={1} justifyContent="center" padding="$8">
-      <YStack gap="$2">
+    <YStack flex={1} justifyContent="center" alignItems="center">
+
+      <YStack alignItems="center" gap="$2" marginBottom="$6">
         <Label
-          size="$9"
+          size="$8"
           textAlign="center"
           color="$gray12Dark"
-          letterSpacing={-1}
-          fontWeight="700"
         >
           What's your zip?
         </Label>
         <Text
-          fontSize="$4"
+          fontSize="$3"
           textAlign="center"
           color="$gray9Dark"
           opacity={0.8}
-          marginTop={-20}
           fontWeight="400"
           fontStyle="italic"
         >
@@ -36,57 +36,74 @@ export default function Step4({
         </Text>
       </YStack>
 
-      <Input
-        size="$5"
-        placeholder="Enter zip code"
-        value={formData.zipCode}
-        onChangeText={(text) => setFormData((prev) => ({ ...prev, zipCode: text }))}
-        keyboardType="numeric"
-        maxLength={5}
-        autoFocus
-        backgroundColor="$gray2Dark"
-        borderColor="$gray8Dark"
-        color="$gray12Dark"
-        placeholderTextColor="$gray8Dark"
-        textAlign="center"
-        letterSpacing={1}
-        borderWidth={1.25}
-        fontSize={24}
-        shadowColor="$gray8Dark"
-        shadowRadius={20}
-        shadowOpacity={0.2}
-        focusStyle={{
-          borderColor: '$gray8Dark',
-          scale: 1.02,
-        }}
-      />
+      <YStack alignItems="center" width="100%" padding="$4">
+        <Input
+          size="$5"
+          placeholder="Enter zip code"
+          value={formData.zipCode}
+          onChangeText={(text) => setFormData((prev) => ({ ...prev, zipCode: text }))}
+          keyboardType="numeric"
+          maxLength={5}
+          autoFocus
+          backgroundColor="$gray2Dark"
+          borderColor="$gray8Dark"
+          color="$gray12Dark"
+          placeholderTextColor="$gray8Dark"
+          textAlign="center"
+          letterSpacing={1}
+          borderWidth={1.25}
+          fontSize={24}
+          shadowColor="$gray8Dark"
+          shadowRadius={20}
+          shadowOpacity={0.2}
+          focusStyle={{
+            borderColor: '$gray8Dark',
+            scale: 1.02,
+          }}
+          // Constrain width on web
+          width={isWeb ? 300 : "90%"}
+          maxWidth={500}
+        />
+      </YStack>
       
-      <Button
-        chromeless
-        onPress={() => {
-          Alert.alert(
-            "Skip Zip Code?",
-            "Weather data won't be accurate for your location. Continue anyway?",
-            [
-              {
-                text: "No",
-                style: "cancel"
-              },
-              {
-                text: "Yes",
-                onPress: () => {
-                  // Set Dallas, TX zip code as default
-                  setFormData(prev => ({ ...prev, zipCode: "75201" }))
-                  handleNext()
-                }
+      <YStack alignItems="center" marginTop="$2">
+        <Button
+          chromeless
+          onPress={() => {
+            if (Platform.OS === 'ios' || Platform.OS === 'android') {
+              // Use React Native Alert on native platforms
+              Alert.alert(
+                "Skip Zip Code?",
+                "Weather data won't be accurate for your location. Continue anyway?",
+                [
+                  {
+                    text: "No",
+                    style: "cancel"
+                  },
+                  {
+                    text: "Yes",
+                    onPress: () => {
+                      // Set Dallas, TX zip code as default
+                      setFormData(prev => ({ ...prev, zipCode: "75201" }))
+                      handleNext()
+                    }
+                  }
+                ]
+              )
+            } else {
+              // Use browser confirm on web
+              if (window.confirm("Weather data won't be accurate for your location. Continue anyway?")) {
+                // Set Dallas, TX zip code as default
+                setFormData(prev => ({ ...prev, zipCode: "75201" }))
+                handleNext()
               }
-            ]
-          )
-        }}
-        color="$blue10Dark"
-      >
-        Skip for now
-      </Button>
+            }
+          }}
+          color="$blue10Dark"
+        >
+          Or skip for now
+        </Button>
+      </YStack>
     </YStack>
   )
 }

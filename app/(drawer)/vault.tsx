@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ScrollView, Alert, ActivityIndicator, useColorScheme } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, Alert, ActivityIndicator, useColorScheme, Platform } from 'react-native';
 import { YStack, Text, XStack, Button } from 'tamagui';
 import { useVault } from '@/hooks/useVault';
 import { BlurView } from 'expo-blur';
@@ -70,40 +70,151 @@ export default function VaultScreen() {
     );
   }
 
+  const isWeb = Platform.OS === 'web';
+  
+  // Get window width for responsive layout on web
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  
+  // Update window width on resize for web
+  useEffect(() => {
+    if (!isWeb) return;
+    
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isWeb]);
+  
+  // Calculate number of columns based on screen width
+  const getColumnCount = () => {
+    if (windowWidth < 768) return 1;
+    if (windowWidth < 1024) return 2;
+    if (windowWidth < 1280) return 3;
+    if (windowWidth < 1600) return 4;
+    return 5;
+  };
+  
+  const columnCount = getColumnCount();
+  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 16 / columnCount}px)`;
+
   return (
     <YStack f={1} mt={90} bg={isDark ? "#000000" : "#ffffff"}>
       <ScrollView 
         contentContainerStyle={{ 
-          padding: 8,
-          paddingBottom: 100
+          padding: isWeb ? 16 : 8,
+          paddingBottom: 100,
+          display: isWeb ? 'flex' : undefined,
+          flexDirection: isWeb ? 'row' : undefined,
+          flexWrap: isWeb ? 'wrap' : undefined,
+          justifyContent: isWeb ? 'flex-start' : undefined,
+          gap: isWeb ? 16 : undefined,
+          maxWidth: isWeb ? 1800 : undefined,
+          marginHorizontal: isWeb ? 'auto' : undefined
         }}
       >
-        <YStack gap="$2">
-          {data?.items.length === 0 ? (
-            <XStack 
-              bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-              p="$6" 
-              borderRadius="$4" 
-              ai="center" 
-              jc="center"
-              borderWidth={1}
-              borderColor={isDark ? "#333" : "#e0e0e0"}
-            >
-              <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center">No entries in vault</Text>
-            </XStack>
-          ) : (
+        {data?.items.length === 0 ? (
+          <XStack 
+            bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+            p="$6" 
+            borderRadius="$4" 
+            ai="center" 
+            jc="center"
+            borderWidth={1}
+            borderColor={isDark ? "#333" : "#e0e0e0"}
+            width="100%"
+          >
+            <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center">No entries in vault</Text>
+          </XStack>
+        ) : (
+          Platform.OS === 'web' ? (
             data?.items.map((cred: VaultEntry) => (
               <XStack 
                 key={cred.id}
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                p="$1"
+                p="$3"
                 paddingHorizontal="$5"
                 borderRadius="$4"
                 borderWidth={1}
                 borderColor={isDark ? "#333" : "#e0e0e0"}
                 ai="center"
                 animation="quick"
+                width={columnWidth}
+                minWidth={240}
+                maxWidth={400}
+                height={180}
+                hoverStyle={isWeb ? { 
+                  transform: [{ scale: 1.02 }],
+                  borderColor: primaryColor,
+                  shadowColor: primaryColor,
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 8
+                } : undefined}
               >
+                <YStack flex={1}>
+                  <XStack jc="space-between" mt="$1" ai="center">
+                    <Text color={isDark ? "#fff" : "#333"} mb="$2" fontSize="$5" fontWeight="bold">
+                      {cred.name}
+                    </Text>
+                    <Button
+                      size="$3"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      onPress={() => handleDelete(cred.id)}
+                      icon={<X size={18} color="#ff4444" />}
+                    />
+                  </XStack>
+                  
+                  <XStack ai="center" gap="$2" mb="$2">
+                    <Text color={isDark ? "#666" : "#666"} fontSize="$3" w={80}>Username:</Text>
+                    <Text color={isDark ? "#fff" : "#000"} fontSize="$3" flex={1}>{cred.username}</Text>
+                    <Button
+                      size="$3"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      hoverStyle={isWeb ? { bg: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' } : undefined}
+                      onPress={() => {
+                        navigator.clipboard?.writeText?.(cred.username);
+                        showToast('Username copied', 'success');
+                      }}
+                      icon={<Copy size={18} color={isDark ? "#666" : "#999"} />}
+                    />
+                  </XStack>
+                  
+                  <XStack ai="center" gap="$2">
+                    <Text color={isDark ? "#666" : "#666"} fontSize="$3" w={80}>Password:</Text>
+                    <Text color={isDark ? "#fff" : "#000"} fontSize="$3" flex={1}>{cred.password}</Text>
+                    <Button
+                      size="$3"
+                      bg="transparent"
+                      pressStyle={{ scale: 0.9 }}
+                      hoverStyle={isWeb ? { bg: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' } : undefined}
+                      onPress={() => {
+                        navigator.clipboard?.writeText?.(cred.password);
+                        showToast('Password copied', 'success');
+                      }}
+                      icon={<Copy size={18} color={isDark ? "#666" : "#999"} />}
+                    />
+                  </XStack>
+                </YStack>
+              </XStack>
+            ))
+          ) : (
+            <YStack gap="$2" width="100%">
+              {data?.items.map((cred: VaultEntry) => (
+                <XStack 
+                  key={cred.id}
+                  bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+                  p="$1"
+                  paddingHorizontal="$5"
+                  borderRadius="$4"
+                  borderWidth={1}
+                  borderColor={isDark ? "#333" : "#e0e0e0"}
+                  ai="center"
+                  animation="quick"
+                >
                 <YStack flex={1}>
                   <XStack jc="space-between" mt="$1" ai="center">
                     <Text color={isDark ? "#fff" : "#333"} mb={-12} fontSize="$4" fontWeight="bold">
@@ -141,11 +252,12 @@ export default function VaultScreen() {
                       icon={<Copy size={18} color={isDark ? "#666" : "#999"} />}
                     />
                   </XStack>
-                </YStack>
-              </XStack>
-            ))
-          )}
-        </YStack>
+                  </YStack>
+                </XStack>
+              ))}
+            </YStack>
+          )
+        )}
       </ScrollView>
 
       <Button

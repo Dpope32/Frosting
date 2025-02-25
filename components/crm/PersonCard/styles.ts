@@ -1,9 +1,36 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform, ViewStyle } from "react-native";
 
+// Web-specific styles as a separate object
+const webSpecificStyles = Platform.OS === 'web' ? {
+  card: {
+    // @ts-ignore - Web-specific CSS properties
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    transition: 'all 0.2s ease',
+  },
+  avatarWrapper: {
+    // @ts-ignore - Web-specific CSS properties
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+  },
+  modalContainer: {
+    width: 450,
+    maxWidth: '90%',
+    maxHeight: '80vh',
+  },
+  modalAvatar: {
+    // @ts-ignore - Web-specific CSS properties
+    objectFit: 'cover',
+  },
+} : {};
+
+// Create the styles with platform-specific overrides
 export const styles = StyleSheet.create({
   container: {
-    marginVertical: 4,
-    marginHorizontal: 2
+    marginVertical: Platform.OS === 'web' ? 6 : 4,
+    marginHorizontal: Platform.OS === 'web' ? 4 : 2,
+    ...(Platform.OS === 'web' ? { 
+      maxWidth: '100%' as any, // Changed back to 100% since we're handling columns in the parent component
+      minWidth: '220px' as any, // Increased from 200px to 220px to make cards wider
+    } : {}),
   },
   statusPill: {
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -18,56 +45,90 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)'
   },
   card: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
     borderWidth: 2,
-    shadowRadius: 3.84,
-    elevation: 5,
-    padding: 8
+    padding: Platform.OS === 'web' ? 12 : 8,
+    borderRadius: 8,
+    ...(Platform.OS === 'web' ? webSpecificStyles.card : {
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    }),
   },
   cardContent: {
-    minHeight: 50
+    minHeight: Platform.OS === 'web' ? 60 : 50,
+    ...(Platform.OS === 'web' ? {
+      flexDirection: 'row',
+      alignItems: 'center',
+    } : {}),
   },
   textContainer: {
     flex: 1,
-    height: 40,
+    height: Platform.OS === 'web' ? 'auto' as any : 40,
     justifyContent: 'center',
-    marginLeft: 8
+    marginLeft: Platform.OS === 'web' ? 12 : 8,
   },
   nameText: {
     flexShrink: 1,
     marginRight: 0,
-    lineHeight: 20,
-    marginTop: -1,
-    marginLeft: -6
+    ...(Platform.OS === 'web' ? {
+      fontSize: 16,
+      fontWeight: '600',
+      marginLeft: 0,
+      marginTop: 0,
+      flexWrap: 'wrap', // Allow text to wrap to next line if needed
+      width: '100%', // Ensure text has full width of container
+    } : {
+      lineHeight: 20,
+      marginTop: -1,
+      marginLeft: -6,
+    }),
   },
   occupationText: {
-    lineHeight: 14,
-    marginTop: 1,
-    marginLeft: -6
+    ...(Platform.OS === 'web' ? {
+      fontSize: 13,
+      marginTop: 2, // Reduced from 4 to reduce padding below username
+      marginLeft: 4, // Added margin-left to align with name when checkmark is active
+    } : {
+      lineHeight: 14,
+      marginTop: 0, // Reduced from 1 to reduce padding below username
+      marginLeft: -2, // Adjusted from -6 to align better with name when checkmark is active
+    }),
   },
   touchable: {
     width: "100%"
   },
   avatarContainer: {
-    position: "relative"
+    position: "relative",
+    ...(Platform.OS === 'web' ? {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    } : {}),
   },
   avatarWrapper: {
     borderWidth: 2,
-    borderColor: "#fff",
-    borderRadius: 22,
-    marginRight: -8,
+    borderRadius: Platform.OS === 'web' ? 30 : 22, // Increased from 24 to 30 on web to match webStyles
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5
+    ...(Platform.OS === 'web' ? webSpecificStyles.avatarWrapper : {
+      borderColor: "#fff",
+      marginRight: -8,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    }),
   },
   avatarImage: {
-    width: 40,
-    height: 40
+    ...(Platform.OS === 'web' ? {
+      width: 60, // Increased from 40 to 60 on web to match webStyles
+      height: 60, // Increased from 40 to 60 on web to match webStyles
+    } : {
+      width: 40,
+      height: 40
+    }),
   },
   starIndicator: {
     position: "absolute",
@@ -80,7 +141,7 @@ export const styles = StyleSheet.create({
     borderColor: "#FFD700"
   },
   checkmark: {
-    marginRight: 0,
+    marginRight: -4, // Restored from 0 to -4 as requested
     marginLeft: -12
   },
   overlay: {
@@ -88,19 +149,26 @@ export const styles = StyleSheet.create({
   },
   modalContainer: {
     borderRadius: 16,
-    width: "85%",
     alignSelf: "center",
     backgroundColor: "rgba(20,20,20,0.95)",
     borderColor: "rgba(200,200,200,0.8)",
     borderWidth: 1,
     overflow: "hidden",
-    maxHeight: "75%",
-    minHeight: "50%"
-  },
+    ...(Platform.OS === 'web' ? {
+      width: 450,
+      maxWidth: '90%',
+      // Use percentage instead of viewport units for React Native compatibility
+      maxHeight: '80%',
+    } : {
+      width: "85%",
+      maxHeight: "75%",
+      minHeight: "50%",
+    }),
+  } as ViewStyle,
   modalContent: {
-    padding: 12,
+    padding: Platform.OS === 'web' ? 16 : 12,
     paddingBottom: 160,
-    position: 'relative'
+    ...(Platform.OS !== 'web' ? { position: 'relative' as const } : {}),
   },
   modalHeaderIcons: {
     position: 'absolute',
@@ -130,7 +198,7 @@ export const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 16
+    marginTop: Platform.OS === 'web' ? 20 : 16,
   },
   modalAvatarContainer: {
     position: 'relative',
@@ -141,7 +209,9 @@ export const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 2,
-    borderColor: "#fff"
+    ...(Platform.OS === 'web' ? webSpecificStyles.modalAvatar : {
+      borderColor: "#fff",
+    }),
   },
   modalStarIndicator: {
     position: 'absolute',
@@ -174,7 +244,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "rgba(20,20,20,0.95)",
-    paddingVertical: 10,
+    paddingVertical: Platform.OS === 'web' ? 12 : 10,
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.1)"
   },
