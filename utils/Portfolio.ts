@@ -1,7 +1,6 @@
 // src/utils/Portfolio.ts
 import { Stock } from "@/types";
-
-import { StorageUtils } from '../store/MMKV';
+import { StorageUtils } from '../store/AsyncStorage';
 
 const defaultPortfolio: Stock[] = [
   { symbol: 'TSLA', quantity: 1, name: 'Tesla' },
@@ -10,16 +9,27 @@ const defaultPortfolio: Stock[] = [
   { symbol: 'NVDA', quantity: 1, name: 'NVIDIA' }
 ];
 
-// Initialize portfolio data from storage or use default
-export const portfolioData: Stock[] = StorageUtils.get<Stock[]>('portfolio_data', defaultPortfolio) ?? defaultPortfolio;
+// Initialize portfolio data with default values first
+export const portfolioData: Stock[] = [...defaultPortfolio];
 
-// Save initial portfolio if it doesn't exist
-if (!StorageUtils.get('portfolio_data')) {
-  StorageUtils.set('portfolio_data', defaultPortfolio);
-}
+// Then load from storage asynchronously
+StorageUtils.get<Stock[]>('portfolio_data', defaultPortfolio)
+  .then(storedPortfolio => {
+    if (storedPortfolio) {
+      // Update the reference to maintain reactivity
+      portfolioData.length = 0;
+      portfolioData.push(...storedPortfolio);
+    } else {
+      // Save initial portfolio if it doesn't exist
+      StorageUtils.set('portfolio_data', defaultPortfolio);
+    }
+  })
+  .catch(error => {
+    console.error('Error loading portfolio data:', error);
+  });
 
-export const updatePortfolioData = (newPortfolio: Stock[]) => {
-  StorageUtils.set('portfolio_data', newPortfolio);
+export const updatePortfolioData = async (newPortfolio: Stock[]) => {
+  await StorageUtils.set('portfolio_data', newPortfolio);
   // Update the reference to maintain reactivity
   portfolioData.length = 0;
   portfolioData.push(...newPortfolio);

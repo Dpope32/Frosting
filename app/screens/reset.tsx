@@ -1,14 +1,14 @@
 import { View, Button } from 'react-native';
-import { StorageUtils } from '@/store/MMKV';
+import { StorageUtils } from '@/store/AsyncStorage';
 import { useUserStore } from '@/store/UserStore';
 import { router } from 'expo-router';
 
 export default function ResetScreen() {
   const clearPreferences = useUserStore(state => state.clearPreferences);
   
-  const handleReset = () => {
-   // console.log('[Reset] Clearing all storage and preferences');
-    StorageUtils.clear();
+  const handleReset = async () => {
+    // Need to await the async clear operation
+    await StorageUtils.clear();
     clearPreferences();
     router.replace('/');
   };

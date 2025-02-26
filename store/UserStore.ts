@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { StorageUtils } from './MMKV';
+import { persist } from 'zustand/middleware';
+import { createPersistStorage } from './AsyncStorage';
 import { BackgroundStyle } from '../constants/Backgrounds';
 
 interface UserPreferences {
@@ -32,19 +32,6 @@ const defaultPreferences: UserPreferences = {
   quoteEnabled: true,
 };
 
-const mmkvStorage = {
-  getItem: (name: string): string | null => {
-    const value = StorageUtils.get<string>(name);
-    return value ?? null;
-  },
-  setItem: (name: string, value: string): void => {
-    StorageUtils.set(name, value);
-  },
-  removeItem: (name: string): void => {
-    StorageUtils.delete(name);
-  },
-};
-
 export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
@@ -64,7 +51,7 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: 'user-preferences',
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: createPersistStorage<UserStore>(),
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hydrated = true;

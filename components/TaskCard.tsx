@@ -116,13 +116,14 @@ export function TaskCard({
 
         <Stack flex={1} gap="$1.5">
           <XStack justifyContent="space-between" alignItems="center" gap="$1">
-            <Text 
-              color="rgb(232, 230, 227)" 
-              fontSize={15}
-              fontWeight="500"
-              flex={1}
-              opacity={checked ? 0.6 : 1}
-              style={{
+                <Text 
+                  fontFamily="$body"
+                  color="rgb(232, 230, 227)" 
+                  fontSize={15}
+                  fontWeight="500"
+                  flex={1}
+                  opacity={checked ? 0.6 : 1}
+                  style={{
                 textDecorationLine: checked ? 'line-through' : 'none',
                 textShadowColor: 'rgba(0, 0, 0, 0.5)',
                 textShadowOffset: { width: 0.5, height: 0.5 },
@@ -156,7 +157,7 @@ export function TaskCard({
                 marginRight: -4
               })}
             >
-              <Text color="#ff4444" fontSize={14}>✕</Text>
+              <Text fontFamily="$body" color="#ff4444" fontSize={14}>✕</Text>
             </Pressable>
           </XStack>
 
@@ -178,6 +179,7 @@ export function TaskCard({
                   style={{ marginRight: 4 }}
                 />
                 <Text
+                  fontFamily="$body"
                   color={categoryColor}
                   fontSize={10}
                   fontWeight="500"
@@ -204,6 +206,7 @@ export function TaskCard({
                   style={{ marginRight: 4 }}
                 />
                 <Text
+                  fontFamily="$body"
                   color={getPriorityColor(priority)}
                   fontSize={10}
                   fontWeight="500"
@@ -229,6 +232,7 @@ export function TaskCard({
                 style={{ marginRight: 4 }}
               />
               <Text
+                fontFamily="$body"
                 color={checked ? "#00C851" : "#2196F3"}
                 fontSize={10}
                 fontWeight="500"
@@ -256,6 +260,7 @@ export function TaskCard({
                   style={{ marginRight: 4 }}
                 />
                 <Text
+                  fontFamily="$body"
                   color="rgb(157, 157, 157)"
                   fontSize={10}
                   fontWeight="500"

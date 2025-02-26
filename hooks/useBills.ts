@@ -2,7 +2,7 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Bill, useBillStore } from '@/store/BillStore';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useProjectStore, WeekDay } from '@/store/ToDo';
-import { format, setDate } from 'date-fns';
+import { format } from 'date-fns';
 
 export function useBills() {
   const queryClient = useQueryClient();

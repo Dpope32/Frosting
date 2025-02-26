@@ -1,6 +1,8 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
-import { storage } from './MMKV';
+import { persist } from 'zustand/middleware';
+import { createPersistStorage } from './AsyncStorage';
+
+export { getOrdinalSuffix };
 
 const getOrdinalSuffix = (day: number): string => {
   if (day >= 11 && day <= 13) {
@@ -35,18 +37,8 @@ interface BillStore {
   clearBills: () => void;
 }
 
-const mmkvStorage: StateStorage = {
-  getItem: (name: string) => {
-    const value = storage.getString(name);
-    return value ?? null;
-  },
-  setItem: (name: string, value: string) => {
-    storage.set(name, value);
-  },
-  removeItem: (name: string) => {
-    storage.delete(name);
-  },
-};
+// Using the createPersistStorage helper from our AsyncStorage wrapper
+const asyncStorage = createPersistStorage<BillStore>();
 
 export const useBillStore = create<BillStore>()(
   persist(
@@ -93,7 +85,7 @@ export const useBillStore = create<BillStore>()(
     }),
     {
       name: 'bill-storage',
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: asyncStorage,
     }
   )
 );

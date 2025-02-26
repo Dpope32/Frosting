@@ -1,83 +1,48 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { VAULT_DATA } from '@/constants/vaultData';
-import { vaultStorage } from '@/utils/Storage';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useVaultStore } from '@/store/VaultStore';
 
 export function useVault() {
   const queryClient = useQueryClient();
-
+  const vaultStore = useVaultStore();
+  
+  // Use React Query to wrap the Zustand store
   const { data, isLoading, error } = useQuery({
     queryKey: ['vault-credentials'],
-    queryFn: async () => {
-      const storedData = vaultStorage.getString('vault-data');
-      if (storedData) {
-        return JSON.parse(storedData);
-      }
-      // Initialize with empty vault data if nothing is stored
-      vaultStorage.set('vault-data', JSON.stringify(VAULT_DATA));
-      return VAULT_DATA;
-    }
+    queryFn: () => {
+      // Return the current vault data from the store
+      return vaultStore.vaultData;
+    },
+    // Only refetch when the store changes
+    staleTime: Infinity,
   });
-
-  const addVaultEntry = (entry: { name: string; username: string; password: string }) => {
-    const currentData = JSON.parse(vaultStorage.getString('vault-data') || JSON.stringify(VAULT_DATA));
-    
-    // Generate a unique ID using timestamp and random number
-    const timestamp = Date.now();
-    const random = Math.floor(Math.random() * 10000);
-    let newId = `${timestamp}-${random}`;
-    
-    // Ensure ID is unique by checking existing items
-    while (currentData.items.some((item: any) => item.id === newId)) {
-      newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    }
-    
-    const newEntry = {
-      id: newId,
-      ...entry
-    };
-    
-    const updatedData = {
-      ...currentData,
-      items: [...currentData.items, newEntry],
-      totalItems: currentData.totalItems + 1
-    };
-    
-    vaultStorage.set('vault-data', JSON.stringify(updatedData));
-    queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
-  };
-
-  const deleteVaultEntry = async (id: string) => {
-    const currentData = JSON.parse(vaultStorage.getString('vault-data') || JSON.stringify(VAULT_DATA));
-    const index = currentData.items.findIndex((item: any) => item.id === id);
-    
-    if (index !== -1) {
-      const updatedData = {
-        ...currentData,
-        items: currentData.items.filter((item: any) => item.id !== id),
-        totalItems: currentData.totalItems - 1
-      };
-      
-      try {
-        // Save to storage
-        vaultStorage.set('vault-data', JSON.stringify(updatedData));
-        
-        // Force a cache update
-        await queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
-        
-        // Update the cache directly to ensure immediate UI update
-        queryClient.setQueryData(['vault-credentials'], updatedData);
-      } catch (error) {
-        console.error('Error during vault entry deletion:', error);
-        throw error;
-      }
-    }
-  };
-
+  
+  // Mutation for adding a vault entry
+  const addVaultEntry = useMutation({
+    mutationFn: async (entry: { name: string; username: string; password: string }) => {
+      return await vaultStore.addEntry(entry);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
+    },
+  });
+  
+  // Mutation for deleting a vault entry
+  const deleteVaultEntry = useMutation({
+    mutationFn: async (id: string) => {
+      await vaultStore.deleteEntry(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
+    },
+  });
+  
   return {
     data,
-    isLoading,
+    isLoading: isLoading || !vaultStore.isLoaded,
     error,
-    addVaultEntry,
-    deleteVaultEntry
+    addVaultEntry: (entry: { name: string; username: string; password: string }) => 
+      addVaultEntry.mutate(entry),
+    deleteVaultEntry: (id: string) => 
+      deleteVaultEntry.mutate(id),
   };
 }

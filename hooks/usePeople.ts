@@ -1,6 +1,6 @@
 // hooks/usePeople.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { StorageUtils } from '@/store/MMKV'
+import { StorageUtils } from '@/store/AsyncStorage'
 import { usePeopleStore } from '@/store/People'
 import type { Person } from '@/types/people'
 
@@ -9,7 +9,10 @@ const STORAGE_KEY = 'contacts-store'
 export const useContacts = () => {
   return useQuery({
     queryKey: ['contacts'],
-    queryFn: () => StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {}),
+    queryFn: async () => {
+      const contacts = await StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {})
+      return contacts || {}
+    },
     initialData: {},
   })
 }
@@ -26,7 +29,7 @@ export const useAddPerson = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (person: Person) => {
-      usePeopleStore.getState().addPerson(person)
+      await usePeopleStore.getState().addPerson(person)
       return person
     },
     onSuccess: () => {
@@ -45,7 +48,7 @@ export const useUpdatePerson = () => {
       id: string
       updates: Partial<Person>
     }) => {
-      usePeopleStore.getState().updatePerson(id, updates)
+      await usePeopleStore.getState().updatePerson(id, updates)
       return updates
     },
     onSuccess: () => {
@@ -58,7 +61,7 @@ export const useDeletePerson = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      usePeopleStore.getState().deletePerson(id)
+      await usePeopleStore.getState().deletePerson(id)
       return id
     },
     onSuccess: () => {

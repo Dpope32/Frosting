@@ -1,7 +1,7 @@
 // store/CalendarStore.ts
 import { create } from 'zustand'
-import { persist, createJSONStorage, StateStorage } from 'zustand/middleware'
-import { storage } from './MMKV'
+import { persist } from 'zustand/middleware'
+import { createPersistStorage } from './AsyncStorage'
 import { useProjectStore } from './ToDo'
 import { WeekDay } from './ToDo'
 import * as Notifications from 'expo-notifications'
@@ -10,19 +10,6 @@ import { format } from 'date-fns'
 import { Platform } from 'react-native'
 import { usePeopleStore } from './People'
 import type { Person } from '@/types/people'
-
-const mmkvStorage: StateStorage = {
-  getItem: (name: string) => {
-    const value = storage.getString(name)
-    return value ?? null
-  },
-  setItem: (name: string, value: string) => {
-    storage.set(name, value)
-  },
-  removeItem: (name: string) => {
-    storage.delete(name)
-  },
-}
 
 export interface CalendarEvent {
   id: string
@@ -219,7 +206,7 @@ export const useCalendarStore = create<CalendarState>()(
     }),
     {
       name: 'calendar-storage',
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: createPersistStorage<CalendarState>(),
     }
   )
 )

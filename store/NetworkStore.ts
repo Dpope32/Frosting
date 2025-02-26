@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import NetInfo, { NetInfoState, NetInfoWifiState } from '@react-native-community/netinfo';
+import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 
 interface NetworkState {
   details: NetInfoState | null;

@@ -48,7 +48,7 @@ const DRAWER_ICONS: Record<string, IconConfig> = {
   calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
   sports: { name: 'sports-baseball' as MaterialIconName, type: 'material' },
   chatbot: { name: 'code' as MaterialIconName, type: 'material' },
-  crm: { name: 'person' as MaterialIconName, type: 'material' },
+  prm: { name: 'person' as MaterialIconName, type: 'material' },
   storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
   vault: { name: 'lock' as MaterialIconName, type: 'material' },
   bills: { name: 'attach-money' as MaterialIconName, type: 'material' }
@@ -64,14 +64,8 @@ export default function DrawerLayout() {
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#444' : '#999';
-  
-  // Calculate responsive drawer width based on platform
   const isWeb = Platform.OS === 'web';
-  const drawerWidth = isWeb 
-    ? typeof window !== 'undefined' 
-      ? Math.min(320, window.innerWidth * 0.3) // Cap at 320px or 30% of screen width
-      : 320
-    : '65%'; // Mobile width stays the same
+  const drawerWidth = isWeb  ? typeof window !== 'undefined'  ? Math.min(320, window.innerWidth * 0.3)  : 320 : '65%'; 
 
   const styles = StyleSheet.create({
     wrapper: {
@@ -118,7 +112,6 @@ export default function DrawerLayout() {
     <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} />
   ), [username, profilePicture, styles]);
 
-  // Single unified icon renderer with proper typing
   const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
     const icon = DRAWER_ICONS[route];
     if (icon.type === 'material') {
@@ -191,22 +184,12 @@ export default function DrawerLayout() {
             drawerIcon: (props) => renderIcon({ ...props, route: 'sports' })
           }}
         />
-        {/* Chatbot screen commented out for production, but code preserved for future use
         <Drawer.Screen
-          name="chatbot"
+          name="prm"
           options={{
-            title: 'Chatbot',
-            drawerLabel: 'Chatbot',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'chatbot' })
-          }}
-        />
-        */}
-        <Drawer.Screen
-          name="crm"
-          options={{
-            title: 'CRM',
-            drawerLabel: 'CRM',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'crm' })
+            title: 'PRM',
+            drawerLabel: 'PRM',
+            drawerIcon: (props) => renderIcon({ ...props, route: 'prm' })
           }}
         />
         <Drawer.Screen

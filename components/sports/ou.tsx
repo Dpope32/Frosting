@@ -1,6 +1,9 @@
+// --------------------------------------------------------------
+// OUPage.tsx
+// --------------------------------------------------------------
 import React from 'react'
 import { GameCardSkeleton } from './GameCardSkeleton'
-import { Image, StyleSheet, Text, View, useColorScheme } from 'react-native'
+import { Image, StyleSheet, Text, View, useColorScheme, Platform, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { ThemedView } from '../../theme/ThemedView'
 import { useOUSportsAPI } from '../../hooks/useOUSportsAPI'
@@ -13,45 +16,44 @@ export default function OUPage() {
   const { data: schedule, isLoading, error } = useOUSportsAPI()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const isWeb = Platform.OS === 'web'
 
-  const renderGame = ({ item: game }: { item: Game }) => {
-    if (!game.competitions || game.competitions.length === 0) {
-      return null
-    }
-    
+  const renderGameCard = (game: Game, index: number) => {
+    if (!game.competitions || game.competitions.length === 0) return null
     const competition = game.competitions[0]
     const competitors = competition.competitors || []
-    
-    // Find Oklahoma's team and their opponent
-    const ouTeam = competitors.find(c => c.team.shortDisplayName === 'Oklahoma')
-    const opposingTeam = competitors.find(c => c.team.shortDisplayName !== 'Oklahoma')
-    
-    if (!ouTeam || !opposingTeam) {
-      return null
-    }
+
+    const ouTeam = competitors.find((c) => c.team.shortDisplayName === 'Oklahoma')
+    const opposingTeam = competitors.find((c) => c.team.shortDisplayName !== 'Oklahoma')
+    if (!ouTeam || !opposingTeam) return null
 
     const isOUHome = ouTeam.homeAway === 'home'
     const homeTeam = isOUHome ? ouTeam.team.shortDisplayName : opposingTeam.team.shortDisplayName
     const awayTeam = isOUHome ? opposingTeam.team.shortDisplayName : ouTeam.team.shortDisplayName
     const venue = competition.venue?.fullName || 'TBD'
     const date = parseISO(game.date)
-    // Add one day to UTC date to get to local Saturday
     const localDate = addDays(date, 1)
     const formattedDate = `${format(localDate, 'MMM d')} (${format(localDate, 'EEE')})`
-    const formattedTime = competition.status?.type?.shortDetail || 'TBD'
 
     return (
-      <View style={[
-        styles.gameCard,
-        { 
-          backgroundColor: isDark ? '#1A1A1A' : '#f5f5f5',
-          borderColor: isDark ? '#333' : '#e0e0e0' 
-        }
-      ]}>
+      <View
+        key={index}
+        style={[
+          styles.gameCard,
+          isWeb && styles.webGameCard,
+          {
+            backgroundColor: isDark ? '#1A1A1A' : '#f5f5f5',
+            borderColor: isDark ? '#333' : '#e0e0e0',
+          }
+        ]}
+      >
         <View style={styles.dateContainer}>
-          <Text style={[styles.date, { color: isDark ? '#fff' : '#000' }]}>{formattedDate}</Text>
-          <Text style={styles.time}>{formattedTime}</Text>
+          <Text style={[styles.date, { color: isDark ? '#fff' : '#000', fontFamily: '$body' }]}>
+            {formattedDate}
+          </Text>
+          <Text style={[styles.venue, { fontFamily: '$body' }]}>{venue}</Text>
         </View>
+
         <View style={styles.teamsContainer}>
           <View style={styles.teamWrapper}>
             {homeTeam === 'Oklahoma' && (
@@ -65,14 +67,17 @@ export default function OUPage() {
               style={[
                 styles.team,
                 styles.homeTeam,
-                homeTeam === 'Oklahoma' ? styles.highlight : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
+                { fontFamily: '$body' },
+                homeTeam === 'Oklahoma'
+                  ? styles.highlight
+                  : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
               ]}
               numberOfLines={1}
             >
               {homeTeam}
             </Text>
           </View>
-          <Text style={styles.at}>@</Text>
+          <Text style={[styles.at, { fontFamily: '$body' }]}>@</Text>
           <View style={[styles.teamWrapper, styles.awayWrapper]}>
             {awayTeam === 'Oklahoma' && (
               <Image
@@ -85,7 +90,10 @@ export default function OUPage() {
               style={[
                 styles.team,
                 styles.awayTeam,
-                awayTeam === 'Oklahoma' ? styles.highlight : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
+                { fontFamily: '$body' },
+                awayTeam === 'Oklahoma'
+                  ? styles.highlight
+                  : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
               ]}
               numberOfLines={1}
             >
@@ -93,32 +101,72 @@ export default function OUPage() {
             </Text>
           </View>
         </View>
-        <Text style={styles.venue}>{venue}</Text>
       </View>
     )
   }
 
+  const renderGame = ({ item: game }: { item: Game }) => {
+    return renderGameCard(game, 0)
+  }
+
+  // Web grid layout
+  const renderWebLayout = () => {
+    if (isLoading) {
+      return (
+        <View style={isWeb ? styles.webGridContainer : {}}>
+          {Array(6).fill(0).map((_, index) => (
+            <GameCardSkeleton key={index} />
+          ))}
+        </View>
+      )
+    }
+
+    return (
+      <ScrollView 
+        style={{ flex: 1, width: '100%' }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 10 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={isWeb ? styles.webGridContainer : {}}>
+          {schedule?.map((game, index) => renderGameCard(game, index))}
+        </View>
+      </ScrollView>
+    )
+  }
+
+  // Mobile list layout
+  const renderMobileLayout = () => {
+    return (
+      <FlashList
+        data={isLoading ? Array(6).fill({}) : schedule || []}
+        renderItem={isLoading ? () => <GameCardSkeleton /> : renderGame}
+        estimatedItemSize={100}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+      />
+    )
+  }
+
   return (
-    <ThemedView style={styles.container} darkColor="#000000" lightColor="#ffffff">
+    <ThemedView
+      style={styles.container}
+      darkColor="#000000"
+      lightColor="#ffffff"
+    >
       <View style={styles.header}>
-        <Image
-          source={require('../../assets/images/ou.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000' }]}>2024-25 Schedule</Text>
+        <Image source={require('../../assets/images/ou.png')} style={styles.logo} resizeMode="contain" />
+        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000', fontFamily: '$body' }]}>
+          2024-25 Schedule
+        </Text>
       </View>
+
       {error ? (
-        <Text style={styles.errorText}>Error loading schedule: {error.message}</Text>
+        <Text style={[styles.errorText, { fontFamily: '$body' }]}>
+          Error loading schedule: {error.message}
+        </Text>
       ) : (
-        <View style={styles.listContainer}>
-          <FlashList
-            data={isLoading ? Array(6).fill({}) : schedule || []}
-            renderItem={isLoading ? () => <GameCardSkeleton /> : renderGame}
-            estimatedItemSize={150}
-            showsVerticalScrollIndicator={true}
-            contentContainerStyle={styles.listContent}
-          />
+        <View style={styles.contentContainer}>
+          {isWeb ? renderWebLayout() : renderMobileLayout()}
         </View>
       )}
     </ThemedView>
@@ -128,12 +176,12 @@ export default function OUPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: Platform.OS === 'web' ? 20 : 0, // reduce top margin on web
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 8,
-    marginVertical: -8,
   },
   logo: {
     width: 40,
@@ -144,20 +192,48 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 12,
   },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
+  },
   listContainer: {
     flex: 1,
     height: '100%',
     minHeight: 200,
   },
   listContent: {
-    padding: 12,
+    padding: 8,
+    paddingBottom: 20,
   },
   gameCard: {
     borderRadius: 8,
     padding: 12,
-    marginHorizontal: 12,
+    marginHorizontal: 8,
     marginBottom: 8,
     borderWidth: 1,
+  },
+  // Web-specific styles
+  webGameCard: {
+    width: '30%',
+    margin: 8,
+    minWidth: 200,
+  },
+  webGridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    padding: 8,
+    maxWidth: 1800,
+    marginHorizontal: 'auto',
+    width: '100%',
+  },
+  webScrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  webScrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   dateContainer: {
     flexDirection: 'row',

@@ -1,8 +1,10 @@
 // src/stores/PortfolioStore.ts
 import { create } from 'zustand';
 import { useQuery } from '@tanstack/react-query';
+import { Platform } from 'react-native';
 import { portfolioData } from '../utils/Portfolio';
-import { StorageUtils } from '../store/MMKV';
+import { StorageUtils } from '../store/AsyncStorage';
+import ProxyServerManager from '../utils/ProxyServerManager';
 
 interface PortfolioState {
     totalValue: number | null;
@@ -11,14 +13,35 @@ interface PortfolioState {
     principal: number;
 }
 
-export const usePortfolioStore = create<PortfolioState>(() => ({
-  totalValue: StorageUtils.get<number>('portfolio_total') ?? null,
-  prices: StorageUtils.get<Record<string, number>>('portfolio_prices') ?? {},
-  principal: StorageUtils.get<number>('portfolio_principal') ?? 1000
-}));
+// Initialize with default values
+export const usePortfolioStore = create<PortfolioState>(() => {
+  // Initialize with empty data
+  const initialState: PortfolioState = {
+    totalValue: null,
+    prices: {},
+    principal: 1000
+  };
+  
+  // Load data asynchronously
+  Promise.all([
+    StorageUtils.get<number>('portfolio_total'),
+    StorageUtils.get<Record<string, number>>('portfolio_prices'),
+    StorageUtils.get<number>('portfolio_principal')
+  ]).then(([total, prices, principal]) => {
+    usePortfolioStore.setState({
+      totalValue: total ?? null,
+      prices: prices ?? {},
+      principal: principal ?? 1000
+    });
+  }).catch(error => {
+    console.error('Error loading portfolio data:', error);
+  });
+  
+  return initialState;
+});
 
-export const updatePrincipal = (value: number) => {
-  StorageUtils.set('portfolio_principal', value);
+export const updatePrincipal = async (value: number) => {
+  await StorageUtils.set('portfolio_principal', value);
   usePortfolioStore.setState({ principal: value });
 };
 
@@ -26,14 +49,20 @@ export const usePortfolioQuery = () => {
     return useQuery({
       queryKey: ['stock-prices'],
       queryFn: async () => {
-        const cachedPrices = StorageUtils.get<Record<string, number>>('portfolio_prices');
-        const cachedTotal = StorageUtils.get<number>('portfolio_total');
+        const cachedPrices = await StorageUtils.get<Record<string, number>>('portfolio_prices');
+        const cachedTotal = await StorageUtils.get<number>('portfolio_total');
         
         try {
           const requests = portfolioData.map(async stock => {
-            try {
-              const url = `https://query1.finance.yahoo.com/v8/finance/chart/${stock.symbol}`;
-             
+              try {
+              // Get the appropriate URL based on platform and proxy server status
+              const directUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${stock.symbol}`;
+              const url = Platform.OS === 'web'
+                ? await ProxyServerManager.getApiUrl(`yahoo-finance/${stock.symbol}`, directUrl)
+                : directUrl;
+              
+             // console.log(`[PortfolioStore] Fetching ${stock.symbol} from ${url}`);
+              
               const response = await fetch(url, {
                 headers: {
                   'Accept': 'application/json',
@@ -88,10 +117,10 @@ export const usePortfolioQuery = () => {
           });
           // Only store new data if we got at least some valid prices
           if (!hasErrors || Object.values(priceData).some(price => price > 0)) {
-            StorageUtils.set('portfolio_prices', priceData);
-            StorageUtils.set('portfolio_total', total);
+            await StorageUtils.set('portfolio_prices', priceData);
+            await StorageUtils.set('portfolio_total', total);
             
-            StorageUtils.set('portfolio_last_update', new Date().toISOString());
+            await StorageUtils.set('portfolio_last_update', new Date().toISOString());
   
             usePortfolioStore.setState({
               prices: priceData,

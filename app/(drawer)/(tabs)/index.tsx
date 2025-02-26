@@ -31,13 +31,6 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 }
 
 export default function HomeScreen() {
-  console.log('[HomeScreen] Rendering tabs/index.tsx');
-  
-  useEffect(() => {
-    console.log('[HomeScreen] Mounted');
-    return () => console.log('[HomeScreen] Unmounted');
-  }, []);
-
   return (
     <ErrorBoundary>
       <LandingPage />

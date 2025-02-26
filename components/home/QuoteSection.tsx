@@ -48,7 +48,7 @@ export const QuoteSection = () => {
         <YStack flex={1}>
           <Text
             fontFamily="$body"
-            fontSize={17}
+            fontSize={14}
             color="#dbd0c6"
             fontWeight="600"
             style={{
@@ -77,7 +77,7 @@ export const QuoteSection = () => {
         <Pressable 
           onPress={refreshQuote} 
           style={({ pressed }) => ({
-            marginTop: -38,
+            marginTop: 24,
             opacity: pressed ? 0.7 : 1
           })}
         >
@@ -90,10 +90,11 @@ export const QuoteSection = () => {
   return (
     <Stack marginTop="$0">
       <Pressable onPress={toggleExpanded}>
-        <XStack alignItems="center" justifyContent="space-between" paddingVertical="$2">
+        <XStack alignItems="center" justifyContent="flex-end" paddingVertical="$2" >
           <Text
             fontFamily="$body"
             fontSize={14}
+            paddingHorizontal="$2"
             color="#dbd0c6"
             opacity={0.9}
             style={{

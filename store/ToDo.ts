@@ -1,11 +1,11 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import { StorageUtils } from './MMKV'
+import { persist } from 'zustand/middleware'
+import { createPersistStorage } from './AsyncStorage'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'career' | 'wealth' | 'skills'
 export type RecurrencePattern = 'one-time' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
-export type WeekDay = | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
+export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface Task {
   id: string
@@ -33,7 +33,7 @@ interface ProjectStore {
   getTodaysTasks: () => Task[]
 }
 
-const dayNames: WeekDay[] = [ 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const dayNames: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
@@ -115,18 +115,6 @@ const createTaskFilter = () => {
 };
 
 const taskFilter = createTaskFilter();
-const mmkvStorage = {
-  getItem: (name: string) => {
-    const value = StorageUtils.get<string>(name)
-    return value ?? null
-  },
-  setItem: (name: string, value: string) => {
-    StorageUtils.set(name, value)
-  },
-  removeItem: (name: string) => {
-    StorageUtils.delete(name)
-  },
-}
 
 export const useProjectStore = create<ProjectStore>()(
   persist(
@@ -188,7 +176,7 @@ export const useProjectStore = create<ProjectStore>()(
     }),
     {
       name: 'tasks-store',
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: createPersistStorage<ProjectStore>(),
       onRehydrateStorage: () => (state, error) => {
         if (state) {
           const tasks = state.tasks;
@@ -231,5 +219,6 @@ export const useProjectStore = create<ProjectStore>()(
     }
   )
 )
+
 export const useStoreTasks = () => useProjectStore((s) => s.tasks)
 export const useStoreHydrated = () => useProjectStore((s) => s.hydrated)

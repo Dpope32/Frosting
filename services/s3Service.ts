@@ -16,7 +16,6 @@ export const getWallpapers = (): S3Wallpaper[] => {
     'clouds.png',
     'Dreams.png',
     'Fusion.png',
-    'space.png',
     'Spring.png',
     'jfk.jpg',
   ];

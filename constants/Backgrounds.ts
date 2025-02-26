@@ -3,7 +3,7 @@ import { getWallpapers, type S3Wallpaper } from '../services/s3Service';
 
 export type BackgroundStyleOption = {
   label: string;
-  value: 'gradient' | `wallpaper-${string}`;
+  value: 'gradient' | `wallpaper-${string}` | 'space' | 'silhouette';
 };
 
 const s3Wallpapers = getWallpapers();
@@ -49,6 +49,8 @@ const getFriendlyLabel = (name: string): string => {
 // Create background styles from deduplicated wallpapers
 export const backgroundStyles: BackgroundStyleOption[] = [
   { label: 'Gradient', value: 'gradient' },
+  { label: 'Space', value: 'space' },
+  { label: 'Silhouette', value: 'silhouette' },
   ...Array.from(wallpaperMap.keys()).map(baseName => ({
     label: getFriendlyLabel(baseName),
     value: `wallpaper-${baseName}` as const
@@ -60,6 +62,11 @@ export type BackgroundStyle = BackgroundStyleOption['value'];
 export const getWallpaperPath = (style: BackgroundStyle) => {
   if (style.startsWith('wallpaper-')) {
     return wallpapers[style] || null;
+  }
+  // For space and silhouette, we'll return null as they might be handled differently
+  // in the UI (e.g., with a custom background component)
+  if (style === 'space' || style === 'silhouette') {
+    return null;
   }
   return null;
 };

@@ -1,14 +1,16 @@
-// components/sports/GameCardSkeleton.tsx
-import React from 'react';
-import { StyleSheet, View, Animated, Dimensions, useColorScheme } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get('window');
+// *** GameCardSkeleton.tsx ***
+// (Mostly unchanged except for fontFamily if you like, but here's an example with minimal additions.)
+import React from 'react'
+import { StyleSheet, View, Animated, Dimensions, useColorScheme } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
+
+const { width } = Dimensions.get('window')
 
 export const GameCardSkeleton = () => {
-  const animatedValue = React.useRef(new Animated.Value(0)).current;
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const animatedValue = React.useRef(new Animated.Value(0)).current
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
 
   React.useEffect(() => {
     Animated.loop(
@@ -24,29 +26,31 @@ export const GameCardSkeleton = () => {
           useNativeDriver: true,
         }),
       ])
-    ).start();
-  }, []);
+    ).start()
+  }, [])
 
   const translateX = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: [-width, width],
-  });
+  })
 
   return (
-    <View style={[
-      styles.gameCard,
-      {
-        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
-        borderColor: isDark ? '#333' : '#e0e0e0',
-      }
-    ]}>
+    <View
+      style={[
+        styles.gameCard,
+        {
+          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+          borderColor: isDark ? '#333' : '#e0e0e0',
+        },
+      ]}
+    >
       <View style={styles.shimmerContainer}>
         <Animated.View style={[styles.shimmer, { transform: [{ translateX }] }]}>
           <LinearGradient
             colors={[
               'transparent',
               isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-              'transparent'
+              'transparent',
             ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -55,21 +59,19 @@ export const GameCardSkeleton = () => {
         </Animated.View>
       </View>
 
-      {/* Date and Time Row */}
       <View style={styles.dateTimeContainer}>
         <View style={[styles.dateSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
         <View style={[styles.timeSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
       </View>
 
-      {/* Teams Row */}
       <View style={styles.teamsContainer}>
         <View style={[styles.teamSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
         <View style={[styles.vsSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
         <View style={[styles.teamSkeleton, { backgroundColor: isDark ? '#333' : '#e0e0e0' }]} />
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   gameCard: {
@@ -122,4 +124,4 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginHorizontal: 12,
   },
-});
+})

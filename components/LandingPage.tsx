@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { View, useWindowDimensions, Image, Pressable, Platform } from 'react-native'
 import { BlurView } from 'expo-blur'
-// Import MyTracker dynamically to prevent web bundling issues
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
 import { LinearGradient } from 'expo-linear-gradient'
-import { YStack, Text, Stack, XStack, ScrollView, Button } from 'tamagui'
+import { YStack, Text, Stack, XStack, ScrollView } from 'tamagui'
 import Animated, { useAnimatedStyle, withRepeat, withTiming, useSharedValue } from 'react-native-reanimated'
 import { TaskCard } from './TaskCard'
 import { NewTaskModal } from './NewTaskModal'
@@ -15,7 +14,6 @@ import { TemperatureCard } from '../utils/TemperatureCard'
 import { WifiCard } from '../utils/WifiCard'
 import { PortfolioCard } from '../utils/PortfolioCard'
 import { TemperatureModal } from './cardModals/TemperatureModal'
-import { WifiModal } from './cardModals/WifiModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
 //import { ClockCard } from '../utils/ClockCard'
@@ -28,37 +26,16 @@ type ProjectState = {
 }
 
 export function LandingPage() {
-  useEffect(() => {
-    // Only initialize MyTracker on non-web platforms
-    if (Platform.OS !== 'web') {
-      try {
-        // Dynamically import MyTracker to prevent web bundling issues
-        const importMyTracker = async () => {
-          try {
-            const MyTrackerModule = await import('@splicer97/react-native-mytracker');
-            MyTrackerModule.default.initTracker('initTracker');
-          } catch (error) {
-            console.warn('Error importing or initializing MyTracker:', error);
-          }
-        };
-        
-        importMyTracker();
-      } catch (error) {
-        console.warn('Error in MyTracker setup:', error);
-      }
-    }
-  }, [])
+  const username = useUserStore(s => s.preferences.username)
+  const primaryColor = useUserStore(s => s.preferences.primaryColor)
+  const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
+  const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
+  const userHydrated = useUserStore(s => s.hydrated)
 
-const username = useUserStore(s => s.preferences.username)
-const primaryColor = useUserStore(s => s.preferences.primaryColor)
-const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
-const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
-const userHydrated = useUserStore(s => s.hydrated)
-
-const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
-const deleteTask = useProjectStore(React.useCallback((s: any) => s.deleteTask, []))
-const projectHydrated = useStoreHydrated()
-const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.todaysTasks, []))
+  const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
+  const deleteTask = useProjectStore(React.useCallback((s: any) => s.deleteTask, []))
+  const projectHydrated = useStoreHydrated()
+  const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.todaysTasks, []))
 
   if (!userHydrated || !projectHydrated) {
     return (
@@ -70,7 +47,6 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
 
   const [sheetOpen, setSheetOpen] = useState(false)
   const [tempModalOpen, setTempModalOpen] = useState(false)
-  const [wifiModalOpen, setWifiModalOpen] = useState(false)
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
 
@@ -118,9 +94,6 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
     setTempModalOpen(true)
   }
 
-  const handleWifiPress = () => {
-    setWifiModalOpen(true)
-  }
 
   const handlePortfolioPress = () => {
     setPortfolioModalOpen(true)
@@ -398,19 +371,17 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 </XStack>
               </XStack>
             </XStack>
-            <XStack marginTop="$3" gap="$3" flexWrap="nowrap">
+            <XStack marginTop="$3" gap="$3" flexWrap="nowrap" marginLeft={12}>
               <Pressable onPress={handlePortfolioPress}>
                 <PortfolioCard />
               </Pressable>
               <Pressable onPress={handleTemperaturePress}>
                 <TemperatureCard />
               </Pressable>
-              <Pressable onPress={handleWifiPress}>
-                <WifiCard />
-              </Pressable>
+              <WifiCard />
             </XStack>
             {Boolean(quoteEnabled) && 
-              <Stack marginTop="$4">
+              <Stack marginTop="$-5">
                 <QuoteSection />
               </Stack>
             }
@@ -435,6 +406,7 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
           >
             <XStack alignItems="center" width="100%" marginBottom="$3" paddingLeft="$4">
               <Text 
+                fontFamily="$body"
                 color="#dbd0c6" 
                 fontSize={20} 
                 fontWeight="bold"
@@ -447,18 +419,47 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </Text>
             </XStack>
-            <Stack gap="$2" paddingHorizontal={6} flex={1} position="relative">
+            <Stack 
+              gap="$2" 
+              paddingHorizontal={16} 
+              flex={1} 
+              position="relative"
+              justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}
+            >
               {todaysTasks.length === 0 ? (
                 <XStack 
                   bg="rgba(0, 0, 0, 0.85)"
-                  p="$6" 
+                  p={Platform.OS === 'web' ? '$8' : '$6'} 
+                  paddingHorizontal={Platform.OS === 'web' ? '$12' : '$6'}
                   borderRadius="$4" 
                   ai="center" 
                   jc="center"
                   borderWidth={1}
                   borderColor="rgba(255, 255, 255, 0.15)"
+                  marginTop={Platform.OS === 'web' ? '$6' : 0}
+                  style={Platform.OS === 'web' ? {
+                    boxShadow: '0px 0px 8px rgba(255, 255, 255, 0.05)',
+                    maxWidth: '800px',
+                    alignSelf: 'flex-start',
+                    width: '100%'
+                  } : {}}
                 >
-                  <Text color="#dbd0c6" fontSize="$3" textAlign="center">
+                  <Text 
+                    fontFamily="$body"
+                    color="#dbd0c6" 
+                    fontSize={16} 
+                    fontWeight="500"
+                    textAlign="center"
+                    style={{
+                      textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                      textShadowOffset: { width: 0.5, height: 0.5 },
+                      textShadowRadius: 1,
+                      lineHeight: 24,
+                      ...(Platform.OS === 'web' ? {
+                        whiteSpace: 'nowrap'
+                      } : {})
+                    }}
+                  >
                     Add repeating or one-time tasks for personal, work, or anything else to get started
                   </Text>
                 </XStack>
@@ -494,9 +495,8 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 onPress={() => setTaskListModalOpen(true)}
                 style={Platform.OS === 'web' ? {
                   position: 'absolute',
-                  bottom: -55,
-                  left: -0,
-                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  bottom: -75,
+                  left: -10,
                   width: 34,
                   height: 34,
                   borderRadius: 17,
@@ -505,9 +505,8 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                   boxShadow: '0px 0px 4px rgba(219, 208, 198, 0.2)'
                 } : {
                   position: 'absolute',
-                  bottom: -55,
-                  left: -0,
-                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  bottom: -75,
+                  left: -10,
                   width: 34,
                   height: 34,
                   borderRadius: 17,
@@ -534,9 +533,8 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                 onPress={handleNewTaskPress}
                 style={Platform.OS === 'web' ? {
                   position: 'absolute',
-                  bottom: -55,
-                  right: -0,
-                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  bottom: -75,
+                  right: -10,
                   width: 34,
                   height: 34,
                   borderRadius: 17,
@@ -545,9 +543,8 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
                   boxShadow: '0px 0px 4px rgba(219, 208, 198, 0.2)'
                 } : {
                   position: 'absolute',
-                  bottom: -55,
-                  right: -0,
-                  backgroundColor: 'rgba(219, 208, 198, 0.2)',
+                  bottom: -75,
+                  right: -10,
                   width: 34,
                   height: 34,
                   borderRadius: 17,
@@ -576,7 +573,6 @@ const todaysTasks = useProjectStore(React.useCallback((s: ProjectState) => s.tod
         </YStack>
       </ScrollView>
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
-      <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} speed="169ms" />
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}

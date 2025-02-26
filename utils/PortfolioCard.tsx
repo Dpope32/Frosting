@@ -1,13 +1,32 @@
-import React, { useEffect } from 'react';
-import { Stack, Text, YStack } from 'tamagui';
+import React, { useEffect, useState } from 'react';
+import { Stack, Text } from 'tamagui';
 import { getValueColor } from '@/constants/valueHelper';
 import { usePortfolioQuery, usePortfolioStore } from '@/store/PortfolioStore';
-import { StorageUtils } from '@/store/MMKV';
+import { StorageUtils } from '@/store/AsyncStorage';
 
 export function PortfolioCard() {
   const { isLoading, refetch } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
-  const lastUpdate = StorageUtils.get<string>('portfolio_last_update');
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  
+  // Load last update time
+  useEffect(() => {
+    let mounted = true;
+    
+    StorageUtils.get<string>('portfolio_last_update')
+      .then(updateTime => {
+        if (mounted && updateTime) {
+          setLastUpdate(updateTime);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading last update time:', error);
+      });
+      
+    return () => {
+      mounted = false;
+    };
+  }, [totalValue]); // Reload when totalValue changes, as this indicates a portfolio update
 
   useEffect(() => {
     const isMarketHours = () => {
@@ -56,6 +75,7 @@ export function PortfolioCard() {
         color={valueColor}
         fontSize={18}
         fontWeight="bold"
+        fontFamily="$body"
         textAlign="center"
         numberOfLines={1}
         style={{

@@ -111,8 +111,8 @@ export default function Step3({
             <div
               style={{
                 position: 'absolute',
-                width: '200%',
-                height: '200%',
+                width: '150%',
+                height: '150%',
                 animation: 'moveStarsSlow 120s linear infinite',
                 left: '-50%',
                 top: '-50%'
@@ -139,8 +139,8 @@ export default function Step3({
             <div
               style={{
                 position: 'absolute',
-                width: '200%',
-                height: '200%',
+                width: '125%',
+                height: '125%',
                 animation: 'moveStarsMedium 80s linear infinite',
                 left: '-50%',
                 top: '-50%'
@@ -486,11 +486,12 @@ export default function Step3({
         <YStack
           backgroundColor="rgba(0, 0, 0, 0.7)"
           borderRadius={16}
-          padding="$6"
-          marginTop={40}
+          paddingVertical="$2"
+          paddingHorizontal="$5"
+          marginTop={10}
           borderColor="rgba(255, 255, 255, 0.1)"
           borderWidth={2}
-          gap="$6"
+          gap="$2"
         >
           <Label size="$8" textAlign="center" color="$gray12Dark">
             Background

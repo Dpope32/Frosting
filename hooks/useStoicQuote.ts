@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Platform } from 'react-native';
+import ProxyServerManager from '../utils/ProxyServerManager';
 
 interface StoicQuote {
   data: {
@@ -8,16 +9,18 @@ interface StoicQuote {
   };
 }
 
-// Function to get the appropriate URL based on platform
-const getQuoteUrl = () => {
+// Function to get the appropriate URL based on platform and proxy server status
+const getQuoteUrl = async () => {
+  const directUrl = 'https://stoic.tekloon.net/stoic-quote';
+  
   // Check if we're running on web
   if (Platform.OS === 'web') {
-    // Use our local proxy server for web environment
-    return 'http://localhost:3000/api/stoic-quote';
+    // Use our proxy server manager to get the appropriate URL
+    return ProxyServerManager.getApiUrl('stoic-quote', directUrl);
   }
   
   // For native platforms (iOS, Android), use the direct URL
-  return 'https://stoic.tekloon.net/stoic-quote';
+  return directUrl;
 };
 
 export const useStoicQuote = () => {
@@ -27,7 +30,9 @@ export const useStoicQuote = () => {
     queryKey: ['stoic-quote'],
     queryFn: async () => {
       try {
-        const quoteUrl = getQuoteUrl();
+        const quoteUrl = await getQuoteUrl();
+      //  console.log(`[useStoicQuote] Fetching quote from ${quoteUrl}`);
+        
         const response = await fetch(quoteUrl);
         
         if (!response.ok) {

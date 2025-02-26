@@ -1,70 +1,62 @@
-<div align="center">
-   <div>
-    <a href="https://dokploy.com" target="_blank" rel="noopener">
-        <img style="object-fit: cover;" align="center" width="100%"src=".github/sponsors/logo.png" alt="Dokploy - Open Source Alternative to Vercel, Heroku and Netlify." />
-    </a>
-</div>
+# Frosting
 
-</br>
-<div align="center">
-  <div>Welcome to Frosting!</div>
-  </br>
-  <a href="https://discord.gg/2tBnJ3jDJc">
-    <img src="https://discordapp.com/api/guilds/1234073262418563112/widget.png?style=banner2" alt="Discord Shield"/>
-  </a>
-</div>
-</div>
-<br />
-Frosting is a free, self-hostable Mobile App that simplifies the deployment and management of data.
+A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
 
-### Features
+## Features
 
-Frostbite includes multiple features to make your life easier.
+- **Task Management**: Track recurring and one-time tasks on the landing page
+- **Calendar**: Track birthdays, bills, events, and more
+- **PRM**: Manage your contacts and relationships
+- **Password Vault**: Securely store your passwords
+- **Finance Tracking**: Monitor your portfolio with real-time stock updates
+- **Weather & Network**: Check current conditions and network status
+- **Sports Tracking**: Follow your favorite teams' schedules
+- **Customization**: Choose from various wallpapers and themes
 
-- **Task Manager**: Deploy any type of application (Node.js, PHP, Python, Go, Ruby, etc.).
-- **Immich**: Create and manage databases with support for MySQL, PostgreSQL, MongoDB, MariaDB, and Redis.
-- **Backups**: Automate backups for databases to an external storage destination.
-- **AI Chat**: Native support for Docker Compose to manage complex applications.
-- **NBA**: See live NBA stats and historical results from your favorite team.
-- **NCAAF**: Look at your favorite sports teams schedule.
-- **Traefik Integration**: Automatically integrates with Traefik for routing and load balancing.
-- **Real-time Monitoring**: Monitor CPU, memory, storage, and network usage for every resource.
-- **Docker Management**: Easily deploy and manage Docker containers.
-- **CLI/API**: Manage your applications and databases using the command line or through the API.
-- **Notifications**: Get notified when your deployments succeed or fail (via Slack, Discord, Telegram, Email, etc.).
-- **Multi Server**: Deploy and manage your applications remotely to external servers.
-- **Self-Hosted**: Self-host Dokploy on your VPS.
+All data is stored locally first, with future plans for cross-device synchronization.
 
-## Sponsors
+## Getting Started
 
-### Premium Supporters 🥇
+### Prerequisites
 
-<div style="display: flex; gap: 30px; flex-wrap: wrap;">
-<a href="https://supafort.com/?ref=dokploy" target="_blank"><img src="https://supafort.com/build/q-4Ht4rBZR.webp" alt="Supafort.com" width="190"/></a>
-</div>
+- Node.js (LTS version recommended)
+- npm or yarn
+- Expo CLI (`npm install -g expo-cli`)
 
-### Supporting Members 🥉
+### Installation
 
-<div style="display: flex; gap: 30px; flex-wrap: wrap;">
-<a href="https://lightspeed.run/?ref=dokploy"><img src="https://github.com/lightspeedrun.png" width="60px" alt="Lightspeed.run"/></a>
-<a href="https://cloudblast.io/?ref=dokploy "><img src="https://cloudblast.io/img/logo-icon.193cf13e.svg" width="250px" alt="Cloudblast.io"/></a>
-<a href="https://startupfa.me/?ref=dokploy "><img src=".github/sponsors/startupfame.png" width="65px" alt="Startupfame"/></a>
-<a href="https://itsdb-center.com?ref=dokploy "><img src=".github/sponsors/its.png" width="65px" alt="Itsdb-center"/></a>
-</div>
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/frosting.git
+cd frosting
 
-### Community Backers 🤝
+# Install dependencies
+npm install
+```
 
-<div style="display: flex; gap: 30px; flex-wrap: wrap;">
-<a href="https://steamsets.com/?ref=dokploy"><img src="https://avatars.githubusercontent.com/u/111978405?s=200&v=4" width="60px" alt="Steamsets.com"/></a>
-<a href="https://rivo.gg/?ref=dokploy"><img src="https://avatars.githubusercontent.com/u/126797452?s=200&v=4" width="60px" alt="Rivo.gg"/></a>
-<a href="https://photoquest.wedding/?ref=dokploy"><img src="https://photoquest.wedding/favicon/android-chrome-512x512.png" width="60px" alt="Rivo.gg"/></a>
+### Running the App
+```bash
+npx expo run: ios
+```
 
-</div>
+#### Web
+```bash
+# Option 1: Standard web start (some features may not work due to CORS)
+npm run web
 
-#### Organizations:
+# Option 2: Recommended for web development (includes proxy server)
+npm run web-dev
+```
 
-[![Sponsors on Open Collective](https://opencollective.com/dokploy/organizations.svg?width=890)](https://opencollective.com/dokploy)
+See [PROXY_SERVER.md](PROXY_SERVER.md) for more details on the proxy server used for web development.
 
-## Contributing
+## Development
 
-Check out the [Contributing Guide](CONTRIBUTING.md) for more information.
+- The app uses Expo and React Native for cross-platform compatibility
+- Tamagui is used for UI components
+- Zustand for state management
+- React Query for data fetching
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

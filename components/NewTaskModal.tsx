@@ -6,6 +6,7 @@ import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
+import { Platform } from 'react-native'
 import { format } from 'date-fns'
 
 const WEEKDAYS: Record<string, WeekDay> = {
@@ -89,6 +90,7 @@ interface NewTaskModalProps {
 export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const isWeb = Platform.OS === 'web'
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
@@ -133,12 +135,20 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [])
 
   const handleTimeChange = useCallback((event: any, selectedDate?: Date) => {
-    setShowTimePicker(false)
+    if (Platform.OS !== 'web') {
+      setShowTimePicker(false)
+    }
     if (selectedDate) {
       setSelectedDate(selectedDate)
       const timeString = format(selectedDate, 'h:mm a')
       setNewTask(prev => ({ ...prev, time: timeString }))
     }
+  }, [])
+
+  const handleWebTimeChange = useCallback((date: Date) => {
+    const timeString = format(date, 'h:mm a')
+    setNewTask(prev => ({ ...prev, time: timeString }))
+    setSelectedDate(date)
   }, [])
 
   const handleTimePress = useCallback(() => {
@@ -157,134 +167,132 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
     setShowRecurrenceSelect(false)
   }, [])
 
+  interface SelectButtonProps {
+    label: string
+    value: string | null | undefined
+    onPress: () => void
+    showDropdown?: boolean
+    icon?: string
+  }
 
-interface SelectButtonProps {
-  label: string
-  value: string | null | undefined
-  onPress: () => void
-  showDropdown?: boolean
-  icon?: string
-}
-
-const SelectButton = ({ 
-  label, 
-  value, 
-  onPress, 
-  showDropdown = false,
-  icon
-}: SelectButtonProps) => {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
-  
-  return (
-    <Button
-      onPress={onPress}
-      theme={isDark ? "dark" : "light"}
-      backgroundColor={isDark ? "$gray2" : "white"}
-      borderRadius={12}
-      height={50}
-      borderColor={isDark ? "$gray7" : "$gray4"}
-      borderWidth={1}
-      paddingHorizontal="$3"
-      pressStyle={{ opacity: 0.8 }}
-    >
-      <XStack flex={1} alignItems="center" justifyContent="space-between" paddingRight="$2">
-        <XStack alignItems="center" gap="$2">
-          {icon && <Ionicons name={icon as any} size={20} color={isDark ? "$gray12" : "$gray11"} />}
-          <Text color={isDark ? "$gray12" : "$gray11"} fontSize={16} fontWeight="500">
-            {label}
+  const SelectButton = ({ 
+    label, 
+    value, 
+    onPress, 
+    showDropdown = false,
+    icon
+  }: SelectButtonProps) => {
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === 'dark'
+    
+    return (
+      <Button
+        onPress={onPress}
+        theme={isDark ? "dark" : "light"}
+        backgroundColor={isDark ? "$gray2" : "white"}
+        borderRadius={12}
+        height={50}
+        borderColor={isDark ? "$gray7" : "$gray4"}
+        borderWidth={1}
+        paddingHorizontal="$3"
+        pressStyle={{ opacity: 0.8 }}
+      >
+        <XStack flex={1} alignItems="center" justifyContent="space-between" paddingRight="$2">
+          <XStack alignItems="center" gap="$2">
+            {icon && <Ionicons name={icon as any} size={20} color={isDark ? "$gray12" : "$gray11"} />}
+            <Text color={isDark ? "$gray12" : "$gray11"} fontSize={16} fontWeight="500">
+              {label}
+            </Text>
+          </XStack>
+          <Text 
+            color={isDark ? "$gray11" : "$gray10"} 
+            fontSize={16} 
+            numberOfLines={1} 
+            maxWidth="60%"
+            ellipsizeMode="tail"
+            textAlign="right"
+          >
+            {value || (showDropdown ? '▲' : '▼')}
           </Text>
         </XStack>
-        <Text 
-          color={isDark ? "$gray11" : "$gray10"} 
-          fontSize={16} 
-          numberOfLines={1} 
-          maxWidth="60%"
-          ellipsizeMode="tail"
-          textAlign="right"
-        >
-          {value || (showDropdown ? '▲' : '▼')}
-        </Text>
-      </XStack>
-    </Button>
-  );
-}
+      </Button>
+    );
+  }
 
+  interface DropdownListProps<T> {
+    items: Array<T | { label: string; value: T; icon?: string }>
+    selectedValue: T | null
+    onSelect: (value: T) => void
+    maxHeight?: number
+  }
 
-interface DropdownListProps<T> {
-  items: Array<T | { label: string; value: T; icon?: string }>
-  selectedValue: T | null
-  onSelect: (value: T) => void
-  maxHeight?: number
-}
+  function DropdownList<T extends string>({
+    items,
+    selectedValue,
+    onSelect,
+    maxHeight = 300
+  }: DropdownListProps<T>) {
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === 'dark'
+    const { preferences } = useUserStore()
 
-function DropdownList<T extends string>({
-  items,
-  selectedValue,
-  onSelect,
-  maxHeight = 300
-}: DropdownListProps<T>) {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
-  const { preferences } = useUserStore()
-
-  return (
-    <YStack
-      position="absolute"
-      top="110%"
-      left={0}
-      right={0}
-      backgroundColor={isDark ? "$gray1" : "white"}
-      borderRadius={12}
-      zIndex={1000}
-      overflow="hidden"
-      shadowColor="black"
-      shadowOffset={{ width: 0, height: 4 }}
-      shadowOpacity={0.1}
-      shadowRadius={8}
-      maxHeight={maxHeight}
-      borderWidth={1}
-      borderColor={isDark ? "$gray7" : "$gray4"}
-    >
-      <ScrollView bounces={false}>
-        <YStack>
-          {items.map(item => {
-            const value = typeof item === 'string' ? item as T : item.value;
-            const label = typeof item === 'string' ? item as string : item.label;
-            const icon = typeof item === 'string' ? null : item.icon;
-            
-            return (
-              <Pressable
-                key={value}
-                onPress={() => onSelect(value)}
-                style={({ pressed }: { pressed: boolean }) => ({
-                  backgroundColor: selectedValue === value ? preferences.primaryColor : isDark ? "#1c1c1e" : "white",
-                  height: 45,
-                  justifyContent: 'center',
-                  opacity: pressed ? 0.8 : 1,
-                  borderBottomWidth: 1,
-                  borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
-                  paddingHorizontal: 12
-                })}
-              >
-                <XStack alignItems="center" gap="$2" paddingVertical={10}>
-                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : isDark ? '#fff' : '#000'} />}
-                  <Text
-                    color={selectedValue === value ? '#fff' : isDark ? "#fff" : "#000"}
-                    fontSize={16}
-                    fontWeight={selectedValue === value ? '600' : '400'}
-                  >
-                    {label}
-                  </Text>
-                </XStack>
-              </Pressable>
-            );
-          })}
-        </YStack>
-      </ScrollView>
-    </YStack>
-  );
-}
+    return (
+      <YStack
+        position="absolute"
+        top="110%"
+        left={0}
+        right={0}
+        backgroundColor={isDark ? "$gray1" : "white"}
+        borderRadius={12}
+        zIndex={1000}
+        overflow="hidden"
+        shadowColor="black"
+        shadowOffset={{ width: 0, height: 4 }}
+        shadowOpacity={0.1}
+        shadowRadius={8}
+        maxHeight={maxHeight}
+        borderWidth={1}
+        borderColor={isDark ? "$gray7" : "$gray4"}
+      >
+        <ScrollView bounces={false}>
+          <YStack>
+            {items.map(item => {
+              const value = typeof item === 'string' ? item as T : item.value;
+              const label = typeof item === 'string' ? item as string : item.label;
+              const icon = typeof item === 'string' ? null : item.icon;
+              
+              return (
+                <Pressable
+                  key={value}
+                  onPress={() => onSelect(value)}
+                  style={({ pressed }: { pressed: boolean }) => ({
+                    backgroundColor: selectedValue === value ? preferences.primaryColor : isDark ? "#1c1c1e" : "white",
+                    height: 45,
+                    justifyContent: 'center',
+                    opacity: pressed ? 0.8 : 1,
+                    borderBottomWidth: 1,
+                    borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
+                    paddingHorizontal: 12
+                  })}
+                >
+                  <XStack alignItems="center" gap="$2" paddingVertical={10}>
+                    {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : isDark ? '#fff' : '#000'} />}
+                    <Text
+                      color={selectedValue === value ? '#fff' : isDark ? "#fff" : "#000"}
+                      fontSize={16}
+                      fontWeight={selectedValue === value ? '600' : '400'}
+                    >
+                      {label}
+                    </Text>
+                  </XStack>
+                </Pressable>
+              );
+            })}
+          </YStack>
+        </ScrollView>
+      </YStack>
+    );
+  }
 
   const handlePrioritySelect = useCallback((value: TaskPriority) => {
     setNewTask(prev => ({ ...prev, priority: value }))
@@ -365,9 +373,10 @@ function DropdownList<T extends string>({
         gap="$5"
         borderTopLeftRadius="$6"
         borderTopRightRadius="$6"
+        {...(isWeb ? { style: { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } } : {})}
       >
           <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
-            <Text fontSize={24} fontWeight="700" color={isDark ? "$gray12" : "$gray11"} marginBottom={20}>
+            <Text fontSize={24} fontWeight="700" fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} marginBottom={20}>
               New Task
             </Text>
             <Form gap="$4" onSubmit={handleAddTask}>
@@ -379,6 +388,7 @@ function DropdownList<T extends string>({
                 borderWidth={1}
                 autoCapitalize="sentences"
                 borderRadius={12}
+                fontFamily="$body"
                 paddingHorizontal="$3"
                 height={50}
                 theme={isDark ? "dark" : "light"}
@@ -398,7 +408,6 @@ function DropdownList<T extends string>({
                       setShowCategorySelect(false)
                     }}
                     showDropdown={showRecurrenceSelect}
-                    icon={RECURRENCE_PATTERNS.find(p => p.value === newTask.recurrencePattern)?.icon}
                   />
                   {showRecurrenceSelect && (
                     <DropdownList<RecurrencePattern>
@@ -563,20 +572,55 @@ function DropdownList<T extends string>({
                     borderColor={isDark ? "$gray7" : "$gray4"}
                   >
                     <YStack
-                      height={200}
+                      height={Platform.OS === 'web' ? 100 : 200}
                       justifyContent="center"
                       alignItems="center"
                       padding="$4"
                       backgroundColor={isDark ? "$gray1" : "white"}
                     >
-                      <DateTimePicker
-                        value={selectedDate}
-                        mode="time"
-                        is24Hour={false}
-                        onChange={handleTimeChange}
-                        display="spinner"
-                        themeVariant={isDark ? "dark" : "light"}
-                      />
+                      {Platform.OS === 'web' ? (
+                        <XStack width="100%" alignItems="center" justifyContent="space-between">
+                          <input
+                            type="time"
+                            value={format(selectedDate, 'HH:mm')}
+                            onChange={(e) => {
+                              const [hours, minutes] = e.target.value.split(':').map(Number);
+                              const newDate = new Date(selectedDate);
+                              newDate.setHours(hours);
+                              newDate.setMinutes(minutes);
+                              handleWebTimeChange(newDate);
+                            }}
+                            style={{
+                              padding: 12,
+                              fontSize: 16,
+                              borderRadius: 8,
+                              border: `1px solid ${isDark ? '#444' : '#ddd'}`,
+                              backgroundColor: isDark ? '#222' : '#fff',
+                              color: isDark ? '#fff' : '#000',
+                              width: '100%',
+                              marginRight: 10
+                            }}
+                          />
+                          <Button
+                            onPress={() => setShowTimePicker(false)}
+                            backgroundColor={preferences.primaryColor}
+                            paddingHorizontal="$3"
+                            paddingVertical="$2"
+                            borderRadius={8}
+                          >
+                            <Text color="white" fontWeight="600">Done</Text>
+                          </Button>
+                        </XStack>
+                      ) : (
+                        <DateTimePicker
+                          value={selectedDate}
+                          mode="time"
+                          is24Hour={false}
+                          onChange={handleTimeChange}
+                          display="spinner"
+                          themeVariant={isDark ? "dark" : "light"}
+                        />
+                      )}
                     </YStack>
                   </YStack>
                 )}
@@ -626,29 +670,29 @@ function DropdownList<T extends string>({
               </XStack>
 
               <Form.Trigger asChild>
-              <Button
-                backgroundColor={preferences.primaryColor}
-                height={50}
-                pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                borderRadius={12}
-                alignSelf="center"
-                marginTop={50}
-                width="100%"
-                shadowColor="black"
-                shadowOffset={{ width: 0, height: 2 }}
-                shadowOpacity={0.1}
-                shadowRadius={4}
-                elevation={3}
-                disabled={isSubmitting}
-                opacity={isSubmitting ? 0.7 : 1}
-              >
-                <Text color="white" fontWeight="600" fontSize={18}>
-                  {isSubmitting ? 'Adding...' : 'Add Task'}
-                </Text>
-              </Button>
-            </Form.Trigger>
-          </Form>
-        </ScrollView>
+                <Button
+                  backgroundColor={preferences.primaryColor}
+                  height={50}
+                  pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                  borderRadius={12}
+                  alignSelf="center"
+                  marginTop={50}
+                  width="100%"
+                  shadowColor="black"
+                  shadowOffset={{ width: 0, height: 2 }}
+                  shadowOpacity={0.1}
+                  shadowRadius={4}
+                  elevation={3}
+                  disabled={isSubmitting}
+                  opacity={isSubmitting ? 0.7 : 1}
+                >
+                  <Text color="white" fontWeight="600" fontSize={18}>
+                    {isSubmitting ? 'Adding...' : 'Add Task'}
+                  </Text>
+                </Button>
+              </Form.Trigger>
+            </Form>
+          </ScrollView>
       </Sheet.Frame>
     </Sheet>
   );
