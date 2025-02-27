@@ -29,7 +29,7 @@ export const CalendarAnalytics: React.FC<CalendarAnalyticsProps> = ({
           <Text style={[calendarStyles.debugModalTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
             Calendar Analytics
           </Text>
-          <ScrollView style={calendarStyles.debugScroll}>
+          <ScrollView showsVerticalScrollIndicator={false} style={calendarStyles.debugScroll}>
             {debugData && (
               <>
                 <View style={calendarStyles.debugRow}>

@@ -5,23 +5,12 @@ import { View, useColorScheme, Platform } from 'react-native'
 // Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;
 
-// Only try to import the color picker on native platforms
-// This approach prevents the bundler from even trying to resolve the package on web
-let ColorPicker: any = EmptyColorPicker;
+// Import the color picker directly for native platforms
+// For web, we'll use our custom WebColorPicker component
+import WheelColorPicker from 'react-native-wheel-color-picker';
 
-// We use this pattern to completely avoid the import on web
-// The bundler won't even try to resolve the package
-if (Platform.OS !== 'web') {
-  try {
-    // Dynamic import that will be completely ignored on web
-    const wheelPickerModule = 'react-native-wheel-color-picker';
-    // @ts-ignore - This is intentional to prevent web bundling issues
-    ColorPicker = require(wheelPickerModule).default;
-  } catch (error) {
-    console.warn('Color picker not available:', error);
-    ColorPicker = EmptyColorPicker;
-  }
-}
+// Use the imported component or fallback to empty component
+const ColorPicker = Platform.OS === 'web' ? EmptyColorPicker : WheelColorPicker;
 
 export default function Step2({
   formData,
@@ -56,7 +45,6 @@ export default function Step2({
 
     return (
       <YStack flex={1} alignItems="center" justifyContent="center" gap="$2">
-        {/* Color swatches grid */}
         <YStack>
           <XStack flexWrap="wrap" justifyContent="center" alignItems="center" marginBottom="$4" maxWidth={320}>
             {colorPalette.map((color, index) => (
@@ -76,7 +64,6 @@ export default function Step2({
           </XStack>
         </YStack>
         
-        {/* Hidden native color input for advanced picking */}
         <XStack alignItems="center" gap="$2">
           <Circle size={50} overflow="hidden">
             <input
@@ -124,7 +111,6 @@ export default function Step2({
         </Text>
       </YStack>
 
-      {/* Color Picker - Platform specific */}
       <YStack flex={1} paddingTop="$4">
         {Platform.OS === 'web' ? (
           <WebColorPicker />

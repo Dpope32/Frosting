@@ -254,7 +254,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         borderWidth={1}
         borderColor={isDark ? "$gray7" : "$gray4"}
       >
-        <ScrollView bounces={false}>
+        <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
           <YStack>
             {items.map(item => {
               const value = typeof item === 'string' ? item as T : item.value;

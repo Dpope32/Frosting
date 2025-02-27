@@ -94,6 +94,8 @@ export const styles = StyleSheet.create({
       lineHeight: 14,
       marginTop: 0, // Reduced from 1 to reduce padding below username
       marginLeft: -2, // Adjusted from -6 to align better with name when checkmark is active
+      flexShrink: 1, // Prevent text from expanding container
+      width: '100%', // Ensure text has full width of container
     }),
   },
   touchable: {

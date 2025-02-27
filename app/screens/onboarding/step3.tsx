@@ -44,27 +44,34 @@ export default function Step3({
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const [starsKey, setStarsKey] = React.useState(0);
   
+  // Initialize animation values at the top level
+  const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+  const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+  
+  // Handle animations at the top level
+  React.useEffect(() => {
+    if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
+      const animationConfig = { duration: 60000 };
+      translateX.value = withRepeat(withTiming(-screenWidth, animationConfig), -1, false);
+      translateY.value = withRepeat(withTiming(-screenHeight / 2, animationConfig), -1, false);
+      return () => {
+        translateX.value = 0;
+        translateY.value = 0;
+      };
+    }
+  }, [screenWidth, screenHeight, translateX, translateY, withRepeat, withTiming]);
+  
+  // Create animated style at the top level
+  const starsAnimatedStyle = Platform.OS !== 'web' && useAnimatedStyle && translateX && translateY
+    ? useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
+      }))
+    : null;
+  
   // Create animated stars for native platforms
   const createAnimatedStars = () => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
-      if (Animated && useAnimatedStyle && withRepeat && withTiming && useSharedValue) {
-        const translateX = useSharedValue(0);
-        const translateY = useSharedValue(0);
-        
-        React.useEffect(() => {
-          const animationConfig = { duration: 60000 };
-          translateX.value = withRepeat(withTiming(-screenWidth, animationConfig), -1, false);
-          translateY.value = withRepeat(withTiming(-screenHeight / 2, animationConfig), -1, false);
-          return () => {
-            translateX.value = 0;
-            translateY.value = 0;
-          };
-        }, [screenWidth, screenHeight]);
-        
-        const starsAnimatedStyle = useAnimatedStyle(() => ({
-          transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
-        }));
-        
+      if (Animated && starsAnimatedStyle) {
         return (
           <Animated.View
             pointerEvents="none"

@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
-import { Pressable, ActivityIndicator } from 'react-native'
+import { Pressable, ActivityIndicator, Platform } from 'react-native'
 import { YStack, Text, Stack, XStack } from 'tamagui'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
+
+
+const isWeb = Platform.OS === 'web';
 
 export const QuoteSection = () => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -44,7 +47,7 @@ export const QuoteSection = () => {
     }
 
     return (
-      <XStack alignItems="center" gap="$2">
+      <XStack alignItems="center" gap={isWeb ? "$3" : "$3"} >
         <YStack flex={1}>
           <Text
             fontFamily="$body"

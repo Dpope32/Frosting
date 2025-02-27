@@ -1,141 +1,45 @@
-import { useState, useEffect } from 'react'
+// StorageScreen.tsx
+import { useState } from 'react'
 import { YStack, Text, Button, Progress, XStack } from 'tamagui'
-import * as ImagePicker from 'expo-image-picker'
-import { MediaTypeOptions, launchImageLibraryAsync } from 'expo-image-picker'
 import axios from 'axios'
-import { Alert, Platform, View, useColorScheme, ScrollView } from 'react-native'
+import { Alert, Platform, View, useColorScheme, ScrollView, Image } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
 import * as Notifications from 'expo-notifications'
 import { SchedulableTriggerInputTypes } from 'expo-notifications'
-import { Plus, Bell } from '@tamagui/lucide-icons'
-
-const UPLOAD_SERVER = __DEV__
-  ? process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL
-  : process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
-
-const getUploadServer = async () => {
-  try {
-    await axios.get(`${process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL}/health`, {
-      timeout: 2000,
-      validateStatus: (status) => status === 200,
-    })
-    return process.env.EXPO_PUBLIC_UPLOAD_SERVER_LOCAL
-  } catch {
-    try {
-      await axios.get(`${process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL}/health`, {
-        timeout: 5000,
-        validateStatus: (status) => status === 200,
-      })
-      return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
-    } catch {
-      return process.env.EXPO_PUBLIC_UPLOAD_SERVER_EXTERNAL
-    }
-  }
-}
-
-interface FileStats {
-  totalSize: number
-  fileCount: number
-}
-
-const DEFAULT_STATS: FileStats = { totalSize: 0, fileCount: 0 }
-
-const useFileUpload = () => {
-  const [progress, setProgress] = useState(0)
-  const [activeServer, setActiveServer] = useState(UPLOAD_SERVER)
-  const [isUploading, setIsUploading] = useState(false)
-  const [stats, setStats] = useState<FileStats>(DEFAULT_STATS)
-  const [currentFileIndex, setCurrentFileIndex] = useState(0)
-  const [totalFiles, setTotalFiles] = useState(0)
-  const username = useUserStore.getState().preferences.username
-
-  useEffect(() => {
-    fetchStats()
-  }, [username])
-
-  useEffect(() => {
-    const initServer = async () => setActiveServer(await getUploadServer())
-    initServer()
-  }, [])
-
-  const fetchStats = async () => {
-    try {
-      const response = await axios.get(`${activeServer}/stats/${username}`)
-      setStats(response.data)
-    } catch {}
-  }
-
-  const formatSize = (bytes: number): string => {
-    if (!bytes) return '0 B'
-    const k = 1024
-    const sizes = ['B', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
-  }
-
-  const pickAndUploadFiles = async () => {
-    try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Grant media library permissions to upload.')
-        return
-      }
-      const result = await launchImageLibraryAsync({
-        mediaTypes: MediaTypeOptions.All,
-        allowsMultipleSelection: true,
-        selectionLimit: 10,
-        quality: 1,
-      })
-      if (result.canceled || !result.assets?.length) return
-      setIsUploading(true)
-      setProgress(0)
-      setTotalFiles(result.assets.length)
-
-      for (let i = 0; i < result.assets.length; i++) {
-        setCurrentFileIndex(i + 1)
-        const asset = result.assets[i]
-        const formData = new FormData()
-        formData.append('file', {
-          uri: asset.uri,
-          type: asset.mimeType || 'image/jpeg',
-          name: asset.uri.split('/').pop() || 'image.jpg',
-        } as any)
-        formData.append('username', username)
-
-        await axios.post(`${activeServer}/upload`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (evt) => {
-            const chunk = evt.loaded / (evt.total || 1)
-            const percent = Math.round(((i + chunk) * 100) / result.assets.length)
-            setProgress(percent)
-          },
-        })
-      }
-
-      Alert.alert('Success', 'Files uploaded successfully!')
-      fetchStats()
-    } catch (error) {
-      Alert.alert('Upload Failed', error instanceof Error ? error.message : 'An error occurred')
-    } finally {
-      setIsUploading(false)
-      setProgress(0)
-      setCurrentFileIndex(0)
-    }
-  }
-
-  return { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles }
-}
+import { Plus, Bell, PlayCircle } from '@tamagui/lucide-icons'
+import { Video, ResizeMode } from 'expo-av'
+import { useStorage } from '@/hooks/useStorage' // Import the hook
 
 export default function StorageScreen() {
-  const { pickAndUploadFiles, progress, isUploading, stats, formatSize, currentFileIndex, totalFiles } =
-    useFileUpload()
+  const { 
+    pickAndUploadFiles, 
+    progress, 
+    isUploading, 
+    stats, 
+    formatSize, 
+    currentFileIndex, 
+    totalFiles,
+    mediaItems,
+    isLoading,
+    getMediaUrl,
+    isImageFile,
+    isVideoFile,
+    activeServer
+  } = useStorage() // Use the hook
+  
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const username = useUserStore((state) => state.preferences.username)
 
-  // Placeholder for fetched media
-  const [mediaItems, setMediaItems] = useState<string[]>([]) // e.g. URLs or local paths
-
+  // Responsive media grid columns
+  const isWeb = Platform.OS === 'web'
+  const getColumnCount = () => (isWeb ? 4 : 3)
+  const columnCount = getColumnCount()
+  
+  // State for video modal
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
+  
   // For testing notifications
   const testNotification = async () => {
     try {
@@ -169,13 +73,8 @@ export default function StorageScreen() {
     }
   }
 
-  // Responsive media grid columns
-  const isWeb = Platform.OS === 'web'
-  const getColumnCount = () => (isWeb ? 9 : 3)
-  const columnCount = getColumnCount()
-
   return (
-    <YStack flex={1} padding="$6" paddingTop={100} gap="$6" bg={isDark ? '#000' : '#fff'}>
+    <YStack flex={1} padding={isWeb ? "$6" : "$2"} paddingTop={100} gap="$6" bg={isDark ? '#000' : '#fff'}>
       <XStack
         backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
         padding="$4"
@@ -287,7 +186,27 @@ export default function StorageScreen() {
         </XStack>
       )}
 
-      {!mediaItems.length ? (
+      {isLoading ? (
+        <YStack 
+          alignItems="center" 
+          justifyContent="center" 
+          flex={1}
+          backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
+          padding="$4"
+          borderRadius="$4"
+          borderWidth={1}
+          borderColor={isDark ? '#333' : '#e0e0e0'}
+        >
+          <Text 
+            fontFamily="$body"
+            fontSize="$5"
+            fontWeight="bold"
+            color={isDark ? '#fff' : '#000'}
+          >
+            Loading your media...
+          </Text>
+        </YStack>
+      ) : !mediaItems.length ? (
         <XStack
           backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
           padding="$4"
@@ -299,7 +218,7 @@ export default function StorageScreen() {
           flexWrap="wrap"
           gap="$4"
         >
-          <YStack flex={1} minWidth={200} gap="$2">
+          <YStack flex={1} minWidth={200} gap="$2" minHeight={100}>
             <Text
               fontFamily="$body"
               fontSize="$5"
@@ -313,68 +232,151 @@ export default function StorageScreen() {
               fontSize="$3"
               color={isDark ? '#ccc' : '#666'}
             >
-              Your uploaded files and media will appear here. Tap the plus button in the bottom right to get started.
+              Your uploaded files and media will appear here. Tap the plus button in the bottom right to get started. 
+            </Text>
+            <Text
+              fontFamily="$body"
+              fontSize="$3"
+              color={isDark ? '#ccc' : '#666'}
+            >
+              All media is only accessible to the user and is encrypted on the server side. Why would I want to see your media? 
+              I get way better storage rates when they are compressed anyway.
             </Text>
           </YStack>
-          
-          <XStack 
-            backgroundColor={isDark ? '#222' : '#e8e8e8'} 
-            borderRadius="$3"
-            padding="$3"
-            alignItems="center"
-            justifyContent="center"
-            minWidth={120}
-            height={80}
-            borderLeftWidth={4}
-            borderLeftColor={primaryColor}
-          >
-            <Button
-              size="$3"
-              bg={primaryColor}
-              color="white"
-              pressStyle={{ scale: 0.95 }}
-              animation="quick"
-              onPress={pickAndUploadFiles}
-              disabled={isUploading}
-              borderRadius="$2"
-              paddingHorizontal="$3"
-            >
-              <Plus color="white" size={16} />
-              <Text color="white" fontWeight="bold" ml="$1">Upload</Text>
-            </Button>
-          </XStack>
         </XStack>
       ) : (
         <ScrollView
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'flex-start',
-            gap: 8,
+            gap: isWeb ? 8 : 4,
+            padding: isWeb ? 4 : 2
           }}
         >
           {mediaItems.map((item, idx) => {
-            const width = `${100 / columnCount - 1}%`
+            const mediaUrl = getMediaUrl(item);
+            
+            const width = isWeb 
+              ? `calc(${80 / columnCount}% - ${8 * (columnCount) / columnCount}px)`
+              : `${(95 / columnCount) - (8 * (columnCount ) / 100)}%`;
+            
             return (
               <YStack
                 key={idx}
                 width={width}
-                minWidth={60}
+                minWidth={isWeb ? 220 : 90}
                 aspectRatio={1}
                 bg={isDark ? '#222' : '#eee'}
                 borderRadius="$2"
                 overflow="hidden"
+                position="relative"
               >
-                {/* Replace this with an <Image> component when real media URLs are available */}
-                <Text
-                  fontFamily="$body"
-                  fontSize="$2"
-                  color={isDark ? '#ccc' : '#555'}
-                  textAlign="center"
-                  mt="$2"
-                >
-                  Placeholder
-                </Text>
+                {isImageFile(item.name) ? (
+                  <Image 
+                    source={{ uri: mediaUrl }}
+                    style={{ width: '100%', height: '100%' }}
+                    resizeMode="cover"
+                  />
+                ) : isVideoFile(item.name) ? (
+                  <YStack 
+                    flex={1} 
+                    alignItems="center" 
+                    justifyContent="center"
+                    onPress={() => setSelectedVideo(getMediaUrl(item, true))}
+                    pressStyle={{ opacity: 0.8 }}
+                  >
+                    {/* Background image as thumbnail for video */}
+                    <Image 
+                      source={{ uri: mediaUrl }}
+                      style={{ 
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0.7
+                      }}
+                      resizeMode="cover"
+                    />
+                    
+                    {/* Semi-transparent overlay */}
+                    <View 
+                      style={{ 
+                        position: 'absolute', 
+                        top: 0, 
+                        left: 0, 
+                        right: 0, 
+                        bottom: 0, 
+                        backgroundColor: 'rgba(0,0,0,0.4)'
+                      }} 
+                    />
+                    
+                    {/* Video badge */}
+                    <Text
+                      fontFamily="$body"
+                      fontSize="$2"
+                      color="#fff"
+                      fontWeight="bold"
+                      style={{ 
+                        position: 'absolute', 
+                        top: 4, 
+                        left: 4,
+                        backgroundColor: primaryColor,
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        borderRadius: 4
+                      }}
+                    >
+                      VIDEO
+                    </Text>
+                    
+                    {/* Play button icon */}
+                    <PlayCircle 
+                      size={24} 
+                      color="#fff" 
+                      style={{
+                        opacity: 0.9,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.8,
+                        shadowRadius: 3,
+                      }}
+                    />
+                  </YStack>
+                ) : (
+                  <YStack flex={1} alignItems="center" justifyContent="center" padding="$1">
+                    <Text
+                      fontFamily="$body"
+                      fontSize="$4"
+                      fontWeight="bold"
+                      color={isDark ? '#ccc' : '#555'}
+                      textAlign="center"
+                      marginBottom="$2"
+                    >
+                      {item.name.split('.').pop()?.toUpperCase()}
+                    </Text>
+                    <Text
+                      fontFamily="$body"
+                      fontSize="$2"
+                      color={isDark ? '#999' : '#777'}
+                      textAlign="center"
+                      numberOfLines={2}
+                      ellipsizeMode="middle"
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      fontFamily="$body"
+                      fontSize="$1"
+                      color={isDark ? '#777' : '#999'}
+                      marginTop="$2"
+                    >
+                      {formatSize(item.size)}
+                    </Text>
+                  </YStack>
+                )}
               </YStack>
             )
           })}
@@ -411,6 +413,67 @@ export default function StorageScreen() {
           </Button>
         </View>
       )}
+
+{/* Video Modal */}
+{selectedVideo && (
+  <View 
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.9)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 2000,
+    }}
+  >
+    <View 
+      style={{
+        width: isWeb ? '100%' : '90%',  // Wider container on web
+        height: isWeb ? '100%' : '70%', // Taller container on web
+        maxWidth: 1200,                // Larger maximum width for large screens
+        backgroundColor: '#000',
+        paddingTop: 60,
+        paddingBottom: 60,
+        borderRadius: 8,
+        overflow: 'hidden',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Video
+        source={{ uri: selectedVideo }}
+        style={{ 
+          flex: 1,
+          alignSelf: 'stretch'
+        }}
+        useNativeControls
+        resizeMode={ResizeMode.CONTAIN}  // This ensures the aspect ratio is maintained
+        shouldPlay
+        isLooping={true}
+        volume={1.0}
+        onError={(e) => console.error('Failed to load video:', e)}
+      />
+    </View>
+    
+    <Button
+      size="$4"
+      circular
+      position="absolute"
+      top={80}
+      right={20}
+      bg="rgba(0,0,0,0.5)"
+      pressStyle={{ scale: 0.95 }}
+      animation="quick"
+      onPress={() => setSelectedVideo(null)}
+    >
+      <Text color="white" fontSize={20}>✕</Text>
+    </Button>
+  </View>
+)}
     </YStack>
   )
 }

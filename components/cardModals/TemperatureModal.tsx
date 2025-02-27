@@ -1,6 +1,5 @@
-// TemperatureModal.tsx
 import React, { useEffect } from 'react'
-import { useColorScheme, Platform } from 'react-native'
+import { useColorScheme, Platform, Dimensions, ScrollView } from 'react-native'
 import { YStack, Text, XStack, Stack } from 'tamagui'
 import Animated, {
   withSpring,
@@ -26,7 +25,7 @@ function getCardBackground(shortForecast: string, isDark: boolean) {
   const f = shortForecast.toLowerCase()
   if (f.includes('wind')) return isDark ? '#1E3A5F' : '#CCE7F7'
   if (f.includes('rain')) return isDark ? '#1E293B' : '#A8D0E6'
-  if (f.includes('sun')) return isDark ? '#2563EB' : '#3B82F6' // Bright blue for sunny
+  if (f.includes('sun')) return isDark ? '#2563EB' : '#3B82F6'
   if (f.includes('snow')) return isDark ? '#334155' : '#E0F2FE'
   if (f.includes('cloud')) return isDark ? '#374151' : '#E5E7EB'
   return isDark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)'
@@ -88,6 +87,11 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
     if (fiveDayForecast.length === 5) break
   }
 
+  const screenWidth = Dimensions.get('window').width
+  const totalHorizontalPadding = 32 // assume 16px padding on each side
+  const availableWidth = screenWidth - totalHorizontalPadding
+  const mobileCardWidth = availableWidth / 3
+
   return (
     <BaseCardModal open={open} onOpenChange={onOpenChange} title="Weather">
       <YStack gap="$4">
@@ -121,35 +125,22 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
             </Stack>
           </YStack>
         </YStack>
-
-        <YStack
-          backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.8)"}
-          borderRadius={12}
-          padding="$4"
-          borderWidth={1}
-          borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-        >
-          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">
-            5-Day Forecast
-          </Text>
-
+        {Platform.OS === 'web' ? (
           <XStack
             marginTop="$3"
             gap="$4"
-            {...(Platform.OS === 'web'
-              ? { justifyContent: 'space-between', flexWrap: 'wrap' }
-              : { flexDirection: 'column' }
-            )}
+            justifyContent="space-between"
+            flexWrap="wrap"
           >
             {fiveDayForecast.map((period, idx) => (
               <Animated.View
                 key={period.day}
                 entering={FadeIn.delay(idx * 100).duration(500)}
-                style={Platform.OS === 'web' ? { flexBasis: '18%', minWidth: 140 } : {}}
+                style={{ flexBasis: '18%', minWidth: 140 }}
               >
                 <YStack
                   height={280}
-                  width="100%"
+                  width={"100%"}
                   borderRadius={12}
                   overflow="hidden"
                   borderWidth={1}
@@ -159,95 +150,46 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   gap="$2"
                   justifyContent="space-between"
                 >
-                  {/* Weather Icon */}
                   <Text fontSize={40} textAlign="center" marginTop="$1">
                     {getWeatherIcon(period.shortForecast)}
                   </Text>
-                  
-                  {/* Day and Forecast */}
                   <YStack gap="$1" flex={1} justifyContent="center">
-                    <Text
-                      textAlign="center"
-                      color={isDark ? "#fff" : "#000"}
-                      fontSize={16}
-                      fontWeight="600"
-                    >
+                    <Text textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="600">
                       {period.day}
                     </Text>
-                    <Text
-                      textAlign="center"
-                      color={isDark ? "#ccc" : "#444"}
-                      fontSize={12}
-                      numberOfLines={2}
-                      ellipsizeMode="tail"
-                    >
+                    <Text textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={12} numberOfLines={2} ellipsizeMode="tail">
                       {period.shortForecast}
                     </Text>
                   </YStack>
-                  
-                  {/* Weather Details */}
                   <YStack gap="$1" marginVertical="$2">
                     {period.precipitation > 0 && (
-                      <XStack 
-                        alignItems="center" 
-                        justifyContent="center"
-                        gap="$1"
-                      >
+                      <XStack alignItems="center" justifyContent="center" gap="$1">
                         <Text fontSize={12}>💧</Text>
-                        <Text
-                          textAlign="center"
-                          color={isDark ? "#7cb3ff" : "#1d4ed8"}
-                          fontSize={12}
-                        >
+                        <Text textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={12}>
                           {period.precipitation}%
                         </Text>
                       </XStack>
                     )}
                     {period.windSpeed && (
-                      <XStack 
-                        alignItems="center" 
-                        justifyContent="center"
-                        gap="$1"
-                      >
+                      <XStack alignItems="center" justifyContent="center" gap="$1">
                         <Text fontSize={12}>💨</Text>
-                        <Text
-                          textAlign="center"
-                          color={isDark ? "#a1a1aa" : "#52525b"}
-                          fontSize={12}
-                        >
+                        <Text textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={12}>
                           {period.windSpeed} {period.windDirection}
                         </Text>
                       </XStack>
                     )}
                   </YStack>
-                  
-                  {/* Temperature */}
-                  <XStack
-                    alignSelf="stretch"
-                    padding="$2"
-                    borderRadius={8}
-                    backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"}
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
+                  <XStack alignSelf="stretch" padding="$2" borderRadius={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center">
                     <YStack>
-                      <Text fontSize={12} color={isDark ? "#ccc" : "#666"}>High</Text>
-                      <Text
-                        fontSize={18}
-                        fontWeight="700"
-                        color={getTemperatureColor(period.high, isDark)}
-                      >
-                        {period.high}°
+                      <Text fontSize={12} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                      <Text fontSize={18} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
+                        {period.low}°
                       </Text>
                     </YStack>
                     <YStack>
-                      <Text fontSize={12} color={isDark ? "#ccc" : "#666"}>Low</Text>
-                      <Text
-                        fontSize={18}
-                        fontWeight="700"
-                        color={getTemperatureColor(period.low, isDark)}
-                      >
-                        {period.low}°
+                      <Text fontSize={12} color={isDark ? "#ccc" : "#666"}>High</Text>
+                      <Text fontSize={18} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
+                        {period.high}°
                       </Text>
                     </YStack>
                   </XStack>
@@ -255,7 +197,78 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
               </Animated.View>
             ))}
           </XStack>
-        </YStack>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 8 }}
+          >
+            {fiveDayForecast.map((period, idx) => (
+              <Animated.View
+                key={period.day}
+                entering={FadeIn.delay(idx * 100).duration(500)}
+                style={{ width: mobileCardWidth, marginRight: idx === fiveDayForecast.length - 1 ? 0 : 8 }}
+              >
+                <YStack
+                  height={200}
+                  width="100%"
+                  borderRadius={12}
+                  overflow="hidden"
+                  borderWidth={1}
+                  borderColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
+                  backgroundColor={getCardBackground(period.shortForecast, isDark)}
+                  padding="$2"
+                  gap="$2"
+                  justifyContent="space-between"
+                >
+                  <Text fontSize={28} textAlign="center" marginTop="$1">
+                    {getWeatherIcon(period.shortForecast)}
+                  </Text>
+                  <YStack gap="$0" flex={1} justifyContent="center">
+                    <Text textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="600">
+                      {period.day}
+                    </Text>
+                    <Text textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={10} numberOfLines={2} ellipsizeMode="tail">
+                      {period.shortForecast}
+                    </Text>
+                  </YStack>
+                  <YStack gap="$2">
+                    {period.precipitation > 0 && (
+                      <XStack alignItems="center" justifyContent="center" gap="$0">
+                        <Text fontSize={10}>💧</Text>
+                        <Text textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={10}>
+                          {period.precipitation}%
+                        </Text>
+                      </XStack>
+                    )}
+                    {period.windSpeed && (
+                      <XStack alignItems="center" justifyContent="center" gap="$0">
+                        <Text fontSize={10}>💨</Text>
+                        <Text textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={10}>
+                          {period.windSpeed} {period.windDirection}
+                        </Text>
+                      </XStack>
+                    )}
+                  </YStack>
+                  <XStack alignSelf="stretch" padding="$1" borderRadius={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center">
+                    <YStack>
+                      <Text fontSize={10} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                      <Text fontSize={14} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
+                        {period.low}°
+                      </Text>
+                    </YStack>
+                    <YStack>
+                      <Text fontSize={10} color={isDark ? "#ccc" : "#666"}>High</Text>
+                      <Text fontSize={14} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
+                        {period.high}°
+                      </Text>
+                    </YStack>
+                  </XStack>
+                </YStack>
+              </Animated.View>
+            ))}
+          </ScrollView>
+        )}
       </YStack>
     </BaseCardModal>
   )

@@ -47,6 +47,7 @@ export default function BillsScreen() {
   return (
     <YStack f={1} mt={isWeb? 70 : 90} bg={isDark ? "#000000" : "#ffffff"}>
       <ScrollView 
+      showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
           padding: isWeb ? 8 : 8,
           paddingBottom: 100,

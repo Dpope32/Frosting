@@ -127,6 +127,24 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     setSettings((prev) => ({ ...prev, backgroundStyle: value }))
   }
 
+  // Get wallpaper image source safely
+  function getWallpaperImageSource(style: BackgroundStyle): ImageSourcePropType | undefined {
+    const wallpaperPath = getWallpaperPath(style);
+    if (wallpaperPath && wallpaperPath.uri) {
+      return { uri: wallpaperPath.uri };
+    }
+    
+    // Fallback to local assets for specific styles
+    if (style === 'space') {
+      return require('@/assets/wallpapers/wallpapers-3.png');
+    } else if (style === 'silhouette') {
+      return require('@/assets/wallpapers/wallpapers-4.png');
+    }
+    
+    // Default fallback
+    return undefined;
+  }
+
   return (
     <Sheet
       modal
@@ -171,13 +189,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             pressStyle={{ opacity: 0.7 }}
             onPress={() => onOpenChange(false)}
           >
-            <Text fontSize={16} fontWeight="bold" color={isDark ? '#fff' : '#000'}>
+            <Text fontSize={16} fontWeight="bold" color={isDark ? '#fff' : '#000'} fontFamily="$body">
               ✕
             </Text>
           </Circle>
         </XStack>
         <YStack gap="$3" paddingBottom="$3">
-          <Text fontSize={20} fontWeight="600" color={isDark ? '#fff' : '#000'}>
+          <Text fontSize={20} fontWeight="600" color={isDark ? '#fff' : '#000'} fontFamily="$body">
             Settings
           </Text>
           <XStack gap="$3" flexWrap="wrap">
@@ -201,7 +219,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   }}
                 />
               ) : (
-                <Text color={isDark ? '#fff' : '#000'} fontSize={11}>
+                <Text color={isDark ? '#fff' : '#000'} fontSize={11} fontFamily="$body">
                   Profile
                 </Text>
               )}
@@ -210,7 +228,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             <YStack gap="$3" flex={1}>
               <XStack gap="$3" flexWrap="wrap">
                 <YStack width={isWeb ? 150 : 120} gap="$1">
-                  <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                  <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Username
                   </Text>
                   <Input
@@ -227,7 +245,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 </YStack>
 
                 <YStack width={isWeb ? 150 : 120} gap="$1">
-                  <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                  <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Zip Code
                   </Text>
                   <Input
@@ -247,7 +265,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               {isWeb ? (
                 <XStack gap="$3" marginTop="$2" flexWrap="wrap">
                   <YStack width={100} gap="$1">
-                    <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                    <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                       Show Quote
                     </Text>
                     <Switch
@@ -263,7 +281,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     />
                   </YStack>
                   <YStack width={120} gap="$1">
-                    <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                    <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                       Notifications
                     </Text>
                     <Switch
@@ -279,7 +297,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     />
                   </YStack>
                   <YStack gap="$1" alignItems="flex-start">
-                    <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                    <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                       Primary Color
                     </Text>
                     <XStack alignItems="center" gap="$2">
@@ -294,7 +312,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                         backgroundColor={isDark ? '#333' : '#f5f5f5'}
                         onPress={() => setColorPickerOpen(true)}
                       >
-                        <Text color={isDark ? '#fff' : '#000'} fontSize={12}>
+                        <Text color={isDark ? '#fff' : '#000'} fontSize={12} fontFamily="$body">
                           Customize
                         </Text>
                       </Button>
@@ -305,7 +323,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <YStack gap="$2">
                   <XStack gap="$3">
                     <YStack width={110} gap="$1">
-                      <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                      <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                         Show Quote
                       </Text>
                       <Switch
@@ -322,7 +340,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     </YStack>
 
                     <YStack width={110} gap="$1">
-                      <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                      <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                         Notifications
                       </Text>
                       <Switch
@@ -340,7 +358,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   </XStack>
 
                   <YStack gap="$2">
-                    <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+                    <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                       Primary Color
                     </Text>
                     <XStack alignItems="center" justifyContent="flex-start" gap="$2">
@@ -355,7 +373,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                         backgroundColor={isDark ? '#333' : '#f5f5f5'}
                         onPress={() => setColorPickerOpen(true)}
                       >
-                        <Text color={isDark ? '#fff' : '#000'} fontSize={12}>
+                        <Text color={isDark ? '#fff' : '#000'} fontSize={12} fontFamily="$body">
                           Customize
                         </Text>
                       </Button>
@@ -368,7 +386,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
           {/* Wallpaper selection */}
           <YStack gap="$2" marginTop="$2">
-            <Text fontSize={14} color={isDark ? '#fff' : '#000'}>
+            <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
               Wallpaper Selection
             </Text>
             <XStack
@@ -394,6 +412,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   : isDark
                   ? 'rgba(255,255,255,0.2)'
                   : 'rgba(0,0,0,0.2)'
+                
                 return (
                   <Button
                     key={style.value}
@@ -439,7 +458,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     ) : (
                       <YStack width="100%" height="100%" overflow="hidden" borderRadius={4}>
                         <Image
-                          source={buildImageSource(getWallpaperPath(style.value)?.uri)}
+                          source={getWallpaperImageSource(style.value)}
                           style={{ width: '100%', height: '100%', borderRadius: 4 }}
                           resizeMode="cover"
                           {...(isWeb ? { loading: 'lazy' } : {})}
@@ -466,7 +485,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   }
                 }}
               >
-                <Text color={isDark ? '#fff' : '#000'} fontSize={12}>
+                <Text color={isDark ? '#fff' : '#000'} fontSize={12} fontFamily="$body">
                   {wallpapersToShow >= backgroundStyles.length ? "Show Less Wallpapers" : "Show More Wallpapers"}
                 </Text>
               </Button>
@@ -482,7 +501,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               pressStyle={{ opacity: 0.8 }}
               onPress={handleSave}
             >
-              <Text color="#fff" fontWeight="500" fontSize={13}>
+              <Text color="#fff" fontWeight="500" fontSize={13} fontFamily="$body">
                 Save Settings
               </Text>
             </Button>

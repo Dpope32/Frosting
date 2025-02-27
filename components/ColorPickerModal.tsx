@@ -5,23 +5,12 @@ import { Sheet, Button, Text, Circle, XStack, YStack } from 'tamagui'
 // Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;
 
-// Only try to import the color picker on native platforms
-// This approach prevents the bundler from even trying to resolve the package on web
-let ColorPicker: any = EmptyColorPicker;
+// Import the color picker directly for native platforms
+// For web, we'll use our custom web color picker
+import WheelColorPicker from 'react-native-wheel-color-picker';
 
-// We use this pattern to completely avoid the import on web
-// The bundler won't even try to resolve the package
-if (Platform.OS !== 'web') {
-  try {
-    // Dynamic import that will be completely ignored on web
-    const wheelPickerModule = 'react-native-wheel-color-picker';
-    // @ts-ignore - This is intentional to prevent web bundling issues
-    ColorPicker = require(wheelPickerModule).default;
-  } catch (error) {
-    console.warn('Color picker not available:', error);
-    ColorPicker = EmptyColorPicker;
-  }
-}
+// Use the imported component or fallback to empty component
+const ColorPicker = Platform.OS === 'web' ? EmptyColorPicker : WheelColorPicker;
 
 interface ColorPickerModalProps {
   open: boolean
@@ -80,14 +69,12 @@ export function ColorPickerModal({
             Color Selection
           </Text>
 
-          {/* Custom Color Picker */}
           <YStack gap="$2">
             <Text fontSize={14} color={textColor}>
               Custom Color
             </Text>
             <View style={styles.pickerContainer}>
               {Platform.OS === 'web' ? (
-                // Web-compatible color input
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                   <input
                     type="color"
@@ -104,7 +91,6 @@ export function ColorPickerModal({
                   />
                 </View>
               ) : (
-                // Native color picker
                 <ColorPicker
                   color={selectedColor}
                   onColorChange={handleColorChange}
@@ -117,7 +103,6 @@ export function ColorPickerModal({
             </View>
           </YStack>
 
-          {/* Selected Color Preview */}
           <XStack gap="$2" alignItems="center">
             <Text fontSize={14} color={textColor}>
               Selected Color:
@@ -128,7 +113,6 @@ export function ColorPickerModal({
             </Text>
           </XStack>
 
-          {/* Done Button */}
           <Button
             backgroundColor={selectedColor}
             height={45}

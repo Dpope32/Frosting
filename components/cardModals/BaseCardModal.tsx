@@ -1,4 +1,3 @@
-// BaseCardModal.tsx
 import React from 'react'
 import { Sheet, Text, Theme } from 'tamagui'
 import { KeyboardAvoidingView, Platform, useColorScheme } from 'react-native'
@@ -48,7 +47,8 @@ export function BaseCardModal({
           backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
-          padding="$6"
+          paddingVertical="$6"
+          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
           backgroundColor={isDark ? "rgba(17,17,17,0.95)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}

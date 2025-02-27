@@ -23,7 +23,9 @@
         "backgroundColor": "#000000"
       },
       "infoPlist": {
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSCalendarsUsageDescription": "This app needs to access your calendar to set reminders for birthdays.",
         "NSRemindersUsageDescription": "This app needs to send you notifications about birthdays and events."
       }
@@ -43,9 +45,12 @@
         {
           "icon": "./assets/images/icon.png",
           "color": "#1e1e1e",
-          "sounds": ["./assets/sounds/default"]
+          "sounds": [
+            "./assets/sounds/default"
+          ]
         }
-      ]
+      ],
+      "expo-video"
     ],
     "extra": {
       "router": {

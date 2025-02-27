@@ -74,6 +74,7 @@ export default function VaultScreen() {
   return (
     <YStack f={1} mt={isWeb ? 80 : 100} bg={isDark ? '#000000' : '#ffffff'}>
       <ScrollView
+      showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           padding: isWeb ? 8 : 8,
           paddingBottom: 100,

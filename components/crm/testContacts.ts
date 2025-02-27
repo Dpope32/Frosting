@@ -8,7 +8,15 @@ const getRandomProfilePicture = () => {
   return `https://randomuser.me/api/portraits/${gender}/${number}.jpg`;
 };
 
+// Flag to prevent multiple simultaneous calls
+let isGeneratingContacts = false;
+
 export const generateTestContacts = () => {
+  // Prevent multiple calls while contacts are being generated
+  if (isGeneratingContacts) return;
+  
+  isGeneratingContacts = true;
+  
   const testContacts = [
     {
       name: "John Smith",
@@ -102,9 +110,14 @@ export const generateTestContacts = () => {
     }
   ];
 
-  testContacts.forEach(contact => {
+  // Add only one contact on mobile to prevent UI issues
+  if (Platform.OS !== "web") {
+    // Pick a random contact from the list
+    const randomIndex = Math.floor(Math.random() * testContacts.length);
+    const randomContact = testContacts[randomIndex];
+    
     usePeopleStore.getState().addPerson({
-      ...contact,
+      ...randomContact,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -112,9 +125,34 @@ export const generateTestContacts = () => {
       priority: Math.random() > 0.5,
       profilePicture: getRandomProfilePicture()
     });
-  });
-
-  if (Platform.OS !== "web") {
+    
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    isGeneratingContacts = false;
+  } else {
+    // On web, we can add all contacts with a small delay between each
+    let index = 0;
+    
+    const addNextContact = () => {
+      if (index < testContacts.length) {
+        const contact = testContacts[index];
+        
+        usePeopleStore.getState().addPerson({
+          ...contact,
+          id: Math.random().toString(36).substr(2, 9),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          tags: ["test"],
+          priority: Math.random() > 0.5,
+          profilePicture: getRandomProfilePicture()
+        });
+        
+        index++;
+        setTimeout(addNextContact, 100); // Add next contact after 100ms
+      } else {
+        isGeneratingContacts = false;
+      }
+    };
+    
+    addNextContact();
   }
 };

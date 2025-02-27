@@ -13,7 +13,7 @@ import { generateTestContacts } from "@/components/crm/testContacts";
 
 const { width } = Dimensions.get("window");
 const PADDING = 16;
-const GAP = 16;
+const GAP = 24; // Increased from 16 to add more space between cards
 const NUM_COLUMNS = Platform.OS === 'web' ? 5 : 2;
 const CARD_WIDTH = (width - PADDING * 2 - (NUM_COLUMNS - 1) * GAP) / NUM_COLUMNS;
 
@@ -56,7 +56,7 @@ export default function CRM() {
           width: CARD_WIDTH,
           marginLeft: isFirstInRow ? PADDING : GAP / 2,
           marginRight: isLastInRow ? PADDING : GAP / 2,
-          marginBottom: GAP
+          marginBottom: GAP /2
         }}
       >
         <PersonCard

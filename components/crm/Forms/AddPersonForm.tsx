@@ -379,21 +379,28 @@ export function AddPersonForm(): JSX.Element {
   }, [])
 
   const handleSubmit = useCallback((): void => {
-    if (!formData.name?.trim() || !formData.birthday?.trim()) return
+    // Prevent multiple submissions
+    if (addPersonMutation.isLoading) return;
+    
+    if (!formData.name?.trim() || !formData.birthday?.trim()) return;
+    
     const processedFormData = {
       ...formData,
       phoneNumber: formData.phoneNumber ? formatPhoneNumber(formData.phoneNumber) : undefined
-    }
+    };
+    
     addPersonMutation.mutate({
       ...processedFormData,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    })
-    setFormData({ ...initialFormData })
-    setInputResetKey((prev) => prev + 1)
-    setOpen(false)
-    }, [formData, addPersonMutation])
+    });
+    
+    // Reset form and close modal
+    setFormData({ ...initialFormData });
+    setInputResetKey((prev) => prev + 1);
+    setOpen(false);
+  }, [formData, addPersonMutation]);
 
     const updateFormField = useCallback(
       <K extends keyof FormData>(field: K, value: FormData[K]): void => {
