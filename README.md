@@ -19,15 +19,15 @@ All data is stored locally first, with future plans for cross-device synchroniza
 
 ### Prerequisites
 
-- Node.js (LTS version recommended)
+- Node.js 
 - npm or yarn
-- Expo CLI (`npm install -g expo-cli`)
+- Expo CLI
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/frosting.git
+git clone https://github.com/dpope32/frosting.git
 cd frosting
 
 # Install dependencies
@@ -36,7 +36,7 @@ npm install
 
 ### Running the App
 ```bash
-npx expo run: ios
+npx expo run
 ```
 
 #### Web
