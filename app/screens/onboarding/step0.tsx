@@ -11,7 +11,7 @@ export default function Step0({
 }) {
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
-      <Label size="$8" textAlign="center" color="$gray12Dark">
+      <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
         What should we call you?
       </Label>
       <Input
@@ -26,6 +26,7 @@ export default function Step0({
         backgroundColor="$gray4Dark"
         borderColor="$gray8Dark"
         color="$gray12Dark"
+        fontFamily="$body"
         textAlign="center"
         style={{ 
           textAlign: 'center',
