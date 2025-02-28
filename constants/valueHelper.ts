@@ -31,7 +31,8 @@ export const getValueColor = (valueType: string, value: string | number, primary
       if (numericValue < 150) return '#FFA500';  // Fair (<150ms)
       return '#FF0000';                          // Poor (>=150ms)
     case 'portfolio':
-      return '#2E7D32';                          // Dark Green
+      if (numericValue < 0) return '#FF0000';    // Red for negative values
+      return '#2E7D32';                          // Dark Green for positive values
     case 'time':
       return '#C0C0C0';  // Light gray that's visible on dark background
     default:

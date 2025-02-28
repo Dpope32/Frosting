@@ -18,82 +18,75 @@ export function Header({ title }: HeaderProps) {
   const [showSettings, setShowSettings] = useState(false);
 
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#001';
+  const isWeb = Platform.OS === 'web';
 
   // Calculate the spacer height based on platform
-  const spacerHeight = Platform.OS === 'web' ? 60 : Platform.OS === 'ios' ? 90 : 90;
+  const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
 
   return (
     <>
       {/* Spacer to prevent content from being hidden under the fixed header */}
-      {Platform.OS === 'web' && (
+      {isWeb && (
         <YStack height={spacerHeight} />
       )}
       <YStack 
         position="absolute" 
-        top={Platform.OS === 'web' ? 0 : 0} 
+        top={0} 
         left={0} 
         right={0} 
-        zIndex={50}
-        {...(Platform.OS === 'web' ? {
+        zIndex={isWeb ? 10 : 50}
+        {...(isWeb ? {
           // Add web-specific styles for the header container
           style: {
             position: 'fixed', // Use fixed positioning on web for better scrolling behavior
-            backdropFilter: 'blur(10px)', // Add a blur effect for a modern look
           } as any
         } : {})}
       >
         <YStack
           backgroundColor={
-            Platform.OS === 'web' 
+            isWeb 
               ? colorScheme === 'dark' 
-                ? 'rgba(0,0,0,0.7)' 
+                ? 'rgba(0,0,0,0.2)' 
                 : 'rgba(255,255,255,0.9)'
               : colorScheme === 'dark' 
-                ? 'rgba(0,0,0,0.8)' 
+                ? 'rgba(0,0,0,0.2)' 
                 : 'rgba(255,255,255,1)'
           }
-          {...(Platform.OS === 'web' ? {
-            style: {
-              borderBottom: colorScheme === 'dark' 
-                ? '1px solid rgba(255,255,255,0.1)' 
-                : '1px solid rgba(0,0,0,0.1)',
-              boxShadow: colorScheme === 'dark'
-                ? '0 2px 8px rgba(0,0,0,0.2)'
-                : '0 2px 8px rgba(0,0,0,0.05)'
-            } as any
-          } : {})}
         >
           <XStack 
             alignItems="center" 
             justifyContent="space-between" 
             paddingHorizontal="$4" 
-            height={Platform.OS === 'web' ? 60 : Platform.OS === 'ios' ? 90 : 90}
-            paddingTop={Platform.OS === 'web' ? 15 : Platform.OS === 'ios' ? 45 : 40}
+            height={isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90}
+            paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 45 : 40}
           >
             <XStack alignItems="center" gap="$4">
-              <Pressable 
-                onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-                style={{ 
-                  padding: 8, 
-                  marginLeft: -8,
-                  ...(Platform.OS === 'web' ? {
-                    cursor: 'pointer',
-                    borderRadius: 8,
-                    transition: 'all 0.2s ease',
-                    ':hover': {
-                      backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
-                    }
-                  } as any : {})
-                }}
-              >
-                <Ionicons 
-                  name="menu" 
-                  size={Platform.OS === 'web' ? 24 : 28} 
-                  color={textColor} 
-                />
-              </Pressable>
+              {/* Only show menu button on non-web platforms */}
+              {!isWeb && (
+                <Pressable 
+                  onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+                  style={{ 
+                    padding: 8, 
+                    marginLeft: -8,
+                    ...(isWeb ? {
+                      cursor: 'pointer',
+                      borderRadius: 8,
+                      transition: 'all 0.2s ease',
+                      ':hover': {
+                        backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
+                      }
+                    } as any : {})
+                  }}
+                >
+                  <Ionicons 
+                    name="menu" 
+                    size={isWeb ? 24 : 28} 
+                    color={textColor} 
+                  />
+                </Pressable>
+              )}
               <Text 
-                fontSize={Platform.OS === 'web' ? 18 : 20}
+                fontSize={isWeb ? 18 : 20}
                 fontWeight="600"
                 color={textColor}
                 numberOfLines={1}
@@ -108,7 +101,7 @@ export function Header({ title }: HeaderProps) {
                 style={{ 
                   padding: 8, 
                   marginRight: -8,
-                  ...(Platform.OS === 'web' ? {
+                  ...(isWeb ? {
                     cursor: 'pointer',
                     borderRadius: 8,
                     transition: 'all 0.2s ease',
@@ -120,7 +113,7 @@ export function Header({ title }: HeaderProps) {
               >
                 <Ionicons 
                   name="settings-outline" 
-                  size={Platform.OS === 'web' ? 22 : 24} 
+                  size={isWeb ? 22 : 24} 
                   color={textColor} 
                 />
               </Pressable>

@@ -2,6 +2,7 @@ export interface Stock {
     symbol: string;
     quantity: number;
     name: string;
+    purchasePrice?: number; // Optional purchase price for calculating all-time returns
   }
 
 export type FormData = {

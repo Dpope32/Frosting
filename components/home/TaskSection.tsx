@@ -29,7 +29,7 @@ export const TaskSection = ({
       paddingBottom="$12"
       borderWidth={2.5}
       borderColor="rgba(255, 255, 255, 0.15)"
-      minHeight={300}
+      minHeight={Platform.OS === 'web' && todaysTasks.length < 5 ? 'auto' : 300}
       style={Platform.OS === 'web' ? {
         boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)'
       } : {
@@ -39,7 +39,7 @@ export const TaskSection = ({
         shadowRadius: 10
       }}
     >
-      <XStack alignItems="center" width="100%" marginBottom="$3" paddingLeft="$4">
+      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width="100%" marginBottom="$3" paddingLeft="$4">
         <Text 
           fontFamily="$body"
           color="#dbd0c6" 

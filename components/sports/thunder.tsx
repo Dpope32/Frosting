@@ -187,12 +187,13 @@ export default function ThunderPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'web' ? 20 : 0, // reduce top margin on web
+    marginTop: Platform.OS === 'web' ? 12 : 0, // reduce top margin on web
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 8,
+    marginLeft: 12,
   },
   headerTitle: {
     fontSize: 20,

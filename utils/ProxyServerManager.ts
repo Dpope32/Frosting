@@ -1,3 +1,5 @@
+//utils/ProxyServerManager.ts
+
 import { Platform } from 'react-native';
 
 // Singleton class to manage proxy server status

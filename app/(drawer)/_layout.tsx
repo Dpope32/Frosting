@@ -7,33 +7,64 @@ import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback } from 'react';
 
-const DrawerContent = memo(({ props, username, profilePicture, styles }: { 
+const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 
   username: string | undefined;
   profilePicture: string | undefined | null;
   styles: any;
-}) => (
-  <View style={styles.container}>
-    <View style={styles.header}>
-      <Image 
-        source={profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png')}
-        style={styles.profileImage}
-      />
-      <Text style={styles.username}>
-        {username || 'User'}
-      </Text>
+  isWeb: boolean;
+}) => {
+  
+  // Determine the image source based on platform and availability
+  const imageSource = (() => {
+    if (!profilePicture) {
+      return require('@/assets/images/adaptive-icon.png');
+    }
+    
+    // For web, ensure the URI is properly formatted
+    if (isWeb) {
+      // If it's a data URL (starts with data:), use it directly
+      if (profilePicture.startsWith('data:')) {
+        return { uri: profilePicture };
+      }
+      
+      // If it's a file URI that might not work on web, use the fallback
+      if (profilePicture.startsWith('file:')) {
+        console.log('Detected file URI on web, using fallback');
+        return require('@/assets/images/adaptive-icon.png');
+      }
+      
+      // Otherwise use the URI as is
+      return { uri: profilePicture };
+    }
+    
+    // For mobile, use the URI directly
+    return { uri: profilePicture };
+  })();
+  
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Image 
+          source={imageSource}
+          style={styles.profileImage}
+        />
+        <Text style={styles.username}>
+          {username || 'User'}
+        </Text>
+      </View>
+      <View style={styles.content}>
+        <DrawerContentScrollView 
+          {...props}
+          contentContainerStyle={styles.scrollViewContent}
+          style={styles.scrollView}
+        >
+          <DrawerItemList {...props} />
+        </DrawerContentScrollView>
+      </View>
     </View>
-    <View style={styles.content}>
-      <DrawerContentScrollView 
-        {...props}
-        contentContainerStyle={styles.scrollViewContent}
-        style={styles.scrollView}
-      >
-        <DrawerItemList {...props} />
-      </DrawerContentScrollView>
-    </View>
-  </View>
-));
+  );
+});
 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
@@ -60,12 +91,12 @@ export default function DrawerLayout() {
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
 
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? '#121212' : '#F5F5F5';
-  const textColor = isDark ? '#fff' : '#000';
+  const backgroundColor = isDark ? '#000000' : '#F5F5F5';
+  const textColor = '#fff';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#444' : '#999';
   const isWeb = Platform.OS === 'web';
-  const drawerWidth = isWeb  ? typeof window !== 'undefined'  ? Math.min(320, window.innerWidth * 0.3)  : 320 : '65%'; 
+  const drawerWidth = isWeb ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : '65%'; 
 
   const styles = StyleSheet.create({
     wrapper: {
@@ -76,8 +107,8 @@ export default function DrawerLayout() {
       flex: 1
     },
     header: {
-      paddingTop: 50,
-      paddingBottom: 20,
+      paddingTop: isWeb ? 20: 50,
+      paddingBottom: isWeb ? 10: 50,
       paddingHorizontal: 16,
       borderBottomWidth: 1,
       borderBottomColor: borderColor,
@@ -86,9 +117,9 @@ export default function DrawerLayout() {
       backgroundColor
     },
     profileImage: {
-      width: 50,
-      height: 50,
-      borderRadius: 25,
+      width: isWeb ? 40 : 50,
+      height: isWeb ? 40 : 50,
+      borderRadius: isWeb ?  20 : 25,
       marginRight: 12
     },
     username: {
@@ -109,8 +140,8 @@ export default function DrawerLayout() {
   });
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
-    <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} />
-  ), [username, profilePicture, styles]);
+    <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} isWeb={isWeb} />
+  ), [username, profilePicture, styles, isWeb]);
 
   const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
     const icon = DRAWER_ICONS[route];
@@ -133,27 +164,29 @@ export default function DrawerLayout() {
             backgroundColor,
             width: drawerWidth,
             borderRightWidth: 1,
-            borderColor
+            borderColor,
+            ...(isWeb ? { zIndex: 20 } : {})
           },
           drawerActiveTintColor: '#fff',
           drawerInactiveTintColor: inactiveColor,
           drawerActiveBackgroundColor: isDark ? `${primaryColor}99` : primaryColor,
           drawerItemStyle: {
-            borderRadius: 12,
-            paddingVertical: 8,
-            paddingLeft: 8,
+            borderRadius: 0,
+            paddingVertical: 0,
+            paddingLeft: 0,
+            marginBottom: 10
           },
           drawerLabelStyle: {
             fontSize: 16,
             fontWeight: '600',
-            marginLeft: -12
+            marginLeft: -8,
           },
           drawerContentStyle: {
             backgroundColor 
           },
-          drawerType: 'front',  
-          overlayColor: '#00000099',
-          swipeEnabled: true,
+          drawerType: isWeb ? 'permanent' : 'slide',  
+          overlayColor: isWeb ? 'transparent' : '#00000099',
+          swipeEnabled: !isWeb,
           swipeEdgeWidth: 100,
           drawerStatusBarAnimation: 'none',
           drawerHideStatusBarOnOpen: true,

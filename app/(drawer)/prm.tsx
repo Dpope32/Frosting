@@ -1,7 +1,7 @@
 // prm.tsx
 import React, { useState } from "react";
 import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
-import { H4, Separator, YStack, Text, Button } from "tamagui";
+import { H4, Separator, YStack, Text, Button, isWeb } from "tamagui";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { usePeopleStore } from "@/store/People";
@@ -15,7 +15,7 @@ const { width } = Dimensions.get("window");
 const PADDING = 16;
 const GAP = 24; // Increased from 16 to add more space between cards
 const NUM_COLUMNS = Platform.OS === 'web' ? 5 : 2;
-const CARD_WIDTH = (width - PADDING * 2 - (NUM_COLUMNS - 1) * GAP) / NUM_COLUMNS;
+const CARD_WIDTH = (width - PADDING * 24 - (NUM_COLUMNS - 2) * GAP) / NUM_COLUMNS;
 
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
@@ -70,7 +70,7 @@ export default function CRM() {
   };
 
   return (
-    <YStack flex={1} paddingTop={80}>
+    <YStack flex={1} paddingTop={isWeb ? 12 : 80}>
       <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
         <Button
           size="$4"

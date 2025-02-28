@@ -2,17 +2,20 @@ import React, { useState } from 'react'
 import { Pressable, Platform } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
-import { YStack, Text, Stack, ScrollView } from 'tamagui'
+import { YStack, Text, Stack, ScrollView, XStack } from 'tamagui'
+import { MaterialIcons } from '@expo/vector-icons'
 import { NewTaskModal } from './NewTaskModal'
 import { TemperatureModal } from './cardModals/TemperatureModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
+import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteSection } from '@/components/home/QuoteSection'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
+import { AssetSection } from '@/components/home/AssetSection'
 
 type ProjectState = {
   toggleTaskCompletion: (id: string) => void
@@ -43,6 +46,7 @@ export function LandingPage() {
   const [tempModalOpen, setTempModalOpen] = useState(false)
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
+  const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
 
   const handleNewTaskPress = () => {
     const startTime = Date.now()
@@ -105,10 +109,45 @@ export function LandingPage() {
             onTaskListPress={() => setTaskListModalOpen(true)}
           />
 
+          {isWeb && (
+            <Stack
+              backgroundColor="rgba(0, 0, 0, 0.85)"
+              borderRadius={12}
+              padding="$4"
+              marginTop="$2"
+              borderColor="rgba(255, 255, 255, 0.05)"
+              borderWidth={2}
+              minWidth={300}
+              style={{
+                boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)'
+              }}
+            >
+              <Text 
+                fontFamily="$body"
+                color="#dbd0c6" 
+                fontSize={20} 
+                fontWeight="bold"
+                marginBottom="$2"
+                paddingLeft="$4"
+                style={{
+                  textShadowColor: 'rgba(219, 208, 198, 0.15)',
+                  textShadowOffset: { width: 0, height: 0 },
+                  textShadowRadius: 4
+                }}
+              >
+                Asset Tracker
+              </Text>
+              <Stack padding="$2" minHeight={100}>
+                <AssetSection onAddToWatchlist={() => setWatchlistModalOpen(true)} />
+              </Stack>
+            </Stack>
+          )}
+
         </YStack>
       </ScrollView>
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
+      <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
     </Stack>

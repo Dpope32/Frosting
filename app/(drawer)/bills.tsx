@@ -45,11 +45,12 @@ export default function BillsScreen() {
   }, [bills]);
 
   return (
-    <YStack f={1} mt={isWeb? 70 : 90} bg={isDark ? "#000000" : "#ffffff"}>
+    <YStack f={1} mt={isWeb? 40 : 90} bg={isDark ? "#000000" : "#ffffff"}>
       <ScrollView 
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
           padding: isWeb ? 8 : 8,
+          paddingLeft: isWeb ? 24 : 0,
           paddingBottom: 100,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,

@@ -74,7 +74,7 @@ export default function StorageScreen() {
   }
 
   return (
-    <YStack flex={1} padding={isWeb ? "$6" : "$2"} paddingTop={100} gap="$6" bg={isDark ? '#000' : '#fff'}>
+    <YStack flex={1} padding={isWeb ? "$6" : "$2"} paddingTop={isWeb? 60 : 100} gap="$6" bg={isDark ? '#000' : '#fff'}>
       <XStack
         backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
         padding="$4"

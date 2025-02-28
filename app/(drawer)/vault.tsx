@@ -72,7 +72,7 @@ export default function VaultScreen() {
   const columnWidth = `calc(${50 / columnCount}% - ${(columnCount - 1) * 8 / columnCount}px)`
 
   return (
-    <YStack f={1} mt={isWeb ? 80 : 100} bg={isDark ? '#000000' : '#ffffff'}>
+    <YStack f={1} mt={isWeb ? 50 : 100} bg={isDark ? '#000000' : '#ffffff'} marginLeft={isWeb? 24 : 0}>
       <ScrollView
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{

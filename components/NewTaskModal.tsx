@@ -152,11 +152,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [])
 
   const handleTimePress = useCallback(() => {
-    setShowTimePicker(true)
+    setShowTimePicker(!showTimePicker)
     setShowPrioritySelect(false)
     setShowCategorySelect(false)
     setShowRecurrenceSelect(false)
-  }, [])
+  }, [showTimePicker])
 
   const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern) => {
     setNewTask(prev => ({
@@ -356,7 +356,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[70]}
+      snapPoints={[75]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
@@ -375,7 +375,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         borderTopRightRadius="$6"
         {...(isWeb ? { style: { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } } : {})}
       >
-          <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
+          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false}>
             <Text fontSize={24} fontWeight="700" fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} marginBottom={20}>
               New Task
             </Text>
@@ -391,6 +391,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                 fontFamily="$body"
                 paddingHorizontal="$3"
                 height={50}
+                fontSize={17} 
+                fontWeight="400" 
                 theme={isDark ? "dark" : "light"}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderColor={isDark ? "$gray7" : "$gray4"}
@@ -553,6 +555,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                   label="Time:"
                   value={newTask.time || null}
                   onPress={handleTimePress}
+                  showDropdown={showTimePicker}
                 />
                 {showTimePicker && (
                   <YStack
@@ -627,7 +630,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </YStack>
 
               <XStack gap="$4" width="100%">
-                <YStack flex={1} position="relative">
+                <YStack flex={1} position="relative" >
                   <SelectButton
                     label="Priority:"
                     value={newTask.priority}
@@ -663,7 +666,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       items={['work', 'health', 'personal', 'career', 'wealth', 'skills']}
                       selectedValue={newTask.category}
                       onSelect={handleCategorySelect}
-                      maxHeight={250}
+                      maxHeight={300}
                     />
                   )}
                 </YStack>

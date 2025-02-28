@@ -83,13 +83,16 @@ export function TaskCard({
         <View style={{
           position: 'absolute',
           top: 0,
+          left: 0,
           right: 0,
-          backgroundColor: 'rgba(0, 200, 81, 0.1)',
-          borderBottomLeftRadius: 10,
-          padding: 4,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: 10,
           zIndex: 1
         }}>
-          <Ionicons name="checkmark-circle" size={16} color="#00C851" />
+          <Ionicons name="checkmark-circle" size={24} color="#00C851" />
         </View>
       )}
       <XStack justifyContent="space-between" alignItems="center" gap="$2">
@@ -101,7 +104,7 @@ export function TaskCard({
             styles.checkbox,
             { 
               borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
-              backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.05)'
+              backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)'
             }
           ]}>
             {checked && (
@@ -176,7 +179,7 @@ export function TaskCard({
                   name="bookmark" 
                   size={10} 
                   color={categoryColor} 
-                  style={{ marginRight: 4 }}
+                  style={{ marginRight: 4, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"
@@ -203,7 +206,7 @@ export function TaskCard({
                   name={getPriorityIcon(priority)} 
                   size={10} 
                   color={getPriorityColor(priority)} 
-                  style={{ marginRight: 4 }}
+                  style={{ marginRight: 4, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"
@@ -229,7 +232,7 @@ export function TaskCard({
                 name="repeat" 
                 size={10} 
                 color={checked ? "#00C851" : "#2196F3"} 
-                style={{ marginRight: 4 }}
+                style={{ marginRight: 4, marginTop: 1 }}
               />
               <Text
                 fontFamily="$body"
@@ -257,7 +260,7 @@ export function TaskCard({
                   name="time-outline" 
                   size={10} 
                   color="rgb(157, 157, 157)" 
-                  style={{ marginRight: 4 }}
+                  style={{ marginRight: 4, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"

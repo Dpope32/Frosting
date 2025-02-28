@@ -16,7 +16,7 @@ export default function Sports() {
   return (
     <YStack
       flex={1}
-      marginTop={Platform.OS === 'web' ? 40 : 100}
+      marginTop={Platform.OS === 'web' ? 0 : 100}
       bg={isDark ? '#000000' : '#ffffff'}
     >
       <Tabs
