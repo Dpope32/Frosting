@@ -1,4 +1,3 @@
-// Fix for AssetSection.tsx
 import React, { useState } from 'react';
 import { useColorScheme, Pressable } from 'react-native';
 import { YStack, XStack, Text, Button } from 'tamagui';
@@ -6,83 +5,104 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { usePortfolioStore, usePortfolioQuery, removeFromWatchlist } from '@/store/PortfolioStore';
 import { portfolioData } from '@/utils/Portfolio';
 import { getValueColor } from '@/constants/valueHelper';
-
-// Define types for the data returned from usePortfolioQuery
-interface StockData {
-  prices: Record<string, number>;
-  changes: Record<string, number>;
-  changePercents: Record<string, number>;
-  historicalData: Record<string, {
-    '1m': number | null;
-    '6m': number | null;
-    '1y': number | null;
-  }>;
-}
+import { PortfolioQueryData } from '@/types/stocks';
 
 export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => void }) {
+  // Force a refetch by using a unique query key
+  const { data, isLoading, refetch } = usePortfolioQuery();
+  const stockData = data as PortfolioQueryData | undefined;
   const { watchlist } = usePortfolioStore();
-  const { data, isLoading } = usePortfolioQuery();
-  const stockData = data as StockData | undefined;
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [activeTab, setActiveTab] = useState('portfolio');
+  
+  // Force a refetch when the component mounts
+  React.useEffect(() => {
+    // Add a small delay to ensure the component is fully mounted
+    const timer = setTimeout(() => {
+      refetch();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [refetch]);
 
-  // Calculate returns for each stock
+  // Calculate buy indicator score (0-100%)
+  const calculateBuyIndicator = (symbol: string) => {
+    if (!stockData) return null;
+    
+    const currentPrice = stockData.prices[symbol] || 0;
+    const fiftyTwoWeekHigh = stockData.fiftyTwoWeekHigh?.[symbol] || 0;
+    const fiftyTwoWeekLow = stockData.fiftyTwoWeekLow?.[symbol] || 0;
+    
+    if (fiftyTwoWeekHigh <= fiftyTwoWeekLow || currentPrice <= 0) return null;
+    
+    // Calculate position within 52-week range (0% = at 52-week low, 100% = at 52-week high)
+    const range = fiftyTwoWeekHigh - fiftyTwoWeekLow;
+    const positionInRange = currentPrice - fiftyTwoWeekLow;
+    const percentOfRange = (positionInRange / range) * 100;
+    
+    // Invert the score (lower is better buy opportunity)
+    const buyScore = 100 - percentOfRange;
+    
+    return buyScore;
+  };
+
+  // Calculate returns for each stock directly from API data
   const calculateReturns = (symbol: string) => {
-    if (__DEV__) console.log(`[AssetSection] Calculating returns for ${symbol}`);
+    if (!stockData || !stockData.prices || !stockData.historicalData) return null;
     
-    if (!stockData) {
-      if (__DEV__) console.log(`[AssetSection] No stockData available`);
-      return null;
-    }
+    const currentPrice = stockData.prices[symbol] || 0;
+    if (currentPrice <= 0) return null;
     
-    if (!stockData.historicalData) {
-      if (__DEV__) console.log(`[AssetSection] No historicalData available in stockData`);
-      return null;
-    }
+    const historical = stockData.historicalData[symbol] || { 
+      '1m': null, 
+      '6m': null, 
+      '1y': null,
+      'earliest': null 
+    };
     
-    if (!stockData.prices) {
-      if (__DEV__) console.log(`[AssetSection] No prices available in stockData`);
-      return null;
-    }
-    
-    const current = stockData.prices[symbol] || 0;
-    if (__DEV__) console.log(`[AssetSection] Current price for ${symbol}: ${current}`);
-    
-    const historical = stockData.historicalData[symbol] || { '1m': null, '6m': null, '1y': null };
-    if (__DEV__) console.log(`[AssetSection] Historical data for ${symbol}:`, historical);
-    
-    // Calculate purchase price (for all-time returns)
-    const stock = portfolioData.find(s => s.symbol === symbol);
-    
-    // FIXED: Only use a fallback if there's no actual purchase price
-    // Instead of using 80% of current price, use a more flexible approach
-    // You could add historical data from 1 year ago as a fallback (if available)
-    const purchasePrice = stock?.purchasePrice || historical['1y'] || 0;
-    
-    // If we don't have a valid purchase price, indicate this with null
-    const allTimeReturn = purchasePrice > 0 
-      ? ((current - purchasePrice) / purchasePrice) * 100 
-      : null;
-    
+    // Calculate returns using the historical data
+    // For 1-month return, use the historical 1-month price
     const oneMonthReturn = historical['1m'] && historical['1m'] > 0 
-      ? ((current - historical['1m']) / historical['1m']) * 100 
+      ? ((currentPrice - historical['1m']) / historical['1m']) * 100 
       : null;
       
     const sixMonthReturn = historical['6m'] && historical['6m'] > 0 
-      ? ((current - historical['6m']) / historical['6m']) * 100 
+      ? ((currentPrice - historical['6m']) / historical['6m']) * 100 
       : null;
       
     const oneYearReturn = historical['1y'] && historical['1y'] > 0 
-      ? ((current - historical['1y']) / historical['1y']) * 100 
+      ? ((currentPrice - historical['1y']) / historical['1y']) * 100 
       : null;
     
-    if (__DEV__) console.log(`[AssetSection] Calculated returns for ${symbol}:`, {
-      '1m': oneMonthReturn,
-      '6m': sixMonthReturn,
-      '1y': oneYearReturn,
-      'allTime': allTimeReturn
-    });
+    // For all-time return, use the earliest data point if available or fallback to purchase price
+    const stock = portfolioData.find(s => s.symbol === symbol);
+    const purchasePrice = stock?.purchasePrice || 0;
+    
+    // Use the earliest historical price if available (fetched from max range)
+    const earliestPrice = historical['earliest'];
+    
+    // Calculate all-time return based on what data is available
+    let allTimeReturn = null;
+    
+    if (earliestPrice && earliestPrice > 0) {
+      // Use earliest historical price (most accurate)
+      allTimeReturn = ((currentPrice - earliestPrice) / earliestPrice) * 100;
+    } else if (purchasePrice > 0) {
+      // Fallback to purchase price if available
+      allTimeReturn = ((currentPrice - purchasePrice) / purchasePrice) * 100;
+    }
+    
+    // Log the calculation for debugging
+    if (__DEV__) {
+      console.log(`[AssetSection] ${symbol} returns:`, {
+        currentPrice,
+        oneMonthPrice: historical['1m'],
+        oneMonthReturn,
+        earliestPrice,
+        allTimeReturn
+      });
+    }
     
     return {
       '1m': oneMonthReturn,
@@ -134,38 +154,58 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
           paddingVertical="$2"
           paddingHorizontal="$2"
         >
-          <Text width="15%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Symbol</Text>
-          <Text width="15%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Price</Text>
-          <Text width="14%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Today</Text>
-          <Text width="14%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">1M</Text>
-          <Text width="14%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">6M</Text>
-          <Text width="14%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">1Y</Text>
+          <Text width="12%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Symbol</Text>
+          <Text width="13%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Price</Text>
+          <Text width="12%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Today</Text>
+          <Text width="12%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">1M</Text>
+          <Text width="12%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">6M</Text>
+          <Text width="12%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">1Y</Text>
           <Text width="14%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">All Time</Text>
+          <Text width="13%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Buy Score</Text>
         </XStack>
         
         {/* Table rows */}
         {stocks.map(stock => {
-          const currentPrice = stockData?.prices?.[stock.symbol] || 0;
-          // FIXED: Access the changePercent directly from the API data
-          const changePercent = stockData?.changePercents?.[stock.symbol] || 0;
+          if (!stockData) return null;
           
-          if (__DEV__) console.log(`[AssetSection] Processing stock ${stock.symbol}, price: ${currentPrice}, changePercent: ${changePercent}`);
-          const returns = calculateReturns(stock.symbol);
+          const symbol = stock.symbol;
+          const currentPrice = stockData.prices?.[symbol] || 0;
+          
+          // Get today's change directly from the API data
+          const todayChangePercent = stockData.changePercents?.[symbol] || 0;
+          
+          const returns = calculateReturns(symbol);
+          const buyScore = calculateBuyIndicator(symbol);
+          
+          // Function to render a return value with proper formatting
+          const renderReturn = (value: number | null) => {
+            if (value === null || isNaN(value)) return 'N/A';
+            const prefix = value > 0 ? '+' : '';
+            return `${prefix}${value.toFixed(2)}%`;
+          };
+          
+          // Get color for the buy indicator
+          const getBuyScoreColor = (score: number | null) => {
+            if (score === null) return isDark ? "#999" : "#666";
+            if (score >= 66) return "#4caf50"; // Good buy (green)
+            if (score >= 33) return "#ff9800"; // Neutral (orange)
+            return "#f44336"; // Poor buy (red)
+          };
           
           return (
             <XStack 
-              key={stock.symbol} 
+              key={symbol} 
               borderBottomWidth={1} 
               borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} 
               paddingVertical="$3"
               paddingHorizontal="$2"
               alignItems="center"
             >
-              <XStack width="15%" alignItems="center" gap="$2">
-                <Text color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">{stock.symbol}</Text>
+              <XStack width="12%" alignItems="center" gap="$2">
+                <Text color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">{symbol}</Text>
                 {activeTab === 'watchlist' && (
                   <Pressable
-                    onPress={() => handleRemoveFromWatchlist(stock.symbol)}
+                    onPress={() => handleRemoveFromWatchlist(symbol)}
                     style={({ pressed }) => ({
                       opacity: pressed ? 0.7 : 1,
                     })}
@@ -178,57 +218,84 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
                   </Pressable>
                 )}
               </XStack>
-              <Text width="15%" color={isDark ? "#fff" : "#000"} fontSize={14} fontFamily="$body">
+              <Text width="13%" color={isDark ? "#fff" : "#000"} fontSize={14} fontFamily="$body">
                 ${currentPrice.toFixed(2)}
               </Text>
               <Text 
-                width="14%" 
-                color={getValueColor('portfolio', changePercent, '')} 
+                width="12%" 
+                color={getValueColor('portfolio', todayChangePercent, '')} 
                 fontSize={14}
                 fontFamily="$body"
               >
-                {changePercent > 0 ? '+' : ''}{changePercent.toFixed(2)}%
+                {renderReturn(todayChangePercent)}
+              </Text>
+              <Text 
+                width="12%" 
+                color={getValueColor('portfolio', returns?.['1m'] || 0, '')} 
+                fontSize={14}
+                fontFamily="$body"
+              >
+                {returns ? renderReturn(returns['1m']) : 'N/A'}
+              </Text>
+              <Text 
+                width="12%" 
+                color={getValueColor('portfolio', returns?.['6m'] || 0, '')} 
+                fontSize={14}
+                fontFamily="$body"
+              >
+                {returns ? renderReturn(returns['6m']) : 'N/A'}
+              </Text>
+              <Text 
+                width="12%" 
+                color={getValueColor('portfolio', returns?.['1y'] || 0, '')} 
+                fontSize={14}
+                fontFamily="$body"
+              >
+                {returns ? renderReturn(returns['1y']) : 'N/A'}
               </Text>
               <Text 
                 width="14%" 
-                color={getValueColor('portfolio', returns && returns['1m'] ? returns['1m'] : 0, '')} 
+                color={getValueColor('portfolio', returns?.['allTime'] || 0, '')} 
                 fontSize={14}
                 fontFamily="$body"
               >
-                {returns && returns['1m'] !== null 
-                  ? `${returns['1m'] > 0 ? '+' : ''}${returns['1m'].toFixed(2)}%` 
-                  : 'N/A'}
+                {returns ? renderReturn(returns['allTime']) : 'N/A'}
               </Text>
-              <Text 
-                width="14%" 
-                color={getValueColor('portfolio', returns && returns['6m'] ? returns['6m'] : 0, '')} 
-                fontSize={14}
-                fontFamily="$body"
+              <XStack 
+                width="13%" 
+                alignItems="center" 
+                justifyContent="flex-start"
               >
-                {returns && returns['6m'] !== null 
-                  ? `${returns['6m'] > 0 ? '+' : ''}${returns['6m'].toFixed(2)}%` 
-                  : 'N/A'}
-              </Text>
-              <Text 
-                width="14%" 
-                color={getValueColor('portfolio', returns && returns['1y'] ? returns['1y'] : 0, '')} 
-                fontSize={14}
-                fontFamily="$body"
-              >
-                {returns && returns['1y'] !== null 
-                  ? `${returns['1y'] > 0 ? '+' : ''}${returns['1y'].toFixed(2)}%` 
-                  : 'N/A'}
-              </Text>
-              <Text 
-                width="14%" 
-                color={getValueColor('portfolio', returns && returns['allTime'] ? returns['allTime'] : 0, '')} 
-                fontSize={14}
-                fontFamily="$body"
-              >
-                {returns && returns['allTime'] !== null 
-                  ? `${returns['allTime'] > 0 ? '+' : ''}${returns['allTime'].toFixed(2)}%` 
-                  : 'N/A'}
-              </Text>
+                {buyScore !== null ? (
+                  <>
+                    <Text 
+                      color={getBuyScoreColor(buyScore)} 
+                      fontSize={14}
+                      fontFamily="$body"
+                      marginRight="$1"
+                    >
+                      {Math.round(buyScore)}
+                    </Text>
+                    <YStack
+                      width={30}
+                      height={8}
+                      backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
+                      borderRadius={4}
+                      overflow="hidden"
+                    >
+                      <YStack
+                        height="100%"
+                        width={`${Math.min(100, Math.max(0, buyScore))}%`}
+                        backgroundColor={getBuyScoreColor(buyScore)}
+                      />
+                    </YStack>
+                  </>
+                ) : (
+                  <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">
+                    N/A
+                  </Text>
+                )}
+              </XStack>
             </XStack>
           );
         })}
