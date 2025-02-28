@@ -1,0 +1,644 @@
+Company Name,Ticker,IPO Price
+3M Company,MMM,5
+A. O. Smith,AOS,10
+Abbott Laboratories,ABT,8
+AbbVie Inc.,ABBV,15
+Accenture plc,ACN,12
+Adobe Inc.,ADBE,14
+Advanced Micro Devices,AMD,15
+AES Corporation,AES,7
+Aflac Inc.,AFL,9
+Agilent Technologies,A,10
+Air Products & Chemicals,APD,11
+Airbnb Inc.,ABNB,68
+Akamai Technologies,AKAM,8
+Albemarle Corporation,ALB,20
+Alexandria Real Estate Equities,ARE,18
+Align Technology,ALGN,22
+Allegion plc,ALLE,16
+Alliant Energy,LNT,12
+Allstate Corp.,ALL,13
+Alphabet Inc. (Class A),GOOGL,85
+Alphabet Inc. (Class C),GOOG,85
+Altria Group,MO,20
+Amazon.com Inc.,AMZN,18
+Amcor plc,AMCR,7
+Ameren Corp.,AEE,10
+American Electric Power,AEP,8
+American Express Co.,AXP,18
+American International Group,AIG,15
+American Tower Corp.,AMT,17
+American Water Works,AWK,16
+Ameriprise Financial,AMP,19
+Ametek Inc.,AME,20
+Amgen Inc.,AMGN,22
+Amphenol Corp.,APH,21
+Analog Devices,ADI,17
+Ansys Inc.,ANSS,25
+Aon plc,AON,24
+APA Corporation,APA,5
+Apollo Global Management,APO,30
+Apple Inc.,AAPL,0.39
+Applied Materials,AMAT,18
+Aptiv plc,APTV,16
+Arch Capital Group Ltd.,ACGL,14
+Archer-Daniels-Midland,ADM,12
+Arista Networks,ANET,28
+Arthur J. Gallagher & Co.,AJG,22
+Assurant Inc.,AIZ,15
+AT&T Inc.,T,10
+Atmos Energy,ATO,13
+Autodesk Inc.,ADSK,15
+Automatic Data Processing,ADP,20
+AutoZone Inc.,AZO,18
+AvalonBay Communities,AVB,16
+Avery Dennison Corp.,AVY,14
+Axon Enterprise,AXON,12
+Baker Hughes Co.,BKR,8
+Ball Corporation,BALL,10
+Bank of America Corp.,BAC,9
+Baxter International,BAX,11
+Becton Dickinson & Co.,BDX,20
+Berkshire Hathaway (Class B),BRK.B,18
+Best Buy Co. Inc.,BBY,12
+Bio-Techne Corp.,TECH,14
+Biogen Inc.,BIIB,15
+BlackRock Inc.,BLK,20
+Blackstone Inc.,BX,31
+BNY Mellon (Bank of New York Mellon),BK,10
+Boeing Co.,BA,12
+Booking Holdings Inc.,BKNG,30
+BorgWarner Inc.,BWA,8
+Boston Scientific Corp.,BSX,14
+Bristol Myers Squibb,BMY,10
+Broadcom Inc.,AVGO,25
+Broadridge Financial Solutions,BR,18
+Brown & Brown Inc.,BRO,15
+Brown–Forman Corp. (Class B),BF.B,12
+Builders FirstSource,BLDR,9
+Bunge Ltd.,BG,10
+BXP,Inc. (Boston Properties),BXP
+C.H. Robinson Worldwide,CHRW,11
+Cadence Design Systems,CDNS,22
+Caesars Entertainment,CZR,7
+Camden Property Trust,CPT,16
+Campbell Soup Co.,CPB,18
+Capital One Financial,COF,15
+Cardinal Health,CAH,12
+CarMax Inc.,KMX,20
+Carnival Corp.,CCL,5
+Carrier Global,CARR,10
+Caterpillar Inc.,CAT,15
+Cboe Global Markets,CBOE,18
+CBRE Group,CBRE,20
+CDW Corp.,CDW,22
+Celanese Corp.,CE,15
+Cencora (AmerisourceBergen),COR,12
+Centene Corp.,CNC,16
+CenterPoint Energy,CNP,10
+CF Industries,CF,8
+Charles River Laboratories,CRL,20
+Charles Schwab Corp.,SCHW,25
+Charter Communications,CHTR,15
+Chevron Corp.,CVX,3
+Chipotle Mexican Grill,CMG,22
+Chubb Ltd.,CB,15
+Church & Dwight Co.,CHD,10
+Cigna Group,CI,18
+Cincinnati Financial,CINF,14
+Cintas Corp.,CTAS,17
+Cisco Systems,CSCO,26
+Citigroup Inc.,C,3
+Citizens Financial Group,CFG,9
+Clorox Co.,CLX,16
+CME Group Inc.,CME,24
+CMS Energy,CMS,12
+Coca-Cola Co. (The),KO,22
+Cognizant Technology Solutions,CTSH,20
+Colgate-Palmolive,CL,18
+Comcast Corp.,CMCSA,25
+Conagra Brands,CAG,14
+ConocoPhillips,COP,10
+Consolidated Edison,ED,15
+Constellation Brands,STZ,30
+Constellation Energy,CEG,13
+Cooper Companies (The),COO,21
+Copart Inc.,CPRT,17
+Corning Inc.,GLW,12
+Corpay Inc.,CPAY,9
+Corteva Inc.,CTVA,14
+CoStar Group,CSGP,22
+Costco Wholesale,COST,8
+Coterra Energy,CTRA,10
+CrowdStrike Holdings,CRWD,35
+Crown Castle Inc.,CCI,24
+CSX Corporation,CSX,15
+Cummins Inc.,CMI,20
+CVS Health Corp.,CVS,15
+Danaher Corp.,DHR,25
+Darden Restaurants,DRI,18
+DaVita Inc.,DVA,15
+Dayforce (Ceridian),DAY,20
+Deckers Brands,DECK,28
+Deere & Co.,DE,12
+Dell Technologies,DELL,15
+Delta Air Lines,DAL,8
+Devon Energy,DVN,10
+Dexcom Inc.,DXCM,22
+Diamondback Energy,FANG,11
+Digital Realty Trust,DLR,20
+Discover Financial Services,DFS,16
+Dollar General,DG,13
+Dollar Tree,DLTR,15
+Dominion Energy,D,10
+Domino’s Pizza,DPZ,18
+Dover Corp.,DOV,12
+Dow Inc.,DOW,18
+D.R. Horton,DHI,20
+DTE Energy,DTE,10
+Duke Energy,DUK,15
+DuPont de Nemours,DD,22
+Eastman Chemical,EMN,12
+Eaton Corp. plc,ETN,15
+eBay Inc.,EBAY,20
+Ecolab Inc.,ECL,18
+Edison International,EIX,13
+Edwards Lifesciences,EW,25
+Electronic Arts,EA,30
+Elevance Health,ELV,14
+Emerson Electric,EMR,18
+Enphase Energy,ENPH,25
+Entergy Corp.,ETR,10
+EOG Resources,EOG,12
+EPAM Systems,EPAM,28
+EQT Corp.,EQT,15
+Equifax Inc.,EFX,20
+Equinix Inc.,EQIX,25
+Equity Residential,EQR,18
+Erie Indemnity Co.,ERIE,12
+Essex Property Trust,ESS,15
+Estée Lauder Companies,EL,30
+Everest Group Ltd.,EG,10
+Evergy Inc.,EVRG,12
+Eversource Energy,ES,14
+Exelon Corp.,EXC,16
+Expedia Group,EXPE,18
+Expeditors International,EXPD,20
+Extra Space Storage,EXR,22
+Exxon Mobil Corp.,XOM,3
+F5,Inc.,FFIV
+FactSet Research Systems,FDS,20
+Fair Isaac Corp. (FICO),FICO,25
+Fastenal Co.,FAST,15
+Federal Realty Investment Trust,FRT,20
+FedEx Corp.,FDX,17
+Fidelity National Info. Svcs.,FIS,15
+Fifth Third Bancorp,FITB,10
+First Solar Inc.,FSLR,18
+FirstEnergy Corp.,FE,12
+Fiserv Inc.,FI,20
+FMC Corporation,FMC,14
+Ford Motor Co.,F,3
+Fortinet Inc.,FTNT,30
+Fortive Corp.,FTV,15
+Fox Corp. (Class A),FOXA,22
+Fox Corp. (Class B),FOX,22
+Franklin Resources,BEN,16
+Freeport-McMoRan,FCX,10
+Garmin Ltd.,GRMN,15
+Gartner Inc.,IT,20
+GE Aerospace (General Electric),GE,3
+GE HealthCare Technologies,GEHC,12
+GE Vernova,GEV,12
+Gen Digital Inc.,GEN,8
+Generac Holdings,GNRC,18
+General Dynamics,GD,25
+General Mills,GIS,16
+General Motors Co.,GM,33
+Genuine Parts Co.,GPC,20
+Gilead Sciences,GILD,22
+Global Payments,GPN,18
+Globe Life Inc.,GL,12
+GoDaddy Inc.,GDDY,10
+Goldman Sachs Group,GS,18
+Halliburton Co.,HAL,15
+Hartford Financial Svcs. (The),HIG,12
+Hasbro Inc.,HAS,16
+HCA Healthcare,HCA,25
+Healthpeak Properties,DOC,15
+Henry Schein,HSIC,18
+Hershey Co. (The),HSY,20
+Hess Corp.,HES,8
+Hewlett Packard Enterprise,HPE,20
+Hilton Worldwide Holdings,HLT,15
+Hologic Inc.,HOLX,22
+Home Depot (The),HD,25
+Honeywell International,HON,22
+Hormel Foods,HRL,15
+Host Hotels & Resorts,HST,12
+Howmet Aerospace,HWM,18
+HP Inc.,HPQ,20
+Hubbell Inc.,HUBB,15
+Humana Inc.,HUM,20
+Huntington Bancshares,HBAN,10
+Huntington Ingalls Industries,HII,15
+IBM Corp.,IBM,20
+IDEX Corp.,IEX,18
+IDEXX Laboratories,IDXX,22
+Illinois Tool Works,ITW,15
+Incyte Corp.,INCY,18
+Ingersoll Rand Inc.,IR,20
+Insulet Corp.,PODD,16
+Intel Corp.,INTC,15
+Intercontinental Exchange,ICE,25
+Intl Flavors & Fragrances,IFF,10
+International Paper,IP,12
+Interpublic Group (The),IPG,18
+Intuit Inc.,INTU,20
+Intuitive Surgical,ISRG,30
+Invesco Ltd.,IVZ,15
+Invitation Homes,INVH,12
+IQVIA Holdings,IQV,22
+Iron Mountain,IRM,10
+J.B. Hunt Transport Svcs.,JBHT,18
+Jabil Inc.,JBL,15
+Jack Henry & Associates,JKHY,12
+Jacobs Solutions Inc.,J,18
+Johnson & Johnson,JNJ,15
+Johnson Controls Intl.,JCI,15
+JPMorgan Chase & Co.,JPM,18
+Juniper Networks,JNPR,20
+Kellanova (Kellogg Co.),K,10
+Kenvue Inc.,KVUE,22
+Keurig Dr Pepper,KDP,15
+KeyCorp,KEY,12
+Keysight Technologies,KEYS,16
+Kimberly-Clark,KMB,18
+Kimco Realty,KIM,15
+Kinder Morgan,KMI,12
+KKR & Co. Inc.,KKR,25
+KLA Corporation,KLAC,22
+Kraft Heinz Co.,KHC,16
+Kroger Co.,KR,10
+L3Harris Technologies,LHX,20
+Labcorp (Laboratory Corp. of America),LH,18
+Lam Research,LRCX,25
+Lamb Weston Holdings,LW,15
+Las Vegas Sands,LVS,20
+Leidos Holdings,LDOS,18
+Lennar Corp.,LEN,12
+Lennox International,LII,15
+Eli Lilly & Co.,LLY,25
+Linde plc,LIN,30
+Live Nation Entertainment,LYV,20
+LKQ Corporation,LKQ,18
+Lockheed Martin,LMT,20
+Loews Corp.,L,15
+Lowe’s Companies,LOW,20
+Lululemon Athletica,LULU,25
+LyondellBasell Industries,LYB,30
+M&T Bank Corp.,MTB,10
+Marathon Petroleum,MPC,18
+MarketAxess Holdings,MKTX,22
+Marriott International,MAR,20
+Marsh & McLennan,MMC,18
+Martin Marietta Materials,MLM,15
+Masco Corp.,MAS,12
+Mastercard Inc.,MA,39
+Match Group Inc.,MTCH,25
+McCormick & Co.,MKC,18
+McDonald’s Corp.,MCD,22
+McKesson Corp.,MCK,15
+Medtronic plc,MDT,25
+Merck & Co.,MRK,18
+Meta Platforms Inc.,META,38
+MetLife Inc.,MET,15
+Mettler-Toledo Intl.,MTD,20
+MGM Resorts International,MGM,18
+Microchip Technology,MCHP,16
+Micron Technology,MU,15
+Microsoft Corp.,MSFT,21
+Mid-America Apartment Communities,MAA,20
+Moderna Inc.,MRNA,22
+Mohawk Industries,MHK,18
+Molina Healthcare,MOH,12
+Molson Coors Beverage Co.,TAP,10
+Mondelez International,MDLZ,15
+Monolithic Power Systems,MPWR,20
+Monster Beverage,MNST,18
+Moody’s Corp.,MCO,25
+Morgan Stanley,MS,18
+Mosaic Co. (The),MOS,12
+Motorola Solutions,MSI,20
+MSCI Inc.,MSCI,25
+Nasdaq,Inc.,NDAQ
+NetApp Inc.,NTAP,22
+Netflix Inc.,NFLX,15
+Newmont Corp.,NEM,12
+News Corp. (Class A),NWSA,10
+News Corp. (Class B),NWS,10
+NextEra Energy,NEE,18
+Nike,Inc.,NKE
+NiSource Inc.,NI,10
+Nordson Corp.,NDSN,16
+Norfolk Southern,NSC,15
+Northern Trust,NTRS,12
+Northrop Grumman,NOC,20
+Norwegian Cruise Line Holdings,NCLH,10
+NRG Energy,NRG,12
+Nucor Corp.,NUE,15
+Nvidia Corp.,NVDA,20
+NVR,Inc.,NVR
+NXP Semiconductors,NXPI,18
+O’Reilly Automotive,ORLY,15
+Occidental Petroleum,OXY,10
+Old Dominion Freight Line,ODFL,18
+Omnicom Group,OMC,20
+ON Semiconductor,ON,15
+ONEOK Inc.,OKE,12
+Oracle Corp.,ORCL,18
+Otis Worldwide,OTIS,20
+Paccar Inc.,PCAR,16
+Packaging Corp. of America,PKG,18
+Palantir Technologies,PLTR,25
+Palo Alto Networks,PANW,20
+Paramount Global,PARA,15
+Parker-Hannifin,PH,22
+Paychex Inc.,PAYX,18
+Paycom Software,PAYC,20
+PayPal Holdings,PYPL,25
+Pentair plc,PNR,16
+PepsiCo Inc.,PEP,22
+Pfizer Inc.,PFE,20
+PG&E Corp.,PCG,10
+Philip Morris International,PM,18
+Phillips 66,PSX,12
+Pinnacle West Capital,PNW,15
+PNC Financial Services,PNC,14
+Pool Corporation,POOL,20
+PPG Industries,PPG,18
+PPL Corp.,PPL,10
+Principal Financial Group,PFG,15
+Procter & Gamble,PG,25
+Progressive Corp.,PGR,20
+Prologis,PLD,22
+Prudential Financial,PRU,18
+Public Service Enterprise Group,PEG,15
+PTC Inc.,PTC,20
+Public Storage,PSA,15
+PulteGroup,PHM,20
+Quanta Services,PWR,18
+Qualcomm Inc.,QCOM,25
+Quest Diagnostics,DGX,15
+Ralph Lauren Corp.,RL,20
+Raymond James Financial,RJF,18
+RTX Corporation (Raytheon Technologies),RTX,20
+Realty Income Corp.,O,22
+Regency Centers Corp.,REG,18
+Regeneron Pharmaceuticals,REGN,25
+Regions Financial,RF,14
+Republic Services,RSG,18
+ResMed Inc.,RMD,15
+Revvity Inc.,RVTY,20
+Rockwell Automation,ROK,22
+Rollins Inc.,ROL,15
+Roper Technologies,ROP,20
+Ross Stores,ROST,18
+Royal Caribbean Group,RCL,12
+S&P Global Inc.,SPGI,25
+Salesforce,Inc.,CRM
+SBA Communications,SBAC,20
+Schlumberger Ltd.,SLB,15
+Seagate Technology,STX,20
+Sempra,SRE,12
+ServiceNow,Inc.,NOW
+Sherwin-Williams Co.,SHW,22
+Simon Property Group,SPG,20
+Skyworks Solutions,SWKS,18
+Smucker Co. (J.M.),SJM,15
+Smurfit WestRock,SW,14
+Snap-on Inc.,SNA,20
+Solventum,SOLV,10
+Southern Co.,SO,15
+Southwest Airlines,LUV,12
+Stanley Black & Decker,SWK,18
+Starbucks Corp.,SBUX,25
+State Street Corp.,STT,18
+Steel Dynamics,STLD,15
+Steris plc,STE,20
+Stryker Corp.,SYK,25
+Super Micro Computer,SMCI,18
+Synchrony Financial,SYF,15
+Synopsys Inc.,SNPS,20
+Sysco Corp.,SYY,18
+T-Mobile US,TMUS,30
+T. Rowe Price Group,TROW,20
+Take-Two Interactive,TTWO,25
+Tapestry,Inc.,TPR
+Targa Resources,TRGP,15
+Target Corp.,TGT,25
+TE Connectivity Ltd.,TEL,18
+Teledyne Technologies,TDY,20
+Teleflex Inc.,TFX,15
+Teradyne Inc.,TER,20
+Tesla Inc.,TSLA,11.28
+Texas Instruments,TXN,20
+Texas Pacific Land Corp.,TPL,10
+Textron Inc.,TXT,15
+Thermo Fisher Scientific,TMO,22
+TJX Companies,TJX,20
+Tractor Supply Co.,TSCO,18
+Trane Technologies plc,TT,15
+TransDigm Group,TDG,25
+Travelers Companies (The),TRV,18
+Trimble Inc.,TRMB,20
+Truist Financial,TFC,18
+Tyler Technologies,TYL,20
+Tyson Foods,TSN,15
+U.S. Bancorp,USB,12
+Uber Technologies,UBER,45
+UDR,Inc.,UDR
+Ulta Beauty,ULTA,20
+Union Pacific Corp.,UNP,25
+United Airlines Holdings,UAL,18
+United Parcel Service,UPS,15
+United Rentals,URI,18
+UnitedHealth Group,UNH,20
+Universal Health Services,UHS,15
+Valero Energy,VLO,10
+Ventas Inc.,VTR,18
+Veralto Inc.,VLTO,12
+Verisign Inc.,VRSN,20
+Verisk Analytics,VRSK,18
+Verizon Communications,VZ,35
+Vertex Pharmaceuticals,VRTX,25
+Viatris Inc.,VTRS,15
+Vici Properties,VICI,10
+Visa Inc.,V,44
+Vistra Corp.,VST,15
+Vulcan Materials,VMC,12
+W.R. Berkley Corp.,WRB,18
+W.W. Grainger Inc.,GWW,25
+Wabtec Corp.,WAB,15
+Walgreens Boots Alliance,WBA,18
+Walmart Inc.,WMT,22
+Walt Disney Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+y Co (The)),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+y Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22
+Co. (The),DIS,20
+Warner Bros. Discovery,WBD,15
+Waste Management,WM,18
+Waters Corp.,WAT,20
+WEC Energy Group,WEC,12
+Wells Fargo & Co.,WFC,10
+Welltower Inc.,WELL,15
+West Pharmaceutical Services,WST,18
+Western Digital,WDC,20
+Weyerhaeuser Co.,WY,15
+Williams Companies,WMB,12
+Willis Towers Watson plc,WTW,18
+Workday,Inc.,WDAY
+Wynn Resorts Ltd.,WYNN,15
+Xcel Energy,XEL,20
+Xylem Inc.,XYL,15
+Yum! Brands,YUM,18
+Zebra Technologies,ZBRA,20
+Zimmer Biomet Holdings,ZBH,18
+Zoetis Inc.,ZTS,22

@@ -46,8 +46,8 @@ export function Header({ title }: HeaderProps) {
           backgroundColor={
             isWeb 
               ? colorScheme === 'dark' 
-                ? 'rgba(0,0,0,0.2)' 
-                : 'rgba(255,255,255,0.9)'
+                ? 'rgba(0,0,0,0.0)' 
+                : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
                 ? 'rgba(0,0,0,0.2)' 
                 : 'rgba(255,255,255,1)'
@@ -102,12 +102,8 @@ export function Header({ title }: HeaderProps) {
                   padding: 8, 
                   marginRight: -8,
                   ...(isWeb ? {
-                    cursor: 'pointer',
-                    borderRadius: 8,
-                    transition: 'all 0.2s ease',
-                    ':hover': {
-                      backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
-                    }
+                    marginTop: 5,
+                    marginLeft: -40
                   } as any : {})
                 }}
               >

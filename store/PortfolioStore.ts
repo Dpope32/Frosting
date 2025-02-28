@@ -13,9 +13,12 @@ interface PortfolioState {
     principal: number;
     watchlist: string[];
     historicalData: Record<string, {
+      '1w': number | null;
       '1m': number | null;
+      '3m': number | null;
       '6m': number | null;
       '1y': number | null;
+      'ytd': number | null;
       'earliest': number | null; // Added earliest price point
     }>;
 }
@@ -300,11 +303,11 @@ export const usePortfolioQuery = () => {
 const fetchHistoricalDataWithEarliest = async (
   symbols: string[], 
   cachedData: Record<string, any> = {}
-): Promise<Record<string, { '1m': number | null; '6m': number | null; '1y': number | null; 'earliest': number | null }>> => {
+): Promise<Record<string, { '1w': number | null; '1m': number | null; '3m': number | null; '6m': number | null; '1y': number | null; 'ytd': number | null; 'earliest': number | null }>> => {
   // Only log in development
   if (__DEV__) console.log('[fetchHistoricalData] Starting with symbols:', symbols);
   
-  const result: Record<string, { '1m': number | null; '6m': number | null; '1y': number | null; 'earliest': number | null }> = {};
+  const result: Record<string, { '1w': number | null; '1m': number | null; '3m': number | null; '6m': number | null; '1y': number | null; 'ytd': number | null; 'earliest': number | null }> = {};
   
   // Force a fresh fetch by clearing cached data
   if (__DEV__) console.log('[fetchHistoricalData] Forcing fresh data fetch');
@@ -367,7 +370,15 @@ const fetchHistoricalDataWithEarliest = async (
           }
           
           // Use cached data if available, otherwise null values
-          result[symbol] = cachedData[symbol] || { '1m': null, '6m': null, '1y': null, 'earliest': null };
+          result[symbol] = cachedData[symbol] || { 
+            '1w': null, 
+            '1m': null, 
+            '3m': null, 
+            '6m': null, 
+            '1y': null, 
+            'ytd': null, 
+            'earliest': null 
+          };
         }
       }));
       
@@ -385,14 +396,22 @@ const fetchHistoricalDataWithEarliest = async (
     
     // Return cached data or empty data to prevent crashes
     return cachedData || symbols.reduce((acc, symbol) => {
-      acc[symbol] = { '1m': null, '6m': null, '1y': null, 'earliest': null };
+      acc[symbol] = { 
+        '1w': null, 
+        '1m': null, 
+        '3m': null, 
+        '6m': null, 
+        '1y': null, 
+        'ytd': null, 
+        'earliest': null 
+      };
       return acc;
-    }, {} as Record<string, { '1m': number | null; '6m': null; '1y': number | null; 'earliest': number | null }>);
+    }, {} as Record<string, { '1w': number | null; '1m': number | null; '3m': number | null; '6m': number | null; '1y': number | null; 'ytd': number | null; 'earliest': number | null }>);
   }
 };
 
-// Helper function to fetch regular historical data (1m, 6m, 1y)
-const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1m': number | null; '6m': number | null; '1y': number | null }> => {
+// Helper function to fetch regular historical data (1w, 1m, 3m, 6m, 1y, ytd)
+const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1w': number | null; '1m': number | null; '3m': number | null; '6m': number | null; '1y': number | null; 'ytd': number | null }> => {
   try {
     // Get the appropriate URL based on platform and proxy server status
     // Use 1d interval with range=1y to get more granular data
@@ -432,14 +451,21 @@ const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1m': numbe
       console.log(`[fetchRegularHistoricalData] ${symbol} data points: ${timestamps.length}`);
     }
     
-    // Get 1m, 6m, 1y prices from the data
+    // Get prices for all time periods
     const now = new Date();
-    const oneMonthAgo = new Date();
+    const oneWeekAgo = new Date(now);
+    oneWeekAgo.setDate(now.getDate() - 7);
+    const oneMonthAgo = new Date(now);
     oneMonthAgo.setMonth(now.getMonth() - 1);
-    const sixMonthsAgo = new Date();
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    const sixMonthsAgo = new Date(now);
     sixMonthsAgo.setMonth(now.getMonth() - 6);
-    const oneYearAgo = new Date();
+    const oneYearAgo = new Date(now);
     oneYearAgo.setFullYear(now.getFullYear() - 1);
+    
+    // Calculate YTD (Year to Date) - January 1st of current year
+    const ytdDate = new Date(now.getFullYear(), 0, 1); // January 1st of current year
     
     const findClosestPrice = (targetDate: Date) => {
       const targetTimestamp = Math.floor(targetDate.getTime() / 1000);
@@ -464,26 +490,42 @@ const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1m': numbe
       return price;
     };
     
+    const oneWeekPrice = findClosestPrice(oneWeekAgo);
     const oneMonthPrice = findClosestPrice(oneMonthAgo);
+    const threeMonthPrice = findClosestPrice(threeMonthsAgo);
     const sixMonthPrice = findClosestPrice(sixMonthsAgo);
     const oneYearPrice = findClosestPrice(oneYearAgo);
+    const ytdPrice = findClosestPrice(ytdDate);
     
     if (__DEV__) {
       console.log(`[fetchRegularHistoricalData] ${symbol} historical prices:`, {
+        oneWeekPrice,
         oneMonthPrice,
+        threeMonthPrice,
         sixMonthPrice,
-        oneYearPrice
+        oneYearPrice,
+        ytdPrice
       });
     }
     
     return {
+      '1w': oneWeekPrice,
       '1m': oneMonthPrice,
+      '3m': threeMonthPrice,
       '6m': sixMonthPrice,
-      '1y': oneYearPrice
+      '1y': oneYearPrice,
+      'ytd': ytdPrice
     };
   } catch (error) {
     console.error(`[fetchRegularHistoricalData] Error for ${symbol}:`, error);
-    return { '1m': null, '6m': null, '1y': null };
+    return { 
+      '1w': null, 
+      '1m': null, 
+      '3m': null, 
+      '6m': null, 
+      '1y': null, 
+      'ytd': null 
+    };
   }
 };
 

@@ -73,7 +73,7 @@ export function LandingPage() {
       <ScrollView flex={1} paddingHorizontal="$3" 
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: 100 }}>
-        <YStack paddingTop={isWeb ? 80 : 95} gap="$2">
+        <YStack paddingTop={isWeb ? 10 : 95} gap="$2">
           <Stack
             backgroundColor="rgba(0, 0, 0, 0.85)"
             borderRadius={12}
