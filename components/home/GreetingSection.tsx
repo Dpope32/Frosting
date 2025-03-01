@@ -36,7 +36,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
 
   return (
     <XStack alignItems="center" justifyContent="space-between">
-      <XStack alignItems="center" gap="$2" paddingLeft="$3">
+      <XStack alignItems="center" gap="$2" paddingLeft="$4">
         <XStack alignItems="center" gap="$1">
           <Text
             fontFamily="$body"

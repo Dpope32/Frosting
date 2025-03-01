@@ -92,7 +92,7 @@ export default function DrawerLayout() {
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
 
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? '#000000' : '#F5F5F5';
+  const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#444' : '#999';
@@ -101,7 +101,7 @@ export default function DrawerLayout() {
   const { width: screenWidth } = Dimensions.get('window');
   const drawerWidth = isWeb 
     ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 
-    : Math.min(300, screenWidth * 0.8); // Fixed pixel value based on screen width
+    : 250
 
   const styles = StyleSheet.create({
     wrapper: {

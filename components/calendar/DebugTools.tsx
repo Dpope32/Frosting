@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { useCalendarStore, CalendarEvent } from '@/store/CalendarStore';
 import { useBillStore } from '@/store/BillStore';
 import { useToastStore } from '@/store/ToastStore';
+import { useVaultStore } from '@/store/VaultStore';
 import { vaultStorage } from '@/utils/Storage';
 import { VAULT_DATA } from '@/constants/vaultData';
 import { generateBillEvents, generateRandomDate, generateRandomTime } from '@/services/calendarService';
@@ -125,19 +126,13 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
         billEvents.forEach(event => addEvent(event));
       });
 
-      const vaultDataStr = await vaultStorage.getString('vault-data');
-      const currentVaultData = vaultDataStr ? JSON.parse(vaultDataStr) : VAULT_DATA;
+      // Use VaultStore to add password entries
+      const { addEntry } = useVaultStore.getState();
       
-      const newVaultData = {
-        ...currentVaultData,
-        items: passwords.map(entry => ({
-          id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-          ...entry
-        })),
-        totalItems: passwords.length
-      };
-      
-      await vaultStorage.set('vault-data', JSON.stringify(newVaultData));
+      // Add each password entry using the store's method
+      for (const entry of passwords) {
+        await addEntry(entry);
+      }
 
       showToast('Added test events, bills, and vault entries', 'success');
       if (Platform.OS !== 'web') {
@@ -156,8 +151,14 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
       if (confirmed) {
         useCalendarStore.getState().clearAllEvents();
         useBillStore.getState().clearBills();
-        // Clear vault entries
-        vaultStorage.set('vault-data', JSON.stringify(VAULT_DATA));
+        
+        // Clear vault entries using VaultStore
+        const vaultStore = useVaultStore.getState();
+        const currentEntries = vaultStore.getEntries();
+        for (const entry of currentEntries) {
+          vaultStore.deleteEntry(entry.id);
+        }
+        
         showToast('Cleared all events, bills, and vault entries', 'success');
       }
     } else {
@@ -173,8 +174,14 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
             onPress: () => {
               useCalendarStore.getState().clearAllEvents();
               useBillStore.getState().clearBills();
-              // Clear vault entries
-              vaultStorage.set('vault-data', JSON.stringify(VAULT_DATA));
+              
+              // Clear vault entries using VaultStore
+              const vaultStore = useVaultStore.getState();
+              const currentEntries = vaultStore.getEntries();
+              for (const entry of currentEntries) {
+                vaultStore.deleteEntry(entry.id);
+              }
+              
               showToast('Cleared all events, bills, and vault entries', 'success');
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }

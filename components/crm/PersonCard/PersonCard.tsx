@@ -60,6 +60,20 @@ const getColorForPerson = (id: string | undefined) => {
   return colors[hash % colors.length];
 };
 
+// Function to get a darker version of an HSL color while preserving hue
+const getDarkerHslColor = (hslColor: string): string => {
+  // Extract HSL components
+  const match = hslColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return hslColor;
+  
+  const hue = parseInt(match[1], 10);
+  const saturation = parseInt(match[2], 10);
+  const lightness = parseInt(match[3], 10);
+  
+  // Create a darker version by reducing lightness
+  return `hsl(${hue}, ${saturation}%, ${Math.max(10, lightness - 80)}%)`;
+};
+
 type PersonCardProps = {
   person: Person;
   onEdit: (person: Person) => void;
@@ -97,7 +111,6 @@ export function PersonCard({
       <View style={[styles.container, containerStyle]}>
         <Card
           elevate
-          backgroundColor={adjustColor(nicknameColor, -160)}
           borderRadius="$4"
           animation="quick"
           pressStyle={{ scale: 0.90 }}
@@ -105,7 +118,7 @@ export function PersonCard({
             styles.card,
             {
               borderColor: nicknameColor,
-              backgroundColor: isDark ? "rgba(40,40,40,0.85)" : "rgba(255,255,255,0.95)"
+              backgroundColor: isDark ? getDarkerHslColor(nicknameColor) : `${nicknameColor}15`
             },
             applyWebStyle('card')
           ] as any}

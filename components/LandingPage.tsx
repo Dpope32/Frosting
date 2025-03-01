@@ -75,7 +75,7 @@ export function LandingPage() {
       contentContainerStyle={{ paddingBottom: 100 }}>
         <YStack paddingTop={isWeb ? 10 : 95} gap="$2">
           <Stack
-            backgroundColor="rgba(0, 0, 0, 0.85)"
+            backgroundColor="rgba(0, 0, 0, 0.8)"
             borderRadius={12}
             padding="$4"
             borderColor="rgba(255, 255, 255, 0.05)"
@@ -111,7 +111,7 @@ export function LandingPage() {
 
           {isWeb && (
             <Stack
-              backgroundColor="rgba(0, 0, 0, 0.85)"
+              backgroundColor="rgba(0, 0, 0, 0.8)"
               borderRadius={12}
               padding="$4"
               marginTop="$2"

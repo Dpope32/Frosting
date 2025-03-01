@@ -148,7 +148,7 @@ export const nbaTeams: NBATeam[] = [
   {
     "code": "UTA",
     "name": "Utah Jazz",
-    "logo": "https://a.espncdn.com/i/teamlogos/nba/500/uta.png"
+    "logo": "https://a.espncdn.com/i/teamlogos/nba/500/utah.png"
   },
   {
     "code": "WAS",

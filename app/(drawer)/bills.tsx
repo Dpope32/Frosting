@@ -50,7 +50,8 @@ export default function BillsScreen() {
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
           padding: isWeb ? 8 : 8,
-          paddingLeft: isWeb ? 24 : 0,
+          paddingHorizontal: isWeb ? 0 : 16,
+          paddingLeft: isWeb ? 24 : 16,
           paddingBottom: 100,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
@@ -67,6 +68,7 @@ export default function BillsScreen() {
               key={`skeleton-${index}`} 
               bg={isDark ? "#1A1A1A" : "#f5f5f5"}
               p="$4" 
+              mb="$2"
               borderRadius="$4" 
               ai="center" 
               pressStyle={{ opacity: 0.7 }} 
@@ -151,7 +153,7 @@ export default function BillsScreen() {
                 <YStack flex={1} zIndex={1}>
                   <XStack jc="space-between" mt="$1" ai="center">
                     <Text 
-                      color={isDueToday ? primaryColor : isDark ? "#fff" : "#333"} 
+                      color={isDueToday ? "#red" : isDark ? "#fff" : "#333"} 
                       mb="$2" 
                       fontSize={isWeb ? "$4" : "$5"} 
                       fontWeight={isDueToday ? "bold" : "bold"}
@@ -191,7 +193,8 @@ export default function BillsScreen() {
               <XStack 
                 key={bill.id} 
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                p="$4"
+                p="$3"
+                mb="$2"
                 borderRadius="$4" 
                 ai="center" 
                 pressStyle={{ opacity: 0.7 }} 
@@ -267,13 +270,13 @@ export default function BillsScreen() {
         <Card
           position="absolute"
           bottom={32}
-          left={0}
+          left={10}
           right={0}
           mx="auto"
-          width={isWeb ? 300 : "80%"}
+          width={isWeb ? 300 : "60%"}
           p="$4"
           borderRadius="$4"
-          bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+          bg={isDark ? "#3a3a3a" : "#f5f5f5"}
           borderWidth={1}
           borderColor={isDark ? "#333" : "#e0e0e0"}
           zIndex={999}
@@ -286,7 +289,7 @@ export default function BillsScreen() {
                 fontWeight="bold" 
                 color={isDark ? "#fff" : "#000"}
                 fontFamily="$body"
-                mr="$4"
+                mr={isWeb? "$4" : 0}
               >
               Total: 
               </Text>
@@ -307,7 +310,7 @@ export default function BillsScreen() {
       <Button 
         onPress={() => setIsModalVisible(true)} 
         position="absolute" 
-        bottom={32} 
+        bottom={40} 
         right={24} 
         zIndex={1000} 
         size="$4" 

@@ -12,8 +12,10 @@ export function useVault() {
       // Return the current vault data from the store
       return vaultStore.vaultData;
     },
-    // Only refetch when the store changes
-    staleTime: Infinity,
+    // Ensure fresh data on each screen visit
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
   
   // Mutation for adding a vault entry
@@ -22,7 +24,9 @@ export function useVault() {
       return await vaultStore.addEntry(entry);
     },
     onSuccess: () => {
+      // Force immediate refetch to update UI
       queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
+      queryClient.refetchQueries({ queryKey: ['vault-credentials'] });
     },
   });
   
@@ -32,7 +36,9 @@ export function useVault() {
       await vaultStore.deleteEntry(id);
     },
     onSuccess: () => {
+      // Force immediate refetch to update UI
       queryClient.invalidateQueries({ queryKey: ['vault-credentials'] });
+      queryClient.refetchQueries({ queryKey: ['vault-credentials'] });
     },
   });
   

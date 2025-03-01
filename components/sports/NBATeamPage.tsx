@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Image, StyleSheet, Text, View, useColorScheme, Platform, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { ThemedView } from '../../theme/ThemedView'
@@ -8,10 +8,25 @@ import { useNBAStore } from '../../store/NBAStore'
 import type { Game } from '../../store/NBAStore'
 import { GameCardSkeleton } from './GameCardSkeleton'
 import { nbaTeams } from '../../constants/nba'
+import { useUserStore } from '../../store/UserStore'
 
 export default function NBATeamPage() {
-  const { data: schedule, isLoading, error } = useSportsAPI()
-  const { teamCode, teamName } = useNBAStore()
+  const { data: schedule, isLoading, error, refetch } = useSportsAPI()
+  const { teamCode, teamName, setTeamInfo } = useNBAStore()
+  const { preferences } = useUserStore()
+  
+  // Sync the favorite team from user preferences to NBA store if needed
+  useEffect(() => {
+    const favoriteTeamCode = preferences.favoriteNBATeam || 'OKC'
+    if (favoriteTeamCode !== teamCode) {
+      const team = nbaTeams.find(t => t.code === favoriteTeamCode)
+      if (team) {
+        setTeamInfo(favoriteTeamCode, team.name)
+        // Refetch schedule with new team
+        refetch && refetch()
+      }
+    }
+  }, [preferences.favoriteNBATeam, teamCode, setTeamInfo, refetch])
   const today = new Date()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -166,12 +181,20 @@ export default function NBATeamPage() {
       darkColor="#000000"
       lightColor="#ffffff"
     >
-      <View style={styles.header}>
+      {/* Team Header with larger logo */}
+      <View style={styles.teamHeader}>
         <Image
           source={{ uri: team?.logo }}
-          style={styles.logo}
+          style={styles.teamLargeLogo}
           resizeMode="contain"
         />
+        <Text style={[styles.teamHeaderTitle, { color: isDark ? '#fff' : '#000', fontFamily: '$body' }]}>
+          {teamName}
+        </Text>
+      </View>
+      
+      {/* Schedule Header */}
+      <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000', fontFamily: '$body' }]}>
           {seasonText}
         </Text>
@@ -205,6 +228,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 12,
+  },
+  teamHeader: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+    marginBottom: 8,
+  },
+  teamHeaderTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
+  teamLargeLogo: {
+    width: 70,
+    height: 70,
   },
   logo: {
     width: 40,

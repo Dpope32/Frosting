@@ -72,12 +72,14 @@ export default function VaultScreen() {
   const columnWidth = `calc(${50 / columnCount}% - ${(columnCount - 1) * 8 / columnCount}px)`
 
   return (
-    <YStack f={1} mt={isWeb ? 50 : 100} bg={isDark ? '#000000' : '#ffffff'} marginLeft={isWeb? 24 : 0}>
+    <YStack f={1} mt={isWeb ? 50 : 90} bg={isDark ? '#000000' : '#ffffff'} marginLeft={isWeb? 24 : 0}>
       <ScrollView
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           padding: isWeb ? 8 : 8,
           paddingBottom: 100,
+          paddingHorizontal: isWeb ? 0 : 16,
+          paddingLeft: isWeb ? 24 : 16,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,
@@ -182,7 +184,8 @@ export default function VaultScreen() {
               <XStack
                 key={cred.id}
                 bg={isDark ? '#1A1A1A' : '#f5f5f5'}
-                p="$4"
+                p="$2"
+                paddingHorizontal={isWeb? 0 : "$4"}
                 borderRadius="$4"
                 borderWidth={1}
                 borderColor={isDark ? '#333' : '#e0e0e0'}
@@ -191,7 +194,7 @@ export default function VaultScreen() {
                 mb="$2"
               >
                 <YStack flex={1}>
-                  <XStack jc="space-between" ai="center" mb="$2">
+                  <XStack jc="space-between" ai="center" mb="$0">
                     <Text color={isDark ? '#fff' : '#333'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       {cred.name}
                     </Text>
@@ -204,7 +207,7 @@ export default function VaultScreen() {
                     />
                   </XStack>
 
-                  <XStack ai="center" gap="$2" mb="$2">
+                  <XStack ai="center" gap="$1" mb="$0">
                     <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                       Username:
                     </Text>
@@ -213,7 +216,7 @@ export default function VaultScreen() {
                     </Text>
                   </XStack>
 
-                  <XStack ai="center" gap="$2">
+                  <XStack ai="center" gap="$1">
                     <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                       Password:
                     </Text>

@@ -1,10 +1,10 @@
 
 // *** Sports.tsx ***
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { YStack, Text } from 'tamagui'
 import { Tabs } from '@tamagui/tabs'
-import { Platform } from 'react-native'
+import { Platform, Image } from 'react-native'
 import NBATeamPage from '@/components/sports/NBATeamPage'
 import OUPage from '@/components/sports/ou'
 import { useUserStore } from '@/store/UserStore'
@@ -15,7 +15,7 @@ const isDev = process.env.NODE_ENV === 'development' || __DEV__;
 
 export default function Sports() {
   const favoriteNBATeam = useUserStore(state => state.preferences.favoriteNBATeam) || 'OKC';
-  const { teamCode } = useNBAStore();
+  const { teamCode, teamName } = useNBAStore();
   
   // Find the team in the nbaTeams array
   const team = nbaTeams.find(t => t.code === teamCode);
@@ -33,7 +33,7 @@ export default function Sports() {
   return (
     <YStack
       flex={1}
-      marginTop={Platform.OS === 'web' ? 0 : 100}
+      marginTop={Platform.OS === 'web' ? 0 : 90}
       bg={isDark ? '#000000' : '#ffffff'}
     >
       <Tabs
@@ -44,7 +44,7 @@ export default function Sports() {
         value={activeTab}
         onValueChange={setActiveTab}
       >
-        <Tabs.List paddingTop="$2" paddingBottom="$4" borderTopWidth={1} borderColor="$gray11">
+        <Tabs.List paddingTop="$1" paddingBottom="$4" borderTopWidth={1} borderColor="$gray11">
           <Tabs.Tab
             value="nba"
             flex={1}
@@ -63,7 +63,7 @@ export default function Sports() {
               </Text>
               <YStack
                 backgroundColor="$blue10"
-                height={5}
+                height={3}
                 width={40}
                 marginTop="$1"
                 display={activeTab === 'nba' ? 'flex' : 'none'}

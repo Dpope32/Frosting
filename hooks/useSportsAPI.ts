@@ -105,11 +105,17 @@ export const useSportsAPI = () => {
     }
   };
 
-  return useQuery({
+  const query = useQuery({
     queryKey: [`nba-schedule-${teamCode}`],
     queryFn: fetchNBASchedule,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchInterval: 1000 * 60 * 60 * 24, // 24 hours
   });
+  
+  // Add a refetch function to manually trigger refetching
+  return {
+    ...query,
+    refetch: query.refetch
+  };
 };

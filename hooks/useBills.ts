@@ -13,6 +13,10 @@ export function useBills() {
   const { data: bills, isLoading } = useQuery({
     queryKey: ['bills'],
     queryFn: () => getBills(),
+    // Disable caching to ensure fresh data on each screen visit
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const getDayName = (date: Date): WeekDay => {
@@ -52,7 +56,9 @@ export function useBills() {
       });
     }
 
+    // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });
+    queryClient.refetchQueries({ queryKey: ['bills'] });
   };
 
   const deleteBill = async (id: string) => {
@@ -68,7 +74,9 @@ export function useBills() {
       deleteEvent(event.id);
     }
 
+    // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });
+    queryClient.refetchQueries({ queryKey: ['bills'] });
   };
 
   return {

@@ -3,9 +3,10 @@ import { Platform, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Stack, XStack, YStack } from 'tamagui';
 import { Text } from 'tamagui';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SettingsModal } from './SettingsModal';
+import { NBATeamModal } from './sports/NBATeamModal';
 
 interface HeaderProps {
   title: string;
@@ -15,7 +16,12 @@ interface HeaderProps {
 export function Header({ title }: HeaderProps) {
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
+  const route = useRoute();
   const [showSettings, setShowSettings] = useState(false);
+  const [showNBATeamModal, setShowNBATeamModal] = useState(false);
+  
+  // Check if we're on the sports screen
+  const isSportsScreen = route.name === 'sports';
 
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#001';
   const isWeb = Platform.OS === 'web';
@@ -104,7 +110,7 @@ export function Header({ title }: HeaderProps) {
             </XStack>
             <Stack>
               <Pressable 
-                onPress={() => setShowSettings(true)}
+                onPress={() => isSportsScreen ? setShowNBATeamModal(true) : setShowSettings(true)}
                 style={{ 
                   padding: 8, 
                   marginRight: -8,
@@ -115,7 +121,7 @@ export function Header({ title }: HeaderProps) {
                 }}
               >
                 <Ionicons 
-                  name="settings-outline" 
+                  name={isSportsScreen ? "basketball-outline" : "settings-outline"}
                   size={isWeb ? 22 : 24} 
                   color={textColor} 
                 />
@@ -125,6 +131,7 @@ export function Header({ title }: HeaderProps) {
         </YStack>
       </YStack>
       <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
+      {isSportsScreen && <NBATeamModal open={showNBATeamModal} onOpenChange={setShowNBATeamModal} />}
     </>
   );
 }
