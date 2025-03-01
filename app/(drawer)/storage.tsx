@@ -1,14 +1,12 @@
 // StorageScreen.tsx
 import { useState } from 'react'
 import { YStack, Text, Button, Progress, XStack } from 'tamagui'
-import axios from 'axios'
-import { Alert, Platform, View, useColorScheme, ScrollView, Image } from 'react-native'
+import { Platform, View, useColorScheme, ScrollView, Image } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
-import * as Notifications from 'expo-notifications'
-import { SchedulableTriggerInputTypes } from 'expo-notifications'
+import { testNotification } from '@/services/notificationServices'
 import { Plus, Bell, PlayCircle } from '@tamagui/lucide-icons'
 import { Video, ResizeMode } from 'expo-av'
-import { useStorage } from '@/hooks/useStorage' // Import the hook
+import { useStorage } from '@/hooks/useStorage' 
 
 export default function StorageScreen() {
   const { 
@@ -25,53 +23,16 @@ export default function StorageScreen() {
     isImageFile,
     isVideoFile,
     activeServer
-  } = useStorage() // Use the hook
+  } = useStorage() 
   
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const username = useUserStore((state) => state.preferences.username)
-
-  // Responsive media grid columns
   const isWeb = Platform.OS === 'web'
   const getColumnCount = () => (isWeb ? 4 : 3)
   const columnCount = getColumnCount()
-  
-  // State for video modal
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
   
-  // For testing notifications
-  const testNotification = async () => {
-    try {
-      await Notifications.cancelAllScheduledNotificationsAsync()
-      const { status } = await Notifications.getPermissionsAsync()
-      if (status !== 'granted') {
-        const { status: newStatus } = await Notifications.requestPermissionsAsync()
-        if (newStatus !== 'granted') {
-          Alert.alert('Error', 'Failed to get notification permissions')
-          return
-        }
-      }
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🔔 Immediate Test',
-          body: 'This should show right now!',
-          sound: true,
-          priority: Notifications.AndroidNotificationPriority.MAX,
-          vibrate: [0, 250, 250, 250],
-          autoDismiss: true,
-        },
-        trigger: {
-          type: SchedulableTriggerInputTypes.DATE,
-          date: new Date(Date.now() + 1000),
-          channelId: 'test-channel',
-        },
-      })
-      Alert.alert('Success', 'Immediate notification sent!')
-    } catch (error) {
-      Alert.alert('Error', String(error))
-    }
-  }
 
   return (
     <YStack flex={1} padding={isWeb ? "$6" : "$2"} paddingTop={isWeb? 60 : 100} gap="$6" bg={isDark ? '#000' : '#fff'}>
@@ -414,66 +375,66 @@ export default function StorageScreen() {
         </View>
       )}
 
-{/* Video Modal */}
-{selectedVideo && (
-  <View 
-    style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.9)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 2000,
-    }}
-  >
-    <View 
-      style={{
-        width: isWeb ? '100%' : '90%',  // Wider container on web
-        height: isWeb ? '100%' : '70%', // Taller container on web
-        maxWidth: 1200,                // Larger maximum width for large screens
-        backgroundColor: '#000',
-        paddingTop: 60,
-        paddingBottom: 60,
-        borderRadius: 8,
-        overflow: 'hidden',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Video
-        source={{ uri: selectedVideo }}
-        style={{ 
-          flex: 1,
-          alignSelf: 'stretch'
-        }}
-        useNativeControls
-        resizeMode={ResizeMode.CONTAIN}  // This ensures the aspect ratio is maintained
-        shouldPlay
-        isLooping={true}
-        volume={1.0}
-        onError={(e) => console.error('Failed to load video:', e)}
-      />
-    </View>
-    
-    <Button
-      size="$4"
-      circular
-      position="absolute"
-      top={80}
-      right={20}
-      bg="rgba(0,0,0,0.5)"
-      pressStyle={{ scale: 0.95 }}
-      animation="quick"
-      onPress={() => setSelectedVideo(null)}
-    >
-      <Text color="white" fontSize={20}>✕</Text>
-    </Button>
-  </View>
-)}
+      {/* Video Modal */}
+        {selectedVideo && (
+          <View 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.9)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 2000,
+            }}
+          >
+            <View 
+              style={{
+                width: isWeb ? '100%' : '90%', 
+                height: isWeb ? '100%' : '70%', 
+                maxWidth: 1200,               
+                backgroundColor: '#000',
+                paddingTop: 60,
+                paddingBottom: 60,
+                borderRadius: 8,
+                overflow: 'hidden',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Video
+                source={{ uri: selectedVideo }}
+                style={{ 
+                  flex: 1,
+                  alignSelf: 'stretch'
+                }}
+                useNativeControls
+                resizeMode={ResizeMode.CONTAIN} 
+                shouldPlay
+                isLooping={true}
+                volume={1.0}
+                onError={(e) => console.error('Failed to load video:', e)}
+              />
+            </View>
+            
+            <Button
+              size="$4"
+              circular
+              position="absolute"
+              top={80}
+              right={20}
+              bg="rgba(0,0,0,0.5)"
+              pressStyle={{ scale: 0.95 }}
+              animation="quick"
+              onPress={() => setSelectedVideo(null)}
+            >
+            <Text color="white" fontSize={20}>✕</Text>
+          </Button>
+        </View>
+      )}
     </YStack>
   )
 }

@@ -77,7 +77,6 @@ export const styles = StyleSheet.create({
       fontWeight: '600',
       marginLeft: 0,
       marginTop: 0,
-      flexWrap: 'wrap', // Allow text to wrap to next line if needed
       width: '100%', // Ensure text has full width of container
     } : {
       lineHeight: 20,
@@ -204,7 +203,8 @@ export const styles = StyleSheet.create({
   },
   modalAvatarContainer: {
     position: 'relative',
-    marginRight: 4
+    marginRight: 8,
+    paddingHorizontal: 10,
   },
   modalAvatar: {
     width: 80,

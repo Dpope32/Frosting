@@ -139,7 +139,7 @@ export const TaskSection = ({
             alignItems: 'center',
           } : {
             position: 'absolute',
-            top: -75,
+            top: -45,
             right: -10,
             width: 34,
             height: 34,

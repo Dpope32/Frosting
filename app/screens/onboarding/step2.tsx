@@ -47,7 +47,7 @@ export default function Step2({
     return (
       <YStack flex={1} alignItems="center" justifyContent="center" gap="$2">
         <YStack>
-          <XStack flexWrap="wrap" justifyContent="center" alignItems="center" marginBottom="$4" maxWidth={320}>
+          <XStack flexWrap="wrap" justifyContent="center" alignItems="center" marginBottom={isWeb? "$4" : "$1"} maxWidth={320}>
             {colorPalette.map((color, index) => (
               <Circle 
                 key={index}
@@ -87,7 +87,7 @@ export default function Step2({
               borderColor={isDark ? "$gray8Dark" : "$gray8Light"}
             />
           </Circle>
-          <Text fontSize={14} color={isDark ? "$gray11Dark" : "$gray11Light"}>
+          <Text fontFamily="$body" fontSize={14} color={isDark ? "$gray11Dark" : "$gray11Light"}>
             Click to pick custom color
           </Text>
         </XStack>
@@ -98,10 +98,11 @@ export default function Step2({
   return (
     <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$5" paddingTop="$15">
       <YStack position="absolute" top="25%" left={0} right={0} alignItems="center">
-        <Label size="$8" textAlign="center" color="$gray12Dark">
+        <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
           Pick your primary color
         </Label>
         <Text
+          fontFamily="$body"
           fontSize="$3"
           textAlign="center"
           color="$gray9Dark"
@@ -112,11 +113,11 @@ export default function Step2({
         </Text>
       </YStack>
 
-      <YStack flex={1} paddingTop= {isWeb ? "$12" : "$4"}>
+      <YStack flex={1} paddingTop= {isWeb ? "$12" : "$12"}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (
-          <View style={{ flex: 1, padding: 20 }}>
+          <View style={{ flex: 1, padding: isWeb ? 20 : 48 }}>
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}
@@ -131,7 +132,7 @@ export default function Step2({
 
       <XStack gap="$2" alignItems="center" justifyContent="center">
         <Circle size={50} backgroundColor={currentColor} />
-        <Text fontSize={16} color={textColor}>
+        <Text fontFamily="$body" fontSize={16} color={textColor}>
           {currentColor.toUpperCase()}
         </Text>
       </XStack>

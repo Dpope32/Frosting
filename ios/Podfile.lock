@@ -290,6 +290,8 @@ PODS:
     - ExpoModulesCore
   - ExpoSystemUI (4.0.7):
     - ExpoModulesCore
+  - ExpoVideo (2.0.5):
+    - ExpoModulesCore
   - ExpoWebBrowser (14.0.2):
     - ExpoModulesCore
   - EXTaskManager (12.0.5):
@@ -1911,6 +1913,27 @@ PODS:
     - React-Codegen
     - React-Core
     - ReactCommon/turbomodule/core
+  - RNCAsyncStorage (1.23.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNDateTimePicker (8.2.0):
     - DoubleConversion
     - glog
@@ -2187,6 +2210,7 @@ DEPENDENCIES:
   - ExpoSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - ExpoSymbols (from `../node_modules/expo-symbols/ios`)
   - ExpoSystemUI (from `../node_modules/expo-system-ui/ios`)
+  - ExpoVideo (from `../node_modules/expo-video/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - EXTaskManager (from `../node_modules/expo-task-manager/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
@@ -2258,6 +2282,7 @@ DEPENDENCIES:
   - ReactNativeIosContextMenu (from `../node_modules/react-native-ios-context-menu`)
   - ReactNativeIosUtilities (from `../node_modules/react-native-ios-utilities`)
   - ReactNativeOpenAI (from `../node_modules/react-native-openai`)
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
@@ -2342,6 +2367,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-symbols/ios"
   ExpoSystemUI:
     :path: "../node_modules/expo-system-ui/ios"
+  ExpoVideo:
+    :path: "../node_modules/expo-video/ios"
   ExpoWebBrowser:
     :path: "../node_modules/expo-web-browser/ios"
   EXTaskManager:
@@ -2481,6 +2508,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ios-utilities"
   ReactNativeOpenAI:
     :path: "../node_modules/react-native-openai"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
   RNFlashList:
@@ -2535,6 +2564,7 @@ SPEC CHECKSUMS:
   ExpoSplashScreen: c64f3b577e1cb0b6a2f47d01c528ad7d80d9ae6a
   ExpoSymbols: f3002db15156cd4e505c77b6ea1df5c984db9965
   ExpoSystemUI: 36f50ee42da3e814bffd01ee38edcf3c7cc0015d
+  ExpoVideo: fe207594b936acbc643d8b6f1a8ac98d71be8b42
   ExpoWebBrowser: a212e6b480d8857d3e441fba51e0c968333803b3
   EXTaskManager: 56043fa052a0b9f2e9714dbef594a8c46cafa346
   EXUpdatesInterface: 7c977640bdd8b85833c19e3959ba46145c5719db
@@ -2605,6 +2635,7 @@ SPEC CHECKSUMS:
   ReactNativeIosContextMenu: 116a1993b5fd6dc9f8cf703c32f47e8bcc22a618
   ReactNativeIosUtilities: 780b35bfc6dd1deab9e2bd76c579ad5ebe04be02
   ReactNativeOpenAI: e62b83a40b86f87b49832b52af4a074ae8f8a2e6
+  RNCAsyncStorage: ff8f69859448bde50f1c25d3e7eb37555fed33ab
   RNDateTimePicker: 9ec036a62ad0f5a2d04c1c7829338e87b4e423e7
   RNFlashList: 4ba6592c49274024ef6521e0f21b1c90e50fdced
   RNGestureHandler: 16ef3dc2d7ecb09f240f25df5255953c4098819b

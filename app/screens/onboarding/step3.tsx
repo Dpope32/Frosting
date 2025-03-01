@@ -1,5 +1,5 @@
 import React from 'react'
-import { YStack, XStack, Button, Text, Label, Stack } from 'tamagui'
+import { YStack, XStack, Button, Text, Label, Stack, isWeb } from 'tamagui'
 import { Image, View, useWindowDimensions, Platform } from 'react-native'
 import { BackgroundStyleOption, FormData } from '@/types'
 import { BackgroundStyle } from '@/constants/Backgrounds'
@@ -412,7 +412,7 @@ export default function Step3({
                   }}
                 />
                 <BlurView
-                  intensity={10}
+                  intensity={isWeb? 10 : 20}
                   tint="dark"
                   style={{ position: 'absolute', width: '100%', height: '100%' }}
                 />
@@ -489,21 +489,21 @@ export default function Step3({
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack flex={1} padding="$4">
+      <YStack flex={1} padding={isWeb ? "$4" : "$3"}>
         <YStack
-          backgroundColor="rgba(0, 0, 0, 0.7)"
+          backgroundColor="rgba(0, 0, 0, 0.6)"
           borderRadius={16}
           paddingVertical="$2"
-          paddingHorizontal="$5"
-          marginTop={10}
+          paddingHorizontal={isWeb ? "$5" : "$1"} 
+          marginTop={isWeb ? 10 : 60}
           borderColor="rgba(255, 255, 255, 0.1)"
           borderWidth={2}
-          gap="$2"
+          gap="$1"
         >
-          <Label size="$8" textAlign="center" color="$gray12Dark">
+          <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
             Background
           </Label>
-          <XStack gap="$5" justifyContent="center" flexWrap="wrap" paddingBottom="$6">
+          <XStack gap={isWeb ? "$5" : "4"} justifyContent="center" flexWrap="wrap" paddingBottom="$6">
             {backgroundStyles.map((style) => {
               const isSelected = formData.backgroundStyle === style.value;
               return (
@@ -530,6 +530,7 @@ export default function Step3({
                   }
                 >
                   <Text
+                    fontFamily="$body"
                     color={isSelected ? 'white' : '$gray11Dark'}
                     textAlign="center"
                   >

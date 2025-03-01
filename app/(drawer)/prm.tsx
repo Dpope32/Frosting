@@ -15,7 +15,7 @@ const { width } = Dimensions.get("window");
 const PADDING = 16;
 const GAP = 24; // Increased from 16 to add more space between cards
 const NUM_COLUMNS = Platform.OS === 'web' ? 5 : 2;
-const CARD_WIDTH = (width - PADDING * 24 - (NUM_COLUMNS - 2) * GAP) / NUM_COLUMNS;
+const CARD_WIDTH = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
 
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();

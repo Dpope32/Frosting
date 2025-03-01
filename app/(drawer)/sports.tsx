@@ -11,18 +11,14 @@ import { useUserStore } from '@/store/UserStore'
 import { useNBAStore } from '@/store/NBAStore'
 import { nbaTeams } from '@/constants/nba'
 
-// Check if we're in development mode
 const isDev = process.env.NODE_ENV === 'development' || __DEV__;
 
 export default function Sports() {
-  // Get the user's favorite NBA team
   const favoriteNBATeam = useUserStore(state => state.preferences.favoriteNBATeam) || 'OKC';
   const { teamCode } = useNBAStore();
   
   // Find the team in the nbaTeams array
   const team = nbaTeams.find(t => t.code === teamCode);
-  
-  // Default to NBA team tab, show OU tab only in dev mode
   const [activeTab, setActiveTab] = useState(isDev ? 'nba' : 'nba');
   const scheme = useColorScheme()
   const isDark = scheme === 'dark'

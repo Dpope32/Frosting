@@ -170,7 +170,7 @@ export default function Onboarding() {
                     onPress={handleBack}
                     backgroundColor="$gray4Dark"
                     borderColor="$gray8Dark">
-                    <Text color="$gray12Dark">Back</Text>
+                    <Text fontFamily="$body" color="$gray12Dark">Back</Text>
                   </Button>
                 )}
                 <Button
@@ -182,7 +182,7 @@ export default function Onboarding() {
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text color="white" fontWeight="bold">
+                  <Text fontFamily="$body" color="white" fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>
@@ -210,7 +210,7 @@ export default function Onboarding() {
                     onPress={handleBack}
                     backgroundColor="$gray4Dark"
                     borderColor="$gray8Dark">
-                    <Text color="$gray12Dark">Back</Text>
+                    <Text fontFamily="$body" color="$gray12Dark">Back</Text>
                   </Button>
                 )}
                 <Button
@@ -221,7 +221,7 @@ export default function Onboarding() {
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text color="white" fontWeight="bold">
+                  <Text fontFamily="$body" color="white" fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

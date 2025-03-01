@@ -50,8 +50,15 @@ export function Header({ title }: HeaderProps) {
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
                 ? 'rgba(0,0,0,0.2)' 
-                : 'rgba(255,255,255,1)'
+                : 'rgba(255,255,255,0.85)'
           }
+          style={{
+            shadowColor: colorScheme === 'dark' ? undefined : '#000',
+            shadowOffset: colorScheme === 'dark' ? undefined : { width: 0, height: 1 },
+            shadowOpacity: colorScheme === 'dark' ? undefined : 0.1,
+            shadowRadius: colorScheme === 'dark' ? undefined : 2,
+            elevation: colorScheme === 'dark' ? undefined : 2,
+          }}
         >
           <XStack 
             alignItems="center" 

@@ -48,9 +48,6 @@ const getFriendlyLabel = (name: string): string => {
 
 // Create background styles from deduplicated wallpapers
 export const backgroundStyles: BackgroundStyleOption[] = [
-  { label: 'Gradient', value: 'gradient' },
-  { label: 'Space', value: 'space' },
-  { label: 'Silhouette', value: 'silhouette' },
   ...Array.from(wallpaperMap.keys()).map(baseName => ({
     label: getFriendlyLabel(baseName),
     value: `wallpaper-${baseName}` as const

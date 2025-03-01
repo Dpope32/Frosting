@@ -1,6 +1,6 @@
 import { YStack, Input, Label, Text, Button } from 'tamagui'
 import { FormData } from '@/types'
-import { Alert, Platform, View } from 'react-native'
+import { Alert, Platform } from 'react-native'
 
 export default function Step4({
   formData,
@@ -16,8 +16,9 @@ export default function Step4({
   return (
     <YStack flex={1} justifyContent="center" alignItems="center">
 
-      <YStack alignItems="center" gap="$2" marginBottom="$6">
+      <YStack alignItems="center" gap="$2" marginBottom={isWeb ? "$6" : "$3"}>
         <Label
+          fontFamily="$body"
           size="$8"
           textAlign="center"
           color="$gray12Dark"
@@ -25,6 +26,7 @@ export default function Step4({
           What's your zip?
         </Label>
         <Text
+          fontFamily="$body"
           fontSize="$3"
           textAlign="center"
           color="$gray9Dark"
@@ -36,7 +38,7 @@ export default function Step4({
         </Text>
       </YStack>
 
-      <YStack alignItems="center" width="100%" padding="$4">
+      <YStack alignItems="center" width="100%" padding={isWeb ? "$4" : "$2"}>
         <Input
           size="$5"
           placeholder="Enter zip code"
@@ -66,7 +68,7 @@ export default function Step4({
         />
       </YStack>
       
-      <YStack alignItems="center" marginTop="$2">
+      <YStack alignItems="center" marginTop={isWeb ? "$2" : "$1"}>
         <Button
           chromeless
           onPress={() => {

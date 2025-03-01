@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import {
   Card,
   Image,
@@ -6,9 +6,9 @@ import {
   XStack,
   YStack,
   Theme,
-  Sheet
+  Sheet,
+  isWeb
 } from "tamagui";
-import { EditPersonForm } from "../Forms/EditPersonForm";
 import {
   TouchableOpacity,
   View,
@@ -105,7 +105,7 @@ export function PersonCard({
             styles.card,
             {
               borderColor: nicknameColor,
-              backgroundColor: isDark ? "rgba(40,40,40,0.85)" : "rgba(200,200,200,0.95)"
+              backgroundColor: isDark ? "rgba(40,40,40,0.85)" : "rgba(255,255,255,0.95)"
             },
             applyWebStyle('card')
           ] as any}
@@ -141,10 +141,10 @@ export function PersonCard({
                     />
                   )}
                   <Paragraph
-                    fontWeight="500"
-                    fontSize={15}
-                    color={nicknameColor}
-                    numberOfLines={Platform.OS === 'web' ? 2 : 1}
+                    fontWeight="600"
+                    fontSize={isWeb? 15 : 13}
+                    color={isDark ? nicknameColor : adjustColor(nicknameColor, -40)}
+                    numberOfLines={1}
                     ellipsizeMode="tail"
                     style={[styles.nameText, applyWebStyle('nameText')] as any}
                   >
@@ -152,9 +152,9 @@ export function PersonCard({
                   </Paragraph>
                 </XStack>
                 <Paragraph
-                  fontSize={12}
-                  color={isDark ? "#999" : "#666"}
-                  numberOfLines={Platform.OS === 'web' ? 2 : 1}
+                  fontSize={10}
+                  color={isDark ? "#999" : "#333"}
+                  numberOfLines={1}
                   ellipsizeMode="tail"
                   style={[styles.occupationText, applyWebStyle('occupationText')] as any}
                 >
@@ -178,12 +178,24 @@ export function PersonCard({
           zIndex={100000}
         >
           <Sheet.Overlay animation="quick" style={styles.overlay as any} />
-          <Sheet.Frame style={[styles.modalContainer, applyWebStyle('modalContainer')] as any}>
+          <Sheet.Frame 
+            style={[
+              styles.modalContainer, 
+              {
+                backgroundColor: isDark ? "rgba(20,20,20,0.95)" : "rgba(255,255,255,0.95)",
+                borderColor: isDark ? "rgba(200,200,200,0.8)" : "rgba(100,100,100,0.3)"
+              },
+              applyWebStyle('modalContainer')
+            ] as any}
+          >
             <Sheet.Handle />
             <View style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
               <View style={styles.modalHeaderIcons as any}>
                 <TouchableOpacity
-                  style={styles.shareIcon as any}
+                  style={[
+                    styles.shareIcon,
+                    { backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(100,100,100,0.5)" }
+                  ] as any}
                   onPress={() => {
                     const shareData = btoa(JSON.stringify(person));
                     const shareUrl = `frosting://share?data=${shareData}`;
@@ -191,13 +203,16 @@ export function PersonCard({
                     Alert.alert("Success", "Contact link copied to clipboard!");
                   }}
                 >
-                  <Ionicons name="share-outline" size={24} color="#fff" />
+                  <Ionicons name="share-outline" size={24} color={isDark ? "#fff" : "#fff"} />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={styles.closeIcon as any}
+                  style={[
+                    styles.closeIcon,
+                    { backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(100,100,100,0.5)" }
+                  ] as any}
                   onPress={() => onPress?.()}
                 >
-                  <Ionicons name="close-outline" size={24} color="#fff" />
+                  <Ionicons name="close-outline" size={24} color={isDark ? "#fff" : "#fff"} />
                 </TouchableOpacity>
               </View>
 
@@ -226,11 +241,11 @@ export function PersonCard({
                     {person.nickname || person.name}
                   </Paragraph>
                   <XStack alignItems="center" gap="$2">
-                    <Paragraph fontSize={16} color="#999" numberOfLines={1}>
+                    <Paragraph fontSize={15} color={isDark ? "#999" : "#666"} numberOfLines={1}>
                       {person.occupation}
                     </Paragraph>
                     {person.priority && (
-                      <Ionicons name="star" size={16} color="#FFD700" />
+                      <Ionicons name="star" size={15} color="#FFD700" />
                     )}
                   </XStack>
                 </View>
@@ -238,17 +253,24 @@ export function PersonCard({
 
               <XStack style={styles.pillRow as any}>
                 {person.birthday && (
-                  <View style={styles.statusPill as any}>
+                  <View style={[
+                    styles.statusPill, 
+                    { backgroundColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(100,100,100,0.2)" }
+                  ] as any}>
                     <XStack alignItems="center" gap="$1">
-                      <Paragraph fontSize={12} color="#666">Notification:</Paragraph>
+                      <Paragraph fontSize={12} color={isDark ? "#666" : "#555"}>Notification:</Paragraph>
                       <Paragraph fontSize={12} color="#4CAF50">Scheduled</Paragraph>
                     </XStack>
                   </View>
                 )}
                 {person.priority && person.birthday && (
-                  <View style={[styles.statusPill, styles.reminderPill] as any}>
+                  <View style={[
+                    styles.statusPill, 
+                    styles.reminderPill,
+                    { backgroundColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(100,100,100,0.2)" }
+                  ] as any}>
                     <XStack alignItems="center" gap="$1">
-                      <Paragraph fontSize={12} color="#666">Reminder:</Paragraph>
+                      <Paragraph fontSize={12} color={isDark ? "#666" : "#555"}>Reminder:</Paragraph>
                       <Paragraph fontSize={12} color="#FFD700">Scheduled</Paragraph>
                     </XStack>
                   </View>
@@ -259,7 +281,7 @@ export function PersonCard({
                 {person.birthday && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="gift-outline" size={22} color={nicknameColor} />
-                    <Paragraph fontSize={14} color="#fff">
+                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {(() => {
                         const date = new Date(person.birthday);
                         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
@@ -273,24 +295,24 @@ export function PersonCard({
                 )}
                 {person.email && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="mail-outline" size={22} color="#fff" />
-                    <Paragraph fontSize={14} color="#fff">
+                    <Ionicons name="mail-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {person.email}
                     </Paragraph>
                   </XStack>
                 )}
                 {person.phoneNumber && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="call-outline" size={22} color="#fff" />
-                    <Paragraph fontSize={14} color="#fff">
+                    <Ionicons name="call-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {formatPhoneNumber(person.phoneNumber)}
                     </Paragraph>
                   </XStack>
                 )}
                 {fullAddress && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="location-outline" size={22} color="#fff" />
-                    <Paragraph fontSize={14} color="#fff">
+                    <Ionicons name="location-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {fullAddress}
                     </Paragraph>
                   </XStack>
@@ -298,22 +320,31 @@ export function PersonCard({
               </YStack>
             </View>
 
-            <View style={[styles.actionBar, applyWebStyle('actionBar')] as any}>
+            <View 
+              style={[
+                styles.actionBar, 
+                { 
+                  backgroundColor: isDark ? "rgba(20,20,20,0.95)" : "rgba(240,240,240,0.95)",
+                  borderTopColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+                },
+                applyWebStyle('actionBar')
+              ] as any}
+            >
               {person.phoneNumber && (
                 <>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
                     style={styles.actionButton as any}
                   >
-                    <Ionicons name="chatbubble-outline" size={24} color="#fff" />
-                    <Paragraph style={styles.actionText as any}>Text</Paragraph>
+                    <Ionicons name="chatbubble-outline" size={24} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Text</Paragraph>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
                     style={styles.actionButton as any}
                   >
-                    <Ionicons name="call-outline" size={24} color="#fff" />
-                    <Paragraph style={styles.actionText as any}>Call</Paragraph>
+                    <Ionicons name="call-outline" size={24} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Call</Paragraph>
                   </TouchableOpacity>
                 </>
               )}
@@ -322,8 +353,8 @@ export function PersonCard({
                   onPress={() => Linking.openURL(`mailto:${person.email}`)}
                   style={styles.actionButton as any}
                 >
-                  <Ionicons name="mail-outline" size={24} color="#fff" />
-                  <Paragraph style={styles.actionText as any}>eMail</Paragraph>
+                  <Ionicons name="mail-outline" size={24} color={isDark ? "#fff" : "#555"} />
+                  <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>eMail</Paragraph>
                 </TouchableOpacity>
               )}
               {fullAddress && (
@@ -331,16 +362,16 @@ export function PersonCard({
                   onPress={() => Clipboard.setStringAsync(fullAddress)}
                   style={styles.actionButton as any}
                 >
-                  <Ionicons name="copy-outline" size={24} color="#fff" />
-                  <Paragraph style={styles.actionText as any}>Copy</Paragraph>
+                  <Ionicons name="copy-outline" size={24} color={isDark ? "#fff" : "#555"} />
+                  <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Copy</Paragraph>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
                 onPress={handleEditPress}
                 style={[styles.actionButton, { zIndex: 9999 }] as any}
               >
-                <Ionicons name="pencil-outline" size={24} color="#fff" />
-                <Paragraph style={styles.actionText as any}>Edit</Paragraph>
+                <Ionicons name="pencil-outline" size={24} color={isDark ? "#fff" : "#555"} />
+                <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Edit</Paragraph>
               </TouchableOpacity>
             </View>
           </Sheet.Frame>

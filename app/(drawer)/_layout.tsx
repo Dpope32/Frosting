@@ -1,11 +1,12 @@
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, StyleSheet, useColorScheme as RNColorScheme, Platform } from 'react-native';
+import { View, Image, Text, StyleSheet, useColorScheme as RNColorScheme, Platform, Dimensions } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
+import Animated from 'react-native-reanimated';
 
 const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 
@@ -92,11 +93,15 @@ export default function DrawerLayout() {
 
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? '#000000' : '#F5F5F5';
-  const textColor = '#fff';
+  const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#444' : '#999';
   const isWeb = Platform.OS === 'web';
-  const drawerWidth = isWeb ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : '65%'; 
+  // Use fixed width for better performance on mobile
+  const { width: screenWidth } = Dimensions.get('window');
+  const drawerWidth = isWeb 
+    ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 
+    : Math.min(300, screenWidth * 0.8); // Fixed pixel value based on screen width
 
   const styles = StyleSheet.create({
     wrapper: {
@@ -108,7 +113,7 @@ export default function DrawerLayout() {
     },
     header: {
       paddingTop: isWeb ? 20: 50,
-      paddingBottom: isWeb ? 10: 50,
+      paddingBottom: isWeb ? 10: 20,
       paddingHorizontal: 16,
       borderBottomWidth: 1,
       borderBottomColor: borderColor,
@@ -151,47 +156,73 @@ export default function DrawerLayout() {
     return <MaterialCommunityIcons name={icon.name as MaterialCommunityIconName} size={24} color={color} style={{ marginRight: 4 }} />;
   }, []);
 
+  // Memoize drawer options for better performance
+  const drawerScreenOptions = useMemo(() => {
+    // Explicitly type the options to ensure compatibility
+    const options: any = {
+      header: ({ route, options }: { route: any; options: any }) => (
+        <Header title={options.title || route.name} />
+      ),
+      headerTransparent: true,
+      drawerStyle: {
+        backgroundColor,
+        width: drawerWidth,
+        borderRightWidth: 1,
+        borderColor,
+        ...(isWeb ? { zIndex: 20 } : {})
+      },
+      drawerActiveTintColor: '#fff',
+      drawerInactiveTintColor: inactiveColor,
+      drawerActiveBackgroundColor: isDark ? `${primaryColor}99` : primaryColor,
+      drawerItemStyle: {
+        borderRadius: 0,
+        paddingVertical: 0,
+        paddingLeft: 0,
+        marginBottom: 10
+      },
+      drawerLabelStyle: {
+        fontSize: 16,
+        fontWeight: "600" as const, // Type assertion to match expected fontWeight values
+        marginLeft: -8,
+      },
+      drawerContentStyle: {
+        backgroundColor 
+      },
+      // Use explicit string literals for drawerType
+      drawerType: isWeb ? 'permanent' as const : 'front' as const, // 'front' performs better than 'slide'
+      overlayColor: isWeb ? 'transparent' : 'rgba(0,0,0,0.5)',
+      swipeEnabled: !isWeb,
+      swipeEdgeWidth: 50, // Smaller edge width for more precise detection
+      drawerStatusBarAnimation: 'fade',
+      drawerHideStatusBarOnOpen: true,
+      keyboardDismissMode: 'on-drag',
+    };
+
+    // Add gesture handler props for better performance
+    if (!isWeb) {
+      options.gestureHandlerProps = {
+        enabled: true,
+        activeOffsetX: [-20, 20],
+        failOffsetY: [-20, 20],
+        velocityThreshold: 0.3,
+      };
+      
+      // Add additional optimizations for mobile
+      options.sceneContainerStyle = {
+        transform: [{ translateX: 0 }], // Force hardware acceleration
+      };
+      
+      options.minSwipeDistance = 5;
+    }
+    
+    return options;
+  }, [backgroundColor, drawerWidth, borderColor, isWeb, inactiveColor, isDark, primaryColor]);
+
   return (
     <View style={styles.wrapper}>
       <Drawer
         drawerContent={renderDrawerContent}
-        screenOptions={{
-          header: ({ route, options }) => (
-            <Header title={options.title || route.name} />
-          ),
-          headerTransparent: true,
-          drawerStyle: {
-            backgroundColor,
-            width: drawerWidth,
-            borderRightWidth: 1,
-            borderColor,
-            ...(isWeb ? { zIndex: 20 } : {})
-          },
-          drawerActiveTintColor: '#fff',
-          drawerInactiveTintColor: inactiveColor,
-          drawerActiveBackgroundColor: isDark ? `${primaryColor}99` : primaryColor,
-          drawerItemStyle: {
-            borderRadius: 0,
-            paddingVertical: 0,
-            paddingLeft: 0,
-            marginBottom: 10
-          },
-          drawerLabelStyle: {
-            fontSize: 16,
-            fontWeight: '600',
-            marginLeft: -8,
-          },
-          drawerContentStyle: {
-            backgroundColor 
-          },
-          drawerType: isWeb ? 'permanent' : 'slide',  
-          overlayColor: isWeb ? 'transparent' : '#00000099',
-          swipeEnabled: !isWeb,
-          swipeEdgeWidth: 100,
-          drawerStatusBarAnimation: 'none',
-          drawerHideStatusBarOnOpen: true,
-          keyboardDismissMode: 'on-drag'
-        }}
+        screenOptions={drawerScreenOptions}
       >
         <Drawer.Screen
           name="(tabs)/index"

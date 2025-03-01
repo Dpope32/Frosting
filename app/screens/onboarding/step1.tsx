@@ -1,21 +1,7 @@
 import { YStack, Text, Button, Circle, Label } from 'tamagui'
-import { Image, Platform } from 'react-native'
+import { Image } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
-import { useState } from 'react'
-import { getWallpapers } from '@/services/s3Service'
-
-// Local assets for native platforms
-const localWallpapers = [
-  require('../../../assets/wallpapers-optimized/wallpapers-1.jpg'),
-  require('../../../assets/wallpapers-optimized/wallpapers-2.jpg'),
-  require('../../../assets/wallpapers-optimized/wallpapers-3.jpg'),
-  require('../../../assets/wallpapers-optimized/wallpapers-4.jpg'),
-  require('../../../assets/wallpapers-optimized/wallpapers-5.jpg'),
-]
-
-// S3 wallpapers for web platform
-const s3Wallpapers = getWallpapers()
 
 export default function Step1({
   formData,
@@ -32,7 +18,7 @@ export default function Step1({
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$1" alignItems="center">
-        <Label size="$8" textAlign="center" color="$gray12Dark">
+        <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
           Profile Picture
         </Label>
         <Circle
@@ -56,15 +42,16 @@ export default function Step1({
           ) : (
             <YStack alignItems="center" gap="$2">
               <Circle size={60} backgroundColor="$gray6Dark">
-                <Text fontSize={24}>👤</Text>
+                <Text fontFamily="$body" fontSize={24}>👤</Text>
               </Circle>
-              <Text color="$gray9Dark" fontSize="$3">
+              <Text fontFamily="$body" color="$gray9Dark" fontSize="$3">
                 Pick Photo
               </Text>
             </YStack>
           )}
         </Circle>
         <Text
+          fontFamily="$body"
           fontSize="$3"
           textAlign="center"
           color="$gray9Dark"
@@ -76,28 +63,18 @@ export default function Step1({
         </Text>
         <Button
           chromeless
-          onPress={() => {
-            let wallpaperUri = '';
-            
-            // Use different approach based on platform
-            if (Platform.OS === 'ios' || Platform.OS === 'android') {
-              // For native platforms, use local assets
-              const randomLocalWallpaper = localWallpapers[Math.floor(Math.random() * localWallpapers.length)]
-              wallpaperUri = Image.resolveAssetSource(randomLocalWallpaper).uri
-            } else {
-              // For web platform, use S3 wallpapers
-              const randomS3Wallpaper = s3Wallpapers[Math.floor(Math.random() * s3Wallpapers.length)]
-              wallpaperUri = randomS3Wallpaper.uri
-            }
+          onPress={async () => {
+            // Get a random image from Lorem Picsum
+            const wallpaperUri = 'https://picsum.photos/200';
             
             setFormData((prev) => ({
               ...prev,
               profilePicture: wallpaperUri
-            }))
+            }));
             useUserStore.getState().setPreferences({
               profilePicture: wallpaperUri
-            })
-            handleNext()
+            });
+            handleNext();
           }}
           color="$blue10Dark"
           marginTop="$1"

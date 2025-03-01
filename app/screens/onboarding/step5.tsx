@@ -66,9 +66,10 @@ export default function Step5({
   const columns = getGridColumns()
   
   return (
-    <YStack flex={1} justifyContent="flex-start" alignItems="center" padding="$4">
+    <YStack flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop={isWeb ? 0 : 60}>
       <YStack alignItems="center" gap="$1" marginBottom="$0">
         <Label
+          fontFamily="$body"
           size="$5"
           textAlign="center"
           color="$gray12Dark"
@@ -123,6 +124,7 @@ export default function Step5({
                 />
               </YStack>
               <Text
+                fontFamily="$body"
                 color={selectedTeam === team.code ? 'white' : '$gray11Dark'}
                 textAlign="center"
                 fontSize={isWeb ? 14 : 12}
@@ -147,7 +149,7 @@ export default function Step5({
             borderColor="rgba(255, 255, 255, 0.2)"
             onPress={() => setShowAllTeams(true)}
           >
-            <Text color="$gray11Dark">Show All Teams</Text>
+            <Text fontFamily="$body" color="$gray11Dark">Show All Teams</Text>
           </Button>
         )}
         
