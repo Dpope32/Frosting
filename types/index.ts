@@ -20,6 +20,7 @@ export type FormData = {
     | 'space'
     | 'silhouette';
   zipCode: string;
+  favoriteNBATeam?: string; // Team code (e.g., "OKC")
 };
 
 export type ColorOption = {

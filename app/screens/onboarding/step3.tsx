@@ -438,8 +438,8 @@ export default function Step3({
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                    backdropFilter: 'blur(10px)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    backdropFilter: 'blur(12px)',
                     WebkitBackdropFilter: 'blur(10px)',
                   }}
                 />

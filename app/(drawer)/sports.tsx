@@ -5,13 +5,34 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { YStack, Text } from 'tamagui'
 import { Tabs } from '@tamagui/tabs'
 import { Platform } from 'react-native'
-import ThunderPage from '@/components/sports/thunder'
+import NBATeamPage from '@/components/sports/NBATeamPage'
 import OUPage from '@/components/sports/ou'
+import { useUserStore } from '@/store/UserStore'
+import { useNBAStore } from '@/store/NBAStore'
+import { nbaTeams } from '@/constants/nba'
+
+// Check if we're in development mode
+const isDev = process.env.NODE_ENV === 'development' || __DEV__;
 
 export default function Sports() {
-  const [activeTab, setActiveTab] = useState('thunder')
+  // Get the user's favorite NBA team
+  const favoriteNBATeam = useUserStore(state => state.preferences.favoriteNBATeam) || 'OKC';
+  const { teamCode } = useNBAStore();
+  
+  // Find the team in the nbaTeams array
+  const team = nbaTeams.find(t => t.code === teamCode);
+  
+  // Default to NBA team tab, show OU tab only in dev mode
+  const [activeTab, setActiveTab] = useState(isDev ? 'nba' : 'nba');
   const scheme = useColorScheme()
   const isDark = scheme === 'dark'
+
+  // Get the team emoji based on the team code
+  const getTeamEmoji = () => {
+    // You could map team codes to specific emojis if desired
+    // For now, just use a basketball emoji
+    return '🏀';
+  };
 
   return (
     <YStack
@@ -20,7 +41,7 @@ export default function Sports() {
       bg={isDark ? '#000000' : '#ffffff'}
     >
       <Tabs
-        defaultValue="OKC"
+        defaultValue="nba"
         orientation="horizontal"
         flexDirection="column-reverse"
         flex={1}
@@ -29,7 +50,7 @@ export default function Sports() {
       >
         <Tabs.List paddingTop="$2" paddingBottom="$4" borderTopWidth={1} borderColor="$gray11">
           <Tabs.Tab
-            value="thunder"
+            value="nba"
             flex={1}
             backgroundColor="transparent"
             pressStyle={{
@@ -42,51 +63,59 @@ export default function Sports() {
                 fontFamily="$body"
                 color={isDark ? 'white' : 'black'}
               >
-                ⚡
+                {getTeamEmoji()}
               </Text>
               <YStack
                 backgroundColor="$blue10"
                 height={5}
                 width={40}
                 marginTop="$1"
-                display={activeTab === 'thunder' ? 'flex' : 'none'}
+                display={activeTab === 'nba' ? 'flex' : 'none'}
               />
             </YStack>
           </Tabs.Tab>
-          <Tabs.Tab
-            value="ou"
-            flex={1}
-            backgroundColor="transparent"
-            pressStyle={{
-              backgroundColor: '$gray12',
-            }}
-          >
-            <YStack alignItems="center">
-              <Text
-                fontSize="$5"
-                fontFamily="$body"
-                color={isDark ? 'white' : 'black'}
-              >
-                ⭕
-              </Text>
-              <YStack
-                backgroundColor="#990000"
-                height={5}
-                width={40}
-                marginTop="$1"
-                display={activeTab === 'ou' ? 'flex' : 'none'}
-              />
-            </YStack>
-          </Tabs.Tab>
+          
+          {/* Only show OU tab in development mode */}
+          {isDev && (
+            <Tabs.Tab
+              value="ou"
+              flex={1}
+              backgroundColor="transparent"
+              pressStyle={{
+                backgroundColor: '$gray12',
+              }}
+            >
+              <YStack alignItems="center">
+                <Text
+                  fontSize="$5"
+                  fontFamily="$body"
+                  color={isDark ? 'white' : 'black'}
+                >
+                  ⭕
+                </Text>
+                <YStack
+                  backgroundColor="#990000"
+                  height={5}
+                  width={40}
+                  marginTop="$1"
+                  display={activeTab === 'ou' ? 'flex' : 'none'}
+                />
+              </YStack>
+            </Tabs.Tab>
+          )}
         </Tabs.List>
 
         <YStack flex={1}>
-          <Tabs.Content value="thunder" flex={1}>
-            {activeTab === 'thunder' && <ThunderPage />}
+          <Tabs.Content value="nba" flex={1}>
+            {activeTab === 'nba' && <NBATeamPage />}
           </Tabs.Content>
-          <Tabs.Content value="ou" flex={1}>
-            {activeTab === 'ou' && <OUPage />}
-          </Tabs.Content>
+          
+          {/* Only render OU content in development mode */}
+          {isDev && (
+            <Tabs.Content value="ou" flex={1}>
+              {activeTab === 'ou' && <OUPage />}
+            </Tabs.Content>
+          )}
         </YStack>
       </Tabs>
     </YStack>

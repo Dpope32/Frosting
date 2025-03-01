@@ -1,18 +1,36 @@
 import { useQuery } from '@tanstack/react-query';
-import { useThunderStore } from '../store/ThunderStore';
-import type { Game } from '../store/ThunderStore';
-
-const ESPN_API_URL = 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/okc/schedule';
+import { useNBAStore, getCurrentTeamCode, getESPNTeamCode, getNBASeason } from '../store/NBAStore';
+import type { Game } from '../store/NBAStore';
+import { nbaTeams } from '../constants/nba';
+import React from 'react';
 
 export const useSportsAPI = () => {
-  const { setGames, setLoading, setError } = useThunderStore();
+  const { setGames, setLoading, setError, setTeamInfo } = useNBAStore();
+  
+  // Get the current team code from user preferences
+  const teamCode = getCurrentTeamCode();
+  const espnTeamCode = getESPNTeamCode(teamCode);
+  const season = getNBASeason();
+  
+  // Find the team name from the nbaTeams array
+  const team = nbaTeams.find(t => t.code === teamCode);
+  const teamName = team?.name || 'Oklahoma City Thunder';
+  
+  // Use useEffect to set team info only when dependencies change
+  React.useEffect(() => {
+    if (team) {
+      setTeamInfo(teamCode, teamName);
+    }
+  }, [teamCode, teamName, setTeamInfo]);
+  
+  const ESPN_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}/schedule`;
 
-  const fetchThunderSchedule = async (): Promise<Game[]> => {
+  const fetchNBASchedule = async (): Promise<Game[]> => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${ESPN_API_URL}?season=2025`, {
+      const response = await fetch(`${ESPN_API_URL}?season=${season}`, {
         headers: {
           'Accept': 'application/json',
           'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
@@ -33,16 +51,16 @@ export const useSportsAPI = () => {
       const games: Game[] = data.events
         .filter((event: any) => new Date(event.date) >= today)
         .map((event: any) => {
-          const isHomeGame = event.name.includes("at Oklahoma City Thunder");
+          const isHomeGame = event.name.includes(`at ${teamName}`);
           const teams = event.name.split(" at ");
           let homeTeam, awayTeam;
           
           if (isHomeGame) {
-            homeTeam = "Oklahoma City Thunder";
+            homeTeam = teamName;
             awayTeam = teams[0];
           } else {
             homeTeam = teams[1];
-            awayTeam = "Oklahoma City Thunder";
+            awayTeam = teamName;
           }
 
           let homeScore, awayScore;
@@ -70,15 +88,16 @@ export const useSportsAPI = () => {
             homeScore,
             awayScore,
             status,
-            season: 2025
+            season,
+            teamCode
           };
       });
 
       setGames(games);
-      useThunderStore.getState().syncGameTasks();
+      useNBAStore.getState().syncGameTasks();
       return games;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch Thunder schedule';
+      const errorMessage = error instanceof Error ? error.message : `Failed to fetch ${teamName} schedule`;
       setError(errorMessage);
       throw error;
     } finally {
@@ -87,8 +106,8 @@ export const useSportsAPI = () => {
   };
 
   return useQuery({
-    queryKey: ['thunder-schedule'],
-    queryFn: fetchThunderSchedule,
+    queryKey: [`nba-schedule-${teamCode}`],
+    queryFn: fetchNBASchedule,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
     gcTime: 1000 * 60 * 60 * 24, // 24 hours
     refetchInterval: 1000 * 60 * 60 * 24, // 24 hours

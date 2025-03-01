@@ -1,25 +1,22 @@
 import React, { useCallback } from 'react'
 import { XStack, Text } from 'tamagui'
-import { Platform } from 'react-native'
 
-interface GreetingSectionProps {
-  username: string
-}
+interface GreetingSectionProps { username: string }
 
 export const GreetingSection = ({ username }: GreetingSectionProps) => {
   const getGreeting = useCallback(() => {
     const hour = new Date().getHours()
     switch (Math.floor(hour / 2)) {
       case 0:
-        return "I AINT NO"
+        return "Hello"
       case 1:
-        return 'Still up'
+        return 'Still up are we'
       case 2:
         return 'Early bird'
       case 3:
         return 'Rise and shine'
       case 4:
-        return 'Gm'
+        return 'Morning'
       case 5:
         return 'Gm'
       case 6:
@@ -33,7 +30,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       case 10:
         return 'Gn'
       default:
-        return 'Gn'
+        return 'Goodnight'
     }
   }, [])
 

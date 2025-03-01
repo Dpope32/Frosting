@@ -225,6 +225,7 @@ export function WifiCard() {
         justifyContent="center"
         pressStyle={{ opacity: 0.8 }}
         onPress={() => setModalOpen(true)}
+        style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
       >
         {isLoading || networkState.isPingLoading ? (
           <Spinner size="small" color={getSpeedColor()} />

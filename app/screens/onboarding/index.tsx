@@ -14,6 +14,7 @@ import Step1 from './step1'
 import Step2 from './step2'
 import Step3 from './step3'
 import Step4 from './step4'
+import Step5 from './step5'
 
 export default function Onboarding() {
   const [step, setStep] = useState(0)
@@ -43,7 +44,7 @@ export default function Onboarding() {
   }, [])
 
   const handleNext = () => {
-    if (step === 4) {
+    if (step === 5) {
       setPreferences({ ...formData, hasCompletedOnboarding: true })
       router.replace('/(drawer)/(tabs)' as const)
     } else {
@@ -61,6 +62,9 @@ export default function Onboarding() {
         return formData.username.length >= 2
       case 4:
         return formData.zipCode.length === 5
+      case 5:
+        // Can proceed if a team is selected or we'll default to OKC
+        return true
       default:
         return true
     }
@@ -124,6 +128,14 @@ export default function Onboarding() {
             handleNext={handleNext}
           />
         )
+      case 5:
+        return (
+          <Step5
+            formData={formData}
+            setFormData={setFormData}
+            handleNext={handleNext}
+          />
+        )
       default:
         return null
     }
@@ -171,7 +183,7 @@ export default function Onboarding() {
                   disabled={!canProceed()}
                   onPress={handleNext}>
                   <Text color="white" fontWeight="bold">
-                    {step === 4 ? 'Complete' : 'Continue'}
+                    {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>
               </XStack>
@@ -210,7 +222,7 @@ export default function Onboarding() {
                   disabled={!canProceed()}
                   onPress={handleNext}>
                   <Text color="white" fontWeight="bold">
-                    {step === 4 ? 'Complete' : 'Continue'}
+                    {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>
               </XStack>

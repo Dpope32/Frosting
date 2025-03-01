@@ -1,6 +1,6 @@
 import React from 'react'
 import { Pressable, Platform } from 'react-native'
-import { Stack, Text, XStack } from 'tamagui'
+import { isWeb, Stack, Text, XStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { TaskCard } from '@/components/TaskCard'
 import { getCategoryColor } from '@/components/utils'
@@ -130,32 +130,27 @@ export const TaskSection = ({
           onPress={onTaskListPress}
           style={Platform.OS === 'web' ? {
             position: 'absolute',
-            bottom: -75,
-            left: -10,
+            top: -50,
+            right: -10,
             width: 34,
             height: 34,
             borderRadius: 17,
             justifyContent: 'center',
             alignItems: 'center',
-            boxShadow: '0px 0px 4px rgba(219, 208, 198, 0.2)'
           } : {
             position: 'absolute',
-            bottom: -75,
-            left: -10,
+            top: -75,
+            right: -10,
             width: 34,
             height: 34,
             borderRadius: 17,
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: 'rgba(219, 208, 198, 0.2)',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.3,
-            shadowRadius: 4
           }}
         >
           <Ionicons 
             name="list-circle-outline" 
-            size={26} 
+            size={24} 
             color="#dbd0c6"
             style={{
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
@@ -169,37 +164,27 @@ export const TaskSection = ({
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             bottom: -75,
-            right: -10,
+            right: -12,
             width: 34,
             height: 34,
             borderRadius: 17,
             justifyContent: 'center',
             alignItems: 'center',
-            boxShadow: '0px 0px 4px rgba(219, 208, 198, 0.2)'
           } : {
             position: 'absolute',
             bottom: -75,
-            right: -10,
+            right: -12,
             width: 34,
             height: 34,
             borderRadius: 17,
             justifyContent: 'center',
             alignItems: 'center',
-            shadowColor: 'rgba(219, 208, 198, 0.2)',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.3,
-            shadowRadius: 4
           }}
         >
           <Ionicons 
             name="add" 
-            size={26} 
+            size={isWeb ? 32 : 24} 
             color="#dbd0c6"
-            style={{
-              textShadowColor: 'rgba(219, 208, 198, 0.15)',
-              textShadowOffset: { width: 0, height: 0 },
-              textShadowRadius: 4
-            }}
           />
         </Pressable>
       </Stack>

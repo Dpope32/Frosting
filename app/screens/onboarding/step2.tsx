@@ -1,4 +1,4 @@
-import { YStack, Text, XStack, Circle, Label } from 'tamagui'
+import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
 import { FormData, ColorOption } from '@/types'
 import { View, useColorScheme, Platform } from 'react-native'
 
@@ -34,14 +34,15 @@ export default function Step2({
 
   // Enhanced Web Color Picker with predefined palette + custom input
   const WebColorPicker = () => {
-    // Common color palette
     const colorPalette = [
-      '#FF5252', '#FF4081', '#E040FB', '#7C4DFF', 
-      '#536DFE', '#448AFF', '#40C4FF', '#18FFFF',
-      '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41',
-      '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40',
-      '#455A64', '#607D8B', '#9E9E9E', '#FFFFFF',
-    ]
+      '#C62828', '#AD1457', '#8E24AA', '#5E35B1',
+      '#3949AB', '#1976D2', '#0288D1', '#0097A7', 
+      '#00897B', '#43A047', '#7CB342', '#C0CA33',
+      '#FDD835', '#FFB300', '#FB8C00', '#E64A19',
+      '#546E7A', '#78909C', '#B0BEC5','#9d9d9d',
+      '#000000','#090909', '#4B0082', '#311432','#090109',
+    ];
+    
 
     return (
       <YStack flex={1} alignItems="center" justifyContent="center" gap="$2">
@@ -111,7 +112,7 @@ export default function Step2({
         </Text>
       </YStack>
 
-      <YStack flex={1} paddingTop="$4">
+      <YStack flex={1} paddingTop= {isWeb ? "$12" : "$4"}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (

@@ -13,6 +13,7 @@ interface UserPreferences {
   hasCompletedOnboarding: boolean;
   notificationsEnabled: boolean;
   quoteEnabled: boolean;
+  favoriteNBATeam?: string; // Team code (e.g., "OKC")
 }
 
 interface UserStore {
