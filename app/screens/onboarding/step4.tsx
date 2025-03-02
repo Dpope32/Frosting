@@ -124,18 +124,6 @@ export default function Step4({
       </YStack>
       
       <YStack alignItems="center" marginTop={isWeb ? "$2" : "$1"} gap="$2">
-        {/* Continue button */}
-        <Button
-          backgroundColor={zipError ? "$gray6Dark" : "$blue10Dark"}
-          color="white"
-          onPress={handleNextWithValidation}
-          disabled={!!zipError}
-          opacity={zipError ? 0.7 : 1}
-          paddingHorizontal={24}
-          borderRadius={8}
-        >
-          Continue
-        </Button>
         
         {/* Skip button */}
         <Button

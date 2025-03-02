@@ -27,6 +27,21 @@ export default function NBATeamPage() {
       }
     }
   }, [preferences.favoriteNBATeam, teamCode, setTeamInfo, refetch])
+  
+  // Sync NBA games to calendar when schedule is loaded
+  useEffect(() => {
+    if (schedule && schedule.length > 0 && !isLoading) {
+      // Only sync games if the user has enabled showing NBA games in calendar
+      if (preferences.showNBAGamesInCalendar) {
+        console.log('Syncing NBA games to calendar from NBATeamPage')
+        useNBAStore.getState().syncNBAGames()
+      } else {
+        console.log('NBA games in calendar disabled, skipping sync')
+        // Clear any existing NBA events from calendar
+        useNBAStore.getState().clearNBACalendarEvents()
+      }
+    }
+  }, [schedule, isLoading, preferences.showNBAGamesInCalendar])
   const today = new Date()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'

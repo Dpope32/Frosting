@@ -97,8 +97,6 @@ export const usePortfolioQuery = () => {
               ? await ProxyServerManager.getApiUrl(`yahoo-finance/${symbol}`, directUrl)
               : directUrl;
             
-            if (__DEV__) console.log(`[PortfolioStore] Fetching ${symbol} from ${url}`);
-            
             const response = await fetch(url, {
               headers: {
                 'Accept': 'application/json',
@@ -131,17 +129,6 @@ export const usePortfolioQuery = () => {
             
             if (!price) {
               throw new Error('No price data found');
-            }
-            
-            if (__DEV__) {
-              console.log(`[PortfolioStore] Fetched data for ${symbol}:`, {
-                price,
-                previousClose,
-                change,
-                changePercent,
-                fiftyTwoWeekHigh,
-                fiftyTwoWeekLow
-              });
             }
 
             return { 
@@ -216,17 +203,9 @@ export const usePortfolioQuery = () => {
             if (__DEV__) console.warn(`[PortfolioStore] Error fetching:`, result.reason);
           }
         });
-
-        if (__DEV__) {
-          console.log('[PortfolioStore] Prices:', priceData);
-          console.log('[PortfolioStore] Change Percents:', changePercentData);
-        }
-        
-        console.log('[PortfolioStore] Fetching historical data for symbols:', Object.keys(priceData));
         
         // Fetch historical data for returns calculation with max range for all-time data
         const historicalData = await fetchHistoricalDataWithEarliest(Object.keys(priceData), cachedHistoricalData);
-        console.log('[PortfolioStore] Historical data result:', JSON.stringify(historicalData, null, 2));
         
         // Only store new data if we got at least some valid prices
         if (!hasErrors || Object.values(priceData).some(price => price > 0)) {
@@ -304,13 +283,9 @@ const fetchHistoricalDataWithEarliest = async (
   symbols: string[], 
   cachedData: Record<string, any> = {}
 ): Promise<Record<string, { '1w': number | null; '1m': number | null; '3m': number | null; '6m': number | null; '1y': number | null; 'ytd': number | null; 'earliest': number | null }>> => {
-  // Only log in development
-  if (__DEV__) console.log('[fetchHistoricalData] Starting with symbols:', symbols);
   
   const result: Record<string, { '1w': number | null; '1m': number | null; '3m': number | null; '6m': number | null; '1y': number | null; 'ytd': number | null; 'earliest': number | null }> = {};
-  
-  // Force a fresh fetch by clearing cached data
-  if (__DEV__) console.log('[fetchHistoricalData] Forcing fresh data fetch');
+
   await StorageUtils.set('portfolio_historical_data', {});
   await StorageUtils.set('portfolio_historical_last_update', '');
   
@@ -331,16 +306,6 @@ const fetchHistoricalDataWithEarliest = async (
     const oneYearAgo = new Date(safeNowMs);
     oneYearAgo.setFullYear(safeNow.getFullYear() - 1);
     
-    if (__DEV__) {
-      console.log('[fetchHistoricalData] Date ranges:', {
-        deviceNow: deviceNow.toISOString(),
-        safeNow: safeNow.toISOString(),
-        oneMonthAgo: oneMonthAgo.toISOString(),
-        sixMonthsAgo: sixMonthsAgo.toISOString(),
-        oneYearAgo: oneYearAgo.toISOString()
-      });
-    }
-    
     // Process symbols in batches to avoid rate limiting
     for (let i = 0; i < symbols.length; i += 3) {
       const batch = symbols.slice(i, i + 3);
@@ -357,8 +322,7 @@ const fetchHistoricalDataWithEarliest = async (
             ...regularHistoricalData,
             'earliest': earliestData
           };
-          
-          if (__DEV__) console.log(`[fetchHistoricalData] Successfully fetched historical data for ${symbol}`);
+
         } catch (error) {
           // Enhanced error logging
           if (__DEV__) {
@@ -421,10 +385,8 @@ const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1w': numbe
     if (Platform.OS === 'web') {
       // For web, we need to use the proxy server
       url = await ProxyServerManager.getApiUrl(`yahoo-finance-history/${symbol}?interval=1d&range=1y`, directUrl);
-      if (__DEV__) console.log(`[fetchRegularHistoricalData] Using proxy URL for ${symbol}: ${url}`);
     } else {
       url = directUrl;
-      if (__DEV__) console.log(`[fetchRegularHistoricalData] Using direct URL for ${symbol}: ${url}`);
     }
     
     const response = await fetch(url, {
@@ -447,9 +409,6 @@ const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1w': numbe
     const timestamps = data.chart.result[0].timestamp;
     const adjClosePrices = data.chart.result[0].indicators.adjclose[0].adjclose;
     
-    if (__DEV__) {
-      console.log(`[fetchRegularHistoricalData] ${symbol} data points: ${timestamps.length}`);
-    }
     
     // Get prices for all time periods
     const now = new Date();
@@ -479,14 +438,7 @@ const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1w': numbe
           closestIndex = j;
         }
       }
-      
       const price = adjClosePrices[closestIndex] || null;
-      
-      if (__DEV__) {
-        const date = new Date(timestamps[closestIndex] * 1000);
-        console.log(`[fetchRegularHistoricalData] ${symbol} found price for ${targetDate.toISOString()} at ${date.toISOString()}: ${price}`);
-      }
-      
       return price;
     };
     
@@ -496,17 +448,6 @@ const fetchRegularHistoricalData = async (symbol: string): Promise<{ '1w': numbe
     const sixMonthPrice = findClosestPrice(sixMonthsAgo);
     const oneYearPrice = findClosestPrice(oneYearAgo);
     const ytdPrice = findClosestPrice(ytdDate);
-    
-    if (__DEV__) {
-      console.log(`[fetchRegularHistoricalData] ${symbol} historical prices:`, {
-        oneWeekPrice,
-        oneMonthPrice,
-        threeMonthPrice,
-        sixMonthPrice,
-        oneYearPrice,
-        ytdPrice
-      });
-    }
     
     return {
       '1w': oneWeekPrice,
@@ -539,10 +480,9 @@ const fetchEarliestData = async (symbol: string): Promise<number | null> => {
     if (Platform.OS === 'web') {
       // For web, use the proxy server
       url = await ProxyServerManager.getApiUrl(`yahoo-finance-history/${symbol}?interval=1mo&range=max`, directUrl);
-      if (__DEV__) console.log(`[fetchEarliestData] Using proxy URL for ${symbol}: ${url}`);
+     
     } else {
       url = directUrl;
-      if (__DEV__) console.log(`[fetchEarliestData] Using direct URL for ${symbol}: ${url}`);
     }
     
     const response = await fetch(url, {
@@ -558,10 +498,6 @@ const fetchEarliestData = async (symbol: string): Promise<number | null> => {
     
     const data = await response.json();
     
-    if (__DEV__) {
-      console.log(`[fetchEarliestData] ${symbol} response:`, JSON.stringify(data, null, 2).substring(0, 500) + '...');
-    }
-    
     if (!data?.chart?.result?.[0]) {
       throw new Error('No result data found');
     }
@@ -576,30 +512,10 @@ const fetchEarliestData = async (symbol: string): Promise<number | null> => {
     const timestamps = result.timestamp;
     const adjClosePrices = result.indicators.adjclose[0].adjclose;
     
-    if (__DEV__) {
-      console.log(`[fetchEarliestData] ${symbol} data points: ${timestamps.length}`);
-      
-      if (timestamps.length > 0) {
-        const firstDate = new Date(timestamps[0] * 1000);
-        const lastDate = new Date(timestamps[timestamps.length - 1] * 1000);
-        console.log(`[fetchEarliestData] ${symbol} date range: ${firstDate.toISOString()} to ${lastDate.toISOString()}`);
-      }
-    }
-    
     // Get the earliest (first) price in the dataset
     if (adjClosePrices.length > 0) {
       // The first entry is the earliest available price
       const earliestPrice = adjClosePrices[0];
-      
-      if (__DEV__) {
-        console.log(`[fetchEarliestData] ${symbol} earliest price:`, earliestPrice);
-        
-        if (timestamps.length > 0) {
-          const earliestDate = new Date(timestamps[0] * 1000);
-          console.log(`[fetchEarliestData] ${symbol} earliest date: ${earliestDate.toISOString()}`);
-        }
-      }
-      
       return earliestPrice;
     }
     

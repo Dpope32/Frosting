@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Platform } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalendarEvent } from '@/store/CalendarStore';
+import { nbaTeams } from '@/constants/nba';
+import { useUserStore } from '@/store/UserStore';
 
 const shouldUseDarkText = (backgroundColor: string): boolean => {
   const hex = backgroundColor.replace('#', '');
@@ -21,6 +23,8 @@ interface MonthProps {
 }
 
 export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, primaryColor }) => {
+  // Get the showNBAGamesInCalendar preference
+  const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -45,16 +49,30 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             personal: false,
             work: false,
             family: false,
-            bill: false
+            bill: false,
+            nba: false,
+            teamCode: null
           };
         }
         if (event.type === 'birthday') acc[event.date].birthday = true;
         else if (event.type === 'work') acc[event.date].work = true;
         else if (event.type === 'family') acc[event.date].family = true;
         else if (event.type === 'bill') acc[event.date].bill = true;
+        else if (event.type === 'nba') {
+          acc[event.date].nba = true;
+          acc[event.date].teamCode = event.teamCode || null;
+        }
         else acc[event.date].personal = true; // includes undefined type
         return acc;
-      }, {} as Record<string, { birthday: boolean; personal: boolean; work: boolean; family: boolean; bill: boolean }>);
+      }, {} as Record<string, { 
+        birthday: boolean; 
+        personal: boolean; 
+        work: boolean; 
+        family: boolean; 
+        bill: boolean;
+        nba: boolean;
+        teamCode: string | null;
+      }>);
   }, [date.getFullYear(), date.getMonth(), events]);
 
   const { daysInMonth, firstDayOfMonth } = getDaysInMonth(date);
@@ -104,7 +122,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             personal: false,
             work: false,
             family: false,
-            bill: false
+            bill: false,
+            nba: false,
+            teamCode: null
           };
           const hasBirthday = dayEvents.birthday;
           const hasPersonalEvent = dayEvents.personal;
@@ -169,6 +189,19 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
                   {hasBill && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />}
                 </View>
+                
+                {/* NBA Team Logo - only show if showNBAGamesInCalendar is true */}
+                {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && (
+                  <View style={styles.nbaLogoContainer}>
+                    {nbaTeams.find(team => team.code === dayEvents.teamCode) && (
+                      <Image
+                        source={{ uri: nbaTeams.find(team => team.code === dayEvents.teamCode)?.logo }}
+                        style={styles.nbaLogo}
+                        resizeMode="contain"
+                      />
+                    )}
+                  </View>
+                )}
               </View>
             </TouchableOpacity>
           );
@@ -287,5 +320,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -10,
     top: -10,
+  },
+  nbaLogoContainer: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: Platform.OS === 'web' ? 16 : 12,
+    height: Platform.OS === 'web' ? 16 : 12,
+    zIndex: 1,
+  },
+  nbaLogo: {
+    width: '100%',
+    height: '100%',
   },
 });

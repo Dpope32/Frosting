@@ -21,6 +21,7 @@ export type FormData = {
     | 'silhouette';
   zipCode: string;
   favoriteNBATeam?: string; // Team code (e.g., "OKC")
+  showNBAGamesInCalendar?: boolean; // Whether to show NBA games in the calendar
 };
 
 export type ColorOption = {

@@ -1,25 +1,52 @@
 import React from 'react';
-import { View, StyleSheet, Text, Platform } from 'react-native';
+import { View, StyleSheet, Text, Platform, Image } from 'react-native';
+import { useNBAStore } from '@/store/NBAStore';
+import { useUserStore } from '@/store/UserStore';
+import { nbaTeams } from '@/constants/nba';
 
 interface LegendProps {
   isDark: boolean;
 }
 
+interface LegendItem {
+  color: string;
+  label: string;
+  isNBA?: boolean;
+}
+
 export const Legend: React.FC<LegendProps> = ({ isDark }) => {
-  const items = [
+  const { teamCode } = useNBAStore();
+  const team = nbaTeams.find(t => t.code === teamCode);
+  const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
+  
+  // Base items without NBA
+  const baseItems: LegendItem[] = [
     { color: '#FF9800', label: 'Bills' },
     { color: '#4CAF50', label: 'Personal' },
     { color: '#2196F3', label: 'Work' },
     { color: '#9C27B0', label: 'Family' },
     { color: '#FF69B4', label: 'Birthdays' },
   ];
+  
+  // Add NBA item if showNBAGamesInCalendar is true
+  const items: LegendItem[] = showNBAGamesInCalendar 
+    ? [...baseItems, { color: '#FF5722', label: 'NBA Games', isNBA: true }]
+    : baseItems;
 
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         {items.map((item, index) => (
           <View key={index} style={styles.item}>
-            <View style={[styles.dot, { backgroundColor: item.color }]} />
+            {item.isNBA && team ? (
+              <Image 
+                source={{ uri: team.logo }} 
+                style={styles.nbaLogo} 
+                resizeMode="contain"
+              />
+            ) : (
+              <View style={[styles.dot, { backgroundColor: item.color }]} />
+            )}
             <Text style={[styles.label, { color: isDark ? '#999999' : '#666666' }]}>
               {item.label}
             </Text>
@@ -32,7 +59,7 @@ export const Legend: React.FC<LegendProps> = ({ isDark }) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     paddingBottom: 8,
     ...(Platform.OS === 'web' ? {
       paddingBottom: 16,
@@ -59,5 +86,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Platform.OS === 'web' ? 14 : 11,
     fontWeight: Platform.OS === 'web' ? '500' : '400',
+  },
+  nbaLogo: {
+    width: Platform.OS === 'web' ? 16 : 12,
+    height: Platform.OS === 'web' ? 16 : 12,
   },
 });

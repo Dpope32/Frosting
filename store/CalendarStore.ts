@@ -17,8 +17,9 @@ export interface CalendarEvent {
   time?: string  
   title: string
   description?: string
-  type?: 'birthday' | 'personal' | 'work' | 'family' | 'bill'
+  type?: 'birthday' | 'personal' | 'work' | 'family' | 'bill' | 'nba'
   personId?: string
+  teamCode?: string // For NBA games
   createdAt: string
   updatedAt: string
 }

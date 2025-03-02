@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { YStack, Text, Button, XStack, ScrollView, Label } from 'tamagui'
+import { YStack, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
 import { Image, Platform, View, useColorScheme, useWindowDimensions } from 'react-native'
 import { FormData } from '@/types'
 import { nbaTeams } from '@/constants/nba'
@@ -24,12 +24,27 @@ export default function Step5({
   // Get the selected team
   const selectedTeam = formData.favoriteNBATeam || ''
   
+  // State for showing NBA games in calendar
+  const [showNBAGamesInCalendar, setShowNBAGamesInCalendar] = useState(true)
+  
   // Function to handle team selection
   const handleTeamSelect = (teamCode: string) => {
     setFormData(prev => ({
       ...prev,
-      favoriteNBATeam: teamCode
+      favoriteNBATeam: teamCode,
+      showNBAGamesInCalendar: showNBAGamesInCalendar
     }))
+  }
+  
+  // Function to handle toggle for showing NBA games in calendar
+  const handleToggleNBAGames = (value: boolean) => {
+    setShowNBAGamesInCalendar(value)
+    if (selectedTeam) {
+      setFormData(prev => ({
+        ...prev,
+        showNBAGamesInCalendar: value
+      }))
+    }
   }
   
   // Function to skip team selection
@@ -37,7 +52,8 @@ export default function Step5({
     // Default to OKC Thunder if skipped
     setFormData(prev => ({
       ...prev,
-      favoriteNBATeam: 'OKC'
+      favoriteNBATeam: 'OKC',
+      showNBAGamesInCalendar: showNBAGamesInCalendar
     }))
     handleNext()
   }
@@ -151,6 +167,61 @@ export default function Step5({
           >
             <Text fontFamily="$body" color="$gray11Dark">Show All Teams</Text>
           </Button>
+        )}
+        
+        {/* Show calendar preference option if a team is selected */}
+        {selectedTeam && (
+          <YStack 
+            width="100%" 
+            maxWidth={400} 
+            marginTop="$0" 
+            marginBottom="$5"
+            backgroundColor="rgba(255, 255, 255, 0.1)"
+            borderRadius={8}
+            padding="$3"
+          >
+            <XStack justifyContent="space-between" alignItems="center">
+              <YStack>
+                <Text 
+                  fontFamily="$body" 
+                  color="$gray12Dark" 
+                  fontSize={14} 
+                  fontWeight="500"
+                >
+                  Show games in calendar
+                </Text>
+                <Text 
+                  fontFamily="$body" 
+                  color="$gray11Dark" 
+                  fontSize={14}
+                  marginTop="$1"
+                >
+                  Display team logo on game days
+                </Text>
+              </YStack>
+              <XStack alignItems="center" gap="$2">
+                <Text 
+                  fontFamily="$body" 
+                  color={showNBAGamesInCalendar ? formData.primaryColor : '$gray11Dark'}
+                  fontWeight="bold"
+                >
+                  {showNBAGamesInCalendar ? 'ON' : 'OFF'}
+                </Text>
+                <Switch
+                  checked={showNBAGamesInCalendar}
+                  onCheckedChange={handleToggleNBAGames}
+                  size="$3"
+                  backgroundColor={showNBAGamesInCalendar ? formData.primaryColor : 'rgba(255, 255, 255, 0.2)'}
+                  borderColor={showNBAGamesInCalendar ? formData.primaryColor : 'rgba(255, 255, 255, 0.3)'}
+                >
+                  <Switch.Thumb 
+                    backgroundColor={showNBAGamesInCalendar ? 'white' : 'rgba(255, 255, 255, 0.8)'}
+                    animation="quick"
+                  />
+                </Switch>
+              </XStack>
+            </XStack>
+          </YStack>
         )}
         
         <Button

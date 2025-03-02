@@ -3,7 +3,9 @@ import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
 import { useProjectStore, WeekDay } from './ToDo';
 import { useUserStore } from './UserStore';
-import { espnTeamCodes, getCurrentNBASeason } from '../constants/nba';
+import { espnTeamCodes, getCurrentNBASeason, nbaTeams } from '../constants/nba';
+import { useCalendarStore } from './CalendarStore';
+import { format } from 'date-fns';
 
 export interface Game {
   id: number;
@@ -29,6 +31,8 @@ interface NBAStore {
   setError: (error: string | null) => void;
   syncGameTasks: () => void;
   deleteAllGameTasks: () => void;
+  syncNBAGames: () => void;
+  clearNBACalendarEvents: () => void;
 }
 
 export const useNBAStore = create<NBAStore>()(
@@ -86,6 +90,66 @@ export const useNBAStore = create<NBAStore>()(
             });
           }
         });
+      },
+      
+      // Clear all NBA calendar events
+      clearNBACalendarEvents: () => {
+        const { events } = useCalendarStore.getState();
+        const calendarStore = useCalendarStore.getState();
+        
+        // Filter out NBA events
+        events.forEach(event => {
+          if (event.type === 'nba') {
+            calendarStore.deleteEvent(event.id);
+          }
+        });
+      },
+      
+      // Sync NBA games to calendar
+      syncNBAGames: () => {
+        // First clear existing NBA events
+        get().clearNBACalendarEvents();
+        
+        // Check if user wants to show NBA games in calendar
+        const userPreferences = useUserStore.getState().preferences;
+        if (!userPreferences.showNBAGamesInCalendar) {
+          console.log('NBA games in calendar disabled by user preference');
+          return; // Exit if user doesn't want to show NBA games in calendar
+        }
+        
+        const state = get();
+        const calendarStore = useCalendarStore.getState();
+        const now = new Date();
+        const team = nbaTeams.find(t => t.code === state.teamCode);
+        
+        if (!team) return;
+        
+        console.log('Syncing NBA games to calendar for team:', state.teamCode);
+        
+        // Add each game as a calendar event
+        state.games.forEach((game: Game) => {
+          const gameDate = new Date(game.date);
+          if (gameDate >= now) {
+            const isHome = game.homeTeam.includes(state.teamName);
+            const opponent = (isHome ? game.awayTeam : game.homeTeam).replace(`${state.teamName} `, '');
+            const location = isHome ? 'vs ' : '@ ';
+            const gameTime = new Date(game.date).toLocaleTimeString('en-US', { 
+              hour: 'numeric', 
+              minute: '2-digit'
+            });
+            
+            calendarStore.addEvent({
+              date: format(gameDate, 'yyyy-MM-dd'),
+              time: gameTime,
+              title: `${state.teamName} ${location}${opponent}`,
+              description: `NBA Game: ${state.teamName} ${location}${opponent}`,
+              type: 'nba',
+              teamCode: state.teamCode
+            });
+          }
+        });
+        
+        console.log('NBA games sync complete');
       }
     }),
     {
