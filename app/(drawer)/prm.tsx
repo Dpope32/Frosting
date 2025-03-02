@@ -71,58 +71,59 @@ export default function CRM() {
 
   return (
     <YStack flex={1} paddingTop={isWeb ? 12 : 80}>
-      <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
-        <Button
-          size="$4"
-          circular
-          backgroundColor="#ff6b6b"
-          pressStyle={{ scale: 0.95 }}
-          animation="quick"
-          elevation={4}
-          onPress={generateTestContacts}
-          icon={<FontAwesome5 name="database" size={20} color="white" />}
-        />
-        <Button
-          size="$4"
-          circular
-          backgroundColor="#e74c3c"
-          pressStyle={{ scale: 0.95 }}
-          animation="quick"
-          elevation={4}
-          onPress={() => {
-            if (Platform.OS === 'web') {
-              // For web, use window.confirm instead of Alert.alert
-              if (window.confirm('Are you sure you want to clear all contacts? This cannot be undone.')) {
-                usePeopleStore.getState().clearContacts();
-              }
-            } else {
-              // For mobile, use Alert.alert
-              Alert.alert(
-                'Clear All Contacts',
-                'Are you sure you want to clear all contacts? This cannot be undone.',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  {
-                    text: 'Clear All',
-                    style: 'destructive',
-                    onPress: () => {
-                      usePeopleStore.getState().clearContacts();
-                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      {/* Development tools - only visible in dev mode */}
+      {__DEV__ && (
+        <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
+          <Button
+            size="$4"
+            circular
+            backgroundColor="#ff6b6b"
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={generateTestContacts}
+            icon={<FontAwesome5 name="database" size={20} color="white" />}
+          />
+          <Button
+            size="$4"
+            circular
+            backgroundColor="#e74c3c"
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={() => {
+              if (Platform.OS === 'web') {
+                if (window.confirm('Are you sure you want to clear all contacts? This cannot be undone.')) {
+                  usePeopleStore.getState().clearContacts();
+                }
+              } else {
+                Alert.alert(
+                  'Clear All Contacts',
+                  'Are you sure you want to clear all contacts? This cannot be undone.',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Clear All',
+                      style: 'destructive',
+                      onPress: () => {
+                        usePeopleStore.getState().clearContacts();
+                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                      }
                     }
-                  }
-                ]
-              );
-            }
-          }}
-          icon={<MaterialIcons name="clear-all" size={24} color="white" />}
-        />
-      </View>
+                  ]
+                );
+              }
+            }}
+            icon={<MaterialIcons name="clear-all" size={24} color="white" />}
+          />
+        </View>
+      )}
       <H4 marginTop={16} textAlign="center" marginBottom={8}>
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
       <Separator borderColor="$gray8" borderWidth={1} my="$2" marginBottom={16} />
       <FlatList
-        key={JSON.stringify(allContacts)} // Force re-render when contacts change
+        key={JSON.stringify(allContacts)} 
         data={allContacts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}

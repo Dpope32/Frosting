@@ -71,7 +71,7 @@ export default function StorageScreen() {
             <Text fontFamily="$body" fontSize="$3" color={isDark ? '#ccc' : '#666'}>
               Used Space
             </Text>
-            <Text fontFamily="$body" fontSize="$5" fontWeight="bold" color={primaryColor}>
+            <Text fontFamily="$body" fontSize="$5" fontWeight="bold" color={isDark ? '#ccc' : '#666'}>
               {formatSize(stats.totalSize)}
             </Text>
           </YStack>
@@ -80,7 +80,7 @@ export default function StorageScreen() {
             <Text fontFamily="$body" fontSize="$3" color={isDark ? '#ccc' : '#666'}>
               Total Files
             </Text>
-            <Text fontFamily="$body" fontSize="$5" fontWeight="bold" color={primaryColor}>
+            <Text fontFamily="$body" fontSize="$5" fontWeight="bold" color={isDark ? '#ccc' : '#666'}>
               {stats.fileCount}
             </Text>
           </YStack>

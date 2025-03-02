@@ -117,7 +117,7 @@ export default function Step2({
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (
-          <View style={{ flex: 1, padding: isWeb ? 20 : 48 }}>
+          <View style={{ flex: 1, padding: isWeb ? 20 : 60 }}>
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}

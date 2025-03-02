@@ -1,10 +1,10 @@
 
 // *** Sports.tsx ***
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { YStack, Text } from 'tamagui'
 import { Tabs } from '@tamagui/tabs'
-import { Platform, Image } from 'react-native'
+import { Platform } from 'react-native'
 import NBATeamPage from '@/components/sports/NBATeamPage'
 import OUPage from '@/components/sports/ou'
 import { useUserStore } from '@/store/UserStore'
@@ -19,7 +19,7 @@ export default function Sports() {
   
   // Find the team in the nbaTeams array
   const team = nbaTeams.find(t => t.code === teamCode);
-  const [activeTab, setActiveTab] = useState(isDev ? 'nba' : 'nba');
+  const [activeTab, setActiveTab] = useState('nba');
   const scheme = useColorScheme()
   const isDark = scheme === 'dark'
 
@@ -30,6 +30,20 @@ export default function Sports() {
     return '🏀';
   };
 
+  // In production mode, just render the NBA screen without tabs
+  if (!isDev) {
+    return (
+      <YStack
+        flex={1}
+        marginTop={Platform.OS === 'web' ? 0 : 90}
+        bg={isDark ? '#000000' : '#ffffff'}
+      >
+        <NBATeamPage />
+      </YStack>
+    );
+  }
+
+  // In development mode, show both NBA and OU tabs
   return (
     <YStack
       flex={1}
@@ -71,34 +85,31 @@ export default function Sports() {
             </YStack>
           </Tabs.Tab>
           
-          {/* Only show OU tab in development mode */}
-          {isDev && (
-            <Tabs.Tab
-              value="ou"
-              flex={1}
-              backgroundColor="transparent"
-              pressStyle={{
-                backgroundColor: '$gray12',
-              }}
-            >
-              <YStack alignItems="center">
-                <Text
-                  fontSize="$5"
-                  fontFamily="$body"
-                  color={isDark ? 'white' : 'black'}
-                >
-                  ⭕
-                </Text>
-                <YStack
-                  backgroundColor="#990000"
-                  height={5}
-                  width={40}
-                  marginTop="$1"
-                  display={activeTab === 'ou' ? 'flex' : 'none'}
-                />
-              </YStack>
-            </Tabs.Tab>
-          )}
+          <Tabs.Tab
+            value="ou"
+            flex={1}
+            backgroundColor="transparent"
+            pressStyle={{
+              backgroundColor: '$gray12',
+            }}
+          >
+            <YStack alignItems="center">
+              <Text
+                fontSize="$5"
+                fontFamily="$body"
+                color={isDark ? 'white' : 'black'}
+              >
+                ⭕
+              </Text>
+              <YStack
+                backgroundColor="#990000"
+                height={5}
+                width={40}
+                marginTop="$1"
+                display={activeTab === 'ou' ? 'flex' : 'none'}
+              />
+            </YStack>
+          </Tabs.Tab>
         </Tabs.List>
 
         <YStack flex={1}>
@@ -106,12 +117,9 @@ export default function Sports() {
             {activeTab === 'nba' && <NBATeamPage />}
           </Tabs.Content>
           
-          {/* Only render OU content in development mode */}
-          {isDev && (
-            <Tabs.Content value="ou" flex={1}>
-              {activeTab === 'ou' && <OUPage />}
-            </Tabs.Content>
-          )}
+          <Tabs.Content value="ou" flex={1}>
+            {activeTab === 'ou' && <OUPage />}
+          </Tabs.Content>
         </YStack>
       </Tabs>
     </YStack>

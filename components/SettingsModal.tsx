@@ -133,14 +133,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     if (wallpaperPath && wallpaperPath.uri) {
       return { uri: wallpaperPath.uri };
     }
-    
-    // Fallback to local assets for specific styles
-    if (style === 'space') {
-      return require('@/assets/wallpapers/wallpapers-3.png');
-    } else if (style === 'silhouette') {
-      return require('@/assets/wallpapers/wallpapers-4.png');
-    }
-    
     // Default fallback
     return undefined;
   }

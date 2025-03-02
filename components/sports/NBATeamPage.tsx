@@ -181,7 +181,7 @@ export default function NBATeamPage() {
       darkColor="#000000"
       lightColor="#ffffff"
     >
-      {/* Team Header with larger logo */}
+      {/* Team Header with logo and name side by side */}
       <View style={styles.teamHeader}>
         <Image
           source={{ uri: team?.logo }}
@@ -230,8 +230,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   teamHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    justifyContent: 'flex-start',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
     marginBottom: 8,
@@ -239,11 +242,11 @@ const styles = StyleSheet.create({
   teamHeaderTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginTop: 8,
+    marginLeft: 12,
   },
   teamLargeLogo: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
   },
   logo: {
     width: 40,

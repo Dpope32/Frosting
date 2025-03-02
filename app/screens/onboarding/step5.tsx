@@ -43,7 +43,7 @@ export default function Step5({
   }
   
   // Get popular teams for the initial view
-  const popularTeams = ['LAL', 'GSW', 'BOS', 'MIA', 'CHI', 'OKC', 'NYK', 'DAL']
+  const popularTeams = ['LAL', 'GSW', 'BOS', 'MIA', 'CHI', 'OKC','NYK','TOR','', 'DAL', 'CLE','DEN','IND']
   const initialTeams = nbaTeams.filter(team => popularTeams.includes(team.code))
   const teamsToDisplay = showAllTeams ? nbaTeams : initialTeams
   
