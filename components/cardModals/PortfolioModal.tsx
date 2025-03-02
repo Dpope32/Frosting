@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { useColorScheme, StyleSheet } from 'react-native'
+import { useColorScheme, StyleSheet, Platform } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button, Input } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BaseCardModal } from './BaseCardModal'
@@ -20,7 +20,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedStock, setSelectedStock] = useState<Stock | undefined>()
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
-  const { prices, totalValue, principal } = usePortfolioStore()
+  const { prices, totalValue, principal, historicalData } = usePortfolioStore()
   const currentTotalValue = totalValue ?? 0
   const [isEditingPrincipal, setIsEditingPrincipal] = useState(false)
   const [principalInput, setPrincipalInput] = useState(principal.toString())
@@ -62,13 +62,20 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
 
   const roi = calculateROI();
 
+  // Helper function to calculate and format return percentages
+  const calculateReturn = (currentPrice: number, historicalPrice: number | null | undefined) => {
+    if (!historicalPrice || historicalPrice === 0) return '-';
+    const returnPercentage = ((currentPrice - historicalPrice) / historicalPrice) * 100;
+    return `${returnPercentage.toFixed(1)}%`;
+  };
+
   return (
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
     >
-      <YStack gap="$4" paddingTop="$1">
+      <YStack gap="$4" paddingTop={Platform.OS === 'web' ? 0 : "$1"}>
         <YStack>
           <Animated.View 
             entering={FadeIn.duration(600)}
@@ -160,7 +167,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" paddingRight="$1">
             <Text color={isDark ? "#999" : "#666"} fontSize={14}>Holdings</Text>
             <Button
-              unstyled
+              backgroundColor={"#transparent"}
               onPress={() => {
                 setSelectedStock(undefined)
                 setEditModalOpen(true)
@@ -170,7 +177,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
               icon={
                 <MaterialIcons 
                   name="add" 
-                  size={32} 
+                  size={24} 
                   color={isDark ? "#fff" : "#000"}
                 />
               }
@@ -205,6 +212,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                 portfolioData.map((stock, index) => {
                   const currentPrice = prices[stock.symbol] || 0
                   const totalValue = currentPrice * stock.quantity
+                  const stockHistoricalData = historicalData?.[stock.symbol]
                   
                   return (
                     <Animated.View 
@@ -212,71 +220,146 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                       entering={FadeIn.delay(index * 50)}
                       style={styles.card}
                     >
-                      <XStack justifyContent="space-between" alignItems="center">
-                        <YStack flex={1}>
-                          <XStack alignItems="center" gap="$2">
-                            <Text 
-                              color={isDark ? "#fff" : "#000"} 
-                              fontSize={16} 
-                              fontWeight="500"
-                            >
-                              {stock.symbol}
-                            </Text>
+                      <YStack gap="$2">
+                        <XStack justifyContent="space-between" alignItems="center">
+                          <YStack flex={1}>
+                            <XStack alignItems="center" gap="$2">
+                              <Text 
+                                color={isDark ? "#fff" : "#000"} 
+                                fontSize={16} 
+                                fontWeight="500"
+                              >
+                                {stock.symbol}
+                              </Text>
+                              <Text 
+                                color={isDark ? "#999" : "#666"} 
+                                fontSize={12}
+                              >
+                                {stock.quantity} shares
+                              </Text>
+                            </XStack>
                             <Text 
                               color={isDark ? "#999" : "#666"} 
                               fontSize={12}
                             >
-                              {stock.quantity} shares
+                              {stock.name}
                             </Text>
-                          </XStack>
-                          <Text 
-                            color={isDark ? "#999" : "#666"} 
-                            fontSize={12}
-                          >
-                            {stock.name}
-                          </Text>
-                        </YStack>
+                          </YStack>
 
-                        <YStack alignItems="flex-end" flex={1}>
-                          <Text 
-                            color={getStockValueColor(totalValue)} 
-                            fontSize={16} 
-                            fontWeight="500"
-                          >
-                            ${totalValue.toLocaleString('en-US', { 
-                              minimumFractionDigits: 2, 
-                              maximumFractionDigits: 2 
-                            })}
-                          </Text>
-                          <Text 
-                            color={isDark ? "#999" : "#666"} 
-                            fontSize={12}
-                          >
-                            ${currentPrice.toLocaleString('en-US', { 
-                              minimumFractionDigits: 2, 
-                              maximumFractionDigits: 2 
-                            })} / share
-                          </Text>
-                        </YStack>
+                          <YStack alignItems="flex-end" flex={1}>
+                            <Text 
+                              color={getStockValueColor(totalValue)} 
+                              fontSize={16} 
+                              fontWeight="500"
+                            >
+                              ${totalValue.toLocaleString('en-US', { 
+                                minimumFractionDigits: 2, 
+                                maximumFractionDigits: 2 
+                              })}
+                            </Text>
+                          </YStack>
 
-                        <Button
-                          icon={
-                            <MaterialIcons 
-                              name="edit" 
-                              size={16} 
-                              color={isDark ? "#fff" : "#000"} 
-                            />
-                          }
-                          circular
-                          {...iconButtonStyle}
-                          marginLeft="$3"
-                          pressStyle={{ opacity: 0.7 }}
-                          onPress={() => {
-                            setSelectedStock(stock)
-                            setEditModalOpen(true)
-                          }}
-                        />
-                      </XStack>
+                          <Button
+                            icon={
+                              <MaterialIcons 
+                                name="edit" 
+                                size={16} 
+                                color={isDark ? "#fff" : "#000"} 
+                              />
+                            }
+                            circular
+                            {...iconButtonStyle}
+                            marginLeft="$3"
+                            pressStyle={{ opacity: 0.7 }}
+                             backgroundColor="#transparent"
+                            onPress={() => {
+                              setSelectedStock(stock)
+                              setEditModalOpen(true)
+                            }}
+                          />
+                        </XStack>
+                        
+                        {/* Returns row */}
+                        <XStack 
+                          justifyContent="space-between" 
+                          backgroundColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)"}
+                          borderRadius={8}
+                          padding={Platform.OS === 'web' ? "$1.5" : "$1"}
+                          marginTop="$0.5"
+                        >
+                          {/* 1W Return */}
+                          <YStack alignItems="center" flex={1}>
+                            <Text 
+                              color={isDark ? "#999" : "#666"} 
+                              fontSize={10}
+                              fontWeight="500"
+                            >
+                              1W
+                            </Text>
+                            <Text 
+                              color={stockHistoricalData?.['1w'] ? 
+                                getStockValueColor(currentPrice - (stockHistoricalData['1w'] || 0)) : 
+                                isDark ? "#777" : "#999"
+                              } 
+                              fontSize={12}
+                              fontWeight="600"
+                            >
+                              {stockHistoricalData?.['1w'] ? 
+                                calculateReturn(currentPrice, stockHistoricalData['1w']) : 
+                                '-'
+                              }
+                            </Text>
+                          </YStack>
+                          
+                          {/* 3M Return */}
+                          <YStack alignItems="center" flex={1}>
+                            <Text 
+                              color={isDark ? "#999" : "#666"} 
+                              fontSize={10}
+                              fontWeight="500"
+                            >
+                              3M
+                            </Text>
+                            <Text 
+                              color={stockHistoricalData?.['3m'] ? 
+                                getStockValueColor(currentPrice - (stockHistoricalData['3m'] || 0)) : 
+                                isDark ? "#777" : "#999"
+                              } 
+                              fontSize={12}
+                              fontWeight="600"
+                            >
+                              {stockHistoricalData?.['3m'] ? 
+                                calculateReturn(currentPrice, stockHistoricalData['3m']) : 
+                                '-'
+                              }
+                            </Text>
+                          </YStack>
+                          
+                          {/* 1Y Return */}
+                          <YStack alignItems="center" flex={1}>
+                            <Text 
+                              color={isDark ? "#999" : "#666"} 
+                              fontSize={10}
+                              fontWeight="500"
+                            >
+                              1Y
+                            </Text>
+                            <Text 
+                              color={stockHistoricalData?.['1y'] ? 
+                                getStockValueColor(currentPrice - (stockHistoricalData['1y'] || 0)) : 
+                                isDark ? "#777" : "#999"
+                              } 
+                              fontSize={12}
+                              fontWeight="600"
+                            >
+                              {stockHistoricalData?.['1y'] ? 
+                                calculateReturn(currentPrice, stockHistoricalData['1y']) : 
+                                '-'
+                              }
+                            </Text>
+                          </YStack>
+                        </XStack>
+                      </YStack>
                     </Animated.View>
                   )
                 })
