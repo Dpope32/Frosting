@@ -49,12 +49,8 @@ export function LandingPage() {
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
 
   const handleNewTaskPress = () => {
-    const startTime = Date.now()
     setSheetOpen(true)
     setTimeout(() => {
-      const endTime = Date.now()
-      const duration = endTime - startTime
-      console.log('Modal Open Time', `Time taken: ${duration}ms`)
     }, 0)
   }
 

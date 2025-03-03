@@ -7,6 +7,8 @@ import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal'
 import { Plus, X, Eye, EyeOff } from '@tamagui/lucide-icons'
+import { VaultRecommendationChip, VaultRecommendationCategory } from '@/utils/VaultRecommendations'
+import { VaultRecommendationModal } from '@/components/cardModals/VaultRecommendationModal'
 
 interface VaultEntry {
   id: string
@@ -20,6 +22,11 @@ export default function VaultScreen() {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const showToast = useToastStore((state) => state.showToast)
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [socialMediaModalOpen, setSocialMediaModalOpen] = useState(false)
+  const [emailCloudModalOpen, setEmailCloudModalOpen] = useState(false)
+  const [shoppingModalOpen, setShoppingModalOpen] = useState(false)
+  const [workModalOpen, setWorkModalOpen] = useState(false)
+  
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web'
@@ -92,17 +99,96 @@ export default function VaultScreen() {
         {data?.items.length === 0 ? (
           <XStack
             bg={isDark ? '#1A1A1A' : '#f5f5f5'}
-            p="$6"
+            p="$4"
             borderRadius="$4"
-            ai="center"
+            ai="flex-start"
             jc="center"
             borderWidth={1}
             borderColor={isDark ? '#333' : '#e0e0e0'}
             width="100%"
           >
-            <Text color={isDark ? '#666' : '#999'} fontSize="$3" textAlign="center" fontFamily="$body">
-              No entries in vault
-            </Text>
+            <YStack gap="$3" width="100%">
+              <Text color={isDark ? '#fff' : '#333'} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
+                Secure Password Vault
+              </Text>
+              
+              <YStack gap="$2" px="$2">
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? '#fff' : '#333'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Store Your Credentials
+                    </Text>
+                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body">
+                      Add usernames and passwords for all your accounts in one secure location.
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? '#fff' : '#333'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      End-to-End Encryption
+                    </Text>
+                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body">
+                      All data is stored locally and protected using advanced cryptography techniques.
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? '#fff' : '#333'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Easy Access & Management
+                    </Text>
+                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body">
+                      Quickly view, add, or remove entries with a simple and intuitive interface.
+                    </Text>
+                  </YStack>
+                </XStack>
+              </YStack>
+              
+              <Text color={isDark ? '#666' : '#999'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$2" mb="$4">
+                Quick add from common categories:
+              </Text>
+              
+              <XStack 
+                justifyContent="space-between"
+                paddingHorizontal="$1"
+                gap="$1"
+                flexWrap="wrap"
+              >
+                <VaultRecommendationChip 
+                  category="Social Media" 
+                  onPress={() => setSocialMediaModalOpen(true)} 
+                  isDark={isDark}
+                />
+                
+                <VaultRecommendationChip 
+                  category="Misc" 
+                  onPress={() => setEmailCloudModalOpen(true)} 
+                  isDark={isDark}
+                />
+                
+                <VaultRecommendationChip 
+                  category="Shopping" 
+                  onPress={() => setShoppingModalOpen(true)} 
+                  isDark={isDark}
+                />
+                
+                <VaultRecommendationChip 
+                  category="Work" 
+                  onPress={() => setWorkModalOpen(true)} 
+                  isDark={isDark}
+                />
+              </XStack>
+              
+              <Text color={isDark ? '#666' : '#999'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
+                Or click the + button below to add a custom entry
+              </Text>
+            </YStack>
           </XStack>
         ) : Platform.OS === 'web' ? (
           data?.items.map((cred: VaultEntry) => (
@@ -264,6 +350,30 @@ export default function VaultScreen() {
         isVisible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         onSubmit={handleAddEntry}
+      />
+      
+      <VaultRecommendationModal 
+        open={socialMediaModalOpen} 
+        onOpenChange={setSocialMediaModalOpen} 
+        category="Social Media" 
+      />
+      
+      <VaultRecommendationModal 
+        open={emailCloudModalOpen} 
+        onOpenChange={setEmailCloudModalOpen} 
+        category="Misc" 
+      />
+      
+      <VaultRecommendationModal 
+        open={shoppingModalOpen} 
+        onOpenChange={setShoppingModalOpen} 
+        category="Shopping" 
+      />
+      
+      <VaultRecommendationModal 
+        open={workModalOpen} 
+        onOpenChange={setWorkModalOpen} 
+        category="Work" 
       />
 
       <BlurView

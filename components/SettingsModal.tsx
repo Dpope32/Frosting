@@ -117,7 +117,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   // Save final settings
   function handleSave() {
-    console.log('Saving profile picture:', settings.profilePicture);
     setPreferences({ ...settings })
     onOpenChange(false)
   }

@@ -117,12 +117,12 @@ export function TaskCard({
           </View>
         </Pressable>
 
-        <Stack flex={1} gap="$1.5">
+        <Stack flex={1} gap="$1">
           <XStack justifyContent="space-between" alignItems="center" gap="$1">
                 <Text 
                   fontFamily="$body"
                   color="rgb(232, 230, 227)" 
-                  fontSize={15}
+                  fontSize={14}
                   fontWeight="500"
                   flex={1}
                   opacity={checked ? 0.6 : 1}

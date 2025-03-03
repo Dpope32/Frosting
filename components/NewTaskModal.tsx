@@ -330,12 +330,12 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         recurrenceDate: newTask.recurrenceDate
       }
       
-      console.log('Adding task:', {
-        name: taskToAdd.name,
-        pattern: taskToAdd.recurrencePattern,
-        schedule: taskToAdd.schedule,
-        recurrenceDate: taskToAdd.recurrenceDate
-      })
+      //console.log('Adding task:', {
+        //name: taskToAdd.name,
+        //pattern: taskToAdd.recurrencePattern,
+        //schedule: taskToAdd.schedule,
+        //recurrenceDate: taskToAdd.recurrenceDate
+      //})
       onOpenChange(false)
       await new Promise(resolve => setTimeout(resolve, 80))
       try {

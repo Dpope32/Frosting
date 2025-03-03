@@ -80,7 +80,7 @@ const DRAWER_ICONS: Record<string, IconConfig> = {
   calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
   sports: { name: 'sports-baseball' as MaterialIconName, type: 'material' },
   chatbot: { name: 'code' as MaterialIconName, type: 'material' },
-  prm: { name: 'person' as MaterialIconName, type: 'material' },
+  crm: { name: 'person' as MaterialIconName, type: 'material' },
   storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
   vault: { name: 'lock' as MaterialIconName, type: 'material' },
   bills: { name: 'attach-money' as MaterialIconName, type: 'material' }
@@ -249,11 +249,11 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
-          name="prm"
+          name="crm"
           options={{
-            title: 'PRM',
-            drawerLabel: 'PRM',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'prm' })
+            title: 'CRM',
+            drawerLabel: 'CRM',
+            drawerIcon: (props) => renderIcon({ ...props, route: 'crm' })
           }}
         />
         <Drawer.Screen
@@ -267,8 +267,8 @@ export default function DrawerLayout() {
         <Drawer.Screen
           name="vault"
           options={{
-            title: 'Password Vault',
-            drawerLabel: 'Password Vault',
+            title: 'Vault',
+            drawerLabel: 'Vault',
             drawerIcon: (props) => renderIcon({ ...props, route: 'vault' })
           }}
         />

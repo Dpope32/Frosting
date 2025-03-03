@@ -26,7 +26,7 @@ app.get('/api/stoic-quote', async (req, res) => {
 app.get('/api/yahoo-finance/:symbol', async (req, res) => {
   try {
     const symbol = req.params.symbol;
-    console.log(`Fetching Yahoo Finance current data for ${symbol}...`);
+    //console.log(`Fetching Yahoo Finance current data for ${symbol}...`);
     
     const response = await axios.get(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`, {
       headers: {
@@ -35,7 +35,7 @@ app.get('/api/yahoo-finance/:symbol', async (req, res) => {
       }
     });
     
-    console.log(`Yahoo Finance current data for ${symbol} fetched successfully`);
+    //console.log(`Yahoo Finance current data for ${symbol} fetched successfully`);
     res.json(response.data);
   } catch (error) {
     console.error(`Error fetching Yahoo Finance data for ${req.params.symbol}:`, error);
@@ -70,15 +70,15 @@ app.get('/api/yahoo-finance-history/:symbol', async (req, res) => {
     // Ensure period2 is not in the future (Yahoo Finance will return 404)
     const now = Math.floor(Date.now() / 1000);
     if (Number(period2) > now) {
-      console.log(`Warning: period2 (${period2}) is in the future. Clamping to current time (${now}).`);
+      //console.log(`Warning: period2 (${period2}) is in the future. Clamping to current time (${now}).`);
       period2 = now;
     }
     
-    console.log(`Fetching Yahoo Finance historical data for ${symbol}...`);
-    console.log(`Parameters: period1=${period1}, period2=${period2}, interval=${interval}`);
+    //console.log(`Fetching Yahoo Finance historical data for ${symbol}...`);
+    //console.log(`Parameters: period1=${period1}, period2=${period2}, interval=${interval}`);
     
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${period1}&period2=${period2}&interval=${interval}`;
-    console.log(`Request URL: ${url}`);
+    //console.log(`Request URL: ${url}`);
     
     try {
       const response = await axios.get(url, {
@@ -98,7 +98,7 @@ app.get('/api/yahoo-finance-history/:symbol', async (req, res) => {
         });
       }
       
-      console.log(`Yahoo Finance historical data for ${symbol} fetched successfully`);
+      //console.log(`Yahoo Finance historical data for ${symbol} fetched successfully`);
       res.json(response.data);
     } catch (axiosError) {
       // Handle specific axios errors
@@ -143,9 +143,9 @@ app.get('/api/ping', (req, res) => {
 // Start the server
 app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
-  console.log(`Available endpoints:`);
-  console.log(`- GET /api/stoic-quote`);
-  console.log(`- GET /api/yahoo-finance/:symbol`);
-  console.log(`- GET /api/yahoo-finance-history/:symbol`);
-  console.log(`- GET /api/ping`);
+  //console.log(`Available endpoints:`);
+ // console.log(`- GET /api/stoic-quote`);
+ // console.log(`- GET /api/yahoo-finance/:symbol`);
+ // console.log(`- GET /api/yahoo-finance-history/:symbol`);
+ // console.log(`- GET /api/ping`);
 });

@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Sheet, YStack, XStack, Text, ScrollView } from 'tamagui'
 import { useProjectStore, Task, WeekDay } from '@/store/ToDo'
 import { useThunderStore } from '@/store/ThunderStore'
 import { Pressable, Platform, useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { getCategoryColor } from '../utils'
+import { RecommendationChip, RecommendationCategory } from '@/utils/TaskRecommendations'
+import { TaskRecommendationModal } from './TaskRecommendationModal'
 
 interface TaskListModalProps {
   open: boolean
@@ -15,6 +17,10 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   const tasks = useProjectStore(s => s.tasks)
   const deleteTask = useProjectStore(s => s.deleteTask)
   const syncGameTasks = useThunderStore(s => s.syncGameTasks)
+  const [cleaningModalOpen, setCleaningModalOpen] = useState(false)
+  const [financialModalOpen, setFinancialModalOpen] = useState(false)
+  const [gymModalOpen, setGymModalOpen] = useState(false)
+  const [selfCareModalOpen, setSelfCareModalOpen] = useState(false)
 
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -75,7 +81,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[70]}
+      snapPoints={[80]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
@@ -104,46 +110,78 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
         } : {})}
       >
         <ScrollView bounces={false}>
-          <XStack justifyContent="space-between" alignItems="center" marginBottom="$4">
-            <Text
-              fontSize={24}
-              fontWeight="700"
-              fontFamily="$body"
-              color={isDark ? "$gray12" : "$gray11"}
-            >
-              All Tasks
-            </Text>
-            <Pressable
-              onPress={() => {
-                syncGameTasks()
-                onOpenChange(false)
-              }}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.7 : 1,
-                backgroundColor: isDark
-                  ? 'rgba(255,255,255,0.1)'
-                  : 'rgba(0,0,0,0.1)',
-                padding: 8,
-                borderRadius: 8,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4
-              })}
-            >
-              <Ionicons
-                name="sync"
-                size={16}
-                color={isDark ? "#fff" : "#000"}
-              />
+          <YStack gap="$2">
+            <XStack justifyContent="space-between" alignItems="center">
               <Text
+                fontSize={20}
+                fontWeight="700"
                 fontFamily="$body"
-                fontSize={14}
-                color={isDark ? "#fff" : "#000"}
+                color={isDark ? "$gray12" : "$gray11"}
               >
-                Sync Games
+                All Tasks
               </Text>
-            </Pressable>
-          </XStack>
+              <Pressable
+                onPress={() => {
+                  syncGameTasks()
+                  onOpenChange(false)
+                }}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.7 : 1,
+                  backgroundColor: isDark
+                    ? 'rgba(255,255,255,0.1)'
+                    : 'rgba(0,0,0,0.1)',
+                  padding: 8,
+                  borderRadius: 8,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4
+                })}
+              >
+                <Ionicons
+                  name="sync"
+                  size={16}
+                  color={isDark ? "#fff" : "#000"}
+                />
+                <Text
+                  fontFamily="$body"
+                  fontSize={14}
+                  color={isDark ? "#fff" : "#000"}
+                >
+                  Sync Games
+                </Text>
+              </Pressable>
+            </XStack>
+            
+            <XStack 
+              justifyContent="space-between"
+              paddingBottom="$4"
+              marginTop="$1"
+            >
+              <RecommendationChip 
+                category="Cleaning" 
+                onPress={() => setCleaningModalOpen(true)} 
+                isDark={isDark}
+              />
+              
+              <RecommendationChip 
+                category="Financial" 
+                onPress={() => setFinancialModalOpen(true)} 
+                isDark={isDark}
+              />
+              
+              <RecommendationChip 
+                category="Gym" 
+                onPress={() => setGymModalOpen(true)} 
+                isDark={isDark}
+              />
+              
+              <RecommendationChip 
+                category="Self-Care" 
+                onPress={() => setSelfCareModalOpen(true)} 
+                isDark={isDark}
+              />
+            </XStack>
+          </YStack>
 
           {Object.entries(tasksByDay).map(([day, dayTasks]) =>
             dayTasks.length > 0 ? (
@@ -243,6 +281,30 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
           )}
         </ScrollView>
       </Sheet.Frame>
+      
+      <TaskRecommendationModal 
+        open={cleaningModalOpen} 
+        onOpenChange={setCleaningModalOpen} 
+        category="Cleaning" 
+      />
+      
+      <TaskRecommendationModal 
+        open={financialModalOpen} 
+        onOpenChange={setFinancialModalOpen} 
+        category="Financial" 
+      />
+      
+      <TaskRecommendationModal 
+        open={gymModalOpen} 
+        onOpenChange={setGymModalOpen} 
+        category="Gym" 
+      />
+      
+      <TaskRecommendationModal 
+        open={selfCareModalOpen} 
+        onOpenChange={setSelfCareModalOpen} 
+        category="Self-Care" 
+      />
     </Sheet>
   )
 }

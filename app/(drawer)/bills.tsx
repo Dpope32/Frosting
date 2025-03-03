@@ -6,9 +6,16 @@ import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
+import { BillRecommendationChip, BillRecommendationCategory } from '@/utils/BillRecommendations';
+import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [housingModalOpen, setHousingModalOpen] = useState(false);
+  const [transportationModalOpen, setTransportationModalOpen] = useState(false);
+  const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
+  const [insuranceModalOpen, setInsuranceModalOpen] = useState(false);
+  
   const { bills, addBill, deleteBill, isLoading } = useBills();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
@@ -87,15 +94,96 @@ export default function BillsScreen() {
         ) : bills?.length === 0 ? (
           <XStack 
             bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-            p="$6" 
+            p="$4" 
             borderRadius="$4" 
-            ai="center" 
+            ai="flex-start" 
             jc="center"
             borderWidth={1}
             borderColor={isDark ? "#333" : "#e0e0e0"}
             width="100%"
           >
-            <Paragraph color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body">No bills added yet</Paragraph>
+            <YStack gap="$4" width="100%">
+              <Text color={isDark ? "#fff" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
+                Bill Management Center
+              </Text>
+              
+              <YStack gap="$3" px="$2">
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Track Monthly Expenses
+                    </Text>
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                      Add your recurring bills and keep track of your monthly expenses in one place.
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Due Date Reminders
+                    </Text>
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                      Never miss a payment with visual indicators for upcoming and due bills.
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Budget Overview
+                    </Text>
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                      See your total monthly expenses and manage your budget more effectively.
+                    </Text>
+                  </YStack>
+                </XStack>
+              </YStack>
+              
+              <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$2" >
+                Quick add from common categories:
+              </Text>
+              
+              <XStack 
+                justifyContent="space-between"
+                paddingHorizontal="$1"
+                gap="$2"
+                flexWrap="wrap"
+              >
+                <BillRecommendationChip 
+                  category="Housing" 
+                  onPress={() => setHousingModalOpen(true)} 
+                  isDark={isDark}
+                />
+                
+                <BillRecommendationChip 
+                  category="Transportation" 
+                  onPress={() => setTransportationModalOpen(true)} 
+                  isDark={isDark}
+                />
+                
+                <BillRecommendationChip 
+                  category="Subscriptions" 
+                  onPress={() => setSubscriptionsModalOpen(true)} 
+                  isDark={isDark}
+                />
+                
+                <BillRecommendationChip 
+                  category="Insurance" 
+                  onPress={() => setInsuranceModalOpen(true)} 
+                  isDark={isDark}
+                />
+              </XStack>
+              
+              <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
+                Or click the + button below to add a custom bill
+              </Text>
+            </YStack>
           </XStack>
         ) : bills ? (
           bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
@@ -283,9 +371,9 @@ export default function BillsScreen() {
         >
           <XStack ai="center" jc="space-between">
             <XStack ai="center" gap="$3">
-              <DollarSign size={24} color="$green9" />
+              <DollarSign size={20} color="$green9" />
               <Text 
-                fontSize="$5" 
+                fontSize="$4" 
                 fontWeight="bold" 
                 color={isDark ? "#fff" : "#000"}
                 fontFamily="$body"
@@ -295,7 +383,7 @@ export default function BillsScreen() {
               </Text>
             </XStack>
             <Text 
-              fontSize="$5" 
+              fontSize="$4" 
               fontWeight="bold" 
               color={getAmountColor(totalMonthlyAmount)}
               fontFamily="$body"
@@ -322,6 +410,30 @@ export default function BillsScreen() {
       >
         <Plus color="white" size={24} />
       </Button>
+      
+      <BillRecommendationModal 
+        open={housingModalOpen} 
+        onOpenChange={setHousingModalOpen} 
+        category="Housing" 
+      />
+      
+      <BillRecommendationModal 
+        open={transportationModalOpen} 
+        onOpenChange={setTransportationModalOpen} 
+        category="Transportation" 
+      />
+      
+      <BillRecommendationModal 
+        open={subscriptionsModalOpen} 
+        onOpenChange={setSubscriptionsModalOpen} 
+        category="Subscriptions" 
+      />
+      
+      <BillRecommendationModal 
+        open={insuranceModalOpen} 
+        onOpenChange={setInsuranceModalOpen} 
+        category="Insurance" 
+      />
     </YStack>
   );
 }

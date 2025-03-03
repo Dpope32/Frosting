@@ -33,10 +33,10 @@ export default function NBATeamPage() {
     if (schedule && schedule.length > 0 && !isLoading) {
       // Only sync games if the user has enabled showing NBA games in calendar
       if (preferences.showNBAGamesInCalendar) {
-        console.log('Syncing NBA games to calendar from NBATeamPage')
+        //console.log('Syncing NBA games to calendar from NBATeamPage')
         useNBAStore.getState().syncNBAGames()
       } else {
-        console.log('NBA games in calendar disabled, skipping sync')
+       // console.log('NBA games in calendar disabled, skipping sync')
         // Clear any existing NBA events from calendar
         useNBAStore.getState().clearNBACalendarEvents()
       }

@@ -6,7 +6,7 @@ A feature-rich personal dashboard app built with React Native and Expo, designed
 
 - **Task Management**: Track recurring and one-time tasks on the landing page
 - **Calendar**: Track birthdays, bills, events, and more
-- **PRM**: Manage your contacts and relationships
+- **CRM**: Manage your contacts and relationships
 - **Password Vault**: Securely store your passwords
 - **Finance Tracking**: Monitor your portfolio with real-time stock updates
 - **Weather & Network**: Check current conditions and network status
