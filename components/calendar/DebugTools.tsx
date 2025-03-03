@@ -35,7 +35,7 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
           const type = event.type || 'personal';
           acc[type] = (acc[type] || 0) + 1;
           return acc;
-        }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0 }),
+        }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0 }),
         vaultEntries: vaultData.totalItems,
         upcomingEvents: store.events
           .filter((event) => new Date(event.date) >= new Date())

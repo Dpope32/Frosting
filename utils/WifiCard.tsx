@@ -13,15 +13,10 @@ const MAX_RETRIES = 3;
 
 export function WifiCard() {
   const { details, isLoading, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
-  const [networkState, setNetworkState] = useState({
-    ping: null as number | null,
-    isPingLoading: false,
-  });
+  const [networkState, setNetworkState] = useState({ ping: null as number | null, isPingLoading: false });
   const [modalOpen, setModalOpen] = useState(false);
   const lastCheckRef = useRef<number>(0);
   const retryCountRef = useRef(0);
-  
-  // Derive these values, they don't need to be state since they're computed from props
   const wifiDetails = getWifiDetails(details);
   const isConnected = details?.isConnected ?? false;
   const isWifi = details?.type === 'wifi';
@@ -39,13 +34,11 @@ export function WifiCard() {
       return; // Skip if checked recently and we have a value
     }
 
-    console.log('[WifiCard] Starting ping check');
     setNetworkState(prev => ({ ...prev, isPingLoading: true }));
     
     try {
       // For web, use our proxy server's ping endpoint
       if (Platform.OS === 'web') {
-        console.log('[WifiCard] Using web ping endpoint');
         try {
           // Check if proxy server is running
           const isProxyRunning = await ProxyServerManager.isRunning();
@@ -60,7 +53,7 @@ export function WifiCard() {
             }
             
             const pingTime = endTime - startTime;
-            console.log('[WifiCard] Web ping successful:', pingTime, 'ms');
+           // console.log('[WifiCard] Web ping successful:', pingTime, 'ms');
             
             if (isMounted) {
               setNetworkState({
@@ -86,7 +79,7 @@ export function WifiCard() {
           return;
         } catch (error) {
           console.error('[WifiCard] Web ping error:', error);
-          throw error; // Re-throw for retry logic
+          throw error; 
         }
       }
       
@@ -95,7 +88,7 @@ export function WifiCard() {
         console.log('[WifiCard] Using mock data for development');
         await new Promise(resolve => setTimeout(resolve, 500));
         if (isMounted) {
-          const mockPing = Math.floor(Math.random() * (200 - 20 + 1) + 20);
+          const mockPing = Math.floor(Math.random() * (200 - 20 + 1) + 100);
           console.log('[WifiCard] Mock ping value:', mockPing);
           setNetworkState({
             ping: mockPing,
@@ -108,13 +101,12 @@ export function WifiCard() {
       }
 
       // Production network check for native platforms
-      console.log('[WifiCard] Running native ping check');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
       try {
         const startTime = Date.now();
-        const response = await fetch('https://8.8.8.8', { 
+        await fetch('https://8.8.8.8', { 
           mode: 'no-cors',
           cache: 'no-cache',
           signal: controller.signal

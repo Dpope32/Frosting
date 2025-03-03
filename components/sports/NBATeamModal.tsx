@@ -129,7 +129,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
               paddingBottom: isWeb ? 80 : 100,
               alignItems: 'center'
             }}
-            showsVerticalScrollIndicator={!isWeb}
+            showsVerticalScrollIndicator={false}
           >
             <XStack 
               flexWrap="wrap" 

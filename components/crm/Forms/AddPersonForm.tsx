@@ -224,7 +224,6 @@ const FormContent = React.memo(({
               returnKeyType="next"
               onSubmitEditing={() => birthdayRef.current?.focus()}
               autoCapitalize="words"
-              blurOnSubmit={false}
             />
             <DebouncedInput
               key={`birthday-${inputResetKey}`}
@@ -261,7 +260,6 @@ const FormContent = React.memo(({
               returnKeyType="next"
               onSubmitEditing={() => emailRef.current?.focus()}
               autoCapitalize="words"
-              blurOnSubmit={false}
             />
           </YStack>
         </XStack>
@@ -284,7 +282,6 @@ const FormContent = React.memo(({
             }}
             placeholder="Enter full address"
             autoCapitalize="words"
-            blurOnSubmit={false}
           />
           <DebouncedInput
             key={`email-${inputResetKey}`}
@@ -298,7 +295,6 @@ const FormContent = React.memo(({
             onSubmitEditing={handleSubmit}
             keyboardType="email-address"
             autoCapitalize="none"
-            blurOnSubmit={false}
           />
         </YStack>
         <XStack gap="$3" justifyContent="flex-end" mt="$2">
@@ -380,7 +376,7 @@ export function AddPersonForm(): JSX.Element {
 
   const handleSubmit = useCallback((): void => {
     // Prevent multiple submissions
-    if (addPersonMutation.isLoading) return;
+    if (addPersonMutation.isPending) return;
     
     if (!formData.name?.trim() || !formData.birthday?.trim()) return;
     

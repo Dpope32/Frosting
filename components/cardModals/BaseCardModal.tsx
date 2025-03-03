@@ -12,6 +12,7 @@ interface BaseCardModalProps {
   snapPoints?: number[]
   position?: number
   dismissOnSnapToBottom?: boolean
+  zIndex?: number
 }
 
 export function BaseCardModal({ 
@@ -21,7 +22,8 @@ export function BaseCardModal({
   children,
   snapPoints = [80],
   position = 0,
-  dismissOnSnapToBottom = true
+  dismissOnSnapToBottom = true,
+  zIndex = 100000
 }: BaseCardModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -37,7 +39,7 @@ export function BaseCardModal({
         snapPoints={snapPoints}
         position={position}
         dismissOnSnapToBottom={dismissOnSnapToBottom}
-        zIndex={100000}
+        zIndex={zIndex}
         disableDrag={false}
       >
         <Sheet.Overlay
@@ -47,39 +49,45 @@ export function BaseCardModal({
           backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
-          paddingVertical={Platform.OS === 'web' ? "$6" : "$1"}
+          paddingVertical={Platform.OS === 'web' ? "$4" : "$1"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
-          backgroundColor={isDark ? "rgba(17,17,17,0.95)" : "rgba(250,250,250,0.95)"}
+          backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
           borderWidth={1}
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap={Platform.OS === 'web' ? "$6" : "$3"}
-          {...(Platform.OS === 'web' ? { maxWidth: 1500, marginHorizontal: 'auto' } : {})}
+          gap={Platform.OS === 'web' ? "$1" : "$3"}
+          {...(Platform.OS === 'web' ? 
+            { 
+              maxWidth: 1000, 
+              marginHorizontal: 'auto',
+              minHeight: 500,
+              maxHeight: 'calc(100vh - 80px)',
+            } : {}
+          )}
         >
-          <Sheet.Handle
-            backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"}
-            marginBottom="$4"
-          />
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === "ios" ? "padding" : "height"}  
             style={{ flex: 1, paddingTop: Math.max(topInset - 100, 0) }}
           >
             <Animated.View entering={FadeIn.duration(400)} style={{ marginBottom: 16 }}>
-              <Text
-                fontSize={22}
-                fontWeight="700"
-                color={isDark ? "#fff" : "#000"}
-                opacity={isDark ? 1 : 0.9}
-              >
-                {title}
+              <Text 
+                fontSize={22}  
+                fontWeight="700"  
+                color={isDark ? "#fff" : "#000"} 
+                opacity={isDark ? 1 : 0.9} 
+                fontFamily="$body"
+              > 
+                {title} 
               </Text>
             </Animated.View>
-            <Sheet.ScrollView
-              bounces={false}
+            <Sheet.ScrollView 
+              bounces={false} 
               showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
+              keyboardShouldPersistTaps="handled" 
               keyboardDismissMode="interactive"
+              contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 40 } : {}}
             >
               {children}
             </Sheet.ScrollView>

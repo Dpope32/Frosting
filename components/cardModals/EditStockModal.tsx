@@ -1,18 +1,39 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { debounce } from 'lodash'
 import { YStack, Text, Input, Button } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { useUserStore } from '@/store/UserStore'
 import { Stock } from '@/types'
 import { portfolioData, updatePortfolioData } from '@/utils/Portfolio'
 import { useQueryClient } from '@tanstack/react-query'
+import { useEditStockStore } from '@/store/EditStockStore'
 
-interface EditStockModalProps {
+// Global edit stock modal component
+export function EditStockModal() {
+  // Get state from the edit stock store
+  const isOpen = useEditStockStore(s => s.isOpen)
+  const selectedStock = useEditStockStore(s => s.selectedStock)
+  const closeModal = useEditStockStore(s => s.closeModal)
+  
+  return (
+    <StockEditorModal
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) closeModal()
+      }}
+      stock={selectedStock}
+    />
+  )
+}
+
+// Individual stock editor modal component
+interface StockEditorModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stock?: Stock
 }
 
-export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProps) {
+function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) {
   const [formData, setFormData] = useState({
     ticker: '',
     quantity: '',
@@ -36,9 +57,20 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
 
   const queryClient = useQueryClient()
   
+  const debouncedFormUpdate = useCallback(
+    debounce((field: keyof typeof formData, value: string) => {
+      setFormData(prev => ({ ...prev, [field]: value }))
+      setError('')
+    }, 300),
+    []
+  )
+  
   const handleChange = useCallback((field: keyof typeof formData, value: string) => {
+    // Update UI immediately for better UX
     setFormData(prev => ({ ...prev, [field]: value }))
     setError('')
+    // Debounce the actual state update
+    debouncedFormUpdate(field, value)
   }, [])
 
   const handleSave = useCallback(() => {
@@ -88,6 +120,7 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
       open={open}
       onOpenChange={onOpenChange}
       title={stock ? 'Edit Stock' : 'Add Stock'}
+      zIndex={200000} // Higher z-index to ensure it appears on top
     >
       <YStack gap="$3" paddingVertical="$2">
         <YStack>
@@ -126,11 +159,12 @@ export function EditStockModal({ open, onOpenChange, stock }: EditStockModalProp
           </Text>
           <Input
             value={formData.name}
-            onChangeText={(v) => handleChange('name', v)}
+            // Disable editing of company name completely
+            onChangeText={() => {}}
             placeholder="e.g. Apple Inc"
             placeholderTextColor="$color11"
-            disabled={!!stock}
-            opacity={!!stock ? 0.6 : 1}
+            disabled={true}
+            opacity={0.6}
             {...inputStyle}
           />
         </YStack>

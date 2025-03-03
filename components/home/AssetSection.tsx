@@ -170,10 +170,10 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
           marginTop="$4"
         >
-          <Text color={isDark ? "#999" : "#666"} fontSize={14}>
+          <Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={14}>
             {activeTab === 'portfolio' ? 'No stocks in portfolio' : 'No stocks in watchlist'}
           </Text>
-          <Text color={isDark ? "#666" : "#999"} fontSize={14}>
+          <Text color={isDark ? "#666" : "#999"} fontFamily="$body" fontSize={14}>
             {activeTab === 'portfolio' ? 'Edit your portfolio to add stocks' : 'Tap + to add stocks to your watchlist'}
           </Text>
         </YStack>
@@ -245,7 +245,7 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
               alignItems="center"
             >
               <XStack width="10%" alignItems="center" gap="$1">
-                <Text color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">{symbol}</Text>
+                <Text color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">{symbol}</Text>
                 {activeTab === 'watchlist' && (
                   <Pressable
                     onPress={() => handleRemoveFromWatchlist(symbol)}
@@ -261,8 +261,8 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
                   </Pressable>
                 )}
               </XStack>
-              <Text width="10%" color={isDark ? "#fff" : "#000"} fontSize={14} fontFamily="$body">
-                ${currentPrice.toFixed(2)}
+              <Text width="10%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body">
+                <Text color={isDark ? "#4caf50" : "#2e7d32"} fontSize={14} fontFamily="$body">$</Text>{currentPrice.toFixed(2)}
               </Text>
               <Text 
                 width="10%" 

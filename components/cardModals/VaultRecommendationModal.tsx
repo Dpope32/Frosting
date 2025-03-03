@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
+import { debounce } from 'lodash'
 import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
@@ -35,18 +36,44 @@ export function VaultRecommendationModal({
     }))
   }
   
+  const debouncedUsernameChange = useCallback(
+    debounce((index: number, value: string) => {
+      setUsernames(prev => ({
+        ...prev,
+        [index]: value
+      }))
+    }, 300),
+    []
+  )
+  
+  const debouncedPasswordChange = useCallback(
+    debounce((index: number, value: string) => {
+      setPasswords(prev => ({
+        ...prev,
+        [index]: value
+      }))
+    }, 300),
+    []
+  )
+  
   const handleUsernameChange = (index: number, value: string) => {
+    // Update UI immediately for better UX
     setUsernames(prev => ({
       ...prev,
       [index]: value
     }))
+    // Debounce the actual state update
+    debouncedUsernameChange(index, value)
   }
   
   const handlePasswordChange = (index: number, value: string) => {
+    // Update UI immediately for better UX
     setPasswords(prev => ({
       ...prev,
       [index]: value
     }))
+    // Debounce the actual state update
+    debouncedPasswordChange(index, value)
   }
   
   const handleSaveSelectedEntries = () => {

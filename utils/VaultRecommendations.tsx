@@ -145,6 +145,7 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
       borderRadius={8}
       paddingHorizontal="$3"
       paddingVertical="$1"
+      fontFamily="$body"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
       scale={1}
@@ -154,14 +155,7 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">
         <Ionicons name={style.iconName} size={12} color={style.iconColor} />
-        <Text 
-          color={style.textColor} 
-          fontSize={10} 
-          fontWeight="600"
-          numberOfLines={1}
-        >
-          {category}
-        </Text>
+        <Text color={style.textColor}  fontSize={10}  fontWeight="600" numberOfLines={1} fontFamily="$body" > {category} </Text>
       </XStack>
     </Button>
   )

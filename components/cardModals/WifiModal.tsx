@@ -140,29 +140,17 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
         >
           <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">Network Details</Text>
-          {isLoading ? (
+          {isLoading ? ( 
             <Spinner size="small" color="$gray10" />
           ) : error ? (
-            <Text color="#ff6b6b" fontSize={14} marginTop="$2">
-              {error}
-            </Text>
+            <Text color="#ff6b6b" fontSize={14} marginTop="$2"> {error}</Text>
           ) : details?.type === 'wifi' && wifiDetails ? (
             <YStack gap="$2" marginTop="$2">
-              <Text color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                SSID: {wifiDetails.ssid || 'Unknown'}
-              </Text>
-              <Text color={getStrengthColor(wifiDetails.strength, isDark)} fontSize={14} fontWeight="500">
-                Strength: {wifiDetails.strength || 'Unknown'}
-              </Text>
-              <Text color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                Frequency: {wifiDetails.frequency || 'Unknown'} MHz
-              </Text>
-              <Text color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                IP Address: {details.details?.ipAddress || 'Unknown'}
-              </Text>
-              <Text color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                Subnet: {details.details?.subnet || 'Unknown'}
-              </Text>
+              <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}> SSID: {wifiDetails.ssid || 'Unknown'} </Text>
+              <Text fontFamily="$body" color={getStrengthColor(wifiDetails.strength, isDark)} fontSize={14} fontWeight="500"> Strength: {wifiDetails.strength || 'Unknown'}</Text>
+              <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}> Frequency: {wifiDetails.frequency || 'Unknown'} MHz</Text>
+              <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}> IP Address: {details.details?.ipAddress || 'Unknown'}</Text>
+              <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}> Subnet: {details.details?.subnet || 'Unknown'}</Text>
               {details.isInternetReachable !== null && (
                 <Text 
                   color={details.isInternetReachable ? 

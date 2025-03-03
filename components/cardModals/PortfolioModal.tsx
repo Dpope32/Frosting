@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react'
-import { useColorScheme, StyleSheet, Platform } from 'react-native'
-import { YStack, Text, XStack, ScrollView, Button, Input } from 'tamagui'
+import { useColorScheme, StyleSheet, Platform, Alert } from 'react-native'
+import { YStack, Text, XStack, ScrollView, Button, Input, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { BaseCardModal } from './BaseCardModal'
-import { usePortfolioStore, updatePrincipal } from '@/store/PortfolioStore'
+import { usePortfolioStore, updatePrincipal, removeFromPortfolio } from '@/store/PortfolioStore'
 import { portfolioData } from '@/utils/Portfolio'
 import { Stock } from '@/types'
 import { useUserStore } from '@/store/UserStore'
-import { EditStockModal } from './EditStockModal'
+import { useEditStockStore } from '@/store/EditStockStore'
 import { getValueColor } from '@/constants/valueHelper'
 import Animated, { FadeIn } from 'react-native-reanimated'
 
@@ -17,8 +17,6 @@ interface PortfolioModalProps {
 }
 
 export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
-  const [editModalOpen, setEditModalOpen] = useState(false)
-  const [selectedStock, setSelectedStock] = useState<Stock | undefined>()
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
   const { prices, totalValue, principal, historicalData } = usePortfolioStore()
   const currentTotalValue = totalValue ?? 0
@@ -26,6 +24,9 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const [principalInput, setPrincipalInput] = useState(principal.toString())
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  
+  // Use the EditStockStore
+  const openEditStockModal = useEditStockStore(s => s.openModal)
 
   const getStockValueColor = (value: number): string => {
     const color = getValueColor('portfolio', value, '')
@@ -74,8 +75,9 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
+      snapPoints={Platform.OS === 'web' ? [90] : [80]}
     >
-      <YStack gap="$4" paddingTop={Platform.OS === 'web' ? 0 : "$1"}>
+      <YStack gap="$4" paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$6" : "$2"}>
         <YStack>
           <Animated.View 
             entering={FadeIn.duration(600)}
@@ -83,11 +85,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           >
             <YStack gap="$1.5" paddingHorizontal="$2">
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color={isDark ? "#999" : "#666"} fontSize={14}>Value</Text>
+                <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">Value</Text>
                 <Text 
                   color={getStockValueColor(currentTotalValue)} 
                   fontSize={14} 
                   fontWeight="600"
+                  fontFamily="$body"
                 >
                   ${currentTotalValue.toLocaleString('en-US', { 
                     minimumFractionDigits: 2, 
@@ -97,7 +100,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
               </XStack>
 
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color={isDark ? "#999" : "#666"} fontSize={14}>Principal</Text>
+                <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">Principal</Text>
                 {isEditingPrincipal ? (
                   <Input
                     value={principalInput}
@@ -117,6 +120,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                     textAlign="right"
                     fontSize={14}
                     width={110}
+                    fontFamily="$body"
                   />
                 ) : (
                   <Text
@@ -127,6 +131,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                       setIsEditingPrincipal(true)
                       setPrincipalInput(principal.toString())
                     }}
+                    fontFamily="$body"
                   >
                     ${principal.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
@@ -137,11 +142,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
               </XStack>
 
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color={isDark ? "#999" : "#666"} fontSize={14}>P/L</Text>
+                <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">P/L</Text>
                 <Text 
                   color={getStockValueColor(currentTotalValue - principal)} 
                   fontSize={14} 
                   fontWeight="600"
+                  fontFamily="$body"
                 >
                   ${(currentTotalValue - principal).toLocaleString('en-US', { 
                     minimumFractionDigits: 2, 
@@ -151,11 +157,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
               </XStack>
 
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color={isDark ? "#999" : "#666"} fontSize={12}>ROI</Text>
+                <Text color={isDark ? "#999" : "#666"} fontSize={12} fontFamily="$body">ROI</Text>
                 <Text
                   color={getStockValueColor(roi)}
                   fontSize={14}
                   fontWeight="600"
+                  fontFamily="$body"
                 >
                   {roi.toFixed(1)}%
                 </Text>
@@ -165,31 +172,30 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
         </YStack>
         <YStack>
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" paddingRight="$1">
-            <Text color={isDark ? "#999" : "#666"} fontSize={14}>Holdings</Text>
+            <Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={14}>Holdings</Text>
             <Button
-              backgroundColor={"#transparent"}
+              backgroundColor={"transparent"}
               onPress={() => {
-                setSelectedStock(undefined)
-                setEditModalOpen(true)
+                // Use the EditStockStore to open the modal
+                openEditStockModal(undefined)
               }}
               padding="$1"
               pressStyle={{ opacity: 0.7 }}
-              icon={
-                <MaterialIcons 
-                  name="add" 
-                  size={24} 
-                  color={isDark ? "#fff" : "#000"}
-                />
-              }
-            />
+              icon={ <MaterialIcons name="add"  size={24}  color={isDark ? "#fff" : "#000"}/>}/>
           </XStack>
 
           <ScrollView 
-            maxHeight={400} 
+            maxHeight={Platform.OS === 'web' ? 600 : 400} 
             bounces={false}
             showsVerticalScrollIndicator={false}
           >
-            <YStack gap="$2">
+            <YStack 
+              gap="$2" 
+              paddingBottom={Platform.OS === 'web' ? "$4" : "$2"}
+              flexDirection={isWeb ? "row" : "column"}
+              flexWrap={isWeb ? "wrap" : "nowrap"}
+              justifyContent={isWeb ? "space-between" : "flex-start"}
+            >
               {portfolioData.length === 0 ? (
                 <YStack 
                   height={100} 
@@ -201,10 +207,10 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   borderWidth={1}
                   borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
                 >
-                  <Text color={isDark ? "#999" : "#666"} fontSize={14}>
+                  <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">
                     No stocks added yet
                   </Text>
-                  <Text color={isDark ? "#666" : "#999"} fontSize={14}>
+                  <Text color={isDark ? "#666" : "#999"} fontSize={14} fontFamily="$body">
                     Tap + to add your first stock
                   </Text>
                 </YStack>
@@ -218,39 +224,66 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                     <Animated.View 
                       key={stock.symbol}
                       entering={FadeIn.delay(index * 50)}
-                      style={styles.card}
+                      style={[
+                        styles.card,
+                        isWeb && { width: '48%' }
+                      ]}
                     >
                       <YStack gap="$2">
-                        <XStack justifyContent="space-between" alignItems="center">
-                          <YStack flex={1}>
-                            <XStack alignItems="center" gap="$2">
-                              <Text 
-                                color={isDark ? "#fff" : "#000"} 
-                                fontSize={16} 
-                                fontWeight="500"
-                              >
-                                {stock.symbol}
+                        <XStack justifyContent="space-between" alignItems="center" >
+                          <XStack alignItems="center" gap="$2" flex={1} >
+                            <Button
+                              icon={
+                                <MaterialIcons 
+                                  name="edit" 
+                                  size={16} 
+                                  color={isDark ? "#fff" : "#000"} 
+                                />
+                              }
+                              circular
+                              {...iconButtonStyle}
+                              pressStyle={{ opacity: 0.7 }}
+                              backgroundColor={"transparent"}
+                              onPress={() => {
+                                // Use the EditStockStore to open the modal with the selected stock
+                                openEditStockModal(stock)
+                              }}
+                            />
+                            <YStack>
+                              <XStack alignItems="center" gap={isWeb ? "$4" : "$2"}>
+                                <Text 
+                                  color={isDark ? "#fff" : "#000"} 
+                                  fontSize={16} 
+                                  fontWeight="500"
+                                  fontFamily="$body"
+                                >
+                                  {stock.symbol}
+                                </Text>
+                                <Text 
+                                    color={isDark ? "#999" : "#666"} 
+                                    fontSize={15}
+                                    fontFamily="$body"
+                                  >
+                                    {stock.name}
                               </Text>
-                              <Text 
-                                color={isDark ? "#999" : "#666"} 
-                                fontSize={12}
-                              >
-                                {stock.quantity} shares
-                              </Text>
-                            </XStack>
-                            <Text 
-                              color={isDark ? "#999" : "#666"} 
-                              fontSize={12}
-                            >
-                              {stock.name}
-                            </Text>
-                          </YStack>
+                                <Text 
+                                  color={isDark ? "#666" : "#333"} 
+                                  fontSize={14}
+                                  fontFamily="$body"
+                                >
+                                  {stock.quantity} shares
+                                </Text>
+                              </XStack>
+
+                            </YStack>
+                          </XStack>
 
                           <YStack alignItems="flex-end" flex={1}>
                             <Text 
                               color={getStockValueColor(totalValue)} 
                               fontSize={16} 
                               fontWeight="500"
+                              fontFamily="$body"
                             >
                               ${totalValue.toLocaleString('en-US', { 
                                 minimumFractionDigits: 2, 
@@ -262,7 +295,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           <Button
                             icon={
                               <MaterialIcons 
-                                name="edit" 
+                                name="close" 
                                 size={16} 
                                 color={isDark ? "#fff" : "#000"} 
                               />
@@ -271,15 +304,31 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                             {...iconButtonStyle}
                             marginLeft="$3"
                             pressStyle={{ opacity: 0.7 }}
-                             backgroundColor="#transparent"
+                            backgroundColor={"transparent"}
                             onPress={() => {
-                              setSelectedStock(stock)
-                              setEditModalOpen(true)
+                              // Show confirmation dialog
+                              if (Platform.OS === 'web') {
+                                if (window.confirm("Are you sure you want to delete this stock from your portfolio?")) {
+                                  // Call the function to remove the stock
+                                  removeFromPortfolio(stock.symbol);
+                                }
+                              } else {
+                                Alert.alert(
+                                  "Delete Stock",
+                                  "Are you sure you want to delete this stock from your portfolio?",
+                                  [
+                                    { text: "Cancel", style: "cancel" },
+                                    { 
+                                      text: "Yes", 
+                                      onPress: () => removeFromPortfolio(stock.symbol)
+                                    }
+                                  ]
+                                );
+                              }
                             }}
                           />
                         </XStack>
                         
-                        {/* Returns row */}
                         <XStack 
                           justifyContent="space-between" 
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)"}
@@ -287,12 +336,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           padding={Platform.OS === 'web' ? "$1.5" : "$1"}
                           marginTop="$0.5"
                         >
-                          {/* 1W Return */}
                           <YStack alignItems="center" flex={1}>
                             <Text 
                               color={isDark ? "#999" : "#666"} 
-                              fontSize={10}
+                              fontSize={11}
                               fontWeight="500"
+                              fontFamily="$body"
                             >
                               1W
                             </Text>
@@ -303,6 +352,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                               } 
                               fontSize={12}
                               fontWeight="600"
+                              fontFamily="$body"
                             >
                               {stockHistoricalData?.['1w'] ? 
                                 calculateReturn(currentPrice, stockHistoricalData['1w']) : 
@@ -311,12 +361,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                             </Text>
                           </YStack>
                           
-                          {/* 3M Return */}
-                          <YStack alignItems="center" flex={1}>
+                          <YStack alignItems="center" flex={1} >
                             <Text 
                               color={isDark ? "#999" : "#666"} 
-                              fontSize={10}
+                              fontSize={11}
                               fontWeight="500"
+                              fontFamily="$body"
                             >
                               3M
                             </Text>
@@ -327,6 +377,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                               } 
                               fontSize={12}
                               fontWeight="600"
+                              fontFamily="$body"
                             >
                               {stockHistoricalData?.['3m'] ? 
                                 calculateReturn(currentPrice, stockHistoricalData['3m']) : 
@@ -335,12 +386,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                             </Text>
                           </YStack>
                           
-                          {/* 1Y Return */}
                           <YStack alignItems="center" flex={1}>
                             <Text 
                               color={isDark ? "#999" : "#666"} 
-                              fontSize={10}
+                              fontSize={11}
                               fontWeight="500"
+                              fontFamily="$body"
                             >
                               1Y
                             </Text>
@@ -351,6 +402,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                               } 
                               fontSize={12}
                               fontWeight="600"
+                              fontFamily="$body"
                             >
                               {stockHistoricalData?.['1y'] ? 
                                 calculateReturn(currentPrice, stockHistoricalData['1y']) : 
@@ -368,12 +420,6 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           </ScrollView>
         </YStack>
       </YStack>
-
-      <EditStockModal
-        open={editModalOpen}
-        onOpenChange={setEditModalOpen}
-        stock={selectedStock}
-      />
     </BaseCardModal>
   )
 }

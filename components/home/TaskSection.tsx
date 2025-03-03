@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Pressable, Platform } from 'react-native'
 import { isWeb, Stack, Text, XStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
@@ -6,7 +6,8 @@ import { TaskCard } from '@/components/TaskCard'
 import { getCategoryColor } from '@/components/utils'
 import { Task } from '@/store/ToDo'
 import { TaskRecommendationModal } from '@/components/cardModals/TaskRecommendationModal'
-import { RecommendationChip, RecommendationCategory } from '@/utils/TaskRecommendations'
+import { RecommendationChip } from '@/utils/TaskRecommendations'
+import { useRecommendationStore } from '@/store/RecommendationStore'
 
 interface TaskSectionProps {
   todaysTasks: Task[]
@@ -23,10 +24,7 @@ export const TaskSection = ({
   onAddTaskPress,
   onTaskListPress
 }: TaskSectionProps) => {
-  const [cleaningModalOpen, setCleaningModalOpen] = useState(false)
-  const [financialModalOpen, setFinancialModalOpen] = useState(false)
-  const [gymModalOpen, setGymModalOpen] = useState(false)
-  const [selfCareModalOpen, setSelfCareModalOpen] = useState(false)
+  const openRecommendationModal = useRecommendationStore(s => s.openModal)
   return (
     <Stack
       backgroundColor="rgba(0, 0, 0, 0.8)"
@@ -71,12 +69,12 @@ export const TaskSection = ({
           <Stack 
             bg="rgba(0, 0, 0, 0.85)"
             p={Platform.OS === 'web' ? '$6' : '$4'} 
-            paddingHorizontal={Platform.OS === 'web' ? '$8' : '$2'}
+            paddingHorizontal={Platform.OS === 'web' ? '$4' : '$2'}
             borderRadius="$4" 
             borderWidth={1}
             borderColor="rgba(255, 255, 255, 0.15)"
             marginTop={Platform.OS === 'web' ? '$6' : 0}
-            gap="$2"
+            gap={Platform.OS === 'web' ? '$4' : '$2'}
             style={Platform.OS === 'web' ? {
               boxShadow: '0px 0px 8px rgba(255, 255, 255, 0.05)',
               maxWidth: '800px',
@@ -100,34 +98,11 @@ export const TaskSection = ({
               Need some inspo?
             </Text>
             
-            <XStack 
-              justifyContent="space-between"
-              paddingBottom="$2"
-              paddingHorizontal="$1"
-            >
-              <RecommendationChip 
-                category="Cleaning" 
-                onPress={() => setCleaningModalOpen(true)} 
-                isDark={true}
-              />
-              
-              <RecommendationChip 
-                category="Financial" 
-                onPress={() => setFinancialModalOpen(true)} 
-                isDark={true}
-              />
-              
-              <RecommendationChip 
-                category="Gym" 
-                onPress={() => setGymModalOpen(true)} 
-                isDark={true}
-              />
-              
-              <RecommendationChip 
-                category="Self-Care" 
-                onPress={() => setSelfCareModalOpen(true)} 
-                isDark={true}
-              />
+            <XStack  justifyContent="space-between"       gap={Platform.OS === 'web' ? '$5' : '$0'} paddingBottom="$2" paddingHorizontal="$1">
+              <RecommendationChip   category="Cleaning"   onPress={() => openRecommendationModal('Cleaning')}   isDark={true}/>
+              <RecommendationChip category="Financial"  onPress={() => openRecommendationModal('Financial')}  isDark={true}/>
+              <RecommendationChip category="Gym"  onPress={() => openRecommendationModal('Gym')}  isDark={true}/>
+              <RecommendationChip category="Self-Care"  onPress={() => openRecommendationModal('Self-Care')}  isDark={true}/>
             </XStack>
           </Stack>
         ) : (
@@ -215,37 +190,11 @@ export const TaskSection = ({
             alignItems: 'center',
           }}
         >
-          <Ionicons 
-            name="add" 
-            size={isWeb ? 32 : 24} 
-            color="#dbd0c6"
-          />
+          <Ionicons   name="add"   size={isWeb ? 32 : 24}  color="#dbd0c6" />
         </Pressable>
       </Stack>
       
-      <TaskRecommendationModal 
-        open={cleaningModalOpen} 
-        onOpenChange={setCleaningModalOpen} 
-        category="Cleaning" 
-      />
-      
-      <TaskRecommendationModal 
-        open={financialModalOpen} 
-        onOpenChange={setFinancialModalOpen} 
-        category="Financial" 
-      />
-      
-      <TaskRecommendationModal 
-        open={gymModalOpen} 
-        onOpenChange={setGymModalOpen} 
-        category="Gym" 
-      />
-      
-      <TaskRecommendationModal 
-        open={selfCareModalOpen} 
-        onOpenChange={setSelfCareModalOpen} 
-        category="Self-Care" 
-      />
+      <TaskRecommendationModal />
     </Stack>
   )
 }

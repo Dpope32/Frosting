@@ -14,6 +14,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useNotifications } from '@/hooks/useNotifications';
+import { TaskRecommendationModal } from '@/components/cardModals/TaskRecommendationModal';
+import { EditStockModal } from '@/components/cardModals/EditStockModal';
 import React from 'react';
 
 // Create a client
@@ -85,6 +87,8 @@ export default function RootLayout() {
             </Stack>
             <Toast />
             <StatusBar style="auto" />
+            <TaskRecommendationModal />
+            <EditStockModal />
           </>
         </NavigationThemeProvider>
       </TamaguiProvider>

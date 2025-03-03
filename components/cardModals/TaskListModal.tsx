@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Sheet, YStack, XStack, Text, ScrollView } from 'tamagui'
 import { useProjectStore, Task, WeekDay } from '@/store/ToDo'
 import { useThunderStore } from '@/store/ThunderStore'
+import { useRecommendationStore } from '@/store/RecommendationStore'
 import { Pressable, Platform, useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { getCategoryColor } from '../utils'
-import { RecommendationChip, RecommendationCategory } from '@/utils/TaskRecommendations'
-import { TaskRecommendationModal } from './TaskRecommendationModal'
+import { RecommendationChip } from '@/utils/TaskRecommendations'
 
 interface TaskListModalProps {
   open: boolean
@@ -17,10 +17,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   const tasks = useProjectStore(s => s.tasks)
   const deleteTask = useProjectStore(s => s.deleteTask)
   const syncGameTasks = useThunderStore(s => s.syncGameTasks)
-  const [cleaningModalOpen, setCleaningModalOpen] = useState(false)
-  const [financialModalOpen, setFinancialModalOpen] = useState(false)
-  const [gymModalOpen, setGymModalOpen] = useState(false)
-  const [selfCareModalOpen, setSelfCareModalOpen] = useState(false)
+  const openRecommendationModal = useRecommendationStore(s => s.openModal)
 
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -95,22 +92,22 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
       <Sheet.Frame
         backgroundColor={isDark ? "$gray1" : "white"}
         padding="$4"
-        gap="$5"
+        gap={Platform.OS === 'web' ? '$4' : '$5'}
         borderTopLeftRadius="$6"
         borderTopRightRadius="$6"
         {...(isWeb ? {
           style: {
             overflowY: 'auto',
             maxHeight: '90vh',
-            maxWidth: 600,
+            maxWidth: 800,
             margin: '0 auto',
             borderRadius: 8,
             boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
           }
         } : {})}
       >
-        <ScrollView bounces={false}>
-          <YStack gap="$2">
+        <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+          <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
             <XStack justifyContent="space-between" alignItems="center">
               <Text
                 fontSize={20}
@@ -137,52 +134,51 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                   gap: 4
                 })}
               >
-                <Ionicons
-                  name="sync"
-                  size={16}
-                  color={isDark ? "#fff" : "#000"}
-                />
-                <Text
-                  fontFamily="$body"
-                  fontSize={14}
-                  color={isDark ? "#fff" : "#000"}
-                >
-                  Sync Games
-                </Text>
+                <Ionicons name="sync" size={16} color={isDark ? "#fff" : "#000"} />
+                <Text fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#000"}> Sync Games </Text>
               </Pressable>
             </XStack>
             
-            <XStack 
-              justifyContent="space-between"
-              paddingBottom="$4"
-              marginTop="$1"
-            >
+            <XStack justifyContent="space-between" paddingBottom="$4" marginTop="$1">
               <RecommendationChip 
-                category="Cleaning" 
-                onPress={() => setCleaningModalOpen(true)} 
+                category="Cleaning"  
+                onPress={() => {
+                  console.log('Opening Cleaning modal from TaskListModal')
+                  onOpenChange(false) // Close the TaskListModal first
+                  // Use the global store to open the modal
+                  openRecommendationModal('Cleaning')
+                }}  
                 isDark={isDark}
               />
-              
               <RecommendationChip 
                 category="Financial" 
-                onPress={() => setFinancialModalOpen(true)} 
+                onPress={() => {
+                  console.log('Opening Financial modal from TaskListModal')
+                  onOpenChange(false)
+                  openRecommendationModal('Financial')
+                }}  
                 isDark={isDark}
               />
-              
               <RecommendationChip 
                 category="Gym" 
-                onPress={() => setGymModalOpen(true)} 
+                onPress={() => {
+                  console.log('Opening Gym modal from TaskListModal')
+                  onOpenChange(false)
+                  openRecommendationModal('Gym')
+                }} 
                 isDark={isDark}
               />
-              
               <RecommendationChip 
                 category="Self-Care" 
-                onPress={() => setSelfCareModalOpen(true)} 
+                onPress={() => {
+                  console.log('Opening Self-Care modal from TaskListModal')
+                  onOpenChange(false)
+                  openRecommendationModal('Self-Care')
+                }} 
                 isDark={isDark}
               />
             </XStack>
           </YStack>
-
           {Object.entries(tasksByDay).map(([day, dayTasks]) =>
             dayTasks.length > 0 ? (
               <YStack key={day} marginBottom="$4">
@@ -282,29 +278,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
         </ScrollView>
       </Sheet.Frame>
       
-      <TaskRecommendationModal 
-        open={cleaningModalOpen} 
-        onOpenChange={setCleaningModalOpen} 
-        category="Cleaning" 
-      />
-      
-      <TaskRecommendationModal 
-        open={financialModalOpen} 
-        onOpenChange={setFinancialModalOpen} 
-        category="Financial" 
-      />
-      
-      <TaskRecommendationModal 
-        open={gymModalOpen} 
-        onOpenChange={setGymModalOpen} 
-        category="Gym" 
-      />
-      
-      <TaskRecommendationModal 
-        open={selfCareModalOpen} 
-        onOpenChange={setSelfCareModalOpen} 
-        category="Self-Care" 
-      />
     </Sheet>
   )
 }

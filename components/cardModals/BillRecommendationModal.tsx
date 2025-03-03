@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
+import { debounce } from 'lodash'
 import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
@@ -35,18 +36,44 @@ export function BillRecommendationModal({
     }))
   }
   
+  const debouncedAmountChange = useCallback(
+    debounce((index: number, value: string) => {
+      setAmounts(prev => ({
+        ...prev,
+        [index]: value
+      }))
+    }, 300),
+    []
+  )
+  
+  const debouncedDueDateChange = useCallback(
+    debounce((index: number, value: string) => {
+      setDueDates(prev => ({
+        ...prev,
+        [index]: value
+      }))
+    }, 300),
+    []
+  )
+  
   const handleAmountChange = (index: number, value: string) => {
+    // Update UI immediately for better UX
     setAmounts(prev => ({
       ...prev,
       [index]: value
     }))
+    // Debounce the actual state update
+    debouncedAmountChange(index, value)
   }
   
   const handleDueDateChange = (index: number, value: string) => {
+    // Update UI immediately for better UX
     setDueDates(prev => ({
       ...prev,
       [index]: value
     }))
+    // Debounce the actual state update
+    debouncedDueDateChange(index, value)
   }
   
   const handleSaveSelectedBills = () => {

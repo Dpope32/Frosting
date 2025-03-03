@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { useQuery } from '@tanstack/react-query';
 import { Platform } from 'react-native';
-import { portfolioData } from '../utils/Portfolio';
+import { portfolioData, updatePortfolioData } from '../utils/Portfolio';
 import { StorageUtils } from '../store/AsyncStorage';
 import ProxyServerManager from '../utils/ProxyServerManager';
 
@@ -73,6 +73,39 @@ export const removeFromWatchlist = async (symbol: string) => {
   const updatedWatchlist = currentWatchlist.filter(s => s !== symbol);
   await StorageUtils.set('portfolio_watchlist', updatedWatchlist);
   usePortfolioStore.setState({ watchlist: updatedWatchlist });
+};
+
+
+// Function to remove a stock from the portfolio
+export const removeFromPortfolio = async (symbol: string) => {
+  try {
+    // Filter out the stock with the given symbol
+    const updatedPortfolio = [...portfolioData].filter((stock) => stock.symbol !== symbol);
+    
+    // Update the portfolio data
+    await updatePortfolioData(updatedPortfolio);
+    
+    // Recalculate total value
+    const prices = usePortfolioStore.getState().prices;
+    let newTotal = 0;
+    updatedPortfolio.forEach((stock) => {
+      const price = prices[stock.symbol] || 0;
+      newTotal += price * stock.quantity;
+    });
+    
+    // Update the store state
+    usePortfolioStore.setState({ totalValue: newTotal });
+    
+    // Force a refresh of the portfolio data
+    const { refetch } = usePortfolioQuery();
+    if (refetch) {
+      setTimeout(() => {
+        refetch();
+      }, 100);
+    }
+  } catch (error) {
+    console.error('Error removing stock from portfolio:', error);
+  }
 };
 
 export const usePortfolioQuery = () => {

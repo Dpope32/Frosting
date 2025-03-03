@@ -191,9 +191,10 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
     <Button
       backgroundColor={style.backgroundColor}
       borderColor={style.borderColor}
+      fontFamily="$body"
       borderWidth={1}
       borderRadius={8}
-      paddingHorizontal="$2"
+      paddingHorizontal={Platform.OS === 'web' ? '$2' : '$2'}
       paddingVertical="$1"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
@@ -202,16 +203,9 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       flex={1}
       maxWidth={Platform.OS === 'web' ? 'auto' : '22%'}
     >
-      <XStack gap="$1" alignItems="center" justifyContent="center">
+      <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
         <Ionicons name={style.iconName} size={14} color={style.iconColor} />
-        <Text 
-          color={style.textColor} 
-          fontSize={12} 
-          fontWeight="600"
-          numberOfLines={1}
-        >
-          {category}
-        </Text>
+        <Text color={style.textColor} fontFamily="$body" fontSize={12}  fontWeight="600" numberOfLines={1}> {category} </Text>
       </XStack>
     </Button>
   )
