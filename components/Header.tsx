@@ -23,7 +23,7 @@ export function Header({ title }: HeaderProps) {
   // Check if we're on the sports screen
   const isSportsScreen = route.name === 'nba';
 
-  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#001';
+  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#bbb';
   const isWeb = Platform.OS === 'web';
 
   // Calculate the spacer height based on platform
@@ -56,7 +56,7 @@ export function Header({ title }: HeaderProps) {
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
                 ? 'rgba(0,0,0,0.2)' 
-                : 'rgba(255,255,255,0.85)'
+                : 'rgba(255, 255, 255, 0.2)' 
           }
           style={{
             shadowColor: colorScheme === 'dark' ? undefined : '#000',
@@ -71,9 +71,9 @@ export function Header({ title }: HeaderProps) {
             justifyContent="space-between" 
             paddingHorizontal="$4" 
             height={isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90}
-            paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 45 : 40}
+            paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 40 : 40}
           >
-            <XStack alignItems="center" gap="$4">
+            <XStack alignItems="center" gap="$3">
               {/* Only show menu button on non-web platforms */}
               {!isWeb && (
                 <Pressable 

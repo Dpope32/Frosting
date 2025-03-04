@@ -53,7 +53,7 @@ export const calendarStyles = StyleSheet.create({
   },
   modalContent: {
     width: '95%',
-    minHeight: Platform.OS === 'web' ? '87.5%' : '75%',
+    minHeight: Platform.OS === 'web' ? '87.5%' : '65%',
     maxHeight: Platform.OS === 'web' ? '95%' : '90%',
     borderRadius: 16,
     elevation: 5,

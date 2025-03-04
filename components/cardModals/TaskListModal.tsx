@@ -139,41 +139,48 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               </Pressable>
             </XStack>
             
-            <XStack justifyContent="space-between" paddingBottom="$4" marginTop="$1">
-              <RecommendationChip 
-                category="Cleaning"  
-                onPress={() => {
-                  onOpenChange(false) 
-                  // Use the global store to open the modal
-                  openRecommendationModal('Cleaning')
-                }}  
-                isDark={isDark}
-              />
-              <RecommendationChip 
-                category="Financial" 
-                onPress={() => {
-                  onOpenChange(false)
-                  openRecommendationModal('Financial')
-                }}  
-                isDark={isDark}
-              />
-              <RecommendationChip 
-                category="Gym" 
-                onPress={() => {
-                  onOpenChange(false)
-                  openRecommendationModal('Gym')
-                }} 
-                isDark={isDark}
-              />
-              <RecommendationChip 
-                category="Self-Care" 
-                onPress={() => {
-                  onOpenChange(false)
-                  openRecommendationModal('Self-Care')
-                }} 
-                isDark={isDark}
-              />
-            </XStack>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false} 
+              paddingBottom="$4" 
+              marginTop="$1"
+            >
+              <XStack gap="$3" paddingRight="$2">
+                <RecommendationChip 
+                  category="Cleaning"  
+                  onPress={() => {
+                    onOpenChange(false) 
+                    // Use the global store to open the modal
+                    openRecommendationModal('Cleaning')
+                  }}  
+                  isDark={isDark}
+                />
+                <RecommendationChip 
+                  category="Financial" 
+                  onPress={() => {
+                    onOpenChange(false)
+                    openRecommendationModal('Financial')
+                  }}  
+                  isDark={isDark}
+                />
+                <RecommendationChip 
+                  category="Gym" 
+                  onPress={() => {
+                    onOpenChange(false)
+                    openRecommendationModal('Gym')
+                  }} 
+                  isDark={isDark}
+                />
+                <RecommendationChip 
+                  category="Self-Care" 
+                  onPress={() => {
+                    onOpenChange(false)
+                    openRecommendationModal('Self-Care')
+                  }} 
+                  isDark={isDark}
+                />
+              </XStack>
+            </ScrollView>
           </YStack>
           {Object.entries(tasksByDay).map(([day, dayTasks]) =>
             dayTasks.length > 0 ? (

@@ -363,7 +363,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         exitStyle={{ opacity: 0 }} 
       />
       <Sheet.Frame
-        backgroundColor={isDark ? "$gray1" : "white"}
+        backgroundColor={isDark ? "$gray1" : "#f0f0f0"}
         padding="$4"
         gap="$5"
         borderTopLeftRadius="$6"
@@ -371,7 +371,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         {...(isWeb ? { style: { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } } : {})}
       >
           <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false}>
-            <Text fontSize={24} fontWeight="700" fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} marginBottom={20}>
+            <Text fontSize={24} fontWeight="700" fontFamily="$body" color={isDark ? "$gray12" : "$gray12"} marginBottom={20}>
               New Task
             </Text>
             <Form gap="$4" onSubmit={handleAddTask}>
@@ -560,7 +560,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     right={0}
                     backgroundColor={isDark ? "$gray1" : "white"}
                     borderRadius={12}
-                    zIndex={1000}
+                    zIndex={1500}
                     overflow="hidden"
                     shadowColor="black"
                     shadowOffset={{ width: 0, height: 4 }}
@@ -624,7 +624,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                 )}
               </YStack>
 
-              <XStack gap="$4" width="100%">
+              <YStack gap="$4" width="100%">
                 <YStack flex={1} position="relative" >
                   <SelectButton
                     label="Priority:"
@@ -645,59 +645,47 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     />
                   )}
                 </YStack>
-                <YStack flex={1} position="relative" zIndex={2000}>
-                  <SelectButton
-                    label="Category:"
-                    value={newTask.category}
-                    onPress={() => {
-                      setShowCategorySelect(!showCategorySelect)
-                      setShowPrioritySelect(false)
-                      setShowRecurrenceSelect(false)
-                    }}
-                    showDropdown={showCategorySelect}
-                  />
-                  {showCategorySelect && (
-                    <YStack
-                      position="absolute"
-                      top="110%"
-                      left={0}
-                      right={0}
-                      backgroundColor={isDark ? "$gray1" : "white"}
-                      borderRadius={12}
-                      zIndex={2000}
-                      shadowColor="black"
-                      shadowOffset={{ width: 0, height: 4 }}
-                      shadowOpacity={0.1}
-                      shadowRadius={8}
-                      borderWidth={1}
-                      borderColor={isDark ? "$gray7" : "$gray4"}
-                    >
+                
+                <YStack>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingVertical: 4 }}
+                  >
+                    <XStack gap="$2">
                       {['work', 'health', 'personal', 'family', 'wealth'].map(category => (
                         <Button
                           key={category}
                           onPress={() => handleCategorySelect(category as TaskCategory)}
-                          backgroundColor={newTask.category === category ? preferences.primaryColor : isDark ? "#1c1c1e" : "white"}
-                          height={50}
-                          justifyContent="center"
-                          borderRadius={0}
-                          borderBottomWidth={1}
-                          borderColor={isDark ? "#2c2c2e" : "#e5e5ea"}
-                          paddingHorizontal={12}
-                          pressStyle={{ opacity: 0.8 }}
+                          backgroundColor={
+                            newTask.category === category 
+                              ? preferences.primaryColor 
+                              : isDark ? "$gray2" : "white"
+                          }
+                          pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                          borderRadius={24}
+                          paddingHorizontal="$3"
+                          paddingVertical="$2.5"
+                          borderWidth={1}
+                          borderColor={
+                            newTask.category === category 
+                              ? 'transparent' 
+                              : isDark ? "$gray7" : "$gray4"
+                          }
                         >
-                          <Text
-                            color={newTask.category === category ? '#fff' : isDark ? "#fff" : "#000"}
-                            fontSize={16}
-                            fontWeight={newTask.category === category ? '600' : '400'}
+                          <Text 
+                            fontSize={14} 
+                            fontWeight="600" 
+                            color={newTask.category === category ? '#fff' : isDark ? "$gray12" : "$gray11"}
                           >
-                            {category}
+                            {category.charAt(0).toUpperCase() + category.slice(1)}
                           </Text>
                         </Button>
                       ))}
-                    </YStack>
-                  )}
+                    </XStack>
+                  </ScrollView>
                 </YStack>
-              </XStack>
+              </YStack>
 
               <Form.Trigger asChild>
                 <Button

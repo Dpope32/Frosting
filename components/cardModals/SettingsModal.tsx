@@ -272,25 +272,16 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
             
             <YStack width={110} gap="$1">
-              <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
+              <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                 Primary Color
               </Text>
               <XStack alignItems="center" gap="$2">
                 <Circle
-                  size={28}
+                  size={36}
                   backgroundColor={settings.primaryColor}
                   pressStyle={{ scale: 0.97 }}
                   onPress={() => setColorPickerOpen(true)}
                 />
-                <Button
-                  size="$1"
-                  backgroundColor={isDark ? '#333' : '#f5f5f5'}
-                  onPress={() => setColorPickerOpen(true)}
-                >
-                  <Text color={isDark ? '#fff' : '#000'} fontSize={11} fontFamily="$body">
-                    Customize
-                  </Text>
-                </Button>
               </XStack>
             </YStack>
           </XStack>

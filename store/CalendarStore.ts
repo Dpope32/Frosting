@@ -16,7 +16,7 @@ export interface CalendarEvent {
   time?: string  
   title: string
   description?: string
-  type?: 'birthday' | 'personal' | 'work' | 'family' | 'bill' | 'nba'
+  type?: 'birthday' | 'personal' | 'work' | 'family' | 'wealth' | 'health' | 'bill' | 'nba'
   personId?: string
   teamCode?: string // For NBA games
   notifyOnDay?: boolean // Whether to send notification on the day of event

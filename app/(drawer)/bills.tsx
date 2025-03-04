@@ -246,7 +246,7 @@ export default function BillsScreen() {
                     <Text 
                       color={isDueToday ? "$red11" : isDark ? "#fff" : "#333"} 
                       mb="$2" 
-                      fontSize={isWeb ? "$4" : "$5"} 
+                      fontSize={isWeb ? "$4" : "$4"} 
                       fontWeight={isDueToday ? "bold" : "bold"}
                       fontFamily="$body"
                     >

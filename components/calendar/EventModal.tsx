@@ -250,9 +250,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                 borderRadius: 20,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: isDark
-                  ? 'rgba(255,255,255,0.1)'
-                  : 'rgba(0,0,0,0.1)',
                 zIndex: 10,
               }}
             >
@@ -269,9 +266,11 @@ export const EventModal: React.FC<EventModalProps> = ({
                 {
                   fontFamily: '$body',
                   color: textColor,
-                  marginTop: 60,
+                  marginTop: 20,
                   paddingLeft: 24,
-                  paddingVertical: 10
+                  paddingVertical: 10,
+                  fontSize: 22,
+                  fontWeight: '600'
                 },
               ]}
             >
@@ -425,7 +424,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   showsHorizontalScrollIndicator={false}
                   style={calendarStyles.typeSelector}
                 >
-                  {['personal', 'work', 'family'].map((type) => (
+                  {['personal', 'work', 'family', 'wealth', 'health'].map((type) => (
                     <TouchableOpacity
                       key={type}
                       style={[
@@ -437,6 +436,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                               : isDark
                               ? '#333333'
                               : '#f0f0f0',
+                          marginRight: 8,
+                          paddingHorizontal: 12,
+                          height: 36,
+                          minWidth: 0
                         },
                       ]}
                       onPress={() =>
@@ -454,8 +457,11 @@ export const EventModal: React.FC<EventModalProps> = ({
                                 : isDark
                                 ? '#ffffff'
                                 : '#000000',
+                            fontSize: 14,
+                            fontWeight: '500'
                           },
                         ]}
+                        numberOfLines={1}
                       >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
                       </Text>
@@ -465,16 +471,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                 
                 {/* Notification Options */}
                 <View style={{ marginTop: 20, paddingHorizontal: 4 }}>
-                  <Text style={{ 
-                    fontFamily: '$body', 
-                    color: textColor, 
-                    fontSize: 16, 
-                    fontWeight: '600',
-                    marginBottom: 12
-                  }}>
-                    Notifications
-                  </Text>
-                  
                   {/* Notify on day of event */}
                   <View style={{ 
                     flexDirection: 'row', 
@@ -483,7 +479,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                     marginBottom: 12,
                     paddingVertical: 8,
                     paddingHorizontal: 4,
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
                     borderRadius: 8
                   }}>
                     <Text style={{ fontFamily: '$body', color: textColor }}>
@@ -505,7 +500,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                     marginBottom: 8,
                     paddingVertical: 8,
                     paddingHorizontal: 4,
-                    backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
                     borderRadius: 8
                   }}>
                     <Text style={{ fontFamily: '$body', color: textColor }}>
@@ -560,7 +554,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                           shadowRadius: 3.84,
                           elevation: 5,
                         }}>
-                          <ScrollView style={{ maxHeight: Platform.OS === 'web' ? 200 : 150 }}>
+                          <ScrollView style={{ maxHeight: Platform.OS === 'web' ? 200 : 125 }}>
                             {NOTIFICATION_TIME_OPTIONS.map(option => (
                               <TouchableOpacity
                                 key={option.value}
