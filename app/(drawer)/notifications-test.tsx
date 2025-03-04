@@ -220,16 +220,6 @@ export default function NotificationsTestScreen() {
               </Text>
             </Button>
             
-            <Button
-              size="$4"
-              backgroundColor="#ff3b30"
-              pressStyle={{ opacity: 0.8 }}
-              onPress={cancelAllNotifications}
-            >
-              <Text color="white" fontWeight="600">
-                Cancel All Notifications
-              </Text>
-            </Button>
           </XStack>
         </YStack>
         

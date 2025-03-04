@@ -73,7 +73,7 @@ type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 interface IconConfig {name: MaterialIconName | MaterialCommunityIconName; type: 'material' | 'community';}
 
 const DRAWER_ICONS: Record<string, IconConfig> = {
-  '(tabs)/index': { name: 'castle' as MaterialCommunityIconName, type: 'community' },
+  '(tabs)/index': { name: 'home' as MaterialIconName, type: 'material' },
   calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
   nba: { name: 'sports-basketball' as MaterialIconName, type: 'material' },
   chatbot: { name: 'code' as MaterialIconName, type: 'material' },
@@ -91,7 +91,10 @@ export default function DrawerLayout() {
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
-  const inactiveColor = isDark ? '#444' : '#999';
+  // Brighter inactive color for dark mode on mobile
+  const inactiveColor = isDark 
+    ? Platform.OS === 'web' ? '#444' : '#777' 
+    : '#999';
   const isWeb = Platform.OS === 'web';
   const styles = useDrawerStyles();
   const drawerWidth = isWeb 
@@ -127,12 +130,18 @@ export default function DrawerLayout() {
       },
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
-      drawerActiveBackgroundColor: isDark ? `${primaryColor}99` : primaryColor,
+      // Adjust active background color for better contrast in light mode on mobile
+      drawerActiveBackgroundColor: isDark 
+        ? `${primaryColor}99` 
+        : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
       drawerItemStyle: {
-        borderRadius: 0,
+        // Add border radius to selected tab on mobile
+        borderRadius: Platform.OS !== 'web' ? 8 : 0,
         paddingVertical: 0,
         paddingLeft: 0,
-        marginBottom: 10
+        marginBottom: 10,
+        // Add horizontal margin on mobile for better appearance
+        ...(Platform.OS !== 'web' ? { marginHorizontal: 4 } : {})
       },
       drawerLabelStyle: {
         fontSize: 16,

@@ -58,7 +58,8 @@ export default function BillsScreen() {
         contentContainerStyle={{ 
           padding: isWeb ? 8 : 8,
           paddingHorizontal: isWeb ? 0 : 8,
-          paddingLeft: isWeb ? 24 : 0,
+          paddingLeft: isWeb ? 24 : 12,
+          paddingRight: isWeb ? 8 : 12,
           paddingBottom: 100,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
@@ -96,7 +97,7 @@ export default function BillsScreen() {
             bg={isDark ? "#1A1A1A" : "#f5f5f5"}
             p={isWeb ? "$4" : "$5"}
             borderRadius="$4" 
-            paddingHorizontal={isWeb ? "$4" : "$1"}
+            paddingHorizontal={isWeb ? "$4" : "$4"}
             ai="flex-start" 
             jc="center"
             borderWidth={1}
@@ -108,7 +109,7 @@ export default function BillsScreen() {
                 Bill Management Center
               </Text>
               
-              <YStack gap="$3" paddingHorizontal={isWeb ? "$4" : "$5"}>
+              <YStack gap="$3" paddingHorizontal={isWeb ? "$4" : "$4"}>
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
@@ -229,7 +230,7 @@ export default function BillsScreen() {
                     right={0}
                     bottom={0}
                     borderRadius="$4"
-                    bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.3)"}
+                    bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.6)"}
                     ai="center"
                     jc="center"
                     zIndex={5}
@@ -244,7 +245,7 @@ export default function BillsScreen() {
                 <YStack flex={1} zIndex={1}>
                   <XStack jc="space-between" mt="$1" ai="center">
                     <Text 
-                      color={isDueToday ? "$red11" : isDark ? "#fff" : "#333"} 
+                      color={ isDark ? "#fff" : "#333"} 
                       mb="$2" 
                       fontSize={isWeb ? "$4" : "$4"} 
                       fontWeight={isDueToday ? "bold" : "bold"}
@@ -316,14 +317,14 @@ export default function BillsScreen() {
                     right={0}
                     bottom={0}
                     borderRadius="$4"
-                    bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.3)"}
+                    bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.8)"}
                     ai="center"
                     jc="center"
                     zIndex={5}
                   >
                     <XStack ai="center" gap="$2">
-                      <CheckCircle size={24} color="#4CAF50" />
-                      <Text color="#4CAF50" fontSize="$3" fontWeight="bold" fontFamily="$body">Paid</Text>
+                      <CheckCircle size={20} color="#4CAF50" />
+                      <Text color="#4CAF50" fontSize="$4" fontWeight="bold" fontFamily="$body">Paid</Text>
                     </XStack>
                   </YStack>
                 )}
