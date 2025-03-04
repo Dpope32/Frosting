@@ -1,6 +1,6 @@
 import React from 'react'
 import { Platform } from 'react-native'
-import { XStack, Button, Text } from 'tamagui'
+import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 
 export interface RecommendedBill {
@@ -140,7 +140,7 @@ export const BillRecommendationChip: React.FC<BillRecommendationChipProps> = ({ 
       borderColor={style.borderColor}
       borderWidth={1}
       borderRadius={8}
-      paddingHorizontal="$4"
+      paddingHorizontal={isWeb ? "$4" : 2 }
       paddingVertical="$1"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}

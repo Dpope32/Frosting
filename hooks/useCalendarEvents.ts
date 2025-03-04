@@ -16,6 +16,9 @@ export const useCalendarEvents = (selectedDate: Date | null) => {
   const [newEventDescription, setNewEventDescription] = useState('');
   const [newEventTime, setNewEventTime] = useState('');
   const [selectedType, setSelectedType] = useState<CalendarEvent['type']>('personal');
+  const [notifyOnDay, setNotifyOnDay] = useState<boolean>(true);
+  const [notifyBefore, setNotifyBefore] = useState<boolean>(false);
+  const [notifyBeforeTime, setNotifyBeforeTime] = useState<string>('1h');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
   // Update selected events when date changes
@@ -40,15 +43,39 @@ export const useCalendarEvents = (selectedDate: Date | null) => {
           title: newEventTitle.trim(),
           time: parseTimeString(newEventTime),
           type: editingEvent.type,
+          notifyOnDay,
+          notifyBefore,
+          notifyBeforeTime: notifyBefore ? notifyBeforeTime : undefined,
         });
+        
+        // Schedule notifications for the updated event
+        const updatedEvent: CalendarEvent = {
+          ...editingEvent,
+          title: newEventTitle.trim(),
+          time: parseTimeString(newEventTime),
+          notifyOnDay,
+          notifyBefore,
+          notifyBeforeTime: notifyBefore ? notifyBeforeTime : undefined,
+          updatedAt: new Date().toISOString(),
+        };
+        
+        useCalendarStore.getState().scheduleEventNotifications(updatedEvent);
       } else {
-        addEvent({
+        const newEvent = {
           date: selectedDate.toISOString().split('T')[0],
           title: newEventTitle.trim(),
           type: selectedType,
           description: newEventDescription.trim(),
           time: parseTimeString(newEventTime),
-        });
+          notifyOnDay,
+          notifyBefore,
+          notifyBeforeTime: notifyBefore ? notifyBeforeTime : undefined,
+        };
+        
+        addEvent(newEvent);
+        
+        // Schedule notifications for the new event
+        // This is also handled in EventModal's handleAddEventWithNotifications
       }
       
       // Reset form
@@ -73,6 +100,9 @@ export const useCalendarEvents = (selectedDate: Date | null) => {
     setNewEventTitle(event.title);
     setNewEventDescription(event.description || '');
     setNewEventTime(event.time || '');
+    setNotifyOnDay(event.notifyOnDay ?? true);
+    setNotifyBefore(event.notifyBefore ?? false);
+    setNotifyBeforeTime(event.notifyBeforeTime || '1h');
     return true;
   };
 
@@ -102,6 +132,9 @@ export const useCalendarEvents = (selectedDate: Date | null) => {
     setNewEventDescription('');
     setEditingEvent(null);
     setSelectedType('personal');
+    setNotifyOnDay(true);
+    setNotifyBefore(false);
+    setNotifyBeforeTime('1h');
   };
 
   return {
@@ -114,6 +147,12 @@ export const useCalendarEvents = (selectedDate: Date | null) => {
     setNewEventTime,
     selectedType,
     setSelectedType,
+    notifyOnDay,
+    setNotifyOnDay,
+    notifyBefore,
+    setNotifyBefore,
+    notifyBeforeTime,
+    setNotifyBeforeTime,
     editingEvent,
     setEditingEvent,
     handleAddEvent,

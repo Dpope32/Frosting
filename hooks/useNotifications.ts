@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useUserStore } from '@/store/UserStore';
+import * as Notifications from 'expo-notifications';
+import { configureNotifications } from '@/services/notificationServices';
 
 export function useNotifications() {
   const { preferences } = useUserStore();
@@ -13,10 +15,10 @@ export function useNotifications() {
     
     async function setupNotifications() {
       try {
-        // Dynamically import Notifications to prevent web bundling issues
-        const Notifications = await import('expo-notifications');
+        // Configure notifications with our enhanced setup
+        await configureNotifications();
         
-        // Set up notification handler
+        // Override notification handler based on user preferences
         Notifications.setNotificationHandler({
           handleNotification: async () => ({
             shouldShowAlert: preferences.notificationsEnabled,
@@ -25,22 +27,6 @@ export function useNotifications() {
           }),
         });
 
-        // Set up channels for Android
-        if (Platform.OS === 'android') {
-          await Notifications.setNotificationChannelAsync('birthdays', {
-            name: 'Birthdays',
-            importance: Notifications.AndroidImportance.MAX,
-            sound: 'default',
-          });
-
-          await Notifications.setNotificationChannelAsync('test-channel', {
-            name: 'Test Notifications',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-          });
-        }
-
         // Set up notification listeners
         const subscription = Notifications.addNotificationReceivedListener(notification => {
           console.log('Notification received:', notification);
@@ -48,6 +34,7 @@ export function useNotifications() {
 
         const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {
           console.log('Notification response:', response);
+          // You could add navigation logic here if needed when a user taps on a notification
         });
 
         return () => {

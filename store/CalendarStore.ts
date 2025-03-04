@@ -4,8 +4,7 @@ import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { useProjectStore } from './ToDo'
 import { WeekDay } from './ToDo'
-import * as Notifications from 'expo-notifications'
-import { SchedulableTriggerInputTypes } from 'expo-notifications'
+import { scheduleEventNotification } from '@/services/notificationServices'
 import { format } from 'date-fns'
 import { Platform } from 'react-native'
 import { usePeopleStore } from './People'
@@ -20,6 +19,9 @@ export interface CalendarEvent {
   type?: 'birthday' | 'personal' | 'work' | 'family' | 'bill' | 'nba'
   personId?: string
   teamCode?: string // For NBA games
+  notifyOnDay?: boolean // Whether to send notification on the day of event
+  notifyBefore?: boolean // Whether to send notification before the event
+  notifyBeforeTime?: string // How long before the event to send notification (e.g., '1h', '30m', '1d')
   createdAt: string
   updatedAt: string
 }
@@ -33,6 +35,7 @@ interface CalendarState {
   clearAllEvents: () => void
   syncBirthdays: (newContactId?: string) => void
   scheduleNotification: (date: Date, title: string, body: string, identifier?: string) => Promise<string>
+  scheduleEventNotifications: (event: CalendarEvent) => Promise<void>
 }
 
 export const useCalendarStore = create<CalendarState>()(
@@ -72,36 +75,72 @@ export const useCalendarStore = create<CalendarState>()(
       clearAllEvents: () => set({ events: [] }),
 
       scheduleNotification: async (date, title, body, identifier) => {
-        // Skip notification scheduling on web platforms
-        if (Platform.OS === 'web') {
-          return identifier || 'web-notification-not-supported';
+        try {
+          return await scheduleEventNotification(date, title, body, identifier);
+        } catch (error) {
+          console.error('Failed to schedule notification:', error);
+          return 'error';
         }
+      },
+      
+      scheduleEventNotifications: async (event: CalendarEvent) => {
+        if (Platform.OS === 'web') return;
         
         try {
-          const { status } = await Notifications.getPermissionsAsync()
-          if (status !== 'granted') {
-            const { status: reqStatus } = await Notifications.requestPermissionsAsync()
-            if (reqStatus !== 'granted') {
-              throw new Error('Notification permissions not granted')
+          const { date, time, title, notifyOnDay, notifyBefore, notifyBeforeTime } = event;
+          
+          // Parse the event date and time
+          const eventDate = new Date(`${date}T${time || '12:00:00'}`);
+          
+          // Schedule notification for the day of the event
+          if (notifyOnDay) {
+            // Set notification for 9 AM on the day of the event
+            const dayOfNotificationDate = new Date(eventDate);
+            dayOfNotificationDate.setHours(9, 0, 0, 0);
+            
+            // Only schedule if it's in the future
+            if (dayOfNotificationDate > new Date()) {
+              await scheduleEventNotification(
+                dayOfNotificationDate,
+                `Event Today: ${title}`,
+                `You have "${title}" scheduled today${time ? ` at ${time}` : ''}.`,
+                `event-day-${event.id}`
+              );
             }
           }
-          const notifId = await Notifications.scheduleNotificationAsync({
-            content: {
-              title,
-              body,
-              sound: 'default',
-              priority: Notifications.AndroidNotificationPriority.MAX,
-            },
-            trigger: {
-              type: SchedulableTriggerInputTypes.DATE,
-              date: date,
-              channelId: Platform.OS === 'android' ? 'birthdays' : undefined,
-            },
-            identifier,
-          })
-          return notifId
+          
+          // Schedule notification before the event
+          if (notifyBefore && notifyBeforeTime) {
+            const beforeNotificationDate = new Date(eventDate);
+            
+            // Parse the notifyBeforeTime (e.g., '30m', '1h', '1d')
+            const timeValue = parseInt(notifyBeforeTime.match(/\d+/)?.[0] || '0', 10);
+            const timeUnit = notifyBeforeTime.match(/[a-z]/i)?.[0] || 'm';
+            
+            if (timeValue > 0) {
+              if (timeUnit === 'm') {
+                beforeNotificationDate.setMinutes(beforeNotificationDate.getMinutes() - timeValue);
+              } else if (timeUnit === 'h') {
+                beforeNotificationDate.setHours(beforeNotificationDate.getHours() - timeValue);
+              } else if (timeUnit === 'd') {
+                beforeNotificationDate.setDate(beforeNotificationDate.getDate() - timeValue);
+              }
+              
+              // Only schedule if it's in the future
+              if (beforeNotificationDate > new Date()) {
+                await scheduleEventNotification(
+                  beforeNotificationDate,
+                  `Upcoming Event: ${title}`,
+                  `Your event "${title}" is coming up in ${timeValue} ${
+                    timeUnit === 'm' ? 'minutes' : timeUnit === 'h' ? 'hours' : 'days'
+                  }.`,
+                  `event-before-${event.id}`
+                );
+              }
+            }
+          }
         } catch (error) {
-          throw new Error(`Failed to schedule notification: ${error}`)
+          console.error('Failed to schedule event notifications:', error);
         }
       },
 
@@ -135,6 +174,7 @@ export const useCalendarStore = create<CalendarState>()(
                   date: format(eventDate, 'yyyy-MM-dd'), // Now this will be the same date as notification
                   title: `🎂 ${person.name}'s Birthday`,
                   description: `${person.name} turns ${age} today!`,
+                  notifyOnDay: true, // Always notify on birthdays
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
                 }

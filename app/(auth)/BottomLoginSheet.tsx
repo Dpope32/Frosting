@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   btnLight: {
-    backgroundColor: '#fff',
+    backgroundColor: '#333',
   },
   btnLightText: {
     color: '#000',
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: GREY_COLOR,
   },
   btnDarkText: {
-    color: '#fff',
+    color: '#333',
     fontSize: 20,
   },
   btnOutline: {

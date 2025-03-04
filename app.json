@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1e1e1e"
+      "backgroundColor": "#000000"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

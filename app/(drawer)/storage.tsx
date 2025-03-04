@@ -3,8 +3,7 @@ import { useState } from 'react'
 import { YStack, Text, Button, Progress, XStack } from 'tamagui'
 import { Platform, View, useColorScheme, ScrollView, Image } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
-import { testNotification } from '@/services/notificationServices'
-import { Plus, Bell, PlayCircle } from '@tamagui/lucide-icons'
+import { Plus, PlayCircle } from '@tamagui/lucide-icons'
 import { Video, ResizeMode } from 'expo-av'
 import { useStorage } from '@/hooks/useStorage' 
 
@@ -359,21 +358,6 @@ export default function StorageScreen() {
         </Button>
       </View>
 
-      {__DEV__ && (
-        <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000 }}>
-          <Button
-            size="$4"
-            circular
-            bg="$red9"
-            pressStyle={{ scale: 0.95 }}
-            animation="quick"
-            elevation={4}
-            onPress={testNotification}
-          >
-            <Bell color="white" size={24} />
-          </Button>
-        </View>
-      )}
 
       {/* Video Modal */}
         {selectedVideo && (

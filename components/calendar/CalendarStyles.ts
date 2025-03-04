@@ -53,8 +53,8 @@ export const calendarStyles = StyleSheet.create({
   },
   modalContent: {
     width: '95%',
-    minHeight: '70%',
-    maxHeight: '85%',
+    minHeight: Platform.OS === 'web' ? '87.5%' : '75%',
+    maxHeight: Platform.OS === 'web' ? '95%' : '90%',
     borderRadius: 16,
     elevation: 5,
     overflow: 'hidden',
@@ -83,7 +83,7 @@ export const calendarStyles = StyleSheet.create({
   },
   formScrollView: {
     flex: 1,
-    padding: 20,
+    padding: Platform.OS === 'web' ? 20 : 16,
   },
   input: {
     borderWidth: 1,

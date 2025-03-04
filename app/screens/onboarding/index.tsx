@@ -3,7 +3,7 @@ import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } fr
 import { XStack, Button, Text, View } from 'tamagui'
 import * as ImagePicker from 'expo-image-picker'
 import { router } from 'expo-router'
-
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
@@ -19,7 +19,8 @@ import Step5 from './step5'
 export default function Onboarding() {
   const [step, setStep] = useState(0)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
-
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [formData, setFormData] = useState<FormData>({
     username: '',
     profilePicture: '',
@@ -182,7 +183,7 @@ export default function Onboarding() {
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color="white" fontWeight="bold">
+                  <Text fontFamily="$body" color={isDark ? "#ccc" : "#666"} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

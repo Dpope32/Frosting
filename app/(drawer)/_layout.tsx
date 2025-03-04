@@ -6,7 +6,7 @@ import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } 
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
-import { useDrawerStyles } from './styles'
+import { useDrawerStyles } from '../../components/shared/styles'
 
 const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 
@@ -83,7 +83,8 @@ const DRAWER_ICONS: Record<string, IconConfig> = {
   crm: { name: 'person' as MaterialIconName, type: 'material' },
   storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
   vault: { name: 'lock' as MaterialIconName, type: 'material' },
-  bills: { name: 'attach-money' as MaterialIconName, type: 'material' }
+  bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
+  'notifications-test': { name: 'notifications' as MaterialIconName, type: 'material' }
 };
 
 export default function DrawerLayout() {
@@ -92,9 +93,7 @@ export default function DrawerLayout() {
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
-  const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
-  const borderRightColor = isDark ? primaryColor : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#444' : '#999';
   const isWeb = Platform.OS === 'web';
   const styles = useDrawerStyles();
@@ -234,9 +233,21 @@ export default function DrawerLayout() {
           options={{
             title: 'Bills',
             drawerLabel: 'Bills',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
+          drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
+        }}
+      />
+      
+      {/* Only show notifications test screen in development mode */}
+      {__DEV__ && (
+        <Drawer.Screen
+          name="notifications-test"
+          options={{
+            title: 'Notification Tests',
+            drawerLabel: 'Notification Tests',
+            drawerIcon: (props) => renderIcon({ ...props, route: 'notifications-test' })
           }}
         />
+      )}
       </Drawer>
     </View>
   );

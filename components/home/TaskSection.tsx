@@ -67,12 +67,8 @@ export const TaskSection = ({
       >
         {todaysTasks.length === 0 ? (
           <Stack 
-            bg="rgba(0, 0, 0, 0.85)"
             p={Platform.OS === 'web' ? '$6' : '$4'} 
-            paddingHorizontal={Platform.OS === 'web' ? '$4' : '$2'}
-            borderRadius="$4" 
-            borderWidth={1}
-            borderColor="rgba(255, 255, 255, 0.15)"
+            paddingHorizontal={Platform.OS === 'web' ? '$4' : '$1'}
             marginTop={Platform.OS === 'web' ? '$6' : 0}
             gap={Platform.OS === 'web' ? '$4' : '$2'}
             style={Platform.OS === 'web' ? {
@@ -85,7 +81,7 @@ export const TaskSection = ({
             <Text 
               fontFamily="$body"
               color="#dbd0c6" 
-              fontSize={16} 
+              fontSize={isWeb ? 15 : 13} 
               fontWeight="500"
               textAlign="center"
               style={{
@@ -98,8 +94,8 @@ export const TaskSection = ({
               Need some inspo?
             </Text>
             
-            <XStack  justifyContent="space-between"       gap={Platform.OS === 'web' ? '$5' : '$0'} paddingBottom="$2" paddingHorizontal="$1">
-              <RecommendationChip   category="Cleaning"   onPress={() => openRecommendationModal('Cleaning')}   isDark={true}/>
+            <XStack  justifyContent="space-between" gap={Platform.OS === 'web' ? '$5' : '$0'} paddingBottom="$2" paddingHorizontal="$1">
+              <RecommendationChip category="Cleaning"   onPress={() => openRecommendationModal('Cleaning')}   isDark={true}/>
               <RecommendationChip category="Financial"  onPress={() => openRecommendationModal('Financial')}  isDark={true}/>
               <RecommendationChip category="Gym"  onPress={() => openRecommendationModal('Gym')}  isDark={true}/>
               <RecommendationChip category="Self-Care"  onPress={() => openRecommendationModal('Self-Care')}  isDark={true}/>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Platform } from 'react-native'
-import { XStack, Button, Text } from 'tamagui'
+import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { RecurrencePattern, TaskCategory, WeekDay } from '@/store/ToDo'
 
@@ -194,18 +194,18 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       fontFamily="$body"
       borderWidth={1}
       borderRadius={8}
-      paddingHorizontal={Platform.OS === 'web' ? '$2' : '$2'}
+      paddingHorizontal={Platform.OS === 'web' ? '$2' : '$1'}
       paddingVertical="$1"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
       scale={1}
       minWidth={0}
       flex={1}
-      maxWidth={Platform.OS === 'web' ? 'auto' : '22%'}
+      maxWidth={Platform.OS === 'web' ? 'auto' : '24%'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
         <Ionicons name={style.iconName} size={14} color={style.iconColor} />
-        <Text color={style.textColor} fontFamily="$body" fontSize={12}  fontWeight="600" numberOfLines={1}> {category} </Text>
+        <Text color={style.textColor} fontFamily="$body" fontSize={isWeb ? 13 : 12}  fontWeight="600" numberOfLines={1}> {category} </Text>
       </XStack>
     </Button>
   )

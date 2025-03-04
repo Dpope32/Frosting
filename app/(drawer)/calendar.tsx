@@ -33,6 +33,12 @@ export default function CalendarScreen() {
     setNewEventTime,
     selectedType,
     setSelectedType,
+    notifyOnDay,
+    setNotifyOnDay,
+    notifyBefore,
+    setNotifyBefore,
+    notifyBeforeTime,
+    setNotifyBeforeTime,
     editingEvent,
     handleAddEvent,
     handleEditEvent,
@@ -121,6 +127,12 @@ export default function CalendarScreen() {
         setNewEventTime={setNewEventTime}
         selectedType={selectedType}
         setSelectedType={setSelectedType}
+        notifyOnDay={notifyOnDay}
+        setNotifyOnDay={setNotifyOnDay}
+        notifyBefore={notifyBefore}
+        setNotifyBefore={setNotifyBefore}
+        notifyBeforeTime={notifyBeforeTime}
+        setNotifyBeforeTime={setNotifyBeforeTime}
         editingEvent={editingEvent}
         handleAddEvent={handleAddEvent}
         handleEditEvent={handleEditEvent}
