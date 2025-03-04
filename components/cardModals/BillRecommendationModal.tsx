@@ -1,5 +1,4 @@
-import React, { useState, useCallback } from 'react'
-import { debounce } from 'lodash'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
@@ -10,6 +9,46 @@ import {
   RecommendedBill, 
   getRecommendedBills
 } from '@/utils/BillRecommendations'
+
+// Custom debounced input component
+type DebouncedTextInputProps = {
+  value: string
+  onDebouncedChange: (value: string) => void
+  style?: any
+  keyboardType?: string
+}
+
+const DebouncedTextInput = ({ 
+  value, 
+  onDebouncedChange, 
+  style, 
+  keyboardType = 'default' 
+}: DebouncedTextInputProps) => {
+  const [text, setText] = useState(value)
+  
+  // Update internal state when prop value changes
+  useEffect(() => {
+    setText(value)
+  }, [value])
+  
+  // Debounce the change notification
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      onDebouncedChange(text)
+    }, 300)
+    
+    return () => clearTimeout(handler)
+  }, [text, onDebouncedChange])
+  
+  return (
+    <TextInput
+      value={text}
+      onChangeText={setText}
+      style={style}
+      keyboardType={keyboardType as any}
+    />
+  )
+}
 
 interface BillRecommendationModalProps {
   open: boolean
@@ -36,44 +75,18 @@ export function BillRecommendationModal({
     }))
   }
   
-  const debouncedAmountChange = useCallback(
-    debounce((index: number, value: string) => {
-      setAmounts(prev => ({
-        ...prev,
-        [index]: value
-      }))
-    }, 300),
-    []
-  )
-  
-  const debouncedDueDateChange = useCallback(
-    debounce((index: number, value: string) => {
-      setDueDates(prev => ({
-        ...prev,
-        [index]: value
-      }))
-    }, 300),
-    []
-  )
-  
   const handleAmountChange = (index: number, value: string) => {
-    // Update UI immediately for better UX
     setAmounts(prev => ({
       ...prev,
       [index]: value
     }))
-    // Debounce the actual state update
-    debouncedAmountChange(index, value)
   }
   
   const handleDueDateChange = (index: number, value: string) => {
-    // Update UI immediately for better UX
     setDueDates(prev => ({
       ...prev,
       [index]: value
     }))
-    // Debounce the actual state update
-    debouncedDueDateChange(index, value)
   }
   
   const handleSaveSelectedBills = () => {
@@ -178,10 +191,10 @@ export function BillRecommendationModal({
                           <Text color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
                             $
                           </Text>
-                          <TextInput
+                          <DebouncedTextInput
                             keyboardType="decimal-pad"
                             value={amounts[index] || ''}
-                            onChangeText={(value) => handleAmountChange(index, value)}
+                            onDebouncedChange={(value) => handleAmountChange(index, value)}
                             style={{
                               backgroundColor: 'transparent',
                               color: isDark ? '#fff' : '#000',
@@ -207,10 +220,10 @@ export function BillRecommendationModal({
                           flex={1}
                           alignItems="center"
                         >
-                          <TextInput
+                          <DebouncedTextInput
                             keyboardType="number-pad"
                             value={dueDates[index] || ''}
-                            onChangeText={(value) => handleDueDateChange(index, value)}
+                            onDebouncedChange={(value) => handleDueDateChange(index, value)}
                             style={{
                               backgroundColor: 'transparent',
                               color: isDark ? '#fff' : '#000',

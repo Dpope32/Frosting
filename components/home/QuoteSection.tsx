@@ -3,6 +3,7 @@ import { Pressable, ActivityIndicator, Platform } from 'react-native'
 import { YStack, Text, Stack, XStack } from 'tamagui'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
+import { useUserStore } from '@/store/UserStore'
 
 
 const isWeb = Platform.OS === 'web';
@@ -11,6 +12,12 @@ export const QuoteSection = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { data, isLoading, isError } = useStoicQuote()
   const refreshQuote = useRefreshStoicQuote()
+  const { preferences } = useUserStore()
+  
+  // If quotes are disabled in preferences, don't render anything
+  if (preferences.quoteEnabled === false) {
+    return null
+  }
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded)

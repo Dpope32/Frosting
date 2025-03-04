@@ -42,6 +42,7 @@ export default function NBATeamPage() {
       }
     }
   }, [schedule, isLoading, preferences.showNBAGamesInCalendar])
+  
   const today = new Date()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -88,13 +89,7 @@ export default function NBATeamPage() {
 
         <View style={styles.teamsContainer}>
           <View style={styles.teamWrapper}>
-            {game.homeTeam.includes(teamName) && (
-              <Image
-                source={{ uri: team?.logo }}
-                style={styles.teamLogo}
-                resizeMode="contain"
-              />
-            )}
+
             <Text
               style={[
                 styles.team,
@@ -110,13 +105,6 @@ export default function NBATeamPage() {
           </View>
           <Text style={[styles.vs, { fontFamily: '$body' }]}>@</Text>
           <View style={[styles.teamWrapper, styles.awayWrapper]}>
-            {game.awayTeam.includes(teamName) && (
-              <Image
-                source={{ uri: team?.logo }}
-                style={styles.teamLogo}
-                resizeMode="contain"
-              />
-            )}
             <Text
               style={[
                 styles.team,

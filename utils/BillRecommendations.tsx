@@ -1,7 +1,6 @@
 import React from 'react'
 import { Platform } from 'react-native'
 import { XStack, Button, Text, isWeb } from 'tamagui'
-import { Ionicons } from '@expo/vector-icons'
 
 export interface RecommendedBill {
   name: string
@@ -26,7 +25,7 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Water' },
         { name: 'Gas' },
         { name: 'Internet' },
-        { name: 'Cable TV' },
+        { name: 'TV' },
         { name: 'Home Insurance' },
         { name: 'Property Tax' },
         { name: 'HOA Fees' },
@@ -43,10 +42,6 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Car Maintenance' },
         { name: 'Public Transit Pass' },
         { name: 'Parking' },
-        { name: 'Tolls' },
-        { name: 'Rideshare Services' },
-        { name: 'Vehicle Registration' },
-        { name: 'Roadside Assistance' },
         { name: 'Car Wash' }
       ]
     case 'Subscriptions':
@@ -58,10 +53,10 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Amazon Prime' },
         { name: 'Spotify' },
         { name: 'Apple Music' },
-        { name: 'YouTube Premium' },
-        { name: 'DoorDash+' },
-        { name: 'Uber One' },
-        { name: 'Gym Membership' },
+        { name: 'YouTube' },
+        { name: 'DoorDash' },
+        { name: 'Uber' },
+        { name: 'Gym' },
         { name: 'Cloud Storage' },
         { name: 'Microsoft 365' },
         { name: 'Adobe Creative Cloud' },
@@ -76,10 +71,6 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Life Insurance' },
         { name: 'Car Insurance' },
         { name: 'Home/Renters Insurance' },
-        { name: 'Pet Insurance' },
-        { name: 'Disability Insurance' },
-        { name: 'Umbrella Insurance' },
-        { name: 'Travel Insurance' }
       ]
     default:
       return []
@@ -140,20 +131,20 @@ export const BillRecommendationChip: React.FC<BillRecommendationChipProps> = ({ 
       borderColor={style.borderColor}
       borderWidth={1}
       borderRadius={8}
-      paddingHorizontal={isWeb ? "$4" : 2 }
+      paddingHorizontal={isWeb ? "$4" : 6 }
       paddingVertical="$1"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
       scale={1}
       minWidth={0}
-      flex={1}
-      maxWidth={Platform.OS === 'web' ? 'auto' : '24%'}
+      flex={Platform.OS === 'web' ? 1 : 0}
+      width={Platform.OS === 'web' ? 'auto' : '48%'}
+      marginBottom={Platform.OS === 'web' ? 0 : '$2'}
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">
-        <Ionicons name={style.iconName} size={12} color={style.iconColor} />
         <Text 
           color={style.textColor} 
-          fontSize={10} 
+          fontSize={12} 
           fontWeight="600"
           numberOfLines={1}
         >

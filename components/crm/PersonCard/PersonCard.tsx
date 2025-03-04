@@ -131,9 +131,9 @@ export function PersonCard({
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/80"
                     }}
-                    width={Platform.OS === 'web' ? 80 : 40}
-                    height={Platform.OS === 'web' ? 60 : 40}
-                    borderRadius={Platform.OS === 'web' ? 30 : 20}
+                    width={Platform.OS === 'web' ? 80 : 30}
+                    height={Platform.OS === 'web' ? 60 : 30}
+                    borderRadius={Platform.OS === 'web' ? 30 : 15}
                     style={styles.avatarImage as any}
                   />
                 </View>
@@ -144,7 +144,7 @@ export function PersonCard({
                 )}
               </View>
               <View style={styles.textContainer as any}>
-                <XStack alignItems="center" gap="$2">
+                <XStack alignItems="center" gap="$1">
                   {person.registered && (
                     <Ionicons
                       name="checkmark-circle"
@@ -155,8 +155,8 @@ export function PersonCard({
                   )}
                   <Paragraph
                     fontWeight="600"
-                    fontSize={isWeb? 15 : 13}
-                    color={isDark ? nicknameColor : adjustColor(nicknameColor, -40)}
+                    fontSize={isWeb? 15 : 14}
+                    color={isDark ? adjustColor(nicknameColor, 220) : adjustColor(nicknameColor, -40)}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                     style={[styles.nameText, applyWebStyle('nameText')] as any}
@@ -165,7 +165,7 @@ export function PersonCard({
                   </Paragraph>
                 </XStack>
                 <Paragraph
-                  fontSize={10}
+                  fontSize={11}
                   color={isDark ? "#999" : "#333"}
                   numberOfLines={1}
                   ellipsizeMode="tail"

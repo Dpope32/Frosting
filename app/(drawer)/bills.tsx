@@ -6,7 +6,7 @@ import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
-import { BillRecommendationChip, BillRecommendationCategory } from '@/utils/BillRecommendations';
+import { BillRecommendationChip } from '@/utils/BillRecommendations';
 import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal';
 
 export default function BillsScreen() {
@@ -57,8 +57,8 @@ export default function BillsScreen() {
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
           padding: isWeb ? 8 : 8,
-          paddingHorizontal: isWeb ? 0 : 16,
-          paddingLeft: isWeb ? 24 : 16,
+          paddingHorizontal: isWeb ? 0 : 8,
+          paddingLeft: isWeb ? 24 : 0,
           paddingBottom: 100,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
@@ -94,20 +94,21 @@ export default function BillsScreen() {
         ) : bills?.length === 0 ? (
           <XStack 
             bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-            p="$4" 
+            p={isWeb ? "$4" : "$5"}
             borderRadius="$4" 
+            paddingHorizontal={isWeb ? "$4" : "$1"}
             ai="flex-start" 
             jc="center"
             borderWidth={1}
             borderColor={isDark ? "#333" : "#e0e0e0"}
             width="100%"
           >
-            <YStack gap="$4" width="100%">
+            <YStack gap="$4" width="100%" >
               <Text color={isDark ? "#fff" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
                 Bill Management Center
               </Text>
               
-              <YStack gap="$3" px="$2">
+              <YStack gap="$3" paddingHorizontal={isWeb ? "$4" : "$5"}>
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
@@ -148,38 +149,40 @@ export default function BillsScreen() {
               <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$2" >
                 Quick add from common categories:
               </Text>
-              
-              <XStack 
-                justifyContent="space-between"
-                paddingHorizontal="$1"
-                gap="$2"
-                flexWrap="wrap"
-              >
-                <BillRecommendationChip 
-                  category="Housing" 
-                  onPress={() => setHousingModalOpen(true)} 
-                  isDark={isDark}
-                />
-                
-                <BillRecommendationChip 
-                  category="Transportation" 
-                  onPress={() => setTransportationModalOpen(true)} 
-                  isDark={isDark}
-                />
-                
-                <BillRecommendationChip 
-                  category="Subscriptions" 
-                  onPress={() => setSubscriptionsModalOpen(true)} 
-                  isDark={isDark}
-                />
-                
-                <BillRecommendationChip 
-                  category="Insurance" 
-                  onPress={() => setInsuranceModalOpen(true)} 
-                  isDark={isDark}
-                />
-              </XStack>
-              
+              <YStack width="100%">
+                <XStack 
+                  justifyContent={isWeb ? "space-between" : "flex-start"}
+                  paddingHorizontal="$2"
+                  gap="$2"
+                  flexWrap="wrap"
+                  width="100%"
+                  flexDirection="row"
+                >
+                  <BillRecommendationChip 
+                    category="Housing" 
+                    onPress={() => setHousingModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                  
+                  <BillRecommendationChip 
+                    category="Transportation" 
+                    onPress={() => setTransportationModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                  
+                  <BillRecommendationChip 
+                    category="Subscriptions" 
+                    onPress={() => setSubscriptionsModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                  
+                  <BillRecommendationChip 
+                    category="Insurance" 
+                    onPress={() => setInsuranceModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                </XStack>
+              </YStack>
               <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
                 Or click the + button below to add a custom bill
               </Text>
@@ -241,7 +244,7 @@ export default function BillsScreen() {
                 <YStack flex={1} zIndex={1}>
                   <XStack jc="space-between" mt="$1" ai="center">
                     <Text 
-                      color={isDueToday ? "#red" : isDark ? "#fff" : "#333"} 
+                      color={isDueToday ? "$red11" : isDark ? "#fff" : "#333"} 
                       mb="$2" 
                       fontSize={isWeb ? "$4" : "$5"} 
                       fontWeight={isDueToday ? "bold" : "bold"}
@@ -271,7 +274,7 @@ export default function BillsScreen() {
                       <IconComponent size={26} color={isDark ? "white" : "#666"} />
                     </YStack>
                     <YStack flex={1}>
-                      <Paragraph color={amountColor} fontSize="$4" fontWeight={400} fontFamily="$body">${bill.amount.toFixed(2)}</Paragraph>
+                      <Paragraph color={amountColor} fontSize="$4" fontWeight={500} fontFamily="$body">${bill.amount.toFixed(2)}</Paragraph>
                       <Paragraph color="#666" fontSize="$3" fontFamily="$body">Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
                     </YStack>
                   </XStack>
@@ -320,14 +323,14 @@ export default function BillsScreen() {
                   >
                     <XStack ai="center" gap="$2">
                       <CheckCircle size={24} color="#4CAF50" />
-                      <Text color="#4CAF50" fontSize="$5" fontWeight="bold" fontFamily="$body">Paid</Text>
+                      <Text color="#4CAF50" fontSize="$3" fontWeight="bold" fontFamily="$body">Paid</Text>
                     </XStack>
                   </YStack>
                 )}
                 
                 <YStack ml="$3" flex={1} zIndex={1}>
                   <Text 
-                    color={isDueToday ? primaryColor : isDark ? "#fff" : "#000"} 
+                    color={isDueToday ? "$red11" : isDark ? "#fff" : "#000"} 
                     fontSize="$4" 
                     fontWeight="bold"
                     fontFamily="$body"
@@ -336,7 +339,7 @@ export default function BillsScreen() {
                     {isDueToday && " (due today!)"}
                   </Text>
                   <XStack ai="center" gap="$2">
-                    <Paragraph color={amountColor} fontSize="$4" fontWeight={400} fontFamily="$body">${bill.amount.toFixed(2)}</Paragraph>
+                    <Paragraph color={amountColor} fontSize="$4" fontWeight={800} fontFamily="$body">$ {bill.amount.toFixed(2)}</Paragraph>
                     <Paragraph color="#666" fontSize="$4" fontFamily="$body">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
                   </XStack>
                 </YStack>
@@ -362,7 +365,7 @@ export default function BillsScreen() {
           right={0}
           mx="auto"
           width={isWeb ? 300 : "60%"}
-          p="$4"
+          p={isWeb ? "$4" : "$3"}
           borderRadius="$4"
           bg={isDark ? "#3a3a3a" : "#f5f5f5"}
           borderWidth={1}
@@ -384,7 +387,7 @@ export default function BillsScreen() {
             </XStack>
             <Text 
               fontSize="$4" 
-              fontWeight="bold" 
+              fontWeight={800} 
               color={getAmountColor(totalMonthlyAmount)}
               fontFamily="$body"
             >

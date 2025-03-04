@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { Pressable, Platform } from 'react-native'
+import { Platform } from 'react-native'
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
-import { YStack, Text, Stack, ScrollView, XStack } from 'tamagui'
-import { MaterialIcons } from '@expo/vector-icons'
+import { YStack, Text, Stack, ScrollView } from 'tamagui'
 import { NewTaskModal } from './cardModals/NewTaskModal'
 import { TemperatureModal } from './cardModals/TemperatureModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
@@ -48,19 +47,10 @@ export function LandingPage() {
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
 
-  const handleNewTaskPress = () => {
-    setSheetOpen(true)
-    setTimeout(() => {
-    }, 0)
-  }
-
-  const handleTemperaturePress = () => {
-    setTempModalOpen(true)
-  }
-
-  const handlePortfolioPress = () => {
-    setPortfolioModalOpen(true)
-  }
+  const handleNewTaskPress = () => { setSheetOpen(true)
+    setTimeout(() => {}, 0)}
+  const handleTemperaturePress = () => {setTempModalOpen(true)}
+  const handlePortfolioPress = () => {setPortfolioModalOpen(true)}
 
   return (
     <Stack flex={1} backgroundColor="black">

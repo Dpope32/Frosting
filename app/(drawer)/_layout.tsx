@@ -151,7 +151,7 @@ export default function DrawerLayout() {
       drawerType: isWeb ? 'permanent' as const : 'front' as const, // 'front' performs better than 'slide'
       overlayColor: isWeb ? 'transparent' : 'rgba(0,0,0,0.5)',
       swipeEnabled: !isWeb,
-      swipeEdgeWidth: 50, // Smaller edge width for more precise detection
+      swipeEdgeWidth: 150, // Smaller edge width for more precise detection
       drawerStatusBarAnimation: 'fade',
       drawerHideStatusBarOnOpen: true,
       keyboardDismissMode: 'on-drag',

@@ -127,8 +127,8 @@ export const styles = StyleSheet.create({
       width: 60, // Increased from 40 to 60 on web to match webStyles
       height: 60, // Increased from 40 to 60 on web to match webStyles
     } : {
-      width: 40,
-      height: 40
+      width: 30,
+      height: 30
     }),
   },
   starIndicator: {

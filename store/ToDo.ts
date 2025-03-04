@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
-export type TaskCategory = 'work' | 'health' | 'personal' | 'career' | 'wealth' | 'skills'
+export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
 export type RecurrencePattern = 'one-time' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 

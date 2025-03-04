@@ -1,6 +1,6 @@
 import React from 'react'
 import { Pressable, Platform } from 'react-native'
-import { isWeb, Stack, Text, XStack } from 'tamagui'
+import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { TaskCard } from '@/components/home/TaskCard'
 import { getCategoryColor } from '@/components/utils'
@@ -30,7 +30,7 @@ export const TaskSection = ({
       backgroundColor="rgba(0, 0, 0, 0.8)"
       borderRadius={16}
       padding="$4"
-      paddingBottom="$12"
+      paddingBottom="$7"
       borderWidth={2.5}
       borderColor="rgba(255, 255, 255, 0.15)"
       minHeight={Platform.OS === 'web' ? (todaysTasks.length < 5 ? 'auto' : 300) : 'auto'}
@@ -43,7 +43,7 @@ export const TaskSection = ({
         shadowRadius: 10
       }}
     >
-      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width="100%" marginBottom="$5" paddingLeft="$4">
+      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width="100%" marginBottom="$3" paddingLeft="$4">
         <Text 
           fontFamily="$body"
           color="#dbd0c6" 
@@ -94,28 +94,38 @@ export const TaskSection = ({
               Need some inspo?
             </Text>
             
-            <XStack  justifyContent="space-between" gap={Platform.OS === 'web' ? '$5' : '$0'} paddingBottom="$2" paddingHorizontal="$1">
-              <RecommendationChip category="Cleaning"   onPress={() => openRecommendationModal('Cleaning')}   isDark={true}/>
-              <RecommendationChip category="Financial"  onPress={() => openRecommendationModal('Financial')}  isDark={true}/>
-              <RecommendationChip category="Gym"  onPress={() => openRecommendationModal('Gym')}  isDark={true}/>
-              <RecommendationChip category="Self-Care"  onPress={() => openRecommendationModal('Self-Care')}  isDark={true}/>
-            </XStack>
+            <YStack width="100%">
+              <XStack  
+                justifyContent={isWeb ? "space-between" : "flex-start"}
+                gap="$2"
+                paddingBottom="$2" 
+                paddingHorizontal="$2"
+                flexWrap="wrap"
+                width="100%"
+                flexDirection="row"
+              >
+                <RecommendationChip category="Cleaning"   onPress={() => openRecommendationModal('Cleaning')}   isDark={true}/>
+                <RecommendationChip category="Financial"  onPress={() => openRecommendationModal('Financial')}  isDark={true}/>
+                <RecommendationChip category="Gym"  onPress={() => openRecommendationModal('Gym')}  isDark={true}/>
+                <RecommendationChip category="Self-Care"  onPress={() => openRecommendationModal('Self-Care')}  isDark={true}/>
+              </XStack>
+            </YStack>
           </Stack>
         ) : (
           <Stack 
             gap="$0"
+            width="100%"
             style={Platform.OS === 'web' ? {
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
               gap: '12px'
             } : {
-              maxHeight: 400,
-              overflow: 'auto',
-              width: '100%'
+              maxHeight: isWeb ? 400 : undefined,
+              overflow: 'visible',
             }}
           >
             {todaysTasks.map((task: Task) => (
-              <Stack key={task.id} style={Platform.OS === 'web' ? {} : { marginBottom: 8, width: '100%' }}>
+              <Stack key={task.id} style={Platform.OS === 'web' ? {} : { marginBottom: 4, marginLeft: 10, width: '95%' }}>
                 <TaskCard
                   title={task.name}
                   time={task.time}
@@ -144,7 +154,7 @@ export const TaskSection = ({
             alignItems: 'center',
           } : {
             position: 'absolute',
-            top: -52,
+            top: -42,
             right: -10,
             width: 34,
             height: 34,
@@ -168,7 +178,7 @@ export const TaskSection = ({
           onPress={onAddTaskPress}
           style={Platform.OS === 'web' ? {
             position: 'absolute',
-            bottom: -75,
+            bottom: -30,
             right: -8,
             width: 28,
             height: 28,
@@ -177,16 +187,16 @@ export const TaskSection = ({
             alignItems: 'center',
           } : {
             position: 'absolute',
-            bottom: -75,
+            bottom: -30,
             right: -8,
-            width: 28,
-            height: 28,
-            borderRadius: 14,
+            width: 30,
+            height: 30,
+            borderRadius: 15,
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          <Ionicons   name="add"   size={isWeb ? 32 : 24}  color="#dbd0c6" />
+          <Ionicons   name="add"   size={isWeb ? 30 : 26}  color="#dbd0c6" />
         </Pressable>
       </Stack>
       

@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react'
-import { Platform, useColorScheme } from 'react-native'
-import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb } from 'tamagui'
+import React, { useState, useMemo, useRef } from 'react'
+import { Platform, useColorScheme, Animated as RNAnimated } from 'react-native'
+import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useProjectStore, useStoreTasks } from '@/store/ToDo'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { useToastStore } from '@/store/ToastStore'
@@ -56,6 +56,8 @@ function CategoryTaskModal({
   const addTask = useProjectStore(s => s.addTask)
   const existingTasks = useStoreTasks()
   const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>({})
+  const scrollViewRef = useRef<ScrollView>(null)
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
 
   const handleToggleTask = (index: number) => {
     setSelectedTasks(prev => ({
@@ -119,7 +121,17 @@ function CategoryTaskModal({
       <YStack gap="$4" paddingBottom={isWeb ? "$3" : "$8"}>
         <Text color={isDark ? "#dbd0c6" : "#666"} fontFamily="$body" fontSize={16} opacity={0.9}> Select tasks to add to your schedule:</Text>
         
-        <ScrollView showsVerticalScrollIndicator={false} bounces={false} maxHeight={isWeb ? 700 : 500}>
+        <ScrollView 
+          ref={scrollViewRef}
+          showsVerticalScrollIndicator={false} 
+          bounces={false} 
+          maxHeight={isWeb ? 700 : 520}
+          onScroll={(event) => {
+            const scrollY = event.nativeEvent.contentOffset.y;
+            setShowScrollToTop(scrollY > 100);
+          }}
+          scrollEventThrottle={16}
+        >
           {recommendedTasks.length === 0 ? (
             <YStack 
               backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
@@ -232,7 +244,7 @@ function CategoryTaskModal({
               </YStack>
             </XStack>
           ) : (
-            <YStack gap="$3">
+            <YStack gap={isWeb ? "$3" : "$1"}>
               {recommendedTasks.map((task, index) => (
                 <XStack 
                   key={index}
@@ -291,6 +303,28 @@ function CategoryTaskModal({
               Add Selected Tasks
             </Text>
           </Button>
+        )}
+        
+        {!isWeb && showScrollToTop && (
+          <Circle
+            size={44}
+            backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+            position="absolute"
+            bottom={70}
+            right={10}
+            opacity={0.9}
+            pressStyle={{ opacity: 0.7 }}
+            onPress={() => {
+              scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+            }}
+            elevation={4}
+            shadowColor="rgba(0,0,0,0.3)"
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.3}
+            shadowRadius={3}
+          >
+            <AntDesign name="arrowup" size={24} color={isDark ? "#dbd0c6" : "#000"} />
+          </Circle>
         )}
       </YStack>
     </BaseCardModal>

@@ -25,12 +25,12 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
   switch (category) {
     case 'Cleaning':
       return [
-        { name: 'Wipe down screens and electronics', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
+        { name: 'Wipe down screens and electronics', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday'] },
         { name: 'Wash bed sheets and pillowcases', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
         { name: 'Clean bathroom surfaces', recurrencePattern: 'weekly', category: 'personal', priority: 'high', schedule: ['sunday'] },
         { name: 'Vacuum living areas', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
-        { name: 'Dust furniture and shelves', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['sunday'] },
-        { name: 'Deep clean refrigerator', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
+        { name: 'Dust furniture and shelves', recurrencePattern: 'monthly', category: 'personal', priority: 'low', schedule: ['sunday'] },
+        { name: 'Throw out foot from fridge', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['thursday'] },
         { name: 'Clean oven and stovetop', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
         { name: 'Wash windows', recurrencePattern: 'monthly', category: 'personal', priority: 'low', schedule: ['saturday'] },
         { name: 'Clean air vents and replace filters', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
@@ -40,15 +40,13 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
       ]
     case 'Financial':
       return [
-        { name: 'Check bank accounts and transactions', recurrencePattern: 'weekly', category: 'wealth', priority: 'high', schedule: ['monday'] },
+        { name: 'Check bank accounts', recurrencePattern: 'weekly', category: 'wealth', priority: 'high', schedule: ['monday'] },
         { name: 'Review recent expenses', recurrencePattern: 'weekly', category: 'wealth', priority: 'medium', schedule: ['friday'] },
-        { name: 'Pay credit card bills', recurrencePattern: 'monthly', category: 'wealth', priority: 'high', schedule: ['monday'] },
-        { name: 'Review subscription services', recurrencePattern: 'monthly', category: 'wealth', priority: 'medium', schedule: ['tuesday'] },
+        { name: 'Pay credit cards', recurrencePattern: 'monthly', category: 'wealth', priority: 'high', schedule: ['monday'] },
         { name: 'Update budget', recurrencePattern: 'monthly', category: 'wealth', priority: 'medium', schedule: ['wednesday'] },
         { name: 'Check credit score', recurrencePattern: 'monthly', category: 'wealth', priority: 'low', schedule: ['thursday'] },
-        { name: 'Review investment portfolio', recurrencePattern: 'monthly', category: 'wealth', priority: 'medium', schedule: ['friday'] },
+        { name: 'Review investments', recurrencePattern: 'monthly', category: 'wealth', priority: 'medium', schedule: ['friday'] },
         { name: 'Set aside money for savings', recurrencePattern: 'monthly', category: 'wealth', priority: 'high', schedule: ['monday'] },
-        { name: 'Review insurance policies', recurrencePattern: 'yearly', category: 'wealth', priority: 'medium', schedule: ['tuesday'] },
         { name: 'Prepare tax documents', recurrencePattern: 'yearly', category: 'wealth', priority: 'high', time: '15 Feb', schedule: ['monday'] },
         { name: 'File taxes', recurrencePattern: 'yearly', category: 'wealth', priority: 'high', time: '15 Apr', schedule: ['monday'] },
         { name: 'Annual financial review', recurrencePattern: 'yearly', category: 'wealth', priority: 'medium', schedule: ['friday'] }
@@ -58,8 +56,8 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
         { name: 'Cardio workout', recurrencePattern: 'weekly', category: 'health', priority: 'high', schedule: ['monday', 'wednesday', 'friday'] },
         { name: 'Upper body strength training', recurrencePattern: 'weekly', category: 'health', priority: 'medium', schedule: ['tuesday', 'thursday'] },
         { name: 'Lower body strength training', recurrencePattern: 'weekly', category: 'health', priority: 'medium', schedule: ['monday', 'friday'] },
-        { name: 'Core workout', recurrencePattern: 'weekly', category: 'health', priority: 'medium', schedule: ['wednesday'] },
-        { name: 'Stretching/flexibility session', recurrencePattern: 'weekly', category: 'health', priority: 'low', schedule: ['tuesday', 'thursday'] },
+        { name: 'Workout', recurrencePattern: 'weekly', category: 'health', priority: 'medium', schedule: ['monday','tuesday','wednesday', 'thursday','friday'] },
+        { name: 'Stretching/flexibility session', recurrencePattern: 'weekly', category: 'health', priority: 'low', schedule: ['tuesday','wednesday', 'thursday'] },
         { name: 'Track body measurements', recurrencePattern: 'monthly', category: 'health', priority: 'medium', schedule: ['monday'] },
         { name: 'Reassess fitness goals', recurrencePattern: 'monthly', category: 'health', priority: 'medium', schedule: ['friday'] },
         { name: 'Try a new workout routine', recurrencePattern: 'monthly', category: 'health', priority: 'low', schedule: ['saturday'] },
@@ -70,17 +68,16 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
       ]
     case 'Self-Care':
       return [
-        { name: 'Meditation session', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday', 'wednesday', 'friday'] },
-        { name: 'Journal writing', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['tuesday', 'thursday'] },
-        { name: 'Read for pleasure', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['saturday', 'sunday'] },
+        { name: 'Meditate', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday', 'wednesday', 'friday'] },
+        { name: 'Journal', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['tuesday', 'thursday'] },
+        { name: 'Read', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['saturday', 'sunday'] },
         { name: 'Digital detox (no screens)', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
-        { name: 'Call a friend or family member', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
+        { name: 'Call a friend or family member', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['wednesday'] },
         { name: 'Try a new hobby', recurrencePattern: 'monthly', category: 'personal', priority: 'low', schedule: ['saturday'] },
         { name: 'Skincare routine', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['sunday'] },
-        { name: 'Plan a day trip', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['monday'] },
+        { name: 'Plan a day trip', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['tuesday'] },
         { name: 'Declutter personal space', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
-        { name: 'Schedule mental health check-in', recurrencePattern: 'monthly', category: 'personal', priority: 'high', schedule: ['monday'] },
-        { name: 'Take a long bath or shower', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['friday'] },
+        { name: 'Treat yoself', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['friday'] },
         { name: 'Set personal goals', recurrencePattern: 'monthly', category: 'personal', priority: 'high', schedule: ['monday'] }
       ]
     default:
@@ -200,8 +197,9 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       pressStyle={{ opacity: 0.7 }}
       scale={1}
       minWidth={0}
-      flex={1}
-      maxWidth={Platform.OS === 'web' ? 'auto' : '24%'}
+      flex={Platform.OS === 'web' ? 1 : 0}
+      width={Platform.OS === 'web' ? 'auto' : '48%'}
+      marginBottom={Platform.OS === 'web' ? 0 : '$1'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
         <Ionicons name={style.iconName} size={14} color={style.iconColor} />

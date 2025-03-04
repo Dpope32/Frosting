@@ -154,36 +154,40 @@ export default function VaultScreen() {
                 Quick add from common categories:
               </Text>
               
-              <XStack 
-                justifyContent="space-between"
-                paddingHorizontal="$1"
-                gap="$1"
-                flexWrap="wrap"
-              >
-                <VaultRecommendationChip 
-                  category="Social Media" 
-                  onPress={() => setSocialMediaModalOpen(true)} 
-                  isDark={isDark}
-                />
-                
-                <VaultRecommendationChip 
-                  category="Misc" 
-                  onPress={() => setEmailCloudModalOpen(true)} 
-                  isDark={isDark}
-                />
-                
-                <VaultRecommendationChip 
-                  category="Shopping" 
-                  onPress={() => setShoppingModalOpen(true)} 
-                  isDark={isDark}
-                />
-                
-                <VaultRecommendationChip 
-                  category="Work" 
-                  onPress={() => setWorkModalOpen(true)} 
-                  isDark={isDark}
-                />
-              </XStack>
+              <YStack width="100%">
+                <XStack 
+                  justifyContent={isWeb ? "space-between" : "flex-start"}
+                  paddingHorizontal="$2"
+                  gap="$2"
+                  flexWrap="wrap"
+                  width="100%"
+                  flexDirection="row"
+                >
+                  <VaultRecommendationChip 
+                    category="Social Media" 
+                    onPress={() => setSocialMediaModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                  
+                  <VaultRecommendationChip 
+                    category="Misc" 
+                    onPress={() => setEmailCloudModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                  
+                  <VaultRecommendationChip 
+                    category="Shopping" 
+                    onPress={() => setShoppingModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                  
+                  <VaultRecommendationChip 
+                    category="Work" 
+                    onPress={() => setWorkModalOpen(true)} 
+                    isDark={isDark}
+                  />
+                </XStack>
+              </YStack>
               
               <Text color={isDark ? '#666' : '#999'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
                 Or click the + button below to add a custom entry

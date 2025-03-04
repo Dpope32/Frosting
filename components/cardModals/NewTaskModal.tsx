@@ -245,51 +245,46 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         backgroundColor={isDark ? "$gray1" : "white"}
         borderRadius={12}
         zIndex={1000}
-        overflow="hidden"
         shadowColor="black"
         shadowOffset={{ width: 0, height: 4 }}
         shadowOpacity={0.1}
         shadowRadius={8}
-        maxHeight={maxHeight}
         borderWidth={1}
         borderColor={isDark ? "$gray7" : "$gray4"}
       >
-        <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-          <YStack>
-            {items.map(item => {
-              const value = typeof item === 'string' ? item as T : item.value;
-              const label = typeof item === 'string' ? item as string : item.label;
-              const icon = typeof item === 'string' ? null : item.icon;
-              
-              return (
-                <Pressable
-                  key={value}
-                  onPress={() => onSelect(value)}
-                  style={({ pressed }: { pressed: boolean }) => ({
-                    backgroundColor: selectedValue === value ? preferences.primaryColor : isDark ? "#1c1c1e" : "white",
-                    height: 45,
-                    justifyContent: 'center',
-                    opacity: pressed ? 0.8 : 1,
-                    borderBottomWidth: 1,
-                    borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
-                    paddingHorizontal: 12
-                  })}
-                >
-                  <XStack alignItems="center" gap="$2" paddingVertical={10}>
-                    {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : isDark ? '#fff' : '#000'} />}
-                    <Text
-                      color={selectedValue === value ? '#fff' : isDark ? "#fff" : "#000"}
-                      fontSize={16}
-                      fontWeight={selectedValue === value ? '600' : '400'}
-                    >
-                      {label}
-                    </Text>
-                  </XStack>
-                </Pressable>
-              );
-            })}
-          </YStack>
-        </ScrollView>
+        <YStack>
+          {items.map(item => {
+            const value = typeof item === 'string' ? item as T : item.value;
+            const label = typeof item === 'string' ? item as string : item.label;
+            const icon = typeof item === 'string' ? null : item.icon;
+            
+            return (
+              <Button
+                key={value}
+                onPress={() => onSelect(value)}
+                backgroundColor={selectedValue === value ? preferences.primaryColor : isDark ? "#1c1c1e" : "white"}
+                height={45}
+                justifyContent="center"
+                borderRadius={0}
+                borderBottomWidth={1}
+                borderColor={isDark ? "#2c2c2e" : "#e5e5ea"}
+                paddingHorizontal={12}
+                pressStyle={{ opacity: 0.8 }}
+              >
+                <XStack alignItems="center" gap="$2" paddingVertical={10}>
+                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : isDark ? '#fff' : '#000'} />}
+                  <Text
+                    color={selectedValue === value ? '#fff' : isDark ? "#fff" : "#000"}
+                    fontSize={16}
+                    fontWeight={selectedValue === value ? '600' : '400'}
+                  >
+                    {label}
+                  </Text>
+                </XStack>
+              </Button>
+            );
+          })}
+        </YStack>
       </YStack>
     );
   }
@@ -356,7 +351,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[75]}
+      snapPoints={[80]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
@@ -650,7 +645,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     />
                   )}
                 </YStack>
-                <YStack flex={1} position="relative">
+                <YStack flex={1} position="relative" zIndex={2000}>
                   <SelectButton
                     label="Category:"
                     value={newTask.category}
@@ -662,12 +657,44 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     showDropdown={showCategorySelect}
                   />
                   {showCategorySelect && (
-                    <DropdownList<TaskCategory>
-                      items={['work', 'health', 'personal', 'career', 'wealth', 'skills']}
-                      selectedValue={newTask.category}
-                      onSelect={handleCategorySelect}
-                      maxHeight={300}
-                    />
+                    <YStack
+                      position="absolute"
+                      top="110%"
+                      left={0}
+                      right={0}
+                      backgroundColor={isDark ? "$gray1" : "white"}
+                      borderRadius={12}
+                      zIndex={2000}
+                      shadowColor="black"
+                      shadowOffset={{ width: 0, height: 4 }}
+                      shadowOpacity={0.1}
+                      shadowRadius={8}
+                      borderWidth={1}
+                      borderColor={isDark ? "$gray7" : "$gray4"}
+                    >
+                      {['work', 'health', 'personal', 'family', 'wealth'].map(category => (
+                        <Button
+                          key={category}
+                          onPress={() => handleCategorySelect(category as TaskCategory)}
+                          backgroundColor={newTask.category === category ? preferences.primaryColor : isDark ? "#1c1c1e" : "white"}
+                          height={50}
+                          justifyContent="center"
+                          borderRadius={0}
+                          borderBottomWidth={1}
+                          borderColor={isDark ? "#2c2c2e" : "#e5e5ea"}
+                          paddingHorizontal={12}
+                          pressStyle={{ opacity: 0.8 }}
+                        >
+                          <Text
+                            color={newTask.category === category ? '#fff' : isDark ? "#fff" : "#000"}
+                            fontSize={16}
+                            fontWeight={newTask.category === category ? '600' : '400'}
+                          >
+                            {category}
+                          </Text>
+                        </Button>
+                      ))}
+                    </YStack>
                   )}
                 </YStack>
               </XStack>

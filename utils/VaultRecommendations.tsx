@@ -150,8 +150,9 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
       pressStyle={{ opacity: 0.7 }}
       scale={1}
       minWidth={0}
-      flex={1}
-      maxWidth={Platform.OS === 'web' ? 'auto' : '25%'}
+      flex={Platform.OS === 'web' ? 1 : 0}
+      width={Platform.OS === 'web' ? 'auto' : '48%'}
+      marginBottom={Platform.OS === 'web' ? 0 : '$2'}
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">
         <Ionicons name={style.iconName} size={12} color={style.iconColor} />

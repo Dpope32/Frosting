@@ -37,7 +37,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     zipCode: preferences.zipCode,
     backgroundStyle: preferences.backgroundStyle,
     notificationsEnabled: preferences.notificationsEnabled,
-    quoteEnabled: preferences.quoteEnabled ?? true,
+    quoteEnabled: preferences.quoteEnabled ?? false,
   })
 
   // On web, optionally limit how many are shown at first

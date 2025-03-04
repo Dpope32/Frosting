@@ -2,6 +2,7 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TaskPriority } from '@/store/ToDo';
+import { isWeb } from 'tamagui';
 
 interface TaskCardProps {
   title: string;
@@ -52,12 +53,12 @@ export function TaskCard({
 
   return (
     <Stack
-      backgroundColor="rgba(25, 28, 29, 0.85)"
+      backgroundColor="rgba(25, 28, 29, 0.8)"
       borderRadius={10}
-      padding="$2"
-      marginVertical="$1"
+      padding={isWeb ? "$2" : "$2"}
+      marginVertical={isWeb ? "$1" : "$0"}
       borderWidth={1}
-      borderColor="rgba(52, 54, 55, 0.8)"
+      borderColor="rgba(52, 54, 55, 0.9)"
       style={{
         borderLeftWidth: 3,
         borderLeftColor: categoryColor,
@@ -184,7 +185,7 @@ export function TaskCard({
                 <Text
                   fontFamily="$body"
                   color={categoryColor}
-                  fontSize={10}
+                  fontSize={11}
                   fontWeight="500"
                 >
                   {category.toLowerCase()}
@@ -211,7 +212,7 @@ export function TaskCard({
                 <Text
                   fontFamily="$body"
                   color={getPriorityColor(priority)}
-                  fontSize={10}
+                  fontSize={11}
                   fontWeight="500"
                 >
                   {priority}
@@ -237,7 +238,7 @@ export function TaskCard({
               <Text
                 fontFamily="$body"
                 color={checked ? "#00C851" : "#2196F3"}
-                fontSize={10}
+                fontSize={11}
                 fontWeight="500"
               >
                 {status.toLowerCase()}
@@ -265,7 +266,7 @@ export function TaskCard({
                 <Text
                   fontFamily="$body"
                   color="rgb(157, 157, 157)"
-                  fontSize={10}
+                  fontSize={11}
                   fontWeight="500"
                 >
                   {time}
