@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useCallback
 } from 'react'
+import { Platform } from 'react-native'
 import {
   Button,
   Input,
@@ -13,6 +14,7 @@ import {
   ScrollView,
   Circle,
   Text,
+  useMedia,
 } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
@@ -23,7 +25,6 @@ import {
   TextInput,
   Switch,
   Pressable,
-  Platform,
   View,
   useColorScheme
 } from 'react-native'
@@ -65,6 +66,17 @@ const initialFormData: FormData = {
   priority: false,
 }
 
+// Payment method options
+const PAYMENT_METHODS = [
+  'Venmo',
+  'PayPal',
+  'CashApp',
+  'Zelle',
+  'Apple Pay',
+  'Google Pay',
+  'Other'
+]
+
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState<T>(value)
   useEffect(() => {
@@ -103,21 +115,16 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
         theme={isDark ? "dark" : "light"}
         backgroundColor={isDark ? "$gray2" : "white"}
         borderColor={isDark ? "$gray7" : "$gray4"}
+        fontFamily="$body"
       />
     )
   }
 )
 
-const FormContent = React.memo(({ 
-  formData, 
-  inputResetKey, 
-  updateFormField, 
-  handleSubmit,
-  handleBirthdayChange,
-  pickImage,
-  primaryColor,
-  setOpen
-}: {
+// Helper to determine if we're on web
+const isWeb = Platform.OS === 'web'
+
+type FormContentProps = {
   formData: FormData;
   inputResetKey: number;
   updateFormField: <K extends keyof FormData>(field: K, value: FormData[K]) => void;
@@ -126,7 +133,30 @@ const FormContent = React.memo(({
   pickImage: () => Promise<void>;
   primaryColor: string;
   setOpen: (value: boolean) => void;
-}) => {
+  paymentMethod: string;
+  setPaymentMethod: (method: string) => void;
+  paymentUsername: string;
+  setPaymentUsername: (username: string) => void;
+}
+
+const FormContent = React.memo((props: FormContentProps) => {
+  const {
+    formData,
+    inputResetKey,
+    updateFormField,
+    handleSubmit,
+    handleBirthdayChange,
+    pickImage,
+    primaryColor,
+    setOpen,
+    paymentMethod,
+    setPaymentMethod,
+    paymentUsername,
+    setPaymentUsername
+  } = props;
+
+  const [showPaymentMethodDropdown, setShowPaymentMethodDropdown] = useState(false);
+  
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const nameRef = useRef<TextInput>(null)
@@ -141,6 +171,9 @@ const FormContent = React.memo(({
     return [street, city, state, zipCode, country].filter(Boolean).join(', ');
   }, [formData.address])
 
+  const media = useMedia()
+  const isSmallScreen = media.sm
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
@@ -149,11 +182,22 @@ const FormContent = React.memo(({
       bounces={false}
       contentContainerStyle={{
         paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+        alignItems: isWeb ? 'center' : undefined,
       }}
     >
-      <YStack gap="$4" paddingVertical="$8" px="$4">
-        <XStack gap="$4">
-          <YStack flex={1} gap="$2" alignItems="center">
+      <YStack 
+        gap="$4" 
+        paddingVertical="$8" 
+        px="$4"
+        width={isWeb ? (isSmallScreen ? '100%' : '600px') : '100%'}
+      >
+        <XStack gap="$4" flexDirection={isWeb && !isSmallScreen ? 'column' : 'row'}>
+          <YStack 
+            flex={isWeb && !isSmallScreen ? undefined : 1} 
+            gap="$2" 
+            alignItems="center"
+            width={isWeb && !isSmallScreen ? '100%' : undefined}
+          >
             {formData.profilePicture ? (
               <Pressable onPress={pickImage}>
                 <Image
@@ -172,14 +216,14 @@ const FormContent = React.memo(({
                 pressStyle={{ backgroundColor: isDark ? '$gray6' : '$gray4' }}
                 onPress={pickImage}
               >
-                <Text fontSize={32} color={isDark ? "$gray11" : "$gray9"}>
+              <Text fontSize={32} color={isDark ? "$gray11" : "$gray9"} fontFamily="$body">
                   +
                 </Text>
               </Circle>
             )}
             <YStack gap="$2">
               <XStack alignItems="center" gap="$2">
-                <Text color={isDark ? "$gray11" : "$gray10"}>Registered</Text>
+                <Text color={isDark ? "$gray11" : "$gray10"} fontFamily="$body">Registered</Text>
                 <Switch
                   value={formData.registered || false}
                   onValueChange={(val: boolean) =>
@@ -195,7 +239,7 @@ const FormContent = React.memo(({
                 />
               </XStack>
               <XStack alignItems="center" gap="$2">
-                <Text color={isDark ? "$gray11" : "$gray10"}>Priority?</Text>
+                <Text color={isDark ? "$gray11" : "$gray10"} fontFamily="$body">Priority?</Text>
                 <Switch
                   value={formData.priority || false}
                   onValueChange={(val: boolean) =>
@@ -212,7 +256,11 @@ const FormContent = React.memo(({
               </XStack>
             </YStack>
           </YStack>
-          <YStack flex={1.5} gap="$3">
+          <YStack 
+            flex={isWeb && !isSmallScreen ? undefined : 1.5} 
+            gap="$3"
+            width={isWeb && !isSmallScreen ? '100%' : undefined}
+          >
             <DebouncedInput
               key={`name-${inputResetKey}`}
               ref={nameRef}
@@ -263,7 +311,7 @@ const FormContent = React.memo(({
             />
           </YStack>
         </XStack>
-        <YStack gap="$3">
+        <YStack gap="$3" width="100%">
           <DebouncedInput
             key={`address-${inputResetKey}`}
             value={formData.address?.street || ''}
@@ -291,10 +339,118 @@ const FormContent = React.memo(({
               updateFormField('email', text)
             }
             placeholder="Email"
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
+            returnKeyType="next"
             keyboardType="email-address"
             autoCapitalize="none"
+          />
+          
+          <YStack gap="$2">
+            <Text color={isDark ? "$gray11" : "$gray10"} fontSize={14} fontFamily="$body">Payment Method</Text>
+            <XStack gap="$2" alignItems="center">
+              <Button
+                onPress={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
+                theme={isDark ? "dark" : "light"}
+                backgroundColor={isDark ? "$gray2" : "white"}
+                borderRadius={8}
+                height={40}
+                borderColor={isDark ? "$gray7" : "$gray4"}
+                borderWidth={1}
+                paddingHorizontal="$2"
+                pressStyle={{ opacity: 0.8 }}
+                width={120}
+                position="relative"
+              >
+                <XStack flex={1} alignItems="center" justifyContent="space-between">
+                  <Text 
+                    color={isDark ? "$gray12" : "$gray11"} 
+                    fontSize={14} 
+                    fontFamily="$body"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {paymentMethod || 'Platform'}
+                  </Text>
+                  <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
+                    {showPaymentMethodDropdown ? '▲' : '▼'}
+                  </Text>
+                </XStack>
+              </Button>
+              
+              {showPaymentMethodDropdown && (
+                <YStack
+                  position="absolute"
+                  top={40}
+                  left={0}
+                  backgroundColor={isDark ? "$gray1" : "white"}
+                  borderRadius={8}
+                  zIndex={1000}
+                  overflow="hidden"
+                  shadowColor="black"
+                  shadowOffset={{ width: 0, height: 4 }}
+                  shadowOpacity={0.1}
+                  shadowRadius={8}
+                  maxHeight={200}
+                  borderWidth={1}
+                  borderColor={isDark ? "$gray7" : "$gray4"}
+                  width={120}
+                >
+                  <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                    <YStack>
+                      {PAYMENT_METHODS.map((method) => (
+                        <Pressable
+                          key={method}
+                          onPress={() => {
+                            setPaymentMethod(method);
+                            setShowPaymentMethodDropdown(false);
+                          }}
+                          style={({ pressed }) => ({
+                            backgroundColor: paymentMethod === method 
+                              ? primaryColor 
+                              : isDark ? "#1c1c1e" : "white",
+                            height: 40,
+                            justifyContent: 'center',
+                            opacity: pressed ? 0.8 : 1,
+                            borderBottomWidth: 1,
+                            borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
+                            padding: 12
+                          })}
+                        >
+                          <Text
+                            color={paymentMethod === method ? '#fff' : isDark ? "#fff" : "#000"}
+                            fontSize={14}
+                            fontWeight={paymentMethod === method ? '600' : '400'}
+                            fontFamily="$body"
+                          >
+                            {method}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </YStack>
+                  </ScrollView>
+                </YStack>
+              )}
+              
+              <DebouncedInput
+                value={paymentUsername}
+                onDebouncedChange={setPaymentUsername}
+                placeholder="Username (e.g. @username)"
+                returnKeyType="next"
+                autoCapitalize="none"
+                flex={1}
+              />
+            </XStack>
+          </YStack>
+          
+          <DebouncedInput
+            key={`additionalInfo-${inputResetKey}`}
+            value={formData.additionalInfo || ''}
+            onDebouncedChange={(text: string) =>
+              updateFormField('additionalInfo', text)
+            }
+            placeholder="Additional Information"
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit}
+            autoCapitalize="sentences"
           />
         </YStack>
         <XStack gap="$3" justifyContent="flex-end" mt="$2">
@@ -311,7 +467,7 @@ const FormContent = React.memo(({
             borderColor={primaryColor}
             borderWidth={2}
           >
-            <Text color="white" fontWeight="600">
+            <Text color="white" fontWeight="600" fontFamily="$body">
               Save Contact
             </Text>
           </Button>
@@ -329,6 +485,8 @@ export function AddPersonForm(): JSX.Element {
   const primaryColor: string = useUserStore(
     (state) => state.preferences.primaryColor
   )
+  const media = useMedia()
+  const isSmallScreen = media.sm
 
   useEffect(() => {
     if (addPersonMutation.isSuccess) {
@@ -339,6 +497,8 @@ export function AddPersonForm(): JSX.Element {
   const [open, setOpen] = useState<boolean>(false)
   const [formData, setFormData] = useState<FormData>({ ...initialFormData })
   const [inputResetKey, setInputResetKey] = useState<number>(0)
+  const [paymentMethod, setPaymentMethod] = useState<string>('')
+  const [paymentUsername, setPaymentUsername] = useState<string>('')
 
   const pickImage = useCallback(async (): Promise<void> => {
     try {
@@ -380,90 +540,109 @@ export function AddPersonForm(): JSX.Element {
     
     if (!formData.name?.trim() || !formData.birthday?.trim()) return;
     
+    // Add payment method to socialMedia if both fields are filled
+    let updatedFormData = { ...formData };
+    if (paymentMethod && paymentUsername) {
+      updatedFormData.socialMedia = [
+        { platform: paymentMethod, username: paymentUsername }
+      ];
+    }
+    
     const processedFormData = {
-      ...formData,
-      phoneNumber: formData.phoneNumber ? formatPhoneNumber(formData.phoneNumber) : undefined
+      ...updatedFormData,
+      phoneNumber: updatedFormData.phoneNumber ? formatPhoneNumber(updatedFormData.phoneNumber) : undefined
     };
     
-    addPersonMutation.mutate({
+    const newPerson = {
       ...processedFormData,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    });
+    };
+    
+    // Log the entire Person object when saving
+    console.log("Saving Person:", JSON.stringify(newPerson, null, 2));
+    
+    addPersonMutation.mutate(newPerson);
     
     // Reset form and close modal
     setFormData({ ...initialFormData });
+    setPaymentMethod('');
+    setPaymentUsername('');
     setInputResetKey((prev) => prev + 1);
     setOpen(false);
-  }, [formData, addPersonMutation]);
+  }, [formData, paymentMethod, paymentUsername, addPersonMutation]);
 
-    const updateFormField = useCallback(
-      <K extends keyof FormData>(field: K, value: FormData[K]): void => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-      },
-      []
-    )
+  const updateFormField = useCallback(
+    <K extends keyof FormData>(field: K, value: FormData[K]): void => {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+    },
+    []
+  )
 
-    return (
-      <>
-        <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
-          <Button
-            size="$4"
-            circular
-            bg={primaryColor}
-            pressStyle={{ scale: 0.95 }}
-            animation="quick"
-            elevation={4}
-            onPress={() => setOpen(true)}
-          >
-            <Plus color="white" size={24} />
-          </Button>
-        </View>
+  return (
+    <>
+      <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
+        <Button
+          size="$4"
+          circular
+          bg={primaryColor}
+          pressStyle={{ scale: 0.95 }}
+          animation="quick"
+          elevation={4}
+          onPress={() => setOpen(true)}
+        >
+          <Plus color="white" size={24} />
+        </Button>
+      </View>
 
-        {open ? (
+      {open ? (
+        <YStack
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          backgroundColor="rgba(0,0,0,0.5)"
+          justifyContent="center"
+          alignItems="center"
+          zIndex={1000}
+        >
           <YStack
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            backgroundColor="rgba(0,0,0,0.5)"
-            justifyContent="center"
-            alignItems="center"
-            zIndex={1000}
+            backgroundColor={isDark ? "$gray1" : "rgba(255,255,255,0.93)"}
+            padding="$4"
+            width={isWeb ? (isSmallScreen ? "95%" : "600px") : "95%"}
+            maxHeight="85%"
+            borderRadius="$4"
           >
-            <YStack
-              backgroundColor={isDark ? "$gray1" : "rgba(255,255,255,0.93)"}
-              padding="$4"
-              width="95%"
-              maxHeight="85%"
-              borderRadius="$4"
+            <Button
+              position="absolute"
+              top="$3"
+              right="$3"
+              size="$2"
+              circular
+              backgroundColor={isDark ? "$gray3" : "$gray4"}
+              onPress={() => setOpen(false)}
             >
-              <Button
-                position="absolute"
-                top="$3"
-                right="$3"
-                size="$2"
-                circular
-                backgroundColor={isDark ? "$gray3" : "$gray4"}
-                onPress={() => setOpen(false)}
-              >
-                ✕
-              </Button>
-              <FormContent
-                formData={formData}
-                inputResetKey={inputResetKey}
-                updateFormField={updateFormField}
-                handleSubmit={handleSubmit}
-                handleBirthdayChange={handleBirthdayChange}
-                pickImage={pickImage}
-                primaryColor={primaryColor}
-                setOpen={setOpen}
-              />
-            </YStack>
+              ✕
+            </Button>
+            <FormContent
+              formData={formData}
+              inputResetKey={inputResetKey}
+              updateFormField={updateFormField}
+              handleSubmit={handleSubmit}
+              handleBirthdayChange={handleBirthdayChange}
+              pickImage={pickImage}
+              primaryColor={primaryColor}
+              setOpen={setOpen}
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              paymentUsername={paymentUsername}
+              setPaymentUsername={setPaymentUsername}
+            />
           </YStack>
-        ) : null}
-      </>
-    )
-  }
+        </YStack>
+      ) : null}
+    </>
+  )
+}

@@ -8,7 +8,6 @@ export function useNotifications() {
   useEffect(() => {
     // Skip notifications setup on web platform
     if (Platform.OS === 'web') {
-      console.log('Notifications are not supported on web platform');
       return;
     }
     

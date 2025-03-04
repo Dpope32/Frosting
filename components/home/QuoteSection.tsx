@@ -53,7 +53,7 @@ export const QuoteSection = () => {
             fontFamily="$body"
             fontSize={14}
             color="#dbd0c6"
-            marginTop={isWeb ? -45 : 0}
+            marginTop={isWeb ? 0 : 0}
             fontWeight="600"
             style={{
               textShadowColor: 'rgba(0, 0, 0, 0.5)',
@@ -68,7 +68,7 @@ export const QuoteSection = () => {
             fontSize={12}
             color="#dbd0c6"
             opacity={0.9}
-            marginTop="$1"
+            marginTop={isWeb ? "$1" : "$1"}
             style={{
               textShadowColor: 'rgba(0, 0, 0, 0.5)',
               textShadowOffset: { width: 1, height: 1 },
@@ -94,7 +94,7 @@ export const QuoteSection = () => {
   return (
     <Stack>
       <Pressable onPress={toggleExpanded}>
-        <XStack alignItems="center" justifyContent="flex-end" paddingVertical="$2"marginTop={isWeb ? 10 : 0}>
+        <XStack alignItems="center" justifyContent="flex-end" paddingVertical="$2"marginTop={isWeb ? -20 : 0}>
           <Text
             fontFamily="$body"
             fontSize={14}

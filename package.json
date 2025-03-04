@@ -53,6 +53,7 @@
     "expo-blur": "~14.0.2",
     "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.4",
+    "expo-contacts": "~14.0.5",
     "expo-dev-client": "~5.0.10",
     "expo-document-picker": "~13.0.2",
     "expo-font": "~13.0.3",

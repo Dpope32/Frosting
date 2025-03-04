@@ -5,7 +5,7 @@ import { Stack, XStack, YStack } from 'tamagui';
 import { Text } from 'tamagui';
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { SettingsModal } from './SettingsModal';
+import { SettingsModal } from './cardModals/SettingsModal';
 import { NBATeamModal } from './sports/NBATeamModal';
 
 interface HeaderProps {

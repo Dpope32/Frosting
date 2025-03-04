@@ -27,6 +27,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   
   // Use the EditStockStore
   const openEditStockModal = useEditStockStore(s => s.openModal)
+  const closePortfolioModal = () => onOpenChange(false)
 
   const getStockValueColor = (value: number): string => {
     const color = getValueColor('portfolio', value, '')
@@ -75,15 +76,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [90] : [80]}
+      snapPoints={Platform.OS === 'web' ? [80] : [80]}
     >
-      <YStack gap="$4" paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$6" : "$2"}>
+      <YStack gap={Platform.OS === 'web' ? "$2" : "$4"} paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$5" : "$2"}>
         <YStack>
-          <Animated.View 
-            entering={FadeIn.duration(600)}
-            style={styles.card}
-          >
-            <YStack gap="$1.5" paddingHorizontal="$2">
+          <Animated.View entering={FadeIn.duration(600)} style={styles.card}>
+            <YStack gap={Platform.OS === 'web' ? "$3" : "$2"} paddingHorizontal="$2">
               <XStack justifyContent="space-between" alignItems="center">
                 <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">Value</Text>
                 <Text 
@@ -176,8 +174,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
             <Button
               backgroundColor={"transparent"}
               onPress={() => {
-                // Use the EditStockStore to open the modal
-                openEditStockModal(undefined)
+                // Close the portfolio modal first, then open the edit stock modal
+                closePortfolioModal()
+                // Use a small timeout to ensure the portfolio modal closes first
+                setTimeout(() => {
+                  openEditStockModal(undefined)
+                }, 100)
               }}
               padding="$1"
               pressStyle={{ opacity: 0.7 }}
@@ -245,8 +247,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                               pressStyle={{ opacity: 0.7 }}
                               backgroundColor={"transparent"}
                               onPress={() => {
-                                // Use the EditStockStore to open the modal with the selected stock
-                                openEditStockModal(stock)
+                                // Close the portfolio modal first, then open the edit stock modal with the selected stock
+                                closePortfolioModal()
+                                // Use a small timeout to ensure the portfolio modal closes first
+                                setTimeout(() => {
+                                  openEditStockModal(stock)
+                                }, 100)
                               }}
                             />
                             <YStack>
@@ -261,7 +267,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                 </Text>
                                 <Text 
                                     color={isDark ? "#999" : "#666"} 
-                                    fontSize={15}
+                                    fontSize={14}
                                     fontFamily="$body"
                                   >
                                     {stock.name}

@@ -143,8 +143,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               <RecommendationChip 
                 category="Cleaning"  
                 onPress={() => {
-                  console.log('Opening Cleaning modal from TaskListModal')
-                  onOpenChange(false) // Close the TaskListModal first
+                  onOpenChange(false) 
                   // Use the global store to open the modal
                   openRecommendationModal('Cleaning')
                 }}  
@@ -153,7 +152,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               <RecommendationChip 
                 category="Financial" 
                 onPress={() => {
-                  console.log('Opening Financial modal from TaskListModal')
                   onOpenChange(false)
                   openRecommendationModal('Financial')
                 }}  
@@ -162,7 +160,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               <RecommendationChip 
                 category="Gym" 
                 onPress={() => {
-                  console.log('Opening Gym modal from TaskListModal')
                   onOpenChange(false)
                   openRecommendationModal('Gym')
                 }} 
@@ -171,7 +168,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               <RecommendationChip 
                 category="Self-Care" 
                 onPress={() => {
-                  console.log('Opening Self-Care modal from TaskListModal')
                   onOpenChange(false)
                   openRecommendationModal('Self-Care')
                 }} 

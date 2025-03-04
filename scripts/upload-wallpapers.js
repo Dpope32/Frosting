@@ -18,7 +18,7 @@ const uploadFile = async (filePath, key) => {
     });
 
     await s3Client.send(command);
-    console.log(`Successfully uploaded ${key}`);
+    //console.log(`Successfully uploaded ${key}`);
   } catch (error) {
     console.error(`Error uploading ${key}:`, error);
   }

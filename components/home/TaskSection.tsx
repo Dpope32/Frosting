@@ -2,7 +2,7 @@ import React from 'react'
 import { Pressable, Platform } from 'react-native'
 import { isWeb, Stack, Text, XStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
-import { TaskCard } from '@/components/TaskCard'
+import { TaskCard } from '@/components/home/TaskCard'
 import { getCategoryColor } from '@/components/utils'
 import { Task } from '@/store/ToDo'
 import { TaskRecommendationModal } from '@/components/cardModals/TaskRecommendationModal'
@@ -173,19 +173,19 @@ export const TaskSection = ({
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             bottom: -75,
-            right: -12,
-            width: 34,
-            height: 34,
-            borderRadius: 17,
+            right: -8,
+            width: 28,
+            height: 28,
+            borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
           } : {
             position: 'absolute',
             bottom: -75,
-            right: -12,
-            width: 34,
-            height: 34,
-            borderRadius: 17,
+            right: -8,
+            width: 28,
+            height: 28,
+            borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
           }}

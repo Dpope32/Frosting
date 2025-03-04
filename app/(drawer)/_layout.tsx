@@ -6,7 +6,7 @@ import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } 
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
-import Animated from 'react-native-reanimated';
+import { useDrawerStyles } from './styles'
 
 const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 
@@ -31,7 +31,7 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
       
       // If it's a file URI that might not work on web, use the fallback
       if (profilePicture.startsWith('file:')) {
-        console.log('Detected file URI on web, using fallback');
+       // console.log('Detected file URI on web, using fallback');
         return require('@/assets/images/adaptive-icon.png');
       }
       
@@ -90,59 +90,19 @@ export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const systemColorScheme = RNColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
-
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? '#1e1e1e' : '#F5F5F5';
+  const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
+  const borderRightColor = isDark ? primaryColor : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark ? '#444' : '#999';
   const isWeb = Platform.OS === 'web';
+  const styles = useDrawerStyles();
   // Use fixed width for better performance on mobile
   const { width: screenWidth } = Dimensions.get('window');
   const drawerWidth = isWeb 
     ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 
     : 250
-
-  const styles = StyleSheet.create({
-    wrapper: {
-      flex: 1,
-      backgroundColor
-    },
-    container: {
-      flex: 1
-    },
-    header: {
-      paddingTop: isWeb ? 20: 50,
-      paddingBottom: isWeb ? 10: 20,
-      paddingHorizontal: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: borderColor,
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor
-    },
-    profileImage: {
-      width: isWeb ? 40 : 50,
-      height: isWeb ? 40 : 50,
-      borderRadius: isWeb ?  20 : 25,
-      marginRight: 12
-    },
-    username: {
-      color: textColor,
-      fontSize: 18,
-      fontWeight: '600'
-    },
-    content: {
-      flex: 1,
-      backgroundColor
-    },
-    scrollView: {
-      marginTop: 10
-    },
-    scrollViewContent: {
-      paddingTop: 0
-    }
-  });
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} isWeb={isWeb} />
@@ -220,10 +180,7 @@ export default function DrawerLayout() {
 
   return (
     <View style={styles.wrapper}>
-      <Drawer
-        drawerContent={renderDrawerContent}
-        screenOptions={drawerScreenOptions}
-      >
+      <Drawer drawerContent={renderDrawerContent} screenOptions={drawerScreenOptions} >
         <Drawer.Screen
           name="(tabs)/index"
           options={{

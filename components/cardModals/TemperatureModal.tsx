@@ -88,7 +88,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   }
 
   const screenWidth = Dimensions.get('window').width
-  const totalHorizontalPadding = 32 // assume 16px padding on each side
+  const totalHorizontalPadding = 32 
   const availableWidth = screenWidth - totalHorizontalPadding
   const mobileCardWidth = availableWidth / 3
 
@@ -102,7 +102,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
           borderWidth={1}
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
         >
-          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">
+          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontFamily="$body" fontWeight="500">
             Current Temperature
           </Text>
           <YStack gap="$3" marginTop="$2">
@@ -150,30 +150,30 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   gap="$2"
                   justifyContent="space-between"
                 >
-                  <Text fontSize={40} textAlign="center" marginTop="$1">
+                  <Text fontSize={40} textAlign="center" marginTop="$1" fontFamily="$body">
                     {getWeatherIcon(period.shortForecast)}
                   </Text>
                   <YStack gap="$1" flex={1} justifyContent="center">
-                    <Text textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="600">
+                    <Text textAlign="center" fontFamily="$body" color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="600">
                       {period.day}
                     </Text>
-                    <Text textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={12} numberOfLines={2} ellipsizeMode="tail">
+                    <Text textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={12} numberOfLines={2} fontFamily="$body" ellipsizeMode="tail">
                       {period.shortForecast}
                     </Text>
                   </YStack>
                   <YStack gap="$1" marginVertical="$2">
                     {period.precipitation > 0 && (
                       <XStack alignItems="center" justifyContent="center" gap="$1">
-                        <Text fontSize={12}>💧</Text>
-                        <Text textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={12}>
+                        <Text fontFamily="$body" fontSize={12}>💧</Text>
+                        <Text textAlign="center"fontFamily="$body"  color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={12}>
                           {period.precipitation}%
                         </Text>
                       </XStack>
                     )}
                     {period.windSpeed && (
                       <XStack alignItems="center" justifyContent="center" gap="$1">
-                        <Text fontSize={12}>💨</Text>
-                        <Text textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={12}>
+                        <Text fontFamily="$body"fontSize={12}>💨</Text>
+                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={12}>
                           {period.windSpeed} {period.windDirection}
                         </Text>
                       </XStack>
@@ -181,14 +181,14 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   </YStack>
                   <XStack alignSelf="stretch" padding="$2" borderRadius={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center">
                     <YStack>
-                      <Text fontSize={12} color={isDark ? "#ccc" : "#666"}>Low</Text>
-                      <Text fontSize={18} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
+                      <Text fontFamily="$body" fontSize={12} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                      <Text fontFamily="$body" fontSize={16} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
                         {period.low}°
                       </Text>
                     </YStack>
                     <YStack>
-                      <Text fontSize={12} color={isDark ? "#ccc" : "#666"}>High</Text>
-                      <Text fontSize={18} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
+                      <Text fontFamily="$body"fontSize={12} color={isDark ? "#ccc" : "#666"}>High</Text>
+                      <Text fontFamily="$body" fontSize={16} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
                         {period.high}°
                       </Text>
                     </YStack>
@@ -221,30 +221,30 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   gap="$2"
                   justifyContent="space-between"
                 >
-                  <Text fontSize={28} textAlign="center" marginTop="$1">
+                  <Text fontFamily="$body" fontSize={28} textAlign="center" marginTop="$1">
                     {getWeatherIcon(period.shortForecast)}
                   </Text>
                   <YStack gap="$0" flex={1} justifyContent="center">
-                    <Text textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="600">
+                    <Text fontFamily="$body" textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="600">
                       {period.day}
                     </Text>
-                    <Text textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={10} numberOfLines={2} ellipsizeMode="tail">
+                    <Text fontFamily="$body" textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={10} numberOfLines={2} ellipsizeMode="tail">
                       {period.shortForecast}
                     </Text>
                   </YStack>
                   <YStack gap="$2">
                     {period.precipitation > 0 && (
                       <XStack alignItems="center" justifyContent="center" gap="$0">
-                        <Text fontSize={10}>💧</Text>
-                        <Text textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={10}>
+                        <Text fontFamily="$body" fontSize={10}>💧</Text>
+                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={10}>
                           {period.precipitation}%
                         </Text>
                       </XStack>
                     )}
                     {period.windSpeed && (
                       <XStack alignItems="center" justifyContent="center" gap="$0">
-                        <Text fontSize={10}>💨</Text>
-                        <Text textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={10}>
+                        <Text fontFamily="$body" fontSize={10}>💨</Text>
+                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={10}>
                           {period.windSpeed} {period.windDirection}
                         </Text>
                       </XStack>
@@ -252,14 +252,14 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   </YStack>
                   <XStack alignSelf="stretch" padding="$1" borderRadius={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center">
                     <YStack>
-                      <Text fontSize={10} color={isDark ? "#ccc" : "#666"}>Low</Text>
-                      <Text fontSize={14} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
+                      <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                      <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
                         {period.low}°
                       </Text>
                     </YStack>
                     <YStack>
-                      <Text fontSize={10} color={isDark ? "#ccc" : "#666"}>High</Text>
-                      <Text fontSize={14} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
+                      <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>High</Text>
+                      <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
                         {period.high}°
                       </Text>
                     </YStack>

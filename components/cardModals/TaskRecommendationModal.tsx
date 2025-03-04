@@ -51,7 +51,6 @@ function CategoryTaskModal({
   onOpenChange, 
   category 
 }: CategoryTaskModalProps) {
-  console.log(`CategoryTaskModal render - category: ${category}, open: ${open}`)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const addTask = useProjectStore(s => s.addTask)
@@ -97,7 +96,6 @@ function CategoryTaskModal({
     onOpenChange(false)
   }
 
-  // Filter out tasks that already exist in the todo store
   const filterOutExistingTasks = (tasks: RecommendedTask[]): RecommendedTask[] => {
     const existingTaskNames = Object.values(existingTasks).map(task => task.name)
     return tasks.filter(task => !existingTaskNames.includes(task.name))
@@ -106,11 +104,6 @@ function CategoryTaskModal({
   const recommendedTasks = useMemo(() => {
     return filterOutExistingTasks(getRecommendedTasks(category))
   }, [category, existingTasks])
-
-  // Log when the modal opens or closes
-  React.useEffect(() => {
-    console.log(`CategoryTaskModal useEffect - category: ${category}, open changed to: ${open}`)
-  }, [open, category])
 
   return (
     <BaseCardModal 
@@ -121,7 +114,7 @@ function CategoryTaskModal({
       }} 
       title={`${category} Tasks`}
       snapPoints={[90]}
-      zIndex={200000} // Higher z-index to ensure it appears on top
+      zIndex={200000} 
     >
       <YStack gap="$4" paddingBottom={isWeb ? "$3" : "$8"}>
         <Text color={isDark ? "#dbd0c6" : "#666"} fontFamily="$body" fontSize={16} opacity={0.9}> Select tasks to add to your schedule:</Text>

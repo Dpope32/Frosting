@@ -1,20 +1,10 @@
 import React, { useState, useMemo } from 'react'
-import {
-  Image,
-  ImageSourcePropType,
-  Platform,
-  Switch,
-  useColorScheme,
-} from 'react-native'
+import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native'
 import { Sheet, Button, Input, YStack, XStack, Text, Circle } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { colorOptions } from '../constants/Colors'
-import {
-  backgroundStyles,
-  BackgroundStyle,
-  getWallpaperPath,
-} from '../constants/Backgrounds'
-import { ColorPickerModal } from './ColorPickerModal'
+import { colorOptions } from '../../constants/Colors'
+import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds'
+import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 
 // Only import ImagePicker on native platforms
 let ImagePicker: any = null
@@ -32,18 +22,6 @@ interface SettingsModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-interface WallpaperButtonProps {
-  style: { value: BackgroundStyle; label: string }
-  isSelected: boolean
-  onPress: () => void
-  settings: {
-    primaryColor: string
-    backgroundStyle: BackgroundStyle
-  }
-  inputBackgroundColor: string
-  borderColor: string
-}
-
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
@@ -55,7 +33,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [settings, setSettings] = useState({
     username: preferences.username,
     primaryColor: preferences.primaryColor,
-    // Make profilePicture a string | undefined so we never store null
     profilePicture: preferences.profilePicture || undefined,
     zipCode: preferences.zipCode,
     backgroundStyle: preferences.backgroundStyle,

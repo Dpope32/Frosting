@@ -1,15 +1,18 @@
 // crm.tsx
 import React, { useState } from "react";
 import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
-import { H4, Separator, YStack, Text, Button, isWeb } from "tamagui";
+import { H4, Separator, YStack, Text, Button, isWeb, XStack } from "tamagui";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as Contacts from 'expo-contacts';
 import { usePeopleStore } from "@/store/People";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
 import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
 import { EditPersonForm } from "@/components/crm/Forms/EditPersonForm";
 import type { Person } from "@/types/people";
 import { generateTestContacts } from "@/components/crm/testContacts";
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useUserStore } from "@/store/UserStore";
 
 const { width } = Dimensions.get("window");
 const PADDING = 16;
@@ -20,6 +23,9 @@ const CARD_WIDTH = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COL
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
   const allContacts = Object.values(contacts);
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
@@ -69,11 +75,38 @@ export default function CRM() {
     );
   };
 
+  const handleDebugPress = () => {
+    // Create a deep copy of the people store state
+    const peopleState = JSON.parse(JSON.stringify(usePeopleStore.getState()));
+    
+    // Remove profilePicture from each contact to avoid cluttering the logs
+    if (peopleState.contacts) {
+      Object.values(peopleState.contacts).forEach((contact: any) => {
+        if (contact.profilePicture) {
+          contact.profilePicture = '[PROFILE_PICTURE_DATA_REMOVED]';
+        }
+      });
+    }
+    
+    console.log("People Store:", JSON.stringify(peopleState, null, 2));
+    Alert.alert("Debug Info", "People store data logged to console (profilePicture data removed)");
+  };
+
   return (
     <YStack flex={1} paddingTop={isWeb ? 12 : 80}>
       {/* Development tools - only visible in dev mode */}
       {__DEV__ && (
         <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
+          <Button
+            size="$4"
+            circular
+            backgroundColor="#666666"
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={handleDebugPress}
+            icon={<MaterialIcons name="bug-report" size={24} color="white" />}
+          />
           <Button
             size="$4"
             circular
@@ -132,9 +165,183 @@ export default function CRM() {
           paddingBottom: 100
         }}
         ListEmptyComponent={
-          <YStack padding="$4" alignItems="center">
-            <Text color="$gray11">No contacts yet</Text>
-          </YStack>
+          <XStack 
+            bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+            p="$4" 
+            borderRadius="$4" 
+            ai="flex-start" 
+            jc="center"
+            borderWidth={1}
+            borderColor={isDark ? "#333" : "#e0e0e0"}
+            width={isWeb ? "80%" : "90%"}
+            maxWidth={isWeb ? 800 : "100%"}
+            mx="auto"
+            my="$4"
+          >
+            <YStack gap="$4" width="100%">
+              <Text color={isDark ? "#fff" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
+                Contact Management
+              </Text>
+              
+              <YStack gap="$3" px="$2">
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Track Important Contacts
+                    </Text>
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                      Add your contacts and keep track of important information in one place.
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Birthday Reminders
+                    </Text>
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                      Never miss a birthday with automatic calendar integration.
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                <XStack gap="$2" ai="flex-start">
+                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <YStack>
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                      Contact Details
+                    </Text>
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                      Store phone numbers, emails, addresses, and more for easy access.
+                    </Text>
+                  </YStack>
+                </XStack>
+              </YStack>
+              
+              <XStack 
+                justifyContent="center"
+                paddingHorizontal={isWeb ? "$4" : "$1"}
+                gap="$2"
+                mt="$2"
+              >
+                {isWeb ? (
+                  <YStack alignItems="center" gap="$2">
+                    <Button
+                      size="$4"
+                      backgroundColor={isDark ? "$gray5" : "$gray3"}
+                      borderColor={isDark ? "$gray7" : "$gray4"}
+                      borderWidth={2}
+                      paddingHorizontal="$4"
+                      paddingVertical="$2"
+                      borderRadius="$4"
+                      opacity={0.7}
+                      pressStyle={{ opacity: 0.7 }}
+                      animation="quick"
+                      disabled
+                    >
+                    </Button>
+                  </YStack>
+                ) : (
+                  <Button
+                    size="$3"
+                    onPress={async () => {
+                      try {
+                        const { status } = await Contacts.requestPermissionsAsync();
+                        if (status === 'granted') {
+                          const { data } = await Contacts.getContactsAsync({
+                            fields: [
+                              Contacts.Fields.Name,
+                              Contacts.Fields.PhoneNumbers,
+                              Contacts.Fields.Emails,
+                              Contacts.Fields.Birthday,
+                              Contacts.Fields.Image,
+                              Contacts.Fields.Addresses,
+                              Contacts.Fields.JobTitle
+                            ]
+                          });
+                          
+                          if (data.length > 0) {
+                            Alert.alert(
+                              "Import Contacts",
+                              `Found ${data.length} contacts. Would you like to import them?`,
+                              [
+                                { text: "Cancel", style: "cancel" },
+                                { 
+                                  text: "Import", 
+                                  onPress: () => {
+                                    data.forEach(contact => {
+                                      if (contact.name) {
+                                        const newPerson: Partial<Person> = {
+                                          name: contact.name,
+                                          phoneNumber: contact.phoneNumbers?.[0]?.number,
+                                          email: contact.emails?.[0]?.email,
+                                          birthday: contact.birthday ? new Date(contact.birthday.toString()).toISOString().split('T')[0] : undefined,
+                                          profilePicture: contact.imageAvailable ? contact.image?.uri : undefined,
+                                          occupation: contact.jobTitle,
+                                          address: contact.addresses?.[0] ? {
+                                            street: contact.addresses[0].street || '',
+                                            city: contact.addresses[0].city || '',
+                                            state: contact.addresses[0].region || '',
+                                            zipCode: contact.addresses[0].postalCode || '',
+                                            country: contact.addresses[0].country || ''
+                                          } : undefined
+                                        };
+                                        
+                                        // Only add contacts with at least a name and either phone or email
+                                        if (newPerson.name && (newPerson.phoneNumber || newPerson.email)) {
+                                          usePeopleStore.getState().addPerson({
+                                            ...newPerson,
+                                            id: Math.random().toString(36).substr(2, 9),
+                                            createdAt: new Date().toISOString(),
+                                            updatedAt: new Date().toISOString(),
+                                            birthday: newPerson.birthday || '',
+                                          } as Person);
+                                        }
+                                      }
+                                    });
+                                    
+                                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                    Alert.alert("Success", "Contacts imported successfully!");
+                                  }
+                                }
+                              ]
+                            );
+                          } else {
+                            Alert.alert("No Contacts", "No contacts found on your device.");
+                          }
+                        } else {
+                          Alert.alert("Permission Denied", "Please grant contacts permission to import contacts.");
+                        }
+                      } catch (error) {
+                        console.error("Error importing contacts:", error);
+                        Alert.alert("Error", "Failed to import contacts. Please try again.");
+                      }
+                    }}
+                    backgroundColor={primaryColor}
+                    borderColor={primaryColor}
+                    borderWidth={2}
+                    paddingHorizontal="$4"
+                    paddingVertical="$2"
+                    borderRadius="$4"
+                    pressStyle={{ opacity: 0.8 }}
+                    animation="quick"
+                    icon={<FontAwesome5 name="address-book" size={16} color="white" style={{ marginRight: 8 }} />}
+                  >
+                    <Text color="white" fontWeight="600">
+                      Import Contacts
+                    </Text>
+                  </Button>
+                )}
+              </XStack>
+              
+              <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
+                Or click the + button below to add a contact manually
+              </Text>
+            </YStack>
+          </XStack>
         }
       />
       <AddPersonForm />

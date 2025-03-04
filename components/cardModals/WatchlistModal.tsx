@@ -5,20 +5,12 @@ import { BaseCardModal } from './BaseCardModal';
 import { useUserStore } from '@/store/UserStore';
 import { addToWatchlist, usePortfolioStore } from '@/store/PortfolioStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { 
-  initializeStocksData, 
-  searchStocks, 
-  getRecommendedStocks, 
-  getIconForStock, 
-  getWatchlistedStocks,
-  StockData 
-} from '@/services/stockSearchService';
+import { initializeStocksData, searchStocks, getRecommendedStocks} from '@/services/stockSearchService';
+import { StockData } from '@/constants/stocks';
+import { getIconForStock } from '../../constants/popularStocks'
 import { debounce } from 'lodash';
 
-interface WatchlistModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+interface WatchlistModalProps { open: boolean; onOpenChange: (open: boolean) => void}
 
 export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
   const [symbol, setSymbol] = useState('');
@@ -293,18 +285,10 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                 </ScrollView>
               </YStack>
             ) : (
-              <YStack
-                padding="$4"
-                alignItems="center"
-                justifyContent="center"
-                backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}
-                borderRadius={8}
-                flex={1}
-                marginTop="$2"
-              >
+              <YStack padding="$4" alignItems="center" justifyContent="center" backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"} borderRadius={8} flex={1} marginTop="$2">
                 <Text color={isDark ? "$color11" : "$color10"} fontSize={14} textAlign="center" fontFamily="$body">
-                  All recommended stocks have been added to your watchlist.
-                </Text>
+                  All recommended stocks have been added to your watchlist. 
+                  </Text>
                 <Text color={isDark ? "$color11" : "$color10"} fontSize={12} textAlign="center" marginTop="$2" fontFamily="$body">
                   You can search for additional stocks using the search box above.
                 </Text>

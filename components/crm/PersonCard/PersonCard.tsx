@@ -131,7 +131,7 @@ export function PersonCard({
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/80"
                     }}
-                    width={Platform.OS === 'web' ? 60 : 40}
+                    width={Platform.OS === 'web' ? 80 : 40}
                     height={Platform.OS === 'web' ? 60 : 40}
                     borderRadius={Platform.OS === 'web' ? 30 : 20}
                     style={styles.avatarImage as any}
@@ -271,8 +271,8 @@ export function PersonCard({
                     { backgroundColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(100,100,100,0.2)" }
                   ] as any}>
                     <XStack alignItems="center" gap="$1">
-                      <Paragraph fontSize={12} color={isDark ? "#666" : "#555"}>Notification:</Paragraph>
-                      <Paragraph fontSize={12} color="#4CAF50">Scheduled</Paragraph>
+                      <Paragraph fontSize={13} fontFamily="$body" color={isDark ? "#666" : "#555"}>Notification:</Paragraph>
+                      <Paragraph fontSize={13} fontFamily="$body" color="#4CAF50">Scheduled</Paragraph>
                     </XStack>
                   </View>
                 )}
@@ -283,8 +283,8 @@ export function PersonCard({
                     { backgroundColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(100,100,100,0.2)" }
                   ] as any}>
                     <XStack alignItems="center" gap="$1">
-                      <Paragraph fontSize={12} color={isDark ? "#666" : "#555"}>Reminder:</Paragraph>
-                      <Paragraph fontSize={12} color="#FFD700">Scheduled</Paragraph>
+                      <Paragraph fontSize={13} fontFamily="$body"color={isDark ? "#666" : "#555"}>Reminder:</Paragraph>
+                      <Paragraph fontSize={13} fontFamily="$body" color="#FFD700">Scheduled</Paragraph>
                     </XStack>
                   </View>
                 )}
@@ -294,7 +294,7 @@ export function PersonCard({
                 {person.birthday && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="gift-outline" size={22} color={nicknameColor} />
-                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
+                    <Paragraph fontSize={14} fontFamily="$body" color={isDark ? "#fff" : "#333"}>
                       {(() => {
                         const date = new Date(person.birthday);
                         date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
@@ -309,7 +309,7 @@ export function PersonCard({
                 {person.email && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="mail-outline" size={22} color={isDark ? "#fff" : "#555"} />
-                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {person.email}
                     </Paragraph>
                   </XStack>
@@ -317,7 +317,7 @@ export function PersonCard({
                 {person.phoneNumber && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="call-outline" size={22} color={isDark ? "#fff" : "#555"} />
-                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {formatPhoneNumber(person.phoneNumber)}
                     </Paragraph>
                   </XStack>
@@ -325,8 +325,74 @@ export function PersonCard({
                 {fullAddress && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="location-outline" size={22} color={isDark ? "#fff" : "#555"} />
-                    <Paragraph fontSize={14} color={isDark ? "#fff" : "#333"}>
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {fullAddress}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.relationship && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="people-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                      {person.relationship}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.notes && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="document-text-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                      {person.notes}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.tags && person.tags.length > 0 && (
+                  <XStack gap="$3" alignItems="flex-start">
+                    <Ionicons name="pricetag-outline" size={22} color={isDark ? "#fff" : "#555"} style={{ marginTop: 2 }} />
+                    <YStack>
+                      <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                        {person.tags.join(", ")}
+                      </Paragraph>
+                    </YStack>
+                  </XStack>
+                )}
+                {person.lastContactDate && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="time-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                      Last Contact: {new Date(person.lastContactDate).toLocaleDateString()}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.importantDates && person.importantDates.length > 0 && (
+                  <XStack gap="$3" alignItems="flex-start">
+                    <Ionicons name="calendar-outline" size={22} color={isDark ? "#fff" : "#555"} style={{ marginTop: 2 }} />
+                    <YStack>
+                      {person.importantDates.map((date, index) => (
+                        <Paragraph key={index} fontSize={14} color={isDark ? "#fff" : "#333"}>
+                          {date.description}: {new Date(date.date).toLocaleDateString()}
+                        </Paragraph>
+                      ))}
+                    </YStack>
+                  </XStack>
+                )}
+                {person.socialMedia && person.socialMedia.length > 0 && (
+                  <XStack gap="$3" alignItems="flex-start">
+                    <Ionicons name="cash-outline" size={22} color={isDark ? "#fff" : "#555"} style={{ marginTop: 2 }} />
+                    <YStack>
+                      {person.socialMedia.map((social, index) => (
+                        <Paragraph fontFamily="$body" key={index} fontSize={14} color={isDark ? "#fff" : "#333"}>
+                          {social.platform}: {social.username}
+                        </Paragraph>
+                      ))}
+                    </YStack>
+                  </XStack>
+                )}
+                {person.additionalInfo && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="information-circle-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                      {person.additionalInfo}
                     </Paragraph>
                   </XStack>
                 )}
@@ -350,14 +416,14 @@ export function PersonCard({
                     style={styles.actionButton as any}
                   >
                     <Ionicons name="chatbubble-outline" size={24} color={isDark ? "#fff" : "#555"} />
-                    <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Text</Paragraph>
+                    <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Text</Paragraph>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
                     style={styles.actionButton as any}
                   >
                     <Ionicons name="call-outline" size={24} color={isDark ? "#fff" : "#555"} />
-                    <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Call</Paragraph>
+                    <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Call</Paragraph>
                   </TouchableOpacity>
                 </>
               )}
@@ -367,7 +433,7 @@ export function PersonCard({
                   style={styles.actionButton as any}
                 >
                   <Ionicons name="mail-outline" size={24} color={isDark ? "#fff" : "#555"} />
-                  <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>eMail</Paragraph>
+                  <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>eMail</Paragraph>
                 </TouchableOpacity>
               )}
               {fullAddress && (
@@ -376,7 +442,7 @@ export function PersonCard({
                   style={styles.actionButton as any}
                 >
                   <Ionicons name="copy-outline" size={24} color={isDark ? "#fff" : "#555"} />
-                  <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Copy</Paragraph>
+                  <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Copy</Paragraph>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -384,7 +450,7 @@ export function PersonCard({
                 style={[styles.actionButton, { zIndex: 9999 }] as any}
               >
                 <Ionicons name="pencil-outline" size={24} color={isDark ? "#fff" : "#555"} />
-                <Paragraph style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Edit</Paragraph>
+                <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Edit</Paragraph>
               </TouchableOpacity>
             </View>
           </Sheet.Frame>
