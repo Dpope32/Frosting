@@ -145,7 +145,7 @@ export const TaskSection = ({
           onPress={onTaskListPress}
           style={Platform.OS === 'web' ? {
             position: 'absolute',
-            top: -57,
+            top: -47,
             right: -10,
             width: 34,
             height: 34,
