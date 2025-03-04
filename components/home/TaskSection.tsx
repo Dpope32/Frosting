@@ -113,7 +113,7 @@ export const TaskSection = ({
           </Stack>
         ) : (
           <Stack 
-            gap="$0"
+            gap="$1"
             width="100%"
             style={Platform.OS === 'web' ? {
               display: 'grid',

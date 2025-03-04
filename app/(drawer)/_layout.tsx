@@ -70,15 +70,12 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
-interface IconConfig {
-  name: MaterialIconName | MaterialCommunityIconName;
-  type: 'material' | 'community';
-}
+interface IconConfig {name: MaterialIconName | MaterialCommunityIconName; type: 'material' | 'community';}
 
 const DRAWER_ICONS: Record<string, IconConfig> = {
   '(tabs)/index': { name: 'castle' as MaterialCommunityIconName, type: 'community' },
   calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
-  sports: { name: 'sports-baseball' as MaterialIconName, type: 'material' },
+  nba: { name: 'sports-basketball' as MaterialIconName, type: 'material' },
   chatbot: { name: 'code' as MaterialIconName, type: 'material' },
   crm: { name: 'person' as MaterialIconName, type: 'material' },
   storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
@@ -97,8 +94,6 @@ export default function DrawerLayout() {
   const inactiveColor = isDark ? '#444' : '#999';
   const isWeb = Platform.OS === 'web';
   const styles = useDrawerStyles();
-  // Use fixed width for better performance on mobile
-  const { width: screenWidth } = Dimensions.get('window');
   const drawerWidth = isWeb 
     ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 
     : 250
@@ -197,11 +192,11 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
-          name="sports"
+          name="nba"
           options={{
-            title: 'Sports',
-            drawerLabel: 'Sports',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'sports' })
+            title: 'NBA',
+            drawerLabel: 'NBA',
+            drawerIcon: (props) => renderIcon({ ...props, route: 'nba' })
           }}
         />
         <Drawer.Screen
@@ -210,14 +205,6 @@ export default function DrawerLayout() {
             title: 'CRM',
             drawerLabel: 'CRM',
             drawerIcon: (props) => renderIcon({ ...props, route: 'crm' })
-          }}
-        />
-        <Drawer.Screen
-          name="storage"
-          options={{
-            title: 'Storage',
-            drawerLabel: 'Storage',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
           }}
         />
         <Drawer.Screen
@@ -248,6 +235,16 @@ export default function DrawerLayout() {
           }}
         />
       )}
+       {__DEV__ && (
+        <Drawer.Screen
+          name="storage"
+          options={{
+            title: 'Storage',
+            drawerLabel: 'Storage',
+            drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
+          }}
+          />
+        )}
       </Drawer>
     </View>
   );

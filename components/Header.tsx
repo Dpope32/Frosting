@@ -21,7 +21,7 @@ export function Header({ title }: HeaderProps) {
   const [showNBATeamModal, setShowNBATeamModal] = useState(false);
   
   // Check if we're on the sports screen
-  const isSportsScreen = route.name === 'sports';
+  const isSportsScreen = route.name === 'nba';
 
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#001';
   const isWeb = Platform.OS === 'web';
