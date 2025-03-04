@@ -272,7 +272,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                                 <Text color={isDark ? "$color" : "$color12"} fontWeight="600" fontSize={14} fontFamily="$body">
                                   {stock.symbol}
                                 </Text>
-                                <Text color={isDark ? "$color11" : "$color10"} fontSize={10} fontFamily="$body" numberOfLines={1}>
+                                <Text color={isDark ? "$color11" : "$color10"} fontSize={11} fontFamily="$body" numberOfLines={1}>
                                   {stock.name}
                                 </Text>
                               </YStack>

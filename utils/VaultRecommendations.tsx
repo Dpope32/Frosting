@@ -156,7 +156,7 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">
         <Ionicons name={style.iconName} size={12} color={style.iconColor} />
-        <Text color={style.textColor}  fontSize={10}  fontWeight="600" numberOfLines={1} fontFamily="$body" > {category} </Text>
+        <Text color={style.textColor}  fontSize={11}  fontWeight="600" numberOfLines={1} fontFamily="$body" > {category} </Text>
       </XStack>
     </Button>
   )

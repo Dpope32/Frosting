@@ -203,7 +203,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
         <Ionicons name={style.iconName} size={14} color={style.iconColor} />
-        <Text color={style.textColor} fontFamily="$body" fontSize={isWeb ? 13 : 12}  fontWeight="600" numberOfLines={1}> {category} </Text>
+        <Text color={style.textColor} fontFamily="$body" fontSize={isWeb ? 13 : 13}  fontWeight="600" numberOfLines={1}> {category} </Text>
       </XStack>
     </Button>
   )

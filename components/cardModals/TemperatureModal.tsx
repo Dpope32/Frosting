@@ -224,27 +224,27 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   <Text fontFamily="$body" fontSize={28} textAlign="center" marginTop="$1">
                     {getWeatherIcon(period.shortForecast)}
                   </Text>
-                  <YStack gap="$0" flex={1} justifyContent="center">
-                    <Text fontFamily="$body" textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={14} fontWeight="600">
+                  <YStack gap="$1" flex={1} justifyContent="center">
+                    <Text fontFamily="$body" textAlign="center" color={isDark ? "#fff" : "#000"} fontSize={13} fontWeight="600">
                       {period.day}
                     </Text>
-                    <Text fontFamily="$body" textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={10} numberOfLines={2} ellipsizeMode="tail">
+                    <Text fontFamily="$body" textAlign="center" color={isDark ? "#ccc" : "#444"} fontSize={11} numberOfLines={2} ellipsizeMode="tail">
                       {period.shortForecast}
                     </Text>
                   </YStack>
                   <YStack gap="$2">
                     {period.precipitation > 0 && (
                       <XStack alignItems="center" justifyContent="center" gap="$0">
-                        <Text fontFamily="$body" fontSize={10}>💧</Text>
-                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={10}>
+                        <Text fontFamily="$body" fontSize={11}>💧</Text>
+                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={11}>
                           {period.precipitation}%
                         </Text>
                       </XStack>
                     )}
                     {period.windSpeed && (
                       <XStack alignItems="center" justifyContent="center" gap="$0">
-                        <Text fontFamily="$body" fontSize={10}>💨</Text>
-                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={10}>
+                        <Text fontFamily="$body" fontSize={11}>💨</Text>
+                        <Text fontFamily="$body" textAlign="center" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={11}>
                           {period.windSpeed} {period.windDirection}
                         </Text>
                       </XStack>
@@ -252,13 +252,13 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   </YStack>
                   <XStack alignSelf="stretch" padding="$1" borderRadius={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center">
                     <YStack>
-                      <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                      <Text fontFamily="$body" fontSize={11} color={isDark ? "#ccc" : "#666"}>Low</Text>
                       <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(period.low, isDark)}>
                         {period.low}°
                       </Text>
                     </YStack>
                     <YStack>
-                      <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>High</Text>
+                      <Text fontFamily="$body" fontSize={11} color={isDark ? "#ccc" : "#666"}>High</Text>
                       <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
                         {period.high}°
                       </Text>

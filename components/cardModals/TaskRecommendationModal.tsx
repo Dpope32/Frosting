@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react'
-import { Platform, useColorScheme, Animated as RNAnimated } from 'react-native'
+import { useColorScheme, Animated as RNAnimated } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
@@ -125,7 +125,7 @@ function CategoryTaskModal({
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false} 
           bounces={false} 
-          maxHeight={isWeb ? 700 : 520}
+          maxHeight={isWeb ? 700 : "100%"}
           onScroll={(event) => {
             const scrollY = event.nativeEvent.contentOffset.y;
             setShowScrollToTop(scrollY > 100);

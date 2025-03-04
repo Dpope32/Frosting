@@ -51,7 +51,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
     card: {
       backgroundColor: isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)",
       borderRadius: 12,
-      padding: 10,
+      padding: Platform.OS === 'web' ? 10 : 8,
       borderWidth: 1,
       borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
     }
@@ -76,9 +76,9 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [80] : [80]}
+      snapPoints={Platform.OS === 'web' ? [80] : [75]}
     >
-      <YStack gap={Platform.OS === 'web' ? "$2" : "$4"} paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$5" : "$2"}>
+      <YStack gap={Platform.OS === 'web' ? "$2" : "$3"} paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$5" : "$2"}>
         <YStack>
           <Animated.View entering={FadeIn.duration(600)} style={styles.card}>
             <YStack gap={Platform.OS === 'web' ? "$3" : "$2"} paddingHorizontal="$2">
@@ -169,7 +169,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           </Animated.View>
         </YStack>
         <YStack>
-          <XStack justifyContent="space-between" alignItems="center" marginBottom="$3" paddingRight="$1">
+          <XStack justifyContent="space-between" alignItems="center" paddingRight="$1">
             <Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={14}>Holdings</Text>
             <Button
               backgroundColor={"transparent"}
@@ -187,9 +187,10 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           </XStack>
 
           <ScrollView 
-            maxHeight={Platform.OS === 'web' ? 600 : 400} 
-            bounces={false}
+            maxHeight={Platform.OS === 'web' ? 600 : "100%"} 
+            bounces={true}
             showsVerticalScrollIndicator={false}
+            style={{ flexGrow: 0 }}
           >
             <YStack 
               gap="$2" 
@@ -256,30 +257,61 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                               }}
                             />
                             <YStack>
-                              <XStack alignItems="center" gap={isWeb ? "$4" : "$2"}>
-                                <Text 
-                                  color={isDark ? "#fff" : "#000"} 
-                                  fontSize={16} 
-                                  fontWeight="500"
-                                  fontFamily="$body"
-                                >
-                                  {stock.symbol}
-                                </Text>
-                                <Text 
+                              {isWeb ? (
+                                <XStack alignItems="center" gap="$4">
+                                  <Text 
+                                    color={isDark ? "#fff" : "#000"} 
+                                    fontSize={16} 
+                                    fontWeight="500"
+                                    fontFamily="$body"
+                                  >
+                                    {stock.symbol}
+                                  </Text>
+                                  <Text 
                                     color={isDark ? "#999" : "#666"} 
                                     fontSize={14}
                                     fontFamily="$body"
                                   >
                                     {stock.name}
-                              </Text>
-                                <Text 
-                                  color={isDark ? "#666" : "#333"} 
-                                  fontSize={14}
-                                  fontFamily="$body"
-                                >
-                                  {stock.quantity} shares
-                                </Text>
-                              </XStack>
+                                  </Text>
+                                  <Text 
+                                    color={isDark ? "#666" : "#333"} 
+                                    fontSize={14}
+                                    fontFamily="$body"
+                                  >
+                                    {stock.quantity} shares
+                                  </Text>
+                                </XStack>
+                              ) : (
+                                // Mobile layout - stack vertically to save horizontal space
+                                <YStack>
+                                  <XStack alignItems="center" gap="$2">
+                                    <Text 
+                                      color={isDark ? "#fff" : "#000"} 
+                                      fontSize={16} 
+                                      fontWeight="500"
+                                      fontFamily="$body"
+                                    >
+                                      {stock.symbol}
+                                    </Text>
+                                    <Text 
+                                      color={isDark ? "#999" : "#666"} 
+                                      fontSize={14}
+                                      fontFamily="$body"
+                                    >
+                                      {stock.name}
+                                    </Text>
+                                  </XStack>
+                                  <Text 
+                                    color={isDark ? "#666" : "#333"} 
+                                    fontSize={13}
+                                    fontFamily="$body"
+                                    marginTop="$0.5"
+                                  >
+                                    {stock.quantity} shares
+                                  </Text>
+                                </YStack>
+                              )}
 
                             </YStack>
                           </XStack>
@@ -341,6 +373,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           borderRadius={8}
                           padding={Platform.OS === 'web' ? "$1.5" : "$1"}
                           marginTop="$0.5"
+                          height={isWeb ? undefined : 40}
                         >
                           <YStack alignItems="center" flex={1}>
                             <Text 
@@ -356,7 +389,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                 getStockValueColor(currentPrice - (stockHistoricalData['1w'] || 0)) : 
                                 isDark ? "#777" : "#999"
                               } 
-                              fontSize={12}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
@@ -370,7 +403,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           <YStack alignItems="center" flex={1} >
                             <Text 
                               color={isDark ? "#999" : "#666"} 
-                              fontSize={11}
+                              fontSize={12}
                               fontWeight="500"
                               fontFamily="$body"
                             >
@@ -381,7 +414,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                 getStockValueColor(currentPrice - (stockHistoricalData['3m'] || 0)) : 
                                 isDark ? "#777" : "#999"
                               } 
-                              fontSize={12}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
@@ -395,7 +428,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           <YStack alignItems="center" flex={1}>
                             <Text 
                               color={isDark ? "#999" : "#666"} 
-                              fontSize={11}
+                              fontSize={12}
                               fontWeight="500"
                               fontFamily="$body"
                             >
@@ -406,7 +439,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                 getStockValueColor(currentPrice - (stockHistoricalData['1y'] || 0)) : 
                                 isDark ? "#777" : "#999"
                               } 
-                              fontSize={12}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
