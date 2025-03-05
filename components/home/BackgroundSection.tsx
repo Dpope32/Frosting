@@ -1,14 +1,17 @@
 import React, { useCallback } from 'react'
-import { Image } from 'react-native'
-import { YStack, Text, Stack } from 'tamagui'
-import { BlurView } from 'expo-blur'
+import { Image, Platform } from 'react-native'
+import { Stack } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
+import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { getWallpaperPath } from '@/constants/Backgrounds'
+import { useColorScheme } from '@/hooks/useColorScheme'
 
 export const BackgroundSection = () => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
   const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
 
   const adjustColor = useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
@@ -25,13 +28,20 @@ export const BackgroundSection = () => {
         const lighterColor = adjustColor(primaryColor, 100)
         const darkerColor = adjustColor(primaryColor, -250)
         return (
-          <LinearGradient
-            colors={[lighterColor, primaryColor, darkerColor]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', width: '100%', height: '100%' }}
-            locations={[0, 0.5, 1]}
-          />
+          <>
+            <LinearGradient
+              colors={[lighterColor, primaryColor, darkerColor]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ position: 'absolute', width: '100%', height: '100%' }}
+              locations={[0, 0.5, 1]}
+            />
+            <BlurView 
+              intensity={isDark ? 40 : 30} 
+              tint="dark" 
+              style={{ position: 'absolute', width: '100%', height: '100%' }} 
+            />
+          </>
         )
       }
       default:
@@ -56,16 +66,21 @@ export const BackgroundSection = () => {
                 loadingIndicatorSource={wallpaper}
               />
               <BlurView
-                intensity={30}
+                intensity={isDark ? 70 : 35}
                 tint="dark"
-                style={{ position: 'absolute', width: '100%', height: '100%' }}
+                style={{ 
+                  position: 'absolute', 
+                  width: '100%', 
+                  height: '100%',
+                  backgroundColor: 'rgba(0,0,0,0.3)' 
+                }}
               />
             </Stack>
           ) : null
         }
         return null
     }
-  }, [backgroundStyle, primaryColor, adjustColor])
+  }, [backgroundStyle, primaryColor, adjustColor, isDark])
 
   return background
 }

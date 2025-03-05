@@ -8,14 +8,26 @@ export default function Step4({
   formData,
   setFormData,
   handleNext,
+  isDark = true, // Default to dark if not provided
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
+  isDark?: boolean
 }) {
   const isWeb = Platform.OS === 'web';
   const [zipError, setZipError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
+
+  // Dynamic theme styles
+  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
+  const inputBackgroundColor = isDark ? "$gray2Dark" : "$gray2Light";
+  const inputBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
+  const inputTextColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const placeholderColor = isDark ? "$gray8Dark" : "$gray8Light";
+  const buttonColor = isDark ? "$blue10Dark" : "$blue10Light";
+  const errorColor = "$red9";
 
   // Validate ZIP code when it changes
   useEffect(() => {
@@ -59,7 +71,7 @@ export default function Step4({
           fontFamily="$body"
           size="$8"
           textAlign="center"
-          color="$gray12Dark"
+          color={labelColor}
         >
           What's your zip?
         </Label>
@@ -67,7 +79,7 @@ export default function Step4({
           fontFamily="$body"
           fontSize="$3"
           textAlign="center"
-          color="$gray9Dark"
+          color={subTextColor}
           opacity={0.8}
           fontWeight="400"
           fontStyle="italic"
@@ -90,19 +102,19 @@ export default function Step4({
           keyboardType="numeric"
           maxLength={5}
           autoFocus
-          backgroundColor="$gray2Dark"
-          borderColor={zipError ? "$red9" : "$gray8Dark"}
-          color="$gray12Dark"
-          placeholderTextColor="$gray8Dark"
+          backgroundColor={inputBackgroundColor}
+          borderColor={zipError ? errorColor : inputBorderColor}
+          color={inputTextColor}
+          placeholderTextColor={placeholderColor}
           textAlign="center"
           letterSpacing={1}
           borderWidth={1.25}
           fontSize={24}
-          shadowColor="$gray8Dark"
+          shadowColor={inputBorderColor}
           shadowRadius={20}
           shadowOpacity={0.2}
           focusStyle={{
-            borderColor: zipError ? "$red9" : '$gray8Dark',
+            borderColor: zipError ? errorColor : inputBorderColor,
             scale: 1.02,
           }}
           // Constrain width on web
@@ -113,7 +125,7 @@ export default function Step4({
         {/* Error message */}
         {zipError && (
           <Text
-            color="$red9"
+            color={errorColor}
             fontSize={14}
             marginTop={8}
             textAlign="center"
@@ -158,7 +170,7 @@ export default function Step4({
               }
             }
           }}
-          color="$blue10Dark"
+          color={buttonColor}
         >
           Or skip for now
         </Button>

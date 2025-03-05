@@ -34,7 +34,7 @@ console.log(`${colors.bright}${colors.cyan}Starting development environment...${
 
 // Start the proxy server
 console.log(`${colors.yellow}Starting proxy server...${colors.reset}`);
-const proxyServer = spawn('node', ['proxyServer.js'], {
+const proxyServer = spawn('node', [proxyServerPath], {
   stdio: ['ignore', 'pipe', 'pipe'],
   detached: false
 });

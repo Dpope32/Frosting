@@ -13,7 +13,7 @@ const isWeb = Platform.OS === 'web';
 
 export const CardSection = ({ onPortfolioPress, onTemperaturePress }: CardSectionProps) => {
   return (
-    <XStack marginTop="$3" gap={isWeb ? "$3" : "$3"} flexWrap="nowrap" marginLeft={isWeb ? 12 : 12}>
+    <XStack marginTop="$3" gap={isWeb ? "$3" : "$2"} flexWrap="nowrap" marginLeft={isWeb ? 12 : 8}>
       <Pressable onPress={onPortfolioPress}>
         <PortfolioCard />
       </Pressable>

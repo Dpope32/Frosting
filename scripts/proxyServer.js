@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -140,6 +140,8 @@ app.get('/api/ping', (req, res) => {
   res.json({ timestamp: Date.now() });
 });
 
+app.use(express.static(path.join(__dirname, 'dist')));
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
@@ -148,4 +150,8 @@ app.listen(PORT, () => {
  // console.log(`- GET /api/yahoo-finance/:symbol`);
  // console.log(`- GET /api/yahoo-finance-history/:symbol`);
  // console.log(`- GET /api/ping`);
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });

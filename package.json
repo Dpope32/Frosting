@@ -8,11 +8,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "web-dev": "node start-web-dev.js",
+    "web-dev": "node ./scripts/start-web-dev.js",
     "web-dev-clear": "npx expo start --clear --web && node start-web-dev.js",
     "proxy": "node proxyServer.js",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "windows": "react-native run-windows",
+    "mac": "react-native run-macos"
   },
   "jest": {
     "preset": "jest-expo"

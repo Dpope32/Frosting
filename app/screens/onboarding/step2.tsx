@@ -32,6 +32,11 @@ export default function Step2({
     setFormData((prev) => ({ ...prev, primaryColor: color }))
   }
 
+  // Dynamic theme styles
+  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
+  const borderColor = isDark ? "$gray8Dark" : "$gray8Light";
+
   // Enhanced Web Color Picker with predefined palette + custom input
   const WebColorPicker = () => {
     const colorPalette = [
@@ -84,7 +89,7 @@ export default function Step2({
               size={50} 
               backgroundColor={currentColor}
               borderWidth={2}
-              borderColor={isDark ? "$gray8Dark" : "$gray8Light"}
+              borderColor={borderColor}
             />
           </Circle>
           <Text fontFamily="$body" fontSize={14} color={isDark ? "$gray11Dark" : "$gray11Light"}>
@@ -98,14 +103,14 @@ export default function Step2({
   return (
     <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$5" paddingTop="$15">
       <YStack position="absolute" top="25%" left={0} right={0} alignItems="center">
-        <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
+        <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
           Pick your primary color
         </Label>
         <Text
           fontFamily="$body"
           fontSize="$3"
           textAlign="center"
-          color="$gray9Dark"
+          color={subTextColor}
           opacity={0.8}
           fontWeight="400"
         >

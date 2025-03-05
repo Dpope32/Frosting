@@ -35,11 +35,13 @@ export default function Step3({
   setFormData,
   backgroundStyles,
   getWallpaperPath,
+  isDark = true, // Default to dark if not provided
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   backgroundStyles: BackgroundStyleOption[]
   getWallpaperPath: (style: BackgroundStyle) => any
+  isDark?: boolean
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const [starsKey, setStarsKey] = React.useState(0);
@@ -80,7 +82,7 @@ export default function Step3({
               starsAnimatedStyle,
             ]}
           >
-            {[...Array(100)].map((_, i) => (
+            {[...Array(200)].map((_, i) => (
               <View
                 key={i}
                 style={{
@@ -224,7 +226,7 @@ export default function Step3({
         pointerEvents="none"
         style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 1 }}
       >
-        {[...Array(50)].map((_, i) => (
+        {[...Array(200)].map((_, i) => (
           <View
             key={i}
             style={{
@@ -412,7 +414,7 @@ export default function Step3({
                   }}
                 />
                 <BlurView
-                  intensity={isWeb? 10 : 20}
+                  intensity={isDark? 20 : 99}
                   tint="dark"
                   style={{ position: 'absolute', width: '100%', height: '100%' }}
                 />
@@ -485,22 +487,28 @@ export default function Step3({
     }
   }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath]);
 
+  // Dynamic theme styles
+  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
+  const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
+  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)";
+
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
       <YStack flex={1} padding={isWeb ? "$4" : "$3"}>
         <YStack
-          backgroundColor="rgba(0, 0, 0, 0.6)"
+          backgroundColor={cardBackgroundColor}
           borderRadius={16}
           paddingVertical="$2"
           paddingHorizontal={isWeb ? "$5" : "$1"} 
           marginTop={isWeb ? 10 : 60}
-          borderColor="rgba(255, 255, 255, 0.1)"
+          borderColor={borderColor}
           borderWidth={2}
           gap="$1"
         >
-          <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
+          <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
             Background
           </Label>
           <XStack gap={isWeb ? "$5" : "4"} justifyContent="center" flexWrap="wrap" paddingBottom="$6">
@@ -514,9 +522,9 @@ export default function Step3({
                   backgroundColor={
                     isSelected
                       ? formData.primaryColor
-                      : 'rgba(255, 255, 255, 0.1)'
+                      : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
                   }
-                  borderColor={isSelected ? formData.primaryColor : 'rgba(255, 255, 255, 0.2)'}
+                  borderColor={isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
                   borderWidth={2}
                   pressStyle={{
                     scale: 0.97,
@@ -531,7 +539,7 @@ export default function Step3({
                 >
                   <Text
                     fontFamily="$body"
-                    color={isSelected ? 'white' : '$gray11Dark'}
+                    color={isSelected ? 'white' : buttonTextColor}
                     textAlign="center"
                   >
                     {style.label}

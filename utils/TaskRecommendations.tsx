@@ -25,6 +25,8 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
   switch (category) {
     case 'Cleaning':
       return [
+        { name: 'Empty Cat Litter', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday','tuesday','thursday','saturday'] },
+        { name: 'Take Dog outside', recurrencePattern: 'weekly', category: 'personal', priority: 'high', time:"7:00", schedule: ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] },
         { name: 'Wipe down screens and electronics', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday'] },
         { name: 'Wash bed sheets and pillowcases', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
         { name: 'Clean bathroom surfaces', recurrencePattern: 'weekly', category: 'personal', priority: 'high', schedule: ['sunday'] },
@@ -71,9 +73,9 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
         { name: 'Meditate', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday', 'wednesday', 'friday'] },
         { name: 'Journal', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['tuesday', 'thursday'] },
         { name: 'Read', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['saturday', 'sunday'] },
-        { name: 'Digital detox (no screens)', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
+        { name: 'Digital detox', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
         { name: 'Call a friend or family member', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['wednesday'] },
-        { name: 'Try a new hobby', recurrencePattern: 'monthly', category: 'personal', priority: 'low', schedule: ['saturday'] },
+        { name: 'Drink Water', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] },
         { name: 'Skincare routine', recurrencePattern: 'weekly', category: 'personal', priority: 'low', schedule: ['sunday'] },
         { name: 'Plan a day trip', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['tuesday'] },
         { name: 'Declutter personal space', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
@@ -198,12 +200,12 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       scale={1}
       minWidth={0}
       flex={Platform.OS === 'web' ? 1 : 0}
-      width={Platform.OS === 'web' ? 'auto' : '48%'}
+      width={Platform.OS === 'web' ? 'auto' : 100}
       marginBottom={Platform.OS === 'web' ? 0 : '$1'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
         <Ionicons name={style.iconName} size={14} color={style.iconColor} />
-        <Text color={style.textColor} fontFamily="$body" fontSize={isWeb ? 13 : 13}  fontWeight="600" numberOfLines={1}> {category} </Text>
+        <Text color={style.textColor} fontFamily="$body" fontSize={isWeb ? 13 : 12}  fontWeight="600" numberOfLines={1}> {category}  </Text>
       </XStack>
     </Button>
   )

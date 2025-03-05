@@ -1,13 +1,18 @@
 import React, { useState } from 'react'
 import { Platform } from 'react-native'
-import { useUserStore } from '@/store/UserStore'
-import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
+import { BlurView } from 'expo-blur'
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView } from 'tamagui'
+
 import { NewTaskModal } from './cardModals/NewTaskModal'
 import { TemperatureModal } from './cardModals/TemperatureModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
+
+import { useUserStore } from '@/store/UserStore'
+import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
+
 import { QuoteSection } from '@/components/home/QuoteSection'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
@@ -27,7 +32,8 @@ export function LandingPage() {
   const username = useUserStore(s => s.preferences.username)
   const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
   const userHydrated = useUserStore(s => s.hydrated)
-
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const toggleTaskCompletion = useProjectStore(React.useCallback((s: ProjectState) => s.toggleTaskCompletion, []))
   const deleteTask = useProjectStore(React.useCallback((s: any) => s.deleteTask, []))
   const projectHydrated = useStoreHydrated()

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
-import { Image, Platform, View, useColorScheme, useWindowDimensions } from 'react-native'
+import { Image, Platform, View, useWindowDimensions } from 'react-native'
 import { FormData } from '@/types'
 import { nbaTeams } from '@/constants/nba'
 
@@ -8,13 +8,13 @@ export default function Step5({
   formData,
   setFormData,
   handleNext,
+  isDark = true, // Default to dark if not provided
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
+  isDark?: boolean
 }) {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web'
   const { width } = useWindowDimensions()
   
@@ -59,7 +59,7 @@ export default function Step5({
   }
   
   // Get popular teams for the initial view
-  const popularTeams = ['LAL', 'GSW', 'BOS', 'MIA', 'CHI', 'OKC','NYK','TOR','', 'DAL', 'CLE','DEN','IND']
+  const popularTeams = ['LAL', 'GSW', 'BOS', 'CHI', 'OKC','NYK', 'DAL', 'CLE','DEN']
   const initialTeams = nbaTeams.filter(team => popularTeams.includes(team.code))
   const teamsToDisplay = showAllTeams ? nbaTeams : initialTeams
   
@@ -80,6 +80,15 @@ export default function Step5({
   }
   
   const columns = getGridColumns()
+
+  // Dynamic theme styles
+  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const buttonBackgroundColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
+  const buttonBorderColor = isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)";
+  const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
+  const showAllTeamsButtonBackground = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
+  const preferencesBackgroundColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)";
+  const buttonColor = isDark ? "$blue10Dark" : "$blue10Light";
   
   return (
     <YStack flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop={isWeb ? 0 : 60}>
@@ -88,7 +97,7 @@ export default function Step5({
           fontFamily="$body"
           size="$5"
           textAlign="center"
-          color="$gray12Dark"
+          color={labelColor}
         >
           Follow your favorite NBA team
         </Label>
@@ -113,8 +122,8 @@ export default function Step5({
             <Button
               key={team.code}
               size="$4"
-              backgroundColor={selectedTeam === team.code ? formData.primaryColor : 'rgba(255, 255, 255, 0.1)'}
-              borderColor={selectedTeam === team.code ? formData.primaryColor : 'rgba(255, 255, 255, 0.2)'}
+              backgroundColor={selectedTeam === team.code ? formData.primaryColor : buttonBackgroundColor}
+              borderColor={selectedTeam === team.code ? formData.primaryColor : buttonBorderColor}
               borderWidth={2}
               marginVertical="$2"
               width={isWeb ? `${Math.floor(100 / columns) - 2}%` : 105}
@@ -141,12 +150,12 @@ export default function Step5({
               </YStack>
               <Text
                 fontFamily="$body"
-                color={selectedTeam === team.code ? 'white' : '$gray11Dark'}
+                color={selectedTeam === team.code ? (isDark ? 'white' : 'black') : buttonTextColor}
                 textAlign="center"
                 fontSize={isWeb ? 14 : 12}
                 numberOfLines={2}
                 width="100%"
-                paddingTop={isWeb ? 5 : 2}
+                paddingTop={isWeb ? 5 : 0}
                 paddingBottom={isWeb ? 5 : 2}
               >
                 {team.name}
@@ -161,11 +170,11 @@ export default function Step5({
             marginBottom="$6"
             size="$3"
             variant="outlined"
-            backgroundColor="rgba(255, 255, 255, 0.1)"
-            borderColor="rgba(255, 255, 255, 0.2)"
+            backgroundColor={showAllTeamsButtonBackground}
+            borderColor={buttonBorderColor}
             onPress={() => setShowAllTeams(true)}
           >
-            <Text fontFamily="$body" color="$gray11Dark">Show All Teams</Text>
+            <Text fontFamily="$body" color={buttonTextColor}>Show All Teams</Text>
           </Button>
         )}
         
@@ -175,8 +184,8 @@ export default function Step5({
             width="100%" 
             maxWidth={400} 
             marginTop="$0" 
-            marginBottom="$5"
-            backgroundColor="rgba(255, 255, 255, 0.1)"
+            marginBottom="$2"
+            backgroundColor={preferencesBackgroundColor}
             borderRadius={8}
             padding="$3"
           >
@@ -184,7 +193,7 @@ export default function Step5({
               <YStack>
                 <Text 
                   fontFamily="$body" 
-                  color="$gray12Dark" 
+                  color={labelColor} 
                   fontSize={14} 
                   fontWeight="500"
                 >
@@ -192,7 +201,7 @@ export default function Step5({
                 </Text>
                 <Text 
                   fontFamily="$body" 
-                  color="$gray11Dark" 
+                  color={buttonTextColor} 
                   fontSize={14}
                   marginTop="$1"
                 >
@@ -202,7 +211,7 @@ export default function Step5({
               <XStack alignItems="center" gap="$2">
                 <Text 
                   fontFamily="$body" 
-                  color={showNBAGamesInCalendar ? formData.primaryColor : '$gray11Dark'}
+                  color={showNBAGamesInCalendar ? formData.primaryColor : buttonTextColor}
                   fontWeight="bold"
                 >
                   {showNBAGamesInCalendar ? 'ON' : 'OFF'}
@@ -211,11 +220,11 @@ export default function Step5({
                   checked={showNBAGamesInCalendar}
                   onCheckedChange={handleToggleNBAGames}
                   size="$3"
-                  backgroundColor={showNBAGamesInCalendar ? formData.primaryColor : 'rgba(255, 255, 255, 0.2)'}
-                  borderColor={showNBAGamesInCalendar ? formData.primaryColor : 'rgba(255, 255, 255, 0.3)'}
+                  backgroundColor={showNBAGamesInCalendar ? formData.primaryColor : buttonBackgroundColor}
+                  borderColor={showNBAGamesInCalendar ? formData.primaryColor : buttonBorderColor}
                 >
                   <Switch.Thumb 
-                    backgroundColor={showNBAGamesInCalendar ? 'white' : 'rgba(255, 255, 255, 0.8)'}
+                    backgroundColor={showNBAGamesInCalendar ? 'white' : isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'}
                     animation="quick"
                   />
                 </Switch>
@@ -227,7 +236,7 @@ export default function Step5({
         <Button
           chromeless
           onPress={handleSkip}
-          color="$blue10Dark"
+          color={buttonColor}
           marginTop="$2"
           marginBottom={isWeb ? "$6" : "$2"}
         >

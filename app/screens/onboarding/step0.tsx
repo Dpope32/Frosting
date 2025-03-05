@@ -5,13 +5,22 @@ import { FormData } from '@/types'
 export default function Step0({
   formData,
   setFormData,
+  isDark = true, // Default to dark if not provided
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
+  isDark?: boolean
 }) {
+  // Dynamic theme styles
+  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const inputBackgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
+  const inputBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
+  const inputTextColor = isDark ? "$gray12Dark" : "$gray12Light";
+  const placeholderColor = isDark ? "$gray9Dark" : "$gray9Light";
+
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
-      <Label fontFamily="$body" size="$8" textAlign="center" color="$gray12Dark">
+      <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
         What should we call you?
       </Label>
       <Input
@@ -23,9 +32,10 @@ export default function Step0({
         }
         autoFocus={Platform.OS === 'ios' || Platform.OS === 'android'}
         autoCapitalize="sentences"
-        backgroundColor="$gray4Dark"
-        borderColor="$gray8Dark"
-        color="$gray12Dark"
+        backgroundColor={inputBackgroundColor}
+        borderColor={inputBorderColor}
+        color={inputTextColor}
+        placeholderTextColor={placeholderColor}
         fontFamily="$body"
         textAlign="center"
         style={{ 

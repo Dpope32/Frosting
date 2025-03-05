@@ -64,7 +64,6 @@ export default function Onboarding() {
       case 4:
         return formData.zipCode.length === 5
       case 5:
-        // Can proceed if a team is selected or we'll default to OKC
         return true
       default:
         return true
@@ -93,6 +92,7 @@ export default function Onboarding() {
           <Step0
             formData={formData}
             setFormData={setFormData}
+            isDark={isDark}
           />
         )
       case 1:
@@ -102,6 +102,7 @@ export default function Onboarding() {
             setFormData={setFormData}
             pickImage={pickImage}
             handleNext={handleNext}
+            isDark={isDark}
           />
         )
       case 2:
@@ -119,6 +120,7 @@ export default function Onboarding() {
             setFormData={setFormData}
             backgroundStyles={[...backgroundStyles]}
             getWallpaperPath={getWallpaperPath}
+            isDark={isDark}
           />
         )
       case 4:
@@ -127,6 +129,7 @@ export default function Onboarding() {
             formData={formData}
             setFormData={setFormData}
             handleNext={handleNext}
+            isDark={isDark}
           />
         )
       case 5:
@@ -135,6 +138,7 @@ export default function Onboarding() {
             formData={formData}
             setFormData={setFormData}
             handleNext={handleNext}
+            isDark={isDark}
           />
         )
       default:
@@ -142,13 +146,20 @@ export default function Onboarding() {
     }
   }
 
+  // Dynamic theme styles
+  const backgroundColor = isDark ? "$gray1Dark" : "$gray1Light";
+  const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+  const buttonBackgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
+  const buttonBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
+  const buttonTextColor = isDark ? "$gray12Dark" : "$gray12Light";
+
   return (
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
       style={{ flex: 1 }}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <View flex={1} backgroundColor="$gray1Dark">
+      <View flex={1} backgroundColor={backgroundColor}>
         {Platform.OS === 'ios' || Platform.OS === 'android' ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View flex={1}>
@@ -160,8 +171,8 @@ export default function Onboarding() {
                 right={0}
                 padding="$4"
                 paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
-                backgroundColor="$gray1Dark"
-                style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: 'rgba(255,255,255,0.1)'}}>
+                backgroundColor={backgroundColor}
+                style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: borderColor}}>
               <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
                 {step > 0 && (
                   <Button
@@ -169,21 +180,21 @@ export default function Onboarding() {
                     width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
                     variant="outlined"
                     onPress={handleBack}
-                    backgroundColor="$gray4Dark"
-                    borderColor="$gray8Dark">
-                    <Text fontFamily="$body" color="$gray12Dark">Back</Text>
+                    backgroundColor={buttonBackgroundColor}
+                    borderColor={buttonBorderColor}>
+                    <Text fontFamily="$body" color={buttonTextColor}>Back</Text>
                   </Button>
                 )}
                 <Button
                   flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
                   width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
                   backgroundColor={formData.primaryColor}
-                  borderColor="$gray8Dark"
+                  borderColor={buttonBorderColor}
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color={isDark ? "#ccc" : "#666"} fontWeight="bold">
+                  <Text fontFamily="$body" color={isDark ? "#ccc" : "#fff"} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>
@@ -201,28 +212,28 @@ export default function Onboarding() {
               right={0}
               padding="$4"
               paddingBottom={24}
-              backgroundColor="$gray1Dark"
-              style={{ borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)'}}>
+              backgroundColor={backgroundColor}
+              style={{ borderTopWidth: 1, borderTopColor: borderColor}}>
               <XStack gap="$3" justifyContent="center">
                 {step > 0 && (
                   <Button
                     width={145}
                     variant="outlined"
                     onPress={handleBack}
-                    backgroundColor="$gray4Dark"
-                    borderColor="$gray8Dark">
-                    <Text fontFamily="$body" color="$gray12Dark">Back</Text>
+                    backgroundColor={buttonBackgroundColor}
+                    borderColor={buttonBorderColor}>
+                    <Text fontFamily="$body" color={buttonTextColor}>Back</Text>
                   </Button>
                 )}
                 <Button
                   width={300}
                   backgroundColor={formData.primaryColor}
-                  borderColor="$gray8Dark"
+                  borderColor={buttonBorderColor}
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color="white" fontWeight="bold">
+                  <Text fontFamily="$body" color={isDark ? "white" : "#333"} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

@@ -96,7 +96,7 @@ export function TaskCard({
           <Ionicons name="checkmark-circle" size={24} color="#00C851" />
         </View>
       )}
-      <XStack justifyContent="space-between" alignItems="center" gap="$2">
+      <XStack justifyContent="space-between" alignItems="center" gap="$1.5">
         <Pressable 
           onPress={() => onCheck?.(!checked)}
           style={{ paddingHorizontal: 4 }}
@@ -111,15 +111,15 @@ export function TaskCard({
             {checked && (
               <Ionicons 
                 name="checkmark-sharp" 
-                size={14} 
+                size={13} 
                 color="#00C851"
               />
             )}
           </View>
         </Pressable>
 
-        <Stack flex={1} gap="$1">
-          <XStack justifyContent="space-between" alignItems="center" gap="$1">
+        <Stack flex={1} gap="$1.5">
+          <XStack justifyContent="space-between" alignItems="center" gap="$1" marginTop={-2}>
                 <Text 
                   fontFamily="$body"
                   color="rgb(232, 230, 227)" 
@@ -165,13 +165,13 @@ export function TaskCard({
             </Pressable>
           </XStack>
 
-          <XStack gap="$1.5" alignItems="center" flexWrap="wrap">
+          <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-6} marginTop={-4}>
             {/* Category chip */}
             {category && (
               <XStack 
                 alignItems="center" 
                 backgroundColor={`${categoryColor}15`}
-                paddingHorizontal="$1.5"
+                paddingHorizontal="$1"
                 paddingVertical="$0.5"
                 borderRadius={12}
                 opacity={checked ? 0.6 : 0.9}
@@ -180,7 +180,7 @@ export function TaskCard({
                   name="bookmark" 
                   size={10} 
                   color={categoryColor} 
-                  style={{ marginRight: 4, marginTop: 1 }}
+                  style={{ marginLeft: 4, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"
@@ -198,8 +198,8 @@ export function TaskCard({
               <XStack 
                 alignItems="center" 
                 backgroundColor={`${getPriorityColor(priority)}15`}
-                paddingHorizontal="$1.5"
                 paddingVertical="$0.5"
+                paddingHorizontal="$1"
                 borderRadius={12}
                 opacity={checked ? 0.6 : 0.9}
               >
@@ -207,7 +207,7 @@ export function TaskCard({
                   name={getPriorityIcon(priority)} 
                   size={10} 
                   color={getPriorityColor(priority)} 
-                  style={{ marginRight: 4, marginTop: 1 }}
+                  style={{ marginRight: 2, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"
@@ -224,7 +224,7 @@ export function TaskCard({
             <XStack 
               alignItems="center" 
               backgroundColor={checked ? "rgba(0, 200, 81, 0.15)" : "rgba(33, 150, 243, 0.15)"}
-              paddingHorizontal="$1.5"
+              paddingHorizontal="$1"
               paddingVertical="$0.5"
               borderRadius={12}
               opacity={checked ? 0.6 : 0.9}
@@ -233,7 +233,7 @@ export function TaskCard({
                 name="repeat" 
                 size={10} 
                 color={checked ? "#00C851" : "#2196F3"} 
-                style={{ marginRight: 4, marginTop: 1 }}
+                style={{ marginRight: 2, marginTop: 1 }}
               />
               <Text
                 fontFamily="$body"
@@ -250,7 +250,7 @@ export function TaskCard({
               <XStack 
                 alignItems="center" 
                 backgroundColor="rgba(255, 255, 255, 0.05)"
-                paddingHorizontal="$1.5"
+                paddingHorizontal="$1"
                 paddingVertical="$0.5"
                 borderRadius={12}
                 borderWidth={1}
