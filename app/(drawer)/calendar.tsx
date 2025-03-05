@@ -72,8 +72,14 @@ export default function CalendarScreen() {
 
   // Handle day press
   const handleDayPress = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) {
+      showToast("You cant add events in the past silly!", "error");
+      return;
+    }
     setSelectedDate(date);
-    const dateKey = date.toISOString().split('T')[0];
+    const dateKey = date.toISOString().split("T")[0];
     const dayEvents = events.filter((event) => event.date === dateKey);
     if (dayEvents.length > 0) {
       openViewEventModal();
@@ -82,6 +88,7 @@ export default function CalendarScreen() {
       openEventModal();
     }
   };
+  
 
   return (
     <View style={calendarStyles.container}>
@@ -137,11 +144,13 @@ export default function CalendarScreen() {
         handleAddEvent={handleAddEvent}
         handleEditEvent={handleEditEvent}
         handleDeleteEvent={handleDeleteEvent}
+        resetForm={resetForm}  
         closeEventModals={closeEventModals}
         openEventModal={openEventModal}
         isDark={isDark}
         primaryColor={primaryColor}
       />
+
 
       {/* Calendar Analytics Modal */}
       <CalendarAnalytics

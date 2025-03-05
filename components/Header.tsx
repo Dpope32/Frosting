@@ -122,7 +122,7 @@ export function Header({ title }: HeaderProps) {
               >
                 <Ionicons 
                   name={isSportsScreen ? "basketball-outline" : "settings-outline"}
-                  size={isWeb ? 22 : 24} 
+                  size={isWeb ? 22 : 20} 
                   color={textColor} 
                 />
               </Pressable>

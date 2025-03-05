@@ -8,7 +8,6 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import { useUserStore } from '@/store/UserStore'
 
-// Define notification time options
 const NOTIFICATION_TIME_OPTIONS = [
   { label: '15 minutes', value: '15m' },
   { label: '30 minutes', value: '30m' },
@@ -41,11 +40,13 @@ interface EventModalProps {
   handleAddEvent: () => void
   handleEditEvent: (event: CalendarEvent) => void
   handleDeleteEvent: (eventId: string) => void
+  resetForm: () => void
   closeEventModals: () => void
   openEventModal: () => void
   isDark: boolean
   primaryColor: string
 }
+
 
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,
@@ -68,6 +69,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   handleAddEvent,
   handleEditEvent,
   handleDeleteEvent,
+  resetForm,
   closeEventModals,
   openEventModal,
   isDark,
@@ -77,17 +79,13 @@ export const EventModal: React.FC<EventModalProps> = ({
   const { scheduleEventNotifications } = useCalendarStore()
   const { preferences } = useUserStore()
   
-  // State for notification settings (fallback if props not provided)
   const [localNotifyOnDay, setLocalNotifyOnDay] = useState<boolean>(editingEvent?.notifyOnDay ?? false)
   const [localNotifyBefore, setLocalNotifyBefore] = useState<boolean>(editingEvent?.notifyBefore ?? false)
   const [localNotifyBeforeTime, setLocalNotifyBeforeTime] = useState(editingEvent?.notifyBeforeTime || '1h')
   const [showTimeOptions, setShowTimeOptions] = useState(false)
-  
-  // Time picker state
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [selectedTimeDate, setSelectedTimeDate] = useState(new Date())
 
-  // Use either props or local state
   const notifyOnDay = propNotifyOnDay !== undefined ? propNotifyOnDay : localNotifyOnDay
   const setNotifyOnDay = propSetNotifyOnDay || setLocalNotifyOnDay
   const notifyBefore = propNotifyBefore !== undefined ? propNotifyBefore : localNotifyBefore
@@ -95,49 +93,45 @@ export const EventModal: React.FC<EventModalProps> = ({
   const notifyBeforeTime = propNotifyBeforeTime || localNotifyBeforeTime
   const setNotifyBeforeTime = propSetNotifyBeforeTime || setLocalNotifyBeforeTime
 
-  // Create a style object that works for both platforms
   const modalBackgroundStyle = {
     backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
     ...(isWeb && {
       maxWidth: 600,
-      alignSelf: 'center' as const, // Type assertion to ensure it's recognized as a valid FlexAlignType
+      alignSelf: 'center' as const,
       borderRadius: 8,
     }),
   }
 
   const textColor = isDark ? '#ffffff' : '#000000'
   
-  // Enhanced add event handler that includes notification scheduling
   const handleAddEventWithNotifications = async () => {
-    // Call the original handleAddEvent function
-    handleAddEvent()
-    
-    // Schedule notifications if needed
-    if (selectedDate) {
-      const eventToSchedule: CalendarEvent = {
-        id: Math.random().toString(36).substr(2, 9), // This will be replaced by the actual ID in the store
-        date: selectedDate.toISOString().split('T')[0],
-        time: newEventTime,
-        title: newEventTitle,
-        type: selectedType,
-        notifyOnDay,
-        notifyBefore,
-        notifyBeforeTime: notifyBefore ? notifyBeforeTime : undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+    try {
+      await handleAddEvent()
+      if (selectedDate) {
+        const eventToSchedule: CalendarEvent = {
+          id: Math.random().toString(36).substr(2, 9),
+          date: selectedDate.toISOString().split('T')[0],
+          time: newEventTime,
+          title: newEventTitle,
+          type: selectedType,
+          notifyOnDay,
+          notifyBefore,
+          notifyBeforeTime: notifyBefore ? notifyBeforeTime : undefined,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+        await scheduleEventNotifications(eventToSchedule)
       }
-      
-      // Schedule notifications for this event
-      await scheduleEventNotifications(eventToSchedule)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      closeEventModals()
     }
-    
-    // Close the modal after adding the event
-    closeEventModals()
   }
+  
 
   return (
     <>
-      {/* View Events Modal */}
       <Modal
         visible={isViewEventModalVisible}
         transparent
@@ -146,7 +140,6 @@ export const EventModal: React.FC<EventModalProps> = ({
       >
         <View style={calendarStyles.modalContainer}>
           <View style={[calendarStyles.modalContent, modalBackgroundStyle]}>
-            {/* Close (X) button at top-right */}
             <TouchableOpacity
               onPress={closeEventModals}
               style={{
@@ -158,17 +151,11 @@ export const EventModal: React.FC<EventModalProps> = ({
                 borderRadius: 20,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: isDark
-                  ? 'rgba(255,255,255,0.1)'
-                  : 'rgba(0,0,0,0.1)',
+                backgroundColor: isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.1)',
                 zIndex: 10,
               }}
             >
-              <Ionicons
-                name="close"
-                size={24}
-                color={isDark ? '#fff' : '#000'}
-              />
+              <Ionicons name="close" size={24} color={isDark ? '#fff' : '#000'} />
             </TouchableOpacity>
 
             <Text
@@ -177,7 +164,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 {
                   fontFamily: '$body',
                   color: textColor,
-                  marginTop: 60,
+                  marginTop: 20,
                   paddingLeft: 24,
                   paddingVertical: 10
                 },
@@ -187,13 +174,10 @@ export const EventModal: React.FC<EventModalProps> = ({
             </Text>
 
             <ScrollView
-              style={[
-              {
-                paddingHorizontal: 24,
+              style={{
+                paddingHorizontal: 12,
                 paddingVertical: 6
-              },
-       
-          ]}
+              }}
               showsVerticalScrollIndicator={false}
             >
               {selectedEvents.map((event) => (
@@ -208,28 +192,31 @@ export const EventModal: React.FC<EventModalProps> = ({
               ))}
             </ScrollView>
 
-            {/* Plus (+) button at bottom-right to add event */}
             <TouchableOpacity
-              onPress={openEventModal}
-              style={{
-                position: 'absolute',
-                bottom: 20,
-                right: 20,
-                width: 50,
-                height: 50,
-                borderRadius: 25,
-                backgroundColor: primaryColor,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+            onPress={() => {
+              resetForm()
+              openEventModal()
+            }}
+            style={{
+              position: 'absolute',
+              bottom: 20,
+              right: 20,
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              backgroundColor: primaryColor,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             >
               <Ionicons name="add" size={24} color="#fff" />
             </TouchableOpacity>
+
+
           </View>
         </View>
       </Modal>
 
-      {/* Add/Edit Event Modal */}
       <Modal
         visible={isEventModalVisible}
         transparent
@@ -238,7 +225,6 @@ export const EventModal: React.FC<EventModalProps> = ({
       >
         <View style={calendarStyles.modalContainer}>
           <View style={[calendarStyles.modalContent, modalBackgroundStyle]}>
-            {/* Close (X) button at top-right */}
             <TouchableOpacity
               onPress={closeEventModals}
               style={{
@@ -253,11 +239,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 zIndex: 10,
               }}
             >
-              <Ionicons
-                name="close"
-                size={24}
-                color={isDark ? '#fff' : '#000'}
-              />
+              <Ionicons name="close" size={24} color={isDark ? '#fff' : '#000'} />
             </TouchableOpacity>
 
             <Text
@@ -269,13 +251,12 @@ export const EventModal: React.FC<EventModalProps> = ({
                   marginTop: 20,
                   paddingLeft: 24,
                   paddingVertical: 10,
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: '600'
                 },
               ]}
             >
-              {editingEvent ? 'Edit Event' : 'Add Event'} for{' '}
-              {selectedDate?.toLocaleDateString()}
+              {editingEvent ? 'Edit Event' : 'Add Event'} for {selectedDate?.toLocaleDateString()}
             </Text>
 
             <ScrollView
@@ -293,7 +274,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                   value={newEventTitle}
                   onChangeText={setNewEventTitle}
                 />
-                {/* Time selector button */}
                 <TouchableOpacity
                   style={[
                     calendarStyles.input,
@@ -318,7 +298,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                   <Ionicons name="time-outline" size={20} color={textColor} />
                 </TouchableOpacity>
                 
-                {/* Time picker modal */}
                 {showTimePicker && (
                   <Modal
                     transparent
@@ -469,15 +448,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                   ))}
                 </ScrollView>
                 
-                {/* Notification Options */}
                 <View style={{ marginTop: 20, paddingHorizontal: 4 }}>
-                  {/* Notify on day of event */}
                   <View style={{ 
                     flexDirection: 'row', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
                     marginBottom: 12,
-                    paddingVertical: 8,
+                    paddingVertical: 4,
                     paddingHorizontal: 4,
                     borderRadius: 8
                   }}>
@@ -489,16 +466,16 @@ export const EventModal: React.FC<EventModalProps> = ({
                       onValueChange={setNotifyOnDay}
                       trackColor={{ false: '#767577', true: primaryColor }}
                       thumbColor={notifyOnDay ? '#f4f3f4' : '#f4f3f4'}
+                      style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
                     />
                   </View>
                   
-                  {/* Notify before event */}
                   <View style={{ 
                     flexDirection: 'row', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
                     marginBottom: 8,
-                    paddingVertical: 8,
+                    paddingVertical: 4,
                     paddingHorizontal: 4,
                     borderRadius: 8
                   }}>
@@ -510,10 +487,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                       onValueChange={setNotifyBefore}
                       trackColor={{ false: '#767577', true: primaryColor }}
                       thumbColor={notifyBefore ? '#f4f3f4' : '#f4f3f4'}
+                      style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
                     />
                   </View>
                   
-                  {/* Time before event dropdown */}
                   {notifyBefore && (
                     <View style={{ position: 'relative', marginBottom: Platform.OS === 'web' ? 0 : 160 }}>
                       <TouchableOpacity
@@ -591,34 +568,26 @@ export const EventModal: React.FC<EventModalProps> = ({
             </ScrollView>
 
             <View style={calendarStyles.bottomButtonContainer}>
-            <View style={[calendarStyles.modalButtons, { justifyContent: 'flex-end', alignItems: 'center' }]}>
-              <TouchableOpacity
-                style={[
-                  calendarStyles.bigActionButton,
-                  calendarStyles.cancelButton,
-                  { minWidth: 100, marginRight: 12 },
-                ]}
-                onPress={closeEventModals}
-              >
-                <Text style={[calendarStyles.bigButtonText, { fontFamily: '$body' }]}>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
+              <View style={[calendarStyles.modalButtons, { justifyContent: 'flex-end', alignItems: 'center' }]}>
+                <TouchableOpacity
+                  style={[calendarStyles.bigActionButton, calendarStyles.cancelButton, { minWidth: 100, marginRight: 12 }]}
+                  onPress={closeEventModals}
+                >
+                  <Text style={[calendarStyles.bigButtonText, { fontFamily: '$body' }]}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  calendarStyles.bigActionButton,
-                  { backgroundColor: primaryColor, minWidth: 100 },
-                ]}
-                onPress={handleAddEventWithNotifications}
-              >
-                <Text style={[calendarStyles.bigButtonText, { fontFamily: '$body' }]}>
-                  {editingEvent ? 'Update' : 'Add'} Event
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[calendarStyles.bigActionButton, { backgroundColor: primaryColor, minWidth: 100 }]}
+                  onPress={handleAddEventWithNotifications}
+                >
+                  <Text style={[calendarStyles.bigButtonText, { fontFamily: '$body' }]}>
+                    {editingEvent ? 'Update' : 'Add'} Event
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-
           </View>
         </View>
       </Modal>

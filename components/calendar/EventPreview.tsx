@@ -14,150 +14,100 @@ export const EventPreview: React.FC<{
 
   const dynamicStyles = StyleSheet.create({
     container: {
-      // Darker background in dark mode, lighter in light mode
-      backgroundColor: isDark
-        ? 'rgba(255,255,255,0.07)'
-        : 'rgba(0,0,0,0.03)',
-      borderColor: isDark
-        ? 'rgba(255,255,255,0.2)'
-        : 'rgba(0,0,0,0.2)',
+      backgroundColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.03)',
+      borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
       borderWidth: isBirthday ? 2 : 1,
       borderRadius: 6,
-      padding: 10,
+      paddingVertical: 10,
+      paddingLeft: 8,
       marginBottom: 10,
-      ...(isBirthday && { borderColor: primaryColor }), // override border for birthdays
+      position: 'relative',
+      ...(isBirthday && { borderColor: primaryColor })
     },
     title: {
       color: isDark ? '#ffffff' : '#000000',
       fontFamily: '$body',
+      fontSize: 16,
+      fontWeight: '500',
+      marginRight: 40
     },
-    time: {
-      color: isDark ? '#dddddd' : '#666666',
+    timeChip: {
+      backgroundColor: primaryColor,
+      borderRadius: 12,
+      paddingVertical: 2,
+      paddingHorizontal: 8,
+      alignSelf: 'flex-start',
+      marginBottom: 4
+    },
+    timeChipText: {
+      color: '#ffffff',
       fontFamily: '$body',
+      fontSize: 12
     },
     description: {
-      color: isDark ? '#dddddd' : '#666666',
+      color: isDark ? '#cccccc' : '#555555',
       fontFamily: '$body',
+      fontSize: 14,
+      lineHeight: 18
     },
-    metadata: {
-      color: isDark ? '#bbbbbb' : '#888888',
-      fontFamily: '$body',
-    },
-    pencilIcon: {
-      color: '#fff',
+    icon: {
+      color: isDark ? '#ffffff' : '#000000'
     },
     closeIcon: {
-      color: '#F44336',
-    },
+      color: '#F44336'
+    }
   })
 
   return (
     <View style={dynamicStyles.container}>
-      <View style={styles.titleRow}>
-        <Text
-          numberOfLines={1}
-          style={[styles.eventTitle, dynamicStyles.title]}
-        >
+      <View style={styles.titleContainer}>
+        <Text style={dynamicStyles.title}>
           {event.title}
         </Text>
         {!isBirthday && (
-          <TouchableOpacity
-            style={[styles.iconButton, { backgroundColor: 'transparent' }]}
-            onPress={onDelete}
-          >
-            <Ionicons
-              name="close"
-              size={20}
-              style={dynamicStyles.closeIcon}
-            />
+          <TouchableOpacity onPress={onDelete} style={styles.deleteIconButton}>
+            <Ionicons name="close" size={20} style={dynamicStyles.closeIcon} />
           </TouchableOpacity>
         )}
       </View>
-
-      <View style={styles.eventInfo}>
+      <View style={styles.detailsRow}>
         {event.time && !isBirthday && (
-          <Text style={[styles.eventTime, dynamicStyles.time]}>
-            {new Date(`2000-01-01 ${event.time}`).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true,
-              timeZone: 'America/Chicago',
-            })}{' '}
-            CT
-          </Text>
+          <View style={dynamicStyles.timeChip}>
+            <Text style={dynamicStyles.timeChipText}>{event.time}</Text>
+          </View>
         )}
-
         {event.description && (
-          <Text
-            style={[styles.eventDescription, dynamicStyles.description]}
-            numberOfLines={2}
-          >
+          <Text numberOfLines={2} style={dynamicStyles.description}>
             {event.description}
           </Text>
         )}
-
-        {!isBirthday && (
-          <View style={styles.metadataRow}>
-            <Text style={[styles.eventMetadata, dynamicStyles.metadata]}>
-              Created: {new Date(event.createdAt).toLocaleDateString()}
-            </Text>
-            <TouchableOpacity
-              style={[styles.iconButton, { backgroundColor: 'transparent' }]}
-              onPress={onEdit}
-            >
-              <Ionicons
-                name="pencil"
-                size={17}
-                style={dynamicStyles.pencilIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
+      {!isBirthday && (
+        <TouchableOpacity onPress={onEdit} style={styles.editIconButton}>
+          <Ionicons name="pencil" size={17} style={dynamicStyles.icon} />
+        </TouchableOpacity>
+      )}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-    paddingHorizontal: 3,
+  titleContainer: {
+    paddingRight: 4
   },
-  eventInfo: {
-    flex: 1,
-    paddingHorizontal: 4,
+  deleteIconButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 4
   },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    flex: 1,
+  editIconButton: {
+    position: 'absolute',
+    bottom: 12,
+    right: 0,
+    padding: 4
   },
-  eventTime: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  eventDescription: {
-    fontSize: 14,
-    lineHeight: 18,
-    marginBottom: 4,
-  },
-  metadataRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  eventMetadata: {
-    fontSize: 12,
-    opacity: 0.7,
-  },
-  iconButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  detailsRow: {
+    marginTop: 10
+  }
 })

@@ -50,13 +50,13 @@ export function BaseCardModal({
         />
         <Sheet.Frame
           paddingVertical={Platform.OS === 'web' ? "$4" : "$1"}
-          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
+          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
           backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
           borderWidth={1}
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap={Platform.OS === 'web' ? "$1" : "$3"}
+          gap={Platform.OS === 'web' ? "$1" : "$2"}
           {...(Platform.OS === 'web' ? 
             { 
               maxWidth: 1000, 

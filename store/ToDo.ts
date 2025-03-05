@@ -4,7 +4,7 @@ import { createPersistStorage } from './AsyncStorage'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
-export type RecurrencePattern = 'one-time' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
+export type RecurrencePattern =  'one-time'| 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface Task {
@@ -37,36 +37,31 @@ const dayNames: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursd
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
-  
   switch (task.recurrencePattern) {
     case 'one-time':
-      if (task.scheduledDate) {
-        return new Date(task.scheduledDate).toDateString() === date.toDateString();
-      }
-      return new Date(task.createdAt).toDateString() === date.toDateString();
+      return task.scheduledDate
+        ? new Date(task.scheduledDate).toDateString() === date.toDateString()
+        : new Date(task.createdAt).toDateString() === date.toDateString();
+    case 'everyday':
+      return task.schedule.includes(today);
     case 'weekly':
       return task.schedule.includes(today);
-    
     case 'biweekly': {
       if (!task.recurrenceDate) return false;
       const startDate = new Date(task.recurrenceDate);
       const weekDiff = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
       return weekDiff % 2 === 0 && task.schedule.includes(today);
     }
-    
     case 'monthly': {
       if (!task.recurrenceDate) return false;
       const recDate = new Date(task.recurrenceDate);
       return date.getDate() === recDate.getDate();
     }
-    
     case 'yearly': {
       if (!task.recurrenceDate) return false;
       const recDate = new Date(task.recurrenceDate);
-      return date.getMonth() === recDate.getMonth() && 
-             date.getDate() === recDate.getDate();
+      return date.getMonth() === recDate.getMonth() && date.getDate() === recDate.getDate();
     }
-    
     default:
       return false;
   }

@@ -229,9 +229,11 @@ const FormContent = React.memo((props: FormContentProps) => {
                   onValueChange={(val: boolean) =>
                     updateFormField('registered', val)
                   }
+                  
                   trackColor={{
                     false: isDark ? '#767577' : '#E0E0E0',
                     true: primaryColor,
+                    
                   }}
                   thumbColor={
                     formData.registered ? '#FFFFFF' : '#f4f3f4'

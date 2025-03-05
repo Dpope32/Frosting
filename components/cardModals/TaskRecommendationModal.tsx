@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useRef } from 'react'
-import { useColorScheme, Animated as RNAnimated } from 'react-native'
+import React, { useState, useMemo, useRef, useCallback } from 'react'
+import { useColorScheme } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useProjectStore, useStoreTasks } from '@/store/ToDo'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { useToastStore } from '@/store/ToastStore'
+import { useUserStore } from '@/store/UserStore'
 import { 
   RecommendationCategory, 
   RecommendedTask, 
@@ -22,7 +23,6 @@ export function TaskRecommendationModal() {
   const isOpen = useRecommendationStore(s => s.isOpen)
   const activeCategory = useRecommendationStore(s => s.activeCategory)
   const closeModal = useRecommendationStore(s => s.closeModal)
-  
   // If no active category, don't render anything
   if (!activeCategory) {
     return null
@@ -58,6 +58,19 @@ function CategoryTaskModal({
   const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>({})
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+
+  const adjustColor = useCallback((color: string, amount: number) => {
+    const hex = color.replace('#', '')
+    const num = parseInt(hex, 16)
+    const r = Math.min(255, Math.max(0, (num >> 16) + amount))
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amount))
+    const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
+    return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
+  }, [])
+
+  const lighterColor = adjustColor(primaryColor, 100)
+  const darkerColor = adjustColor(primaryColor, -250)
 
   const handleToggleTask = (index: number) => {
     setSelectedTasks(prev => ({
@@ -115,11 +128,11 @@ function CategoryTaskModal({
         onOpenChange(newOpen)
       }} 
       title={`${category} Tasks`}
-      snapPoints={[90]}
+      snapPoints={[isWeb? 90 : 85]}
       zIndex={200000} 
     >
-      <YStack gap="$4" paddingBottom={isWeb ? "$3" : "$8"}>
-        <Text color={isDark ? "#dbd0c6" : "#666"} fontFamily="$body" fontSize={16} opacity={0.9}> Select tasks to add to your schedule:</Text>
+      <YStack gap={isWeb ? "$4" : "$3"}paddingBottom={isWeb ? "$3" : "$8"} paddingHorizontal={isWeb ? "$2" : "$1"}>
+        <Text color={isDark ? "#dbd0c6" : "#666"} fontFamily="$body" fontSize={isWeb ? 16 : 14} opacity={0.9}> Select tasks to add to your schedule:</Text>
         
         <ScrollView 
           ref={scrollViewRef}
@@ -244,7 +257,7 @@ function CategoryTaskModal({
               </YStack>
             </XStack>
           ) : (
-            <YStack gap={isWeb ? "$3" : "$1"}>
+            <YStack gap={isWeb ? "$3" : "$1.5"}>
               {recommendedTasks.map((task, index) => (
                 <XStack 
                   key={index}
@@ -289,17 +302,19 @@ function CategoryTaskModal({
         
         {recommendedTasks.length > 0 && (
           <Button
-            backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
-            color={isDark ? "#dbd0c6" : "#000"}
+            backgroundColor={isDark ? `${primaryColor}40` : `${adjustColor(primaryColor, 20)}80`}
+            color={isDark ? `${primaryColor}` : `${primaryColor}`}
             borderRadius={8}
-            paddingVertical={isWeb ? "$1" : "$3"}
+            paddingVertical={isWeb ? "$1" : "$2"}
             marginTop={isWeb ? "$4" : "$4"}
             onPress={handleSaveSelectedTasks}
             pressStyle={{ opacity: 0.7 }}
             disabled={Object.values(selectedTasks).filter(Boolean).length === 0}
-            opacity={Object.values(selectedTasks).filter(Boolean).length === 0 ? 0.5 : 1}
+            opacity={Object.values(selectedTasks).filter(Boolean).length === 0 ? 0.1 : 1}
+            borderWidth={2}
+            borderColor={primaryColor}
           >
-            <Text color={isDark ? "#dbd0c6" : "#000"} fontFamily="$body" fontSize={16} fontWeight="600">
+            <Text color={isDark ?  `${adjustColor(primaryColor, 120)}80` : `${adjustColor(primaryColor, -100)}80`} fontFamily="$body" fontSize={15} fontWeight="600">
               Add Selected Tasks
             </Text>
           </Button>

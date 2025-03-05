@@ -142,7 +142,7 @@ export const useNBAStore = create<NBAStore>()(
               date: format(gameDate, 'yyyy-MM-dd'),
               time: gameTime,
               title: `${state.teamName} ${location}${opponent}`,
-              description: `NBA Game: ${state.teamName} ${location}${opponent}`,
+              description: `${state.teamName} ${location}${opponent}`,
               type: 'nba',
               teamCode: state.teamCode
             });

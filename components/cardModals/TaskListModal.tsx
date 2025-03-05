@@ -61,8 +61,12 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
     return days
   }, [tasks])
 
-  const formatDayName = (day: string) =>
-    day.charAt(0).toUpperCase() + day.slice(1)
+// In TaskListModal, update formatDayName:
+const formatDayName = (day: string) => day.charAt(0).toUpperCase()
+
+const formatDayName2 = (day: string) =>
+  day.charAt(0).toUpperCase() + day.slice(1)
+
 
   const getScheduleText = (task: Task) => {
     if (task.recurrencePattern === 'one-time') {
@@ -78,7 +82,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[80]}
+      snapPoints={[85]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
@@ -92,7 +96,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
       <Sheet.Frame
         backgroundColor={isDark ? "$gray1" : "white"}
         padding="$4"
-        gap={Platform.OS === 'web' ? '$4' : '$5'}
+        gap={Platform.OS === 'web' ? '$4' : '$3'}
         borderTopLeftRadius="$6"
         borderTopRightRadius="$6"
         {...(isWeb ? {
@@ -134,7 +138,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                   gap: 4
                 })}
               >
-                <Ionicons name="sync" size={16} color={isDark ? "#fff" : "#000"} />
+                <Ionicons name="sync" size={14} color={isDark ? "#fff" : "#000"} />
                 <Text fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#000"}> Sync Games </Text>
               </Pressable>
             </XStack>
@@ -143,7 +147,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               horizontal 
               showsHorizontalScrollIndicator={false} 
               paddingBottom="$4" 
-              marginTop="$1"
+              marginTop="$2"
             >
               <XStack gap="$3" paddingRight="$2">
                 <RecommendationChip 
@@ -184,22 +188,22 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
           </YStack>
           {Object.entries(tasksByDay).map(([day, dayTasks]) =>
             dayTasks.length > 0 ? (
-              <YStack key={day} marginBottom="$4">
+              <YStack key={day} marginBottom="$2">
                 <Text
                   color={isDark ? "$gray12" : "$gray11"}
-                  fontSize={16}
+                  fontSize={15}
                   fontWeight="600"
                   fontFamily="$body"
                   marginBottom="$2"
                 >
-                  {formatDayName(day)}
+                  {formatDayName2(day)}
                 </Text>
                 {dayTasks.map((task: Task) => (
                   <XStack
                     key={task.id}
                     backgroundColor={isDark ? "$gray2" : "$gray3"}
                     borderRadius={8}
-                    padding="$3"
+                    padding={isWeb ? "$3" : "$3"}
                     alignItems="center"
                     justifyContent="space-between"
                     marginBottom="$2"
@@ -208,12 +212,12 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                       <Text
                         fontFamily="$body"
                         color={isDark ? "$gray12" : "$gray11"}
-                        fontSize={16}
+                        fontSize={15}
                         fontWeight="500"
                       >
                         {task.name}
                       </Text>
-                      <XStack gap="$2" marginTop="$1" flexWrap="wrap">
+                      <XStack gap="$1.5" marginTop="$1" flexWrap="nowrap">
                         <Text
                           fontFamily="$body"
                           color={getCategoryColor(task.category)}
@@ -246,14 +250,15 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                       onPress={() => deleteTask(task.id)}
                       style={({ pressed }) => ({
                         opacity: pressed ? 0.7 : 1,
-                        padding: 8
+                        padding: 4
                       })}
                     >
                       <Ionicons
                         name="close"
-                        size={24}
+                        size={18}
                         color="#ff4444"
                         style={{ fontWeight: 200 }}
+                        marginTop={Platform.OS === 'web' ? 0 : -16}
                       />
                     </Pressable>
                   </XStack>

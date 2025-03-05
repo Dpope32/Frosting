@@ -89,7 +89,7 @@ export const calendarStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#444',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     marginBottom: 16,
     fontSize: 16,
   },
