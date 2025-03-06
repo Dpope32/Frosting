@@ -86,7 +86,7 @@ export default function VaultScreen() {
           padding: isWeb ? 8 : 6,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 0 : 12,
-          paddingLeft: isWeb ? 24 : 20,
+          paddingLeft: isWeb ? 24 : 16,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,
@@ -266,13 +266,13 @@ export default function VaultScreen() {
             </XStack>
           ))
         ) : (
-          <YStack gap="$2" width="90%">
+          <YStack gap="$2" width="100%">
             {data?.items.map((cred: VaultEntry) => (
               <XStack
                 key={cred.id}
                 bg={isDark ? '#1A1A1A' : '#f5f5f5'}
                 p="$1.5"
-                paddingHorizontal={isWeb? 0 : "$3"}
+                paddingHorizontal={isWeb? 0 : "$4"}
                 borderRadius="$4"
                 borderWidth={1}
                 borderColor={isDark ? '#333' : '#e0e0e0'}
