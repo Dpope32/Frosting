@@ -8,7 +8,6 @@ import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
 import { BillRecommendationChip } from '@/utils/BillRecommendations';
 import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal';
-import { BillsListModal } from '@/components/cardModals/BillsListModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);

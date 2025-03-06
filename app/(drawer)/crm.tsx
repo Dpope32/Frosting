@@ -249,7 +249,7 @@ export default function CRM() {
           />
         </View>
       )}
-      <H4 marginTop={16} textAlign="center" marginBottom={8}>
+      <H4 marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
       <Separator borderColor="$gray8" borderWidth={1} my="$2" marginBottom={16} />

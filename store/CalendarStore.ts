@@ -16,7 +16,7 @@ export interface CalendarEvent {
   time?: string  
   title: string
   description?: string
-  type?: 'birthday' | 'personal' | 'work' | 'family' | 'wealth' | 'health' | 'bill' | 'nba'
+  type?: 'birthday' | 'personal' | 'work' | 'family' | 'wealth' | 'health' | 'bill' | 'nba' | 'holiday'
   personId?: string
   teamCode?: string // For NBA games
   notifyOnDay?: boolean // Whether to send notification on the day of event
@@ -24,6 +24,8 @@ export interface CalendarEvent {
   notifyBeforeTime?: string // How long before the event to send notification (e.g., '1h', '30m', '1d')
   createdAt: string
   updatedAt: string
+  holidayColor?: string
+  holidayIcon?: string
 }
 
 interface CalendarState {

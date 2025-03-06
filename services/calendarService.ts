@@ -21,10 +21,12 @@ export const parseTimeString = (timeStr: string): string => {
  * @param dueDate Day of the month when the bill is due
  * @returns Array of calendar events for the bill
  */
+// In generateBillEvents function, modify to extend further
 export const generateBillEvents = (billName: string, dueDate: number): Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>[] => {
   const events = [];
   const start = new Date();
-  const end = new Date(start.getFullYear(), 11, 31);
+  // Extend to at least 2 years in the future
+  const end = new Date(start.getFullYear() + 2, 0, 31); // End of January two years from now
   
   // Create an event for each month from start to end
   let currentDate = new Date(start.getFullYear(), start.getMonth(), dueDate);

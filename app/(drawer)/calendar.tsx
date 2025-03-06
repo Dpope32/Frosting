@@ -13,6 +13,7 @@ import { DebugTools } from '@/components/calendar/DebugTools';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { calendarStyles } from '@/components/calendar/CalendarStyles';
+import { getUSHolidays } from '@/services/holidayService';
 
 export default function CalendarScreen() {
   const colorScheme = useColorScheme();
@@ -23,6 +24,20 @@ export default function CalendarScreen() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const [months, setMonths] = useState<Date[]>([]);
+
+  const { events: storeEvents } = useCalendarStore();
+  const [combinedEvents, setCombinedEvents] = useState(storeEvents);
+  
+  // Combine store events with holidays
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const holidays = [
+      ...getUSHolidays(currentYear), 
+      ...getUSHolidays(currentYear + 1)
+    ];
+    
+    setCombinedEvents([...storeEvents, ...holidays]);
+  }, [storeEvents]);
 
   // Custom hooks
   const {
@@ -100,7 +115,7 @@ export default function CalendarScreen() {
               <View key={index} style={calendarStyles.webMonthWrapper}>
                 <Month
                   date={date}
-                  events={events}
+                  events={combinedEvents} 
                   onDayPress={handleDayPress}
                   isDark={isDark}
                   primaryColor={primaryColor}
@@ -113,7 +128,7 @@ export default function CalendarScreen() {
             <Month
               key={index}
               date={date}
-              events={events}
+              events={combinedEvents} 
               onDayPress={handleDayPress}
               isDark={isDark}
               primaryColor={primaryColor}

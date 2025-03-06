@@ -61,7 +61,7 @@ export const TaskSection = ({
       </XStack>
       <Stack 
         gap="$2" 
-        paddingHorizontal={isWeb ? 16 : 0} 
+        paddingHorizontal={isWeb ? 16 : 8} 
         flex={1} 
         position="relative"
         justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}
@@ -147,7 +147,7 @@ export const TaskSection = ({
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             top: -47,
-            right: -10,
+            right: -4,
             width: 34,
             height: 34,
             borderRadius: 17,
@@ -156,7 +156,7 @@ export const TaskSection = ({
           } : {
             position: 'absolute',
             top: -42,
-            right: -10,
+            right: -4,
             width: 34,
             height: 34,
             borderRadius: 17,
@@ -165,8 +165,8 @@ export const TaskSection = ({
           }}
         >
           <Ionicons 
-            name="list-circle-outline" 
-            size={24} 
+            name="reorder-three-outline" 
+            size={22} 
             color="#dbd0c6"
             style={{
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
@@ -180,7 +180,7 @@ export const TaskSection = ({
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             bottom: -30,
-            right: -8,
+            right: -4,
             width: 28,
             height: 28,
             borderRadius: 14,
@@ -189,7 +189,7 @@ export const TaskSection = ({
           } : {
             position: 'absolute',
             bottom: -30,
-            right: -8,
+            right: -4,
             width: 30,
             height: 30,
             borderRadius: 15,

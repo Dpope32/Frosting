@@ -4,34 +4,22 @@ import { useNBAStore } from '@/store/NBAStore';
 import { useUserStore } from '@/store/UserStore';
 import { nbaTeams } from '@/constants/nba';
 
-interface LegendProps {
-  isDark: boolean;
-}
+interface LegendProps { isDark: boolean }
 
-interface LegendItem {
-  color: string;
-  label: string;
-  isNBA?: boolean;
-}
+interface LegendItem { color: string; label: string; isNBA?: boolean;}
 
 export const Legend: React.FC<LegendProps> = ({ isDark }) => {
   const { teamCode } = useNBAStore();
   const team = nbaTeams.find(t => t.code === teamCode);
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
-  
-  // Base items without NBA
   const baseItems: LegendItem[] = [
-    { color: '#FF9800', label: 'Bills' },
     { color: '#4CAF50', label: 'Personal' },
     { color: '#2196F3', label: 'Work' },
     { color: '#9C27B0', label: 'Family' },
     { color: '#FF69B4', label: 'Birthdays' },
   ];
   
-  // Add NBA item if showNBAGamesInCalendar is true
-  const items: LegendItem[] = showNBAGamesInCalendar 
-    ? [...baseItems, { color: '#FF5722', label: 'NBA Games', isNBA: true }]
-    : baseItems;
+  const items: LegendItem[] = showNBAGamesInCalendar  ? [...baseItems, { color: '#FF5722', label: 'NBA Games', isNBA: true }] : baseItems;
 
   return (
     <View style={styles.container}>

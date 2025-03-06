@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { CalendarEvent } from '@/store/CalendarStore';
 import { nbaTeams } from '@/constants/nba';
 import { useUserStore } from '@/store/UserStore';
+import { getUSHolidays } from '@/services/holidayService';
 
 const shouldUseDarkText = (backgroundColor: string): boolean => {
   const hex = backgroundColor.replace('#', '');
@@ -33,7 +34,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     return { daysInMonth, firstDayOfMonth };
   };
 
-  // Pre-process events for this month into a map for O(1) lookup
   const eventsByDate = React.useMemo(() => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -43,26 +43,36 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     return events
       .filter(event => event.date >= monthStart && event.date <= monthEnd)
       .reduce((acc, event) => {
-        if (!acc[event.date]) {
-          acc[event.date] = {
-            birthday: false,
-            personal: false,
-            work: false,
-            family: false,
-            bill: false,
-            nba: false,
-            teamCode: null
-          };
+        if (!acc[event.date]) { 
+          acc[event.date] = { 
+            birthday: false, 
+            personal: false, 
+            work: false, 
+            family: false, 
+            bill: false, 
+            nba: false, 
+            holiday: false, 
+            holidayColor: '',
+            holidayIcon: '',
+            teamCode: null 
+          }
         }
+        
         if (event.type === 'birthday') acc[event.date].birthday = true;
         else if (event.type === 'work') acc[event.date].work = true;
         else if (event.type === 'family') acc[event.date].family = true;
         else if (event.type === 'bill') acc[event.date].bill = true;
-        else if (event.type === 'nba') {
+        else if (event.type === 'nba') { 
           acc[event.date].nba = true;
           acc[event.date].teamCode = event.teamCode || null;
         }
-        else acc[event.date].personal = true; // includes undefined type
+        else if (event.type === 'holiday') { 
+          acc[event.date].holiday = true;
+          acc[event.date].holidayColor = event.holidayColor || '#E53935';
+          acc[event.date].holidayIcon = event.holidayIcon || '🎉';
+        }
+        else acc[event.date].personal = true; 
+        
         return acc;
       }, {} as Record<string, { 
         birthday: boolean; 
@@ -71,10 +81,12 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         family: boolean; 
         bill: boolean;
         nba: boolean;
+        holiday: boolean;
+        holidayColor: string;
+        holidayIcon: string;
         teamCode: string | null;
       }>);
   }, [date.getFullYear(), date.getMonth(), events]);
-
   const { daysInMonth, firstDayOfMonth } = getDaysInMonth(date);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
@@ -98,7 +110,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
       </View>
       <View style={styles.daysGrid}>
         {blanks.map((blank) => {
-          // Calculate if this blank is in the last row
           const blankIndex = blank;
           const rowIndex = Math.floor(blankIndex / 7);
           const totalRows = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
@@ -117,15 +128,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         {days.map((day) => {
           const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
           const dateKey = currentDate.toISOString().split('T')[0];
-          const dayEvents = eventsByDate[dateKey] || {
-            birthday: false,
-            personal: false,
-            work: false,
-            family: false,
-            bill: false,
-            nba: false,
-            teamCode: null
-          };
+          const dayEvents = eventsByDate[dateKey] || { birthday: false, personal: false, work: false, family: false, bill: false, nba: false, teamCode: null};
           const hasBirthday = dayEvents.birthday;
           const hasPersonalEvent = dayEvents.personal;
           const hasWorkEvent = dayEvents.work;
@@ -133,11 +136,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const hasBill = dayEvents.bill;
           const today = new Date();
           const isToday = currentDate.toDateString() === today.toDateString();
-          
-          // Check if date is in the past (before today)
           const isPastDate = currentDate < new Date(today.setHours(0, 0, 0, 0));
-
-          // Calculate if this day is in the last row
           const dayIndex = day + firstDayOfMonth - 1;
           const rowIndex = Math.floor(dayIndex / 7);
           const totalRows = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
@@ -147,15 +146,14 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             <TouchableOpacity
               key={day}
               onPress={() => onDayPress(currentDate)}
-              onPressIn={() => {
-                if (Platform.OS !== 'web') {
-                  Haptics.selectionAsync();
-                }
-              }}
+              onPressIn={() => {if (Platform.OS !== 'web') {Haptics.selectionAsync()}}}
               style={[
                 styles.dayCell,
                 isToday && [styles.today, { backgroundColor: primaryColor }],
-                isLastRow && styles.lastRowCell, // Apply special style for last row
+                dayEvents.holiday && !isToday && {
+                  backgroundColor: `${dayEvents.holidayColor}20`, 
+                },
+                isLastRow && styles.lastRowCell, 
                 Platform.OS === 'web' && {
                   // @ts-ignore - Web-specific CSS properties
                   cursor: 'pointer',
@@ -163,10 +161,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                 },
               ]}
             >
-              <View style={[
-                styles.dayCellContent,
-                isPastDate && !isToday && styles.pastDateOverlay
-              ]}>
+              <View style={[ styles.dayCellContent, isPastDate && !isToday && styles.pastDateOverlay]}>
                 <View style={styles.dayWrapper}>
                   <Text
                     style={[
@@ -174,6 +169,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                       { color: isDark ? '#ffffff' : '#000000' },
                       isToday && { color: todayTextColor },
                       hasBirthday && !isToday && { color: '#FF69B4' },
+                      dayEvents.holiday && !isToday && { color: dayEvents.holidayColor }, 
                       isToday && styles.selectedText,
                     ]}
                   >
@@ -181,16 +177,23 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   </Text>
                   {hasBill && <Text style={styles.billIcon}>$</Text>}
                   {hasBirthday && <Text style={styles.birthdayIcon}>🎉</Text>}
+                  {dayEvents.holiday && (
+                    <Text style={[
+                      styles.holidayIcon, 
+                      { fontSize: 8, right: -8, top: -8 }
+                    ]}>
+                      {dayEvents.holidayIcon}
+                    </Text>
+                  )}
                 </View>
+                
                 <View style={styles.indicatorContainer}>
                   {hasPersonalEvent && <View style={[styles.eventDot, { backgroundColor: '#4CAF50' }]} />}
                   {hasWorkEvent && <View style={[styles.eventDot, { backgroundColor: '#2196F3' }]} />}
                   {hasFamilyEvent && <View style={[styles.eventDot, { backgroundColor: '#9C27B0' }]} />}
                   {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
-                  {hasBill && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />}
                 </View>
                 
-                {/* NBA Team Logo - only show if showNBAGamesInCalendar is true */}
                 {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && (
                   <View style={styles.nbaLogoContainer}>
                     {nbaTeams.find(team => team.code === dayEvents.teamCode) && (
@@ -250,6 +253,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  holidayCell: {
+    backgroundColor: 'rgba(229, 57, 53, 0.1)', 
+  },
+  holidayText: {
+    fontSize: 8,
+    color: '#E53935',
+    textAlign: 'center',
+    marginTop: 1,
+    fontWeight: 'bold',
+  },
+  holidayIcon: {
+    position: 'absolute',
+    zIndex: 1,
+    marginTop: 2
+  },
   daysGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -262,7 +280,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#ddd',
   },
   lastRowCell: {
-    borderBottomWidth: 0, // Remove bottom border for last row
+    borderBottomWidth: 0, 
   },
   dayCellContent: {
     flex: 1,
@@ -272,7 +290,7 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   pastDateOverlay: {
-    opacity: 0.3, // Make past dates darker (lower opacity value)
+    opacity: 0.3, 
   },
   dayWrapper: {
     flexDirection: 'row',
@@ -311,9 +329,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
     color: '#4CAF50',
-    position: 'absolute',
-    right: -4,
-    top: -2,
+    position: 'absolute', 
+    left: -4,
+    top: -4,
   },
   birthdayIcon: {
     fontSize: 10,

@@ -18,25 +18,34 @@ interface DebugToolsProps {
 
 export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev }) => {
   const { showToast } = useToastStore();
-
+  
   if (!isDev) return null;
 
   const handleShowDebugInfo = async () => {
     try {
+      console.log("Loading debug information");
       const store = useCalendarStore.getState();
+      console.log(`Total events in store: ${store.events.length}`);
       
-      const vaultDataStr = await vaultStorage.getString('vault-data');
+      // Get vault data directly from the store for more accurate count
+      const vaultStore = useVaultStore.getState();
+      const vaultEntries = vaultStore.getEntries();
+      console.log(`Vault entries from store: ${vaultEntries.length}`);
       
-      const vaultData = vaultDataStr ? JSON.parse(vaultDataStr) : VAULT_DATA;
+      // Log event types distribution
+      const eventsByType = store.events.reduce((acc, event) => {
+        const type = event.type || 'personal';
+        if (!acc[type]) acc[type] = 0;
+        acc[type] += 1;
+        return acc;
+      }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0, wealth: 0, health: 0, holiday: 0 });
+      
+      console.log("Events by type:", eventsByType);
       
       const info = {
         totalEvents: store.events.length,
-        eventsByType: store.events.reduce((acc, event) => {
-          const type = event.type || 'personal';
-          acc[type] = (acc[type] || 0) + 1;
-          return acc;
-        }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0 }),
-        vaultEntries: vaultData.totalItems,
+        eventsByType,
+        vaultEntries: vaultEntries.length, // Use actual length from store
         upcomingEvents: store.events
           .filter((event) => new Date(event.date) >= new Date())
           .slice(0, 5)
@@ -56,7 +65,9 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
 
   const handleGenerateTestData = async () => {
     try {
+      console.log("Starting test data generation");
       const { addEvent } = useCalendarStore.getState();
+      const today = new Date();
 
       const personalEvents = [
         'Gym Session', 'Doctor Appointment', 'Haircut', 'Coffee with Friend',
@@ -75,12 +86,43 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
         'Weekend Getaway', 'Grocery Shopping', 'House Cleaning', 'Family BBQ',
         'Park Visit', 'Swimming Lessons'
       ];
+      
+      const healthEvents = [
+        'Annual Checkup', 'Dentist Cleaning', 'Eye Exam', 'Nutritionist Appointment',
+        'Physical Therapy', 'Mental Health Check', 'Yoga Class', 'Meditation Session',
+        'Running Plan', 'Meal Prep'
+      ];
+      
+      const wealthEvents = [
+        'Investment Review', 'Budget Planning', 'Tax Planning', 'Financial Advisor Meeting',
+        'Retirement Planning', 'Mortgage Review', 'Insurance Check', 'Savings Goal Check',
+        'Credit Score Review', 'Expense Audit'
+      ];
 
       const bills = [
         'Rent Payment', 'Electricity Bill', 'Water Bill', 'Internet Bill',
         'Phone Bill', 'Car Insurance', 'Health Insurance', 'Credit Card Payment',
         'Gym Membership', 'Streaming Services'
       ];
+      
+      // More birthdays for testing
+      const birthdays = [];
+      const names = ['John', 'Sarah', 'Michael', 'Emily', 'David', 'Lisa', 'Alex', 'Maria', 'James', 'Anna'];
+      
+      for (let i = 0; i < 10; i++) {
+        const birthMonth = (today.getMonth() + i + 1) % 12;
+        const birthDay = Math.floor(Math.random() * 28) + 1;
+        const age = Math.floor(Math.random() * 40) + 20;
+        
+        birthdays.push({
+          date: new Date(today.getFullYear(), birthMonth, birthDay).toISOString().split('T')[0],
+          title: `🎂 ${names[i]}'s Birthday`,
+          type: 'birthday' as CalendarEvent['type'],
+          description: `${names[i]} turns ${age} today!`,
+          personId: `test-person-${i}`,
+          notifyOnDay: true
+        });
+      }
 
       const passwords = [
         { name: 'Gmail', username: 'user@gmail.com', password: 'TestPass123!' },
@@ -96,23 +138,34 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
       ];
 
       const generateEvents = (events: string[], type: CalendarEvent['type']) => {
-        return events.map(title => ({
-          date: generateRandomDate().toISOString().split('T')[0],
-          time: generateRandomTime(),
-          title,
-          type,
-          description: `Test ${type} event: ${title}`
-        }));
+        return events.map(title => {
+          // Generate a random date between now and 2 years in the future
+          const futureDate = new Date();
+          futureDate.setFullYear(futureDate.getFullYear() + 2 * Math.random());
+          
+          return {
+            date: futureDate.toISOString().split('T')[0],
+            time: generateRandomTime(),
+            title,
+            type,
+            description: `Test ${type} event: ${title}`
+          };
+        });
       };
 
+      console.log("Generating personal, work, family, health, and wealth events");
       const newEvents = [
         ...generateEvents(personalEvents, 'personal'),
         ...generateEvents(workEvents, 'work'),
-        ...generateEvents(familyEvents, 'family')
+        ...generateEvents(familyEvents, 'family'),
+        ...generateEvents(healthEvents, 'health'),
+        ...generateEvents(wealthEvents, 'wealth')
       ];
 
+      console.log(`Adding ${newEvents.length} general events`);
       newEvents.forEach(event => addEvent(event));
       
+      console.log(`Adding ${bills.length} bills`);
       const billStore = useBillStore.getState();
       bills.forEach(billName => {
         const dueDate = Math.floor(Math.random() * 28) + 1;
@@ -126,13 +179,33 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
         billEvents.forEach(event => addEvent(event));
       });
 
+      console.log(`Adding ${birthdays.length} birthday events`);
+      birthdays.forEach(event => addEvent(event));
+
       // Use VaultStore to add password entries
+      console.log(`Adding ${passwords.length} vault entries`);
       const { addEntry } = useVaultStore.getState();
       
       // Add each password entry using the store's method
       for (const entry of passwords) {
         await addEntry(entry);
       }
+
+      // Double-check what was added
+      setTimeout(() => {
+        const store = useCalendarStore.getState();
+        const eventsByType = store.events.reduce((acc, event) => {
+          const type = event.type || 'personal';
+          if (!acc[type]) acc[type] = 0;
+          acc[type] += 1;
+          return acc;
+        }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0, wealth: 0, health: 0, holiday: 0 });
+        
+        console.log("Events by type after generation:", eventsByType);
+        
+        const vaultStore = useVaultStore.getState();
+        console.log("Vault entries after generation:", vaultStore.getEntries().length);
+      }, 1000);
 
       showToast('Added test events, bills, and vault entries', 'success');
       if (Platform.OS !== 'web') {
