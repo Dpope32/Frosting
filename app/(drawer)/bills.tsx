@@ -8,6 +8,7 @@ import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
 import { BillRecommendationChip } from '@/utils/BillRecommendations';
 import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal';
+import { BillsListModal } from '@/components/cardModals/BillsListModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -111,36 +112,36 @@ export default function BillsScreen() {
               
               <YStack gap="$3" paddingHorizontal={isWeb ? "$4" : "$4"}>
                 <XStack gap="$2" ai="flex-start">
-                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
                     <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Track Monthly Expenses
                     </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
                       Add your recurring bills and keep track of your monthly expenses in one place.
                     </Text>
                   </YStack>
                 </XStack>
                 
                 <XStack gap="$2" ai="flex-start">
-                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
                     <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Due Date Reminders
                     </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
                       Never miss a payment with visual indicators for upcoming and due bills.
                     </Text>
                   </YStack>
                 </XStack>
                 
                 <XStack gap="$2" ai="flex-start">
-                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+                  <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
                     <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Budget Overview
                     </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
                       See your total monthly expenses and manage your budget more effectively.
                     </Text>
                   </YStack>

@@ -88,9 +88,9 @@ export default function Step4({
         </Text>
       </YStack>
 
-      <YStack alignItems="center" width="100%" padding={isWeb ? "$4" : "$2"}>
+      <YStack alignItems="center" width="80%" padding={isWeb ? "$4" : "$2"}>
         <Input
-          size="$5"
+          size="$4"
           placeholder="Enter zip code"
           value={formData.zipCode}
           onChangeText={(text) => {

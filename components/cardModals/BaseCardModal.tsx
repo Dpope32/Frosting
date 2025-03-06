@@ -71,7 +71,7 @@ export function BaseCardModal({
             behavior={Platform.OS === "ios" ? "padding" : "height"}  
             style={{ flex: 1, paddingTop: Math.max(topInset - 100, 0) }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginBottom: 16 }}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginBottom: 12, paddingHorizontal: 6}}>
               <Text 
                 fontSize={22}  
                 fontWeight="700"  

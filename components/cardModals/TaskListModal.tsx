@@ -149,12 +149,11 @@ const formatDayName2 = (day: string) =>
               paddingBottom="$4" 
               marginTop="$2"
             >
-              <XStack gap="$3" paddingRight="$2">
+              <XStack gap={Platform.OS === 'web' ? "$3" : "$2"} paddingRight="$4">
                 <RecommendationChip 
                   category="Cleaning"  
                   onPress={() => {
                     onOpenChange(false) 
-                    // Use the global store to open the modal
                     openRecommendationModal('Cleaning')
                   }}  
                   isDark={isDark}

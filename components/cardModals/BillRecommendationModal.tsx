@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
-import { YStack, Text, XStack, Button, ScrollView, Checkbox } from 'tamagui'
+import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
-import { 
-  BillRecommendationCategory, 
-  RecommendedBill, 
+import {
+  BillRecommendationCategory,
+  RecommendedBill,
   getRecommendedBills
 } from '@/utils/BillRecommendations'
 
@@ -18,11 +18,11 @@ type DebouncedTextInputProps = {
   keyboardType?: string
 }
 
-const DebouncedTextInput = ({ 
-  value, 
-  onDebouncedChange, 
-  style, 
-  keyboardType = 'default' 
+const DebouncedTextInput = ({
+  value,
+  onDebouncedChange,
+  style,
+  keyboardType = 'default'
 }: DebouncedTextInputProps) => {
   const [text, setText] = useState(value)
   
@@ -56,10 +56,10 @@ interface BillRecommendationModalProps {
   category: BillRecommendationCategory
 }
 
-export function BillRecommendationModal({ 
-  open, 
-  onOpenChange, 
-  category 
+export function BillRecommendationModal({
+  open,
+  onOpenChange,
+  category
 }: BillRecommendationModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -67,7 +67,9 @@ export function BillRecommendationModal({
   const [selectedBills, setSelectedBills] = useState<Record<number, boolean>>({})
   const [amounts, setAmounts] = useState<Record<number, string>>({})
   const [dueDates, setDueDates] = useState<Record<number, string>>({})
-
+  const scrollViewRef = useRef<ScrollView>(null)
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
+  
   const handleToggleBill = (index: number) => {
     setSelectedBills(prev => ({
       ...prev,
@@ -112,7 +114,7 @@ export function BillRecommendationModal({
     setDueDates({})
     onOpenChange(false)
   }
-
+  
   const recommendedBills = getRecommendedBills(category)
   const hasValidSelections = Object.entries(selectedBills).some(([indexStr, isSelected]) => {
     if (isSelected) {
@@ -123,31 +125,41 @@ export function BillRecommendationModal({
     }
     return false
   })
-
+  
   return (
     <BaseCardModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(newOpen) => {
+        console.log(`BillRecommendationModal onOpenChange - category: ${category}, newOpen: ${newOpen}`)
+        onOpenChange(newOpen)
+      }}
       title={`${category} Bills`}
       snapPoints={[85]}
+      zIndex={200000}
     >
-      <YStack gap="$4" paddingBottom="$8">
-        <Text 
-          color={isDark ? "#dbd0c6" : "#666"} 
+      <YStack gap="$4" paddingHorizontal="$1" paddingBottom="$8">
+        <Text
+          color={isDark ? "#dbd0c6" : "#666"}
           fontSize={16}
           opacity={0.9}
         >
           Select bills to add to your list:
         </Text>
         
-        <ScrollView 
+        <ScrollView
+          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           bounces={false}
-          maxHeight={500}
+          maxHeight="100%"
+          onScroll={(event) => {
+            const scrollY = event.nativeEvent.contentOffset.y;
+            setShowScrollToTop(scrollY > 100);
+          }}
+          scrollEventThrottle={16}
         >
           <YStack gap="$3">
             {recommendedBills.map((bill, index) => (
-              <XStack 
+              <XStack
                 key={index}
                 backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
                 borderRadius={12}
@@ -165,9 +177,9 @@ export function BillRecommendationModal({
                 />
                 
                 <YStack flex={1} gap="$2">
-                  <Text 
-                    color={isDark ? "#fff" : "#000"} 
-                    fontSize={16} 
+                  <Text
+                    color={isDark ? "#fff" : "#000"}
+                    fontSize={16}
                     fontWeight="500"
                   >
                     {bill.name}
@@ -180,7 +192,7 @@ export function BillRecommendationModal({
                         <Text color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
                           Amount:
                         </Text>
-                        <XStack 
+                        <XStack
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
                           paddingHorizontal="$2"
                           paddingVertical="$1"
@@ -212,7 +224,7 @@ export function BillRecommendationModal({
                         <Text color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
                           Due Date:
                         </Text>
-                        <XStack 
+                        <XStack
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
                           paddingHorizontal="$2"
                           paddingVertical="$1"
@@ -254,14 +266,36 @@ export function BillRecommendationModal({
           disabled={!hasValidSelections}
           opacity={!hasValidSelections ? 0.5 : 1}
         >
-          <Text 
-            color={isDark ? "#dbd0c6" : "#000"} 
-            fontSize={16} 
+          <Text
+            color={isDark ? "#dbd0c6" : "#000"}
+            fontSize={16}
             fontWeight="600"
           >
             Add Selected Bills
           </Text>
         </Button>
+        
+        {showScrollToTop && (
+          <Circle
+            size={44}
+            backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+            position="absolute"
+            bottom={70}
+            right={10}
+            opacity={0.9}
+            pressStyle={{ opacity: 0.7 }}
+            onPress={() => {
+              scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+            }}
+            elevation={4}
+            shadowColor="rgba(0,0,0,0.3)"
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.3}
+            shadowRadius={3}
+          >
+            <AntDesign name="arrowup" size={24} color={isDark ? "#dbd0c6" : "#000"} />
+          </Circle>
+        )}
       </YStack>
     </BaseCardModal>
   )

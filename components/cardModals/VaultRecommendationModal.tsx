@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react'
-import { useColorScheme, TextInput } from 'react-native'
-import { YStack, Text, XStack, Button, ScrollView, Checkbox } from 'tamagui'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { useColorScheme, TextInput, Animated as RNAnimated } from 'react-native'
+import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
 import { 
   VaultRecommendationCategory, 
@@ -67,6 +67,8 @@ export function VaultRecommendationModal({
   const [selectedEntries, setSelectedEntries] = useState<Record<number, boolean>>({})
   const [usernames, setUsernames] = useState<Record<number, string>>({})
   const [passwords, setPasswords] = useState<Record<number, string>>({})
+  const scrollViewRef = useRef<ScrollView>(null)
+  const [showScrollToTop, setShowScrollToTop] = useState(false)
 
   const handleToggleEntry = (index: number) => {
     setSelectedEntries(prev => ({
@@ -127,11 +129,15 @@ export function VaultRecommendationModal({
   return (
     <BaseCardModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(newOpen) => {
+        console.log(`VaultRecommendationModal onOpenChange - category: ${category}, newOpen: ${newOpen}`)
+        onOpenChange(newOpen)
+      }}
       title={`${category} Accounts`}
       snapPoints={[85]}
+      zIndex={200000}
     >
-      <YStack gap="$4" paddingBottom="$8">
+      <YStack gap="$4" paddingHorizontal="$1" paddingBottom="$8">
         <Text 
           color={isDark ? "#dbd0c6" : "#666"} 
           fontSize={16}
@@ -141,9 +147,15 @@ export function VaultRecommendationModal({
         </Text>
         
         <ScrollView 
+          ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           bounces={false}
-          maxHeight={500}
+          maxHeight="100%"
+          onScroll={(event) => {
+            const scrollY = event.nativeEvent.contentOffset.y;
+            setShowScrollToTop(scrollY > 100);
+          }}
+          scrollEventThrottle={16}
         >
           <YStack gap="$3">
             {recommendedEntries.map((entry, index) => (
@@ -258,6 +270,28 @@ export function VaultRecommendationModal({
             Add Selected Accounts
           </Text>
         </Button>
+        
+        {showScrollToTop && (
+          <Circle
+            size={44}
+            backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+            position="absolute"
+            bottom={70}
+            right={10}
+            opacity={0.9}
+            pressStyle={{ opacity: 0.7 }}
+            onPress={() => {
+              scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+            }}
+            elevation={4}
+            shadowColor="rgba(0,0,0,0.3)"
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.3}
+            shadowRadius={3}
+          >
+            <AntDesign name="arrowup" size={24} color={isDark ? "#dbd0c6" : "#000"} />
+          </Circle>
+        )}
       </YStack>
     </BaseCardModal>
   )

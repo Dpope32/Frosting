@@ -7,6 +7,8 @@ import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native
 import { Ionicons } from '@expo/vector-icons';
 import { SettingsModal } from './cardModals/SettingsModal';
 import { NBATeamModal } from './sports/NBATeamModal';
+import { BillsListModal } from './cardModals/BillsListModal';
+import { VaultListModal } from './cardModals/VaultListModal';
 
 interface HeaderProps {
   title: string;
@@ -19,15 +21,34 @@ export function Header({ title }: HeaderProps) {
   const route = useRoute();
   const [showSettings, setShowSettings] = useState(false);
   const [showNBATeamModal, setShowNBATeamModal] = useState(false);
+  const [showBillsListModal, setShowBillsListModal] = useState(false);
+  const [showVaultListModal, setShowVaultListModal] = useState(false);
   
-  // Check if we're on the sports screen
+  // Check if we're on the sports or bills screen
   const isSportsScreen = route.name === 'nba';
-
+  const isBillsScreen = route.name === 'bills';
+  const isVaultScreen = route.name === 'vault';
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#bbb';
   const isWeb = Platform.OS === 'web';
 
   // Calculate the spacer height based on platform
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
+
+  // Determine which icon to show based on the current screen
+  const getHeaderIcon = () => {
+    if (isSportsScreen) return "basketball-outline";
+    if (isBillsScreen) return "receipt-outline";
+    if (isVaultScreen) return "key-outline";
+    return "settings-outline";
+  };
+
+  // Handle the icon press based on the current screen
+  const handleIconPress = () => {
+    if (isSportsScreen) setShowNBATeamModal(true);
+    else if (isBillsScreen) setShowBillsListModal(true);
+    else if (isVaultScreen) setShowVaultListModal(true);
+    else setShowSettings(true);
+  };
 
   return (
     <>
@@ -93,7 +114,7 @@ export function Header({ title }: HeaderProps) {
                 >
                   <Ionicons 
                     name="menu" 
-                    size={isWeb ? 24 : 28} 
+                    size={isWeb ? 24 : 20} 
                     color={textColor} 
                   />
                 </Pressable>
@@ -110,7 +131,7 @@ export function Header({ title }: HeaderProps) {
             </XStack>
             <Stack>
               <Pressable 
-                onPress={() => isSportsScreen ? setShowNBATeamModal(true) : setShowSettings(true)}
+                onPress={handleIconPress}
                 style={{ 
                   padding: 8, 
                   marginRight: -8,
@@ -132,6 +153,8 @@ export function Header({ title }: HeaderProps) {
       </YStack>
       <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
       {isSportsScreen && <NBATeamModal open={showNBATeamModal} onOpenChange={setShowNBATeamModal} />}
+      {isBillsScreen && <BillsListModal open={showBillsListModal} onOpenChange={setShowBillsListModal} />}
+      {isVaultScreen && <VaultListModal open={showVaultListModal} onOpenChange={setShowVaultListModal} />}
     </>
   );
 }

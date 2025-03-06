@@ -14,6 +14,7 @@ export interface VaultRecommendationChipProps {
   category: VaultRecommendationCategory
   onPress: () => void
   isDark?: boolean
+  isMainScreen?: boolean // New prop to identify when used on main screen
 }
 
 export const getRecommendedVaultEntries = (category: VaultRecommendationCategory): RecommendedVaultEntry[] => {
@@ -89,7 +90,12 @@ export const getRecommendedVaultEntries = (category: VaultRecommendationCategory
   }
 }
 
-export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = ({ category, onPress, isDark = false }) => {
+export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = ({ 
+  category, 
+  onPress, 
+  isDark = false,
+  isMainScreen = false // Default to false
+}) => {
   const getChipStyle = () => {
     switch (category) {
       case 'Social Media':
@@ -144,7 +150,7 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
       borderWidth={1}
       borderRadius={8}
       paddingHorizontal="$3"
-      paddingVertical="$1"
+      paddingVertical={isMainScreen ? "$2" : "$1"}
       fontFamily="$body"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
@@ -155,8 +161,17 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
       marginBottom={Platform.OS === 'web' ? 0 : '$2'}
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">
-        <Ionicons name={style.iconName} size={12} color={style.iconColor} />
-        <Text color={style.textColor}  fontSize={11}  fontWeight="600" numberOfLines={1} fontFamily="$body" > {category} </Text>
+        {/* Only show icon if not on main screen */}
+        {!isMainScreen && <Ionicons name={style.iconName} size={12} color={style.iconColor} />}
+        <Text 
+          color={style.textColor}  
+          fontSize={isMainScreen ? 13 : 12}  
+          fontWeight="600" 
+          numberOfLines={1} 
+          fontFamily="$body" 
+        > 
+          {category} 
+        </Text>
       </XStack>
     </Button>
   )
