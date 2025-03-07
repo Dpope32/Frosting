@@ -32,7 +32,7 @@ const defaultPreferences: UserPreferences = {
   hasCompletedOnboarding: false,
   notificationsEnabled: true,
   quoteEnabled: true,
-  showNBAGamesInCalendar: true, // Default to showing NBA games in calendar
+  showNBAGamesInCalendar: true, 
 };
 
 export const useUserStore = create<UserStore>()(

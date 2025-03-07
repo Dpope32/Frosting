@@ -48,6 +48,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             birthday: false, 
             personal: false, 
             work: false, 
+            task: false,
             family: false, 
             bill: false, 
             nba: false, 
@@ -71,6 +72,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           acc[event.date].holidayColor = event.holidayColor || '#E53935';
           acc[event.date].holidayIcon = event.holidayIcon || '🎉';
         }
+        else if (event.type === 'task' as CalendarEvent['type']) {
+          acc[event.date].task = true;
+        }
         else acc[event.date].personal = true; 
         
         return acc;
@@ -80,6 +84,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         work: boolean; 
         family: boolean; 
         bill: boolean;
+        task: boolean;
         nba: boolean;
         holiday: boolean;
         holidayColor: string;
@@ -192,6 +197,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   {hasWorkEvent && <View style={[styles.eventDot, { backgroundColor: '#2196F3' }]} />}
                   {hasFamilyEvent && <View style={[styles.eventDot, { backgroundColor: '#9C27B0' }]} />}
                   {hasBirthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
+                  {dayEvents.task && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />} 
                 </View>
                 
                 {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && (

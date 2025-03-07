@@ -1,16 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PersistStorage, StorageValue } from 'zustand/middleware/persist';
 
-
-// Storage interface for backward compatibility
 export const storage = {
   getString: async (key: string) => await AsyncStorage.getItem(key),
   set: async (key: string, value: string) => await AsyncStorage.setItem(key, value),
   delete: async (key: string) => await AsyncStorage.removeItem(key),
 };
 
-// Utility functions with similar API to your previous StorageUtils
-// but using AsyncStorage under the hood
 export const StorageUtils = {
   get: async <T>(key: string, defaultValue?: T): Promise<T | undefined> => {
     try {
@@ -42,11 +38,9 @@ export const StorageUtils = {
       console.error('Error clearing storage', error);
     }
   },
-  // New helper methods for AsyncStorage
   getAllKeys: async (): Promise<string[]> => {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      // Convert readonly string[] to mutable string[]
       return [...keys];
     } catch (error) {
       console.error('Error getting all keys', error);
@@ -63,7 +57,6 @@ export const StorageUtils = {
           try {
             result.set(key, JSON.parse(value) as T);
           } catch {
-            // Skip invalid JSON
           }
         }
       });
@@ -76,7 +69,6 @@ export const StorageUtils = {
   }
 };
 
-// Create persist storage for zustand stores using AsyncStorage
 export function createPersistStorage<T>(): PersistStorage<T> {
   return {
     getItem: async (name: string): Promise<StorageValue<T> | null> => {

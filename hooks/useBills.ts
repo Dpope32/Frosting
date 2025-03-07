@@ -27,13 +27,12 @@ export function useBills() {
   const addBill = (billData: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newBill = addBillToStore(billData);
     
-    // Create calendar events for the next 12 months
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
     
-    // Generate events for current month through next 11 months
-    for (let i = 0; i < 12; i++) {
+    // Generate events for current month through next 5 years
+    for (let i = 0; i < 60; i++) {
       const eventDate = new Date(currentYear, currentMonth + i, billData.dueDate);
       const formattedDate = format(eventDate, 'yyyy-MM-dd');
       

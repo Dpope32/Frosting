@@ -1,41 +1,71 @@
 import React from 'react';
-import { View, StyleSheet, Text, Platform, Image } from 'react-native';
+import { View, StyleSheet, Text, Platform, Image, Dimensions } from 'react-native';
 import { useNBAStore } from '@/store/NBAStore';
 import { useUserStore } from '@/store/UserStore';
 import { nbaTeams } from '@/constants/nba';
 
-interface LegendProps { isDark: boolean }
+// Helper function to detect if device is iPad
+const isIpad = () => {
+  const { width, height } = Dimensions.get('window');
+  return (
+    Platform.OS === 'ios' &&
+    Math.min(width, height) >= 768 &&
+    Math.max(width, height) >= 1024
+  );
+};
 
-interface LegendItem { color: string; label: string; isNBA?: boolean;}
+interface LegendProps { 
+  isDark: boolean 
+}
+
+interface LegendItem { 
+  color: string; 
+  label: string; 
+  isNBA?: boolean;
+}
 
 export const Legend: React.FC<LegendProps> = ({ isDark }) => {
   const { teamCode } = useNBAStore();
   const team = nbaTeams.find(t => t.code === teamCode);
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
+  
   const baseItems: LegendItem[] = [
     { color: '#4CAF50', label: 'Personal' },
     { color: '#2196F3', label: 'Work' },
     { color: '#9C27B0', label: 'Family' },
     { color: '#FF69B4', label: 'Birthdays' },
+    { color: '#FF9800', label: 'Tasks' },
   ];
   
-  const items: LegendItem[] = showNBAGamesInCalendar  ? [...baseItems, { color: '#FF5722', label: 'NBA Games', isNBA: true }] : baseItems;
+  const items: LegendItem[] = showNBAGamesInCalendar 
+    ? [...baseItems, { color: '#FF5722', label: 'NBA Games', isNBA: true }] 
+    : baseItems;
 
+  const isWebOrIpad = Platform.OS === 'web' || isIpad();
+  
   return (
-    <View style={styles.container}>
-      <View style={styles.row}>
+    <View style={[styles.container, isWebOrIpad && styles.containerWebIpad]}>
+      <View style={[styles.row, isWebOrIpad && styles.rowWebIpad]}>
         {items.map((item, index) => (
-          <View key={index} style={styles.item}>
+          <View key={index} style={[styles.item, isWebOrIpad && styles.itemWebIpad]}>
             {item.isNBA && team ? (
-              <Image 
-                source={{ uri: team.logo }} 
-                style={styles.nbaLogo} 
+              <Image
+                source={{ uri: team.logo }}
+                style={isWebOrIpad ? styles.nbaLogoWebIpad : styles.nbaLogo}
                 resizeMode="contain"
               />
             ) : (
-              <View style={[styles.dot, { backgroundColor: item.color }]} />
+              <View style={[
+                styles.dot, 
+                { backgroundColor: item.color },
+                isWebOrIpad && styles.dotWebIpad
+              ]} />
             )}
-            <Text style={[styles.label, { color: isDark ? '#999999' : '#666666' }]}>
+            <Text style={[
+              styles.label, 
+              { color: isDark ? '#999999' : '#666666' },
+              isWebOrIpad && styles.labelWebIpad
+            ]}>
               {item.label}
             </Text>
           </View>
@@ -49,34 +79,53 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 8,
     paddingBottom: 8,
-    ...(Platform.OS === 'web' ? {
-      paddingBottom: 16,
-      marginBottom: 8,
-    } : {}),
+  },
+  containerWebIpad: {
+    paddingBottom: 16,
+    marginBottom: 8,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: Platform.OS === 'web' ? 20 : 12,
+    gap: 12,
+  },
+  rowWebIpad: {
+    gap: 20,
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Platform.OS === 'web' ? 8 : 4,
+    gap: 4,
+  },
+  itemWebIpad: {
+    gap: 8,
   },
   dot: {
-    width: Platform.OS === 'web' ? 10 : 6,
-    height: Platform.OS === 'web' ? 10 : 6,
-    borderRadius: Platform.OS === 'web' ? 5 : 3,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dotWebIpad: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   label: {
-    fontSize: Platform.OS === 'web' ? 14 : 11,
-    fontWeight: Platform.OS === 'web' ? '500' : '400',
+    fontSize: 11,
+    fontWeight: '400',
+  },
+  labelWebIpad: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   nbaLogo: {
-    width: Platform.OS === 'web' ? 16 : 12,
-    height: Platform.OS === 'web' ? 16 : 12,
+    width: 12,
+    height: 12,
+  },
+  nbaLogoWebIpad: {
+    width: 16,
+    height: 16,
   },
 });

@@ -1,15 +1,30 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
+
+// Helper function to detect if device is iPad
+const isIpad = () => {
+  const { width, height } = Dimensions.get('window');
+  // iPad detection based on screen dimensions and platform
+  return (
+    Platform.OS === 'ios' &&
+    Math.min(width, height) >= 768 &&
+    Math.max(width, height) >= 1024
+  );
+};
 
 export const calendarStyles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 100,
     ...(Platform.OS === 'web' ? {
-      paddingTop: 30, // Reduced padding for web
-      maxWidth: 1800, // Increased from 1200 to 1800 for better use of screen space
+      paddingTop: 30,
+      maxWidth: 1800,
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingHorizontal: 0, // No horizontal padding to maximize space
+      paddingHorizontal: 0,
+    } as any : {}),
+    ...(isIpad() ? {
+      paddingTop: 60,
+      paddingHorizontal: 12,
     } as any : {}),
   },
   webMonthsContainer: {
@@ -18,11 +33,18 @@ export const calendarStyles = StyleSheet.create({
     justifyContent: 'space-evenly',
     width: '100%',
     padding: 0,
+    ...(isIpad() ? {
+      justifyContent: 'center',
+    } as any : {}),
   },
   webMonthWrapper: {
-    width: '33%', // Display 3 months per row
-    padding: 0, // No padding
-    margin: 1, // Minimal margin for spacing
+    width: '33%', // Default: Display 3 months per row
+    padding: 0,
+    margin: 1,
+    ...(isIpad() ? {
+      width: '49%', // iPad: Display 2 months per row
+      margin: '0.5%',
+    } as any : {}),
   },
   floatingButton: {
     width: 48,

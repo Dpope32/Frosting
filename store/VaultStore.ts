@@ -30,7 +30,6 @@ export const useVaultStore = create<VaultStore>()(
       isLoaded: false,
       
       addEntry: async (entry) => {
-        // Generate a unique ID
         const timestamp = Date.now();
         const random = Math.floor(Math.random() * 10000);
         const newId = `${timestamp}-${random}`;

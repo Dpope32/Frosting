@@ -46,9 +46,9 @@ export const generateBillEvents = (billName: string, dueDate: number): Omit<Cale
 /**
  * Generates a random date between now and the end of the year
  */
-export const generateRandomDate = (): Date => {
+export const generateRandomDate = (yearsAhead: number = 1): Date => {
   const start = new Date();
-  const end = new Date(start.getFullYear(), 11, 31);
+  const end = new Date(start.getFullYear() + yearsAhead, 11, 31);
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
 

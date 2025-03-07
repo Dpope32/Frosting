@@ -16,12 +16,13 @@ export interface CalendarEvent {
   time?: string  
   title: string
   description?: string
-  type?: 'birthday' | 'personal' | 'work' | 'family' | 'wealth' | 'health' | 'bill' | 'nba' | 'holiday'
+  type?: 'birthday' | 'personal' | 'work' | 'family' | 'wealth' | 'health' | 'bill' | 'nba' | 'holiday' | 'task'
   personId?: string
-  teamCode?: string // For NBA games
-  notifyOnDay?: boolean // Whether to send notification on the day of event
-  notifyBefore?: boolean // Whether to send notification before the event
-  notifyBeforeTime?: string // How long before the event to send notification (e.g., '1h', '30m', '1d')
+  teamCode?: string 
+  taskId?: string 
+  notifyOnDay?: boolean
+  notifyBefore?: boolean
+  notifyBeforeTime?: string
   createdAt: string
   updatedAt: string
   holidayColor?: string
@@ -160,7 +161,7 @@ export const useCalendarStore = create<CalendarState>()(
             (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
           )
 
-          const years = [currentYear, currentYear + 1, currentYear + 2]
+            const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
           const birthdayEvents = Object.values(contactsToSync)
             .filter((person: Person) => person.birthday)
             .flatMap((person: Person) => {

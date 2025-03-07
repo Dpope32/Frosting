@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, Input, AnimatePresence } from 'tamagui'
-import { TouchableOpacity, useColorScheme, Pressable } from 'react-native'
+import { Switch, useColorScheme, Pressable } from 'react-native'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay, type RecurrencePattern } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Platform } from 'react-native'
 import { format } from 'date-fns'
+import { syncTasksToCalendar } from '@/services'
 
 const WEEKDAYS: Record<string, WeekDay> = {
   sun: 'sunday',
@@ -306,7 +307,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         showToast('Please enter a task name')
         return
       }
-      if (newTask.schedule.length === 0 && 
+      if (newTask.schedule.length === 0 &&
           (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')) {
         showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`)
         return
@@ -325,16 +326,16 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         recurrenceDate: newTask.recurrenceDate
       }
       
-      //console.log('Adding task:', {
-        //name: taskToAdd.name,
-        //pattern: taskToAdd.recurrencePattern,
-        //schedule: taskToAdd.schedule,
-        //recurrenceDate: taskToAdd.recurrenceDate
-      //})
       onOpenChange(false)
       await new Promise(resolve => setTimeout(resolve, 80))
       try {
         addTask(taskToAdd)
+        
+        // Add this line to sync tasks to calendar
+        if (taskToAdd.showInCalendar) {
+            syncTasksToCalendar();
+        }
+        
         showToast('Task added successfully')
       } catch (error) {
         showToast('Failed to add task. Please try again.')
@@ -351,7 +352,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       modal
       open={open}
       onOpenChange={onOpenChange}
-      snapPoints={[80]}
+      snapPoints={[85]}
       dismissOnSnapToBottom
       dismissOnOverlayPress
       animation="quick"
@@ -381,7 +382,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                 value={newTask.name}
                 onDebouncedChange={handleTextChange}
                 borderWidth={1}
-                autoCapitalize="sentences"
+                autoCapitalize="words"
                 borderRadius={12}
                 fontFamily="$body"
                 paddingHorizontal="$3"
@@ -625,26 +626,40 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </YStack>
 
               <YStack gap="$4" width="100%">
-                <YStack flex={1} position="relative" >
-                  <SelectButton
-                    label="Priority:"
-                    value={newTask.priority}
-                    onPress={() => {
-                      setShowPrioritySelect(!showPrioritySelect)
-                      setShowCategorySelect(false)
-                      setShowRecurrenceSelect(false)
-                    }}
-                    showDropdown={showPrioritySelect}
-                  />
-                  {showPrioritySelect && (
-                    <DropdownList<TaskPriority>
-                      items={['high', 'medium', 'low']}
-                      selectedValue={newTask.priority}
-                      onSelect={handlePrioritySelect}
-                      maxHeight={150}
+                <XStack width="100%" alignItems="center">
+                  <YStack flex={1} position="relative">
+                    <SelectButton
+                      label="Priority:"
+                      value={newTask.priority}
+                      onPress={() => {
+                        setShowPrioritySelect(!showPrioritySelect)
+                        setShowCategorySelect(false)
+                        setShowRecurrenceSelect(false)
+                      }}
+                      showDropdown={showPrioritySelect}
                     />
-                  )}
-                </YStack>
+                    {showPrioritySelect && (
+                      <DropdownList<TaskPriority>
+                        items={['high', 'medium', 'low']}
+                        selectedValue={newTask.priority}
+                        onSelect={handlePrioritySelect}
+                        maxHeight={150}
+                      />
+                    )}
+                  </YStack>
+                  
+                  <XStack alignItems="center" marginLeft="$3">
+                    <Text color={isDark ? "$gray12" : "$gray11"} marginRight="$2">
+                      Show in Calendar
+                    </Text>
+                    <Switch
+                        value={newTask.showInCalendar || false}
+                        onValueChange={(value) => {
+                          setNewTask(prev => ({ ...prev, showInCalendar: value }))
+                        }}
+                      />
+                  </XStack>
+                </XStack>
                 
                 <YStack>
                   <ScrollView

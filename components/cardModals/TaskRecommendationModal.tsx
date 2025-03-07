@@ -314,7 +314,7 @@ function CategoryTaskModal({
             borderWidth={2}
             borderColor={primaryColor}
           >
-            <Text color={isDark ?  `${adjustColor(primaryColor, 120)}80` : `${adjustColor(primaryColor, -100)}80`} fontFamily="$body" fontSize={15} fontWeight="600">
+            <Text color={isDark ?  `#f9f9f9` : `${adjustColor(primaryColor, -100)}80`} fontFamily="$body" fontSize={15} fontWeight="600">
               Add Selected Tasks
             </Text>
           </Button>
