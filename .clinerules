@@ -1,0 +1,86 @@
+# Frosting Project Intelligence
+
+This file captures important patterns, preferences, and project intelligence for the Frosting application.
+
+## Project Structure
+
+- **app/**: Contains the main application screens and navigation structure using Expo Router
+  - **(auth)/**: Authentication-related screens
+  - **(drawer)/**: Screens accessible via drawer navigation
+  - **screens/**: Individual feature screens
+- **assets/**: Static assets including images, sounds, and wallpapers
+- **components/**: Reusable UI components
+  - **ui/**: Basic UI building blocks
+  - **shared/**: Components used across multiple features
+  - Feature-specific component directories (calendar/, sports/, etc.)
+- **constants/**: Application constants and configuration
+- **data/**: Static data files
+- **hooks/**: Custom React hooks
+- **memory-bank/**: Project documentation and context
+- **services/**: API and service integrations
+- **store/**: Zustand stores for state management
+- **theme/**: Theming components and utilities
+- **types/**: TypeScript type definitions
+- **utils/**: Utility functions and helpers
+
+## Development Patterns
+
+### State Management
+- Use Zustand stores for global state
+- Create separate stores for distinct feature domains
+- Persist state with AsyncStorage where appropriate
+- Follow the pattern in existing stores (e.g., BillStore.ts, CalendarStore.ts)
+
+### Component Creation
+- Use functional components with hooks
+- Create themed components using the theme/ utilities
+- Follow existing component patterns for consistency
+- Place shared components in components/shared/
+- Place feature-specific components in their respective directories
+
+### Navigation
+- Use Expo Router for navigation
+- Follow the file-based routing pattern in the app/ directory
+- Use drawer navigation for main app sections
+- Use tab navigation for sub-sections within features
+
+### Data Persistence
+- Use AsyncStorage for local data storage
+- Follow the patterns in store/ for data persistence
+- Use services/ for API interactions
+
+## Code Style Preferences
+
+### TypeScript
+- Use TypeScript for all new code
+- Define interfaces in types/ directory
+- Use proper typing for all functions and variables
+
+### Naming Conventions
+- PascalCase for components and types
+- camelCase for variables, functions, and instances
+- Use descriptive, meaningful names
+
+### File Organization
+- Group related functionality in dedicated directories
+- Keep component files focused on a single responsibility
+- Place utilities in utils/ directory
+
+## Platform Considerations
+
+### Cross-Platform
+- Test UI on all target platforms (iOS, Android, web, desktop)
+- Use platform-specific code sparingly and only when necessary
+- Follow responsive design patterns for different screen sizes
+
+### Performance
+- Minimize dependencies where possible
+- Optimize rendering performance for mobile devices
+- Be mindful of bundle size when adding new features
+
+## Future Development Focus
+
+- Prioritize performance optimization
+- Focus on cross-device synchronization solutions
+- Enhance UI responsiveness across platforms
+- Prepare for app store submissions

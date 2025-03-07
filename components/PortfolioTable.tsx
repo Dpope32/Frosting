@@ -9,7 +9,7 @@ import { PortfolioQueryData } from '@/types/stocks';
 interface PortfolioTableProps {
   activeTab: 'portfolio' | 'watchlist';
   stockData: PortfolioQueryData | undefined;
-  portfolioData: any[]; // Replace with your actual type
+  portfolioData: any[];
   watchlist: string[];
   onRemoveFromWatchlist: (symbol: string) => void;
   calculateReturns: (symbol: string) => any;
