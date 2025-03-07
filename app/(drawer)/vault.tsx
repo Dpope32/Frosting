@@ -42,24 +42,6 @@ export default function VaultScreen() {
     showToast('Entry added successfully', 'success')
   }
 
-  const handleDelete = (id: string) => {
-    Alert.alert('Delete Entry', 'Are you sure you want to delete this entry?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteVaultEntry(id)
-            showToast('Entry deleted successfully', 'success')
-          } catch {
-            Alert.alert('Error', 'Failed to delete entry. Please try again.')
-          }
-        },
-      },
-    ])
-  }
-
   useEffect(() => {
     if (Platform.OS !== 'web') return
     const handleResize = () => setWindowWidth(window.innerWidth)
@@ -76,7 +58,7 @@ export default function VaultScreen() {
   }
 
   const columnCount = getColumnCount()
-  const columnWidth = `calc(${50 / columnCount}% - ${(columnCount - 1) * 8 / columnCount}px)`
+  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 8 / columnCount}px)`
 
   return (
     <YStack f={1} mt={isWeb ? 50 : 90} bg={isDark ? '#000000' : '#ffffff'} marginLeft={isWeb? 24 : 0}>
@@ -212,7 +194,7 @@ export default function VaultScreen() {
               width={columnWidth}
               minWidth={300}
               maxWidth={400}
-              height={140}
+              height={120}
               hoverStyle={{
                 transform: [{ scale: 1.02 }],
                 borderColor: primaryColor,

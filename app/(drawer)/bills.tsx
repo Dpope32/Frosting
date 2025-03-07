@@ -56,7 +56,7 @@ export default function BillsScreen() {
       <ScrollView 
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
-          padding: isWeb ? 8 : 8,
+          padding: isWeb ? 4 : 8,
           paddingHorizontal: isWeb ? 0 : 8,
           paddingLeft: isWeb ? 24 : 12,
           paddingRight: isWeb ? 8 : 12,
@@ -75,7 +75,7 @@ export default function BillsScreen() {
             <XStack 
               key={`skeleton-${index}`} 
               bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-              p="$4" 
+              p={isWeb ? "$3" : "$4"} 
               mb="$2"
               borderRadius="$4" 
               ai="center" 
@@ -210,7 +210,7 @@ export default function BillsScreen() {
                 width={columnWidth}
                 minWidth={240}
                 maxWidth={400}
-                height={140}
+                height={120}
                 position="relative"
                 opacity={isPastDue ? 0.8 : 1}
                 hoverStyle={{ 
