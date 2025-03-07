@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sheet, Text, Theme } from 'tamagui'
+import { Sheet, Text, Theme, isWeb } from 'tamagui'
 import { KeyboardAvoidingView, Platform, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, { FadeIn } from 'react-native-reanimated'
@@ -20,7 +20,7 @@ export function BaseCardModal({
   onOpenChange, 
   title, 
   children,
-  snapPoints = [80],
+  snapPoints = isWeb ? [90] : [80],
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000

@@ -180,7 +180,7 @@ export const TaskSection = ({
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             bottom: -30,
-            right: -4,
+            right: -2,
             width: 28,
             height: 28,
             borderRadius: 14,
@@ -197,7 +197,7 @@ export const TaskSection = ({
             alignItems: 'center',
           }}
         >
-          <Ionicons   name="add"   size={isWeb ? 30 : 26}  color="#dbd0c6" />
+          <Ionicons name="add" size={isWeb ? 26 : 26}  color="#dbd0c6" />
         </Pressable>
       </Stack>
       

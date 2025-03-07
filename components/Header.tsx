@@ -141,11 +141,7 @@ export function Header({ title }: HeaderProps) {
                   } as any : {})
                 }}
               >
-                <Ionicons 
-                  name={isSportsScreen ? "basketball-outline" : "settings-outline"}
-                  size={isWeb ? 22 : 20} 
-                  color={textColor} 
-                />
+                <Ionicons name={isSportsScreen ? "basketball-outline" : "settings-outline"} size={isWeb ? 20 : 20}  color={textColor} />
               </Pressable>
             </Stack>
           </XStack>

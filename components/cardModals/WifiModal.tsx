@@ -113,7 +113,7 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
           borderWidth={1}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
         >
-          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">Current Speed</Text>
+          <Text fontFamily={"$body"} color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">Current Speed</Text>
           {isLoading ? (
             <YStack alignItems="center" marginTop="$2">
               <Spinner size="small" color="$gray10" />
@@ -127,6 +127,7 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
               fontSize={32} 
               fontWeight="600"
               marginTop="$2"
+              fontFamily={"$body"}
             >
               {speed || 'N/A'}
             </Text>
@@ -139,11 +140,11 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
           borderWidth={1}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
         >
-          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">Network Details</Text>
+          <Text fontFamily={"$body"} color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">Network Details</Text>
           {isLoading ? ( 
             <Spinner size="small" color="$gray10" />
           ) : error ? (
-            <Text color="#ff6b6b" fontSize={14} marginTop="$2"> {error}</Text>
+            <Text fontFamily={"$body"} color="#ff6b6b" fontSize={14} marginTop="$2"> {error}</Text>
           ) : details?.type === 'wifi' && wifiDetails ? (
             <YStack gap="$2" marginTop="$2">
               <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}> SSID: {wifiDetails.ssid || 'Unknown'} </Text>
@@ -153,6 +154,7 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
               <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}> Subnet: {details.details?.subnet || 'Unknown'}</Text>
               {details.isInternetReachable !== null && (
                 <Text 
+                fontFamily={"$body"}
                   color={details.isInternetReachable ? 
                     (isDark ? "#22c55e" : "#16a34a") : 
                     (isDark ? "#ef4444" : "#dc2626")
@@ -165,7 +167,7 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
               )}
             </YStack>
           ) : (
-            <Text color="#a0a0a0" fontSize={14} marginTop="$2">
+            <Text fontFamily={"$body"} color="#a0a0a0" fontSize={14} marginTop="$2">
               Not connected to WiFi
             </Text>
           )}
@@ -177,12 +179,13 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
           borderWidth={1}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
         >
-          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="500">Connection Status</Text>
+          <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontFamily={"$body"} fontWeight="500">Connection Status</Text>
           <YStack gap="$2" marginTop="$2">
-            <Text color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+            <Text  fontFamily={"$body"} color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
               Type: {details?.type || 'Unknown'}
             </Text>
             <Text 
+             fontFamily={"$body"}
               color={details?.isConnected ? 
                 (isDark ? "#22c55e" : "#16a34a") : 
                 (isDark ? "#ef4444" : "#dc2626")
@@ -192,7 +195,7 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
             >
               Status: {isLoading ? 'Checking...' : details?.isConnected ? 'Connected' : 'Disconnected'}
             </Text>
-            <Text color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+            <Text  fontFamily={"$body"} color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
               Data Usage: {details?.details?.isConnectionExpensive ? 'Metered' : 'Unmetered'}
             </Text>
           </YStack>

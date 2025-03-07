@@ -193,7 +193,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
     >
       <YStack gap="$3" paddingVertical="$2">
         <YStack>
-          <Text color="$colorSubdued" fontSize={12} marginBottom="$1">
+          <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
             Ticker Symbol
           </Text>
           <Input
@@ -204,6 +204,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             autoCapitalize="characters"
             disabled={!!stock}
             opacity={!!stock ? 0.6 : 1}
+             fontFamily="$body"
             {...inputStyle}
           />
           
@@ -269,7 +270,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
         </YStack>
 
         <YStack>
-          <Text color="$colorSubdued" fontSize={12} marginBottom="$1">
+          <Text color="$colorSubdued"  fontFamily="$body" fontSize={12} marginBottom="$1">
             Quantity
           </Text>
           <Input
@@ -283,7 +284,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
         </YStack>
 
         <YStack>
-          <Text color="$colorSubdued" fontSize={12} marginBottom="$1">
+          <Text color="$colorSubdued"  fontFamily="$body" fontSize={12} marginBottom="$1">
             Company Name
           </Text>
           <Input
@@ -293,6 +294,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             placeholderTextColor="$color11"
             disabled={true}
             opacity={0.6}
+             fontFamily="$body"
             {...inputStyle}
           />
         </YStack>

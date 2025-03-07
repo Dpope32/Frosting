@@ -17,7 +17,6 @@ interface PortfolioModalProps {
 }
 
 export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
-  const primaryColor = useUserStore(s => s.preferences.primaryColor)
   const { prices, totalValue, principal, historicalData } = usePortfolioStore()
   const currentTotalValue = totalValue ?? 0
   const [isEditingPrincipal, setIsEditingPrincipal] = useState(false)
@@ -76,7 +75,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [80] : [75]}
+      snapPoints={Platform.OS === 'web' ? [85] : [75]}
     >
       <YStack gap={Platform.OS === 'web' ? "$2" : "$3"} paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$5" : "$2"}>
         <YStack>
@@ -258,7 +257,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                             />
                             <YStack>
                               {isWeb ? (
-                                <XStack alignItems="center" gap="$4">
+                                <XStack alignItems="center" gap="$2">
                                   <Text 
                                     color={isDark ? "#fff" : "#000"} 
                                     fontSize={16} 

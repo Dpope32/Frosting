@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
-import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle } from 'tamagui'
+import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
@@ -134,13 +134,14 @@ export function BillRecommendationModal({
         onOpenChange(newOpen)
       }}
       title={`${category} Bills`}
-      snapPoints={[85]}
+      snapPoints = {isWeb ? [90] : [85]}
       zIndex={200000}
     >
-      <YStack gap="$4" paddingHorizontal="$1" paddingBottom="$8">
+      <YStack gap="$4" paddingHorizontal="$1" paddingBottom={isWeb ? "$4" : "$8"}>
         <Text
           color={isDark ? "#dbd0c6" : "#666"}
           fontSize={16}
+          fontFamily={"$body"}
           opacity={0.9}
         >
           Select bills to add to your list:
@@ -173,14 +174,15 @@ export function BillRecommendationModal({
                   onCheckedChange={() => handleToggleBill(index)}
                   backgroundColor={selectedBills[index] ? (isDark ? "#dbd0c6" : "#000") : "transparent"}
                   borderColor={isDark ? "#dbd0c6" : "#000"}
-                  marginRight="$2"
+                  marginRight="$2.5"
                 />
                 
                 <YStack flex={1} gap="$2">
                   <Text
                     color={isDark ? "#fff" : "#000"}
-                    fontSize={16}
+                    fontSize={15}
                     fontWeight="500"
+                    fontFamily={"$body"}
                   >
                     {bill.name}
                   </Text>
@@ -189,7 +191,7 @@ export function BillRecommendationModal({
                     <XStack gap="$2" flexWrap="wrap">
                       <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
                         <Ionicons name="cash-outline" size={16} color={isDark ? "#999" : "#666"} />
-                        <Text color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
+                        <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
                           Amount:
                         </Text>
                         <XStack
@@ -200,7 +202,7 @@ export function BillRecommendationModal({
                           flex={1}
                           alignItems="center"
                         >
-                          <Text color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
+                          <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
                             $
                           </Text>
                           <DebouncedTextInput
@@ -221,7 +223,7 @@ export function BillRecommendationModal({
                       
                       <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
                         <Ionicons name="calendar-outline" size={16} color={isDark ? "#999" : "#666"} />
-                        <Text color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
+                        <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
                           Due Date:
                         </Text>
                         <XStack

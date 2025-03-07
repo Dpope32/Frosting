@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useColorScheme, TextInput, Animated as RNAnimated } from 'react-native'
-import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle } from 'tamagui'
+import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
@@ -133,19 +133,17 @@ export function VaultRecommendationModal({
         console.log(`VaultRecommendationModal onOpenChange - category: ${category}, newOpen: ${newOpen}`)
         onOpenChange(newOpen)
       }}
-      title={`${category} Accounts`}
-      snapPoints={[85]}
-      zIndex={200000}
+     title={`${category} Accounts`}
+      snapPoints={isWeb? [90] : [85]}
     >
-      <YStack gap="$4" paddingHorizontal="$1" paddingBottom="$8">
+      <YStack gap="$4" paddingBottom={isWeb ? "$1" : "$8"}>
         <Text 
           color={isDark ? "#dbd0c6" : "#666"} 
-          fontSize={16}
+          fontSize={15}
           opacity={0.9}
+          fontFamily="$body"
         >
-          Select accounts to add to your vault:
-        </Text>
-        
+       </Text>
         <ScrollView 
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}

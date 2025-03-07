@@ -54,7 +54,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
           maxWidth={400}
           gap="$4"
         >
-          <Text color="$color" fontSize="$6" fontWeight="bold" mb="$2">
+          <Text color="$color" fontFamily="$body"fontSize="$6" fontWeight="bold" mb="$2">
             Add New Bill
           </Text>
           

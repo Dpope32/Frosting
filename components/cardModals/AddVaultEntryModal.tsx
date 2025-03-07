@@ -47,7 +47,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           maxWidth={400}
           gap="$4"
         >
-          <Text color="$color" fontSize="$6" fontWeight="bold" mb="$2">
+          <Text color="$color" fontFamily="$body" fontSize="$6" fontWeight="bold" mb="$2">
             Add New Entry
           </Text>
           
@@ -58,6 +58,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
             backgroundColor="$backgroundHover"
             borderColor="$borderColor"
             placeholderTextColor="$placeholderColor"
+            fontFamily="$body"
             color="$color"
           />
           
@@ -68,6 +69,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
             backgroundColor="$backgroundHover"
             borderColor="$borderColor"
             placeholderTextColor="$placeholderColor"
+            fontFamily="$body"
             color="$color"
           />
           
@@ -79,6 +81,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
             backgroundColor="$backgroundHover"
             borderColor="$borderColor"
             placeholderTextColor="$placeholderColor"
+            fontFamily="$body"
             color="$color"
           />
 
