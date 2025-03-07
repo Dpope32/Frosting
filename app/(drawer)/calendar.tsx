@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
@@ -14,6 +14,17 @@ import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { calendarStyles } from '@/components/calendar/CalendarStyles';
 import { getUSHolidays } from '@/services/holidayService';
+
+// Helper function to detect if device is iPad
+const isIpad = () => {
+  const { width, height } = Dimensions.get('window');
+  // iPad detection based on screen dimensions and platform
+  return (
+    Platform.OS === 'ios' &&
+    Math.min(width, height) >= 768 &&
+    Math.max(width, height) >= 1024
+  );
+};
 
 export default function CalendarScreen() {
   const colorScheme = useColorScheme();
@@ -104,12 +115,15 @@ export default function CalendarScreen() {
     }
   };
   
-
+  // Determine columns based on device type
+  const isWeb = Platform.OS === 'web';
+  const isIpadDevice = isIpad();
+  
   return (
     <View style={calendarStyles.container}>
       <Legend isDark={isDark} />
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
-        {Platform.OS === 'web' ? (
+        {isWeb || isIpadDevice ? (
           <View style={calendarStyles.webMonthsContainer}>
             {months.map((date, index) => (
               <View key={index} style={calendarStyles.webMonthWrapper}>
@@ -165,7 +179,6 @@ export default function CalendarScreen() {
         isDark={isDark}
         primaryColor={primaryColor}
       />
-
 
       {/* Calendar Analytics Modal */}
       <CalendarAnalytics

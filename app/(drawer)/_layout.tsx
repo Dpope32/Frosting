@@ -6,7 +6,17 @@ import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } 
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
-import { useDrawerStyles } from '../../components/shared/styles'
+import { useDrawerStyles } from '../../components/shared/styles';
+
+// Helper function to detect if device is iPad
+const isIpad = () => {
+  const { width, height } = Dimensions.get('window');
+  return (
+    Platform.OS === 'ios' &&
+    Math.min(width, height) >= 768 &&
+    Math.max(width, height) >= 1024
+  );
+};
 
 const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 
@@ -31,7 +41,6 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
       
       // If it's a file URI that might not work on web, use the fallback
       if (profilePicture.startsWith('file:')) {
-       // console.log('Detected file URI on web, using fallback');
         return require('@/assets/images/adaptive-icon.png');
       }
       
@@ -91,15 +100,30 @@ export default function DrawerLayout() {
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
+  
   // Brighter inactive color for dark mode on mobile
   const inactiveColor = isDark 
     ? Platform.OS === 'web' ? '#444' : '#777' 
     : '#999';
+  
   const isWeb = Platform.OS === 'web';
+  const isIpadDevice = isIpad();
+  const isPermanentDrawer = isWeb || isIpadDevice;
+  
   const styles = useDrawerStyles();
+  
+  // Get device dimensions for responsive sizing
+  const { width: deviceWidth } = Dimensions.get('window');
+  
+  // Drawer width calculation
+  // Web: 25% of window width (min 280px, max window width)
+  // iPad: Fixed 280px (increased from standard)
+  // Mobile: Standard 250px
   const drawerWidth = isWeb 
-    ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 
-    : 250
+    ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280
+    : isIpadDevice
+      ? 250 
+      : 250;
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} isWeb={isWeb} />
@@ -126,7 +150,7 @@ export default function DrawerLayout() {
         width: drawerWidth,
         borderRightWidth: 1,
         borderColor,
-        ...(isWeb ? { zIndex: 20 } : {})
+        ...(isPermanentDrawer ? { zIndex: 20 } : {})
       },
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
@@ -136,33 +160,33 @@ export default function DrawerLayout() {
         : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
       drawerItemStyle: {
         // Add border radius to selected tab on mobile
-        borderRadius: Platform.OS !== 'web' ? 8 : 0,
+        borderRadius: !isPermanentDrawer ? 8 : 0,
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
         // Add horizontal margin on mobile for better appearance
-        ...(Platform.OS !== 'web' ? { marginHorizontal: 4 } : {})
+        ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
       },
       drawerLabelStyle: {
-        fontSize: 16,
-        fontWeight: "600" as const, // Type assertion to match expected fontWeight values
+        fontSize: isIpadDevice ? 17 : 16, // Slightly larger font for iPad
+        fontWeight: "600" as const,
         marginLeft: -8,
       },
       drawerContentStyle: {
         backgroundColor 
       },
       // Use explicit string literals for drawerType
-      drawerType: isWeb ? 'permanent' as const : 'front' as const, // 'front' performs better than 'slide'
-      overlayColor: isWeb ? 'transparent' : 'rgba(0,0,0,0.5)',
-      swipeEnabled: !isWeb,
-      swipeEdgeWidth: 150, // Smaller edge width for more precise detection
+      drawerType: isPermanentDrawer ? 'permanent' as const : 'front' as const,
+      overlayColor: isPermanentDrawer ? 'transparent' : 'rgba(0,0,0,0.5)',
+      swipeEnabled: !isPermanentDrawer,
+      swipeEdgeWidth: 150,
       drawerStatusBarAnimation: 'fade',
       drawerHideStatusBarOnOpen: true,
       keyboardDismissMode: 'on-drag',
     };
 
     // Add gesture handler props for better performance
-    if (!isWeb) {
+    if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
         enabled: true,
         activeOffsetX: [-20, 20],
@@ -172,14 +196,14 @@ export default function DrawerLayout() {
       
       // Add additional optimizations for mobile
       options.sceneContainerStyle = {
-        transform: [{ translateX: 0 }], // Force hardware acceleration
+        transform: [{ translateX: 0 }],
       };
       
       options.minSwipeDistance = 5;
     }
     
     return options;
-  }, [backgroundColor, drawerWidth, borderColor, isWeb, inactiveColor, isDark, primaryColor]);
+  }, [backgroundColor, drawerWidth, borderColor, isPermanentDrawer, inactiveColor, isDark, primaryColor, isIpadDevice]);
 
   return (
     <View style={styles.wrapper}>

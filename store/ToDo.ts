@@ -20,7 +20,8 @@ export interface Task {
   updatedAt: string
   scheduledDate?: string
   recurrencePattern: RecurrencePattern
-  recurrenceDate?: string 
+  recurrenceDate?: string
+  showInCalendar?: boolean 
 }
 
 interface ProjectStore {

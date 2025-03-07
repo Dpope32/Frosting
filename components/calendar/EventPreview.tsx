@@ -10,7 +10,8 @@ export const EventPreview: React.FC<{
   isDark: boolean
   primaryColor: string
 }> = ({ event, onEdit, onDelete, isDark, primaryColor }) => {
-  const isBirthday = event.type === 'birthday'
+  const isBirthday = event.type === 'birthday';
+  const isTask = event.type === 'task';
 
   const dynamicStyles = StyleSheet.create({
     container: {
@@ -82,14 +83,15 @@ export const EventPreview: React.FC<{
           </Text>
         )}
       </View>
-      {!isBirthday && (
+      {!isBirthday && !isTask && ( 
         <TouchableOpacity onPress={onEdit} style={styles.editIconButton}>
           <Ionicons name="pencil" size={17} style={dynamicStyles.icon} />
         </TouchableOpacity>
       )}
     </View>
-  )
-}
+  );
+};
+
 
 const styles = StyleSheet.create({
   titleContainer: {

@@ -6,8 +6,6 @@ import { useCalendarStore, CalendarEvent } from '@/store/CalendarStore';
 import { useBillStore } from '@/store/BillStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useVaultStore } from '@/store/VaultStore';
-import { vaultStorage } from '@/utils/Storage';
-import { VAULT_DATA } from '@/constants/vaultData';
 import { generateBillEvents, generateRandomDate, generateRandomTime } from '@/services/calendarService';
 import { calendarStyles } from './CalendarStyles';
 
@@ -38,7 +36,7 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
         if (!acc[type]) acc[type] = 0;
         acc[type] += 1;
         return acc;
-      }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0, wealth: 0, health: 0, holiday: 0 });
+      }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0, wealth: 0, health: 0, holiday: 0, task: 0 });
       
       console.log("Events by type:", eventsByType);
       
@@ -138,10 +136,10 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
       ];
 
       const generateEvents = (events: string[], type: CalendarEvent['type']) => {
-        return events.map(title => {
-          // Generate a random date between now and 2 years in the future
+        return events.map((title, index) => {
+          // Generate a date that's between 0 and 60 days from now
           const futureDate = new Date();
-          futureDate.setFullYear(futureDate.getFullYear() + 2 * Math.random());
+          futureDate.setDate(futureDate.getDate() + index * 3 + Math.floor(Math.random() * 5)); 
           
           return {
             date: futureDate.toISOString().split('T')[0],
@@ -191,21 +189,21 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
         await addEntry(entry);
       }
 
-      // Double-check what was added
-      setTimeout(() => {
-        const store = useCalendarStore.getState();
-        const eventsByType = store.events.reduce((acc, event) => {
-          const type = event.type || 'personal';
-          if (!acc[type]) acc[type] = 0;
-          acc[type] += 1;
-          return acc;
-        }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0, wealth: 0, health: 0, holiday: 0 });
-        
-        console.log("Events by type after generation:", eventsByType);
-        
-        const vaultStore = useVaultStore.getState();
-        console.log("Vault entries after generation:", vaultStore.getEntries().length);
-      }, 1000);
+        // In the setTimeout function, update the eventsByType initialization:
+        setTimeout(() => {
+          const store = useCalendarStore.getState();
+          const eventsByType = store.events.reduce((acc, event) => {
+            const type = event.type || 'personal';
+            if (!acc[type]) acc[type] = 0;
+            acc[type] += 1;
+            return acc;
+          }, { personal: 0, work: 0, family: 0, birthday: 0, bill: 0, nba: 0, wealth: 0, health: 0, holiday: 0, task: 0 });
+          
+          console.log("Events by type after generation:", eventsByType);
+          
+          const vaultStore = useVaultStore.getState();
+          console.log("Vault entries after generation:", vaultStore.getEntries().length);
+        }, 1000);
 
       showToast('Added test events, bills, and vault entries', 'success');
       if (Platform.OS !== 'web') {
