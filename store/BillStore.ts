@@ -31,10 +31,12 @@ export interface Bill {
 
 interface BillStore {
   bills: Record<string, Bill>;
+  monthlyIncome: number;
   addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => void;
   deleteBill: (id: string) => void;
   getBills: () => Bill[];
   clearBills: () => void;
+  setMonthlyIncome: (income: number) => void;
 }
 
 // Using the createPersistStorage helper from our AsyncStorage wrapper
@@ -44,6 +46,7 @@ export const useBillStore = create<BillStore>()(
   persist(
     (set, get) => ({
       bills: {},
+      monthlyIncome: 0,
 
       addBill: (billData) => {
         const id = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -81,6 +84,12 @@ export const useBillStore = create<BillStore>()(
 
       clearBills: () => {
         set({ bills: {} });
+      },
+
+      setMonthlyIncome: (income: number) => {
+        // Ensure income is not negative
+        const validIncome = Math.max(0, income);
+        set({ monthlyIncome: validIncome });
       },
     }),
     {

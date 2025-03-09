@@ -1,12 +1,19 @@
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Bill, useBillStore } from '@/store/BillStore';
+import { useMemo } from 'react';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useProjectStore, WeekDay } from '@/store/ToDo';
 import { format } from 'date-fns';
 
 export function useBills() {
   const queryClient = useQueryClient();
-  const { addBill: addBillToStore, deleteBill: deleteBillFromStore, getBills } = useBillStore();
+  const { 
+    addBill: addBillToStore, 
+    deleteBill: deleteBillFromStore, 
+    getBills,
+    monthlyIncome,
+    setMonthlyIncome 
+  } = useBillStore();
   const { addEvent, deleteEvent, events } = useCalendarStore();
   const { addTask } = useProjectStore();
 
@@ -78,10 +85,25 @@ export function useBills() {
     queryClient.refetchQueries({ queryKey: ['bills'] });
   };
 
+  // Calculate total monthly bills amount
+  const totalMonthlyAmount = useMemo(() => {
+    if (!bills || bills.length === 0) return 0;
+    return bills.reduce((total, bill) => total + bill.amount, 0);
+  }, [bills]);
+
+  // Calculate monthly balance (income - bills)
+  const monthlyBalance = useMemo(() => {
+    return monthlyIncome - totalMonthlyAmount;
+  }, [monthlyIncome, totalMonthlyAmount]);
+
   return {
     bills,
     isLoading,
     addBill,
-    deleteBill
+    deleteBill,
+    monthlyIncome,
+    setMonthlyIncome,
+    totalMonthlyAmount,
+    monthlyBalance
   };
 }

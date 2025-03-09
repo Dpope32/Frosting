@@ -1,22 +1,33 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform } from 'react-native';
 import { Button, Paragraph, XStack, YStack, Text, Card } from 'tamagui';
-import { Plus, X, CheckCircle, DollarSign } from '@tamagui/lucide-icons';
+import { Plus, X, CheckCircle, DollarSign, Edit3 } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
+import { IncomeModal } from '@/components/cardModals/IncomeModal';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
 import { BillRecommendationChip } from '@/utils/BillRecommendations';
 import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
   const [housingModalOpen, setHousingModalOpen] = useState(false);
   const [transportationModalOpen, setTransportationModalOpen] = useState(false);
   const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
   const [insuranceModalOpen, setInsuranceModalOpen] = useState(false);
   
-  const { bills, addBill, deleteBill, isLoading } = useBills();
+  const { 
+    bills, 
+    addBill, 
+    deleteBill, 
+    isLoading, 
+    monthlyIncome, 
+    setMonthlyIncome,
+    totalMonthlyAmount,
+    monthlyBalance
+  } = useBills();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -43,23 +54,95 @@ export default function BillsScreen() {
   };
   
   const columnCount = getColumnCount();
-  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 16 / columnCount}px)`;
+  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 38 / columnCount}px)`;
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
-  const totalMonthlyAmount = useMemo(() => {
-    if (!bills || bills.length === 0) return 0;
-    return bills.reduce((total, bill) => total + bill.amount, 0);
-  }, [bills]);
-
   return (
-    <YStack f={1} mt={isWeb? 40 : 90} bg={isDark ? "#000000" : "#ffffff"}>
+    <YStack f={1} mt={isWeb? 60 : 90} bg={isDark ? "#000000" : "#ffffff"}>
+      {/* Income Section */}
+      <Card
+        width={isWeb ? "95%" : "95%"}
+        mx="auto"
+        p="$4"
+        borderRadius="$4"
+        bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+        borderWidth={1}
+        borderColor={isDark ? "#333" : "#e0e0e0"}
+        mb="$4"
+      >
+        <YStack gap="$4">
+          {/* Monthly Income Row */}
+          <XStack ai="center" jc="space-between">
+            <XStack ai="center" gap="$2">
+              <DollarSign size={20} color={primaryColor} />
+              <Text 
+                fontSize="$4" 
+                fontWeight="bold" 
+                color={isDark ? "#fff" : "#000"}
+                fontFamily="$body"
+              >
+                Monthly Income:
+              </Text>
+            </XStack>
+            <XStack ai="center" gap="$2">
+            <Button
+                size="$3"
+                bg="transparent"
+                onPress={() => setIsIncomeModalVisible(true)}
+                icon={<Edit3 size={18} color={isDark ? "#999" : "#666"} />}
+              />
+              <Text 
+                fontSize="$4" 
+                fontWeight="bold" 
+                color={isDark ? "#fff" : "#000"}
+                fontFamily="$body"
+              >
+                ${monthlyIncome.toFixed(2)}
+              </Text>
+            </XStack>
+          </XStack>
+          
+          {/* Total Bills Row */}
+          <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
+            <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fff" : "#000"} fontFamily="$body">
+              Total Bills:
+            </Text>
+            <Text 
+              fontSize="$4" 
+              fontWeight="bold" 
+              color={getAmountColor(totalMonthlyAmount)}
+              fontFamily="$body"
+            >
+              ${totalMonthlyAmount.toFixed(2)}
+            </Text>
+          </XStack>
+          
+          {/* Monthly Balance Row */}
+          {bills && bills.length > 0 && (
+            <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
+              <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fff" : "#000"} fontFamily="$body">
+                Monthly P/L:
+              </Text>
+              <Text 
+                fontSize="$4" 
+                fontWeight="bold" 
+                color={monthlyBalance >= 0 ? "#4CAF50" : "#FF5252"}
+                fontFamily="$body"
+              >
+                ${monthlyBalance.toFixed(2)}
+              </Text>
+            </XStack>
+          )}
+        </YStack>
+      </Card>
+      
       <ScrollView 
-      showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
           padding: isWeb ? 4 : 8,
           paddingHorizontal: isWeb ? 0 : 8,
-          paddingLeft: isWeb ? 24 : 12,
-          paddingRight: isWeb ? 8 : 12,
+          paddingLeft: isWeb ? 40 : 12,
+          paddingRight: isWeb ? 24 : 12,
           paddingBottom: 100,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
@@ -358,47 +441,13 @@ export default function BillsScreen() {
         ) : null}
       </ScrollView>
       
-      {bills && bills.length > 0 && (
-        <Card
-          position="absolute"
-          bottom={32}
-          left={10}
-          right={0}
-          mx="auto"
-          width={isWeb ? 300 : "60%"}
-          p={isWeb ? "$4" : "$3"}
-          borderRadius="$4"
-          bg={isDark ? "#3a3a3a" : "#f5f5f5"}
-          borderWidth={1}
-          borderColor={isDark ? "#333" : "#e0e0e0"}
-          zIndex={999}
-        >
-          <XStack ai="center" jc="space-between">
-            <XStack ai="center" gap="$3">
-              <DollarSign size={20} color="$green9" />
-              <Text 
-                fontSize="$4" 
-                fontWeight="bold" 
-                color={isDark ? "#fff" : "#000"}
-                fontFamily="$body"
-                mr={isWeb? "$4" : 0}
-              >
-              Total: 
-              </Text>
-            </XStack>
-            <Text 
-              fontSize="$4" 
-              fontWeight={800} 
-              color={getAmountColor(totalMonthlyAmount)}
-              fontFamily="$body"
-            >
-              ${Math.round(totalMonthlyAmount)}
-            </Text>
-          </XStack>
-        </Card>
-      )}
-      
       <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
+      <IncomeModal 
+        isVisible={isIncomeModalVisible} 
+        onClose={() => setIsIncomeModalVisible(false)} 
+        currentIncome={monthlyIncome}
+        onSubmit={setMonthlyIncome}
+      />
       <Button 
         onPress={() => setIsModalVisible(true)} 
         position="absolute" 

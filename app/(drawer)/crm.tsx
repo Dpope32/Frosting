@@ -14,12 +14,14 @@ import type { Person } from "@/types/people";
 import { generateTestContacts } from "@/components/crm/testContacts";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
+import { requestNotificationPermissions } from "@/services/notificationServices";
 
 const { width } = Dimensions.get("window");
-const PADDING = 16;
-const GAP = 24; // Increased from 16 to add more space between cards
-const NUM_COLUMNS = Platform.OS === 'web' ? 5 : 2;
-const CARD_WIDTH = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+const PADDING = Platform.OS === 'web' ? 18: 16;
+const GAP = Platform.OS === 'web' ? 24 : 24; 
+const NUM_COLUMNS = Platform.OS === 'web' ? 4 : 2;
+const CARD_WIDTH = (width - (22 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+const CARD_WIDTH_MOBILE = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
 const STORAGE_KEY = 'contacts-store';
 
 export default function CRM() {
@@ -28,25 +30,10 @@ export default function CRM() {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
-  
-  // Helper function to request notification permissions
-  const requestNotificationPermissions = async () => {
-    try {
-      const Notifications = require('expo-notifications');
-      const { status } = await Notifications.getPermissionsAsync();
-      if (status !== 'granted') {
-        await Notifications.requestPermissionsAsync();
-      }
-    } catch (error) {
-      console.log("Error requesting notification permissions:", error);
-    }
-  };
-  
-  // Helper function to import contacts
+
   const importContacts = async (data: Contacts.Contact[]) => {
     // Track how many contacts were actually imported
     let importedCount = 0;
@@ -140,9 +127,7 @@ export default function CRM() {
   };
 
   const handleCloseEdit = () => {
-    // First close the edit modal
     setEditModalVisible(false);
-    // Wait for animation to complete before resetting other states
     setTimeout(() => {
       setSelectedPerson(null);
       setExpandedId(null);
@@ -150,15 +135,15 @@ export default function CRM() {
   };
 
   const renderItem = ({ item, index }: { item: Person; index: number }) => {
-    // Calculate margins based on position in the grid
     const isFirstInRow = index % NUM_COLUMNS === 0;
-    const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS - 1;
+    const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS;
     
     return (
       <View
         style={{
-          width: CARD_WIDTH,
-          marginLeft: isFirstInRow ? PADDING : GAP / 2,
+          width: isWeb ? CARD_WIDTH : CARD_WIDTH_MOBILE,
+          marginLeft: isFirstInRow ? PADDING : GAP / 1,
+          paddingLeft: isWeb ? 24 : 0,
           marginRight: isLastInRow ? PADDING : GAP / 2,
           marginBottom: GAP /2
         }}
@@ -174,10 +159,7 @@ export default function CRM() {
   };
 
   const handleDebugPress = () => {
-    // Create a deep copy of the people store state
     const peopleState = JSON.parse(JSON.stringify(usePeopleStore.getState()));
-    
-    // Remove profilePicture from each contact to avoid cluttering the logs
     if (peopleState.contacts) {
       Object.values(peopleState.contacts).forEach((contact: any) => {
         if (contact.profilePicture) {
@@ -185,14 +167,12 @@ export default function CRM() {
         }
       });
     }
-    
     console.log("People Store:", JSON.stringify(peopleState, null, 2));
     Alert.alert("Debug Info", "People store data logged to console (profilePicture data removed)");
   };
 
   return (
     <YStack flex={1} paddingTop={isWeb ? 12 : 80}>
-      {/* Development tools - only visible in dev mode */}
       {__DEV__ && (
         <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
           <Button
@@ -249,10 +229,10 @@ export default function CRM() {
           />
         </View>
       )}
-      <H4 marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
+      <H4  marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
-      <Separator borderColor="$gray8" borderWidth={1} my="$2" marginBottom={16} />
+      <Separator borderColor="$gray8" borderWidth={1}  marginBottom={16} />
       <FlatList
         key={JSON.stringify(allContacts)} 
         data={allContacts}
@@ -260,7 +240,7 @@ export default function CRM() {
         keyExtractor={(item) => item.id}
         numColumns={NUM_COLUMNS}
         contentContainerStyle={{
-          paddingBottom: 100
+          paddingBottom: 100,
         }}
         ListEmptyComponent={
           <XStack 
@@ -321,7 +301,7 @@ export default function CRM() {
               
               <XStack 
                 justifyContent="center"
-                paddingHorizontal={isWeb ? "$4" : "$1"}
+                paddingHorizontal={isWeb ? "$2" : "$1"}
                 gap="$2"
                 mt="$2"
               >

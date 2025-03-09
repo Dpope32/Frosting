@@ -58,7 +58,7 @@ export default function VaultScreen() {
   }
 
   const columnCount = getColumnCount()
-  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 8 / columnCount}px)`
+  const columnWidthWeb = `calc(${100 / columnCount}% - ${(columnCount - 100) / columnCount}px)`
 
   return (
     <YStack f={1} mt={isWeb ? 50 : 90} bg={isDark ? '#000000' : '#ffffff'} marginLeft={isWeb? 24 : 0}>
@@ -68,7 +68,7 @@ export default function VaultScreen() {
           padding: isWeb ? 8 : 6,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 0 : 12,
-          paddingLeft: isWeb ? 24 : 16,
+          paddingLeft: isWeb ? 12 : 16,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,
@@ -191,8 +191,8 @@ export default function VaultScreen() {
               borderColor={isDark ? '#333' : '#e0e0e0'}
               ai="center"
               animation="quick"
-              width={columnWidth}
-              minWidth={300}
+              width={columnWidthWeb}
+              minWidth={240}
               maxWidth={400}
               height={120}
               hoverStyle={{

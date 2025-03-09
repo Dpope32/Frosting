@@ -29,11 +29,15 @@ export function Toast() {
 interface ToastItemProps {
   id: string
   message: string
-  type: 'success' | 'error' | 'info'
+  type: 'success' | 'error' | 'info' | 'warning'
+  duration: number
+  fontFamily: string
+  position: string
+  createdAt: number
   onRemove: (id: string) => void
 }
 
-function ToastItem({ id, message, type, onRemove }: ToastItemProps) {
+function ToastItem({ id, message, type, fontFamily, duration, onRemove }: ToastItemProps) {
   const translateY = useRef(new Animated.Value(-100)).current
   const opacity = useRef(new Animated.Value(0)).current
 
@@ -89,7 +93,7 @@ function ToastItem({ id, message, type, onRemove }: ToastItemProps) {
         shadowOpacity={0.25}
         shadowRadius={8}
       >
-        <Text color="#fff" fontSize={16}>
+        <Text color="#fff" fontSize={16} fontFamily="$body">
           {message}
         </Text>
         {type === 'success' && (
@@ -100,6 +104,9 @@ function ToastItem({ id, message, type, onRemove }: ToastItemProps) {
         )}
         {type === 'info' && (
           <Ionicons name="information-circle" size={24} color="#3b82f6" />
+        )}
+        {type === 'warning' && (
+          <Ionicons name="warning" size={24} color="#f59e0b" />
         )}
       </XStack>
     </Animated.View>

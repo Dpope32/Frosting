@@ -26,7 +26,7 @@ const webSpecificStyles = Platform.OS === 'web' ? {
 export const styles = StyleSheet.create({
   container: {
     marginVertical: Platform.OS === 'web' ? 6 : 4,
-    marginHorizontal: Platform.OS === 'web' ? 4 : 2,
+    marginHorizontal: Platform.OS === 'web' ? 0 : 2,
     ...(Platform.OS === 'web' ? { 
       maxWidth: '100%' as any, // Changed back to 100% since we're handling columns in the parent component
       minWidth: '220px' as any, // Increased from 200px to 220px to make cards wider

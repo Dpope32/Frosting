@@ -98,8 +98,8 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
       ];
 
       const bills = [
-        'Rent Payment', 'Electricity Bill', 'Water Bill', 'Internet Bill',
-        'Phone Bill', 'Car Insurance', 'Health Insurance', 'Credit Card Payment',
+        'Rent', 'Mortgage', 'Electricity Bill', 'Water Bill', 'Internet Bill',
+        'Phone Bill', 'Gas', 'Car Insurance', 'Health Insurance', 'Credit Card',
         'Gym Membership', 'Streaming Services'
       ];
       

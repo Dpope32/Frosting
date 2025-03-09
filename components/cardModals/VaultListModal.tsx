@@ -88,6 +88,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
           color={style.textColor} 
           fontSize={13} 
           fontWeight="600"
+          fontFamily="$body"
           numberOfLines={1}
           textAlign="center"
         >
@@ -144,7 +145,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         modal
         open={open}
         onOpenChange={onOpenChange}
-        snapPoints={[80]}
+        snapPoints={isWeb ? [95] : [80]}
         dismissOnSnapToBottom
         dismissOnOverlayPress
         animation="quick"
@@ -164,7 +165,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
           {...(isWeb ? {
             style: {
               overflowY: 'auto',
-              maxHeight: '90vh',
+              maxHeight: '100vh',
               maxWidth: 800,
               margin: '0 auto',
               borderRadius: 8,
@@ -203,7 +204,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
             </YStack>
             
             {data?.items && data.items.length > 0 ? (
-              <YStack gap="$3" mt="$2">
+              <YStack gap={Platform.OS === 'web' ? '$1' : '$3'} mt="$2">
                 {data.items.map((entry: VaultEntry) => (
                   <XStack
                     key={entry.id}

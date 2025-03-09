@@ -1,16 +1,11 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
-import {
-  BillRecommendationCategory,
-  RecommendedBill,
-  getRecommendedBills
-} from '@/utils/BillRecommendations'
+import { BillRecommendationCategory, getRecommendedBills} from '@/utils/BillRecommendations'
 
-// Custom debounced input component
 type DebouncedTextInputProps = {
   value: string
   onDebouncedChange: (value: string) => void
@@ -26,12 +21,10 @@ const DebouncedTextInput = ({
 }: DebouncedTextInputProps) => {
   const [text, setText] = useState(value)
   
-  // Update internal state when prop value changes
   useEffect(() => {
     setText(value)
   }, [value])
   
-  // Debounce the change notification
   useEffect(() => {
     const handler = setTimeout(() => {
       onDebouncedChange(text)

@@ -133,6 +133,7 @@ export const BillRecommendationChip: React.FC<BillRecommendationChipProps> = ({ 
       borderRadius={8}
       paddingHorizontal={isWeb ? "$4" : "$4"}
       paddingVertical="$1"
+      fontFamily="$body"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
       scale={1}
@@ -146,6 +147,7 @@ export const BillRecommendationChip: React.FC<BillRecommendationChipProps> = ({ 
           color={style.textColor} 
           fontSize={12} 
           fontWeight="600"
+          fontFamily="$body"
           numberOfLines={1}
         >
           {category}

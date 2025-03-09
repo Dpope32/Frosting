@@ -4,7 +4,7 @@ import { Pressable, Platform, useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
-import { BillRecommendationChip, BillRecommendationCategory } from '@/utils/BillRecommendations'
+import { BillRecommendationCategory } from '@/utils/BillRecommendations'
 import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal'
 
 interface BillsListModalProps {
@@ -79,6 +79,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
           fontSize={12} 
           fontWeight="600"
           numberOfLines={1}
+          fontFamily="$body"
           textAlign="center"
         >
           {category}
@@ -87,7 +88,6 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
     )
   }
   
-  // Get chip style based on category (copied from your BillRecommendationChip)
   const getChipStyle = (category: BillRecommendationCategory) => {
     switch (category) {
       case 'Housing':
@@ -129,7 +129,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
         modal
         open={open}
         onOpenChange={onOpenChange}
-        snapPoints={[80]}
+        snapPoints = {isWeb ? [95] : [85]}
         dismissOnSnapToBottom
         dismissOnOverlayPress
         animation="quick"
@@ -149,7 +149,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
           {...(isWeb ? {
             style: {
               overflowY: 'auto',
-              maxHeight: '90vh',
+              maxHeight: '100vh',
               maxWidth: 800,
               margin: '0 auto',
               borderRadius: 8,
@@ -188,7 +188,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
             </YStack>
             
             {bills && bills.length > 0 ? (
-              <YStack gap="$3" mt="$2">
+              <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2">
                 {bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
                   const IconComponent = getIconForBill(bill.name)
                   const amountColor = getAmountColor(bill.amount)
