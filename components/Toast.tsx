@@ -93,7 +93,7 @@ function ToastItem({ id, message, type, fontFamily, duration, onRemove }: ToastI
         shadowOpacity={0.25}
         shadowRadius={8}
       >
-        <Text color="#fff" fontSize={16} fontFamily="$body">
+        <Text color="#fff" fontSize={16}>
           {message}
         </Text>
         {type === 'success' && (

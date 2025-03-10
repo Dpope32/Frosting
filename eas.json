@@ -13,7 +13,8 @@
       },
       "ios": {
         "simulator": false
-      }
+      },
+      "node": "20.11.1"
     },
     "preview": {
       "distribution": "internal",
@@ -24,7 +25,8 @@
       },
       "ios": {
         "simulator": false
-      }
+      },
+      "node": "20.11.1"
     },
     "production": {
       "ios": {
@@ -35,7 +37,8 @@
       "cache": {
         "disabled": false,
         "key": "production-v1"
-      }
+      },
+      "node": "20.11.1"
     }
   },
   "submit": {

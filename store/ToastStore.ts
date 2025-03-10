@@ -28,7 +28,7 @@ interface ToastStore {
 }
 
 const DEFAULT_DURATION = 3000
-const DEFAULT_FONT_FAMILY = "$body"
+const DEFAULT_FONT_FAMILY = "System"
 const DEFAULT_POSITION = "top-right"
 
 export const useToastStore = create<ToastStore>((set) => ({
