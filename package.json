@@ -16,7 +16,7 @@
     "windows": "react-native run-windows",
     "mac": "react-native run-macos",
     "electron": "electron electron-main.js",
-    "build-web": "expo export:web",
+    "build-web": "npx expo export --platform web",
     "build-electron": "electron-builder build --win"
   },
   "jest": {
@@ -107,7 +107,7 @@
     "zeego": "^2.0.4",
     "zustand": "^5.0.3"
   },
-"devDependencies": {
+  "devDependencies": {
     "@babel/core": "^7.25.2",
     "@react-native-community/cli": "^15.1.3",
     "@types/jest": "^29.5.12",
@@ -128,7 +128,7 @@
     "productName": "Frosting",
     "files": [
       "electron-main.js",
-      "web-build/**/*"
+      "dist/**/*"
     ],
     "win": {
       "target": "nsis",

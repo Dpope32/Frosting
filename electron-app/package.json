@@ -1,0 +1,29 @@
+{
+    "name": "frosting-desktop",
+    "version": "1.0.0",
+    "description": "Frosting Desktop App",
+    "main": "electron-main.js",
+    "author": "deedaw22",
+    "build": {
+      "appId": "com.deedaw22.frosting",
+      "productName": "Frosting",
+      "files": [
+        "electron-main.js",
+        "../dist/**/*"
+      ],
+      "win": {
+        "target": "nsis",
+        "icon": "../assets/images/icon.png"
+      }
+    },
+    "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build",
+    "build-mac": "electron-builder build --mac",
+    "build-win": "electron-builder build --win"
+    },
+    "devDependencies": {
+      "electron": "^35.0.0",
+      "electron-builder": "^25.1.8"
+    }
+  }
