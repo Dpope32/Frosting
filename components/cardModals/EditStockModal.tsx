@@ -116,7 +116,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
   const debouncedSearch = useCallback(
     debounce((query: string) => {
       if (query.trim().length > 0) {
-        const results = searchStocks(query, 10)
+        const results = searchStocks(query, 10, true) // true to exclude portfolio stocks
         setSearchResults(results)
       } else {
         setSearchResults([])
@@ -249,9 +249,9 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             >
               <ScrollView showsVerticalScrollIndicator={false}>
                 <YStack gap="$2">
-                  {searchResults.map(result => (
+                  {searchResults.map((result, index) => (
                     <XStack
-                      key={result.symbol}
+                      key={`${result.symbol}-${index}`}
                       backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)"}
                       borderRadius={8}
                       padding="$2"

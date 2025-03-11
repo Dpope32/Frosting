@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Sheet, YStack, XStack, Text, ScrollView } from 'tamagui'
-import { Pressable, Platform, useColorScheme } from 'react-native'
+import { Pressable, Platform, useColorScheme, Alert } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
@@ -270,7 +270,22 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                       </XStack>
                       
                       <Pressable
-                        onPress={() => deleteBill(bill.id)}
+                        onPress={() => {
+                          if (Platform.OS === 'web') {
+                            if (window.confirm("Are you sure you want to delete this bill?")) {
+                              deleteBill(bill.id);
+                            }
+                          } else {
+                            Alert.alert(
+                              "Delete Bill",
+                              "Are you sure you want to delete this bill?",
+                              [
+                                { text: "Cancel" },
+                                { text: "Delete", onPress: () => deleteBill(bill.id) }
+                              ]
+                            );
+                          }
+                        }}
                         style={({ pressed }) => ({
                           opacity: pressed ? 0.7 : 1,
                           padding: 8

@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons'
 import { TaskCard } from '@/components/home/TaskCard'
 import { getCategoryColor } from '@/components/utils'
 import { Task } from '@/store/ToDo'
-import { TaskRecommendationModal } from '@/components/cardModals/TaskRecommendationModal'
 import { RecommendationChip } from '@/utils/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 
@@ -200,8 +199,6 @@ export const TaskSection = ({
           <Ionicons name="add" size={isWeb ? 26 : 26}  color="#dbd0c6" />
         </Pressable>
       </Stack>
-      
-      <TaskRecommendationModal />
     </Stack>
   )
 }

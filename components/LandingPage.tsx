@@ -8,7 +8,6 @@ import { TemperatureModal } from './cardModals/TemperatureModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
-import { EditStockModal } from './cardModals/EditStockModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
 
@@ -106,7 +105,6 @@ export function LandingPage() {
       />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
-      <EditStockModal />
     </Stack>
   )
 }

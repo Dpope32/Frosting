@@ -84,6 +84,15 @@ const createTaskFilter = () => {
     lastToday = dateStr;
     lastTasks = tasks;
 
+    // Reset completed status for recurring tasks at the start of a new day
+    Object.values(tasks).forEach(task => {
+      if (task.recurrencePattern !== 'one-time') {
+        // Only update the completed property based on today's completion status
+        // This ensures recurring tasks start as uncompleted each day
+        task.completed = task.completionHistory[dateStr] || false;
+      }
+    });
+
     const filtered = Object.values(tasks).filter(task => isTaskDue(task, currentDate));
 
     const uniqueFiltered = filtered.filter((task, index, self) => 
@@ -179,6 +188,7 @@ export const useProjectStore = create<ProjectStore>()(
           let needsMigration = false;
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          const today = new Date().toISOString().split('T')[0];
           
           Object.keys(tasks).forEach(id => {
             if (!tasks[id].recurrencePattern) {
@@ -199,6 +209,12 @@ export const useProjectStore = create<ProjectStore>()(
               tasks[id].completionHistory = Object.entries(tasks[id].completionHistory)
                 .filter(([date]) => new Date(date) >= thirtyDaysAgo)
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {});
+            }
+            
+            // For recurring tasks, reset completed status based on today's completion
+            if (tasks[id].recurrencePattern !== 'one-time') {
+              // Only mark as completed if it was completed today
+              tasks[id].completed = tasks[id].completionHistory[today] || false;
             }
           });
           

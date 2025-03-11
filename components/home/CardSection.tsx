@@ -22,7 +22,7 @@ export const CardSection = ({ onPortfolioPress, onTemperaturePress, onQuotePress
   return (
     <XStack marginTop="$3" gap={isWeb ? "$2" : "$0"} flexWrap="nowrap" justifyContent="center" paddingHorizontal={isWeb ? "$1" : "$0"}>
       <Pressable onPress={onPortfolioPress}>
-        <PortfolioCard />
+        <PortfolioCard roundToWholeNumber={true} />
       </Pressable>
       <Pressable onPress={onTemperaturePress}>
         <TemperatureCard />

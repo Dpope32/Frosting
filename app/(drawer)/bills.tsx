@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, useColorScheme, Platform } from 'react-native';
+import { ScrollView, useColorScheme, Platform, Alert } from 'react-native';
 import { Button, Paragraph, XStack, YStack, Text, Card } from 'tamagui';
 import { Plus, X, CheckCircle, DollarSign, Edit3 } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
@@ -59,7 +59,6 @@ export default function BillsScreen() {
 
   return (
     <YStack f={1} mt={isWeb? 60 : 90} bg={isDark ? "#000000" : "#ffffff"}>
-      {/* Income Section */}
       <Card
         width={isWeb ? "95%" : "95%"}
         mx="auto"
@@ -70,11 +69,9 @@ export default function BillsScreen() {
         borderColor={isDark ? "#333" : "#e0e0e0"}
         mb="$4"
       >
-        <YStack gap="$4">
-          {/* Monthly Income Row */}
+        <YStack gap="$2">
           <XStack ai="center" jc="space-between">
-            <XStack ai="center" gap="$2">
-              <DollarSign size={20} color={primaryColor} />
+            <XStack ai="center" gap="$1">
               <Text 
                 fontSize="$4" 
                 fontWeight="bold" 
@@ -86,7 +83,7 @@ export default function BillsScreen() {
             </XStack>
             <XStack ai="center" gap="$2">
             <Button
-                size="$3"
+                size="$2"
                 bg="transparent"
                 onPress={() => setIsIncomeModalVisible(true)}
                 icon={<Edit3 size={18} color={isDark ? "#999" : "#666"} />}
@@ -102,7 +99,6 @@ export default function BillsScreen() {
             </XStack>
           </XStack>
           
-          {/* Total Bills Row */}
           <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
             <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fff" : "#000"} fontFamily="$body">
               Total Bills:
@@ -117,7 +113,6 @@ export default function BillsScreen() {
             </Text>
           </XStack>
           
-          {/* Monthly Balance Row */}
           {bills && bills.length > 0 && (
             <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
               <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fff" : "#000"} fontFamily="$body">
@@ -341,7 +336,22 @@ export default function BillsScreen() {
                       size="$3"
                       bg="transparent"
                       pressStyle={{ scale: 0.9 }}
-                      onPress={() => deleteBill(bill.id)}
+                      onPress={() => {
+                        if (Platform.OS === 'web') {
+                          if (window.confirm("Are you sure you want to delete this bill?")) {
+                            deleteBill(bill.id);
+                          }
+                        } else {
+                          Alert.alert(
+                            "Delete Bill",
+                            "Are you sure you want to delete this bill?",
+                            [
+                              { text: "Cancel" },
+                              { text: "Delete", onPress: () => deleteBill(bill.id) }
+                            ]
+                          );
+                        }
+                      }}
                       icon={<X size={18} color="#ff4444" />}
                     />
                   </XStack>
@@ -358,7 +368,7 @@ export default function BillsScreen() {
                       <IconComponent size={26} color={isDark ? "white" : "#666"} />
                     </YStack>
                     <YStack flex={1}>
-                      <Paragraph color={amountColor} fontSize="$4" fontWeight={500} fontFamily="$body">${bill.amount.toFixed(2)}</Paragraph>
+                      <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body">${bill.amount.toFixed(2)}</Paragraph>
                       <Paragraph color="#666" fontSize="$3" fontFamily="$body">Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
                     </YStack>
                   </XStack>
@@ -420,11 +430,11 @@ export default function BillsScreen() {
                     fontFamily="$body"
                   >
                     {bill.name}
-                    {isDueToday && " (due today!)"}
+                    {isDueToday && " (due today)"}
                   </Text>
-                  <XStack ai="center" gap="$2">
-                    <Paragraph color={amountColor} fontSize="$4" fontWeight={800} fontFamily="$body">$ {bill.amount.toFixed(2)}</Paragraph>
-                    <Paragraph color="#666" fontSize="$4" fontFamily="$body">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
+                  <XStack ai="center" gap="$1">
+                    <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body"> ${bill.amount.toFixed(2)}</Paragraph>
+                    <Paragraph color="#888" fontSize="$4" fontFamily="$body">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
                   </XStack>
                 </YStack>
                 <Button 
@@ -432,7 +442,22 @@ export default function BillsScreen() {
                   bg="transparent" 
                   pressStyle={{ scale: 0.9 }} 
                   animation="quick" 
-                  onPress={() => deleteBill(bill.id)} 
+                  onPress={() => {
+                    if (Platform.OS === 'web') {
+                      if (window.confirm("Are you sure you want to delete this bill?")) {
+                        deleteBill(bill.id);
+                      }
+                    } else {
+                      Alert.alert(
+                        "Delete Bill",
+                        "Are you sure you want to delete this bill?",
+                        [
+                          { text: "Cancel" },
+                          { text: "Delete", onPress: () => deleteBill(bill.id) }
+                        ]
+                      );
+                    }
+                  }} 
                   icon={<X size={18} color="#ff4444" />} 
                 />
               </XStack>

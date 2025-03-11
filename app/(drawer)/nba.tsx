@@ -35,7 +35,7 @@ export default function Sports() {
     return (
       <YStack
         flex={1}
-        marginTop={Platform.OS === 'web' ? 0 : 90}
+        marginTop={Platform.OS === 'web' ? 0 : 80}
         bg={isDark ? '#000000' : '#ffffff'}
       >
         <NBATeamPage />
@@ -47,7 +47,7 @@ export default function Sports() {
   return (
     <YStack
       flex={1}
-      marginTop={Platform.OS === 'web' ? 0 : 90}
+      marginTop={Platform.OS === 'web' ? 0 : 80}
       bg={isDark ? '#000000' : '#ffffff'}
     >
       <Tabs

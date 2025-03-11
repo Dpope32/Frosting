@@ -10,16 +10,33 @@ export const initializeStocksData = async () => {
 };
 
 // Search stocks by name or symbol
-export const searchStocks = (query: string, limit: number = 10): StockData[] => {
+export const searchStocks = (query: string, limit: number = 10, excludePortfolio: boolean = true): StockData[] => {
  // console.log(`Searching ${stocksData.length} stocks for: "${query}"`);
   
   if (!query) return [];
   
   const normalizedQuery = query.toLowerCase().trim();
   
+  // Get current portfolio stocks to exclude if needed
+  const portfolioSymbols: string[] = [];
+  if (excludePortfolio) {
+    try {
+      // Import dynamically to avoid circular dependencies
+      const { portfolioData } = require('../utils/Portfolio');
+      portfolioSymbols.push(...portfolioData.map((stock: any) => stock.symbol));
+    } catch (error) {
+      console.error('Error getting portfolio data for filtering:', error);
+    }
+  }
+  
   // Score and sort results
   const results = stocksData
     .map(stock => {
+      // Skip stocks already in portfolio if excludePortfolio is true
+      if (excludePortfolio && portfolioSymbols.includes(stock.symbol)) {
+        return { stock, score: 1000 }; // Will be filtered out
+      }
+      
       const symbolMatch = stock.symbol.toLowerCase().indexOf(normalizedQuery);
       const nameMatch = stock.name ? stock.name.toLowerCase().indexOf(normalizedQuery) : -1;
       

@@ -7,6 +7,7 @@ import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
+import { LegalButton } from '@/components/drawer/LegalButton';
 
 // Helper function to detect if device is iPad
 const isIpad = () => {
@@ -72,6 +73,9 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
           <DrawerItemList {...props} />
         </DrawerContentScrollView>
       </View>
+      
+      {/* Legal & Privacy button at the bottom */}
+      <LegalButton />
     </View>
   );
 });
@@ -145,6 +149,7 @@ export default function DrawerLayout() {
         <Header title={options.title || route.name} />
       ),
       headerTransparent: true,
+      useNativeDriver: true,
       drawerStyle: {
         backgroundColor,
         width: drawerWidth,
@@ -189,9 +194,9 @@ export default function DrawerLayout() {
     if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
         enabled: true,
-        activeOffsetX: [-20, 20],
-        failOffsetY: [-20, 20],
-        velocityThreshold: 0.3,
+        activeOffsetX: [-10, 10],
+        failOffsetY: [-30, 30],
+        velocityThreshold: 0.1,
       };
       
       // Add additional optimizations for mobile

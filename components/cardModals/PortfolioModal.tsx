@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useColorScheme, StyleSheet, Platform, Alert } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button, Input, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -14,13 +14,43 @@ interface PortfolioModalProps {
   onOpenChange: (open: boolean) => void
 }
 
+// Custom hook for debouncing values
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  
+  useEffect(() => {
+    // Set a timeout to update the debounced value after the specified delay
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    
+    // Clear the timeout if the value changes or the component unmounts
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+  
+  return debouncedValue;
+}
+
 export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const { prices, totalValue, principal, historicalData } = usePortfolioStore()
   const currentTotalValue = totalValue ?? 0
   const [isEditingPrincipal, setIsEditingPrincipal] = useState(false)
   const [principalInput, setPrincipalInput] = useState(principal.toString())
+  const debouncedPrincipalInput = useDebounce(principalInput, 300) // 300ms debounce delay
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  
+  // Update principal when debounced value changes
+  useEffect(() => {
+    if (isEditingPrincipal) {
+      const newValue = parseFloat(debouncedPrincipalInput)
+      if (!isNaN(newValue) && newValue >= 0) {
+        updatePrincipal(newValue)
+      }
+    }
+  }, [debouncedPrincipalInput, isEditingPrincipal])
   
   // Use the EditStockStore
   const openEditStockModal = useEditStockStore(s => s.openModal)
@@ -103,10 +133,6 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                     keyboardType="numeric"
                     autoFocus
                     onBlur={() => {
-                      const newValue = parseFloat(principalInput)
-                      if (!isNaN(newValue) && newValue >= 0) {
-                        updatePrincipal(newValue)
-                      }
                       setIsEditingPrincipal(false)
                     }}
                     backgroundColor="$backgroundHover"

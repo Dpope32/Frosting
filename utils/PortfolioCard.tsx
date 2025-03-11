@@ -4,7 +4,11 @@ import { getValueColor } from '@/constants/valueHelper';
 import { usePortfolioQuery, usePortfolioStore } from '@/store/PortfolioStore';
 import { StorageUtils } from '@/store/AsyncStorage';
 
-export function PortfolioCard() {
+interface PortfolioCardProps {
+  roundToWholeNumber?: boolean;
+}
+
+export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps) {
   const { isLoading, refetch } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
@@ -48,8 +52,8 @@ export function PortfolioCard() {
     ? 'Loading...'
     : totalValue !== null
     ? `$${totalValue.toLocaleString('en-US', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2,
+        minimumFractionDigits: roundToWholeNumber ? 0 : 2, 
+        maximumFractionDigits: roundToWholeNumber ? 0 : 2,
         notation: 'compact',
         compactDisplay: 'short'
       })}`

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useProjectStore, WeekDay } from '@/store/ToDo';
 import { format } from 'date-fns';
+import { useToastStore } from '@/store/ToastStore';
 
 export function useBills() {
   const queryClient = useQueryClient();
@@ -16,6 +17,7 @@ export function useBills() {
   } = useBillStore();
   const { addEvent, deleteEvent, events } = useCalendarStore();
   const { addTask } = useProjectStore();
+  const { showToast } = useToastStore();
 
   const { data: bills, isLoading } = useQuery({
     queryKey: ['bills'],
@@ -62,6 +64,9 @@ export function useBills() {
       });
     }
 
+    // Show success toast
+    showToast("Bill added successfully", "success");
+
     // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });
     queryClient.refetchQueries({ queryKey: ['bills'] });
@@ -79,6 +84,9 @@ export function useBills() {
     for (const event of billEvents) {
       deleteEvent(event.id);
     }
+
+    // Show success toast
+    showToast("Bill deleted successfully", "success");
 
     // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });

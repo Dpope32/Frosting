@@ -26,7 +26,7 @@ export function Header({ title }: HeaderProps) {
   
   // Check if we're on the sports or bills screen
   const isSportsScreen = route.name === 'nba';
-  const isBillsScreen = route.name === 'bills';
+  const isBillsScreen = route.name === 'bills'; // Correct route name based on logs
   const isVaultScreen = route.name === 'vault';
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#bbb';
   const isWeb = Platform.OS === 'web';
@@ -141,7 +141,7 @@ export function Header({ title }: HeaderProps) {
                   } as any : {})
                 }}
               >
-                <Ionicons name={isSportsScreen ? "basketball-outline" : "settings-outline"} size={isWeb ? 20 : 20}  color={textColor} />
+                <Ionicons name={getHeaderIcon()} size={isWeb ? 20 : 20}  color={textColor} />
               </Pressable>
             </Stack>
           </XStack>

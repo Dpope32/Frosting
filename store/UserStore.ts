@@ -15,6 +15,7 @@ interface UserPreferences {
   quoteEnabled: boolean;
   favoriteNBATeam?: string; // Team code (e.g., "OKC")
   showNBAGamesInCalendar: boolean; // Whether to show NBA games in the calendar
+  permissionsExplained: boolean; // Whether permissions have been explained to the user
 }
 
 interface UserStore {
@@ -32,7 +33,8 @@ const defaultPreferences: UserPreferences = {
   hasCompletedOnboarding: false,
   notificationsEnabled: true,
   quoteEnabled: true,
-  showNBAGamesInCalendar: true, 
+  showNBAGamesInCalendar: true,
+  permissionsExplained: false,
 };
 
 export const useUserStore = create<UserStore>()(
