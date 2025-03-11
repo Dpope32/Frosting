@@ -1,5 +1,5 @@
 {
-  "name": "frosting",
+  "name": "kaiba-nexus",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -124,8 +124,8 @@
   },
   "private": true,
   "build": {
-    "appId": "com.deedaw22.frosting",
-    "productName": "Frosting",
+    "appId": "com.deedaw22.kaiba_nexus",
+    "productName": "Kaiba Nexus",
     "files": [
       "electron-main.js",
       "dist/**/*"

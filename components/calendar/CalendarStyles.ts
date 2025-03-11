@@ -74,12 +74,13 @@ export const calendarStyles = StyleSheet.create({
     padding: 16,
   },
   modalContent: {
-    width: '95%',
-    minHeight: Platform.OS === 'web' ? '87.5%' : '65%',
-    maxHeight: Platform.OS === 'web' ? '95%' : '90%',
+    width: '90%',
+    minHeight: Platform.OS === 'web' ? '87.5%' : '72%',
+    maxHeight: Platform.OS === 'web' ? '95%' : '100%',
     borderRadius: 16,
     elevation: 5,
     overflow: 'hidden',
+    padding: 8,
     flexDirection: 'column',
   },
   modalHeader: {
@@ -105,14 +106,14 @@ export const calendarStyles = StyleSheet.create({
   },
   formScrollView: {
     flex: 1,
-    padding: Platform.OS === 'web' ? 20 : 16,
+    padding: Platform.OS === 'web' ? 20 : 8,
   },
   input: {
     borderWidth: 1,
     borderColor: '#444',
     borderRadius: 12,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: Platform.OS === 'web' ? 16 : 8,
     fontSize: 16,
   },
   bottomButtonContainer: {
@@ -143,11 +144,11 @@ export const calendarStyles = StyleSheet.create({
     letterSpacing: 1,
   },
   formGroup: {
-    gap: 12,
+    gap: Platform.OS === 'web' ? 12 : 6,
   },
   typeSelector: {
     flexGrow: 0,
-    marginBottom: 16,
+    marginBottom: Platform.OS === 'web' ? 16 : 8,
   },
   typeButton: {
     paddingHorizontal: 16,
@@ -161,7 +162,7 @@ export const calendarStyles = StyleSheet.create({
   },
   bigActionButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: Platform.OS === 'web' ? 12 : 8,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',

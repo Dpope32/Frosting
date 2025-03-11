@@ -17,8 +17,8 @@ import { useUserStore } from "@/store/UserStore";
 import { requestNotificationPermissions } from "@/services/notificationServices";
 
 const { width } = Dimensions.get("window");
-const PADDING = Platform.OS === 'web' ? 18: 16;
-const GAP = Platform.OS === 'web' ? 24 : 24; 
+const PADDING = Platform.OS === 'web' ? 18: 12;
+const GAP = Platform.OS === 'web' ? 24 : 12; 
 const NUM_COLUMNS = Platform.OS === 'web' ? 4 : 2;
 const CARD_WIDTH = (width - (22 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
 const CARD_WIDTH_MOBILE = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;

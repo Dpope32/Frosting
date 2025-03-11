@@ -84,21 +84,11 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         alignItems="center"
         onPress={handlePress}
       >
-        <Text 
-          color={style.textColor} 
-          fontSize={13} 
-          fontWeight="600"
-          fontFamily="$body"
-          numberOfLines={1}
-          textAlign="center"
-        >
-          {category}
-        </Text>
+        <Text  color={style.textColor} fontSize={13}  fontWeight="600" fontFamily="$body" numberOfLines={1} textAlign="center"> {category} </Text>
       </XStack>
     )
   }
-  
-  // Get chip style based on category
+
   const getChipStyle = (category: VaultRecommendationCategory) => {
     switch (category) {
       case 'Social Media':
@@ -159,7 +149,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         <Sheet.Frame
           backgroundColor={isDark ? "$gray1" : "white"}
           padding="$4"
-          gap={Platform.OS === 'web' ? '$4' : '$5'}
+          gap={Platform.OS === 'web' ? '$4' : '$3'}
           borderTopLeftRadius="$6"
           borderTopRightRadius="$6"
           {...(isWeb ? {

@@ -1,5 +1,5 @@
 // src/components/TemperatureCard.tsx
-import { Stack, Text, Spinner } from 'tamagui';
+import { Stack, Text, Spinner, isWeb } from 'tamagui';
 import React, { useEffect, useRef } from 'react';
 import { useUserStore } from '@/store/UserStore';
 import { useWeatherQuery, useWeatherStore } from '@/store/WeatherStore';
@@ -41,7 +41,7 @@ export function TemperatureCard() {
       padding="$3"
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
-      minWidth={90}
+      minWidth={80}
       alignItems="center"
       justifyContent="center"
     >
@@ -53,7 +53,7 @@ export function TemperatureCard() {
       ) : (
         <Text
           color={valueColor}
-          fontSize={18}
+          fontSize={isWeb ? 18 : 16}
           fontWeight="bold"
           fontFamily="$body"
         >

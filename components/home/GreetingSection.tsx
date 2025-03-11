@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { XStack, Text } from 'tamagui'
+import { XStack, Text, isWeb } from 'tamagui'
 
 interface GreetingSectionProps { username: string }
 
@@ -36,7 +36,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
 
   return (
     <XStack alignItems="center" justifyContent="space-between">
-      <XStack alignItems="center" gap="$2" paddingLeft="$4">
+      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$4" : "$3"}>
         <XStack alignItems="center" gap="$1">
           <Text
             fontFamily="$body"

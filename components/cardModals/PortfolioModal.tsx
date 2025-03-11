@@ -5,8 +5,6 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { BaseCardModal } from './BaseCardModal'
 import { usePortfolioStore, updatePrincipal, removeFromPortfolio } from '@/store/PortfolioStore'
 import { portfolioData } from '@/utils/Portfolio'
-import { Stock } from '@/types'
-import { useUserStore } from '@/store/UserStore'
 import { useEditStockStore } from '@/store/EditStockStore'
 import { getValueColor } from '@/constants/valueHelper'
 import Animated, { FadeIn } from 'react-native-reanimated'
@@ -75,7 +73,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [85] : [75]}
+      snapPoints={Platform.OS === 'web' ? [85] : [80]}
     >
       <YStack gap={Platform.OS === 'web' ? "$2" : "$3"} paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$5" : "$2"}>
         <YStack>
@@ -123,14 +121,14 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   <Text
                     fontSize={14}
                     fontWeight="600"
-                    color={isDark ? '#ef4444' : '#b91c1c'}
+                    color={isDark ? '#aaa' : '#b91c1c'}
                     onPress={() => {
                       setIsEditingPrincipal(true)
                       setPrincipalInput(principal.toString())
                     }}
                     fontFamily="$body"
                   >
-                    ${principal.toLocaleString('en-US', {
+                    -${principal.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2
                     })}

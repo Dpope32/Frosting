@@ -7,7 +7,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>frosting</string>
+    <string>Kaiba Nexus</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -27,14 +27,14 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>frosting</string>
-          <string>com.deedaw22.frosting</string>
+          <string>kaiba-nexus</string>
+          <string>com.deedaw22.kaiba_nexus</string>
         </array>
       </dict>
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>exp+frosting</string>
+          <string>exp+kaiba-nexus</string>
         </array>
       </dict>
     </array>

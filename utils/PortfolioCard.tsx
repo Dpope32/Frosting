@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stack, Text } from 'tamagui';
+import { isWeb, Stack, Text } from 'tamagui';
 import { getValueColor } from '@/constants/valueHelper';
 import { usePortfolioQuery, usePortfolioStore } from '@/store/PortfolioStore';
 import { StorageUtils } from '@/store/AsyncStorage';
@@ -66,14 +66,14 @@ export function PortfolioCard() {
       padding="$3"
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
-      minWidth={90}
+      minWidth={80}
       alignItems="center"
       justifyContent="center"
       gap="$0.5"
     >
       <Text
         color={valueColor}
-        fontSize={18}
+        fontSize={isWeb ? 18 : 16}
         fontWeight="bold"
         fontFamily="$body"
         textAlign="center"

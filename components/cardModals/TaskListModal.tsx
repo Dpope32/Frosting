@@ -113,19 +113,9 @@ const formatDayName2 = (day: string) =>
         <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
           <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
             <XStack justifyContent="space-between" alignItems="center">
-              <Text
-                fontSize={20}
-                fontWeight="700"
-                fontFamily="$body"
-                color={isDark ? "$gray12" : "$gray11"}
-              >
-                All Tasks
-              </Text>
+              <Text fontSize={20} fontWeight="700" fontFamily="$body" color={isDark ? "$gray12" : "$gray11"}> All Tasks </Text>
               <Pressable
-                onPress={() => {
-                  syncGameTasks()
-                  onOpenChange(false)
-                }}
+                onPress={() => {syncGameTasks(), onOpenChange(false)}}
                 style={({ pressed }) => ({
                   opacity: pressed ? 0.7 : 1,
                   backgroundColor: isDark
@@ -150,53 +140,17 @@ const formatDayName2 = (day: string) =>
               marginTop="$2"
             >
               <XStack gap={Platform.OS === 'web' ? "$3" : "$2"} paddingRight="$4">
-                <RecommendationChip 
-                  category="Cleaning"  
-                  onPress={() => {
-                    onOpenChange(false) 
-                    openRecommendationModal('Cleaning')
-                  }}  
-                  isDark={isDark}
-                />
-                <RecommendationChip 
-                  category="Financial" 
-                  onPress={() => {
-                    onOpenChange(false)
-                    openRecommendationModal('Financial')
-                  }}  
-                  isDark={isDark}
-                />
-                <RecommendationChip 
-                  category="Gym" 
-                  onPress={() => {
-                    onOpenChange(false)
-                    openRecommendationModal('Gym')
-                  }} 
-                  isDark={isDark}
-                />
-                <RecommendationChip 
-                  category="Self-Care" 
-                  onPress={() => {
-                    onOpenChange(false)
-                    openRecommendationModal('Self-Care')
-                  }} 
-                  isDark={isDark}
-                />
+                <RecommendationChip category="Cleaning" onPress={() => {onOpenChange(false), openRecommendationModal('Cleaning')}} isDark={isDark}/>
+                <RecommendationChip category="Financial" onPress={() => {onOpenChange(false), openRecommendationModal('Financial')}} isDark={isDark}/>
+                <RecommendationChip category="Gym" onPress={() => {onOpenChange(false), openRecommendationModal('Gym')}} isDark={isDark}/>
+                <RecommendationChip category="Self-Care" onPress={() => {onOpenChange(false), openRecommendationModal('Self-Care')}} isDark={isDark}/>
               </XStack>
             </ScrollView>
           </YStack>
           {Object.entries(tasksByDay).map(([day, dayTasks]) =>
             dayTasks.length > 0 ? (
               <YStack key={day} marginBottom="$2">
-                <Text
-                  color={isDark ? "$gray12" : "$gray11"}
-                  fontSize={15}
-                  fontWeight="600"
-                  fontFamily="$body"
-                  marginBottom="$2"
-                >
-                  {formatDayName2(day)}
-                </Text>
+                <Text color={isDark ? "$gray12" : "$gray11"} fontSize={15} fontWeight="600" fontFamily="$body" marginBottom="$2"> {formatDayName2(day)} </Text>
                 {dayTasks.map((task: Task) => (
                   <XStack
                     key={task.id}
@@ -226,39 +180,12 @@ const formatDayName2 = (day: string) =>
                           {task.category}
                         </Text>
                         {task.time && (
-                          <Text
-                            fontFamily="$body"
-                            color={isDark ? "$gray11" : "$gray10"}
-                            fontSize={12}
-                            opacity={0.6}
-                          >
-                            {task.time}
-                          </Text>
-                        )}
-                        <Text
-                          fontFamily="$body"
-                          color={isDark ? "$gray11" : "$gray10"}
-                          fontSize={12}
-                          opacity={0.6}
-                        >
-                          {getScheduleText(task)}
-                        </Text>
+                          <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={12} opacity={0.6}>{task.time}</Text>)}
+                          <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={12}  opacity={0.6} >{getScheduleText(task)} </Text>
                       </XStack>
                     </YStack>
-                    <Pressable
-                      onPress={() => deleteTask(task.id)}
-                      style={({ pressed }) => ({
-                        opacity: pressed ? 0.7 : 1,
-                        padding: 4
-                      })}
-                    >
-                      <Ionicons
-                        name="close"
-                        size={18}
-                        color="#ff4444"
-                        style={{ fontWeight: 200 }}
-                        marginTop={Platform.OS === 'web' ? 0 : -16}
-                      />
+                    <Pressable onPress={() => deleteTask(task.id)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4})}>
+                      <Ionicons name="close" size={18}  color="#ff4444" style={{ fontWeight: 200 }} marginTop={Platform.OS === 'web' ? 0 : -16}/>
                     </Pressable>
                   </XStack>
                 ))}
@@ -267,24 +194,12 @@ const formatDayName2 = (day: string) =>
           )}
 
           {Object.values(tasksByDay).every(dayTasks => dayTasks.length === 0) && (
-            <YStack
-              backgroundColor={isDark ? "$gray2" : "$gray3"}
-              borderRadius={8}
-              padding="$4"
-              alignItems="center"
-            >
-              <Text
-                fontFamily="$body"
-                color={isDark ? "$gray12" : "$gray11"}
-                opacity={0.7}
-              >
-                No tasks found
-              </Text>
+            <YStack backgroundColor={isDark ? "$gray2" : "$gray3"} borderRadius={8} padding="$4" alignItems="center">
+              <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} opacity={0.7}> No tasks found</Text>
             </YStack>
           )}
         </ScrollView>
       </Sheet.Frame>
-      
     </Sheet>
   )
 }

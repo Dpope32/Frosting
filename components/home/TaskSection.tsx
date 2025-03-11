@@ -44,7 +44,7 @@ export const TaskSection = ({
         shadowRadius: 10
       }}
     >
-      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width="100%" marginBottom="$3" paddingLeft="$6">
+      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width="100%" marginBottom="$3" paddingLeft="$4">
         <Text 
           fontFamily="$body"
           color="#dbd0c6" 
@@ -126,7 +126,7 @@ export const TaskSection = ({
             }}
           >
             {todaysTasks.map((task: Task) => (
-              <Stack key={task.id} style={Platform.OS === 'web' ? {} : { marginBottom: 4, marginLeft: 10, width: '95%' }}>
+              <Stack key={task.id} style={Platform.OS === 'web' ? {} : { marginBottom: 8, marginLeft: 10, width: '95%' }}>
                 <TaskCard
                   title={task.name}
                   time={task.time}

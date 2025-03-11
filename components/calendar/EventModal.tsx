@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, Modal, TextInput, Platform, Switch } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Modal, TextInput, Platform, Switch, Dimensions } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore'
 import { EventPreview } from './EventPreview'
@@ -76,6 +76,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   primaryColor,
 }) => {
   const isWeb = Platform.OS === 'web'
+  const windowHeight = Dimensions.get('window').height
   const { scheduleEventNotifications } = useCalendarStore()
   const { preferences } = useUserStore()
   
@@ -139,7 +140,11 @@ export const EventModal: React.FC<EventModalProps> = ({
         onRequestClose={closeEventModals}
       >
         <View style={calendarStyles.modalContainer}>
-          <View style={[calendarStyles.modalContent, modalBackgroundStyle]}>
+          <View style={[
+            calendarStyles.modalContent, 
+            modalBackgroundStyle,
+            isWeb && { maxHeight: windowHeight * 0.9 }
+          ]}>
             <TouchableOpacity
               onPress={closeEventModals}
               style={{
@@ -242,27 +247,27 @@ export const EventModal: React.FC<EventModalProps> = ({
               <Ionicons name="close" size={24} color={isDark ? '#fff' : '#000'} />
             </TouchableOpacity>
 
-            <Text
-              style={[
-                calendarStyles.modalTitle,
-                {
-                  fontFamily: '$body',
-                  color: textColor,
-                  marginTop: 20,
-                  paddingLeft: 24,
-                  paddingVertical: 10,
-                  fontSize: 20,
-                  fontWeight: '600'
-                },
-              ]}
-            >
+              <Text
+                style={[
+                  calendarStyles.modalTitle,
+                  {
+                    fontFamily: '$body',
+                    color: textColor,
+                    marginTop: 10,
+                    paddingLeft: 24,
+                    paddingVertical: 6,
+                    fontSize: 20,
+                    fontWeight: '600'
+                  },
+                ]}
+              >
               {editingEvent ? 'Edit Event' : 'Add Event'} for {selectedDate?.toLocaleDateString()}
             </Text>
 
-            <ScrollView
-              style={calendarStyles.formScrollView}
-              showsVerticalScrollIndicator={false} 
-            >
+              <ScrollView
+                style={[calendarStyles.formScrollView, { paddingVertical: isWeb ? 0 : 8 }]}
+                showsVerticalScrollIndicator={false} 
+              >
               <View style={calendarStyles.formGroup}>
                 <TextInput
                   style={[
@@ -385,7 +390,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                         <TouchableOpacity
                           style={{
                             backgroundColor: primaryColor,
-                            paddingVertical: 12,
+                            paddingVertical: isWeb ? 12 : 4,
                             paddingHorizontal: 24,
                             borderRadius: 8,
                             alignSelf: 'flex-end'
@@ -448,12 +453,12 @@ export const EventModal: React.FC<EventModalProps> = ({
                   ))}
                 </ScrollView>
                 
-                <View style={{ marginTop: 20, paddingHorizontal: 4 }}>
+                <View style={{ marginTop: 12, paddingHorizontal: 4 }}>
                   <View style={{ 
                     flexDirection: 'row', 
                     justifyContent: 'space-between', 
                     alignItems: 'center',
-                    marginBottom: 12,
+                    marginBottom: 8,
                     paddingVertical: 4,
                     paddingHorizontal: 4,
                     borderRadius: 8
@@ -466,7 +471,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                       onValueChange={setNotifyOnDay}
                       trackColor={{ false: '#767577', true: primaryColor }}
                       thumbColor={notifyOnDay ? '#f4f3f4' : '#f4f3f4'}
-                      style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+                      style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }}
                     />
                   </View>
                   
@@ -487,12 +492,12 @@ export const EventModal: React.FC<EventModalProps> = ({
                       onValueChange={setNotifyBefore}
                       trackColor={{ false: '#767577', true: primaryColor }}
                       thumbColor={notifyBefore ? '#f4f3f4' : '#f4f3f4'}
-                      style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+                      style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }}
                     />
                   </View>
                   
                   {notifyBefore && (
-                    <View style={{ position: 'relative', marginBottom: Platform.OS === 'web' ? 0 : 160 }}>
+                    <View style={{ position: 'relative', marginBottom: isWeb ? 0 : 80 }}>
                       <TouchableOpacity
                         style={{
                           flexDirection: 'row',
@@ -501,7 +506,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                           padding: 12,
                           backgroundColor: isDark ? '#333333' : '#f0f0f0',
                           borderRadius: 8,
-                          marginTop: 8,
+                          marginTop: 4,
                         }}
                         onPress={() => setShowTimeOptions(!showTimeOptions)}
                       >
@@ -517,8 +522,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                       
                       {showTimeOptions && (
                         <View style={{
-                          position: Platform.OS === 'web' ? 'absolute' : 'relative',
-                          top: Platform.OS === 'web' ? '100%' : 0,
+                          position: isWeb ? 'absolute' : 'relative',
+                          top: isWeb ? '100%' : 0,
                           left: 0,
                           right: 0,
                           backgroundColor: isDark ? '#222222' : '#ffffff',
@@ -531,7 +536,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                           shadowRadius: 3.84,
                           elevation: 5,
                         }}>
-                          <ScrollView style={{ maxHeight: Platform.OS === 'web' ? 200 : 125 }}>
+                          <ScrollView style={{ maxHeight: isWeb ? 200 : 150 }}>
                             {NOTIFICATION_TIME_OPTIONS.map(option => (
                               <TouchableOpacity
                                 key={option.value}
@@ -567,7 +572,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               </View>
             </ScrollView>
 
-            <View style={calendarStyles.bottomButtonContainer}>
+            <View style={[calendarStyles.bottomButtonContainer, { marginTop: isWeb ? 8 : 0 }]}>
               <View style={[calendarStyles.modalButtons, { justifyContent: 'flex-end', alignItems: 'center' }]}>
                 <TouchableOpacity
                   style={[calendarStyles.bigActionButton, calendarStyles.cancelButton, { minWidth: 100, marginRight: 12 }]}

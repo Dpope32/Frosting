@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native'
 import { Sheet, Button, Input, YStack, XStack, Text, Circle } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
@@ -19,6 +19,35 @@ interface SettingsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
+
+type DebouncedInputProps = {
+  value: string
+  onDebouncedChange: (val: string) => void
+} & Omit<React.ComponentProps<typeof Input>, 'value' | 'onChangeText'>
+
+const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
+  ({ value, onDebouncedChange, ...props }, ref) => {
+    const [text, setText] = useState(value)
+    
+    useEffect(() => {
+      const handler = setTimeout(() => onDebouncedChange(text), 500)
+      return () => clearTimeout(handler)
+    }, [text, onDebouncedChange])
+
+    useEffect(() => {
+      setText(value)
+    }, [value])
+
+    return (
+      <Input 
+        ref={ref} 
+        {...props} 
+        value={text} 
+        onChangeText={setText}
+      />
+    )
+  }
+)
 const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
   styleItem,
   isSelected,
@@ -202,13 +231,29 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Username
                   </Text>
-                  <Input size="$3" placeholder="Enter username" value={settings.username} onChangeText={(text) => setSettings((prev) => ({ ...prev, username: text }))} backgroundColor={isDark ? '#333' : '#f5f5f5'} color={isDark ? '#fff' : '#000'} borderWidth={0} />
+                  <DebouncedInput 
+                    size="$3" 
+                    placeholder="Enter username" 
+                    value={settings.username} 
+                    onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, username: text }))} 
+                    backgroundColor={isDark ? '#333' : '#f5f5f5'} 
+                    color={isDark ? '#fff' : '#000'} 
+                    borderWidth={0} 
+                  />
                 </YStack>
                 <YStack width={110} gap="$1">
                   <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Zip Code
                   </Text>
-                  <Input size="$3" placeholder="Enter zip code" value={settings.zipCode} onChangeText={(text) => setSettings((prev) => ({ ...prev, zipCode: text }))} backgroundColor={isDark ? '#333' : '#f5f5f5'} color={isDark ? '#fff' : '#000'} borderWidth={0} />
+                  <DebouncedInput 
+                    size="$3" 
+                    placeholder="Enter zip code" 
+                    value={settings.zipCode} 
+                    onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, zipCode: text }))} 
+                    backgroundColor={isDark ? '#333' : '#f5f5f5'} 
+                    color={isDark ? '#fff' : '#000'} 
+                    borderWidth={0} 
+                  />
                 </YStack>
               </XStack>
             </YStack>
@@ -220,13 +265,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Quote
                   </Text>
-                  <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                  <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                 </YStack>
                 <YStack alignItems="center" gap={4}>
                   <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Notifications
                   </Text>
-                  <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                  <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
                 </YStack>
               </XStack>
               <YStack alignItems="center" marginTop={4} gap={4}>

@@ -2,12 +2,14 @@
 import { useUserStore } from '@/store/UserStore';
 import { useState, useEffect } from 'react';
 import { Redirect } from 'expo-router';
-import { useSportsAPI } from '@/hooks/useSportsAPI';
+import { useAppInitialization } from '@/hooks/useAppInitialization';
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
-  useSportsAPI();
+  
+  // Initialize the app (loads NBA and Thunder schedules, syncs games to tasks and calendar)
+  useAppInitialization();
 
   useEffect(() => {
     // Hide intro after 1 seconds

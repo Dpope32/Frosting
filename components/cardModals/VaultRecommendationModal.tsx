@@ -136,7 +136,7 @@ export function VaultRecommendationModal({
      title={`${category} Accounts`}
       snapPoints={isWeb? [90] : [85]}
     >
-      <YStack gap="$4" paddingBottom={isWeb ? "$1" : "$8"}>
+      <YStack gap={isWeb ? "$3" : "$1"} paddingBottom={isWeb ? "$1" : "$8"}>
         <Text 
           color={isDark ? "#dbd0c6" : "#666"} 
           fontSize={15}
@@ -155,7 +155,7 @@ export function VaultRecommendationModal({
           }}
           scrollEventThrottle={16}
         >
-          <YStack gap="$3">
+          <YStack gap={isWeb ? "$3" : "$2"}>
             {recommendedEntries.map((entry, index) => (
               <XStack 
                 key={index}

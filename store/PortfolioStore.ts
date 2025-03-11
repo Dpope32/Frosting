@@ -94,15 +94,14 @@ export const removeFromPortfolio = async (symbol: string) => {
     });
     
     // Update the store state
-    usePortfolioStore.setState({ totalValue: newTotal });
+    usePortfolioStore.setState({ 
+      totalValue: newTotal,
+      // Set lastUpdate to trigger components to refresh data if needed
+      lastUpdate: new Date()
+    });
     
-    // Force a refresh of the portfolio data
-    const { refetch } = usePortfolioQuery();
-    if (refetch) {
-      setTimeout(() => {
-        refetch();
-      }, 100);
-    }
+    // No need to call usePortfolioQuery() here as it's a React hook
+    // Components using this data will automatically refresh when needed
   } catch (error) {
     console.error('Error removing stock from portfolio:', error);
   }

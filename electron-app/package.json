@@ -1,12 +1,12 @@
 {
-    "name": "frosting-desktop",
+    "name": "kaiba-nexus-desktop",
     "version": "1.0.0",
-    "description": "Frosting Desktop App",
+    "description": "Kaiba Nexus Desktop App",
     "main": "electron-main.js",
     "author": "deedaw22",
     "build": {
-      "appId": "com.deedaw22.frosting",
-      "productName": "Frosting",
+      "appId": "com.deedaw22.kaiba_nexus",
+      "productName": "Kaiba Nexus",
       "files": [
         "electron-main.js",
         "../dist/**/*"

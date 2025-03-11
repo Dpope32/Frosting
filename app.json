@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "frosting",
-    "slug": "frosting",
-    "scheme": "frosting",
+    "name": "Kaiba",
+    "slug": "kaiba-nexus",
+    "scheme": "kaiba-nexus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -21,7 +21,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.deedaw22.frosting",
+      "bundleIdentifier": "com.deedaw22.kaiba_nexus",
       "icon": {
         "backgroundColor": "#000000"
       },
@@ -34,7 +34,7 @@
       }
     },
     "android": {
-      "package": "com.deedaw22.frosting",
+      "package": "com.deedaw22.kaiba_nexus",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"

@@ -26,7 +26,7 @@ const webSpecificStyles = Platform.OS === 'web' ? {
 export const styles = StyleSheet.create({
   container: {
     marginVertical: Platform.OS === 'web' ? 6 : 4,
-    marginHorizontal: Platform.OS === 'web' ? 0 : 2,
+    marginHorizontal: Platform.OS === 'web' ? 0 : 0,
     ...(Platform.OS === 'web' ? { 
       maxWidth: '100%' as any, // Changed back to 100% since we're handling columns in the parent component
       minWidth: '220px' as any, // Increased from 200px to 220px to make cards wider
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
     } : {
       lineHeight: 20,
       marginTop: -1,
-      marginLeft: -6,
+      marginLeft: 0,
     }),
   },
   occupationText: {
@@ -142,7 +142,7 @@ export const styles = StyleSheet.create({
     borderColor: "#FFD700"
   },
   checkmark: {
-    marginRight: -4, // Restored from 0 to -4 as requested
+    marginRight: 0, // Restored from 0 to -4 as requested
     marginLeft: -12
   },
   overlay: {

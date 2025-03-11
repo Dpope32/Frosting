@@ -38,16 +38,12 @@ export const getRecommendedVaultEntries = (category: VaultRecommendationCategory
       return [
         { name: 'Gmail' },
         { name: 'Outlook' },
-        { name: 'Yahoo Mail' },
         { name: 'iCloud' },
-        { name: 'ProtonMail' },
-        { name: 'Google Drive' },
-        { name: 'Dropbox' },
-        { name: 'OneDrive' },
-        { name: 'Box' },
-        { name: 'iCloud Drive' },
-        { name: 'pCloud' },
-        { name: 'MEGA' }
+        { name: 'Docker' },
+        { name: 'Google' },
+        { name: 'School' },
+        { name: 'Discover' },
+        { name: 'Bank' },
       ]
     case 'Shopping':
       return [
@@ -72,18 +68,13 @@ export const getRecommendedVaultEntries = (category: VaultRecommendationCategory
         { name: 'Slack' },
         { name: 'Zoom' },
         { name: 'Microsoft Teams' },
-        { name: 'Google Workspace' },
         { name: 'Microsoft 365' },
         { name: 'Trello' },
-        { name: 'Asana' },
         { name: 'Jira' },
         { name: 'Notion' },
         { name: 'GitHub' },
-        { name: 'GitLab' },
         { name: 'Figma' },
-        { name: 'Adobe Creative Cloud' },
         { name: 'Salesforce' },
-        { name: 'HubSpot' }
       ]
     default:
       return []

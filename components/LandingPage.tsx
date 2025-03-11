@@ -9,12 +9,14 @@ import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
 import { EditStockModal } from './cardModals/EditStockModal'
+import { QuoteModal } from './cardModals/QuoteModal'
+import { WifiModal } from './cardModals/WifiModal'
 
 import { useUserStore } from '@/store/UserStore'
-import { useProjectStore, useStoreHydrated, Task } from '@/store/ToDo'
-import { useEditStockStore } from '@/store/EditStockStore'
+import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
+import { useNetworkStore } from '@/store/NetworkStore'
+import { getWifiDetails } from '@/services/wifiServices'
 
-import { QuoteSection } from '@/components/home/QuoteSection'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { GreetingSection } from '@/components/home/GreetingSection'
@@ -24,7 +26,6 @@ import { AssetSection } from '@/components/home/AssetSection'
 
 export function LandingPage() {
   const username = useUserStore(s => s.preferences.username)
-  const quoteEnabled = useUserStore(s => s.preferences.quoteEnabled ?? true)
   const userHydrated = useUserStore(s => s.hydrated)
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -44,12 +45,13 @@ export function LandingPage() {
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
-  const openAddStockModal = useCallback(() => {
-    useEditStockStore.setState({ selectedStock: undefined, isOpen: true })
-  }, [])
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false)
+  const [wifiModalOpen, setWifiModalOpen] = useState(false)
   const handleNewTaskPress = () => { setSheetOpen(true) }
   const handleTemperaturePress = () => { setTempModalOpen(true) }
   const handlePortfolioPress = () => { setPortfolioModalOpen(true) }
+  const handleQuotePress = () => { setQuoteModalOpen(true) }
+  const handleWifiPress = () => { setWifiModalOpen(true) }
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
@@ -58,12 +60,12 @@ export function LandingPage() {
         <YStack paddingTop={Platform.OS === 'web' ? 10 : 105} gap="$3">
           <Stack backgroundColor="rgba(0, 0, 0, 0.8)" borderRadius={12} padding="$4" borderColor="rgba(255, 255, 255, 0.05)" borderWidth={2} style={Platform.OS === 'web' ? { boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)' } : { shadowColor: "rgba(255, 255, 255, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
             <GreetingSection username={username} />
-            <CardSection onPortfolioPress={handlePortfolioPress} onTemperaturePress={handleTemperaturePress} />
-            {quoteEnabled && (
-              <Stack marginTop={Platform.OS === 'web' ? "1" : "$2"}>
-                <QuoteSection />
-              </Stack>
-            )}
+            <CardSection 
+              onPortfolioPress={handlePortfolioPress} 
+              onTemperaturePress={handleTemperaturePress} 
+              onQuotePress={handleQuotePress}
+              onWifiPress={handleWifiPress}
+            />
           </Stack>
           <TaskSection todaysTasks={todaysTasks} toggleTaskCompletion={toggleTaskCompletion} deleteTask={deleteTask} onAddTaskPress={handleNewTaskPress} onTaskListPress={() => setTaskListModalOpen(true)} />
           {Platform.OS === 'web' && (
@@ -83,6 +85,25 @@ export function LandingPage() {
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
+      <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
+      <WifiModal 
+        open={wifiModalOpen} 
+        onOpenChange={setWifiModalOpen} 
+        speed={useNetworkStore(s => {
+          const details = s.details;
+          const wifiDetails = getWifiDetails(details);
+          const isConnected = details?.isConnected ?? false;
+          const isWifi = details?.type === 'wifi';
+          
+          if (!isConnected) return 'Offline';
+          
+          if (isWifi && wifiDetails?.linkSpeed && Platform.OS !== 'ios') {
+            return `${wifiDetails.linkSpeed} Mbps`;
+          }
+          
+          return '45 ms'; // Default value
+        })}
+      />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
       <EditStockModal />

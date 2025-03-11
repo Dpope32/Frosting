@@ -1,4 +1,4 @@
-import { YStack, Input, Label } from 'tamagui'
+import { YStack, Input, Label, isWeb } from 'tamagui'
 import { Platform } from 'react-native'
 import { FormData } from '@/types'
 
@@ -19,7 +19,7 @@ export default function Step0({
   const placeholderColor = isDark ? "$gray9Dark" : "$gray9Light";
 
   return (
-    <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
+    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? "$6" : "$3"} justifyContent="center" alignItems="center">
       <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
         What should we call you?
       </Label>

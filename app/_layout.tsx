@@ -47,7 +47,7 @@ export default function RootLayout() {
 
   // Handle deep links
   const handleDeepLink = useCallback((event: { url: string }) => {
-    if (event.url.startsWith('frosting://share')) {
+    if (event.url.startsWith('kaiba-nexus://share')) {
       const { handleSharedContact } = require('@/components/crm/PersonCard/PersonCard');
       handleSharedContact(event.url);
     }

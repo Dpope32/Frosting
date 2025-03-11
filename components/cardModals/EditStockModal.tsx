@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { debounce } from 'lodash'
 import { YStack, Text, Input, Button, XStack, ScrollView, useTheme } from 'tamagui'
-import { useColorScheme } from 'react-native'
+import { Platform, useColorScheme } from 'react-native'
 import { BaseCardModal } from './BaseCardModal'
 import { useUserStore } from '@/store/UserStore'
 import { Stock } from '@/types'
@@ -11,6 +11,36 @@ import { useEditStockStore } from '@/store/EditStockStore'
 import { initializeStocksData,  searchStocks } from '@/services/stockSearchService'
 import { StockData } from '@/constants/stocks'
 import { getIconForStock} from '../../constants/popularStocks'
+
+// DebouncedInput component for smoother input handling
+type DebouncedInputProps = {
+  value: string
+  onDebouncedChange: (val: string) => void
+} & Omit<React.ComponentProps<typeof Input>, 'value' | 'onChangeText'>
+
+const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
+  ({ value, onDebouncedChange, ...props }, ref) => {
+    const [text, setText] = useState(value)
+    
+    useEffect(() => {
+      const handler = setTimeout(() => onDebouncedChange(text), 500)
+      return () => clearTimeout(handler)
+    }, [text, onDebouncedChange])
+
+    useEffect(() => {
+      setText(value)
+    }, [value])
+
+    return (
+      <Input 
+        ref={ref} 
+        {...props} 
+        value={text} 
+        onChangeText={setText}
+      />
+    )
+  }
+)
 
 // Global edit stock modal component
 export function EditStockModal() {
@@ -196,15 +226,15 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
           <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
             Ticker Symbol
           </Text>
-          <Input
+          <DebouncedInput
             value={formData.ticker}
-            onChangeText={handleTickerChange}
+            onDebouncedChange={handleTickerChange}
             placeholder="e.g. AAPL or search by name"
             placeholderTextColor="$color11"
             autoCapitalize="characters"
             disabled={!!stock}
             opacity={!!stock ? 0.6 : 1}
-             fontFamily="$body"
+            fontFamily="$body"
             {...inputStyle}
           />
           
@@ -215,7 +245,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
               borderRadius={8}
               padding="$2"
               marginTop="$1"
-              maxHeight={200}
+              maxHeight={Platform.OS === 'web' ? 350 : 250}
             >
               <ScrollView showsVerticalScrollIndicator={false}>
                 <YStack gap="$2">
@@ -273,9 +303,9 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
           <Text color="$colorSubdued"  fontFamily="$body" fontSize={12} marginBottom="$1">
             Quantity
           </Text>
-          <Input
+          <DebouncedInput
             value={formData.quantity}
-            onChangeText={handleQuantityChange}
+            onDebouncedChange={handleQuantityChange}
             placeholder="Number of shares"
             placeholderTextColor="$color11"
             keyboardType="numeric"
@@ -283,21 +313,21 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
           />
         </YStack>
 
-        <YStack>
-          <Text color="$colorSubdued"  fontFamily="$body" fontSize={12} marginBottom="$1">
-            Company Name
-          </Text>
-          <Input
-            value={formData.name}
-            onChangeText={() => {}}
-            placeholder="e.g. Apple Inc"
-            placeholderTextColor="$color11"
-            disabled={true}
-            opacity={0.6}
-             fontFamily="$body"
-            {...inputStyle}
-          />
-        </YStack>
+        {formData.name ? (
+          <YStack alignItems="center" paddingVertical="$2">
+            <Text 
+              color={isDark ? "$color" : "$color12"} 
+              fontSize={20}
+              fontWeight="600"
+              fontFamily="$body"
+              textAlign="center"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {formData.name}
+            </Text>
+          </YStack>
+        ) : null}
 
         {error && (
           <Text 

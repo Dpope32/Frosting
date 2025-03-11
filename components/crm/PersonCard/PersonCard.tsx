@@ -211,7 +211,7 @@ export function PersonCard({
                   ] as any}
                   onPress={() => {
                     const shareData = btoa(JSON.stringify(person));
-                    const shareUrl = `frosting://share?data=${shareData}`;
+                    const shareUrl = `kaiba-nexus://share?data=${shareData}`;
                     Clipboard.setStringAsync(shareUrl);
                     Alert.alert("Success", "Contact link copied to clipboard!");
                   }}

@@ -90,6 +90,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
               onPress={onClose}
               backgroundColor="$backgroundHover"
               borderColor="$borderColor"
+              fontFamily="$body"
             >
               Cancel
             </Button>
@@ -97,6 +98,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
               onPress={handleSubmit}
               backgroundColor={primaryColor}
               disabled={!name || !username || !password}
+              fontFamily="$body"
             >
               Save
             </Button>

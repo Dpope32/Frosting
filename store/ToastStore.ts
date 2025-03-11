@@ -34,7 +34,7 @@ const DEFAULT_POSITION = "top-right"
 export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],
   showToast: (message: string, type: ToastType = 'success', options?: ToastOptions) => {
-    const id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9)
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9)
     const duration = options?.duration ?? DEFAULT_DURATION
     const fontFamily = options?.fontFamily ?? DEFAULT_FONT_FAMILY
     const position = options?.position ?? DEFAULT_POSITION

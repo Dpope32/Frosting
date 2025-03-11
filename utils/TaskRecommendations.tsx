@@ -27,7 +27,7 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
       return [
         { name: 'Empty Cat Litter', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday','tuesday','thursday','saturday'] },
         { name: 'Wipe down screens and electronics', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday'] },
-        { name: 'Wash bed sheets and pillowcases', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
+        { name: 'Dishes', recurrencePattern: 'everyday', category: 'personal', priority: 'high', time:"7:00", schedule: ['sunday','tuesday','thursday','saturday'] },
         { name: 'Clean bathroom', recurrencePattern: 'weekly', category: 'personal', priority: 'high', schedule: ['sunday'] },
         { name: 'Laundry', recurrencePattern: 'weekly', category: 'personal', priority: 'high', time:"7:00", schedule: ['sunday','wednesday','thursday','friday','saturday'] },
         { name: 'Vacuum living areas', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday', 'wednesday'] },
@@ -38,6 +38,7 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
         { name: 'Wash windows', recurrencePattern: 'monthly', category: 'personal', priority: 'low', schedule: ['saturday'] },
         { name: 'Clean air vents and replace filters', recurrencePattern: 'monthly', category: 'personal', priority: 'medium', schedule: ['sunday'] },
         { name: 'Deep clean carpets', recurrencePattern: 'yearly', category: 'personal', priority: 'medium', schedule: ['saturday'] },
+        { name: 'Wash bed sheets and pillowcases', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['thursday'] },
         { name: 'Clean behind and under appliances', recurrencePattern: 'yearly', category: 'personal', priority: 'low', schedule: ['sunday'] },
         { name: 'Clean gutters', recurrencePattern: 'yearly', category: 'personal', priority: 'high', schedule: ['saturday'] }
       ]
@@ -191,7 +192,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       scale={1}
       minWidth={0}
       flex={Platform.OS === 'web' ? 1 : 0}
-      width={Platform.OS === 'web' ? 'auto' : 100}
+      width={Platform.OS === 'web' ? 'auto' : 150}
       marginBottom={Platform.OS === 'web' ? 0 : '$1'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
