@@ -21,7 +21,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.deedaw22.kaiba_nexus",
+      "bundleIdentifier": "com.deedaw22.kaibanexus",
+      "buildNumber": "1.0.1", 
       "icon": {
         "backgroundColor": "#000000"
       },
@@ -34,7 +35,7 @@
       }
     },
     "android": {
-      "package": "com.deedaw22.kaiba_nexus",
+      "package": "com.deedaw22.kaibanexus",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"
@@ -49,7 +50,7 @@
           "icon": "./assets/images/icon.png",
           "color": "#1e1e1e",
           "sounds": [
-            "./assets/sounds/default"
+            "./assets/sounds/default_sound"
           ]
         }
       ],

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useColorScheme, StyleSheet, Platform, Alert } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button, Input, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardAnimated } from './BaseCardAnimated'
 import { usePortfolioStore, updatePrincipal, removeFromPortfolio } from '@/store/PortfolioStore'
 import { portfolioData } from '@/utils/Portfolio'
 import { useEditStockStore } from '@/store/EditStockStore'
@@ -99,7 +99,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   };
 
   return (
-    <BaseCardModal
+    <BaseCardAnimated
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
@@ -482,6 +482,6 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           </ScrollView>
         </YStack>
       </YStack>
-    </BaseCardModal>
+    </BaseCardAnimated>
   )
 }

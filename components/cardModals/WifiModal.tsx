@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useColorScheme, Platform } from 'react-native'
 import { YStack, Text, Spinner, Stack } from 'tamagui'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardAnimated } from './BaseCardAnimated'
 import { useNetworkStore } from '@/store/NetworkStore'
 import { getWifiDetails } from '@/services/wifiServices'
 
@@ -118,7 +118,7 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
   };
 
   return (
-    <BaseCardModal
+    <BaseCardAnimated
       open={open}
       onOpenChange={onOpenChange}
       title="Network Details"
@@ -254,6 +254,6 @@ export function WifiModal({ open, onOpenChange, speed }: WifiModalProps) {
           </YStack>
         </YStack>
       </YStack>
-    </BaseCardModal>
+    </BaseCardAnimated>
   )
 }

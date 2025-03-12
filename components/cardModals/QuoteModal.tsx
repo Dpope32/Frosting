@@ -1,7 +1,7 @@
 import React from 'react'
 import { useColorScheme, Platform } from 'react-native'
 import { YStack, Text, Spinner, Stack } from 'tamagui'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardAnimated } from './BaseCardAnimated'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
 import { Pressable } from 'react-native'
@@ -19,7 +19,7 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
   const isWeb = Platform.OS === 'web'
 
   return (
-    <BaseCardModal
+    <BaseCardAnimated
       open={open}
       onOpenChange={onOpenChange}
       title="Daily Quote"
@@ -108,6 +108,6 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
           </Pressable>
         </YStack>
       </YStack>
-    </BaseCardModal>
+    </BaseCardAnimated>
   )
 }

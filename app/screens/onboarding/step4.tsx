@@ -66,7 +66,7 @@ export default function Step4({
   return (
     <YStack flex={1} justifyContent="center" alignItems="center">
 
-      <YStack alignItems="center" gap="$2" marginBottom={isWeb ? "$6" : "$3"}>
+      <YStack alignItems="center" gap="$0" marginBottom={isWeb ? "$6" : "$3"}>
         <Label
           fontFamily="$body"
           size="$8"
@@ -92,6 +92,7 @@ export default function Step4({
         <Input
           size="$4"
           placeholder="Enter zip code"
+          fontFamily="$body"
           value={formData.zipCode}
           onChangeText={(text) => {
             // Only allow numeric input
@@ -109,7 +110,7 @@ export default function Step4({
           textAlign="center"
           letterSpacing={1}
           borderWidth={1.25}
-          fontSize={24}
+          fontSize={16}
           shadowColor={inputBorderColor}
           shadowRadius={20}
           shadowOpacity={0.2}

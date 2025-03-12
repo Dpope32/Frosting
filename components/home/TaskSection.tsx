@@ -97,7 +97,7 @@ export const TaskSection = ({
             <YStack width="100%">
               <XStack  
                 justifyContent={isWeb ? "space-between" : "flex-start"}
-                gap="$2"
+                gap="$1"
                 paddingBottom="$2" 
                 paddingHorizontal="$2"
                 flexWrap="wrap"

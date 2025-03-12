@@ -5,7 +5,7 @@
     "main": "electron-main.js",
     "author": "deedaw22",
     "build": {
-      "appId": "com.deedaw22.kaiba_nexus",
+      "appId": "com.deedaw22.kaiba-nexus",
       "productName": "Kaiba Nexus",
       "files": [
         "electron-main.js",

@@ -414,7 +414,7 @@ export default function Step3({
                   }}
                 />
                 <BlurView
-                  intensity={isDark? 20 : 99}
+                  intensity={isDark? 20 : 30}
                   tint="dark"
                   style={{ position: 'absolute', width: '100%', height: '100%' }}
                 />
@@ -491,22 +491,22 @@ export default function Step3({
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
-  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)";
+  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
 
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack flex={1} padding={isWeb ? "$4" : "$3"}>
+      <YStack flex={1} padding={isWeb ? "$4" : "$2"}>
         <YStack
           backgroundColor={cardBackgroundColor}
           borderRadius={16}
-          paddingVertical="$2"
+          paddingVertical="$3"
           paddingHorizontal={isWeb ? "$5" : "$1"} 
-          marginTop={isWeb ? 10 : 60}
+          marginTop={isWeb ? 10 : 40}
           borderColor={borderColor}
           borderWidth={2}
-          gap="$1"
+          gap={isWeb ? "$2" : "$0"} 
         >
           <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
             Background
