@@ -29,9 +29,9 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="frosting"/>
-        <data android:scheme="com.deedaw22.frosting"/>
-        <data android:scheme="exp+frosting"/>
+        <data android:scheme="kaiba-nexus"/>
+        <data android:scheme="com.deedaw22.kaiba_nexus"/>
+        <data android:scheme="exp+kaiba-nexus"/>
       </intent-filter>
     </activity>
   </application>

@@ -1,7 +1,7 @@
 # System Patterns
 
 ## Architecture Overview
-Frosting is built as a cross-platform application using React Native, Expo, and Electron, with a focus on local-first data storage and optional synchronization.
+Kaiba-Nexus is built as a cross-platform application using React Native, Expo, and Electron, with a focus on local-first data storage and optional synchronization.
 
 ```mermaid
 flowchart TD

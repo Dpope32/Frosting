@@ -1,4 +1,4 @@
-package com.deedaw22.frosting
+package com.deedaw22.kaiba_nexus
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

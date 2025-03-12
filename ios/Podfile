@@ -8,7 +8,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '17.2'
 install! 'cocoapods',
 :deterministic_uuids => false
 prepare_react_native_project!
-target 'frosting' do
+target 'kaiba-nexus' do
   use_expo_modules!
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];

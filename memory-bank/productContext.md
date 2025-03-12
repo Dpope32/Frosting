@@ -1,7 +1,7 @@
 # Product Context
 
 ## Purpose
-Frosting is a personal dashboard application designed to centralize life management in a single, elegant interface. It aims to reduce the cognitive load of managing various aspects of daily life by bringing them together in one cohesive platform.
+Kaiba-Nexus is a personal dashboard application designed to centralize life management in a single, elegant interface. It aims to reduce the cognitive load of managing various aspects of daily life by bringing them together in one cohesive platform.
 
 ## Problems Solved
 - **Information Fragmentation**: Consolidates data from multiple life domains (tasks, finances, contacts, etc.) into one application
@@ -24,7 +24,7 @@ Frosting is a personal dashboard application designed to centralize life managem
 - Those who need to track multiple aspects of life (tasks, finances, contacts, events)
 
 ## Key Differentiators
-- **Multi-domain Integration**: Unlike single-purpose apps, Frosting brings together tasks, finance, contacts, and more
+- **Multi-domain Integration**: Unlike single-purpose apps, Kaiba brings together tasks, finance, contacts, and more
 - **Local-First Philosophy**: Privacy by design, with data stored on-device by default
 - **Cross-Platform Consistency**: Same core experience regardless of device
 - **Visual Customization**: Personalized look and feel through themes and wallpapers

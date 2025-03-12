@@ -1,4 +1,4 @@
-# Frosting
+# Kaiba-Nexus
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
 

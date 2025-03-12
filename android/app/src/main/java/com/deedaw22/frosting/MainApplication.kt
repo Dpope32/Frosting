@@ -1,4 +1,4 @@
-package com.deedaw22.frosting
+package com.deedaw22.kaiba_nexus
 
 import android.app.Application
 import android.content.res.Configuration

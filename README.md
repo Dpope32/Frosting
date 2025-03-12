@@ -1,4 +1,4 @@
-# Frosting
+# Kaiba-Nexus
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
 
@@ -28,8 +28,8 @@ All data is stored locally first, with future plans for cross-device synchroniza
 
 ```bash
 # Clone the repository
-git clone https://github.com/dpope32/frosting.git
-cd frosting
+git clone https://github.com/dpope32/kaiba-nexus.git
+cd kaiba-nexus
 
 # Install dependencies
 npm install

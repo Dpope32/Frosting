@@ -350,7 +350,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                   fontFamily="$body"
                                   lineHeight={20}
                                 >
-                                  support@frostingapp.com
+                                  kaibanexus@gmail.com
                                 </Text>
                               </YStack>
                             </XStack>
@@ -372,7 +372,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                   fontFamily="$body"
                                   lineHeight={20}
                                 >
-                                  www.frostingapp.com
+                                  www.deedaw.cc/kaiba
                                 </Text>
                               </YStack>
                             </XStack>
