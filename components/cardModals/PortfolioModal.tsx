@@ -8,6 +8,7 @@ import { portfolioData } from '@/utils/Portfolio'
 import { useEditStockStore } from '@/store/EditStockStore'
 import { getValueColor } from '@/constants/valueHelper'
 import Animated, { FadeIn } from 'react-native-reanimated'
+import { BaseCardModal } from './BaseCardModal'
 
 interface PortfolioModalProps {
   open: boolean
@@ -99,7 +100,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   };
 
   return (
-    <BaseCardAnimated
+    <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
@@ -482,6 +483,6 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           </ScrollView>
         </YStack>
       </YStack>
-    </BaseCardAnimated>
+    </BaseCardModal>
   )
 }

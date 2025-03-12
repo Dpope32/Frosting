@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#000000"
+      "backgroundColor": "#1f1f1f"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -22,9 +22,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deedaw22.kaibanexus",
+       "projectName": "kaibanexus",
       "buildNumber": "1.0.1", 
       "icon": {
-        "backgroundColor": "#000000"
+        "backgroundColor": "#1f1f1f"
       },
       "infoPlist": {
         "UIBackgroundModes": [
@@ -38,7 +39,7 @@
       "package": "com.deedaw22.kaibanexus",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#000000"
+        "backgroundColor": "#1f1f1f"
       }
     },
     "plugins": [
@@ -48,7 +49,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
-          "color": "#1e1e1e",
+          "color": "#1f1f1f",
           "sounds": [
             "./assets/sounds/default_sound"
           ]

@@ -1,156 +1,113 @@
-import React, { useEffect } from 'react'
-import { Sheet, Text, Theme, isWeb } from 'tamagui'
-import { KeyboardAvoidingView, Platform, useColorScheme } from 'react-native'
+import React from 'react'
+import { StyleSheet, Modal, TouchableWithoutFeedback, View, Dimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useColorScheme } from 'react-native'
+import { Text, Theme } from 'tamagui'
 import Animated, { 
-  FadeIn, 
-  SlideInUp, 
-  useAnimatedStyle, 
-  useSharedValue, 
-  withSpring, 
-  withTiming,
-  withDelay,
-  interpolate,
-  Extrapolate,
-  ZoomIn
+  ZoomIn,
+  ZoomOut,
 } from 'react-native-reanimated'
 
-interface BaseCardModalProps {
+interface BaseCardAnimatedProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   title: string
   children: React.ReactNode
-  snapPoints?: number[]
-  position?: number
-  dismissOnSnapToBottom?: boolean
-  zIndex?: number
+  modalWidth?: number
+  modalMaxWidth?: number
 }
 
-export function BaseCardAnimated({ 
-  open, 
-  onOpenChange, 
-  title, 
+/**
+ * Custom modal component that closes when clicking outside.
+ * Uses React Native's Modal with TouchableWithoutFeedback for overlay clicks.
+ */
+export function BaseCardAnimated({
+  open,
+  onOpenChange,
+  title,
   children,
-  snapPoints = isWeb ? [90] : [80],
-  position = 0,
-  dismissOnSnapToBottom = true,
-  zIndex = 100000
-}: BaseCardModalProps) {
+  modalWidth = 350,
+  modalMaxWidth = 500
+}: BaseCardAnimatedProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
-  const topInset = Platform.OS === 'ios' ? insets.top : 0
-  
-  // Animation shared values
-  const scale = useSharedValue(0.9)
-  const rotate = useSharedValue(-2)
-  const opacity = useSharedValue(0)
-  
-  // Reset animations when modal opens
-  useEffect(() => {
-    if (open) {
-      scale.value = 0.9
-      rotate.value = -2
-      opacity.value = 0
-      
-      // Animate values when modal opens
-      scale.value = withSpring(1, {
-        damping: 15,
-        stiffness: 100,
-      })
-      rotate.value = withSpring(0, {
-        damping: 20,
-        stiffness: 90,
-      })
-      opacity.value = withTiming(1, { duration: 400 })
-    }
-  }, [open])
-  
-  // Create animated styles for the frame
-  const frameAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        { scale: scale.value },
-        { rotate: `${rotate.value}deg` }
-      ],
-      opacity: opacity.value
-    }
-  })
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
+  // Calculate actual width based on screen size and constraints
+  const actualWidth = Math.min(
+    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.85,
+    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.95
+  )
 
   return (
-    <Theme name={isDark ? "dark" : "light"}>
-      <Sheet
-        modal
-        open={open}
-        onOpenChange={onOpenChange}
-        snapPoints={snapPoints}
-        position={position}
-        dismissOnSnapToBottom={dismissOnSnapToBottom}
-        zIndex={zIndex}
-        disableDrag={false}
-        animation="quick"
+    <Theme name={isDark ? 'dark' : 'light'}>
+      <Modal
+        visible={open}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => onOpenChange(false)}
+        statusBarTranslucent={true}
       >
-        <Sheet.Overlay
-          animation="quick"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-          backgroundColor={isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.2)"}
-        />
-        <Sheet.Frame
-          paddingVertical={Platform.OS === 'web' ? "$4" : "$1"}
-          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
-          backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
-          borderTopLeftRadius={20}
-          borderTopRightRadius={20}
-          borderWidth={1}
-          borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap={Platform.OS === 'web' ? "$1" : "$2"}
-          {...(Platform.OS === 'web' ? 
-            { 
-              maxWidth: 1000, 
-              marginHorizontal: 'auto',
-              minHeight: 500,
-              maxHeight: 'calc(100vh - 80px)',
-            } : {}
-          )}
-          animation="quick"
-        >
-            <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>
-            <KeyboardAvoidingView 
-              behavior={Platform.OS === "ios" ? "padding" : "height"}  
-              style={{ flex: 1, paddingTop: Math.max(topInset - 100, 0) }}
-            >
-              <Animated.View 
-                entering={SlideInUp.duration(500).springify().damping(15)} 
-                style={{ marginBottom: 12, paddingHorizontal: 6}}
-              >
-                <Text 
-                  fontSize={22}  
-                  fontWeight="700"  
-                  color={isDark ? "#fff" : "#000"} 
-                  opacity={isDark ? 1 : 0.9} 
-                  fontFamily="$body"
-                > 
-                  {title} 
-                </Text>
-              </Animated.View>
+        <TouchableWithoutFeedback onPress={() => onOpenChange(false)}>
+          <View style={styles.overlay}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
               <Animated.View
-                entering={ZoomIn.delay(200).duration(400).springify()}
-                style={{ flex: 1 }}
+                entering={ZoomIn.duration(300).springify()}
+                exiting={ZoomOut.duration(200).springify()}
+                style={[
+                  styles.modalContainer,
+                  {
+                    backgroundColor: isDark ? '#111' : '#fff',
+                    marginTop: insets.top + 20,
+                    marginBottom: insets.bottom + 20,
+                    width: actualWidth,
+                    maxHeight: screenHeight - 80,
+                  }
+                ]}
               >
-                <Sheet.ScrollView 
-                  bounces={false} 
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled" 
-                  keyboardDismissMode="interactive"
-                  contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 40 } : {}}
+                <Text
+                  style={[
+                    styles.title,
+                    { color: isDark ? '#fff' : '#000' }
+                  ]}
                 >
+                  {title}
+                </Text>
+                <View style={{ position: 'relative' }}>
                   {children}
-                </Sheet.ScrollView>
+                </View>
               </Animated.View>
-            </KeyboardAvoidingView>
-        </Sheet.Frame>
-      </Sheet>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </Theme>
   )
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 0, // Lower z-index for the overlay
+  },
+  modalContainer: {
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1, // Lower z-index to ensure dropdowns can appear above
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 16
+  }
+})

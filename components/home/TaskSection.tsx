@@ -97,7 +97,7 @@ export const TaskSection = ({
             <YStack width="100%">
               <XStack  
                 justifyContent={isWeb ? "space-between" : "flex-start"}
-                gap="$1"
+                gap="$2"
                 paddingBottom="$2" 
                 paddingHorizontal="$2"
                 flexWrap="wrap"
@@ -114,7 +114,7 @@ export const TaskSection = ({
         ) : (
           <Stack 
             gap="$1"
-            width="100%"
+            width="105%"
             style={Platform.OS === 'web' ? {
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -125,7 +125,7 @@ export const TaskSection = ({
             }}
           >
             {todaysTasks.map((task: Task) => (
-              <Stack key={task.id} style={Platform.OS === 'web' ? {} : { marginBottom: 8, marginLeft: 10, width: '95%' }}>
+              <Stack key={task.id} style={Platform.OS === 'web' ? {} : { marginBottom: 8, marginLeft: 4, width: '96%' }}>
                 <TaskCard
                   title={task.name}
                   time={task.time}
@@ -165,7 +165,7 @@ export const TaskSection = ({
         >
           <Ionicons 
             name="reorder-three-outline" 
-            size={22} 
+            size={isWeb ? 22 : 20}
             color="#dbd0c6"
             style={{
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
@@ -196,7 +196,7 @@ export const TaskSection = ({
             alignItems: 'center',
           }}
         >
-          <Ionicons name="add" size={isWeb ? 26 : 26}  color="#dbd0c6" />
+          <Ionicons name="add" size={isWeb ? 26 : 22}  color="#dbd0c6" />
         </Pressable>
       </Stack>
     </Stack>

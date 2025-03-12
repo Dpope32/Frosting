@@ -192,7 +192,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       scale={1}
       minWidth={0}
       flex={Platform.OS === 'web' ? 1 : 0}
-      width={Platform.OS === 'web' ? 'auto' : 150}
+      width={Platform.OS === 'web' ? 'auto' : 140}
       marginBottom={Platform.OS === 'web' ? 0 : '$1'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >

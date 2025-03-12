@@ -66,10 +66,11 @@ export default function Step4({
   return (
     <YStack flex={1} justifyContent="center" alignItems="center">
 
-      <YStack alignItems="center" gap="$0" marginBottom={isWeb ? "$6" : "$3"}>
+      <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$6" : "$2"}>
         <Label
-          fontFamily="$body"
+          fontFamily="$heading"
           size="$8"
+          fontWeight="800" 
           textAlign="center"
           color={labelColor}
         >
@@ -80,6 +81,7 @@ export default function Step4({
           fontSize="$3"
           textAlign="center"
           color={subTextColor}
+          marginTop={-12}
           opacity={0.8}
           fontWeight="400"
           fontStyle="italic"
