@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { Sheet, YStack, XStack, Text, ScrollView } from 'tamagui'
-import { Pressable, Platform, useColorScheme } from 'react-native'
+import { Pressable, Platform, useColorScheme, Alert } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
-import { VaultRecommendationChip, VaultRecommendationCategory } from '@/utils/VaultRecommendations'
+import { VaultRecommendationCategory } from '@/utils/VaultRecommendations'
 import { VaultRecommendationModal } from '@/components/cardModals/VaultRecommendationModal'
-import { Eye, EyeOff } from '@tamagui/lucide-icons'
+import { useToastStore } from '@/store/ToastStore'
+
 
 interface VaultListModalProps {
   open: boolean
@@ -124,9 +125,34 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
     }
   }
 
-  // Handle the delete entry
+  // Get the showToast function from the toast store
+  const { showToast } = useToastStore()
+
+  // Handle the delete entry with confirmation
   const handleDelete = (id: string) => {
-    deleteVaultEntry(id)
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this password entry?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            deleteVaultEntry(id)
+            // Close the modal before showing the toast
+            onOpenChange(false)
+            // Short timeout to ensure modal closing animation completes
+            setTimeout(() => {
+              showToast("Vault Entry Successfully removed", "success")
+            }, 300)
+          },
+          style: "destructive"
+        }
+      ]
+    )
   }
 
   return (

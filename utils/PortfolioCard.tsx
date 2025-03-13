@@ -49,7 +49,7 @@ export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps
   }, [refetch]);
 
   const displayValue = isLoading
-    ? 'Loading...'
+    ? '...'
     : totalValue !== null
     ? `$${totalValue.toLocaleString('en-US', { 
         minimumFractionDigits: roundToWholeNumber ? 0 : 2, 

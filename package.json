@@ -57,7 +57,7 @@
     "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.8",
     "expo-contacts": "~14.0.5",
-    "expo-dev-client": "~5.0.13",
+    "expo-dev-client": "~5.0.14",
     "expo-doctor": "^1.12.7",
     "expo-font": "~13.0.4",
     "expo-haptics": "~14.0.1",

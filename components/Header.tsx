@@ -28,7 +28,7 @@ export function Header({ title }: HeaderProps) {
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills'; // Correct route name based on logs
   const isVaultScreen = route.name === 'vault';
-  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#000';
+  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#00000';
   const isWeb = Platform.OS === 'web';
 
   // Calculate the spacer height based on platform
@@ -118,10 +118,10 @@ export function Header({ title }: HeaderProps) {
               )}
               <Text 
                 fontSize={isWeb ? 18 : 20}
-                fontWeight="600"
                 color={textColor}
                 numberOfLines={1}
-                fontFamily="$body"
+                fontWeight= 'bold'
+                fontFamily="$heading"
               >
                 {title}
               </Text>

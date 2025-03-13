@@ -89,10 +89,7 @@ export default function VaultScreen() {
             borderColor={isDark ? '#222' : '#e0e0e0'}
             width="100%"
           >
-            <YStack gap="$3" width="100%">
-              <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
-                Secure Password Vault
-              </Text>
+            <YStack gap="$3" width="100%" paddingTop={16}>
               
               <YStack gap="$3" px="$2">
                 <XStack gap="$2" ai="flex-start">
@@ -132,7 +129,7 @@ export default function VaultScreen() {
                 </XStack>
               </YStack>
               
-              <Text color={isDark ? '#666' : '#999'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4" mb="$4">
+              <Text color={isDark ? '#666' : '#888'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$6" mb="$2">
                 Quick add from common categories:
               </Text>
               
@@ -175,7 +172,7 @@ export default function VaultScreen() {
                 </XStack>
               </YStack>
               
-              <Text color={isDark ? '#666' : '#999'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
+              <Text color={isDark ? '#666' : '#888'} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
                 Or click the + button below to add a custom entry
               </Text>
             </YStack>

@@ -5840,13 +5840,13 @@ expo-contacts@~14.0.5:
   resolved "https://registry.npmjs.org/expo-contacts/-/expo-contacts-14.0.5.tgz"
   integrity sha512-PjuwJmXgQLQ5CnuhFvgP+jRdYFFh23ARP3urln9GXwMm1uqR5Y0ZdQC44PgJsKxGlJYVzPQlDxer03mGsoXN8g==
 
-expo-dev-client@~5.0.13:
-  version "5.0.13"
-  resolved "https://registry.npmjs.org/expo-dev-client/-/expo-dev-client-5.0.13.tgz"
-  integrity sha512-+Io9uhlOXnL+qmNd3gC8RoCBSGH+2g/a4v/mcX3QrCfBXwMN17w8R+FoUoEnM3CTQxo1NI/5bsZnjVD4o+Lr+w==
+expo-dev-client@~5.0.14:
+  version "5.0.14"
+  resolved "https://registry.yarnpkg.com/expo-dev-client/-/expo-dev-client-5.0.14.tgz#c687a41d9b2a22ab1cc87b3f8d2bd2dffbb2253d"
+  integrity sha512-L57x2CrMb2tYsOSWc4zAvaGZ1+H7pZlGVvuDC1KzEsVCC2KjW1YUSEX9H5Zg+61Y4YUlHZ3h5rM5Eu/aCZmkZA==
   dependencies:
     expo-dev-launcher "5.0.30"
-    expo-dev-menu "6.0.20"
+    expo-dev-menu "6.0.21"
     expo-dev-menu-interface "1.9.3"
     expo-manifests "~0.15.7"
     expo-updates-interface "~1.0.0"
@@ -5870,6 +5870,13 @@ expo-dev-menu@6.0.20:
   version "6.0.20"
   resolved "https://registry.npmjs.org/expo-dev-menu/-/expo-dev-menu-6.0.20.tgz"
   integrity sha512-+ha876lpGAsRB9lqT7WRtcSvxZg2CjXKWkCSAghToyx4Wti1u3M/y3onJ4oOvddtKuFfFX4IRmnZYI3xi/TDCQ==
+  dependencies:
+    expo-dev-menu-interface "1.9.3"
+
+expo-dev-menu@6.0.21:
+  version "6.0.21"
+  resolved "https://registry.yarnpkg.com/expo-dev-menu/-/expo-dev-menu-6.0.21.tgz#c70ce781b7a1eef7ca9d056a9e0fb4cdecfedb02"
+  integrity sha512-HO5UpNqGXBFWqGoGQhlvarJLI0jZpXkIXBvl60QGiIwbpSRThVI5jjZ5iCFmrpSJjlSXczaid31ZfKGtggiVdA==
   dependencies:
     expo-dev-menu-interface "1.9.3"
 

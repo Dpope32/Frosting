@@ -1,5 +1,5 @@
 import React from 'react'
-import { Pressable, Platform } from 'react-native'
+import { Pressable, Platform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { TaskCard } from '@/components/home/TaskCard'
@@ -24,9 +24,10 @@ export const TaskSection = ({
   onTaskListPress
 }: TaskSectionProps) => {
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
+  const colorScheme = useColorScheme()
   return (
     <Stack
-      backgroundColor="rgba(0, 0, 0, 0.8)"
+      backgroundColor={colorScheme === 'dark' ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"}
       borderRadius={16}
       paddingHorizontal="$3"
       paddingVertical="$4"
@@ -60,7 +61,7 @@ export const TaskSection = ({
       </XStack>
       <Stack 
         gap="$2" 
-        paddingHorizontal={isWeb ? 16 : 8} 
+        paddingHorizontal={isWeb ? 16 : 0} 
         flex={1} 
         position="relative"
         justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}
@@ -71,8 +72,9 @@ export const TaskSection = ({
             paddingHorizontal={Platform.OS === 'web' ? '$4' : '$1'}
             marginTop={Platform.OS === 'web' ? '$6' : 0}
             gap={Platform.OS === 'web' ? '$4' : '$2'}
+            backgroundColor={colorScheme === 'dark' ? undefined : "rgba(0, 0, 0, 0.5"}
             style={Platform.OS === 'web' ? {
-              boxShadow: '0px 0px 8px rgba(255, 255, 255, 0.05)',
+              boxShadow: colorScheme === 'dark' ? '0px 0px 8px rgba(255, 255, 255, 0.05)' : '0px 0px 8px rgba(0, 0, 0, 0.05)',
               maxWidth: '800px',
               alignSelf: 'flex-start',
               width: '100%'
@@ -96,7 +98,7 @@ export const TaskSection = ({
             
             <YStack width="100%">
               <XStack  
-                justifyContent={isWeb ? "space-between" : "flex-start"}
+                justifyContent={isWeb ? "space-between" : "center"}
                 gap="$2"
                 paddingBottom="$2" 
                 paddingHorizontal="$2"

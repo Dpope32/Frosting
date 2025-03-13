@@ -57,7 +57,7 @@ export function BaseCardAnimated({
                 style={[
                   styles.modalContainer,
                   {
-                    backgroundColor: isDark ? '#111' : '#fff',
+                    backgroundColor: isDark ? '#222' : '#fff',
                     marginTop: insets.top + 20,
                     marginBottom: insets.bottom + 20,
                     width: actualWidth,
@@ -88,7 +88,7 @@ export function BaseCardAnimated({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 0, // Lower z-index for the overlay

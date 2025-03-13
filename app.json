@@ -24,18 +24,24 @@
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "UIBackgroundModes": [
+          "remote-notification",
           "remote-notification"
         ],
         "NSCalendarsUsageDescription": "This app needs to access your calendar to set reminders for birthdays.",
         "NSRemindersUsageDescription": "This app needs to send you notifications about birthdays and events."
-      }
+      },
+      "bundleIdentifier": "com.deedaw22.kaibanexus"
     },
     "android": {
       "package": "com.deedaw22.kaibanexus",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#1f1f1f"
-      }
+      },
+      "permissions": [
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ]
     },
     "updates": {
       "enabled": true,

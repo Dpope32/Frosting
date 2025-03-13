@@ -135,43 +135,43 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
     switch (category) {
       case 'Cleaning':
         return {
-          backgroundColor: "rgba(16, 185, 129, 0.15)", // green
-          borderColor: "rgba(16, 185, 129, 0.3)",
+          backgroundColor: isDark ? "rgba(16, 185, 129, 0.20)" : "rgba(16, 185, 129, 0.30)", // green
+          borderColor: "rgba(16, 185, 129, 0.5)",
           iconName: "water-outline" as const,
-          iconColor: "#10b981",
-          textColor: "#10b981"
+          iconColor: isDark ? "#4ade80" : "#047857", // brighter green for dark mode, darker for light
+          textColor: isDark ? "#4ade80" : "#047857"  // brighter green for dark mode, darker for light
         }
       case 'Financial':
         return {
-          backgroundColor: "rgba(59, 130, 246, 0.15)", // blue
-          borderColor: "rgba(59, 130, 246, 0.3)",
+          backgroundColor: isDark ? "rgba(59, 130, 246, 0.20)" : "rgba(59, 130, 246, 0.30)", // blue
+          borderColor: "rgba(59, 130, 246, 0.5)",
           iconName: "cash-outline" as const,
-          iconColor: "#3b82f6",
-          textColor: "#3b82f6"
+          iconColor: isDark ? "#60a5fa" : "#1e40af", // brighter blue for dark mode, darker for light
+          textColor: isDark ? "#60a5fa" : "#1e40af"  // brighter blue for dark mode, darker for light
         }
       case 'Gym':
         return {
-          backgroundColor: "rgba(239, 68, 68, 0.15)", // red
-          borderColor: "rgba(239, 68, 68, 0.3)",
+          backgroundColor: isDark ? "rgba(239, 68, 68, 0.20)" : "rgba(239, 68, 68, 0.30)", // red
+          borderColor: "rgba(239, 68, 68, 0.5)",
           iconName: "fitness-outline" as const,
-          iconColor: "#ef4444",
-          textColor: "#ef4444"
+          iconColor: isDark ? "#f87171" : "#b91c1c", // brighter red for dark mode, darker for light
+          textColor: isDark ? "#f87171" : "#b91c1c"  // brighter red for dark mode, darker for light
         }
       case 'Self-Care':
         return {
-          backgroundColor: "rgba(139, 92, 246, 0.15)", // purple
-          borderColor: "rgba(139, 92, 246, 0.3)",
+          backgroundColor: isDark ? "rgba(139, 92, 246, 0.20)" : "rgba(139, 92, 246, 0.30)", // purple
+          borderColor: "rgba(139, 92, 246, 0.5)",
           iconName: "heart-outline" as const,
-          iconColor: "#8b5cf6",
-          textColor: "#8b5cf6"
+          iconColor: isDark ? "#a78bfa" : "#5b21b6", // brighter purple for dark mode, darker for light
+          textColor: isDark ? "#a78bfa" : "#5b21b6"  // brighter purple for dark mode, darker for light
         }
       default:
         return {
-          backgroundColor: "rgba(107, 114, 128, 0.15)", // gray
-          borderColor: "rgba(107, 114, 128, 0.3)",
+          backgroundColor: isDark ? "rgba(107, 114, 128, 0.20)" : "rgba(107, 114, 128, 0.30)", // gray
+          borderColor: "rgba(107, 114, 128, 0.5)",
           iconName: "add-circle-outline" as const,
-          iconColor: "#6b7280",
-          textColor: "#6b7280"
+          iconColor: isDark ? "#d1d5db" : "#374151", // brighter gray for dark mode, darker for light
+          textColor: isDark ? "#d1d5db" : "#374151"  // brighter gray for dark mode, darker for light
         }
     }
   }
@@ -197,7 +197,15 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
         <Ionicons name={style.iconName} size={14} color={style.iconColor} />
-        <Text color={style.textColor} fontFamily="$body" fontSize={isWeb ? 13 : 12}  fontWeight="600" numberOfLines={1}> {category}  </Text>
+        <Text 
+          color={style.textColor} 
+          fontFamily="$body" 
+          fontSize={isWeb ? 13 : 12}  
+          fontWeight="700" 
+          numberOfLines={1}
+        > 
+          {category}  
+        </Text>
       </XStack>
     </Button>
   )

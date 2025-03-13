@@ -1,18 +1,25 @@
 import React from 'react'
 import { XStack, Text, isWeb } from 'tamagui'
+import { useColorScheme } from 'react-native'
 import { getGreeting } from '@/services/greetingService'
 
 interface GreetingSectionProps { username: string }
 
 export const GreetingSection = ({ username }: GreetingSectionProps) => {
-
+  const colorScheme = useColorScheme()
+  
   return (
-    <XStack alignItems="center" justifyContent="space-between">
+    <XStack 
+      alignItems="center" 
+      justifyContent="space-between"
+      borderRadius={12}
+      paddingVertical="$2"
+    >
       <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$4" : "$3"}>
         <XStack alignItems="center" gap="$1">
           <Text
-            fontFamily="$body"
-            fontSize={20}
+            fontFamily="$heading"
+            fontSize={21}
             color="#dbd0c6"
             fontWeight="bold"
             numberOfLines={1}
@@ -21,8 +28,8 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
             {getGreeting()},
           </Text>
           <Text
-            fontFamily="$body"
-            fontSize={20}
+            fontFamily="$heading"
+            fontSize={21}
             color="#dbd0c6"
             fontWeight="bold"
             numberOfLines={1}

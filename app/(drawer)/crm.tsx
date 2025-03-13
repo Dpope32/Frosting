@@ -229,7 +229,7 @@ export default function CRM() {
           />
         </View>
       )}
-      <H4 fontFamily="$heading" fontSize="$8" fontWeight={500} marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
+      <H4 fontFamily="$heading" fontSize="$7" fontWeight={'bold'} marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
       <Separator borderColor="$gray8" borderWidth={1}  marginBottom={2} />
@@ -256,12 +256,12 @@ export default function CRM() {
             mx="auto"
             my="$4"
           >
-            <YStack gap="$4" width="100%">
+            <YStack gap="$4" width="100%" paddingTop={16}>
               <YStack gap="$3" px="$2">
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Track Important Contacts
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
@@ -273,7 +273,7 @@ export default function CRM() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Birthday Reminders
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
@@ -285,7 +285,7 @@ export default function CRM() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Contact Details
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">

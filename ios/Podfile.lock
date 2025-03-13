@@ -20,7 +20,7 @@ PODS:
     - ExpoModulesCore
   - Expo (52.0.38):
     - ExpoModulesCore
-  - expo-dev-client (5.0.13):
+  - expo-dev-client (5.0.14):
     - EXManifests
     - expo-dev-launcher
     - expo-dev-menu
@@ -112,10 +112,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu (6.0.20):
+  - expo-dev-menu (6.0.21):
     - DoubleConversion
-    - expo-dev-menu/Main (= 6.0.20)
-    - expo-dev-menu/ReactNativeCompatibles (= 6.0.20)
+    - expo-dev-menu/Main (= 6.0.21)
+    - expo-dev-menu/ReactNativeCompatibles (= 6.0.21)
     - glog
     - hermes-engine
     - RCT-Folly (= 2024.01.01.00)
@@ -136,7 +136,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - expo-dev-menu-interface (1.9.3)
-  - expo-dev-menu/Main (6.0.20):
+  - expo-dev-menu/Main (6.0.21):
     - DoubleConversion
     - EXManifests
     - expo-dev-menu-interface
@@ -162,7 +162,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/ReactNativeCompatibles (6.0.20):
+  - expo-dev-menu/ReactNativeCompatibles (6.0.21):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -183,7 +183,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/SafeAreaView (6.0.20):
+  - expo-dev-menu/SafeAreaView (6.0.21):
     - DoubleConversion
     - ExpoModulesCore
     - glog
@@ -205,7 +205,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - expo-dev-menu/Vendored (6.0.20):
+  - expo-dev-menu/Vendored (6.0.21):
     - DoubleConversion
     - expo-dev-menu/SafeAreaView
     - glog
@@ -2535,9 +2535,9 @@ SPEC CHECKSUMS:
   EXManifests: 807ab5394ca9f8dd5e64283f02876b2f85c4eb72
   EXNotifications: 9d3d17e52c95f377750d4a2ae553a716313dd4aa
   Expo: a43b172755cb98c3ffe2a9485b16bba876d1b52f
-  expo-dev-client: 8808213a9e5d575d76e36e7e2079af14aeb99a3d
+  expo-dev-client: 0f17f24f8b4878744c9b2a8bf9a895f3e219e2ce
   expo-dev-launcher: ee36e2c82911719860c74bdbeda043d4dd3e7dc2
-  expo-dev-menu: 706b2af1114c66e0640bfcf70ba979717fd06f88
+  expo-dev-menu: 84c253743978d909c59a70297ffc75701905cdca
   expo-dev-menu-interface: 00dc42302a72722fdecec3fa048de84a9133bcc4
   ExpoAsset: 4033893dfb333b444bf45e951351254137b658d5
   ExpoBlur: 392c1207f71d0ecf22371621c1fbd44ba84d9742
