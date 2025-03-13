@@ -1,7 +1,7 @@
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, StyleSheet, useColorScheme as RNColorScheme, Platform, Dimensions } from 'react-native';
+import { View, Image, Text, useColorScheme as RNColorScheme, Platform, Dimensions } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';

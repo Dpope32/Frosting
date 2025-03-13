@@ -167,7 +167,7 @@ export default function ThunderPage() {
           resizeMode="contain"
         />
         <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#000', fontFamily: '$body' }]}>
-          2024-2025 Schedule
+          2024-2025
         </Text>
       </View>
 
@@ -187,7 +187,7 @@ export default function ThunderPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Platform.OS === 'web' ? 12 : 0, // reduce top margin on web
+    marginTop: Platform.OS === 'web' ? 12 : 0, 
   },
   header: {
     flexDirection: 'row',

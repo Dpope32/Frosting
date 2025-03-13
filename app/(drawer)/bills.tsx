@@ -183,15 +183,12 @@ export default function BillsScreen() {
             width="100%"
           >
             <YStack gap="$4" width="100%" >
-              <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
-                Bill Management Center
-              </Text>
               
               <YStack gap="$3" paddingHorizontal={isWeb ? "$4" : "$4"}>
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Track Monthly Expenses
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -203,7 +200,7 @@ export default function BillsScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Due Date Reminders
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -215,7 +212,7 @@ export default function BillsScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Budget Overview
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">

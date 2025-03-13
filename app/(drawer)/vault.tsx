@@ -98,7 +98,7 @@ export default function VaultScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Store Your Credentials
                     </Text>
                     <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -110,7 +110,7 @@ export default function VaultScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       End-to-End Encryption
                     </Text>
                     <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -122,7 +122,7 @@ export default function VaultScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Easy Access & Management
                     </Text>
                     <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">

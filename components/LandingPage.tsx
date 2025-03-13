@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import { Platform } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { YStack, Text, Stack, ScrollView, XStack, Button } from 'tamagui'
+import { YStack, Text, Stack, ScrollView, XStack } from 'tamagui'
+import * as Haptics from 'expo-haptics';
 
 import { NewTaskModal } from './cardModals/NewTaskModal'
 import { TemperatureModal } from './cardModals/TemperatureModal'
@@ -46,11 +47,37 @@ export function LandingPage() {
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [quoteModalOpen, setQuoteModalOpen] = useState(false)
   const [wifiModalOpen, setWifiModalOpen] = useState(false)
-  const handleNewTaskPress = () => { setSheetOpen(true) }
-  const handleTemperaturePress = () => { setTempModalOpen(true) }
-  const handlePortfolioPress = () => { setPortfolioModalOpen(true) }
-  const handleQuotePress = () => { setQuoteModalOpen(true) }
-  const handleWifiPress = () => { setWifiModalOpen(true) }
+  const handleNewTaskPress = () => { 
+    setSheetOpen(true) 
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  }
+  const handleTemperaturePress = () => { 
+    setTempModalOpen(true) 
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  }
+  const handlePortfolioPress = () => { 
+    if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+     }
+     setPortfolioModalOpen(true) 
+    }
+  const handleQuotePress = () => { 
+    setQuoteModalOpen(true) 
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  }
+  const handleWifiPress = () => { 
+    setWifiModalOpen(true) 
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+
+  }
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />

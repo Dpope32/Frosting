@@ -89,7 +89,7 @@ export function Header({ title }: HeaderProps) {
             alignItems="center" 
             justifyContent="space-between" 
             paddingHorizontal="$4" 
-            height={isWeb ? 60 : Platform.OS === 'ios' ? 95 : 90}
+            height={isWeb ? 60 : Platform.OS === 'ios' ? 92 : 90}
             paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 40 : 40}
           >
             <XStack alignItems="center" gap="$3">
