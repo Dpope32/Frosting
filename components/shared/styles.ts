@@ -1,25 +1,24 @@
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { StyleSheet, Platform } from 'react-native';
-import { useUserStore } from '@/store/UserStore';
+import { useMemo } from 'react';
 
 export const useDrawerStyles = () => {
   const colorScheme = useColorScheme();
-  const { primaryColor } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
-  const borderRightColor = isDark ? primaryColor : 'rgba(0, 0, 0, 0.1)';
   const isWeb = Platform.OS === 'web';
 
-  return StyleSheet.create({
+  return useMemo(() => StyleSheet.create({
     wrapper: {
       flex: 1,
       backgroundColor,
     },
     container: {
       flex: 1,
+      backfaceVisibility: 'hidden',
+      transform: [{ perspective: 1000 }],
     },
     header: {
       paddingTop: isWeb ? 20: 50,
@@ -47,10 +46,12 @@ export const useDrawerStyles = () => {
       backgroundColor
     },
     scrollView: {
-      marginTop: 10
+      marginTop: 10,
+      overflowX: 'hidden',
+      overflowY: 'auto'
     },
     scrollViewContent: {
       paddingTop: 0
     }
-  });
+  }), [backgroundColor, textColor, borderColor, isWeb]);
 };

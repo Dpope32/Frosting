@@ -14,9 +14,6 @@ import { WifiModal } from './cardModals/WifiModal'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
-import { useNetworkStore } from '@/store/NetworkStore'
-import { getWifiDetails } from '@/services/wifiServices'
-
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { GreetingSection } from '@/components/home/GreetingSection'
@@ -114,21 +111,7 @@ export function LandingPage() {
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
       <WifiModal 
         open={wifiModalOpen} 
-        onOpenChange={setWifiModalOpen} 
-        speed={useNetworkStore(s => {
-          const details = s.details;
-          const wifiDetails = getWifiDetails(details);
-          const isConnected = details?.isConnected ?? false;
-          const isWifi = details?.type === 'wifi';
-          
-          if (!isConnected) return 'Offline';
-          
-          if (isWifi && wifiDetails?.linkSpeed && Platform.OS !== 'ios') {
-            return `${wifiDetails.linkSpeed} Mbps`;
-          }
-          
-          return '45 ms'; // Default value
-        })}
+        onOpenChange={setWifiModalOpen}
       />
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}

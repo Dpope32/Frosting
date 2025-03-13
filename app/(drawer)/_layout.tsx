@@ -127,11 +127,17 @@ export default function DrawerLayout() {
     ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280
     : isIpadDevice
       ? 250 
-      : 250;
+      : 230;
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
-    <DrawerContent props={props} username={username} profilePicture={profilePicture} styles={styles} isWeb={isWeb} />
-  ), [username, profilePicture, styles, isWeb]);
+    <DrawerContent 
+      props={props} 
+      username={username} 
+      profilePicture={profilePicture} 
+      styles={styles} 
+      isWeb={isWeb} 
+    />
+  ), [username, profilePicture, styles, isWeb, drawerWidth]); // Added drawerWidth dependency
 
   const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
     const icon = DRAWER_ICONS[route];
@@ -150,6 +156,7 @@ export default function DrawerLayout() {
       ),
       headerTransparent: true,
       useNativeDriver: true,
+      
       drawerStyle: {
         backgroundColor,
         width: drawerWidth,
@@ -194,9 +201,9 @@ export default function DrawerLayout() {
     if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
         enabled: true,
-        activeOffsetX: [-10, 10],
-        failOffsetY: [-30, 30],
-        velocityThreshold: 0.1,
+        activeOffsetX: [-5, 5],  // More sensitive than current -10, 10
+        failOffsetY: [-50, 50],  // Less restrictive than current -30, 30
+        velocityThreshold: 0.3,  // Increased from 0.1 for smoother transitions
       };
       
       // Add additional optimizations for mobile
@@ -206,6 +213,15 @@ export default function DrawerLayout() {
       
       options.minSwipeDistance = 5;
     }
+      options.drawerOpeningAnimation = {
+        type: 'spring',
+        stiffness: 1000,
+        damping: 70,
+        mass: 1,
+        overshootClamping: false,
+        restDisplacementThreshold: 0.01,
+        restSpeedThreshold: 0.01,
+      };
     
     return options;
   }, [backgroundColor, drawerWidth, borderColor, isPermanentDrawer, inactiveColor, isDark, primaryColor, isIpadDevice]);

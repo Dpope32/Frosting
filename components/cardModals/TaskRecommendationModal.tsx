@@ -138,7 +138,7 @@ function CategoryTaskModal({
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false} 
           bounces={false} 
-          maxHeight={isWeb ? 700 : "100%"}
+          maxHeight="100%"
           onScroll={(event) => {
             const scrollY = event.nativeEvent.contentOffset.y;
             setShowScrollToTop(scrollY > 100);

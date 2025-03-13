@@ -5,6 +5,7 @@ import Animated, { SlideInDown } from 'react-native-reanimated'
 import { BaseCardAnimated } from './BaseCardAnimated'
 import { useNetworkStore } from '@/store/NetworkStore'
 import { getWifiDetails } from '@/services/wifiServices'
+import { useNetworkSpeed } from '@/hooks/useNetworkSpeed'
 
 const getStrengthColor = (
   strength: string | number | undefined | null,
@@ -64,11 +65,11 @@ const getStrengthColor = (
 interface WifiModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  speed?: string
 }
 
-export function WifiModal({ open, onOpenChange, speed }: WifiModalProps): JSX.Element {
-  const { details, isLoading, error, fetchNetworkInfo, startNetworkListener } = useNetworkStore()
+export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
+  const { details, error, fetchNetworkInfo, startNetworkListener } = useNetworkStore()
+  const { speed, isLoading } = useNetworkSpeed()
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
   const colorScheme = useColorScheme()
   const isDark: boolean = colorScheme === 'dark'

@@ -212,11 +212,11 @@ const FormContent = React.memo((props: FormContentProps) => {
             ) : (
               <Circle
                 size={100}
-                backgroundColor={isDark ? "$gray5" : "$gray3"}
+                backgroundColor={isDark ? "$gray5" : "$gray5"}
                 pressStyle={{ backgroundColor: isDark ? '$gray6' : '$gray4' }}
                 onPress={pickImage}
               >
-              <Text fontSize={32} color={isDark ? "$gray11" : "$gray9"} fontFamily="$body">
+              <Text fontSize={32} color={isDark ? "$gray11" : "$gray11"} fontFamily="$body">
                   +
                 </Text>
               </Circle>
