@@ -172,7 +172,7 @@ export default function CRM() {
   };
 
   return (
-    <YStack flex={1} paddingTop={isWeb ? 12 : 80}>
+    <YStack flex={1} paddingTop={isWeb ? 12 : 85}>
       {__DEV__ && (
         <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
           <Button
