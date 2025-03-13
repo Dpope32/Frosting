@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { YStack, XStack, Button, Text, Stack, isWeb, Spinner } from 'tamagui'
-import { Image, View, useWindowDimensions, Platform } from 'react-native'
+import React from 'react'
+import { YStack, XStack, Button, Text, Stack, isWeb } from 'tamagui'
+import { Image, View, useWindowDimensions, Platform, ActivityIndicator } from 'react-native'
 import { BackgroundStyleOption, FormData } from '@/types'
-import { BackgroundStyle } from '@/constants/Backgrounds'
-import { preloadWallpaperByStyle } from '@/services/s3Service'
+import { BackgroundStyle, isWallpaperLoaded } from '@/constants/Backgrounds'
+import { preloadImage } from '@/services/s3Service'
+
 let LinearGradient: any = null;
 let BlurView: any = null;
 let Animated: any = null;
@@ -25,6 +26,7 @@ if (Platform.OS === 'ios' || Platform.OS === 'android') {
     console.warn('Some native components could not be loaded:', error);
   }
 }
+
 export default function Step3({
   formData,
   setFormData,
@@ -39,9 +41,41 @@ export default function Step3({
   isDark?: boolean
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
-  const [starsKey, setStarsKey] = React.useState(0);
+  const [starsKey, setStarsKey] = React.useState(0)
+  const [isImageLoading, setIsImageLoading] = React.useState(false)
+  const [activeWallpaper, setActiveWallpaper] = React.useState<string | null>(null)
+  
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+  
+  // Preload the current wallpaper when it changes
+  React.useEffect(() => {
+    if (formData.backgroundStyle.startsWith('wallpaper-')) {
+      const wallpaper = getWallpaperPath(formData.backgroundStyle);
+      if (wallpaper && wallpaper.uri) {
+        setIsImageLoading(true);
+        setActiveWallpaper(wallpaper.uri);
+        
+        if (Platform.OS === 'web') {
+          preloadImage(wallpaper.uri)
+            .then(() => {
+              setIsImageLoading(false);
+              console.log(`Wallpaper loaded: ${formData.backgroundStyle}`);
+            })
+            .catch(error => {
+              console.error(`Failed to load wallpaper: ${error}`);
+              setIsImageLoading(false);
+            });
+        } else {
+          // On native, we don't need to manually preload
+          setIsImageLoading(false);
+        }
+      }
+    }
+    
+    setStarsKey(prev => prev + 1);
+  }, [formData.backgroundStyle]);
+  
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
       const animationConfig = { duration: 60000 };
@@ -53,11 +87,13 @@ export default function Step3({
       };
     }
   }, [screenWidth, screenHeight, translateX, translateY, withRepeat, withTiming]);
+  
   const starsAnimatedStyle = Platform.OS !== 'web' && useAnimatedStyle && translateX && translateY
     ? useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
       }))
     : null;
+  
   const createAnimatedStars = () => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       if (Animated && starsAnimatedStyle) {
@@ -216,46 +252,9 @@ export default function Step3({
       </View>
     );
   };
-  React.useEffect(() => {
-    setStarsKey(prev => prev + 1);
-  }, [formData.backgroundStyle]);
-  // Track loading state and timing for wallpapers
-  const [isWallpaperLoading, setIsWallpaperLoading] = useState(false);
-  const [wallpaperError, setWallpaperError] = useState<string | null>(null);
-  const [loadStartTimes, setLoadStartTimes] = useState<Record<string, number>>({});
-  
-  // Simplified re-render logic when wallpaper changes
-  useEffect(() => {
-    if (formData.backgroundStyle.startsWith('wallpaper-')) {
-      const startTime = Date.now();
-      console.log(`[Wallpaper] [${startTime}] PROCESS START for: ${formData.backgroundStyle}`);
-      
-      setIsWallpaperLoading(true);
-      setWallpaperError(null);
-      
-      try {
-        // Pre-validate the wallpaper path
-        const wallpaper = getWallpaperPath(formData.backgroundStyle);
-        
-        if (!wallpaper) {
-          console.warn(`[Wallpaper] No wallpaper found for ${formData.backgroundStyle}`);
-          setWallpaperError('Wallpaper not found');
-          setIsWallpaperLoading(false);
-          return;
-        }
-        
-        // No need for forced re-renders with timeouts - React will handle this naturally
-        // The starsKey update in the other useEffect is sufficient
-        
-      } catch (error) {
-        console.error(`[Wallpaper] Error processing wallpaper: ${error}`);
-        setWallpaperError('Error loading wallpaper');
-        setIsWallpaperLoading(false);
-      }
-    }
-  }, [formData.backgroundStyle, getWallpaperPath]);
   
   const stars = React.useMemo(() => createAnimatedStars(), [screenWidth, screenHeight, starsKey]);
+  
   const adjustColor = React.useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
     const num = parseInt(hex, 16)
@@ -264,22 +263,85 @@ export default function Step3({
     const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
-  // Use the original wallpaper path without adding additional cache-busting parameters
-  const getEnhancedWallpaperPath = (style: BackgroundStyle) => {
-    if (!style.startsWith('wallpaper-')) return null;
-    
-    // Get the wallpaper path from the passed function
-    const wallpaper = getWallpaperPath(style);
-    
-    if (!wallpaper) {
-      console.warn(`[Wallpaper] No wallpaper found for ${style}`);
-      return null;
+  
+  const renderWallpaperImage = (wallpaper: any) => {
+    if (isImageLoading && Platform.OS === 'web') {
+      return (
+        <Stack 
+          position="absolute" 
+          width="100%" 
+          height="100%" 
+          justifyContent="center" 
+          alignItems="center"
+          backgroundColor="#121212"
+        >
+          <ActivityIndicator size="large" color={formData.primaryColor} />
+        </Stack>
+      );
     }
     
-    // Log the wallpaper path for debugging but don't add additional cache-busting
-    console.log(`[Wallpaper] Path for ${style}:`, JSON.stringify(wallpaper));
-    
-    return wallpaper;
+    return (
+      <Stack position="absolute" width="100%" height="100%">
+        {activeWallpaper && (
+          <Image
+            key={activeWallpaper}
+            source={{ uri: activeWallpaper }}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              resizeMode: 'cover',
+            }}
+            onLoad={() => setIsImageLoading(false)}
+            onError={(error) => {
+              console.error('Image loading error:', error.nativeEvent.error);
+              setIsImageLoading(false);
+            }}
+          />
+        )}
+        
+        {Platform.OS === 'web' ? (
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(10px)',
+            }}
+          />
+        ) : (
+          Platform.OS === 'ios' || Platform.OS === 'android' ? (
+            BlurView ? (
+              <BlurView
+                intensity={isDark ? 20 : 30}
+                tint="dark"
+                style={{ position: 'absolute', width: '100%', height: '100%' }}
+              />
+            ) : (
+              <View
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                }}
+              />
+            )
+          ) : (
+            <View
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              }}
+            />
+          )
+        )}
+      </Stack>
+    );
   };
   
   const background = React.useMemo(() => {
@@ -342,219 +404,26 @@ export default function Step3({
           </View>
         );
       }
-      case 'space': {
-        if (Platform.OS === 'web') {
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(180deg, #0A0E21 0%, #191930 50%, #2C1E4F 100%)',
-              }}
-            />
-          );
-        }
-        return (
-          <View
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#0A0E21',
-            }}
-          />
-        );
-      }
-      case 'silhouette': {
-        if (Platform.OS === 'web') {
-          return (
-            <div
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                background: `linear-gradient(180deg, ${adjustColor(formData.primaryColor, -100)} 0%, #000000 100%)`,
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  width: '100%',
-                  height: '30%',
-                  backgroundImage: 'url("https://svgsilh.com/svg/3169476-000000.svg")',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'bottom center',
-                  backgroundRepeat: 'no-repeat',
-                  opacity: 0.7,
-                }}
-              />
-            </div>
-          );
-        }
-        return (
-          <View
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#000000',
-            }}
-          />
-        );
-      }
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
-          // Use enhanced wallpaper path
-          const wallpaper = getEnhancedWallpaperPath(formData.backgroundStyle);
-          
+          const wallpaper = getWallpaperPath(formData.backgroundStyle);
           if (!wallpaper) {
-            console.warn(`[Wallpaper] No wallpaper found for ${formData.backgroundStyle}`);
-            return null;
+            console.warn(`No wallpaper found for ${formData.backgroundStyle}`);
+            return (
+              <View style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#121212',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}>
+                <Text color="white">Wallpaper not found</Text>
+              </View>
+            );
           }
           
-          if ((Platform.OS === 'ios' || Platform.OS === 'android') && BlurView) {
-            return (
-              <Stack position="absolute" width="100%" height="100%">
-                <Image
-                  key={`wallpaper-${formData.backgroundStyle}-${starsKey}`} // Force re-render with unique key tied to starsKey
-                  source={wallpaper}
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    resizeMode: 'cover',
-                  }}
-                  onLoadStart={() => {
-                    const loadStartTime = Date.now();
-                    console.log(`[Wallpaper] [${loadStartTime}] LOAD START for: ${formData.backgroundStyle}`);
-                    setIsWallpaperLoading(true);
-                    
-                    // Store the start time in component state
-                    setLoadStartTimes(prev => ({
-                      ...prev,
-                      [formData.backgroundStyle]: loadStartTime
-                    }));
-                  }}
-                  onLoad={() => {
-                    const loadEndTime = Date.now();
-                    const startTime = loadStartTimes[formData.backgroundStyle] || loadEndTime - 100;
-                    console.log(`[Wallpaper] [${loadEndTime}] LOAD COMPLETE for: ${formData.backgroundStyle}`);
-                    console.log(`[Wallpaper] Total loading time: ${loadEndTime - startTime}ms for ${formData.backgroundStyle}`);
-                    setIsWallpaperLoading(false);
-                  }}
-                  onError={(error) => {
-                    const errorTime = Date.now();
-                    const errorMsg = error.nativeEvent.error || 'Unknown error';
-                    console.error(`[Wallpaper] [${errorTime}] LOAD ERROR for: ${formData.backgroundStyle}`, errorMsg);
-                    console.error(`[Wallpaper] Error details:`, JSON.stringify(error.nativeEvent));
-                    setWallpaperError(errorMsg);
-                    setIsWallpaperLoading(false);
-                  }}
-                />
-                <BlurView
-                  intensity={isDark ? 20 : 30}
-                  tint="dark"
-                  style={{ position: 'absolute', width: '100%', height: '100%' }}
-                />
-              </Stack>
-            );
-          }
-          if (Platform.OS === 'web') {
-            return (
-              <Stack position="absolute" width="100%" height="100%">
-                <Image
-                  key={`wallpaper-${formData.backgroundStyle}-${starsKey}`} // Force re-render with unique key tied to starsKey
-                  source={wallpaper}
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    resizeMode: 'cover',
-                  }}
-                  onLoadStart={() => {
-                    const loadStartTime = Date.now();
-                    console.log(`[Wallpaper] [${loadStartTime}] LOAD START for: ${formData.backgroundStyle}`);
-                    setIsWallpaperLoading(true);
-                  }}
-                  onLoad={() => {
-                    const loadEndTime = Date.now();
-                    console.log(`[Wallpaper] [${loadEndTime}] LOAD COMPLETE for: ${formData.backgroundStyle}`);
-                    // Store the start time in a ref for this component
-                  
-                    setIsWallpaperLoading(false);
-                  }}
-                  onError={(error) => {
-                    const errorTime = Date.now();
-                    const errorMsg = error.nativeEvent.error || 'Unknown error';
-                    console.error(`[Wallpaper] [${errorTime}] LOAD ERROR for: ${formData.backgroundStyle}`, errorMsg);
-                    console.error(`[Wallpaper] Error details:`, JSON.stringify(error.nativeEvent));
-                    setWallpaperError(errorMsg);
-                    setIsWallpaperLoading(false);
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(10px)',
-                  }}
-                />
-              </Stack>
-            );
-          }
-          return (
-            <Stack position="absolute" width="100%" height="100%">
-              <Image
-                key={`wallpaper-${formData.backgroundStyle}-${starsKey}`} // Force re-render with unique key tied to starsKey
-                source={wallpaper}
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  resizeMode: 'cover',
-                }}
-                onLoadStart={() => {
-                  const loadStartTime = Date.now();
-                  console.log(`[Wallpaper] [${loadStartTime}] LOAD START for: ${formData.backgroundStyle}`);
-                  setIsWallpaperLoading(true);
-                  
-                  // Store the start time in component state
-                  setLoadStartTimes(prev => ({
-                    ...prev,
-                    [formData.backgroundStyle]: loadStartTime
-                  }));
-                }}
-                onLoad={() => {
-                  const loadEndTime = Date.now();
-                  const startTime = loadStartTimes[formData.backgroundStyle] || loadEndTime - 100;
-                  console.log(`[Wallpaper] [${loadEndTime}] LOAD COMPLETE for: ${formData.backgroundStyle}`);
-                  console.log(`[Wallpaper] Total loading time: ${loadEndTime - startTime}ms for ${formData.backgroundStyle}`);
-                  setIsWallpaperLoading(false);
-                }}
-                onError={(error) => {
-                  const errorTime = Date.now();
-                  const errorMsg = error.nativeEvent.error || 'Unknown error';
-                  console.error(`[Wallpaper] [${errorTime}] LOAD ERROR for: ${formData.backgroundStyle}`, errorMsg);
-                  console.error(`[Wallpaper] Error details:`, JSON.stringify(error.nativeEvent));
-                  setWallpaperError(errorMsg);
-                  setIsWallpaperLoading(false);
-                }}
-              />
-              <View
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                }}
-              />
-            </Stack>
-          );
+          return renderWallpaperImage(wallpaper);
         }
         return (
           <View
@@ -567,50 +436,23 @@ export default function Step3({
           />
         );
     }
-  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath, isDark, starsKey]);
+  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath, isImageLoading, activeWallpaper]);
+  
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
   const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
+  
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack flex={1} padding={isWeb ? "$4" : "$3"} position="relative">
-        {/* Loading indicator for wallpapers */}
-        {isWallpaperLoading && formData.backgroundStyle.startsWith('wallpaper-') && (
-          <Stack 
-            position="absolute" 
-            top={10} 
-            right={10} 
-            backgroundColor="rgba(0,0,0,0.7)" 
-            padding="$2" 
-            borderRadius={8}
-            zIndex={10}
-          >
-            <Spinner size="small" color="white" />
-          </Stack>
-        )}
-        
-        {/* Error message for wallpaper loading failures */}
-        {wallpaperError && (
-          <Stack 
-            position="absolute" 
-            top={10} 
-            left={10} 
-            backgroundColor="rgba(255,0,0,0.7)" 
-            padding="$2" 
-            borderRadius={8}
-            zIndex={10}
-          >
-            <Text color="white" fontSize={12}>Failed to load wallpaper</Text>
-          </Stack>
-        )}
+      <YStack flex={1} padding={isWeb ? "$4" : "$4"}>
         <YStack
           backgroundColor={cardBackgroundColor}
           borderRadius={isWeb ? 16 : 32}
           paddingVertical={isWeb ? "$3" : "$4"}
-          paddingHorizontal={isWeb ? "$5" : "$3"}
+          paddingHorizontal={isWeb ? "$5" : "$4"}
           marginTop={isWeb ? 10 : 60}
           borderColor={borderColor}
           borderWidth={2}
@@ -635,21 +477,12 @@ export default function Step3({
                     scale: 0.97,
                     opacity: 0.8
                   }}
-                  onPress={() => {
-                    // If this is a wallpaper style, preload it before setting it
-                    if (style.value.startsWith('wallpaper-')) {
-                      console.log(`[Wallpaper] Preloading wallpaper before setting: ${style.value}`);
-                      // Preload the wallpaper in the background
-                      preloadWallpaperByStyle(style.value)
-                        .catch(err => console.warn(`Failed to preload wallpaper ${style.value}:`, err));
-                    }
-                    
-                    // Update the form data with the selected style
+                  onPress={() =>
                     setFormData((prev) => ({
                       ...prev,
                       backgroundStyle: style.value as FormData['backgroundStyle'],
-                    }));
-                  }}
+                    }))
+                  }
                 >
                   <Text
                     fontFamily="$heading" 

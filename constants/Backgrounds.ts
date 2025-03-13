@@ -1,9 +1,8 @@
-import { getWallpapers, type S3Wallpaper } from '../services/s3Service';
-
+import { getWallpapers, type S3Wallpaper, preloadImage, isImagePreloaded } from '../services/s3Service';
 
 export type BackgroundStyleOption = {
   label: string;
-  value: 'gradient' | `wallpaper-${string}` | 'space' | 'silhouette';
+  value: 'gradient' | `wallpaper-${string}` ;
 };
 
 const s3Wallpapers = getWallpapers();
@@ -21,7 +20,7 @@ s3Wallpapers.forEach(({ name, uri }) => {
 });
 
 // Create wallpapers object for getWallpaperPath
-const wallpapers: Record<string, { uri: string }> = {};
+const wallpapers: Record<string, { uri: string; isLoaded?: boolean }> = {};
 wallpaperMap.forEach(({ name, uri }, baseName) => {
   wallpapers[`wallpaper-${baseName}`] = { uri };
 });
@@ -48,6 +47,7 @@ const getFriendlyLabel = (name: string): string => {
 
 // Create background styles from deduplicated wallpapers
 export const backgroundStyles: BackgroundStyleOption[] = [
+  { label: 'Gradient', value: 'gradient' },
   ...Array.from(wallpaperMap.keys()).map(baseName => ({
     label: getFriendlyLabel(baseName),
     value: `wallpaper-${baseName}` as const
@@ -58,12 +58,31 @@ export type BackgroundStyle = BackgroundStyleOption['value'];
 
 export const getWallpaperPath = (style: BackgroundStyle) => {
   if (style.startsWith('wallpaper-')) {
-    return wallpapers[style] || null;
-  }
-  // For space and silhouette, we'll return null as they might be handled differently
-  // in the UI (e.g., with a custom background component)
-  if (style === 'space' || style === 'silhouette') {
+    const wallpaper = wallpapers[style];
+    if (wallpaper) {
+      // Ensure the image is preloaded on web
+      if (!wallpaper.isLoaded) {
+        preloadImage(wallpaper.uri)
+          .then(() => {
+            wallpaper.isLoaded = true;
+          })
+          .catch(error => {
+            console.error(`Failed to load wallpaper ${style}:`, error);
+          });
+      }
+      return wallpaper;
+    }
+    console.warn(`Wallpaper not found: ${style}`);
     return null;
   }
   return null;
+};
+
+export const isWallpaperLoaded = (style: BackgroundStyle): boolean => {
+  if (!style.startsWith('wallpaper-')) return true;
+  
+  const wallpaper = wallpapers[style];
+  if (!wallpaper) return false;
+  
+  return isImagePreloaded(wallpaper.uri);
 };

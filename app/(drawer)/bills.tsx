@@ -60,7 +60,8 @@ export default function BillsScreen() {
   return (
     <YStack f={1} mt={isWeb? 60 : 95} bg={isDark ? "#000000" : "#fffbf7fff"}>
       <Card
-        width={isWeb ? "95%" : "95%"}
+        width={isWeb ? "30%" : "95%"}
+        marginLeft={isWeb ? "$1" : "$0"}
         mx="auto"
         p="$4"
         borderRadius="$4"
@@ -69,7 +70,7 @@ export default function BillsScreen() {
         borderColor={isDark ? "#333" : "#e0e0e0"}
         mb="$4"
       >
-        <YStack gap="$2">
+        <YStack gap="$2" paddingLeft={isWeb ? "$1" : "$0"}>
           <XStack ai="center" jc="space-between">
             <XStack ai="center" gap="$1">
               <Text 
@@ -78,7 +79,7 @@ export default function BillsScreen() {
                 color={isDark ? "#fffbf7" : "#000"}
                 fontFamily="$body"
               >
-                Monthly Income:
+                Income:
               </Text>
             </XStack>
             <XStack ai="center" gap="$2">
@@ -101,7 +102,7 @@ export default function BillsScreen() {
           
           <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
             <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fffbf7" : "#000"} fontFamily="$body">
-              Total Bills:
+              Bills:
             </Text>
             <Text 
               fontSize="$4" 
@@ -175,12 +176,12 @@ export default function BillsScreen() {
             bg={isDark ? "#1A1A1A" : "#f5f5f5"}
             p={isWeb ? "$4" : "$5"}
             borderRadius="$4" 
-            paddingHorizontal={isWeb ? "$4" : "$4"}
+            paddingHorizontal={isWeb ? "$6" : "$4"}
             ai="flex-start" 
             jc="center"
             borderWidth={1}
             borderColor={isDark ? "#333" : "#e0e0e0"}
-            width="100%"
+            width={isWeb ? "100%" : "100%"}
           >
             <YStack gap="$4" width="100%" >
               

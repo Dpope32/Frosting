@@ -20,7 +20,7 @@ export const CardSection = ({ onPortfolioPress, onTemperaturePress, onQuotePress
   const quoteEnabled = preferences.quoteEnabled ?? true
   
   return (
-    <XStack marginTop="$3" gap={isWeb ? "$2" : "$0"} flexWrap="nowrap" justifyContent="center" paddingHorizontal={isWeb ? "$1" : "$0"}>
+    <XStack marginTop="$3" gap={isWeb ? "$2" : "$0"} flexWrap="nowrap" justifyContent={isWeb ? "flex-start" : "center"} alignItems={isWeb ? "flex-start" : "center"} paddingHorizontal={isWeb ? "$1" : "$0"}>
       <Pressable onPress={onPortfolioPress}>
         <PortfolioCard roundToWholeNumber={true} />
       </Pressable>

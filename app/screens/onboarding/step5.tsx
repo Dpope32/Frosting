@@ -91,14 +91,15 @@ export default function Step5({
   const buttonColor = isDark ? "$blue10Dark" : "$blue10Light";
   
   return (
-    <YStack flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop={isWeb ? 0 : 80}>
+    <YStack flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop={isWeb ? 20 : 80}>
       <YStack alignItems="center" gap="$1" marginBottom="$2">
         <Label
           fontFamily="$heading"
-          fontSize={isWeb ? "$10" : "$8"}
+          fontSize={isWeb ? "$9" : "$8"}
            fontWeight="800"
           textAlign="center"
           color={labelColor}
+          paddingBottom={isWeb ? 20 : 0} 
         >
           Follow your favorite NBA team
         </Label>

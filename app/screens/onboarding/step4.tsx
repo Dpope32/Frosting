@@ -69,7 +69,7 @@ export default function Step4({
       <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$6" : "$2"}>
         <Label
           fontFamily="$heading"
-          size="$8"
+          size={isWeb ? "$9" : "$8"}
           fontWeight="500" 
           textAlign="center"
           color={labelColor}

@@ -17,8 +17,6 @@ export type FormData = {
     | 'wallpaper-3'
     | 'wallpaper-4'
     | 'wallpaper-5'
-    | 'space'
-    | 'silhouette';
   zipCode: string;
   favoriteNBATeam?: string; // Team code (e.g., "OKC")
   showNBAGamesInCalendar?: boolean; // Whether to show NBA games in the calendar

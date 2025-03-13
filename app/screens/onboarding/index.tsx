@@ -8,7 +8,7 @@ import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
-import { preloadAllWallpapers, isWallpaperPreloaded } from '@/services/s3Service'
+import WallpaperPreloader from '../../../components/wpPreload'
 
 import Step0 from './step0'
 import Step1 from './step1'
@@ -29,16 +29,9 @@ export default function Onboarding() {
     backgroundStyle: 'gradient',
     zipCode: '',
   })
-
+  const [wallpapersPreloaded, setWallpapersPreloaded] = useState(false);
+  const [isLoadingWallpapers, setIsLoadingWallpapers] = useState(false);
   const setPreferences = useUserStore((state) => state.setPreferences)
-
-  // Preload wallpapers when component mounts
-  useEffect(() => {
-    // Start preloading wallpapers immediately
-    preloadAllWallpapers().catch(err => 
-      console.warn('Failed to preload wallpapers:', err)
-    );
-  }, []);
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener('keyboardWillShow', () => {
@@ -53,9 +46,11 @@ export default function Onboarding() {
     }
   }, [])
 
-  // We no longer need to preload wallpapers when approaching step 3
-  // The initial preload and improved caching is sufficient
-
+  useEffect(() => {
+    if (step === 2 && !wallpapersPreloaded && !isLoadingWallpapers) {
+      setIsLoadingWallpapers(true);
+    }
+  }, [step, wallpapersPreloaded, isLoadingWallpapers]);
 
   const handleNext = () => {
     if (step === 5) {
@@ -99,6 +94,17 @@ export default function Onboarding() {
   }
 
   const renderStep = () => {
+    if (step === 3 && isLoadingWallpapers) {
+      return (
+        <WallpaperPreloader 
+          onComplete={() => {
+            setWallpapersPreloaded(true);
+            setIsLoadingWallpapers(false);
+          }}
+          primaryColor={formData.primaryColor}
+        />
+      );
+    }
     switch (step) {
       case 0:
         return (
