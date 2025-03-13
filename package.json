@@ -53,7 +53,7 @@
     "expo": "~52.0.38",
     "expo-av": "~15.0.2",
     "expo-blur": "~14.0.2",
-    "expo-calendar": "~14.0.6",
+    "expo-calendar": "^14.0.6",
     "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.8",
     "expo-contacts": "~14.0.5",
@@ -115,7 +115,9 @@
   "expo": {
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": ["tamagui"],
+        "exclude": [
+          "tamagui"
+        ],
         "listUnknownPackages": false
       }
     }

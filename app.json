@@ -44,12 +44,12 @@
     },
     "plugins": [
       "expo-router",
-        [
-          "expo-calendar",
-          {
-            "calendarPermission": "The app needs to access your calendar."
-          }
-        ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "The app needs to access your calendar."
+        }
+      ],
       "expo-splash-screen",
       [
         "expo-notifications",
