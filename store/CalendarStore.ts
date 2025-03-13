@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import { Platform } from 'react-native'
 import { usePeopleStore } from './People'
 import type { Person } from '@/types/people'
+import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services/calendarService'
 
 export interface CalendarEvent {
   id: string
@@ -37,6 +38,7 @@ interface CalendarState {
   getEventsForDate: (date: string) => CalendarEvent[]
   clearAllEvents: () => void
   syncBirthdays: (newContactId?: string) => void
+  syncDeviceCalendarEvents: (startDate: Date, endDate: Date) => Promise<void>
   scheduleNotification: (date: Date, title: string, body: string, identifier?: string) => Promise<string>
   scheduleEventNotifications: (event: CalendarEvent) => Promise<void>
 }
@@ -76,6 +78,37 @@ export const useCalendarStore = create<CalendarState>()(
       },
 
       clearAllEvents: () => set({ events: [] }),
+      
+      syncDeviceCalendarEvents: async (startDate: Date, endDate: Date) => {
+        if (Platform.OS === 'web') return;
+        
+        try {
+          console.log('Starting device calendar sync...');
+          
+          // Get device calendar events
+          const deviceEvents = await getDeviceCalendarEvents(startDate, endDate);
+          
+          // Convert to app format
+          const appEvents = convertToAppCalendarEvents(deviceEvents);
+          
+          // Update store
+          set((state) => {
+            // Filter out existing device events to avoid duplicates
+            const nonDeviceEvents = state.events.filter(
+              (event) => !event.id.startsWith('device-')
+            );
+            
+            console.log(`Synced ${appEvents.length} device calendar events`);
+            
+            return {
+              events: [...nonDeviceEvents, ...appEvents],
+            };
+          });
+        } catch (error) {
+          // Log error but don't throw to ensure the app continues to work
+          console.error('Failed to sync device calendar events:', error);
+        }
+      },
 
       scheduleNotification: async (date, title, body, identifier) => {
         try {

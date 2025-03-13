@@ -14,6 +14,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/cardModals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
 import React from 'react';
@@ -34,9 +35,10 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({});
 
-  // Only use notifications on non-web platforms
+  // Only use notifications and calendar sync on non-web platforms
   if (Platform.OS !== 'web') {
     useNotifications();
+    useCalendarSync(); // Initialize calendar sync
   }
 
   useEffect(() => {

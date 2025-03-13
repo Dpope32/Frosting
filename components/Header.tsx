@@ -28,7 +28,7 @@ export function Header({ title }: HeaderProps) {
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills'; // Correct route name based on logs
   const isVaultScreen = route.name === 'vault';
-  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#bbb';
+  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#000';
   const isWeb = Platform.OS === 'web';
 
   // Calculate the spacer height based on platform
@@ -75,7 +75,7 @@ export function Header({ title }: HeaderProps) {
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
                 ? 'rgba(0,0,0,0.6)' 
-                : 'rgba(255, 255, 255, 0.1)' 
+                : 'rgba(255, 255, 255, 0.2)' 
           }
           style={{
             shadowColor: colorScheme === 'dark' ? undefined : '#000',

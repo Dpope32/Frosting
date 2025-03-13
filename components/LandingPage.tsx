@@ -68,7 +68,7 @@ export function LandingPage() {
           </Stack>
           <TaskSection todaysTasks={todaysTasks} toggleTaskCompletion={toggleTaskCompletion} deleteTask={deleteTask} onAddTaskPress={handleNewTaskPress} onTaskListPress={() => setTaskListModalOpen(true)} />
           {Platform.OS === 'web' && (
-            <Stack backgroundColor="rgba(0, 0, 0, 0.8)" borderRadius={12} padding="$4" marginTop="$2" borderColor="rgba(255, 255, 255, 0.05)" borderWidth={2} minWidth={300} style={{ boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)' }}>
+            <Stack backgroundColor="rgba(0, 0, 0, 0.8)" borderRadius={12} padding="$4" marginTop="$2" borderColor="rgba(255, 255, 255, 0.05)" borderWidth={2} minWidth={300}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text fontFamily="$body" color="#dbd0c6" fontSize={20} fontWeight="bold" marginBottom="$2" paddingLeft="$4" style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
                   Asset Tracker

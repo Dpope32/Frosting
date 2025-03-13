@@ -88,7 +88,7 @@ export const StarsAnimation = () => {
               top: '-50%'
             }}
           >
-            {[...Array(30)].map((_, i) => {
+            {[...Array(40)].map((_, i) => {
               const direction = i % 4; // 0, 1, 2, 3 for different directions
               const animationName = `moveStars${direction}`;
               return (
@@ -233,14 +233,14 @@ export const StarsAnimation = () => {
           starsAnimatedStyle1,
         ]}
       >
-        {[...Array(33)].map((_, i) => (
+        {[...Array(40)].map((_, i) => (
           <View
             key={`g1-${i}`}
             style={{
               position: 'absolute',
               width: i % 3 === 0 ? 3 : 2,
               height: i % 3 === 0 ? 3 : 2,
-              backgroundColor: `${primaryColor}50`, // Using hex opacity
+              backgroundColor: `${primaryColor}10`, // Using hex opacity
               borderRadius: 1,
               left: Math.random() * screenWidth * 2,
               top: Math.random() * screenHeight * 2,
@@ -257,7 +257,7 @@ export const StarsAnimation = () => {
           starsAnimatedStyle2,
         ]}
       >
-        {[...Array(33)].map((_, i) => (
+        {[...Array(40)].map((_, i) => (
           <View
             key={`g2-${i}`}
             style={{
@@ -288,7 +288,7 @@ export const StarsAnimation = () => {
               position: 'absolute',
               width: i % 3 === 0 ? 3 : 2,
               height: i % 3 === 0 ? 3 : 2,
-              backgroundColor: `${primaryColor}60`, // Using hex opacity
+              backgroundColor: `${primaryColor}`, // Using hex opacity
               borderRadius: 1,
               left: Math.random() * screenWidth * 2,
               top: Math.random() * screenHeight * 2,

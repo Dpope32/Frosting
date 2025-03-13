@@ -148,8 +148,6 @@ export const useNBAStore = create<NBAStore>()(
             });
           }
         });
-        
-        console.log('NBA games sync complete');
       }
     }),
     {
@@ -162,12 +160,12 @@ export const useNBAStore = create<NBAStore>()(
 // Helper function to get the current team code from user preferences
 export const getCurrentTeamCode = (): string => {
   const userPreferences = useUserStore.getState().preferences;
-  return userPreferences.favoriteNBATeam || 'OKC'; // Default to OKC if not set
+  return userPreferences.favoriteNBATeam || 'OKC'; 
 };
 
 // Helper function to get the ESPN API team code
 export const getESPNTeamCode = (teamCode: string): string => {
-  return espnTeamCodes[teamCode] || 'okc'; // Default to OKC if not found
+  return espnTeamCodes[teamCode] || 'okc'; 
 };
 
 // Helper function to get the current NBA season

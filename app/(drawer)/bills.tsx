@@ -58,7 +58,7 @@ export default function BillsScreen() {
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
   return (
-    <YStack f={1} mt={isWeb? 60 : 90} bg={isDark ? "#000000" : "#ffffff"}>
+    <YStack f={1} mt={isWeb? 60 : 95} bg={isDark ? "#000000" : "#fffbf7fff"}>
       <Card
         width={isWeb ? "95%" : "95%"}
         mx="auto"
@@ -75,7 +75,7 @@ export default function BillsScreen() {
               <Text 
                 fontSize="$4" 
                 fontWeight="bold" 
-                color={isDark ? "#fff" : "#000"}
+                color={isDark ? "#fffbf7" : "#000"}
                 fontFamily="$body"
               >
                 Monthly Income:
@@ -91,7 +91,7 @@ export default function BillsScreen() {
               <Text 
                 fontSize="$4" 
                 fontWeight="bold" 
-                color={isDark ? "#fff" : "#000"}
+                color={isDark ? "#fffbf7" : "#000"}
                 fontFamily="$body"
               >
                 ${monthlyIncome.toFixed(2)}
@@ -100,7 +100,7 @@ export default function BillsScreen() {
           </XStack>
           
           <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
-            <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fff" : "#000"} fontFamily="$body">
+            <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fffbf7" : "#000"} fontFamily="$body">
               Total Bills:
             </Text>
             <Text 
@@ -115,7 +115,7 @@ export default function BillsScreen() {
           
           {bills && bills.length > 0 && (
             <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
-              <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fff" : "#000"} fontFamily="$body">
+              <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fffbf7" : "#000"} fontFamily="$body">
                 Monthly P/L:
               </Text>
               <Text 
@@ -183,7 +183,7 @@ export default function BillsScreen() {
             width="100%"
           >
             <YStack gap="$4" width="100%" >
-              <Text color={isDark ? "#fff" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
+              <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
                 Bill Management Center
               </Text>
               
@@ -191,7 +191,7 @@ export default function BillsScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Track Monthly Expenses
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -203,7 +203,7 @@ export default function BillsScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Due Date Reminders
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -215,7 +215,7 @@ export default function BillsScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Budget Overview
                     </Text>
                     <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -323,7 +323,7 @@ export default function BillsScreen() {
                 <YStack flex={1} zIndex={1}>
                   <XStack jc="space-between" mt="$1" ai="center">
                     <Text 
-                      color={ isDark ? "#fff" : "#333"} 
+                      color={ isDark ? "#fffbf7" : "#333"} 
                       mb="$2" 
                       fontSize={isWeb ? "$4" : "$4"} 
                       fontWeight={isDueToday ? "bold" : "bold"}
@@ -424,7 +424,7 @@ export default function BillsScreen() {
                 
                 <YStack ml="$3" flex={1} zIndex={1}>
                   <Text 
-                    color={isDueToday ? "$red11" : isDark ? "#fff" : "#000"} 
+                    color={isDueToday ? "$red11" : isDark ? "#fffbf7" : "#000"} 
                     fontSize="$4" 
                     fontWeight="bold"
                     fontFamily="$body"
@@ -434,7 +434,7 @@ export default function BillsScreen() {
                   </Text>
                   <XStack ai="center" gap="$1">
                     <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body"> ${bill.amount.toFixed(2)}</Paragraph>
-                    <Paragraph color="#888" fontSize="$4" fontFamily="$body">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
+                    <Paragraph color="#fffbf7" fontSize="$4" fontFamily="$body">• Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}</Paragraph>
                   </XStack>
                 </YStack>
                 <Button 

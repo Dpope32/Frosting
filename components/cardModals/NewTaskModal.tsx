@@ -93,9 +93,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [])
 
   const handleTimeChange = useCallback((event: any, pickedDate?: Date) => {
-    if (Platform.OS !== 'web') {
-      setShowTimePicker(false)
-    }
+    // Remove the automatic closing for non-web platforms
     if (pickedDate) {
       setSelectedDate(pickedDate)
       const timeString = format(pickedDate, 'h:mm a')
@@ -186,7 +184,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             value={newTask.name}
             onDebouncedChange={handleTextChange}
             borderWidth={1}
-            autoCapitalize="words"
+            autoCapitalize="sentences"
             borderRadius={12}
             fontFamily="$body"
             paddingHorizontal="$3"

@@ -70,7 +70,7 @@ export default function Step4({
         <Label
           fontFamily="$heading"
           size="$8"
-          fontWeight="800" 
+          fontWeight="500" 
           textAlign="center"
           color={labelColor}
         >

@@ -1,4 +1,132 @@
 import { CalendarEvent } from '@/store/CalendarStore';
+import { Platform } from 'react-native';
+
+// Import Calendar conditionally to avoid issues on web
+let Calendar: any = null;
+if (Platform.OS !== 'web') {
+  // Use require instead of dynamic import for better compatibility
+  try {
+    Calendar = require('expo-calendar');
+  } catch (err) {
+    console.error('Error importing expo-calendar:', err);
+  }
+}
+
+/**
+ * Gets all calendars from the device
+ * @returns Array of calendars
+ */
+export const getDeviceCalendars = async (): Promise<any[]> => {
+  if (Platform.OS === 'web' || !Calendar) return [];
+  
+  try {
+    console.log('Getting device calendars...');
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    console.log(`Found ${calendars.length} calendars`);
+    calendars.forEach((cal: any, i: number) => {
+      console.log(`Calendar ${i+1}: ${cal.title} (${cal.id})`);
+    });
+    return calendars;
+  } catch (error) {
+    console.error('Error getting device calendars:', error);
+    return [];
+  }
+};
+
+/**
+ * Gets events from all calendars for a specific time range
+ * @param startDate Start date for the range
+ * @param endDate End date for the range
+ * @returns Array of calendar events
+ */
+export const getDeviceCalendarEvents = async (
+  startDate: Date,
+  endDate: Date
+): Promise<any[]> => {
+  if (Platform.OS === 'web' || !Calendar) return [];
+  
+  try {
+    console.log(`Getting device calendar events from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+    const calendars = await getDeviceCalendars();
+    let allEvents: any[] = [];
+    
+    for (const calendar of calendars) {
+      try {
+        const events = await Calendar.getEventsAsync(
+          [calendar.id],
+          startDate,
+          endDate
+        );
+        console.log(`Found ${events.length} events in calendar "${calendar.title}"`);
+        allEvents = [...allEvents, ...events];
+      } catch (calError) {
+        console.error(`Error getting events from calendar "${calendar.title}":`, calError);
+        // Continue with other calendars even if one fails
+      }
+    }
+    
+    console.log(`Found ${allEvents.length} total events across all calendars`);
+    return allEvents;
+  } catch (error) {
+    console.error('Error getting device calendar events:', error);
+    return [];
+  }
+};
+
+/**
+ * Converts device calendar events to app CalendarEvent format
+ * @param deviceEvents Array of device calendar events
+ * @returns Array of app calendar events
+ */
+export const convertToAppCalendarEvents = (
+  deviceEvents: any[]
+): CalendarEvent[] => {
+  console.log(`Converting ${deviceEvents.length} device events to app format`);
+  
+  return deviceEvents.map(event => {
+    try {
+      // Determine event type based on calendar or event properties
+      let eventType: CalendarEvent['type'] = 'personal';
+      
+      // Try to infer event type from calendar title or event title/notes
+      const calendarTitle = '';  // We'll need to fetch calendar details separately if needed
+      const eventTitle = event.title?.toLowerCase() || '';
+      const eventNotes = event.notes?.toLowerCase() || '';
+      
+      if (eventTitle.includes('work') || eventNotes.includes('work')) {
+        eventType = 'work';
+      } else if (calendarTitle.includes('family') || eventTitle.includes('family') || eventNotes.includes('family')) {
+        eventType = 'family';
+      } else if (eventTitle.includes('birthday') || eventNotes.includes('birthday')) {
+        eventType = 'birthday';
+      }
+      
+      const startDate = new Date(event.startDate);
+      
+      return {
+        id: `device-${event.id}`,
+        date: startDate.toISOString().split('T')[0],
+        time: startDate.toISOString().split('T')[1].substring(0, 5),
+        title: event.title || 'Untitled Event',
+        description: event.notes || undefined,
+        type: eventType,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('Error converting device event to app format:', error, event);
+      // Return a default event if conversion fails
+      return {
+        id: `device-error-${Math.random().toString(36).substring(2, 9)}`,
+        date: new Date().toISOString().split('T')[0],
+        title: 'Error Converting Event',
+        type: 'personal',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+  });
+};
 
 /**
  * Parses a time string in 12-hour format to 24-hour format

@@ -61,7 +61,7 @@ export default function VaultScreen() {
   const columnWidthWeb = `calc(${100 / columnCount}% - ${(columnCount - 100) / columnCount}px)`
 
   return (
-    <YStack f={1} mt={isWeb ? 50 : 90} bg={isDark ? '#000000' : '#ffffff'} marginLeft={isWeb? 24 : 0}>
+    <YStack f={1} mt={isWeb ? 50 : 90} bg={isDark ? '#000000' : '#f6f6f6'} marginLeft={isWeb? 24 : 0}>
       <ScrollView
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -86,11 +86,11 @@ export default function VaultScreen() {
             ai="flex-start"
             jc="center"
             borderWidth={1}
-            borderColor={isDark ? '#333' : '#e0e0e0'}
+            borderColor={isDark ? '#222' : '#e0e0e0'}
             width="100%"
           >
             <YStack gap="$3" width="100%">
-              <Text color={isDark ? '#fff' : '#333'} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
+              <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
                 Secure Password Vault
               </Text>
               
@@ -98,7 +98,7 @@ export default function VaultScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? '#fff' : '#333'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Store Your Credentials
                     </Text>
                     <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -110,7 +110,7 @@ export default function VaultScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? '#fff' : '#333'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       End-to-End Encryption
                     </Text>
                     <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -122,7 +122,7 @@ export default function VaultScreen() {
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
-                    <Text color={isDark ? '#fff' : '#333'} fontSize="$3" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$3" fontWeight="bold" fontFamily="$body">
                       Easy Access & Management
                     </Text>
                     <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
@@ -188,7 +188,7 @@ export default function VaultScreen() {
               paddingHorizontal="$4"
               borderRadius="$4"
               borderWidth={1}
-              borderColor={isDark ? '#333' : '#e0e0e0'}
+              borderColor={isDark ? '#222' : '#e0e0e0'}
               ai="center"
               animation="quick"
               width={columnWidthWeb}
@@ -206,7 +206,7 @@ export default function VaultScreen() {
             >
               <YStack flex={1}>
                 <XStack jc="space-between" ai="center" mt="$1" mb="$1.5">
-                  <Text color={isDark ? '#fff' : '#333'} fontSize="$4" fontWeight="bold" fontFamily="$body">
+                  <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                     {cred.name}
                   </Text>
                 </XStack>
@@ -215,7 +215,7 @@ export default function VaultScreen() {
                   <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                     Username:
                   </Text>
-                  <Text color={isDark ? '#fff' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+                  <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
                     {cred.username}
                   </Text>
                 </XStack>
@@ -224,7 +224,7 @@ export default function VaultScreen() {
                   <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                     Password:
                   </Text>
-                  <Text color={isDark ? '#fff' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+                  <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
                     {visiblePasswords[cred.id] ? cred.password : '••••••••'}
                   </Text>
                   <Button
@@ -257,14 +257,14 @@ export default function VaultScreen() {
                 paddingHorizontal={isWeb? 0 : "$4"}
                 borderRadius="$4"
                 borderWidth={1}
-                borderColor={isDark ? '#333' : '#e0e0e0'}
+                borderColor={isDark ? '#222' : '#e0e0e0'}
                 ai="center"
                 animation="quick"
                 mb="$1"
               >
                 <YStack flex={1}>
                   <XStack jc="space-between" ai="center" paddingVertical="$2">
-                    <Text color={isDark ? '#fff' : '#333'} fontSize="$4" fontWeight="bold" fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       {cred.name}
                     </Text>
                   </XStack>
@@ -273,7 +273,7 @@ export default function VaultScreen() {
                     <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                       Username:
                     </Text>
-                    <Text color={isDark ? '#fff' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+                    <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
                       {cred.username}
                     </Text>
                   </XStack>

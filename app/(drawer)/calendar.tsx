@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TouchableOpacity, ScrollView, Platform, Dimensions } from 'react-native';
+import { View, ScrollView, Platform, Dimensions } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useCalendarStore } from '@/store/CalendarStore';
-import { Plus } from '@tamagui/lucide-icons';
 import { Month } from '@/components/calendar/Month';
 import { Legend } from '@/components/calendar/Legend';
 import { EventModal } from '@/components/calendar/EventModal';
@@ -15,7 +14,6 @@ import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { calendarStyles } from '@/components/calendar/CalendarStyles';
 import { getUSHolidays } from '@/services/holidayService';
 
-// Helper function to detect if device is iPad
 const isIpad = () => {
   const { width, height } = Dimensions.get('window');
   // iPad detection based on screen dimensions and platform
@@ -187,18 +185,6 @@ export default function CalendarScreen() {
         debugData={debugData}
         isDark={isDark}
       />
-
-      {/* Add Event Button */}
-      <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
-        <TouchableOpacity
-          style={[calendarStyles.debugButton, { backgroundColor: primaryColor }]}
-          onPress={() => {
-            showToast('Please select a day to add an event', 'info');
-          }}
-        >
-          <Plus size={24} color="white" />
-        </TouchableOpacity>
-      </View>
 
       {/* Debug Tools */}
       <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} />

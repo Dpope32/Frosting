@@ -38,7 +38,7 @@ export const Legend: React.FC<LegendProps> = ({ isDark }) => {
   ];
   
   const items: LegendItem[] = showNBAGamesInCalendar 
-    ? [...baseItems, { color: '#FF5722', label: 'NBA Games', isNBA: true }] 
+    ? [...baseItems, { color: '#FF5722', label: 'NBA', isNBA: true }] 
     : baseItems;
 
   const isWebOrIpad = Platform.OS === 'web' || isIpad();

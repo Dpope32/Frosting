@@ -28,7 +28,7 @@ export default function Step1({
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$2" alignItems="center">
-        <Label fontFamily="$heading"   fontWeight="800" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color={labelColor}>
+        <Label fontFamily="$heading"   fontWeight="500" fontSize={isWeb ? "$10" : "$8"} textAlign="center" paddingBottom={16} color={labelColor}>
           Profile Picture
         </Label>
         <Circle

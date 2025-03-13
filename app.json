@@ -22,11 +22,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deedaw22.kaibanexus",
-       "projectName": "kaibanexus",
-      "buildNumber": "1.0.1", 
-      "icon": {
-        "backgroundColor": "#1f1f1f"
-      },
+      "buildNumber": "1.0.1",
+      "icon": "./assets/images/icon.png",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
@@ -42,8 +39,19 @@
         "backgroundColor": "#1f1f1f"
       }
     },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 3000
+    },
     "plugins": [
       "expo-router",
+        [
+          "expo-calendar",
+          {
+            "calendarPermission": "The app needs to access your calendar."
+          }
+        ],
       "expo-splash-screen",
       [
         "expo-notifications",
@@ -55,7 +63,9 @@
           ]
         }
       ],
-      "expo-video"
+      "expo-video",
+      "expo-updates",
+      "expo-font"
     ],
     "extra": {
       "router": {

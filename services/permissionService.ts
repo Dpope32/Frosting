@@ -5,8 +5,17 @@ import * as Notifications from 'expo-notifications';
 import * as ImagePicker from 'expo-image-picker';
 import * as Contacts from 'expo-contacts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// Note: Calendar permissions are commented out as the module might not be installed
-// import * as Calendar from 'expo-calendar';
+
+// Import Calendar conditionally to avoid issues on web
+let Calendar: any = null;
+if (Platform.OS !== 'web') {
+  // Use require instead of dynamic import for better compatibility
+  try {
+    Calendar = require('expo-calendar');
+  } catch (err) {
+    console.error('Error importing expo-calendar:', err);
+  }
+}
 
 // Key for storing whether permissions have been explained
 const PERMISSIONS_EXPLAINED_KEY = '@frosting/permissions_explained';
@@ -24,13 +33,13 @@ export const requestAllPermissions = async () => {
     const notificationStatus = await requestNotificationPermissions();
     const photoLibraryStatus = await requestPhotoLibraryPermissions();
     const contactsStatus = await requestContactsPermissions();
-//    const calendarStatus = await requestCalendarPermissions();
+    const calendarStatus = await requestCalendarPermissions();
     
     return {
       notifications: notificationStatus,
       photoLibrary: photoLibraryStatus,
       contacts: contactsStatus,
- //     calendar: calendarStatus
+      calendar: calendarStatus
     };
   } catch (error) {
     console.error("Error requesting permissions:", error);
@@ -98,11 +107,12 @@ export const requestContactsPermissions = async () => {
 export const requestCalendarPermissions = async () => {
   if (Platform.OS === 'web') return true;
   
-  // Calendar permissions are temporarily disabled until the module is installed
-  console.log("Calendar permissions requested but module not available");
-  return true;
+  // If Calendar module is not available, return true to ensure the rest of the app works
+  if (!Calendar) {
+    console.error("Calendar module not available");
+    return true;
+  }
   
-  /* Uncomment when expo-calendar is installed
   try {
     const { status } = await Calendar.getCalendarPermissionsAsync();
     if (status !== 'granted') {
@@ -112,9 +122,9 @@ export const requestCalendarPermissions = async () => {
     return true;
   } catch (error) {
     console.error("Error requesting calendar permissions:", error);
-    return false;
+    // Return true even if there's an error to ensure the rest of the app works
+    return true;
   }
-  */
 };
 
 // Check if permissions have been explained

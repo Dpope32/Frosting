@@ -1,12 +1,15 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, Modal, TextInput, Platform, Switch, Dimensions } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore'
+import { useToastStore } from '@/store/ToastStore'
 import { EventPreview } from './EventPreview'
 import { calendarStyles } from './CalendarStyles'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import { useUserStore } from '@/store/UserStore'
+import Animated, { FadeIn } from 'react-native-reanimated'
+import { BaseCardAnimated } from '../cardModals/BaseCardAnimated'
 
 const NOTIFICATION_TIME_OPTIONS = [
   { label: '15 minutes', value: '15m' },
@@ -47,7 +50,6 @@ interface EventModalProps {
   primaryColor: string
 }
 
-
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,
   isViewEventModalVisible,
@@ -76,34 +78,23 @@ export const EventModal: React.FC<EventModalProps> = ({
   primaryColor,
 }) => {
   const isWeb = Platform.OS === 'web'
-  const windowHeight = Dimensions.get('window').height
   const { scheduleEventNotifications } = useCalendarStore()
   const { preferences } = useUserStore()
-  
   const [localNotifyOnDay, setLocalNotifyOnDay] = useState<boolean>(editingEvent?.notifyOnDay ?? false)
   const [localNotifyBefore, setLocalNotifyBefore] = useState<boolean>(editingEvent?.notifyBefore ?? false)
-  const [localNotifyBeforeTime, setLocalNotifyBeforeTime] = useState(editingEvent?.notifyBeforeTime || '1h')
-  const [showTimeOptions, setShowTimeOptions] = useState(false)
-  const [showTimePicker, setShowTimePicker] = useState(false)
-  const [selectedTimeDate, setSelectedTimeDate] = useState(new Date())
-
+  const [localNotifyBeforeTime, setLocalNotifyBeforeTime] = useState<string>(editingEvent?.notifyBeforeTime || '1h')
+  const [showTimeOptions, setShowTimeOptions] = useState<boolean>(false)
+  const [showTimePicker, setShowTimePicker] = useState<boolean>(false)
+  const [selectedTimeDate, setSelectedTimeDate] = useState<Date>(new Date())
   const notifyOnDay = propNotifyOnDay !== undefined ? propNotifyOnDay : localNotifyOnDay
   const setNotifyOnDay = propSetNotifyOnDay || setLocalNotifyOnDay
   const notifyBefore = propNotifyBefore !== undefined ? propNotifyBefore : localNotifyBefore
   const setNotifyBefore = propSetNotifyBefore || setLocalNotifyBefore
   const notifyBeforeTime = propNotifyBeforeTime || localNotifyBeforeTime
   const setNotifyBeforeTime = propSetNotifyBeforeTime || setLocalNotifyBeforeTime
-
-  const modalBackgroundStyle = {
-    backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
-    ...(isWeb && {
-      maxWidth: 600,
-      alignSelf: 'center' as const,
-      borderRadius: 8,
-    }),
-  }
-
   const textColor = isDark ? '#ffffff' : '#000000'
+  
+  const { showToast } = useToastStore()
   
   const handleAddEventWithNotifications = async () => {
     try {
@@ -123,329 +114,172 @@ export const EventModal: React.FC<EventModalProps> = ({
         }
         await scheduleEventNotifications(eventToSchedule)
       }
+      showToast('Event saved successfully', 'success')
     } catch (error) {
       console.error(error)
+      showToast('Failed to save event', 'error')
     } finally {
       closeEventModals()
     }
   }
+
+  // Fix for the plus button to properly open the Add Event modal
+  const handleAddNewEvent = () => {
+    resetForm()
+    setTimeout(() => {
+      closeEventModals()
+      setTimeout(() => {
+        openEventModal()
+      }, 300)
+    }, 100)
+  }
+
+  // Calculate dynamic modal width based on screen size
+  const screenWidth = Dimensions.get('window').width
+  const screenHeight = Dimensions.get('window').height
   
+  // Improved modal width calculation - ensure the modal isn't too large on mobile
+  const modalWidth = Math.min(screenWidth * 0.85, 350)
+  
+  // View modal should be more size-appropriate
+  const getViewModalMaxWidth = () => {
+    return Math.min(screenWidth * 0.85, 350)
+  }
 
   return (
     <>
-      <Modal
-        visible={isViewEventModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={closeEventModals}
+      {/* View Events Modal */}
+      <BaseCardAnimated
+        open={isViewEventModalVisible}
+        onOpenChange={closeEventModals}
+        title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
+        modalWidth={getViewModalMaxWidth()}
+        modalMaxWidth={350}
       >
-        <View style={calendarStyles.modalContainer}>
-          <View style={[
-            calendarStyles.modalContent, 
-            modalBackgroundStyle,
-            isWeb && { maxHeight: windowHeight * 0.9 }
-          ]}>
-            <TouchableOpacity
-              onPress={closeEventModals}
-              style={{
-                position: 'absolute',
-                top: 20,
-                right: 20,
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.1)',
-                zIndex: 10,
-              }}
-            >
-              <Ionicons name="close" size={24} color={isDark ? '#fff' : '#000'} />
-            </TouchableOpacity>
-
-            <Text
-              style={[
-                calendarStyles.modalTitle,
-                {
-                  fontFamily: '$body',
-                  color: textColor,
-                  marginTop: 20,
-                  paddingLeft: 24,
-                  paddingVertical: 10
-                },
-              ]}
-            >
-              Events for {selectedDate?.toLocaleDateString()}
-            </Text>
-
-            <ScrollView
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 6
-              }}
-              showsVerticalScrollIndicator={false}
-            >
-              {selectedEvents.map((event) => (
+        <View style={{ paddingBottom: 50 }}>
+          <ScrollView
+            style={{
+              paddingHorizontal: 4,
+              paddingVertical: 6,
+              maxHeight: Math.min(screenHeight * 0.6, 350), // Limit height relative to screen
+            }}
+            showsVerticalScrollIndicator={true}
+          >
+            {selectedEvents.map((event) => (
+              <Animated.View 
+                key={event.id}
+                entering={FadeIn.duration(300).delay(100)}
+              >
                 <EventPreview
-                  key={event.id}
                   event={event}
                   onEdit={() => handleEditEvent(event)}
                   onDelete={() => handleDeleteEvent(event.id)}
                   isDark={isDark}
                   primaryColor={primaryColor}
                 />
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-            onPress={() => {
-              resetForm()
-              openEventModal()
-            }}
+              </Animated.View>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            onPress={handleAddNewEvent}
             style={{
               position: 'absolute',
-              bottom: 20,
-              right: 20,
-              width: 50,
-              height: 50,
-              borderRadius: 25,
+              bottom: 0,
+              right: 0,
+              width: 44,
+              height: 44,
+              borderRadius: 22,
               backgroundColor: primaryColor,
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            >
-              <Ionicons name="add" size={24} color="#fff" />
-            </TouchableOpacity>
-
-
-          </View>
+          >
+            <Ionicons name="add" size={24} color="#fffbf7" />
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </BaseCardAnimated>
 
-      <Modal
-        visible={isEventModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={closeEventModals}
-      >
-        <View style={calendarStyles.modalContainer}>
-          <View style={[calendarStyles.modalContent, modalBackgroundStyle]}>
-            <TouchableOpacity
-              onPress={closeEventModals}
-              style={{
-                position: 'absolute',
-                top: 20,
-                right: 20,
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 10,
-              }}
-            >
-              <Ionicons name="close" size={24} color={isDark ? '#fff' : '#000'} />
-            </TouchableOpacity>
-
-              <Text
-                style={[
-                  calendarStyles.modalTitle,
-                  {
-                    fontFamily: '$body',
-                    color: textColor,
-                    marginTop: 10,
-                    paddingLeft: 24,
-                    paddingVertical: 6,
-                    fontSize: 20,
-                    fontWeight: '600'
-                  },
-                ]}
-              >
-              {editingEvent ? 'Edit Event' : 'Add Event'} for {selectedDate?.toLocaleDateString()}
-            </Text>
-
-              <ScrollView
-                style={[calendarStyles.formScrollView, { paddingVertical: isWeb ? 0 : 8 }]}
-                showsVerticalScrollIndicator={false} 
-              >
-              <View style={calendarStyles.formGroup}>
+      {/* SIMPLIFIED ADD/EDIT EVENT MODAL - Using a basic Modal instead of BaseCardAnimated */}
+      {isEventModalVisible && (
+        <Modal
+          visible={isEventModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={closeEventModals}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[
+              styles.modalContent, 
+              { 
+                backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
+                width: modalWidth
+              }
+            ]}>
+              <View style={styles.headerContainer}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  {`${editingEvent ? 'Edit' : 'Add'} Event for ${selectedDate?.toLocaleDateString() || ''}`}
+                </Text>
+              </View>
+              
+              <ScrollView style={styles.formContainer}>
                 <TextInput
                   style={[
-                    calendarStyles.input,
-                    { fontFamily: '$body', color: textColor },
+                    styles.input,
+                    { 
+                      backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                      color: textColor,
+                      borderColor: isDark ? '#444444' : '#dddddd'
+                    }
                   ]}
                   placeholder="Event Title"
                   placeholderTextColor={isDark ? '#888888' : '#666666'}
                   value={newEventTitle}
                   onChangeText={setNewEventTitle}
                 />
+                
                 <TouchableOpacity
                   style={[
-                    calendarStyles.input,
+                    styles.input,
                     { 
-                      fontFamily: '$body', 
-                      color: textColor,
+                      backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                      borderColor: isDark ? '#444444' : '#dddddd',
                       flexDirection: 'row',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
-                      paddingRight: 12
-                    } as any,
+                      alignItems: 'center'
+                    }
                   ]}
                   onPress={() => setShowTimePicker(true)}
                 >
-                  <Text style={{ 
-                    fontFamily: '$body', 
-                    color: newEventTime ? textColor : isDark ? '#888888' : '#666666',
-                    fontSize: 16
-                  }}>
+                  <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666' }}>
                     {newEventTime || "Event Time (CT)"}
                   </Text>
-                  <Ionicons name="time-outline" size={20} color={textColor} />
+                  <Ionicons name="time-outline" size={18} color={textColor} />
                 </TouchableOpacity>
                 
-                {showTimePicker && (
-                  <Modal
-                    transparent
-                    visible={showTimePicker}
-                    animationType="fade"
-                    onRequestClose={() => setShowTimePicker(false)}
-                  >
-                    <View style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      backgroundColor: 'rgba(0,0,0,0.5)',
-                    }}>
-                      <View style={{
-                        width: '80%',
-                        backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
-                        borderRadius: 12,
-                        padding: 20,
-                        alignItems: 'center',
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 3.84,
-                        elevation: 5,
-                      }}>
-                        <Text style={{ 
-                          fontFamily: '$body',
-                          color: textColor, 
-                          fontSize: 18, 
-                          fontWeight: 'bold',
-                          marginBottom: 20
-                        }}>
-                          Select Time
-                        </Text>
-                        
-                        {Platform.OS === 'web' ? (
-                          <View style={{ 
-                            flexDirection: 'row', 
-                            alignItems: 'center', 
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            marginBottom: 20
-                          }}>
-                            <input
-                              type="time"
-                              value={format(selectedTimeDate, 'HH:mm')}
-                              onChange={(e) => {
-                                const [hours, minutes] = e.target.value.split(':').map(Number);
-                                const newDate = new Date(selectedTimeDate);
-                                newDate.setHours(hours);
-                                newDate.setMinutes(minutes);
-                                setSelectedTimeDate(newDate);
-                                setNewEventTime(format(newDate, 'h:mm a'));
-                              }}
-                              style={{
-                                padding: 12,
-                                fontSize: 16,
-                                borderRadius: 8,
-                                border: `1px solid ${isDark ? '#444' : '#ddd'}`,
-                                backgroundColor: isDark ? '#222' : '#fff',
-                                color: isDark ? '#fff' : '#000',
-                                width: '100%',
-                                marginRight: 10
-                              }}
-                            />
-                          </View>
-                        ) : (
-                          <View style={{ height: 200, marginBottom: 20 }}>
-                            <DateTimePicker
-                              value={selectedTimeDate}
-                              mode="time"
-                              is24Hour={false}
-                              onChange={(event, date) => {
-                                if (date) {
-                                  setSelectedTimeDate(date);
-                                  setNewEventTime(format(date, 'h:mm a'));
-                                }
-                              }}
-                              display="spinner"
-                              themeVariant={isDark ? "dark" : "light"}
-                            />
-                          </View>
-                        )}
-                        
-                        <TouchableOpacity
-                          style={{
-                            backgroundColor: primaryColor,
-                            paddingVertical: isWeb ? 12 : 4,
-                            paddingHorizontal: 24,
-                            borderRadius: 8,
-                            alignSelf: 'flex-end'
-                          }}
-                          onPress={() => setShowTimePicker(false)}
-                        >
-                          <Text style={{ fontFamily: '$body', color: 'white', fontWeight: 'bold' }}>Done</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  </Modal>
-                )}
-                <ScrollView
-                  horizontal
+                <Text style={[styles.sectionTitle, { color: textColor }]}>Event Type</Text>
+                <ScrollView 
+                  horizontal 
                   showsHorizontalScrollIndicator={false}
-                  style={calendarStyles.typeSelector}
+                  style={styles.typesContainer}
                 >
-                  {['personal', 'work', 'family', 'wealth', 'health'].map((type) => (
+                  {['personal', 'work', 'family', 'task', 'health'].map((type) => (
                     <TouchableOpacity
                       key={type}
                       style={[
-                        calendarStyles.typeButton,
+                        styles.typeButton,
                         {
-                          backgroundColor:
-                            type === selectedType
-                              ? primaryColor
-                              : isDark
-                              ? '#333333'
-                              : '#f0f0f0',
-                          marginRight: 8,
-                          paddingHorizontal: 12,
-                          height: 36,
-                          minWidth: 0
-                        },
+                          backgroundColor: type === selectedType ? primaryColor : isDark ? '#333333' : '#f0f0f0'
+                        }
                       ]}
-                      onPress={() =>
-                        setSelectedType(type as CalendarEvent['type'])
-                      }
+                      onPress={() => setSelectedType(type as CalendarEvent['type'])}
                     >
                       <Text
                         style={[
-                          calendarStyles.typeButtonText,
+                          styles.typeButtonText,
                           {
-                            fontFamily: '$body',
-                            color:
-                              type === selectedType
-                                ? '#ffffff'
-                                : isDark
-                                ? '#ffffff'
-                                : '#000000',
-                            fontSize: 14,
-                            fontWeight: '500'
-                          },
+                            color: type === selectedType ? '#ffffff' : textColor
+                          }
                         ]}
-                        numberOfLines={1}
                       >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
                       </Text>
@@ -453,149 +287,355 @@ export const EventModal: React.FC<EventModalProps> = ({
                   ))}
                 </ScrollView>
                 
-                <View style={{ marginTop: 12, paddingHorizontal: 4 }}>
-                  <View style={{ 
-                    flexDirection: 'row', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    marginBottom: 8,
-                    paddingVertical: 4,
-                    paddingHorizontal: 4,
-                    borderRadius: 8
-                  }}>
-                    <Text style={{ fontFamily: '$body', color: textColor }}>
+                <Text style={[styles.sectionTitle, { color: textColor }]}>Notifications</Text>
+                <View style={[
+                  styles.notificationContainer, 
+                  {
+                    backgroundColor: isDark ? '#333333' : '#f5f5f5', 
+                    borderColor: isDark ? '#444444' : '#dddddd'
+                  }
+                ]}>
+                  <View style={styles.switchRow}>
+                    <Text style={[styles.switchLabel, { color: textColor }]}>
                       Notify on day of event
                     </Text>
                     <Switch
                       value={notifyOnDay}
                       onValueChange={setNotifyOnDay}
                       trackColor={{ false: '#767577', true: primaryColor }}
-                      thumbColor={notifyOnDay ? '#f4f3f4' : '#f4f3f4'}
-                      style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }}
+                      thumbColor={'#f4f3f4'}
                     />
                   </View>
                   
-                  <View style={{ 
-                    flexDirection: 'row', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    marginBottom: 8,
-                    paddingVertical: 4,
-                    paddingHorizontal: 4,
-                    borderRadius: 8
-                  }}>
-                    <Text style={{ fontFamily: '$body', color: textColor }}>
+                  <View style={styles.switchRow}>
+                    <Text style={[styles.switchLabel, { color: textColor }]}>
                       Notify before event
                     </Text>
                     <Switch
                       value={notifyBefore}
                       onValueChange={setNotifyBefore}
                       trackColor={{ false: '#767577', true: primaryColor }}
-                      thumbColor={notifyBefore ? '#f4f3f4' : '#f4f3f4'}
-                      style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }}
+                      thumbColor={'#f4f3f4'}
                     />
                   </View>
                   
                   {notifyBefore && (
-                    <View style={{ position: 'relative', marginBottom: isWeb ? 0 : 80 }}>
-                      <TouchableOpacity
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: 12,
-                          backgroundColor: isDark ? '#333333' : '#f0f0f0',
-                          borderRadius: 8,
-                          marginTop: 4,
-                        }}
-                        onPress={() => setShowTimeOptions(!showTimeOptions)}
-                      >
-                        <Text style={{ fontFamily: '$body', color: textColor }}>
-                          {NOTIFICATION_TIME_OPTIONS.find(option => option.value === notifyBeforeTime)?.label || 'Select time'}
-                        </Text>
-                        <Ionicons
-                          name={showTimeOptions ? 'chevron-up' : 'chevron-down'}
-                          size={20}
-                          color={textColor}
-                        />
-                      </TouchableOpacity>
-                      
-                      {showTimeOptions && (
-                        <View style={{
-                          position: isWeb ? 'absolute' : 'relative',
-                          top: isWeb ? '100%' : 0,
-                          left: 0,
-                          right: 0,
-                          backgroundColor: isDark ? '#222222' : '#ffffff',
-                          borderRadius: 8,
-                          marginTop: 4,
-                          zIndex: 1000,
-                          shadowColor: '#000',
-                          shadowOffset: { width: 0, height: 2 },
-                          shadowOpacity: 0.25,
-                          shadowRadius: 3.84,
-                          elevation: 5,
-                        }}>
-                          <ScrollView style={{ maxHeight: isWeb ? 200 : 150 }}>
-                            {NOTIFICATION_TIME_OPTIONS.map(option => (
-                              <TouchableOpacity
-                                key={option.value}
-                                style={{
-                                  padding: 12,
-                                  borderBottomWidth: 1,
-                                  borderBottomColor: isDark ? '#333333' : '#f0f0f0',
-                                  backgroundColor: notifyBeforeTime === option.value 
-                                    ? primaryColor 
-                                    : 'transparent'
-                                }}
-                                onPress={() => {
-                                  setNotifyBeforeTime(option.value);
-                                  setShowTimeOptions(false);
-                                }}
-                              >
-                                <Text style={{ 
-                                  fontFamily: '$body', 
-                                  color: notifyBeforeTime === option.value 
-                                    ? '#ffffff' 
-                                    : textColor 
-                                }}>
-                                  {option.label}
-                                </Text>
-                              </TouchableOpacity>
-                            ))}
-                          </ScrollView>
-                        </View>
-                      )}
+                    <TouchableOpacity
+                      style={[
+                        styles.dropdownButton,
+                        { 
+                          backgroundColor: isDark ? '#444444' : '#e0e0e0',
+                          borderColor: isDark ? '#555555' : '#cccccc',
+                        }
+                      ]}
+                      onPress={() => setShowTimeOptions(!showTimeOptions)}
+                    >
+                      <Text style={{ color: textColor }}>
+                        {NOTIFICATION_TIME_OPTIONS.find(option => option.value === notifyBeforeTime)?.label || 'Select time'}
+                      </Text>
+                      <Ionicons
+                        name={showTimeOptions ? 'chevron-up' : 'chevron-down'}
+                        size={18}
+                        color={textColor}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  
+                  {showTimeOptions && (
+                    <View style={[
+                      styles.dropdown,
+                      { 
+                        backgroundColor: isDark ? '#222222' : '#ffffff',
+                        borderColor: isDark ? '#444444' : '#dddddd',
+                      }
+                    ]}>
+                      {NOTIFICATION_TIME_OPTIONS.map(option => (
+                        <TouchableOpacity
+                          key={option.value}
+                          style={[
+                            styles.dropdownItem,
+                            { 
+                              backgroundColor: notifyBeforeTime === option.value ? primaryColor : 'transparent',
+                              borderBottomColor: isDark ? '#333333' : '#f0f0f0',
+                            }
+                          ]}
+                          onPress={() => {
+                            setNotifyBeforeTime(option.value)
+                            setShowTimeOptions(false)
+                          }}
+                        >
+                          <Text style={{ 
+                            color: notifyBeforeTime === option.value ? '#ffffff' : textColor 
+                          }}>
+                            {option.label}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
                     </View>
                   )}
                 </View>
-              </View>
-            </ScrollView>
-
-            <View style={[calendarStyles.bottomButtonContainer, { marginTop: isWeb ? 8 : 0 }]}>
-              <View style={[calendarStyles.modalButtons, { justifyContent: 'flex-end', alignItems: 'center' }]}>
+              </ScrollView>
+              
+              <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                  style={[calendarStyles.bigActionButton, calendarStyles.cancelButton, { minWidth: 100, marginRight: 12 }]}
+                  style={[
+                    styles.button, 
+                    styles.cancelButton,
+                    { backgroundColor: isDark ? '#444444' : '#e0e0e0' }
+                  ]}
                   onPress={closeEventModals}
                 >
-                  <Text style={[calendarStyles.bigButtonText, { fontFamily: '$body' }]}>
+                  <Text style={[
+                    styles.buttonText, 
+                    { color: isDark ? '#ffffff' : '#000000' }
+                  ]}>
                     Cancel
                   </Text>
                 </TouchableOpacity>
-
+                
                 <TouchableOpacity
-                  style={[calendarStyles.bigActionButton, { backgroundColor: primaryColor, minWidth: 100 }]}
+                  style={[
+                    styles.button,
+                    { backgroundColor: primaryColor }
+                  ]}
                   onPress={handleAddEventWithNotifications}
                 >
-                  <Text style={[calendarStyles.bigButtonText, { fontFamily: '$body' }]}>
-                    {editingEvent ? 'Update' : 'Add'} Event
+                  <Text style={[
+                    styles.buttonText,
+                    { color: '#ffffff' }
+                  ]}>
+                    {editingEvent ? 'Update' : 'Add Event'}
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
+
+      {/* Time Picker Modal */}
+      {showTimePicker && (
+        <Modal
+          transparent
+          visible={showTimePicker}
+          animationType="fade"
+          onRequestClose={() => setShowTimePicker(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[
+              styles.timePickerContainer,
+              { 
+                backgroundColor: isDark ? '#1e1e1e' : '#fffbf7',
+                width: modalWidth
+              }
+            ]}>
+              <Text style={[styles.timePickerTitle, { color: textColor }]}>
+                Select Time
+              </Text>
+              
+              {Platform.OS === 'web' ? (
+                <View style={styles.webTimePicker}>
+                  <input
+                    type="time"
+                    value={format(selectedTimeDate, 'HH:mm')}
+                    onChange={(e) => {
+                      const [hours, minutes] = e.target.value.split(':').map(Number)
+                      const newDate = new Date(selectedTimeDate)
+                      newDate.setHours(hours)
+                      newDate.setMinutes(minutes)
+                      setSelectedTimeDate(newDate)
+                      setNewEventTime(format(newDate, 'h:mm a'))
+                    }}
+                    style={{
+                      padding: 10,
+                      fontSize: 14,
+                      borderRadius: 8,
+                      border: `1px solid ${isDark ? '#444' : '#ddd'}`,
+                      backgroundColor: isDark ? '#222' : '#fffbf7',
+                      color: isDark ? '#fff' : '#000',
+                      width: '100%',
+                    }}
+                  />
+                </View>
+              ) : (
+                <View style={styles.nativeTimePicker}>
+                  <DateTimePicker
+                    value={selectedTimeDate}
+                    mode="time"
+                    is24Hour={false}
+                    onChange={(event, date) => {
+                      if (date) {
+                        setSelectedTimeDate(date)
+                        setNewEventTime(format(date, 'h:mm a'))
+                      }
+                    }}
+                    display="spinner"
+                    themeVariant={isDark ? "dark" : "light"}
+                  />
+                </View>
+              )}
+              
+              <TouchableOpacity
+                style={[
+                  styles.doneButton,
+                  { backgroundColor: primaryColor }
+                ]}
+                onPress={() => setShowTimePicker(false)}
+              >
+                <Text style={styles.doneButtonText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    maxWidth: 350,
+  },
+  headerContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)'
+  },
+  headerText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  formContainer: {
+    padding: 16,
+    maxHeight: 350
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 14
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+    marginBottom: 8
+  },
+  typesContainer: {
+    flexDirection: 'row',
+    marginBottom: 16
+  },
+  typeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginRight: 8
+  },
+  typeButtonText: {
+    fontSize: 13,
+    fontWeight: '500'
+  },
+  notificationContainer: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8
+  },
+  switchLabel: {
+    fontSize: 14
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 4,
+    borderWidth: 1
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 4
+  },
+  dropdownItem: {
+    padding: 12,
+    borderBottomWidth: 1
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)'
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    minWidth: 100,
+    alignItems: 'center'
+  },
+  cancelButton: {
+    marginRight: 8
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  timePickerContainer: {
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  timePickerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 16
+  },
+  webTimePicker: {
+    width: '100%',
+    marginBottom: 16
+  },
+  nativeTimePicker: {
+    height: 180,
+    marginBottom: 16
+  },
+  doneButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-end'
+  },
+  doneButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14
+  }
+});

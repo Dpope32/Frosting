@@ -51,8 +51,10 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>The app needs to access your calendar.</string>
     <key>NSCalendarsUsageDescription</key>
-    <string>This app needs to access your calendar to set reminders for birthdays.</string>
+    <string>The app needs to access your calendar.</string>
     <key>NSCameraUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your camera</string>
     <key>NSContactsUsageDescription</key>
@@ -63,6 +65,8 @@
     <string>Allow $(PRODUCT_NAME) to save photos</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your photos</string>
+    <key>NSRemindersFullAccessUsageDescription</key>
+    <string>Allow $(PRODUCT_NAME) to access your reminders</string>
     <key>NSRemindersUsageDescription</key>
     <string>This app needs to send you notifications about birthdays and events.</string>
     <key>NSUserActivityTypes</key>

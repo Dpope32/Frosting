@@ -229,10 +229,10 @@ export default function CRM() {
           />
         </View>
       )}
-      <H4  marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
+      <H4 fontFamily="$heading" fontSize="$8" fontWeight={500} marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
-      <Separator borderColor="$gray8" borderWidth={1}  marginBottom={16} />
+      <Separator borderColor="$gray8" borderWidth={1}  marginBottom={2} />
       <FlatList
         key={JSON.stringify(allContacts)} 
         data={allContacts}
@@ -257,10 +257,6 @@ export default function CRM() {
             my="$4"
           >
             <YStack gap="$4" width="100%">
-              <Text color={isDark ? "#fff" : "#333"} fontSize="$5" fontWeight="bold" textAlign="center" fontFamily="$body">
-                Contact Management
-              </Text>
-              
               <YStack gap="$3" px="$2">
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>

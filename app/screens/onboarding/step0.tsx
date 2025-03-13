@@ -20,7 +20,7 @@ export default function Step0({
 
   return (
     <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$6" : "$3"} justifyContent="center" alignItems="center">
-      <Label paddingBottom={20} fontFamily="$heading"   fontWeight="800" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color={labelColor}>
+      <Label paddingBottom={20} fontFamily="$heading"   fontWeight="500" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color={labelColor}>
         What should we call you?
       </Label>
       <Input

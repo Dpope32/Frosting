@@ -440,12 +440,12 @@ export default function Step3({
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack flex={1} padding={isWeb ? "$4" : "$4"}>
+      <YStack flex={1} padding={isWeb ? "$4" : "$3"}>
         <YStack
           backgroundColor={cardBackgroundColor}
           borderRadius={isWeb ? 16 : 32}
           paddingVertical={isWeb ? "$3" : "$4"}
-          paddingHorizontal={isWeb ? "$5" : "$4"}
+          paddingHorizontal={isWeb ? "$5" : "$3"}
           marginTop={isWeb ? 10 : 60}
           borderColor={borderColor}
           borderWidth={2}
