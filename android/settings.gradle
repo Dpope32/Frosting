@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'kaiba-nexus'
+rootProject.name = 'Kaiba'
 
 dependencyResolutionManagement {
   versionCatalogs {

@@ -66,7 +66,7 @@ export const BackgroundSection = () => {
                 loadingIndicatorSource={wallpaper}
               />
               <BlurView
-                intensity={isDark ? 70 : 35}
+                intensity={isDark ? 30 : 20}
                 tint="dark"
                 style={{ 
                   position: 'absolute', 

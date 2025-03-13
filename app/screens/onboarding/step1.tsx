@@ -1,4 +1,4 @@
-import { YStack, Text, Button, Circle, Label } from 'tamagui'
+import { YStack, Text, Button, Circle, Label, isWeb } from 'tamagui'
 import { Image } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
@@ -27,8 +27,8 @@ export default function Step1({
 
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
-      <YStack gap="$1" alignItems="center">
-        <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
+      <YStack gap="$2" alignItems="center">
+        <Label fontFamily="$heading"   fontWeight="800" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color={labelColor}>
           Profile Picture
         </Label>
         <Circle
@@ -54,7 +54,7 @@ export default function Step1({
               <Circle size={60} backgroundColor={circleBackgroundColor}>
                 <Text fontFamily="$body" fontSize={24}>👤</Text>
               </Circle>
-              <Text fontFamily="$body" color={textColor} fontSize="$3">
+              <Text color={textColor}  fontFamily="$heading" fontWeight="700" >
                 Pick Photo
               </Text>
             </YStack>

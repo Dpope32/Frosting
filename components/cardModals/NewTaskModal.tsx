@@ -1,52 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Sheet, Button, Form, YStack, XStack, Text, ScrollView, Input, AnimatePresence } from 'tamagui'
-import { Switch, useColorScheme, Pressable } from 'react-native'
+import { Button, Form, YStack, XStack, Text, ScrollView, Input, AnimatePresence } from 'tamagui'
+import { Switch, useColorScheme, Platform, View } from 'react-native'
 import { useProjectStore, type Task, type TaskPriority, type TaskCategory, type WeekDay, type RecurrencePattern } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { Platform } from 'react-native'
 import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
-
-const WEEKDAYS: Record<string, WeekDay> = {
-  sun: 'sunday',
-  mon: 'monday',
-  tue: 'tuesday',
-  wed: 'wednesday',
-  thu: 'thursday',
-  fri: 'friday',
-  sat: 'saturday',
-}
-
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-]
-
-const RECURRENCE_PATTERNS: { label: string; value: RecurrencePattern; icon: string }[] = [
-  { label: 'One-time', value: 'one-time', icon: 'calendar-sharp' },
-  { label: 'Weekly', value: 'weekly', icon: 'calendar' },
-  { label: 'Biweekly', value: 'biweekly', icon: 'calendar-outline' },
-  { label: 'Monthly', value: 'monthly', icon: 'calendar-clear' },
-  { label: 'Yearly', value: 'yearly', icon: 'calendar-number' }
-]
-
-const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'> => {
-  const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
-  return {
-    name: '',
-    schedule: WEEKDAYS[currentDay as keyof typeof WEEKDAYS]
-      ? [WEEKDAYS[currentDay as keyof typeof WEEKDAYS]]
-      : [],
-    time: undefined,
-    priority: null as unknown as TaskPriority,
-    category: null as unknown as TaskCategory,
-    recurrencePattern: 'one-time',
-    recurrenceDate: new Date().toISOString().split('T')[0]
-  }
-}
+import { BaseCardAnimated } from './BaseCardAnimated'
+import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
 
 type DebouncedInputProps = {
   value: string
@@ -95,23 +58,17 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
-  const [showPrioritySelect, setShowPrioritySelect] = useState(false)
-  const [showCategorySelect, setShowCategorySelect] = useState(false)
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showRecurrenceSelect, setShowRecurrenceSelect] = useState(false)
   const inputRef = useRef<any>(null)
 
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setShowPrioritySelect(false)
-        setShowCategorySelect(false)
-        setShowRecurrenceSelect(false)
-        setNewTask(getDefaultTask())
         setShowTimePicker(false)
+        setNewTask(getDefaultTask())
         setIsSubmitting(false)
       }, 200)
     } else {
@@ -135,13 +92,13 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
     }))
   }, [])
 
-  const handleTimeChange = useCallback((event: any, selectedDate?: Date) => {
+  const handleTimeChange = useCallback((event: any, pickedDate?: Date) => {
     if (Platform.OS !== 'web') {
       setShowTimePicker(false)
     }
-    if (selectedDate) {
-      setSelectedDate(selectedDate)
-      const timeString = format(selectedDate, 'h:mm a')
+    if (pickedDate) {
+      setSelectedDate(pickedDate)
+      const timeString = format(pickedDate, 'h:mm a')
       setNewTask(prev => ({ ...prev, time: timeString }))
     }
   }, [])
@@ -154,9 +111,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
 
   const handleTimePress = useCallback(() => {
     setShowTimePicker(!showTimePicker)
-    setShowPrioritySelect(false)
-    setShowCategorySelect(false)
-    setShowRecurrenceSelect(false)
   }, [showTimePicker])
 
   const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern) => {
@@ -165,139 +119,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       recurrencePattern: pattern,
       recurrenceDate: new Date().toISOString().split('T')[0]
     }))
-    setShowRecurrenceSelect(false)
   }, [])
-
-  interface SelectButtonProps {
-    label: string
-    value: string | null | undefined
-    onPress: () => void
-    showDropdown?: boolean
-    icon?: string
-  }
-
-  const SelectButton = ({ 
-    label, 
-    value, 
-    onPress, 
-    showDropdown = false,
-    icon
-  }: SelectButtonProps) => {
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === 'dark'
-    
-    return (
-      <Button
-        onPress={onPress}
-        theme={isDark ? "dark" : "light"}
-        backgroundColor={isDark ? "$gray2" : "white"}
-        borderRadius={12}
-        height={50}
-        borderColor={isDark ? "$gray7" : "$gray4"}
-        borderWidth={1}
-        paddingHorizontal="$3"
-        pressStyle={{ opacity: 0.8 }}
-      >
-        <XStack flex={1} alignItems="center" justifyContent="space-between" paddingRight="$2">
-          <XStack alignItems="center" gap="$2">
-            {icon && <Ionicons name={icon as any} size={20} color={isDark ? "$gray12" : "$gray11"} />}
-            <Text color={isDark ? "$gray12" : "$gray11"} fontSize={16} fontWeight="500">
-              {label}
-            </Text>
-          </XStack>
-          <Text 
-            color={isDark ? "$gray11" : "$gray10"} 
-            fontSize={16} 
-            numberOfLines={1} 
-            maxWidth="60%"
-            ellipsizeMode="tail"
-            textAlign="right"
-          >
-            {value || (showDropdown ? '▲' : '▼')}
-          </Text>
-        </XStack>
-      </Button>
-    );
-  }
-
-  interface DropdownListProps<T> {
-    items: Array<T | { label: string; value: T; icon?: string }>
-    selectedValue: T | null
-    onSelect: (value: T) => void
-    maxHeight?: number
-  }
-
-  function DropdownList<T extends string>({
-    items,
-    selectedValue,
-    onSelect,
-    maxHeight = 300
-  }: DropdownListProps<T>) {
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === 'dark'
-    const { preferences } = useUserStore()
-
-    return (
-      <YStack
-        position="absolute"
-        top="110%"
-        left={0}
-        right={0}
-        backgroundColor={isDark ? "$gray1" : "white"}
-        borderRadius={12}
-        zIndex={1000}
-        shadowColor="black"
-        shadowOffset={{ width: 0, height: 4 }}
-        shadowOpacity={0.1}
-        shadowRadius={8}
-        borderWidth={1}
-        borderColor={isDark ? "$gray7" : "$gray4"}
-      >
-        <YStack>
-          {items.map(item => {
-            const value = typeof item === 'string' ? item as T : item.value;
-            const label = typeof item === 'string' ? item as string : item.label;
-            const icon = typeof item === 'string' ? null : item.icon;
-            
-            return (
-              <Button
-                key={value}
-                onPress={() => onSelect(value)}
-                backgroundColor={selectedValue === value ? preferences.primaryColor : isDark ? "#1c1c1e" : "white"}
-                height={45}
-                justifyContent="center"
-                borderRadius={0}
-                borderBottomWidth={1}
-                borderColor={isDark ? "#2c2c2e" : "#e5e5ea"}
-                paddingHorizontal={12}
-                pressStyle={{ opacity: 0.8 }}
-              >
-                <XStack alignItems="center" gap="$2" paddingVertical={10}>
-                  {icon && <Ionicons name={icon as any} size={20} color={selectedValue === value ? '#fff' : isDark ? '#fff' : '#000'} />}
-                  <Text
-                    color={selectedValue === value ? '#fff' : isDark ? "#fff" : "#000"}
-                    fontSize={16}
-                    fontWeight={selectedValue === value ? '600' : '400'}
-                  >
-                    {label}
-                  </Text>
-                </XStack>
-              </Button>
-            );
-          })}
-        </YStack>
-      </YStack>
-    );
-  }
 
   const handlePrioritySelect = useCallback((value: TaskPriority) => {
     setNewTask(prev => ({ ...prev, priority: value }))
-    setShowPrioritySelect(false)
   }, [])
 
   const handleCategorySelect = useCallback((value: TaskCategory) => {
     setNewTask(prev => ({ ...prev, category: value }))
-    setShowCategorySelect(false)
   }, [])
 
   const handleAddTask = useCallback(async () => {
@@ -312,32 +141,27 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`)
         return
       }
-      
       setIsSubmitting(true)
-      const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
-      const taskToAdd = { 
-        ...newTask, 
+      const taskToAdd = {
+        ...newTask,
         name: newTask.name.trim(),
-        schedule: newTask.recurrencePattern === 'one-time' ? [] : (
-          newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly'
-            ? newTask.schedule
-            : []
-        ),
+        schedule:
+          newTask.recurrencePattern === 'one-time'
+            ? []
+            : (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')
+              ? newTask.schedule
+              : [],
         recurrenceDate: newTask.recurrenceDate
       }
-      
       onOpenChange(false)
       await new Promise(resolve => setTimeout(resolve, 80))
       try {
         addTask(taskToAdd)
-        
-        // Add this line to sync tasks to calendar
         if (taskToAdd.showInCalendar) {
-            syncTasksToCalendar();
+          syncTasksToCalendar()
         }
-        
         showToast('Task added successfully')
-      } catch (error) {
+      } catch {
         showToast('Failed to add task. Please try again.')
       }
     } catch {
@@ -348,385 +172,410 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
 
   return (
-    <Sheet
-      modal
-      open={open}
-      onOpenChange={onOpenChange}
-      snapPoints={[85]}
-      dismissOnSnapToBottom
-      dismissOnOverlayPress
-      animation="quick"
-      zIndex={100000}
-    >
-      <Sheet.Overlay 
-        animation="quick" 
-        enterStyle={{ opacity: 0 }} 
-        exitStyle={{ opacity: 0 }} 
-      />
-      <Sheet.Frame
-        backgroundColor={isDark ? "$gray1" : "#f0f0f0"}
-        padding="$4"
-        gap="$5"
-        borderTopLeftRadius="$6"
-        borderTopRightRadius="$6"
-        {...(isWeb ? { style: { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } } : {})}
+    <BaseCardAnimated open={open} onOpenChange={onOpenChange} title="New Task">
+      <ScrollView 
+        bounces={false} 
+        keyboardShouldPersistTaps="handled" 
+        showsHorizontalScrollIndicator={false} 
+        style={{ maxWidth: isWeb ? 600 : '100%' }}
       >
-          <ScrollView bounces={false} keyboardShouldPersistTaps="handled" showsHorizontalScrollIndicator={false}>
-            <Text fontSize={24} fontWeight="700" fontFamily="$body" color={isDark ? "$gray12" : "$gray12"} marginBottom={20}>
-              New Task
-            </Text>
-            <Form gap="$4" onSubmit={handleAddTask}>
-              <DebouncedInput
-                ref={inputRef}
-                placeholder="Enter task name"
-                value={newTask.name}
-                onDebouncedChange={handleTextChange}
-                borderWidth={1}
-                autoCapitalize="words"
-                borderRadius={12}
-                fontFamily="$body"
-                paddingHorizontal="$3"
-                height={50}
-                fontSize={17} 
-                fontWeight="400" 
-                theme={isDark ? "dark" : "light"}
-                backgroundColor={isDark ? "$gray2" : "white"}
-                borderColor={isDark ? "$gray7" : "$gray4"}
-                color={isDark ? "$gray12" : "$gray11"}
-              />
-              
-              <YStack gap="$4">
-                <YStack position="relative">
-                  <SelectButton
-                    label="Recurrence:"
-                    value={RECURRENCE_PATTERNS.find(p => p.value === newTask.recurrencePattern)?.label}
-                    onPress={() => {
-                      setShowRecurrenceSelect(!showRecurrenceSelect)
-                      setShowPrioritySelect(false)
-                      setShowCategorySelect(false)
-                    }}
-                    showDropdown={showRecurrenceSelect}
-                  />
-                  {showRecurrenceSelect && (
-                    <DropdownList<RecurrencePattern>
-                      items={RECURRENCE_PATTERNS}
-                      selectedValue={newTask.recurrencePattern}
-                      onSelect={handleRecurrenceSelect}
-                      maxHeight={200}
+        <Form gap="$4" onSubmit={handleAddTask}>
+          <DebouncedInput
+            ref={inputRef}
+            placeholder="Enter task name"
+            value={newTask.name}
+            onDebouncedChange={handleTextChange}
+            borderWidth={1}
+            autoCapitalize="words"
+            borderRadius={12}
+            fontFamily="$body"
+            paddingHorizontal="$3"
+            height={50}
+            fontSize={17}
+            fontWeight="400"
+            theme={isDark ? "dark" : "light"}
+            backgroundColor={isDark ? "$gray2" : "white"}
+            borderColor={isDark ? "$gray7" : "$gray4"}
+            color={isDark ? "$gray12" : "$gray11"}
+          />
+          
+          {/* Time Input */}
+          <YStack gap="$2">
+            <Button
+              onPress={handleTimePress}
+              theme={isDark ? "dark" : "light"}
+              backgroundColor={isDark ? "$gray2" : "white"}
+              borderRadius={12}
+              height={50}
+              borderColor={isDark ? "$gray7" : "$gray4"}
+              borderWidth={1}
+              paddingHorizontal="$3"
+              pressStyle={{ opacity: 0.8 }}
+            >
+              <XStack flex={1} alignItems="center" justifyContent="space-between">
+                <Text color={isDark ? "$gray12" : "$gray11"} fontSize={16}>
+                  {newTask.time || "Select time (optional)"}
+                </Text>
+                <Text color={isDark ? "$gray11" : "$gray10"} fontSize={16}>
+                  {showTimePicker ? '▲' : '▼'}
+                </Text>
+              </XStack>
+            </Button>
+            
+            {showTimePicker && (
+              <View
+                style={{
+                  backgroundColor: isDark ? '#1c1c1e' : 'white',
+                  borderRadius: 12,
+                  elevation: 10,
+                  shadowColor: 'black',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 8,
+                  borderWidth: 1,
+                  borderColor: isDark ? '#2c2c2e' : '#e5e5ea',
+                  marginTop: 8,
+                }}
+              >
+                <YStack
+                  height={Platform.OS === 'web' ? 100 : 200}
+                  justifyContent="center"
+                  alignItems="center"
+                  padding="$4"
+                  backgroundColor={isDark ? "$gray1" : "white"}
+                >
+                  {Platform.OS === 'web' ? (
+                    <XStack width="100%" alignItems="center" justifyContent="space-between">
+                      <input
+                        type="time"
+                        value={format(selectedDate, 'HH:mm')}
+                        onChange={e => {
+                          const [hrs, mins] = e.target.value.split(':').map(Number)
+                          const newDate = new Date(selectedDate)
+                          newDate.setHours(hrs)
+                          newDate.setMinutes(mins)
+                          handleWebTimeChange(newDate)
+                        }}
+                        style={{
+                          padding: 12,
+                          fontSize: 16,
+                          borderRadius: 8,
+                          border: `1px solid ${isDark ? '#444' : '#ddd'}`,
+                          backgroundColor: isDark ? '#222' : '#fff',
+                          color: isDark ? '#fff' : '#000',
+                          width: '100%',
+                          marginRight: 10
+                        }}
+                      />
+                      <Button
+                        onPress={() => setShowTimePicker(false)}
+                        backgroundColor={preferences.primaryColor}
+                        paddingHorizontal="$3"
+                        paddingVertical="$2"
+                        borderRadius={8}
+                      >
+                        <Text color="white" fontWeight="600">Done</Text>
+                      </Button>
+                    </XStack>
+                  ) : (
+                    <DateTimePicker
+                      value={selectedDate}
+                      mode="time"
+                      is24Hour={false}
+                      onChange={handleTimeChange}
+                      display="spinner"
+                      themeVariant={isDark ? "dark" : "light"}
                     />
                   )}
                 </YStack>
-
-                <AnimatePresence>
-                  {(newTask.recurrencePattern === 'monthly' || newTask.recurrencePattern === 'yearly') && (
-                    <YStack gap="$3">
-                      {newTask.recurrencePattern === 'yearly' && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                          <XStack gap="$2" paddingVertical="$1">
-                            {MONTHS.map((month, index) => (
-                              <Button
-                                key={month}
-                                backgroundColor={
-                                  new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index
-                                    ? preferences.primaryColor 
-                                    : isDark ? "$gray2" : "white"
-                                }
-                                pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                                onPress={() => {
-                                  const date = new Date(newTask.recurrenceDate || new Date().toISOString());
-                                  date.setMonth(index);
-                                  setNewTask(prev => ({
-                                    ...prev,
-                                    recurrenceDate: date.toISOString().split('T')[0]
-                                  }));
-                                }}
-                                borderRadius={24}
-                                paddingHorizontal="$2"
-                                paddingVertical="$2.5"
-                                borderWidth={1}
-                                borderColor={
-                                  new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index
-                                    ? 'transparent' 
-                                    : isDark ? "$gray7" : "$gray4"
-                                }
-                                minWidth={45}
-                              >
-                                <Text 
-                                  fontSize={14} 
-                                  fontWeight="600" 
-                                  color={new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === index ? '#fff' : isDark ? "$gray12" : "$gray11"}
-                                >
-                                  {month.substring(0, 3)}
-                                </Text>
-                              </Button>
-                            ))}
-                          </XStack>
-                        </ScrollView>
-                      )}
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <XStack gap="$2" paddingVertical="$1">
-                          {Array.from({length: 31}, (_, i) => i + 1).map(day => (
-                            <Button
-                              key={day}
-                              backgroundColor={
-                                new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day
-                                  ? preferences.primaryColor 
-                                  : isDark ? "$gray2" : "white"
-                              }
-                              pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                              onPress={() => {
-                                const date = new Date(newTask.recurrenceDate || new Date().toISOString());
-                                date.setDate(day);
-                                setNewTask(prev => ({
-                                  ...prev,
-                                  recurrenceDate: date.toISOString().split('T')[0]
-                                }));
-                              }}
-                              borderRadius={24}
-                              paddingHorizontal="$2"
-                              paddingVertical="$2.5"
-                              borderWidth={1}
-                              borderColor={
-                                new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day
-                                  ? 'transparent' 
-                                  : isDark ? "$gray7" : "$gray4"
-                              }
-                              minWidth={45}
-                            >
-                              <Text 
-                                fontSize={14} 
-                                fontWeight="600" 
-                                color={new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === day ? '#fff' : isDark ? "$gray12" : "$gray11"}
-                              >
-                                {day}
-                              </Text>
-                            </Button>
-                          ))}
-                        </XStack>
-                      </ScrollView>
-                    </YStack>
-                  )}
-                  {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
-                    <YStack gap="$3">
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <XStack gap="$2" paddingVertical="$1">
-                          {Object.entries(WEEKDAYS).map(([shortDay, fullDay]) => (
-                            <Button
-                              key={shortDay}
-                              backgroundColor={
-                                newTask.schedule.includes(fullDay) 
-                                  ? preferences.primaryColor 
-                                  : isDark ? "$gray2" : "white"
-                              }
-                              pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                              onPress={() => toggleDay(shortDay)}
-                              borderRadius={24}
-                              paddingHorizontal="$2"
-                              paddingVertical="$2.5"
-                              borderWidth={1}
-                              borderColor={
-                                newTask.schedule.includes(fullDay) 
-                                  ? 'transparent' 
-                                  : isDark ? "$gray7" : "$gray4"
-                              }
-                            >
-                              <Text 
-                                fontSize={14} 
-                                fontWeight="600" 
-                                color={newTask.schedule.includes(fullDay) ? '#fff' : isDark ? "$gray12" : "$gray11"}
-                              >
-                                {shortDay.toUpperCase()}
-                              </Text>
-                            </Button>
-                          ))}
-                        </XStack>
-                      </ScrollView>
-                    </YStack>
-                  )}
-                </AnimatePresence>
-              </YStack>
-
-              <YStack position="relative">
-                <SelectButton
-                  label="Time:"
-                  value={newTask.time || null}
-                  onPress={handleTimePress}
-                  showDropdown={showTimePicker}
-                />
-                {showTimePicker && (
-                  <YStack
-                    position="absolute"
-                    top="110%"
-                    left={0}
-                    right={0}
-                    backgroundColor={isDark ? "$gray1" : "white"}
-                    borderRadius={12}
-                    zIndex={1500}
-                    overflow="hidden"
-                    shadowColor="black"
-                    shadowOffset={{ width: 0, height: 4 }}
-                    shadowOpacity={0.1}
-                    shadowRadius={8}
+              </View>
+            )}
+          </YStack>
+          
+          {/* Recurrence Pattern Buttons */}
+          <YStack gap="$2">
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <XStack gap="$2" paddingVertical="$1">
+                {RECURRENCE_PATTERNS.map(pattern => (
+                  <Button
+                    key={pattern.value}
+                    backgroundColor={
+                      newTask.recurrencePattern === pattern.value
+                        ? preferences.primaryColor
+                        : isDark ? "$gray2" : "white"
+                    }
+                    pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                    onPress={() => handleRecurrenceSelect(pattern.value)}
+                    borderRadius={24}
+                    paddingHorizontal="$3"
+                    paddingVertical="$2.5"
                     borderWidth={1}
-                    borderColor={isDark ? "$gray7" : "$gray4"}
+                    borderColor={
+                      newTask.recurrencePattern === pattern.value
+                        ? 'transparent'
+                        : isDark ? "$gray7" : "$gray4"
+                    }
                   >
-                    <YStack
-                      height={Platform.OS === 'web' ? 100 : 200}
-                      justifyContent="center"
-                      alignItems="center"
-                      padding="$4"
-                      backgroundColor={isDark ? "$gray1" : "white"}
-                    >
-                      {Platform.OS === 'web' ? (
-                        <XStack width="100%" alignItems="center" justifyContent="space-between">
-                          <input
-                            type="time"
-                            value={format(selectedDate, 'HH:mm')}
-                            onChange={(e) => {
-                              const [hours, minutes] = e.target.value.split(':').map(Number);
-                              const newDate = new Date(selectedDate);
-                              newDate.setHours(hours);
-                              newDate.setMinutes(minutes);
-                              handleWebTimeChange(newDate);
-                            }}
-                            style={{
-                              padding: 12,
-                              fontSize: 16,
-                              borderRadius: 8,
-                              border: `1px solid ${isDark ? '#444' : '#ddd'}`,
-                              backgroundColor: isDark ? '#222' : '#fff',
-                              color: isDark ? '#fff' : '#000',
-                              width: '100%',
-                              marginRight: 10
-                            }}
-                          />
-                          <Button
-                            onPress={() => setShowTimePicker(false)}
-                            backgroundColor={preferences.primaryColor}
-                            paddingHorizontal="$3"
-                            paddingVertical="$2"
-                            borderRadius={8}
-                          >
-                            <Text color="white" fontWeight="600">Done</Text>
-                          </Button>
-                        </XStack>
-                      ) : (
-                        <DateTimePicker
-                          value={selectedDate}
-                          mode="time"
-                          is24Hour={false}
-                          onChange={handleTimeChange}
-                          display="spinner"
-                          themeVariant={isDark ? "dark" : "light"}
-                        />
-                      )}
-                    </YStack>
-                  </YStack>
-                )}
-              </YStack>
-
-              <YStack gap="$4" width="100%">
-                <XStack width="100%" alignItems="center">
-                  <YStack flex={1} position="relative">
-                    <SelectButton
-                      label="Priority:"
-                      value={newTask.priority}
-                      onPress={() => {
-                        setShowPrioritySelect(!showPrioritySelect)
-                        setShowCategorySelect(false)
-                        setShowRecurrenceSelect(false)
-                      }}
-                      showDropdown={showPrioritySelect}
-                    />
-                    {showPrioritySelect && (
-                      <DropdownList<TaskPriority>
-                        items={['high', 'medium', 'low']}
-                        selectedValue={newTask.priority}
-                        onSelect={handlePrioritySelect}
-                        maxHeight={150}
+                    <XStack alignItems="center" gap="$1.5">
+                      <Ionicons 
+                        name={pattern.icon as any} 
+                        size={16} 
+                        color={newTask.recurrencePattern === pattern.value ? '#fff' : isDark ? "$gray12" : "$gray11"} 
                       />
-                    )}
-                  </YStack>
-                  
-                  <XStack alignItems="center" marginLeft="$3">
-                    <Text color={isDark ? "$gray12" : "$gray11"} marginRight="$2">
-                      Show in Calendar
-                    </Text>
-                    <Switch
-                        value={newTask.showInCalendar || false}
-                        onValueChange={(value) => {
-                          setNewTask(prev => ({ ...prev, showInCalendar: value }))
-                        }}
-                      />
+                      <Text
+                        fontSize={14}
+                        fontWeight="600"
+                        color={newTask.recurrencePattern === pattern.value ? '#fff' : isDark ? "$gray12" : "$gray11"}
+                      >
+                        {pattern.label}
+                      </Text>
+                    </XStack>
+                  </Button>
+                ))}
+              </XStack>
+            </ScrollView>
+          </YStack>
+          
+          <AnimatePresence>
+            {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
+              <YStack gap="$3">
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <XStack gap="$2" paddingVertical="$1">
+                    {Object.entries(WEEKDAYS).map(([sd, fd]) => (
+                      <Button
+                        key={sd}
+                        backgroundColor={
+                          newTask.schedule.includes(fd)
+                            ? preferences.primaryColor
+                            : isDark ? "$gray2" : "white"
+                        }
+                        pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                        onPress={() => toggleDay(sd)}
+                        borderRadius={24}
+                        paddingHorizontal="$2"
+                        paddingVertical="$2.5"
+                        borderWidth={1}
+                        borderColor={
+                          newTask.schedule.includes(fd)
+                            ? 'transparent'
+                            : isDark ? "$gray7" : "$gray4"
+                        }
+                      >
+                        <Text
+                          fontSize={14}
+                          fontWeight="600"
+                          color={newTask.schedule.includes(fd) ? '#fff' : isDark ? "$gray12" : "$gray11"}
+                        >
+                          {sd.toUpperCase()}
+                        </Text>
+                      </Button>
+                    ))}
                   </XStack>
-                </XStack>
-                
-                <YStack>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingVertical: 4 }}
-                  >
-                    <XStack gap="$2">
-                      {['work', 'health', 'personal', 'family', 'wealth'].map(category => (
+                </ScrollView>
+              </YStack>
+            )}
+              
+            {(newTask.recurrencePattern === 'monthly' || newTask.recurrencePattern === 'yearly') && (
+              <YStack gap="$3">
+                {newTask.recurrencePattern === 'yearly' && (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <XStack gap="$2" paddingVertical="$1">
+                      {MONTHS.map((m, i) => (
                         <Button
-                          key={category}
-                          onPress={() => handleCategorySelect(category as TaskCategory)}
+                          key={m}
                           backgroundColor={
-                            newTask.category === category 
-                              ? preferences.primaryColor 
+                            new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === i
+                              ? preferences.primaryColor
                               : isDark ? "$gray2" : "white"
                           }
                           pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                          onPress={() => {
+                            const d = new Date(newTask.recurrenceDate || new Date().toISOString())
+                            d.setMonth(i)
+                            setNewTask(prev => ({ ...prev, recurrenceDate: d.toISOString().split('T')[0] }))
+                          }}
                           borderRadius={24}
-                          paddingHorizontal="$3"
+                          paddingHorizontal="$2"
                           paddingVertical="$2.5"
                           borderWidth={1}
                           borderColor={
-                            newTask.category === category 
-                              ? 'transparent' 
+                            new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === i
+                              ? 'transparent'
                               : isDark ? "$gray7" : "$gray4"
                           }
+                          minWidth={45}
                         >
-                          <Text 
-                            fontSize={14} 
-                            fontWeight="600" 
-                            color={newTask.category === category ? '#fff' : isDark ? "$gray12" : "$gray11"}
+                          <Text
+                            fontSize={14}
+                            fontWeight="600"
+                            color={
+                              new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === i
+                                ? '#fff'
+                                : isDark ? "$gray12" : "$gray11"
+                            }
                           >
-                            {category.charAt(0).toUpperCase() + category.slice(1)}
+                            {m.substring(0, 3)}
                           </Text>
                         </Button>
                       ))}
                     </XStack>
                   </ScrollView>
-                </YStack>
+                )}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <XStack gap="$2" paddingVertical="$1">
+                    {Array.from({ length: 31 }, (_, idx) => idx + 1).map(d => (
+                      <Button
+                        key={d}
+                        backgroundColor={
+                          new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === d
+                            ? preferences.primaryColor
+                            : isDark ? "$gray2" : "white"
+                        }
+                        pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                        onPress={() => {
+                          const dt = new Date(newTask.recurrenceDate || new Date().toISOString())
+                          dt.setDate(d)
+                          setNewTask(prev => ({ ...prev, recurrenceDate: dt.toISOString().split('T')[0] }))
+                        }}
+                        borderRadius={24}
+                        paddingHorizontal="$2"
+                        paddingVertical="$2.5"
+                        borderWidth={1}
+                        borderColor={
+                          new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === d
+                            ? 'transparent'
+                            : isDark ? "$gray7" : "$gray4"
+                        }
+                        minWidth={45}
+                      >
+                        <Text
+                          fontSize={14}
+                          fontWeight="600"
+                          color={
+                            new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === d
+                              ? '#fff'
+                              : isDark ? "$gray12" : "$gray11"
+                          }
+                        >
+                          {d}
+                        </Text>
+                      </Button>
+                    ))}
+                  </XStack>
+                </ScrollView>
               </YStack>
-
-              <Form.Trigger asChild>
+            )}
+          </AnimatePresence>
+          
+          {/* Priority Buttons */}
+          <YStack gap="$2">
+            <XStack justifyContent="space-between" alignItems="center">
+              <Text color={isDark ? "$gray12" : "$gray11"} fontWeight="500">Priority</Text>
+              <XStack alignItems="center">
+                <Text color={isDark ? "$gray12" : "$gray11"} marginRight="$2">
+                  Show in Calendar
+                </Text>
+                <Switch
+                  value={newTask.showInCalendar || false}
+                  onValueChange={val => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
+                />
+              </XStack>
+            </XStack>
+            <XStack gap="$2">
+              {['high', 'medium', 'low'].map(priority => (
                 <Button
-                  backgroundColor={preferences.primaryColor}
-                  height={50}
+                  key={priority}
+                  flex={1}
+                  backgroundColor={
+                    newTask.priority === priority
+                      ? preferences.primaryColor
+                      : isDark ? "$gray2" : "white"
+                  }
                   pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                  onPress={() => handlePrioritySelect(priority as TaskPriority)}
                   borderRadius={12}
-                  alignSelf="center"
-                  marginTop={50}
-                  width="100%"
-                  shadowColor="black"
-                  shadowOffset={{ width: 0, height: 2 }}
-                  shadowOpacity={0.1}
-                  shadowRadius={4}
-                  elevation={3}
-                  disabled={isSubmitting}
-                  opacity={isSubmitting ? 0.7 : 1}
+                  paddingVertical="$2.5"
+                  borderWidth={1}
+                  borderColor={
+                    newTask.priority === priority
+                      ? 'transparent'
+                      : isDark ? "$gray7" : "$gray4"
+                  }
                 >
-                  <Text color="white" fontWeight="600" fontSize={18}>
-                    {isSubmitting ? 'Adding...' : 'Add Task'}
+                  <Text
+                    fontSize={14}
+                    fontWeight="600"
+                    color={newTask.priority === priority ? '#fff' : isDark ? "$gray12" : "$gray11"}
+                  >
+                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
                   </Text>
                 </Button>
-              </Form.Trigger>
-            </Form>
-          </ScrollView>
-      </Sheet.Frame>
-    </Sheet>
-  );
+              ))}
+            </XStack>
+          </YStack>
+          
+          {/* Category Buttons */}
+          <YStack gap="$2">
+            <Text color={isDark ? "$gray12" : "$gray11"} fontWeight="500">Category</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+              <XStack gap="$2">
+                {['work','health','personal','family','wealth'].map(cat => (
+                  <Button
+                    key={cat}
+                    onPress={() => handleCategorySelect(cat as TaskCategory)}
+                    backgroundColor={
+                      newTask.category === cat
+                        ? preferences.primaryColor
+                        : isDark ? "$gray2" : "white"
+                    }
+                    pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                    borderRadius={24}
+                    paddingHorizontal="$3"
+                    paddingVertical="$2.5"
+                    borderWidth={1}
+                    borderColor={
+                      newTask.category === cat
+                        ? 'transparent'
+                        : isDark ? "$gray7" : "$gray4"
+                    }
+                  >
+                    <Text
+                      fontSize={14}
+                      fontWeight="600"
+                      color={newTask.category === cat ? '#fff' : isDark ? "$gray12" : "$gray11"}
+                    >
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </Text>
+                  </Button>
+                ))}
+              </XStack>
+            </ScrollView>
+          </YStack>
+          
+          <Form.Trigger asChild>
+          <Button
+            backgroundColor={preferences.primaryColor}
+            height={50}
+            pressStyle={{ opacity: 0.8, scale: 0.98 }}
+            borderRadius={12}
+            alignSelf="center"
+            marginTop={8}  
+            width="100%"
+            shadowColor="black"
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.1}
+            shadowRadius={4}
+            elevation={3}
+            disabled={isSubmitting}
+            opacity={isSubmitting ? 0.7 : 1}
+          >
+            <Text color="white" fontWeight="600" fontSize={18}>
+              {isSubmitting ? 'Adding...' : 'Add Task'}
+            </Text>
+          </Button>
+        </Form.Trigger>
+        </Form>
+      </ScrollView>
+    </BaseCardAnimated>
+  )
 }

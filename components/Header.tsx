@@ -52,7 +52,6 @@ export function Header({ title }: HeaderProps) {
 
   return (
     <>
-      {/* Spacer to prevent content from being hidden under the fixed header */}
       {isWeb && (
         <YStack height={spacerHeight} />
       )}
@@ -63,9 +62,8 @@ export function Header({ title }: HeaderProps) {
         right={0} 
         zIndex={isWeb ? 10 : 50}
         {...(isWeb ? {
-          // Add web-specific styles for the header container
           style: {
-            position: 'fixed', // Use fixed positioning on web for better scrolling behavior
+            position: 'fixed', 
           } as any
         } : {})}
       >
@@ -76,8 +74,8 @@ export function Header({ title }: HeaderProps) {
                 ? 'rgba(0,0,0,0.0)' 
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
-                ? 'rgba(0,0,0,0.2)' 
-                : 'rgba(255, 255, 255, 0.2)' 
+                ? 'rgba(0,0,0,0.6)' 
+                : 'rgba(255, 255, 255, 0.1)' 
           }
           style={{
             shadowColor: colorScheme === 'dark' ? undefined : '#000',
@@ -91,11 +89,10 @@ export function Header({ title }: HeaderProps) {
             alignItems="center" 
             justifyContent="space-between" 
             paddingHorizontal="$4" 
-            height={isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90}
+            height={isWeb ? 60 : Platform.OS === 'ios' ? 95 : 90}
             paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 40 : 40}
           >
             <XStack alignItems="center" gap="$3">
-              {/* Only show menu button on non-web platforms */}
               {!isWeb && (
                 <Pressable 
                   onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}

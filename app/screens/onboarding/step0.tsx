@@ -19,8 +19,8 @@ export default function Step0({
   const placeholderColor = isDark ? "$gray9Dark" : "$gray9Light";
 
   return (
-    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? "$6" : "$3"} justifyContent="center" alignItems="center">
-      <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
+    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$6" : "$3"} justifyContent="center" alignItems="center">
+      <Label paddingBottom={20} fontFamily="$heading"   fontWeight="800" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color={labelColor}>
         What should we call you?
       </Label>
       <Input

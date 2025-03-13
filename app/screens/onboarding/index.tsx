@@ -24,7 +24,7 @@ export default function Onboarding() {
   const [formData, setFormData] = useState<FormData>({
     username: '',
     profilePicture: '',
-    primaryColor: '$gray5',
+    primaryColor: isDark ? '$gray5' : '$blue9',  
     backgroundStyle: 'gradient',
     zipCode: '',
   })
@@ -147,11 +147,26 @@ export default function Onboarding() {
   }
 
   // Dynamic theme styles
-  const backgroundColor = isDark ? "$gray1Dark" : "$gray1Light";
+  const backgroundColor = isDark ? "$gray1Dark" : "$gray2Light"; // Less white background for light mode
   const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
   const buttonBackgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
   const buttonBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
   const buttonTextColor = isDark ? "$gray12Dark" : "$gray12Light";
+  
+  // Determine button color based on step
+  const getButtonColor = () => {
+    // For steps 0 and 1, use a darker default color in light mode for better text contrast
+    if (step < 2 && !isDark) {
+      return "$blue9"; // Darker blue for better contrast with white text
+    }
+    return formData.primaryColor;
+  }
+  
+  // Determine button text color based on step and theme
+  const getButtonTextColor = () => {
+    // Always ensure good contrast
+    return isDark ? "white" : (step < 2 ? "white" : "#fff");
+  }
 
   return (
     <KeyboardAvoidingView 
@@ -188,13 +203,13 @@ export default function Onboarding() {
                 <Button
                   flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
                   width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
-                  backgroundColor={formData.primaryColor}
+                  backgroundColor={getButtonColor()}
                   borderColor={buttonBorderColor}
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color={isDark ? "#ccc" : "#fff"} fontWeight="bold">
+                  <Text fontFamily="$body" color={getButtonTextColor()} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>
@@ -227,13 +242,13 @@ export default function Onboarding() {
                 )}
                 <Button
                   width={300}
-                  backgroundColor={formData.primaryColor}
+                  backgroundColor={getButtonColor()}
                   borderColor={buttonBorderColor}
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color={isDark ? "white" : "#333"} fontWeight="bold">
+                  <Text fontFamily="$body" color={getButtonTextColor()} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

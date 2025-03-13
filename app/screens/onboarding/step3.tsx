@@ -1,10 +1,8 @@
 import React from 'react'
-import { YStack, XStack, Button, Text, Label, Stack, isWeb } from 'tamagui'
+import { YStack, XStack, Button, Text, Stack, isWeb } from 'tamagui'
 import { Image, View, useWindowDimensions, Platform } from 'react-native'
 import { BackgroundStyleOption, FormData } from '@/types'
 import { BackgroundStyle } from '@/constants/Backgrounds'
-
-// Conditionally import components that might not be web-compatible
 let LinearGradient: any = null;
 let BlurView: any = null;
 let Animated: any = null;
@@ -12,11 +10,8 @@ let useAnimatedStyle: any = null;
 let withRepeat: any = null;
 let withTiming: any = null;
 let useSharedValue: any = null;
-
-// Only import these components on native platforms
 if (Platform.OS === 'ios' || Platform.OS === 'android') {
   try {
-    // Import for native platforms
     LinearGradient = require('expo-linear-gradient').LinearGradient;
     BlurView = require('expo-blur').BlurView;
     const Reanimated = require('react-native-reanimated');
@@ -29,13 +24,12 @@ if (Platform.OS === 'ios' || Platform.OS === 'android') {
     console.warn('Some native components could not be loaded:', error);
   }
 }
-
 export default function Step3({
   formData,
   setFormData,
   backgroundStyles,
   getWallpaperPath,
-  isDark = true, // Default to dark if not provided
+  isDark = true,
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
@@ -45,12 +39,8 @@ export default function Step3({
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const [starsKey, setStarsKey] = React.useState(0);
-  
-  // Initialize animation values at the top level
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
-  
-  // Handle animations at the top level
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
       const animationConfig = { duration: 60000 };
@@ -62,15 +52,11 @@ export default function Step3({
       };
     }
   }, [screenWidth, screenHeight, translateX, translateY, withRepeat, withTiming]);
-  
-  // Create animated style at the top level
   const starsAnimatedStyle = Platform.OS !== 'web' && useAnimatedStyle && translateX && translateY
     ? useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
       }))
     : null;
-  
-  // Create animated stars for native platforms
   const createAnimatedStars = () => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       if (Animated && starsAnimatedStyle) {
@@ -100,10 +86,7 @@ export default function Step3({
         );
       }
     }
-    
-    // Enhanced animated stars for web using CSS animations
     if (Platform.OS === 'web') {
-      // Create multiple layers of stars with different animation speeds
       return (
         <>
           <View
@@ -116,7 +99,6 @@ export default function Step3({
               overflow: 'hidden'
             }}
           >
-            {/* Layer 1 - Slow moving stars */}
             <div
               style={{
                 position: 'absolute',
@@ -143,8 +125,6 @@ export default function Step3({
                 />
               ))}
             </div>
-            
-            {/* Layer 2 - Medium moving stars */}
             <div
               style={{
                 position: 'absolute',
@@ -171,8 +151,6 @@ export default function Step3({
                 />
               ))}
             </div>
-            
-            {/* Layer 3 - Fast twinkling stars */}
             <div
               style={{
                 position: 'absolute',
@@ -198,19 +176,15 @@ export default function Step3({
               ))}
             </div>
           </View>
-          
-          {/* CSS Animations */}
           <style dangerouslySetInnerHTML={{ __html: `
             @keyframes moveStarsSlow {
               0% { transform: translate(0, 0); }
               100% { transform: translate(-25%, -25%); }
             }
-            
             @keyframes moveStarsMedium {
               0% { transform: translate(0, 0); }
               100% { transform: translate(-50%, -25%); }
             }
-            
             @keyframes twinkle {
               0%, 100% { opacity: 0.2; }
               50% { opacity: 1; box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.5); }
@@ -219,8 +193,6 @@ export default function Step3({
         </>
       );
     }
-    
-    // Fallback static stars
     return (
       <View
         pointerEvents="none"
@@ -243,14 +215,10 @@ export default function Step3({
       </View>
     );
   };
-  
-  // Refresh stars when background changes
   React.useEffect(() => {
     setStarsKey(prev => prev + 1);
   }, [formData.backgroundStyle]);
-  
   const stars = React.useMemo(() => createAnimatedStars(), [screenWidth, screenHeight, starsKey]);
-
   const adjustColor = React.useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
     const num = parseInt(hex, 16)
@@ -259,13 +227,11 @@ export default function Step3({
     const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
-
   const background = React.useMemo(() => {
     switch (formData.backgroundStyle) {
       case 'gradient': {
         const lighterColor = adjustColor(formData.primaryColor, 100);
         const darkerColor = adjustColor(formData.primaryColor, -250);
-        
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
           if (LinearGradient) {
             return (
@@ -279,8 +245,6 @@ export default function Step3({
             );
           }
         }
-        
-        // Enhanced CSS gradient for web
         if (Platform.OS === 'web') {
           return (
             <div
@@ -293,8 +257,6 @@ export default function Step3({
             />
           );
         }
-        
-        // Fallback for other platforms
         return (
           <View
             style={{
@@ -325,9 +287,7 @@ export default function Step3({
           </View>
         );
       }
-      
       case 'space': {
-        // Enhanced space background for web
         if (Platform.OS === 'web') {
           return (
             <div
@@ -340,8 +300,6 @@ export default function Step3({
             />
           );
         }
-        
-        // Fallback for other platforms
         return (
           <View
             style={{
@@ -353,9 +311,7 @@ export default function Step3({
           />
         );
       }
-      
       case 'silhouette': {
-        // Silhouette effect for web
         if (Platform.OS === 'web') {
           return (
             <div
@@ -382,8 +338,6 @@ export default function Step3({
             </div>
           );
         }
-        
-        // Fallback
         return (
           <View
             style={{
@@ -395,13 +349,11 @@ export default function Step3({
           />
         );
       }
-      
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
           const wallpaper = getWallpaperPath(formData.backgroundStyle);
           if (!wallpaper) return null;
-          
-          if (Platform.OS === 'ios' || Platform.OS === 'android' && BlurView) {
+          if ((Platform.OS === 'ios' || Platform.OS === 'android') && BlurView) {
             return (
               <Stack position="absolute" width="100%" height="100%">
                 <Image
@@ -414,15 +366,13 @@ export default function Step3({
                   }}
                 />
                 <BlurView
-                  intensity={isDark? 20 : 99}
+                  intensity={isDark ? 20 : 30}
                   tint="dark"
                   style={{ position: 'absolute', width: '100%', height: '100%' }}
                 />
               </Stack>
             );
           }
-          
-          // Enhanced version for web with CSS backdrop filter
           if (Platform.OS === 'web') {
             return (
               <Stack position="absolute" width="100%" height="100%">
@@ -448,8 +398,6 @@ export default function Step3({
               </Stack>
             );
           }
-          
-          // Fallback
           return (
             <Stack position="absolute" width="100%" height="100%">
               <Image
@@ -472,8 +420,6 @@ export default function Step3({
             </Stack>
           );
         }
-        
-        // Default fallback - dark background
         return (
           <View
             style={{
@@ -486,39 +432,33 @@ export default function Step3({
         );
     }
   }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath]);
-
-  // Dynamic theme styles
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
-  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)";
-
+  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack flex={1} padding={isWeb ? "$4" : "$3"}>
+      <YStack flex={1} padding={isWeb ? "$4" : "$4"}>
         <YStack
           backgroundColor={cardBackgroundColor}
-          borderRadius={16}
-          paddingVertical="$2"
-          paddingHorizontal={isWeb ? "$5" : "$1"} 
+          borderRadius={isWeb ? 16 : 32}
+          paddingVertical={isWeb ? "$3" : "$4"}
+          paddingHorizontal={isWeb ? "$5" : "$4"}
           marginTop={isWeb ? 10 : 60}
           borderColor={borderColor}
           borderWidth={2}
-          gap="$1"
+          gap={isWeb ? "$2" : "$2"}
         >
-          <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
-            Background
-          </Label>
-          <XStack gap={isWeb ? "$5" : "4"} justifyContent="center" flexWrap="wrap" paddingBottom="$6">
+          <XStack gap={isWeb ? "$5" : "$3"} justifyContent={isWeb ? "center" : "flex-start"} flexWrap="wrap" paddingBottom={isWeb ? "$6" : "$2"}>
             {backgroundStyles.map((style) => {
               const isSelected = formData.backgroundStyle === style.value;
               return (
                 <Button
                   key={style.value}
-                  size="$4"
-                  minWidth={100}
+                  size={isWeb ? "$4" : "$5"}
+                  minWidth={isWeb ? 100 : 80}
                   backgroundColor={
                     isSelected
                       ? formData.primaryColor
@@ -538,9 +478,12 @@ export default function Step3({
                   }
                 >
                   <Text
-                    fontFamily="$body"
+                    fontFamily="$heading" 
+                    fontWeight="700" 
+                    fontSize={isWeb ? "$6" : "$5"} 
                     color={isSelected ? 'white' : buttonTextColor}
                     textAlign="center"
+                    letterSpacing={0.5}  
                   >
                     {style.label}
                   </Text>

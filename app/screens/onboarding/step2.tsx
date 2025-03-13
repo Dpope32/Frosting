@@ -101,9 +101,9 @@ export default function Step2({
   }
 
   return (
-    <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$5" paddingTop="$15">
-      <YStack position="absolute" top="25%" left={0} right={0} alignItems="center">
-        <Label fontFamily="$body" size="$8" textAlign="center" color={labelColor}>
+    <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$5" paddingTop="$8">
+      <YStack position="absolute" top="25%" left={0} right={0} alignItems="center" >
+        <Label paddingBottom={12} fontFamily="$heading" fontWeight="900" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color={labelColor}>
           Pick your primary color
         </Label>
         <Text
@@ -118,11 +118,11 @@ export default function Step2({
         </Text>
       </YStack>
 
-      <YStack flex={1} paddingTop= {isWeb ? "$12" : "$12"}>
+      <YStack flex={1} paddingTop= {isWeb ? "$12" : "$8"}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (
-          <View style={{ flex: 1, padding: isWeb ? 20 : 60 }}>
+          <View style={{ flex: 1, padding: isWeb ? 20 : 80 }}>
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}

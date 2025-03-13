@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "kaiba-nexus.app"
-               BlueprintName = "kaiba-nexus"
-               ReferencedContainer = "container:kaiba-nexus.xcodeproj">
+               BuildableName = "Kaiba.app"
+               BlueprintName = "Kaiba"
+               ReferencedContainer = "container:Kaiba.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "kaiba-nexusTests.xctest"
-               BlueprintName = "kaiba-nexusTests"
-               ReferencedContainer = "container:kaiba-nexus.xcodeproj">
+               BuildableName = "KaibaTests.xctest"
+               BlueprintName = "KaibaTests"
+               ReferencedContainer = "container:Kaiba.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "kaiba-nexus.app"
-            BlueprintName = "kaiba-nexus"
-            ReferencedContainer = "container:kaiba-nexus.xcodeproj">
+            BuildableName = "Kaiba.app"
+            BlueprintName = "Kaiba"
+            ReferencedContainer = "container:Kaiba.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "kaiba-nexus.app"
-            BlueprintName = "kaiba-nexus"
-            ReferencedContainer = "container:kaiba-nexus.xcodeproj">
+            BuildableName = "Kaiba.app"
+            BlueprintName = "Kaiba"
+            ReferencedContainer = "container:Kaiba.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
   FadeIn
 } from 'react-native-reanimated'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardAnimated } from './BaseCardAnimated'
 import { useWeatherStore } from '@/store/WeatherStore'
 import { getTemperatureColor } from '@/services/weatherServices'
 
@@ -98,7 +98,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   const mobileCardWidth = availableWidth / 4 - 6 // 4 cards with small gap between
 
   return (
-    <BaseCardModal open={open} onOpenChange={onOpenChange} title="Weather">
+    <BaseCardAnimated open={open} onOpenChange={onOpenChange} title="Weather">
       <YStack gap="$4">
         <XStack gap="$3">
           {/* Current Temperature */}
@@ -323,6 +323,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
           </XStack>
         )}
       </YStack>
-    </BaseCardModal>
+    </BaseCardAnimated>
   )
 }

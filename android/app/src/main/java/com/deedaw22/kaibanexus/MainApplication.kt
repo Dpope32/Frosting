@@ -1,4 +1,4 @@
-package com.deedaw22.kaiba_nexus
+package com.deedaw22.kaibanexus
 
 import android.app.Application
 import android.content.res.Configuration

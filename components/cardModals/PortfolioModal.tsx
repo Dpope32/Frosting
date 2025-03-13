@@ -2,12 +2,13 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useColorScheme, StyleSheet, Platform, Alert } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button, Input, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardAnimated } from './BaseCardAnimated'
 import { usePortfolioStore, updatePrincipal, removeFromPortfolio } from '@/store/PortfolioStore'
 import { portfolioData } from '@/utils/Portfolio'
 import { useEditStockStore } from '@/store/EditStockStore'
 import { getValueColor } from '@/constants/valueHelper'
 import Animated, { FadeIn } from 'react-native-reanimated'
+import { BaseCardModal } from './BaseCardModal'
 
 interface PortfolioModalProps {
   open: boolean
