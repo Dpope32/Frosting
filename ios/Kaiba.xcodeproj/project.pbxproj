@@ -11,12 +11,12 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		8740FBCB114448B0B492452A /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355722E3467C43E7B5C2C407 /* noop-file.swift */; };
+		639A52CBE39B3516A59CA2FF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A84B50AEFA4360EDF67DE19D /* PrivacyInfo.xcprivacy */; };
+		6EE1DF1C6CEC40D08E16583B /* default_sound in Resources */ = {isa = PBXBuildFile; fileRef = 4695F2626289424B89E1A274 /* default_sound */; };
 		96905EF65AED1B983A6B3ABC /* libPods-Kaiba.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-Kaiba.a */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
+		BAAFA91D38CD4238BD4133CE /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D71F26AD16E4130AEC84EAE /* noop-file.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		E32C97AB3F664FE58A661590 /* default_sound in Resources */ = {isa = PBXBuildFile; fileRef = AC3AD5F3B024461786B1AEB4 /* default_sound */; };
-		E9C57090FA29A8BE58CE2B86 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7288761AC55381596CF06F41 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,15 +26,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Kaiba/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Kaiba/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Kaiba/main.m; sourceTree = "<group>"; };
-		355722E3467C43E7B5C2C407 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Kaiba/noop-file.swift"; sourceTree = "<group>"; };
+		4695F2626289424B89E1A274 /* default_sound */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = default_sound; path = Kaiba/default_sound; sourceTree = "<group>"; };
 		58EEBF8E8E6FB1BC6CAF49B5 /* libPods-Kaiba.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Kaiba.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C2E3173556A471DD304B334 /* Pods-Kaiba.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kaiba.debug.xcconfig"; path = "Target Support Files/Pods-Kaiba/Pods-Kaiba.debug.xcconfig"; sourceTree = "<group>"; };
-		7288761AC55381596CF06F41 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Kaiba/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		6D71F26AD16E4130AEC84EAE /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "Kaiba/noop-file.swift"; sourceTree = "<group>"; };
 		7A4D352CD337FB3A3BF06240 /* Pods-Kaiba.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Kaiba.release.xcconfig"; path = "Target Support Files/Pods-Kaiba/Pods-Kaiba.release.xcconfig"; sourceTree = "<group>"; };
+		8A1814FB5FF44914926BA594 /* Kaiba-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "Kaiba-Bridging-Header.h"; path = "Kaiba/Kaiba-Bridging-Header.h"; sourceTree = "<group>"; };
+		A84B50AEFA4360EDF67DE19D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Kaiba/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Kaiba/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AC3AD5F3B024461786B1AEB4 /* default_sound */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = default_sound; path = Kaiba/default_sound; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		CBF4B56D62714E68B24D09C0 /* Kaiba-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "Kaiba-Bridging-Header.h"; path = "Kaiba/Kaiba-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Kaiba/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -61,10 +61,10 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				355722E3467C43E7B5C2C407 /* noop-file.swift */,
-				CBF4B56D62714E68B24D09C0 /* Kaiba-Bridging-Header.h */,
-				AC3AD5F3B024461786B1AEB4 /* default_sound */,
-				7288761AC55381596CF06F41 /* PrivacyInfo.xcprivacy */,
+				6D71F26AD16E4130AEC84EAE /* noop-file.swift */,
+				8A1814FB5FF44914926BA594 /* Kaiba-Bridging-Header.h */,
+				4695F2626289424B89E1A274 /* default_sound */,
+				A84B50AEFA4360EDF67DE19D /* PrivacyInfo.xcprivacy */,
 			);
 			name = Kaiba;
 			sourceTree = "<group>";
@@ -150,13 +150,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Kaiba" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				54743FE7B919EB8DE942B537 /* [Expo] Configure project */,
+				F84A96770DCB3ABDFCEF6497 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				99E32C6CE077910BFB1D6990 /* [CP] Embed Pods Frameworks */,
+				F3D81F10C58A9B03E2AA41CC /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -206,8 +206,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				E32C97AB3F664FE58A661590 /* default_sound in Resources */,
-				E9C57090FA29A8BE58CE2B86 /* PrivacyInfo.xcprivacy in Resources */,
+				6EE1DF1C6CEC40D08E16583B /* default_sound in Resources */,
+				639A52CBE39B3516A59CA2FF /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,25 +250,6 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
-		};
-		54743FE7B919EB8DE942B537 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Kaiba/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -322,7 +303,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Kaiba/Pods-Kaiba-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		99E32C6CE077910BFB1D6990 /* [CP] Embed Pods Frameworks */ = {
+		F3D81F10C58A9B03E2AA41CC /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -340,6 +321,25 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Kaiba/Pods-Kaiba-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		F84A96770DCB3ABDFCEF6497 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Kaiba/expo-configure-project.sh\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -350,7 +350,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				8740FBCB114448B0B492452A /* noop-file.swift in Sources */,
+				BAAFA91D38CD4238BD4133CE /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

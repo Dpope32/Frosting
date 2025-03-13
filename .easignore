@@ -1,19 +1,27 @@
 # Exclude common development files and directories
 node_modules/
+node_modules_bak/
 .git/
 .github/
 __tests__/
 *.test.js
 *.spec.js
+*.test.ts
+*.spec.ts
 
 # Exclude development configurations
 .vscode/
 .idea/
 *.log
+.env
+.env.*
+!.env.example
+env.ts
 
 # Exclude documentation
 docs/
 *.md
+!README.md
 
 # Exclude source maps
 *.map
@@ -21,6 +29,11 @@ docs/
 # Exclude build artifacts
 android/app/build/
 ios/build/
+build/
+dist/
+web-build/
+.expo/
+*.cxx/
 
 # Exclude large assets not needed for build
 assets/wallpapers/
@@ -30,3 +43,19 @@ assets/wallpapers/
 *.bak
 *.backup
 *~
+.temp
+.tmp
+
+# Exclude TypeScript build info
+*.tsbuildinfo
+
+# Exclude Electron build files
+electron-app/dist/
+electron-app/node_modules/
+
+# Exclude coverage reports
+coverage/
+
+# Exclude cache files
+.eslintcache
+.cache/

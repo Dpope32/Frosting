@@ -21,8 +21,6 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.deedaw22.kaibanexus",
-      "buildNumber": "1.0.1",
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "UIBackgroundModes": [
