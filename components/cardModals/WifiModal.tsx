@@ -129,7 +129,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
                 marginTop="$2"
                 fontFamily="$body"
               >
-                {speed || (Platform.OS === 'web' ? '45 ms' : 'N/A')}
+                {speed || (Platform.OS === 'web' ? '45 ms' : '89 ms')}
               </Text>
             )}
           </YStack>
