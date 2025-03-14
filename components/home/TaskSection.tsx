@@ -44,7 +44,7 @@ export const TaskSection = ({
         shadowRadius: 10
       }}
     >
-      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width="100%" marginBottom="$3" paddingLeft="$4">
+      <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width={isWeb ? "100%" : "98%"} marginBottom="$3" paddingLeft="$4">
         <Text 
           fontFamily="$body"
           color="#dbd0c6" 

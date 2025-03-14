@@ -18,6 +18,8 @@ export const MONTHS = [
 
 export const RECURRENCE_PATTERNS: { label: string; value: RecurrencePattern; icon: string }[] = [
   { label: 'One-time', value: 'one-time', icon: 'calendar-sharp' },
+  { label: 'Tomorrow', value: 'tomorrow', icon: 'arrow-forward-circle' },
+  { label: 'Everyday', value: 'everyday', icon: 'repeat' },
   { label: 'Weekly', value: 'weekly', icon: 'calendar' },
   { label: 'Biweekly', value: 'biweekly', icon: 'calendar-outline' },
   { label: 'Monthly', value: 'monthly', icon: 'calendar-clear' },

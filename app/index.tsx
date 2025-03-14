@@ -2,7 +2,10 @@
 import { useUserStore } from '@/store/UserStore';
 import { useState, useEffect } from 'react';
 import { Redirect } from 'expo-router';
-import { useAppInitialization } from '@/hooks/useAppInitialization';
+import { useAppInitialization, preloadTheme } from '@/hooks/useAppInitialization';
+
+// Pre-load theme as early as possible to prevent theme bounce
+preloadTheme().catch(error => console.error('Error pre-loading theme:', error));
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
@@ -20,7 +23,7 @@ export default function Index() {
     return () => clearTimeout(timer);
   }, []);
 
-  // If onboarding is not completed, go to onboarding
+  // If onboarding is not completed, go to onboarding 
   if (!hasCompletedOnboarding) {
     return <Redirect href="/screens/onboarding" />;
   }

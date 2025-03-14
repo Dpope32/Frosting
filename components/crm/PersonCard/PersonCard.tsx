@@ -90,7 +90,10 @@ export function PersonCard({
   containerStyle
 }: PersonCardProps) {
   const nicknameColor = getColorForPerson(person.id || person.name);
-  const fullAddress = useMemo(() => person.address?.street || "", [person.address]);
+const fullAddress = useMemo(() => {
+  if (!person.address) return "";
+  return person.address.street || "";
+}, [person.address]);
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -131,9 +134,9 @@ export function PersonCard({
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/80"
                     }}
-                    width={Platform.OS === 'web' ? 80 : 30}
-                    height={Platform.OS === 'web' ? 60 : 30}
-                    borderRadius={Platform.OS === 'web' ? 30 : 15}
+                    width={Platform.OS === 'web' ? 80 : 40}
+                    height={Platform.OS === 'web' ? 60 : 40}
+                    borderRadius={Platform.OS === 'web' ? 30 : 20}
                     style={styles.avatarImage as any}
                   />
                 </View>
@@ -155,7 +158,7 @@ export function PersonCard({
                   )}
                   <Paragraph
                     fontWeight="600"
-                    fontSize={isWeb? 15 : 14}
+                    fontSize={isWeb? 16 : 15}
                     color={isDark ? adjustColor(nicknameColor, 220) : adjustColor(nicknameColor, -40)}
                     numberOfLines={1}
                     ellipsizeMode="tail"
@@ -163,6 +166,14 @@ export function PersonCard({
                   >
                     {person.nickname || person.name}
                   </Paragraph>
+                  {person.occupation && (
+                  <XStack gap="$3" alignItems="center">
+                
+                    <Paragraph fontFamily="$body" fontSize={isWeb? 13 : 12} color={isDark ? "#ccc" : "#ccc"}>
+                      {person.occupation}
+                    </Paragraph>
+                  </XStack>
+                )}
                 </XStack>
                 <Paragraph
                   fontSize={11}
@@ -306,6 +317,14 @@ export function PersonCard({
                     </Paragraph>
                   </XStack>
                 )}
+                {person.occupation && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="briefcase-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                      {person.occupation}
+                    </Paragraph>
+                  </XStack>
+                )}
                 {person.email && (
                   <XStack gap="$3" alignItems="center">
                     <Ionicons name="mail-outline" size={22} color={isDark ? "#fff" : "#555"} />
@@ -335,6 +354,14 @@ export function PersonCard({
                     <Ionicons name="people-outline" size={22} color={isDark ? "#fff" : "#555"} />
                     <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {person.relationship}
+                    </Paragraph>
+                  </XStack>
+                )}
+                {person.additionalInfo && (
+                  <XStack gap="$3" alignItems="center">
+                    <Ionicons name="information-circle-outline" size={22} color={isDark ? "#fff" : "#555"} />
+                    <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
+                      {person.additionalInfo}
                     </Paragraph>
                   </XStack>
                 )}

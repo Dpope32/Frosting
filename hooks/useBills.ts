@@ -60,7 +60,7 @@ export function useBills() {
         priority: 'high',
         category: 'wealth',
         scheduledDate: formattedDate,
-        recurrencePattern: 'one-time'
+        recurrencePattern: 'monthly'
       });
     }
 

@@ -171,12 +171,30 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
 
   return (
     <BaseCardAnimated open={open} onOpenChange={onOpenChange} title="New Task">
-      <ScrollView 
-        bounces={false} 
-        keyboardShouldPersistTaps="handled" 
-        showsHorizontalScrollIndicator={false} 
-        style={{ maxWidth: isWeb ? 600 : '100%' }}
-      >
+      <Button
+          position="absolute"
+          top="$3"
+          right="$3"
+          size="$2"
+          circular
+          zIndex={100}
+          backgroundColor="transparent"
+          onPress={() => onOpenChange(false)}
+          pressStyle={{ opacity: 0.7 }}
+        >
+          <Ionicons 
+            name="close" 
+            size={24} 
+            color={isDark ? "white" : "black"} 
+          />
+        </Button>
+        
+        <ScrollView 
+          bounces={false} 
+          keyboardShouldPersistTaps="handled" 
+          showsHorizontalScrollIndicator={false} 
+          style={{ maxWidth: isWeb ? 600 : '100%' }}
+        >
         <Form gap="$4" onSubmit={handleAddTask}>
           <DebouncedInput
             ref={inputRef}

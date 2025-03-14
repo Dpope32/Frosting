@@ -12,6 +12,22 @@ export const isTaskDueOnDate = (task: Task, date: Date): boolean => {
     return task.scheduledDate === dateString;
   }
   
+  // For everyday tasks, always return true
+  if (task.recurrencePattern === 'everyday') {
+    return true;
+  }
+  
+  // For tomorrow tasks, check if the date is the day after creation
+  if (task.recurrencePattern === 'tomorrow') {
+    const creationDate = new Date(task.createdAt);
+    const nextDay = new Date(creationDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    return date.getDate() === nextDay.getDate() && 
+           date.getMonth() === nextDay.getMonth() && 
+           date.getFullYear() === nextDay.getFullYear();
+  }
+  
   // Get the day name (sunday, monday, etc.)
   const dayNames: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as WeekDay[];
   const dayOfWeek = dayNames[date.getDay()];

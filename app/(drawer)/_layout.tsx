@@ -1,16 +1,76 @@
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, useColorScheme as RNColorScheme, Platform, Dimensions } from 'react-native';
+import { View, Image, Text, useColorScheme as RNColorScheme, Platform, Dimensions, StyleSheet, TextStyle } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
-import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
+import { DrawerNavigationOptions } from '@react-navigation/drawer';
 
-// Helper function to detect if device is iPad
-const isIpad = () => {
+// Define strict types for icon names
+type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
+type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+interface IconConfig {
+  name: MaterialIconName | MaterialCommunityIconName;
+  type: 'material' | 'community';
+}
+
+// Move DRAWER_ICONS outside component to prevent recreations
+const DRAWER_ICONS: Record<string, IconConfig> = {
+  '(tabs)/index': { name: 'home', type: 'material' },
+  calendar: { name: 'calendar-today', type: 'material' },
+  nba: { name: 'sports-basketball', type: 'material' },
+  chatbot: { name: 'code', type: 'material' },
+  crm: { name: 'person', type: 'material' },
+  storage: { name: 'cloud-upload', type: 'material' },
+  vault: { name: 'lock', type: 'material' },
+  bills: { name: 'attach-money', type: 'material' },
+  'notifications-test': { name: 'notifications', type: 'material' }
+};
+
+// Pre-define styles outside of component to prevent recalculation
+const createDrawerStyles = (isDark: boolean, primaryColor: string) => StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    backgroundColor: isDark ? '#0e0e0e' : '#F5F5F5',
+  },
+  header: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)',
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 12,
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: isDark ? '#fff' : '#000',
+    textAlign: 'center',
+  },
+  content: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    paddingTop: 8,
+  },
+});
+
+// Helper function for device detection
+const isIpad = (): boolean => {
   const { width, height } = Dimensions.get('window');
   return (
     Platform.OS === 'ios' &&
@@ -19,39 +79,37 @@ const isIpad = () => {
   );
 };
 
-const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
-  props: DrawerContentComponentProps; 
+// Separate interface for DrawerContent props
+interface DrawerContentProps {
+  props: DrawerContentComponentProps;
   username: string | undefined;
   profilePicture: string | undefined | null;
-  styles: any;
+  styles: ReturnType<typeof createDrawerStyles>;
   isWeb: boolean;
-}) => {
-  
-  // Determine the image source based on platform and availability
-  const imageSource = (() => {
+}
+
+// Optimized DrawerContent component with memoization
+const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: DrawerContentProps) => {
+  // Memoize image source calculation to prevent recalculation on every render
+  const imageSource = useMemo(() => {
     if (!profilePicture) {
       return require('@/assets/images/adaptive-icon.png');
     }
     
-    // For web, ensure the URI is properly formatted
     if (isWeb) {
-      // If it's a data URL (starts with data:), use it directly
       if (profilePicture.startsWith('data:')) {
         return { uri: profilePicture };
       }
       
-      // If it's a file URI that might not work on web, use the fallback
       if (profilePicture.startsWith('file:')) {
         return require('@/assets/images/adaptive-icon.png');
       }
       
-      // Otherwise use the URI as is
       return { uri: profilePicture };
     }
     
-    // For mobile, use the URI directly
     return { uri: profilePicture };
-  })();
+  }, [profilePicture, isWeb]);
   
   return (
     <View style={styles.container}>
@@ -74,61 +132,58 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
         </DrawerContentScrollView>
       </View>
       
-      {/* Legal & Privacy button at the bottom */}
       <LegalButton />
     </View>
   );
+}, (prevProps, nextProps) => {
+  // Implement proper equality check for better memoization
+  return (
+    prevProps.username === nextProps.username &&
+    prevProps.profilePicture === nextProps.profilePicture &&
+    prevProps.isWeb === nextProps.isWeb
+  );
 });
-
-type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
-type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
-
-interface IconConfig {name: MaterialIconName | MaterialCommunityIconName; type: 'material' | 'community';}
-
-const DRAWER_ICONS: Record<string, IconConfig> = {
-  '(tabs)/index': { name: 'home' as MaterialIconName, type: 'material' },
-  calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
-  nba: { name: 'sports-basketball' as MaterialIconName, type: 'material' },
-  chatbot: { name: 'code' as MaterialIconName, type: 'material' },
-  crm: { name: 'person' as MaterialIconName, type: 'material' },
-  storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
-  vault: { name: 'lock' as MaterialIconName, type: 'material' },
-  bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
-  'notifications-test': { name: 'notifications' as MaterialIconName, type: 'material' }
-};
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
-  const systemColorScheme = RNColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
-  const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   
-  // Brighter inactive color for dark mode on mobile
-  const inactiveColor = isDark 
-    ? Platform.OS === 'web' ? '#444' : '#777' 
-    : '#999';
-  
+  // Cache static values
   const isWeb = Platform.OS === 'web';
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   
-  const styles = useDrawerStyles();
+  // Pre-calculate static colors
+  const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
+  const inactiveColor = isDark 
+    ? Platform.OS === 'web' ? '#444' : '#777' 
+    : '#999';
   
-  // Get device dimensions for responsive sizing
-  const { width: deviceWidth } = Dimensions.get('window');
+  // Calculate drawer width only once
+  const drawerWidth = useMemo(() => {
+    if (isWeb) {
+      return typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280;
+    }
+    return isIpadDevice ? 250 : 230;
+  }, [isWeb, isIpadDevice]);
   
-  // Drawer width calculation
-  // Web: 25% of window width (min 280px, max window width)
-  // iPad: Fixed 280px (increased from standard)
-  // Mobile: Standard 250px
-  const drawerWidth = isWeb 
-    ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280
-    : isIpadDevice
-      ? 250 
-      : 230;
-
+  // Create styles using the optimized function
+  const styles = useMemo(() => createDrawerStyles(isDark, primaryColor), [isDark, primaryColor]);
+  
+  // Memoize icon renderer to prevent recreations
+  const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
+    const icon = DRAWER_ICONS[route];
+    if (!icon) return null;
+    
+    if (icon.type === 'material') {
+      return <MaterialIcons name={icon.name as MaterialIconName} size={24} color={color} style={{ marginRight: 4 }} />;
+    }
+    return <MaterialCommunityIcons name={icon.name as MaterialCommunityIconName} size={24} color={color} style={{ marginRight: 4 }} />;
+  }, []);
+  
+  // Memoize drawer content renderer with minimal dependencies
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 
       props={props} 
@@ -137,25 +192,15 @@ export default function DrawerLayout() {
       styles={styles} 
       isWeb={isWeb} 
     />
-  ), [username, profilePicture, styles, isWeb, drawerWidth]); // Added drawerWidth dependency
-
-  const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
-    const icon = DRAWER_ICONS[route];
-    if (icon.type === 'material') {
-      return <MaterialIcons name={icon.name as MaterialIconName} size={24} color={color} style={{ marginRight: 4 }} />;
-    }
-    return <MaterialCommunityIcons name={icon.name as MaterialCommunityIconName} size={24} color={color} style={{ marginRight: 4 }} />;
-  }, []);
-
-  // Memoize drawer options for better performance
-  const drawerScreenOptions = useMemo(() => {
-    // Explicitly type the options to ensure compatibility
-    const options: any = {
-      header: ({ route, options }: { route: any; options: any }) => (
+  ), [username, profilePicture, styles, isWeb]);
+  
+  // Memoize drawer options with proper typing
+  const drawerScreenOptions = useMemo((): DrawerNavigationOptions => {
+    const options: DrawerNavigationOptions = {
+      header: ({ route, options }) => (
         <Header title={options.title || route.name} />
       ),
       headerTransparent: true,
-      useNativeDriver: true,
       
       drawerStyle: {
         backgroundColor,
@@ -166,29 +211,25 @@ export default function DrawerLayout() {
       },
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
-      // Adjust active background color for better contrast in light mode on mobile
       drawerActiveBackgroundColor: isDark 
         ? `${primaryColor}99` 
         : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
       drawerItemStyle: {
-        // Add border radius to selected tab on mobile
         borderRadius: !isPermanentDrawer ? 8 : 0,
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
-        // Add horizontal margin on mobile for better appearance
         ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
       },
       drawerLabelStyle: {
-        fontSize: isIpadDevice ? 17 : 16, // Slightly larger font for iPad
-        fontWeight: "600" as const,
+        fontSize: isIpadDevice ? 17 : 16,
+        fontWeight: "600" as TextStyle["fontWeight"],
         marginLeft: -8,
       },
       drawerContentStyle: {
         backgroundColor 
       },
-      // Use explicit string literals for drawerType
-      drawerType: isPermanentDrawer ? 'permanent' as const : 'front' as const,
+      drawerType: isPermanentDrawer ? 'permanent' : 'front',
       overlayColor: isPermanentDrawer ? 'transparent' : 'rgba(0,0,0,0.5)',
       swipeEnabled: !isPermanentDrawer,
       swipeEdgeWidth: 150,
@@ -197,38 +238,20 @@ export default function DrawerLayout() {
       keyboardDismissMode: 'on-drag',
     };
 
-    // Add gesture handler props for better performance
+    // Add gesture handler props for better performance on non-permanent drawers
     if (!isPermanentDrawer) {
-      options.gestureHandlerProps = {
-        enabled: true,
-        activeOffsetX: [-5, 5],  // More sensitive than current -10, 10
-        failOffsetY: [-50, 50],  // Less restrictive than current -30, 30
-        velocityThreshold: 0.3,  // Increased from 0.1 for smoother transitions
-      };
-      
-      // Add additional optimizations for mobile
-      options.sceneContainerStyle = {
-        transform: [{ translateX: 0 }],
-      };
-      
-      options.minSwipeDistance = 5;
+      // These are supported by the Drawer navigator
+      options.swipeEnabled = true;
+      options.swipeEdgeWidth = 150;
+      options.swipeMinDistance = 5; // Corrected property name
     }
-      options.drawerOpeningAnimation = {
-        type: 'spring',
-        stiffness: 1000,
-        damping: 70,
-        mass: 1,
-        overshootClamping: false,
-        restDisplacementThreshold: 0.01,
-        restSpeedThreshold: 0.01,
-      };
     
     return options;
   }, [backgroundColor, drawerWidth, borderColor, isPermanentDrawer, inactiveColor, isDark, primaryColor, isIpadDevice]);
 
   return (
     <View style={styles.wrapper}>
-      <Drawer drawerContent={renderDrawerContent} screenOptions={drawerScreenOptions} >
+      <Drawer drawerContent={renderDrawerContent} screenOptions={drawerScreenOptions}>
         <Drawer.Screen
           name="(tabs)/index"
           options={{
@@ -274,29 +297,17 @@ export default function DrawerLayout() {
           options={{
             title: 'Bills',
             drawerLabel: 'Bills',
-          drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
-        }}
-      />
-      
-      {/* Only show notifications test screen in development mode */}
-      {__DEV__ && (
-        <Drawer.Screen
-          name="notifications-test"
-          options={{
-            title: 'Notification Tests',
-            drawerLabel: 'Notification Tests',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'notifications-test' })
+            drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
           }}
         />
-      )}
-       {__DEV__ && (
-        <Drawer.Screen
-          name="storage"
-          options={{
-            title: 'Storage',
-            drawerLabel: 'Storage',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
-          }}
+        {__DEV__ && (
+          <Drawer.Screen
+            name="storage"
+            options={{
+              title: 'Storage',
+              drawerLabel: 'Storage',
+              drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
+            }}
           />
         )}
       </Drawer>

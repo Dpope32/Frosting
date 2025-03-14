@@ -1,6 +1,7 @@
 // permissionService.ts
 // This service handles all permission requests for the app.
 import { Alert, Platform } from 'react-native';
+import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as ImagePicker from 'expo-image-picker';
 import * as Contacts from 'expo-contacts';
@@ -50,6 +51,38 @@ export const requestAllPermissions = async () => {
       calendar: false
     };
   }
+};
+
+// Request all permissions with a delay
+export const requestPermissionsWithDelay = async (delayMs = 1000) => {
+  // Mark permissions as explained since we're showing our custom screen
+  await markPermissionsAsExplained();
+  
+  // Return immediately on web
+  if (Platform.OS === 'web') return { 
+    notifications: true, 
+    camera: true, 
+    contacts: true,
+    calendar: true
+  };
+  
+  // Add a delay before requesting permissions
+  return new Promise((resolve) => {
+    setTimeout(async () => {
+      try {
+        const permissions = await requestAllPermissions();
+        resolve(permissions);
+      } catch (error) {
+        console.error("Error requesting permissions with delay:", error);
+        resolve({
+          notifications: false,
+          photoLibrary: false,
+          contacts: false,
+          calendar: false
+        });
+      }
+    }, delayMs);
+  });
 };
 
 // Request notification permissions
@@ -148,7 +181,8 @@ export const markPermissionsAsExplained = async (): Promise<void> => {
   }
 };
 
-// Show permission explanation dialog
+// Show permission explanation dialog - kept for backward compatibility
+// but we now use a dedicated permissions screen instead
 export const showPermissionExplanation = async (): Promise<void> => {
   if (Platform.OS === 'web') return;
   
@@ -156,24 +190,7 @@ export const showPermissionExplanation = async (): Promise<void> => {
   const explained = await havePermissionsBeenExplained();
   if (explained) return;
   
-  // Show the explanation dialog
-  Alert.alert(
-    "App Permissions",
-    "This app requires the following permissions to provide its full functionality:\n\n" +
-    "• Contacts: To help you manage your relationships and set birthday reminders\n" +
-    "• Calendar: To help you manage events and appointments\n" +
-    "• Photo Library: To allow you to select profile pictures and upload images\n" +
-    "• Notifications: To remind you of upcoming events, birthdays, and tasks\n\n" +
-    "You can manage these permissions in your device settings at any time.",
-    [
-      { 
-        text: "OK", 
-        style: "default",
-        onPress: async () => {
-          // Mark permissions as explained after the user dismisses the dialog
-          await markPermissionsAsExplained();
-        }
-      }
-    ]
-  );
+  // We're not showing the alert anymore, just marking as explained
+  // since we now have a dedicated permissions screen
+  await markPermissionsAsExplained();
 };

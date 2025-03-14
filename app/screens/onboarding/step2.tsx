@@ -130,6 +130,9 @@ export default function Step2({
               sliderSize={30}
               noSnap={true}
               row={false}
+              swatches={false}
+              sliderHidden={true}
+              discrete={true}
             />
           </View>
         )}

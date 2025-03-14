@@ -121,6 +121,57 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
   }
 )
 
+// Special version of DebouncedInput that formats dates with slashes automatically
+const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
+  (
+    { value, onDebouncedChange, delay = 300, ...props },
+    ref: React.Ref<TextInput>
+  ) => {
+    const colorScheme = useColorScheme()
+    const isDark = colorScheme === 'dark'
+    const [text, setText] = useState<string>(value)
+    const debouncedText = useDebounce<string>(text, delay)
+    
+    useEffect(() => {
+      if (debouncedText !== value) {
+        onDebouncedChange(debouncedText)
+      }
+    }, [debouncedText, onDebouncedChange, value])
+    
+    const formatDateWithSlashes = (input: string): string => {
+      // Remove any non-numeric characters
+      const cleaned = input.replace(/\D/g, '')
+      
+      // Format with slashes
+      if (cleaned.length <= 2) {
+        return cleaned
+      } else if (cleaned.length <= 4) {
+        return `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`
+      } else {
+        return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`
+      }
+    }
+    
+    const handleDateChange = (input: string) => {
+      const formatted = formatDateWithSlashes(input)
+      setText(formatted)
+    }
+    
+    return (
+      <Input
+        ref={ref}
+        {...props}
+        value={text}
+        onChangeText={handleDateChange}
+        theme={isDark ? "dark" : "light"}
+        backgroundColor={isDark ? "$gray2" : "white"}
+        borderColor={isDark ? "$gray7" : "$gray4"}
+        fontFamily="$body"
+      />
+    )
+  }
+)
+
 // Helper to determine if we're on web
 const isWeb = Platform.OS === 'web'
 
@@ -164,13 +215,6 @@ const FormContent = React.memo((props: FormContentProps) => {
   const phoneRef = useRef<TextInput>(null)
   const emailRef = useRef<TextInput>(null)
   const occupationRef = useRef<TextInput>(null)
-
-  const addressString: string = React.useMemo<string>(() => {
-    if (!formData.address) return '';
-    const { street, city, state, zipCode, country } = formData.address;
-    return [street, city, state, zipCode, country].filter(Boolean).join(', ');
-  }, [formData.address])
-
   const media = useMedia()
   const isSmallScreen = media.sm
 
@@ -275,7 +319,7 @@ const FormContent = React.memo((props: FormContentProps) => {
               onSubmitEditing={() => birthdayRef.current?.focus()}
               autoCapitalize="words"
             />
-            <DebouncedInput
+            <DateDebouncedInput
               key={`birthday-${inputResetKey}`}
               ref={birthdayRef}
               value={formData.birthday || ''}
@@ -442,18 +486,6 @@ const FormContent = React.memo((props: FormContentProps) => {
               />
             </XStack>
           </YStack>
-          
-          <DebouncedInput
-            key={`additionalInfo-${inputResetKey}`}
-            value={formData.additionalInfo || ''}
-            onDebouncedChange={(text: string) =>
-              updateFormField('additionalInfo', text)
-            }
-            placeholder="Additional Information"
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
-            autoCapitalize="sentences"
-          />
         </YStack>
         <XStack gap="$3" justifyContent="flex-end" mt="$2">
           <Button
@@ -480,13 +512,10 @@ const FormContent = React.memo((props: FormContentProps) => {
 })
 
 export function AddPersonForm(): JSX.Element {
-  const mountStartTime = performance.now()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const addPersonMutation = useAddPerson()
-  const primaryColor: string = useUserStore(
-    (state) => state.preferences.primaryColor
-  )
+  const primaryColor: string = useUserStore( (state) => state.preferences.primaryColor)
   const media = useMedia()
   const isSmallScreen = media.sm
 
@@ -523,13 +552,19 @@ export function AddPersonForm(): JSX.Element {
 
   const handleBirthdayChange = useCallback((text: string): void => {
     try {
+      // The text should already have slashes from the DateDebouncedInput component
+      // But we'll normalize it just in case
       const normalizedText = text.replace(/-/g, '/')
-      const parsedDate = parse(normalizedText, 'MM/dd/yyyy', new Date())
-      if (isValid(parsedDate)) {
-        setFormData((prev) => ({
-          ...prev,
-          birthday: format(parsedDate, 'yyyy-MM-dd'),
-        }))
+      
+      // Only try to parse if we have enough characters for a valid date
+      if (normalizedText.length >= 8) {
+        const parsedDate = parse(normalizedText, 'MM/dd/yyyy', new Date())
+        if (isValid(parsedDate)) {
+          setFormData((prev) => ({
+            ...prev,
+            birthday: format(parsedDate, 'yyyy-MM-dd'),
+          }))
+        }
       }
     } catch (error) {
       console.log('Failed to parse date:', text)

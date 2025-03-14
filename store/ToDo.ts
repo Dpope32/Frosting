@@ -4,7 +4,7 @@ import { createPersistStorage } from './AsyncStorage'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
-export type RecurrencePattern =  'one-time'| 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
+export type RecurrencePattern =  'one-time'| 'tomorrow' | 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
 export interface Task {
@@ -40,11 +40,23 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
   switch (task.recurrencePattern) {
     case 'one-time':
-      return task.scheduledDate
-        ? new Date(task.scheduledDate).toDateString() === date.toDateString()
-        : new Date(task.createdAt).toDateString() === date.toDateString();
+      // One-time tasks should remain visible until completed
+      return !task.completed;
+    case 'tomorrow': {
+      // Check if the task was created today
+      const createdDate = new Date(task.createdAt);
+      const createdStr = createdDate.toISOString().split('T')[0];
+      const currentDateStr = date.toISOString().split('T')[0];
+      
+      // If the task was created yesterday, it should be visible today
+      const yesterday = new Date(date);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      
+      return createdStr === yesterdayStr;
+    }
     case 'everyday':
-      return task.schedule.includes(today);
+      return true; // Everyday tasks are always due
     case 'weekly':
       return task.schedule.includes(today);
     case 'biweekly': {

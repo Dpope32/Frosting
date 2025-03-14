@@ -9,7 +9,10 @@ import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
 import WallpaperPreloader from '../../../components/wpPreload'
+import { requestPermissionsWithDelay } from '@/services/permissionService'
+import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'
 
+import PermissionsScreen from './permissions'
 import Step0 from './step0'
 import Step1 from './step1'
 import Step2 from './step2'
@@ -18,7 +21,8 @@ import Step4 from './step4'
 import Step5 from './step5'
 
 export default function Onboarding() {
-  const [step, setStep] = useState(0)
+  // Start with permissions screen (step -1)
+  const [step, setStep] = useState(-1)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -52,8 +56,19 @@ export default function Onboarding() {
     }
   }, [step, wallpapersPreloaded, isLoadingWallpapers]);
 
-  const handleNext = () => {
-    if (step === 5) {
+  const handleNext = async () => {
+    if (step === -1) {
+      // If we're on the permissions screen and moving to step 0,
+      // request permissions with a delay after navigating to step 0
+      setStep(0);
+      
+      // Request permissions with a delay
+      const permissions = await requestPermissionsWithDelay(1000);
+      
+      // Setup notifications based on permissions
+      await setupPermissionsAndNotifications(permissions);
+      
+    } else if (step === 5) {
       setPreferences({ ...formData, hasCompletedOnboarding: true })
       router.replace('/(drawer)/(tabs)' as const)
     } else {
@@ -67,6 +82,8 @@ export default function Onboarding() {
 
   const canProceed = () => {
     switch (step) {
+      case -1: // Permissions screen
+        return true
       case 0:
         return formData.username.length >= 2
       case 4:
@@ -106,6 +123,12 @@ export default function Onboarding() {
       );
     }
     switch (step) {
+      case -1: // Permissions screen
+        return (
+          <PermissionsScreen
+            isDark={isDark}
+          />
+        )
       case 0:
         return (
           <Step0

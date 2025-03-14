@@ -372,7 +372,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                   fontFamily="$body"
                                   lineHeight={20}
                                 >
-                                  www.deedaw.cc/kaiba
+                                  www.deedaw.cc/privacy.html
                                 </Text>
                               </YStack>
                             </XStack>

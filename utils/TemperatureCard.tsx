@@ -27,9 +27,6 @@ export function TemperatureCard() {
   
   //console.log('[TemperatureCard] Current state:', { isLoading, currentTemp, zipCode });
   
-  const displayTemp = isLoading ? '...' : 
-    currentTemp !== null ? `${currentTemp}°F` : 'N/A';
-  
   const valueColor = currentTemp !== null ? 
     getValueColor('temperature', currentTemp, '') : 
     'white';
