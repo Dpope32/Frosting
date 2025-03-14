@@ -8,6 +8,11 @@ const CHECK_INTERVAL = 1000 * 60; // 1 minute
 const MAX_RETRIES = 2;
 const CONNECTION_TEST_TIMEOUT = 5000; // 5 seconds
 
+// Utility for consistent logging
+const logNetworkInfo = (message: string, data?: any) => {
+  console.log(`[NetworkSpeed] ${message}`, data || '');
+};
+
 export function useNetworkSpeed() {
   const { details, isLoading, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
   const [networkState, setNetworkState] = useState({ 
@@ -27,6 +32,7 @@ export function useNetworkSpeed() {
     const timeoutId = setTimeout(() => controller.abort(), CONNECTION_TEST_TIMEOUT);
     
     try {
+      logNetworkInfo('Starting network speed measurement');
       const startTime = Date.now();
       const response = await fetch(testFileUrl, {
         method: 'GET',
@@ -34,12 +40,16 @@ export function useNetworkSpeed() {
         signal: controller.signal
       });
       
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
       const data = await response.text();
       clearTimeout(timeoutId);
       const endTime = Date.now();
       const duration = endTime - startTime;
+      
+      logNetworkInfo(`Speed test completed in ${duration}ms, data size: ${data.length} bytes`);
       
       // If data is very small and download was too quick, return approximate ping
       if (duration < 10 && data.length < 1000) {
@@ -50,6 +60,8 @@ export function useNetworkSpeed() {
       const fileSizeInBits = data.length * 8;
       const speedInMbps = (fileSizeInBits / 1000000) / (duration / 1000);
       
+      logNetworkInfo(`Calculated speed: ~${speedInMbps.toFixed(2)} Mbps`);
+      
       // If it's a reasonable speed, convert ping to equivalent value
       if (speedInMbps < 50) {
         return Math.floor(200 - speedInMbps * 4); // Rough conversion to ping equivalent
@@ -58,7 +70,7 @@ export function useNetworkSpeed() {
       return duration;
     } catch (error) {
       clearTimeout(timeoutId);
-      console.log('Speed test error:', error);
+      logNetworkInfo('Speed test error:', error);
       throw error;
     }
   };
@@ -66,13 +78,17 @@ export function useNetworkSpeed() {
   const checkConnection = async (isMounted: boolean) => {
     if (!isMounted) return;
     
+    logNetworkInfo(`Checking connection - isConnected: ${isConnected}, isWifi: ${isWifi}`);
+    
     if (!isConnected) {
       setNetworkState(prev => ({ ...prev, speed: 'Offline', isPingLoading: false }));
+      logNetworkInfo('Device is offline, setting speed to "Offline"');
       return;
     }
 
     const now = Date.now();
     if (now - lastCheckRef.current < CHECK_INTERVAL && networkState.speed !== null) {
+      logNetworkInfo(`Using cached speed value: ${networkState.speed}`);
       return; // Skip if checked recently and we have a value
     }
 
@@ -85,12 +101,16 @@ export function useNetworkSpeed() {
       // Always prioritize link speed for WiFi connections if available
       if (isWifi && wifiDetails?.linkSpeed && Platform.OS !== 'ios') {
         speedDisplay = `${wifiDetails.linkSpeed} Mbps`;
+        logNetworkInfo(`Using device-provided link speed: ${speedDisplay}`);
       } else {
         // Try to measure network speed
         try {
           pingTime = await measureNetworkSpeed();
           speedDisplay = `${pingTime} ms`;
+          logNetworkInfo(`Measured ping time: ${speedDisplay}`);
         } catch (error) {
+          logNetworkInfo('Failed to measure network speed, using fallbacks');
+          
           // Fallback based on platform
           if (Platform.OS === 'web') {
             // For web, estimate based on navigator info if available
@@ -106,18 +126,23 @@ export function useNetworkSpeed() {
                   '5g': 30
                 };
                 pingTime = typeMap[conn.effectiveType] || 100;
+                logNetworkInfo(`Using Network Info API: ${conn.effectiveType} -> ${pingTime}ms`);
               } else {
                 pingTime = 80; // Default for web
+                logNetworkInfo('No connection type available, using default 80ms ping');
               }
             } else {
               pingTime = 80; // Default for web without Network Information API
+              logNetworkInfo('Network Information API not available, using default 80ms ping');
             }
           } else if (__DEV__) {
-            // Development environment
-            pingTime = Math.floor(Math.random() * (150 - 20 + 1) + 20);
+            // Development environment - for consistency with the modal, use a fixed value for emulator
+            pingTime = 89;
+            logNetworkInfo('Development environment detected, using fixed value of 89ms');
           } else {
             // Production native without connection info
             pingTime = 75; // Reasonable default
+            logNetworkInfo('Production environment, using default 75ms ping');
           }
           
           speedDisplay = `${pingTime} ms`;
@@ -125,6 +150,7 @@ export function useNetworkSpeed() {
       }
       
       if (isMounted) {
+        logNetworkInfo(`Setting final speed display value: ${speedDisplay}`);
         setNetworkState({
           speed: speedDisplay,
           isPingLoading: false
@@ -133,16 +159,23 @@ export function useNetworkSpeed() {
         retryCountRef.current = 0;
       }
     } catch (error) {
+      logNetworkInfo('Error in checkConnection:', error);
+      
       if (isMounted) {
         if (retryCountRef.current < MAX_RETRIES) {
           retryCountRef.current++;
+          logNetworkInfo(`Retry attempt ${retryCountRef.current} of ${MAX_RETRIES}`);
           setTimeout(() => checkConnection(isMounted), RETRY_DELAY);
         } else {
-          // Final fallback
+          // Final fallback - for consistency with modal, use 89ms for emulator
+          const fallbackSpeed = isWifi && wifiDetails?.linkSpeed 
+            ? `${wifiDetails.linkSpeed} Mbps` 
+            : __DEV__ ? '89 ms' : '75 ms';
+            
+          logNetworkInfo(`All retries failed, using fallback speed: ${fallbackSpeed}`);
+          
           setNetworkState({
-            speed: isWifi && wifiDetails?.linkSpeed 
-              ? `${wifiDetails.linkSpeed} Mbps` 
-              : Platform.OS === 'web' ? '80 ms' : '60 ms',
+            speed: fallbackSpeed,
             isPingLoading: false
           });
           retryCountRef.current = 0;
@@ -155,8 +188,12 @@ export function useNetworkSpeed() {
     let isMounted = true;
     let checkTimer: NodeJS.Timeout | null = null;
     
+    logNetworkInfo('Initializing network speed hook');
+    
     const initializeNetwork = async () => {
       await fetchNetworkInfo();
+      logNetworkInfo('Network info fetched', details);
+      
       if (isMounted && isConnected) {
         checkConnection(isMounted);
       }
@@ -166,13 +203,16 @@ export function useNetworkSpeed() {
     
     checkTimer = setInterval(() => {
       if (isMounted && isConnected) {
+        logNetworkInfo('Running periodic network check');
         checkConnection(isMounted);
       }
     }, CHECK_INTERVAL);
 
     const unsubscribeNetwork = startNetworkListener();
+    logNetworkInfo('Network listener started');
 
     return () => {
+      logNetworkInfo('Cleaning up network speed hook');
       isMounted = false;
       if (checkTimer) clearInterval(checkTimer);
       unsubscribeNetwork();
@@ -181,6 +221,8 @@ export function useNetworkSpeed() {
 
   useEffect(() => {
     let isMounted = true;
+    logNetworkInfo(`Connection state changed - isConnected: ${isConnected}, isLoading: ${isLoading}`);
+    
     if (isConnected && !isLoading) {
       checkConnection(isMounted);
     }

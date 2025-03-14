@@ -9,7 +9,7 @@ import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
 import WallpaperPreloader from '../../../components/wpPreload'
-import { requestPermissionsWithDelay } from '@/services/permissionService'
+import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissionService'
 import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'
 
 import PermissionsScreen from './permissions'
@@ -58,15 +58,24 @@ export default function Onboarding() {
 
   const handleNext = async () => {
     if (step === -1) {
-      // If we're on the permissions screen and moving to step 0,
-      // request permissions with a delay after navigating to step 0
+      // If we're on the permissions screen, just move to step 0
+      // without requesting permissions yet
       setStep(0);
+      
+      // Mark permissions as explained but don't request them yet
+      await markPermissionsAsExplained();
+      
+    } else if (step === 0) {
+      // Request permissions on step 0 (username entry) before proceeding
       
       // Request permissions with a delay
       const permissions = await requestPermissionsWithDelay(1000);
       
       // Setup notifications based on permissions
       await setupPermissionsAndNotifications(permissions);
+      
+      // After permissions are handled, move to step 1
+      setStep(1);
       
     } else if (step === 5) {
       setPreferences({ ...formData, hasCompletedOnboarding: true })

@@ -27,7 +27,7 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
       return [
         { name: 'Empty Cat Litter', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['sunday','tuesday','thursday','saturday'] },
         { name: 'Wipe down screens and electronics', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['monday'] },
-        { name: 'Dishes', recurrencePattern: 'everyday', category: 'personal', priority: 'high', time:"7:00", schedule: ['sunday','tuesday','thursday','saturday'] },
+        { name: 'Dishes', recurrencePattern: 'everyday', category: 'personal', priority: 'high', time:"7:00", schedule: ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']  },
         { name: 'Clean bathroom', recurrencePattern: 'weekly', category: 'personal', priority: 'high', schedule: ['sunday'] },
         { name: 'Laundry', recurrencePattern: 'weekly', category: 'personal', priority: 'high', time:"7:00", schedule: ['sunday','wednesday','thursday','friday','saturday'] },
         { name: 'Vacuum living areas', recurrencePattern: 'weekly', category: 'personal', priority: 'medium', schedule: ['saturday', 'wednesday'] },

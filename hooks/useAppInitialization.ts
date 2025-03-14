@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useThunderStore } from '@/store/ThunderStore';
 import { useCalendarStore } from '@/store/CalendarStore';
@@ -7,21 +6,17 @@ import { useNBAStore } from '@/store/NBAStore';
 import { useSportsAPI } from './useSportsAPI';
 import { configureNotifications } from '@/services/notificationServices';
 import { useUserStore } from '@/store/UserStore';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useColorScheme as useRNColorScheme, ColorSchemeName } from 'react-native';
 
 // Theme storage key - must match the one in useColorScheme.ts/useColorScheme.web.ts
 const THEME_STORAGE_KEY = '@frosting/color-scheme';
 
-// Pre-load the theme to prevent theme bounce
-export async function preloadTheme() {
+// Modified function that doesn't use hooks
+export async function preloadTheme(systemColorScheme: ColorSchemeName) {
   try {
-    // Get the current system theme
-    const systemColorScheme = useRNColorScheme();
-    
     if (systemColorScheme) {
       // Check if we already have a stored theme
       const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      
       // If no stored theme or it's different from system theme, update it
       if (!storedTheme || storedTheme !== systemColorScheme) {
         await AsyncStorage.setItem(THEME_STORAGE_KEY, systemColorScheme);
@@ -33,6 +28,9 @@ export async function preloadTheme() {
 }
 
 export function useAppInitialization() {
+  // Get the system theme using the hook properly at the top level
+  const systemColorScheme = useRNColorScheme();
+  
   // Initialize Thunder and NBA schedules
   useSportsAPI();
   
@@ -44,21 +42,20 @@ export function useAppInitialization() {
       // This is now handled in the onboarding flow
       
       // Pre-load the theme to prevent theme bounce
-      await preloadTheme();
+      // Pass the systemColorScheme to the function instead of calling the hook inside
+      await preloadTheme(systemColorScheme);
     };
     
     initializeApp();
-  }, []);
+  }, [systemColorScheme]); // Add systemColorScheme as a dependency
 
   // Initial sync of existing tasks and birthdays
   useEffect(() => {
     // Sync Thunder games to tasks
     useThunderStore.getState().syncGameTasks();
-    
     // Sync NBA games to tasks and calendar
     useNBAStore.getState().syncNBAGames();
     useNBAStore.getState().syncGameTasks();
-    
     // Sync birthdays to calendar
     useCalendarStore.getState().syncBirthdays();
   }, []);
@@ -71,11 +68,9 @@ export async function setupPermissionsAndNotifications(permissions: any) {
   if (permissions.notifications) {
     await configureNotifications();
   }
-  
   // Update user preferences with permission status
   useUserStore.getState().setPreferences({
     notificationsEnabled: permissions.notifications
   });
-  
   return true;
 }

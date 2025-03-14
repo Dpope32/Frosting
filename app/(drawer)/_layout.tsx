@@ -206,6 +206,7 @@ export default function DrawerLayout() {
         backgroundColor,
         width: drawerWidth,
         borderRightWidth: 1,
+        marginTop: 40,
         borderColor,
         ...(isPermanentDrawer ? { zIndex: 20 } : {})
       },

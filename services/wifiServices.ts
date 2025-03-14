@@ -1,9 +1,14 @@
-import { NetInfoWifiState, NetInfoState } from "@react-native-community/netinfo";
+import { NetInfoState } from "@react-native-community/netinfo";
 
-const getWifiDetails = (state: NetInfoState | null): NetInfoWifiState['details'] | null => {
-  if (state?.type === 'wifi' && state.details) {
+// Simple, correct implementation
+const getWifiDetails = (state: NetInfoState | null) => {
+  if (!state) return null;
+  
+  // Check if it's a wifi connection and has details
+  if (state.type === 'wifi' && state.details) {
     return state.details;
   }
+  
   return null;
 };
 

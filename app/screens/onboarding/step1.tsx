@@ -60,17 +60,6 @@ export default function Step1({
             </YStack>
           )}
         </Circle>
-        <Text
-          fontFamily="$body"
-          fontSize="$3"
-          textAlign="center"
-          color={textColor}
-          opacity={0.8}
-          fontWeight="400"
-          paddingTop={10}
-        >
-          All data is stored locally.
-        </Text>
         <Button
           chromeless
           onPress={async () => {

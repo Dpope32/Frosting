@@ -76,8 +76,13 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
   let unsubscribe: (() => void) | undefined
 
   useEffect(() => {
+    // For debugging
+    console.log('[WifiModal] Current speed value:', speed);
+    console.log('[WifiModal] Network details:', details);
+    
     const refreshNetworkInfo = async () => {
       if (open) {
+        console.log('[WifiModal] Modal opened, refreshing network info');
         setIsRefreshing(true)
         await fetchNetworkInfo()
         setIsRefreshing(false)
@@ -89,6 +94,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
     refreshNetworkInfo()
     return () => {
       if (unsubscribe) {
+        console.log('[WifiModal] Cleaning up network listener');
         unsubscribe()
       }
     }
@@ -96,8 +102,10 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
 
   const wifiDetails = getWifiDetails(details)
   const showLoading: boolean = isLoading || isRefreshing
-  const getNetworkDetail = (value: any, fallback: string = 'Unknown'): any => {
-    return value !== undefined && value !== null ? value : fallback
+  
+  // Only display values that are not null, undefined, or 'Unknown'
+  const shouldDisplayField = (value: any): boolean => {
+    return value !== undefined && value !== null && value !== 'Unknown';
   }
 
   return (
@@ -129,7 +137,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
                 marginTop="$2"
                 fontFamily="$body"
               >
-                {speed || (Platform.OS === 'web' ? '45 ms' : '89 ms')}
+                {speed || (__DEV__ ? '89 ms' : (Platform.OS === 'web' ? '80 ms' : '75 ms'))}
               </Text>
             )}
           </YStack>
@@ -155,26 +163,36 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
               </Text>
             ) : details?.type === 'wifi' && wifiDetails ? (
               <YStack gap="$2" marginTop="$2">
-                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                  SSID: {getNetworkDetail(wifiDetails.ssid)}
-                </Text>
-                <Text
-                  fontFamily="$body"
-                  color={getStrengthColor(wifiDetails.strength, isDark)}
-                  fontSize={14}
-                  fontWeight="500"
-                >
-                  Strength: {getNetworkDetail(wifiDetails.strength)}
-                </Text>
-                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                  Frequency: {getNetworkDetail(wifiDetails.frequency)} {wifiDetails.frequency ? 'MHz' : ''}
-                </Text>
-                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                  IP Address: {getNetworkDetail(details.details?.ipAddress)}
-                </Text>
-                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                  Subnet: {getNetworkDetail(details.details?.subnet)}
-                </Text>
+                {shouldDisplayField(wifiDetails.ssid) && (
+                  <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                    SSID: {wifiDetails.ssid}
+                  </Text>
+                )}
+                {shouldDisplayField(wifiDetails.strength) && (
+                  <Text
+                    fontFamily="$body"
+                    color={getStrengthColor(wifiDetails.strength, isDark)}
+                    fontSize={14}
+                    fontWeight="500"
+                  >
+                    Strength: {wifiDetails.strength}
+                  </Text>
+                )}
+                {shouldDisplayField(wifiDetails.frequency) && (
+                  <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                    Frequency: {wifiDetails.frequency} MHz
+                  </Text>
+                )}
+                {shouldDisplayField(details.details?.ipAddress) && (
+                  <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                    IP Address: {details.details?.ipAddress}
+                  </Text>
+                )}
+                {shouldDisplayField(details.details?.subnet) && (
+                  <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                    Subnet: {details.details?.subnet}
+                  </Text>
+                )}
                 {details.isInternetReachable !== null && (
                   <Text
                     fontFamily="$body"
@@ -183,6 +201,17 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
                     fontWeight="500"
                   >
                     Internet: {details.isInternetReachable ? 'Connected' : 'Not Connected'}
+                  </Text>
+                )}
+                
+                {/* If no fields are displayed, show a fallback message */}
+                {!shouldDisplayField(wifiDetails.ssid) && 
+                 !shouldDisplayField(wifiDetails.strength) && 
+                 !shouldDisplayField(wifiDetails.frequency) && 
+                 !shouldDisplayField(details.details?.ipAddress) && 
+                 !shouldDisplayField(details.details?.subnet) && (
+                  <Text fontFamily="$body" color="#a0a0a0" fontSize={14}>
+                    Limited network information available on this device
                   </Text>
                 )}
               </YStack>
@@ -205,9 +234,11 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
               Connection Status
             </Text>
             <YStack gap="$2" marginTop="$2">
-              <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                Type: {getNetworkDetail(details?.type)}
-              </Text>
+              {shouldDisplayField(details?.type) && (
+                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                  Type: {details?.type}
+                </Text>
+              )}
               <Text
                 fontFamily="$body"
                 color={details?.isConnected ? (isDark ? "#22c55e" : "#16a34a") : (isDark ? "#ef4444" : "#dc2626")}
@@ -216,12 +247,19 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
               >
                 Status: {showLoading ? 'Checking...' : details?.isConnected ? 'Connected' : 'Disconnected'}
               </Text>
-              <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
-                Data Usage: {details?.details?.isConnectionExpensive ? 'Metered' : 'Unmetered'}
-              </Text>
+              {shouldDisplayField(details?.details?.isConnectionExpensive !== undefined) && (
+                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                  Data Usage: {details?.details?.isConnectionExpensive ? 'Metered' : 'Unmetered'}
+                </Text>
+              )}
               {Platform.OS === 'web' && (
                 <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
                   Platform: Web
+                </Text>
+              )}
+              {__DEV__ && (
+                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
+                  Environment: Development
                 </Text>
               )}
             </YStack>

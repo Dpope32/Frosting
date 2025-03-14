@@ -17,14 +17,14 @@
     },
     "assetBundlePatterns": [
       "assets/wallpapers-optimized/*",
-      "assets/images/*"
+      "assets/images/*",
+      "assets/sounds/*"
     ],
     "ios": {
       "supportsTablet": true,
       "icon": "./assets/images/icon.png",
       "infoPlist": {
         "UIBackgroundModes": [
-          "remote-notification",
           "remote-notification"
         ],
         "NSCalendarsUsageDescription": "This app needs to access your calendar to set reminders for birthdays.",

@@ -40,7 +40,15 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
   switch (task.recurrencePattern) {
     case 'one-time':
-      // One-time tasks should remain visible until completed
+      // Check if this is an NBA game (contains team names with vs or @)
+      if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
+        // Only show NBA games on their scheduled date
+        const gameDate = new Date(task.scheduledDate);
+        const gameDateStr = gameDate.toISOString().split('T')[0];
+        const currentDateStr = date.toISOString().split('T')[0];
+        return gameDateStr === currentDateStr && !task.completed;
+      }
+      // Other one-time tasks should remain visible until completed
       return !task.completed;
     case 'tomorrow': {
       // Check if the task was created today

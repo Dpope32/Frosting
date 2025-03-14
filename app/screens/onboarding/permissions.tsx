@@ -16,9 +16,12 @@ export default function PermissionsScreen({
   const accentColor = isDark ? "$blue10" : "$blue9";
 
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <ScrollView 
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingTop: 80, paddingBottom: 40 }}
+    >
       <YStack 
-        gap="$4" 
+        gap="$2" 
         flex={1} 
         padding={isWeb ? "$6" : "$4"} 
         marginBottom={isWeb ? "$6" : "$4"} 
@@ -28,12 +31,12 @@ export default function PermissionsScreen({
         <Text 
           fontFamily="$heading" 
           fontWeight="600" 
-          fontSize={isWeb ? "$9" : "$7"} 
+          fontSize={isWeb ? "$9" : "$8"} 
           textAlign="center" 
           color={headingColor}
           marginBottom="$2"
         >
-          App Permissions
+          Lets talk permissions..
         </Text>
         
         <Text 
@@ -41,11 +44,26 @@ export default function PermissionsScreen({
           fontSize={isWeb ? "$5" : "$4"} 
           textAlign="center" 
           color={textColor}
-          marginBottom="$4"
         >
-          To provide you with the best experience, Kaiba-Nexus needs the following permissions:
+          I know.. they're annoying..
         </Text>
-        
+
+        <Text 
+          fontFamily="$body" 
+          fontSize={isWeb ? "$4" : "$3"} 
+          textAlign="center" 
+          color={"#5f5f5f"}
+          marginVertical="$1"
+          paddingHorizontal="$0"
+        >
+          But they are necessary.
+        </Text>
+        <YStack 
+          width="100%" 
+          backgroundColor={"#transparent"} 
+          gap="$4"
+          padding="$4" 
+        >
         {/* Contacts Permission */}
         <YStack 
           width="100%" 
@@ -54,7 +72,7 @@ export default function PermissionsScreen({
           padding="$4" 
           borderWidth={1} 
           borderColor={sectionBorderColor}
-          marginBottom="$3"
+          marginTop="$1"
         >
           <Text 
             fontFamily="$heading" 
@@ -70,7 +88,7 @@ export default function PermissionsScreen({
             fontSize={isWeb ? "$4" : "$3"} 
             color={textColor}
           >
-            This helps you manage your relationships and set birthday reminders. Your contacts remain on your device and are never shared.
+            This allows you to import existing contacts. 
           </Text>
         </YStack>
         
@@ -82,7 +100,7 @@ export default function PermissionsScreen({
           padding="$4" 
           borderWidth={1} 
           borderColor={sectionBorderColor}
-          marginBottom="$3"
+          marginBottom="$0"
         >
           <Text 
             fontFamily="$heading" 
@@ -98,7 +116,7 @@ export default function PermissionsScreen({
             fontSize={isWeb ? "$4" : "$3"} 
             color={textColor}
           >
-            This helps you manage events and appointments. Calendar data stays on your device and is used only to display and organize your schedule.
+            This helps you manage events and appointments.
           </Text>
         </YStack>
         
@@ -110,7 +128,7 @@ export default function PermissionsScreen({
           padding="$4" 
           borderWidth={1} 
           borderColor={sectionBorderColor}
-          marginBottom="$3"
+          marginBottom="$0"
         >
           <Text 
             fontFamily="$heading" 
@@ -126,7 +144,7 @@ export default function PermissionsScreen({
             fontSize={isWeb ? "$4" : "$3"} 
             color={textColor}
           >
-            This allows you to select profile pictures and upload images. We only access the specific photos you choose to use in the app.
+            This allows you to select a profile picture.
           </Text>
         </YStack>
         
@@ -138,7 +156,7 @@ export default function PermissionsScreen({
           padding="$4" 
           borderWidth={1} 
           borderColor={sectionBorderColor}
-          marginBottom="$3"
+          marginBottom="$0"
         >
           <Text 
             fontFamily="$heading" 
@@ -154,37 +172,11 @@ export default function PermissionsScreen({
             fontSize={isWeb ? "$4" : "$3"} 
             color={textColor}
           >
-            This reminds you of upcoming events, birthdays, and tasks. Notifications are generated locally on your device.
+            This reminds you of upcoming events, birthdays, and tasks. Notifications are generated locally on your device. We would never spam you.
           </Text>
+        </YStack>
         </YStack>
         
-        {/* Privacy Statement */}
-        <YStack 
-          width="100%" 
-          backgroundColor={sectionBackgroundColor} 
-          borderRadius="$4" 
-          padding="$4" 
-          borderWidth={1} 
-          borderColor={sectionBorderColor}
-          marginTop="$2"
-        >
-          <Text 
-            fontFamily="$heading" 
-            fontWeight="500" 
-            fontSize={isWeb ? "$6" : "$5"} 
-            color={headingColor}
-            marginBottom="$2"
-          >
-            Our Privacy Commitment
-          </Text>
-          <Text 
-            fontFamily="$body" 
-            fontSize={isWeb ? "$4" : "$3"} 
-            color={textColor}
-          >
-            Kaiba-Nexus is designed with privacy in mind. All your data is stored locally on your device. We do not collect, share, or sell your personal information to any third parties. You can manage these permissions in your device settings at any time.
-          </Text>
-        </YStack>
         
         <Text 
           fontFamily="$body" 
