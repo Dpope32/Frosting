@@ -6,6 +6,12 @@ import { BaseCardAnimated } from './BaseCardAnimated'
 import { useNetworkStore } from '@/store/NetworkStore'
 import { getWifiDetails } from '@/services/wifiServices'
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed'
+import * as Updates from 'expo-updates';
+
+console.log('Update channel:', Updates.channel);
+console.log('Is embedded:', Updates.isEmbeddedLaunch);
+console.log('Is emergency launch:', Updates.isEmergencyLaunch);
+console.log('Update ID:', Updates.updateId);
 
 const getStrengthColor = (
   strength: string | number | undefined | null,

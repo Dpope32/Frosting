@@ -46,7 +46,8 @@
     "updates": {
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 3000
+      "fallbackToCacheTimeout": 3000,
+      "url": "https://u.expo.dev/22727130-682f-425f-bedd-d8fd9ab0b3e0"
     },
     "plugins": [
       "expo-router",
@@ -79,6 +80,7 @@
         "projectId": "22727130-682f-425f-bedd-d8fd9ab0b3e0"
       }
     },
-    "owner": "deedaw22"
+    "owner": "deedaw22",
+    "runtimeVersion": "1.0.0"
   }
 }

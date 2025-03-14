@@ -301,16 +301,6 @@ export default function DrawerLayout() {
             drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
           }}
         />
-        {__DEV__ && (
-          <Drawer.Screen
-            name="storage"
-            options={{
-              title: 'Storage',
-              drawerLabel: 'Storage',
-              drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
-            }}
-          />
-        )}
       </Drawer>
     </View>
   );
