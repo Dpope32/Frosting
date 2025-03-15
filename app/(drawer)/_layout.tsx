@@ -8,6 +8,7 @@ import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
+import React from 'react';
 
 // Helper function to detect if device is iPad
 const isIpad = () => {
@@ -53,28 +54,26 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
     return { uri: profilePicture };
   })();
   
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image 
-          source={imageSource}
-          style={styles.profileImage}
-        />
-        <Text style={styles.username}>
-          {username || 'User'}
-        </Text>
-      </View>
-      <View style={styles.content}>
-        <DrawerContentScrollView 
-          {...props}
-          contentContainerStyle={styles.scrollViewContent}
-          style={styles.scrollView}
-        >
-          <DrawerItemList {...props} />
-        </DrawerContentScrollView>
-      </View>
-      
-      {/* Legal & Privacy button at the bottom */}
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Image 
+            source={imageSource}
+            style={styles.profileImage}
+          />
+          <Text style={styles.username}>
+            {username || 'User'}
+          </Text>
+        </View>
+        <View style={styles.content}>
+          <DrawerContentScrollView 
+            {...props}
+            contentContainerStyle={styles.scrollViewContent}
+            style={styles.scrollView}
+          >
+            <DrawerItemList {...props} />
+          </DrawerContentScrollView>
+        </View>
       <LegalButton />
     </View>
   );
@@ -89,45 +88,23 @@ const DRAWER_ICONS: Record<string, IconConfig> = {
   '(tabs)/index': { name: 'home' as MaterialIconName, type: 'material' },
   calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
   nba: { name: 'sports-basketball' as MaterialIconName, type: 'material' },
-  chatbot: { name: 'code' as MaterialIconName, type: 'material' },
   crm: { name: 'person' as MaterialIconName, type: 'material' },
-  storage: { name: 'cloud-upload' as MaterialIconName, type: 'material' },
   vault: { name: 'lock' as MaterialIconName, type: 'material' },
   bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
-  'notifications-test': { name: 'notifications' as MaterialIconName, type: 'material' }
 };
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
-  const systemColorScheme = RNColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
-  
-  // Brighter inactive color for dark mode on mobile
-  const inactiveColor = isDark 
-    ? Platform.OS === 'web' ? '#444' : '#777' 
-    : '#999';
-  
+  const inactiveColor = isDark  ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
   const isWeb = Platform.OS === 'web';
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
-  
   const styles = useDrawerStyles();
-  
-  // Get device dimensions for responsive sizing
-  const { width: deviceWidth } = Dimensions.get('window');
-  
-  // Drawer width calculation
-  // Web: 25% of window width (min 280px, max window width)
-  // iPad: Fixed 280px (increased from standard)
-  // Mobile: Standard 250px
-  const drawerWidth = isWeb 
-    ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280
-    : isIpadDevice
-      ? 250 
-      : 230;
+  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 250  : 230;
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 
@@ -147,9 +124,7 @@ export default function DrawerLayout() {
     return <MaterialCommunityIcons name={icon.name as MaterialCommunityIconName} size={24} color={color} style={{ marginRight: 4 }} />;
   }, []);
 
-  // Memoize drawer options for better performance
   const drawerScreenOptions = useMemo(() => {
-    // Explicitly type the options to ensure compatibility
     const options: any = {
       header: ({ route, options }: { route: any; options: any }) => (
         <Header title={options.title || route.name} />
@@ -166,28 +141,20 @@ export default function DrawerLayout() {
       },
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
-      // Adjust active background color for better contrast in light mode on mobile
-      drawerActiveBackgroundColor: isDark 
-        ? `${primaryColor}99` 
-        : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
+      drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
       drawerItemStyle: {
-        // Add border radius to selected tab on mobile
         borderRadius: !isPermanentDrawer ? 8 : 0,
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
-        // Add horizontal margin on mobile for better appearance
         ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
       },
       drawerLabelStyle: {
-        fontSize: isIpadDevice ? 17 : 16, // Slightly larger font for iPad
+        fontSize: isIpadDevice ? 17 : 16, 
         fontWeight: "600" as const,
         marginLeft: -8,
       },
-      drawerContentStyle: {
-        backgroundColor 
-      },
-      // Use explicit string literals for drawerType
+      drawerContentStyle: { backgroundColor },
       drawerType: isPermanentDrawer ? 'permanent' as const : 'front' as const,
       overlayColor: isPermanentDrawer ? 'transparent' : 'rgba(0,0,0,0.5)',
       swipeEnabled: !isPermanentDrawer,
@@ -197,11 +164,10 @@ export default function DrawerLayout() {
       keyboardDismissMode: 'on-drag',
     };
 
-    // Add gesture handler props for better performance
     if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
         enabled: true,
-        activeOffsetX: [-5, 5],  // More sensitive than current -10, 10
+        activeOffsetX: [-15, 15],  // More sensitive than current -10, 10
         failOffsetY: [-50, 50],  // Less restrictive than current -30, 30
         velocityThreshold: 0.3,  // Increased from 0.1 for smoother transitions
       };
@@ -277,28 +243,6 @@ export default function DrawerLayout() {
           drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
         }}
       />
-      
-      {/* Only show notifications test screen in development mode */}
-      {__DEV__ && (
-        <Drawer.Screen
-          name="notifications-test"
-          options={{
-            title: 'Notification Tests',
-            drawerLabel: 'Notification Tests',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'notifications-test' })
-          }}
-        />
-      )}
-       {__DEV__ && (
-        <Drawer.Screen
-          name="storage"
-          options={{
-            title: 'Storage',
-            drawerLabel: 'Storage',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'storage' })
-          }}
-          />
-        )}
       </Drawer>
     </View>
   );

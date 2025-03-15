@@ -43,13 +43,13 @@ export const isImagePreloaded = (uri: string): boolean => {
 export const getWallpapers = (): S3Wallpaper[] => {
   // Common wallpapers that work well on both platforms
   const commonWallpapers = [
-    'Abstract.png',
-    'Aesthetic.png',
-    'clouds.png',
-    'Dreams.png',
-    'Fusion.png',
-    'Spring.png',
-    'jfk.jpg',
+    'Abstract.jpg',
+    'Aesthetic.jpg',
+    'clouds.jpg',
+    'Dreams.jpg',
+    'Fusion.jpg',
+    'Spring.jpg',
+    'jfk.jpg', // already jpg, you're good here
   ];
   
   // Platform-specific wallpapers

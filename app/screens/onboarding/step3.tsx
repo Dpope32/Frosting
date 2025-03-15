@@ -1,8 +1,9 @@
 import React from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb } from 'tamagui'
 import { Image, View, useWindowDimensions, Platform, ActivityIndicator } from 'react-native'
+import FastImage from 'react-native-fast-image' 
 import { BackgroundStyleOption, FormData } from '@/types'
-import { BackgroundStyle, isWallpaperLoaded } from '@/constants/Backgrounds'
+import { BackgroundStyle } from '@/constants/Backgrounds'
 import { preloadImage } from '@/services/s3Service'
 
 let LinearGradient: any = null;
@@ -12,6 +13,7 @@ let useAnimatedStyle: any = null;
 let withRepeat: any = null;
 let withTiming: any = null;
 let useSharedValue: any = null;
+
 if (Platform.OS === 'ios' || Platform.OS === 'android') {
   try {
     LinearGradient = require('expo-linear-gradient').LinearGradient;
@@ -55,8 +57,11 @@ export default function Step3({
       if (wallpaper && wallpaper.uri) {
         setIsImageLoading(true);
         setActiveWallpaper(wallpaper.uri);
+        console.log('Loading wallpaper:', activeWallpaper);
+
         
         if (Platform.OS === 'web') {
+          // Manually preload on web
           preloadImage(wallpaper.uri)
             .then(() => {
               setIsImageLoading(false);
@@ -74,8 +79,9 @@ export default function Step3({
     }
     
     setStarsKey(prev => prev + 1);
-  }, [formData.backgroundStyle]);
+  }, [formData.backgroundStyle, getWallpaperPath]);
   
+  // Animate starfield in the background
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
       const animationConfig = { duration: 60000 };
@@ -86,15 +92,19 @@ export default function Step3({
         translateY.value = 0;
       };
     }
-  }, [screenWidth, screenHeight, translateX, translateY, withRepeat, withTiming]);
+  }, [screenWidth, screenHeight, translateX, translateY]);
   
-  const starsAnimatedStyle = Platform.OS !== 'web' && useAnimatedStyle && translateX && translateY
-    ? useAnimatedStyle(() => ({
-        transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
-      }))
-    : null;
+  const starsAnimatedStyle = (
+    Platform.OS !== 'web' &&
+    useAnimatedStyle &&
+    translateX &&
+    translateY
+  ) ? useAnimatedStyle(() => ({
+      transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
+    })) : null;
   
   const createAnimatedStars = () => {
+    // iOS/Android starfield
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       if (Animated && starsAnimatedStyle) {
         return (
@@ -123,6 +133,8 @@ export default function Step3({
         );
       }
     }
+    
+    // Web starfield
     if (Platform.OS === 'web') {
       return (
         <>
@@ -230,6 +242,8 @@ export default function Step3({
         </>
       );
     }
+    
+    // Fallback starfield (no animation)
     return (
       <View
         pointerEvents="none"
@@ -254,7 +268,7 @@ export default function Step3({
   };
   
   const stars = React.useMemo(() => createAnimatedStars(), [screenWidth, screenHeight, starsKey]);
-  
+
   const adjustColor = React.useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
     const num = parseInt(hex, 16)
@@ -264,14 +278,20 @@ export default function Step3({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
   
+  /**
+   * Renders the wallpaper background.
+   * - On web: we keep <Image>.
+   * - On native: <FastImage> for better caching/perf.
+   */
   const renderWallpaperImage = (wallpaper: any) => {
+    // Show loading spinner on web only, if needed
     if (isImageLoading && Platform.OS === 'web') {
       return (
-        <Stack 
-          position="absolute" 
-          width="100%" 
-          height="100%" 
-          justifyContent="center" 
+        <Stack
+          position="absolute"
+          width="100%"
+          height="100%"
+          justifyContent="center"
           alignItems="center"
           backgroundColor="#121212"
         >
@@ -283,23 +303,46 @@ export default function Step3({
     return (
       <Stack position="absolute" width="100%" height="100%">
         {activeWallpaper && (
-          <Image
-            key={activeWallpaper}
-            source={{ uri: activeWallpaper }}
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              resizeMode: 'cover',
-            }}
-            onLoad={() => setIsImageLoading(false)}
-            onError={(error) => {
-              console.error('Image loading error:', error.nativeEvent.error);
-              setIsImageLoading(false);
-            }}
-          />
+          Platform.OS === 'web' ? (
+            <Image
+              key={activeWallpaper}
+              source={{ uri: activeWallpaper }}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                resizeMode: 'cover',
+              }}
+              onLoad={() => setIsImageLoading(false)}
+              onError={(error) => {
+                console.error('Image loading error:', error.nativeEvent.error);
+                setIsImageLoading(false);
+              }}
+            />
+          ) : (
+            <FastImage
+              key={activeWallpaper}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+              }}
+              source={{
+                uri: activeWallpaper,
+                priority: FastImage.priority.normal,
+                cache: FastImage.cacheControl.immutable,
+              }}
+              resizeMode={FastImage.resizeMode.cover}
+              onLoad={() => setIsImageLoading(false)}
+              onError={() => {
+                console.error('Image loading error occurred');
+                setIsImageLoading(false);
+              }}
+            />
+          )
         )}
         
+        {/** The blur overlay logic remains the same */}
         {Platform.OS === 'web' ? (
           <div
             style={{
@@ -311,24 +354,13 @@ export default function Step3({
               WebkitBackdropFilter: 'blur(10px)',
             }}
           />
-        ) : (
-          Platform.OS === 'ios' || Platform.OS === 'android' ? (
-            BlurView ? (
-              <BlurView
-                intensity={isDark ? 20 : 30}
-                tint="dark"
-                style={{ position: 'absolute', width: '100%', height: '100%' }}
-              />
-            ) : (
-              <View
-                style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                }}
-              />
-            )
+        ) : Platform.OS === 'ios' || Platform.OS === 'android' ? (
+          BlurView ? (
+            <BlurView
+              intensity={isDark ? 20 : 30}
+              tint="dark"
+              style={{ position: 'absolute', width: '100%', height: '100%' }}
+            />
           ) : (
             <View
               style={{
@@ -339,6 +371,15 @@ export default function Step3({
               }}
             />
           )
+        ) : (
+          <View
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            }}
+          />
         )}
       </Stack>
     );
@@ -349,6 +390,8 @@ export default function Step3({
       case 'gradient': {
         const lighterColor = adjustColor(formData.primaryColor, 100);
         const darkerColor = adjustColor(formData.primaryColor, -250);
+
+        // Native gradient
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
           if (LinearGradient) {
             return (
@@ -362,6 +405,8 @@ export default function Step3({
             );
           }
         }
+
+        // Web gradient
         if (Platform.OS === 'web') {
           return (
             <div
@@ -374,6 +419,8 @@ export default function Step3({
             />
           );
         }
+
+        // Fallback gradient
         return (
           <View
             style={{
@@ -384,22 +431,22 @@ export default function Step3({
             }}
           >
             <View style={{ 
-              position: 'absolute', 
-              top: 0, 
-              left: 0, 
-              right: 0, 
-              height: '50%', 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '50%',
               backgroundColor: lighterColor,
-              opacity: 0.7 
+              opacity: 0.7
             }} />
-            <View style={{ 
-              position: 'absolute', 
-              bottom: 0, 
-              left: 0, 
-              right: 0, 
-              height: '50%', 
+            <View style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '50%',
               backgroundColor: darkerColor,
-              opacity: 0.7 
+              opacity: 0.7
             }} />
           </View>
         );
@@ -410,21 +457,23 @@ export default function Step3({
           if (!wallpaper) {
             console.warn(`No wallpaper found for ${formData.backgroundStyle}`);
             return (
-              <View style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                backgroundColor: '#121212',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
+              <View
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: '#121212',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
                 <Text color="white">Wallpaper not found</Text>
               </View>
             );
           }
-          
           return renderWallpaperImage(wallpaper);
         }
+        // Fallback blank background
         return (
           <View
             style={{
@@ -436,9 +485,14 @@ export default function Step3({
           />
         );
     }
-  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath, isImageLoading, activeWallpaper]);
-  
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+  }, [
+    formData.backgroundStyle,
+    formData.primaryColor,
+    adjustColor,
+    getWallpaperPath,
+    isImageLoading,
+    activeWallpaper
+  ]);
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
   const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
@@ -458,7 +512,12 @@ export default function Step3({
           borderWidth={2}
           gap={isWeb ? "$2" : "$2"}
         >
-          <XStack gap={isWeb ? "$5" : "$3"} justifyContent={isWeb ? "center" : "flex-start"} flexWrap="wrap" paddingBottom={isWeb ? "$6" : "$2"}>
+          <XStack
+            gap={isWeb ? "$5" : "$3"}
+            justifyContent={isWeb ? "center" : "flex-start"}
+            flexWrap="wrap"
+            paddingBottom={isWeb ? "$6" : "$2"}
+          >
             {backgroundStyles.map((style) => {
               const isSelected = formData.backgroundStyle === style.value;
               return (
@@ -466,17 +525,10 @@ export default function Step3({
                   key={style.value}
                   size={isWeb ? "$4" : "$5"}
                   minWidth={isWeb ? 100 : 80}
-                  backgroundColor={
-                    isSelected
-                      ? formData.primaryColor
-                      : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                  }
-                  borderColor={isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
+                  backgroundColor={ isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
+                  borderColor={ isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
                   borderWidth={2}
-                  pressStyle={{
-                    scale: 0.97,
-                    opacity: 0.8
-                  }}
+                  pressStyle={{ scale: 0.97, opacity: 0.8 }}
                   onPress={() =>
                     setFormData((prev) => ({
                       ...prev,
@@ -485,12 +537,12 @@ export default function Step3({
                   }
                 >
                   <Text
-                    fontFamily="$heading" 
-                    fontWeight="700" 
-                    fontSize={isWeb ? "$6" : "$5"} 
+                    fontFamily="$heading"
+                    fontWeight="700"
+                    fontSize={isWeb ? "$6" : "$5"}
                     color={isSelected ? 'white' : buttonTextColor}
                     textAlign="center"
-                    letterSpacing={0.5}  
+                    letterSpacing={0.5}
                   >
                     {style.label}
                   </Text>
