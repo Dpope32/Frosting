@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform, Alert } from 'react-native';
 import { Button, Paragraph, XStack, YStack, Text, Card } from 'tamagui';
-import { Plus, X, CheckCircle, DollarSign, Edit3 } from '@tamagui/lucide-icons';
+import { Plus, X, CheckCircle, Edit3 } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
-import { BillRecommendationChip } from '@/utils/BillRecommendations';
-import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal';
+import { BillRecommendationChip } from '@/constants/recommendations/BillRecommendations';
+import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);

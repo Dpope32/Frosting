@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { ScrollView, Alert, ActivityIndicator, useColorScheme, Platform } from 'react-native'
-import { YStack, Text, XStack, Button } from 'tamagui'
+import { ScrollView, useColorScheme, Platform } from 'react-native'
+import { YStack, Text, XStack, Button, isWeb } from 'tamagui'
 import { useVault } from '@/hooks/useVault'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal'
-import { Plus, X, Eye, EyeOff } from '@tamagui/lucide-icons'
-import { VaultRecommendationChip } from '@/utils/VaultRecommendations'
-import { VaultRecommendationModal } from '@/components/cardModals/VaultRecommendationModal'
+import { Plus, Eye, EyeOff } from '@tamagui/lucide-icons'
+import { VaultRecommendationChip } from '@/constants/recommendations/VaultRecommendations'
+import { VaultRecommendationModal } from '@/components/modals/VaultRecommendationModal'
 
 interface VaultEntry {
   id: string
@@ -26,16 +26,12 @@ export default function VaultScreen() {
   const [emailCloudModalOpen, setEmailCloudModalOpen] = useState(false)
   const [shoppingModalOpen, setShoppingModalOpen] = useState(false)
   const [workModalOpen, setWorkModalOpen] = useState(false)
-  
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
 
   const [visiblePasswords, setVisiblePasswords] = useState<{ [id: string]: boolean }>({})
-  const togglePasswordVisibility = (id: string) => {
-    setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
+  const togglePasswordVisibility = (id: string) => { setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))}
 
   const handleAddEntry = (entry: { name: string; username: string; password: string }) => {
     addVaultEntry(entry)

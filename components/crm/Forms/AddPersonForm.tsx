@@ -19,7 +19,7 @@ import {
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
 import { useCalendarStore } from '@/store/CalendarStore'
-import * as ImagePicker from 'expo-image-picker'
+import { useImagePicker } from '@/hooks/useImagePicker'
 import {
   Image,
   TextInput,
@@ -531,24 +531,17 @@ export function AddPersonForm(): JSX.Element {
   const [paymentMethod, setPaymentMethod] = useState<string>('')
   const [paymentUsername, setPaymentUsername] = useState<string>('')
 
+  const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
+
   const pickImage = useCallback(async (): Promise<void> => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      })
-      if (!result.canceled && result.assets[0]) {
-        setFormData((prev) => ({
-          ...prev,
-          profilePicture: result.assets[0].uri,
-        }))
-      }
-    } catch (error) {
-      console.error('Error picking image:', error)
+    const imageUri = await pickImageFromLibrary();
+    if (imageUri) {
+      setFormData((prev) => ({
+        ...prev,
+        profilePicture: imageUri,
+      }));
     }
-  }, [])
+  }, [pickImageFromLibrary]);
 
   const handleBirthdayChange = useCallback((text: string): void => {
     try {

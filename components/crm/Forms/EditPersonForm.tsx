@@ -10,7 +10,7 @@ import {
   Text
 } from "tamagui";
 import { useUserStore } from "@/store/UserStore";
-import * as ImagePicker from "expo-image-picker";
+import { useImagePicker } from "@/hooks/useImagePicker";
 import { Image, TextInput, Switch, Pressable, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import type { Person } from "@/types/people";
@@ -70,15 +70,12 @@ export function EditPersonForm({
   const occupationRef = useRef<TextInput>(null);
   const paymentsRef = useRef<TextInput>(null);
 
+  const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
+
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setFormData((prev) => ({ ...prev, profilePicture: result.assets[0].uri }));
+    const imageUri = await pickImageFromLibrary();
+    if (imageUri) {
+      setFormData((prev) => ({ ...prev, profilePicture: imageUri }));
     }
   };
 

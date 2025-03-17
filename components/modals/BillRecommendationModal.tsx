@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { BillRecommendationCategory, getRecommendedBills} from '@/utils/BillRecommendations'

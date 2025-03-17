@@ -1,14 +1,8 @@
 import React from 'react';
 import { YStack, Text, isWeb } from 'tamagui';
-import { ScrollView, Platform } from 'react-native';
+import { ScrollView } from 'react-native';
 
-export default function PermissionsScreen({
-  isDark = true, // Default to dark if not provided
-}: {
-  isDark?: boolean;
-}) {
-  // Dynamic theme styles
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
+export default function PermissionsScreen({ isDark = true}: { isDark?: boolean}) {
   const sectionBackgroundColor = isDark ? "$gray3Dark" : "$gray3Light";
   const sectionBorderColor = isDark ? "$gray6Dark" : "$gray6Light";
   const headingColor = isDark ? "$gray12Dark" : "$gray12Light";

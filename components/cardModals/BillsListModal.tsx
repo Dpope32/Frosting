@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
 import { BillRecommendationCategory } from '@/utils/BillRecommendations'
-import { BillRecommendationModal } from '@/components/cardModals/BillRecommendationModal'
+import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal'
 
 interface BillsListModalProps {
   open: boolean

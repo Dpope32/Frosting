@@ -15,7 +15,7 @@ import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
-import { TaskRecommendationModal } from '@/components/cardModals/TaskRecommendationModal';
+import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
 import React from 'react';
 
@@ -35,10 +35,9 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({});
 
-  // Only use notifications and calendar sync on non-web platforms
   if (Platform.OS !== 'web') {
     useNotifications();
-    useCalendarSync(); // Initialize calendar sync
+    useCalendarSync();
   }
 
   useEffect(() => {
@@ -47,7 +46,6 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Handle deep links
   const handleDeepLink = useCallback((event: { url: string }) => {
     if (event.url.startsWith('kaiba-nexus://share')) {
       const { handleSharedContact } = require('@/components/crm/PersonCard/PersonCard');
@@ -56,14 +54,13 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    // Handle deep link if app was opened with one
+
     Linking.getInitialURL().then(url => {
       if (url) {
         handleDeepLink({ url });
       }
     });
 
-    // Handle deep links when app is already running
     const subscription = Linking.addEventListener('url', handleDeepLink);
 
     return () => {

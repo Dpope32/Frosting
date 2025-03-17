@@ -1,15 +1,12 @@
+import React from 'react';
 import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
 import { FormData, ColorOption } from '@/types'
 import { View, useColorScheme, Platform } from 'react-native'
 
-// Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;
 
-// Import the color picker directly for native platforms
-// For web, we'll use our custom WebColorPicker component
 import WheelColorPicker from 'react-native-wheel-color-picker';
 
-// Use the imported component or fallback to empty component
 const ColorPicker = Platform.OS === 'web' ? EmptyColorPicker : WheelColorPicker;
 
 export default function Step2({
@@ -24,28 +21,17 @@ export default function Step2({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const textColor = isDark ? '#fff' : '#000'
-
-  // Use current color or default to first color option
   const currentColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : '#000000')
-
-  const handleColorChange = (color: string) => {
-    setFormData((prev) => ({ ...prev, primaryColor: color }))
-  }
-
-  // Dynamic theme styles
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
   const borderColor = isDark ? "$gray8Dark" : "$gray8Light";
+  const handleColorChange = (color: string) => { setFormData((prev) => ({ ...prev, primaryColor: color }))}
 
-  // Enhanced Web Color Picker with predefined palette + custom input
   const WebColorPicker = () => {
     const colorPalette = [
-      '#C62828', '#AD1457', '#8E24AA', '#5E35B1',
-      '#3949AB', '#1976D2', '#0288D1', '#0097A7', 
-      '#00897B', '#43A047', '#7CB342', '#C0CA33',
-      '#FDD835', '#FFB300', '#FB8C00', '#E64A19',
-      '#546E7A', '#78909C', '#B0BEC5','#9d9d9d',
-      '#000000','#090909', '#4B0082', '#311432','#090109',
+      '#C62828', '#AD1457', '#8E24AA', '#5E35B1', '#3949AB', '#1976D2', '#0288D1', '#0097A7', 
+      '#00897B', '#43A047', '#7CB342', '#C0CA33', '#FDD835', '#FFB300', '#FB8C00', '#E64A19',
+      '#546E7A', '#78909C', '#B0BEC5','#9d9d9d', '#000000','#090909', '#4B0082', '#311432','#090109',
     ];
     
 

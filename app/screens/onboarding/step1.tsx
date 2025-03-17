@@ -1,3 +1,4 @@
+import React from 'react'
 import { YStack, Text, Button, Circle, Label, isWeb } from 'tamagui'
 import { Image } from 'react-native'
 import { FormData } from '@/types'
@@ -8,7 +9,7 @@ export default function Step1({
   setFormData,
   pickImage,
   handleNext,
-  isDark = true, // Default to dark if not provided
+  isDark = true, 
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
@@ -16,7 +17,7 @@ export default function Step1({
   handleNext: () => void
   isDark?: boolean
 }) {
-  // Dynamic theme styles
+
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "$gray8Dark" : "$gray8Light";
   const backgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
@@ -63,9 +64,7 @@ export default function Step1({
         <Button
           chromeless
           onPress={async () => {
-            // Get a random image from Lorem Picsum
             const wallpaperUri = 'https://picsum.photos/200';
-            
             setFormData((prev) => ({
               ...prev,
               profilePicture: wallpaperUri

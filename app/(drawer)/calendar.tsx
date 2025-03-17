@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, ScrollView, Platform, Dimensions } from 'react-native';
+import { View, ScrollView } from 'react-native';
+import { isWeb } from 'tamagui';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
@@ -13,16 +14,7 @@ import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { calendarStyles } from '@/components/calendar/CalendarStyles';
 import { getUSHolidays } from '@/services/holidayService';
-
-const isIpad = () => {
-  const { width, height } = Dimensions.get('window');
-  // iPad detection based on screen dimensions and platform
-  return (
-    Platform.OS === 'ios' &&
-    Math.min(width, height) >= 768 &&
-    Math.max(width, height) >= 1024
-  );
-};
+import { isIpad } from '@/utils/deviceUtils';
 
 export default function CalendarScreen() {
   const colorScheme = useColorScheme();
@@ -37,7 +29,6 @@ export default function CalendarScreen() {
   const { events: storeEvents } = useCalendarStore();
   const [combinedEvents, setCombinedEvents] = useState(storeEvents);
   
-  // Combine store events with holidays
   useEffect(() => {
     const currentYear = new Date().getFullYear();
     const holidays = [
@@ -82,7 +73,6 @@ export default function CalendarScreen() {
     closeDebugModal,
   } = useCalendarModals();
 
-  // Initialize months
   useEffect(() => {
     const today = new Date();
     today.setDate(1);
@@ -94,7 +84,6 @@ export default function CalendarScreen() {
     setMonths(arr);
   }, []);
 
-  // Handle day press
   const handleDayPress = (date: Date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -113,8 +102,6 @@ export default function CalendarScreen() {
     }
   };
   
-  // Determine columns based on device type
-  const isWeb = Platform.OS === 'web';
   const isIpadDevice = isIpad();
   
   return (
@@ -125,13 +112,7 @@ export default function CalendarScreen() {
           <View style={calendarStyles.webMonthsContainer}>
             {months.map((date, index) => (
               <View key={index} style={calendarStyles.webMonthWrapper}>
-                <Month
-                  date={date}
-                  events={combinedEvents} 
-                  onDayPress={handleDayPress}
-                  isDark={isDark}
-                  primaryColor={primaryColor}
-                />
+                <Month date={date}  events={combinedEvents}   onDayPress={handleDayPress}  isDark={isDark} primaryColor={primaryColor}/>
               </View>
             ))}
           </View>
@@ -149,7 +130,6 @@ export default function CalendarScreen() {
         )}
       </ScrollView>
 
-      {/* Event Modals */}
       <EventModal
         isEventModalVisible={isEventModalVisible}
         isViewEventModalVisible={isViewEventModalVisible}
@@ -178,15 +158,7 @@ export default function CalendarScreen() {
         primaryColor={primaryColor}
       />
 
-      {/* Calendar Analytics Modal */}
-      <CalendarAnalytics
-        visible={debugModalVisible}
-        onClose={closeDebugModal}
-        debugData={debugData}
-        isDark={isDark}
-      />
-
-      {/* Debug Tools */}
+      <CalendarAnalytics visible={debugModalVisible}  onClose={closeDebugModal} debugData={debugData} isDark={isDark}/>
       <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} />
     </View>
   );

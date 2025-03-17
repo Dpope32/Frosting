@@ -1,5 +1,5 @@
 import { LandingPage } from '@/components/LandingPage';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text } from 'react-native';
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {

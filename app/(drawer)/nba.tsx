@@ -7,37 +7,20 @@ import { Tabs } from '@tamagui/tabs'
 import { Platform } from 'react-native'
 import NBATeamPage from '@/components/sports/NBATeamPage'
 import OUPage from '@/components/sports/ou'
-import { useUserStore } from '@/store/UserStore'
-import { useNBAStore } from '@/store/NBAStore'
-import { nbaTeams } from '@/constants/nba'
 
 const isDev = process.env.NODE_ENV === 'development' || __DEV__;
 
 export default function Sports() {
-  const favoriteNBATeam = useUserStore(state => state.preferences.favoriteNBATeam) || 'OKC';
-  const { teamCode, teamName } = useNBAStore();
-  
-  // Find the team in the nbaTeams array
-  const team = nbaTeams.find(t => t.code === teamCode);
   const [activeTab, setActiveTab] = useState('nba');
   const scheme = useColorScheme()
   const isDark = scheme === 'dark'
-
-  // Get the team emoji based on the team code
   const getTeamEmoji = () => {
-    // You could map team codes to specific emojis if desired
-    // For now, just use a basketball emoji
     return '🏀';
   };
 
-  // In production mode, just render the NBA screen without tabs
   if (!isDev) {
     return (
-      <YStack
-        flex={1}
-        marginTop={Platform.OS === 'web' ? 0 : 85}
-        bg={isDark ? '#000000' : '#fffbf7'}
-      >
+      <YStack flex={1} marginTop={Platform.OS === 'web' ? 0 : 85} bg={isDark ? '#000000' : '#fffbf7'}>
         <NBATeamPage />
       </YStack>
     );
@@ -45,69 +28,20 @@ export default function Sports() {
 
   // In development mode, show both NBA and OU tabs
   return (
-    <YStack
-      flex={1}
-      marginTop={Platform.OS === 'web' ? 0 : 80}
-      bg={isDark ? '#000000' : '#fffbf7'}
-    >
-      <Tabs
-        defaultValue="nba"
-        orientation="horizontal"
-        flexDirection="column-reverse"
-        flex={1}
-        value={activeTab}
-        onValueChange={setActiveTab}
-      >
+    <YStack flex={1} marginTop={Platform.OS === 'web' ? 0 : 80} bg={isDark ? '#000000' : '#fffbf7'}>
+      <Tabs defaultValue="nba" orientation="horizontal" flexDirection="column-reverse"  flex={1}  value={activeTab} onValueChange={setActiveTab} >
         <Tabs.List paddingTop="$1" paddingBottom="$4" borderTopWidth={1} borderColor="$gray11">
-          <Tabs.Tab
-            value="nba"
-            flex={1}
-            backgroundColor="transparent"
-            pressStyle={{
-              backgroundColor: '$gray12',
-            }}
-          >
+          <Tabs.Tab value="nba" flex={1} backgroundColor="transparent" pressStyle={{ backgroundColor: '$gray12', }}>
             <YStack alignItems="center">
-              <Text
-                fontSize="$5"
-                fontFamily="$body"
-                color={isDark ? 'white' : 'black'}
-              >
-                {getTeamEmoji()}
-              </Text>
-              <YStack
-                backgroundColor="$blue10"
-                height={3}
-                width={40}
-                marginTop="$1"
-                display={activeTab === 'nba' ? 'flex' : 'none'}
-              />
+              <Text fontSize="$5" fontFamily="$body" color={isDark ? 'white' : 'black'}> {getTeamEmoji()} </Text>
+              <YStack backgroundColor="$blue10" height={3} width={40} marginTop="$1" display={activeTab === 'nba' ? 'flex' : 'none'}/>
             </YStack>
           </Tabs.Tab>
           
-          <Tabs.Tab
-            value="ou"
-            flex={1}
-            backgroundColor="transparent"
-            pressStyle={{
-              backgroundColor: '$gray12',
-            }}
-          >
+          <Tabs.Tab value="ou" flex={1} backgroundColor="transparent" pressStyle={{backgroundColor: '$gray12',}}>
             <YStack alignItems="center">
-              <Text
-                fontSize="$5"
-                fontFamily="$body"
-                color={isDark ? 'white' : 'black'}
-              >
-                ⭕
-              </Text>
-              <YStack
-                backgroundColor="#990000"
-                height={5}
-                width={40}
-                marginTop="$1"
-                display={activeTab === 'ou' ? 'flex' : 'none'}
-              />
+              <Text fontSize="$5" fontFamily="$body" color={isDark ? 'white' : 'black'}> ⭕</Text>
+              <YStack backgroundColor="#990000" height={5} width={40} marginTop="$1"  display={activeTab === 'ou' ? 'flex' : 'none'}/>
             </YStack>
           </Tabs.Tab>
         </Tabs.List>

@@ -350,7 +350,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                   fontFamily="$body"
                                   lineHeight={20}
                                 >
-                                  kaibanexus@gmail.com
+                                  kaibanexusdev@gmail.com
                                 </Text>
                               </YStack>
                             </XStack>

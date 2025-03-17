@@ -92,7 +92,7 @@ export const styles = StyleSheet.create({
     } : {
       lineHeight: 14,
       marginTop: 0, // Reduced from 1 to reduce padding below username
-      marginLeft: -2, // Adjusted from -6 to align better with name when checkmark is active
+      marginLeft: 2, // Adjusted from -6 to align better with name when checkmark is active
       flexShrink: 1, // Prevent text from expanding container
       width: '100%', // Ensure text has full width of container
     }),
@@ -143,7 +143,7 @@ export const styles = StyleSheet.create({
   },
   checkmark: {
     marginRight: 0, // Restored from 0 to -4 as requested
-    marginLeft: -12
+    marginLeft: -8
   },
   overlay: {
     backgroundColor: "rgba(0,0,0,0.3)"
@@ -231,7 +231,7 @@ export const styles = StyleSheet.create({
   modalNameText: {
     fontSize: 28,
     lineHeight: 32,
-    fontWeight: '700',
+    fontWeight: '900',
     flexShrink: 1
   },
   infoSection: {

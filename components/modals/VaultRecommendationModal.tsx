@@ -1,14 +1,14 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useColorScheme, TextInput, Animated as RNAnimated } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
 import { 
   VaultRecommendationCategory, 
   RecommendedVaultEntry, 
   getRecommendedVaultEntries
-} from '@/utils/VaultRecommendations'
+} from '@/constants/recommendations/VaultRecommendations'
 
 // Custom debounced input component
 type DebouncedTextInputProps = {

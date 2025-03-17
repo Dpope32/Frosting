@@ -48,6 +48,16 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         const currentDateStr = date.toISOString().split('T')[0];
         return gameDateStr === currentDateStr && !task.completed;
       }
+      
+      // Check if this is a birthday reminder
+      if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
+        // Only show birthday reminders on their scheduled date
+        const birthdayDate = new Date(task.scheduledDate);
+        const birthdayDateStr = birthdayDate.toISOString().split('T')[0];
+        const currentDateStr = date.toISOString().split('T')[0];
+        return birthdayDateStr === currentDateStr && !task.completed;
+      }
+      
       // Other one-time tasks should remain visible until completed
       return !task.completed;
     case 'tomorrow': {

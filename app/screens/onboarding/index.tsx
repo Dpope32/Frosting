@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native'
 import { XStack, Button, Text, View } from 'tamagui'
-import * as ImagePicker from 'expo-image-picker'
+import { useImagePicker } from '@/hooks/useImagePicker'
 import { router } from 'expo-router'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore'
@@ -11,6 +11,7 @@ import { FormData } from '@/types'
 import WallpaperPreloader from '../../../components/wpPreload'
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissionService'
 import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'
+import { useToastStore } from '@/store/ToastStore'
 
 import PermissionsScreen from './permissions'
 import Step0 from './step0'
@@ -25,6 +26,7 @@ export default function Onboarding() {
   const [step, setStep] = useState(-1)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const colorScheme = useColorScheme();
+  const { showToast } = useToastStore();
   const isDark = colorScheme === 'dark';
   const [formData, setFormData] = useState<FormData>({
     username: '',
@@ -58,22 +60,19 @@ export default function Onboarding() {
 
   const handleNext = async () => {
     if (step === -1) {
-      // If we're on the permissions screen, just move to step 0
-      // without requesting permissions yet
       setStep(0);
-      
-      // Mark permissions as explained but don't request them yet
+
       await markPermissionsAsExplained();
       
     } else if (step === 0) {
-      // Request permissions on step 0 (username entry) before proceeding
-      
-      // Request permissions with a delay
       const permissions = await requestPermissionsWithDelay(1000);
       
       // Setup notifications based on permissions
       await setupPermissionsAndNotifications(permissions);
-      
+      if (formData.username.length < 2) {
+        showToast('Username must be at least 2 characters long.')
+        return
+      }
       // After permissions are handled, move to step 1
       setStep(1);
       
@@ -104,18 +103,15 @@ export default function Onboarding() {
     }
   }
 
+  const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
+
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    })
-    if (!result.canceled) {
+    const imageUri = await pickImageFromLibrary();
+    if (imageUri) {
       setFormData((prev) => ({
         ...prev,
-        profilePicture: result.assets[0].uri,
-      }))
+        profilePicture: imageUri,
+      }));
     }
   }
 

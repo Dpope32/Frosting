@@ -6,7 +6,7 @@ import { useRecommendationStore } from '@/store/RecommendationStore'
 import { Pressable, Platform, useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { getCategoryColor } from '../utils'
-import { RecommendationChip } from '@/utils/TaskRecommendations'
+import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 
 interface TaskListModalProps {
   open: boolean

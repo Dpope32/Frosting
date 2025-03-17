@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { YStack, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
-import { Image, Platform, View, useWindowDimensions } from 'react-native'
+import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
+import { Image, useWindowDimensions } from 'react-native'
 import { FormData } from '@/types'
 import { nbaTeams } from '@/constants/nba'
 
@@ -8,26 +8,18 @@ export default function Step5({
   formData,
   setFormData,
   handleNext,
-  isDark = true, // Default to dark if not provided
+  isDark = true,
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
   isDark?: boolean
 }) {
-  const isWeb = Platform.OS === 'web'
   const { width } = useWindowDimensions()
-  
-  // State to track if the grid view is expanded (showing all teams)
   const [showAllTeams, setShowAllTeams] = useState(isWeb)
-  
-  // Get the selected team
   const selectedTeam = formData.favoriteNBATeam || ''
-  
-  // State for showing NBA games in calendar
   const [showNBAGamesInCalendar, setShowNBAGamesInCalendar] = useState(true)
-  
-  // Function to handle team selection
+
   const handleTeamSelect = (teamCode: string) => {
     setFormData(prev => ({
       ...prev,
@@ -36,7 +28,6 @@ export default function Step5({
     }))
   }
   
-  // Function to handle toggle for showing NBA games in calendar
   const handleToggleNBAGames = (value: boolean) => {
     setShowNBAGamesInCalendar(value)
     if (selectedTeam) {
@@ -47,9 +38,7 @@ export default function Step5({
     }
   }
   
-  // Function to skip team selection
   const handleSkip = () => {
-    // Default to OKC Thunder if skipped
     setFormData(prev => ({
       ...prev,
       favoriteNBATeam: 'OKC',
@@ -58,19 +47,12 @@ export default function Step5({
     handleNext()
   }
   
-  // Get popular teams for the initial view
   const popularTeams = ['LAL', 'GSW', 'BOS', 'CHI', 'OKC','NYK', 'DAL', 'CLE','DEN']
   const initialTeams = nbaTeams.filter(team => popularTeams.includes(team.code))
   const teamsToDisplay = showAllTeams ? nbaTeams : initialTeams
   
-  // Force showAllTeams to true on web
-  useEffect(() => {
-    if (isWeb) {
-      setShowAllTeams(true)
-    }
-  }, [isWeb])
+  useEffect(() => { if (isWeb) { setShowAllTeams(true)}}, [isWeb])
   
-  // Calculate grid columns based on screen width
   const getGridColumns = () => {
     if (!isWeb) return 3
     if (width > 1200) return 6
@@ -78,10 +60,7 @@ export default function Step5({
     if (width > 600) return 4
     return 3
   }
-  
   const columns = getGridColumns()
-
-  // Dynamic theme styles
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const buttonBackgroundColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonBorderColor = isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)";
@@ -180,7 +159,6 @@ export default function Step5({
           </Button>
         )}
         
-        {/* Show calendar preference option if a team is selected */}
         {selectedTeam && (
           <YStack 
             width="100%" 
@@ -213,7 +191,7 @@ export default function Step5({
               <XStack alignItems="center" gap="$2">
                 <Text 
                   fontFamily="$body" 
-                  color={showNBAGamesInCalendar ? formData.primaryColor : buttonTextColor}
+                  color={showNBAGamesInCalendar ? "#fff" : buttonTextColor}
                   fontWeight="bold"
                 >
                   {showNBAGamesInCalendar ? 'ON' : 'OFF'}
@@ -225,10 +203,7 @@ export default function Step5({
                   backgroundColor={showNBAGamesInCalendar ? formData.primaryColor : buttonBackgroundColor}
                   borderColor={showNBAGamesInCalendar ? formData.primaryColor : buttonBorderColor}
                 >
-                  <Switch.Thumb 
-                    backgroundColor={showNBAGamesInCalendar ? 'white' : isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'}
-                    animation="quick"
-                  />
+                  <Switch.Thumb  backgroundColor={showNBAGamesInCalendar ? 'white' : isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'} animation="quick"/>
                 </Switch>
               </XStack>
             </XStack>

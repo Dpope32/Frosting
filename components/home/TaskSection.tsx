@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { TaskCard } from '@/components/home/TaskCard'
 import { getCategoryColor } from '@/components/utils'
 import { Task } from '@/store/ToDo'
-import { RecommendationChip } from '@/utils/TaskRecommendations'
+import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 
 interface TaskSectionProps {

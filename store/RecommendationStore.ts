@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { RecommendationCategory } from '@/utils/TaskRecommendations'
+import { RecommendationCategory } from '@/constants/recommendations/TaskRecommendations'
 
 interface RecommendationState {
   activeCategory: RecommendationCategory | null

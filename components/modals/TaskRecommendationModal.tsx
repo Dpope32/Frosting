@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useCallback } from 'react'
 import { useColorScheme } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useProjectStore, useStoreTasks } from '@/store/ToDo'
 import { useRecommendationStore } from '@/store/RecommendationStore'
@@ -15,7 +15,7 @@ import {
   getRecurrenceColor,
   getPriorityIcon,
   getPriorityColor
-} from '@/utils/TaskRecommendations'
+} from '@/constants/recommendations/TaskRecommendations'
 
 // Global recommendation modal component
 export function TaskRecommendationModal() {

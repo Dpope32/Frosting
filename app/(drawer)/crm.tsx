@@ -6,7 +6,6 @@ import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as Contacts from 'expo-contacts';
 import { usePeopleStore } from "@/store/People";
-import { StorageUtils } from "@/store/AsyncStorage";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
 import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
 import { EditPersonForm } from "@/components/crm/Forms/EditPersonForm";
@@ -14,7 +13,7 @@ import type { Person } from "@/types/people";
 import { generateTestContacts } from "@/components/crm/testContacts";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
-import { requestNotificationPermissions } from "@/services/notificationServices";
+import { importContacts, handleDebugPress } from "@/services/peopleService";
 
 const { width } = Dimensions.get("window");
 const PADDING = Platform.OS === 'web' ? 18: 12;
@@ -22,7 +21,6 @@ const GAP = Platform.OS === 'web' ? 24 : 12;
 const NUM_COLUMNS = Platform.OS === 'web' ? 4 : 2;
 const CARD_WIDTH = (width - (22 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
 const CARD_WIDTH_MOBILE = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-const STORAGE_KEY = 'contacts-store';
 
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
@@ -33,88 +31,6 @@ export default function CRM() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
-
-  const importContacts = async (data: Contacts.Contact[]) => {
-    // Track how many contacts were actually imported
-    let importedCount = 0;
-    let skippedCount = 0;
-    
-    // Check if any contacts have birthdays to determine if we need notifications
-    const hasBirthdays = data.some(contact => contact.birthday);
-    if (hasBirthdays) {
-      // Request permissions
-      await requestNotificationPermissions();
-    }
-    
-    // Get the current contacts from the store
-    const currentContacts = usePeopleStore.getState().contacts;
-    const newContacts = { ...currentContacts };
-    
-    // Process all contacts first
-    for (const contact of data) {
-      if (contact.name) {
-        let birthdayStr = undefined;
-        
-        if (contact.birthday) {
-          try {
-            birthdayStr = new Date(contact.birthday.toString()).toISOString().split('T')[0];
-          } catch (error) {
-            console.log("Error parsing birthday:", error, "for contact:", contact.name);
-          }
-        }
-        
-        const newPerson: Person = {
-          name: contact.name,
-          phoneNumber: contact.phoneNumbers?.[0]?.number,
-          email: contact.emails?.[0]?.email,
-          birthday: birthdayStr || '',
-          profilePicture: contact.imageAvailable ? contact.image?.uri : undefined,
-          occupation: contact.jobTitle,
-          priority: true, // Mark all imported contacts with birthdays as priority
-          address: contact.addresses?.[0] ? {
-            street: contact.addresses[0].street || '',
-            city: contact.addresses[0].city || '',
-            state: contact.addresses[0].region || '',
-            zipCode: contact.addresses[0].postalCode || '',
-            country: contact.addresses[0].country || ''
-          } : undefined,
-          id: Math.random().toString(36).substr(2, 9),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        
-        // Add to our new contacts object
-        newContacts[newPerson.id] = newPerson;
-        
-        importedCount++;
-        console.log(`Processed contact: ${contact.name}`);
-      } else {
-        skippedCount++;
-        console.log("Skipped contact without name");
-      }
-    }
-    
-    // Now update the store with all contacts at once
-    if (importedCount > 0) {
-      // Save to AsyncStorage and update the store
-      await StorageUtils.set(STORAGE_KEY, newContacts);
-      usePeopleStore.setState({ contacts: newContacts });
-      
-      // Sync birthdays for all new contacts
-      if (hasBirthdays) {
-        const { syncBirthdays } = require('@/store/CalendarStore').useCalendarStore.getState();
-        syncBirthdays(); // Sync all birthdays
-      }
-      
-      console.log(`Import summary: ${importedCount} imported, ${skippedCount} skipped`);
-      console.log("New contacts state:", Object.keys(newContacts).length, "contacts");
-      
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      Alert.alert("Success", `${importedCount} contacts imported successfully!`);
-    } else {
-      Alert.alert("No Contacts", "No valid contacts were found to import.");
-    }
-  };
 
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
@@ -156,19 +72,6 @@ export default function CRM() {
         />
       </View>
     );
-  };
-
-  const handleDebugPress = () => {
-    const peopleState = JSON.parse(JSON.stringify(usePeopleStore.getState()));
-    if (peopleState.contacts) {
-      Object.values(peopleState.contacts).forEach((contact: any) => {
-        if (contact.profilePicture) {
-          contact.profilePicture = '[PROFILE_PICTURE_DATA_REMOVED]';
-        }
-      });
-    }
-    console.log("People Store:", JSON.stringify(peopleState, null, 2));
-    Alert.alert("Debug Info", "People store data logged to console (profilePicture data removed)");
   };
 
   return (

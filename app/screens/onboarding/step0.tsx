@@ -1,3 +1,4 @@
+import React from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
 import { Platform } from 'react-native'
 import { FormData } from '@/types'

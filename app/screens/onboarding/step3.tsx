@@ -50,7 +50,6 @@ export default function Step3({
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   
-  // Preload the current wallpaper when it changes
   React.useEffect(() => {
     if (formData.backgroundStyle.startsWith('wallpaper-')) {
       const wallpaper = getWallpaperPath(formData.backgroundStyle);
@@ -61,7 +60,6 @@ export default function Step3({
 
         
         if (Platform.OS === 'web') {
-          // Manually preload on web
           preloadImage(wallpaper.uri)
             .then(() => {
               setIsImageLoading(false);
@@ -72,7 +70,6 @@ export default function Step3({
               setIsImageLoading(false);
             });
         } else {
-          // On native, we don't need to manually preload
           setIsImageLoading(false);
         }
       }
@@ -81,7 +78,6 @@ export default function Step3({
     setStarsKey(prev => prev + 1);
   }, [formData.backgroundStyle, getWallpaperPath]);
   
-  // Animate starfield in the background
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
       const animationConfig = { duration: 60000 };
@@ -104,7 +100,6 @@ export default function Step3({
     })) : null;
   
   const createAnimatedStars = () => {
-    // iOS/Android starfield
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       if (Animated && starsAnimatedStyle) {
         return (
@@ -134,7 +129,6 @@ export default function Step3({
       }
     }
     
-    // Web starfield
     if (Platform.OS === 'web') {
       return (
         <>
@@ -243,7 +237,6 @@ export default function Step3({
       );
     }
     
-    // Fallback starfield (no animation)
     return (
       <View
         pointerEvents="none"
@@ -278,13 +271,7 @@ export default function Step3({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
   
-  /**
-   * Renders the wallpaper background.
-   * - On web: we keep <Image>.
-   * - On native: <FastImage> for better caching/perf.
-   */
   const renderWallpaperImage = (wallpaper: any) => {
-    // Show loading spinner on web only, if needed
     if (isImageLoading && Platform.OS === 'web') {
       return (
         <Stack
@@ -341,8 +328,7 @@ export default function Step3({
             />
           )
         )}
-        
-        {/** The blur overlay logic remains the same */}
+
         {Platform.OS === 'web' ? (
           <div
             style={{
@@ -391,7 +377,6 @@ export default function Step3({
         const lighterColor = adjustColor(formData.primaryColor, 100);
         const darkerColor = adjustColor(formData.primaryColor, -250);
 
-        // Native gradient
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
           if (LinearGradient) {
             return (
@@ -406,7 +391,6 @@ export default function Step3({
           }
         }
 
-        // Web gradient
         if (Platform.OS === 'web') {
           return (
             <div
@@ -420,7 +404,6 @@ export default function Step3({
           );
         }
 
-        // Fallback gradient
         return (
           <View
             style={{
@@ -473,7 +456,6 @@ export default function Step3({
           }
           return renderWallpaperImage(wallpaper);
         }
-        // Fallback blank background
         return (
           <View
             style={{
