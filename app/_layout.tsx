@@ -9,6 +9,8 @@ import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
+import * as Updates from 'expo-updates';
+import { Alert } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
@@ -43,6 +45,25 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  useEffect(() => {
+    const checkAndApplyUpdate = async () => {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          Alert.alert('Update downloaded', 'Restarting app to apply update...');
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        console.log('Failed to fetch update:', error);
+      }
+    };
+  
+    if (loaded) {
+      checkAndApplyUpdate();
     }
   }, [loaded]);
 
