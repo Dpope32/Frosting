@@ -166,16 +166,10 @@ const fullAddress = useMemo(() => {
                   >
                     {person.nickname || person.name}
                   </Paragraph>
-                  {person.occupation && (
-                  <XStack gap="$3" alignItems="center">
-                
-                    <Paragraph fontFamily="$body" fontSize={isWeb? 13 : 12} color={isDark ? "#ccc" : "#ccc"}>
-                      {person.occupation}
-                    </Paragraph>
+
                   </XStack>
-                )}
-                </XStack>
-                <Paragraph
+                  {person.occupation && (
+                  <Paragraph
                   fontSize={11}
                   color={isDark ? "#999" : "#333"}
                   numberOfLines={1}
@@ -184,6 +178,7 @@ const fullAddress = useMemo(() => {
                 >
                   {person.occupation}
                 </Paragraph>
+                )}
               </View>
             </XStack>
           </TouchableOpacity>
