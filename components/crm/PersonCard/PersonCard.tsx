@@ -98,12 +98,6 @@ const fullAddress = useMemo(() => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const handleEditPress = useCallback((e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onEdit(person);
-  }, [onEdit, person]);
-
   // Apply web-specific styles conditionally
   const applyWebStyle = (styleKey: keyof typeof webStyles) => {
     return Platform.OS === 'web' ? webStyles[styleKey] as any : {};
@@ -134,9 +128,9 @@ const fullAddress = useMemo(() => {
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/80"
                     }}
-                    width={Platform.OS === 'web' ? 80 : 40}
-                    height={Platform.OS === 'web' ? 60 : 40}
-                    borderRadius={Platform.OS === 'web' ? 30 : 20}
+                    width={Platform.OS === 'web' ? 80 : 30}
+                    height={Platform.OS === 'web' ? 60 : 30}
+                    borderRadius={Platform.OS === 'web' ? 30 : 15}
                     style={styles.avatarImage as any}
                   />
                 </View>
@@ -159,7 +153,7 @@ const fullAddress = useMemo(() => {
                   <Paragraph
                     fontWeight="600"
                     fontSize={isWeb? 16 : 15}
-                    color={isDark ? adjustColor(nicknameColor, 220) : adjustColor(nicknameColor, -40)}
+                    color={isDark ? adjustColor(nicknameColor, 250) : adjustColor(nicknameColor, -40)}
                     numberOfLines={1}
                     ellipsizeMode="tail"
                     style={[styles.nameText, applyWebStyle('nameText')] as any}
@@ -198,15 +192,16 @@ const fullAddress = useMemo(() => {
         >
           <Sheet.Overlay animation="quick" style={styles.overlay as any} />
           <Sheet.Frame 
-            style={[
-              styles.modalContainer, 
-              {
-                backgroundColor: isDark ? "rgba(20,20,20,0.95)" : "rgba(255,255,255,0.95)",
-                borderColor: isDark ? "rgba(200,200,200,0.8)" : "rgba(100,100,100,0.3)"
-              },
-              applyWebStyle('modalContainer')
-            ] as any}
-          >
+              style={[
+                styles.modalContainer, 
+                {
+                  backgroundColor: isDark ? "rgba(20,20,20,0.95)" : "rgba(255,255,255,0.95)",
+                  borderColor: isDark ? "rgba(200,200,200,0.8)" : "rgba(100,100,100,0.3)",
+                  overflow: "hidden" // Moving the overflow property here instead of in the styles
+                },
+                applyWebStyle('modalContainer')
+              ] as any}
+            >
             <Sheet.Handle />
             <View style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
               <View style={styles.modalHeaderIcons as any}>
@@ -244,11 +239,6 @@ const fullAddress = useMemo(() => {
                     style={[styles.modalAvatar, applyWebStyle('modalAvatar')] as any}
                     objectFit="cover"
                   />
-                  {person.priority && (
-                    <View style={styles.modalStarIndicator as any}>
-                      <Ionicons name="star" size={16} color="#FFD700"/>
-                    </View>
-                  )}
                 </View>
                 <View style={styles.nameColumn as any}>
                   <Paragraph
@@ -289,7 +279,7 @@ const fullAddress = useMemo(() => {
                     { backgroundColor: isDark ? "rgba(0,0,0,0.4)" : "rgba(100,100,100,0.2)" }
                   ] as any}>
                     <XStack alignItems="center" gap="$1">
-                      <Paragraph fontSize={13} fontFamily="$body"color={isDark ? "#666" : "#555"}>Reminder:</Paragraph>
+                      <Paragraph fontSize={13} fontFamily="$body" color={isDark ? "#666" : "#555"}>Reminder:</Paragraph>
                       <Paragraph fontSize={13} fontFamily="$body" color="#FFD700">Scheduled</Paragraph>
                     </XStack>
                   </View>
@@ -430,19 +420,37 @@ const fullAddress = useMemo(() => {
                 },
                 applyWebStyle('actionBar')
               ] as any}
+              pointerEvents="box-none" // Allow touch events to pass through this view
             >
               {person.phoneNumber && (
                 <>
                   <TouchableOpacity
-                    onPress={() => Linking.openURL(`sms:${person.phoneNumber}`)}
+                    onPress={() => {
+                      console.log('Text pressed');
+                      Linking.openURL(`sms:${person.phoneNumber}`).catch(err => {
+                        console.error('Could not open SMS app', err);
+                        Alert.alert('Error', 'Could not open SMS app');
+                      });
+                    }}
                     style={styles.actionButton as any}
+                    activeOpacity={0.6}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
                     <Ionicons name="chatbubble-outline" size={24} color={isDark ? "#fff" : "#555"} />
                     <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Text</Paragraph>
                   </TouchableOpacity>
+                  
                   <TouchableOpacity
-                    onPress={() => Linking.openURL(`tel:${person.phoneNumber}`)}
+                    onPress={() => {
+                      console.log('Call pressed');
+                      Linking.openURL(`tel:${person.phoneNumber}`).catch(err => {
+                        console.error('Could not open phone app', err);
+                        Alert.alert('Error', 'Could not open phone app');
+                      });
+                    }}
                     style={styles.actionButton as any}
+                    activeOpacity={0.6}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   >
                     <Ionicons name="call-outline" size={24} color={isDark ? "#fff" : "#555"} />
                     <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Call</Paragraph>
@@ -451,8 +459,16 @@ const fullAddress = useMemo(() => {
               )}
               {person.email && (
                 <TouchableOpacity
-                  onPress={() => Linking.openURL(`mailto:${person.email}`)}
+                  onPress={() => {
+                    console.log('Email pressed');
+                    Linking.openURL(`mailto:${person.email}`).catch(err => {
+                      console.error('Could not open email app', err);
+                      Alert.alert('Error', 'Could not open email app');
+                    });
+                  }}
                   style={styles.actionButton as any}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Ionicons name="mail-outline" size={24} color={isDark ? "#fff" : "#555"} />
                   <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>eMail</Paragraph>
@@ -460,16 +476,34 @@ const fullAddress = useMemo(() => {
               )}
               {fullAddress && (
                 <TouchableOpacity
-                  onPress={() => Clipboard.setStringAsync(fullAddress)}
+                  onPress={() => {
+                    console.log('Copy pressed');
+                    Clipboard.setStringAsync(fullAddress)
+                      .then(() => Alert.alert("Success", "Address copied to clipboard!"))
+                      .catch(err => console.error('Could not copy address', err));
+                  }}
                   style={styles.actionButton as any}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Ionicons name="copy-outline" size={24} color={isDark ? "#fff" : "#555"} />
                   <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Copy</Paragraph>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
-                onPress={handleEditPress}
-                style={[styles.actionButton, { zIndex: 9999 }] as any}
+                onPress={(e) => {
+                  console.log('Edit pressed');
+                  if (e) {
+                    if (typeof e.preventDefault === 'function') e.preventDefault();
+                    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+                  }
+                  // Close the sheet first, then edit after a small delay
+                  if (onPress) onPress();
+                  setTimeout(() => onEdit(person), 100);
+                }}
+                style={[styles.actionButton, { zIndex: 99 }] as any}
+                activeOpacity={0.6}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons name="pencil-outline" size={24} color={isDark ? "#fff" : "#555"} />
                 <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Edit</Paragraph>

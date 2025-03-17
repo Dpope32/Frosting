@@ -1,16 +1,11 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { useColorScheme, TextInput, Animated as RNAnimated } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
+import { useColorScheme, TextInput} from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
-import { 
-  VaultRecommendationCategory, 
-  RecommendedVaultEntry, 
-  getRecommendedVaultEntries
-} from '@/constants/recommendations/VaultRecommendations'
+import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
 
-// Custom debounced input component
 type DebouncedTextInputProps = {
   value: string
   onDebouncedChange: (value: string) => void
@@ -26,12 +21,10 @@ const DebouncedTextInput = ({
 }: DebouncedTextInputProps) => {
   const [text, setText] = useState(value)
   
-  // Update internal state when prop value changes
   useEffect(() => {
     setText(value)
   }, [value])
   
-  // Debounce the change notification
   useEffect(() => {
     const handler = setTimeout(() => {
       onDebouncedChange(text)
@@ -41,12 +34,7 @@ const DebouncedTextInput = ({
   }, [text, onDebouncedChange])
   
   return (
-    <TextInput
-      value={text}
-      onChangeText={setText}
-      style={style}
-      secureTextEntry={secureTextEntry}
-    />
+    <TextInput value={text} onChangeText={setText} style={style} secureTextEntry={secureTextEntry}/>
   )
 }
 

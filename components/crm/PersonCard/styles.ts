@@ -39,10 +39,13 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
+    flex: 1,
+    minWidth: 130, // Add minimum width to prevent pills from being too narrow
+    maxWidth: Platform.OS === 'web' ? 200 : 160, // Limit width on mobile
   },
   reminderPill: {
-    backgroundColor: 'rgba(0,0,0,0.4)'
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   card: {
     borderWidth: 2,
@@ -153,8 +156,7 @@ export const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "rgba(20,20,20,0.95)",
     borderColor: "rgba(200,200,200,0.8)",
-    borderWidth: 1,
-    overflow: "hidden",
+    borderWidth: 1, 
     ...(Platform.OS === 'web' ? {
       width: 450,
       maxWidth: '90%',
@@ -165,15 +167,16 @@ export const styles = StyleSheet.create({
       maxHeight: "75%",
       minHeight: "50%",
     }),
+    // Remove overflow: "hidden" to prevent border clipping
   } as ViewStyle,
   modalContent: {
     padding: Platform.OS === 'web' ? 16 : 12,
-    paddingBottom: 160,
+    paddingBottom: 160, // Adding space for the action bar
     ...(Platform.OS !== 'web' ? { position: 'relative' as const } : {}),
   },
   modalHeaderIcons: {
     position: 'absolute',
-    top: -12,
+    top: Platform.OS === 'web' ? -12 : 0,
     left: 10,
     right: 10,
     zIndex: 2,
@@ -199,7 +202,7 @@ export const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: Platform.OS === 'web' ? 20 : 16,
+    marginTop: Platform.OS === 'web' ? 20 : 0,
   },
   modalAvatarContainer: {
     position: 'relative',
@@ -248,13 +251,17 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(20,20,20,0.95)",
     paddingVertical: Platform.OS === 'web' ? 12 : 10,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)"
+    borderTopColor: "rgba(255,255,255,0.1)",
+    zIndex: 50, // Add high zIndex to ensure it's on top
   },
   actionButton: {
     width: 60,
-    height: 65,
+    height: 55,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    zIndex: 51, // Make the buttons higher than the bar itself
+    // Add hit slop to increase the touch area
+    padding: 8, 
   },
   actionText: {
     color: "#fff",
@@ -266,7 +273,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
-    flexWrap: 'wrap',
+    marginBottom: 8,
+    justifyContent: 'space-between', // Ensure pills are spaced evenly
+    flexWrap: 'nowrap', // Prevent wrapping to ensure horizontal layout
     gap: 6
   }
 });
