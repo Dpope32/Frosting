@@ -1,3 +1,4 @@
+import React from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -19,7 +20,11 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
-import React from 'react';
+
+console.log('Update channel:', Updates.channel);
+console.log('Is embedded:', Updates.isEmbeddedLaunch);
+console.log('Is emergency launch:', Updates.isEmergencyLaunch);
+console.log('Update ID:', Updates.updateId);
 
 // Create a client
 const queryClient = new QueryClient({

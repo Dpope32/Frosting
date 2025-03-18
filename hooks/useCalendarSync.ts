@@ -35,14 +35,12 @@ export const useCalendarSync = () => {
       try {
         // Check if onboarding is completed and permissions have been explained
         if (!hasCompletedOnboarding) {
-          console.log('Onboarding not completed, skipping calendar sync');
           return;
         }
         
         // Check if permissions have been explained
         const permissionsExplained = await AsyncStorage.getItem(PERMISSIONS_EXPLAINED_KEY);
         if (permissionsExplained !== 'true') {
-          console.log('Permissions not yet explained, skipping calendar sync');
           return;
         }
         
@@ -53,7 +51,6 @@ export const useCalendarSync = () => {
         }
         
         if (hasPermission) {
-          console.log('Calendar permissions granted, syncing events in background...');
           
           // Sync events for the next 6 months
           const startDate = new Date();
@@ -68,26 +65,20 @@ export const useCalendarSync = () => {
               })
               .catch(error => {
                 console.error('Calendar sync failed:', error);
-                // Even if sync fails, we don't want to block the app
               });
-          }, 2000); // Delay by 2 seconds to not block app startup
+          }, 2000); 
         } else {
           console.log('Calendar permissions not granted');
         }
       } catch (error) {
         console.error('Error initializing calendar sync:', error);
-        // Continue even if there's an error
       } finally {
         setIsInitialized(true);
       }
     };
     
-    // Start initialization
     initializeCalendarSync();
-    
-    // No cleanup needed
   }, [isInitialized, syncDeviceCalendarEvents]);
   
-  // This hook doesn't render anything
   return null;
 };

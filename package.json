@@ -78,6 +78,7 @@
     "express": "^4.21.2",
     "form-data": "^4.0.2",
     "react": "18.3.1",
+    "react-circular-progressbar": "^2.2.0",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
     "react-native-fast-image": "^8.6.3",

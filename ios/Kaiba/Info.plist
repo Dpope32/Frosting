@@ -4,6 +4,14 @@
   <dict>
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
+    <key>EXUpdatesURL</key>
+    <string>https://u.expo.dev/22727130-682f-425f-bedd-d8fd9ab0b3e0</string>
+    <key>EXUpdatesRuntimeVersion</key>
+    <string>1.0.0</string>
+    <key>EXUpdatesReleaseChannel</key>
+    <string>main</string>
+    <key>EXUpdatesEnabled</key>
+    <true/>
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>

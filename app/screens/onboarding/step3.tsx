@@ -505,7 +505,7 @@ export default function Step3({
               return (
                 <Button
                   key={style.value}
-                  size={isWeb ? "$4" : "$5"}
+                  size={isWeb ? "$4" : "$3.5"}
                   minWidth={isWeb ? 100 : 80}
                   backgroundColor={ isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
                   borderColor={ isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
@@ -519,9 +519,9 @@ export default function Step3({
                   }
                 >
                   <Text
-                    fontFamily="$heading"
+                    fontFamily="$body"
                     fontWeight="700"
-                    fontSize={isWeb ? "$6" : "$5"}
+                    fontSize={isWeb ? "$6" : "$4"}
                     color={isSelected ? 'white' : buttonTextColor}
                     textAlign="center"
                     letterSpacing={0.5}

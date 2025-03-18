@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { useNBAStore, getCurrentTeamCode, getESPNTeamCode, getNBASeason } from '../store/NBAStore';
 import type { Game } from '../store/NBAStore';
 import { nbaTeams } from '../constants/nba';
@@ -6,7 +6,6 @@ import React from 'react';
 
 export const useSportsAPI = () => {
   const { setGames, setLoading, setError, setTeamInfo } = useNBAStore();
-  
   // Get the current team code from user preferences
   const teamCode = getCurrentTeamCode();
   const espnTeamCode = getESPNTeamCode(teamCode);
@@ -24,7 +23,8 @@ export const useSportsAPI = () => {
   }, [teamCode, teamName, setTeamInfo]);
   
   const ESPN_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}/schedule`;
-
+  const ESPN_TEAM_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}`;
+  
   const fetchNBASchedule = async (): Promise<Game[]> => {
     try {
       setLoading(true);
@@ -104,18 +104,58 @@ export const useSportsAPI = () => {
       setLoading(false);
     }
   };
-
-  const query = useQuery({
-    queryKey: [`nba-schedule-${teamCode}`],
-    queryFn: fetchNBASchedule,
-    staleTime: 1000 * 60 * 60 * 24, // 24 hours
-    gcTime: 1000 * 60 * 60 * 24, // 24 hours
-    refetchInterval: 1000 * 60 * 60 * 24, // 24 hours
+  
+  const fetchTeamStats = async () => {
+    try {
+      const response = await fetch(ESPN_TEAM_API_URL, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching team stats:", error);
+      return null;
+    }
+  };
+  
+  const results = useQueries({
+    queries: [
+      {
+        queryKey: [`nba-schedule-${teamCode}`],
+        queryFn: fetchNBASchedule,
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
+        gcTime: 1000 * 60 * 60 * 24, // 24 hours
+        refetchInterval: 1000 * 60 * 60 * 24, // 24 hours
+      },
+      {
+        queryKey: [`nba-team-stats-${teamCode}`],
+        queryFn: fetchTeamStats,
+        staleTime: 1000 * 60 * 60 * 6, // 6 hours
+        gcTime: 1000 * 60 * 60 * 24, // 24 hours
+        refetchInterval: 1000 * 60 * 60 * 6, // 6 hours
+      }
+    ]
   });
+  
+  const [scheduleQuery, statsQuery] = results;
   
   // Add a refetch function to manually trigger refetching
   return {
-    ...query,
-    refetch: query.refetch
+    data: scheduleQuery.data,
+    isLoading: scheduleQuery.isLoading,
+    error: scheduleQuery.error,
+    refetch: () => {
+      scheduleQuery.refetch();
+      statsQuery.refetch();
+    },
+    teamStats: statsQuery.data
   };
 };

@@ -180,7 +180,7 @@ export default function PermissionsScreen({ isDark = true}: { isDark?: boolean})
           marginTop="$4"
           opacity={0.8}
         >
-          Tap "Continue" below to proceed to the next step. Permission requests will appear after you begin the onboarding process.
+          Tap "Continue" below to proceed to the next step. 
         </Text>
       </YStack>
     </ScrollView>

@@ -45,27 +45,12 @@ export const TaskSection = ({
       }}
     >
       <XStack alignItems={Platform.OS === 'web'  ? 'flex-start' : 'center'} width={isWeb ? "100%" : "100%"} marginBottom="$3" paddingLeft="$4">
-        <Text 
-          fontFamily="$body"
-          color="#dbd0c6" 
-          fontSize={20} 
-          fontWeight="bold"
-          style={{
-            textShadowColor: 'rgba(219, 208, 198, 0.15)',
-            textShadowOffset: { width: 0, height: 0 },
-            textShadowRadius: 4
-          }}
-        >
+        <Text fontFamily="$body" color="#dbd0c6" fontSize={20}  fontWeight="bold"
+          style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>
       </XStack>
-      <Stack 
-        gap="$2" 
-        paddingHorizontal={isWeb ? 16 : 24} 
-        flex={1} 
-        position="relative"
-        justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}
-      >
+      <Stack gap="$2" paddingHorizontal={16} flex={1} position="relative" justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}>
         {todaysTasks.length === 0 ? (
           <Stack 
             p={Platform.OS === 'web' ? '$6' : '$4'} 

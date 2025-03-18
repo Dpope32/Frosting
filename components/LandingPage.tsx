@@ -20,6 +20,7 @@ import { GreetingSection } from '@/components/home/GreetingSection'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
+import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 
 export function LandingPage() {
   const username = useUserStore(s => s.preferences.username)
@@ -73,7 +74,6 @@ export function LandingPage() {
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-
   }
   return (
     <Stack flex={1} backgroundColor="black">
@@ -100,6 +100,11 @@ export function LandingPage() {
               <Stack padding="$2" minHeight={100}>
                 <AssetSection onAddToWatchlist={() => setWatchlistModalOpen(true)} />
               </Stack>
+            </Stack>
+          )}
+          {Platform.OS !== 'web' && (
+            <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={{ shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
+              <YearCompleteSection />
             </Stack>
           )}
         </YStack>
