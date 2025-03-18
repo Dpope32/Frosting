@@ -38,6 +38,8 @@ const dayNames: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursd
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
+  const dateStr = date.toISOString().split('T')[0];
+  
   switch (task.recurrencePattern) {
     case 'one-time':
       // Check if this is an NBA game (contains team names with vs or @)
@@ -58,8 +60,17 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         return birthdayDateStr === currentDateStr && !task.completed;
       }
       
-      // Other one-time tasks should remain visible until completed
-      return !task.completed;
+      // For other one-time tasks:
+      // 1. Check if it's completed
+      // 2. If completed, check if it was completed today (so we still show it)
+      // 3. If completed on a previous day, don't show it
+      if (task.completed) {
+        // If completed, only show if it was completed today
+        return task.completionHistory[dateStr] === true;
+      }
+      
+      // Not completed, so show it
+      return true;
     case 'tomorrow': {
       // Check if the task was created today
       const createdDate = new Date(task.createdAt);

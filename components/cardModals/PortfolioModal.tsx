@@ -77,11 +77,11 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
 
   const styles = StyleSheet.create({
     card: {
-      backgroundColor: isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)",
+      backgroundColor: isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.8)",
       borderRadius: 12,
       padding: Platform.OS === 'web' ? 10 : 8,
-      borderWidth: 1,
-      borderColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
+      borderWidth: 1.5,
+      borderColor: isDark ? "#223" : "rgba(0, 0, 0, 0.1)",
     }
   })
 
@@ -228,7 +228,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   height={100} 
                   alignItems="center" 
                   justifyContent="center"
-                  backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
+                  backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.8)"}
                   borderRadius={12}
                   padding="$4"
                   borderWidth={1}
@@ -256,7 +256,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                         isWeb && { width: '48%' }
                       ]}
                     >
-                      <YStack gap="$2">
+                      <YStack gap="$2" >
                         <XStack justifyContent="space-between" alignItems="center" >
                           <XStack alignItems="center" gap="$2" flex={1} >
                             <Button
@@ -393,7 +393,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                         
                         <XStack 
                           justifyContent="space-between" 
-                          backgroundColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.03)"}
+                          backgroundColor={isDark ? "rgba(255, 255, 255, 0.025)" : "rgba(0, 0, 0, 0.03)"}
                           borderRadius={8}
                           padding={Platform.OS === 'web' ? "$1.5" : "$1"}
                           marginTop="$0.5"
