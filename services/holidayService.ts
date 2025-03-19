@@ -12,7 +12,7 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
     { date: new Date(year, 3, 1 + (5 - new Date(year, 3, 1).getDay()) % 7), name: 'Good Friday', color: '#795548', icon: '✝️' },
     { date: new Date(year, 3, 22), name: 'Easter Sunday', color: '#FF9800', icon: '🐣' },
     { date: new Date(year, 4, 1 + (0 + 7 - new Date(year, 4, 1).getDay()) % 7 + (new Date(year, 4, 1).getDay() === 0 ? 7 : 0)), name: 'Memorial Day', color: '#7E57C2', icon: '🎖️' },
-    { date: new Date(year, 3, 17), name: 'St. Patricks Day', color: '#008000', icon: '☘️' },
+    { date: new Date(year, 2, 17), name: 'St. Patricks Day', color: '#008000', icon: '☘️' },
     { date: new Date(year, 5, 19), name: 'Juneteenth', color: '#8D6E63', icon: '⛓️' },
     { date: new Date(year, 6, 4), name: 'Independence Day', color: '#1976D2', icon: '🎆' },
     { date: new Date(year, 8, 1 + (1 - new Date(year, 8, 1).getDay()) % 7), name: 'Labor Day', color: '#00ACC1', icon: '👷' },

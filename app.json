@@ -23,7 +23,7 @@
     "ios": {
       "supportsTablet": true,
       "icon": "./assets/images/icon.png",
-       "buildNumber": "1.0.15",
+       "buildNumber": "1.0.16",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"

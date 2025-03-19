@@ -4,19 +4,14 @@
   <dict>
     <key>EXUpdatesEnabled</key>
     <true/>
-
     <key>EXUpdatesURL</key>
     <string>https://u.expo.dev/22727130-682f-425f-bedd-d8fd9ab0b3e0</string>
-
     <key>EXUpdatesRuntimeVersion</key>
     <string>1.0.0</string>
-
     <key>EXUpdatesReleaseChannel</key>
-    <string>main</string> 
-
+    <string>main</string>
     <key>EXUpdatesCheckOnLaunch</key>
-    <string>WIFI_ONLY</string>
-
+    <string>ALWAYS</string>
     <key>EXUpdatesLaunchWaitMs</key>
     <integer>3000</integer>
   </dict>
