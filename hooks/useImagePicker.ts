@@ -16,6 +16,7 @@ interface UseImagePickerResult {
 
 /**
  * A custom hook for handling image picking functionality using expo-image-picker.
+ * This hook strictly uses launchImageLibraryAsync and does NOT invoke camera access.
  * 
  * @param defaultOptions Default options for the image picker
  * @returns An object containing the pickImage function, loading state, and error state
@@ -44,18 +45,19 @@ export function useImagePicker(
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const mergedOptions: ImagePickerOptions = {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [1, 1] as [number, number],
+        aspect: [1, 1],
         quality: 1,
         ...defaultOptions,
         ...options,
       };
-      
+
+      // launchImageLibraryAsync ONLY. No camera invocation.
       const result = await ImagePicker.launchImageLibraryAsync(mergedOptions);
-      
+
       if (!result.canceled && result.assets && result.assets[0]) {
         return result.assets[0].uri;
       }

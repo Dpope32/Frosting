@@ -105,6 +105,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       onOpenChange={onOpenChange}
       title="Portfolio"
       snapPoints={Platform.OS === 'web' ? [85] : [80]}
+      showCloseButton={true}
     >
       <YStack gap={Platform.OS === 'web' ? "$2" : "$3"} paddingTop={Platform.OS === 'web' ? 0 : "$1"} paddingBottom={Platform.OS === 'web' ? "$5" : "$2"}>
         <YStack>
@@ -344,7 +345,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                             <Text 
                               color={getStockValueColor(totalValue)} 
                               fontSize={16} 
-                              fontWeight="500"
+                              fontWeight="900"
                               fontFamily="$body"
                             >
                               ${totalValue.toLocaleString('en-US', { 
@@ -399,6 +400,30 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                           marginTop="$0.5"
                           height={isWeb ? undefined : 40}
                         >
+                          <YStack alignItems="center" flex={1}>
+                            <Text 
+                              color={isDark ? "#999" : "#666"} 
+                              fontSize={11}
+                              fontWeight="500"
+                              fontFamily="$body"
+                            >
+                              1D
+                            </Text>
+                            <Text 
+                              color={stockHistoricalData?.['1d'] ? 
+                                getStockValueColor(currentPrice - (stockHistoricalData['1d'] || 0)) : 
+                                isDark ? "#777" : "#999"
+                              } 
+                              fontSize={14}
+                              fontWeight="600"
+                              fontFamily="$body"
+                            >
+                              {stockHistoricalData?.['1d'] ? 
+                                calculateReturn(currentPrice, stockHistoricalData['1d']) : 
+                                '-'
+                              }
+                            </Text>
+                          </YStack>
                           <YStack alignItems="center" flex={1}>
                             <Text 
                               color={isDark ? "#999" : "#666"} 

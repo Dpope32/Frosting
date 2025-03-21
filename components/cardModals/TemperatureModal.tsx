@@ -103,7 +103,12 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   const nextDays = allForecastDays.slice(1) // All days after today (up to 4)
 
   return (
-    <BaseCardAnimated open={open} onOpenChange={onOpenChange} title="Weather">
+    <BaseCardAnimated 
+      open={open} 
+      onOpenChange={onOpenChange} 
+      title="Weather" 
+      showCloseButton={true}
+    >
       <ScrollView>
         <YStack gap="$4" paddingBottom="$4">
           <XStack gap="$3">

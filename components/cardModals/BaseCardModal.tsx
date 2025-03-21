@@ -1,8 +1,9 @@
 import React from 'react'
-import { Sheet, Text, Theme, isWeb } from 'tamagui'
+import { Sheet, Text, Theme, isWeb, Button, XStack } from 'tamagui'
 import { KeyboardAvoidingView, Platform, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, { FadeIn } from 'react-native-reanimated'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface BaseCardModalProps {
   open: boolean
@@ -13,23 +14,29 @@ interface BaseCardModalProps {
   position?: number
   dismissOnSnapToBottom?: boolean
   zIndex?: number
+  showCloseButton?: boolean
 }
 
-export function BaseCardModal({ 
-  open, 
-  onOpenChange, 
-  title, 
+export function BaseCardModal({
+  open,
+  onOpenChange,
+  title,
   children,
   snapPoints = isWeb ? [90] : [80],
   position = 0,
   dismissOnSnapToBottom = true,
-  zIndex = 100000
+  zIndex = 100000,
+  showCloseButton = false
 }: BaseCardModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
   const topInset = Platform.OS === 'ios' ? insets.top : 0
-
+  
+  const handleClose = () => {
+    onOpenChange(false)
+  }
+  
   return (
     <Theme name={isDark ? "dark" : "light"}>
       <Sheet
@@ -57,9 +64,9 @@ export function BaseCardModal({
           borderWidth={1}
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
           gap={Platform.OS === 'web' ? "$1" : "$2"}
-          {...(Platform.OS === 'web' ? 
-            { 
-              maxWidth: 1000, 
+          {...(Platform.OS === 'web' ?
+            {
+              maxWidth: 1000,
               marginHorizontal: 'auto',
               minHeight: 500,
               maxHeight: 'calc(100vh - 80px)',
@@ -67,25 +74,36 @@ export function BaseCardModal({
           )}
         >
           <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === "ios" ? "padding" : "height"}  
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1, paddingTop: Math.max(topInset - 100, 0) }}
           >
             <Animated.View entering={FadeIn.duration(400)} style={{ marginBottom: 12, paddingHorizontal: 6}}>
-              <Text 
-                fontSize={22}  
-                fontWeight="700"  
-                color={isDark ? "#fff" : "#000"} 
-                opacity={isDark ? 1 : 0.9} 
-                fontFamily="$body"
-              > 
-                {title} 
-              </Text>
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text
+                  fontSize={22}
+                  fontWeight="700"
+                  color={isDark ? "#fff" : "#000"}
+                  opacity={isDark ? 1 : 0.9}
+                  fontFamily="$body"
+                >
+                  {title}
+                </Text>
+                {showCloseButton && (
+                  <Button 
+                    backgroundColor="transparent" 
+                    onPress={handleClose} 
+                    padding="$1" 
+                    pressStyle={{ opacity: 0.7 }} 
+                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                  />
+                )}
+              </XStack>
             </Animated.View>
-            <Sheet.ScrollView 
-              bounces={false} 
+            <Sheet.ScrollView
+              bounces={false}
               showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled" 
+              keyboardShouldPersistTaps="handled"
               keyboardDismissMode="interactive"
               contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 40 } : {}}
             >

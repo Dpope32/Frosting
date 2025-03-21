@@ -2,11 +2,12 @@ import React from 'react'
 import { StyleSheet, Modal, TouchableWithoutFeedback, View, Dimensions } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
-import { Text, Theme } from 'tamagui'
-import Animated, { 
+import { Text, Theme, XStack, Button } from 'tamagui'
+import Animated, {
   ZoomIn,
   ZoomOut,
 } from 'react-native-reanimated'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface BaseCardAnimatedProps {
   open: boolean
@@ -15,6 +16,7 @@ interface BaseCardAnimatedProps {
   children: React.ReactNode
   modalWidth?: number
   modalMaxWidth?: number
+  showCloseButton?: boolean
 }
 
 /**
@@ -27,18 +29,20 @@ export function BaseCardAnimated({
   title,
   children,
   modalWidth = 350,
-  modalMaxWidth = 500
+  modalMaxWidth = 500,
+  showCloseButton = true
 }: BaseCardAnimatedProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
+  
   // Calculate actual width based on screen size and constraints
   const actualWidth = Math.min(
     typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.85,
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.95
   )
-
+  
   return (
     <Theme name={isDark ? 'dark' : 'light'}>
       <Modal
@@ -65,14 +69,25 @@ export function BaseCardAnimated({
                   }
                 ]}
               >
-                <Text
-                  style={[
-                    styles.title,
-                    { color: isDark ? '#fff' : '#000' }
-                  ]}
-                >
-                  {title}
-                </Text>
+                <XStack justifyContent="space-between" alignItems="center" marginBottom={16}>
+                  <Text
+                    style={[
+                      styles.title,
+                      { color: isDark ? '#fff' : '#000', marginBottom: 0 }
+                    ]}
+                  >
+                    {title}
+                  </Text>
+                  {showCloseButton && (
+                    <Button 
+                      backgroundColor="transparent" 
+                      onPress={() => {onOpenChange(false)}} 
+                      padding={8} 
+                      pressStyle={{ opacity: 0.7 }} 
+                      icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                    />
+                  )}
+                </XStack>
                 <View style={{ position: 'relative' }}>
                   {children}
                 </View>

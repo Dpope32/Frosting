@@ -4,14 +4,6 @@
   <dict>
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
-    <key>EXUpdatesURL</key>
-    <string>https://u.expo.dev/22727130-682f-425f-bedd-d8fd9ab0b3e0</string>
-    <key>EXUpdatesRuntimeVersion</key>
-    <string>1.0.0</string>
-    <key>EXUpdatesReleaseChannel</key>
-    <string>main</string>
-    <key>EXUpdatesEnabled</key>
-    <true/>
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
@@ -47,7 +39,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1.0.15</string>
+    <string>1.0.16</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>
@@ -60,23 +52,19 @@
       <true/>
     </dict>
     <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>The app needs to access your calendar.</string>
+    <string>Kaiba needs full access to your calendar so you can create, edit, and manage events directly from the app.</string>
     <key>NSCalendarsUsageDescription</key>
-    <string>The app needs to access your calendar.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your camera</string>
+    <string>Kaiba uses your calendar to display and sync events, helping you track your schedule and receive reminders.</string>
     <key>NSContactsUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your contacts</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your microphone</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to save photos</string>
+    <string>Kaiba accesses your contacts so you can import your existing contacts into the app</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your photos</string>
+    <string>Kaiba needs access to your photo library so you can use a profile picture to be used in the app.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Kaiba needs permission to save images to your photo library when you download pictures from events or save shared content.</string>
     <key>NSRemindersFullAccessUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your reminders</string>
+    <string>Kaiba needs full reminders access to create and manage task lists associated with your events and schedules.</string>
     <key>NSRemindersUsageDescription</key>
-    <string>This app needs to send you notifications about birthdays and events.</string>
+    <string>Kaiba uses reminders to notify you about upcoming birthdays, events, and important dates you've scheduled in the app.</string>
     <key>NSUserActivityTypes</key>
     <array>
       <string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
