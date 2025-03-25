@@ -12,7 +12,6 @@ export const useOUSportsAPI = () => {
         throw new Error('Schedule data is empty')
       }
 
-      // Enhanced validation
       preloadedOUSchedule.forEach((game, index) => {
         if (!game.competitions || !Array.isArray(game.competitions)) {
         console.error(`Game ${index + 1} has invalid competitions data`)

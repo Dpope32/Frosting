@@ -83,7 +83,6 @@ export const useCalendarStore = create<CalendarState>()(
         if (Platform.OS === 'web') return;
         
         try {
-          console.log('Starting device calendar sync...');
           
           // Get device calendar events
           const deviceEvents = await getDeviceCalendarEvents(startDate, endDate);
@@ -98,14 +97,11 @@ export const useCalendarStore = create<CalendarState>()(
               (event) => !event.id.startsWith('device-')
             );
             
-            console.log(`Synced ${appEvents.length} device calendar events`);
-            
             return {
               events: [...nonDeviceEvents, ...appEvents],
             };
           });
         } catch (error) {
-          // Log error but don't throw to ensure the app continues to work
           console.error('Failed to sync device calendar events:', error);
         }
       },

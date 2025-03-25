@@ -1,10 +1,9 @@
 import { CalendarEvent } from '@/store/CalendarStore';
 import { Platform } from 'react-native';
 
-// Import Calendar conditionally to avoid issues on web
 let Calendar: any = null;
+
 if (Platform.OS !== 'web') {
-  // Use require instead of dynamic import for better compatibility
   try {
     Calendar = require('expo-calendar');
   } catch (err) {
@@ -12,20 +11,11 @@ if (Platform.OS !== 'web') {
   }
 }
 
-/**
- * Gets all calendars from the device
- * @returns Array of calendars
- */
 export const getDeviceCalendars = async (): Promise<any[]> => {
   if (Platform.OS === 'web' || !Calendar) return [];
   
   try {
-    console.log('Getting device calendars...');
     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    console.log(`Found ${calendars.length} calendars`);
-    calendars.forEach((cal: any, i: number) => {
-      console.log(`Calendar ${i+1}: ${cal.title} (${cal.id})`);
-    });
     return calendars;
   } catch (error) {
     console.error('Error getting device calendars:', error);
@@ -33,12 +23,6 @@ export const getDeviceCalendars = async (): Promise<any[]> => {
   }
 };
 
-/**
- * Gets events from all calendars for a specific time range
- * @param startDate Start date for the range
- * @param endDate End date for the range
- * @returns Array of calendar events
- */
 export const getDeviceCalendarEvents = async (
   startDate: Date,
   endDate: Date
@@ -46,26 +30,18 @@ export const getDeviceCalendarEvents = async (
   if (Platform.OS === 'web' || !Calendar) return [];
   
   try {
-    console.log(`Getting device calendar events from ${startDate.toISOString()} to ${endDate.toISOString()}`);
     const calendars = await getDeviceCalendars();
     let allEvents: any[] = [];
     
     for (const calendar of calendars) {
       try {
-        const events = await Calendar.getEventsAsync(
-          [calendar.id],
-          startDate,
-          endDate
-        );
-        console.log(`Found ${events.length} events in calendar "${calendar.title}"`);
+        const events = await Calendar.getEventsAsync([calendar.id], startDate, endDate);
         allEvents = [...allEvents, ...events];
       } catch (calError) {
         console.error(`Error getting events from calendar "${calendar.title}":`, calError);
-        // Continue with other calendars even if one fails
       }
     }
     
-    console.log(`Found ${allEvents.length} total events across all calendars`);
     return allEvents;
   } catch (error) {
     console.error('Error getting device calendar events:', error);
@@ -73,23 +49,15 @@ export const getDeviceCalendarEvents = async (
   }
 };
 
-/**
- * Converts device calendar events to app CalendarEvent format
- * @param deviceEvents Array of device calendar events
- * @returns Array of app calendar events
- */
 export const convertToAppCalendarEvents = (
   deviceEvents: any[]
 ): CalendarEvent[] => {
-  console.log(`Converting ${deviceEvents.length} device events to app format`);
   
   return deviceEvents.map(event => {
     try {
       // Determine event type based on calendar or event properties
       let eventType: CalendarEvent['type'] = 'personal';
-      
-      // Try to infer event type from calendar title or event title/notes
-      const calendarTitle = '';  // We'll need to fetch calendar details separately if needed
+      const calendarTitle = '';  
       const eventTitle = event.title?.toLowerCase() || '';
       const eventNotes = event.notes?.toLowerCase() || '';
       
@@ -128,11 +96,6 @@ export const convertToAppCalendarEvents = (
   });
 };
 
-/**
- * Parses a time string in 12-hour format to 24-hour format
- * @param timeStr Time string in format "HH:MM AM/PM"
- * @returns Time string in format "HH:MM"
- */
 export const parseTimeString = (timeStr: string): string => {
   const parts = timeStr.split(' ');
   if (parts.length !== 2) return timeStr;
@@ -143,13 +106,6 @@ export const parseTimeString = (timeStr: string): string => {
   return `${hours.padStart(2, '0')}:${minutes}`;
 };
 
-/**
- * Generates bill events for the calendar
- * @param billName Name of the bill
- * @param dueDate Day of the month when the bill is due
- * @returns Array of calendar events for the bill
- */
-// In generateBillEvents function, modify to extend further
 export const generateBillEvents = (billName: string, dueDate: number): Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>[] => {
   const events = [];
   const start = new Date();
@@ -171,27 +127,18 @@ export const generateBillEvents = (billName: string, dueDate: number): Omit<Cale
   return events;
 };
 
-/**
- * Generates a random date between now and the end of the year
- */
 export const generateRandomDate = (yearsAhead: number = 1): Date => {
   const start = new Date();
   const end = new Date(start.getFullYear() + yearsAhead, 11, 31);
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
 
-/**
- * Generates a random time in 24-hour format
- */
 export const generateRandomTime = (): string => {
   const hours = Math.floor(Math.random() * 24);
   const minutes = Math.floor(Math.random() * 60);
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
-/**
- * Gets the current time rounded to the nearest 30 minutes
- */
 export const getCurrentRoundedTime = (): string => {
   const now = new Date();
   const minutes = Math.round(now.getMinutes() / 30) * 30;

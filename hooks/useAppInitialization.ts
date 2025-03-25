@@ -8,7 +8,6 @@ import { configureNotifications } from '@/services/notificationServices';
 import { useUserStore } from '@/store/UserStore';
 import { useColorScheme as useRNColorScheme, ColorSchemeName } from 'react-native';
 
-// Theme storage key - must match the one in useColorScheme.ts/useColorScheme.web.ts
 const THEME_STORAGE_KEY = '@frosting/color-scheme';
 
 // Modified function that doesn't use hooks

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
@@ -217,6 +218,7 @@ export const useProjectStore = create<ProjectStore>()(
           }
           set({ tasks, todaysTasks: taskFilter(tasks) })
         }
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
       },
       getTodaysTasks: () => get().todaysTasks
     }),

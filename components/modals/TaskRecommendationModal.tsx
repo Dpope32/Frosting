@@ -123,10 +123,7 @@ function CategoryTaskModal({
   return (
     <BaseCardModal 
       open={open} 
-      onOpenChange={(newOpen) => {
-        console.log(`BaseCardModal onOpenChange - category: ${category}, newOpen: ${newOpen}`)
-        onOpenChange(newOpen)
-      }} 
+      onOpenChange={(newOpen) => { onOpenChange(newOpen)}} 
       title={`${category} Tasks`}
       snapPoints={[isWeb? 90 : 85]}
       zIndex={200000} 

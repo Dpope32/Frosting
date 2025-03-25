@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import { useProjectStore, WeekDay } from './ToDo';
+import { useProjectStore } from './ToDo';
 import { useUserStore } from './UserStore';
-import { espnTeamCodes, getCurrentNBASeason, nbaTeams } from '../constants/nba';
+import { nbaTeams } from '../constants/nba';
 import { useCalendarStore } from './CalendarStore';
 import { format } from 'date-fns';
 
@@ -16,15 +16,15 @@ export interface Game {
   awayScore?: number;
   status: 'scheduled' | 'live' | 'finished';
   season: number;
-  teamCode: string; // The team code (e.g., "OKC")
+  teamCode: string; 
 }
 
 interface NBAStore {
   games: Game[];
   isLoading: boolean;
   error: string | null;
-  teamCode: string; // The team code (e.g., "OKC")
-  teamName: string; // The team name (e.g., "Oklahoma City Thunder")
+  teamCode: string; 
+  teamName: string; 
   setGames: (games: Game[]) => void;
   setTeamInfo: (code: string, name: string) => void;
   setLoading: (loading: boolean) => void;
@@ -41,7 +41,7 @@ export const useNBAStore = create<NBAStore>()(
       games: [],
       isLoading: false,
       error: null,
-      teamCode: 'OKC', // Default to OKC Thunder
+      teamCode: 'OKC', 
       teamName: 'Oklahoma City Thunder',
       setGames: (games) => set({ games }),
       setTeamInfo: (code, name) => set({ teamCode: code, teamName: name }),
@@ -56,12 +56,10 @@ export const useNBAStore = create<NBAStore>()(
         });
       },
       syncGameTasks: () => {
-        // First delete all existing game tasks
         get().deleteAllGameTasks();
         const { addTask } = useProjectStore.getState();
         const state = get();
         const now = new Date();
-        const weekDays: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
         // Sync NBA games
         state.games.forEach((game: Game) => {
@@ -78,7 +76,6 @@ export const useNBAStore = create<NBAStore>()(
               minute: '2-digit'
             });
 
-            // Add task - the addTask function now handles deduplication
             addTask({
               name: taskName,
               schedule: [],
@@ -92,12 +89,11 @@ export const useNBAStore = create<NBAStore>()(
         });
       },
       
-      // Clear all NBA calendar events
+
       clearNBACalendarEvents: () => {
         const { events } = useCalendarStore.getState();
         const calendarStore = useCalendarStore.getState();
-        
-        // Filter out NBA events
+
         events.forEach(event => {
           if (event.type === 'nba') {
             calendarStore.deleteEvent(event.id);
@@ -105,16 +101,12 @@ export const useNBAStore = create<NBAStore>()(
         });
       },
       
-      // Sync NBA games to calendar
       syncNBAGames: () => {
-        // First clear existing NBA events
         get().clearNBACalendarEvents();
         
-        // Check if user wants to show NBA games in calendar
         const userPreferences = useUserStore.getState().preferences;
         if (!userPreferences.showNBAGamesInCalendar) {
-          console.log('NBA games in calendar disabled by user preference');
-          return; // Exit if user doesn't want to show NBA games in calendar
+          return; 
         }
         
         const state = get();
@@ -124,9 +116,6 @@ export const useNBAStore = create<NBAStore>()(
         
         if (!team) return;
         
-        console.log('Syncing NBA games to calendar for team:', state.teamCode);
-        
-        // Add each game as a calendar event
         state.games.forEach((game: Game) => {
           const gameDate = new Date(game.date);
           if (gameDate >= now) {
@@ -156,19 +145,3 @@ export const useNBAStore = create<NBAStore>()(
     }
   )
 );
-
-// Helper function to get the current team code from user preferences
-export const getCurrentTeamCode = (): string => {
-  const userPreferences = useUserStore.getState().preferences;
-  return userPreferences.favoriteNBATeam || 'OKC'; 
-};
-
-// Helper function to get the ESPN API team code
-export const getESPNTeamCode = (teamCode: string): string => {
-  return espnTeamCodes[teamCode] || 'okc'; 
-};
-
-// Helper function to get the current NBA season
-export const getNBASeason = (): number => {
-  return getCurrentNBASeason();
-};

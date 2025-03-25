@@ -45,7 +45,7 @@ export function useNotifications() {
 
         // Set up notification listeners
         const subscription = Notifications.addNotificationReceivedListener(notification => {
-          console.log('Notification received:', notification);
+         // console.log('Notification received:', notification);
         });
 
         const responseSubscription = Notifications.addNotificationResponseReceivedListener(response => {

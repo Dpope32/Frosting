@@ -175,7 +175,6 @@ export const havePermissionsBeenExplained = async (): Promise<boolean> => {
 export const markPermissionsAsExplained = async (): Promise<void> => {
   try {
     await AsyncStorage.setItem(PERMISSIONS_EXPLAINED_KEY, 'true');
-    console.log("PERMISSIONS_EXPLAINED_KEY SETTING KEY to TRUE! VALUE: " , PERMISSIONS_EXPLAINED_KEY)
   } catch (error) {
     console.error('Error marking permissions as explained:', error);
   }

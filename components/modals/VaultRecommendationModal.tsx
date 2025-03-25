@@ -117,10 +117,7 @@ export function VaultRecommendationModal({
   return (
     <BaseCardModal
       open={open}
-      onOpenChange={(newOpen) => {
-        console.log(`VaultRecommendationModal onOpenChange - category: ${category}, newOpen: ${newOpen}`)
-        onOpenChange(newOpen)
-      }}
+      onOpenChange={(newOpen) => { onOpenChange(newOpen)}}
      title={`${category} Accounts`}
       snapPoints={isWeb? [90] : [85]}
     >

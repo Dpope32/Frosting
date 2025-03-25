@@ -4,7 +4,6 @@ import { Platform } from 'react-native';
 import { useUserStore } from '@/store/UserStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Import permissionService conditionally to avoid issues on web
 let permissionService: any = null;
 if (Platform.OS !== 'web') {
   try {
@@ -14,14 +13,8 @@ if (Platform.OS !== 'web') {
   }
 }
 
-// Key for storing whether permissions have been explained
 const PERMISSIONS_EXPLAINED_KEY = '@frosting/permissions_explained';
 
-/**
- * Hook to sync device calendar events with the app
- * This hook will run the sync in the background when the app starts
- * but only if the user has completed onboarding
- */
 export const useCalendarSync = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const syncDeviceCalendarEvents = useCalendarStore(state => state.syncDeviceCalendarEvents);
@@ -52,24 +45,19 @@ export const useCalendarSync = () => {
         
         if (hasPermission) {
           
-          // Sync events for the next 6 months
           const startDate = new Date();
           const endDate = new Date();
           endDate.setMonth(endDate.getMonth() + 6);
           
-          // Run sync in background
           setTimeout(() => {
             syncDeviceCalendarEvents(startDate, endDate)
               .then(() => {
-                console.log('Calendar sync completed successfully');
               })
               .catch(error => {
                 console.error('Calendar sync failed:', error);
               });
           }, 2000); 
-        } else {
-          console.log('Calendar permissions not granted');
-        }
+        } 
       } catch (error) {
         console.error('Error initializing calendar sync:', error);
       } finally {

@@ -71,7 +71,7 @@ export function YearCompleteSection() {
               textShadowRadius: 2 
             }}
           >
-            ${percentage}% complete`
+            {percentage}% complete`
           </Text>
         </Stack>
       </Stack>

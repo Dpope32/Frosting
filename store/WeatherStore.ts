@@ -50,7 +50,6 @@ export const useWeatherQuery = (zipCode: string | null | undefined) => {
       const now = Date.now();
       
       if (lastFetchTime && now - lastFetchTime < ONE_HOUR) {
-        console.log(' ✅Using cached data for weather, :) less than 1 hour old');
         return null;
       }
       

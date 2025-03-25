@@ -426,7 +426,6 @@ const fullAddress = useMemo(() => {
                 <>
                   <TouchableOpacity
                     onPress={() => {
-                      console.log('Text pressed');
                       Linking.openURL(`sms:${person.phoneNumber}`).catch(err => {
                         console.error('Could not open SMS app', err);
                         Alert.alert('Error', 'Could not open SMS app');
@@ -442,7 +441,6 @@ const fullAddress = useMemo(() => {
                   
                   <TouchableOpacity
                     onPress={() => {
-                      console.log('Call pressed');
                       Linking.openURL(`tel:${person.phoneNumber}`).catch(err => {
                         console.error('Could not open phone app', err);
                         Alert.alert('Error', 'Could not open phone app');
@@ -460,7 +458,6 @@ const fullAddress = useMemo(() => {
               {person.email && (
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('Email pressed');
                     Linking.openURL(`mailto:${person.email}`).catch(err => {
                       console.error('Could not open email app', err);
                       Alert.alert('Error', 'Could not open email app');
@@ -477,7 +474,6 @@ const fullAddress = useMemo(() => {
               {fullAddress && (
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('Copy pressed');
                     Clipboard.setStringAsync(fullAddress)
                       .then(() => Alert.alert("Success", "Address copied to clipboard!"))
                       .catch(err => console.error('Could not copy address', err));
@@ -492,7 +488,6 @@ const fullAddress = useMemo(() => {
               )}
               <TouchableOpacity
                 onPress={(e) => {
-                  console.log('Edit pressed');
                   if (e) {
                     if (typeof e.preventDefault === 'function') e.preventDefault();
                     if (typeof e.stopPropagation === 'function') e.stopPropagation();
