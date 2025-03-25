@@ -1,11 +1,8 @@
 import React from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb } from 'tamagui'
-import { Image, View, useWindowDimensions, Platform, ActivityIndicator } from 'react-native'
-import FastImage from 'react-native-fast-image' 
+import { Image, View, useWindowDimensions, Platform } from 'react-native'
 import { BackgroundStyleOption, FormData } from '@/types'
 import { BackgroundStyle } from '@/constants/Backgrounds'
-import { preloadImage } from '@/services/s3Service'
-
 let LinearGradient: any = null;
 let BlurView: any = null;
 let Animated: any = null;
@@ -13,7 +10,6 @@ let useAnimatedStyle: any = null;
 let withRepeat: any = null;
 let withTiming: any = null;
 let useSharedValue: any = null;
-
 if (Platform.OS === 'ios' || Platform.OS === 'android') {
   try {
     LinearGradient = require('expo-linear-gradient').LinearGradient;
@@ -28,7 +24,6 @@ if (Platform.OS === 'ios' || Platform.OS === 'android') {
     console.warn('Some native components could not be loaded:', error);
   }
 }
-
 export default function Step3({
   formData,
   setFormData,
@@ -43,41 +38,9 @@ export default function Step3({
   isDark?: boolean
 }) {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
-  const [starsKey, setStarsKey] = React.useState(0)
-  const [isImageLoading, setIsImageLoading] = React.useState(false)
-  const [activeWallpaper, setActiveWallpaper] = React.useState<string | null>(null)
-  
+  const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
-  
-  React.useEffect(() => {
-    if (formData.backgroundStyle.startsWith('wallpaper-')) {
-      const wallpaper = getWallpaperPath(formData.backgroundStyle);
-      if (wallpaper && wallpaper.uri) {
-        setIsImageLoading(true);
-        setActiveWallpaper(wallpaper.uri);
-        console.log('Loading wallpaper:', activeWallpaper);
-
-        
-        if (Platform.OS === 'web') {
-          preloadImage(wallpaper.uri)
-            .then(() => {
-              setIsImageLoading(false);
-              console.log(`Wallpaper loaded: ${formData.backgroundStyle}`);
-            })
-            .catch(error => {
-              console.error(`Failed to load wallpaper: ${error}`);
-              setIsImageLoading(false);
-            });
-        } else {
-          setIsImageLoading(false);
-        }
-      }
-    }
-    
-    setStarsKey(prev => prev + 1);
-  }, [formData.backgroundStyle, getWallpaperPath]);
-  
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
       const animationConfig = { duration: 60000 };
@@ -88,17 +51,12 @@ export default function Step3({
         translateY.value = 0;
       };
     }
-  }, [screenWidth, screenHeight, translateX, translateY]);
-  
-  const starsAnimatedStyle = (
-    Platform.OS !== 'web' &&
-    useAnimatedStyle &&
-    translateX &&
-    translateY
-  ) ? useAnimatedStyle(() => ({
-      transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
-    })) : null;
-  
+  }, [screenWidth, screenHeight, translateX, translateY, withRepeat, withTiming]);
+  const starsAnimatedStyle = Platform.OS !== 'web' && useAnimatedStyle && translateX && translateY
+    ? useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
+      }))
+    : null;
   const createAnimatedStars = () => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       if (Animated && starsAnimatedStyle) {
@@ -128,7 +86,6 @@ export default function Step3({
         );
       }
     }
-    
     if (Platform.OS === 'web') {
       return (
         <>
@@ -236,7 +193,6 @@ export default function Step3({
         </>
       );
     }
-    
     return (
       <View
         pointerEvents="none"
@@ -259,9 +215,10 @@ export default function Step3({
       </View>
     );
   };
-  
+  React.useEffect(() => {
+    setStarsKey(prev => prev + 1);
+  }, [formData.backgroundStyle]);
   const stars = React.useMemo(() => createAnimatedStars(), [screenWidth, screenHeight, starsKey]);
-
   const adjustColor = React.useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
     const num = parseInt(hex, 16)
@@ -270,113 +227,11 @@ export default function Step3({
     const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
-  
-  const renderWallpaperImage = (wallpaper: any) => {
-    if (isImageLoading && Platform.OS === 'web') {
-      return (
-        <Stack
-          position="absolute"
-          width="100%"
-          height="100%"
-          justifyContent="center"
-          alignItems="center"
-          backgroundColor="#121212"
-        >
-          <ActivityIndicator size="large" color={formData.primaryColor} />
-        </Stack>
-      );
-    }
-    
-    return (
-      <Stack position="absolute" width="100%" height="100%">
-        {activeWallpaper && (
-          Platform.OS === 'web' ? (
-            <Image
-              key={activeWallpaper}
-              source={{ uri: activeWallpaper }}
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                resizeMode: 'cover',
-              }}
-              onLoad={() => setIsImageLoading(false)}
-              onError={(error) => {
-                console.error('Image loading error:', error.nativeEvent.error);
-                setIsImageLoading(false);
-              }}
-            />
-          ) : (
-            <FastImage
-              key={activeWallpaper}
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-              }}
-              source={{
-                uri: activeWallpaper,
-                priority: FastImage.priority.normal,
-                cache: FastImage.cacheControl.immutable,
-              }}
-              resizeMode={FastImage.resizeMode.cover}
-              onLoad={() => setIsImageLoading(false)}
-              onError={() => {
-                console.error('Image loading error occurred');
-                setIsImageLoading(false);
-              }}
-            />
-          )
-        )}
-
-        {Platform.OS === 'web' ? (
-          <div
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(10px)',
-            }}
-          />
-        ) : Platform.OS === 'ios' || Platform.OS === 'android' ? (
-          BlurView ? (
-            <BlurView
-              intensity={isDark ? 20 : 30}
-              tint="dark"
-              style={{ position: 'absolute', width: '100%', height: '100%' }}
-            />
-          ) : (
-            <View
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              }}
-            />
-          )
-        ) : (
-          <View
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            }}
-          />
-        )}
-      </Stack>
-    );
-  };
-  
   const background = React.useMemo(() => {
     switch (formData.backgroundStyle) {
       case 'gradient': {
         const lighterColor = adjustColor(formData.primaryColor, 100);
         const darkerColor = adjustColor(formData.primaryColor, -250);
-
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
           if (LinearGradient) {
             return (
@@ -390,7 +245,6 @@ export default function Step3({
             );
           }
         }
-
         if (Platform.OS === 'web') {
           return (
             <div
@@ -403,7 +257,6 @@ export default function Step3({
             />
           );
         }
-
         return (
           <View
             style={{
@@ -414,22 +267,22 @@ export default function Step3({
             }}
           >
             <View style={{ 
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '50%',
+              position: 'absolute', 
+              top: 0, 
+              left: 0, 
+              right: 0, 
+              height: '50%', 
               backgroundColor: lighterColor,
-              opacity: 0.7
+              opacity: 0.7 
             }} />
-            <View style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: '50%',
+            <View style={{ 
+              position: 'absolute', 
+              bottom: 0, 
+              left: 0, 
+              right: 0, 
+              height: '50%', 
               backgroundColor: darkerColor,
-              opacity: 0.7
+              opacity: 0.7 
             }} />
           </View>
         );
@@ -437,24 +290,73 @@ export default function Step3({
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
           const wallpaper = getWallpaperPath(formData.backgroundStyle);
-          if (!wallpaper) {
-            console.warn(`No wallpaper found for ${formData.backgroundStyle}`);
+          if (!wallpaper) return null;
+          if ((Platform.OS === 'ios' || Platform.OS === 'android') && BlurView) {
             return (
+              <Stack position="absolute" width="100%" height="100%">
+                <Image
+                  source={wallpaper}
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    resizeMode: 'cover',
+                  }}
+                />
+                <BlurView
+                  intensity={isDark ? 20 : 30}
+                  tint="dark"
+                  style={{ position: 'absolute', width: '100%', height: '100%' }}
+                />
+              </Stack>
+            );
+          }
+          if (Platform.OS === 'web') {
+            return (
+              <Stack position="absolute" width="100%" height="100%">
+                <Image
+                  source={wallpaper}
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    resizeMode: 'cover',
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                  }}
+                />
+              </Stack>
+            );
+          }
+          return (
+            <Stack position="absolute" width="100%" height="100%">
+              <Image
+                source={wallpaper}
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  resizeMode: 'cover',
+                }}
+              />
               <View
                 style={{
                   position: 'absolute',
                   width: '100%',
                   height: '100%',
-                  backgroundColor: '#121212',
-                  justifyContent: 'center',
-                  alignItems: 'center'
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 }}
-              >
-                <Text color="white">Wallpaper not found</Text>
-              </View>
-            );
-          }
-          return renderWallpaperImage(wallpaper);
+              />
+            </Stack>
+          );
         }
         return (
           <View
@@ -467,18 +369,11 @@ export default function Step3({
           />
         );
     }
-  }, [
-    formData.backgroundStyle,
-    formData.primaryColor,
-    adjustColor,
-    getWallpaperPath,
-    isImageLoading,
-    activeWallpaper
-  ]);
+  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath]);
+  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
   const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
-  
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
@@ -494,23 +389,25 @@ export default function Step3({
           borderWidth={2}
           gap={isWeb ? "$2" : "$2"}
         >
-          <XStack
-            gap={isWeb ? "$5" : "$3"}
-            justifyContent={isWeb ? "center" : "flex-start"}
-            flexWrap="wrap"
-            paddingBottom={isWeb ? "$6" : "$2"}
-          >
+          <XStack gap={isWeb ? "$5" : "$3"} justifyContent={isWeb ? "center" : "flex-start"} flexWrap="wrap" paddingBottom={isWeb ? "$6" : "$2"}>
             {backgroundStyles.map((style) => {
               const isSelected = formData.backgroundStyle === style.value;
               return (
                 <Button
                   key={style.value}
-                  size={isWeb ? "$4" : "$3.5"}
+                  size={isWeb ? "$4" : "$5"}
                   minWidth={isWeb ? 100 : 80}
-                  backgroundColor={ isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
-                  borderColor={ isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
+                  backgroundColor={
+                    isSelected
+                      ? formData.primaryColor
+                      : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                  }
+                  borderColor={isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
                   borderWidth={2}
-                  pressStyle={{ scale: 0.97, opacity: 0.8 }}
+                  pressStyle={{
+                    scale: 0.97,
+                    opacity: 0.8
+                  }}
                   onPress={() =>
                     setFormData((prev) => ({
                       ...prev,
@@ -519,12 +416,12 @@ export default function Step3({
                   }
                 >
                   <Text
-                    fontFamily="$body"
-                    fontWeight="700"
-                    fontSize={isWeb ? "$6" : "$4"}
+                    fontFamily="$heading" 
+                    fontWeight="700" 
+                    fontSize={isWeb ? "$6" : "$5"} 
                     color={isSelected ? 'white' : buttonTextColor}
                     textAlign="center"
-                    letterSpacing={0.5}
+                    letterSpacing={0.5}  
                   >
                     {style.label}
                   </Text>

@@ -24,7 +24,6 @@ interface MonthProps {
 }
 
 export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, primaryColor }) => {
-  // Get the showNBAGamesInCalendar preference
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
