@@ -1,4 +1,5 @@
 // StorageScreen.tsx
+import React from 'react'
 import { useState } from 'react'
 import { YStack, Text, Button, Progress, XStack } from 'tamagui'
 import { Platform, View, useColorScheme, ScrollView, Image } from 'react-native'

@@ -71,10 +71,11 @@ export function BaseCardAnimated({
               >
                 <XStack justifyContent="space-between" alignItems="center" marginBottom={16}>
                   <Text
-                    style={[
-                      styles.title,
-                      { color: isDark ? '#fff' : '#000', marginBottom: 0 }
-                    ]}
+                    fontSize={24}
+                    fontWeight="700"
+                    fontFamily="$body"
+                    color={isDark ? "#white" : "#black"}
+                    marginBottom={0}
                   >
                     {title}
                   </Text>
@@ -120,9 +121,4 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 1, // Lower z-index to ensure dropdowns can appear above
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 16
-  }
 })
