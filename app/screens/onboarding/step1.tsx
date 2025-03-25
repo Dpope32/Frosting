@@ -3,6 +3,7 @@ import { YStack, Text, Button, Circle, Label, isWeb } from 'tamagui'
 import { Image } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
+import { Ionicons } from '@expo/vector-icons'
 
 export default function Step1({
   formData,
@@ -25,11 +26,12 @@ export default function Step1({
   const circleBackgroundColor = isDark ? "$gray6Dark" : "$gray6Light";
   const textColor = isDark ? "$gray9Dark" : "$gray9Light";
   const buttonColor = isDark ? "$blue10Dark" : "$blue10Light";
+  const defaultIcon = { icon: '👤', label: 'Default User' };
 
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$2" alignItems="center">
-        <Label fontFamily="$heading"   fontWeight="500" fontSize={isWeb ? "$9" : "$8"} textAlign="center" paddingBottom={16} color={labelColor}>
+        <Label fontFamily="$heading" fontWeight="500" fontSize={isWeb ? "$9" : "$8"} textAlign="center" paddingBottom={16} color={labelColor}>
           Profile Picture
         </Label>
         <Circle
@@ -43,6 +45,11 @@ export default function Step1({
             scale: 0.98,
             backgroundColor: hoverBackgroundColor,
           }}
+          {...(isWeb && {
+            style: {
+              cursor: 'pointer'
+            }
+          })}
         >
           {formData.profilePicture ? (
             <Image
@@ -53,9 +60,9 @@ export default function Step1({
           ) : (
             <YStack alignItems="center" gap="$2">
               <Circle size={60} backgroundColor={circleBackgroundColor}>
-                <Text fontFamily="$body" fontSize={24}>👤</Text>
+                <Text fontFamily="$body" fontSize={24}>{defaultIcon.icon}</Text>
               </Circle>
-              <Text color={textColor}  fontFamily="$heading" fontWeight="700" >
+              <Text color={textColor} fontFamily="$heading" fontWeight="700">
                 Pick Photo
               </Text>
             </YStack>

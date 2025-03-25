@@ -1,8 +1,9 @@
 import React from 'react'
-import { YStack, XStack, Button, Text, Stack, isWeb } from 'tamagui'
+import { YStack, XStack, Button, Text, Stack, isWeb,Label } from 'tamagui'
 import { Image, View, useWindowDimensions, Platform } from 'react-native'
 import { BackgroundStyleOption, FormData } from '@/types'
 import { BackgroundStyle } from '@/constants/Backgrounds'
+
 let LinearGradient: any = null;
 let BlurView: any = null;
 let Animated: any = null;
@@ -10,6 +11,7 @@ let useAnimatedStyle: any = null;
 let withRepeat: any = null;
 let withTiming: any = null;
 let useSharedValue: any = null;
+
 if (Platform.OS === 'ios' || Platform.OS === 'android') {
   try {
     LinearGradient = require('expo-linear-gradient').LinearGradient;
@@ -24,6 +26,7 @@ if (Platform.OS === 'ios' || Platform.OS === 'android') {
     console.warn('Some native components could not be loaded:', error);
   }
 }
+
 export default function Step3({
   formData,
   setFormData,
@@ -41,6 +44,7 @@ export default function Step3({
   const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
       const animationConfig = { duration: 60000 };
@@ -52,11 +56,13 @@ export default function Step3({
       };
     }
   }, [screenWidth, screenHeight, translateX, translateY, withRepeat, withTiming]);
+
   const starsAnimatedStyle = Platform.OS !== 'web' && useAnimatedStyle && translateX && translateY
     ? useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
       }))
     : null;
+
   const createAnimatedStars = () => {
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       if (Animated && starsAnimatedStyle) {
@@ -86,6 +92,7 @@ export default function Step3({
         );
       }
     }
+    
     if (Platform.OS === 'web') {
       return (
         <>
@@ -193,6 +200,7 @@ export default function Step3({
         </>
       );
     }
+    
     return (
       <View
         pointerEvents="none"
@@ -215,10 +223,13 @@ export default function Step3({
       </View>
     );
   };
+
   React.useEffect(() => {
     setStarsKey(prev => prev + 1);
   }, [formData.backgroundStyle]);
+
   const stars = React.useMemo(() => createAnimatedStars(), [screenWidth, screenHeight, starsKey]);
+
   const adjustColor = React.useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
     const num = parseInt(hex, 16)
@@ -227,6 +238,7 @@ export default function Step3({
     const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
+
   const background = React.useMemo(() => {
     switch (formData.backgroundStyle) {
       case 'gradient': {
@@ -370,43 +382,96 @@ export default function Step3({
         );
     }
   }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath]);
+
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
-  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.6)";
+  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
+
   return (
     <Stack flex={1} backgroundColor="black">
       {background}
       {stars}
-      <YStack flex={1} padding={isWeb ? "$4" : "$4"}>
-        <YStack
-          backgroundColor={cardBackgroundColor}
-          borderRadius={isWeb ? 16 : 32}
-          paddingVertical={isWeb ? "$3" : "$4"}
-          paddingHorizontal={isWeb ? "$5" : "$4"}
-          marginTop={isWeb ? 10 : 60}
-          borderColor={borderColor}
-          borderWidth={2}
-          gap={isWeb ? "$2" : "$2"}
+      <YStack flex={1} justifyContent="center" alignItems="center" padding="$5">
+        <YStack 
+          position="absolute" 
+          top={isWeb ? "8%" : "15%"} 
+          left={0} 
+          right={0} 
+          alignItems="center"
+          paddingVertical={isWeb ? "$4" : "$0"}
+          marginHorizontal={isWeb ? "$10" : 0}
         >
-          <XStack gap={isWeb ? "$5" : "$3"} justifyContent={isWeb ? "center" : "flex-start"} flexWrap="wrap" paddingBottom={isWeb ? "$6" : "$2"}>
+          <Label 
+            paddingBottom={20} 
+            fontFamily="$heading" 
+            fontWeight="500" 
+            fontSize={isWeb ? "$9" : "$7"} 
+            textAlign="center" 
+            color={labelColor}
+          >
+            Choose your background style
+          </Label>
+          <Text
+            fontFamily="$body"
+            fontSize="$3"
+            textAlign="center"
+            color={isWeb ? "#CCCCCC" : "#ccc"}
+            opacity={0.8}
+            fontWeight="400"
+          >
+            (you can always change this in the settings later)
+          </Text>
+        </YStack>
+
+        <YStack
+          backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)"}
+          borderRadius={24}
+          borderColor={formData.primaryColor}
+          borderWidth={2}
+          padding="$4"
+          maxWidth={isWeb ? 520 : "100%"}
+          marginTop={isWeb ? "$10" : "$8"}
+          style={{
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
+          }}
+        >
+          <XStack 
+            flexWrap="wrap" 
+            justifyContent="center" 
+            alignItems="center"
+            gap="$3" 
+            padding="$2"
+          >
             {backgroundStyles.map((style) => {
               const isSelected = formData.backgroundStyle === style.value;
               return (
                 <Button
                   key={style.value}
-                  size={isWeb ? "$4" : "$5"}
-                  minWidth={isWeb ? 100 : 80}
+                  paddingHorizontal={isWeb ? "$4" : "$3"}
+                  paddingVertical={isWeb ? "$3" : "$2"}
+                  marginVertical="$2"
                   backgroundColor={
                     isSelected
                       ? formData.primaryColor
-                      : isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                      : isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'
                   }
-                  borderColor={isSelected ? formData.primaryColor : isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'}
+                  borderColor={
+                    isSelected 
+                      ? adjustColor(formData.primaryColor, 100) 
+                      : isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)'
+                  }
                   borderWidth={2}
+                  borderRadius={16}
+                  hoverStyle={{
+                    backgroundColor: isSelected 
+                      ? adjustColor(formData.primaryColor, 30)
+                      : isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
+                  }}
                   pressStyle={{
                     scale: 0.97,
-                    opacity: 0.8
+                    opacity: 0.9
                   }}
                   onPress={() =>
                     setFormData((prev) => ({
@@ -416,9 +481,9 @@ export default function Step3({
                   }
                 >
                   <Text
-                    fontFamily="$heading" 
-                    fontWeight="700" 
-                    fontSize={isWeb ? "$6" : "$5"} 
+                    fontFamily="$body" 
+                    fontWeight={isSelected ? "700" : "500"}
+                    fontSize={isWeb ? "$4" : "$3"} 
                     color={isSelected ? 'white' : buttonTextColor}
                     textAlign="center"
                     letterSpacing={0.5}  

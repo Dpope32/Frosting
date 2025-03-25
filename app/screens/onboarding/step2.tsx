@@ -34,7 +34,6 @@ export default function Step2({
       '#546E7A', '#78909C', '#B0BEC5','#9d9d9d', '#000000','#090909', '#4B0082', '#311432','#090109',
     ];
     
-
     return (
       <YStack flex={1} alignItems="center" justifyContent="center" gap="$2">
         <YStack>
@@ -56,47 +55,57 @@ export default function Step2({
           </XStack>
         </YStack>
         
-        <XStack alignItems="center" gap="$2">
-          <Circle size={50} overflow="hidden">
-            <input
-              type="color"
-              value={currentColor}
-              onChange={(e) => handleColorChange(e.target.value)}
-              style={{ 
-                width: '70px', 
-                height: '70px',
-                border: 'none',
-                cursor: 'pointer',
-                opacity: 0.0,
-                position: 'absolute',
-              }}
-            />
-            <Circle 
-              size={50} 
-              backgroundColor={currentColor}
-              borderWidth={2}
-              borderColor={borderColor}
-            />
-          </Circle>
-          <Text fontFamily="$body" fontSize={14} color={isDark ? "$gray11Dark" : "$gray11Light"}>
-            Click to pick custom color
-          </Text>
-        </XStack>
+        {/* Only show custom color picker on web, hidden on mobile */}
+        {isWeb && (
+          <XStack alignItems="center" gap="$2" style={{ opacity: 0 }}>
+            <Circle size={50} overflow="hidden">
+              <input
+                type="color"
+                value={currentColor}
+                onChange={(e) => handleColorChange(e.target.value)}
+                style={{ 
+                  width: '70px', 
+                  height: '70px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  opacity: 1.0, // Make it visible
+                  position: 'absolute',
+                }}
+              />
+            </Circle>
+          </XStack>
+        )}
       </YStack>
     )
   }
 
   return (
     <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$5" paddingTop="$8">
-      <YStack position="absolute" top="35%" left={0} right={0} alignItems="center" >
-        <Label paddingBottom={12} fontFamily="$heading" fontWeight="900" fontSize={isWeb ? "$9" : "$8"} textAlign="center" color={labelColor}>
+      <YStack 
+        position="absolute" 
+        top={isWeb ? "20%" : "35%"} 
+        left={0} 
+        right={0} 
+        alignItems="center"
+        paddingVertical={isWeb ? "$4" : "$0"}
+        borderRadius={isWeb ? "$4" : 0}
+        marginHorizontal={isWeb ? "$2" : 0}
+      >
+        <Label 
+          paddingBottom={20} 
+          fontFamily="$heading" 
+          fontWeight="500" 
+          fontSize={isWeb ? "$9" : "$7"} 
+          textAlign="center" 
+          color={labelColor}
+        >
           Pick your primary color
         </Label>
         <Text
           fontFamily="$body"
           fontSize="$3"
           textAlign="center"
-          color={subTextColor}
+          color={isWeb ? "#CCCCCC" : subTextColor}
           opacity={0.8}
           fontWeight="400"
         >
@@ -104,11 +113,11 @@ export default function Step2({
         </Text>
       </YStack>
 
-      <YStack flex={1} paddingTop= {isWeb ? "$12" : "$8"}>
+      <YStack flex={1} paddingTop={isWeb ? "$10" : "$8"}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (
-          <View style={{ flex: 1, padding: isWeb ? 20 : 50 }}>
+          <View style={{ flex: 1, padding: isWeb ? 0 : 50 }}>
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}
