@@ -7,11 +7,7 @@ import { useAppInitialization } from '@/hooks/useAppInitialization';
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
-  
   useAppInitialization();
-  
-  // We no longer need to call preloadTheme() here since it's now handled inside useAppInitialization
-  
   useEffect(() => {
     setShowIntro(true);
     const timer = setTimeout(() => {

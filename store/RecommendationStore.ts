@@ -11,12 +11,6 @@ interface RecommendationState {
 export const useRecommendationStore = create<RecommendationState>((set) => ({
   activeCategory: null,
   isOpen: false,
-  openModal: (category) => {
-    console.log(`RecommendationStore: Opening modal for category ${category}`)
-    set({ activeCategory: category, isOpen: true })
-  },
-  closeModal: () => {
-    console.log('RecommendationStore: Closing modal')
-    set({ isOpen: false })
-  }
+  openModal: (category) => {set({ activeCategory: category, isOpen: true })},
+  closeModal: () => { set({ isOpen: false })}
 }))

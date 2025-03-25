@@ -122,10 +122,7 @@ export function BillRecommendationModal({
   return (
     <BaseCardModal
       open={open}
-      onOpenChange={(newOpen) => {
-        console.log(`BillRecommendationModal onOpenChange - category: ${category}, newOpen: ${newOpen}`)
-        onOpenChange(newOpen)
-      }}
+      onOpenChange={(newOpen) => { onOpenChange(newOpen)}}
       title={`${category} Bills`}
       snapPoints = {isWeb ? [90] : [85]}
       zIndex={200000}

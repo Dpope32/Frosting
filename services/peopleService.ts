@@ -29,7 +29,6 @@ export const importContacts = async (data: Contacts.Contact[]) => {
           try {
             birthdayStr = new Date(contact.birthday.toString()).toISOString().split('T')[0];
           } catch (error) {
-            console.log("Error parsing birthday:", error, "for contact:", contact.name);
           }
         }
         
@@ -86,7 +85,6 @@ export const handleDebugPress = () => {
         }
       });
     }
-    console.log("People Store:", JSON.stringify(peopleState, null, 2));
     Alert.alert("Debug Info", "People store data logged to console (profilePicture data removed)");
   };
 

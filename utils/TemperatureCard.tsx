@@ -10,26 +10,18 @@ const ONE_HOUR = 1000 * 60 * 60;
 export function TemperatureCard() {
   const zipCode = useUserStore(s => s.preferences.zipCode);
   const lastFetchRef = useRef<number | null>(null);
-
   const { isLoading, refetch } = useWeatherQuery(zipCode);
   const currentTemp = useWeatherStore(s => s.currentTemp);
+  const valueColor = currentTemp !== null ?  getValueColor('temperature', currentTemp, '') :  'white';
   
   useEffect(() => {
-  //  console.log('[TemperatureCard] Component mounted or ZIP changed');
     const now = Date.now();
-    
     if (zipCode && (!lastFetchRef.current || now - lastFetchRef.current >= ONE_HOUR)) {
-      console.log('[TemperatureCard] Checking store');
       lastFetchRef.current = now;
       refetch();
     }
   }, [zipCode, refetch]);
   
-  //console.log('[TemperatureCard] Current state:', { isLoading, currentTemp, zipCode });
-  
-  const valueColor = currentTemp !== null ? 
-    getValueColor('temperature', currentTemp, '') : 
-    'white';
   
   return (
     <Stack

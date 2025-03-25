@@ -31,7 +31,6 @@ export const useStoicQuote = () => {
     queryFn: async () => {
       try {
         const quoteUrl = await getQuoteUrl();
-      //  console.log(`[useStoicQuote] Fetching quote from ${quoteUrl}`);
         
         const response = await fetch(quoteUrl);
         

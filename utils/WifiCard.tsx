@@ -7,22 +7,12 @@ import { useNetworkSpeed } from '@/hooks/useNetworkSpeed';
 export function WifiCard() {
   const { speed, isLoading, isConnected, isWifi, wifiDetails } = useNetworkSpeed();
   const [displaySpeed, setDisplaySpeed] = useState<string | null>(null);
-  
-  // For debugging
-  useEffect(() => {
-    console.log('[WifiCard] Current speed value:', speed);
-  }, [speed]);
-  
-  // Always ensure we have a display value, even before loading completes
-  // Make sure it matches the value displayed in the modal
+
   useEffect(() => {
     if (speed) {
       setDisplaySpeed(speed);
     } else if (!isLoading && !displaySpeed) {
-      // Set a reasonable default if we can't get actual data
-      // For emulator consistency, use 89ms
       const defaultSpeed = __DEV__ ? '89 ms' : (Platform.OS === 'web' ? '80 ms' : '75 ms');
-      console.log('[WifiCard] Using default speed:', defaultSpeed);
       setDisplaySpeed(defaultSpeed);
     }
   }, [speed, isLoading]);
@@ -30,27 +20,23 @@ export function WifiCard() {
   const getSpeedColor = () => {
     if (!isConnected) return 'white';
     
-    if (!displaySpeed) return '#FFEB3B'; // Yellow for unknown
+    if (!displaySpeed) return '#FFEB3B'; 
     
-    // Handle Mbps format (typically from WiFi link speed)
     if (displaySpeed.includes('Mbps')) {
       const mbpsMatch = displaySpeed.match(/(\d+)\s*Mbps/i);
       const speedValue = mbpsMatch ? parseInt(mbpsMatch[1]) : 0;
       
-      if (speedValue >= 1000) return '#2E7D32'; // Very fast
-      if (speedValue >= 300) return '#15803d';  // Fast
-      if (speedValue >= 100) return '#FFEB3B';  // Medium
-      return '#FF9800';                         // Slow
+      if (speedValue >= 1000) return '#2E7D32'; 
+      if (speedValue >= 300) return '#15803d';  
+      if (speedValue >= 100) return '#FFEB3B'; 
+      return '#FF9800';                     
     }
     
-    // Handle ms format (ping time)
     const pingMatch = displaySpeed.match(/(\d+)\s*ms/);
     if (pingMatch) {
       const ping = parseInt(pingMatch[1]);
       return getValueColor('wifi', ping, '');
     }
-    
-    // Default color for unknown formats
     return '#FFEB3B';
   };
 

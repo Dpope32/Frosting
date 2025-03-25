@@ -1,46 +1,19 @@
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  forwardRef,
-  useCallback
-} from 'react'
-import { Platform } from 'react-native'
-import {
-  Button,
-  Input,
-  YStack,
-  XStack,
-  ScrollView,
-  Circle,
-  Text,
-  useMedia,
-} from 'tamagui'
+import React, { useRef, useState, useEffect, forwardRef, useCallback} from 'react'
+import { Image, TextInput, Switch, Pressable, View, useColorScheme, Animated as RNAnimated, StyleSheet, TouchableWithoutFeedback, Platform} from 'react-native'
+import { Button, Input, YStack, XStack, ScrollView, Circle, Text, useMedia, isWeb} from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
 import { useCalendarStore } from '@/store/CalendarStore'
 import { useImagePicker } from '@/hooks/useImagePicker'
-import {
-  Image,
-  TextInput,
-  Switch,
-  Pressable,
-  View,
-  useColorScheme,
-  Animated as RNAnimated,
-  StyleSheet,
-  TouchableWithoutFeedback
-} from 'react-native'
 import { Plus } from '@tamagui/lucide-icons'
 import type { Person } from '@/types/people'
 import { format, parse, isValid } from 'date-fns'
+import { PAYMENT_METHODS, initialFormData, FormContentProps, DebouncedInputProps } from './types'
 
 type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 
 const formatPhoneNumber = (phone: string): string => {
-  // Remove all non-digits
   const cleaned = phone.replace(/\D/g, '');
-  // Format as XXX XXX-XXXX
   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
   if (match) {
     return `${match[1]} ${match[2]}-${match[3]}`;
@@ -48,37 +21,6 @@ const formatPhoneNumber = (phone: string): string => {
   return phone;
 };
 
-const initialFormData: FormData = {
-  name: '',
-  birthday: '',
-  profilePicture: '',
-  nickname: '',
-  phoneNumber: '',
-  email: '',
-  occupation: '',
-  address: undefined,
-  registered: false,
-  notes: '',
-  tags: [],
-  lastContactDate: '',
-  importantDates: [],
-  socialMedia: [],
-  favoriteColor: '',
-  relationship: '',
-  additionalInfo: '',
-  priority: false,
-}
-
-// Payment method options
-const PAYMENT_METHODS = [
-  'Venmo',
-  'PayPal',
-  'CashApp',
-  'Zelle',
-  'Apple Pay',
-  'Google Pay',
-  'Other'
-]
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState<T>(value)
@@ -88,12 +30,6 @@ function useDebounce<T>(value: T, delay: number): T {
   }, [value, delay])
   return debounced
 }
-
-type DebouncedInputProps = {
-  value: string
-  onDebouncedChange: (val: string) => void
-  delay?: number
-} & Omit<React.ComponentProps<typeof Input>, 'value'>
 
 const DebouncedInput = forwardRef<any, DebouncedInputProps>(
   (
@@ -124,7 +60,6 @@ const DebouncedInput = forwardRef<any, DebouncedInputProps>(
   }
 )
 
-// Special version of DebouncedInput that formats dates with slashes automatically
 const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
   (
     { value, onDebouncedChange, delay = 300, ...props },
@@ -175,24 +110,6 @@ const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
   }
 )
 
-// Helper to determine if we're on web
-const isWeb = Platform.OS === 'web'
-
-type FormContentProps = {
-  formData: FormData;
-  inputResetKey: number;
-  updateFormField: (field: keyof FormData, value: any) => void;
-  handleSubmit: () => void;
-  handleBirthdayChange: (text: string) => void;
-  pickImage: () => Promise<void>;
-  primaryColor: string;
-  setOpen: (value: boolean) => void;
-  paymentMethod: string;
-  setPaymentMethod: (method: string) => void;
-  paymentUsername: string;
-  updatePaymentUsername: (username: string) => void;
-}
-
 const FormContent = React.memo((props: FormContentProps) => {
   const {
     formData,
@@ -210,7 +127,6 @@ const FormContent = React.memo((props: FormContentProps) => {
   } = props;
 
   const [showPaymentMethodDropdown, setShowPaymentMethodDropdown] = useState(false);
-  
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const nameRef = useRef<TextInput>(null)
@@ -525,8 +441,6 @@ export function AddPersonForm(): JSX.Element {
   const primaryColor: string = useUserStore( (state) => state.preferences.primaryColor)
   const media = useMedia()
   const isSmallScreen = media.sm
-
-  // Animation values
   const scaleAnim = useRef(new RNAnimated.Value(1.5)).current;
   const opacityAnim = useRef(new RNAnimated.Value(0)).current;
   const backdropOpacity = useRef(new RNAnimated.Value(0)).current;
@@ -542,18 +456,14 @@ export function AddPersonForm(): JSX.Element {
   const [inputResetKey, setInputResetKey] = useState<number>(0)
   const [paymentMethod, setPaymentMethod] = useState<string>('')
   const [paymentUsername, setPaymentUsername] = useState<string>('')
-
   const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
 
-  // Run animation when visibility changes
   useEffect(() => {
     if (open) {
-      // Reset animation values
       scaleAnim.setValue(1.5);
       opacityAnim.setValue(0);
       backdropOpacity.setValue(0);
-      
-      // Start animations
+
       RNAnimated.parallel([
         RNAnimated.timing(backdropOpacity, {
           toValue: 1,
@@ -605,11 +515,8 @@ export function AddPersonForm(): JSX.Element {
 
   const handleBirthdayChange = useCallback((text: string): void => {
     try {
-      // The text should already have slashes from the DateDebouncedInput component
-      // But we'll normalize it just in case
       const normalizedText = text.replace(/-/g, '/')
       
-      // Only try to parse if we have enough characters for a valid date
       if (normalizedText.length >= 8) {
         const parsedDate = parse(normalizedText, 'MM/dd/yyyy', new Date())
         if (isValid(parsedDate)) {
@@ -624,13 +531,11 @@ export function AddPersonForm(): JSX.Element {
     }
   }, [])
 
-  // Add this function to handle payment username updates
   const updatePaymentUsername = useCallback((text: string): void => {
     setPaymentUsername(text)
   }, [])
 
   const handleClose = useCallback(() => {
-    // Start the exit animation
     RNAnimated.parallel([
       RNAnimated.timing(backdropOpacity, {
         toValue: 0,
@@ -648,49 +553,36 @@ export function AddPersonForm(): JSX.Element {
         useNativeDriver: true
       })
     ]).start(() => {
-      // Call the actual close function after animation completes
       setOpen(false);
     });
   }, [backdropOpacity, opacityAnim, scaleAnim]);
 
   const handleSubmit = useCallback((): void => {
-    // Prevent multiple submissions
     if (addPersonMutation.isPending) return;
-    
     if (!formData.name?.trim() || !formData.birthday?.trim()) return;
     
-    // Add payment method to socialMedia if both fields are filled
     let updatedFormData = { ...formData };
     if (paymentMethod && paymentUsername) {
       updatedFormData.socialMedia = [
         { platform: paymentMethod, username: paymentUsername }
       ];
     }
-    
     const processedFormData = {
       ...updatedFormData,
       phoneNumber: updatedFormData.phoneNumber ? formatPhoneNumber(updatedFormData.phoneNumber) : undefined
     };
-    
     const newPerson = {
       ...processedFormData,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    
-    // Log the entire Person object when saving
-    console.log("Saving Person:", JSON.stringify(newPerson, null, 2));
-    
     addPersonMutation.mutate(newPerson);
     
-    // Reset form and close modal
     setFormData({ ...initialFormData });
     setPaymentMethod('');
     setPaymentUsername('');
     setInputResetKey((prev) => prev + 1);
-    
-    // Start the exit animation
     handleClose();
   }, [formData, paymentMethod, paymentUsername, addPersonMutation, handleClose]);
 

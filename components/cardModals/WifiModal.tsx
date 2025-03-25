@@ -76,13 +76,9 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
   let unsubscribe: (() => void) | undefined
 
   useEffect(() => {
-    // For debugging
-    console.log('[WifiModal] Current speed value:', speed);
-    console.log('[WifiModal] Network details:', details);
-    
+  
     const refreshNetworkInfo = async () => {
       if (open) {
-        console.log('[WifiModal] Modal opened, refreshing network info');
         setIsRefreshing(true)
         await fetchNetworkInfo()
         setIsRefreshing(false)
@@ -94,7 +90,6 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
     refreshNetworkInfo()
     return () => {
       if (unsubscribe) {
-        console.log('[WifiModal] Cleaning up network listener');
         unsubscribe()
       }
     }
@@ -103,7 +98,6 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
   const wifiDetails = getWifiDetails(details)
   const showLoading: boolean = isLoading || isRefreshing
   
-  // Only display values that are not null, undefined, or 'Unknown'
   const shouldDisplayField = (value: any): boolean => {
     return value !== undefined && value !== null && value !== 'Unknown';
   }
@@ -204,7 +198,6 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
                   </Text>
                 )}
                 
-                {/* If no fields are displayed, show a fallback message */}
                 {!shouldDisplayField(wifiDetails.ssid) && 
                  !shouldDisplayField(wifiDetails.strength) && 
                  !shouldDisplayField(wifiDetails.frequency) && 

@@ -1,26 +1,20 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
-import { useNBAStore, getCurrentTeamCode, getESPNTeamCode, getNBASeason } from '../store/NBAStore';
+import { useQueries } from '@tanstack/react-query';
+import { getCurrentTeamCode, getESPNTeamCode, getNBASeason } from '../services/nbaService';
 import type { Game } from '../store/NBAStore';
+import { useNBAStore } from '../store/NBAStore';
 import { nbaTeams } from '../constants/nba';
 import React from 'react';
 
 export const useSportsAPI = () => {
   const { setGames, setLoading, setError, setTeamInfo } = useNBAStore();
-  // Get the current team code from user preferences
   const teamCode = getCurrentTeamCode();
   const espnTeamCode = getESPNTeamCode(teamCode);
   const season = getNBASeason();
-  
-  // Find the team name from the nbaTeams array
   const team = nbaTeams.find(t => t.code === teamCode);
   const teamName = team?.name || 'Oklahoma City Thunder';
   
-  // Use useEffect to set team info only when dependencies change
-  React.useEffect(() => {
-    if (team) {
-      setTeamInfo(teamCode, teamName);
-    }
-  }, [teamCode, teamName, setTeamInfo]);
+  React.useEffect(() => {if (team) { setTeamInfo(teamCode, teamName)}},
+   [teamCode, teamName, setTeamInfo]);
   
   const ESPN_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}/schedule`;
   const ESPN_TEAM_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}`;
@@ -131,23 +125,22 @@ export const useSportsAPI = () => {
       {
         queryKey: [`nba-schedule-${teamCode}`],
         queryFn: fetchNBASchedule,
-        staleTime: 1000 * 60 * 60 * 24, // 24 hours
-        gcTime: 1000 * 60 * 60 * 24, // 24 hours
-        refetchInterval: 1000 * 60 * 60 * 24, // 24 hours
+        staleTime: 1000 * 60 * 60 * 24, 
+        gcTime: 1000 * 60 * 60 * 24, 
+        refetchInterval: 1000 * 60 * 60 * 24, 
       },
       {
         queryKey: [`nba-team-stats-${teamCode}`],
         queryFn: fetchTeamStats,
-        staleTime: 1000 * 60 * 60 * 6, // 6 hours
-        gcTime: 1000 * 60 * 60 * 24, // 24 hours
-        refetchInterval: 1000 * 60 * 60 * 6, // 6 hours
+        staleTime: 1000 * 60 * 60 * 6,
+        gcTime: 1000 * 60 * 60 * 24, 
+        refetchInterval: 1000 * 60 * 60 * 6, 
       }
     ]
   });
   
   const [scheduleQuery, statsQuery] = results;
-  
-  // Add a refetch function to manually trigger refetching
+
   return {
     data: scheduleQuery.data,
     isLoading: scheduleQuery.isLoading,

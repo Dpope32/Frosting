@@ -59,12 +59,7 @@ const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
   }
 );
 
-export function EditPersonForm({
-  person,
-  visible,
-  onClose,
-  onSave,
-}: {
+export function EditPersonForm({ person, visible, onClose, onSave}: {
   person: Person;
   visible: boolean;
   onClose: () => void;
@@ -73,39 +68,27 @@ export function EditPersonForm({
   const [formData, setFormData] = useState<FormData>({ ...person });
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    person.birthday ? new Date(person.birthday) : new Date()
-  );
-  
-  // Animation values
+  const [selectedDate, setSelectedDate] = useState( person.birthday ? new Date(person.birthday) : new Date());
   const scaleAnim = useRef(new RNAnimated.Value(1.5)).current;
   const opacityAnim = useRef(new RNAnimated.Value(0)).current;
   const backdropOpacity = useRef(new RNAnimated.Value(0)).current;
-  
-  // Form input refs
   const nameRef = useRef<TextInput>(null);
   const nicknameRef = useRef<TextInput>(null);
   const phoneRef = useRef<TextInput>(null);
   const emailRef = useRef<TextInput>(null);
   const occupationRef = useRef<TextInput>(null);
-  const paymentsRef = useRef<TextInput>(null);
 
   const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
 
-  // Helper function to update form fields
   const updateFormField = (field: keyof FormData, value: any): void => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Run animation when visibility changes
   useEffect(() => {
     if (visible) {
-      // Reset animation values
       scaleAnim.setValue(1.5);
       opacityAnim.setValue(0);
       backdropOpacity.setValue(0);
-      
-      // Start animations
       RNAnimated.parallel([
         RNAnimated.timing(backdropOpacity, {
           toValue: 1,
@@ -124,7 +107,6 @@ export function EditPersonForm({
         })
       ]).start();
     } else {
-      // Animate out
       RNAnimated.parallel([
         RNAnimated.timing(backdropOpacity, {
           toValue: 0,
@@ -165,7 +147,6 @@ export function EditPersonForm({
   };
 
   const handleClose = () => {
-    // Start the exit animation
     RNAnimated.parallel([
       RNAnimated.timing(backdropOpacity, {
         toValue: 0,
@@ -183,7 +164,6 @@ export function EditPersonForm({
         useNativeDriver: true
       })
     ]).start(() => {
-      // Call the actual close function after animation completes
       onClose();
     });
   };
@@ -392,7 +372,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 20,
     elevation: 15,
-    // Ensure the modal is positioned correctly
     position: 'absolute',
   }
 });
