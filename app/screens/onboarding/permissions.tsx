@@ -55,7 +55,7 @@ export default function PermissionsScreen() {
       </YStack>
       
       <YStack mt="auto" marginBottom={isWeb ? "$6" : "$4"} px={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">
-        <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#AAAAAA" marginBottom="$3">
+        <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#AAAAAA" marginBottom={isWeb ? "$3" : "$8"}>
           Just click continue to go to the next step!
         </Text>
         <Button

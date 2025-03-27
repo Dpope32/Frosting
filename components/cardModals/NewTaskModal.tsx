@@ -176,7 +176,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           bounces={false} 
           keyboardShouldPersistTaps="handled" 
           showsHorizontalScrollIndicator={false} 
-          style={{ maxWidth: isWeb ? 600 : '100%' }}
+          style={{ maxWidth: isWeb ? 800 : '100%' }}
         >
         <Form gap="$4" onSubmit={handleAddTask}>
           <DebouncedInput
@@ -212,10 +212,10 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               pressStyle={{ opacity: 0.8 }}
             >
               <XStack flex={1} alignItems="center" justifyContent="space-between">
-                <Text color={isDark ? "$gray12" : "$gray11"} fontSize={16}>
+                <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={16}>
                   {newTask.time || "Select time (optional)"}
                 </Text>
-                <Text color={isDark ? "$gray11" : "$gray10"} fontSize={16}>
+                <Text fontFamily="$body"color={isDark ? "$gray11" : "$gray10"} fontSize={16}>
                   {showTimePicker ? '▲' : '▼'}
                 </Text>
               </XStack>
@@ -273,7 +273,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         py="$2"
                         br={8}
                       >
-                        <Text color="white" fontWeight="600">Done</Text>
+                        <Text color="white" fontFamily="$body" fontWeight="600">Done</Text>
                       </Button>
                     </XStack>
                   ) : (
@@ -324,6 +324,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       <Text
                         fontSize={14}
                         fontWeight="600"
+                        fontFamily="$body"
                         color={newTask.recurrencePattern === pattern.value ? '#fff' : isDark ? "$gray12" : "$gray11"}
                       >
                         {pattern.label}
@@ -363,6 +364,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         <Text
                           fontSize={14}
                           fontWeight="600"
+                          fontFamily="$body"
                           color={newTask.schedule.includes(fd) ? '#fff' : isDark ? "$gray12" : "$gray11"}
                         >
                           {sd.toUpperCase()}
@@ -407,6 +409,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                           <Text
                             fontSize={14}
                             fontWeight="600"
+                            fontFamily="$body"
                             color={
                               new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === i
                                 ? '#fff'
@@ -450,6 +453,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         <Text
                           fontSize={14}
                           fontWeight="600"
+                          fontFamily="$body"
                           color={
                             new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === d
                               ? '#fff'
@@ -465,13 +469,12 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </YStack>
             )}
           </AnimatePresence>
-          
           {/* Priority Buttons */}
-          <YStack gap="$2">
+          <YStack px="$2" gap="$2">
             <XStack justifyContent="space-between" alignItems="center">
-              <Text color={isDark ? "$gray12" : "$gray11"} fontWeight="500">Priority</Text>
-              <XStack alignItems="center">
-                <Text color={isDark ? "$gray12" : "$gray11"} marginRight="$2">
+              <Text color={isDark ? "$gray12" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
+              <XStack alignItems="center" py={10}>
+                <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} marginRight="$2">
                   Show in Calendar
                 </Text>
                 <Switch
@@ -481,41 +484,50 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </XStack>
             </XStack>
             <XStack gap="$2">
-              {['high', 'medium', 'low'].map(priority => (
-                <Button
-                  key={priority}
-                  flex={1}
-                  backgroundColor={
-                    newTask.priority === priority
-                      ? preferences.primaryColor
-                      : isDark ? "$gray2" : "white"
-                  }
-                  pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                  onPress={() => handlePrioritySelect(priority as TaskPriority)}
-                  br={12}
-                  py="$2.5"
-                  borderWidth={1}
-                  borderColor={
-                    newTask.priority === priority
-                      ? 'transparent'
-                      : isDark ? "$gray7" : "$gray4"
-                  }
-                >
-                  <Text
-                    fontSize={14}
-                    fontWeight="600"
-                    color={newTask.priority === priority ? '#fff' : isDark ? "$gray12" : "$gray11"}
+              {['high', 'medium', 'low'].map(priority => {
+                const priorityColors = {
+                  high: '#F44336',   
+                  medium: '#FF9800', 
+                  low: '#4CAF50'     
+                };
+                const color = priorityColors[priority as keyof typeof priorityColors];
+                
+                return (
+                  <Button
+                    key={priority}
+                    onPress={() => handlePrioritySelect(priority as TaskPriority)}
+                    backgroundColor={
+                      newTask.priority === priority
+                        ? `${color}15` 
+                        : isDark ? "$gray2" : "white"
+                    }
+                    pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                    br={12}
+                    px="$3"
+                    py="$2.5"
+                    borderWidth={1}
+                    borderColor={
+                      newTask.priority === priority
+                        ? 'transparent'
+                        : isDark ? "$gray7" : "$gray4"
+                    }
                   >
-                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
-                  </Text>
-                </Button>
-              ))}
+                    <Text
+                      fontSize={14}
+                      fontFamily="$body"
+                      fontWeight={newTask.priority === priority ? "700" : "600"}
+                      color={newTask.priority === priority ? color : isDark ? "$gray12" : "$gray11"}
+                    >
+                      {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    </Text>
+                  </Button>
+                );
+              })}
             </XStack>
           </YStack>
-          
-          {/* Category Buttons */}
-          <YStack gap="$2">
-            <Text color={isDark ? "$gray12" : "$gray11"} fontWeight="500">Category</Text>
+
+          <YStack px="$2" gap="$2">
+            <Text color={isDark ? "$gray12" : "$gray11"}fontFamily="$body" fontWeight="500">Category</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
               <XStack gap="$2">
                 {['work','health','personal','family','wealth'].map(cat => (
@@ -528,7 +540,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         : isDark ? "$gray2" : "white"
                     }
                     pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                    br={24}
+                    br={12}
                     px="$3"
                     py="$2.5"
                     borderWidth={1}
@@ -541,6 +553,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     <Text
                       fontSize={14}
                       fontWeight="600"
+                      fontFamily="$body"
                       color={newTask.category === cat ? '#fff' : isDark ? "$gray12" : "$gray11"}
                     >
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -555,10 +568,12 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           <Button
             backgroundColor={preferences.primaryColor}
             height={50}
+            py={10}
             pressStyle={{ opacity: 0.8, scale: 0.98 }}
             br={12}
+            px={12}
             alignSelf="center"
-            mt={8}  
+            m={20}  
             width="100%"
             shadowColor="black"
             shadowOffset={{ width: 0, height: 2 }}
@@ -568,7 +583,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             disabled={isSubmitting}
             opacity={isSubmitting ? 0.7 : 1}
           >
-            <Text color="white" fontWeight="600" fontSize={18}>
+            <Text fontFamily="$body" color="white" fontWeight="600" fontSize={16}>
               {isSubmitting ? 'Adding...' : 'Add Task'}
             </Text>
           </Button>

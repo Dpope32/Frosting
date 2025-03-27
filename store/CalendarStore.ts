@@ -27,6 +27,7 @@ export interface CalendarEvent {
   createdAt: string
   updatedAt: string
   holidayColor?: string
+  priority?: 'high' | 'medium' | 'low'
   holidayIcon?: string
 }
 

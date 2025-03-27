@@ -25,8 +25,8 @@ export function BaseCardAnimated({
   onOpenChange,
   title,
   children,
-  modalWidth = Platform.OS === 'web' ? 600 : 350,
-  modalMaxWidth = Platform.OS === 'web' ? 800 : 500,
+  modalWidth = Platform.OS === 'web' ? 700 : 350,
+  modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
   showCloseButton = true
 }: BaseCardAnimatedProps) {
   const colorScheme = useColorScheme()
@@ -64,12 +64,12 @@ export function BaseCardAnimated({
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" alignItems="center" marginBottom={16}>
+                <XStack justifyContent="space-between" px="$2" alignItems="center" marginBottom={16}>
                   <Text
                     fontSize={24}
                     fontWeight="700"
                     fontFamily="$body"
-                    color={isDark ? "#white" : "#black"}
+                    color={isDark ? "#fffaef" : "#black"}
                     marginBottom={0}
                   >
                     {title}

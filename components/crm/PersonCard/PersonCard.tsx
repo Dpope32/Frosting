@@ -152,11 +152,10 @@ const fullAddress = useMemo(() => {
                   )}
                   <Paragraph
                     fontWeight="600"
-                    fontSize={isWeb? 16 : 15}
+                    fontSize={isWeb? 18 : 15}
                     color={isDark ? adjustColor(nicknameColor, 250) : adjustColor(nicknameColor, -40)}
                     numberOfLines={1}
                     ellipsizeMode="tail"
-                    style={[styles.nameText, applyWebStyle('nameText')] as any}
                   >
                     {person.nickname || person.name}
                   </Paragraph>
@@ -164,11 +163,10 @@ const fullAddress = useMemo(() => {
                   </XStack>
                   {person.occupation && (
                   <Paragraph
-                  fontSize={11}
+                  fontSize={isWeb? 16 : 12}
                   color={isDark ? "#999" : "#333"}
                   numberOfLines={1}
                   ellipsizeMode="tail"
-                  style={[styles.occupationText, applyWebStyle('occupationText')] as any}
                 >
                   {person.occupation}
                 </Paragraph>

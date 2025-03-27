@@ -4,7 +4,7 @@ import { useProjectStore, Task, WeekDay } from '@/store/ToDo'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { Pressable, Platform, useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { getCategoryColor } from '../utils'
+import { getCategoryColor } from '../../utils/categoryUtils'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { BaseCardModal } from './BaseCardModal'
 

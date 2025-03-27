@@ -68,21 +68,20 @@ export const isTaskDueOnDate = (task: Task, date: Date): boolean => {
 export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>[] => {
   const events = [];
   const start = new Date();
-  const end = new Date(start.getFullYear() + 2, 11, 31); // 2 years ahead
+  const end = new Date(start.getFullYear() + 2, 11, 31);
   
   if (task.recurrencePattern === 'one-time') {
-    // For one-time tasks, just create a single event
     const eventDate = new Date(task.scheduledDate || task.createdAt);
     events.push({
       date: eventDate.toISOString().split('T')[0],
       time: task.time,
       title: task.name,
-      type: 'task' as CalendarEvent['type'], // Type assertion fixes the error
-      description: `${task.priority} priority ${task.category} task`,
-      taskId: task.id
+      type: task.category as CalendarEvent['type'],
+      taskId: task.id,
+      priority: task.priority, 
+      updatedAt: new Date().toISOString()
     });
   } else {
-    // For recurring tasks, generate events based on pattern
     let currentDate = new Date(start);
     
     while (currentDate <= end) {
@@ -91,13 +90,12 @@ export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'crea
           date: currentDate.toISOString().split('T')[0],
           time: task.time,
           title: task.name,
-          type: 'task' as CalendarEvent['type'], // Type assertion fixes the error
-          description: `${task.priority} priority ${task.category} task`,
-          taskId: task.id
+          type: task.category as CalendarEvent['type'],
+          taskId: task.id,
+          priority: task.priority, 
+          updatedAt: new Date().toISOString()
         });
       }
-      
-      // Move to next day
       currentDate.setDate(currentDate.getDate() + 1);
     }
   }
@@ -108,18 +106,11 @@ export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'crea
 export const syncTasksToCalendar = () => {
   const { tasks } = useProjectStore.getState();
   const { events, addEvent, deleteEvent } = useCalendarStore.getState();
-  
-  // Get all calendar events that are synced from tasks
   const taskEvents = events.filter(event => event.type === 'task' as CalendarEvent['type']);
-  
-  // Remove existing task events
   taskEvents.forEach(event => deleteEvent(event.id));
-  
-  // Add events for tasks that should be shown in calendar
   Object.values(tasks)
     .filter(task => task.showInCalendar)
     .forEach(task => {
-      // Create events based on task recurrence pattern
       const taskEvents = generateTaskEvents(task);
       taskEvents.forEach(event => addEvent(event));
     });

@@ -32,7 +32,6 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
     await removeFromWatchlist(symbol);
   };
   
-  // Create wrapper functions that provide stockData from this component
   const calculateReturnsForSymbol = useCallback((symbol: string) => {
     return calculateReturns(symbol, stockData);
   }, [stockData]);
@@ -43,12 +42,13 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
   
   return (
     <YStack>
-      <XStack marginBottom="$3" alignItems="center">
+      <XStack mb="$3" alignItems="center">
         <Button
           backgroundColor={activeTab === 'portfolio' ? 'rgba(219, 208, 198, 0.2)' : 'transparent'}
           br={8}
           px="$3"
           py="$1"
+           ml="$2"
           onPress={() => setActiveTab('portfolio')}
         >
           <Text color="#dbd0c6" fontSize={14} fontFamily="$body">Portfolio</Text>

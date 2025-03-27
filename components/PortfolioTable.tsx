@@ -43,7 +43,7 @@ export function PortfolioTable({
         )}
 
       return (
-        <YStack>
+        <YStack paddingLeft="$3">
           <XStack borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} py="$2">
             <Text width="10%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Symbol</Text>
             {activeTab === 'portfolio' && (

@@ -59,7 +59,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
   const modalWidth = isWeb ? Math.min(screenWidth * 0.7, 800) : Math.min(screenWidth * 0.85, 400)
-  const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.7, 800) : Math.min(screenWidth * 0.85, 400)}
+  const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 700) : Math.min(screenWidth * 0.85, 400)}
   const noScrollbar = isWeb ? { overflow: 'hidden' as const } : {}
 
   const handleAddEventWithNotifications = async () => {
@@ -109,9 +109,8 @@ export const EventModal: React.FC<EventModalProps> = ({
         <View style={{ paddingBottom: 50, ...noScrollbar }}>
           <ScrollView
             style={{
-              paddingHorizontal: 4,
-              paddingVertical: 6,
-              maxHeight: screenHeight * 0.6
+              paddingHorizontal: 12,
+              maxHeight: screenHeight * 0.77
             }}
             showsVerticalScrollIndicator={!isWeb}
           >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch, Circle } from 'tamagui'
-import { Image, useWindowDimensions, View } from 'react-native'
+import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
+import { Image, useWindowDimensions } from 'react-native'
 import { FormData } from '@/types'
 import { nbaTeams } from '@/constants/nba'
 
@@ -47,14 +47,14 @@ export default function Step5({
     handleNext()
   }
   
-  const popularTeams = ['LAL', 'GSW', 'BOS', 'CHI', 'OKC','NYK', 'DAL', 'CLE','DEN']
+  const popularTeams = ['LAL', 'GSW', 'BOS', 'CHI', 'OKC', 'NYK', 'CLE', 'DEN']
   const initialTeams = nbaTeams.filter(team => popularTeams.includes(team.code))
   const teamsToDisplay = showAllTeams ? nbaTeams : initialTeams
   
   useEffect(() => { if (isWeb) { setShowAllTeams(true)}}, [isWeb])
   
   const getGridColumns = () => {
-    if (!isWeb) return 3
+    if (!isWeb) return 2 // Use 2 columns for mobile instead of 3
     if (width > 1200) return 6
     if (width > 900) return 5
     if (width > 600) return 4
@@ -72,11 +72,23 @@ export default function Step5({
   const preferencesBackgroundColor = isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)";
   const buttonColor = formData.primaryColor || (isDark ? "$blue10Dark" : "$blue10Light");
   
+  // Mobile styles from the second file
+  const mobileButtonWidth = 140; // Wider buttons for mobile
+  const mobileButtonHeight = 105;
+  const mobileScrollMaxWidth = 600;
+  const mobileTopPadding = 20; // Less top padding for mobile
+  
   return (
-    <YStack flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop={isWeb ? 0 : 40}>
+    <YStack 
+      flex={1} 
+      justifyContent="flex-start" 
+      alignItems="center" 
+      padding="$4" 
+      paddingTop={isWeb ? 0 : mobileTopPadding}
+    >
       <YStack 
         position="absolute" 
-        top={isWeb ? "5%" : "15%"} 
+        top={isWeb ? "5%" : "8%"} // Less top gap for mobile
         left={0} 
         right={0} 
         alignItems="center"
@@ -84,10 +96,10 @@ export default function Step5({
         my={isWeb ? "$2" : 0}
       >
         <Label 
-          paddingBottom={20} 
+          paddingBottom={isWeb ? 20 : 0}
           fontFamily="$heading" 
-          fontWeight="500" 
-          fontSize={isWeb ? "$9" : "$7"} 
+          fontWeight={isWeb ? "500" : "800"} // Bolder on mobile
+          fontSize={isWeb ? "$9" : "$8"} 
           textAlign="center" 
           color={labelColor}
         >
@@ -98,11 +110,11 @@ export default function Step5({
       <ScrollView 
         style={{ 
           width: '100%', 
-          maxWidth: isWeb ? 1200 : 600,
-          marginTop: isWeb ? 140 : 160
+          maxWidth: isWeb ? 1200 : mobileScrollMaxWidth,
+          marginTop: isWeb ? 140 : 80 // Less top margin for mobile
         }}
         contentContainerStyle={{ 
-          paddingBottom: isWeb ? 80 : 120,
+          paddingBottom: isWeb ? 80 : 100,
           alignItems: 'center'
         }}
         showsVerticalScrollIndicator={!isWeb}
@@ -110,10 +122,10 @@ export default function Step5({
         <XStack 
           flexWrap="wrap" 
           justifyContent="center" 
-          gap="$2.5" 
-          marginBottom="$4"
+          gap={isWeb ? "$2.5" : "$2"} 
+          marginBottom={isWeb ? "$4" : "$1"}
           width="100%"
-          px="$2"
+          px={isWeb ? "$2" : "$0"}
         >
           {teamsToDisplay.map(team => (
             <Button
@@ -121,10 +133,10 @@ export default function Step5({
               backgroundColor={selectedTeam === team.code ? buttonColor : buttonBackgroundColor}
               borderColor={selectedTeam === team.code ? buttonColor : buttonBorderColor}
               borderWidth={2}
-              br={16}
+              br={isWeb ? 16 : 8} // Less border radius on mobile
               marginVertical="$2"
-              width={isWeb ? `${Math.floor(100 / columns) -2}%` : 105}
-              height={isWeb ? 130 : 105}
+              width={isWeb ? `${Math.floor(100 / columns) -2}%` : mobileButtonWidth}
+              height={isWeb ? 130 : mobileButtonHeight}
               hoverStyle={{
                 backgroundColor: selectedTeam === team.code 
                   ? buttonColor 
@@ -133,7 +145,7 @@ export default function Step5({
               }}
               pressStyle={{
                 scale: 0.97,
-                opacity: 0.9
+                opacity: isWeb ? 0.9 : 0.8
               }}
               onPress={() => handleTeamSelect(team.code)}
               flexDirection="column"
@@ -144,10 +156,10 @@ export default function Step5({
               shadowOffset={{ width: 0, height: 2 }}
               shadowOpacity={selectedTeam === team.code ? 0.3 : 0}
               shadowRadius={4}
-              style={{
+              style={isWeb ? {
                 backdropFilter: 'blur(5px)',
                 WebkitBackdropFilter: 'blur(5px)'
-              }}
+              } : undefined}
             >
               <YStack flex={1} justifyContent="center" alignItems="center" paddingTop={isWeb ? 10 : 5}>
                 <Image
@@ -182,6 +194,7 @@ export default function Step5({
             mt="$2"
             marginBottom="$6"
             size="$3"
+            variant="outlined" // Use variant from second file
             backgroundColor={showAllTeamsButtonBackground}
             borderColor={buttonBorderColor}
             borderWidth={1}
@@ -202,26 +215,26 @@ export default function Step5({
         {selectedTeam && (
           <YStack 
             width="100%" 
-            maxWidth={450} 
-            mt="$2" 
-            marginBottom="$4"
+            maxWidth={isWeb ? 450 : 400} 
+            mt={isWeb ? "$2" : "$0"} 
+            marginBottom={isWeb ? "$4" : "$2"}
             backgroundColor={preferencesBackgroundColor}
-            br={16}
-            padding="$4"
-            borderWidth={2}
-            borderColor={buttonColor}
-            style={{
+            br={isWeb ? 16 : 8}
+            padding={isWeb ? "$4" : "$3"}
+            borderWidth={isWeb ? 2 : 0}
+            borderColor={isWeb ? buttonColor : undefined}
+            style={isWeb ? {
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)'
-            }}
+            } : undefined}
           >
             <XStack justifyContent="space-between" alignItems="center">
               <YStack>
                 <Text 
-                  fontFamily="$heading" 
+                  fontFamily={isWeb ? "$heading" : "$body"} 
                   color={labelColor} 
-                  fontSize={16} 
-                  fontWeight="600"
+                  fontSize={isWeb ? 16 : 14} 
+                  fontWeight={isWeb ? "600" : "500"}
                 >
                   Show games in calendar
                 </Text>
@@ -230,7 +243,7 @@ export default function Step5({
                   color={buttonTextColor} 
                   fontSize={14}
                   mt="$1"
-                  opacity={0.9}
+                  opacity={isWeb ? 0.9 : undefined}
                 >
                   Display team logo on game days
                 </Text>
@@ -238,9 +251,9 @@ export default function Step5({
               <XStack alignItems="center" gap="$2">
                 <Text 
                   fontFamily="$body" 
-                  color={showNBAGamesInCalendar ? buttonColor : buttonTextColor}
+                  color={showNBAGamesInCalendar ? (isWeb ? buttonColor : "#fff") : buttonTextColor}
                   fontWeight="bold"
-                  fontSize={14}
+                  fontSize={isWeb ? 14 : undefined}
                 >
                   {showNBAGamesInCalendar ? 'ON' : 'OFF'}
                 </Text>
@@ -263,7 +276,8 @@ export default function Step5({
           onPress={handleSkip}
           py="$2"
           px="$4"
-          mt="$-2"
+          mt={isWeb ? "$-2" : "$2"}
+          mb={isWeb ? undefined : "$2"}
           color={buttonColor}
           hoverStyle={{
             opacity: 0.8
@@ -272,7 +286,7 @@ export default function Step5({
             scale: 0.97
           }}
         >
-          <Text fontFamily="$body" fontSize={15}>or skip for now</Text>
+          <Text fontFamily="$body" fontSize={isWeb ? 15 : undefined}>or skip for now</Text>
         </Button>
       </ScrollView>
     </YStack>
