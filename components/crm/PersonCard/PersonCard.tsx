@@ -108,7 +108,7 @@ const fullAddress = useMemo(() => {
       <View style={[styles.container, containerStyle]}>
         <Card
           elevate
-          borderRadius="$4"
+          br="$4"
           animation="quick"
           pressStyle={{ scale: 0.90 }}
           style={[
@@ -130,7 +130,7 @@ const fullAddress = useMemo(() => {
                     }}
                     width={Platform.OS === 'web' ? 80 : 30}
                     height={Platform.OS === 'web' ? 60 : 30}
-                    borderRadius={Platform.OS === 'web' ? 30 : 15}
+                    br={Platform.OS === 'web' ? 30 : 15}
                     style={styles.avatarImage as any}
                   />
                 </View>

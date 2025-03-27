@@ -39,7 +39,7 @@ export default function StorageScreen() {
       <XStack
         backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
         padding="$4"
-        borderRadius="$4"
+        br="$4"
         borderWidth={1}
         borderColor={isDark ? '#333' : '#e0e0e0'}
         justifyContent="space-between"
@@ -62,7 +62,7 @@ export default function StorageScreen() {
           justifyContent="flex-end" 
           alignItems="center"
           backgroundColor={isDark ? '#222' : '#e8e8e8'}
-          borderRadius="$3"
+          br="$3"
           padding="$3"
           borderLeftWidth={4}
           borderLeftColor={primaryColor}
@@ -91,7 +91,7 @@ export default function StorageScreen() {
         <XStack
           backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
           padding="$4"
-          borderRadius="$4"
+          br="$4"
           borderWidth={1}
           borderColor={isDark ? '#333' : '#e0e0e0'}
           alignItems="center"
@@ -126,7 +126,7 @@ export default function StorageScreen() {
           
           <XStack 
             backgroundColor={isDark ? '#222' : '#e8e8e8'} 
-            borderRadius="$3"
+            br="$3"
             padding="$3"
             alignItems="center"
             justifyContent="center"
@@ -154,7 +154,7 @@ export default function StorageScreen() {
           flex={1}
           backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
           padding="$4"
-          borderRadius="$4"
+          br="$4"
           borderWidth={1}
           borderColor={isDark ? '#333' : '#e0e0e0'}
         >
@@ -171,7 +171,7 @@ export default function StorageScreen() {
         <XStack
           backgroundColor={isDark ? '#1a1a1a' : '#f5f5f5'}
           padding="$4"
-          borderRadius="$4"
+          br="$4"
           borderWidth={1}
           borderColor={isDark ? '#333' : '#e0e0e0'}
           alignItems="center"
@@ -230,7 +230,7 @@ export default function StorageScreen() {
                 minWidth={isWeb ? 220 : 90}
                 aspectRatio={1}
                 bg={isDark ? '#222' : '#eee'}
-                borderRadius="$2"
+                br="$2"
                 overflow="hidden"
                 position="relative"
               >
@@ -332,7 +332,7 @@ export default function StorageScreen() {
                       fontFamily="$body"
                       fontSize="$1"
                       color={isDark ? '#777' : '#999'}
-                      marginTop="$2"
+                      mt="$2"
                     >
                       {formatSize(item.size)}
                     </Text>

@@ -1,24 +1,15 @@
+import React from 'react'; 
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, useColorScheme as RNColorScheme, Platform, Dimensions } from 'react-native';
+import { View, Image, Text, Platform, Dimensions } from 'react-native';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
-import React from 'react';
-
-// Helper function to detect if device is iPad
-const isIpad = () => {
-  const { width, height } = Dimensions.get('window');
-  return (
-    Platform.OS === 'ios' &&
-    Math.min(width, height) >= 768 &&
-    Math.max(width, height) >= 1024
-  );
-};
+import { isIpad } from '@/utils/deviceUtils';
 
 const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 

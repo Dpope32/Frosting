@@ -399,8 +399,8 @@ export default function Step3({
           left={0} 
           right={0} 
           alignItems="center"
-          paddingVertical={isWeb ? "$4" : "$0"}
-          marginHorizontal={isWeb ? "$10" : 0}
+          py={isWeb ? "$4" : "$0"}
+          my={isWeb ? "$10" : 0}
         >
           <Label 
             paddingBottom={20} 
@@ -426,12 +426,12 @@ export default function Step3({
 
         <YStack
           backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)"}
-          borderRadius={24}
+          br={24}
           borderColor={formData.primaryColor}
           borderWidth={2}
           padding="$4"
           maxWidth={isWeb ? 520 : "100%"}
-          marginTop={isWeb ? "$10" : "$8"}
+          mt={isWeb ? "$10" : "$8"}
           style={{
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)'
@@ -449,8 +449,8 @@ export default function Step3({
               return (
                 <Button
                   key={style.value}
-                  paddingHorizontal={isWeb ? "$4" : "$3"}
-                  paddingVertical={isWeb ? "$3" : "$2"}
+                  px={isWeb ? "$4" : "$3"}
+                  py={isWeb ? "$3" : "$2"}
                   marginVertical="$2"
                   backgroundColor={
                     isSelected
@@ -463,7 +463,7 @@ export default function Step3({
                       : isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)'
                   }
                   borderWidth={2}
-                  borderRadius={16}
+                  br={16}
                   hoverStyle={{
                     backgroundColor: isSelected 
                       ? adjustColor(formData.primaryColor, 30)

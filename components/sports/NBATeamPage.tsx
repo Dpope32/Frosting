@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { Image, Text, View, useColorScheme, Platform, ScrollView } from 'react-native'
+import { Image, Text, useColorScheme, Platform, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import { ThemedView } from '../../theme/ThemedView'
+import { View } from 'tamagui'
 import { useSportsAPI } from '../../hooks/useSportsAPI'
 import { format, isSameDay } from 'date-fns'
 import { useNBAStore } from '../../store/NBAStore'
@@ -187,10 +187,10 @@ export default function NBATeamPage() {
   const seasonText = `${season}-${nextSeason} Schedule`
 
   return (
-    <ThemedView
-      style={styles.container}
-      darkColor="#000000"
-      lightColor="#f3f3f3"
+    <View
+      style={[styles.container, {
+        backgroundColor: isDark ? '#000000' : '#f3f3f3'
+      }]}
     >
       {/* Team Header */}
       <View style={styles.teamHeader}>
@@ -230,6 +230,6 @@ export default function NBATeamPage() {
           {isWeb ? renderWebLayout() : renderMobileLayout()}
         </View>
       )}
-    </ThemedView>
+    </View>
   )
 }

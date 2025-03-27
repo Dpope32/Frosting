@@ -2,13 +2,12 @@
 // OUPage.tsx
 // --------------------------------------------------------------
 import React from 'react'
-import { GameCardSkeleton } from './GameCardSkeleton'
+import { GameCardSkeleton } from '../GameCardSkeleton'
 import { Image, StyleSheet, Text, View, useColorScheme, Platform, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import { ThemedView } from '../../theme/ThemedView'
-import { useOUSportsAPI } from '../../hooks/useOUSportsAPI'
+import { useOUSportsAPI } from '../../../hooks/useOUSportsAPI'
 import { format, parseISO, addDays } from 'date-fns'
-import type { Game } from '../../types/espn'
+import type { Game } from '../../../types/espn'
 
 const OU_CRIMSON = '#841617'
 
@@ -148,10 +147,8 @@ export default function OUPage() {
   }
 
   return (
-    <ThemedView
+    <ScrollView
       style={styles.container}
-      darkColor="#000000"
-      lightColor="#ffffff"
     >
       <View style={styles.header}>
         <Image source={require('../../assets/images/ou.png')} style={styles.logo} resizeMode="contain" />
@@ -169,7 +166,7 @@ export default function OUPage() {
           {isWeb ? renderWebLayout() : renderMobileLayout()}
         </View>
       )}
-    </ThemedView>
+    </ScrollView>
   )
 }
 

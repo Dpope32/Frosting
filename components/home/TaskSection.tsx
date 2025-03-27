@@ -2,6 +2,7 @@ import React from 'react'
 import { Pressable, Platform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
+import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
 import { getCategoryColor } from '@/components/utils'
 import { Task } from '@/store/ToDo'
@@ -28,9 +29,9 @@ export const TaskSection = ({
   return (
     <Stack
       backgroundColor={colorScheme === 'dark' ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"}
-      borderRadius={16}
-      paddingHorizontal="$3"
-      paddingVertical="$4"
+      br={16}
+      px="$3"
+      py="$4"
       paddingBottom="$7"
       borderWidth={2.5}
       borderColor="rgba(255, 255, 255, 0.15)"
@@ -50,12 +51,12 @@ export const TaskSection = ({
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>
       </XStack>
-      <Stack gap="$2" paddingHorizontal={16} flex={1} position="relative" justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}>
+      <Stack gap="$2" px={16} flex={1} position="relative" justifyContent={Platform.OS === 'web' && todaysTasks.length === 0 ? 'flex-start' : 'center'}>
         {todaysTasks.length === 0 ? (
           <Stack 
             p={Platform.OS === 'web' ? '$6' : '$4'} 
-            paddingHorizontal={Platform.OS === 'web' ? '$4' : '$1'}
-            marginTop={Platform.OS === 'web' ? '$6' : 0}
+            px={Platform.OS === 'web' ? '$4' : '$1'}
+            mt={Platform.OS === 'web' ? '$6' : 0}
             gap={Platform.OS === 'web' ? '$4' : '$2'}
             backgroundColor={colorScheme === 'dark' ? undefined : "rgba(0, 0, 0, 0.5"}
             style={Platform.OS === 'web' ? {
@@ -86,7 +87,7 @@ export const TaskSection = ({
                 justifyContent={isWeb ? "space-between" : "center"}
                 gap="$2"
                 paddingBottom="$2" 
-                paddingHorizontal="$2"
+                px="$2"
                 flexWrap="wrap"
                 width="100%"
                 flexDirection="row"
@@ -101,11 +102,12 @@ export const TaskSection = ({
         ) : (
           <Stack 
             gap="$1"
-            width="105%"
+            width={isWeb? "100%" : "105%"}
             style={Platform.OS === 'web' ? {
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '12px'
+              gap: '12px',
+              overflow: 'hidden'
             } : {
               maxHeight: isWeb ? 400 : undefined,
               overflow: 'visible',
@@ -129,7 +131,13 @@ export const TaskSection = ({
           </Stack>
         )}
         <Pressable
-          onPress={onTaskListPress}
+          onPress={() => {
+            // Trigger haptic feedback on non-web platforms
+            if (Platform.OS !== 'web') {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            }
+            onTaskListPress()
+          }}
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             top: -47,
@@ -162,7 +170,13 @@ export const TaskSection = ({
           />
         </Pressable>
         <Pressable
-          onPress={onAddTaskPress}
+          onPress={() => {
+            // Trigger haptic feedback on non-web platforms
+            if (Platform.OS !== 'web') {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            }
+            onAddTaskPress()
+          }}
           style={Platform.OS === 'web' ? {
             position: 'absolute',
             bottom: -30,

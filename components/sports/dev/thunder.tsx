@@ -1,17 +1,12 @@
-// The issue is that `FlashList`'s `contentContainerStyle` doesn't allow booleans or “false” values
-// in its style array. Instead of using `Platform.OS === 'web' && {...}`, switch to a conditional
-// that returns either a style object or `undefined` (or merge them). Below is an example fix:
-
 // ThunderPage.tsx
 
 import React from 'react'
 import { Image, StyleSheet, Text, View, useColorScheme, Platform, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import { ThemedView } from '../../theme/ThemedView'
-import { useSportsAPI } from '../../hooks/useSportsAPI'
+import { useSportsAPI } from '../../../hooks/useSportsAPI'
 import { format, isSameDay } from 'date-fns'
-import type { Game } from '../../store/ThunderStore'
-import { GameCardSkeleton } from './GameCardSkeleton'
+import type { Game } from '../../../store/ThunderStore'
+import { GameCardSkeleton } from '../GameCardSkeleton'
 
 const THUNDER_BLUE = '#007AFF'
 
@@ -155,10 +150,8 @@ export default function ThunderPage() {
   }
 
   return (
-    <ThemedView
+    <View
       style={styles.container}
-      darkColor="#000000"
-      lightColor="#ffffff"
     >
       <View style={styles.header}>
         <Image
@@ -180,7 +173,7 @@ export default function ThunderPage() {
           {isWeb ? renderWebLayout() : renderMobileLayout()}
         </View>
       )}
-    </ThemedView>
+    </View>
   )
 }
 

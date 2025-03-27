@@ -76,9 +76,9 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         backgroundColor={style.backgroundColor}
         borderColor={style.borderColor}
         borderWidth={1}
-        borderRadius={8}
-        paddingHorizontal="$4"
-        paddingVertical="$3"
+        br={8}
+        px="$4"
+        py="$3"
         pressStyle={{ opacity: 0.7 }}
         marginRight="$2"
         justifyContent="center"
@@ -206,7 +206,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                 horizontal 
                 showsHorizontalScrollIndicator={false} 
                 paddingBottom="$4" 
-                marginTop="$1"
+                mt="$1"
                 contentContainerStyle={{ 
                   paddingHorizontal: 4
                 }}
@@ -225,7 +225,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                   <XStack
                     key={entry.id}
                     backgroundColor={isDark ? "$gray2" : "$gray3"}
-                    borderRadius={8}
+                    br={8}
                     padding="$3"
                     alignItems="center"
                     justifyContent="space-between"
@@ -241,7 +241,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                         {entry.name}
                       </Text>
                       
-                      <XStack gap="$2" marginTop="$1" alignItems="center">
+                      <XStack gap="$2" mt="$1" alignItems="center">
                         <Text
                           fontFamily="$body"
                           color={isDark ? "$gray11" : "$gray10"}
@@ -274,10 +274,10 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
             ) : (
               <YStack
                 backgroundColor={isDark ? "$gray2" : "$gray3"}
-                borderRadius={8}
+                br={8}
                 padding="$4"
                 alignItems="center"
-                marginTop="$4"
+                mt="$4"
               >
                 <Text
                   fontFamily="$body"

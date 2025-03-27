@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useThunderStore } from '@/store/ThunderStore';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useNBAStore } from '@/store/NBAStore';
 import { useSportsAPI } from './useSportsAPI';
@@ -48,14 +47,9 @@ export function useAppInitialization() {
     initializeApp();
   }, [systemColorScheme]); // Add systemColorScheme as a dependency
 
-  // Initial sync of existing tasks and birthdays
   useEffect(() => {
-    // Sync Thunder games to tasks
-    useThunderStore.getState().syncGameTasks();
-    // Sync NBA games to tasks and calendar
     useNBAStore.getState().syncNBAGames();
     useNBAStore.getState().syncGameTasks();
-    // Sync birthdays to calendar
     useCalendarStore.getState().syncBirthdays();
   }, []);
 }

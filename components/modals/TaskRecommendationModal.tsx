@@ -128,7 +128,7 @@ function CategoryTaskModal({
       snapPoints={[isWeb? 90 : 85]}
       zIndex={200000} 
     >
-      <YStack gap={isWeb ? "$4" : "$3"}paddingBottom={isWeb ? "$3" : "$8"} paddingHorizontal={isWeb ? "$2" : "$1"}>
+      <YStack gap={isWeb ? "$4" : "$3"}paddingBottom={isWeb ? "$3" : "$8"} px={isWeb ? "$2" : "$1"}>
         <Text color={isDark ? "#dbd0c6" : "#666"} fontFamily="$body" fontSize={isWeb ? 16 : 14} opacity={0.9}> Select tasks to add to your schedule:</Text>
         
         <ScrollView 
@@ -145,7 +145,7 @@ function CategoryTaskModal({
           {recommendedTasks.length === 0 ? (
             <YStack 
               backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-              borderRadius={12}
+              br={12}
               padding="$4"
               borderWidth={1}
               borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
@@ -169,7 +169,7 @@ function CategoryTaskModal({
                       <XStack 
                         key={index}
                         backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-                        borderRadius={12}
+                        br={12}
                         padding="$4"
                         borderWidth={1}
                         borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
@@ -191,7 +191,7 @@ function CategoryTaskModal({
                           </XStack>
                           
                           <XStack gap="$2" alignItems="center" flexWrap="wrap">
-                            <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} paddingHorizontal="$2" paddingVertical="$1" borderRadius={4} >
+                            <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} px="$2" py="$1" br={4} >
                               <Text fontFamily="$body" color={getRecurrenceColor(task.recurrencePattern)} fontSize={12} fontWeight="600">
                                 {task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                               </Text>
@@ -216,7 +216,7 @@ function CategoryTaskModal({
                       <XStack 
                         key={index}
                         backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-                        borderRadius={12}
+                        br={12}
                         padding="$4"
                         borderWidth={1}
                         borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
@@ -238,7 +238,7 @@ function CategoryTaskModal({
                           </XStack>
                           
                           <XStack gap="$2" alignItems="center" flexWrap="wrap">
-                            <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} paddingHorizontal="$2" paddingVertical="$1" borderRadius={4} >
+                            <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} px="$2" py="$1" br={4} >
                               <Text fontFamily="$body" color={getRecurrenceColor(task.recurrencePattern)} fontSize={12} fontWeight="600">
                                 {task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                               </Text>
@@ -259,7 +259,7 @@ function CategoryTaskModal({
                 <XStack 
                   key={index}
                   backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-                  borderRadius={12}
+                  br={12}
                   padding="$3"
                   borderWidth={1}
                   borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
@@ -281,7 +281,7 @@ function CategoryTaskModal({
                     </XStack>
                     
                     <XStack gap="$2" alignItems="center" flexWrap="wrap">
-                      <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} paddingHorizontal="$2" paddingVertical="$1" borderRadius={4} >
+                      <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} px="$2" py="$1" br={4} >
                         <Text fontFamily="$body" color={getRecurrenceColor(task.recurrencePattern)} fontSize={12} fontWeight="600">
                           {task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                         </Text>
@@ -301,9 +301,9 @@ function CategoryTaskModal({
           <Button
             backgroundColor={isDark ? `${primaryColor}40` : `${adjustColor(primaryColor, 20)}80`}
             color={isDark ? `${primaryColor}` : `${primaryColor}`}
-            borderRadius={8}
-            paddingVertical={isWeb ? "$1" : "$2"}
-            marginTop={isWeb ? "$4" : "$4"}
+            br={8}
+            py={isWeb ? "$1" : "$2"}
+            mt={isWeb ? "$4" : "$4"}
             onPress={handleSaveSelectedTasks}
             pressStyle={{ opacity: 0.7 }}
             disabled={Object.values(selectedTasks).filter(Boolean).length === 0}

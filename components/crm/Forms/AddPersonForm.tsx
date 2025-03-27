@@ -150,7 +150,7 @@ const FormContent = React.memo((props: FormContentProps) => {
     >
       <YStack 
         gap="$4" 
-        paddingVertical="$8" 
+        py="$8" 
         px="$4"
         width={isWeb ? (isSmallScreen ? '100%' : '600px') : '100%'}
       >
@@ -319,11 +319,11 @@ const FormContent = React.memo((props: FormContentProps) => {
                   onPress={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
                   theme={isDark ? "dark" : "light"}
                   backgroundColor={isDark ? "$gray2" : "white"}
-                  borderRadius={8}
+                  br={8}
                   height={40}
                   borderColor={isDark ? "$gray7" : "$gray4"}
                   borderWidth={1}
-                  paddingHorizontal="$2"
+                  px="$2"
                   pressStyle={{ opacity: 0.8 }}
                   width="100%"
                 >
@@ -349,7 +349,7 @@ const FormContent = React.memo((props: FormContentProps) => {
                     top={40}
                     left={0}
                     backgroundColor={isDark ? "$gray1" : "white"}
-                    borderRadius={8}
+                    br={8}
                     zIndex={1000}
                     overflow="hidden"
                     shadowColor="black"

@@ -128,11 +128,9 @@ export default function Onboarding() {
       );
     }
     switch (step) {
-      case -1: // Permissions screen
+      case -1: 
         return (
-          <PermissionsScreen
-            isDark={isDark}
-          />
+          <PermissionsScreen/>
         )
       case 0:
         return (

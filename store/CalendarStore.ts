@@ -73,7 +73,17 @@ export const useCalendarStore = create<CalendarState>()(
 
       getEventsForDate: (date: string) => {
         const state = get()
-        const eventsForDate = state.events.filter((event) => event.date === date)
+        const eventsForDate = state.events
+          .filter((event) => event.date === date)
+          .sort((a, b) => {
+            // Events without time come last in descending order
+            if (!a.time && !b.time) return 0
+            if (!a.time) return 1 // Events without time come last
+            if (!b.time) return -1 // Events without time come last
+            
+            // Sort by time descending (latest to earliest)
+            return b.time!.localeCompare(a.time!) // Reversed comparison for descending order
+          })
         return eventsForDate
       },
 

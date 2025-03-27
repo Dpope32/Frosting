@@ -13,12 +13,12 @@ export const webStyles = {
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 0,
-    marginTop: 0,
+    mt: 0,
   },
   
   occupationText: {
     fontSize: 13,
-    marginTop: 4,
+    mt: 4,
     marginLeft: 0,
   },
   
@@ -51,7 +51,7 @@ export const webStyles = {
   },
   
   headerRow: {
-    marginTop: 20,
+    mt: 20,
   },
   
   modalAvatar: {

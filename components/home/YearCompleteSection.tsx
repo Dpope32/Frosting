@@ -32,7 +32,7 @@ export function YearCompleteSection() {
   return (
     <YStack padding="$2" width="100%">
       {/* Progress bar container */}
-      <Stack width="100%" height={24} borderRadius={12} overflow="hidden" backgroundColor="rgba(30, 30, 30, 0.3)" borderWidth={1} borderColor="rgba(255, 255, 255, 0.1)" marginVertical="$2">
+      <Stack width="100%" height={24} br={12} overflow="hidden" backgroundColor="rgba(30, 30, 30, 0.3)" borderWidth={1} borderColor="rgba(255, 255, 255, 0.1)" marginVertical="$2">
         {/* Gradient fill */}
         <Stack 
           position="absolute" 

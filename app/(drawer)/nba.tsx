@@ -1,61 +1,216 @@
+import React, { useEffect } from 'react'
+import { Image, Text, useColorScheme, Platform, ScrollView } from 'react-native'
+import { FlashList } from '@shopify/flash-list'
+import { View } from 'tamagui'
 
-// *** Sports.tsx ***
-import React, { useState } from 'react'
-import { useColorScheme } from '@/hooks/useColorScheme'
-import { YStack, Text } from 'tamagui'
-import { Tabs } from '@tamagui/tabs'
-import { Platform } from 'react-native'
-import NBATeamPage from '@/components/sports/NBATeamPage'
-import OUPage from '@/components/sports/ou'
-
-const isDev = process.env.NODE_ENV === 'development' || __DEV__;
+import { useSportsAPI } from '../../hooks/useSportsAPI'
+import { format, isSameDay } from 'date-fns'
+import { useNBAStore } from '../../store/NBAStore'
+import type { Game } from '../../store/NBAStore'
+import { GameCardSkeleton } from '../../components/sports/GameCardSkeleton'
+import { nbaTeams } from '../../constants/nba'
+import { useUserStore } from '../../store/UserStore'
+import { styles } from '../../components/sports/nbaStyles'
 
 export default function Sports() {
-  const [activeTab, setActiveTab] = useState('nba');
-  const scheme = useColorScheme()
-  const isDark = scheme === 'dark'
-  const getTeamEmoji = () => {
-    return '🏀';
-  };
+  const { data: schedule, isLoading, error, refetch, teamStats } = useSportsAPI()
+  const { teamCode, teamName, setTeamInfo } = useNBAStore()
+  const { preferences } = useUserStore()
+  
+  useEffect(() => {
+    const favoriteTeamCode = preferences.favoriteNBATeam || 'OKC'
+    if (favoriteTeamCode !== teamCode) {
+      const team = nbaTeams.find(t => t.code === favoriteTeamCode)
+      if (team) {
+        setTeamInfo(favoriteTeamCode, team.name)
+        refetch && refetch()
+      }
+    }
+  }, [preferences.favoriteNBATeam, teamCode, setTeamInfo, refetch])
+  
+  useEffect(() => {
+    if (schedule && schedule.length > 0 && !isLoading) {
+      if (preferences.showNBAGamesInCalendar) {
+        useNBAStore.getState().syncNBAGames()
+      } else {
+        useNBAStore.getState().clearNBACalendarEvents()
+      }
+    }
+  }, [schedule, isLoading, preferences.showNBAGamesInCalendar])
+  
+  const today = new Date()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  const isWeb = Platform.OS === 'web'
+  const team = nbaTeams.find(t => t.code === teamCode)
+  const teamColor =  '#007AFF' 
+  const teamRecord = teamStats?.team?.record?.items?.[0]?.summary || '0-0'
+  const divisionRank = teamStats?.team?.standingSummary || 'N/A'
+  const simplifiedRank = divisionRank?.includes('in')  ? divisionRank : `in ${divisionRank}`
 
-  if (!isDev) {
+  const renderGameCard = (game: Game, index: number) => {
+    const gameDate = new Date(game.date)
+    const isToday = isSameDay(gameDate, today)
+    const formattedDate = isToday ? 'Today' : format(gameDate, 'MMM d')
+    const formattedTime = format(gameDate, 'h:mm a')
+
     return (
-      <YStack flex={1} marginTop={Platform.OS === 'web' ? 0 : 85} bg={isDark ? '#000000' : '#fffbf7'}>
-        <NBATeamPage />
-      </YStack>
-    );
+      <View
+        key={index}
+        style={[
+          styles.gameCard,
+          isWeb && styles.webGameCard,
+          {
+            backgroundColor: isDark ? '#1A1A1A' : '#f5f5f5',
+            borderColor: isDark ? '#333' : '#e0e0e0',
+          },
+        ]}
+      >
+        <View style={styles.dateTimeContainer}>
+          <Text
+            style={[
+              styles.date,
+              { fontFamily: '$body' },
+              isToday && [styles.todayDate, { color: teamColor }],
+              !isToday && { color: isDark ? '#fff' : '#000' },
+            ]}
+          >
+            {formattedDate}
+          </Text>
+          <Text style={[styles.time, { fontFamily: '$body' }]}>{formattedTime}</Text>
+        </View>
+
+        <View style={styles.teamsContainer}>
+          <View style={styles.teamWrapper}>
+
+            <Text
+              style={[
+                styles.team,
+                { fontFamily: '$body' },
+                game.homeTeam.includes(teamName)
+                  ? [styles.teamHighlight, { color: teamColor }]
+                  : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
+              ]}
+              numberOfLines={1}
+            >
+              {game.homeTeam.replace(`${teamName} `, '')}
+            </Text>
+          </View>
+          <Text style={[styles.vs, { fontFamily: '$body' }]}>@</Text>
+          <View style={[styles.teamWrapper, styles.awayWrapper]}>
+            <Text
+              style={[
+                styles.team,
+                { fontFamily: '$body' },
+                game.awayTeam.includes(teamName)
+                  ? [styles.teamHighlight, { color: teamColor }]
+                  : [styles.opposingTeam, { color: isDark ? '#fff' : '#000' }],
+              ]}
+              numberOfLines={1}
+            >
+              {game.awayTeam.replace(`${teamName} `, '')}
+            </Text>
+          </View>
+        </View>
+
+        {game.status === 'finished' && (
+          <View style={styles.scoreContainer}>
+            <Text style={[styles.score, { color: isDark ? '#fff' : '#000', fontFamily: '$body' }]}>
+              {game.homeScore} - {game.awayScore}
+            </Text>
+            <Text style={[styles.finalText, { fontFamily: '$body' }]}>Final</Text>
+          </View>
+        )}
+      </View>
+    )
   }
 
-  // In development mode, show both NBA and OU tabs
-  return (
-    <YStack flex={1} marginTop={Platform.OS === 'web' ? 0 : 80} bg={isDark ? '#000000' : '#fffbf7'}>
-      <Tabs defaultValue="nba" orientation="horizontal" flexDirection="column-reverse"  flex={1}  value={activeTab} onValueChange={setActiveTab} >
-        <Tabs.List paddingTop="$1" paddingBottom="$4" borderTopWidth={1} borderColor="$gray11">
-          <Tabs.Tab value="nba" flex={1} backgroundColor="transparent" pressStyle={{ backgroundColor: '$gray12', }}>
-            <YStack alignItems="center">
-              <Text fontSize="$5" fontFamily="$body" color={isDark ? 'white' : 'black'}> {getTeamEmoji()} </Text>
-              <YStack backgroundColor="$blue10" height={3} width={40} marginTop="$1" display={activeTab === 'nba' ? 'flex' : 'none'}/>
-            </YStack>
-          </Tabs.Tab>
-          
-          <Tabs.Tab value="ou" flex={1} backgroundColor="transparent" pressStyle={{backgroundColor: '$gray12',}}>
-            <YStack alignItems="center">
-              <Text fontSize="$5" fontFamily="$body" color={isDark ? 'white' : 'black'}> ⭕</Text>
-              <YStack backgroundColor="#990000" height={5} width={40} marginTop="$1"  display={activeTab === 'ou' ? 'flex' : 'none'}/>
-            </YStack>
-          </Tabs.Tab>
-        </Tabs.List>
+  const renderGame = ({ item: game }: { item: Game }) => {
+    return renderGameCard(game, 0)
+  }
 
-        <YStack flex={1}>
-          <Tabs.Content value="nba" flex={1}>
-            {activeTab === 'nba' && <NBATeamPage />}
-          </Tabs.Content>
-          
-          <Tabs.Content value="ou" flex={1}>
-            {activeTab === 'ou' && <OUPage />}
-          </Tabs.Content>
-        </YStack>
-      </Tabs>
-    </YStack>
+  const renderWebLayout = () => {
+    if (isLoading) {
+      return (
+        <View style={isWeb ? styles.webGridContainer : {}}>
+          {Array(6).fill(0).map((_, index) => (
+            <GameCardSkeleton key={index} />
+          ))}
+        </View>
+      )
+    }
+
+    return (
+      <ScrollView 
+        style={{ flex: 1, width: '100%' }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={isWeb ? styles.webGridContainer : {}}>
+          {schedule?.map((game, index) => renderGameCard(game, index))}
+        </View>
+      </ScrollView>
+    )
+  }
+
+  const renderMobileLayout = () => {
+    return (
+      <FlashList
+        data={isLoading ? Array(6).fill({}) : schedule || []}
+        renderItem={isLoading ? () => <GameCardSkeleton /> : renderGame}
+        estimatedItemSize={100}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+      />
+    )
+  }
+
+  const season = new Date().getFullYear()
+  const nextSeason = season + 1
+  const seasonText = `${season}-${nextSeason} Schedule`
+
+  return (
+    <View
+      style={[styles.container, {
+        backgroundColor: isDark ? '#000000' : '#f3f3f3'
+      }]}
+    >
+      <View style={styles.teamHeader}>
+        <Image
+          source={{ uri: team?.logo }}
+          style={styles.teamLargeLogo}
+          resizeMode="contain"
+        />
+        <View style={styles.teamInfoContainer}>
+          <Text style={styles.teamName}>
+            {teamName}
+          </Text>
+          <View style={styles.recordRow}>
+            <Text style={styles.recordText}>
+              {teamRecord}
+            </Text>
+            <Text style={styles.rankingText}>
+              {simplifiedRank}
+            </Text>
+          </View>
+        </View>
+      </View>
+      
+      <View style={styles.header}>
+        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#111', fontFamily: '$body' }]}>
+          {seasonText}
+        </Text>
+      </View>
+
+      {error ? (
+        <Text style={[styles.errorText, { fontFamily: '$body' }]}>
+          Error loading schedule: {error.message}
+        </Text>
+      ) : (
+        <View style={styles.contentContainer}>
+          {isWeb ? renderWebLayout() : renderMobileLayout()}
+        </View>
+      )}
+    </View>
   )
 }

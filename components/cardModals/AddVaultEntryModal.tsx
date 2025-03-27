@@ -142,7 +142,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
             
             {/* Password strength indicator */}
             {password.length > 0 && (
-              <YStack marginTop="$2" gap="$1">
+              <YStack mt="$2" gap="$1">
                 <XStack alignItems="center" justifyContent="space-between">
                   <Text fontFamily="$body" fontSize={12} color="$color" opacity={0.7}>
                     Password strength: {getStrengthText(passwordStrength)}
@@ -151,7 +151,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
                     {passwordStrength}/5
                   </Text>
                 </XStack>
-                <XStack height={4} backgroundColor={isDark ? "$gray3" : "$gray2"} borderRadius={2} overflow="hidden">
+                <XStack height={4} backgroundColor={isDark ? "$gray3" : "$gray2"} br={2} overflow="hidden">
                   <Animated.View 
                     style={{
                       width: `${(passwordStrength / 5) * 100}%`,
@@ -162,7 +162,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
                 </XStack>
                 
                 {passwordStrength < 3 && (
-                  <Text fontFamily="$body" fontSize={11} color="$color" opacity={0.7} marginTop="$1">
+                  <Text fontFamily="$body" fontSize={11} color="$color" opacity={0.7} mt="$1">
                     Tip: Use a mix of letters, numbers, and symbols
                   </Text>
                 )}
@@ -171,7 +171,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           </Animated.View>
           
           <Animated.View entering={FadeIn.delay(450).duration(400)}>
-            <XStack gap="$3" jc="flex-end" marginTop="$2">
+            <XStack gap="$3" jc="flex-end" mt="$2">
               <Button
                 onPress={onClose}
                 backgroundColor="$backgroundHover"

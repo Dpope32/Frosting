@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, forwardRef } from "react";
+import React, { useRef, useState, useEffect, forwardRef, useCallback } from "react";
 import {
   Button,
   Input,
@@ -8,6 +8,8 @@ import {
   Circle,
   Text,
   AnimatePresence,
+  useMedia,
+  isWeb
 } from "tamagui";
 import { useUserStore } from "@/store/UserStore";
 import { useImagePicker } from "@/hooks/useImagePicker";
@@ -21,8 +23,10 @@ import {
   Dimensions,
   StyleSheet,
   TouchableWithoutFeedback,
-  View
+  View,
+  useColorScheme
 } from "react-native";
+import { PAYMENT_METHODS } from './types';
 import DateTimePicker from "@react-native-community/datetimepicker";
 import type { Person, Address } from "@/types/people";
 import { format } from "date-fns";
@@ -69,6 +73,13 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState( person.birthday ? new Date(person.birthday) : new Date());
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [paymentUsername, setPaymentUsername] = useState<string>('');
+  const [showPaymentMethodDropdown, setShowPaymentMethodDropdown] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const media = useMedia();
+  const isSmallScreen = media.sm;
   const scaleAnim = useRef(new RNAnimated.Value(1.5)).current;
   const opacityAnim = useRef(new RNAnimated.Value(0)).current;
   const backdropOpacity = useRef(new RNAnimated.Value(0)).current;
@@ -168,9 +179,21 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
     });
   };
 
+  const updatePaymentUsername = useCallback((text: string): void => {
+    setPaymentUsername(text);
+  }, []);
+
   const handleSubmit = () => {
     if (!formData.name) return;
-    onSave({ ...person, ...formData });
+    
+    let updatedFormData = { ...formData };
+    if (paymentMethod && paymentUsername) {
+      updatedFormData.socialMedia = [
+        { platform: paymentMethod, username: paymentUsername }
+      ];
+    }
+    
+    onSave({ ...person, ...updatedFormData });
     handleClose();
   };
 
@@ -193,18 +216,18 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
           }
         ]}
       >
-        <YStack flex={1} backgroundColor="$gray1" borderRadius={16} overflow="hidden">
+        <YStack flex={1} backgroundColor="$gray1" br={16} overflow="hidden">
           <YStack 
             height={10} 
             backgroundColor="$gray3" 
             width="30%" 
             alignSelf="center" 
-            marginTop={8} 
-            borderRadius={4}
+            mt={8} 
+            br={4}
           />
           
           <ScrollView showsVerticalScrollIndicator={false}>
-            <YStack gap="$4" paddingVertical="$2" px="$4">
+            <YStack gap="$4" py={isWeb ? "$6" : "$2"} px={isWeb ? "$6" : "$4"}>
               <XStack gap="$4">
                 <YStack flex={1} gap="$2" alignItems="center">
                   {formData.profilePicture ? (
@@ -221,13 +244,13 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
                       pressStyle={{ backgroundColor: "$gray6" }}
                       onPress={pickImage}
                     >
-                      <Text fontSize={32} color="$gray11">
+                      <Text fontFamily="$body" fontSize={32} color="$gray11">
                         +
                       </Text>
                     </Circle>
                   )}
                   <XStack alignItems="center" gap="$2">
-                    <Text color="$gray11">Registered</Text>
+                    <Text fontFamily="$body" color="$gray11">Registered</Text>
                     <Switch
                       value={formData.registered}
                       onValueChange={(val) => updateFormField('registered', val)}
@@ -321,6 +344,107 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
                   placeholder="Enter full address"
                   theme="dark"
                 />
+                
+                <YStack gap="$2">
+                  <Text color={isDark ? "$gray11" : "$gray10"} fontSize={14} fontFamily="$body">
+                    Payment Method
+                  </Text>
+                  <XStack gap="$2" alignItems="center">
+                    <YStack width={120}>
+                      <Button
+                        onPress={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
+                        theme={isDark ? "dark" : "light"}
+                        backgroundColor={isDark ? "$gray2" : "white"}
+                        br={8}
+                        height={40}
+                        borderColor={isDark ? "$gray7" : "$gray4"}
+                        borderWidth={1}
+                        px="$2"
+                        pressStyle={{ opacity: 0.8 }}
+                        width="100%"
+                      >
+                        <XStack flex={1} alignItems="center" justifyContent="space-between">
+                          <Text 
+                            color={isDark ? "$gray12" : "$gray11"} 
+                            fontSize={14} 
+                            fontFamily="$body"
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                          >
+                            {paymentMethod || 'Platform'}
+                          </Text>
+                          <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
+                            {showPaymentMethodDropdown ? '▲' : '▼'}
+                          </Text>
+                        </XStack>
+                      </Button>
+                      
+                      {showPaymentMethodDropdown && (
+                        <YStack
+                          position="absolute"
+                          top={40}
+                          left={0}
+                          backgroundColor={isDark ? "$gray1" : "white"}
+                          br={8}
+                          zIndex={1000}
+                          overflow="hidden"
+                          shadowColor="black"
+                          shadowOffset={{ width: 0, height: 4 }}
+                          shadowOpacity={0.1}
+                          shadowRadius={8}
+                          maxHeight={200}
+                          borderWidth={1}
+                          borderColor={isDark ? "$gray7" : "$gray4"}
+                          width={120}
+                        >
+                          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                            <YStack>
+                              {PAYMENT_METHODS.map((method) => (
+                                <Pressable
+                                  key={method}
+                                  onPress={() => {
+                                    setPaymentMethod(method);
+                                    setShowPaymentMethodDropdown(false);
+                                  }}
+                                  style={({ pressed }) => ({
+                                    backgroundColor: paymentMethod === method 
+                                      ? primaryColor 
+                                      : isDark ? "#1c1c1e" : "white",
+                                    height: 40,
+                                    justifyContent: 'center',
+                                    opacity: pressed ? 0.8 : 1,
+                                    borderBottomWidth: 1,
+                                    borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
+                                    padding: 12
+                                  })}
+                                >
+                                  <Text
+                                    color={paymentMethod === method ? '#fff' : isDark ? "#fff" : "#000"}
+                                    fontSize={14}
+                                    fontWeight={paymentMethod === method ? '600' : '400'}
+                                    fontFamily="$body"
+                                  >
+                                    {method}
+                                  </Text>
+                                </Pressable>
+                              ))}
+                            </YStack>
+                          </ScrollView>
+                        </YStack>
+                      )}
+                    </YStack>
+                    
+                    <DebouncedInput
+                      value={paymentUsername}
+                      onDebouncedChange={updatePaymentUsername}
+                      placeholder="Username (e.g. @username)"
+                      returnKeyType="next"
+                      autoCapitalize="none"
+                      flex={1}
+                      theme="dark"
+                    />
+                  </XStack>
+                </YStack>
               </YStack>
               <XStack gap="$3" justifyContent="flex-end" marginBottom="$4">
                 <Button theme="dark" onPress={handleClose} backgroundColor="$gray5">
@@ -332,7 +456,7 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
                   borderColor={primaryColor}
                   borderWidth={2}
                 >
-                  <Text color="white" fontWeight="600">
+                  <Text fontFamily="$body" color="white" fontWeight="600">
                     Save Changes
                   </Text>
                 </Button>

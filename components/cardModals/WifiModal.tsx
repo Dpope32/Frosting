@@ -108,7 +108,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
         <Animated.View entering={SlideInDown.duration(500).delay(0)}>
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-            borderRadius={12}
+            br={12}
             padding="$4"
             borderWidth={1}
             borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"}
@@ -117,9 +117,9 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
               Current Speed
             </Text>
             {showLoading ? (
-              <YStack alignItems="center" marginTop="$2">
+              <YStack alignItems="center" mt="$2">
                 <Spinner size="small" color="$gray10" />
-                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14} marginTop="$2">
+                <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14} mt="$2">
                   Checking speed...
                 </Text>
               </YStack>
@@ -128,7 +128,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
                 color={getStrengthColor(speed, isDark)}
                 fontSize={32}
                 fontWeight="600"
-                marginTop="$2"
+                mt="$2"
                 fontFamily="$body"
               >
                 {speed || (__DEV__ ? '89 ms' : (Platform.OS === 'web' ? '80 ms' : '75 ms'))}
@@ -139,7 +139,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
         <Animated.View entering={SlideInDown.duration(500).delay(150)}>
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-            borderRadius={12}
+            br={12}
             padding="$4"
             borderWidth={1}
             borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"}
@@ -148,15 +148,15 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
               Network Details
             </Text>
             {showLoading ? (
-              <YStack alignItems="center" marginTop="$2">
+              <YStack alignItems="center" mt="$2">
                 <Spinner size="small" color="$gray10" />
               </YStack>
             ) : error ? (
-              <Text fontFamily="$body" color="#ff6b6b" fontSize={14} marginTop="$2">
+              <Text fontFamily="$body" color="#ff6b6b" fontSize={14} mt="$2">
                 {error}
               </Text>
             ) : details?.type === 'wifi' && wifiDetails ? (
-              <YStack gap="$2" marginTop="$2">
+              <YStack gap="$2" mt="$2">
                 {shouldDisplayField(wifiDetails.ssid) && (
                   <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
                     SSID: {wifiDetails.ssid}
@@ -209,7 +209,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
                 )}
               </YStack>
             ) : (
-              <Text fontFamily="$body" color="#a0a0a0" fontSize={14} marginTop="$2">
+              <Text fontFamily="$body" color="#a0a0a0" fontSize={14} mt="$2">
                 {details?.isConnected ? 'Not connected to WiFi' : 'No network connection'}
               </Text>
             )}
@@ -218,7 +218,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
         <Animated.View entering={SlideInDown.duration(500).delay(300)}>
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-            borderRadius={12}
+            br={12}
             padding="$4"
             borderWidth={1}
             borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"}
@@ -226,7 +226,7 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
             <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontFamily="$body" fontWeight="500">
               Connection Status
             </Text>
-            <YStack gap="$2" marginTop="$2">
+            <YStack gap="$2" mt="$2">
               {shouldDisplayField(details?.type) && (
                 <Text fontFamily="$body" color={isDark ? "#a0a0a0" : "#666666"} fontSize={14}>
                   Type: {details?.type}

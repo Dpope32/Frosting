@@ -211,7 +211,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
     fontSize: 14,
     height: 40,
     borderRadius: 8,
-    paddingHorizontal: "$2",
+    px: "$2",
   }), [])
 
   return (
@@ -221,7 +221,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
       title={stock ? 'Edit Stock' : 'Add Stock'}
       zIndex={200000}
     >
-      <YStack gap="$3" paddingVertical="$2">
+      <YStack gap="$3" py="$2">
         <YStack>
           <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
             Ticker Symbol
@@ -242,9 +242,9 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
           {searchResults.length > 0 && !stock && (
             <YStack 
               backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)"}
-              borderRadius={8}
+              br={8}
               padding="$2"
-              marginTop="$1"
+              mt="$1"
               maxHeight={Platform.OS === 'web' ? 350 : 250}
             >
               <ScrollView showsVerticalScrollIndicator={false}>
@@ -253,7 +253,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
                     <XStack
                       key={`${result.symbol}-${index}`}
                       backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)"}
-                      borderRadius={8}
+                      br={8}
                       padding="$2"
                       alignItems="center"
                       justifyContent="space-between"
@@ -264,7 +264,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
                         <XStack
                           width={32}
                           height={32}
-                          borderRadius={16}
+                          br={16}
                           backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
                           alignItems="center"
                           justifyContent="center"
@@ -283,8 +283,8 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
                       <Button
                         size="$2"
                         backgroundColor={primaryColor}
-                        borderRadius={4}
-                        paddingHorizontal="$2"
+                        br={4}
+                        px="$2"
                         onPress={() => handleSelectStock(result)}
                       >
                         <Text color="#fff" fontSize={12} fontWeight="500">
@@ -314,7 +314,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
         </YStack>
 
         {formData.name ? (
-          <YStack alignItems="center" paddingVertical="$2">
+          <YStack alignItems="center" py="$2">
             <Text 
               color={isDark ? "$color" : "$color12"} 
               fontSize={20}
@@ -336,7 +336,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             textAlign="center"
             backgroundColor="$red2"
             padding="$2"
-            borderRadius={6}
+            br={6}
           >
             {error}
           </Text>
@@ -345,7 +345,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
         <Button
           backgroundColor={primaryColor}
           height={40}
-          borderRadius={8}
+          br={8}
           opacity={!formData.ticker || !formData.quantity || !formData.name ? 0.5 : 1}
           disabled={!formData.ticker || !formData.quantity || !formData.name}
           pressStyle={{ opacity: 0.8, scale: 0.98 }}

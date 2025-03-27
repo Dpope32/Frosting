@@ -19,7 +19,7 @@ web-build/
 expo-env.d.ts
 
 # Project specific
-constants/vaultData.ts
+#constants/vaultData.ts
 
 # Native
 android/*

@@ -3,16 +3,7 @@ import { View, StyleSheet, Text, Platform, Image, Dimensions } from 'react-nativ
 import { useNBAStore } from '@/store/NBAStore';
 import { useUserStore } from '@/store/UserStore';
 import { nbaTeams } from '@/constants/nba';
-
-// Helper function to detect if device is iPad
-const isIpad = () => {
-  const { width, height } = Dimensions.get('window');
-  return (
-    Platform.OS === 'ios' &&
-    Math.min(width, height) >= 768 &&
-    Math.max(width, height) >= 1024
-  );
-};
+import { isIpad } from '@/utils/deviceUtils';
 
 interface LegendProps { 
   isDark: boolean 
@@ -37,10 +28,7 @@ export const Legend: React.FC<LegendProps> = ({ isDark }) => {
     { color: '#FF9800', label: 'Tasks' },
   ];
   
-  const items: LegendItem[] = showNBAGamesInCalendar 
-    ? [...baseItems, { color: '#FF5722', label: 'NBA', isNBA: true }] 
-    : baseItems;
-
+  const items: LegendItem[] = showNBAGamesInCalendar  ? [...baseItems, { color: '#FF5722', label: 'NBA', isNBA: true }] : baseItems;
   const isWebOrIpad = Platform.OS === 'web' || isIpad();
   
   return (

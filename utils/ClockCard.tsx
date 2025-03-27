@@ -40,9 +40,9 @@ export const ClockCard = memo(() => {
   return (
     <Stack
       backgroundColor="rgba(0, 0, 0, 0.3)"
-      borderRadius={8}
-      paddingHorizontal="$2"
-      paddingVertical="$2"
+      br={8}
+      px="$2"
+      py="$2"
       marginRight={10}
     >
       <Text

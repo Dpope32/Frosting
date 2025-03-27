@@ -145,7 +145,7 @@ export function VaultRecommendationModal({
               <XStack 
                 key={index}
                 backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-                borderRadius={12}
+                br={12}
                 padding="$3"
                 borderWidth={1}
                 borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
@@ -177,9 +177,9 @@ export function VaultRecommendationModal({
                         </Text>
                         <XStack 
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
-                          paddingHorizontal="$2"
-                          paddingVertical="$1"
-                          borderRadius={4}
+                          px="$2"
+                          py="$1"
+                          br={4}
                           flex={1}
                           alignItems="center"
                         >
@@ -205,9 +205,9 @@ export function VaultRecommendationModal({
                         </Text>
                         <XStack 
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
-                          paddingHorizontal="$2"
-                          paddingVertical="$1"
-                          borderRadius={4}
+                          px="$2"
+                          py="$1"
+                          br={4}
                           flex={1}
                           alignItems="center"
                         >
@@ -237,9 +237,9 @@ export function VaultRecommendationModal({
         <Button
           backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
           color={isDark ? "#dbd0c6" : "#000"}
-          borderRadius={8}
-          paddingVertical="$3"
-          marginTop="$4"
+          br={8}
+          py="$3"
+          mt="$4"
           onPress={handleSaveSelectedEntries}
           pressStyle={{ opacity: 0.7 }}
           disabled={!hasValidSelections}

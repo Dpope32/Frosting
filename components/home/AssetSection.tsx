@@ -46,9 +46,9 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
       <XStack marginBottom="$3" alignItems="center">
         <Button
           backgroundColor={activeTab === 'portfolio' ? 'rgba(219, 208, 198, 0.2)' : 'transparent'}
-          borderRadius={8}
-          paddingHorizontal="$3"
-          paddingVertical="$1"
+          br={8}
+          px="$3"
+          py="$1"
           onPress={() => setActiveTab('portfolio')}
         >
           <Text color="#dbd0c6" fontSize={14} fontFamily="$body">Portfolio</Text>
@@ -56,9 +56,9 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
         <XStack alignItems="center">
           <Button
             backgroundColor={activeTab === 'watchlist' ? 'rgba(219, 208, 198, 0.2)' : 'transparent'}
-            borderRadius={8}
-            paddingHorizontal="$3"
-            paddingVertical="$1"
+            br={8}
+            px="$3"
+            py="$1"
             onPress={() => setActiveTab('watchlist')}
           >
             <Text color="#dbd0c6" fontSize={14} fontFamily="$body">Watchlist</Text>
@@ -86,11 +86,11 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
           alignItems="center"
           justifyContent="center"
           backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-          borderRadius={12}
+          br={12}
           padding="$4"
           borderWidth={1}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
-          marginTop="$4"
+          mt="$4"
         >
           <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">
             Loading asset data...

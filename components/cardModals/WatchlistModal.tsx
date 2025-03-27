@@ -118,7 +118,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
     <BaseCardModal open={open} onOpenChange={onOpenChange} title="Add to Watchlist">
       <YStack flex={1} position="relative">
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-          <YStack gap="$3" paddingVertical="$2">
+          <YStack gap="$3" py="$2">
             <YStack>
               <Text color={isDark ? "$color11" : "$color10"} fontSize={12} marginBottom="$1" fontFamily="$body">
                 Stock Symbol
@@ -132,12 +132,12 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                 backgroundColor={isDark ? "$backgroundHover" : "$background"}
                 borderColor="$borderColor"
                 height={40}
-                borderRadius={8}
-                paddingHorizontal="$2"
+                br={8}
+                px="$2"
               />
             </YStack>
             {error ? (
-              <Text color="$red10" fontSize={12} textAlign="center" backgroundColor="$red2" padding="$2" borderRadius={6}>
+              <Text color="$red10" fontSize={12} textAlign="center" backgroundColor="$red2" padding="$2" br={6}>
                 {error}
               </Text>
             ) : null}
@@ -146,14 +146,14 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                 <Text color={isDark ? "$color11" : "$color10"} fontSize={14} fontWeight="500" fontFamily="$body">
                   Search Results
                 </Text>
-                <YStack backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)"} borderRadius={8} padding="$2" maxHeight={200}>
+                <YStack backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)"} br={8} padding="$2" maxHeight={200}>
                   <ScrollView showsVerticalScrollIndicator={false}>
                     <YStack gap="$2">
                       {searchResults.map(stock => (
                         <XStack
                           key={stock.symbol}
                           backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)"}
-                          borderRadius={8}
+                          br={8}
                           padding="$2"
                           alignItems="center"
                           justifyContent="space-between"
@@ -164,7 +164,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                             <XStack
                               width={32}
                               height={32}
-                              borderRadius={16}
+                              br={16}
                               backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
                               alignItems="center"
                               justifyContent="center"
@@ -183,8 +183,8 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                           <Button
                             size="$2"
                             backgroundColor={primaryColor}
-                            borderRadius={4}
-                            paddingHorizontal="$2"
+                            br={4}
+                            px="$2"
                             onPress={() => handleSelectStock(stock)}
                           >
                             <Text color="#fff" fontSize={12} fontWeight="500">
@@ -211,7 +211,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                           <Button
                             key={stock.symbol}
                             backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
-                            borderRadius={8}
+                            br={8}
                             padding="$2"
                             width="19%"
                             height={45}
@@ -222,7 +222,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                               <XStack
                                 width={24}
                                 height={24}
-                                borderRadius={12}
+                                br={12}
                                 backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
                                 alignItems="center"
                                 justifyContent="center"
@@ -248,7 +248,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                           <XStack
                             key={stock.symbol}
                             backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)"}
-                            borderRadius={8}
+                            br={8}
                             padding="$2"
                             alignItems="center"
                             width="48%"
@@ -261,7 +261,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                               <XStack
                                 width={30}
                                 height={30}
-                                borderRadius={15}
+                                br={15}
                                 backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
                                 alignItems="center"
                                 justifyContent="center"
@@ -285,11 +285,11 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
                 </ScrollView>
               </YStack>
             ) : (
-              <YStack padding="$4" alignItems="center" justifyContent="center" backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"} borderRadius={8} flex={1} marginTop="$2">
+              <YStack padding="$4" alignItems="center" justifyContent="center" backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"} br={8} flex={1} mt="$2">
                 <Text color={isDark ? "$color11" : "$color10"} fontSize={14} textAlign="center" fontFamily="$body">
                   All recommended stocks have been added to your watchlist. 
                   </Text>
-                <Text color={isDark ? "$color11" : "$color10"} fontSize={12} textAlign="center" marginTop="$2" fontFamily="$body">
+                <Text color={isDark ? "$color11" : "$color10"} fontSize={12} textAlign="center" mt="$2" fontFamily="$body">
                   You can search for additional stocks using the search box above.
                 </Text>
               </YStack>
@@ -299,7 +299,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
         <Button
           backgroundColor={primaryColor}
           height={50}
-          borderRadius={8}
+          br={8}
           opacity={!symbol ? 0.5 : 1}
           disabled={!symbol}
           pressStyle={{ opacity: 0.8, scale: 0.98 }}

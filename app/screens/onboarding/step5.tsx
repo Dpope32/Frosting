@@ -80,8 +80,8 @@ export default function Step5({
         left={0} 
         right={0} 
         alignItems="center"
-        paddingVertical={isWeb ? "$4" : "$0"}
-        marginHorizontal={isWeb ? "$10" : 0}
+        py={isWeb ? "$4" : "$0"}
+        my={isWeb ? "$10" : 0}
       >
         <Label 
           paddingBottom={20} 
@@ -113,7 +113,7 @@ export default function Step5({
           gap="$2.5" 
           marginBottom="$4"
           width="100%"
-          paddingHorizontal="$2"
+          px="$2"
         >
           {teamsToDisplay.map(team => (
             <Button
@@ -121,7 +121,7 @@ export default function Step5({
               backgroundColor={selectedTeam === team.code ? buttonColor : buttonBackgroundColor}
               borderColor={selectedTeam === team.code ? buttonColor : buttonBorderColor}
               borderWidth={2}
-              borderRadius={16}
+              br={16}
               marginVertical="$2"
               width={isWeb ? `${Math.floor(100 / columns) - 2}%` : 105}
               height={isWeb ? 130 : 105}
@@ -179,14 +179,14 @@ export default function Step5({
         
         {!isWeb && !showAllTeams && (
           <Button
-            marginTop="$2"
+            mt="$2"
             marginBottom="$6"
             size="$3"
             backgroundColor={showAllTeamsButtonBackground}
             borderColor={buttonBorderColor}
             borderWidth={1}
-            borderRadius={20}
-            paddingHorizontal="$4"
+            br={20}
+            px="$4"
             hoverStyle={{
               backgroundColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
             }}
@@ -203,10 +203,10 @@ export default function Step5({
           <YStack 
             width="100%" 
             maxWidth={450} 
-            marginTop="$2" 
+            mt="$2" 
             marginBottom="$4"
             backgroundColor={preferencesBackgroundColor}
-            borderRadius={16}
+            br={16}
             padding="$4"
             borderWidth={2}
             borderColor={buttonColor}
@@ -229,7 +229,7 @@ export default function Step5({
                   fontFamily="$body" 
                   color={buttonTextColor} 
                   fontSize={14}
-                  marginTop="$1"
+                  mt="$1"
                   opacity={0.9}
                 >
                   Display team logo on game days
@@ -261,9 +261,9 @@ export default function Step5({
         <Button
           chromeless
           onPress={handleSkip}
-          paddingVertical="$2"
-          paddingHorizontal="$4"
-          marginTop="$2"
+          py="$2"
+          px="$4"
+          mt="$2"
           color={buttonColor}
           hoverStyle={{
             opacity: 0.8

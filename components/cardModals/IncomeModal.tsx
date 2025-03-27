@@ -39,7 +39,7 @@ export function IncomeModal({ isVisible, onClose, currentIncome, onSubmit }: Inc
         <YStack
           backgroundColor="$background"
           p="$4"
-          borderRadius="$4"
+          br="$4"
           width="100%"
           maxWidth={400}
           gap="$4"

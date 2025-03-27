@@ -87,9 +87,9 @@ export default function Step2({
         left={0} 
         right={0} 
         alignItems="center"
-        paddingVertical={isWeb ? "$4" : "$0"}
-        borderRadius={isWeb ? "$4" : 0}
-        marginHorizontal={isWeb ? "$2" : 0}
+        py={isWeb ? "$4" : "$0"}
+        br={isWeb ? "$4" : 0}
+        my={isWeb ? "$2" : 0}
       >
         <Label 
           paddingBottom={20} 

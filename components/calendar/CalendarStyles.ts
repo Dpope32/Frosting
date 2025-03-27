@@ -1,15 +1,5 @@
-import { StyleSheet, Platform, Dimensions } from 'react-native';
-
-// Helper function to detect if device is iPad
-const isIpad = () => {
-  const { width, height } = Dimensions.get('window');
-  // iPad detection based on screen dimensions and platform
-  return (
-    Platform.OS === 'ios' &&
-    Math.min(width, height) >= 768 &&
-    Math.max(width, height) >= 1024
-  );
-};
+import { StyleSheet, Platform } from 'react-native';
+import { isIpad } from '@/utils/deviceUtils';
 
 export const calendarStyles = StyleSheet.create({
   container: {
@@ -38,11 +28,11 @@ export const calendarStyles = StyleSheet.create({
     } as any : {}),
   },
   webMonthWrapper: {
-    width: '33%', // Default: Display 3 months per row
+    width: '33%', 
     padding: 0,
     margin: 1,
     ...(isIpad() ? {
-      width: '49%', // iPad: Display 2 months per row
+      width: '49%', 
       margin: '0.5%',
     } as any : {}),
   },

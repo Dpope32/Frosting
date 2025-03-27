@@ -132,7 +132,7 @@ export default function CRM() {
           />
         </View>
       )}
-      <H4 fontFamily="$heading" fontSize="$7" fontWeight={'bold'} marginTop={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
+      <H4 fontFamily="$heading" fontSize="$7" fontWeight={'bold'} mt={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
         All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
       </H4>
       <Separator borderColor="$gray8" borderWidth={1}  marginBottom={2} />
@@ -149,7 +149,7 @@ export default function CRM() {
           <XStack 
             bg={isDark ? "#1A1A1A" : "#f5f5f5"}
             p="$4" 
-            borderRadius="$4" 
+            br="$4" 
             ai="flex-start" 
             jc="center"
             borderWidth={1}
@@ -200,7 +200,7 @@ export default function CRM() {
               
               <XStack 
                 justifyContent="center"
-                paddingHorizontal={isWeb ? "$2" : "$1"}
+                px={isWeb ? "$2" : "$1"}
                 gap="$2"
                 mt="$2"
               >
@@ -211,9 +211,9 @@ export default function CRM() {
                       backgroundColor={isDark ? "$gray5" : "$gray3"}
                       borderColor={isDark ? "$gray7" : "$gray4"}
                       borderWidth={2}
-                      paddingHorizontal="$4"
-                      paddingVertical="$2"
-                      borderRadius="$4"
+                      px="$4"
+                      py="$2"
+                      br="$4"
                       opacity={0.7}
                       pressStyle={{ opacity: 0.7 }}
                       animation="quick"
@@ -263,12 +263,12 @@ export default function CRM() {
                         Alert.alert("Error", "Failed to import contacts. Please try again.");
                       }
                     }}
-                    backgroundColor={primaryColor}
+                    bc={primaryColor}
                     borderColor={primaryColor}
                     borderWidth={2}
-                    paddingHorizontal="$4"
-                    paddingVertical="$2"
-                    borderRadius="$4"
+                    px="$4"
+                    py="$2"
+                    br="$4"
                     pressStyle={{ opacity: 0.8 }}
                     animation="quick"
                     icon={<FontAwesome5 name="address-book" size={16} color="white" style={{ marginRight: 8 }} />}

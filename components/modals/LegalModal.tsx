@@ -83,9 +83,9 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
               onValueChange={setActiveTab}
             >
               <Tabs.List 
-                paddingVertical="$2" 
+                py="$2" 
                 backgroundColor={isDark ? "rgba(30,30,30,0.5)" : "rgba(240,240,240,0.8)"}
-                borderRadius={8}
+                br={8}
                 marginBottom="$4"
               >
                 <Tabs.Tab
@@ -109,9 +109,9 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                       backgroundColor={primaryColor}
                       height={3}
                       width={40}
-                      marginTop="$1"
+                      mt="$1"
                       display={activeTab === 'privacy' ? 'flex' : 'none'}
-                      borderRadius={1.5}
+                      br={1.5}
                     />
                   </YStack>
                 </Tabs.Tab>
@@ -137,9 +137,9 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                       backgroundColor={primaryColor}
                       height={3}
                       width={40}
-                      marginTop="$1"
+                      mt="$1"
                       display={activeTab === 'contact' ? 'flex' : 'none'}
-                      borderRadius={1.5}
+                      br={1.5}
                     />
                   </YStack>
                 </Tabs.Tab>
@@ -157,7 +157,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         bounces={false}
                         contentContainerStyle={{ paddingBottom: 40 }}
                       >
-                        <YStack gap="$4" paddingHorizontal="$2">
+                        <YStack gap="$4" px="$2">
                           <Text 
                             fontSize="$5" 
                             fontWeight="700" 
@@ -273,7 +273,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             color={isDark ? "#ddd" : "#333"}
                             fontFamily="$body"
                             lineHeight={22}
-                            marginTop="$2"
+                            mt="$2"
                           >
                             We are committed to protecting your privacy. All data is stored locally on your device, as we have no need for your data. We do not sell or share your personal information with third parties.
                           </Text>
@@ -292,7 +292,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             color={isDark ? "#999" : "#666"}
                             fontFamily="$body"
                             lineHeight={22}
-                            marginTop="$2"
+                            mt="$2"
                           >
                             Last updated: March 2025
                           </Text>
@@ -313,7 +313,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         bounces={false}
                         contentContainerStyle={{ paddingBottom: 40 }}
                       >
-                        <YStack gap="$4" paddingHorizontal="$2">
+                        <YStack gap="$4" px="$2">
                           <Text 
                             fontSize="$5" 
                             fontWeight="700" 
@@ -332,7 +332,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             If you have any questions, concerns, or feedback about our app, please don't hesitate to reach out to us:
                           </Text>
                           
-                          <YStack gap="$3" marginTop="$2">
+                          <YStack gap="$3" mt="$2">
                             <XStack gap="$2" alignItems="flex-start">
                               <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
                               <YStack>
@@ -405,7 +405,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             color={isDark ? "#ddd" : "#333"}
                             fontFamily="$body"
                             lineHeight={22}
-                            marginTop="$2"
+                            mt="$2"
                           >
                             Your feedback is important to us and helps us improve our app. We appreciate your support and are committed to providing you with the best possible experience.
                           </Text>

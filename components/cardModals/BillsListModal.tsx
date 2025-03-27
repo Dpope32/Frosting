@@ -4,7 +4,7 @@ import { Pressable, Platform, useColorScheme, Alert } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
-import { BillRecommendationCategory } from '@/utils/BillRecommendations'
+import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations'
 import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal'
 
 interface BillsListModalProps {
@@ -65,9 +65,9 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
         backgroundColor={style.backgroundColor}
         borderColor={style.borderColor}
         borderWidth={1}
-        borderRadius={8}
-        paddingHorizontal="$4"
-        paddingVertical="$3"
+        br={8}
+        px="$4"
+        py="$3"
         pressStyle={{ opacity: 0.7 }}
         marginRight="$2"
         justifyContent="center"
@@ -174,9 +174,9 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                 horizontal 
                 showsHorizontalScrollIndicator={false} 
                 paddingBottom="$4" 
-                marginTop="$1"
+                mt="$1"
                 contentContainerStyle={{ 
-                  paddingHorizontal: 4
+                  px: 4
                 }}
               >
                 <XStack gap="$2">
@@ -199,7 +199,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                     <XStack
                       key={bill.id}
                       backgroundColor={isDark ? "$gray2" : "$gray3"}
-                      borderRadius={8}
+                      br={8}
                       padding="$3"
                       alignItems="center"
                       justifyContent="space-between"
@@ -213,7 +213,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                         <YStack 
                           width={44} 
                           height={44} 
-                          borderRadius="$4" 
+                          br="$4" 
                           ai="center" 
                           jc="center" 
                           bg={isDark ? "#333" : "#e0e0e0"}
@@ -231,7 +231,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                             {bill.name}
                             {isDueToday && " (due today!)"}
                           </Text>
-                          <XStack gap="$2" marginTop="$1" alignItems="center">
+                          <XStack gap="$2" mt="$1" alignItems="center">
                             <Text
                               fontFamily="$body"
                               color={amountColor}
@@ -250,9 +250,9 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                             {isPastDue && (
                               <XStack
                                 backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.05)"}
-                                paddingHorizontal="$2"
-                                paddingVertical="$1"
-                                borderRadius={4}
+                                px="$2"
+                                py="$1"
+                                br={4}
                                 alignItems="center"
                               >
                                 <Text 
@@ -305,10 +305,10 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
             ) : (
               <YStack
                 backgroundColor={isDark ? "$gray2" : "$gray3"}
-                borderRadius={8}
+                br={8}
                 padding="$4"
                 alignItems="center"
-                marginTop="$4"
+                mt="$4"
               >
                 <Text
                   fontFamily="$body"

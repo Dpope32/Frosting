@@ -1,3 +1,4 @@
+// TemperatureModal.tsx
 import React, { useEffect } from 'react'
 import { useColorScheme, Platform, Dimensions, ScrollView } from 'react-native'
 import { YStack, Text, XStack, Stack } from 'tamagui'
@@ -64,19 +65,16 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
       width: `${progress.value * 100}%`,
       backgroundColor: getTemperatureColor(currentTemp || 0, isDark),
       height: 8,
-      borderRadius: 4,
+      br: 4,
     }
   })
 
-  // Process forecast data - only use daytime forecasts for consistency
   const allForecastDays = []
   let dayCount = 0
   
   for (let i = 0; i < forecast.length; i++) {
     const period = forecast[i]
-    // Only include daytime periods for the forecast cards
     if (period && period.isDaytime) {
-      // Find the corresponding night period for low temp
       const nightPeriod = forecast.find(p => 
         !p.isDaytime && p.name.includes(period.name.replace('This', '').trim())
       )
@@ -94,13 +92,12 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
       })
       
       dayCount++
-      if (dayCount >= 5) break // Show 5 days total (today + 4 more)
+      if (dayCount >= 5) break
     }
   }
   
-  // Separate today's forecast from the rest
   const todayForecast = allForecastDays.length > 0 ? allForecastDays[0] : null
-  const nextDays = allForecastDays.slice(1) // All days after today (up to 4)
+  const nextDays = allForecastDays.slice(1)
 
   return (
     <BaseCardAnimated 
@@ -112,10 +109,9 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
       <ScrollView>
         <YStack gap="$4" paddingBottom="$4">
           <XStack gap="$3">
-            {/* Current Temperature */}
             <YStack
               backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.8)"}
-              borderRadius={12}
+              br={12}
               padding="$4"
               borderWidth={1}
               borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
@@ -124,7 +120,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
               <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontFamily="$body" fontWeight="500">
                 Current Temperature
               </Text>
-              <YStack gap="$3" marginTop="$2">
+              <YStack gap="$3" mt="$2">
                 <Animated.Text
                   style={{
                     color: getTemperatureColor(currentTemp || 0, isDark),
@@ -136,7 +132,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                 </Animated.Text>
                 <Stack
                   backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-                  borderRadius={4}
+                  br={4}
                   height={8}
                   overflow="hidden"
                 >
@@ -144,12 +140,10 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                 </Stack>
               </YStack>
             </YStack>
-            
-            {/* Today's Forecast */}
             {todayForecast && (
               <YStack
                 backgroundColor={getCardBackground(todayForecast.shortForecast, isDark)}
-                borderRadius={12}
+                br={12}
                 padding="$3"
                 borderWidth={1}
                 borderColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
@@ -160,12 +154,11 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   <Text fontFamily="$body" fontSize={14} fontWeight="600" color={isDark ? "#fff" : "#000"}>
                     Today
                   </Text>
-                  <Text fontSize={28} marginTop="$1" fontFamily="$body">
+                  <Text fontSize={28} mt="$1" fontFamily="$body">
                     {getWeatherIcon(todayForecast.shortForecast)}
                   </Text>
                 </YStack>
-                
-                <YStack gap="$1" marginTop="$2">
+                <YStack gap="$1" mt="$2">
                   {todayForecast.precipitation > 0 && (
                     <XStack alignItems="center" justifyContent="center" gap="$1">
                       <Text fontFamily="$body" fontSize={11}>💧</Text>
@@ -175,8 +168,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                     </XStack>
                   )}
                 </YStack>
-                
-                <XStack alignSelf="stretch" padding="$2" borderRadius={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center" marginTop="$2">
+                <XStack alignSelf="stretch" padding="$2" br={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center" mt="$2">
                   <YStack>
                     <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>Low</Text>
                     <Text fontFamily="$body" fontSize={12} fontWeight="700" color={getTemperatureColor(todayForecast.low ?? 0, isDark)}>
@@ -193,11 +185,8 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
               </YStack>
             )}
           </XStack>
-          
-          {/* Forecast Days - Vertical Layout */}
-          <YStack marginTop="$3" gap="$3">
+          <YStack mt="$3" gap="$3">
             {nextDays.map((period, idx) => {
-              // Determine wind intensity for visualization
               const windIntensity = period.windValue;
               const hasHighWind = windIntensity > 10;
               const hasVeryHighWind = windIntensity > 20;
@@ -211,7 +200,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   <XStack
                     height={Platform.OS === 'web' ? 100 : 90}
                     width="100%"
-                    borderRadius={12}
+                    br={12}
                     overflow="hidden"
                     borderWidth={1}
                     borderColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
@@ -219,7 +208,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                     padding="$3"
                     position="relative"
                   >
-                    {/* Wind indicator */}
                     {hasHighWind && (
                       <XStack
                         position="absolute"
@@ -229,7 +217,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         bottom={0}
                         opacity={0.2}
                       >
-                        {/* Simple wind streaks */}
                         <XStack 
                           position="absolute" 
                           top={10} 
@@ -281,8 +268,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         )}
                       </XStack>
                     )}
-                  
-                    {/* Main content */}
                     <YStack flex={1} justifyContent="center" gap="$1">
                       <XStack alignItems="center" gap="$2">
                         <Text fontSize={28} fontFamily="$body">
@@ -297,15 +282,12 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                           </Text>
                         </YStack>
                       </XStack>
-                      
-                      {/* Wind info underneath */}
-                      <XStack alignItems="center" gap="$1" marginLeft="$8" marginTop="$1">
+                      <XStack alignItems="center" gap="$1" marginLeft="$8" mt="$1">
                         <Text fontFamily="$body" fontSize={12}>💨</Text>
                         <Text fontFamily="$body" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={12}>
                           {period.windSpeed} {period.windDirection}
                         </Text>
                       </XStack>
-                      
                       {period.precipitation > 0 && (
                         <XStack alignItems="center" gap="$1" marginLeft="$8">
                           <Text fontFamily="$body" fontSize={12}>💧</Text>
@@ -315,11 +297,9 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         </XStack>
                       )}
                     </YStack>
-                    
-                    {/* Temperature */}
                     <XStack 
                       padding="$2" 
-                      borderRadius={8} 
+                      br={8} 
                       backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"}
                       alignItems="center"
                       justifyContent="space-between"
@@ -351,11 +331,8 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   )
 }
 
-// Helper function to parse wind speed from string like "10 to 15 mph"
 function parseWindSpeed(windSpeedStr: string): number {
   const matches = windSpeedStr.match(/(\d+)/g)
   if (!matches || matches.length === 0) return 0
-  
-  // If range like "10 to 15 mph", take the higher number
   return Math.max(...matches.map(m => parseInt(m, 10)))
 }

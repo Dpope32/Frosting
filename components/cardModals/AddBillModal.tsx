@@ -123,7 +123,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   minWidth={0}
                   max={MAX_AMOUNT}
                 >
-                  <Slider.Track backgroundColor={isDark ? "$gray5" : "$gray3"} height={4} borderRadius={3}>
+                  <Slider.Track backgroundColor={isDark ? "$gray5" : "$gray3"} height={4} br={3}>
                     <Slider.TrackActive backgroundColor={primaryColor} />
                   </Slider.Track>
                   <Slider.Thumb 
@@ -131,7 +131,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                     width={8} 
                     height={8} 
                     backgroundColor={primaryColor}
-                    borderRadius={8}
+                    br={8}
                     shadowColor="black"
                     shadowOffset={{ width: 0, height: 2 }}
                     shadowOpacity={0.2}
@@ -151,7 +151,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   backgroundColor="$backgroundHover"
                   borderColor="$borderColor"
                   borderWidth={1}
-                  borderRadius={8}
+                  br={8}
                   padding="$3"
                   alignItems="center"
                   justifyContent="space-between"
@@ -178,7 +178,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
           </Animated.View>
           
           <Animated.View entering={SlideInUp.delay(500).duration(400)}>
-            <XStack gap="$3" jc="flex-end" marginTop="$2">
+            <XStack gap="$3" jc="flex-end" mt="$2">
               <Button
                 onPress={onClose}
                 backgroundColor="$backgroundHover"

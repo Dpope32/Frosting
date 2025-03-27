@@ -82,9 +82,9 @@ function ToastItem({ id, message, type, fontFamily, duration, onRemove }: ToastI
     >
       <XStack
         backgroundColor="rgba(45,45,45,0.95)"
-        borderRadius={8}
-        paddingHorizontal="$4"
-        paddingVertical="$3"
+        br={8}
+        px="$4"
+        py="$3"
         alignItems="center"
         justifyContent="space-between"
         elevation={5}

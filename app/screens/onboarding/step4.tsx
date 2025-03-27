@@ -63,7 +63,7 @@ export default function Step4({
           fontSize="$3"
           textAlign="center"
           color={subTextColor}
-          marginTop={-12}
+          mt={-12}
           opacity={0.8}
           fontWeight="400"
           fontStyle="italic"
@@ -109,7 +109,7 @@ export default function Step4({
           <Text
             color={errorColor}
             fontSize={14}
-            marginTop={8}
+            mt={8}
             textAlign="center"
           >
             {zipError}
@@ -117,7 +117,7 @@ export default function Step4({
         )}
       </YStack>
       
-      <YStack alignItems="center" marginTop={isWeb ? "$2" : "$1"} gap="$2">
+      <YStack alignItems="center" mt={isWeb ? "$2" : "$1"} gap="$2">
         
         <Button
           chromeless

@@ -184,9 +184,9 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       borderColor={style.borderColor}
       fontFamily="$body"
       borderWidth={1}
-      borderRadius={8}
-      paddingHorizontal={Platform.OS === 'web' ? '$2' : '$1'}
-      paddingVertical="$1"
+      br={8}
+      px={Platform.OS === 'web' ? '$2' : '$1'}
+      py="$1"
       onPress={onPress}
       pressStyle={{ opacity: 0.7 }}
       scale={1}

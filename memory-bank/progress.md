@@ -12,31 +12,30 @@
 
 ### Feature Modules
 - ✅ Task Management
-  - Task creation, editing, and deletion
-  - Recurring task support
-  - Task recommendations
+    ✅ Task creation, editing, and deletion
+    ✅ Recurring task support
+    ✅ Task recommendations
 - ✅ Calendar Integration
-  - Event tracking
-  - Bill due dates
-  - Birthday reminders
-  - NBA game schedules
+    ✅Event tracking
+    ✅ Bill due dates
+    ✅ Birthday reminders
+    ✅ NBA game schedules
 - ✅ CRM (Contact Management)
-  - Contact information storage
-  - Custom attributes (payment methods, addresses, etc.)
-- ✅ Password Vault
-  - Secure credential storage
-  - Local authentication
+    ✅ Contact information storage
+    ✅ Custom attributes (payment methods, addresses, etc.)
+  - ✅ Password Vault
+    ✅ Secure credential storage
+    - Local authentication
 - ✅ Finance Tracking
-  - Portfolio monitoring
-  - Stock watchlist (web version)
-  - Real-time stock updates
+    ✅ Portfolio monitoring
+    ✅ Stock watchlist (web version)
+    ✅ Real-time stock updates
 - ✅ Dashboard Widgets
-  - Weather display
-  - Network status
-  - Clock
+    ✅ Weather display
+    ✅ Network status
 - ✅ Customization
-  - Multiple wallpapers
-  - Theme options
+    ✅ Multiple wallpapers
+    ✅ Theme options
   - Layout preferences
 
 ## In Progress
@@ -44,6 +43,8 @@
 ### Platform Expansion
 - 🔄 Electron desktop application integration
 - 🔄 UI responsiveness testing across platforms
+- 🔄 Syncing Instantly across platforms for Pro users
+- 🔄 Animation Improvements
 
 ### Performance Optimization
 - 🔄 Dependency reduction
@@ -65,25 +66,25 @@
 - ⏳ End-to-end encryption for sensitive data
 
 ### Additional Integrations
-- ⏳ Calendar service integrations (Google, Apple)
 - ⏳ Additional financial data sources
 - ⏳ More sports leagues and teams
 
-### UI/UX Improvements
-- ⏳ Additional themes and customization options
-- ⏳ Accessibility enhancements
-- ⏳ Animation and transition refinements
 
 ## Known Issues
+- WiFi card wildly inconsistent
+- Bug in Drawer with profile picture not displaying
 
 ### Performance
-- Large bundle size affecting initial load times
+- 3ms to open the app (too slow)
 - Some UI components could be optimized for better performance
+  - Modals mainly
+- Routing between screens tad slow, Expo router issue
 
 ### Cross-Platform
-- Minor UI inconsistencies between platforms
-- Some features have different capabilities on web vs. native
+- Minor UI inconsistencies between platforms, speceficaly Web & iOs
+- Some features have different capabilities on small native screens
 
 ### Data Management
 - No backup/restore functionality yet
 - Local-only storage limits cross-device usage
+- No server ever. I do not want users data, just them to have the ability to sync. 

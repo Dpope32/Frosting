@@ -22,7 +22,7 @@ export function BaseCardModal({
   onOpenChange,
   title,
   children,
-  snapPoints = isWeb ? [90] : [80],
+  snapPoints = isWeb ? [95] : [80],
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000,
@@ -32,10 +32,7 @@ export function BaseCardModal({
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
   const topInset = Platform.OS === 'ios' ? insets.top : 0
-  
-  const handleClose = () => {
-    onOpenChange(false)
-  }
+  const handleClose = () => {onOpenChange(false)}
   
   return (
     <Theme name={isDark ? "dark" : "light"}>
@@ -56,7 +53,7 @@ export function BaseCardModal({
           backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
-          paddingVertical={Platform.OS === 'web' ? "$4" : "$1"}
+          py={Platform.OS === 'web' ? "$2" : "$1"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
           backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
@@ -69,7 +66,7 @@ export function BaseCardModal({
               maxWidth: 1000,
               marginHorizontal: 'auto',
               minHeight: 500,
-              maxHeight: 'calc(100vh - 80px)',
+              maxHeight: 'calc(100vh)',
             } : {}
           )}
         >

@@ -6,7 +6,7 @@ import { cards } from '../../../components/permissions/card';
 export default function PermissionsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: "#000000" }}>
-      <YStack gap="$2" padding={isWeb ? "$6" : "$4"} justifyContent="flex-start" alignItems="center" marginTop={isWeb ? "$10" : "$6"}>
+      <YStack gap="$2" padding={isWeb ? "$6" : "$4"} justifyContent="flex-start" alignItems="center" mt={isWeb ? "$10" : "$6"}>
         <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$9" : "$7"} textAlign="center" color="#FFFFFF">
           Let's talk permissions
         </Text>
@@ -15,7 +15,7 @@ export default function PermissionsScreen() {
         </Text>
       </YStack>
       
-      <YStack gap="$4" paddingHorizontal={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">
+      <YStack gap="$4" px={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">
         {cards.map((card) => {
           const bgColor = card.titleColor + "20";
           
@@ -23,8 +23,8 @@ export default function PermissionsScreen() {
             <YStack 
               key={card.id} 
               height={isWeb ? 100 : 90} 
-              backgroundColor={bgColor}
-              borderRadius="$4" 
+              bc={bgColor}
+              br="$4" 
               overflow="hidden" 
               position="relative"
             >
@@ -33,7 +33,7 @@ export default function PermissionsScreen() {
                   <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$5" : "$4"} color={card.titleColor}>
                     {card.id}. {card.title}
                   </Text>
-                  <Text fontFamily="$body" fontSize="$3" color="#FFFFFF" opacity={0.8} numberOfLines={2} marginTop="$1">
+                  <Text fontFamily="$body" fontSize="$3" color="#FFFFFF" opacity={0.8} numberOfLines={2} mt="$1">
                     {card.description}
                   </Text>
                 </YStack>
@@ -41,7 +41,7 @@ export default function PermissionsScreen() {
                   width={50} 
                   height={50} 
                   backgroundColor="rgba(0,0,0,0.2)" 
-                  borderRadius={25} 
+                  br={25} 
                   justifyContent="center" 
                   alignItems="center"
                   marginLeft="$2"
@@ -54,14 +54,14 @@ export default function PermissionsScreen() {
         })}
       </YStack>
       
-      <YStack marginTop="auto" marginBottom={isWeb ? "$6" : "$4"} paddingHorizontal={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">
+      <YStack mt="auto" marginBottom={isWeb ? "$6" : "$4"} px={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">
         <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#AAAAAA" marginBottom="$3">
           Just click continue to go to the next step!
         </Text>
         <Button
           height={isWeb ? 56 : 50} 
           backgroundColor="#222222" 
-          borderRadius="$4" 
+          br="$4" 
           justifyContent="center" 
           alignItems="center"
           hoverStyle={{ backgroundColor: "#333333" }}

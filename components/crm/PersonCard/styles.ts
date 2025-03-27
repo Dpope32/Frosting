@@ -79,22 +79,22 @@ export const styles = StyleSheet.create({
       fontSize: 16,
       fontWeight: '600',
       marginLeft: 0,
-      marginTop: 0,
+      mt: 0,
       width: '100%', // Ensure text has full width of container
     } : {
       lineHeight: 20,
-      marginTop: -1,
+      mt: -1,
       marginLeft: 0,
     }),
   },
   occupationText: {
     ...(Platform.OS === 'web' ? {
       fontSize: 13,
-      marginTop: 2, // Reduced from 4 to reduce padding below username
+      mt: 2, // Reduced from 4 to reduce padding below username
       marginLeft: 4, // Added margin-left to align with name when checkmark is active
     } : {
       lineHeight: 14,
-      marginTop: 0, // Reduced from 1 to reduce padding below username
+      mt: 0, // Reduced from 1 to reduce padding below username
       marginLeft: 2, // Adjusted from -6 to align better with name when checkmark is active
       flexShrink: 1, // Prevent text from expanding container
       width: '100%', // Ensure text has full width of container

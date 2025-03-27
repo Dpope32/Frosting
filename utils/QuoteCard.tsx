@@ -19,9 +19,9 @@ export function QuoteCard() {
     <>
       <Stack
         backgroundColor="rgba(0, 0, 0, 0.3)"
-        borderRadius={12}
-        paddingVertical={isWeb ? "$3" : "$3"}
-        paddingHorizontal={isWeb ? "$3" : "$3"}
+        br={12}
+        py={isWeb ? "$3" : "$3"}
+        px={isWeb ? "$3" : "$3"}
         borderWidth={1}
         borderColor="rgba(255, 255, 255, 0.1)"
         minWidth={80}

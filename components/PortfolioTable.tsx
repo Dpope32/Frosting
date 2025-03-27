@@ -32,7 +32,7 @@ export function PortfolioTable({
     
     if (stocks.length === 0) {
         return (
-          <YStack height={100} alignItems="center" justifyContent="center" backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"} borderRadius={12} padding="$4" borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} marginTop="$4">
+          <YStack height={100} alignItems="center" justifyContent="center" bc={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"} br={12} padding="$4" borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} mt="$4">
             <Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={14}>
               {activeTab === 'portfolio' ? 'No stocks in portfolio' : 'No stocks in watchlist'}
             </Text>
@@ -44,7 +44,7 @@ export function PortfolioTable({
 
       return (
         <YStack>
-          <XStack borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} paddingVertical="$2">
+          <XStack borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} py="$2">
             <Text width="10%" color="#dbd0c6" fontSize={14} fontWeight="500" fontFamily="$body">Symbol</Text>
             {activeTab === 'portfolio' && (
               <Text width="10%" color="#dbd0c6" fontSize={14} fontWeight="500" marginLeft={24} fontFamily="$body">Q</Text>
@@ -86,7 +86,7 @@ export function PortfolioTable({
                 return "#f44336";
               };
             return (
-              <XStack key={symbol} borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} paddingVertical="$3" paddingHorizontal="$2" alignItems="center">
+              <XStack key={symbol} borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} py="$3" px="$2" alignItems="center">
                 <XStack width="10%" alignItems="center" gap="$1">
                   <Text color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">{symbol}</Text>
                   {activeTab === 'watchlist' && (
@@ -119,36 +119,36 @@ export function PortfolioTable({
                       <Tooltip.Trigger>
                         <XStack alignItems="center">
                           <Text color={getBuyScoreColor(buyScore)} fontSize={14} fontWeight="600" fontFamily="$body" marginRight="$2"> {Math.round(buyScore)}</Text>
-                          <YStack width={40} height={10}  backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} borderRadius={6} overflow="hidden">
-                          <YStack height="100%" width={`${Math.min(100, Math.max(0, buyScore))}%`} backgroundColor={getBuyScoreColor(buyScore)}/></YStack>
+                          <YStack width={40} height={10}  bc={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} br={6} overflow="hidden">
+                          <YStack height="100%" width={`${Math.min(100, Math.max(0, buyScore))}%`} bc={getBuyScoreColor(buyScore)}/></YStack>
                         </XStack>
                       </Tooltip.Trigger>
                       <Tooltip.Content>
-                        <YStack padding="$4" width={300} backgroundColor="rgba(30, 30, 30, 0.95)" borderRadius={12}  borderWidth={1}  borderColor="rgba(255, 255, 255, 0.15)">
+                        <YStack padding="$4" width={300} bc="rgba(30, 30, 30, 0.95)" br={12}  borderWidth={1}  borderColor="rgba(255, 255, 255, 0.15)">
                           <Text fontSize={16} fontWeight="600"  fontFamily="$body" color={getBuyScoreColor(buyScore)} marginBottom="$2"> Buy Score: {Math.round(buyScore)}/100</Text>
                           <YStack width="100%" paddingRight={16}>
                             <Text fontSize={13} fontFamily="$body" color="#dbd0c6" marginBottom="$3" fontWeight="500"> Based on 52-week range, recent trends, and price momentum: </Text>
                             <YStack width="100%" gap="$3" marginBottom="$3">
                               <XStack width="100%" gap="$2" alignItems="flex-start">
-                                <YStack width={8} height={8} backgroundColor="rgba(219, 208, 198, 0.5)" borderRadius={4} marginTop="$1" marginLeft="$1"/>
+                                <YStack width={8} height={8} bc="rgba(219, 208, 198, 0.5)" br={4} mt="$1" marginLeft="$1"/>
                                 <YStack width="85%" paddingRight={16}>
                                   <Text fontSize={12} fontFamily="$body" color="#dbd0c6" > Current price position relative to 52-week High/Low (50%)</Text>
                                 </YStack>
                               </XStack>
                               <XStack width="100%" gap="$2" alignItems="flex-start">
-                                <YStack width={8} height={8} backgroundColor="rgba(219, 208, 198, 0.5)" borderRadius={4} marginTop="$1" marginLeft="$1"/>
+                                <YStack width={8} height={8} bc="rgba(219, 208, 198, 0.5)" br={4} mt="$1" marginLeft="$1"/>
                                 <YStack width="85%" paddingRight={16}>
                                   <Text fontSize={12} fontFamily="$body" color="#dbd0c6"> Recent performance across multiple timeframes (40%)</Text>
                                 </YStack>
                               </XStack>
                               <XStack width="100%" gap="$2" alignItems="flex-start">
-                                <YStack width={8} height={8} backgroundColor="rgba(219, 208, 198, 0.5)" borderRadius={4} marginTop="$1" marginLeft="$1"/>
+                                <YStack width={8} height={8} bc="rgba(219, 208, 198, 0.5)" br={4} mt="$1" marginLeft="$1"/>
                                 <YStack width="85%" paddingRight={16}>
                                   <Text fontSize={12} fontFamily="$body" color="#dbd0c6"> Momentum shifts that indicate potential reversals (10%)</Text>
                                 </YStack>
                               </XStack>
                             </YStack>
-                            <YStack width="100%" paddingHorizontal={12}>
+                            <YStack width="100%" px={12}>
                               <Text fontSize={13} fontFamily="$body" fontWeight="500" color="#dbd0c6" textAlign="center"> Higher scores suggest better buying opportunities. </Text>
                             </YStack>
                           </YStack>

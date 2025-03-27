@@ -78,7 +78,7 @@ export default function VaultScreen() {
           <XStack
             bg={isDark ? '#1A1A1A' : '#f5f5f5'}
             p="$4"
-            borderRadius="$4"
+            br="$4"
             ai="flex-start"
             jc="center"
             borderWidth={1}
@@ -94,7 +94,7 @@ export default function VaultScreen() {
                     <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Store Your Credentials
                     </Text>
-                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
+                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" mt="$1">
                       Add usernames and passwords for all your accounts in one secure location.
                     </Text>
                   </YStack>
@@ -106,7 +106,7 @@ export default function VaultScreen() {
                     <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       End-to-End Encryption
                     </Text>
-                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
+                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" mt="$1">
                       All data is stored locally and protected using advanced cryptography techniques.
                     </Text>
                   </YStack>
@@ -118,7 +118,7 @@ export default function VaultScreen() {
                     <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Easy Access & Management
                     </Text>
-                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" marginTop="$1">
+                    <Text color={isDark ? '#aaa' : '#666'} fontSize="$3" fontFamily="$body" mt="$1">
                       Quickly view, add, or remove entries with a simple and intuitive interface.
                     </Text>
                   </YStack>
@@ -132,7 +132,7 @@ export default function VaultScreen() {
               <YStack width="100%">
                 <XStack 
                   justifyContent={isWeb ? "space-between" : "flex-start"}
-                  paddingHorizontal="$2"
+                  px="$2"
                   gap="$2"
                   flexWrap="wrap"
                   width="100%"
@@ -178,8 +178,8 @@ export default function VaultScreen() {
             <XStack
               key={cred.id}
               bg={isDark ? '#1A1A1A' : '#f5f5f5'}
-              paddingHorizontal="$4"
-              borderRadius="$4"
+              px="$4"
+              br="$4"
               borderWidth={1}
               borderColor={isDark ? '#222' : '#e0e0e0'}
               ai="center"
@@ -247,8 +247,8 @@ export default function VaultScreen() {
                 key={cred.id}
                 bg={isDark ? '#1A1A1A' : '#f5f5f5'}
                 p="$1.5"
-                paddingHorizontal={isWeb? 0 : "$4"}
-                borderRadius="$4"
+                px={isWeb? 0 : "$4"}
+                br="$4"
                 borderWidth={1}
                 borderColor={isDark ? '#222' : '#e0e0e0'}
                 ai="center"
@@ -256,7 +256,7 @@ export default function VaultScreen() {
                 mb="$1"
               >
                 <YStack flex={1}>
-                  <XStack jc="space-between" ai="center" paddingVertical="$2">
+                  <XStack jc="space-between" ai="center" py="$2">
                     <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       {cred.name}
                     </Text>

@@ -33,7 +33,7 @@ export default function Step0({
         }
         autoFocus={Platform.OS === 'ios' || Platform.OS === 'android'}
         autoCapitalize="sentences"
-        backgroundColor={inputBackgroundColor}
+        bc={inputBackgroundColor}
         borderColor={inputBorderColor}
         color={inputTextColor}
         placeholderTextColor={placeholderColor}

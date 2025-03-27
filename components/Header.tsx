@@ -5,6 +5,7 @@ import { Stack, XStack, YStack } from 'tamagui';
 import { Text } from 'tamagui';
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { SettingsModal } from './cardModals/SettingsModal';
 import { NBATeamModal } from './sports/NBATeamModal';
 import { BillsListModal } from './cardModals/BillsListModal';
@@ -44,6 +45,11 @@ export function Header({ title }: HeaderProps) {
 
   // Handle the icon press based on the current screen
   const handleIconPress = () => {
+    // Trigger haptic feedback on non-web platforms
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    
     if (isSportsScreen) setShowNBATeamModal(true);
     else if (isBillsScreen) setShowBillsListModal(true);
     else if (isVaultScreen) setShowVaultListModal(true);
@@ -88,14 +94,20 @@ export function Header({ title }: HeaderProps) {
           <XStack 
             alignItems="center" 
             justifyContent="space-between" 
-            paddingHorizontal="$4" 
+            px="$4" 
             height={isWeb ? 60 : Platform.OS === 'ios' ? 92 : 90}
             paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 40 : 40}
           >
             <XStack alignItems="center" gap="$3">
               {!isWeb && (
                 <Pressable 
-                  onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+                  onPress={() => {
+                    // Trigger haptic feedback on non-web platforms
+                    if (Platform.OS !== 'web') {
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    }
+                    navigation.dispatch(DrawerActions.toggleDrawer());
+                  }}
                   style={{ 
                     padding: 8, 
                     marginLeft: -8,
@@ -133,7 +145,7 @@ export function Header({ title }: HeaderProps) {
                   padding: 8, 
                   marginRight: -8,
                   ...(isWeb ? {
-                    marginTop: 5,
+                    mt: 5,
                     marginLeft: -40
                   } as any : {})
                 }}

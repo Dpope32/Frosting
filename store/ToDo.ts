@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
+import { Platform } from 'react-native'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
@@ -35,80 +36,92 @@ interface ProjectStore {
   getTodaysTasks: () => Task[]
 }
 
-const dayNames: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+const dayNames: WeekDay[] = [
+  'sunday','monday','tuesday','wednesday','thursday','friday','saturday'
+];
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
   const dateStr = date.toISOString().split('T')[0];
-  
+
+  // For monthly/yearly tasks that rely on `recurrenceDate` but it’s missing,
+  // fallback to creation date so you’re never short-circuited by `return false`.
+  const fallbackRecDate = task.recurrenceDate
+    ? new Date(task.recurrenceDate)
+    : new Date(task.createdAt);
+
   switch (task.recurrencePattern) {
-    case 'one-time':
-      // Check if this is an NBA game (contains team names with vs or @)
+
+    case 'one-time': {
+      // Special NBA game check
       if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
-        // Only show NBA games on their scheduled date
-        const gameDate = new Date(task.scheduledDate);
-        const gameDateStr = gameDate.toISOString().split('T')[0];
-        const currentDateStr = date.toISOString().split('T')[0];
-        return gameDateStr === currentDateStr && !task.completed;
+        const gameDateStr = new Date(task.scheduledDate).toISOString().split('T')[0];
+        return gameDateStr === dateStr && !task.completed;
       }
-      
-      // Check if this is a birthday reminder
-      if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
-        // Only show birthday reminders on their scheduled date
-        const birthdayDate = new Date(task.scheduledDate);
-        const birthdayDateStr = birthdayDate.toISOString().split('T')[0];
-        const currentDateStr = date.toISOString().split('T')[0];
-        return birthdayDateStr === currentDateStr && !task.completed;
+      // Special birthday check
+      if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁'))
+          && task.scheduledDate) {
+        const bdayStr = new Date(task.scheduledDate).toISOString().split('T')[0];
+        return bdayStr === dateStr && !task.completed;
       }
-      
-      // For other one-time tasks:
-      // 1. Check if it's completed
-      // 2. If completed, check if it was completed today (so we still show it)
-      // 3. If completed on a previous day, don't show it
+      // Generic one-time tasks
       if (task.completed) {
-        // If completed, only show if it was completed today
         return task.completionHistory[dateStr] === true;
       }
-      
-      // Not completed, so show it
       return true;
+    }
+
     case 'tomorrow': {
-      // Check if the task was created today
-      const createdDate = new Date(task.createdAt);
-      const createdStr = createdDate.toISOString().split('T')[0];
-      const currentDateStr = date.toISOString().split('T')[0];
-      
-      // If the task was created yesterday, it should be visible today
+      // Visible exactly the day after creation
+      const createdDateStr = new Date(task.createdAt).toISOString().split('T')[0];
       const yesterday = new Date(date);
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split('T')[0];
-      
-      return createdStr === yesterdayStr;
+      return createdDateStr === yesterdayStr;
     }
+
     case 'everyday':
-      return true; // Everyday tasks are always due
+      // Always appears
+      return true;
+
     case 'weekly':
+      // Must match today's weekday
       return task.schedule.includes(today);
+
     case 'biweekly': {
-      if (!task.recurrenceDate) return false;
-      const startDate = new Date(task.recurrenceDate);
-      const weekDiff = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000));
-      return weekDiff % 2 === 0 && task.schedule.includes(today);
+      // Must match weekday plus be every-other week from recurrenceDate
+      const startDate = fallbackRecDate;
+      const weekDiff = Math.floor(
+        (date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)
+      );
+      return task.schedule.includes(today) && (weekDiff % 2 === 0);
     }
+
     case 'monthly': {
-      if (!task.recurrenceDate) return false;
-      const recDate = new Date(task.recurrenceDate);
-      return date.getDate() === recDate.getDate();
+      // Show if today’s weekday is in schedule OR it’s the same day-of-month as recurrenceDate
+      // That allows “every 26th” OR “every Wednesday,” depending on which is relevant to you.
+      const recDay = fallbackRecDate.getDate();
+      return (
+        task.schedule.includes(today) ||
+        (date.getDate() === recDay)
+      );
     }
+
     case 'yearly': {
-      if (!task.recurrenceDate) return false;
-      const recDate = new Date(task.recurrenceDate);
-      return date.getMonth() === recDate.getMonth() && date.getDate() === recDate.getDate();
+      // Show if month/day match recurrenceDate OR if we also want to allow schedule-based day-of-week
+      const recMonth = fallbackRecDate.getMonth();
+      const recDay = fallbackRecDate.getDate();
+      return (
+        (date.getMonth() === recMonth && date.getDate() === recDay) ||
+        task.schedule.includes(today)
+      );
     }
+
     default:
       return false;
   }
 };
+
 
 const createTaskFilter = () => {
   let lastToday: string | null = null;
@@ -171,25 +184,18 @@ export const useProjectStore = create<ProjectStore>()(
       todaysTasks: [],
       addTask: (data) => {
         const tasks = { ...get().tasks }
-        const existingTask = Object.values(tasks).find(task => 
-          task.name === data.name && 
-          task.scheduledDate === data.scheduledDate
-        );
-        
-        if (!existingTask) {
-          const id = Date.now().toString()
-          const newTask: Task = {
-            ...data,
-            id,
-            completed: false,
-            completionHistory: {},
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            recurrencePattern: data.recurrencePattern || 'one-time'
-          }
-          tasks[id] = newTask
-          set({ tasks, todaysTasks: taskFilter(tasks) })
+        const id = Date.now().toString()
+        const newTask: Task = {
+          ...data,
+          id,
+          completed: false,
+          completionHistory: {},
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          recurrencePattern: data.recurrencePattern || 'one-time'
         }
+        tasks[id] = newTask
+        set({ tasks, todaysTasks: taskFilter(tasks) })
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }
@@ -218,7 +224,10 @@ export const useProjectStore = create<ProjectStore>()(
           }
           set({ tasks, todaysTasks: taskFilter(tasks) })
         }
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        // Only trigger haptic feedback on native platforms
+        if (Platform.OS !== 'web') {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
       },
       getTodaysTasks: () => get().todaysTasks
     }),

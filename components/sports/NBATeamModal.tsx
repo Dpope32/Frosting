@@ -191,7 +191,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
               paddingHorizontal={20}
               pressStyle={{ opacity: 0.8, scale: 0.98 }}
               onPress={handleSave}
-              borderRadius={24}
+              br={24}
               shadowColor="black"
               shadowOffset={{ width: 0, height: 2 }}
               shadowOpacity={0.1}

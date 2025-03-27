@@ -54,8 +54,8 @@ export function TaskCard({
 
   return (
     <Stack
-      backgroundColor="rgba(25, 28, 29, 0.8)"
-      borderRadius={10}
+      backgroundColor="rgba(14, 14, 14, 0.77)"
+      br={10}
       padding={isWeb ? "$2" : "$2"}
       marginVertical={isWeb ? "$1" : "$0"}
       borderWidth={1}
@@ -120,7 +120,7 @@ export function TaskCard({
         </Pressable>
 
         <Stack flex={1} gap="$1.5">
-          <XStack justifyContent="space-between" alignItems="center" gap="$1" marginTop={-2}>
+          <XStack justifyContent="space-between" alignItems="center" gap="$1" mt={-2}>
                 <Text 
                   fontFamily="$body"
                   color="rgb(232, 230, 227)" 
@@ -166,15 +166,15 @@ export function TaskCard({
             </Pressable>
           </XStack>
 
-          <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-6} marginTop={-4}>
+          <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-6} mt={-4}>
             {/* Category chip */}
             {category && (
               <XStack 
                 alignItems="center" 
                 backgroundColor={`${categoryColor}15`}
-                paddingHorizontal="$1"
-                paddingVertical="$0.5"
-                borderRadius={12}
+                px="$1"
+                py="$0.5"
+                br={12}
                 opacity={checked ? 0.6 : 0.9}
               >
                 <Ionicons 
@@ -199,9 +199,9 @@ export function TaskCard({
               <XStack 
                 alignItems="center" 
                 backgroundColor={`${getPriorityColor(priority)}15`}
-                paddingVertical="$0.5"
-                paddingHorizontal="$1"
-                borderRadius={12}
+                py="$0.5"
+                px="$1"
+                br={12}
                 opacity={checked ? 0.6 : 0.9}
               >
                 <Ionicons 
@@ -225,9 +225,9 @@ export function TaskCard({
             <XStack 
               alignItems="center" 
               backgroundColor={checked ? "rgba(0, 200, 81, 0.15)" : "rgba(33, 150, 243, 0.15)"}
-              paddingHorizontal="$1"
-              paddingVertical="$0.5"
-              borderRadius={12}
+              px="$1"
+              py="$0.5"
+              br={12}
               opacity={checked ? 0.6 : 0.9}
             >
               <Ionicons 
@@ -251,9 +251,9 @@ export function TaskCard({
               <XStack 
                 alignItems="center" 
                 backgroundColor="rgba(255, 255, 255, 0.05)"
-                paddingHorizontal="$1"
-                paddingVertical="$0.5"
-                borderRadius={12}
+                px="$1"
+                py="$0.5"
+                br={12}
                 borderWidth={1}
                 borderColor="rgb(52, 54, 55)"
                 opacity={checked ? 0.6 : 0.9}

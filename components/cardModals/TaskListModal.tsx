@@ -1,7 +1,6 @@
 import React from 'react'
-import { YStack, XStack, Text, ScrollView } from 'tamagui'
+import { YStack, XStack, Text, ScrollView, isWeb } from 'tamagui'
 import { useProjectStore, Task, WeekDay } from '@/store/ToDo'
-import { useThunderStore } from '@/store/ThunderStore'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { Pressable, Platform, useColorScheme } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
@@ -15,6 +14,18 @@ interface TaskListModalProps {
 }
 
 export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
+  const [scrollY, setScrollY] = React.useState(0)
+  const scrollViewRef = React.useRef<ScrollView>(null)
+  
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && scrollY > 0) {
+      // If trying to close but not at top, scroll to top instead
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true })
+      return
+    }
+    onOpenChange(newOpen)
+  }
+
   const tasks = useProjectStore(s => s.tasks)
   const deleteTask = useProjectStore(s => s.deleteTask)
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
@@ -79,18 +90,24 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   return (
     <BaseCardModal
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       title="All Tasks"
-      snapPoints={[80]}
+      snapPoints = {isWeb ? [95] : [80]}
       showCloseButton={true}
     >
-      <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        ref={scrollViewRef}
+        bounces={false} 
+        showsVerticalScrollIndicator={false}
+        onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
+        scrollEventThrottle={16}
+      >
         <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false} 
             paddingBottom="$4" 
-            marginTop="$2"
+            mt="$2"
           >
             <XStack gap={Platform.OS === 'web' ? "$3" : "$2"} paddingRight="$4">
               <RecommendationChip category="Cleaning" onPress={() => {onOpenChange(false), openRecommendationModal('Cleaning')}} isDark={isDark}/>
@@ -108,7 +125,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                 <XStack
                   key={task.id}
                   backgroundColor={isDark ? "$gray2" : "$gray3"}
-                  borderRadius={8}
+                  br={8}
                   padding={isWeb ? "$3" : "$3"}
                   alignItems="center"
                   justifyContent="space-between"
@@ -123,7 +140,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                     >
                       {task.name}
                     </Text>
-                    <XStack gap="$1.5" marginTop="$1" flexWrap="nowrap">
+                    <XStack gap="$1.5" mt="$1" flexWrap="nowrap">
                       <Text
                         fontFamily="$body"
                         color={getCategoryColor(task.category)}
@@ -138,7 +155,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                     </XStack>
                   </YStack>
                   <Pressable onPress={() => deleteTask(task.id)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 4})}>
-                    <Ionicons name="close" size={18} color="#ff4444" style={{ fontWeight: 200 }} marginTop={Platform.OS === 'web' ? 0 : -16}/>
+                    <Ionicons name="close" size={18} color="#ff4444" style={{ fontWeight: 200 }} mt={Platform.OS === 'web' ? 0 : -16}/>
                   </Pressable>
                 </XStack>
               ))}
@@ -147,7 +164,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
         )}
 
         {Object.values(tasksByDay).every(dayTasks => dayTasks.length === 0) && (
-          <YStack backgroundColor={isDark ? "$gray2" : "$gray3"} borderRadius={8} padding="$4" alignItems="center">
+          <YStack backgroundColor={isDark ? "$gray2" : "$gray3"} br={8} padding="$4" alignItems="center">
             <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} opacity={0.7}> No tasks found</Text>
           </YStack>
         )}

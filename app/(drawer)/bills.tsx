@@ -64,7 +64,7 @@ export default function BillsScreen() {
         marginLeft={isWeb ? "$1" : "$0"}
         mx="auto"
         p="$4"
-        borderRadius="$4"
+        br="$4"
         bg={isDark ? "#1A1A1A" : "#f5f5f5"}
         borderWidth={1}
         borderColor={isDark ? "#333" : "#e0e0e0"}
@@ -156,7 +156,7 @@ export default function BillsScreen() {
               bg={isDark ? "#1A1A1A" : "#f5f5f5"}
               p={isWeb ? "$3" : "$4"} 
               mb="$2"
-              borderRadius="$4" 
+              br="$4" 
               ai="center" 
               pressStyle={{ opacity: 0.7 }} 
               animation="quick"
@@ -164,10 +164,10 @@ export default function BillsScreen() {
               borderColor={isDark ? "#333" : "#e0e0e0"}
               width={isWeb ? columnWidth : "100%"}
             >
-              <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$4" />
+              <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} br="$4" />
               <YStack ml="$3" flex={1} gap="$1">
-                <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
-                <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} borderRadius="$2" />
+                <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
+                <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
               </YStack>
             </XStack>
           ))
@@ -175,8 +175,8 @@ export default function BillsScreen() {
           <XStack 
             bg={isDark ? "#1A1A1A" : "#f5f5f5"}
             p={isWeb ? "$4" : "$5"}
-            borderRadius="$4" 
-            paddingHorizontal={isWeb ? "$6" : "$4"}
+            br="$4" 
+            px={isWeb ? "$6" : "$4"}
             ai="flex-start" 
             jc="center"
             borderWidth={1}
@@ -185,14 +185,14 @@ export default function BillsScreen() {
           >
             <YStack gap="$4" width="100%" >
               
-              <YStack gap="$3" paddingHorizontal={isWeb ? "$4" : "$4"}>
+              <YStack gap="$3" px={isWeb ? "$4" : "$4"}>
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
                     <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Track Monthly Expenses
                     </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" mt="$1">
                       Add your recurring bills and keep track of your monthly expenses in one place.
                     </Text>
                   </YStack>
@@ -204,7 +204,7 @@ export default function BillsScreen() {
                     <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Due Date Reminders
                     </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" mt="$1">
                       Never miss a payment with visual indicators for upcoming and due bills.
                     </Text>
                   </YStack>
@@ -216,7 +216,7 @@ export default function BillsScreen() {
                     <Text color={isDark ? "#fffbf7" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                       Budget Overview
                     </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" marginTop="$1">
+                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body" mt="$1">
                       See your total monthly expenses and manage your budget more effectively.
                     </Text>
                   </YStack>
@@ -229,7 +229,7 @@ export default function BillsScreen() {
               <YStack width="100%">
                 <XStack 
                   justifyContent={isWeb ? "space-between" : "flex-start"}
-                  paddingHorizontal="$2"
+                  px="$2"
                   gap="$2"
                   flexWrap="wrap"
                   width="100%"
@@ -277,8 +277,8 @@ export default function BillsScreen() {
               <XStack 
                 key={bill.id} 
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-                paddingHorizontal="$4"
-                borderRadius="$4" 
+                px="$4"
+                br="$4" 
                 ai="center" 
                 animation="quick"
                 borderWidth={1}
@@ -305,7 +305,7 @@ export default function BillsScreen() {
                     left={0}
                     right={0}
                     bottom={0}
-                    borderRadius="$4"
+                    br="$4"
                     bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.6)"}
                     ai="center"
                     jc="center"
@@ -358,7 +358,7 @@ export default function BillsScreen() {
                     <YStack 
                       width={44} 
                       height={44} 
-                      borderRadius="$4" 
+                      br="$4" 
                       ai="center" 
                       jc="center" 
                       bg={isDark ? "#333" : "#e0e0e0"}
@@ -378,7 +378,7 @@ export default function BillsScreen() {
                 bg={isDark ? "#1A1A1A" : "#f5f5f5"}
                 p="$3"
                 mb="$2"
-                borderRadius="$4" 
+                br="$4" 
                 ai="center" 
                 pressStyle={{ opacity: 0.7 }} 
                 animation="quick"
@@ -391,7 +391,7 @@ export default function BillsScreen() {
                 <YStack 
                   width={44} 
                   height={44} 
-                  borderRadius="$4" 
+                  br="$4" 
                   ai="center" 
                   jc="center" 
                   bg={isDark ? "#333" : "#e0e0e0"}
@@ -407,7 +407,7 @@ export default function BillsScreen() {
                     left={0}
                     right={0}
                     bottom={0}
-                    borderRadius="$4"
+                    br="$4"
                     bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.8)"}
                     ai="center"
                     jc="center"

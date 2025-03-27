@@ -82,7 +82,7 @@ export default function Step1({
             handleNext();
           }}
           color={buttonColor}
-          marginTop="$1"
+          mt="$1"
         >
           Or skip for now
         </Button>

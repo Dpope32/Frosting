@@ -88,7 +88,7 @@ const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
           <YStack
             width="100%"
             height="100%"
-            borderRadius={4}
+            br={4}
             {...(isWeb
               ? {
                   style: {
@@ -115,7 +115,7 @@ const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
             )}
           </YStack>
         ) : (
-          <YStack width="100%" height="100%" overflow="hidden" borderRadius={4}>
+          <YStack width="100%" height="100%" overflow="hidden" br={4}>
             <Image
               source={getWallpaperImageSource(styleItem.value)}
               style={{ width: '100%', height: '100%', borderRadius: 4 }}
@@ -259,7 +259,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           </XStack>
           {Platform.OS !== 'web' ? (
-            <XStack marginTop="$0" gap="$2" paddingLeft={12} justifyContent="space-between" alignItems="center">
+            <XStack mt="$0" gap="$2" paddingLeft={12} justifyContent="space-between" alignItems="center">
               <XStack gap="$2">
                 <YStack alignItems="center" gap={4}>
                   <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
@@ -274,7 +274,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
                 </YStack>
               </XStack>
-              <YStack alignItems="center" marginTop={4} gap={4}>
+              <YStack alignItems="center" mt={4} gap={4}>
                 <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Primary Color
                 </Text>
@@ -282,7 +282,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </YStack>
             </XStack>
           ) : (
-            <XStack marginTop="$2" justifyContent="space-between" width="90%" paddingLeft={0}>
+            <XStack mt="$2" justifyContent="space-between" width="90%" paddingLeft={0}>
               <YStack alignItems="center" gap="$1">
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Quote
@@ -303,7 +303,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </YStack>
             </XStack>
           )}
-          <YStack gap="$2" marginTop="$2">
+          <YStack gap="$2" mt="$2">
             <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
               Wallpaper Selection
             </Text>
@@ -345,7 +345,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </Button>
             )}
           </YStack>
-          <XStack justifyContent="flex-end" marginTop={Platform.OS === 'android' ? 0 : "$4"}>
+          <XStack justifyContent="flex-end" mt={Platform.OS === 'android' ? 0 : "$4"}>
             <Button backgroundColor={settings.primaryColor} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} onPress={handleSave}>
               <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
                 Save

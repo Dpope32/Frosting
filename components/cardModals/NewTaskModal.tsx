@@ -186,9 +186,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             onDebouncedChange={handleTextChange}
             borderWidth={1}
             autoCapitalize="sentences"
-            borderRadius={12}
+            br={12}
             fontFamily="$body"
-            paddingHorizontal="$3"
+            px="$3"
             height={50}
             fontSize={17}
             fontWeight="400"
@@ -204,11 +204,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               onPress={handleTimePress}
               theme={isDark ? "dark" : "light"}
               backgroundColor={isDark ? "$gray2" : "white"}
-              borderRadius={12}
+              br={12}
               height={50}
               borderColor={isDark ? "$gray7" : "$gray4"}
               borderWidth={1}
-              paddingHorizontal="$3"
+              px="$3"
               pressStyle={{ opacity: 0.8 }}
             >
               <XStack flex={1} alignItems="center" justifyContent="space-between">
@@ -269,9 +269,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       <Button
                         onPress={() => setShowTimePicker(false)}
                         backgroundColor={preferences.primaryColor}
-                        paddingHorizontal="$3"
-                        paddingVertical="$2"
-                        borderRadius={8}
+                        px="$3"
+                        py="$2"
+                        br={8}
                       >
                         <Text color="white" fontWeight="600">Done</Text>
                       </Button>
@@ -294,7 +294,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           {/* Recurrence Pattern Buttons */}
           <YStack gap="$2">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <XStack gap="$2" paddingVertical="$1">
+              <XStack gap="$2" py="$1">
                 {RECURRENCE_PATTERNS.map(pattern => (
                   <Button
                     key={pattern.value}
@@ -305,9 +305,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     }
                     pressStyle={{ opacity: 0.8, scale: 0.98 }}
                     onPress={() => handleRecurrenceSelect(pattern.value)}
-                    borderRadius={24}
-                    paddingHorizontal="$3"
-                    paddingVertical="$2.5"
+                    br={24}
+                    px="$3"
+                    py="$2.5"
                     borderWidth={1}
                     borderColor={
                       newTask.recurrencePattern === pattern.value
@@ -339,7 +339,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
               <YStack gap="$3">
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <XStack gap="$2" paddingVertical="$1">
+                  <XStack gap="$2" py="$1">
                     {Object.entries(WEEKDAYS).map(([sd, fd]) => (
                       <Button
                         key={sd}
@@ -350,9 +350,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         }
                         pressStyle={{ opacity: 0.8, scale: 0.98 }}
                         onPress={() => toggleDay(sd)}
-                        borderRadius={24}
-                        paddingHorizontal="$2"
-                        paddingVertical="$2.5"
+                        br={24}
+                        px="$2"
+                        py="$2.5"
                         borderWidth={1}
                         borderColor={
                           newTask.schedule.includes(fd)
@@ -378,7 +378,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               <YStack gap="$3">
                 {newTask.recurrencePattern === 'yearly' && (
                   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <XStack gap="$2" paddingVertical="$1">
+                    <XStack gap="$2" py="$1">
                       {MONTHS.map((m, i) => (
                         <Button
                           key={m}
@@ -393,9 +393,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                             d.setMonth(i)
                             setNewTask(prev => ({ ...prev, recurrenceDate: d.toISOString().split('T')[0] }))
                           }}
-                          borderRadius={24}
-                          paddingHorizontal="$2"
-                          paddingVertical="$2.5"
+                          br={24}
+                          px="$2"
+                          py="$2.5"
                           borderWidth={1}
                           borderColor={
                             new Date(newTask.recurrenceDate || new Date().toISOString()).getMonth() === i
@@ -421,7 +421,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                   </ScrollView>
                 )}
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <XStack gap="$2" paddingVertical="$1">
+                  <XStack gap="$2" py="$1">
                     {Array.from({ length: 31 }, (_, idx) => idx + 1).map(d => (
                       <Button
                         key={d}
@@ -436,9 +436,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                           dt.setDate(d)
                           setNewTask(prev => ({ ...prev, recurrenceDate: dt.toISOString().split('T')[0] }))
                         }}
-                        borderRadius={24}
-                        paddingHorizontal="$2"
-                        paddingVertical="$2.5"
+                        br={24}
+                        px="$2"
+                        py="$2.5"
                         borderWidth={1}
                         borderColor={
                           new Date(newTask.recurrenceDate || new Date().toISOString()).getDate() === d
@@ -492,8 +492,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                   }
                   pressStyle={{ opacity: 0.8, scale: 0.98 }}
                   onPress={() => handlePrioritySelect(priority as TaskPriority)}
-                  borderRadius={12}
-                  paddingVertical="$2.5"
+                  br={12}
+                  py="$2.5"
                   borderWidth={1}
                   borderColor={
                     newTask.priority === priority
@@ -528,9 +528,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         : isDark ? "$gray2" : "white"
                     }
                     pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                    borderRadius={24}
-                    paddingHorizontal="$3"
-                    paddingVertical="$2.5"
+                    br={24}
+                    px="$3"
+                    py="$2.5"
                     borderWidth={1}
                     borderColor={
                       newTask.category === cat
@@ -556,9 +556,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             backgroundColor={preferences.primaryColor}
             height={50}
             pressStyle={{ opacity: 0.8, scale: 0.98 }}
-            borderRadius={12}
+            br={12}
             alignSelf="center"
-            marginTop={8}  
+            mt={8}  
             width="100%"
             shadowColor="black"
             shadowOffset={{ width: 0, height: 2 }}
