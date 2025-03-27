@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import { calendarStyles } from './CalendarStyles';
+import { View, Text, TouchableOpacity, Modal } from 'react-native';
+import { calendarStyles } from './debugModalStyles';
 
 interface CalendarAnalyticsProps {
   visible: boolean;
@@ -22,73 +22,85 @@ export const CalendarAnalytics: React.FC<CalendarAnalyticsProps> = ({
 }) => {
   if (!debugData) return null;
 
+  const textColor = isDark ? '#f8f8f2' : '#282a36';
+  const containerBg = isDark ? '#1e1e1e' : '#ffffff';
+  const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
+
   return (
-    <Modal visible={visible} transparent animationType="slide">
-      <View style={calendarStyles.debugModalContainer}>
-        <View style={[calendarStyles.debugModalContent, { backgroundColor: isDark ? '#1e1e1e' : '#ffffff' }]}>
-          <Text style={[calendarStyles.debugModalTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={calendarStyles.modalOverlay}>
+        <View style={[calendarStyles.modalContent, { backgroundColor: containerBg }]}>
+          <Text style={[calendarStyles.modalTitle, { color: textColor }]}>
             Calendar Analytics
           </Text>
-          <ScrollView showsVerticalScrollIndicator={false} style={calendarStyles.debugScroll}>
-            {debugData && (
-              <>
-                <View style={calendarStyles.debugRow}>
-                  <Text style={[calendarStyles.debugLabel, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    Total Events:
+
+          <View style={calendarStyles.infoSection}>
+            <View style={calendarStyles.infoRow}>
+              <Text style={[calendarStyles.infoLabel, { color: textColor }]}>Total Events</Text>
+              <Text style={[calendarStyles.infoValue, { color: textColor }]}>{debugData.totalEvents}</Text>
+            </View>
+            <View style={calendarStyles.infoRow}>
+              <Text style={[calendarStyles.infoLabel, { color: textColor }]}>Vault Entries</Text>
+              <Text style={[calendarStyles.infoValue, { color: textColor }]}>{debugData.vaultEntries}</Text>
+            </View>
+          </View>
+
+          <View style={calendarStyles.section}>
+            <Text style={[calendarStyles.sectionTitle, { color: textColor }]}>Events By Type</Text>
+            <View style={[calendarStyles.table, { borderColor }]}>
+              <View style={[calendarStyles.tableHeaderRow, { borderColor }]}>
+                <Text style={[calendarStyles.tableHeaderCell, { color: textColor, borderColor }]}>Type</Text>
+                <Text style={[calendarStyles.tableHeaderCell, { color: textColor, borderColor }]}>Count</Text>
+              </View>
+              {Object.entries(debugData.eventsByType).map(([type, count], i) => (
+                <View
+                  style={[
+                    calendarStyles.tableRow,
+                    { borderColor },
+                    i === Object.entries(debugData.eventsByType).length - 1 && calendarStyles.lastRow,
+                  ]}
+                  key={type}
+                >
+                  <Text style={[calendarStyles.tableCell, { color: textColor, borderColor }]}>{type}</Text>
+                  <Text style={[calendarStyles.tableCell, { color: textColor, borderColor }]}>{count}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={calendarStyles.section}>
+            <Text style={[calendarStyles.sectionTitle, { color: textColor }]}>Upcoming Events</Text>
+            <View style={[calendarStyles.table, { borderColor }]}>
+              <View style={[calendarStyles.tableHeaderRow, { borderColor }]}>
+                <Text style={[calendarStyles.tableHeaderCell, { color: textColor, borderColor }]}>Title</Text>
+                <Text style={[calendarStyles.tableHeaderCell, { color: textColor, borderColor }]}>Date</Text>
+                <Text style={[calendarStyles.tableHeaderCell, { color: textColor, borderColor }]}>Type</Text>
+              </View>
+              {debugData.upcomingEvents.map((event, idx) => (
+                <View
+                  style={[
+                    calendarStyles.tableRow,
+                    { borderColor },
+                    idx === debugData.upcomingEvents.length - 1 && calendarStyles.lastRow,
+                  ]}
+                  key={idx}
+                >
+                  <Text style={[calendarStyles.tableCell, { color: textColor, borderColor }]}>
+                    {event.title}
                   </Text>
-                  <Text style={[calendarStyles.debugValue, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    {debugData.totalEvents}
+                  <Text style={[calendarStyles.tableCell, { color: textColor, borderColor }]}>
+                    {event.date}
+                  </Text>
+                  <Text style={[calendarStyles.tableCell, { color: textColor, borderColor }]}>
+                    {event.type}
                   </Text>
                 </View>
-                <View style={calendarStyles.debugRow}>
-                  <Text style={[calendarStyles.debugLabel, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    Vault Entries:
-                  </Text>
-                  <Text style={[calendarStyles.debugValue, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    {debugData.vaultEntries}
-                  </Text>
-                </View>
-                <View style={calendarStyles.debugRow}>
-                  <Text style={[calendarStyles.debugLabel, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    Events By Type:
-                  </Text>
-                </View>
-                {Object.entries(debugData.eventsByType).map(([type, count]) => (
-                  <View style={calendarStyles.debugRow} key={type}>   
-                    <Text style={[calendarStyles.debugKey, { color: isDark ? '#ffffff' : '#000000' }]}>
-                      {type}:
-                    </Text>
-                    <Text style={[calendarStyles.debugValue, { color: isDark ? '#ffffff' : '#000000' }]}>
-                      {count}
-                    </Text>
-                  </View>
-                ))}
-                <View style={calendarStyles.debugRow}>
-                  <Text style={[calendarStyles.debugLabel, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    Upcoming Events:
-                  </Text>
-                </View>
-                {debugData.upcomingEvents.map((event, idx) => (
-                  <View style={calendarStyles.debugEventRow} key={idx}>
-                    <Text style={[calendarStyles.debugEventTitle, { color: isDark ? '#ffffff' : '#000000' }]}>
-                      {event.title}
-                    </Text>
-                    <Text style={[calendarStyles.debugEventDate, { color: isDark ? '#ffffff' : '#000000' }]}>
-                      {event.date}
-                    </Text>
-                    <Text style={[calendarStyles.debugEventType, { color: isDark ? '#ffffff' : '#000000' }]}>
-                      {event.type}
-                    </Text>
-                  </View>
-                ))}
-              </>
-            )}
-          </ScrollView>
-          <TouchableOpacity
-            style={[calendarStyles.debugCloseButton, { backgroundColor: '#666666' }]}
-            onPress={onClose}
-          >
-            <Text style={calendarStyles.debugCloseButtonText}>OK</Text>
+              ))}
+            </View>
+          </View>
+
+          <TouchableOpacity style={calendarStyles.closeButton} onPress={onClose}>
+            <Text style={calendarStyles.closeButtonText}>OK</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -19,28 +19,20 @@ export const LegalButton = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const isWeb = Platform.OS === 'web';
-  
-  // Animation values
   const animationProgress = useSharedValue(0);
   const scale = useSharedValue(1);
-  
-  // Handle button press
+
   const handlePress = () => {
-    // Trigger animation
     scale.value = withSpring(0.9, { damping: 10 });
     
-    // Use a timeout to allow the animation to complete
     setTimeout(() => {
       scale.value = withSpring(1);
       
-      // Animate the progress value
       animationProgress.value = withTiming(1, {
         duration: 800,
         easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       });
       
-      // Show the modal right as the animation reaches its peak
       setTimeout(() => {
         setModalVisible(true);
       }, 400);

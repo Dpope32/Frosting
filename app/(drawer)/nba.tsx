@@ -175,29 +175,48 @@ export default function Sports() {
         backgroundColor: isDark ? '#000000' : '#f3f3f3'
       }]}
     >
-      <View style={styles.teamHeader}>
+      <View style={[
+        styles.teamHeader, 
+        isWeb && styles.webTeamHeader,
+        { borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
+      ]}>
         <Image
           source={{ uri: team?.logo }}
-          style={styles.teamLargeLogo}
+          style={[styles.teamLargeLogo, isWeb && styles.webTeamLargeLogo]}
           resizeMode="contain"
         />
         <View style={styles.teamInfoContainer}>
-          <Text style={styles.teamName}>
+          <Text style={[
+            styles.teamName,
+            isWeb && styles.webTeamName,
+            { color: isDark ? '#ffffff' : '#000000' }
+          ]}>
             {teamName}
           </Text>
-          <View style={styles.recordRow}>
-            <Text style={styles.recordText}>
+          <View style={[styles.recordRow, isWeb && styles.webRecordRow]}>
+            <Text style={[
+              styles.recordText,
+              isWeb && styles.webRecordText,
+              { color: isDark ? '#dddddd' : '#333333' }
+            ]}>
               {teamRecord}
             </Text>
-            <Text style={styles.rankingText}>
+            <Text style={[
+              styles.rankingText,
+              isWeb && styles.webRankingText,
+              { color: isDark ? '#aaaaaa' : '#555555' }
+            ]}>
               {simplifiedRank}
             </Text>
           </View>
         </View>
       </View>
       
-      <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: isDark ? '#fff' : '#111', fontFamily: '$body' }]}>
+      <View style={[styles.header]}>
+        <Text style={[
+          styles.headerTitle, 
+          { color: isDark ? '#fff' : '#111', fontFamily: '$body' }
+        ]}>
           {seasonText}
         </Text>
       </View>

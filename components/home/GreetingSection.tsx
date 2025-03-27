@@ -1,12 +1,10 @@
 import React from 'react'
 import { XStack, Text, isWeb } from 'tamagui'
-import { useColorScheme } from 'react-native'
 import { getGreeting } from '@/services/greetingService'
 
 interface GreetingSectionProps { username: string }
 
 export const GreetingSection = ({ username }: GreetingSectionProps) => {
-  const colorScheme = useColorScheme()
   
   return (
     <XStack 

@@ -1,4 +1,5 @@
 import { StyleSheet, Platform } from 'react-native'
+import { isWeb } from 'tamagui'
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,7 +9,7 @@ export const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    padding: Platform.OS === 'web' ? 12 : 8,
     marginLeft: 12,
   },
   headerTitle: {
@@ -19,13 +20,13 @@ export const styles = StyleSheet.create({
   teamHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingVertical: 10,
     paddingHorizontal: 16,
+    marginLeft: 24,
+    paddingVertical: 20,
+    marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
-    marginBottom: 8,
-    backgroundColor: '#121212', // Dark background for the header
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    width: '100%',
   },
   teamHeaderTitle: {
     fontSize: 22,
@@ -35,6 +36,7 @@ export const styles = StyleSheet.create({
   teamLargeLogo: {
     width: 50,
     height: 50,
+    paddingLeft: 12,
   },
   logo: {
     width: 40,
@@ -43,6 +45,7 @@ export const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: '100%',
+    marginLeft: 20,
   },
   listContainer: {
     flex: 1,
@@ -157,7 +160,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginRight: 8,
-    color: '#fff',
+    color: '#333',
   },
   standingsText: {
     fontSize: 14,
@@ -185,6 +188,7 @@ export const styles = StyleSheet.create({
   recordRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 4,
   },
   rankingText: {
     fontSize: 14,
@@ -192,4 +196,34 @@ export const styles = StyleSheet.create({
     opacity: 0.9,
     color: '#0a84ff',
   },
+
+    // Responsive styles for web
+    webTeamHeader: {
+      paddingHorizontal: 24,
+      paddingVertical: 28,
+    },
+    
+    webTeamLargeLogo: {
+      width: 90,
+      height: 90,
+
+    },
+    
+    webTeamName: {
+      fontSize: 24,
+      marginBottom: 0,
+    },
+    
+    webRecordRow: {
+      marginTop: 2,
+    },
+    
+    webRecordText: {
+      fontSize: 20,
+      marginRight: 12,
+    },
+    
+    webRankingText: {
+      fontSize: 20,
+    },
 })

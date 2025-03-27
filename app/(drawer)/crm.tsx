@@ -1,4 +1,3 @@
-// crm.tsx
 import React, { useState } from "react";
 import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
 import { H4, Separator, YStack, Text, Button, isWeb, XStack } from "tamagui";
@@ -16,10 +15,10 @@ import { useUserStore } from "@/store/UserStore";
 import { importContacts, handleDebugPress } from "@/services/peopleService";
 
 const { width } = Dimensions.get("window");
-const PADDING = Platform.OS === 'web' ? 18: 12;
+const PADDING = Platform.OS === 'web' ? 18 : 12;
 const GAP = Platform.OS === 'web' ? 24 : 12; 
 const NUM_COLUMNS = Platform.OS === 'web' ? 4 : 2;
-const CARD_WIDTH = (width - (22 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+const CARD_WIDTH = (width - (30 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
 const CARD_WIDTH_MOBILE = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
 
 export default function CRM() {
@@ -61,7 +60,7 @@ export default function CRM() {
           marginLeft: isFirstInRow ? PADDING : GAP / 1,
           paddingLeft: isWeb ? 24 : 0,
           marginRight: isLastInRow ? PADDING : GAP / 2,
-          marginBottom: GAP /2
+          marginBottom: GAP / 2
         }}
       >
         <PersonCard
@@ -75,7 +74,7 @@ export default function CRM() {
   };
 
   return (
-    <YStack flex={1} paddingTop={isWeb ? 12 : 85}>
+    <YStack flex={1} paddingTop={isWeb ? 60 : 85}>
       {__DEV__ && (
         <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
           <Button
@@ -132,10 +131,14 @@ export default function CRM() {
           />
         </View>
       )}
-      <H4 fontFamily="$heading" fontSize="$7" fontWeight={'bold'} mt={isWeb ? 16 : 0} textAlign="center" marginBottom={8}>
-        All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
-      </H4>
-      <Separator borderColor="$gray8" borderWidth={1}  marginBottom={2} />
+      {!isWeb && (
+        <>
+          <H4 fontFamily="$heading" fontSize="$7" fontWeight="bold" mt={0} textAlign="center" marginBottom={8}>
+            All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
+          </H4>
+          <Separator borderColor="$gray8" borderWidth={1} marginBottom={2} />
+        </>
+      )}
       <FlatList
         key={JSON.stringify(allContacts)} 
         data={allContacts}
@@ -172,7 +175,6 @@ export default function CRM() {
                     </Text>
                   </YStack>
                 </XStack>
-                
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
@@ -184,7 +186,6 @@ export default function CRM() {
                     </Text>
                   </YStack>
                 </XStack>
-                
                 <XStack gap="$2" ai="flex-start">
                   <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
                   <YStack>
@@ -197,13 +198,7 @@ export default function CRM() {
                   </YStack>
                 </XStack>
               </YStack>
-              
-              <XStack 
-                justifyContent="center"
-                px={isWeb ? "$2" : "$1"}
-                gap="$2"
-                mt="$2"
-              >
+              <XStack justifyContent="center" px={isWeb ? "$2" : "$1"} gap="$2" mt="$2">
                 {isWeb ? (
                   <YStack alignItems="center" gap="$2">
                     <Button
@@ -218,8 +213,7 @@ export default function CRM() {
                       pressStyle={{ opacity: 0.7 }}
                       animation="quick"
                       disabled
-                    >
-                    </Button>
+                    />
                   </YStack>
                 ) : (
                   <Button
@@ -279,7 +273,6 @@ export default function CRM() {
                   </Button>
                 )}
               </XStack>
-              
               <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
                 Or click the + button below to add a contact manually
               </Text>

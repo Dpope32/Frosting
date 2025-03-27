@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Platform, Image } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalendarEvent } from '@/store/CalendarStore';
 import { nbaTeams } from '@/constants/nba';
@@ -59,7 +59,13 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         }
         
         if (event.type === 'birthday') acc[event.date].birthday = true;
-
+        else if (event.type === 'work') acc[event.date].work = true;
+        else if (event.type === 'family') acc[event.date].family = true;
+        else if (event.type === 'bill') acc[event.date].bill = true;
+        else if (event.type === 'nba') {acc[event.date].nba = true; acc[event.date].teamCode = event.teamCode || null;}
+        else if (event.type === 'holiday') {acc[event.date].holiday = true;acc[event.date].holidayColor = event.holidayColor || '#E53935';acc[event.date].holidayIcon = event.holidayIcon || '🎉'; }
+        else if (event.type === 'task' as CalendarEvent['type']) {acc[event.date].task = true}
+        else acc[event.date].personal = true; 
         return acc;
       }, {} as Record<string, { 
         birthday: boolean; 

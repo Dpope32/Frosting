@@ -431,7 +431,6 @@ export default function Step3({
           borderWidth={2}
           padding="$4"
           maxWidth={isWeb ? 520 : "100%"}
-          mt={isWeb ? "$10" : "$8"}
           style={{
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)'

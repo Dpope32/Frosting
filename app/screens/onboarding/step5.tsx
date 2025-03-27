@@ -81,7 +81,7 @@ export default function Step5({
         right={0} 
         alignItems="center"
         py={isWeb ? "$4" : "$0"}
-        my={isWeb ? "$10" : 0}
+        my={isWeb ? "$2" : 0}
       >
         <Label 
           paddingBottom={20} 
@@ -99,7 +99,7 @@ export default function Step5({
         style={{ 
           width: '100%', 
           maxWidth: isWeb ? 1200 : 600,
-          marginTop: isWeb ? 120 : 160
+          marginTop: isWeb ? 140 : 160
         }}
         contentContainerStyle={{ 
           paddingBottom: isWeb ? 80 : 120,
@@ -123,7 +123,7 @@ export default function Step5({
               borderWidth={2}
               br={16}
               marginVertical="$2"
-              width={isWeb ? `${Math.floor(100 / columns) - 2}%` : 105}
+              width={isWeb ? `${Math.floor(100 / columns) -2}%` : 105}
               height={isWeb ? 130 : 105}
               hoverStyle={{
                 backgroundColor: selectedTeam === team.code 
@@ -263,7 +263,7 @@ export default function Step5({
           onPress={handleSkip}
           py="$2"
           px="$4"
-          mt="$2"
+          mt="$-2"
           color={buttonColor}
           hoverStyle={{
             opacity: 0.8

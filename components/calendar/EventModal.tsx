@@ -91,12 +91,10 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   const handleAddNewEvent = () => {
     resetForm()
+    closeEventModals()
     setTimeout(() => {
-      closeEventModals()
-      setTimeout(() => {
-        openEventModal()
-      }, 300)
-    }, 100)
+      openEventModal()
+    }, 300)
   }
 
   return (
