@@ -75,7 +75,7 @@ export default function BillsScreen() {
           <XStack gap="$4" ai="center" flex={1} jc="flex-end" pr="$6">
             <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
-                <Text fontSize="$2" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
+                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
                 <XStack ai="center" gap="$2">
                   <Text fontSize="$4" fontWeight="bold" color="#4CAF50" fontFamily="$body">
                     ${monthlyIncome.toFixed(2)}
@@ -96,7 +96,7 @@ export default function BillsScreen() {
             
             <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
-                <Text fontSize="$2" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
+                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
                 <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
                   ${totalMonthlyAmount.toFixed(2)}
                 </Text>
@@ -106,7 +106,7 @@ export default function BillsScreen() {
             {bills && bills.length > 0 && (
               <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
                 <YStack>
-                  <Text fontSize="$2" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
+                  <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
                   <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
                     ${monthlyBalance.toFixed(2)}
                   </Text>

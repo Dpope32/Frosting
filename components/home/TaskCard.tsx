@@ -27,22 +27,19 @@ export function TaskCard({
   priority,
   categoryColor = '#9C27B0',
   checked = false,
-  oneTime = false,
   onCheck,
   onDelete
 }: TaskCardProps) {
-  // Get priority color
   const getPriorityColor = (priority?: TaskPriority): string => {
-    if (!priority) return '#607d8b'; // Default gray for undefined
+    if (!priority) return '#607d8b'; 
     const colors: Record<TaskPriority, string> = {
-      high: '#F44336', // Red
-      medium: '#FF9800', // Orange
-      low: '#4CAF50', // Green
+      high: '#F44336', 
+      medium: '#FF9800', 
+      low: '#4CAF50', 
     };
     return colors[priority];
   };
 
-  // Get priority icon
   const getPriorityIcon = (priority?: TaskPriority) => {
     if (!priority) return 'flag-outline';
     const icons: Record<TaskPriority, any> = {

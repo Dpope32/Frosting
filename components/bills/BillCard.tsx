@@ -91,8 +91,8 @@ export const BillCard = ({
         </YStack>
       )}
       
-      <YStack flex={1} zIndex={1}>
-        <XStack jc="space-between" ai="center" mt="$1" mb="$1.5">
+     <YStack flex={1} zIndex={1} jc="center" mt="$-1" pb="$1">
+        <XStack jc="space-between" ai="center" >
           <Text 
             color={isDark ? "#f6f6f6" : "#222"} 
             fontSize="$4" 
@@ -197,9 +197,7 @@ export const BillCard = ({
           <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body">
             ${bill.amount.toFixed(2)}
           </Paragraph>
-          <Paragraph color="#fffbf7" fontSize="$4" fontFamily="$body">
-            • Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
-          </Paragraph>
+          <Paragraph color="#fffbf7" fontSize="$4" fontFamily="$body"> • Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}  </Paragraph>
         </XStack>
       </YStack>
       <Button 
