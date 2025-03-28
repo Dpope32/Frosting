@@ -43,9 +43,14 @@ export const styles = StyleSheet.create({
   dayCell: {
     width: '14.28%',
     aspectRatio: 1,
-    padding: 2,
+    padding: 2
+  },
+  currentDateCell: {
     borderBottomWidth: 0.5,
     borderBottomColor: '#ddd'
+  },
+  pastDateCell: {
+    borderBottomWidth: 0
   },
   lastRowCell: {
     borderBottomWidth: 0
@@ -58,7 +63,9 @@ export const styles = StyleSheet.create({
     padding: 2
   },
   pastDateOverlay: {
-    opacity: 0.3
+    opacity: 0.1,
+    filter: 'grayscale(50%)',
+    borderBottomWidth: 0
   },
   dayNumber: {
     position: 'absolute',

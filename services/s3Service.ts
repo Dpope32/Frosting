@@ -51,7 +51,7 @@ export const getWallpapers = (): S3Wallpaper[] => {
   ];
   
   const platformSpecific = Platform.OS === 'web' 
-    ? ['fog.jpg', 'lannister.jpg', 'solitude.jpg', 'stanczyk.png', 'clouds.jpg'] // Web only
+    ? ['fog.jpg', 'lannister.jpg', 'solitude.jpg', 'stanczyk.png', 'clouds.png'] // Web only
     : ['dark-statue.png', 'statue.png', 'girl.png', 'man.png']; // Mobile only
   
   const wallpapers = [...commonWallpapers, ...platformSpecific];

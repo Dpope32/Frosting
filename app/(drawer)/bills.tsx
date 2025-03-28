@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, useColorScheme, Platform, Alert } from 'react-native';
-import { Button, Paragraph, XStack, YStack, Text, Card } from 'tamagui';
+import { ScrollView, useColorScheme, Platform } from 'react-native';
+import { Button, XStack, YStack, Text } from 'tamagui';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
-import { Plus, X, CheckCircle, Edit3 } from '@tamagui/lucide-icons';
+import { Plus, Edit3 } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal';
-import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
-import { BillRecommendationChip } from '@/constants/recommendations/BillRecommendations';
+import { getAmountColor } from '@/services/billServices';
 import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
 
 export default function BillsScreen() {
@@ -20,16 +20,7 @@ export default function BillsScreen() {
   const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
   const [insuranceModalOpen, setInsuranceModalOpen] = useState(false);
   
-  const { 
-    bills, 
-    addBill, 
-    deleteBill, 
-    isLoading, 
-    monthlyIncome, 
-    setMonthlyIncome,
-    totalMonthlyAmount,
-    monthlyBalance
-  } = useBills();
+  const { bills,  addBill,  deleteBill,  isLoading,  monthlyIncome,  setMonthlyIncome, totalMonthlyAmount, monthlyBalance} = useBills();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -51,120 +42,188 @@ export default function BillsScreen() {
   const getColumnCount = () => {
     if (windowWidth < 768) return 1;
     if (windowWidth < 1024) return 2;
-    if (windowWidth < 1280) return 3;
+    if (windowWidth < 1600) return 3;
     return 4;
   };
   
   const columnCount = getColumnCount();
-  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 38 / columnCount}px)`;
+  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 28 / columnCount}px)`;
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
   return (
-    <YStack f={1} mt={isWeb? 60 : 95} bg={isDark ? "#000000" : "#fffbf7fff"}>
-      <Card
-        width={isWeb ? "30%" : "95%"}
-        marginLeft={isWeb ? "$1" : "$0"}
-        mx="auto"
-        p="$4"
-        br="$4"
-        bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-        borderWidth={1}
-        borderColor={isDark ? "#333" : "#e0e0e0"}
-        mb="$4"
-      >
-        <YStack gap="$2" paddingLeft={isWeb ? "$1" : "$0"}>
-          <XStack ai="center" jc="space-between">
-            <XStack ai="center" gap="$1">
-              <Text 
-                fontSize="$4" 
-                fontWeight="bold" 
-                color={isDark ? "#fffbf7" : "#000"}
-                fontFamily="$body"
-              >
-                Income:
-              </Text>
-            </XStack>
-            <XStack ai="center" gap="$2">
-            <Button
-                size="$2"
-                bg="transparent"
-                onPress={() => setIsIncomeModalVisible(true)}
-                icon={<Edit3 size={18} color={isDark ? "#999" : "#666"} />}
-              />
-              <Text 
-                fontSize="$4" 
-                fontWeight="bold" 
-                color={isDark ? "#fffbf7" : "#000"}
-                fontFamily="$body"
-              >
-                ${monthlyIncome.toFixed(2)}
-              </Text>
-            </XStack>
-          </XStack>
-          
-          <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
-            <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fffbf7" : "#000"} fontFamily="$body">
-              Bills:
+    <YStack f={1} mt={isWeb ? 60 : 95} bg={isDark ? "#000000" : "#fffbf7fff"}>
+      {isWeb ? (
+        <XStack 
+          width="100%" 
+          height={80}
+          mb="$6"
+          ai="center"
+          jc="flex-start"
+          gap="$8"
+          bg={isDark ? "#111" : "#f5f5f5"}
+          borderBottomWidth={1}
+          borderColor={isDark ? "#222" : "#e0e0e0"}
+          px={0} 
+        >
+          <YStack pl="$6">
+            <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Summary</Text>
+            <Text fontSize="$6" fontWeight="bold" color={isDark ? "#f6f6f6" : "#222"} fontFamily="$body">
+              Financial Overview
             </Text>
-            <Text 
-              fontSize="$4" 
-              fontWeight="bold" 
-              color={getAmountColor(totalMonthlyAmount)}
-              fontFamily="$body"
-            >
-              ${totalMonthlyAmount.toFixed(2)}
-            </Text>
-          </XStack>
+          </YStack>
           
-          {bills && bills.length > 0 && (
-            <XStack ai="center" jc="space-between" pt="$4" borderTopWidth={1} borderColor={isDark ? "#333" : "#e0e0e0"}>
-              <Text fontSize="$4" fontWeight="bold" color={isDark ? "#fffbf7" : "#000"} fontFamily="$body">
-                Monthly P/L:
+          <XStack gap="$4" ai="center" flex={1} jc="flex-end" pr="$6">
+            <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+              <YStack>
+                <Text fontSize="$2" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
+                <XStack ai="center" gap="$2">
+                  <Text fontSize="$4" fontWeight="bold" color="#4CAF50" fontFamily="$body">
+                    ${monthlyIncome.toFixed(2)}
+                  </Text>
+                  <Button
+                    size="$1"
+                    bg="transparent"
+                    pressStyle={{ scale: 0.9 }}
+                    hoverStyle={{
+                      bg: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+                    }}
+                    onPress={() => setIsIncomeModalVisible(true)}
+                    icon={<Edit3 size={14} color={isDark ? "#999" : "#666"} />}
+                  />
+                </XStack>
+              </YStack>
+            </XStack>
+            
+            <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+              <YStack>
+                <Text fontSize="$2" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
+                <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
+                  ${totalMonthlyAmount.toFixed(2)}
+                </Text>
+              </YStack>
+            </XStack>
+            
+            {bills && bills.length > 0 && (
+              <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+                <YStack>
+                  <Text fontSize="$2" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
+                  <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
+                    ${monthlyBalance.toFixed(2)}
+                  </Text>
+                </YStack>
+              </XStack>
+            )}
+          </XStack>
+        </XStack>
+      ) : (
+        <Animated.View 
+          entering={FadeIn.duration(600)}
+          style={{
+            width: '95%',
+            marginHorizontal: 'auto',
+            padding: 16,
+            borderRadius: 12,
+            borderWidth: 1.5,
+            borderColor: isDark ? '#223' : 'rgba(0, 0, 0, 0.1)',
+            marginBottom: 16,
+            backgroundColor: isDark ? '#1e1e2f' : '#f0f0f0',
+            backgroundImage: isDark
+              ? 'linear-gradient(135deg,rgb(34, 34, 34),rgb(0, 0, 0))'
+              : 'linear-gradient(135deg, #ffffff, #eeeeee)',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.5,
+            shadowRadius: 8,
+            elevation: 10,
+          }}
+        >
+          <YStack gap="$3" px="$2">
+            <XStack ai="center" jc="space-between">
+              <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
+                Income
+              </Text>
+              <XStack ai="center" gap="$2">
+                <Text
+                  fontSize={16}
+                  fontWeight="600"
+                  color={isDark ? '#aaa' : '#000'}
+                  fontFamily="$body"
+                >
+                  ${monthlyIncome.toFixed(2)}
+                </Text>
+                <Button
+                  size="$1"
+                  bg="transparent"
+                  onPress={() => setIsIncomeModalVisible(true)}
+                  icon={<Edit3 size={16} color={isDark ? '#999' : '#666'} />}
+                />
+              </XStack>
+            </XStack>
+            
+            <XStack ai="center" jc="space-between">
+              <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
+                Bills
               </Text>
               <Text 
-                fontSize="$4" 
-                fontWeight="bold" 
-                color={monthlyBalance >= 0 ? "#4CAF50" : "#FF5252"}
+                fontSize={16}
+                fontWeight="600"
+                color={getAmountColor(totalMonthlyAmount)}
                 fontFamily="$body"
               >
-                ${monthlyBalance.toFixed(2)}
+                ${totalMonthlyAmount.toFixed(2)}
               </Text>
             </XStack>
-          )}
-        </YStack>
-      </Card>
+            
+            {bills && bills.length > 0 && (
+              <XStack ai="center" jc="space-between">
+                <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
+                  Monthly P/L
+                </Text>
+                <Text 
+                  fontSize={16}
+                  fontWeight="600"
+                  color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'}
+                  fontFamily="$body"
+                >
+                  ${monthlyBalance.toFixed(2)}
+                </Text>
+              </XStack>
+            )}
+          </YStack>
+        </Animated.View>
+      )}
       
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
-          padding: isWeb ? 4 : 8,
-          paddingHorizontal: isWeb ? 0 : 8,
-          paddingLeft: isWeb ? 40 : 12,
-          paddingRight: isWeb ? 24 : 12,
+          padding: isWeb ? 8 : 6,
           paddingBottom: 100,
+          paddingHorizontal: isWeb ? 0 : 12,
+          paddingLeft: isWeb ? 40 : 16,
+          paddingRight: isWeb ? 20 : 16, 
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,
           justifyContent: isWeb ? 'flex-start' : undefined,
-          gap: isWeb ? 32 : undefined,
-          maxWidth: isWeb ? 1800 : undefined,
-          marginHorizontal: isWeb ? 'auto' : undefined
+          gap: isWeb ? 26 : undefined, 
+          maxWidth: isWeb ? 1780 : undefined, 
+          marginHorizontal: isWeb ? 'auto' : undefined,
         }}
       >
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, index) => (
+          Array.from({ length: 4 }).map((_, index) => (
             <XStack 
               key={`skeleton-${index}`} 
-              bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+              bg={isDark ? "#111" : "#f5f5f5"}
               p={isWeb ? "$3" : "$4"} 
               mb="$2"
               br="$4" 
               ai="center" 
-              pressStyle={{ opacity: 0.7 }} 
               animation="quick"
               borderWidth={1}
-              borderColor={isDark ? "#333" : "#e0e0e0"}
+              borderColor={isDark ? "#222" : "#e0e0e0"}
               width={isWeb ? columnWidth : "100%"}
+              height={isWeb ? 120 : undefined}
             >
               <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} br="$4" />
               <YStack ml="$3" flex={1} gap="$1">
@@ -190,6 +249,7 @@ export default function BillsScreen() {
               primaryColor={primaryColor}
               onDelete={deleteBill}
               isWeb={isWeb}
+              columnWidth={columnWidth}
             />
           ))
         ) : null}

@@ -69,11 +69,19 @@ export const useWallpaperStore = create<WallpaperStore>()(
         set({ currentWallpaper: wallpaperName });
       },
       clearUnusedWallpapers: async (keep: string[]) => {
+        const { currentWallpaper } = get();
+        
+        // Always keep the current wallpaper in the cache
+        const wallpapersToKeep = [...keep];
+        if (currentWallpaper && !wallpapersToKeep.includes(currentWallpaper)) {
+          wallpapersToKeep.push(currentWallpaper);
+        }
+        
         if (Platform.OS === 'web') {
           set((state) => {
             const newCache = { ...state.cache };
             Object.keys(newCache).forEach((key) => {
-              if (!keep.includes(key)) {
+              if (!wallpapersToKeep.includes(key)) {
                 delete newCache[key];
               }
             });
@@ -83,10 +91,13 @@ export const useWallpaperStore = create<WallpaperStore>()(
         }
 
         try {
+          // Ensure we have a cache directory
+          await get().initializeCache();
+          
           const files = await FileSystem.readDirectoryAsync(WALLPAPER_CACHE_DIR);
           await Promise.all(
             files.map(async (file) => {
-              if (!keep.includes(file)) {
+              if (!wallpapersToKeep.includes(file)) {
                 await FileSystem.deleteAsync(`${WALLPAPER_CACHE_DIR}${file}`);
               }
             })
@@ -95,7 +106,7 @@ export const useWallpaperStore = create<WallpaperStore>()(
           set((state) => {
             const newCache = { ...state.cache };
             Object.keys(newCache).forEach((key) => {
-              if (!keep.includes(key)) {
+              if (!wallpapersToKeep.includes(key)) {
                 delete newCache[key];
               }
             });

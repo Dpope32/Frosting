@@ -12,6 +12,7 @@ interface BillCardProps {
   primaryColor: string
   onDelete: (id: string) => void
   isWeb: boolean
+  columnWidth?: string
 }
 
 export const BillCard = ({
@@ -19,7 +20,8 @@ export const BillCard = ({
   currentDay,
   primaryColor,
   onDelete,
-  isWeb
+  isWeb,
+  columnWidth
 }: BillCardProps) => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -48,16 +50,15 @@ export const BillCard = ({
 
   return isWeb ? (
     <XStack 
-      bg={isDark ? "#1A1A1A" : "#f5f5f5"}
+      bg={isDark ? "#111" : "#f5f5f5"}
       px="$4"
       br="$4" 
       ai="center" 
       animation="quick"
       borderWidth={1}
-      borderColor={isDueToday ? primaryColor : isDark ? "#333" : "#e0e0e0"}
-      width="100%"
+      borderColor={isDueToday ? primaryColor : isDark ? "#222" : "#e0e0e0"}
+      width={columnWidth}
       minWidth={240}
-      maxWidth={400}
       height={120}
       position="relative"
       opacity={isPastDue ? 0.8 : 1}
@@ -91,12 +92,11 @@ export const BillCard = ({
       )}
       
       <YStack flex={1} zIndex={1}>
-        <XStack jc="space-between" mt="$1" ai="center">
+        <XStack jc="space-between" ai="center" mt="$1" mb="$1.5">
           <Text 
-            color={isDark ? "#fffbf7" : "#333"} 
-            mb="$2" 
+            color={isDark ? "#f6f6f6" : "#222"} 
             fontSize="$4" 
-            fontWeight={isDueToday ? "bold" : "bold"}
+            fontWeight="bold"
             fontFamily="$body"
           >
             {bill.name}
@@ -106,12 +106,15 @@ export const BillCard = ({
             size="$3"
             bg="transparent"
             pressStyle={{ scale: 0.9 }}
+            hoverStyle={{
+              bg: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
+            }}
             onPress={handleDelete}
             icon={<X size={18} color="#ff4444" />}
           />
         </XStack>
         
-        <XStack ai="center" gap="$2" mb="$2">
+        <XStack ai="center" gap="$2">
           <YStack 
             width={44} 
             height={44} 
@@ -126,7 +129,7 @@ export const BillCard = ({
             <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body">
               ${bill.amount.toFixed(2)}
             </Paragraph>
-            <Paragraph color="#666" fontSize="$3" fontFamily="$body">
+            <Paragraph color={isDark ? "#666" : "#666"} fontSize="$3" fontFamily="$body">
               Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
             </Paragraph>
           </YStack>

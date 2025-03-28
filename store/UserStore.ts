@@ -9,6 +9,7 @@ interface UserPreferences {
   primaryColor: string;
   customBackground?: string;
   zipCode: string;
+  backgroundStyle?: BackgroundStyle;
   hasCompletedOnboarding: boolean;
   notificationsEnabled: boolean;
   quoteEnabled: boolean;

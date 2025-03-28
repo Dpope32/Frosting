@@ -154,11 +154,17 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                 },
                 isToday && [styles.today, { backgroundColor: primaryColor }],
                 dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
+                !isPastDate && styles.currentDateCell,
                 isLastRow && styles.lastRowCell,
+                isPastDate && styles.pastDateCell,
                 Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 4 }
               ]}
             >
-              <View style={[styles.dayCellContent, isPastDate && !isToday && styles.pastDateOverlay]}>
+              <View style={[
+                styles.dayCellContent, 
+                isPastDate && !isToday && styles.pastDateOverlay,
+                isPastDate && !isToday && { borderBottomWidth: 0 }
+              ]}>
                 <Text
                   style={[
                     styles.dayNumber,

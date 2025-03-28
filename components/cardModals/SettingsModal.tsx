@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native'
 import { Sheet, Button, YStack, XStack, Text, Circle } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
+import { useWallpaperStore } from '@/store/WallpaperStore'
 import { colorOptions } from '../../constants/Colors'
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds'
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
@@ -114,7 +115,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     primaryColor: preferences.primaryColor,
     profilePicture: preferences.profilePicture || undefined,
     zipCode: preferences.zipCode,
-    backgroundStyle: preferences.backgroundStyle,
+    backgroundStyle: preferences.backgroundStyle || 'gradient',
     notificationsEnabled: preferences.notificationsEnabled,
     quoteEnabled: preferences.quoteEnabled ?? false,
   })
@@ -165,16 +166,71 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     setPreferences({ ...settings })
     onOpenChange(false)
   }, [settings, setPreferences, onOpenChange])
-  const handleSelectBackground = useCallback((value: BackgroundStyle) => {
+  const handleSelectBackground = useCallback(async (value: BackgroundStyle) => {
+    if (value.startsWith('wallpaper-')) {
+      const wallpaperStore = useWallpaperStore.getState();
+      try {
+        // Ensure the wallpaper is in the cache
+        const cachedUri = await wallpaperStore.getCachedWallpaper(value);
+        if (!cachedUri) {
+          const wallpaperPath = await getWallpaperPath(value);
+          if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
+            await wallpaperStore.cacheWallpaper(value, wallpaperPath.uri);
+          }
+        }
+        // Set the wallpaper as current to prevent it from being cleared
+        wallpaperStore.setCurrentWallpaper(value);
+      } catch (error) {
+        console.error(`Failed to cache wallpaper ${value}:`, error);
+      }
+    }
+    
     setSettings((prev) => ({ ...prev, backgroundStyle: value }))
   }, [])
+  const [wallpaperSources, setWallpaperSources] = useState<Record<string, ImageSourcePropType>>({});
+
+  useEffect(() => {
+    const loadWallpapers = async () => {
+      // Default gradient source
+      const sources: Record<string, ImageSourcePropType> = {
+        'gradient': { uri: '' }
+      };
+      
+      for (const style of backgroundStyles) {
+        if (style.value === 'gradient') continue;
+        
+        try {
+          const wallpaperStore = useWallpaperStore.getState();
+          
+          // First try to get from cache
+          const cachedUri = await wallpaperStore.getCachedWallpaper(style.value);
+          if (cachedUri) {
+            sources[style.value] = { uri: cachedUri };
+            continue;
+          }
+          
+          // If not in cache, try to get from getWallpaperPath
+          const wallpaperPath = await getWallpaperPath(style.value);
+          if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
+            sources[style.value] = wallpaperPath;
+            
+            // Cache for future use
+            await wallpaperStore.cacheWallpaper(style.value, wallpaperPath.uri);
+          }
+        } catch (error) {
+          console.error(`Failed to load wallpaper ${style.value}:`, error);
+        }
+      }
+      
+      setWallpaperSources(sources);
+    };
+    
+    loadWallpapers();
+  }, []);
+
   const getWallpaperImageSource = useCallback((style: BackgroundStyle): ImageSourcePropType | undefined => {
-    const wallpaperPath = getWallpaperPath(style)
-    if (wallpaperPath && wallpaperPath.uri) {
-      return { uri: wallpaperPath.uri }
-    }
-    return undefined
-  }, [])
+    return wallpaperSources[style];
+  }, [wallpaperSources])
   return (
     <Sheet modal open={open} onOpenChange={onOpenChange} dismissOnSnapToBottom snapPoints={isWeb ? [90] : [82]} zIndex={100000} animation="quick">
       <Sheet.Overlay animation="quick" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} backgroundColor="rgba(0,0,0,0.5)" opacity={0.8} />

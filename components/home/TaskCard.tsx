@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { TaskPriority } from '@/store/ToDo';
 import { isWeb } from 'tamagui';
 
@@ -99,7 +100,12 @@ export function TaskCard({
       )}
       <XStack justifyContent="space-between" alignItems="center" gap="$1.5">
         <Pressable 
-          onPress={() => onCheck?.(!checked)}
+          onPress={() => {
+            if (Platform.OS !== 'web') {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+            onCheck?.(!checked);
+          }}
           style={{ paddingHorizontal: 4 }}
         >
           <View style={[
