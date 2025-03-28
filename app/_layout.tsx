@@ -1,5 +1,6 @@
 import React from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
+import { inject } from '@vercel/analytics';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -22,7 +23,6 @@ import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationM
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
 import { handleSharedContact } from '../services/shareService'
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -41,6 +41,8 @@ export default function RootLayout() {
   if (Platform.OS !== 'web') {
     useNotifications();
     useCalendarSync();
+  } else {
+    inject();
   }
 
   useEffect(() => {
