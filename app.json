@@ -72,7 +72,6 @@
           ]
         }
       ],
-      "expo-video",
       "expo-updates",
       "expo-font",
       "expo-image-picker" 

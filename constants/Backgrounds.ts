@@ -1,4 +1,6 @@
 import { getWallpapers, type S3Wallpaper, preloadImage, isImagePreloaded } from '../services/s3Service';
+import { useWallpaperStore } from '../store/WallpaperStore';
+import { Platform, ImageSourcePropType } from 'react-native';
 
 export type BackgroundStyleOption = {
   label: string;
@@ -19,8 +21,8 @@ s3Wallpapers.forEach(({ name, uri }) => {
   }
 });
 
-// Create wallpapers object for getWallpaperPath
-const wallpapers: Record<string, { uri: string; isLoaded?: boolean }> = {};
+// Create and export wallpapers object for getWallpaperPath
+export const wallpapers: Record<string, { uri: string; isLoaded?: boolean }> = {};
 wallpaperMap.forEach(({ name, uri }, baseName) => {
   wallpapers[`wallpaper-${baseName}`] = { uri };
 });
@@ -56,24 +58,11 @@ export const backgroundStyles: BackgroundStyleOption[] = [
 
 export type BackgroundStyle = BackgroundStyleOption['value'];
 
-export const getWallpaperPath = (style: BackgroundStyle) => {
+export const getWallpaperPath = async (style: BackgroundStyle): Promise<ImageSourcePropType | null> => {
   if (style.startsWith('wallpaper-')) {
-    const wallpaper = wallpapers[style];
-    if (wallpaper) {
-      // Ensure the image is preloaded on web
-      if (!wallpaper.isLoaded) {
-        preloadImage(wallpaper.uri)
-          .then(() => {
-            wallpaper.isLoaded = true;
-          })
-          .catch(error => {
-            console.error(`Failed to load wallpaper ${style}:`, error);
-          });
-      }
-      return wallpaper;
-    }
-    console.warn(`Wallpaper not found: ${style}`);
-    return null;
+    const wallpaperStore = useWallpaperStore.getState();
+    const cachedUri = await wallpaperStore.getCachedWallpaper(style);
+    return cachedUri ? { uri: cachedUri } : null;
   }
   return null;
 };

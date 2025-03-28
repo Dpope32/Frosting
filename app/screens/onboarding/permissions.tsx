@@ -6,11 +6,14 @@ import { cards } from '../../../components/permissions/card';
 export default function PermissionsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: "#000000" }}>
-      <YStack gap="$2" padding={isWeb ? "$6" : "$4"} justifyContent="flex-start" alignItems="center" mt={isWeb ? "$10" : "$6"}>
-        <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$9" : "$7"} textAlign="center" color="#FFFFFF">
-          Let's talk permissions
+      <YStack gap="$3" padding={isWeb ? "$6" : "$4"} pt={isWeb ? "$6" : "$9"} justifyContent="flex-start" alignItems="center" mt={isWeb ? "$10" : "$6"}>
+      <Text fontFamily="$heading" fontWeight="800" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color="rgba(255, 255, 255, 0.85)">
+          Welcome to Kaiba!
         </Text>
-        <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#AAAAAA" marginBottom="$4">
+        <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$8" : "$7"} textAlign="center" color="rgba(191, 191, 191, 0.85)">
+          Let's talk permissions...
+        </Text>
+        <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#666666" marginBottom="$4">
           I know they're annoying, but they are necessary.
         </Text>
       </YStack>

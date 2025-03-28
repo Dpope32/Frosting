@@ -45,35 +45,26 @@ export function LandingPage() {
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [quoteModalOpen, setQuoteModalOpen] = useState(false)
   const [wifiModalOpen, setWifiModalOpen] = useState(false)
+  
   const handleNewTaskPress = () => { 
     setSheetOpen(true) 
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
+    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handleTemperaturePress = () => { 
     setTempModalOpen(true) 
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
+    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handlePortfolioPress = () => { 
-    if (Platform.OS !== 'web') {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-     }
      setPortfolioModalOpen(true) 
+     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
     }
   const handleQuotePress = () => { 
     setQuoteModalOpen(true) 
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
+    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handleWifiPress = () => { 
     setWifiModalOpen(true) 
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
+    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   return (
     <Stack flex={1} backgroundColor="black">
@@ -83,13 +74,16 @@ export function LandingPage() {
         <YStack paddingTop={Platform.OS === 'web' ? 10 : 105} gap="$3">
           <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={Platform.OS === 'web' ? { boxShadow: isDark ? '0px 0px 10px rgba(255, 255, 255, 0.05)' : '0px 0px 10px rgba(0, 0, 0, 0.05)' } : { shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
             <GreetingSection username={username} />
-            <CardSection  onPortfolioPress={handlePortfolioPress} 
+            <CardSection 
+              onPortfolioPress={handlePortfolioPress} 
               onTemperaturePress={handleTemperaturePress} 
               onQuotePress={handleQuotePress}
               onWifiPress={handleWifiPress}
             />
           </Stack>
           <TaskSection todaysTasks={todaysTasks} toggleTaskCompletion={toggleTaskCompletion} deleteTask={deleteTask} onAddTaskPress={handleNewTaskPress} onTaskListPress={() => setTaskListModalOpen(true)} />
+         
+         {/* Only Render the Asset Tracker on web since tables look weird on mobile */}
           {Platform.OS === 'web' && (
             <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" marginTop="$2" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} minWidth={300}>
               <XStack justifyContent="space-between" alignItems="center">
@@ -102,21 +96,21 @@ export function LandingPage() {
               </Stack>
             </Stack>
           )}
+          
+          {/* Only Render the Year complete progress bar on mobile since progress bars look weird on web */}
           {Platform.OS !== 'web' && (
             <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={{ shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
               <YearCompleteSection />
             </Stack>
           )}
+
         </YStack>
       </ScrollView>
       <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
-      <WifiModal 
-        open={wifiModalOpen} 
-        onOpenChange={setWifiModalOpen}
-      />
+      <WifiModal  open={wifiModalOpen}  onOpenChange={setWifiModalOpen}/>
       {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
       {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
     </Stack>

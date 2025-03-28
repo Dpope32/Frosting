@@ -8,7 +8,7 @@ import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
-import WallpaperPreloader from '../../../components/wpPreload'
+import WallpaperPreloader, { preloadWallpapers } from '../../../components/wpPreload'
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissionService'
 import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'
 import { useToastStore } from '@/store/ToastStore'
@@ -36,7 +36,6 @@ export default function Onboarding() {
     zipCode: '',
   })
   const [wallpapersPreloaded, setWallpapersPreloaded] = useState(false);
-  const [isLoadingWallpapers, setIsLoadingWallpapers] = useState(false);
   const setPreferences = useUserStore((state) => state.setPreferences)
 
   useEffect(() => {
@@ -53,10 +52,13 @@ export default function Onboarding() {
   }, [])
 
   useEffect(() => {
-    if (step === 2 && !wallpapersPreloaded && !isLoadingWallpapers) {
-      setIsLoadingWallpapers(true);
+    if (step >= 0 && !wallpapersPreloaded) {
+      // Start preloading silently in background
+      preloadWallpapers(() => {
+        setWallpapersPreloaded(true);
+      });
     }
-  }, [step, wallpapersPreloaded, isLoadingWallpapers]);
+  }, [step, wallpapersPreloaded]);
 
   const handleNext = async () => {
     if (step === -1) {
@@ -120,17 +122,6 @@ export default function Onboarding() {
   }
 
   const renderStep = () => {
-    if (step === 3 && isLoadingWallpapers) {
-      return (
-        <WallpaperPreloader 
-          onComplete={() => {
-            setWallpapersPreloaded(true);
-            setIsLoadingWallpapers(false);
-          }}
-          primaryColor={formData.primaryColor}
-        />
-      );
-    }
     switch (step) {
       case -1: 
         return (

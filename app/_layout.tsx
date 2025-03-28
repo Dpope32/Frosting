@@ -20,6 +20,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
+import { handleSharedContact } from '../services/shareService'
 
 // Create a client
 const queryClient = new QueryClient({
@@ -69,7 +70,6 @@ export default function RootLayout() {
 
   const handleDeepLink = useCallback((event: { url: string }) => {
     if (event.url.startsWith('kaiba-nexus://share')) {
-      const { handleSharedContact } = require('@/components/crm/PersonCard/PersonCard');
       handleSharedContact(event.url);
     }
   }, []);

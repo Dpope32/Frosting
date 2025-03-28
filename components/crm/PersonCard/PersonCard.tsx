@@ -1,24 +1,6 @@
-import React, { useMemo, useCallback } from "react";
-import {
-  Card,
-  Image,
-  Paragraph,
-  XStack,
-  YStack,
-  Theme,
-  Sheet,
-  isWeb
-} from "tamagui";
-import {
-  TouchableOpacity,
-  View,
-  StyleProp,
-  ViewStyle,
-  Linking,
-  Alert,
-  useColorScheme,
-  Platform
-} from "react-native";
+import React, { useMemo } from "react";
+import { Card, Image, Paragraph, XStack, YStack, Theme, Sheet, isWeb } from "tamagui";
+import { TouchableOpacity, View, StyleProp, ViewStyle, Linking, Alert, useColorScheme, Platform } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Ionicons } from "@expo/vector-icons";
 import type { Person } from "@/types/people";
@@ -211,8 +193,13 @@ const fullAddress = useMemo(() => {
                   onPress={() => {
                     const shareData = btoa(JSON.stringify(person));
                     const shareUrl = `kaiba-nexus://share?data=${shareData}`;
-                    Clipboard.setStringAsync(shareUrl);
-                    Alert.alert("Success", "Contact link copied to clipboard!");
+                    const plainText = `Contact: ${person.nickname || person.name}\n` +
+                      (person.phoneNumber ? `Phone: ${formatPhoneNumber(person.phoneNumber)}\n` : '') +
+                      (person.email ? `Email: ${person.email}\n` : '') +
+                      (person.occupation ? `Occupation: ${person.occupation}\n` : '');
+                    const clipboardContent = `${shareUrl}\n---\n${plainText}`;
+                    Clipboard.setStringAsync(clipboardContent);
+                    Alert.alert("Success", "Contact info copied to clipboard!");
                   }}
                 >
                   <Ionicons name="share-outline" size={24} color={isDark ? "#fff" : "#fff"} />
@@ -509,28 +496,3 @@ const fullAddress = useMemo(() => {
     </Theme>
   );
 }
-
-export const handleSharedContact = (url: string) => {
-  try {
-    const data = url.split('?data=')[1];
-    if (!data) return;
-    const decodedData = JSON.parse(atob(data));
-    const name = decodedData.name || decodedData.nickname;
-    Alert.alert(
-      "Add Contact",
-      `Would you like to add ${name} to your contacts list?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Add",
-          onPress: () => {
-            const { usePeopleStore } = require('@/store/People');
-            usePeopleStore.getState().addPerson(decodedData);
-          }
-        }
-      ]
-    );
-  } catch (error) {
-    Alert.alert("Error", "Invalid contact link");
-  }
-};

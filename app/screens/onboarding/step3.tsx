@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb,Label } from 'tamagui'
-import { Image, View, useWindowDimensions, Platform } from 'react-native'
+import { Image, View, useWindowDimensions, Platform, ImageSourcePropType } from 'react-native'
 import { BackgroundStyleOption, FormData } from '@/types'
-import { BackgroundStyle } from '@/constants/Backgrounds'
+import { BackgroundStyle, wallpapers } from '@/constants/Backgrounds'
+import { useWallpaperStore } from '@/store/WallpaperStore'
 
 let LinearGradient: any = null;
 let BlurView: any = null;
@@ -37,9 +38,11 @@ export default function Step3({
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   backgroundStyles: BackgroundStyleOption[]
-  getWallpaperPath: (style: BackgroundStyle) => any
+  getWallpaperPath: (style: BackgroundStyle) => Promise<ImageSourcePropType | null>
   isDark?: boolean
 }) {
+  console.log('[Step3] Rendering with backgroundStyle:', formData.backgroundStyle);
+  
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
@@ -239,7 +242,43 @@ export default function Step3({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
 
+  const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null)
+  const [loadingWallpaper, setLoadingWallpaper] = useState(false)
+
+  useEffect(() => {
+    console.log('[Step3] Background style changed to:', formData.backgroundStyle);
+    const loadWallpaper = async () => {
+      if (formData.backgroundStyle.startsWith('wallpaper-')) {
+        console.log('[Step3] Loading wallpaper:', formData.backgroundStyle);
+        setLoadingWallpaper(true)
+        try {
+          const wallpaper = await getWallpaperPath(formData.backgroundStyle)
+          if (wallpaper) {
+            console.log('[Step3] Successfully loaded wallpaper:', formData.backgroundStyle);
+            setWallpaperSource(wallpaper)
+          } else {
+            console.warn('[Step3] Wallpaper not found, falling back to gradient:', formData.backgroundStyle);
+            setFormData(prev => ({
+              ...prev,
+              backgroundStyle: 'gradient'
+            }))
+          }
+        } catch (error) {
+          console.warn('[Step3] Failed to load wallpaper:', formData.backgroundStyle, error)
+          setFormData(prev => ({
+            ...prev,
+            backgroundStyle: 'gradient'
+          }))
+        } finally {
+          setLoadingWallpaper(false)
+        }
+      }
+    }
+    loadWallpaper()
+  }, [formData.backgroundStyle])
+
   const background = React.useMemo(() => {
+    console.log('[Step3] Rendering background with style:', formData.backgroundStyle);
     switch (formData.backgroundStyle) {
       case 'gradient': {
         const lighterColor = adjustColor(formData.primaryColor, 100);
@@ -301,13 +340,16 @@ export default function Step3({
       }
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
-          const wallpaper = getWallpaperPath(formData.backgroundStyle);
-          if (!wallpaper) return null;
+          if (!wallpaperSource) {
+            console.log('[Step3] No wallpaper source available for:', formData.backgroundStyle);
+            return null;
+          }
+          console.log('[Step3] Displaying wallpaper:', formData.backgroundStyle);
           if ((Platform.OS === 'ios' || Platform.OS === 'android') && BlurView) {
             return (
               <Stack position="absolute" width="100%" height="100%">
                 <Image
-                  source={wallpaper}
+                  source={wallpaperSource}
                   style={{
                     position: 'absolute',
                     width: '100%',
@@ -327,7 +369,7 @@ export default function Step3({
             return (
               <Stack position="absolute" width="100%" height="100%">
                 <Image
-                  source={wallpaper}
+                  source={wallpaperSource}
                   style={{
                     position: 'absolute',
                     width: '100%',
@@ -351,7 +393,7 @@ export default function Step3({
           return (
             <Stack position="absolute" width="100%" height="100%">
               <Image
-                source={wallpaper}
+                source={wallpaperSource}
                 style={{
                   position: 'absolute',
                   width: '100%',
@@ -381,7 +423,7 @@ export default function Step3({
           />
         );
     }
-  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, getWallpaperPath]);
+  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, wallpaperSource]);
 
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
@@ -472,12 +514,38 @@ export default function Step3({
                     scale: 0.97,
                     opacity: 0.9
                   }}
-                  onPress={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      backgroundStyle: style.value as FormData['backgroundStyle'],
-                    }))
-                  }
+                  onPress={async () => {
+                    console.log('[Step3] Selected wallpaper:', style.value);
+                    if (!loadingWallpaper && style.value.startsWith('wallpaper-')) {
+                      setLoadingWallpaper(true);
+                      try {
+                        // Pre-cache the wallpaper
+                        const wallpaperStore = useWallpaperStore.getState();
+                        const wallpaper = wallpapers[style.value];
+                        if (wallpaper) {
+                          console.log('[Step3] Caching wallpaper:', style.value);
+                          await wallpaperStore.cacheWallpaper(style.value, wallpaper.uri);
+                        }
+                        setFormData((prev) => ({
+                          ...prev,
+                          backgroundStyle: style.value as FormData['backgroundStyle'],
+                        }));
+                      } catch (error) {
+                        console.warn('[Step3] Failed to cache wallpaper:', error);
+                        setFormData((prev) => ({
+                          ...prev,
+                          backgroundStyle: 'gradient',
+                        }));
+                      } finally {
+                        setLoadingWallpaper(false);
+                      }
+                    } else if (!loadingWallpaper) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        backgroundStyle: style.value as FormData['backgroundStyle'],
+                      }));
+                    }
+                  }}
                 >
                   <Text
                     fontFamily="$body" 

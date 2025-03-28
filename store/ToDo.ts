@@ -96,7 +96,7 @@ const createTaskFilter = () => {
   
   // Debug function for monitoring task filtering
   const debugTaskFilter = (stage: string, tasks: Task[]) => {
-    console.log(`[Task Filter Debug - ${stage}] Count: ${tasks.length}`)
+
     const monthlyCounts: Record<string, number> = {}
     
     tasks.forEach(task => {
@@ -105,11 +105,6 @@ const createTaskFilter = () => {
         monthlyCounts[key] = (monthlyCounts[key] || 0) + 1
       }
     })
-    
-    console.log('[Monthly Tasks]', Object.entries(monthlyCounts)
-      .filter(([_, count]) => count > 0)
-      .map(([name, count]) => `${name}: ${count}`)
-    )
   }
   
   return (tasks: Record<string, Task>): Task[] => {

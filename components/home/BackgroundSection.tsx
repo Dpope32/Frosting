@@ -1,17 +1,42 @@
-import React, { useCallback } from 'react'
-import { Image, Platform } from 'react-native'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Image, ImageSourcePropType } from 'react-native'
 import { Stack } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
+import { useWallpaperStore } from '@/store/WallpaperStore'
 import { getWallpaperPath } from '@/constants/Backgrounds'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
 export const BackgroundSection = () => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
-  const backgroundStyle = useUserStore(s => s.preferences.backgroundStyle)
+  const wallpaperStore = useWallpaperStore()
+  const currentWallpaper = wallpaperStore.currentWallpaper
+  const setCurrentWallpaper = wallpaperStore.setCurrentWallpaper
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null)
+
+  useEffect(() => {
+    const loadWallpaper = async () => {
+      if (currentWallpaper && currentWallpaper.startsWith('wallpaper-')) {
+        try {
+            const cachedUri = await wallpaperStore.getCachedWallpaper(currentWallpaper)
+          if (cachedUri) {
+            setWallpaperSource({ uri: cachedUri })
+          } else {
+            // Fall back to gradient if wallpaper not cached
+            setCurrentWallpaper('gradient')
+          }
+        } catch (error) {
+          console.warn('Failed to load cached wallpaper:', error)
+          setCurrentWallpaper('gradient')
+        }
+      }
+    }
+
+    loadWallpaper()
+  }, [currentWallpaper, wallpaperStore])
 
   const adjustColor = useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
@@ -23,7 +48,7 @@ export const BackgroundSection = () => {
   }, [])
 
   const background = React.useMemo(() => {
-    switch (backgroundStyle) {
+    switch (currentWallpaper) {
       case 'gradient': {
         const lighterColor = adjustColor(primaryColor, 100)
         const darkerColor = adjustColor(primaryColor, -250)
@@ -45,12 +70,11 @@ export const BackgroundSection = () => {
         )
       }
       default:
-        if (backgroundStyle.startsWith('wallpaper-')) {
-          const wallpaper = getWallpaperPath(backgroundStyle)
-          return wallpaper ? (
+        if (currentWallpaper && currentWallpaper.startsWith('wallpaper-') && wallpaperSource) {
+          return (
             <Stack position="absolute" width="100%" height="100%">
               <Image
-                source={wallpaper}
+                source={wallpaperSource}
                 style={{
                   position: 'absolute',
                   width: '100%',
@@ -59,11 +83,10 @@ export const BackgroundSection = () => {
                 }}
                 onError={error => {
                   console.warn('Wallpaper load error:', error.nativeEvent)
-                  if (backgroundStyle === 'wallpaper-1') {
-                    useUserStore.getState().setPreferences({ backgroundStyle: 'gradient' })
+                  if (currentWallpaper === 'wallpaper-1') {
+                    setCurrentWallpaper('gradient')
                   }
                 }}
-                loadingIndicatorSource={wallpaper}
               />
               <BlurView
                 intensity={isDark ? 40 : 20}
@@ -76,11 +99,11 @@ export const BackgroundSection = () => {
                 }}
               />
             </Stack>
-          ) : null
+          )
         }
         return null
     }
-  }, [backgroundStyle, primaryColor, adjustColor, isDark])
+  }, [currentWallpaper, primaryColor, adjustColor, isDark, wallpaperSource, setCurrentWallpaper])
 
   return background
 }

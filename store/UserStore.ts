@@ -7,15 +7,14 @@ interface UserPreferences {
   username: string;
   profilePicture?: string;
   primaryColor: string;
-  backgroundStyle: BackgroundStyle;
   customBackground?: string;
   zipCode: string;
   hasCompletedOnboarding: boolean;
   notificationsEnabled: boolean;
   quoteEnabled: boolean;
-  favoriteNBATeam?: string; // Team code (e.g., "OKC")
-  showNBAGamesInCalendar: boolean; // Whether to show NBA games in the calendar
-  permissionsExplained: boolean; // Whether permissions have been explained to the user
+  favoriteNBATeam?: string; 
+  showNBAGamesInCalendar: boolean; 
+  permissionsExplained: boolean;
 }
 
 interface UserStore {
@@ -28,7 +27,6 @@ interface UserStore {
 const defaultPreferences: UserPreferences = {
   username: '',
   primaryColor: '#007AFF',
-  backgroundStyle: 'gradient',
   zipCode: '',
   hasCompletedOnboarding: false,
   notificationsEnabled: true,

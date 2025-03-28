@@ -6413,11 +6413,6 @@ expo-modules-core@2.2.3:
   dependencies:
     invariant "^2.2.4"
 
-expo-network@~7.0.5:
-  version "7.0.5"
-  resolved "https://registry.npmjs.org/expo-network/-/expo-network-7.0.5.tgz"
-  integrity sha512-5dlowKAimhIDN1/lBRnN6SSH6c07f12R3QrfLf3b3GEr6D+EijH2wE537mmwPh1p+254LAkm0Z5ZEXxbwII4sA==
-
 expo-notifications@~0.29.14:
   version "0.29.14"
   resolved "https://registry.npmjs.org/expo-notifications/-/expo-notifications-0.29.14.tgz"
@@ -6449,11 +6444,6 @@ expo-router@~4.0.19:
     schema-utils "^4.0.1"
     semver "~7.6.3"
     server-only "^0.0.1"
-
-expo-sharing@~13.0.1:
-  version "13.0.1"
-  resolved "https://registry.npmjs.org/expo-sharing/-/expo-sharing-13.0.1.tgz"
-  integrity sha512-qych3Nw65wlFcnzE/gRrsdtvmdV0uF4U4qVMZBJYPG90vYyWh2QM9rp1gVu0KWOBc7N8CC2dSVYn4/BXqJy6Xw==
 
 expo-splash-screen@~0.29.22:
   version "0.29.22"
@@ -6511,11 +6501,6 @@ expo-updates@~0.27.4:
     fbemitter "^3.0.0"
     ignore "^5.3.1"
     resolve-from "^5.0.0"
-
-expo-video@~2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/expo-video/-/expo-video-2.0.6.tgz#4da4e4d427ad42649881a5336697b5a7164aaab3"
-  integrity sha512-oDorKwjreHT596oY6ZfktbDa3VF+Sq7gVsTbnQ4QVqGYL13mIO0s+h4y9xMyG/cDWyFpiRc4UT8KkPdxL0wViQ==
 
 expo@~52.0.41:
   version "52.0.41"
@@ -9790,11 +9775,6 @@ rc@~1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-circular-progressbar@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/react-circular-progressbar/-/react-circular-progressbar-2.2.0.tgz#282b7351dab2fd19c6d2c7f3cc698ed546c71c86"
-  integrity sha512-cgyqEHOzB0nWMZjKfWN3MfSa1LV3OatcDjPz68lchXQUEiBD5O1WsAtoVK4/DSL0B4USR//cTdok4zCBkq8X5g==
-
 react-devtools-core@^5.3.1:
   version "5.3.2"
   resolved "https://registry.npmjs.org/react-devtools-core/-/react-devtools-core-5.3.2.tgz"
@@ -9859,13 +9839,6 @@ react-native-elevation@^1.0.0:
   resolved "https://registry.npmjs.org/react-native-elevation/-/react-native-elevation-1.0.0.tgz"
   integrity sha512-BWIKcEYtzjRV6GpkX0Km5/w2E7fgIcywiQOT7JZTc5NSbv/YI9kpFinB9lRFsOoRVGmiqq/O3VfP/oH2clIiBA==
 
-react-native-figma-squircle@^0.3.5:
-  version "0.3.5"
-  resolved "https://registry.npmjs.org/react-native-figma-squircle/-/react-native-figma-squircle-0.3.5.tgz"
-  integrity sha512-YjqVD+eyPaFa4Wu6leEaVV8LoCmWbTmx1XFsKSQX7ujeZhTtL/9cjOAODO4oaPkv4VEk0e3WM4pCQxjbZ/X9BQ==
-  dependencies:
-    figma-squircle "^0.2.1"
-
 react-native-gesture-handler@~2.20.2:
   version "2.20.2"
   resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.20.2.tgz"
@@ -9889,13 +9862,6 @@ react-native-is-edge-to-edge@^1.1.6:
   version "1.1.6"
   resolved "https://registry.npmjs.org/react-native-is-edge-to-edge/-/react-native-is-edge-to-edge-1.1.6.tgz"
   integrity sha512-1pHnFTlBahins6UAajXUqeCOHew9l9C2C8tErnpGC3IyLJzvxD+TpYAixnCbrVS52f7+NvMttbiSI290XfwN0w==
-
-react-native-progress@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.npmjs.org/react-native-progress/-/react-native-progress-5.0.1.tgz"
-  integrity sha512-TYfJ4auAe5vubDma2yfFvt7ktSI+UCfysqJnkdHEcLXqAitRFOozgF/cLgN5VNi/iLdaf3ga1ETi2RF4jVZ/+g==
-  dependencies:
-    prop-types "^15.7.2"
 
 react-native-reanimated-zoom@^0.3.3:
   version "0.3.3"

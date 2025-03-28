@@ -1,32 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, Text } from 'react-native';
 import { Stack } from 'tamagui';
-import { preloadAllWallpapers } from '@/services/s3Service';
+import { getWallpapers } from '@/services/s3Service';
+import { useWallpaperStore } from '@/store/WallpaperStore';
 
 export interface WallpaperPreloaderProps {
   onComplete: () => void;
   primaryColor: string;
 }
 
+export async function preloadWallpapers(onComplete: () => void) {
+  const wallpaperStore = useWallpaperStore();
+  try {
+    const wallpapers = getWallpapers();
+    
+    // Cache each wallpaper silently
+    for (const wallpaper of wallpapers) {
+      try {
+        const style = `wallpaper-${wallpaper.name}`;
+        await wallpaperStore.cacheWallpaper(style, wallpaper.uri);
+      } catch (err) {
+        console.error(`Failed to cache wallpaper ${wallpaper.name}:`, err);
+      }
+    }
+    
+    onComplete();
+  } catch (err) {
+    console.error('Error caching wallpapers:', err);
+    onComplete();
+  }
+}
+
 export default function WallpaperPreloader({ onComplete, primaryColor }: WallpaperPreloaderProps) {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const wallpaperStore = useWallpaperStore();
   
   useEffect(() => {
     const loadWallpapers = async () => {
       try {
-        await preloadAllWallpapers();
+        const wallpapers = getWallpapers();
+        let count = 0;
+        
+        // Cache each wallpaper
+        for (const wallpaper of wallpapers) {
+          try {
+            const style = `wallpaper-${wallpaper.name}`;
+            await wallpaperStore.cacheWallpaper(style, wallpaper.uri);
+            count++;
+            setProgress(Math.floor((count / wallpapers.length) * 100));
+          } catch (err) {
+            console.error(`Failed to cache wallpaper ${wallpaper.name}:`, err);
+          }
+        }
+        
         setProgress(100);
-        // Short delay to ensure UI renders properly
-        setTimeout(() => {
-          onComplete();
-        }, 500);
+        setTimeout(() => onComplete(), 500);
       } catch (err) {
-        console.error('Error preloading wallpapers:', err);
-        setError('Failed to preload wallpapers. Continuing anyway...');
-        setTimeout(() => {
-          onComplete();
-        }, 2000);
+        console.error('Error caching wallpapers:', err);
+        setError('Failed to cache wallpapers. Continuing anyway...');
+        setTimeout(() => onComplete(), 2000);
       }
     };
     
