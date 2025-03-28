@@ -46,6 +46,7 @@
     "@tanstack/react-query": "^5.66.6",
     "@types/node": "^22.10.10",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",

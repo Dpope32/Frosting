@@ -1,6 +1,7 @@
 import React from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -43,6 +44,7 @@ export default function RootLayout() {
     useCalendarSync();
   } else {
     inject();
+    injectSpeedInsights();
   }
 
   useEffect(() => {
