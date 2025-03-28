@@ -1206,11 +1206,6 @@
     ajv "^6.12.0"
     ajv-keywords "^3.4.1"
 
-"@dominicstop/ts-event-emitter@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@dominicstop/ts-event-emitter/-/ts-event-emitter-1.1.0.tgz#1f3d3fa878a1ccab686931280757954719cf88e4"
-  integrity sha512-CcxmJIvUb1vsFheuGGVSQf4KdPZC44XolpUT34+vlal+LyQoBUOn31pjFET5M9ctOxEpt8xa0M3/2M7uUiAoJw==
-
 "@egjs/hammerjs@^2.0.17":
   version "2.0.17"
   resolved "https://registry.npmjs.org/@egjs/hammerjs/-/hammerjs-2.0.17.tgz"
@@ -9889,13 +9884,6 @@ react-native-helmet-async@2.0.4:
     invariant "^2.2.4"
     react-fast-compare "^3.2.2"
     shallowequal "^1.1.0"
-
-react-native-ios-context-menu@~2.5.1:
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/react-native-ios-context-menu/-/react-native-ios-context-menu-2.5.3.tgz#3e65a6cee50e95a71766ad3ebc3920015eb02318"
-  integrity sha512-RMztfU71XiLuxnmf/eE4/ez6FT4dzFAzrsHEA0+QmMfaQMHjpyEHTfLJvvM++9gygBvLZmHuc/rQgzQzH7ETug==
-  dependencies:
-    "@dominicstop/ts-event-emitter" "^1.1.0"
 
 react-native-is-edge-to-edge@^1.1.6:
   version "1.1.6"

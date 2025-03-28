@@ -1,26 +1,6 @@
 // portfolioService.ts
 import { PortfolioQueryData } from '@/types/stocks';
 
-
-// Year progress calculation
-export const getYearProgress = () => {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff = Number(now) - Number(start);
-  const oneDay = 1000 * 60 * 60 * 24;
-  const day = Math.floor(diff / oneDay);
-  const isLeapYear = now.getFullYear() % 4 === 0 && 
-    (now.getFullYear() % 100 !== 0 || now.getFullYear() % 400 === 0);
-  const daysInYear = isLeapYear ? 366 : 365;
-  const percent = Math.round((day / daysInYear) * 100);
-  
-  return {
-    percentage: percent,
-    currentDay: day,
-    totalDays: daysInYear
-  };
-};
-
 // Portfolio calculations that don't use hooks
 export const calculateBuyIndicator = (
   symbol: string, 
