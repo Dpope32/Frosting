@@ -47,6 +47,11 @@ class ProxyServerManager {
       return directUrl; 
     }
 
+    // Use Vercel API route in production
+    if (process.env.NODE_ENV === 'production') {
+      return `/api/proxy/${endpoint}`;
+    }
+
     const isRunning = await this.isRunning();
     if (isRunning) {
       return `http://localhost:3000/api/${endpoint}`;
@@ -58,7 +63,11 @@ class ProxyServerManager {
 
   private async checkServerStatus(): Promise<boolean> {
     try {
-      const response = await fetch('http://localhost:3000/api/ping', { 
+      const url = process.env.NODE_ENV === 'production' 
+        ? '/api/proxy/ping' 
+        : 'http://localhost:3000/api/ping';
+        
+      const response = await fetch(url, { 
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         signal: AbortSignal.timeout(2000)

@@ -36,7 +36,7 @@ export const VaultCard = ({
       ai="center"
       animation="quick"
       width={columnWidthWeb}
-      minWidth={240}
+      minWidth={288}
       maxWidth={400}
       height={120}
       hoverStyle={{
@@ -49,13 +49,13 @@ export const VaultCard = ({
       }}
     >
       <YStack flex={1}>
-        <XStack jc="space-between" ai="center" mt="$1" mb="$1.5">
+        <XStack jc="space-between" ai="center" mt="$1" mb="$2">
           <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
             {cred.name}
           </Text>
         </XStack>
 
-        <XStack ai="center" gap="$2" mb="$0">
+        <XStack ai="center" gap="$2" mb="$2">
           <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
             Username:
           </Text>

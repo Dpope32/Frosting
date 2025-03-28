@@ -87,7 +87,7 @@ export const PersonEmpty = ({
           )}
         </XStack>
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-          Or click the + button below to add a contact manually
+          {isWeb ? "Click the + icon below to add your first contact!" : "Or click the + button below to add a contact manually"}
         </Text>
       </YStack>
     </XStack>

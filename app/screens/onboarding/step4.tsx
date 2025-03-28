@@ -72,7 +72,7 @@ export default function Step4({
         </Text>
       </YStack>
 
-      <YStack alignItems="center" width="80%" padding={isWeb ? "$4" : "$2"}>
+      <YStack alignItems="center" width="80%" padding={isWeb ? "$1" : "$2"}>
         <Input
           size="$4"
           placeholder="Enter zip code"

@@ -14,7 +14,7 @@ export interface VaultRecommendationChipProps {
   category: VaultRecommendationCategory
   onPress: () => void
   isDark?: boolean
-  isMainScreen?: boolean // New prop to identify when used on main screen
+  isMainScreen?: boolean 
 }
 
 export const getRecommendedVaultEntries = (category: VaultRecommendationCategory): RecommendedVaultEntry[] => {
@@ -95,7 +95,8 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
           borderColor: "rgba(239, 68, 68, 0.3)",
           iconName: "people-outline" as const,
           iconColor: "#ef4444",
-          textColor: "#ef4444"
+          textColor: "#ef4444",
+          fontFamil: "body"
         }
       case 'Misc':
         return {
@@ -103,7 +104,8 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
           borderColor: "rgba(59, 130, 246, 0.3)",
           iconName: "cloud-outline" as const,
           iconColor: "#3b82f6",
-          textColor: "#3b82f6"
+          textColor: "#3b82f6",
+          fontFamil: "body"
         }
       case 'Shopping':
         return {
@@ -111,7 +113,8 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
           borderColor: "rgba(16, 185, 129, 0.3)",
           iconName: "cart-outline" as const,
           iconColor: "#10b981",
-          textColor: "#10b981"
+          textColor: "#10b981",
+          fontFamil: "body"
         }
       case 'Work':
         return {
@@ -119,7 +122,8 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
           borderColor: "rgba(139, 92, 246, 0.3)",
           iconName: "briefcase-outline" as const,
           iconColor: "#8b5cf6",
-          textColor: "#8b5cf6"
+          textColor: "#8b5cf6",
+          fontFamil: "body"
         }
       default:
         return {
@@ -127,7 +131,8 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
           borderColor: "rgba(107, 114, 128, 0.3)",
           iconName: "add-circle-outline" as const,
           iconColor: "#6b7280",
-          textColor: "#6b7280"
+          textColor: "#6b7280",
+          fontFamil: "body"
         }
     }
   }
@@ -152,7 +157,6 @@ export const VaultRecommendationChip: React.FC<VaultRecommendationChipProps> = (
       marginBottom={Platform.OS === 'web' ? 0 : '$2'}
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">
-        {/* Only show icon if not on main screen */}
         {!isMainScreen && <Ionicons name={style.iconName} size={12} color={style.iconColor} />}
         <Text 
           color={style.textColor}  

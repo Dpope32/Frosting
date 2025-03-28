@@ -59,31 +59,36 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         return {
           backgroundColor: 'rgba(59, 130, 246, 0.15)',
           borderColor: 'rgba(59, 130, 246, 0.3)',
-          textColor: '#3b82f6'
+          textColor: '#3b82f6',
+          fontFamily: '$body'
         }
       case 'Misc':
         return {
           backgroundColor: 'rgba(139, 92, 246, 0.15)',
           borderColor: 'rgba(139, 92, 246, 0.3)',
-          textColor: '#8b5cf6'
+          textColor: '#8b5cf6',
+          fontFamily: '$body'
         }
       case 'Shopping':
         return {
           backgroundColor: 'rgba(16, 185, 129, 0.15)',
           borderColor: 'rgba(16, 185, 129, 0.3)',
-          textColor: '#10b981'
+          textColor: '#10b981',
+          fontFamily: '$body'
         }
       case 'Work':
         return {
           backgroundColor: 'rgba(239, 68, 68, 0.15)',
           borderColor: 'rgba(239, 68, 68, 0.3)',
-          textColor: '#ef4444'
+          textColor: '#ef4444',
+          fontFamily: '$body'
         }
       default:
         return {
           backgroundColor: 'rgba(107, 114, 128, 0.15)',
           borderColor: 'rgba(107, 114, 128, 0.3)',
-          textColor: '#6b7280'
+          textColor: '#6b7280',
+          fontFamily: '$body'
         }
     }
   }
