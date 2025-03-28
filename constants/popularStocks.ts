@@ -19,9 +19,7 @@ export const popularStocks = [
     { symbol: 'INTC', name: 'Intel Corp.' }
   ];
 
-  // Get an appropriate icon for a stock based on its symbol or industry
 export const getIconForStock = (symbol: string) => {
-    // Map symbols to brand icons or industry icons
     const iconMap: Record<string, any> = {
       // Tech
       'MSFT': { Component: FontAwesome5, name: 'microsoft', type: 'brand' },

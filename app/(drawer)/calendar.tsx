@@ -39,7 +39,6 @@ export default function CalendarScreen() {
     setCombinedEvents([...storeEvents, ...holidays]);
   }, [storeEvents]);
 
-  // Custom hooks
   const {
     selectedEvents,
     newEventTitle,

@@ -100,7 +100,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   }, [date, events]);
 
   return (
-    <View style={[styles.calendar, { backgroundColor: isDark ? '#181818' : '#fff' }]}>
+    <View style={[styles.calendar, { backgroundColor: isDark ? '#111111' : '#fff' }]}>
       <View style={styles.header}>
         <Text style={[styles.monthText, { color: isDark ? '#fff' : '#000' }]}>
           {monthName} {year}
@@ -147,11 +147,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
               onPressIn={() => { if (Platform.OS !== 'web') Haptics.selectionAsync(); }}
               style={[
                 styles.dayCell,
-                {
-                  backgroundColor: isDark
-                    ? (isWeekend ? '#2d2d2d' : '#181818')
-                    : (isWeekend ? '#f5f5f5' : '#fff')
-                },
+                 {backgroundColor: isDark ? (isWeekend ? '#222222' : '#111111')  : (isWeekend ? '#f5f5f5' : '#fff')},
                 isToday && [styles.today, { backgroundColor: primaryColor }],
                 dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
                 !isPastDate && styles.currentDateCell,

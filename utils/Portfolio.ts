@@ -4,9 +4,9 @@ import { StorageUtils } from '../store/AsyncStorage';
 
 const defaultPortfolio: Stock[] = [
   { symbol: 'TSLA', quantity: 1, name: 'Tesla' },
-  { symbol: 'AMZN', quantity: 1, name: 'Amazon' },
-  { symbol: 'AAPL', quantity: 1, name: 'Apple' },
-  { symbol: 'NVDA', quantity: 1, name: 'NVIDIA' }
+  { symbol: 'AMZN', quantity: 2, name: 'Amazon' },
+  { symbol: 'AAPL', quantity: 3, name: 'Apple' },
+  { symbol: 'NVDA', quantity: 4, name: 'NVIDIA' }
 ];
 
 // Initialize portfolio data with default values first
