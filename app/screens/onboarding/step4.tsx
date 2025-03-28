@@ -122,7 +122,12 @@ export default function Step4({
         <Button
           chromeless
           onPress={() => {
-            if (Platform.OS === 'ios' || Platform.OS === 'android') {
+            if (Platform.OS === 'web') {
+              if (confirm("Weather data won't be accurate for your location. Continue anyway?")) {
+                setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }))
+                handleNext()
+              }
+            } else {
               Alert.alert(
                 "Skip Zip Code?",
                 "Weather data won't be accurate for your location. Continue anyway?",
@@ -140,11 +145,6 @@ export default function Step4({
                   }
                 ]
               )
-            } else {
-              if (window.confirm("Weather data won't be accurate for your location. Continue anyway?")) {
-                setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }))
-                handleNext()
-              }
             }
           }}
           color={buttonColor}

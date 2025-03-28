@@ -123,24 +123,34 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
 
   const { showToast } = useToastStore()
   const handleDelete = (id: string) => {
-    Alert.alert(
-      'Confirm Deletion',
-      'Are you sure you want to delete this password entry?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Yes',
-          style: 'destructive',
-          onPress: () => {
-            deleteVaultEntry(id)
-            handleOpenChange(false)
-            setTimeout(() => {
-              showToast('Vault Entry Successfully removed', 'success')
-            }, 300)
+    if (Platform.OS === 'web') {
+      if (confirm('Are you sure you want to delete this password entry?')) {
+        deleteVaultEntry(id)
+        handleOpenChange(false)
+        setTimeout(() => {
+          showToast('Vault Entry Successfully removed', 'success')
+        }, 300)
+      }
+    } else {
+      Alert.alert(
+        'Confirm Deletion',
+        'Are you sure you want to delete this password entry?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Yes',
+            style: 'destructive',
+            onPress: () => {
+              deleteVaultEntry(id)
+              handleOpenChange(false)
+              setTimeout(() => {
+                showToast('Vault Entry Successfully removed', 'success')
+              }, 300)
+            }
           }
-        }
-      ]
-    )
+        ]
+      )
+    }
   }
 
   return (

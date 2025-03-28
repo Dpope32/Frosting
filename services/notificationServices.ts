@@ -4,7 +4,7 @@ import { SchedulableTriggerInputTypes, AndroidNotificationPriority } from 'expo-
 
 // Configure notifications to work properly even when the app is in the background
 export const configureNotifications = async () => {
-  if (Platform.OS === 'web') return;
+  if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return;
   
   try {
     // Set notification handler
@@ -46,14 +46,18 @@ export const configureNotifications = async () => {
 
 // Request notification permissions
 export const requestNotificationPermissions = async () => {
-  if (Platform.OS === 'web') return true;
+  if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return true;
   
   try {
     const { status } = await Notifications.getPermissionsAsync();
     if (status !== 'granted') {
       const { status: newStatus } = await Notifications.requestPermissionsAsync();
       if (newStatus !== 'granted') {
-        Alert.alert('Notification Permission', 'Please enable notifications to receive reminders for your events.');
+        if ((Platform.OS as string) === 'web') {
+          alert('Please enable notifications to receive reminders for your events.');
+        } else {
+          Alert.alert('Notification Permission', 'Please enable notifications to receive reminders for your events.');
+        }
         return false;
       }
     }
@@ -71,7 +75,7 @@ export const scheduleEventNotification = async (
   body: string, 
   identifier?: string
 ) => {
-  if (Platform.OS === 'web') return 'web-not-supported';
+  if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return 'web-not-supported';
   
   try {
     const hasPermission = await requestNotificationPermissions();
@@ -122,7 +126,11 @@ export const testNotification = async () => {
         channelId: 'test-channel',
       },
     });
-    Alert.alert('Success', 'Immediate notification sent!');
+    if ((Platform.OS as string) === 'web') {
+      alert('Immediate notification sent!');
+    } else {
+      Alert.alert('Success', 'Immediate notification sent!');
+    }
   } catch (error) {
     Alert.alert('Error', String(error));
   }

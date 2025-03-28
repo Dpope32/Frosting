@@ -67,26 +67,44 @@ export default function CRM() {
         });
         
         if (data.length > 0) {
-          Alert.alert(
-            "Import Contacts",
-            `Found ${data.length} contacts. Would you like to import them?`,
-            [
-              { text: "Cancel", style: "cancel" },
-              { 
-                text: "Import", 
-                onPress: () => importContacts(data)
-              }
-            ]
-          );
+          if (Platform.OS === 'web') {
+            if (confirm(`Found ${data.length} contacts. Would you like to import them?`)) {
+              importContacts(data);
+            }
+          } else {
+            Alert.alert(
+              "Import Contacts",
+              `Found ${data.length} contacts. Would you like to import them?`,
+              [
+                { text: "Cancel", style: "cancel" },
+                { 
+                  text: "Import", 
+                  onPress: () => importContacts(data)
+                }
+              ]
+            );
+          }
         } else {
-          Alert.alert("No Contacts", "No contacts found on your device.");
+          if (Platform.OS === 'web') {
+            alert("No contacts found on your device.");
+          } else {
+            Alert.alert("No Contacts", "No contacts found on your device.");
+          }
         }
       } else {
-        Alert.alert("Permission Denied", "Please grant contacts permission to import contacts.");
+        if (Platform.OS === 'web') {
+          alert("Please grant contacts permission to import contacts.");
+        } else {
+          Alert.alert("Permission Denied", "Please grant contacts permission to import contacts.");
+        }
       }
     } catch (error) {
       console.error("Error importing contacts:", error);
-      Alert.alert("Error", "Failed to import contacts. Please try again.");
+      if (Platform.OS === 'web') {
+        alert("Failed to import contacts. Please try again.");
+      } else {
+        Alert.alert("Error", "Failed to import contacts. Please try again.");
+      }
     }
   };
 
