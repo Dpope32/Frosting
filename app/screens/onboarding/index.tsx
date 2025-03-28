@@ -23,7 +23,7 @@ import Step5 from './step5'
 
 export default function Onboarding() {
   // Start with permissions screen (step -1)
-  const [step, setStep] = useState(-1)
+  const [step, setStep] = useState(Platform.OS === 'web' ? 0 : -1)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const colorScheme = useColorScheme();
   const { showToast } = useToastStore();
@@ -65,16 +65,20 @@ export default function Onboarding() {
       await markPermissionsAsExplained();
       
     } else if (step === 0) {
-      const permissions = await requestPermissionsWithDelay(1000);
+      if (Platform.OS === 'web') {
+        setStep(1);
+      } else {
+        const permissions = await requestPermissionsWithDelay(1000);
       
-      // Setup notifications based on permissions
-      await setupPermissionsAndNotifications(permissions);
-      if (formData.username.length < 2) {
-        showToast('Username must be at least 2 characters long.')
-        return
+        // Setup notifications based on permissions
+        await setupPermissionsAndNotifications(permissions);
+        if (formData.username.length < 2) {
+          showToast('Username must be at least 2 characters long.')
+          return
+        }
+        // After permissions are handled, move to step 1
+        setStep(1);
       }
-      // After permissions are handled, move to step 1
-      setStep(1);
       
     } else if (step === 5) {
       setPreferences({ ...formData, hasCompletedOnboarding: true })

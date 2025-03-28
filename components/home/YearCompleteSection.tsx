@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
 import { Platform } from 'react-native';
 import { YStack, Text, Stack } from 'tamagui';
-import { LinearGradient } from '@tamagui/linear-gradient';
-import { getYearProgress } from '@/services/calculationService';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export function YearCompleteSection() {
   // Calculate the year progress using the service function
@@ -32,7 +31,7 @@ export function YearCompleteSection() {
   return (
     <YStack padding="$2" width="100%">
       {/* Progress bar container */}
-      <Stack width="100%" height={24} br={12} overflow="hidden" backgroundColor="rgba(30, 30, 30, 0.3)" borderWidth={1} borderColor="rgba(255, 255, 255, 0.1)" marginVertical="$2">
+      <Stack width="100%" height={32} br={12} overflow="hidden" backgroundColor="rgba(30, 30, 30, 0.3)" borderWidth={1} borderColor="rgba(255, 255, 255, 0.1)" marginVertical="$2">
         {/* Gradient fill */}
         <Stack 
           position="absolute" 
@@ -44,13 +43,14 @@ export function YearCompleteSection() {
         >
           {/* Gradient that's stretched across what would be the full bar */}
           <Stack width={`${100 / (percentage / 100)}%`} height="100%">
-            <LinearGradient
-              width="100%"
-              height="100%"
-              colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#e53935', '#8e2de2']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            />
+            <Stack width="100%" height="100%">
+              <LinearGradient
+                colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#e53935', '#8e2de2']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ flex: 1 }}
+              />
+            </Stack>
           </Stack>
         </Stack>
         
@@ -61,18 +61,20 @@ export function YearCompleteSection() {
           justifyContent="center" 
           alignItems="center"
         >
-          <Text 
-            color="#f2f2f2" 
-            fontSize={12} 
-            fontWeight="bold"
-            style={{ 
-              textShadowColor: 'rgba(0, 0, 0, 0.5)', 
-              textShadowOffset: { width: 0, height: 1 }, 
-              textShadowRadius: 2 
-            }}
-          >
-            {percentage}% complete`
-          </Text>
+          {percentage < 100 ? (
+            <Text 
+              color="#f2f2f2" 
+              fontSize={12} 
+              fontWeight="bold"
+              style={{ 
+                textShadowColor: 'rgba(0, 0, 0, 0.5)', 
+                textShadowOffset: { width: 0, height: 1 }, 
+                textShadowRadius: 2 
+              }}
+            >
+              {percentage}% complete
+            </Text>
+          ) : null}
         </Stack>
       </Stack>
       
