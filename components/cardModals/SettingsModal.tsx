@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native'
-import { Sheet, Button, Input, YStack, XStack, Text, Circle } from 'tamagui'
+import { Sheet, Button, YStack, XStack, Text, Circle } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '../../constants/Colors'
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds'
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
+import { DebouncedInput } from '../shared/debouncedInput'
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -20,34 +21,7 @@ interface SettingsModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-type DebouncedInputProps = {
-  value: string
-  onDebouncedChange: (val: string) => void
-} & Omit<React.ComponentProps<typeof Input>, 'value' | 'onChangeText'>
 
-const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
-  ({ value, onDebouncedChange, ...props }, ref) => {
-    const [text, setText] = useState(value)
-    
-    useEffect(() => {
-      const handler = setTimeout(() => onDebouncedChange(text), 500)
-      return () => clearTimeout(handler)
-    }, [text, onDebouncedChange])
-
-    useEffect(() => {
-      setText(value)
-    }, [value])
-
-    return (
-      <Input 
-        ref={ref} 
-        {...props} 
-        value={text} 
-        onChangeText={setText}
-      />
-    )
-  }
-)
 const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
   styleItem,
   isSelected,

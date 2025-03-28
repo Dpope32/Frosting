@@ -10,41 +10,7 @@ import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
 import { BaseCardAnimated } from './BaseCardAnimated'
 import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
-
-type DebouncedInputProps = {
-  value: string
-  onDebouncedChange: (val: string) => void
-} & Omit<React.ComponentProps<typeof Input>, 'value'>
-
-const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
-  ({ value, onDebouncedChange, ...props }, ref) => {
-    const [text, setText] = useState(value)
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === 'dark'
-    
-    useEffect(() => {
-      const handler = setTimeout(() => onDebouncedChange(text), 500)
-      return () => clearTimeout(handler)
-    }, [text, onDebouncedChange])
-
-    useEffect(() => {
-      setText(value)
-    }, [value])
-
-    return (
-      <Input 
-        ref={ref} 
-        {...props} 
-        value={text} 
-        onChangeText={setText}
-        theme={isDark ? "dark" : "light"}
-        backgroundColor={isDark ? "$gray2" : "white"}
-        borderColor={isDark ? "$gray7" : "$gray4"}
-        color={isDark ? "$gray12" : "$gray11"}
-      />
-    )
-  }
-)
+import { DebouncedInput } from '../shared/debouncedInput'
 
 interface NewTaskModalProps {
   open: boolean
@@ -93,7 +59,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [])
 
   const handleTimeChange = useCallback((event: any, pickedDate?: Date) => {
-    // Remove the automatic closing for non-web platforms
     if (pickedDate) {
       setSelectedDate(pickedDate)
       const timeString = format(pickedDate, 'h:mm a')

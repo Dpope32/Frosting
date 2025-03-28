@@ -1,67 +1,15 @@
-import React, { useRef, useState, useEffect, forwardRef, useCallback } from "react";
-import {
-  Button,
-  Input,
-  YStack,
-  XStack,
-  ScrollView,
-  Circle,
-  Text,
-  AnimatePresence,
-  useMedia,
-  isWeb
-} from "tamagui";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { Button, Input, YStack, XStack, ScrollView, Circle, Text, isWeb} from "tamagui";
 import { useUserStore } from "@/store/UserStore";
 import { useImagePicker } from "@/hooks/useImagePicker";
-import { 
-  Image, 
-  TextInput, 
-  Switch, 
-  Pressable, 
-  Platform, 
-  Animated as RNAnimated, 
-  Dimensions,
-  StyleSheet,
-  TouchableWithoutFeedback,
-  View,
-  useColorScheme
-} from "react-native";
+import {  Image, TextInput, Switch, Pressable, Platform, Animated as RNAnimated, StyleSheet, TouchableWithoutFeedback, View, useColorScheme } from "react-native";
 import { PAYMENT_METHODS } from './types';
 import DateTimePicker from "@react-native-community/datetimepicker";
-import type { Person, Address } from "@/types/people";
+import type { Person } from "@/types/people";
 import { format } from "date-fns";
-
-const { width, height } = Dimensions.get('window');
+import { DebouncedInput } from '@/components/shared/debouncedInput'
 
 type FormData = Omit<Person, "id" | "createdAt" | "updatedAt">;
-
-const useDebounce = <T,>(value: T, delay: number): T => {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-  return debounced;
-};
-
-type DebouncedInputProps = {
-  value: string;
-  onDebouncedChange: (val: string) => void;
-} & Omit<React.ComponentProps<typeof Input>, "value">;
-
-const DebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
-  ({ value, onDebouncedChange, ...props }, ref) => {
-    const [text, setText] = useState(value);
-    const debouncedText = useDebounce(text, 500);
-    useEffect(() => {
-      onDebouncedChange(debouncedText);
-    }, [debouncedText]);
-    useEffect(() => {
-      setText(value);
-    }, [value]);
-    return <Input ref={ref} {...props} value={text} onChangeText={setText} />;
-  }
-);
 
 export function EditPersonForm({ person, visible, onClose, onSave}: {
   person: Person;
@@ -78,8 +26,6 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
   const [showPaymentMethodDropdown, setShowPaymentMethodDropdown] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const media = useMedia();
-  const isSmallScreen = media.sm;
   const scaleAnim = useRef(new RNAnimated.Value(1.5)).current;
   const opacityAnim = useRef(new RNAnimated.Value(0)).current;
   const backdropOpacity = useRef(new RNAnimated.Value(0)).current;
@@ -89,11 +35,8 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
   const emailRef = useRef<TextInput>(null);
   const occupationRef = useRef<TextInput>(null);
 
-  const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
-
-  const updateFormField = (field: keyof FormData, value: any): void => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const { pickImage: pickImageFromLibrary } = useImagePicker();
+  const updateFormField = (field: keyof FormData, value: any): void => {setFormData((prev) => ({ ...prev, [field]: value }))};
 
   useEffect(() => {
     if (visible) {
@@ -101,39 +44,15 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
       opacityAnim.setValue(0);
       backdropOpacity.setValue(0);
       RNAnimated.parallel([
-        RNAnimated.timing(backdropOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true
-        }),
-        RNAnimated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: true
-        }),
-        RNAnimated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true
-        })
+        RNAnimated.timing(backdropOpacity, { toValue: 1,  duration: 300, useNativeDriver: true}),
+        RNAnimated.timing(opacityAnim, { toValue: 1, duration: 400, useNativeDriver: true}),
+        RNAnimated.timing(scaleAnim, { toValue: 1,  duration: 500,  useNativeDriver: true})
       ]).start();
     } else {
       RNAnimated.parallel([
-        RNAnimated.timing(backdropOpacity, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true
-        }),
-        RNAnimated.timing(opacityAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true
-        }),
-        RNAnimated.timing(scaleAnim, {
-          toValue: 1.5,
-          duration: 250,
-          useNativeDriver: true
-        })
+        RNAnimated.timing(backdropOpacity, { toValue: 0, duration: 200, useNativeDriver: true}),
+        RNAnimated.timing(opacityAnim, { toValue: 0, duration: 200, useNativeDriver: true}),
+        RNAnimated.timing(scaleAnim, { toValue: 1.5, duration: 250, useNativeDriver: true})
       ]).start();
     }
   }, [visible]);
@@ -159,21 +78,9 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
 
   const handleClose = () => {
     RNAnimated.parallel([
-      RNAnimated.timing(backdropOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true
-      }),
-      RNAnimated.timing(opacityAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true
-      }),
-      RNAnimated.timing(scaleAnim, {
-        toValue: 1.5,
-        duration: 250,
-        useNativeDriver: true
-      })
+      RNAnimated.timing(backdropOpacity, { toValue: 0, duration: 200, useNativeDriver: true}),
+      RNAnimated.timing(opacityAnim, { toValue: 0, duration: 200, useNativeDriver: true}),
+      RNAnimated.timing(scaleAnim, { toValue: 1.5, duration: 250, useNativeDriver: true})
     ]).start(() => {
       onClose();
     });
@@ -192,7 +99,6 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
         { platform: paymentMethod, username: paymentUsername }
       ];
     }
-    
     onSave({ ...person, ...updatedFormData });
     handleClose();
   };
@@ -206,268 +112,207 @@ export function EditPersonForm({ person, visible, onClose, onSave}: {
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
       </RNAnimated.View>
-      
-      <RNAnimated.View 
-        style={[
-          styles.modalContainer,
-          {
-            opacity: opacityAnim,
-            transform: [{ scale: scaleAnim }]
-          }
-        ]}
-      >
-        <YStack flex={1} backgroundColor="$gray1" br={16} overflow="hidden">
-          <YStack 
-            height={10} 
-            backgroundColor="$gray3" 
-            width="30%" 
-            alignSelf="center" 
-            mt={8} 
-            br={4}
-          />
-          
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <YStack gap="$4" py={isWeb ? "$6" : "$2"} px={isWeb ? "$6" : "$4"}>
-              <XStack gap="$4">
-                <YStack flex={1} gap="$2" alignItems="center">
-                  {formData.profilePicture ? (
-                    <Pressable onPress={pickImage}>
-                      <Image
-                        source={{ uri: formData.profilePicture }}
-                        style={{ width: 100, height: 100, borderRadius: 50 }}
+      <RNAnimated.View  style={[ styles.modalContainer, { opacity: opacityAnim,  transform: [{ scale: scaleAnim }]}]}>
+          <YStack flex={1} backgroundColor="$gray1" br={16} overflow="hidden">
+            <YStack  height={10}  backgroundColor="$gray3"  width="30%"  alignSelf="center"  mt={8}  br={4}/>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <YStack gap="$4" py={isWeb ? "$6" : "$2"} px={isWeb ? "$6" : "$4"}>
+                <XStack gap="$4">
+                  <YStack flex={1} gap="$2" alignItems="center">
+                    {formData.profilePicture ? (
+                      <Pressable onPress={pickImage}>
+                        <Image source={{ uri: formData.profilePicture }} style={{ width: 100, height: 100, borderRadius: 50 }}/>
+                      </Pressable>
+                    ) : (
+                      <Circle size={100} backgroundColor="$gray5" pressStyle={{ backgroundColor: "$gray6" }} onPress={pickImage}>
+                        <Text fontFamily="$body" fontSize={32} color="$gray11"> + </Text>
+                      </Circle>
+                    )}
+                    <XStack alignItems="center" gap="$2">
+                      <Text fontFamily="$body" color="$gray11">Registered</Text>
+                      <Switch value={formData.registered}
+                        onValueChange={(val) => updateFormField('registered', val)}
+                        trackColor={{ false: "#767577", true: "#81b0ff" }}
+                        thumbColor={formData.registered ? "#2196F3" : "#f4f3f4"}
                       />
+                    </XStack>
+                  </YStack>
+                  <YStack flex={1.5} gap="$3">
+                    <Pressable onPress={showDatePickerModal}>
+                      <Input value={ formData.birthday ? format(new Date(formData.birthday), "MMMM d, yyyy") : ""}  placeholder="Select Birthday" editable={false} theme="dark"/>
                     </Pressable>
-                  ) : (
-                    <Circle
-                      size={100}
-                      backgroundColor="$gray5"
-                      pressStyle={{ backgroundColor: "$gray6" }}
-                      onPress={pickImage}
-                    >
-                      <Text fontFamily="$body" fontSize={32} color="$gray11">
-                        +
-                      </Text>
-                    </Circle>
-                  )}
-                  <XStack alignItems="center" gap="$2">
-                    <Text fontFamily="$body" color="$gray11">Registered</Text>
-                    <Switch
-                      value={formData.registered}
-                      onValueChange={(val) => updateFormField('registered', val)}
-                      trackColor={{ false: "#767577", true: "#81b0ff" }}
-                      thumbColor={formData.registered ? "#2196F3" : "#f4f3f4"}
-                    />
-                  </XStack>
-                </YStack>
-                <YStack flex={1.5} gap="$3">
-                  <Pressable onPress={showDatePickerModal}>
-                    <Input
-                      value={
-                        formData.birthday
-                          ? format(new Date(formData.birthday), "MMMM d, yyyy")
-                          : ""
-                      }
-                      placeholder="Select Birthday"
-                      editable={false}
-                      theme="dark"
-                    />
-                  </Pressable>
-                  {showDatePicker && (
-                    <DateTimePicker
-                      value={selectedDate}
-                      mode="date"
-                      display={Platform.select({ ios: "spinner", android: "calendar" })}
-                      onChange={handleDateChange}
-                      minimumDate={new Date(1900, 0, 1)}
-                      maximumDate={new Date()}
-                    />
-                  )}
-                  <DebouncedInput
-                    ref={phoneRef}
-                    value={formData.phoneNumber || ""}
-                    onDebouncedChange={(text) => updateFormField('phoneNumber', text)}
-                    placeholder="Phone Number"
-                    returnKeyType="next"
-                    theme="dark"
-                  />
-                  <DebouncedInput
-                    ref={occupationRef}
-                    value={formData.occupation || ""}
-                    onDebouncedChange={(text) => updateFormField('occupation', text)}
-                    placeholder="Occupation"
-                    returnKeyType="next"
-                    theme="dark"
-                  />
-                </YStack>
-              </XStack>
-              <XStack gap="$3">
-                <DebouncedInput
-                  flex={1}
-                  ref={nameRef}
-                  value={formData.name || ""}
-                  onDebouncedChange={(text) => updateFormField('name', text)}
-                  placeholder="Name"
-                  theme="dark"
-                />
-                <DebouncedInput
-                  flex={1}
-                  ref={nicknameRef}
-                  value={formData.nickname || ""}
-                  onDebouncedChange={(text) => updateFormField('nickname', text)}
-                  placeholder="Nickname"
-                  theme="dark"
-                />
-              </XStack>
-              <DebouncedInput
-                ref={emailRef}
-                value={formData.email || ""}
-                onDebouncedChange={(text) => updateFormField('email', text)}
-                placeholder="Email"
-                theme="dark"
-              />
-              <YStack gap="$3">
-                <DebouncedInput
-                  value={formData.address?.street || ""}
-                  onDebouncedChange={(text) => {
-                    if (text) {
-                      updateFormField('address', {
-                        street: text,
-                        city: formData.address?.city || "",
-                        state: formData.address?.state || "",
-                        zipCode: formData.address?.zipCode || "",
-                        country: formData.address?.country || ""
-                      });
-                    } else {
-                      updateFormField('address', undefined);
-                    }
-                  }}
-                  placeholder="Enter full address"
-                  theme="dark"
-                />
-                
-                <YStack gap="$2">
-                  <Text color={isDark ? "$gray11" : "$gray10"} fontSize={14} fontFamily="$body">
-                    Payment Method
-                  </Text>
-                  <XStack gap="$2" alignItems="center">
-                    <YStack width={120}>
-                      <Button
-                        onPress={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
-                        theme={isDark ? "dark" : "light"}
-                        backgroundColor={isDark ? "$gray2" : "white"}
-                        br={8}
-                        height={40}
-                        borderColor={isDark ? "$gray7" : "$gray4"}
-                        borderWidth={1}
-                        px="$2"
-                        pressStyle={{ opacity: 0.8 }}
-                        width="100%"
-                      >
-                        <XStack flex={1} alignItems="center" justifyContent="space-between">
-                          <Text 
-                            color={isDark ? "$gray12" : "$gray11"} 
-                            fontSize={14} 
-                            fontFamily="$body"
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                          >
-                            {paymentMethod || 'Platform'}
-                          </Text>
-                          <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
-                            {showPaymentMethodDropdown ? '▲' : '▼'}
-                          </Text>
-                        </XStack>
-                      </Button>
-                      
-                      {showPaymentMethodDropdown && (
-                        <YStack
-                          position="absolute"
-                          top={40}
-                          left={0}
-                          backgroundColor={isDark ? "$gray1" : "white"}
-                          br={8}
-                          zIndex={1000}
-                          overflow="hidden"
-                          shadowColor="black"
-                          shadowOffset={{ width: 0, height: 4 }}
-                          shadowOpacity={0.1}
-                          shadowRadius={8}
-                          maxHeight={200}
-                          borderWidth={1}
-                          borderColor={isDark ? "$gray7" : "$gray4"}
-                          width={120}
-                        >
-                          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-                            <YStack>
-                              {PAYMENT_METHODS.map((method) => (
-                                <Pressable
-                                  key={method}
-                                  onPress={() => {
-                                    setPaymentMethod(method);
-                                    setShowPaymentMethodDropdown(false);
-                                  }}
-                                  style={({ pressed }) => ({
-                                    backgroundColor: paymentMethod === method 
-                                      ? primaryColor 
-                                      : isDark ? "#1c1c1e" : "white",
-                                    height: 40,
-                                    justifyContent: 'center',
-                                    opacity: pressed ? 0.8 : 1,
-                                    borderBottomWidth: 1,
-                                    borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
-                                    padding: 12
-                                  })}
-                                >
-                                  <Text
-                                    color={paymentMethod === method ? '#fff' : isDark ? "#fff" : "#000"}
-                                    fontSize={14}
-                                    fontWeight={paymentMethod === method ? '600' : '400'}
-                                    fontFamily="$body"
-                                  >
-                                    {method}
-                                  </Text>
-                                </Pressable>
-                              ))}
-                            </YStack>
-                          </ScrollView>
-                        </YStack>
-                      )}
-                    </YStack>
-                    
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={selectedDate}
+                        mode="date"
+                        display={Platform.select({ ios: "spinner", android: "calendar" })}
+                        onChange={handleDateChange}
+                        minimumDate={new Date(1900, 0, 1)}
+                        maximumDate={new Date()}
+                      />
+                    )}
                     <DebouncedInput
-                      value={paymentUsername}
-                      onDebouncedChange={updatePaymentUsername}
-                      placeholder="Username (e.g. @username)"
+                      ref={phoneRef}
+                      value={formData.phoneNumber || ""}
+                      onDebouncedChange={(text) => updateFormField('phoneNumber', text)}
+                      placeholder="Phone Number"
                       returnKeyType="next"
-                      autoCapitalize="none"
-                      flex={1}
                       theme="dark"
                     />
-                  </XStack>
+                    <DebouncedInput
+                      ref={occupationRef}
+                      value={formData.occupation || ""}
+                      onDebouncedChange={(text) => updateFormField('occupation', text)}
+                      placeholder="Occupation"
+                      returnKeyType="next"
+                      theme="dark"
+                    />
+                  </YStack>
+                </XStack>
+                <XStack gap="$3">
+                  <DebouncedInput
+                    flex={1}
+                    ref={nameRef}
+                    value={formData.name || ""}
+                    onDebouncedChange={(text) => updateFormField('name', text)}
+                    placeholder="Name"
+                    theme="dark"
+                  />
+                  <DebouncedInput
+                    flex={1}
+                    ref={nicknameRef}
+                    value={formData.nickname || ""}
+                    onDebouncedChange={(text) => updateFormField('nickname', text)}
+                    placeholder="Nickname"
+                    theme="dark"
+                  />
+                </XStack>
+                <DebouncedInput
+                  ref={emailRef}
+                  value={formData.email || ""}
+                  onDebouncedChange={(text) => updateFormField('email', text)}
+                  placeholder="Email"
+                  theme="dark"
+                />
+                <YStack gap="$3">
+                  <DebouncedInput
+                    value={formData.address?.street || ""}
+                    onDebouncedChange={(text) => {
+                      if (text) {
+                        updateFormField('address', {
+                          street: text,
+                          city: formData.address?.city || "",
+                          state: formData.address?.state || "",
+                          zipCode: formData.address?.zipCode || "",
+                          country: formData.address?.country || ""
+                        });
+                      } else {
+                        updateFormField('address', undefined);
+                      }
+                    }}
+                    placeholder="Enter full address"
+                    theme="dark"
+                  />
+                  
+                  <YStack gap="$2">
+                    <Text color={isDark ? "$gray11" : "$gray10"} fontSize={14} fontFamily="$body"> Payment Method </Text>
+                    <XStack gap="$2" alignItems="center">
+                      <YStack width={120}>
+                        <Button
+                          onPress={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
+                          theme={isDark ? "dark" : "light"}
+                          backgroundColor={isDark ? "$gray2" : "white"}
+                          br={8}
+                          height={40}
+                          borderColor={isDark ? "$gray7" : "$gray4"}
+                          borderWidth={1}
+                          px="$2"
+                          pressStyle={{ opacity: 0.8 }}
+                          width="100%"
+                        >
+                          <XStack flex={1} alignItems="center" justifyContent="space-between">
+                            <Text  color={isDark ? "$gray12" : "$gray11"}   fontSize={14}  fontFamily="$body" numberOfLines={1} ellipsizeMode="tail">
+                              {paymentMethod || 'Platform'}
+                            </Text>
+                            <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
+                              {showPaymentMethodDropdown ? '▲' : '▼'}
+                            </Text>
+                          </XStack>
+                        </Button>
+                        
+                        {showPaymentMethodDropdown && (
+                          <YStack
+                            position="absolute"
+                            top={40}
+                            left={0}
+                            backgroundColor={isDark ? "$gray1" : "white"}
+                            br={8}
+                            zIndex={1000}
+                            overflow="hidden"
+                            shadowColor="black"
+                            shadowOffset={{ width: 0, height: 4 }}
+                            shadowOpacity={0.1}
+                            shadowRadius={8}
+                            maxHeight={200}
+                            borderWidth={1}
+                            borderColor={isDark ? "$gray7" : "$gray4"}
+                            width={120}
+                          >
+                            <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                              <YStack>
+                                {PAYMENT_METHODS.map((method) => (
+                                  <Pressable
+                                    key={method}
+                                    onPress={() => {
+                                      setPaymentMethod(method);
+                                      setShowPaymentMethodDropdown(false);
+                                    }}
+                                    style={({ pressed }) => ({
+                                      backgroundColor: paymentMethod === method  ? primaryColor  : isDark ? "#1c1c1e" : "white",
+                                      height: 40,
+                                      justifyContent: 'center',
+                                      opacity: pressed ? 0.8 : 1,
+                                      borderBottomWidth: 1,
+                                      borderColor: isDark ? "#2c2c2e" : "#e5e5ea",
+                                      padding: 12
+                                    })}
+                                  >
+                                    <Text color={paymentMethod === method ? '#fff' : isDark ? "#fff" : "#000"} fontSize={14} fontWeight={paymentMethod === method ? '600' : '400'} fontFamily="$body">
+                                      {method}
+                                    </Text>
+                                  </Pressable>
+                                ))}
+                              </YStack>
+                            </ScrollView>
+                          </YStack>
+                        )}
+                      </YStack>
+                      
+                      <DebouncedInput
+                        value={paymentUsername}
+                        onDebouncedChange={updatePaymentUsername}
+                        placeholder="Username (e.g. @username)"
+                        returnKeyType="next"
+                        autoCapitalize="none"
+                        flex={1}
+                        theme="dark"
+                      />
+                    </XStack>
+                  </YStack>
                 </YStack>
+                <XStack gap="$3" justifyContent="flex-end" marginBottom="$4">
+                  <Button theme="dark" onPress={handleClose} backgroundColor="$gray5"> Cancel </Button>
+                  <Button onPress={handleSubmit} backgroundColor={primaryColor} borderColor={primaryColor} borderWidth={2} >
+                    <Text fontFamily="$body" color="white" fontWeight="600"> Save Changes  </Text>
+                  </Button>
+                </XStack>
               </YStack>
-              <XStack gap="$3" justifyContent="flex-end" marginBottom="$4">
-                <Button theme="dark" onPress={handleClose} backgroundColor="$gray5">
-                  Cancel
-                </Button>
-                <Button
-                  onPress={handleSubmit}
-                  backgroundColor={primaryColor}
-                  borderColor={primaryColor}
-                  borderWidth={2}
-                >
-                  <Text fontFamily="$body" color="white" fontWeight="600">
-                    Save Changes
-                  </Text>
-                </Button>
-              </XStack>
-            </YStack>
-          </ScrollView>
-        </YStack>
+            </ScrollView>
+          </YStack>
       </RNAnimated.View>
     </View>
-  );
-}
+    );
+  }
 
 const styles = StyleSheet.create({
   container: {

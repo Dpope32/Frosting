@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
 import { H4, Separator, YStack, Text, Button, isWeb, XStack } from "tamagui";
+import { PersonEmpty } from "@/components/crm/PersonEmpty";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import * as Contacts from 'expo-contacts';
@@ -47,6 +48,46 @@ export default function CRM() {
       setSelectedPerson(null);
       setExpandedId(null);
     }, 300);
+  };
+
+  const handleImportContacts = async () => {
+    try {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === 'granted') {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [
+            Contacts.Fields.Name,
+            Contacts.Fields.PhoneNumbers,
+            Contacts.Fields.Emails,
+            Contacts.Fields.Birthday,
+            Contacts.Fields.Image,
+            Contacts.Fields.Addresses,
+            Contacts.Fields.JobTitle
+          ]
+        });
+        
+        if (data.length > 0) {
+          Alert.alert(
+            "Import Contacts",
+            `Found ${data.length} contacts. Would you like to import them?`,
+            [
+              { text: "Cancel", style: "cancel" },
+              { 
+                text: "Import", 
+                onPress: () => importContacts(data)
+              }
+            ]
+          );
+        } else {
+          Alert.alert("No Contacts", "No contacts found on your device.");
+        }
+      } else {
+        Alert.alert("Permission Denied", "Please grant contacts permission to import contacts.");
+      }
+    } catch (error) {
+      console.error("Error importing contacts:", error);
+      Alert.alert("Error", "Failed to import contacts. Please try again.");
+    }
   };
 
   const renderItem = ({ item, index }: { item: Person; index: number }) => {
@@ -149,135 +190,12 @@ export default function CRM() {
           paddingBottom: 100,
         }}
         ListEmptyComponent={
-          <XStack 
-            bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-            p="$4" 
-            br="$4" 
-            ai="flex-start" 
-            jc="center"
-            borderWidth={1}
-            borderColor={isDark ? "#333" : "#e0e0e0"}
-            width={isWeb ? "80%" : "90%"}
-            maxWidth={isWeb ? 800 : "100%"}
-            mx="auto"
-            my="$4"
-          >
-            <YStack gap="$4" width="100%" paddingTop={16}>
-              <YStack gap="$3" px="$2">
-                <XStack gap="$2" ai="flex-start">
-                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
-                  <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                      Track Important Contacts
-                    </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                      Add your contacts and keep track of important information in one place.
-                    </Text>
-                  </YStack>
-                </XStack>
-                <XStack gap="$2" ai="flex-start">
-                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
-                  <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                      Birthday Reminders
-                    </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                      Never miss a birthday with automatic calendar integration.
-                    </Text>
-                  </YStack>
-                </XStack>
-                <XStack gap="$2" ai="flex-start">
-                  <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
-                  <YStack>
-                    <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                      Contact Details
-                    </Text>
-                    <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                      Store phone numbers, emails, addresses, and more for easy access.
-                    </Text>
-                  </YStack>
-                </XStack>
-              </YStack>
-              <XStack justifyContent="center" px={isWeb ? "$2" : "$1"} gap="$2" mt="$2">
-                {isWeb ? (
-                  <YStack alignItems="center" gap="$2">
-                    <Button
-                      size="$4"
-                      backgroundColor={isDark ? "$gray5" : "$gray3"}
-                      borderColor={isDark ? "$gray7" : "$gray4"}
-                      borderWidth={2}
-                      px="$4"
-                      py="$2"
-                      br="$4"
-                      opacity={0.7}
-                      pressStyle={{ opacity: 0.7 }}
-                      animation="quick"
-                      disabled
-                    />
-                  </YStack>
-                ) : (
-                  <Button
-                    size="$3"
-                    onPress={async () => {
-                      try {
-                        const { status } = await Contacts.requestPermissionsAsync();
-                        if (status === 'granted') {
-                          const { data } = await Contacts.getContactsAsync({
-                            fields: [
-                              Contacts.Fields.Name,
-                              Contacts.Fields.PhoneNumbers,
-                              Contacts.Fields.Emails,
-                              Contacts.Fields.Birthday,
-                              Contacts.Fields.Image,
-                              Contacts.Fields.Addresses,
-                              Contacts.Fields.JobTitle
-                            ]
-                          });
-                          
-                          if (data.length > 0) {
-                            Alert.alert(
-                              "Import Contacts",
-                              `Found ${data.length} contacts. Would you like to import them?`,
-                              [
-                                { text: "Cancel", style: "cancel" },
-                                { 
-                                  text: "Import", 
-                                  onPress: () => importContacts(data)
-                                }
-                              ]
-                            );
-                          } else {
-                            Alert.alert("No Contacts", "No contacts found on your device.");
-                          }
-                        } else {
-                          Alert.alert("Permission Denied", "Please grant contacts permission to import contacts.");
-                        }
-                      } catch (error) {
-                        console.error("Error importing contacts:", error);
-                        Alert.alert("Error", "Failed to import contacts. Please try again.");
-                      }
-                    }}
-                    bc={primaryColor}
-                    borderColor={primaryColor}
-                    borderWidth={2}
-                    px="$4"
-                    py="$2"
-                    br="$4"
-                    pressStyle={{ opacity: 0.8 }}
-                    animation="quick"
-                    icon={<FontAwesome5 name="address-book" size={16} color="white" style={{ marginRight: 8 }} />}
-                  >
-                    <Text color="white" fontWeight="600">
-                      Import Contacts
-                    </Text>
-                  </Button>
-                )}
-              </XStack>
-              <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-                Or click the + button below to add a contact manually
-              </Text>
-            </YStack>
-          </XStack>
+          <PersonEmpty 
+            isDark={isDark}
+            primaryColor={primaryColor}
+            isWeb={isWeb}
+            onImportContacts={!isWeb ? handleImportContacts : undefined}
+          />
         }
       />
       <AddPersonForm />

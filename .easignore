@@ -24,7 +24,6 @@ ios/build/
 
 # Exclude large assets not needed for build
 assets/wallpapers/
-!assets/wallpapers-optimized/
 
 # Exclude backup files
 *.bak

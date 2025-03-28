@@ -11,40 +11,9 @@ import { useEditStockStore } from '@/store/EditStockStore'
 import { initializeStocksData,  searchStocks } from '@/services/stockSearchService'
 import { StockData } from '@/constants/stocks'
 import { getIconForStock} from '../../constants/popularStocks'
+import { DebouncedInput } from '@/components/shared/debouncedInput'
 
-// DebouncedInput component for smoother input handling
-type DebouncedInputProps = {
-  value: string
-  onDebouncedChange: (val: string) => void
-} & Omit<React.ComponentProps<typeof Input>, 'value' | 'onChangeText'>
-
-const DebouncedInput = React.forwardRef<any, DebouncedInputProps>(
-  ({ value, onDebouncedChange, ...props }, ref) => {
-    const [text, setText] = useState(value)
-    
-    useEffect(() => {
-      const handler = setTimeout(() => onDebouncedChange(text), 500)
-      return () => clearTimeout(handler)
-    }, [text, onDebouncedChange])
-
-    useEffect(() => {
-      setText(value)
-    }, [value])
-
-    return (
-      <Input 
-        ref={ref} 
-        {...props} 
-        value={text} 
-        onChangeText={setText}
-      />
-    )
-  }
-)
-
-// Global edit stock modal component
 export function EditStockModal() {
-  // Get state from the edit stock store
   const isOpen = useEditStockStore(s => s.isOpen)
   const selectedStock = useEditStockStore(s => s.selectedStock)
   const closeModal = useEditStockStore(s => s.closeModal)

@@ -1,11 +1,11 @@
 
 // *** Sports.tsx ***
-import React, { useState } from 'react'
+import React from 'react'
 import { useColorScheme } from '@/hooks/useColorScheme'
-import { YStack, Text } from 'tamagui'
+import { YStack } from 'tamagui'
 
 import { Platform } from 'react-native'
-import NBATeamPage from '@/components/sports/NBATeamPage'
+import NBATeamPage from '../../../app/(drawer)/nba'
 //import OUPage from '@/components/sports/dev/ou'
 //import { Tabs } from '@tamagui/tabs'
 
@@ -22,7 +22,6 @@ export default function Sports() {
     );
   }
 
-  // In development mode, show both NBA and OU tabs
   // Only for me, none of this will ever be used in production
   /*
   return (

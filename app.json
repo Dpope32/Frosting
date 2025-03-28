@@ -16,7 +16,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "assetBundlePatterns": [
-      "assets/wallpapers-optimized/*",
       "assets/images/*",
       "assets/sounds/*"
     ],

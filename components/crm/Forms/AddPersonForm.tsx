@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect, forwardRef, useCallback} from 'react'
+import React, { useRef, useState, useEffect, useCallback} from 'react'
 import { Image, TextInput, Switch, Pressable, View, useColorScheme, Animated as RNAnimated, StyleSheet, TouchableWithoutFeedback, Platform} from 'react-native'
-import { Button, Input, YStack, XStack, ScrollView, Circle, Text, useMedia, isWeb} from 'tamagui'
+import { Button, YStack, XStack, ScrollView, Circle, Text, useMedia, isWeb} from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
 import { useCalendarStore } from '@/store/CalendarStore'
@@ -8,7 +8,9 @@ import { useImagePicker } from '@/hooks/useImagePicker'
 import { Plus } from '@tamagui/lucide-icons'
 import type { Person } from '@/types/people'
 import { format, parse, isValid } from 'date-fns'
-import { PAYMENT_METHODS, initialFormData, FormContentProps, DebouncedInputProps } from './types'
+import { PAYMENT_METHODS, initialFormData, FormContentProps } from './types'
+import { DebouncedInput, DateDebouncedInput } from '@/components/shared/debouncedInput' 
+
 
 type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 
@@ -21,94 +23,6 @@ const formatPhoneNumber = (phone: string): string => {
   return phone;
 };
 
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState<T>(value)
-  useEffect(() => {
-    const handler = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(handler)
-  }, [value, delay])
-  return debounced
-}
-
-const DebouncedInput = forwardRef<any, DebouncedInputProps>(
-  (
-    { value, onDebouncedChange, delay = 300, ...props },
-    ref: React.Ref<TextInput>
-  ) => {
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === 'dark'
-    const [text, setText] = useState<string>(value)
-    const debouncedText = useDebounce<string>(text, delay)
-    useEffect(() => {
-      if (debouncedText !== value) {
-        onDebouncedChange(debouncedText)
-      }
-    }, [debouncedText, onDebouncedChange, value])
-    return (
-      <Input
-        ref={ref}
-        {...props}
-        value={text}
-        onChangeText={setText}
-        theme={isDark ? "dark" : "light"}
-        backgroundColor={isDark ? "$gray2" : "white"}
-        borderColor={isDark ? "$gray7" : "$gray4"}
-        fontFamily="$body"
-      />
-    )
-  }
-)
-
-const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
-  (
-    { value, onDebouncedChange, delay = 300, ...props },
-    ref: React.Ref<TextInput>
-  ) => {
-    const colorScheme = useColorScheme()
-    const isDark = colorScheme === 'dark'
-    const [text, setText] = useState<string>(value)
-    const debouncedText = useDebounce<string>(text, delay)
-    
-    useEffect(() => {
-      if (debouncedText !== value) {
-        onDebouncedChange(debouncedText)
-      }
-    }, [debouncedText, onDebouncedChange, value])
-    
-    const formatDateWithSlashes = (input: string): string => {
-      // Remove any non-numeric characters
-      const cleaned = input.replace(/\D/g, '')
-      
-      // Format with slashes
-      if (cleaned.length <= 2) {
-        return cleaned
-      } else if (cleaned.length <= 4) {
-        return `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`
-      } else {
-        return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`
-      }
-    }
-    
-    const handleDateChange = (input: string) => {
-      const formatted = formatDateWithSlashes(input)
-      setText(formatted)
-    }
-    
-    return (
-      <Input
-        ref={ref}
-        {...props}
-        value={text}
-        onChangeText={handleDateChange}
-        theme={isDark ? "dark" : "light"}
-        backgroundColor={isDark ? "$gray2" : "white"}
-        borderColor={isDark ? "$gray7" : "$gray4"}
-        fontFamily="$body"
-      />
-    )
-  }
-)
 
 const FormContent = React.memo((props: FormContentProps) => {
   const {
