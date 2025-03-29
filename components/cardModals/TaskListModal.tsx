@@ -73,7 +73,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
     return days
   }, [tasks])
 
-  // In TaskListModal, update formatDayName:
   const formatDayName = (day: string) => day.charAt(0).toUpperCase()
 
   const formatDayName2 = (day: string) =>

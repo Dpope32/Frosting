@@ -41,8 +41,6 @@ export default function Step3({
   getWallpaperPath: (style: BackgroundStyle) => Promise<ImageSourcePropType | null>
   isDark?: boolean
 }) {
-  console.log('[Step3] Rendering with backgroundStyle:', formData.backgroundStyle);
-  
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
@@ -254,7 +252,6 @@ export default function Step3({
         try {
           const cachedUri = await wallpaperStore.getCachedWallpaper(formData.backgroundStyle);
           if (cachedUri) {
-            console.log(`[Step3] Found cached URI for ${formData.backgroundStyle}: ${cachedUri}`);
             setWallpaperSource({ uri: cachedUri });
             setLoadingWallpaper(false);
           } else {
@@ -274,13 +271,11 @@ export default function Step3({
       }
     };
     
-    // Run the logic whenever the style changes. The onPress handler sets the initial loading state.
     loadSrc();
     
-  }, [formData.backgroundStyle, wallpaperStore]); // Simplified dependencies: remove loadingWallpaper, remove conditional if
+  }, [formData.backgroundStyle, wallpaperStore]); 
 
   const background = React.useMemo(() => {
-    console.log('[Step3] Rendering background with style:', formData.backgroundStyle);
     switch (formData.backgroundStyle) {
       case 'gradient': {
         const lighterColor = adjustColor(formData.primaryColor, 100);
@@ -351,11 +346,9 @@ export default function Step3({
           }
 
           if (loadingWallpaper || !wallpaperSource || !sourceMatchesSelection) {
-             console.log(`[Step3] Waiting/Loading check: IsLoading: ${loadingWallpaper}, HasSource: ${!!wallpaperSource}, SourceMatchesSelection: ${sourceMatchesSelection} for ${formData.backgroundStyle}`);
              return null;
           }
 
-          console.log('[Step3] Displaying wallpaper:', formData.backgroundStyle, 'Source:', wallpaperSource);
           if ((Platform.OS === 'ios' || Platform.OS === 'android') && BlurView) {
             return (
               <Stack position="absolute" width="100%" height="100%">
@@ -528,7 +521,6 @@ export default function Step3({
                     opacity: 0.9
                   }}
                   onPress={() => {
-                    console.log('[Step3] Selected wallpaper:', style.value);
                     const newStyle = style.value as FormData['backgroundStyle'];
                     
                     // If changing *to* a wallpaper style that isn't already selected,
