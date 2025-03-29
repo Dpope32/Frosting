@@ -83,7 +83,6 @@ export function LandingPage() {
           </Stack>
           <TaskSection todaysTasks={todaysTasks} toggleTaskCompletion={toggleTaskCompletion} deleteTask={deleteTask} onAddTaskPress={handleNewTaskPress} onTaskListPress={() => setTaskListModalOpen(true)} />
          
-         {/* Only Render the Asset Tracker on web since tables look weird on mobile */}
           {Platform.OS === 'web' && (
             <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" marginTop="$2" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} minWidth={300}>
               <XStack justifyContent="space-between" alignItems="center">
@@ -97,7 +96,6 @@ export function LandingPage() {
             </Stack>
           )}
           
-          {/* Only Render the Year complete progress bar on mobile since progress bars look weird on web */}
           {Platform.OS !== 'web' && (
             <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={{ shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
               <YearCompleteSection />
