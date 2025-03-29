@@ -175,7 +175,7 @@ export default function Step5({
                 fontFamily="$body"
                 color={selectedTeam === team.code ? (isDark ? 'white' : 'black') : buttonTextColor}
                 textAlign="center"
-                fontSize={isWeb ? 14 : 12}
+                fontSize={isWeb ? 12 : 12}
                 fontWeight={selectedTeam === team.code ? "600" : "400"}
                 numberOfLines={2}
                 width="100%"
@@ -210,83 +210,111 @@ export default function Step5({
             <Text fontFamily="$body" color={buttonTextColor}>Show All Teams</Text>
           </Button>
         )}
-        
-        {selectedTeam && (
-          <YStack 
-            width="100%" 
-            maxWidth={isWeb ? 450 : 400} 
-            mt={isWeb ? "$2" : "$0"} 
-            marginBottom={isWeb ? "$4" : "$2"}
-            backgroundColor={preferencesBackgroundColor}
-            br={isWeb ? 16 : 8}
-            padding={isWeb ? "$4" : "$3"}
-            borderWidth={isWeb ? 2 : 0}
-            borderColor={isWeb ? buttonColor : undefined}
-            style={isWeb ? {
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)'
-            } : undefined}
-          >
-            <XStack justifyContent="space-between" alignItems="center">
-              <YStack>
-                <Text 
-                  fontFamily={isWeb ? "$heading" : "$body"} 
-                  color={labelColor} 
-                  fontSize={isWeb ? 16 : 14} 
-                  fontWeight={isWeb ? "600" : "500"}
-                >
-                  Show games in calendar
-                </Text>
-                <Text 
-                  fontFamily="$body" 
-                  color={buttonTextColor} 
-                  fontSize={14}
-                  mt="$1"
-                  opacity={isWeb ? 0.9 : undefined}
-                >
-                  Display team logo on game days
-                </Text>
-              </YStack>
-              <XStack alignItems="center" gap="$2">
-                <Text 
-                  fontFamily="$body" 
-                  color={showNBAGamesInCalendar ? (isWeb ? buttonColor : "#fff") : buttonTextColor}
-                  fontWeight="bold"
-                  fontSize={isWeb ? 14 : undefined}
-                >
-                  {showNBAGamesInCalendar ? 'ON' : 'OFF'}
-                </Text>
-                <Switch
-                  checked={showNBAGamesInCalendar}
-                  onCheckedChange={handleToggleNBAGames}
-                  size="$3"
-                  backgroundColor={showNBAGamesInCalendar ? buttonColor : buttonBackgroundColor}
-                  borderColor={showNBAGamesInCalendar ? buttonColor : buttonBorderColor}
-                >
-                  <Switch.Thumb backgroundColor={showNBAGamesInCalendar ? 'white' : isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'} animation="quick"/>
-                </Switch>
-              </XStack>
-            </XStack>
-          </YStack>
-        )}
-        
-        <Button
-          chromeless
-          onPress={handleSkip}
-          py="$2"
-          px="$4"
-          mt={isWeb ? "$-2" : "$2"}
-          mb={isWeb ? undefined : "$2"}
-          color={buttonColor}
-          hoverStyle={{
-            opacity: 0.8
-          }}
-          pressStyle={{
-            scale: 0.97
-          }}
+
+        <YStack 
+          alignItems="center" 
+          width="100%" 
+          maxWidth={isWeb ? 600 : 400} 
+          mt={isWeb ? "$2" : "$1"} 
+          mb={isWeb ? "$4" : "$2"}
         >
-          <Text fontFamily="$body" fontSize={isWeb ? 15 : undefined}>or skip for now</Text>
-        </Button>
+          {selectedTeam ? (
+            <XStack
+              width="100%"
+              justifyContent="space-between"
+              alignItems="center"
+              animation="quick"
+              enterStyle={{ opacity: 0, y: -10 }}
+              gap="$4"
+            >
+              <YStack 
+                flex={1} 
+                backgroundColor={preferencesBackgroundColor}
+                br={isWeb ? 16 : 8}
+                padding={isWeb ? "$4" : "$3"}
+                borderWidth={isWeb ? 2 : 0}
+                borderColor={isWeb ? buttonColor : undefined}
+                style={isWeb ? {
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                } : undefined}
+                animation="quick"
+                enterStyle={{ opacity: 0, scale: 0.95 }}
+              >
+                <XStack justifyContent="space-between" alignItems="center">
+                  <YStack>
+                    <Text 
+                      fontFamily={isWeb ? "$heading" : "$body"} 
+                      color={labelColor} 
+                      fontSize={isWeb ? 16 : 14} 
+                      fontWeight={isWeb ? "600" : "500"}
+                    >
+                      Show games in calendar
+                    </Text>
+                    <Text 
+                      fontFamily="$body" 
+                      color={buttonTextColor} 
+                      fontSize={14}
+                      mt="$1"
+                      opacity={isWeb ? 0.9 : undefined}
+                    >
+                      Display team logo on game days
+                    </Text>
+                  </YStack>
+                  <XStack alignItems="center" gap="$2">
+                    <Text 
+                      fontFamily="$body" 
+                      color={showNBAGamesInCalendar ? (isWeb ? buttonColor : "#fff") : buttonTextColor}
+                      fontWeight="bold"
+                      fontSize={isWeb ? 14 : undefined}
+                    >
+                      {showNBAGamesInCalendar ? 'ON' : 'OFF'}
+                    </Text>
+                    <Switch
+                      checked={showNBAGamesInCalendar}
+                      onCheckedChange={handleToggleNBAGames}
+                      size="$3"
+                      backgroundColor={showNBAGamesInCalendar ? buttonColor : buttonBackgroundColor}
+                      borderColor={showNBAGamesInCalendar ? buttonColor : buttonBorderColor}
+                    >
+                      <Switch.Thumb backgroundColor={showNBAGamesInCalendar ? 'white' : isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'} animation="quick"/>
+                    </Switch>
+                  </XStack>
+                </XStack>
+              </YStack>
+
+              <Button
+                chromeless
+                onPress={handleSkip}
+                py="$2"
+                px="$4"
+                color={buttonColor}
+                hoverStyle={{ opacity: 0.8 }}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+                enterStyle={{ opacity: 0, x: 10 }}
+              >
+                <Text fontFamily="$body" fontSize={isWeb ? 15 : undefined}>or skip for now</Text>
+              </Button>
+            </XStack>
+          ) : (
+            <Button
+              chromeless
+              onPress={handleSkip}
+              py="$2"
+              px="$4"
+              mt={isWeb ? "$0" : "$2"} 
+              mb={isWeb ? undefined : "$2"}
+              color={buttonColor}
+              hoverStyle={{ opacity: 0.8 }}
+              pressStyle={{ scale: 0.97 }}
+              animation="quick" 
+              enterStyle={{ opacity: 0 }}
+            >
+              <Text fontFamily="$body" fontSize={isWeb ? 15 : undefined}>or skip for now</Text>
+            </Button>
+          )}
+        </YStack>
       </ScrollView>
     </YStack>
   )

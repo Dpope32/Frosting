@@ -12,6 +12,7 @@
 - **Zustand**: Lightweight state management library
 - **AsyncStorage**: Persistent storage solution for React Native
 - **WallpaperStore**: Zustand store for managing wallpaper state and caching (March 28, 2025 - `1459baa`)
+- **CalendarStore/ToDo Integration**: Task-to-calendar event synchronization (March 29, 2025)
 
 ### Desktop/Web Support
 - **Electron**: Framework for desktop applications

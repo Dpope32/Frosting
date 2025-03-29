@@ -51,28 +51,20 @@ export default function BillsScreen() {
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
   return (
-    <YStack f={1} mt={isWeb ? 60 : 95} bg={isDark ? "#000000" : "#fffbf7fff"}>
+    <YStack f={1} mt={isWeb ? 45 : 95} bg={isDark ? "#010101" : "#fffbf7fff"}>
       {isWeb ? (
         <XStack 
           width="100%" 
-          height={80}
+          height={20}
           mb="$6"
           ai="center"
           jc="flex-start"
           gap="$8"
-          bg={isDark ? "#111" : "#f5f5f5"}
-          borderBottomWidth={1}
-          borderColor={isDark ? "#222" : "#e0e0e0"}
           px={0} 
         >
-          <YStack pl="$6">
-            <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Summary</Text>
-            <Text fontSize="$6" fontWeight="bold" color={isDark ? "#f6f6f6" : "#222"} fontFamily="$body">
-              Financial Overview
-            </Text>
-          </YStack>
+
           
-          <XStack gap="$4" ai="center" flex={1} jc="flex-end" pr="$6">
+          <XStack gap="$4" ai="center" flex={1} jc="flex-start" pl="$6">
             <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
@@ -256,12 +248,16 @@ export default function BillsScreen() {
       </ScrollView>
       
       <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
-      <IncomeModal 
-        isVisible={isIncomeModalVisible} 
-        onClose={() => setIsIncomeModalVisible(false)} 
-        currentIncome={monthlyIncome}
-        onSubmit={setMonthlyIncome}
-      />
+      
+      {/* Conditionally render IncomeModal */}
+      {isIncomeModalVisible && (
+        <IncomeModal 
+          onClose={() => setIsIncomeModalVisible(false)} 
+          currentIncome={monthlyIncome}
+          onSubmit={setMonthlyIncome}
+        />
+      )}
+
       <Button 
         onPress={() => setIsModalVisible(true)} 
         position="absolute" 

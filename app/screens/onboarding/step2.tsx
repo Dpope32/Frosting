@@ -21,7 +21,7 @@ export default function Step2({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const textColor = isDark ? '#fff' : '#000'
-  const currentColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : '#000000')
+  const currentColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : '#010101')
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
   const borderColor = isDark ? "$gray8Dark" : "$gray8Light";
@@ -31,7 +31,7 @@ export default function Step2({
     const colorPalette = [
       '#C62828', '#AD1457', '#8E24AA', '#5E35B1', '#3949AB', '#1976D2', '#0288D1', '#0097A7', 
       '#00897B', '#43A047', '#7CB342', '#C0CA33', '#FDD835', '#FFB300', '#FB8C00', '#E64A19',
-      '#546E7A', '#78909C', '#B0BEC5','#9d9d9d', '#000000','#090909', '#4B0082', '#311432','#090109',
+      '#546E7A', '#78909C', '#B0BEC5','#9d9d9d', '#010101','#090909', '#4B0082', '#311432','#090109',
     ];
     
     return (

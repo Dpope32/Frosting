@@ -16,7 +16,7 @@ export default function Sports() {
   //const [activeTab, setActiveTab] = useState('nba');
 
     return (
-      <YStack flex={1} mt={Platform.OS === 'web' ? 0 : 85} bg={isDark ? '#000000' : '#fffbf7'}>
+      <YStack flex={1} mt={Platform.OS === 'web' ? 0 : 85} bg={isDark ? '#010101' : '#fffbf7'}>
         <NBATeamPage />
       </YStack>
     );
@@ -25,7 +25,7 @@ export default function Sports() {
   // Only for me, none of this will ever be used in production
   /*
   return (
-    <YStack flex={1} mt={Platform.OS === 'web' ? 0 : 80} bg={isDark ? '#000000' : '#fffbf7'}>
+    <YStack flex={1} mt={Platform.OS === 'web' ? 0 : 80} bg={isDark ? '#010101' : '#fffbf7'}>
       <Tabs defaultValue="nba" orientation="horizontal" flexDirection="column-reverse"  flex={1}  value={activeTab} onValueChange={setActiveTab} >
         <Tabs.List paddingTop="$1" paddingBottom="$4" borderTopWidth={1} borderColor="$gray11">
           <Tabs.Tab value="nba" flex={1} backgroundColor="transparent" pressStyle={{ backgroundColor: '$gray12', }}>

@@ -61,7 +61,7 @@ export default function Sports() {
           styles.gameCard,
           isWeb && styles.webGameCard,
           {
-            backgroundColor: isDark ? '#1A1A1A' : '#f5f5f5',
+            backgroundColor: isDark ? '#111' : '#f5f5f5',
             borderColor: isDark ? '#333' : '#e0e0e0',
           },
         ]}
@@ -172,7 +172,7 @@ export default function Sports() {
   return (
     <View
       style={[styles.container, {
-        backgroundColor: isDark ? '#000000' : '#f3f3f3'
+        backgroundColor: isDark ? '#010101' : '#f3f3f3'
       }]}
     >
       <View style={[
@@ -189,7 +189,7 @@ export default function Sports() {
           <Text style={[
             styles.teamName,
             isWeb && styles.webTeamName,
-            { color: isDark ? '#ffffff' : '#000000' }
+            { color: isDark ? '#ffffff' : '#010101' }
           ]}>
             {teamName}
           </Text>

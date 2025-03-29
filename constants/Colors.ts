@@ -58,7 +58,7 @@ export default {
 };
 
 export const colorOptions = [
-  { label: 'Default', value: '#000000' },
+  { label: 'Default', value: '#010101' },
   { label: 'Light', value: '#2C2C2C' },
   { label: 'Offwhite', value: '#c4b7a6' }, 
   { label: 'Green', value: '#008f0f' },

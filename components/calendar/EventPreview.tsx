@@ -74,7 +74,7 @@ export const EventPreview: React.FC<{
       ...(isBirthday && { borderColor: primaryColor })
     },
     title: {
-      color: isDark ? '#ffffff' : '#000000',
+      color: isDark ? '#ffffff' : '#010101',
       fontSize: 16,
       fontWeight: '600',
       marginRight: 40
@@ -144,7 +144,7 @@ export const EventPreview: React.FC<{
       marginTop: 6
     },
     icon: {
-      color: isDark ? '#ffffff' : '#000000'
+      color: isDark ? '#ffffff' : '#010101'
     },
     closeIcon: {
       color: '#F44336'

@@ -54,7 +54,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const setNotifyBefore = propSetNotifyBefore || setLocalNotifyBefore
   const notifyBeforeTime = propNotifyBeforeTime || localNotifyBeforeTime
   const setNotifyBeforeTime = propSetNotifyBeforeTime || setLocalNotifyBeforeTime
-  const textColor = isDark ? '#ffffff' : '#000000'
+  const textColor = isDark ? '#ffffff' : '#010101'
   const { showToast } = useToastStore()
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
@@ -353,7 +353,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   ]}
                   onPress={closeEventModals}
                 >
-                  <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#000000' }]}>
+                  <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#010101' }]}>
                     Cancel
                   </Text>
                 </TouchableOpacity>

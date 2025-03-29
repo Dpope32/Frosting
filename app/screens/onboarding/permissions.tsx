@@ -9,7 +9,7 @@ interface PermissionsScreenProps {
 
 export default function PermissionsScreen({ isDark = true }: PermissionsScreenProps) {
   return (
-    <View style={{ flex: 1, backgroundColor: isDark ? "#000000" : "#f2f2f2" }}>
+    <View style={{ flex: 1, backgroundColor: isDark ? "#010101" : "#f2f2f2" }}>
       <YStack gap="$3" padding={isWeb ? "$6" : "$4"} pt={isWeb ? "$6" : "$12"} justifyContent="flex-start" alignItems="center" mt={isWeb ? "$10" : "$6"}>
       <Text fontFamily="$heading" fontWeight="800" fontSize={isWeb ? "$10" : "$9"} textAlign="center" color={isDark ? "rgba(255, 255, 255, 0.85)" : "rgba(0, 0, 0, 0.85)"}>
           Welcome to Kaiba!

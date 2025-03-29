@@ -13,37 +13,39 @@
 
 ### Feature Modules
 - ✅ Task Management
-    ✅ Task creation, editing, and deletion
-    ✅ Recurring task support
-    ✅ Task recommendations
+  - ✅ Task creation, editing, and deletion
+  - ✅ Recurring task support
+  - ✅ Task recommendations
+  - ✅ Task synchronization with calendar events (March 29, 2025)
 - ✅ Calendar Integration
-    ✅Event tracking
-    ✅ Bill due dates
-    ✅ Birthday reminders
-    ✅ NBA game schedules
-    ✅ Improved calendar month styles (March 28, 2025 - `9b12208`, `d8b2238`)
+  - ✅ Event tracking
+  - ✅ Bill due dates
+  - ✅ Birthday reminders
+  - ✅ NBA game schedules
+  - ✅ Improved calendar month styles (March 28, 2025 - `9b12208`, `d8b2238`)
+  - ✅ Enhanced event preview display (March 29, 2025)
 - ✅ CRM (Contact Management)
-    ✅ Contact information storage
-    ✅ Custom attributes (payment methods, addresses, etc.)
-    ✅ Modularized components/logic (similar to Vault) (March 28, 2025 - `1b1185b`)
-  - ✅ Password Vault
-    ✅ Secure credential storage
-    - Local authentication
+  - ✅ Contact information storage
+  - ✅ Custom attributes (payment methods, addresses, etc.)
+  - ✅ Modularized components/logic (similar to Vault) (March 28, 2025 - `1b1185b`)
+- ✅ Password Vault
+  - ✅ Secure credential storage
+  - ✅ Local authentication
 - ✅ Finance Tracking
-    ✅ Portfolio monitoring
-    ✅ Stock watchlist (web version)
-    ✅ Real-time stock updates
-    ✅ Updated Bill card design for consistency (March 28, 2025 - `9b12208`)
-    ✅ Modularized Bills components/logic (March 28, 2025 - `1b1185b`, `20214d4`)
+  - ✅ Portfolio monitoring
+  - ✅ Stock watchlist (web version)
+  - ✅ Real-time stock updates
+  - ✅ Updated Bill card design for consistency (March 28, 2025 - `9b12208`)
+  - ✅ Modularized Bills components/logic (March 28, 2025 - `1b1185b`, `20214d4`)
 - ✅ Dashboard Widgets
-    ✅ Weather display
-    ✅ Network status
+  - ✅ Weather display
+  - ✅ Network status
 - ✅ Customization
-    ✅ Multiple wallpapers
-    ✅ Theme options
-  - Layout preferences
+  - ✅ Multiple wallpapers
+  - ✅ Theme options
+  - ✅ Layout preferences
 - ✅ Bug Fixes
-  ✅ Fixed settings modal bug (related to wallpaper caching) (March 28, 2025 - `9b12208`)
+  - ✅ Fixed settings modal bug (related to wallpaper caching) (March 28, 2025 - `9b12208`)
 
 ## In Progress
 
@@ -63,6 +65,7 @@
 ### Data Synchronization
 - 🔄 Investigating PocketBase for Zustand store synchronization
 - 🔄 Exploring lightweight authentication solutions
+- ✅ Task-to-calendar event synchronization (March 29, 2025)
 
 ## Planned Features
 
@@ -78,7 +81,6 @@
 - ⏳ Additional financial data sources
 - ⏳ More sports leagues and teams
 
-
 ## Known Issues
 - WiFi card wildly inconsistent
 - Bug in Drawer with profile picture not displaying
@@ -93,7 +95,7 @@
 - ~~Inconsistent wallpaper display on landing page~~ (Improved March 28, 2025 - `1459baa`)
 
 ### Cross-Platform
-- Minor UI inconsistencies between platforms, speceficaly Web & iOs
+- Minor UI inconsistencies between platforms, specifically Web & iOS
 - Some features have different capabilities on small native screens
 
 ### Data Management

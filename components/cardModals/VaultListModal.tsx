@@ -164,7 +164,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         modal
         open={open}
         onOpenChange={handleOpenChange}
-        snapPoints={isWeb ? [95] : [80]}
+        snapPoints={isWeb ? [90] : [80]}
         dismissOnSnapToBottom
         dismissOnOverlayPress
         animation="quick"

@@ -24,6 +24,7 @@ flowchart TD
 - **Zustand**: Used for global state management across the application
 - **Store Pattern**: Separate stores for different domains (BillStore, CalendarStore, PortfolioStore, WallpaperStore, etc.)
 - **AsyncStorage**: Persistent storage for app data with synchronization capabilities
+- **Cross-Store Integration**: Stores interact with each other through services (e.g., Task-Calendar synchronization)
 
 ### Component Architecture
 - **Functional Components**: React functional components with hooks
@@ -40,6 +41,7 @@ flowchart TD
 - **Service Layer**: Abstraction for data operations (billServices, calendarService, etc.)
 - **API Integration**: Services for external data (weatherServices, stockSearchService)
 - **Local-First**: Prioritizing local storage with optional cloud synchronization
+- **Cross-Domain Synchronization**: Services that maintain consistency between different data domains (e.g., syncServices.ts)
 
 ## Cross-Platform Strategy
 - **Responsive Design**: Adapting UI for different screen sizes and orientations
@@ -59,6 +61,12 @@ flowchart TD
     - **Web:** Stores the remote S3 URI directly in the Zustand store cache.
     - Components (`BackgroundSection.tsx`, `onboarding/step3.tsx`, `SettingsModal.tsx`) retrieve the appropriate URI (local file or remote) from the store cache.
     - Cache clearing logic in the store ensures the `currentWallpaper` is always retained.
+
+### Task-Calendar Integration
+- **Recurrence-Aware Synchronization**: Tasks are mapped to calendar events based on their recurrence patterns (`isTaskDueOnDate` in `syncServices.ts`)
+- **Bidirectional Updates**: Changes in the task store can trigger updates in the calendar store
+- **Date Range Projection**: Recurring tasks are projected onto the calendar for a specific date range (current implementation looks ahead 2 years)
+- **Filtering Logic**: Only tasks with the `showInCalendar` flag are synchronized to the calendar
 
 ### External Services
 - Weather API integration for current conditions

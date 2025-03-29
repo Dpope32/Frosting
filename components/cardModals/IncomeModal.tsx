@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { Modal } from 'react-native';
+import { Platform, useColorScheme } from 'react-native'; // Import Platform and useColorScheme
 import { Button, Input, Text, YStack, XStack } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
+import { BaseCardAnimated } from './BaseCardAnimated'; // Import BaseCardAnimated
 
 interface IncomeModalProps {
-  isVisible: boolean;
+  // isVisible is no longer needed as BaseCardAnimated handles visibility
   onClose: () => void;
   currentIncome: number;
   onSubmit: (income: number) => void;
 }
 
-export function IncomeModal({ isVisible, onClose, currentIncome, onSubmit }: IncomeModalProps) {
-  const [income, setIncome] = useState(currentIncome.toString());
+// Remove isVisible from props as BaseCardAnimated handles visibility via conditional rendering in parent
+export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalProps) {
+  const [income, setIncome] = useState(currentIncome ? currentIncome.toString() : ''); // Handle potential initial undefined value
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  const colorScheme = useColorScheme(); // Get color scheme
+  const isDark = colorScheme === 'dark'; // Check if dark mode
+  const isWeb = Platform.OS === 'web'; // Check if web platform
 
   const handleSubmit = () => {
     const incomeNum = parseFloat(income);
@@ -22,61 +27,60 @@ export function IncomeModal({ isVisible, onClose, currentIncome, onSubmit }: Inc
     }
   };
 
+  // BaseCardAnimated expects to be conditionally rendered by its parent based on an 'open' or 'isVisible' state
+  // It handles the overlay and animation internally.
+  // Define platform/theme specific styles
+  const modalWidth = isWeb ? 350 : 320;
+  const modalMaxWidth = isWeb ? 460 : 360;
+  const inputContainerMaxWidth = isWeb ? 220 : 180; // Slightly wider input on web
+  const inputPadding = isWeb ? '$1' : '$1'; // More padding on web input
+
   return (
-    <Modal
-      visible={isVisible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
+    <BaseCardAnimated
+      title="Set Monthly Income"
+      onClose={onClose}
+      modalWidth={modalWidth}
+      modalMaxWidth={modalMaxWidth}
     >
-      <YStack
-        f={1}
-        jc="center"
-        ai="center"
-        backgroundColor="rgba(0, 0, 0, 0.5)"
-        px="$4"
-      >
-        <YStack
-          backgroundColor="$background"
-          p="$4"
+      <YStack gap="$4">
+        <XStack
+          ai="flex-start"
+          gap="$2"
+          p={inputPadding}
           br="$4"
-          width="100%"
-          maxWidth={400}
-          gap="$4"
+          maxWidth={inputContainerMaxWidth} 
+          alignSelf='center' 
         >
-          <Text color="$color" fontFamily="$body" fontSize="$6" fontWeight="bold" mb="$2">
-            Set Monthly Income
-          </Text>
-          
+          <Text fontSize={"$4"} color="$color">$</Text> 
           <Input
-            placeholder="Monthly Income ($)"
+            placeholder="Amount"
             value={income}
             onChangeText={setIncome}
             keyboardType="decimal-pad"
-            backgroundColor="$backgroundHover"
-            borderColor="$borderColor"
-            placeholderTextColor="$placeholderColor"
-            color="$color"
           />
+        </XStack>
 
-          <XStack gap="$3" jc="flex-end">
-            <Button
-              onPress={onClose}
-              backgroundColor="$backgroundHover"
-              borderColor="$borderColor"
-            >
-              Cancel
-            </Button>
-            <Button
-              onPress={handleSubmit}
-              backgroundColor={primaryColor}
-              disabled={!income || isNaN(parseFloat(income)) || parseFloat(income) < 0}
-            >
-              Save
-            </Button>
-          </XStack>
-        </YStack>
+        {/* Action Buttons - Adjusted size potentially */}
+        <XStack gap="$3" jc="flex-end" mt="$2">
+          <Button
+            onPress={onClose}
+            backgroundColor={isDark ? "$backgroundPress" : "$backgroundHover"} // Theme specific bg
+            pressStyle={{ opacity: 0.7 }}
+            size={isWeb ? "$4" : "$3"} // Larger buttons on web
+          >
+            <Text fontSize={isWeb ? "$3" : "$3"}>Cancel</Text> 
+          </Button>
+          <Button
+            onPress={handleSubmit}
+            backgroundColor={primaryColor}
+            disabled={!income || isNaN(parseFloat(income)) || parseFloat(income) < 0}
+            pressStyle={{ opacity: 0.7 }}
+            size={isWeb ? "$4" : "$3"}
+          >
+             <Text color="white">Save</Text>
+          </Button>
+        </XStack>
       </YStack>
-    </Modal>
+    </BaseCardAnimated>
   );
 }
