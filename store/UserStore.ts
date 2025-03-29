@@ -13,6 +13,9 @@ interface UserPreferences {
   hasCompletedOnboarding: boolean;
   notificationsEnabled: boolean;
   quoteEnabled: boolean;
+  portfolioEnabled: boolean;
+  temperatureEnabled: boolean;
+  wifiEnabled: boolean;
   favoriteNBATeam?: string; 
   showNBAGamesInCalendar: boolean; 
   permissionsExplained: boolean;
@@ -32,6 +35,9 @@ const defaultPreferences: UserPreferences = {
   hasCompletedOnboarding: false,
   notificationsEnabled: true,
   quoteEnabled: true,
+  portfolioEnabled: true,
+  temperatureEnabled: true,
+  wifiEnabled: true,
   showNBAGamesInCalendar: true,
   permissionsExplained: false,
 };

@@ -1,24 +1,30 @@
 import React from 'react'
 import { XStack, Text, isWeb } from 'tamagui'
 import { getGreeting } from '@/services/greetingService'
+import { useColorScheme, Platform } from 'react-native'
 
 interface GreetingSectionProps { username: string }
 
 export const GreetingSection = ({ username }: GreetingSectionProps) => {
-  
+  const colorScheme = useColorScheme()
+
   return (
     <XStack 
       alignItems="center" 
       justifyContent="space-between"
-      br={12}
-      py="$2"
+      br={16}
+      px="$3"
+      py="$3"
+      style={Platform.OS === 'web' ? {
+        boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)'
+      } : { }}
     >
-      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$4" : "$3"}>
+      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$4" : "$2"}>
         <XStack alignItems="center" gap="$1">
           <Text
             fontFamily="$heading"
             fontSize={21}
-            color="#dbd0c6"
+            color={colorScheme === 'dark' ? "#dbd0c6" : "#F5F5F5"}
             fontWeight="bold"
             numberOfLines={1}
             style={{ textShadowColor: 'rgba(0, 0, 0, 0.5)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 }}
@@ -28,7 +34,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
           <Text
             fontFamily="$heading"
             fontSize={21}
-            color="#dbd0c6"
+            color={colorScheme === 'dark' ? "#dbd0c6" : "#F5F5F5"}
             fontWeight="bold"
             numberOfLines={1}
             style={{ textShadowColor: 'rgba(0, 0, 0, 0.5)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 }}

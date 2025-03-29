@@ -204,13 +204,17 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
             <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
-                  fontSize={20}
+                  fontSize={22}
                   fontWeight="700"
+                  padding={12}
                   fontFamily="$body"
                   color={isDark ? '$gray12' : '$gray11'}
                 >
                   Vault Entries
                 </Text>
+                <Pressable onPress={() => handleOpenChange(false)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 8 })}>
+                  <Ionicons name="close" size={24} color="#ffffff" />
+                </Pressable>
               </XStack>
               <ScrollView
                 horizontal

@@ -120,7 +120,7 @@ export default function Step2({
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}
-              thumbSize={30}
+              thumbSize={24}
               sliderSize={30}
               noSnap={true}
               row={false}

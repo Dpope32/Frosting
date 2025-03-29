@@ -28,7 +28,7 @@ export const TaskSection = ({
   const colorScheme = useColorScheme()
   return (
 <Stack
-  backgroundColor={colorScheme === 'dark' ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"}
+  backgroundColor={colorScheme === 'dark' ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.71)"}
   br={16}
   px="$3"
   py="$4"
@@ -48,7 +48,7 @@ export const TaskSection = ({
   <XStack alignItems={Platform.OS === 'web' ? 'flex-start' : 'center'} width="100%" marginBottom="$3" paddingLeft="$4">
     <Text
       fontFamily="$body"
-      color="#dbd0c6"
+      color={colorScheme === 'dark' ? "#dbd0c6" : "#F5F5F5"}
       fontSize={20}
       fontWeight="bold"
       style={{
@@ -86,7 +86,8 @@ export const TaskSection = ({
           color="#dbd0c6"
           fontSize={isWeb ? 15 : 13}
           fontWeight="500"
-          textAlign="center"
+          paddingLeft="$8"
+          textAlign="left"
           style={{
             textShadowColor: 'rgba(0, 0, 0, 0.5)',
             textShadowOffset: { width: 0.5, height: 0.5 },

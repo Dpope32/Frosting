@@ -232,7 +232,7 @@ export default function Onboarding() {
                 right={0}
                 padding="$4"
                 paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
-                backgroundColor={backgroundColor}
+                backgroundColor={isDark ? "$gray1Dark" : "$gray3Light"}
                 style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: borderColor}}>
               <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
                 {/* Back button shown after step -1 on native */}
