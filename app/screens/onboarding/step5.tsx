@@ -88,7 +88,7 @@ export default function Step5({
     >
       <YStack 
         position="absolute" 
-        top={isWeb ? "5%" : "8%"} // Less top gap for mobile
+        top={isWeb ? "2%" : "8%"} 
         left={0} 
         right={0} 
         alignItems="center"
@@ -98,7 +98,7 @@ export default function Step5({
         <Label 
           paddingBottom={isWeb ? 20 : 0}
           fontFamily="$heading" 
-          fontWeight={isWeb ? "500" : "800"} // Bolder on mobile
+          fontWeight={isWeb ? "500" : "800"} 
           fontSize={isWeb ? "$9" : "$8"} 
           textAlign="center" 
           color={labelColor}
@@ -111,7 +111,7 @@ export default function Step5({
         style={{ 
           width: '100%', 
           maxWidth: isWeb ? 1200 : mobileScrollMaxWidth,
-          marginTop: isWeb ? 140 : 80 // Less top margin for mobile
+          marginTop: isWeb ? 90 : 80 
         }}
         contentContainerStyle={{ 
           paddingBottom: isWeb ? 80 : 100,
@@ -123,7 +123,7 @@ export default function Step5({
           flexWrap="wrap" 
           justifyContent="center" 
           gap={isWeb ? "$2.5" : "$2"} 
-          marginBottom={isWeb ? "$4" : "$1"}
+          marginBottom={isWeb ? "$2" : "$1"}
           width="100%"
           px={isWeb ? "$2" : "$0"}
         >
@@ -133,10 +133,10 @@ export default function Step5({
               backgroundColor={selectedTeam === team.code ? buttonColor : buttonBackgroundColor}
               borderColor={selectedTeam === team.code ? buttonColor : buttonBorderColor}
               borderWidth={2}
-              br={isWeb ? 16 : 8} // Less border radius on mobile
+              br={isWeb ? 16 : 8} 
               marginVertical="$2"
               width={isWeb ? `${Math.floor(100 / columns) -2}%` : mobileButtonWidth}
-              height={isWeb ? 130 : mobileButtonHeight}
+              height={isWeb ? 110 : mobileButtonHeight}
               hoverStyle={{
                 backgroundColor: selectedTeam === team.code 
                   ? buttonColor 
@@ -165,8 +165,8 @@ export default function Step5({
                 <Image
                   source={{ uri: team.logo }}
                   style={{ 
-                    width: isWeb ? 60 : 40, 
-                    height: isWeb ? 60 : 40,
+                    width: isWeb ? 55 : 40, 
+                    height: isWeb ? 55 : 40,
                     opacity: selectedTeam === team.code ? 1 : 0.85
                   }}
                   resizeMode="contain"
@@ -194,7 +194,7 @@ export default function Step5({
             mt="$2"
             marginBottom="$6"
             size="$3"
-            variant="outlined" // Use variant from second file
+            variant="outlined" 
             backgroundColor={showAllTeamsButtonBackground}
             borderColor={buttonBorderColor}
             borderWidth={1}

@@ -30,11 +30,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const endpoint = pathArray.join('/');
 
     // Route requests based on path
-    if (endpoint.startsWith('yahoo-finance')) {
+    if (endpoint.startsWith('yahoo-finance/')) {
+      const symbol = pathArray[1];
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d`;
+      const response = await axios.get(yahooUrl);
+      return res.status(200).json(response.data);
+    }
+    else if (endpoint.startsWith('yahoo-finance-history/')) {
       const symbol = pathArray[1];
       const interval = req.query.interval || '1d';
       const range = req.query.range || '1y';
-
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
       const response = await axios.get(yahooUrl);
       return res.status(200).json(response.data);

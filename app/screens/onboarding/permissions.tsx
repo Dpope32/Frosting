@@ -11,7 +11,7 @@ export default function PermissionsScreen() {
           Welcome to Kaiba!
         </Text>
         <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$8" : "$7"} textAlign="center" color="rgba(191, 191, 191, 0.85)">
-          Let's talk permissions...
+          Let's talk permissions..
         </Text>
         <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#666666" marginBottom="$4">
           I know they're annoying, but they are necessary.
