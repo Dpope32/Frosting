@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native'
-import { XStack, Button, Text, View } from 'tamagui'
+import { XStack, Button, Text, View, isWeb } from 'tamagui'
 import { useImagePicker } from '@/hooks/useImagePicker'
 import { router } from 'expo-router'
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -8,11 +8,11 @@ import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
-import { preloadWallpapers } from '../../../components/wpPreload' // Changed to named import
+import { preloadWallpapers } from '../../../components/wpPreload'
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissionService'
 import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'
 import { useToastStore } from '@/store/ToastStore'
-
+import WelcomeScreen from './welcome' 
 import PermissionsScreen from './permissions'
 import Step0 from './step0'
 import Step1 from './step1'
@@ -21,9 +21,9 @@ import Step3 from './step3'
 import Step4 from './step4'
 import Step5 from './step5'
 
+
 export default function Onboarding() {
-  // Start with permissions screen (step -1)
-  const [step, setStep] = useState(Platform.OS === 'web' ? 0 : -1)
+  const [step, setStep] = useState(isWeb ? -2 : -1)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const colorScheme = useColorScheme();
   const { showToast } = useToastStore();
@@ -61,18 +61,20 @@ export default function Onboarding() {
   }, [step, wallpapersPreloaded]);
 
   const handleNext = async () => {
-    if (step === -1) {
+    if (step === -2) { 
       setStep(0);
-
+    } else if (step === -1) { 
+      setStep(0);
       await markPermissionsAsExplained();
-      
-    } else if (step === 0) {
+    } else if (step === 0) { 
       if (Platform.OS === 'web') {
+        if (formData.username.length < 2) {
+          showToast('Username must be at least 2 characters long.')
+          return
+        }
         setStep(1);
       } else {
         const permissions = await requestPermissionsWithDelay(1000);
-      
-        // Setup notifications based on permissions
         await setupPermissionsAndNotifications(permissions);
         if (formData.username.length < 2) {
           showToast('Username must be at least 2 characters long.')
@@ -123,11 +125,15 @@ export default function Onboarding() {
 
   const renderStep = () => {
     switch (step) {
-      case -1: 
+      case -2: // Add case for the new Welcome screen
+        return (
+          <WelcomeScreen onComplete={handleNext} />
+        )
+      case -1: // Permissions screen (native only start)
         return (
           <PermissionsScreen isDark={isDark}/>
         )
-      case 0:
+      case 0: // Username screen
         return (
           <Step0
             formData={formData}
@@ -229,7 +235,8 @@ export default function Onboarding() {
                 backgroundColor={backgroundColor}
                 style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: borderColor}}>
               <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
-                {step > 0 && (
+                {/* Back button shown after step -1 on native */}
+                {step > -1 && (
                   <Button
                     flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
                     width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
@@ -270,7 +277,8 @@ export default function Onboarding() {
               backgroundColor={backgroundColor}
               style={{ borderTopWidth: 1, borderTopColor: borderColor}}>
               <XStack gap="$3" justifyContent="center">
-                {step > 0 && (
+                 {/* Adjust back button visibility based on platform and step */}
+                {(Platform.OS === 'web' ? step > -2 : step > -1) && (
                   <Button
                     width={145}
                     variant="outlined"

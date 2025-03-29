@@ -55,6 +55,7 @@
 - 🔄 Syncing Instantly across platforms for Pro users
 - 🔄 Animation Improvements
 - ✅ Updated web landing screen (March 28, 2025 - `bf44901`)
+- ✅ Added web-specific welcome screen to onboarding flow (March 29, 2025)
 
 ### Performance Optimization
 - ✅ **Wallpaper System:** Implemented robust caching via `WallpaperStore`. Uses `expo-file-system` for local native cache, stores URIs directly for web. Preloads during onboarding. (March 28, 2025 - `1459baa`, `9b12208`)
