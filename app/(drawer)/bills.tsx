@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform } from 'react-native';
 import { Button, XStack, YStack, Text } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { Plus, Edit3 } from '@tamagui/lucide-icons';
@@ -111,77 +112,80 @@ export default function BillsScreen() {
         <Animated.View 
           entering={FadeIn.duration(600)}
           style={{
-            width: '95%',
+            width: '93%',
             marginHorizontal: 'auto',
-            padding: 16,
             borderRadius: 12,
             borderWidth: 1.5,
             borderColor: isDark ? '#223' : 'rgba(0, 0, 0, 0.1)',
             marginBottom: 16,
-            backgroundColor: isDark ? '#1e1e2f' : '#f0f0f0',
-            backgroundImage: isDark
-              ? 'linear-gradient(135deg,rgb(34, 34, 34),rgb(0, 0, 0))'
-              : 'linear-gradient(135deg, #ffffff, #eeeeee)',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.5,
             shadowRadius: 8,
             elevation: 10,
+            overflow: 'hidden',
           }}
         >
-          <YStack gap="$3" px="$2">
-            <XStack ai="center" jc="space-between">
-              <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
-                Income
-              </Text>
-              <XStack ai="center" gap="$2">
-                <Text
-                  fontSize={16}
-                  fontWeight="600"
-                  color={isDark ? '#aaa' : '#000'}
-                  fontFamily="$body"
-                >
-                  ${monthlyIncome.toFixed(2)}
-                </Text>
-                <Button
-                  size="$1"
-                  bg="transparent"
-                  onPress={() => setIsIncomeModalVisible(true)}
-                  icon={<Edit3 size={16} color={isDark ? '#999' : '#666'} />}
-                />
-              </XStack>
-            </XStack>
-            
-            <XStack ai="center" jc="space-between">
-              <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
-                Bills
-              </Text>
-              <Text 
-                fontSize={16}
-                fontWeight="600"
-                color={getAmountColor(totalMonthlyAmount)}
-                fontFamily="$body"
-              >
-                ${totalMonthlyAmount.toFixed(2)}
-              </Text>
-            </XStack>
-            
-            {bills && bills.length > 0 && (
+          <LinearGradient
+            colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ padding: 16, borderRadius: 11 }}
+          >
+            <YStack gap="$3" px="$2">
               <XStack ai="center" jc="space-between">
-                <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
-                  Monthly P/L
+                <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
+                  Income
+                </Text>
+                <XStack ai="center" gap="$2">
+                  <Button
+                    size="$1"
+                    bg="transparent"
+                    onPress={() => setIsIncomeModalVisible(true)}
+                    icon={<Edit3 size={16} color={isDark ? '#999' : '#666'} />}
+                  />
+                  <Text
+                    fontSize={16}
+                    fontWeight="600"
+                    color={isDark ? '#aaa' : '#000'}
+                    fontFamily="$body"
+                  >
+                    ${monthlyIncome.toFixed(2)}
+                  </Text>
+                </XStack>
+              </XStack>
+              
+              <XStack ai="center" jc="space-between">
+                <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
+                  Bills
                 </Text>
                 <Text 
                   fontSize={16}
                   fontWeight="600"
-                  color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'}
+                  color={getAmountColor(totalMonthlyAmount)}
                   fontFamily="$body"
                 >
-                  ${monthlyBalance.toFixed(2)}
+                  ${totalMonthlyAmount.toFixed(2)}
                 </Text>
               </XStack>
-            )}
-          </YStack>
+              
+              {bills && bills.length > 0 && (
+                <XStack ai="center" jc="space-between">
+                  <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
+                    Monthly P/L
+                  </Text>
+                  <Text 
+                    fontSize={16}
+                    fontWeight="600"
+                    color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'}
+                    fontFamily="$body"
+                  >
+                    ${monthlyBalance.toFixed(2)}
+                  </Text>
+                </XStack>
+              )}
+            </YStack>
+          </LinearGradient>
         </Animated.View>
       )}
       

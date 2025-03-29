@@ -251,33 +251,33 @@ export default function Step3({
   useEffect(() => {
     const loadSrc = async () => {
       if (formData.backgroundStyle.startsWith('wallpaper-')) {
-        setLoadingWallpaper(true); // Indicate loading
-        setWallpaperSource(null); // Clear previous source
         try {
           const cachedUri = await wallpaperStore.getCachedWallpaper(formData.backgroundStyle);
           if (cachedUri) {
             console.log(`[Step3] Found cached URI for ${formData.backgroundStyle}: ${cachedUri}`);
             setWallpaperSource({ uri: cachedUri });
+            setLoadingWallpaper(false);
           } else {
             console.warn(`[Step3] Wallpaper ${formData.backgroundStyle} not found in cache, falling back.`);
-            // Fallback to gradient if the specific wallpaper isn't cached for some reason
             setFormData(prev => ({ ...prev, backgroundStyle: 'gradient' }));
+            setLoadingWallpaper(false);
           }
         } catch (error) {
           console.error(`[Step3] Error loading wallpaper ${formData.backgroundStyle}:`, error);
-          // Fallback on error
            setFormData(prev => ({ ...prev, backgroundStyle: 'gradient' }));
-        } finally {
-          setLoadingWallpaper(false);
+           setLoadingWallpaper(false);
         }
       } else {
         // Handle non-wallpaper styles like 'gradient'
-        setWallpaperSource(null); // Clear wallpaper source for gradient
+        setWallpaperSource(null);
         setLoadingWallpaper(false);
       }
     };
+    
+    // Run the logic whenever the style changes. The onPress handler sets the initial loading state.
     loadSrc();
-  }, [formData.backgroundStyle, wallpaperStore]); // Depend on selected style and store instance
+    
+  }, [formData.backgroundStyle, wallpaperStore]); // Simplified dependencies: remove loadingWallpaper, remove conditional if
 
   const background = React.useMemo(() => {
     console.log('[Step3] Rendering background with style:', formData.backgroundStyle);
@@ -342,13 +342,19 @@ export default function Step3({
       }
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
-          // Show loading indicator or null while fetching
-          if (loadingWallpaper || !wallpaperSource) {
-             console.log(`[Step3] Loading or no source for ${formData.backgroundStyle}. Loading: ${loadingWallpaper}, Source: ${wallpaperSource}`);
-             // Optionally return a loading indicator component here instead of null
-             // return <ActivityIndicator size="large" style={{ position: 'absolute', width: '100%', height: '100%' }} />;
+          let sourceMatchesSelection = false;
+          if (wallpaperSource && typeof wallpaperSource === 'object' && !Array.isArray(wallpaperSource) && typeof wallpaperSource.uri === 'string') {
+            const parts = wallpaperSource.uri.split('/');
+            const filenameWithPotentialQuery = parts[parts.length - 1];
+            const filename = filenameWithPotentialQuery.split('?')[0];
+            sourceMatchesSelection = filename.startsWith(formData.backgroundStyle);
+          }
+
+          if (loadingWallpaper || !wallpaperSource || !sourceMatchesSelection) {
+             console.log(`[Step3] Waiting/Loading check: IsLoading: ${loadingWallpaper}, HasSource: ${!!wallpaperSource}, SourceMatchesSelection: ${sourceMatchesSelection} for ${formData.backgroundStyle}`);
              return null;
           }
+
           console.log('[Step3] Displaying wallpaper:', formData.backgroundStyle, 'Source:', wallpaperSource);
           if ((Platform.OS === 'ios' || Platform.OS === 'android') && BlurView) {
             return (
@@ -428,7 +434,7 @@ export default function Step3({
           />
         );
     }
-  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, wallpaperSource]);
+  }, [formData.backgroundStyle, formData.primaryColor, adjustColor, wallpaperSource, loadingWallpaper]);
 
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
@@ -523,9 +529,22 @@ export default function Step3({
                   }}
                   onPress={() => {
                     console.log('[Step3] Selected wallpaper:', style.value);
+                    const newStyle = style.value as FormData['backgroundStyle'];
+                    
+                    // If changing *to* a wallpaper style that isn't already selected,
+                    // set loading and clear source immediately to prevent stale render.
+                    if (newStyle.startsWith('wallpaper-') && newStyle !== formData.backgroundStyle) {
+                      setLoadingWallpaper(true); 
+                      setWallpaperSource(null); 
+                    } else if (!newStyle.startsWith('wallpaper-') && formData.backgroundStyle.startsWith('wallpaper-')) {
+                       // Handle switching *from* a wallpaper to something else (e.g., gradient)
+                       setWallpaperSource(null); // Clear the source
+                       setLoadingWallpaper(false); // Ensure loading is false
+                    }
+
                     setFormData((prev) => ({
                       ...prev,
-                      backgroundStyle: style.value as FormData['backgroundStyle'],
+                      backgroundStyle: newStyle,
                     }));
                   }}
                 >

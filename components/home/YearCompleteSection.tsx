@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
-import { Platform } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 import { YStack, Text, Stack } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export function YearCompleteSection() {
-  // Calculate the year progress using the service function
+  const colorScheme = useColorScheme();
+
+  // Calculate the year progress
   const { percentage, currentDay, totalDays } = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -29,10 +31,16 @@ export function YearCompleteSection() {
   }
 
   return (
-    <YStack padding="$2" width="100%">
-      {/* Progress bar container */}
-      <Stack width="100%" height={32} br={12} overflow="hidden" backgroundColor="rgba(30, 30, 30, 0.3)" borderWidth={1} borderColor="rgba(255, 255, 255, 0.1)" marginVertical="$2">
-        {/* Gradient fill */}
+    <YStack 
+      padding="$2" 
+      width="100%"
+      br={16}
+      px="$3"
+      py="$3"
+    >
+      {/* Progress bar container - Increased height, removed bg/border, removed margin */}
+      <Stack width="100%" height={40} br={12} overflow="hidden">
+        {/* Gradient fill container */}
         <Stack 
           position="absolute" 
           left={0} 
@@ -41,16 +49,14 @@ export function YearCompleteSection() {
           width={`${percentage}%`} 
           overflow="hidden"
         >
-          {/* Gradient that's stretched across what would be the full bar */}
+          {/* Gradient that's stretched across what would be the full bar - Simplified nesting */}
           <Stack width={`${100 / (percentage / 100)}%`} height="100%">
-            <Stack width="100%" height="100%">
-              <LinearGradient
-                colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#e53935', '#8e2de2']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ flex: 1 }}
-              />
-            </Stack>
+            <LinearGradient
+              colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#e53935', '#8e2de2']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ flex: 1 }}
+            />
           </Stack>
         </Stack>
         
@@ -64,12 +70,12 @@ export function YearCompleteSection() {
           {percentage < 100 ? (
             <Text 
               color="#f2f2f2" 
-              fontSize={12} 
+              fontSize={14}
               fontWeight="bold"
               style={{ 
-                textShadowColor: 'rgba(0, 0, 0, 0.5)', 
+                textShadowColor: 'rgba(0, 0, 0, 0.7)',
                 textShadowOffset: { width: 0, height: 1 }, 
-                textShadowRadius: 2 
+                textShadowRadius: 3 
               }}
             >
               {percentage}% complete
