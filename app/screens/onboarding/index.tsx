@@ -8,7 +8,7 @@ import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors'
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
-import WallpaperPreloader, { preloadWallpapers } from '../../../components/wpPreload'
+import { preloadWallpapers } from '../../../components/wpPreload' // Changed to named import
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissionService'
 import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'
 import { useToastStore } from '@/store/ToastStore'
@@ -125,7 +125,7 @@ export default function Onboarding() {
     switch (step) {
       case -1: 
         return (
-          <PermissionsScreen/>
+          <PermissionsScreen isDark={isDark}/>
         )
       case 0:
         return (

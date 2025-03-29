@@ -55,7 +55,6 @@ export default function Step2({
           </XStack>
         </YStack>
         
-        {/* Only show custom color picker on web, hidden on mobile */}
         {isWeb && (
           <XStack alignItems="center" gap="$2" style={{ opacity: 0 }}>
             <Circle size={50} overflow="hidden">
@@ -68,7 +67,7 @@ export default function Step2({
                   height: '70px',
                   border: 'none',
                   cursor: 'pointer',
-                  opacity: 1.0, // Make it visible
+                  opacity: 1.0,
                   position: 'absolute',
                 }}
               />
@@ -94,7 +93,7 @@ export default function Step2({
         <Label 
           paddingBottom={20} 
           fontFamily="$heading" 
-          fontWeight="500" 
+          fontWeight={isWeb ? 500 : 800} 
           fontSize={isWeb ? "$9" : "$7"} 
           textAlign="center" 
           color={labelColor}

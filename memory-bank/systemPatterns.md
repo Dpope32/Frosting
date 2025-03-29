@@ -51,6 +51,12 @@ flowchart TD
 ### Local Storage
 - AsyncStorage for persistent data across app restarts
 - Structured data models for different domains (bills, calendar events, contacts)
+- **Wallpaper Caching:**
+    - Wallpapers are preloaded during onboarding (`components/wpPreload.tsx`) using `Promise.all` for parallel downloads.
+    - `store/WallpaperStore.ts` manages the cache.
+    - **Native:** Uses `expo-file-system` to download and store wallpapers locally in the cache directory (`FileSystem.cacheDirectory + 'wallpapers/'`). Checks for existing files before downloading.
+    - **Web:** Stores the remote S3 URI directly in the Zustand store cache.
+    - Components (`BackgroundSection.tsx`, `onboarding/step3.tsx`) retrieve the appropriate URI (local file or remote) from the store cache.
 
 ### External Services
 - Weather API integration for current conditions

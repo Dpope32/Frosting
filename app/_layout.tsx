@@ -49,7 +49,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      // Hide splash screen after a minimum delay to prevent flash
+      setTimeout(() => {
+        SplashScreen.hideAsync();
+      }, 500);
     }
   }, [loaded]);
 

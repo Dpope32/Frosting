@@ -9,88 +9,35 @@ export interface WallpaperPreloaderProps {
   primaryColor: string;
 }
 
-export async function preloadWallpapers(onComplete: () => void) {
-  const wallpaperStore = useWallpaperStore();
+export async function preloadWallpapers(onComplete?: () => void) {
+  const wallpaperStore = useWallpaperStore.getState();
   try {
     const wallpapers = getWallpapers();
     
-    // Cache each wallpaper silently
-    for (const wallpaper of wallpapers) {
+    // Preload images without blocking UI
+    // Preload images in parallel
+    await Promise.all(wallpapers.map(async (wallpaper) => {
+      const style = `wallpaper-${wallpaper.name}`;
       try {
-        const style = `wallpaper-${wallpaper.name}`;
-        await wallpaperStore.cacheWallpaper(style, wallpaper.uri);
+        // Check if already cached (awaiting the async check)
+        const isCached = await wallpaperStore.getCachedWallpaper(style);
+        if (!isCached) {
+          console.log(`[wpPreload] Caching ${style}`);
+          await wallpaperStore.cacheWallpaper(style, wallpaper.uri);
+        } else {
+          console.log(`[wpPreload] Already cached: ${style}`);
+        }
       } catch (err) {
-        console.error(`Failed to cache wallpaper ${wallpaper.name}:`, err);
+        console.error(`[wpPreload] Failed to cache wallpaper ${wallpaper.name}:`, err);
       }
-    }
+    }));
     
-    onComplete();
+    onComplete?.();
   } catch (err) {
     console.error('Error caching wallpapers:', err);
-    onComplete();
+    onComplete?.();
   }
 }
 
-export default function WallpaperPreloader({ onComplete, primaryColor }: WallpaperPreloaderProps) {
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const wallpaperStore = useWallpaperStore();
-  
-  useEffect(() => {
-    const loadWallpapers = async () => {
-      try {
-        const wallpapers = getWallpapers();
-        let count = 0;
-        
-        // Cache each wallpaper
-        for (const wallpaper of wallpapers) {
-          try {
-            const style = `wallpaper-${wallpaper.name}`;
-            await wallpaperStore.cacheWallpaper(style, wallpaper.uri);
-            count++;
-            setProgress(Math.floor((count / wallpapers.length) * 100));
-          } catch (err) {
-            console.error(`Failed to cache wallpaper ${wallpaper.name}:`, err);
-          }
-        }
-        
-        setProgress(100);
-        setTimeout(() => onComplete(), 500);
-      } catch (err) {
-        console.error('Error caching wallpapers:', err);
-        setError('Failed to cache wallpapers. Continuing anyway...');
-        setTimeout(() => onComplete(), 2000);
-      }
-    };
-    
-    // Start with a small delay to allow UI to render
-    setTimeout(() => {
-      setProgress(10);
-      loadWallpapers();
-    }, 100);
-  }, [onComplete]);
-  
-  return (
-    <Stack
-      flex={1}
-      backgroundColor="#121212"
-      justifyContent="center"
-      alignItems="center"
-      gap={20}
-    >
-      <Text style={{ color: 'white', fontSize: 18, marginBottom: 20 }}>
-        Loading wallpapers...
-      </Text>
-      <ActivityIndicator size="large" color={primaryColor || "#4A90E2"} />
-      {error ? (
-        <Text style={{ color: 'red', marginTop: 20, textAlign: 'center', padding: 20 }}>
-          {error}
-        </Text>
-      ) : (
-        <Text style={{ color: 'white', marginTop: 10 }}>
-          {progress}% complete
-        </Text>
-      )}
-    </Stack>
-  );
-}
+// Removed the WallpaperPreloader component as it's not used directly
+// The preloadWallpapers function is called from onboarding/index.tsx

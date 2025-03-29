@@ -10,6 +10,7 @@ export interface Card {
     titleColor: string;
     icon: IconName;
     iconColor: string;
+    isDark?: boolean;
   }
 
  export const cards: Card[] = [
@@ -50,4 +51,3 @@ export interface Card {
         iconColor: "#6495ED"
       }
     ];
-  

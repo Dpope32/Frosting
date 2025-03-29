@@ -53,12 +53,23 @@ export const useWallpaperStore = create<WallpaperStore>()(
         }
         try {
           const localUri = `${WALLPAPER_CACHE_DIR}${wallpaperName}`;
-          const { uri } = await FileSystem.downloadAsync(remoteUri, localUri);
+          // Check if file already exists before downloading
+          const fileInfo = await FileSystem.getInfoAsync(localUri);
+          let finalUri = localUri; // Assume we need to download initially
+
+          if (fileInfo.exists) {
+            console.log(`[WallpaperStore] Wallpaper ${wallpaperName} already exists locally at ${localUri}`);
+            finalUri = fileInfo.uri; // Use existing file URI
+          } else {
+             console.log(`[WallpaperStore] Downloading ${wallpaperName} from ${remoteUri} to ${localUri}`);
+            const { uri: downloadedUri } = await FileSystem.downloadAsync(remoteUri, localUri);
+            finalUri = downloadedUri; // Use the downloaded file URI
+          }
           
           set((state) => ({
             cache: {
               ...state.cache,
-              [wallpaperName]: uri,
+              [wallpaperName]: finalUri, // Store the final URI (either existing or downloaded)
             },
           }));
         } catch (error) {
@@ -132,13 +143,4 @@ if (Platform.OS !== 'web') {
   useWallpaperStore.getState().initializeCache();
 }
 
-if (Platform.OS === 'web') {
-  const wallpapers = getWallpapers();
-  wallpapers.forEach((wallpaper) => {
-    const wallpaperName = wallpaper.name.split('.')[0];
-    useWallpaperStore.getState().cacheWallpaper(
-      `wallpaper-${wallpaperName}`,
-      wallpaper.uri
-    );
-  });
-}
+// Removed redundant web caching logic here - preloading handles this now.

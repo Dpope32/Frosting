@@ -47,9 +47,10 @@
 - 🔄 Animation Improvements
 
 ### Performance Optimization
+- ✅ **Wallpaper System:** Optimized wallpaper caching, preloading, and display logic. Resolved slow switching during onboarding and improved loading reliability on the home screen. (March 28, 2025)
 - 🔄 Dependency reduction
 - 🔄 Bundle size optimization
-- 🔄 Performance profiling and improvements
+- 🔄 Performance profiling and improvements (ongoing)
 
 ### Data Synchronization
 - 🔄 Investigating PocketBase for Zustand store synchronization
@@ -79,6 +80,8 @@
 - Some UI components could be optimized for better performance
   - Modals mainly
 - Routing between screens tad slow, Expo router issue
+- ~~Slow wallpaper switching during onboarding~~ (Resolved March 28, 2025)
+- ~~Inconsistent wallpaper display on landing page~~ (Improved March 28, 2025)
 
 ### Cross-Platform
 - Minor UI inconsistencies between platforms, speceficaly Web & iOs
@@ -87,4 +90,4 @@
 ### Data Management
 - No backup/restore functionality yet
 - Local-only storage limits cross-device usage
-- No server ever. I do not want users data, just them to have the ability to sync. 
+- No server ever. I do not want users data, just them to have the ability to sync.

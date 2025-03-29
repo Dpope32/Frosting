@@ -64,7 +64,6 @@ export default function Step5({
   
   // Style variables
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
   const buttonBackgroundColor = isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)";
   const buttonBorderColor = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)";
   const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";

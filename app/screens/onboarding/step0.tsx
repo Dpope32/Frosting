@@ -6,13 +6,12 @@ import { FormData } from '@/types'
 export default function Step0({
   formData,
   setFormData,
-  isDark = true, // Default to dark if not provided
+  isDark = true, 
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   isDark?: boolean
 }) {
-  // Dynamic theme styles
   const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
   const inputBackgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
   const inputBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
@@ -21,16 +20,14 @@ export default function Step0({
 
   return (
     <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$6" : "$3"} justifyContent="center" alignItems="center">
-      <Label paddingBottom={20} fontFamily="$heading"   fontWeight="500" fontSize={isWeb ? "$9" : "$7"} textAlign="center" color={labelColor}>
+      <Label paddingBottom={20} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : "$7"} textAlign="center" color={labelColor}>
         What should we call you?
       </Label>
       <Input
         size="$4"
         placeholder="Enter username"
         value={formData.username}
-        onChangeText={(text) =>
-          setFormData((prev) => ({ ...prev, username: text }))
-        }
+        onChangeText={(text) =>setFormData((prev) => ({ ...prev, username: text }))}
         autoFocus={Platform.OS === 'ios' || Platform.OS === 'android'}
         autoCapitalize="sentences"
         bc={inputBackgroundColor}
@@ -39,12 +36,7 @@ export default function Step0({
         placeholderTextColor={placeholderColor}
         fontFamily="$body"
         textAlign="center"
-        style={{ 
-          textAlign: 'center',
-          alignSelf: 'center',
-          width: '100%',
-          maxWidth: 300
-        }}
+        style={{  textAlign: 'center', alignSelf: 'center', width: '100%', maxWidth: 300}}
       />
     </YStack>
   )

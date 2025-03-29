@@ -3,17 +3,21 @@ import { YStack, Text, View, isWeb, Button } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { cards } from '../../../components/permissions/card';
 
-export default function PermissionsScreen() {
+interface PermissionsScreenProps {
+  isDark?: boolean;
+}
+
+export default function PermissionsScreen({ isDark = true }: PermissionsScreenProps) {
   return (
-    <View style={{ flex: 1, backgroundColor: "#000000" }}>
-      <YStack gap="$3" padding={isWeb ? "$6" : "$4"} pt={isWeb ? "$6" : "$9"} justifyContent="flex-start" alignItems="center" mt={isWeb ? "$10" : "$6"}>
-      <Text fontFamily="$heading" fontWeight="800" fontSize={isWeb ? "$10" : "$8"} textAlign="center" color="rgba(255, 255, 255, 0.85)">
+    <View style={{ flex: 1, backgroundColor: isDark ? "#000000" : "#f2f2f2" }}>
+      <YStack gap="$3" padding={isWeb ? "$6" : "$4"} pt={isWeb ? "$6" : "$12"} justifyContent="flex-start" alignItems="center" mt={isWeb ? "$10" : "$6"}>
+      <Text fontFamily="$heading" fontWeight="800" fontSize={isWeb ? "$10" : "$9"} textAlign="center" color={isDark ? "rgba(255, 255, 255, 0.85)" : "rgba(0, 0, 0, 0.85)"}>
           Welcome to Kaiba!
         </Text>
-        <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$8" : "$7"} textAlign="center" color="rgba(191, 191, 191, 0.85)">
+        <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$8" : "$7"} textAlign="center" color={isDark ? "rgba(191, 191, 191, 0.85)" : "rgba(80, 80, 80, 0.85)"}>
           Let's talk permissions..
         </Text>
-        <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#666666" marginBottom="$4">
+        <Text fontFamily="$body" fontSize="$3" textAlign="center" color={isDark ? "#666666" : "#444444"} marginBottom="$4">
           I know they're annoying, but they are necessary.
         </Text>
       </YStack>
@@ -36,14 +40,14 @@ export default function PermissionsScreen() {
                   <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$5" : "$4"} color={card.titleColor}>
                     {card.id}. {card.title}
                   </Text>
-                  <Text fontFamily="$body" fontSize="$3" color="#FFFFFF" opacity={0.8} numberOfLines={2} mt="$1">
+                  <Text fontFamily="$body" fontSize="$3" color={isDark ? "#FFFFFF" : "#333333"} opacity={0.8} numberOfLines={2} mt="$1">
                     {card.description}
                   </Text>
                 </YStack>
                 <View 
                   width={50} 
                   height={50} 
-                  backgroundColor="rgba(0,0,0,0.2)" 
+                  backgroundColor={isDark ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.2)"} 
                   br={25} 
                   justifyContent="center" 
                   alignItems="center"
@@ -58,7 +62,7 @@ export default function PermissionsScreen() {
       </YStack>
       
       <YStack mt="auto" marginBottom={isWeb ? "$6" : "$4"} px={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">
-        <Text fontFamily="$body" fontSize="$3" textAlign="center" color="#AAAAAA" marginBottom={isWeb ? "$3" : "$8"}>
+        <Text fontFamily="$body" fontSize="$3" textAlign="center" color={isDark ? "#AAAAAA" : "#666666"} marginBottom={isWeb ? "$3" : "$8"}>
           Just click continue to go to the next step!
         </Text>
         <Button

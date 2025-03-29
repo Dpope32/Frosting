@@ -9,14 +9,7 @@ export type FormData = {
   username: string;
   profilePicture: string;
   primaryColor: string;
-  backgroundStyle:
-    | 'gradient'
-    | 'wallpaper-0'
-    | 'wallpaper-1'
-    | 'wallpaper-2'
-    | 'wallpaper-3'
-    | 'wallpaper-4'
-    | 'wallpaper-5'
+  backgroundStyle: `wallpaper-${string}` | 'gradient'; // Use template literal for dynamic wallpaper names
   zipCode: string;
   favoriteNBATeam?: string; // Team code (e.g., "OKC")
   showNBAGamesInCalendar?: boolean; // Whether to show NBA games in the calendar

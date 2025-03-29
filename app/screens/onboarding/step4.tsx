@@ -52,7 +52,7 @@ export default function Step4({
         <Label
           fontFamily="$heading"
           size={isWeb ? "$9" : "$8"}
-          fontWeight="500" 
+          fontWeight={isWeb ? "500" : "800"} 
           textAlign="center"
           color={labelColor}
         >
