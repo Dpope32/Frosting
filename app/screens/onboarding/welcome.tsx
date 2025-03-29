@@ -105,7 +105,6 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
         alignSelf="center"
         fontFamily="$heading"
         fontWeight="600"
-        // marginBottom="$4" // Removed default bottom margin, rely on main YStack gap
       >
         Continue
       </Button>
