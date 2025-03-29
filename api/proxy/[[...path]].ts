@@ -11,7 +11,7 @@ const corsMiddleware = cors({
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Apply CORS middleware
   await new Promise((resolve, reject) => {
-    corsMiddleware(req, res, (result) => {
+    corsMiddleware(req, res, (result: any) => {
       if (result instanceof Error) {
         return reject(result);
       }

@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import { useProjectStore, WeekDay } from './ToDo';
+import { useProjectStore } from './ToDo';
+import { WeekDay } from '@/types/task';
 import { preloadedOUSchedule } from '@/constants/ouschedule';
 
 export interface Game {

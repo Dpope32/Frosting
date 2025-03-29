@@ -104,14 +104,17 @@ export const BackgroundSection = () => {
             />
             {Platform.OS !== 'web' && (
               <BlurView
-                intensity={isDark ? 40 : 30}
-                tint={isDark ? "dark" : "light"} // Adjust tint based on theme
+                intensity={isDark ? 40 : 40}
+                tint={"dark"}
                 style={{ position: 'absolute', width: '100%', height: '100%' }}
               />
             )}
-             {/* Optional: Add a subtle overlay for web if needed */}
              {Platform.OS === 'web' && (
-               <Stack position="absolute" width="100%" height="100%" bg="rgba(0,0,0,0.1)" />
+               <BlurView
+                 intensity={40}
+                 tint={isDark ? "dark" : "light"}
+                 style={{ position: 'absolute', width: '100%', height: '100%' }}
+               />
              )}
           </>
         );
@@ -123,8 +126,8 @@ export const BackgroundSection = () => {
           return (
             <Stack position="absolute" width="100%" height="100%">
               <Image
-                key={selectedStyle} // Add key to force re-render on source change
-                source={wallpaperSource} // Removed duplicate source prop
+                key={selectedStyle} 
+                source={wallpaperSource} 
                 style={{
                   position: 'absolute',
                   width: '100%',
@@ -133,7 +136,6 @@ export const BackgroundSection = () => {
                 }}
                 onError={error => {
                   console.warn(`[BackgroundSection] Wallpaper load error for ${selectedStyle}:`, error.nativeEvent);
-                  // Fallback on image load error
                   setPreferences({ ...preferences, backgroundStyle: 'gradient' });
                   setWallpaperSource(null); // Clear source to prevent trying again
                 }}
@@ -141,19 +143,21 @@ export const BackgroundSection = () => {
               {Platform.OS !== 'web' && (
                 <BlurView
                   intensity={isDark ? 40 : 20}
-                  tint="dark" // Keep dark tint for better text contrast over image
+                  tint="dark" 
                   style={{
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
-                    // Add a subtle background color to the blur for consistency
                     backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.1)'
                   }}
                 />
               )}
-               {/* Optional: Add a subtle overlay for web */}
                {Platform.OS === 'web' && (
-                 <Stack position="absolute" width="100%" height="100%" bg="rgba(0,0,0,0.4)" />
+                 <BlurView
+                   intensity={40}
+                   tint={isDark ? "dark" : "light"}
+                   style={{ position: 'absolute', width: '100%', height: '100%' }}
+                 />
                )}
             </Stack>
           );

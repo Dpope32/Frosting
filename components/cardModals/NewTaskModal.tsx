@@ -18,7 +18,12 @@ interface NewTaskModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element {
+export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element | null { // Return type can be null
+  // If not open, render nothing
+  if (!open) {
+    return null;
+  }
+
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web'
@@ -136,9 +141,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
 
   return (
-    <BaseCardAnimated open={open} onOpenChange={onOpenChange} title="New Task">
-        
-        <ScrollView 
+    <BaseCardAnimated  onClose={() => onOpenChange(false)} title="New Task">
+        <ScrollView
           bounces={false} 
           keyboardShouldPersistTaps="handled" 
           showsHorizontalScrollIndicator={false} 

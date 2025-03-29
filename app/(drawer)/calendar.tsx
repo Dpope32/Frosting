@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, LayoutAnimation, UIManager, Platform } from 'react-native';
 import { isWeb } from 'tamagui';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
+import { useCalendarViewStore } from '@/store/CalendarViewStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { Month } from '@/components/calendar/Month';
@@ -16,10 +17,15 @@ import { calendarStyles } from '@/components/calendar/CalendarStyles';
 import { getUSHolidays } from '@/services/holidayService';
 import { isIpad } from '@/utils/deviceUtils';
 
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 export default function CalendarScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  const { webColumnCount } = useCalendarViewStore(); 
   const { events } = useCalendarStore();
   const { showToast } = useToastStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -102,16 +108,31 @@ export default function CalendarScreen() {
   };
   
   const isIpadDevice = isIpad();
-  
+
+  useEffect(() => {
+    if (isWeb) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }
+  }, [webColumnCount]);
+
   return (
     <View style={calendarStyles.container}>
       <Legend isDark={isDark} />
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
         {isWeb || isIpadDevice ? (
-          <View style={calendarStyles.webMonthsContainer}>
+          <View style={[
+            calendarStyles.webMonthsContainer,
+            isWeb && webColumnCount === 2 && { justifyContent: 'center' }
+          ]}>
             {months.map((date, index) => (
-              <View key={index} style={calendarStyles.webMonthWrapper}>
-                <Month date={date}  events={combinedEvents}   onDayPress={handleDayPress}  isDark={isDark} primaryColor={primaryColor}/>
+              <View
+                key={index}
+                style={[
+                  calendarStyles.webMonthWrapper,
+                  isWeb && { width: webColumnCount === 3 ? '33%' : '49%' }
+                ]}
+              >
+                <Month date={date} events={combinedEvents} onDayPress={handleDayPress} isDark={isDark} primaryColor={primaryColor}/>
               </View>
             ))}
           </View>

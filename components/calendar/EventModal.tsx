@@ -99,11 +99,13 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   return (
     <>
-      <BaseCardAnimated
-        open={isViewEventModalVisible}
-        onOpenChange={closeEventModals}
-        title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
-        modalWidth={getViewModalMaxWidth()}
+      {/* Conditionally render BaseCardAnimated based on visibility */}
+      {isViewEventModalVisible && (
+        <BaseCardAnimated
+          // Removed open prop
+          onClose={closeEventModals} // Changed onOpenChange to onClose
+          title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
+          modalWidth={getViewModalMaxWidth()}
         modalMaxWidth={getViewModalMaxWidth()}
       >
         <View style={{ paddingBottom: 50, ...noScrollbar }}>
@@ -160,7 +162,9 @@ export const EventModal: React.FC<EventModalProps> = ({
           </TouchableOpacity>
         </View>
       </BaseCardAnimated>
+      )}
 
+      {/* The standard Modal for adding/editing remains unchanged */}
       {isEventModalVisible && (
         <Modal
           visible={isEventModalVisible}

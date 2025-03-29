@@ -2,7 +2,7 @@ import React from 'react'
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { CalendarEvent } from '@/store/CalendarStore'
 import { Ionicons } from '@expo/vector-icons'
-import { TaskPriority } from '@/store/ToDo'
+import { TaskPriority } from '@/types/task'
 
 export const EventPreview: React.FC<{
   event: CalendarEvent

@@ -2,7 +2,7 @@ import React from 'react'
 import { Platform } from 'react-native'
 import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
-import { RecurrencePattern, TaskCategory, WeekDay } from '@/store/ToDo'
+import { RecurrencePattern, TaskCategory, WeekDay } from '@/types/task'
 
 export interface RecommendedTask {
   name: string

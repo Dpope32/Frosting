@@ -1,5 +1,6 @@
 // services/syncServices.ts
-import { useProjectStore, Task, WeekDay } from "@/store/ToDo";
+import { useProjectStore} from "@/store/ToDo";
+import { Task, WeekDay } from "@/types/task"
 import { useCalendarStore, CalendarEvent } from "@/store/CalendarStore";
 import { format } from "date-fns";
 

@@ -1,18 +1,19 @@
 // BaseCardAnimated.tsx
 import React from 'react'
-import { StyleSheet, Modal, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native'
+import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' // Removed Modal
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button } from 'tamagui'
 import Animated, {
   ZoomIn,
-  ZoomOut,
+  FadeIn, // Added FadeIn for overlay
+  FadeOut,
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 
 interface BaseCardAnimatedProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  // open prop is no longer needed here, parent will conditionally render this component
+  onClose: () => void // Changed onOpenChange to onClose
   title: string
   children: React.ReactNode
   modalWidth?: number
@@ -21,13 +22,13 @@ interface BaseCardAnimatedProps {
 }
 
 export function BaseCardAnimated({
-  open,
-  onOpenChange,
+  // Removed open, onOpenChange from destructuring
   title,
   children,
+  onClose, // Added onClose to destructuring
   modalWidth = Platform.OS === 'web' ? 700 : 350,
   modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
-  showCloseButton = true
+  showCloseButton = true,
 }: BaseCardAnimatedProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -37,22 +38,23 @@ export function BaseCardAnimated({
     typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.85,
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.95
   )
-  
+
   return (
-    <Theme name={isDark ? 'dark' : 'light'}>
-      <Modal
-        visible={open}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => onOpenChange(false)}
-        statusBarTranslucent={true}
-      >
-        <TouchableWithoutFeedback onPress={() => onOpenChange(false)}>
-          <View style={styles.overlay}>
-            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+    // Use Animated.View for the overlay with FadeIn/FadeOut
+    <Animated.View
+      style={styles.overlay}
+      entering={FadeIn.duration(200)} // Faster fade for overlay
+      exiting={FadeOut.duration(300)} // Keep modal content fade duration
+    >
+      <TouchableWithoutFeedback onPress={onClose}> 
+        {/* This inner View prevents the overlay press from propagating */}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+            <Theme name={isDark ? 'dark' : 'light'}>
+              {/* Animated View for the modal content itself */}
               <Animated.View
                 entering={ZoomIn.duration(300).springify()}
-                exiting={ZoomOut.duration(200).springify()}
+                exiting={FadeOut.duration(300)} // Keep FadeOut for content
                 style={[
                   styles.modalContainer,
                   {
@@ -75,34 +77,34 @@ export function BaseCardAnimated({
                     {title}
                   </Text>
                   {showCloseButton && (
-                    <Button 
-                      backgroundColor="transparent" 
-                      onPress={() => {onOpenChange(false)}} 
-                      padding={8} 
-                      pressStyle={{ opacity: 0.7 }} 
+                    <Button
+                      backgroundColor="transparent"
+                      onPress={onClose} // Correct usage of onClose
+                      padding={8}
+                      pressStyle={{ opacity: 0.7 }}
                       icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
                     />
                   )}
                 </XStack>
                 <View style={{ position: 'relative' }}>
-                  {children}
-                </View>
-              </Animated.View>
+                    {children}
+                  </View>
+                </Animated.View>
+              </Theme>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
-      </Modal>
-    </Theme>
+      </Animated.View>
   )
 }
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject, // Make overlay cover the whole screen
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 0,
+    zIndex: 1000, // Ensure it's on top
   },
   modalContainer: {
     alignSelf: 'center',

@@ -6,10 +6,12 @@ import { Text } from 'tamagui';
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { SettingsModal } from './cardModals/SettingsModal';
 import { NBATeamModal } from './sports/NBATeamModal';
 import { BillsListModal } from './cardModals/BillsListModal';
 import { VaultListModal } from './cardModals/VaultListModal';
+import { useCalendarViewStore } from '@/store/CalendarViewStore';
 
 interface HeaderProps {
   title: string;
@@ -24,23 +26,66 @@ export function Header({ title }: HeaderProps) {
   const [showNBATeamModal, setShowNBATeamModal] = useState(false);
   const [showBillsListModal, setShowBillsListModal] = useState(false);
   const [showVaultListModal, setShowVaultListModal] = useState(false);
-  
-  // Check if we're on the sports or bills screen
+  const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore(); // Get state and action from store
+
+  // Check current screen
   const isSportsScreen = route.name === 'nba';
-  const isBillsScreen = route.name === 'bills'; // Correct route name based on logs
+  const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
+  const isCalendarScreen = route.name === 'calendar'; // Check for calendar screen
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#00000';
   const isWeb = Platform.OS === 'web';
 
   // Calculate the spacer height based on platform
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
 
-  // Determine which icon to show based on the current screen
-  const getHeaderIcon = () => {
-    if (isSportsScreen) return "basketball-outline";
-    if (isBillsScreen) return "receipt-outline";
-    if (isVaultScreen) return "key-outline";
-    return "settings-outline";
+  // Animation setup for the 3/2 toggle
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  // Determine which icon/element to show based on the current screen and platform
+  const getRightHeaderElement = () => {
+    if (isWeb && isCalendarScreen) {
+      return (
+        <Pressable
+          onPress={() => {
+            scale.value = withTiming(0.8, { duration: 100, easing: Easing.ease }, () => {
+              toggleWebColumnCount();
+              scale.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.ease) });
+            });
+          }}
+          style={{ padding: 8, marginRight: -8, marginTop: 5, marginLeft: -40 }}
+        >
+          <Animated.View style={animatedStyle}>
+            <Text fontWeight="bold" fontSize={20} color={textColor}>
+              {webColumnCount}
+            </Text>
+          </Animated.View>
+        </Pressable>
+      );
+    }
+
+    let iconName: keyof typeof Ionicons.glyphMap = "settings-outline";
+    if (isSportsScreen) iconName = "basketball-outline";
+    else if (isBillsScreen) iconName = "receipt-outline";
+    else if (isVaultScreen) iconName = "key-outline";
+
+    return (
+      <Pressable
+        onPress={handleIconPress}
+        style={{
+          padding: 8,
+          marginRight: -8,
+          ...(isWeb ? { mt: 5, marginLeft: -40 } as any : {})
+        }}
+      >
+        <Ionicons name={iconName} size={isWeb ? 20 : 20} color={textColor} />
+      </Pressable>
+    );
   };
 
   // Handle the icon press based on the current screen
@@ -139,19 +184,7 @@ export function Header({ title }: HeaderProps) {
               </Text>
             </XStack>
             <Stack>
-              <Pressable 
-                onPress={handleIconPress}
-                style={{ 
-                  padding: 8, 
-                  marginRight: -8,
-                  ...(isWeb ? {
-                    mt: 5,
-                    marginLeft: -40
-                  } as any : {})
-                }}
-              >
-                <Ionicons name={getHeaderIcon()} size={isWeb ? 20 : 20}  color={textColor} />
-              </Pressable>
+              {getRightHeaderElement()}
             </Stack>
           </XStack>
         </YStack>

@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
 import { getCategoryColor } from '@/utils/categoryUtils'
-import { Task } from '@/store/ToDo'
+import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 

@@ -3,7 +3,7 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { TaskPriority } from '@/store/ToDo';
+import { TaskPriority } from '@/types/task';
 import { isWeb } from 'tamagui';
 
 interface TaskCardProps {

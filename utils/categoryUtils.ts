@@ -1,4 +1,4 @@
-import { TaskCategory } from "@/store/ToDo";
+import { TaskCategory } from '@/types/task';
 
 export const getCategoryColor = (category: TaskCategory): string => {
     const colors: Record<TaskCategory, string> = {

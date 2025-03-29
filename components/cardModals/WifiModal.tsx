@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useColorScheme, Platform } from 'react-native'
 import { YStack, Text, Spinner, XStack } from 'tamagui'
-import Animated, { SlideInDown } from 'react-native-reanimated'
+import Animated, { SlideInDown, SlideOutUp } from 'react-native-reanimated'
 import { BaseCardAnimated } from './BaseCardAnimated'
 import { useNetworkStore } from '@/store/NetworkStore'
 import { getWifiDetails } from '@/services/wifiServices'
@@ -67,7 +67,12 @@ interface WifiModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
+export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element | null { // Return type can be null
+  // If not open, render nothing
+  if (!open) {
+    return null;
+  }
+
   const { details, error, fetchNetworkInfo, startNetworkListener } = useNetworkStore()
   const { speed, isLoading } = useNetworkSpeed()
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false)
@@ -102,9 +107,16 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element {
     return value !== undefined && value !== null && value !== 'Unknown';
   }
 
+  // Render BaseCardAnimated directly when open is true
   return (
-    <BaseCardAnimated open={open} onOpenChange={onOpenChange} title="Network Details">
+    <BaseCardAnimated 
+      // Removed open and onOpenChange props
+      onClose={() => onOpenChange(false)} // Pass onClose handler
+      title="Network Details"
+    > 
       <YStack gap="$4" opacity={showLoading ? 0.7 : 1}>
+        {/* Note: The SlideInDown animations might need adjustment or removal */}
+        {/* if they conflict with the new BaseCardAnimated structure */}
         <Animated.View entering={SlideInDown.duration(500).delay(0)}>
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}

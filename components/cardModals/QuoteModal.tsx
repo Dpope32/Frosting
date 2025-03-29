@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useColorScheme, Platform } from 'react-native'
-import { YStack, Text, Spinner, Stack, XStack } from 'tamagui'
+import { YStack, Text, Spinner, isWeb, XStack} from 'tamagui'
 import { BaseCardAnimated } from './BaseCardAnimated'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
 import { Pressable } from 'react-native'
 import Animated, {
   FadeIn,
+  FadeOut,
   useSharedValue,
   withTiming,
   Easing
@@ -18,11 +19,15 @@ interface QuoteModalProps {
 }
 
 export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
+  // If not open, render nothing
+  if (!open) {
+    return null;
+  }
+
   const { data, isLoading, isError } = useStoicQuote()
   const refreshQuote = useRefreshStoicQuote()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
   
   // Animation opacity value
   const opacity = useSharedValue(0)
@@ -38,10 +43,11 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
     }
   }, [open, isLoading])
 
+  // Render BaseCardAnimated directly when open is true
   return (
     <BaseCardAnimated
-      open={open}
-      onOpenChange={onOpenChange}
+      // Removed open and onOpenChange props
+      onClose={() => onOpenChange(false)} // Pass onClose handler
       title="Daily Quote"
     >
       <YStack gap="$4" opacity={isLoading ? 0.7 : 1}>
@@ -100,6 +106,7 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
         {/* Refresh Button */}
         <Animated.View
           entering={FadeIn.duration(600).delay(200)}
+          // Removed exiting={FadeOut.duration(300)}
         >
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}

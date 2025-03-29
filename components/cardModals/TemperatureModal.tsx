@@ -39,6 +39,11 @@ interface TemperatureModalProps {
 }
 
 export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) {
+  // If not open, render nothing
+  if (!open) {
+    return null;
+  }
+
   const forecast = useWeatherStore(s => s.forecast)
   const currentTemp = useWeatherStore(s => s.currentTemp)
   const progress = useSharedValue(0)
@@ -100,12 +105,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   const nextDays = allForecastDays.slice(1)
 
   return (
-    <BaseCardAnimated 
-      open={open} 
-      onOpenChange={onOpenChange} 
-      title="Weather" 
-      showCloseButton={true}
-    >
+    <BaseCardAnimated onClose={() => onOpenChange(false)}  title="Weather">
       <ScrollView>
         <YStack gap="$4" paddingBottom="$4">
           <XStack gap="$3">

@@ -238,7 +238,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         {...(isWeb ? {style: { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)'}} : {})}>
         <Sheet.Handle backgroundColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} />
         <XStack width="100%" justifyContent="flex-end" position="absolute" top="$4" right="$3" zIndex={1000}>
-          <Text fontSize={16} fontWeight="bold" color={isDark ? '#fff' : '#000'} fontFamily="$body" opacity={0.7} pressStyle={{ opacity: 0.5 }} onPress={() => onOpenChange(false)}>
+        <Text fontSize={16} fontWeight="bold" color={isDark ? '#fff' : '#000'} fontFamily="$body" opacity={0.7} pressStyle={{ opacity: 0.5 }} onPress={() => onOpenChange(false)}
+            style={{ cursor: 'pointer' }}
+          >
             ✕
           </Text>
         </XStack>

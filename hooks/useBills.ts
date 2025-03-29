@@ -2,7 +2,8 @@ import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Bill, useBillStore } from '@/store/BillStore';
 import { useMemo } from 'react';
 import { useCalendarStore } from '@/store/CalendarStore';
-import { useProjectStore, WeekDay } from '@/store/ToDo';
+import { useProjectStore } from '@/store/ToDo';
+import { WeekDay } from '@/types/task';
 import { format } from 'date-fns';
 import { useToastStore } from '@/store/ToastStore';
 
