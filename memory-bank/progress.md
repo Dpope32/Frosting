@@ -9,6 +9,7 @@
 - ✅ Cross-platform UI with Tamagui
 - ✅ Navigation system with Expo Router
 - ✅ Theming and customization options
+- ✅ Extracted shared components (e.g., `DebouncedInput`) (March 28, 2025 - `1b1185b`)
 
 ### Feature Modules
 - ✅ Task Management
@@ -20,9 +21,11 @@
     ✅ Bill due dates
     ✅ Birthday reminders
     ✅ NBA game schedules
+    ✅ Improved calendar month styles (March 28, 2025 - `9b12208`, `d8b2238`)
 - ✅ CRM (Contact Management)
     ✅ Contact information storage
     ✅ Custom attributes (payment methods, addresses, etc.)
+    ✅ Modularized components/logic (similar to Vault) (March 28, 2025 - `1b1185b`)
   - ✅ Password Vault
     ✅ Secure credential storage
     - Local authentication
@@ -30,6 +33,8 @@
     ✅ Portfolio monitoring
     ✅ Stock watchlist (web version)
     ✅ Real-time stock updates
+    ✅ Updated Bill card design for consistency (March 28, 2025 - `9b12208`)
+    ✅ Modularized Bills components/logic (March 28, 2025 - `1b1185b`, `20214d4`)
 - ✅ Dashboard Widgets
     ✅ Weather display
     ✅ Network status
@@ -37,6 +42,8 @@
     ✅ Multiple wallpapers
     ✅ Theme options
   - Layout preferences
+- ✅ Bug Fixes
+  ✅ Fixed settings modal bug (related to wallpaper caching) (March 28, 2025 - `9b12208`)
 
 ## In Progress
 
@@ -45,10 +52,11 @@
 - 🔄 UI responsiveness testing across platforms
 - 🔄 Syncing Instantly across platforms for Pro users
 - 🔄 Animation Improvements
+- ✅ Updated web landing screen (March 28, 2025 - `bf44901`)
 
 ### Performance Optimization
-- ✅ **Wallpaper System:** Optimized wallpaper caching, preloading, and display logic. Resolved slow switching during onboarding and improved loading reliability on the home screen. (March 28, 2025)
-- 🔄 Dependency reduction
+- ✅ **Wallpaper System:** Implemented robust caching via `WallpaperStore`. Uses `expo-file-system` for local native cache, stores URIs directly for web. Preloads during onboarding. (March 28, 2025 - `1459baa`, `9b12208`)
+- ✅ Dependency reduction & unused package removal (March 28, 2025 - `1459baa`, `1508286`)
 - 🔄 Bundle size optimization
 - 🔄 Performance profiling and improvements (ongoing)
 
@@ -74,14 +82,15 @@
 ## Known Issues
 - WiFi card wildly inconsistent
 - Bug in Drawer with profile picture not displaying
+- ~~Fixed settings modal bug~~ (Resolved March 28, 2025 - `9b12208`)
 
 ### Performance
 - 3ms to open the app (too slow)
 - Some UI components could be optimized for better performance
   - Modals mainly
 - Routing between screens tad slow, Expo router issue
-- ~~Slow wallpaper switching during onboarding~~ (Resolved March 28, 2025)
-- ~~Inconsistent wallpaper display on landing page~~ (Improved March 28, 2025)
+- ~~Slow wallpaper switching during onboarding~~ (Resolved March 28, 2025 - `1459baa`)
+- ~~Inconsistent wallpaper display on landing page~~ (Improved March 28, 2025 - `1459baa`)
 
 ### Cross-Platform
 - Minor UI inconsistencies between platforms, speceficaly Web & iOs

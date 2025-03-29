@@ -11,6 +11,7 @@
 ### State Management
 - **Zustand**: Lightweight state management library
 - **AsyncStorage**: Persistent storage solution for React Native
+- **WallpaperStore**: Zustand store for managing wallpaper state and caching (March 28, 2025 - `1459baa`)
 
 ### Desktop/Web Support
 - **Electron**: Framework for desktop applications
@@ -38,6 +39,8 @@
 - React Native components for UI elements
 - Navigation libraries for app routing
 - Date/time manipulation libraries
+- **`expo-file-system`**: Used for native wallpaper caching (March 28, 2025 - `1459baa`)
+- **Removed (March 28, 2025 - `1459baa`, `1508286`):** `expo-av`, `expo-network`, `expo-sharing`, `expo-video`, `react-native-figma-squircle`, `react-native-progress`, `react-circular-progressbar`
 
 ## Deployment Targets
 
@@ -48,6 +51,9 @@
 ### Desktop/Web
 - Electron packaged applications
 - Web browser deployment
+    - Deployed via Vercel (March 28, 2025)
+    - Includes Vercel Analytics and Speed Insights (March 28, 2025 - `9e23284`, `f1136a2`)
+    - Configured CORS proxy via Vercel function (`api/proxy/[[...path]].ts`) (March 28, 2025 - `b2d9f76`, `73f4091`)
 
 ## Technical Constraints
 
@@ -57,7 +63,7 @@
 
 ### Performance
 - Optimizing for mobile devices with limited resources
-- Reducing bundle size and dependencies
+- Reducing bundle size and dependencies (completed initial pass March 28, 2025 - `1459baa`, `1508286`)
 
 ### Data Storage
 - Local-first approach with AsyncStorage

@@ -3,28 +3,7 @@ import { persist } from 'zustand/middleware'
 import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
-
-export type TaskPriority = 'high' | 'medium' | 'low'
-export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
-export type RecurrencePattern = 'one-time' | 'tomorrow' | 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
-export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
-
-export interface Task {
-  id: string
-  name: string
-  schedule: WeekDay[]
-  time?: string
-  priority: TaskPriority
-  category: TaskCategory
-  completed: boolean
-  completionHistory: Record<string, boolean>
-  createdAt: string
-  updatedAt: string
-  scheduledDate?: string
-  recurrencePattern: RecurrencePattern
-  recurrenceDate?: string
-  showInCalendar?: boolean
-}
+import { Task, WeekDay } from '@/types/task'
 
 interface ProjectStore {
   tasks: Record<string, Task>
@@ -82,7 +61,7 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     case 'yearly': {
       const recMonth = fallbackRecDate.getMonth()
       const recDay = fallbackRecDate.getDate()
-      return (date.getMonth() === recMonth && date.getDate() === recDay) || task.schedule.includes(today)
+      return (date.getMonth() === recMonth && date.getDate() === recDay)
     }
     default:
       return false

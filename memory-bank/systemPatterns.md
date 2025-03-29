@@ -22,12 +22,13 @@ flowchart TD
 
 ### State Management
 - **Zustand**: Used for global state management across the application
-- **Store Pattern**: Separate stores for different domains (BillStore, CalendarStore, PortfolioStore, etc.)
+- **Store Pattern**: Separate stores for different domains (BillStore, CalendarStore, PortfolioStore, WallpaperStore, etc.)
 - **AsyncStorage**: Persistent storage for app data with synchronization capabilities
 
 ### Component Architecture
 - **Functional Components**: React functional components with hooks
 - **Component Composition**: Building complex UIs from smaller, reusable components
+- **Shared Components**: Extraction of common UI elements (e.g., `DebouncedInput` in `components/shared/`) for reusability
 - **Theming**: Theme-aware components that adapt to user preferences
 
 ### Navigation
@@ -52,11 +53,12 @@ flowchart TD
 - AsyncStorage for persistent data across app restarts
 - Structured data models for different domains (bills, calendar events, contacts)
 - **Wallpaper Caching:**
-    - Wallpapers are preloaded during onboarding (`components/wpPreload.tsx`) using `Promise.all` for parallel downloads.
+    - Wallpapers are preloaded during onboarding (`components/wpPreload.tsx`) and cached via `WallpaperStore`
     - `store/WallpaperStore.ts` manages the cache.
     - **Native:** Uses `expo-file-system` to download and store wallpapers locally in the cache directory (`FileSystem.cacheDirectory + 'wallpapers/'`). Checks for existing files before downloading.
     - **Web:** Stores the remote S3 URI directly in the Zustand store cache.
-    - Components (`BackgroundSection.tsx`, `onboarding/step3.tsx`) retrieve the appropriate URI (local file or remote) from the store cache.
+    - Components (`BackgroundSection.tsx`, `onboarding/step3.tsx`, `SettingsModal.tsx`) retrieve the appropriate URI (local file or remote) from the store cache.
+    - Cache clearing logic in the store ensures the `currentWallpaper` is always retained.
 
 ### External Services
 - Weather API integration for current conditions

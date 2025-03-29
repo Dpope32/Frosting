@@ -1,5 +1,4 @@
-
-import { type Task, type TaskPriority, type TaskCategory, type WeekDay, type RecurrencePattern } from '@/store/ToDo'
+import { Task, TaskPriority, TaskCategory, WeekDay, RecurrencePattern } from '@/types/task'
 
 export const WEEKDAYS: Record<string, WeekDay> = {
   sun: 'sunday',
