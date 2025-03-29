@@ -85,8 +85,13 @@ export default function Onboarding() {
       }
       
     } else if (step === 5) {
+      // Set preferences first
       setPreferences({ ...formData, hasCompletedOnboarding: true })
-      router.replace('/(drawer)/(tabs)' as const)
+      
+      // Add a small delay before navigation to ensure state updates are complete
+      setTimeout(() => {
+        router.replace('/(drawer)/(tabs)' as const)
+      }, 100)
     } else {
       setStep((prev) => prev + 1)
     }

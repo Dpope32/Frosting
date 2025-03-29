@@ -31,6 +31,19 @@ export function LandingPage() {
   const deleteTask = useProjectStore(useCallback((s) => s.deleteTask, []))
   const projectHydrated = useStoreHydrated()
   const todaysTasks = useProjectStore(useCallback((s) => s.todaysTasks, []))
+  // Add a mounted state to delay modal rendering
+  const [isMounted, setIsMounted] = useState(false)
+  
+  // Delay mounting of modals to prevent focus issues during navigation
+  React.useEffect(() => {
+    // Use a small timeout to ensure component is fully mounted before rendering modals
+    const timer = setTimeout(() => {
+      setIsMounted(true)
+    }, 500)
+    
+    return () => clearTimeout(timer)
+  }, [])
+  
   if (!userHydrated || !projectHydrated) {
     return (
       <Stack flex={1} backgroundColor="black" alignItems="center" justifyContent="center">
@@ -104,13 +117,18 @@ export function LandingPage() {
 
         </YStack>
       </ScrollView>
-      <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
-      <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
-      <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
-      <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
-      <WifiModal  open={wifiModalOpen}  onOpenChange={setWifiModalOpen}/>
-      {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
-      {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
+      {/* Only render modals after component is fully mounted */}
+      {isMounted && (
+        <>
+          <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
+          <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
+          <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
+          <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
+          <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
+          {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
+          {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
+        </>
+      )}
     </Stack>
   )
 }
