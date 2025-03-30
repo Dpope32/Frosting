@@ -126,8 +126,8 @@ export const BackgroundSection = () => {
           return (
             <Stack position="absolute" width="100%" height="100%">
               <Image
-                key={selectedStyle} 
-                source={wallpaperSource} 
+                key={selectedStyle}
+                source={wallpaperSource}
                 style={{
                   position: 'absolute',
                   width: '100%',
@@ -143,7 +143,7 @@ export const BackgroundSection = () => {
               {Platform.OS !== 'web' && (
                 <BlurView
                   intensity={isDark ? 40 : 20}
-                  tint="dark" 
+                  tint="dark"
                   style={{
                     position: 'absolute',
                     width: '100%',

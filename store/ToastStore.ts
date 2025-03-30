@@ -7,7 +7,7 @@ export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-
 
 interface ToastOptions {
   duration?: number
-  fontFamily?: string
+  fontFamily?: GetThemeValueForKey<'fontFamily'>
   position?: ToastPosition
 }
 
@@ -16,7 +16,7 @@ interface Toast {
   message: string
   type: ToastType
   duration: number
-  fontFamily: string
+  fontFamily: GetThemeValueForKey<'fontFamily'>
   position: ToastPosition
   createdAt: number
 }
@@ -29,7 +29,7 @@ interface ToastStore {
 }
 
 const DEFAULT_DURATION = 3000
-const DEFAULT_FONT_FAMILY = "$body"
+const DEFAULT_FONT_FAMILY = "$body" as GetThemeValueForKey<'fontFamily'>
 const DEFAULT_POSITION = "top-right"
 
 export const useToastStore = create<ToastStore>((set) => ({

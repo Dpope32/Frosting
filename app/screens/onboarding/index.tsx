@@ -60,42 +60,41 @@ export default function Onboarding() {
     }
   }, [step, wallpapersPreloaded]);
 
-  const handleNext = async () => {
-    if (step === -2) { 
-      setStep(0);
-    } else if (step === -1) { 
-      setStep(0);
-      await markPermissionsAsExplained();
-    } else if (step === 0) { 
-      if (Platform.OS === 'web') {
-        if (formData.username.length < 2) {
-          showToast('Username must be at least 2 characters long.')
-          return
-        }
-        setStep(1);
-      } else {
-        const permissions = await requestPermissionsWithDelay(1000);
-        await setupPermissionsAndNotifications(permissions);
-        if (formData.username.length < 2) {
-          showToast('Username must be at least 2 characters long.')
-          return
-        }
-        // After permissions are handled, move to step 1
-        setStep(1);
+const handleNext = async () => {
+  if (step === -2) { 
+    setStep(0);
+  } else if (step === -1) { 
+    setStep(0);
+    await markPermissionsAsExplained();
+  } else if (step === 0) { 
+    if (Platform.OS === 'web') {
+      if (formData.username.length < 2) {
+        showToast('Username must be at least 2 characters long.')
+        return
       }
-      
-    } else if (step === 5) {
-      // Set preferences first
-      setPreferences({ ...formData, hasCompletedOnboarding: true })
-      
-      // Add a small delay before navigation to ensure state updates are complete
-      setTimeout(() => {
-        router.replace('/(drawer)/(tabs)' as const)
-      }, 100)
+      setStep(1);
     } else {
-      setStep((prev) => prev + 1)
+      const permissions = await requestPermissionsWithDelay(1000);
+      await setupPermissionsAndNotifications(permissions);
+      if (formData.username.length < 2) {
+        showToast('Username must be at least 2 characters long.')
+        return
+      }
+      // After permissions are handled, move to step 1
+      setStep(1);
     }
+  } else if (step === 5) {
+    // Fix: Update state first, then navigate with a slight delay
+    setPreferences({ ...formData, hasCompletedOnboarding: true })
+    
+    // Add a small delay before navigation to allow state to update fully
+    setTimeout(() => {
+      router.replace('/(drawer)/(tabs)')
+    }, 100)
+  } else {
+    setStep((prev) => prev + 1)
   }
+}
 
   const handleBack = () => {
     setStep((prev) => prev - 1)
@@ -130,15 +129,15 @@ export default function Onboarding() {
 
   const renderStep = () => {
     switch (step) {
-      case -2: // Add case for the new Welcome screen
+      case -2:
         return (
           <WelcomeScreen onComplete={handleNext} />
         )
-      case -1: // Permissions screen (native only start)
+      case -1: 
         return (
           <PermissionsScreen isDark={isDark}/>
         )
-      case 0: // Username screen
+      case 0: 
         return (
           <Step0
             formData={formData}

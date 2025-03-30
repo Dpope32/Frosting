@@ -25,7 +25,7 @@ export function YearCompleteSection() {
     };
   }, []);
 
-  // Only show on mobile
+
   if (Platform.OS === 'web') {
     return null;
   }
@@ -38,9 +38,7 @@ export function YearCompleteSection() {
       px="$3"
       py="$3"
     >
-      {/* Progress bar container - Increased height, removed bg/border, removed margin */}
       <Stack width="100%" height={40} br={12} overflow="hidden">
-        {/* Gradient fill container */}
         <Stack 
           position="absolute" 
           left={0} 
@@ -49,7 +47,6 @@ export function YearCompleteSection() {
           width={`${percentage}%`} 
           overflow="hidden"
         >
-          {/* Gradient that's stretched across what would be the full bar - Simplified nesting */}
           <Stack width={`${100 / (percentage / 100)}%`} height="100%">
             <LinearGradient
               colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#e53935', '#8e2de2']}
@@ -60,7 +57,6 @@ export function YearCompleteSection() {
           </Stack>
         </Stack>
         
-        {/* Text layer - using flexbox for perfect centering */}
         <Stack 
           width="100%" 
           height="100%" 

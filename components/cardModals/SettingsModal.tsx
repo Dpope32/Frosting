@@ -119,10 +119,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     notificationsEnabled: preferences.notificationsEnabled,
     quoteEnabled: preferences.quoteEnabled ?? false,
   })
-  const sheetFrameStyle = useMemo(
-    () => (isWeb ? { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } : {}),
-    [isWeb]
-  )
   const filteredBackgroundStyles = useMemo(() => {
     if (!isWeb || wallpapersToShow >= backgroundStyles.length) return backgroundStyles
     return backgroundStyles.slice(0, wallpapersToShow)

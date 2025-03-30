@@ -71,13 +71,11 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
           {isWeb && (
             <Image
               source={require('@/assets/images/icon.png')}
-              // @ts-ignore - Tamagui types might not fully cover RNW style props
               style={[iconStyle, { position: 'absolute', left: -90 }]}
             />
           )}
         </XStack>
 
-        {/* Bullet Points */}
         <YStack gap="$3" alignSelf="stretch" paddingHorizontal="$4">
            <XStack gap="$3" alignItems="center">
              <Text color={bulletColor} fontSize="$5" marginTop={0}>•</Text>
@@ -94,7 +92,6 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
         </YStack>
       </YStack>
 
-      {/* Continue Button */}
       <Button
         size="$5"
         onPress={onComplete}

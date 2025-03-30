@@ -180,6 +180,16 @@ export default function DrawerLayout() {
         restSpeedThreshold: 0.01,
       };
     
+      options.drawerOpeningAnimation = {
+        type: 'spring',
+        stiffness: 1000,
+        damping: 70,
+        mass: 1,
+        overshootClamping: false,
+        restDisplacementThreshold: 0.01,
+        restSpeedThreshold: 0.01,
+      };
+
     return options;
   }, [backgroundColor, drawerWidth, borderColor, isPermanentDrawer, inactiveColor, isDark, primaryColor, isIpadDevice]);
 

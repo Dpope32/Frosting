@@ -44,9 +44,9 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         setIsSubmitting(false)
       }, 200)
     } else {
-      setTimeout(() => {
-        inputRef.current?.focus()
-      }, 50)
+      // setTimeout(() => {
+      //   inputRef.current?.focus() // Removed auto-focus to prevent crash on transition
+      // }, 50)
     }
   }, [open])
 
@@ -150,7 +150,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         >
         <Form gap="$4" onSubmit={handleAddTask}>
           <DebouncedInput
-            ref={inputRef}
+            // ref={inputRef} // Temporarily removed ref to test crash theory
             placeholder="Enter task name"
             value={newTask.name}
             onDebouncedChange={handleTextChange}

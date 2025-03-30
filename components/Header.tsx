@@ -147,7 +147,6 @@ export function Header({ title }: HeaderProps) {
               {!isWeb && (
                 <Pressable 
                   onPress={() => {
-                    // Trigger haptic feedback on non-web platforms
                     if (Platform.OS !== 'web') {
                       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                     }

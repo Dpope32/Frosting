@@ -82,7 +82,7 @@ export function LandingPage() {
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
-      <StarsAnimation />
+     <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <YStack paddingTop={Platform.OS === 'web' ? 10 : 105} gap="$3">
           <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={Platform.OS === 'web' ? { boxShadow: isDark ? '0px 0px 10px rgba(255, 255, 255, 0.05)' : '0px 0px 10px rgba(0, 0, 0, 0.05)' } : { shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
