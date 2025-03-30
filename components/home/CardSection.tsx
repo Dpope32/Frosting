@@ -1,6 +1,6 @@
 import React from 'react'
-import { Platform, Pressable } from 'react-native'
-import { XStack } from 'tamagui'
+import { Pressable } from 'react-native'
+import { XStack, isWeb } from 'tamagui'
 import { PortfolioCard } from '@/components/home/cards/PortfolioCard'
 import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
@@ -13,7 +13,6 @@ interface CardSectionProps {
   onQuotePress: () => void
   onWifiPress: () => void
 }
-const isWeb = Platform.OS === 'web';
 
 export const CardSection = ({ onPortfolioPress, onTemperaturePress, onQuotePress, onWifiPress }: CardSectionProps) => {
   const { preferences } = useUserStore()
@@ -23,14 +22,7 @@ export const CardSection = ({ onPortfolioPress, onTemperaturePress, onQuotePress
   const quoteEnabled = preferences.quoteEnabled ?? true
   
   return (
-    <XStack 
-      ml="$3"
-      gap={isWeb ? "$2" : "$0"} 
-      flexWrap="nowrap" 
-      justifyContent="flex-start"
-      alignItems={isWeb ? "flex-start" : "center"} 
-      paddingHorizontal={isWeb ? "$1" : "$0"}
-    >
+    <XStack ml="$3" gap={isWeb ? "$2" : "$0"} flexWrap="nowrap" justifyContent="flex-start" alignItems={isWeb ? "flex-start" : "center"}  paddingHorizontal={isWeb ? "$1" : "$0"}>
       {portfolioEnabled && (
         <Pressable onPress={onPortfolioPress}>
           <PortfolioCard roundToWholeNumber={true} />
@@ -42,22 +34,12 @@ export const CardSection = ({ onPortfolioPress, onTemperaturePress, onQuotePress
         </Pressable>
       )}
       {wifiEnabled && (
-        <Pressable 
-          onPress={onWifiPress}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.7 : 1
-          })}
-        >
+        <Pressable  onPress={onWifiPress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
           <WifiCard />
         </Pressable>
       )}
       {quoteEnabled && (
-        <Pressable 
-          onPress={onQuotePress}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.7 : 1
-          })}
-        >
+        <Pressable  onPress={onQuotePress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
           <QuoteCard />
         </Pressable>
       )}
