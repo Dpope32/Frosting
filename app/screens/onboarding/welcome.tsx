@@ -1,15 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { YStack, H1, Text, Button, Image, isWeb, XStack } from 'tamagui';
-import { useColorScheme } from '@/hooks/useColorScheme'; 
 
 export default function WelcomeScreen({ onComplete }: { onComplete: () => void }) {
-  const colorScheme = useColorScheme(); 
-  const isDark = colorScheme === 'dark'; 
-  const textColor = isDark ? '$gray12Dark' : '$gray12Light';
-  const bulletColor = isDark ? '$gray11Dark' : '$gray11Light'; 
-  const buttonTextColor = isDark ? '$gray1Dark' : '$gray1Light'; 
-  const buttonBackgroundColor = isDark ? '$blue9Dark' : '$blue9Light';
-
   const [rotation, setRotation] = useState(0);
   const targetRotation = useRef(0);
   const animationRef = useRef<number>();
@@ -65,7 +57,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
     <YStack flex={1} justifyContent="space-between" alignItems="center" padding="$6" paddingTop="$16" gap="$5">
       <YStack alignItems="center" gap="$6" width="100%" maxWidth={600}>
         <XStack position="relative" width="100%" justifyContent="center">
-          <H1 textAlign="center" color={textColor} fontFamily="$heading" fontSize={isWeb ? "$10" : "$8"}>
+          <H1 textAlign="center" color="$onboardingLabel" fontFamily="$heading" fontSize={isWeb ? "$10" : "$8"}>
             Kaiba Nexus
           </H1>
           {isWeb && (
@@ -78,25 +70,69 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
 
         <YStack gap="$3" alignSelf="stretch" paddingHorizontal="$4">
            <XStack gap="$3" alignItems="center">
-             <Text color={bulletColor} fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color={textColor} fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
                Your data stays safe and private, stored directly on your device right here in your browser.
              </Text>
            </XStack>
            <XStack gap="$3" alignItems="center">
-             <Text color={bulletColor} fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color={textColor} fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
                We don't use servers to collect your personal information.
              </Text>
            </XStack>
+           <XStack gap="$3" alignItems="center">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+               A feature-rich personal dashboard app built with React Native and Expo
+             </Text>
+           </XStack>
+           <XStack gap="$3" alignItems="center">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+               Task Management: Track recurring and one-time tasks
+             </Text>
+           </XStack>
+           <XStack gap="$3" alignItems="center">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+               Calendar: Track birthdays, bills, events, and NBA schedules
+             </Text>
+           </XStack>
+           <XStack gap="$3" alignItems="center">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+               CRM: Manage contacts with payment methods, addresses, etc.
+             </Text>
+           </XStack>
+           <XStack gap="$3" alignItems="center">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+               Password Vault: Securely store passwords locally
+             </Text>
+           </XStack>
+           <XStack gap="$3" alignItems="center">
+             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
+             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
+               Finance Tracking: Monitor portfolio with real-time stock updates
+             </Text>
+           </XStack>
         </YStack>
+
+        {isWeb && (
+          <Image
+            source={require('@/assets/screenshots/HomeScreenWebLoaded.png')}
+            style={{ width: '100%', maxWidth: 800, borderRadius: 12, marginVertical: 20 }}
+            resizeMode="contain"
+          />
+        )}
       </YStack>
 
       <Button
         size="$5"
         onPress={onComplete}
-        backgroundColor={buttonBackgroundColor}
-        color={buttonTextColor}
+        backgroundColor="$onboardingWelcomeButtonBackground"
+        color="$onboardingWelcomeButtonText"
         width="100%"
         maxWidth={300}
         alignSelf="center"

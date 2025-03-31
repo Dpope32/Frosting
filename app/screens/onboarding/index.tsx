@@ -5,7 +5,7 @@ import { useImagePicker } from '@/hooks/useImagePicker'
 import { router } from 'expo-router'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore'
-import { colorOptions } from '@/constants/Colors'
+import { colorOptions } from '@/constants/Colors' 
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types'
 import { preloadWallpapers } from '../../../components/wpPreload'
@@ -25,7 +25,7 @@ import Step5 from './step5'
 export default function Onboarding() {
   const [step, setStep] = useState(isWeb ? -2 : -1)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme(); 
   const { showToast } = useToastStore();
   const isDark = colorScheme === 'dark';
   const [formData, setFormData] = useState<FormData>({
@@ -53,7 +53,6 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (step >= 0 && !wallpapersPreloaded) {
-      // Start preloading silently in background
       preloadWallpapers(() => {
         setWallpapersPreloaded(true);
       });
@@ -80,14 +79,10 @@ const handleNext = async () => {
         showToast('Username must be at least 2 characters long.')
         return
       }
-      // After permissions are handled, move to step 1
       setStep(1);
     }
   } else if (step === 5) {
-    // Fix: Update state first, then navigate with a slight delay
     setPreferences({ ...formData, hasCompletedOnboarding: true })
-    
-    // Add a small delay before navigation to allow state to update fully
     setTimeout(() => {
       router.replace('/(drawer)/(tabs)')
     }, 100)
@@ -102,7 +97,7 @@ const handleNext = async () => {
 
   const canProceed = () => {
     switch (step) {
-      case -1: // Permissions screen
+      case -1: 
         return true
       case 0:
         return formData.username.length >= 2
@@ -135,14 +130,13 @@ const handleNext = async () => {
         )
       case -1: 
         return (
-          <PermissionsScreen isDark={isDark}/>
+          <PermissionsScreen isDark={isDark}/> 
         )
       case 0: 
         return (
           <Step0
             formData={formData}
             setFormData={setFormData}
-            isDark={isDark}
           />
         )
       case 1:
@@ -152,7 +146,6 @@ const handleNext = async () => {
             setFormData={setFormData}
             pickImage={pickImage}
             handleNext={handleNext}
-            isDark={isDark}
           />
         )
       case 2:
@@ -170,7 +163,6 @@ const handleNext = async () => {
             setFormData={setFormData}
             backgroundStyles={[...backgroundStyles]}
             getWallpaperPath={getWallpaperPath}
-            isDark={isDark}
           />
         )
       case 4:
@@ -179,7 +171,6 @@ const handleNext = async () => {
             formData={formData}
             setFormData={setFormData}
             handleNext={handleNext}
-            isDark={isDark}
           />
         )
       case 5:
@@ -188,7 +179,6 @@ const handleNext = async () => {
             formData={formData}
             setFormData={setFormData}
             handleNext={handleNext}
-            isDark={isDark}
           />
         )
       default:
@@ -196,26 +186,16 @@ const handleNext = async () => {
     }
   }
 
-  // Dynamic theme styles
-  const backgroundColor = isDark ? "$gray1Dark" : "$gray2Light"; // Less white background for light mode
-  const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
-  const buttonBackgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
-  const buttonBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
-  const buttonTextColor = isDark ? "$gray12Dark" : "$gray12Light";
-  
-  // Determine button color based on step
+
   const getButtonColor = () => {
-    // For steps 0 and 1, use a darker default color in light mode for better text contrast
     if (step < 2 && !isDark) {
-      return "$blue9"; // Darker blue for better contrast with white text
+      return '$blue9';
     }
-    return formData.primaryColor;
+    return formData.primaryColor || '$onboardingButtonPrimary'; 
   }
   
-  // Determine button text color based on step and theme
   const getButtonTextColor = () => {
-    // Always ensure good contrast
-    return isDark ? "white" : (step < 2 ? "white" : "#fff");
+    return 'white'; 
   }
 
   return (
@@ -224,7 +204,7 @@ const handleNext = async () => {
       style={{ flex: 1 }}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <View flex={1} backgroundColor={backgroundColor}>
+      <View flex={1} backgroundColor="$onboardingIndexBackground"> 
         {Platform.OS === 'ios' || Platform.OS === 'android' ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View flex={1}>
@@ -236,26 +216,25 @@ const handleNext = async () => {
                 right={0}
                 padding="$4"
                 paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
-                backgroundColor={isDark ? "$gray1Dark" : "$gray3Light"}
-                style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: borderColor}}>
+                backgroundColor="$onboardingIndexBackground" 
+                style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: '$onboardingIndexBorder'}}> 
               <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
-                {/* Back button shown after step -1 on native */}
                 {step > -1 && (
                   <Button
                     flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
                     width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
                     variant="outlined"
                     onPress={handleBack}
-                    backgroundColor={buttonBackgroundColor}
-                    borderColor={buttonBorderColor}>
-                    <Text fontFamily="$body" color={buttonTextColor}>Back</Text>
+                    backgroundColor="$onboardingIndexButtonBackground" 
+                    borderColor="$onboardingIndexButtonBorder"> 
+                    <Text fontFamily="$body" color="$onboardingIndexButtonText">Back</Text> 
                   </Button>
                 )}
                 <Button
                   flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
                   width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
-                  backgroundColor={getButtonColor()}
-                  borderColor={buttonBorderColor}
+                  backgroundColor={getButtonColor()} 
+                  borderColor="$onboardingIndexButtonBorder" 
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}
@@ -278,24 +257,23 @@ const handleNext = async () => {
               right={0}
               padding="$4"
               paddingBottom={24}
-              backgroundColor={backgroundColor}
-              style={{ borderTopWidth: 1, borderTopColor: borderColor}}>
+              backgroundColor="$onboardingIndexBackground" 
+              style={{ borderTopWidth: 1, borderTopColor: '$onboardingIndexBorder'}}> 
               <XStack gap="$3" justifyContent="center">
-                 {/* Adjust back button visibility based on platform and step */}
                 {(Platform.OS === 'web' ? step > -2 : step > -1) && (
                   <Button
                     width={145}
                     variant="outlined"
                     onPress={handleBack}
-                    backgroundColor={buttonBackgroundColor}
-                    borderColor={buttonBorderColor}>
-                    <Text fontFamily="$body" color={buttonTextColor}>Back</Text>
+                    backgroundColor="$onboardingIndexButtonBackground" 
+                    borderColor="$onboardingIndexButtonBorder"> 
+                    <Text fontFamily="$body" color="$onboardingIndexButtonText">Back</Text> 
                   </Button>
                 )}
                 <Button
                   width={300}
-                  backgroundColor={getButtonColor()}
-                  borderColor={buttonBorderColor}
+                  backgroundColor={getButtonColor()} 
+                  borderColor="$onboardingIndexButtonBorder" 
                   borderWidth={1}
                   opacity={!canProceed() ? 0.5 : 1}
                   disabled={!canProceed()}

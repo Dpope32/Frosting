@@ -38,7 +38,6 @@ class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      // You can render any custom fallback UI
       return (
         <View style={styles.container}>
           <Text style={styles.title}>Oops! Something went wrong.</Text>

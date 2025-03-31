@@ -7,6 +7,7 @@
 - **Expo**: Development platform for React Native, simplifying builds and deployment
 - **Tamagui**: UI component library for cross-platform styling
 - **Expo Router**: File-based routing system
+- **StarsBackground**: Reusable animation component (`components/shared/StarsBackground.tsx`) implementing platform-specific star animations (native: Reanimated, web: CSS animations) while maintaining consistent visual effects across platforms (March 31, 2025)
 
 ### State Management
 - **Zustand**: Lightweight state management library

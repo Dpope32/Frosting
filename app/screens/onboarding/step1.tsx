@@ -3,47 +3,37 @@ import { YStack, Text, Button, Circle, Label, isWeb } from 'tamagui'
 import { Image } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store/UserStore'
-import { Ionicons } from '@expo/vector-icons'
 
 export default function Step1({
   formData,
   setFormData,
   pickImage,
   handleNext,
-  isDark = true, 
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   pickImage: () => void
   handleNext: () => void
-  isDark?: boolean
 }) {
 
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const borderColor = isDark ? "$gray8Dark" : "$gray8Light";
-  const backgroundColor = isDark ? "$gray4Dark" : "$gray4Light";
-  const hoverBackgroundColor = isDark ? "$gray5Dark" : "$gray5Light";
-  const circleBackgroundColor = isDark ? "$gray6Dark" : "$gray6Light";
-  const textColor = isDark ? "$gray9Dark" : "$gray9Light";
-  const buttonColor = isDark ? "$blue10Dark" : "$blue10Light";
   const defaultIcon = { icon: '👤', label: 'Default User' };
 
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$2" alignItems="center">
-        <Label fontFamily="$heading"  fontWeight={isWeb ? 500 : 800}  fontSize={isWeb ? "$9" : "$8"} textAlign="center" paddingBottom={16} color={labelColor}>
+        <Label fontFamily="$heading"  fontWeight={isWeb ? 500 : 800}  fontSize={isWeb ? "$9" : "$8"} textAlign="center" paddingBottom={16} color="$onboardingLabel">
           Profile Picture
         </Label>
         <Circle
           size={180}
           borderWidth={2}
-          borderColor={borderColor}
+          borderColor="$onboardingInputBorder"
           borderStyle="dashed"
-          backgroundColor={backgroundColor}
+          backgroundColor="$onboardingStep1Background"
           onPress={pickImage}
           pressStyle={{
             scale: 0.98,
-            backgroundColor: hoverBackgroundColor,
+            backgroundColor: '$onboardingStep1HoverBackground',
           }}
           {...(isWeb && {
             style: {
@@ -59,10 +49,10 @@ export default function Step1({
             />
           ) : (
             <YStack alignItems="center" gap="$2">
-              <Circle size={60} backgroundColor={circleBackgroundColor}>
+              <Circle size={60} backgroundColor="$onboardingStep1CircleBackground">
                 <Text fontFamily="$body" fontSize={24}>{defaultIcon.icon}</Text>
               </Circle>
-              <Text color={textColor} fontFamily="$heading" fontWeight="700">
+              <Text color="$onboardingSubText" fontFamily="$heading" fontWeight="700">
                 Pick Photo
               </Text>
             </YStack>
@@ -81,7 +71,7 @@ export default function Step1({
             });
             handleNext();
           }}
-          color={buttonColor}
+          color="$onboardingButtonPrimary"
           mt="$1"
         >
           Or skip for now

@@ -1,9 +1,42 @@
-import { createTamagui, createFont } from 'tamagui'
+import { createTamagui, createFont, createVariable } from 'tamagui'
 import { createInterFont } from '@tamagui/font-inter'
 import { shorthands } from '@tamagui/shorthands'
-import { themes, tokens } from '@tamagui/themes'
+import { themes, tokens as baseTokens } from '@tamagui/themes' 
 import { createAnimations } from '@tamagui/animations-react-native'
 import { createMedia } from '@tamagui/react-native-media-driver'
+
+const customColorTokenNames = {
+  onboardingLabel: true,
+  onboardingSubText: true,
+  onboardingInputBackground: true,
+  onboardingInputBorder: true,
+  onboardingInputText: true,
+  onboardingPlaceholder: true,
+  onboardingButtonPrimary: true,
+  onboardingButtonSecondaryBackground: true, 
+  onboardingButtonSecondaryBorder: true, 
+  onboardingButtonSecondaryText: true,
+  onboardingWelcomeButtonBackground: true,
+  onboardingWelcomeButtonText: true,
+  onboardingStep1Background: true,
+  onboardingStep1HoverBackground: true,
+  onboardingStep1CircleBackground: true,
+  onboardingIndexBackground: true, 
+  onboardingIndexBorder: true, 
+  onboardingIndexButtonBackground: true,
+  onboardingIndexButtonBorder: true,
+  onboardingIndexButtonText: true,
+  onboardingCardBackground: true, 
+  onboardingError: true,
+};
+
+const mergedTokens = {
+  ...baseTokens,
+  color: {
+    ...baseTokens.color,
+    ...Object.fromEntries(Object.keys(customColorTokenNames).map(k => [k, createVariable({ key: k, name: k, val: '' })])), 
+  },
+};
 
 const animations = createAnimations({
   bouncy: {
@@ -100,8 +133,59 @@ const config = createTamagui({
       }
     }),
   },
-  themes,
-  tokens,
+  themes: {
+    dark: {
+      ...themes.dark,
+      onboardingLabel: baseTokens.color.gray12Dark.val,
+      onboardingSubText: baseTokens.color.gray9Dark.val,
+      onboardingInputBackground: baseTokens.color.gray2Dark.val,
+      onboardingInputBorder: baseTokens.color.gray8Dark.val,
+      onboardingInputText: baseTokens.color.gray12Dark.val,
+      onboardingPlaceholder: baseTokens.color.gray8Dark.val,
+      onboardingButtonPrimary: baseTokens.color.blue10Dark.val,
+      onboardingButtonSecondaryBackground: 'rgba(255, 255, 255, 0.08)',
+      onboardingButtonSecondaryBorder: 'rgba(255, 255, 255, 0.15)',
+      onboardingButtonSecondaryText: baseTokens.color.gray11Dark.val,
+      onboardingWelcomeButtonBackground: baseTokens.color.blue9Dark.val,
+      onboardingWelcomeButtonText: baseTokens.color.gray1Dark.val,
+      onboardingStep1Background: baseTokens.color.gray4Dark.val,
+      onboardingStep1HoverBackground: baseTokens.color.gray5Dark.val,
+      onboardingStep1CircleBackground: baseTokens.color.gray6Dark.val,
+      onboardingIndexBackground: baseTokens.color.gray1Dark.val,
+      onboardingIndexBorder: 'rgba(255,255,255,0.1)',
+      onboardingIndexButtonBackground: baseTokens.color.gray4Dark.val,
+      onboardingIndexButtonBorder: baseTokens.color.gray8Dark.val,
+      onboardingIndexButtonText: baseTokens.color.gray12Dark.val,
+      onboardingCardBackground: 'rgba(0, 0, 0, 0.4)',
+      onboardingError: baseTokens.color.red9Dark.val,
+    },
+    light: {
+      ...themes.light,
+      onboardingLabel: baseTokens.color.gray12Light.val,
+      onboardingSubText: baseTokens.color.gray9Light.val,
+      onboardingInputBackground: baseTokens.color.gray2Light.val,
+      onboardingInputBorder: baseTokens.color.gray8Light.val,
+      onboardingInputText: baseTokens.color.gray12Light.val,
+      onboardingPlaceholder: baseTokens.color.gray8Light.val,
+      onboardingButtonPrimary: baseTokens.color.blue10Light.val,
+      onboardingButtonSecondaryBackground: 'rgba(0, 0, 0, 0.05)',
+      onboardingButtonSecondaryBorder: 'rgba(0, 0, 0, 0.1)',
+      onboardingButtonSecondaryText: baseTokens.color.gray11Light.val,
+      onboardingWelcomeButtonBackground: baseTokens.color.blue9Light.val,
+      onboardingWelcomeButtonText: baseTokens.color.gray1Light.val,
+      onboardingStep1Background: baseTokens.color.gray4Light.val,
+      onboardingStep1HoverBackground: baseTokens.color.gray5Light.val,
+      onboardingStep1CircleBackground: baseTokens.color.gray6Light.val,
+      onboardingIndexBackground: baseTokens.color.gray3Light.val, 
+      onboardingIndexBorder: 'rgba(0,0,0,0.1)',
+      onboardingIndexButtonBackground: baseTokens.color.gray4Light.val,
+      onboardingIndexButtonBorder: baseTokens.color.gray8Light.val,
+      onboardingIndexButtonText: baseTokens.color.gray12Light.val,
+      onboardingCardBackground: 'rgba(255, 255, 255, 0.4)',
+      onboardingError: baseTokens.color.red9Light.val, 
+    },
+  },
+  tokens: mergedTokens,
   animations,
   media: createMedia({
     xs: { maxWidth: 660 },

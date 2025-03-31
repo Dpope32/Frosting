@@ -170,7 +170,6 @@ export function TaskCard({
           </XStack>
 
           <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-6} mt={-4}>
-            {/* Category chip */}
             {category && (
               <XStack 
                 alignItems="center" 
@@ -197,7 +196,6 @@ export function TaskCard({
               </XStack>
             )}
 
-            {/* Priority chip */}
             {priority && (
               <XStack 
                 alignItems="center" 
@@ -223,8 +221,6 @@ export function TaskCard({
                 </Text>
               </XStack>
             )}
-
-            {/* Recurrence chip */}
             <XStack 
               alignItems="center" 
               backgroundColor={checked ? "rgba(0, 200, 81, 0.15)" : "rgba(33, 150, 243, 0.15)"}
@@ -249,7 +245,6 @@ export function TaskCard({
               </Text>
             </XStack>
 
-            {/* Time chip */}
             {time && (
               <XStack 
                 alignItems="center" 

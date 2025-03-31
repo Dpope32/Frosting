@@ -11,6 +11,7 @@
 - ✅ Theming and customization options
 - ✅ Extracted shared components (e.g., `DebouncedInput`) (March 28, 2025 - `1b1185b`)
 - ✅ Implemented `ErrorBoundary` component for global rendering error handling (March 30, 2025)
+- ✅ Extracted `StarsBackground` component from onboarding (March 31, 2025) - Reduced step3.tsx by ~150 lines while maintaining all animation functionality
 
 ### Feature Modules
 - ✅ Task Management

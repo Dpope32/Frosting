@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
-import { Image, useWindowDimensions } from 'react-native'
+import { Image, useWindowDimensions, useColorScheme } from 'react-native' // Add useColorScheme
 import { FormData } from '@/types'
 import { nbaTeams } from '@/constants/nba'
+// Removed getOnboardingColor import
 
 export default function Step5({
   formData,
   setFormData,
   handleNext,
-  isDark = true,
+  // Removed isDark prop
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
-  isDark?: boolean
 }) {
+  const colorScheme = useColorScheme(); // Keep for specific logic below
+  const isDark = colorScheme === 'dark'; // Keep for specific logic below
   const { width } = useWindowDimensions()
   const [showAllTeams, setShowAllTeams] = useState(isWeb)
   const selectedTeam = formData.favoriteNBATeam || ''
@@ -54,7 +56,7 @@ export default function Step5({
   useEffect(() => { if (isWeb) { setShowAllTeams(true)}}, [isWeb])
   
   const getGridColumns = () => {
-    if (!isWeb) return 2 // Use 2 columns for mobile instead of 3
+    if (!isWeb) return 2 
     if (width > 1200) return 6
     if (width > 900) return 5
     if (width > 600) return 4
@@ -62,20 +64,15 @@ export default function Step5({
   }
   const columns = getGridColumns()
   
-  // Style variables
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const buttonBackgroundColor = isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)";
-  const buttonBorderColor = isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)";
-  const buttonTextColor = isDark ? "$gray11Dark" : "$gray11Light";
-  const showAllTeamsButtonBackground = isDark ? "rgba(255, 255, 255, 0.00)" : "rgba(0, 0, 0, 0.00)";
-  const preferencesBackgroundColor = isDark ? "rgba(0, 0, 0, 0.0)" : "rgba(255, 255, 255, 0.0)";
-  const buttonColor = formData.primaryColor || (isDark ? "$blue10Dark" : "$blue10Light");
-  
-  // Mobile styles from the second file
-  const mobileButtonWidth = 140; // Wider buttons for mobile
+  const buttonColor = formData.primaryColor || '$onboardingButtonPrimary'; 
+  const showAllTeamsButtonBackground = "transparent"; 
+  const preferencesBackgroundColor = "transparent"; 
+  const switchBorderColor = isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)";
+
+  const mobileButtonWidth = 140;
   const mobileButtonHeight = 105;
   const mobileScrollMaxWidth = 600;
-  const mobileTopPadding = 20; // Less top padding for mobile
+  const mobileTopPadding = 20;
   
   return (
     <YStack 
@@ -100,7 +97,7 @@ export default function Step5({
           fontWeight={isWeb ? "500" : "800"} 
           fontSize={isWeb ? "$9" : "$8"} 
           textAlign="center" 
-          color={labelColor}
+          color="$onboardingLabel"
         >
           Follow your favorite NBA team
         </Label>
@@ -129,8 +126,8 @@ export default function Step5({
           {teamsToDisplay.map(team => (
             <Button
               key={team.code}
-              backgroundColor={selectedTeam === team.code ? buttonColor : buttonBackgroundColor}
-              borderColor={selectedTeam === team.code ? buttonColor : buttonBorderColor}
+              backgroundColor={selectedTeam === team.code ? buttonColor : "$onboardingButtonSecondaryBackground"}
+              borderColor={selectedTeam === team.code ? buttonColor : "$onboardingButtonSecondaryBorder"}
               borderWidth={2}
               br={isWeb ? 16 : 8} 
               marginVertical="$2"
@@ -139,7 +136,7 @@ export default function Step5({
               hoverStyle={{
                 backgroundColor: selectedTeam === team.code 
                   ? buttonColor 
-                  : isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                  : isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)', 
                 scale: 1.02
               }}
               pressStyle={{
@@ -173,7 +170,7 @@ export default function Step5({
               </YStack>
               <Text
                 fontFamily="$body"
-                color={selectedTeam === team.code ? (isDark ? 'white' : 'black') : buttonTextColor}
+                color={selectedTeam === team.code ? (isDark ? 'white' : 'black') : "$onboardingButtonSecondaryText"} 
                 textAlign="center"
                 fontSize={isWeb ? 12 : 12}
                 fontWeight={selectedTeam === team.code ? "600" : "400"}
@@ -194,8 +191,8 @@ export default function Step5({
             marginBottom="$4"
             size="$3"
             variant="outlined" 
-            backgroundColor={showAllTeamsButtonBackground}
-            borderColor={buttonBorderColor}
+            backgroundColor={showAllTeamsButtonBackground} 
+            borderColor="$onboardingButtonSecondaryBorder" 
             borderWidth={1}
             br={20}
             px="$4"
@@ -207,7 +204,7 @@ export default function Step5({
             }}
             onPress={() => setShowAllTeams(true)}
           >
-            <Text fontFamily="$body" color={buttonTextColor}>Show All Teams</Text>
+            <Text fontFamily="$body" color="$onboardingButtonSecondaryText">Show All Teams</Text> 
           </Button>
         )}
 
@@ -230,11 +227,11 @@ export default function Step5({
               >
                 <YStack 
                   flex={1} 
-                  backgroundColor={preferencesBackgroundColor}
+                  backgroundColor={preferencesBackgroundColor} 
                   br={16}
                   padding="$4"
                   borderWidth={2}
-                  borderColor={buttonColor}
+                  borderColor={buttonColor} 
                   style={{
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)'
@@ -246,41 +243,41 @@ export default function Step5({
                     <YStack>
                       <Text 
                         fontFamily="$heading" 
-                        color={labelColor} 
+                        color="$onboardingLabel" 
                         fontSize={16} 
                         fontWeight="600"
                       >
                         Show games in calendar?
                       </Text>
                     </YStack>
-                    <Switch 
-                      checked={showNBAGamesInCalendar} 
-                      onCheckedChange={handleToggleNBAGames}
-                      backgroundColor={showNBAGamesInCalendar ? buttonColor : (isDark ? "$gray8Dark" : "$gray8Light")}
-                      borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"}
-                    >
-                      <Switch.Thumb 
-                        animation="bouncy" 
-                        backgroundColor={isDark ? "$gray1Dark" : "$gray1Light"} 
-                      />
-                    </Switch>
-                  </XStack>
+                      <Switch 
+                        checked={showNBAGamesInCalendar} 
+                        onCheckedChange={handleToggleNBAGames}
+                        backgroundColor={showNBAGamesInCalendar ? buttonColor : "$onboardingInputBorder"} 
+                        borderColor={switchBorderColor}
+                      >
+                        <Switch.Thumb 
+                          animation="bouncy" 
+                          backgroundColor="$onboardingIndexBackground" 
+                        />
+                      </Switch>
+                    </XStack>
                 </YStack>
                 <Button 
                   variant="outlined" 
                   size="$3" 
                   onPress={handleSkip}
                   br={12}
-                  borderColor={buttonBorderColor}
-                  backgroundColor="transparent"
+                  borderColor="$onboardingButtonSecondaryBorder" 
+                  backgroundColor="transparent" 
                   hoverStyle={{
-                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)', 
                   }}
                   pressStyle={{
                     scale: 0.97
                   }}
                 >
-                  <Text fontFamily="$body" color={buttonTextColor}>or skip for now</Text>
+                  <Text fontFamily="$body" color="$onboardingButtonSecondaryText">or skip for now</Text> 
                 </Button>
               </XStack>
             ) : (
@@ -305,26 +302,26 @@ export default function Step5({
                     <YStack flex={1} marginRight="$3">
                       <Text 
                         fontFamily="$body" 
-                        color={labelColor} 
+                        color="$onboardingLabel"
                         fontSize={14} 
                         fontWeight="500"
                       >
                         Show games in calendar?
                       </Text>
                     </YStack>
-                    <Switch 
-                      checked={showNBAGamesInCalendar} 
-                      onCheckedChange={handleToggleNBAGames}
-                      backgroundColor={showNBAGamesInCalendar ? buttonColor : (isDark ? "$gray8Dark" : "$gray8Light")}
-                      borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"}
-                      size="$3"
-                    >
-                      <Switch.Thumb 
-                        animation="bouncy" 
-                        backgroundColor={isDark ? "$gray1Dark" : "$gray1Light"} 
-                      />
-                    </Switch>
-                  </XStack>
+                      <Switch 
+                        checked={showNBAGamesInCalendar} 
+                        onCheckedChange={handleToggleNBAGames}
+                        backgroundColor={showNBAGamesInCalendar ? buttonColor : "$onboardingInputBorder"} 
+                        borderColor={switchBorderColor} 
+                        size="$3"
+                      >
+                        <Switch.Thumb 
+                          animation="bouncy" 
+                          backgroundColor="$onboardingIndexBackground" 
+                        />
+                      </Switch>
+                    </XStack>
                 </YStack>
                 <Button 
                   variant="outlined" 
@@ -333,8 +330,8 @@ export default function Step5({
                   br={20}
                   width="50%"
                   alignSelf="center"
-                  borderColor={buttonBorderColor}
-                  backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'}
+                  borderColor="$onboardingButtonSecondaryBorder" 
+                  backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'} 
                   pressStyle={{
                     scale: 0.98
                   }}
@@ -342,7 +339,7 @@ export default function Step5({
                   animation="quick"
                   enterStyle={{ opacity: 0, y: 10 }}
                 >
-                  <Text fontFamily="$body" color={buttonTextColor} fontSize="$3">or skip for now</Text>
+                  <Text fontFamily="$body" color="$onboardingButtonSecondaryText" fontSize="$3">or skip for now</Text> 
                 </Button>
               </YStack>
             )
@@ -353,11 +350,11 @@ export default function Step5({
               size="$3" 
               onPress={handleSkip}
               br={isWeb ? 12 : 20}
-              borderColor={buttonBorderColor}
-              backgroundColor="transparent"
+              borderColor="$onboardingButtonSecondaryBorder" 
+              backgroundColor="transparent" 
               alignSelf="center"
               hoverStyle={{
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)', 
               }}
               pressStyle={{
                 scale: 0.97
@@ -365,7 +362,7 @@ export default function Step5({
               animation="quick"
               enterStyle={{ opacity: 0 }}
             >
-              <Text fontFamily="$body" color={buttonTextColor} fontSize="$3">Skip selecting a team for now</Text>
+              <Text fontFamily="$body" color="$onboardingButtonSecondaryText" fontSize="$3">Skip selecting a team for now</Text> 
             </Button>
           )}
         </YStack>

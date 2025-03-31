@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb,Label } from 'tamagui'
-import { Image, View, useWindowDimensions, Platform, ImageSourcePropType } from 'react-native'
+import { Image, View, useWindowDimensions, Platform, ImageSourcePropType, useColorScheme } from 'react-native' 
 import { BackgroundStyleOption, FormData } from '@/types'
-import { BackgroundStyle, wallpapers } from '@/constants/Backgrounds'
+import { BackgroundStyle } from '@/constants/Backgrounds'
 import { useWallpaperStore } from '@/store/WallpaperStore'
 
 let LinearGradient: any = null;
@@ -32,15 +32,14 @@ export default function Step3({
   formData,
   setFormData,
   backgroundStyles,
-  getWallpaperPath,
-  isDark = true,
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   backgroundStyles: BackgroundStyleOption[]
   getWallpaperPath: (style: BackgroundStyle) => Promise<ImageSourcePropType | null>
-  isDark?: boolean
 }) {
+  const colorScheme = useColorScheme(); 
+  const isDark = colorScheme === 'dark'; 
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
   const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
@@ -243,9 +242,7 @@ export default function Step3({
   const wallpaperStore = useWallpaperStore()
   const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null)
   const [loadingWallpaper, setLoadingWallpaper] = useState(false)
-  // Removed wallpaperCache state and the useEffect that populated it.
 
-  // Load selected wallpaper directly from the store's cache
   useEffect(() => {
     const loadSrc = async () => {
       if (formData.backgroundStyle.startsWith('wallpaper-')) {
@@ -265,7 +262,7 @@ export default function Step3({
            setLoadingWallpaper(false);
         }
       } else {
-        // Handle non-wallpaper styles like 'gradient'
+
         setWallpaperSource(null);
         setLoadingWallpaper(false);
       }
@@ -429,10 +426,8 @@ export default function Step3({
     }
   }, [formData.backgroundStyle, formData.primaryColor, adjustColor, wallpaperSource, loadingWallpaper]);
 
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)";
-  const buttonTextColor = isDark ? "$gray11Dark" : "$gray12Dark";
-  const cardBackgroundColor = isDark ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)";
+  const buttonHoverBackgroundColor = '$onboardingButtonSecondaryBackground'; 
+  const buttonSelectedBorderColor = adjustColor(formData.primaryColor, 100);
 
   return (
     <Stack flex={1} backgroundColor="black">
@@ -454,7 +449,7 @@ export default function Step3({
             fontWeight={isWeb ? "500" : "800"} 
             fontSize={isWeb ? "$9" : "$7"} 
             textAlign="center" 
-            color={labelColor}
+            color="$onboardingLabel"
           >
             Choose your wallpaper
           </Label>
@@ -462,7 +457,7 @@ export default function Step3({
             fontFamily="$body"
             fontSize="$3"
             textAlign="center"
-            color={isWeb ? "#CCCCCC" : "#ccc"}
+            color={isWeb ? "#CCCCCC" : "#ccc"} 
             opacity={0.8}
             fontWeight="400"
           >
@@ -471,9 +466,9 @@ export default function Step3({
         </YStack>
 
         <YStack
-          backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.3)"}
+          backgroundColor="$onboardingCardBackground" 
           br={24}
-          borderColor={formData.primaryColor}
+          borderColor={formData.primaryColor} 
           borderWidth={2}
           padding="$4"
           maxWidth={isWeb ? 520 : "100%"}
@@ -500,12 +495,12 @@ export default function Step3({
                   backgroundColor={
                     isSelected
                       ? formData.primaryColor
-                      : isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'
+                      : "$onboardingButtonSecondaryBackground" 
                   }
                   borderColor={
                     isSelected 
-                      ? adjustColor(formData.primaryColor, 100) 
-                      : isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)'
+                      ? buttonSelectedBorderColor 
+                      : "$onboardingButtonSecondaryBorder"
                   }
                   borderWidth={2}
                   br={16}
@@ -513,8 +508,8 @@ export default function Step3({
 
                   hoverStyle={{
                     backgroundColor: isSelected 
-                      ? adjustColor(formData.primaryColor, 30)
-                      : isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
+                      ? adjustColor(formData.primaryColor, 30) 
+                      : buttonHoverBackgroundColor 
                   }}
                   pressStyle={{
                     scale: 0.97,
@@ -522,16 +517,13 @@ export default function Step3({
                   }}
                   onPress={() => {
                     const newStyle = style.value as FormData['backgroundStyle'];
-                    
-                    // If changing *to* a wallpaper style that isn't already selected,
-                    // set loading and clear source immediately to prevent stale render.
+                
                     if (newStyle.startsWith('wallpaper-') && newStyle !== formData.backgroundStyle) {
                       setLoadingWallpaper(true); 
                       setWallpaperSource(null); 
                     } else if (!newStyle.startsWith('wallpaper-') && formData.backgroundStyle.startsWith('wallpaper-')) {
-                       // Handle switching *from* a wallpaper to something else (e.g., gradient)
-                       setWallpaperSource(null); // Clear the source
-                       setLoadingWallpaper(false); // Ensure loading is false
+                       setWallpaperSource(null); 
+                       setLoadingWallpaper(false);
                     }
 
                     setFormData((prev) => ({
@@ -544,7 +536,7 @@ export default function Step3({
                     fontFamily="$body" 
                     fontWeight={isSelected ? "700" : "500"}
                     fontSize={isWeb ? "$4" : "$3"} 
-                    color={isSelected ? 'white' : buttonTextColor}
+                    color={isSelected ? 'white' : "$onboardingButtonSecondaryText"} 
                     textAlign="center"
                     letterSpacing={0.5}  
                   >

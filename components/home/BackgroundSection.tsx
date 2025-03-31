@@ -5,15 +5,12 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useWallpaperStore } from '@/store/WallpaperStore'
-// getWallpaperPath seems unused now, consider removing if confirmed
-// import { getWallpaperPath } from '@/constants/Backgrounds'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
 export const BackgroundSection = () => {
   const preferences = useUserStore(s => s.preferences);
   const setPreferences = useUserStore(s => s.setPreferences);
-  // Corrected hydration flag name based on TS error suggestion
-  const hasHydrated = useUserStore(s => (s as any).hydrated ?? false); // Use 'hydrated' and cast/check existence
+  const hasHydrated = useUserStore(s => (s as any).hydrated ?? false);
   const primaryColor = preferences.primaryColor;
   const selectedStyle = preferences.backgroundStyle;
   const wallpaperStore = useWallpaperStore();
@@ -21,20 +18,20 @@ export const BackgroundSection = () => {
   const isDark = colorScheme === 'dark';
 
   const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start loading
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
     // Wait for store hydration
     if (!hasHydrated) {
       console.log('[BackgroundSection] Waiting for hydration...');
-      setIsLoading(true); // Ensure loading state while waiting
+      setIsLoading(true); 
       return;
     }
      console.log(`[BackgroundSection] Hydrated. Selected style: ${selectedStyle}`);
 
     const loadWallpaper = async () => {
-      setIsLoading(true); // Set loading true when style changes or hydration completes
-      setWallpaperSource(null); // Clear previous source
+      setIsLoading(true); 
+      setWallpaperSource(null);
 
       if (selectedStyle && selectedStyle.startsWith('wallpaper-')) {
         try {
@@ -45,26 +42,22 @@ export const BackgroundSection = () => {
             setWallpaperSource({ uri: cachedUri });
           } else {
             console.warn(`[BackgroundSection] Wallpaper ${selectedStyle} not found in cache. Falling back to gradient.`);
-            // Fallback: Reset preference in UserStore
             setPreferences({ ...preferences, backgroundStyle: 'gradient' });
           }
         } catch (error) {
           console.error(`[BackgroundSection] Error loading cached wallpaper ${selectedStyle}:`, error);
-          // Fallback on error
           setPreferences({ ...preferences, backgroundStyle: 'gradient' });
         } finally {
           setIsLoading(false);
         }
       } else {
-        // Handle gradient or other non-wallpaper styles
         console.log('[BackgroundSection] Style is gradient or invalid, clearing wallpaper source.');
-        setWallpaperSource(null); // Ensure no wallpaper is displayed for gradient
+        setWallpaperSource(null); 
         setIsLoading(false);
       }
     };
 
     loadWallpaper();
-    // Depend on selected style, store instance, and hydration status
   }, [selectedStyle, wallpaperStore, hasHydrated, setPreferences, preferences]);
 
   const adjustColor = useCallback((color: string, amount: number) => {
@@ -77,10 +70,8 @@ export const BackgroundSection = () => {
   }, []);
 
   const background = React.useMemo(() => {
-    // Show loading indicator while fetching/waiting for hydration
     if (isLoading) {
        console.log('[BackgroundSection] Rendering loading indicator.');
-       // Use a simple Stack or ActivityIndicator for loading state
        return (
          <Stack flex={1} backgroundColor={isDark ? '#000' : '#fff'} alignItems="center" justifyContent="center">
            <ActivityIndicator size="large" color={primaryColor} />
@@ -120,7 +111,6 @@ export const BackgroundSection = () => {
         );
       }
       default:
-        // Check selectedStyle and ensure wallpaperSource is valid
         if (selectedStyle && selectedStyle.startsWith('wallpaper-') && wallpaperSource) {
            console.log(`[BackgroundSection] Rendering wallpaper image: ${selectedStyle}`);
           return (
@@ -137,7 +127,7 @@ export const BackgroundSection = () => {
                 onError={error => {
                   console.warn(`[BackgroundSection] Wallpaper load error for ${selectedStyle}:`, error.nativeEvent);
                   setPreferences({ ...preferences, backgroundStyle: 'gradient' });
-                  setWallpaperSource(null); // Clear source to prevent trying again
+                  setWallpaperSource(null); 
                 }}
               />
               {Platform.OS !== 'web' && (
@@ -163,10 +153,8 @@ export const BackgroundSection = () => {
           );
         }
          console.log(`[BackgroundSection] No valid condition met for style ${selectedStyle}, returning null.`);
-        // Fallback if style is somehow invalid or source is missing after loading
         return null;
     }
-     // Dependencies now include isLoading and selectedStyle
   }, [isLoading, selectedStyle, primaryColor, adjustColor, isDark, wallpaperSource, preferences, setPreferences]);
 
   return background;

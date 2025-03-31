@@ -14,6 +14,12 @@
 - **Refined Types:** Updated `FormData['backgroundStyle']` in `types/index.ts` to use a template literal (`wallpaper-${string}` | 'gradient') for accurate dynamic wallpaper naming.
 - **Splash Screen:** Ensured `app/_layout.tsx` hides the splash screen appropriately after fonts are loaded and potential updates are checked.
 
+## Recent Changes (StarsBackground Extraction - March 31, 2025)
+- **Extracted Stars Animation:** Created reusable `components/shared/StarsBackground.tsx` component to encapsulate all stars animation logic previously in `app/screens/onboarding/step3.tsx`.
+- **Optimized Imports:** Removed unused imports (`useWindowDimensions`, `useColorScheme`) from the new component.
+- **Maintained Functionality:** Preserved all original animation behavior across platforms (web, iOS, Android).
+- **Reduced Step3 Size:** Removed ~150 lines of code from step3.tsx by using the new component.
+
 ## Recent Changes (Web Onboarding Welcome Screen - March 29, 2025)
 - **Added Web Welcome Screen:** Created `app/screens/onboarding/welcome.tsx` to display a welcome message and privacy notice specifically for web users before the main onboarding flow begins. Includes a simple cursor-following animation for the app icon.
 - **Updated Onboarding Logic:** Modified `app/screens/onboarding/index.tsx` to conditionally render the new `WelcomeScreen` as the first step (`step = -2`) only when `Platform.OS === 'web'`. Adjusted step transitions and back button logic accordingly. Fixed related TypeScript errors.

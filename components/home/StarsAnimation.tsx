@@ -74,8 +74,6 @@ const createStarConfig = (
 
 export const StarsAnimation = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
-
-  // Enhanced animated stars for web using CSS animations
   if (Platform.OS === 'web') {
     return (
       <>
@@ -89,7 +87,6 @@ export const StarsAnimation = () => {
             overflow: 'hidden'
           }}
         >
-          {/* Layer 1 - Slow moving stars */}
           <div
             style={{
               position: 'absolute',
@@ -117,7 +114,6 @@ export const StarsAnimation = () => {
             ))}
           </div>
           
-          {/* Layer 2 - Medium moving stars */}
           <div
             style={{
               position: 'absolute',
@@ -144,8 +140,6 @@ export const StarsAnimation = () => {
               />
             ))}
           </div>
-          
-          {/* Layer 3 - Fast twinkling stars */}
           <div
             style={{
               position: 'absolute',
@@ -172,7 +166,6 @@ export const StarsAnimation = () => {
           </div>
         </View>
         
-        {/* CSS Animations */}
         <style dangerouslySetInnerHTML={{ __html: `
           @keyframes moveStarsSlow {
             0% { transform: translate(0, 0); }
@@ -192,10 +185,8 @@ export const StarsAnimation = () => {
       </>
     )
   }
-  
-  // For native platforms, create individual star animations
+
   if (Platform.OS === 'ios' || Platform.OS === 'android' || Platform.OS === 'windows' || Platform.OS === 'macos') {
-    // Generate stars with memoization to prevent re-creation on re-renders
     const slowStars = useMemo(() => 
       [...Array(40)].map((_, i) => createStarConfig(screenWidth, screenHeight, i, 'slow')),
     [screenWidth, screenHeight]);
@@ -219,7 +210,6 @@ export const StarsAnimation = () => {
           overflow: 'hidden'
         }}
       >
-        {/* Slow-moving stars */}
         {slowStars.map((star, i) => {
           const translateX = useSharedValue(0);
           const translateY = useSharedValue(0);
@@ -227,7 +217,6 @@ export const StarsAnimation = () => {
           const opacityValue = useSharedValue(star.opacity);
           
           useEffect(() => {
-            // Only animate if this star should move on X axis
             if (star.moveX) {
               translateX.value = withDelay(
                 star.delay,
@@ -245,7 +234,6 @@ export const StarsAnimation = () => {
               );
             }
             
-            // Only animate if this star should move on Y axis
             if (star.moveY) {
               translateY.value = withDelay(
                 star.delay,
@@ -263,7 +251,6 @@ export const StarsAnimation = () => {
               );
             }
             
-            // Some stars twinkle
             if (star.twinkle) {
               scale.value = withDelay(
                 star.delay,
@@ -333,7 +320,6 @@ export const StarsAnimation = () => {
           );
         })}
         
-        {/* Medium-speed stars */}
         {mediumStars.map((star, i) => {
           const translateX = useSharedValue(0);
           const translateY = useSharedValue(0);
@@ -444,7 +430,6 @@ export const StarsAnimation = () => {
           );
         })}
         
-        {/* Twinkling stars */}
         {twinklingStars.map((star, i) => {
           const scale = useSharedValue(1);
           const opacityValue = useSharedValue(0.2);

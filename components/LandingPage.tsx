@@ -117,7 +117,6 @@ export function LandingPage() {
 
         </YStack>
       </ScrollView>
-      {/* Only render modals after component is fully mounted */}
       {isMounted && (
         <>
           <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />

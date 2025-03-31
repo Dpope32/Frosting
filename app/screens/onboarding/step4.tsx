@@ -9,25 +9,15 @@ export default function Step4({
   formData,
   setFormData,
   handleNext,
-  isDark = true, 
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
-  isDark?: boolean
 }) {
   const isWeb = Platform.OS === 'web';
   const [zipError, setZipError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
-  const inputBackgroundColor = isDark ? "$gray2Dark" : "$gray2Light";
-  const inputBorderColor = isDark ? "$gray8Dark" : "$gray8Light";
-  const inputTextColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const placeholderColor = isDark ? "$gray8Dark" : "$gray8Light";
-  const buttonColor = isDark ? "$blue10Dark" : "$blue10Light";
-  const errorColor = "$red9";
 
   useEffect(() => {
     if (!formData.zipCode) {
@@ -54,7 +44,7 @@ export default function Step4({
           size={isWeb ? "$9" : "$8"}
           fontWeight={isWeb ? "500" : "800"} 
           textAlign="center"
-          color={labelColor}
+          color="$onboardingLabel" 
         >
           What's your zip?
         </Label>
@@ -62,7 +52,7 @@ export default function Step4({
           fontFamily="$body"
           fontSize="$3"
           textAlign="center"
-          color={subTextColor}
+          color="$onboardingSubText" 
           mt={-12}
           opacity={0.8}
           fontWeight="400"
@@ -86,19 +76,19 @@ export default function Step4({
           keyboardType="numeric"
           maxLength={5}
           autoFocus
-          backgroundColor={inputBackgroundColor}
-          borderColor={zipError ? errorColor : inputBorderColor}
-          color={inputTextColor}
-          placeholderTextColor={placeholderColor}
+          backgroundColor="$onboardingInputBackground"
+          borderColor={zipError ? "$onboardingError" : "$onboardingInputBorder"} 
+          color="$onboardingInputText"
+          placeholderTextColor="$onboardingPlaceholder"
           textAlign="center"
           letterSpacing={1}
           borderWidth={1.25}
           fontSize={16}
-          shadowColor={inputBorderColor}
+          shadowColor="$onboardingInputBorder" 
           shadowRadius={20}
           shadowOpacity={0.2}
           focusStyle={{
-            borderColor: zipError ? errorColor : inputBorderColor,
+            borderColor: zipError ? "$onboardingError" : "$onboardingInputBorder", 
             scale: 1.02,
           }}
           width={isWeb ? 300 : "90%"}
@@ -107,7 +97,7 @@ export default function Step4({
         
         {zipError && (
           <Text
-            color={errorColor}
+            color="$onboardingError" 
             fontSize={14}
             mt={8}
             textAlign="center"
@@ -147,7 +137,7 @@ export default function Step4({
               )
             }
           }}
-          color={buttonColor}
+          color="$onboardingButtonPrimary"
         >
           Or skip for now
         </Button>

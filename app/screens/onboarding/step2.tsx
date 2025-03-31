@@ -1,7 +1,7 @@
 import React from 'react';
 import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
 import { FormData, ColorOption } from '@/types'
-import { View, useColorScheme, Platform } from 'react-native'
+import { View, useColorScheme, Platform } from 'react-native' 
 
 const EmptyColorPicker = () => null;
 
@@ -18,13 +18,11 @@ export default function Step2({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   colorOptions: ColorOption[]
 }) {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
+  const colorScheme = useColorScheme() 
+  const isDark = colorScheme === 'dark' 
   const textColor = isDark ? '#fff' : '#000'
   const currentColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : '#010101')
-  const labelColor = isDark ? "$gray12Dark" : "$gray12Light";
-  const subTextColor = isDark ? "$gray9Dark" : "$gray9Light";
-  const borderColor = isDark ? "$gray8Dark" : "$gray8Light";
+
   const handleColorChange = (color: string) => { setFormData((prev) => ({ ...prev, primaryColor: color }))}
 
   const WebColorPicker = () => {
@@ -48,13 +46,12 @@ export default function Step2({
                 hoverStyle={{ scale: 1.05 }}
                 onPress={() => handleColorChange(color)}
                 borderWidth={currentColor === color ? 3 : 0}
-                borderColor={isDark ? "white" : "black"}
+                borderColor={isDark ? "white" : "black"} 
                 opacity={currentColor === color ? 1 : 0.85}
               />
             ))}
           </XStack>
         </YStack>
-        
         {isWeb && (
           <XStack alignItems="center" gap="$2" style={{ opacity: 0 }}>
             <Circle size={50} overflow="hidden">
@@ -96,7 +93,7 @@ export default function Step2({
           fontWeight={isWeb ? 500 : 800} 
           fontSize={isWeb ? "$9" : "$7"} 
           textAlign="center" 
-          color={labelColor}
+          color="$onboardingLabel" 
         >
           Pick your primary color
         </Label>
@@ -104,14 +101,13 @@ export default function Step2({
           fontFamily="$body"
           fontSize="$3"
           textAlign="center"
-          color={isWeb ? "#CCCCCC" : subTextColor}
+          color={isWeb ? "#CCCCCC" : "$onboardingSubText"} 
           opacity={0.8}
           fontWeight="400"
         >
           (yes you can change this later)
         </Text>
       </YStack>
-
       <YStack flex={1} paddingTop={isWeb ? "$10" : "$8"}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
