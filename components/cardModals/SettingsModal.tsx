@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native'
+import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native' // Remove ScrollView import
 import { Sheet, Button, YStack, XStack, Text, Circle } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useWallpaperStore } from '@/store/WallpaperStore'
@@ -245,7 +245,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             ✕
           </Text>
         </XStack>
-        <YStack gap="$3" paddingBottom="$3">
+        {/* Make this YStack flexible to allow content scrolling */}
+        <YStack flex={1} gap="$3" paddingBottom="$3"> 
           <XStack gap="$3" flexWrap="wrap">
             <YStack width={60} gap="$2" alignItems="center">
               <Circle size={60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
@@ -412,13 +413,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </Button>
             )}
           </YStack>
-          <XStack justifyContent="flex-end" mt={Platform.OS === 'android' ? 0 : "$4"}>
-            <Button backgroundColor={settings.primaryColor} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} onPress={handleSave}>
-              <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
-                Save
-              </Text>
-            </Button>
-          </XStack>
           <ColorPickerModal
             open={colorPickerOpen}
             onOpenChange={setColorPickerOpen}
@@ -428,7 +422,14 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             isDark={isDark}
           />
         </YStack>
+        <XStack justifyContent="flex-end" mt="$3" pb="$2"> 
+          <Button backgroundColor={settings.primaryColor} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} onPress={handleSave}>
+            <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
+              Save
+            </Text>
+          </Button>
+        </XStack>
       </Sheet.Frame>
-    </Sheet>
+  </Sheet>
   )
 }

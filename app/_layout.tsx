@@ -22,7 +22,8 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
-import { handleSharedContact } from '../services/shareService'
+import { handleSharedContact } from '../services/shareService';
+import ErrorBoundary from '@/components/shared/ErrorBoundary';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -103,17 +104,19 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
         <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <>
-            <Stack screenOptions={{ headerShown: false }}>
-              {!hasCompletedOnboarding ? (
-                <Stack.Screen  name="screens/onboarding/index" options= {{ gestureEnabled: false }}/>) : ( 
+          <ErrorBoundary>
+            <>
+              <Stack screenOptions={{ headerShown: false }}>
+                {!hasCompletedOnboarding ? (
+                  <Stack.Screen  name="screens/onboarding/index" options= {{ gestureEnabled: false }}/>) : (
                 <Stack.Screen  name="(drawer)" />)}
             </Stack>
             <Toast />
             <StatusBar style="auto" />
-            <TaskRecommendationModal />
-            <EditStockModal />
-          </>
+              <TaskRecommendationModal />
+              <EditStockModal />
+            </>
+          </ErrorBoundary>
         </NavigationThemeProvider>
       </TamaguiProvider>
     </QueryClientProvider>

@@ -18,6 +18,9 @@
 - **Electron**: Framework for desktop applications
 - **React Native Web**: Web support for React Native components
 
+### Error Handling
+- **ErrorBoundary**: Custom component (`components/shared/ErrorBoundary.tsx`) implemented to catch rendering errors in the component tree and display a fallback UI (March 30, 2025).
+
 ## Development Environment
 
 ### Build Tools

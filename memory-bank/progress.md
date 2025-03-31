@@ -10,6 +10,7 @@
 - ✅ Navigation system with Expo Router
 - ✅ Theming and customization options
 - ✅ Extracted shared components (e.g., `DebouncedInput`) (March 28, 2025 - `1b1185b`)
+- ✅ Implemented `ErrorBoundary` component for global rendering error handling (March 30, 2025)
 
 ### Feature Modules
 - ✅ Task Management
@@ -60,8 +61,8 @@
 ### Performance Optimization
 - ✅ **Wallpaper System:** Implemented robust caching via `WallpaperStore`. Uses `expo-file-system` for local native cache, stores URIs directly for web. Preloads during onboarding. (March 28, 2025 - `1459baa`, `9b12208`)
 - ✅ Dependency reduction & unused package removal (March 28, 2025 - `1459baa`, `1508286`)
-- 🔄 Bundle size optimization
-- 🔄 Performance profiling and improvements (ongoing)
+- ✅  Bundle size optimization
+- ✅ Performance profiling and improvements 
 
 ### Data Synchronization
 - 🔄 Investigating PocketBase for Zustand store synchronization

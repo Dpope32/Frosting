@@ -20,6 +20,9 @@ flowchart TD
 
 ## Key Design Patterns
 
+### Error Handling
+- **ErrorBoundary**: A React component (`components/shared/ErrorBoundary.tsx`) wraps the main application layout (`app/_layout.tsx`) to catch JavaScript rendering errors in the component tree, log them, and display a fallback UI instead of crashing the app (March 30, 2025).
+
 ### State Management
 - **Zustand**: Used for global state management across the application
 - **Store Pattern**: Separate stores for different domains (BillStore, CalendarStore, PortfolioStore, WallpaperStore, etc.)
