@@ -327,7 +327,6 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
         </Sheet.Frame>
       </Sheet>
       
-      {/* Add the recommendation modals */}
       <BillRecommendationModal 
         open={housingModalOpen} 
         onOpenChange={setHousingModalOpen} 

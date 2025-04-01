@@ -60,13 +60,12 @@ export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalPro
           />
         </XStack>
 
-        {/* Action Buttons - Adjusted size potentially */}
         <XStack gap="$3" jc="flex-end" mt="$2">
           <Button
             onPress={onClose}
-            backgroundColor={isDark ? "$backgroundPress" : "$backgroundHover"} // Theme specific bg
+            backgroundColor={isDark ? "$backgroundPress" : "$backgroundHover"} 
             pressStyle={{ opacity: 0.7 }}
-            size={isWeb ? "$4" : "$3"} // Larger buttons on web
+            size={isWeb ? "$4" : "$3"}
           >
             <Text fontSize={isWeb ? "$3" : "$3"}>Cancel</Text> 
           </Button>

@@ -167,7 +167,6 @@ export const EventPreview: React.FC<{
       )}
       <View style={styles.detailsRow}>
         <View style={dynamicStyles.infoRow}>
-          {/* Time chip */}
           {event.time && !isBirthday && (
             <View style={dynamicStyles.timeChip}>
               <Ionicons 
@@ -182,7 +181,6 @@ export const EventPreview: React.FC<{
             </View>
           )}
           
-          {/* Category/Type chip */}
           {event.type && !isBirthday && (
             <View style={[
               dynamicStyles.typeChip, 
@@ -203,7 +201,6 @@ export const EventPreview: React.FC<{
             </View>
           )}
           
-          {/* Priority chip */}
           {event.priority && !isBirthday && (
             <View style={[
               dynamicStyles.priorityChip, 
@@ -224,7 +221,6 @@ export const EventPreview: React.FC<{
             </View>
           )}
           
-          {/* Notification icon */}
           {(event.notifyOnDay || event.notifyBefore) && (
             <Ionicons
               name="notifications"

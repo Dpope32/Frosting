@@ -54,7 +54,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const setNotifyBefore = propSetNotifyBefore || setLocalNotifyBefore
   const notifyBeforeTime = propNotifyBeforeTime || localNotifyBeforeTime
   const setNotifyBeforeTime = propSetNotifyBeforeTime || setLocalNotifyBeforeTime
-  const textColor = isDark ? '#ffffff' : '#010101'
+  const textColor = isDark ? '#ffffff' : '#000000'
   const { showToast } = useToastStore()
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
@@ -99,11 +99,9 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   return (
     <>
-      {/* Conditionally render BaseCardAnimated based on visibility */}
       {isViewEventModalVisible && (
         <BaseCardAnimated
-          // Removed open prop
-          onClose={closeEventModals} // Changed onOpenChange to onClose
+          onClose={closeEventModals} 
           title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
           modalWidth={getViewModalMaxWidth()}
         modalMaxWidth={getViewModalMaxWidth()}
@@ -119,15 +117,13 @@ export const EventModal: React.FC<EventModalProps> = ({
               {selectedEvents
                 .slice()
                 .sort((a, b) => {
-                  // Handle events without time (they should come last in descending order)
                   if (!a.time && !b.time) return 0;
-                  if (!a.time) return 1; // Events without time come last
-                  if (!b.time) return -1; // Events without time come last
+                  if (!a.time) return 1; 
+                  if (!b.time) return -1; 
                   
-                  // Both have times - parse and compare
                   const timeA = parse(a.time, 'h:mm a', selectedDate || new Date());
                   const timeB = parse(b.time, 'h:mm a', selectedDate || new Date());
-                  return timeB.getTime() - timeA.getTime(); // Reversed to sort latest to earliest
+                  return timeB.getTime() - timeA.getTime(); 
                 })
                 .map((event) => (
                   <Animated.View
@@ -164,7 +160,6 @@ export const EventModal: React.FC<EventModalProps> = ({
       </BaseCardAnimated>
       )}
 
-      {/* The standard Modal for adding/editing remains unchanged */}
       {isEventModalVisible && (
         <Modal
           visible={isEventModalVisible}
@@ -353,7 +348,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   ]}
                   onPress={closeEventModals}
                 >
-                  <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#010101' }]}>
+                  <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#000000' }]}>
                     Cancel
                   </Text>
                 </TouchableOpacity>

@@ -63,7 +63,6 @@ export const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
     }, [text, onDebouncedChange, value])
     
     const formatDateWithSlashes = (input: string): string => {
-      // Remove any non-numeric characters
       const cleaned = input.replace(/\D/g, '')
       
       // Format with slashes

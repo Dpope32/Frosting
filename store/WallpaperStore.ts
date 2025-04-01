@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
-import { getWallpapers } from '@/services/s3Service';
 import { createPersistStorage } from './AsyncStorage';
 
 interface WallpaperCache {
@@ -19,112 +18,194 @@ interface WallpaperStore extends PersistedWallpaperState {
   getCachedWallpaper: (wallpaperName: string) => Promise<string | null>;
   cacheWallpaper: (wallpaperName: string, uri: string) => Promise<void>;
   setCurrentWallpaper: (wallpaperName: string) => void;
-  clearUnusedWallpapers: (keep: string[]) => void;
+  clearUnusedWallpapers: (keep: string[]) => Promise<void>;
 }
 
-const WALLPAPER_CACHE_DIR = `${FileSystem.cacheDirectory}wallpapers/`;
+const WALLPAPER_CACHE_DIR = Platform.OS !== 'web' 
+  ? `${FileSystem.cacheDirectory || ''}wallpapers/` 
+  : '';
 
 export const useWallpaperStore = create<WallpaperStore>()(
-    persist(
+  persist(
     (set, get) => ({
       cache: {},
       currentWallpaper: null,
+      
       initializeCache: async () => {
         if (Platform.OS === 'web') return;
 
-        // Ensure cache directory exists
-        await FileSystem.makeDirectoryAsync(WALLPAPER_CACHE_DIR, {
-          intermediates: true,
-        });
+        try {
+          const dirInfo = await FileSystem.getInfoAsync(WALLPAPER_CACHE_DIR);
+          
+          if (!dirInfo.exists) {
+            console.log('[WallpaperStore] Creating wallpaper directory');
+            await FileSystem.makeDirectoryAsync(WALLPAPER_CACHE_DIR, {
+              intermediates: true,
+            });
+          } else {
+            console.log('[WallpaperStore] Wallpaper directory already exists');
+          }
+        } catch (error) {
+          console.error('[WallpaperStore] Error initializing cache directory:', error);
+        }
       },
+      
       getCachedWallpaper: async (wallpaperName: string) => {
         const { cache } = get();
-        return cache[wallpaperName] || null;
-      },
-      cacheWallpaper: async (wallpaperName: string, remoteUri: string) => {
+        const cachedPath = cache[wallpaperName];
+        
+        if (!cachedPath) {
+          console.log(`[WallpaperStore] No cache entry for ${wallpaperName}`);
+          return null;
+        }
+        
         if (Platform.OS === 'web') {
+          console.log(`[WallpaperStore] Web: Using cached URI for ${wallpaperName}: ${cachedPath}`);
+          return cachedPath;
+        }
+        
+        try {
+          const fileInfo = await FileSystem.getInfoAsync(cachedPath);
+          
+          if (fileInfo.exists) {
+            console.log(`[WallpaperStore] Native: Found cached file for ${wallpaperName}: ${cachedPath}`);
+            return cachedPath;
+          } else {
+            console.log(`[WallpaperStore] Native: Cached file doesn't exist for ${wallpaperName}: ${cachedPath}`);
+
+            set((state) => ({
+              cache: Object.fromEntries(
+                Object.entries(state.cache).filter(([key]) => key !== wallpaperName)
+              )
+            }));
+            
+            return null;
+          }
+        } catch (error) {
+          console.error(`[WallpaperStore] Error checking cached file for ${wallpaperName}:`, error);
+          return null;
+        }
+      },
+      
+      cacheWallpaper: async (wallpaperName: string, remoteUri: string) => {
+        console.log(`[WallpaperStore] Caching ${wallpaperName} from ${remoteUri}`);
+        
+        if (Platform.OS === 'web') {
+          console.log(`[WallpaperStore] Web: Storing remote URI for ${wallpaperName}`);
+          
           set((state) => ({
             cache: {
               ...state.cache,
               [wallpaperName]: remoteUri,
             },
           }));
+          
           return;
         }
+        
         try {
-          const localUri = `${WALLPAPER_CACHE_DIR}${wallpaperName}`;
-          // Check if file already exists before downloading
+          await get().initializeCache();
+          
+          const localUri = `${WALLPAPER_CACHE_DIR}${wallpaperName}.jpg`;
+          console.log(`[WallpaperStore] Native: Checking if ${localUri} exists`);
+          
           const fileInfo = await FileSystem.getInfoAsync(localUri);
-          let finalUri = localUri; // Assume we need to download initially
-
+          
           if (fileInfo.exists) {
-            console.log(`[WallpaperStore] Wallpaper ${wallpaperName} already exists locally at ${localUri}`);
-            finalUri = fileInfo.uri; // Use existing file URI
-          } else {
-             console.log(`[WallpaperStore] Downloading ${wallpaperName} from ${remoteUri} to ${localUri}`);
-            const { uri: downloadedUri } = await FileSystem.downloadAsync(remoteUri, localUri);
-            finalUri = downloadedUri; // Use the downloaded file URI
+            console.log(`[WallpaperStore] Native: ${wallpaperName} already exists locally at ${localUri}`);
+            
+            set((state) => ({
+              cache: {
+                ...state.cache,
+                [wallpaperName]: localUri,
+              },
+            }));
+            
+            return;
           }
+
+          console.log(`[WallpaperStore] Native: Downloading ${wallpaperName} from ${remoteUri} to ${localUri}`);
+          
+          const downloadResult = await FileSystem.downloadAsync(remoteUri, localUri);
+          
+          if (downloadResult.status !== 200) {
+            throw new Error(`Download failed with status ${downloadResult.status}`);
+          }
+          
+          console.log(`[WallpaperStore] Native: Successfully downloaded ${wallpaperName} to ${localUri}`);
           
           set((state) => ({
             cache: {
               ...state.cache,
-              [wallpaperName]: finalUri, // Store the final URI (either existing or downloaded)
+              [wallpaperName]: localUri,
             },
           }));
         } catch (error) {
-          console.error('Failed to cache wallpaper:', error);
+          console.error(`[WallpaperStore] Error caching wallpaper ${wallpaperName}:`, error);
+          
+          set((state) => ({
+            cache: {
+              ...state.cache,
+              [wallpaperName]: remoteUri,
+            },
+          }));
         }
       },
+      
       setCurrentWallpaper: (wallpaperName: string) => {
+        console.log(`[WallpaperStore] Setting current wallpaper to ${wallpaperName}`);
         set({ currentWallpaper: wallpaperName });
       },
+      
       clearUnusedWallpapers: async (keep: string[]) => {
-        const { currentWallpaper } = get();
+        const { currentWallpaper, cache } = get();
+        console.log(`[WallpaperStore] Clearing unused wallpapers, keeping: ${keep.join(', ')}`);
         
-        // Always keep the current wallpaper in the cache
-        const wallpapersToKeep = [...keep];
-        if (currentWallpaper && !wallpapersToKeep.includes(currentWallpaper)) {
-          wallpapersToKeep.push(currentWallpaper);
-        }
+        const wallpapersToKeep = [...new Set([...keep, ...(currentWallpaper ? [currentWallpaper] : [])])];
+        console.log(`[WallpaperStore] Final wallpapers to keep: ${wallpapersToKeep.join(', ')}`);
         
         if (Platform.OS === 'web') {
-          set((state) => {
-            const newCache = { ...state.cache };
-            Object.keys(newCache).forEach((key) => {
-              if (!wallpapersToKeep.includes(key)) {
-                delete newCache[key];
-              }
-            });
-            return { cache: newCache };
-          });
+          console.log('[WallpaperStore] Web: Clearing unused wallpapers from cache object');
+          
+          set((state) => ({
+            cache: Object.fromEntries(
+              Object.entries(state.cache).filter(([key]) => wallpapersToKeep.includes(key))
+            ),
+          }));
+          
           return;
         }
-
+        
         try {
-          // Ensure we have a cache directory
-          await get().initializeCache();
+          console.log('[WallpaperStore] Native: Clearing unused wallpaper files');
           
-          const files = await FileSystem.readDirectoryAsync(WALLPAPER_CACHE_DIR);
-          await Promise.all(
-            files.map(async (file) => {
-              if (!wallpapersToKeep.includes(file)) {
-                await FileSystem.deleteAsync(`${WALLPAPER_CACHE_DIR}${file}`);
+          const dirInfo = await FileSystem.getInfoAsync(WALLPAPER_CACHE_DIR);
+          
+          if (dirInfo.exists) {
+            const files = await FileSystem.readDirectoryAsync(WALLPAPER_CACHE_DIR);
+            console.log(`[WallpaperStore] Native: Found ${files.length} files in cache directory`);
+            
+            for (const file of files) {
+              const wallpaperName = file.split('.')[0];
+              
+              if (!wallpapersToKeep.includes(wallpaperName)) {
+                const filePath = `${WALLPAPER_CACHE_DIR}${file}`;
+                console.log(`[WallpaperStore] Native: Deleting ${filePath}`);
+                
+                await FileSystem.deleteAsync(filePath, { idempotent: true });
+              } else {
+                console.log(`[WallpaperStore] Native: Keeping ${file}`);
               }
-            })
-          );
-
-          set((state) => {
-            const newCache = { ...state.cache };
-            Object.keys(newCache).forEach((key) => {
-              if (!wallpapersToKeep.includes(key)) {
-                delete newCache[key];
-              }
-            });
-            return { cache: newCache };
-          });
+            }
+          }
+          
+          set((state) => ({
+            cache: Object.fromEntries(
+              Object.entries(state.cache).filter(([key]) => wallpapersToKeep.includes(key))
+            ),
+          }));
         } catch (error) {
-          console.error('Failed to clear unused wallpapers:', error);
+          console.error('[WallpaperStore] Error clearing unused wallpapers:', error);
         }
       },
     }),
@@ -140,7 +221,7 @@ export const useWallpaperStore = create<WallpaperStore>()(
 );
 
 if (Platform.OS !== 'web') {
-  useWallpaperStore.getState().initializeCache();
+  useWallpaperStore.getState().initializeCache().catch(error => {
+    console.error('[WallpaperStore] Failed to initialize cache:', error);
+  });
 }
-
-// Removed redundant web caching logic here - preloading handles this now.

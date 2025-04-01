@@ -199,7 +199,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                               </YStack>
                             </XStack>
                             
-                         {/* Temporarily commenting out until I decide how to implement Syncing the Calendar with persional device
                             <XStack gap="$2" alignItems="flex-start">
                               <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
                               <YStack>
@@ -217,11 +216,10 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                   fontFamily="$body"
                                   lineHeight={20}
                                 >
-                                  Calendar access allows us to help you manage events and appointments. All calendar data remains on your device and is not shared with third parties.
+                                  Calendar access allows Kaiba to help you manage events native events. All calendar data remains on your device and is not shared with third parties.
                                 </Text>
                               </YStack>
                             </XStack>
-                            **/}
                             
                             <XStack gap="$2" alignItems="flex-start">
                               <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>

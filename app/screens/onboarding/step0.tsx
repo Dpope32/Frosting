@@ -18,7 +18,7 @@ export default function Step0({
         What should we call you?
       </Label>
       <Input
-        size="$4"
+        size={isWeb ? "$4" : "$4"}
         placeholder="Enter username"
         value={formData.username}
         onChangeText={(text) =>setFormData((prev) => ({ ...prev, username: text }))}

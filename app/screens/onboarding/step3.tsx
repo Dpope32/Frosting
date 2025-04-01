@@ -243,34 +243,41 @@ export default function Step3({
   const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null)
   const [loadingWallpaper, setLoadingWallpaper] = useState(false)
 
-  useEffect(() => {
-    const loadSrc = async () => {
-      if (formData.backgroundStyle.startsWith('wallpaper-')) {
-        try {
-          const cachedUri = await wallpaperStore.getCachedWallpaper(formData.backgroundStyle);
-          if (cachedUri) {
-            setWallpaperSource({ uri: cachedUri });
-            setLoadingWallpaper(false);
-          } else {
-            console.warn(`[Step3] Wallpaper ${formData.backgroundStyle} not found in cache, falling back.`);
-            setFormData(prev => ({ ...prev, backgroundStyle: 'gradient' }));
-            setLoadingWallpaper(false);
-          }
-        } catch (error) {
-          console.error(`[Step3] Error loading wallpaper ${formData.backgroundStyle}:`, error);
-           setFormData(prev => ({ ...prev, backgroundStyle: 'gradient' }));
-           setLoadingWallpaper(false);
-        }
-      } else {
 
-        setWallpaperSource(null);
+useEffect(() => {
+  const loadWallpaper = async () => {
+    // Check if the current background style is a wallpaper type
+    if (formData.backgroundStyle.startsWith('wallpaper-')) {
+      try {
+        setLoadingWallpaper(true);
+        
+        // This is the key - use the style name directly without adding another 'wallpaper-' prefix
+        const wallpaperKey = formData.backgroundStyle;
+        console.log(`[Step3] Loading wallpaper: ${wallpaperKey}`);
+        
+        const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
+        
+        if (cachedUri) {
+          console.log(`[Step3] Found cached wallpaper at: ${cachedUri}`);
+          setWallpaperSource({ uri: cachedUri });
+        } else {
+          console.warn(`[Step3] Wallpaper ${wallpaperKey} not found in cache, falling back to gradient`);
+          setFormData(prev => ({ ...prev, backgroundStyle: 'gradient' }));
+        }
+      } catch (error) {
+        console.error(`[Step3] Error loading wallpaper:`, error);
+        setFormData(prev => ({ ...prev, backgroundStyle: 'gradient' }));
+      } finally {
         setLoadingWallpaper(false);
       }
-    };
-    
-    loadSrc();
-    
-  }, [formData.backgroundStyle, wallpaperStore]); 
+    } else {
+      setWallpaperSource(null);
+      setLoadingWallpaper(false);
+    }
+  };
+  
+  loadWallpaper();
+}, [formData.backgroundStyle]);
 
   const background = React.useMemo(() => {
     switch (formData.backgroundStyle) {
@@ -334,13 +341,14 @@ export default function Step3({
       }
       default:
         if (formData.backgroundStyle.startsWith('wallpaper-')) {
-          let sourceMatchesSelection = false;
-          if (wallpaperSource && typeof wallpaperSource === 'object' && !Array.isArray(wallpaperSource) && typeof wallpaperSource.uri === 'string') {
-            const parts = wallpaperSource.uri.split('/');
-            const filenameWithPotentialQuery = parts[parts.length - 1];
-            const filename = filenameWithPotentialQuery.split('?')[0];
-            sourceMatchesSelection = filename.startsWith(formData.backgroundStyle);
-          }
+        let sourceMatchesSelection = false;
+        if (wallpaperSource && typeof wallpaperSource === 'object' && !Array.isArray(wallpaperSource) && typeof wallpaperSource.uri === 'string') {
+          const parts = wallpaperSource.uri.split('/');
+          const filenameWithPotentialQuery = parts[parts.length - 1];
+          const filename = filenameWithPotentialQuery.split('?')[0];
+          const wallpaperName = formData.backgroundStyle.replace('wallpaper-', '');
+          sourceMatchesSelection = filename.includes(wallpaperName);
+        }
 
           if (loadingWallpaper || !wallpaperSource || !sourceMatchesSelection) {
              return null;
@@ -517,18 +525,18 @@ export default function Step3({
                   }}
                   onPress={() => {
                     const newStyle = style.value as FormData['backgroundStyle'];
-                
+                    
                     if (newStyle.startsWith('wallpaper-') && newStyle !== formData.backgroundStyle) {
-                      setLoadingWallpaper(true); 
-                      setWallpaperSource(null); 
+                      setLoadingWallpaper(true);
+                      setWallpaperSource(null);
                     } else if (!newStyle.startsWith('wallpaper-') && formData.backgroundStyle.startsWith('wallpaper-')) {
-                       setWallpaperSource(null); 
-                       setLoadingWallpaper(false);
+                      setWallpaperSource(null);
+                      setLoadingWallpaper(false);
                     }
-
+                    
                     setFormData((prev) => ({
                       ...prev,
-                      backgroundStyle: newStyle,
+                      backgroundStyle: newStyle, 
                     }));
                   }}
                 >

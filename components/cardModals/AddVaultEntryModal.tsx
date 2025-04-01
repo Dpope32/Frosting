@@ -140,7 +140,6 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
               </TouchableOpacity>
             </XStack>
             
-            {/* Password strength indicator */}
             {password.length > 0 && (
               <YStack mt="$2" gap="$1">
                 <XStack alignItems="center" justifyContent="space-between">

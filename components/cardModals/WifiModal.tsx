@@ -107,16 +107,12 @@ export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element |
     return value !== undefined && value !== null && value !== 'Unknown';
   }
 
-  // Render BaseCardAnimated directly when open is true
   return (
     <BaseCardAnimated 
-      // Removed open and onOpenChange props
-      onClose={() => onOpenChange(false)} // Pass onClose handler
+      onClose={() => onOpenChange(false)} 
       title="Network Details"
     > 
       <YStack gap="$4" opacity={showLoading ? 0.7 : 1}>
-        {/* Note: The SlideInDown animations might need adjustment or removal */}
-        {/* if they conflict with the new BaseCardAnimated structure */}
         <Animated.View entering={SlideInDown.duration(500).delay(0)}>
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}

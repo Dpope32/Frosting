@@ -75,7 +75,7 @@ export const LegalButton = () => {
           <TouchableOpacity
             style={[
               styles.button,
-              { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }
+              { backgroundColor: isDark ? '#transparent' : '#transparent' }
             ]}
             onPress={handlePress}
             activeOpacity={0.8}
@@ -96,7 +96,6 @@ export const LegalButton = () => {
               </Text>
             </XStack>
             
-            {/* Ripple effect container */}
             <Animated.View 
               style={[
                 styles.ripple, 

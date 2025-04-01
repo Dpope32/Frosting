@@ -190,8 +190,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
       title={stock ? 'Edit Stock' : 'Add Stock'}
       zIndex={200000}
     >
-      <YStack gap="$3" py="$2">
-        <YStack>
+      <YStack gap="$3" py="$2"><YStack>
           <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
             Ticker Symbol
           </Text>
@@ -206,8 +205,6 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             fontFamily="$body"
             {...inputStyle}
           />
-          
-          {/* Search Results */}
           {searchResults.length > 0 && !stock && (
             <YStack 
               backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)"}
@@ -267,7 +264,6 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             </YStack>
           )}
         </YStack>
-
         <YStack>
           <Text color="$colorSubdued"  fontFamily="$body" fontSize={12} marginBottom="$1">
             Quantity
@@ -281,7 +277,6 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             {...inputStyle}
           />
         </YStack>
-
         {formData.name ? (
           <YStack alignItems="center" py="$2">
             <Text 
@@ -296,7 +291,9 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
               {formData.name}
             </Text>
           </YStack>
-        ) : null}
+        ) : (
+          <YStack height={0} />
+        )}
 
         {error && (
           <Text 
@@ -310,7 +307,6 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             {error}
           </Text>
         )}
-
         <Button
           backgroundColor={primaryColor}
           height={40}

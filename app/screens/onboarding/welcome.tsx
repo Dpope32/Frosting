@@ -1,5 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { YStack, H1, Text, Button, Image, isWeb, XStack } from 'tamagui';
+import { 
+  YStack, 
+  XStack, 
+  H1, 
+  H2, 
+  H3, 
+  Text, 
+  Button, 
+  Image, 
+  isWeb, 
+  Separator, 
+  ScrollView,
+  Card,
+  Paragraph
+} from 'tamagui';
 
 export default function WelcomeScreen({ onComplete }: { onComplete: () => void }) {
   const [rotation, setRotation] = useState(0);
@@ -48,99 +62,119 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
   }, []);
 
   const iconStyle = {
-    width: 80,
-    height: 80,
-    transform: isWeb ? [{ rotate: `${rotation}deg` }] : [], 
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    transform: isWeb ? [{ rotate: `${rotation}deg` }] : [],
   };
 
-  return (
-    <YStack flex={1} justifyContent="space-between" alignItems="center" padding="$6" paddingTop="$16" gap="$5">
-      <YStack alignItems="center" gap="$6" width="100%" maxWidth={600}>
-        <XStack position="relative" width="100%" justifyContent="center">
-          <H1 textAlign="center" color="$onboardingLabel" fontFamily="$heading" fontSize={isWeb ? "$10" : "$8"}>
-            Kaiba Nexus
-          </H1>
-          {isWeb && (
-            <Image
-              source={require('@/assets/images/icon.png')}
-              style={[iconStyle, { position: 'absolute', left: -90 }]}
-            />
-          )}
-        </XStack>
+  const features = [
+    {
+      title: "Privacy First",
+      items: [
+        "Your data stays safe and private",
+        "Stored directly on your device",
+        "No server data collection"
+      ]
+    },
+    {
+      title: "Task Management",
+      items: [
+        "Track recurring tasks",
+        "Manage one-time todos",
+        "Stay organized"
+      ]
+    },
+    {
+      title: "Calendar",
+      items: [
+        "Track birthdays & events",
+        "NBA schedules",
+        "Bill reminders"
+      ]
+    },
+    {
+      title: "Finance Tracking",
+      items: [
+        "Monitor portfolio",
+        "Real-time stock updates",
+        "Financial insights"
+      ]
+    }
+  ];
 
-        <YStack gap="$3" alignSelf="stretch" paddingHorizontal="$4">
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               Your data stays safe and private, stored directly on your device right here in your browser.
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               We don't use servers to collect your personal information.
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               A feature-rich personal dashboard app built with React Native and Expo
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               Task Management: Track recurring and one-time tasks
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               Calendar: Track birthdays, bills, events, and NBA schedules
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               CRM: Manage contacts with payment methods, addresses, etc.
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               Password Vault: Securely store passwords locally
-             </Text>
-           </XStack>
-           <XStack gap="$3" alignItems="center">
-             <Text color="$onboardingButtonSecondaryText" fontSize="$5" marginTop={0}>•</Text>
-             <Text flex={1} color="$onboardingLabel" fontFamily="$body" fontSize={isWeb ? "$6" : "$5"} fontWeight="400" lineHeight="$5">
-               Finance Tracking: Monitor portfolio with real-time stock updates
-             </Text>
-           </XStack>
+  return (
+    <ScrollView>
+      <YStack flex={1} padding="$4" gap="$4" maxWidth={1200} marginHorizontal="auto">
+        <YStack alignItems="center" gap="$5" marginVertical="$8">
+          <XStack position="relative" alignItems="center">
+            {isWeb && (
+              <Image
+                source={require('@/assets/images/icon.png')}
+                style={[iconStyle, { position: 'absolute', left: -150 }]}
+              />
+            )}
+            <H1 
+              color="$onboardingLabel" 
+              fontFamily="$heading" 
+              fontSize={isWeb ? "$12" : "$9"}
+              letterSpacing={1}
+            >
+              Kaiba Nexus
+            </H1>
+            {isWeb && (
+              <Image
+                source={require('@/assets/images/icon.png')}
+                style={[iconStyle, { position: 'absolute', right: -150 }]}
+              />
+            )}
+          </XStack>
+          
+          <H2 
+            color="$onboardingLabel" 
+            fontFamily="$heading" 
+            fontSize={isWeb ? "$8" : "$6"} 
+            fontWeight="500"
+            opacity={0.8}
+            pt={isWeb ? "$5" : "$0"}
+          >
+            Your world, all in one place
+          </H2>
         </YStack>
 
-        {isWeb && (
-          <Image
-            source={require('@/assets/screenshots/HomeScreenWebLoaded.png')}
-            style={{ width: '100%', maxWidth: 800, borderRadius: 12, marginVertical: 20 }}
-            resizeMode="contain"
-          />
-        )}
-      </YStack>
+        <XStack flexWrap="wrap" justifyContent="center" gap="$4" marginBottom="$4">
+          {features.map((feature, index) => (
+            <Card 
+              key={index} 
+              width={isWeb ? "45%" : "100%"} 
+              minWidth={300}
+              padding="$4"
+              marginBottom="$4"
+              backgroundColor="$onboardingCardBackground"
+              borderColor="$onboardingCardBorder"
+              borderWidth={1}
+            >
+              <H3 
+                color="$onboardingLabel" 
+                fontFamily="$heading" 
+                fontSize="$6"
+                marginBottom="$3"
+              >
+                {feature.title}
+              </H3>
+              <YStack gap="$2">
+                {feature.items.map((item, i) => (
+                  <XStack key={i} alignItems="center" space="$2">
+                    <Text fontFamily="$body" color="$onboardingButtonSecondaryText">•</Text>
+                    <Text fontFamily="$body" color="$onboardingLabel">{item}</Text>
+                  </XStack>
+                ))}
+              </YStack>
+            </Card>
+          ))}
+        </XStack>
 
-      <Button
-        size="$5"
-        onPress={onComplete}
-        backgroundColor="$onboardingWelcomeButtonBackground"
-        color="$onboardingWelcomeButtonText"
-        width="100%"
-        maxWidth={300}
-        alignSelf="center"
-        fontFamily="$heading"
-        fontWeight="600"
-      >
-        Continue
-      </Button>
-    </YStack>
+      </YStack>
+    </ScrollView>
   );
 }

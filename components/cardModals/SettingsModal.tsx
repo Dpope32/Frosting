@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import { Image, ImageSourcePropType, Platform, Switch, useColorScheme } from 'react-native' // Remove ScrollView import
+import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert } from 'react-native' // Remove ScrollView import
+import { BaseCardModal } from './BaseCardModal'
+import { StorageUtils } from '@/store/AsyncStorage'
+import { router } from 'expo-router'
 import { Sheet, Button, YStack, XStack, Text, Circle } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useWallpaperStore } from '@/store/WallpaperStore'
@@ -59,46 +62,52 @@ const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
         scale={isSelected ? 1.05 : 1}
         onPress={() => onSelect(styleItem.value)}
       >
-        {styleItem.value === 'gradient' ? (
-          <YStack
-            width="100%"
-            height="100%"
-            br={4}
-            {...(isWeb
-              ? {
-                  style: {
-                    background: 'linear-gradient(120deg, #3a7bd5, #00d2ff, #3a7bd5)',
-                    backgroundSize: '200% 200%',
-                    animation: 'gradientAnimation 5s ease infinite',
-                    position: 'relative',
-                  },
+      {styleItem.value === 'gradient' ? (
+        <YStack
+          width="100%"
+          height="100%"
+          br={4}
+          {...(isWeb
+            ? {
+                style: {
+                  background: 'linear-gradient(120deg, #3a7bd5, #00d2ff, #3a7bd5)',
+                  backgroundSize: '200% 200%',
+                  animation: 'gradientAnimation 5s ease infinite',
+                  position: 'relative',
+                },
+              }
+            : { backgroundColor: '#3a7bd5' })}
+        >
+          {isWeb && (
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes gradientAnimation {
+                  0% { background-position: 0% 50% }
+                  50% { background-position: 100% 50% }
+                  100% { background-position: 0% 50% }
                 }
-              : { backgroundColor: '#3a7bd5' })}
-          >
-            {isWeb && (
-              <style
-                dangerouslySetInnerHTML={{
-                  __html: `
-                  @keyframes gradientAnimation {
-                    0% { background-position: 0% 50% }
-                    50% { background-position: 100% 50% }
-                    100% { background-position: 0% 50% }
-                  }
-                `,
-                }}
-              />
-            )}
-          </YStack>
-        ) : (
-          <YStack width="100%" height="100%" overflow="hidden" br={4}>
+              `,
+              }}
+            />
+          )}
+        </YStack>
+      ) : (
+        <YStack width="100%" height="100%" overflow="hidden" br={4} backgroundColor="#242424">
+          {getWallpaperImageSource(styleItem.value) ? (
             <Image
               source={getWallpaperImageSource(styleItem.value)}
               style={{ width: '100%', height: '100%', borderRadius: 4 }}
               resizeMode="cover"
               {...(isWeb ? { loading: 'lazy' } : {})}
             />
-          </YStack>
-        )}
+          ) : (
+            <Text color="white" fontSize={10} textAlign="center" padding="$2">
+              {styleItem.label}
+            </Text>
+          )}
+        </YStack>
+      )}
       </Button>
     </YStack>
   )
@@ -193,60 +202,74 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const [wallpaperSources, setWallpaperSources] = useState<Record<string, ImageSourcePropType>>({});
 
   useEffect(() => {
-    const loadWallpapers = async () => {
-      // Default gradient source
-      const sources: Record<string, ImageSourcePropType> = {
-        'gradient': { uri: '' }
-      };
-      
-      for (const style of backgroundStyles) {
-        if (style.value === 'gradient') continue;
-        
-        try {
-          const wallpaperStore = useWallpaperStore.getState();
-          
-          // First try to get from cache
-          const cachedUri = await wallpaperStore.getCachedWallpaper(style.value);
-          if (cachedUri) {
-            sources[style.value] = { uri: cachedUri };
-            continue;
-          }
-          
-          // If not in cache, try to get from getWallpaperPath
-          const wallpaperPath = await getWallpaperPath(style.value);
-          if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
-            sources[style.value] = wallpaperPath;
-            
-            // Cache for future use
-            await wallpaperStore.cacheWallpaper(style.value, wallpaperPath.uri);
-          }
-        } catch (error) {
-          console.error(`Failed to load wallpaper ${style.value}:`, error);
-        }
-      }
-      
-      setWallpaperSources(sources);
+  const loadWallpapers = async () => {
+    console.log('[SettingsModal] Loading wallpapers');
+    const sources: Record<string, ImageSourcePropType> = {
+      'gradient': { uri: '' }
     };
+    
+    for (const style of backgroundStyles) {
+      if (style.value === 'gradient') continue;
+      
+      try {
+        const wallpaperStore = useWallpaperStore.getState();
+        const wallpaperKey = style.value;
+        
+        console.log(`[SettingsModal] Loading wallpaper: ${wallpaperKey}`);
+        
+        const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
+        
+        if (cachedUri) {
+          console.log(`[SettingsModal] Found cached wallpaper at: ${cachedUri}`);
+          sources[wallpaperKey] = { uri: cachedUri };
+        } else {
+          console.log(`[SettingsModal] No cached wallpaper for: ${wallpaperKey}, trying to get from path`);
+          
+          const wallpaperPath = await getWallpaperPath(wallpaperKey);
+          if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
+            console.log(`[SettingsModal] Got wallpaper path for ${wallpaperKey}: ${wallpaperPath.uri}`);
+            sources[wallpaperKey] = wallpaperPath;
+            
+            await wallpaperStore.cacheWallpaper(wallpaperKey, wallpaperPath.uri);
+          } else {
+            console.warn(`[SettingsModal] Failed to get wallpaper path for ${wallpaperKey}`);
+          }
+        }
+      } catch (error) {
+        console.error(`[SettingsModal] Failed to load wallpaper ${style.value}:`, error);
+      }
+    }
+    
+    console.log(`[SettingsModal] Loaded ${Object.keys(sources).length} wallpaper sources`);
+    setWallpaperSources(sources);
+  };
     
     loadWallpapers();
   }, []);
 
   const getWallpaperImageSource = useCallback((style: BackgroundStyle): ImageSourcePropType | undefined => {
-    return wallpaperSources[style];
-  }, [wallpaperSources])
+    if (style === 'gradient') {
+      return { uri: '' };
+    }
+    
+    if (wallpaperSources[style]) {
+      return wallpaperSources[style];
+    }
+    
+    console.warn(`[SettingsModal] No wallpaper source found for: ${style}`);
+    return undefined;
+  }, [wallpaperSources]);
+  
   return (
-    <Sheet modal open={open} onOpenChange={onOpenChange} dismissOnSnapToBottom snapPoints={isWeb ? [90] : [82]} zIndex={100000} animation="quick">
-      <Sheet.Overlay animation="quick" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} backgroundColor="rgba(0,0,0,0.5)" opacity={0.8} />
-      <Sheet.Frame backgroundColor={isDark ? '#111' : '#ffffff'} padding="$4" gap="$3"
-        {...(isWeb ? {style: { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)'}} : {})}>
-        <Sheet.Handle backgroundColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} />
-        <XStack width="100%" justifyContent="flex-end" position="absolute" top="$4" right="$3" zIndex={1000}>
-        <Text fontSize={16} fontWeight="bold" color={isDark ? '#fff' : '#000'} fontFamily="$body" opacity={0.7} pressStyle={{ opacity: 0.5 }} onPress={() => onOpenChange(false)}>
-            ✕
-          </Text>
-        </XStack>
-        {/* Make this YStack flexible to allow content scrolling */}
-        <YStack flex={1} gap="$3" paddingBottom="$3"> 
+    <BaseCardModal 
+      open={open} 
+      onOpenChange={onOpenChange} 
+      title="Settings"
+      snapPoints={isWeb ? [90] : [82]}
+      zIndex={100000}
+      showCloseButton={true}
+    >
+      <YStack flex={1} gap="$3" paddingBottom="$3" paddingHorizontal={isWeb ? '$4' : '$3'}>
           <XStack gap="$3" flexWrap="wrap">
             <YStack width={60} gap="$2" alignItems="center">
               <Circle size={60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
@@ -330,46 +353,86 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </YStack>
             </YStack>
           ) : (
-            <YStack mt="$2" padding="$3" borderRadius="$4" backgroundColor={isDark ? '#1a1a1a' : '#f7f7f7'}>
-              <XStack gap="$4" flexWrap="wrap" justifyContent="flex-start" alignItems="center">
-                <YStack alignItems="center" gap="$1">
-                  <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                    Quote
+            <YStack mt="$2" padding="$4" borderRadius="$4" backgroundColor={isDark ? '#1a1a1a' : '#f7f7f7'}>
+            {/* First row */}
+            <XStack gap="$6" justifyContent="space-between" marginBottom="$4">
+              <YStack alignItems="center" gap="$2" width={100}>
+                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
+                  Quote
                 </Text>
-                <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                <Switch 
+                  value={settings.quoteEnabled} 
+                  onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} 
+                  thumbColor="#fff" 
+                  trackColor={{ false: '#555', true: settings.primaryColor }} 
+                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }} 
+                />
               </YStack>
-               <YStack alignItems="center" gap="$1">
+              <YStack alignItems="center" gap="$2" width={100}>
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Stocks
                 </Text>
-                <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                <Switch 
+                  value={settings.portfolioEnabled} 
+                  onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} 
+                  thumbColor="#fff" 
+                  trackColor={{ false: '#555', true: settings.primaryColor }} 
+                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }} 
+                />
               </YStack>
-               <YStack alignItems="center" gap="$1">
+              <YStack alignItems="center" gap="$2" width={100}>
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Weather
                 </Text>
-                <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                <Switch 
+                  value={settings.temperatureEnabled} 
+                  onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} 
+                  thumbColor="#fff" 
+                  trackColor={{ false: '#555', true: settings.primaryColor }} 
+                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }} 
+                />
               </YStack>
-               <YStack alignItems="center" gap="$1">
+            </XStack>
+            
+            {/* Second row */}
+            <XStack gap="$6" justifyContent="space-between">
+              <YStack alignItems="center" gap="$2" width={100}>
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Network
                 </Text>
-                <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                <Switch 
+                  value={settings.wifiEnabled} 
+                  onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} 
+                  thumbColor="#fff" 
+                  trackColor={{ false: '#555', true: settings.primaryColor }} 
+                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }} 
+                />
               </YStack>
-              <YStack alignItems="center" gap="$1">
+              <YStack alignItems="center" gap="$2" width={100}>
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Notifications
                 </Text>
-                <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }} />
+                <Switch 
+                  value={settings.notificationsEnabled} 
+                  onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} 
+                  thumbColor="#fff" 
+                  trackColor={{ false: '#555', true: settings.primaryColor }} 
+                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }} 
+                />
               </YStack>
-              <YStack alignItems="center" gap="$1">
-                <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">
+              <YStack alignItems="center" gap="$2" width={100}>
+                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                   Primary Color
                 </Text>
-                  <Circle size={36} backgroundColor={settings.primaryColor} pressStyle={{ scale: 0.97 }} onPress={() => setColorPickerOpen(true)} />
-                </YStack>
-              </XStack>
-            </YStack>
+                <Circle 
+                  size={34} 
+                  backgroundColor={settings.primaryColor} 
+                  pressStyle={{ scale: 0.97 }} 
+                  onPress={() => setColorPickerOpen(true)} 
+                />
+              </YStack>
+            </XStack>
+          </YStack>
           )}
           <YStack gap="$2" mt="$3">
             <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
@@ -422,14 +485,44 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             isDark={isDark}
           />
         </YStack>
-        <XStack justifyContent="flex-end" mt="$3" pb="$2"> 
+        <XStack justifyContent="space-between" mt="$3" pb="$2">
+          <Button 
+            backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} 
+            onPress={async () => {
+              const message = "Are you sure you want to reset all your data? This cannot be undone..."
+              const shouldReset = isWeb 
+                ? window.confirm(message)
+                : await new Promise(resolve => {
+                  Alert.alert(
+                    "Confirm Reset",
+                    message,
+                    [
+                      { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+                      { text: "Reset", style: "destructive", onPress: () => resolve(true) }
+                    ]
+                  )
+                })
+
+              if (shouldReset) {
+                await StorageUtils.clear()
+                if (isWeb) {
+                  window.location.href = '/screens/onboarding/welcome'
+                } else {
+                  router.replace('/onboarding/step0')
+                }
+              }
+            }}
+          >
+            <Text color="$red10" fontWeight="bold" fontFamily="$body" fontSize={14}>
+              Sign Out
+            </Text>
+          </Button>
           <Button backgroundColor={settings.primaryColor} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} onPress={handleSave}>
             <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
               Save
             </Text>
           </Button>
         </XStack>
-      </Sheet.Frame>
-  </Sheet>
+    </BaseCardModal>
   )
 }

@@ -252,8 +252,7 @@ export default function BillsScreen() {
       </ScrollView>
       
       <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
-      
-      {/* Conditionally render IncomeModal */}
+        
       {isIncomeModalVisible && (
         <IncomeModal 
           onClose={() => setIsIncomeModalVisible(false)} 

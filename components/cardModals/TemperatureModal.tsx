@@ -107,7 +107,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   return (
     <BaseCardAnimated onClose={() => onOpenChange(false)}  title="Weather">
       <ScrollView>
-        <YStack gap="$4" paddingBottom="$4">
+        <YStack gap="$1" paddingBottom="$1">
           <XStack gap="$3">
             <YStack
               backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.8)"}

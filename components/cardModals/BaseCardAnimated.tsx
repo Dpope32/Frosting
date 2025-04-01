@@ -3,7 +3,7 @@ import React from 'react'
 import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' // Removed Modal
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
-import { Text, Theme, XStack, Button } from 'tamagui'
+import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
 import Animated, {
   ZoomIn,
   FadeIn, // Added FadeIn for overlay
@@ -40,21 +40,29 @@ export function BaseCardAnimated({
   )
 
   return (
-    // Use Animated.View for the overlay with FadeIn/FadeOut
     <Animated.View
       style={styles.overlay}
-      entering={FadeIn.duration(200)} // Faster fade for overlay
-      exiting={FadeOut.duration(300)} // Keep modal content fade duration
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(300)}
+      pointerEvents="box-none"
     >
-      <TouchableWithoutFeedback onPress={onClose}> 
-        {/* This inner View prevents the overlay press from propagating */}
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
-            <Theme name={isDark ? 'dark' : 'light'}>
-              {/* Animated View for the modal content itself */}
+      <TouchableWithoutFeedback 
+        onPress={(e) => {
+          if (Platform.OS === 'web' && e.target === e.currentTarget) {
+            onClose();
+          } else if (Platform.OS !== 'web') {
+            onClose();
+          }
+        }}
+      >
+        <View 
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+          pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
+        >
+          <Theme name={isDark ? 'dark' : 'light'}>
               <Animated.View
                 entering={ZoomIn.duration(300).springify()}
-                exiting={FadeOut.duration(300)} // Keep FadeOut for content
+                exiting={FadeOut.duration(300)} 
                 style={[
                   styles.modalContainer,
                   {
@@ -66,7 +74,7 @@ export function BaseCardAnimated({
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" px="$2" alignItems="center" marginBottom={16}>
+                <XStack justifyContent="space-between" py="$2" marginBottom={16} px="$2" alignItems="center">
                   <Text
                     fontSize={24}
                     fontWeight="700"
@@ -79,7 +87,7 @@ export function BaseCardAnimated({
                   {showCloseButton && (
                     <Button
                       backgroundColor="transparent"
-                      onPress={onClose} // Correct usage of onClose
+                      onPress={onClose} 
                       padding={8}
                       pressStyle={{ opacity: 0.7 }}
                       icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
@@ -90,8 +98,7 @@ export function BaseCardAnimated({
                     {children}
                   </View>
                 </Animated.View>
-              </Theme>
-            </TouchableWithoutFeedback>
+                </Theme>
           </View>
         </TouchableWithoutFeedback>
       </Animated.View>
@@ -100,11 +107,11 @@ export function BaseCardAnimated({
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject, // Make overlay cover the whole screen
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.93)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000, // Ensure it's on top
+    zIndex: 1000, 
   },
   modalContainer: {
     alignSelf: 'center',
@@ -116,6 +123,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    paddingBottom: isWeb? 50 : 16,
     zIndex: 1,
   },
 })

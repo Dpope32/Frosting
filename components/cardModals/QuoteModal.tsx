@@ -43,15 +43,12 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
     }
   }, [open, isLoading])
 
-  // Render BaseCardAnimated directly when open is true
   return (
     <BaseCardAnimated
-      // Removed open and onOpenChange props
-      onClose={() => onOpenChange(false)} // Pass onClose handler
+      onClose={() => onOpenChange(false)} 
       title="Daily Quote"
     >
       <YStack gap="$4" opacity={isLoading ? 0.7 : 1}>
-        {/* Quote Card */}
         <Animated.View
           entering={FadeIn.duration(600).delay(0)}
         >
@@ -103,10 +100,8 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
           </YStack>
         </Animated.View>
         
-        {/* Refresh Button */}
         <Animated.View
           entering={FadeIn.duration(600).delay(200)}
-          // Removed exiting={FadeOut.duration(300)}
         >
           <YStack
             backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}

@@ -1,27 +1,27 @@
 import { Platform } from "react-native";
-import { LogBox } from 'react-native';
 
 const S3_URL = process.env.EXPO_PUBLIC_S3_BUCKET_URL;
 
-export interface S3Wallpaper { name: string; uri: string;}
+export interface S3Wallpaper { 
+  name: string; 
+  uri: string;
+}
 
 const preloadedImages: Record<string, HTMLImageElement | boolean> = {};
 
 export const preloadImage = (uri: string): Promise<boolean> => {
-  console.log(`[S3Service] Preloading image: ${uri}`);
+  
   if (Platform.OS !== 'web') {
     return Promise.resolve(true); 
   }
   
   if (preloadedImages[uri] === true) {
-    console.log(`[S3Service] Image already preloaded: ${uri}`);
     return Promise.resolve(true); 
   }
   
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
-      console.log(`[S3Service] Successfully preloaded image: ${uri}`);
       preloadedImages[uri] = img;
       resolve(true);
     };
@@ -35,12 +35,11 @@ export const preloadImage = (uri: string): Promise<boolean> => {
 
 export const isImagePreloaded = (uri: string): boolean => {
   const preloaded = !!preloadedImages[uri];
-  console.log(`[S3Service] Checking if image preloaded (${uri}): ${preloaded}`);
   return preloaded;
 };
 
 export const getWallpapers = (): S3Wallpaper[] => {
-  console.log('[S3Service] Getting wallpaper list');
+  
   const commonWallpapers = [
     'Abstract.jpg',
     'Aesthetic.jpg',
@@ -58,27 +57,32 @@ export const getWallpapers = (): S3Wallpaper[] => {
   
   return wallpapers.map(filename => {
     const uri = `${S3_URL}/wallpapers/${filename}`;
-    console.log(`[S3Service] Preparing wallpaper: ${filename} (${uri})`);
+    const name = filename.split('.')[0];
+    const wallpaperKey = `wallpaper-${name}`;
+    
+    
     if (Platform.OS === 'web') {
-      preloadImage(uri).catch(console.error);
+      preloadImage(uri).catch(err => 
+        console.error(`[S3Service] Error preloading ${uri}:`, err)
+      );
     }
+    
     return {
-      name: filename.split('.')[0],
+      name: wallpaperKey,
       uri
     };
   });
 };
 
 export const preloadAllWallpapers = async (): Promise<void> => {
-  console.log('[S3Service] Starting preload of all wallpapers');
   const wallpapers = getWallpapers();
+  
   if (Platform.OS === 'web') {
-    await Promise.all(wallpapers.map(({ uri }) => preloadImage(uri)));
+    try {
+      await Promise.all(wallpapers.map(({ uri }) => preloadImage(uri)));
+    } catch (error) {
+      console.error('[S3Service] Error during preload of all wallpapers:', error);
+    }
+  } else {
   }
-  console.log('[S3Service] Completed preload of all wallpapers');
 };
-
-// Ignore specific warnings
-LogBox.ignoreLogs([
-  'Possible Unhandled Promise Rejection',
-]);

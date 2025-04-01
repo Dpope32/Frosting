@@ -130,35 +130,37 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                 <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 14} fontFamily="$body">
                   Principal
                 </Text>
-                <Input
-                  value={isEditingPrincipal ? principalInput : `-$\{principal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  onChangeText={isEditingPrincipal ? (v) => setPrincipalInput(v.replace(/[^0-9.]/g, '')) : undefined}
-                  keyboardType="numeric"
-                  editable={isEditingPrincipal}
-                  onFocus={() => {
-                    setPrincipalInput(principal.toString())
-                    setIsEditingPrincipal(true)
-                  }}
-                  onBlur={() => {
-                    const newValue = parseFloat(debouncedPrincipalInput)
-                    if (!isNaN(newValue) && newValue >= 0) {
-                      updatePrincipal(newValue)
-                    }
-                    setIsEditingPrincipal(false)
-                  }}
-                  backgroundColor={isEditingPrincipal ? '$backgroundHover' : 'transparent'}
-                  borderColor={isEditingPrincipal ? '$borderColor' : 'transparent'}
-                  borderWidth={isEditingPrincipal ? 1 : 0}
-                  color={isEditingPrincipal ? (isDark ? '#fff' : '#000') : (isDark ? '#aaa' : '#b91c1c')}
-                  height={24}
-                  paddingHorizontal={isEditingPrincipal ? '$2' : 0}
-                  textAlign="right"
-                  fontSize={isWeb ? 18 : 14}
-                  fontWeight="600"
-                  width={isWeb ? 140 : 110}
-                  fontFamily="$body"
-                  pointerEvents={isEditingPrincipal ? 'auto' : 'none'}
-                />
+                {isEditingPrincipal ? (
+                  <Input
+                    value={principalInput}
+                    onChangeText={(v) => setPrincipalInput(v.replace(/[^0-9.]/g, ''))}
+                    keyboardType="numeric"
+                    autoFocus
+                    onBlur={() => {
+                      setIsEditingPrincipal(false)
+                    }}
+                    backgroundColor="$backgroundHover"
+                    borderColor="$borderColor"
+                    height={24}
+                    textAlign="right"
+                    fontSize={isWeb ? 16 : 14}
+                    width={isWeb ? 140 : 110}
+                    fontFamily="$body"
+                  />
+                ) : (
+                  <Text
+                    fontSize={isWeb ? 18 : 14}
+                    fontWeight="600"
+                    color={isDark ? '#aaa' : '#b91c1c'}
+                    onPress={() => {
+                      setIsEditingPrincipal(true)
+                      setPrincipalInput(principal.toString())
+                    }}
+                    fontFamily="$body"
+                  >
+                    -${principal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </Text>
+                )}
               </XStack>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 14} fontFamily="$body">

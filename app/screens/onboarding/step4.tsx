@@ -38,7 +38,7 @@ export default function Step4({
   return (
     <YStack flex={1} justifyContent="center" alignItems="center">
 
-      <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$6" : "$2"}>
+      <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$3" : "$2"}>
         <Label
           fontFamily="$heading"
           size={isWeb ? "$9" : "$8"}
@@ -58,7 +58,7 @@ export default function Step4({
           fontWeight="400"
           fontStyle="italic"
         >
-          For local weather information
+          If you want to display local weather data
         </Text>
       </YStack>
 

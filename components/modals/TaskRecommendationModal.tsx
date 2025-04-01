@@ -126,7 +126,8 @@ function CategoryTaskModal({
       onOpenChange={(newOpen) => { onOpenChange(newOpen)}} 
       title={`${category} Tasks`}
       snapPoints={[isWeb? 90 : 85]}
-      zIndex={200000} 
+      zIndex={200000}
+      showCloseButton={true}
     >
       <YStack gap={isWeb ? "$4" : "$3"}paddingBottom={isWeb ? "$3" : "$8"} px={isWeb ? "$2" : "$1"}>
         <Text color={isDark ? "#dbd0c6" : "#666"} fontFamily="$body" fontSize={isWeb ? 16 : 14} opacity={0.9}> Select tasks to add to your schedule:</Text>
@@ -159,7 +160,6 @@ function CategoryTaskModal({
             </YStack>
           ) : isWeb ? (
             <XStack gap="$2">
-              {/* Left Column */}
               <YStack flex={1} gap="$2">
                 {recommendedTasks
                   .filter((_, index) => index % 2 === 0)
@@ -206,7 +206,6 @@ function CategoryTaskModal({
                   })}
               </YStack>
               
-              {/* Right Column */}
               <YStack flex={1} gap="$2">
                 {recommendedTasks
                   .filter((_, index) => index % 2 === 1)

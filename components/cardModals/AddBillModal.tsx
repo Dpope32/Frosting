@@ -232,7 +232,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   </XStack>
                 </TouchableOpacity>
                 
-                {/* Custom Date Picker for Web / Native DateTimePicker for mobile */}
                 {showDatePicker && (
                   isWeb ? (
                     <WebDatePicker />
@@ -250,7 +249,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
               </YStack>
             </Animated.View>
             
-            {/* Action Buttons */}
             <Animated.View entering={FadeInDown.delay(400).duration(500)}>
               <XStack gap="$3" justifyContent="flex-end" marginTop="$2">
                 <Button

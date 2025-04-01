@@ -133,13 +133,13 @@ export default function DrawerLayout() {
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
       drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
-      drawerItemStyle: {
-        borderRadius: !isPermanentDrawer ? 8 : 0,
+      drawerItemStyle: ({ focused }: { focused: boolean }) => ({
+        borderRadius: focused ? 8 : (!isPermanentDrawer ? 8 : 0),
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
         ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
-      },
+      }),
       drawerLabelStyle: {
         fontSize: isIpadDevice ? 17 : 16, 
         fontWeight: "600" as const,

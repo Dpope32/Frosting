@@ -172,7 +172,6 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
             </XStack>
           </ScrollView>
           
-          {/* Save Button - Fixed at bottom */}
           <XStack 
             position="absolute" 
             bottom={52} 

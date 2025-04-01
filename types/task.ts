@@ -1,7 +1,4 @@
-// Remove the import from '@/store/ToDo'
-// import { WeekDay, TaskPriority, TaskCategory, RecurrencePattern } from '@/store/ToDo'
 
-// Add the type definitions
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
 export type RecurrencePattern = 'one-time' | 'tomorrow' | 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'

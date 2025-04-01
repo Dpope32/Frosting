@@ -303,7 +303,6 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         </Sheet.Frame>
       </Sheet>
 
-      {/* Recommendation modals */}
       <VaultRecommendationModal
         open={socialMediaModalOpen}
         onOpenChange={setSocialMediaModalOpen}

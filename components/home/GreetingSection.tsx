@@ -15,11 +15,8 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       br={16}
       px="$3"
       py="$3"
-      style={Platform.OS === 'web' ? {
-        boxShadow: '0px 0px 10px rgba(255, 255, 255, 0.05)'
-      } : { }}
     >
-      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$4" : "$2"}>
+      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$1" : "$2"}>
         <XStack alignItems="center" gap="$1">
           <Text
             fontFamily="$heading"
