@@ -36,6 +36,7 @@
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/drawer": "^7.1.1",
     "@react-navigation/native": "^7.0.14",
+    "@sentry/react-native": "^6.10.0",
     "@shopify/flash-list": "1.7.3",
     "@tamagui/animations-react-native": "^1.122.7",
     "@tamagui/config": "^1.122.7",

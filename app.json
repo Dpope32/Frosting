@@ -25,7 +25,11 @@
       "buildNumber": "1.0.18",
       "bundleIdentifier": "com.deedaw22.kaibanexus",
       "infoPlist": {
-        "LSApplicationQueriesSchemes": ["mailto", "https", "http"],
+        "LSApplicationQueriesSchemes": [
+          "mailto",
+          "https",
+          "http"
+        ],
         "UIBackgroundModes": [
           "remote-notification"
         ],
@@ -85,7 +89,15 @@
       "expo-font",
       "expo-image-picker",
       "expo-contacts",
-      "expo-system-ui"
+      "expo-system-ui",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "kaiba-nexus",
+          "organization": "pope-brothers-ltd-2021"
+        }
+      ]
     ],
     "extra": {
       "router": {

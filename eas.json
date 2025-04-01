@@ -14,7 +14,8 @@
       "ios": {
         "simulator": false
       },
-      "node": "20.18.1"
+      "node": "20.18.1",
+      "channel": "development"
     },
     "preview": {
       "distribution": "internal",
@@ -26,7 +27,8 @@
       "ios": {
         "simulator": false
       },
-      "node": "20.18.1"
+      "node": "20.18.1",
+      "channel": "preview"
     },
     "production": {
       "ios": {
@@ -38,7 +40,8 @@
         "disabled": false,
         "key": "production-v1"
       },
-      "node": "20.18.1"
+      "node": "20.18.1",
+      "channel": "production"
     }
   },
   "submit": {

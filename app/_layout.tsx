@@ -24,6 +24,13 @@ import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationM
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
 import { handleSharedContact } from '../services/shareService';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
+import * as Sentry from '@sentry/react-native'; 
+
+Sentry.init({
+  dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
+  // (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +43,7 @@ const queryClient = new QueryClient({
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({});
 
@@ -60,18 +67,14 @@ export default function RootLayout() {
         const update = await Updates.checkForUpdateAsync();
         if (update.isAvailable) {
           await Updates.fetchUpdateAsync();
-          // Consider a less disruptive update prompt or background update
           Alert.alert('Update downloaded', 'Restarting app to apply update...');
           await Updates.reloadAsync();
         }
       } catch (error) {
-        // Use console.error for errors
         console.error('Failed to fetch update:', error);
-        // Optionally, inform the user subtly or log to an error service
       }
     };
 
-    // Only check for updates if the app is loaded and not in development mode
     if (loaded && !__DEV__) {
       checkAndApplyUpdate();
     }
@@ -125,4 +128,4 @@ export default function RootLayout() {
       </TamaguiProvider>
     </QueryClientProvider>
   );
-}
+}); // Close Sentry.wrap
