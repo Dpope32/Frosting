@@ -23,7 +23,10 @@
     "build-electron": "electron-builder build --win"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "roots": [
+      "<rootDir>/tests"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
