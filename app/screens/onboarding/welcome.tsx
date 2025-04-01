@@ -110,7 +110,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
           <XStack position="relative" alignItems="center">
             {isWeb && (
               <Image
-                source={require('../../../../assets/images/icon.png')}
+                source={require('@/assets/images/icon.png')}
                 style={[iconStyle, { position: 'absolute', left: -150 }]}
               />
             )}
@@ -124,7 +124,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
             </H1>
             {isWeb && (
               <Image
-                source={require('../../../../assets/images/icon.png')}
+                source={require('@/assets/images/icon.png')}
                 style={[iconStyle, { position: 'absolute', right: -150 }]}
               />
             )}
