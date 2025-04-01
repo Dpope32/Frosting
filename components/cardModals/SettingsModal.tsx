@@ -497,7 +497,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               if (shouldReset) {
                 await StorageUtils.clear()
                 if (isWeb) {
-                  window.location.href = '/screens/onboarding/welcome'
+                  window.location.href = '/'
                 } else {
                   router.replace('/onboarding/step0')
                 }

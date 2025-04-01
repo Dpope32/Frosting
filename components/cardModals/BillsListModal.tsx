@@ -169,7 +169,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                 >
                   All Bills
                 </Text>
-                <Pressable onPress={() => onOpenChange(false)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 8 })}>
+                <Pressable onPress={() => onOpenChange(false)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 0.7, padding: 8 })}>
                   <Ionicons name="close" size={24} color="#ffffff" />
                 </Pressable>
               </XStack>

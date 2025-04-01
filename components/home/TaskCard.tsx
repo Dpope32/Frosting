@@ -3,8 +3,9 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { TaskPriority } from '@/types/task';
+import { TaskPriority, TaskCategory } from '@/types/task'; // Import TaskCategory
 import { isWeb } from 'tamagui';
+import { getCategoryColor } from '@/utils/styleUtils'; // Import getCategoryColor
 
 interface TaskCardProps {
   title: string;
@@ -12,7 +13,7 @@ interface TaskCardProps {
   category?: string;
   status: string;
   priority?: TaskPriority;
-  categoryColor?: string;
+  // categoryColor?: string; // Remove categoryColor prop
   checked?: boolean;
   oneTime?: boolean;
   onCheck?: (checked: boolean) => void;
@@ -25,13 +26,16 @@ export function TaskCard({
   category, 
   status,
   priority,
-  categoryColor = '#9C27B0',
+  // categoryColor = '#9C27B0', // Remove categoryColor prop usage
   checked = false,
   onCheck,
   onDelete
 }: TaskCardProps) {
+  // Calculate category color using the utility function
+  const calculatedCategoryColor = getCategoryColor(category as TaskCategory | undefined);
+
   const getPriorityColor = (priority?: TaskPriority): string => {
-    if (!priority) return '#607d8b'; 
+    if (!priority) return '#607d8b';
     const colors: Record<TaskPriority, string> = {
       high: '#F44336', 
       medium: '#FF9800', 
@@ -60,7 +64,7 @@ export function TaskCard({
       borderColor="rgba(52, 54, 55, 0.9)"
       style={{
         borderLeftWidth: 3,
-        borderLeftColor: categoryColor,
+        borderLeftColor: calculatedCategoryColor, // Use calculated color
         position: 'relative',
         overflow: 'hidden',
         ...(Platform.OS === 'web' ? {
@@ -171,23 +175,23 @@ export function TaskCard({
 
           <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-6} mt={-4}>
             {category && (
-              <XStack 
-                alignItems="center" 
-                backgroundColor={`${categoryColor}15`}
+              <XStack
+                alignItems="center"
+                backgroundColor={`${calculatedCategoryColor}15`}
                 px="$1"
                 py="$0.5"
                 br={12}
                 opacity={checked ? 0.6 : 0.9}
               >
-                <Ionicons 
-                  name="bookmark" 
-                  size={10} 
-                  color={categoryColor} 
+                <Ionicons
+                  name="bookmark"
+                  size={10}
+                  color={calculatedCategoryColor} 
                   style={{ marginLeft: 4, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"
-                  color={categoryColor}
+                  color={calculatedCategoryColor}
                   fontSize={11}
                   fontWeight="500"
                 >
