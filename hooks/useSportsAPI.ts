@@ -29,30 +29,23 @@ export const useSportsAPI = () => {
     try {
       setLoading(true);
       setError(null);
-      // Check cache first - only if onboarding is complete
       const cachedData = getCachedSchedule(teamCode, season);
       if (cachedData) {
-        console.log(`[NBA API] Using cached schedule for ${teamCode} (${season})`);
-        setGames(cachedData);
+          setGames(cachedData);
         return cachedData;
       }
-      
-      console.log(`[NBA API] Fetching schedule for ${teamCode} (${espnTeamCode}) - Season: ${season}`);
       
       const requestHeaders = {
         'Accept': 'application/json',
         'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
       };
       
-      // Try with current season
       const response = await fetchWithRetry(
         `${ESPN_API_URL}?season=${season}`,
         { headers: requestHeaders }
       );
       
       if (response.status === 400) {
-        console.log(`[NBA API] Bad request for ${teamCode} with season ${season}. Trying previous season...`);
-        // Try with previous season as fallback
         const fallbackSeason = season - 1;
         const fallbackResponse = await fetchWithRetry(
           `${ESPN_API_URL}?season=${fallbackSeason}`,
@@ -144,7 +137,6 @@ export const useSportsAPI = () => {
   
   const fetchTeamStats = async () => {
     try {
-      console.log(`[NBA API] Fetching team stats for ${teamCode} (${espnTeamCode})`);
       const response = await fetchWithRetry(
         ESPN_TEAM_API_URL,
         {
@@ -162,12 +154,10 @@ export const useSportsAPI = () => {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error(`[NBA API] Error fetching team stats:`, error);
       return null;
     }
   };
   
-  // Update the query parameters for better performance
   const results = useQueries({
     queries: [
       {
