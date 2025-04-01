@@ -69,8 +69,6 @@ function CategoryTaskModal({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
 
-  const lighterColor = adjustColor(primaryColor, 100)
-  const darkerColor = adjustColor(primaryColor, -250)
 
   const handleToggleTask = (index: number) => {
     setSelectedTasks(prev => ({
@@ -102,7 +100,6 @@ function CategoryTaskModal({
       }
     })
     
-    // Show toast notification
     if (selectedCount > 0) {
       showToast(`${selectedCount} ${selectedCount === 1 ? 'task' : 'tasks'} added successfully!`, 'success')
     }

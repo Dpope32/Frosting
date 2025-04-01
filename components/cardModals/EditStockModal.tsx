@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { debounce } from 'lodash'
-import { YStack, Text, Input, Button, XStack, ScrollView, useTheme } from 'tamagui'
+import { YStack, Text, Button, XStack, ScrollView, useTheme } from 'tamagui'
 import { Platform, useColorScheme } from 'react-native'
 import { BaseCardModal } from './BaseCardModal'
 import { useUserStore } from '@/store/UserStore'

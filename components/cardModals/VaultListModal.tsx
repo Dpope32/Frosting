@@ -174,6 +174,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
           animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
+          opacity={0.7} 
         />
         <Sheet.Frame
           backgroundColor={isDark ? '$gray1' : 'white'}

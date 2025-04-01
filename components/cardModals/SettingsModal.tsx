@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert } from 'react-native' // Remove ScrollView import
+import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert } from 'react-native' 
 import { BaseCardModal } from './BaseCardModal'
 import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router'
@@ -112,6 +112,7 @@ const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
     </YStack>
   )
 })
+
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
@@ -223,8 +224,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             sources[wallpaperKey] = wallpaperPath;
             
             await wallpaperStore.cacheWallpaper(wallpaperKey, wallpaperPath.uri);
-          } else {
-            console.warn(`[SettingsModal] Failed to get wallpaper path for ${wallpaperKey}`);
           }
         }
       } catch (error) {
@@ -242,25 +241,22 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     if (style === 'gradient') {
       return { uri: '' };
     }
-    
     if (wallpaperSources[style]) {
       return wallpaperSources[style];
     }
-    
-    console.warn(`[SettingsModal] No wallpaper source found for: ${style}`);
     return undefined;
   }, [wallpaperSources]);
   
   return (
-    <BaseCardModal 
+    <BaseCardModal
       open={open} 
       onOpenChange={onOpenChange} 
       title="Settings"
-      snapPoints={isWeb ? [90] : [82]}
+      snapPoints={isWeb ? [90] : [86]}
       zIndex={100000}
       showCloseButton={true}
     >
-      <YStack flex={1} gap="$3" paddingBottom="$3" paddingHorizontal={isWeb ? '$4' : '$3'}>
+      <YStack flex={1} gap="$2" paddingBottom="$2" paddingHorizontal={isWeb ? '$4' : '$4'}>
           <XStack gap="$3" flexWrap="wrap">
             <YStack width={60} gap="$2" alignItems="center">
               <Circle size={60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
@@ -309,7 +305,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           </XStack>
           {Platform.OS !== 'web' ? (
-            <YStack mt="$2" padding="$3" borderRadius="$4" backgroundColor={isDark ? '#1a1a1a' : '#f7f7f7'}>
+            <YStack mt="$2" py="$2" borderRadius="$4" backgroundColor={isDark ? '#1a1a1a' : '#f7f7f7'}>
               <YStack gap="$3"> 
                 <XStack gap="$4" justifyContent="space-around"> 
                   <YStack alignItems="center" gap={4} flex={1}> 
@@ -345,7 +341,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           ) : (
             <YStack mt="$2" padding="$4" borderRadius="$4" backgroundColor={isDark ? '#1a1a1a' : '#f7f7f7'}>
-            {/* First row */}
             <XStack gap="$6" justifyContent="space-between" marginBottom="$4">
               <YStack alignItems="center" gap="$2" width={100}>
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
@@ -384,8 +379,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 />
               </YStack>
             </XStack>
-            
-            {/* Second row */}
             <XStack gap="$6" justifyContent="space-between">
               <YStack alignItems="center" gap="$2" width={100}>
                 <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
@@ -425,9 +418,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </XStack>
           </YStack>
           )}
-          <YStack gap="$2" mt="$3">
-            <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-              Wallpaper Selection
+          <YStack gap="$2" >
+            <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
+              Wallpaper
             </Text>
             <YStack>
               {Array.from({ length: Math.ceil(filteredBackgroundStyles.length / 3) }).map((_, rowIndex) => (
@@ -476,7 +469,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             isDark={isDark}
           />
         </YStack>
-        <XStack justifyContent="space-between" mt="$3" pb="$2">
+        <XStack justifyContent="space-between"  paddingHorizontal={isWeb ? '$4' : '$3'} mb="$2">
           <Button 
             backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} 
             onPress={async () => {
@@ -497,11 +490,11 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               if (shouldReset) {
                 await StorageUtils.clear()
                 if (isWeb) {
-                  window.location.href = '/'
-                } else {
-                  router.replace('/onboarding/step0')
-                }
-              }
+                   window.location.href = '/'
+                 } else {
+                   router.replace('/') // Navigate to root, index.tsx will handle redirect
+                 }
+               }
             }}
           >
             <Text color="$red10" fontWeight="bold" fontFamily="$body" fontSize={14}>

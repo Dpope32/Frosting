@@ -133,15 +133,15 @@ export default function DrawerLayout() {
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
       drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
-      drawerItemStyle: ({ focused }: { focused: boolean }) => ({
-        borderRadius: focused ? 8 : (!isPermanentDrawer ? 8 : 0),
+      drawerItemStyle: {
+        borderRadius: 8, 
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
         ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
-      }),
+      },
       drawerLabelStyle: {
-        fontSize: isIpadDevice ? 17 : 16, 
+        fontSize: isIpadDevice ? 17 : 16,
         fontWeight: "600" as const,
         marginLeft: -8,
       },
@@ -158,12 +158,10 @@ export default function DrawerLayout() {
     if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
         enabled: true,
-        activeOffsetX: [-15, 15],  // More sensitive than current -10, 10
-        failOffsetY: [-50, 50],  // Less restrictive than current -30, 30
-        velocityThreshold: 0.3,  // Increased from 0.1 for smoother transitions
+        activeOffsetX: [-15, 15], 
+        failOffsetY: [-50, 50],  
+        velocityThreshold: 0.3,  
       };
-      
-      // Add additional optimizations for mobile
       options.sceneContainerStyle = {
         transform: [{ translateX: 0 }],
       };

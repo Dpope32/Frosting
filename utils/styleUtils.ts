@@ -45,9 +45,9 @@ export const getRecurrenceColor = (pattern?: RecurrencePattern): string => {
   if (!pattern) return '#607d8b'; 
   
   const colors: Record<RecurrencePattern, string> = {
-    'one-time': '#E91E63',  // Pink 
+    'one-time': '#2196F3',  // Blue
     'tomorrow': '#795548',  // Brown 
-    'everyday': '#2196F3',  // Blue
+    'everyday': '#E91E63',  // Pink
     'weekly': '#9C27B0',    // Purple
     'biweekly': '#FF9800',  // Orange
     'monthly': '#4CAF50',   // Green

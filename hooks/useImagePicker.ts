@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Alert, Linking, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 interface ImagePickerOptions {
@@ -46,6 +47,28 @@ export function useImagePicker(
       setIsLoading(true);
       setError(null);
 
+      // Request permissions first
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        if (Platform.OS !== 'web') { // Linking.openSettings() is not available on web
+          Alert.alert(
+            "Permission Required",
+            "Media library permission is needed to select images. Please enable it in your device settings.",
+            [
+              { text: "Cancel", style: "cancel" },
+              { 
+                text: "Open Settings", 
+                onPress: () => Linking.openSettings() 
+              }
+            ]
+          );
+        } else {
+          alert("Media library permission is required to select images. Please enable it in your browser settings.");
+        }
+        return null; // Don't proceed if permission denied
+      }
+
+      // Permissions granted, proceed with picking
       const mergedOptions: ImagePickerOptions = {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,

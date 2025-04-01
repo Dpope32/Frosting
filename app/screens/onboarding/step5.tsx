@@ -49,7 +49,7 @@ export default function Step5({
     handleNext()
   }
   
-  const popularTeams = ['LAL', 'GSW', 'BOS', 'CHI', 'OKC', 'NYK', 'CLE', 'DEN']
+  const popularTeams = ['LAL', 'GSW', 'BOS', 'CHI', 'OKC', 'CLE']
   const initialTeams = nbaTeams.filter(team => popularTeams.includes(team.code))
   const teamsToDisplay = showAllTeams ? nbaTeams : initialTeams
   
@@ -79,12 +79,12 @@ export default function Step5({
       flex={1} 
       justifyContent="flex-start" 
       alignItems="center" 
-      padding="$4" 
+      padding={isWeb ? "$4" : "$2"} 
       paddingTop={isWeb ? 0 : mobileTopPadding}
     >
       <YStack 
         position="absolute" 
-        top={isWeb ? "2%" : "8%"} 
+        top={isWeb ? "2%" : "13%"} 
         left={0} 
         right={0} 
         alignItems="center"
@@ -107,7 +107,7 @@ export default function Step5({
         style={{ 
           width: '100%', 
           maxWidth: isWeb ? 1200 : mobileScrollMaxWidth,
-          marginTop: isWeb ? 90 : 95
+          marginTop: isWeb ? 90 : 140
         }}
         contentContainerStyle={{ 
           paddingBottom: isWeb ? 80 : 100,

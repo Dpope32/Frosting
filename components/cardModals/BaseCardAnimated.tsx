@@ -6,7 +6,7 @@ import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
 import Animated, {
   ZoomIn,
-  FadeIn, // Added FadeIn for overlay
+  FadeIn, 
   FadeOut,
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -22,11 +22,10 @@ interface BaseCardAnimatedProps {
 }
 
 export function BaseCardAnimated({
-  // Removed open, onOpenChange from destructuring
   title,
   children,
-  onClose, // Added onClose to destructuring
-  modalWidth = Platform.OS === 'web' ? 700 : 350,
+  onClose, 
+  modalWidth = Platform.OS === 'web' ? 700 : 360,
   modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
   showCloseButton = true,
 }: BaseCardAnimatedProps) {
@@ -35,7 +34,7 @@ export function BaseCardAnimated({
   const insets = useSafeAreaInsets()
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
   const actualWidth = Math.min(
-    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.85,
+    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.9,
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.95
   )
 
@@ -56,7 +55,7 @@ export function BaseCardAnimated({
         }}
       >
         <View 
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+          style={{ marginTop: -100,flex: 1, justifyContent: 'center', alignItems: 'center' }} 
           pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
@@ -67,16 +66,16 @@ export function BaseCardAnimated({
                   styles.modalContainer,
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top + 20,
-                    marginBottom: insets.bottom + 20,
+                    marginTop: insets.top, 
+                    marginBottom: insets.bottom, 
                     width: actualWidth,
-                    maxHeight: screenHeight - 80,
+                    maxHeight: screenHeight,
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" py="$2" marginBottom={16} px="$2" alignItems="center">
+                <XStack justifyContent="space-between" py="$2" marginBottom={isWeb ? 8 : 4} px="$2" alignItems="center">
                   <Text
-                    fontSize={24}
+                    fontSize={isWeb? 24 : 20}
                     fontWeight="700"
                     fontFamily="$body"
                     color={isDark ? "#fffaef" : "#black"}
@@ -108,7 +107,7 @@ export function BaseCardAnimated({
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.93)',
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000, 
@@ -124,7 +123,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 50 : 16,
+    paddingBottom: isWeb? 50 : 18,
     zIndex: 1,
   },
 })

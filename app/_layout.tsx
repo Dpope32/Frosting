@@ -60,15 +60,19 @@ export default function RootLayout() {
         const update = await Updates.checkForUpdateAsync();
         if (update.isAvailable) {
           await Updates.fetchUpdateAsync();
+          // Consider a less disruptive update prompt or background update
           Alert.alert('Update downloaded', 'Restarting app to apply update...');
           await Updates.reloadAsync();
         }
       } catch (error) {
-        console.log('Failed to fetch update:', error);
+        // Use console.error for errors
+        console.error('Failed to fetch update:', error);
+        // Optionally, inform the user subtly or log to an error service
       }
     };
-  
-    if (loaded) {
+
+    // Only check for updates if the app is loaded and not in development mode
+    if (loaded && !__DEV__) {
       checkAndApplyUpdate();
     }
   }, [loaded]);

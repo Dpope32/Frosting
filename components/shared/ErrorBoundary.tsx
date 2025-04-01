@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, Alert } from 'react-native';
 import * as Updates from 'expo-updates';
 
 interface Props {
@@ -22,34 +22,41 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // You can log the error to an error reporting service here
-    // For now, we'll just log it to the console
-    console.error("Uncaught error:", error, errorInfo);
-    // Optionally, you could send this to an analytics service or your own logging endpoint
+    // --- Production Error Reporting ---
+    // TODO: Integrate with an error reporting service (e.g., Sentry, Bugsnag)
+    // Example: ErrorReportingService.logError(error, errorInfo);
+    console.error("Uncaught error:", error, errorInfo); // Keep console logging for dev/debugging
+    // ---------------------------------
   }
 
-  private handleReload = () => {
-    // Attempt to reload the app using Expo Updates
-    Updates.reloadAsync().catch(err => {
-      console.error("Failed to reload app:", err);
-      // Fallback or further action if reload fails
-    });
+  private handleReload = async () => {
+    try {
+      // Attempt to reload the app using Expo Updates
+      await Updates.reloadAsync();
+    } catch (err) {
+      console.error("Failed to reload app via Updates:", err);
+      Alert.alert(
+        "Reload Failed",
+        "Could not automatically reload the app. Please close and reopen the app manually."
+      );
+    }
   };
 
   public render() {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <Text style={styles.title}>Oops! Something went wrong.</Text>
+          <Text style={styles.title}>Oops! Something Went Wrong</Text>
           <Text style={styles.message}>
-            An unexpected error occurred. Please try restarting the app.
+            An unexpected error occurred. We apologize for the inconvenience.
+            Please try reloading the application.
           </Text>
           {__DEV__ && this.state.error && (
-            <Text style={styles.errorDetails}>
-              Error: {this.state.error.toString()}
+            <Text style={styles.errorDetails} selectable>
+              Dev Info: {this.state.error.toString()}
             </Text>
           )}
-          <Button title="Try to Reload App" onPress={this.handleReload} />
+          <Button title="Reload Application" onPress={this.handleReload} />
         </View>
       );
     }
@@ -64,12 +71,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f8d7da', // Light red background for error indication
+    backgroundColor: '#f8d7da', 
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#721c24', // Dark red text
+    color: '#721c24',
     marginBottom: 10,
   },
   message: {
@@ -83,7 +90,7 @@ const styles = StyleSheet.create({
     color: '#721c24',
     textAlign: 'center',
     marginBottom: 20,
-    fontFamily: 'monospace', // Use monospace for error details if available
+    fontFamily: 'monospace', 
   },
 });
 

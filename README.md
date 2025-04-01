@@ -28,8 +28,8 @@ All data is stored locally first, with future plans for cross-device synchroniza
 
 ```bash
 # Clone the repository
-git clone https://github.com/dpope32/kaiba-nexus.git
-cd kaiba-nexus
+git clone https://github.com/dpope32/frosting.git
+cd frosting
 
 # Install dependencies
 npm install

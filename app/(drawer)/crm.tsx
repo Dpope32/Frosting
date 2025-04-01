@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
+import { FlatList, View, Dimensions, Alert, Platform, Linking } from "react-native";
 import { H4, Separator, YStack, Text, Button, isWeb, XStack } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
@@ -93,11 +93,22 @@ export default function CRM() {
         }
       } else {
         if (Platform.OS === 'web') {
-          alert("Please grant contacts permission to import contacts.");
-        } else {
-          Alert.alert("Permission Denied", "Please grant contacts permission to import contacts.");
-        }
-      }
+           alert("Please grant contacts permission to import contacts.");
+         } else {
+           // Guide user to settings if permission denied
+           Alert.alert(
+             "Permission Required",
+             "Contact permission is needed to import contacts. Please enable it in your device settings.",
+             [
+               { text: "Cancel", style: "cancel" },
+               { 
+                 text: "Open Settings", 
+                 onPress: () => Linking.openSettings() // Open app settings
+               }
+             ]
+           );
+         }
+       }
     } catch (error) {
       console.error("Error importing contacts:", error);
       if (Platform.OS === 'web') {
@@ -190,16 +201,16 @@ export default function CRM() {
           />
         </View>
       )}
-      {!isWeb && (
+      {!isWeb && allContacts.length > 0 && (
         <>
           <H4 fontFamily="$heading" fontSize="$7" fontWeight="bold" mt={0} textAlign="center" marginBottom={8}>
-            All Contacts {allContacts.length > 0 && `(${allContacts.length})`}
+            All Contacts ({allContacts.length})
           </H4>
           <Separator borderColor="$gray8" borderWidth={1} marginBottom={2} />
         </>
       )}
       <FlatList
-        key={JSON.stringify(allContacts)} 
+        key={JSON.stringify(allContacts)}
         data={allContacts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}

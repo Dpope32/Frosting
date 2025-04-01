@@ -135,10 +135,11 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
         animation="quick"
         zIndex={100000}
       >
-        <Sheet.Overlay 
+        <Sheet.Overlay
           animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
+          opacity={0.7}
         />
         <Sheet.Frame
           backgroundColor={isDark ? "$gray1" : "white"}

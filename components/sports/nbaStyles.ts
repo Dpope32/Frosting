@@ -10,7 +10,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Platform.OS === 'web' ? 12 : 8,
-    marginLeft: 12,
   },
   headerTitle: {
     fontSize: 20,
@@ -21,7 +20,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginLeft: 24,
     paddingVertical: 20,
     marginBottom: 10,
     borderBottomWidth: 1,
@@ -45,7 +43,6 @@ export const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: '100%',
-    marginLeft: 20,
   },
   listContainer: {
     flex: 1,
@@ -63,7 +60,6 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 1,
   },
-  // Web-specific styles
   webGameCard: {
     width: '30%',
     margin: 8,
@@ -197,7 +193,6 @@ export const styles = StyleSheet.create({
     color: '#0a84ff',
   },
 
-    // Responsive styles for web
     webTeamHeader: {
       paddingHorizontal: 24,
       paddingVertical: 28,

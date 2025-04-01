@@ -14,9 +14,10 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       justifyContent="space-between"
       br={16}
       px="$3"
-      py="$3"
+      py="$1"
+      pb="$3"
     >
-      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$1" : "$2"}>
+      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$1" : "$1"}>
         <XStack alignItems="center" gap="$1">
           <Text
             fontFamily="$heading"

@@ -12,7 +12,7 @@ import { syncTasksToCalendar } from '@/services'
 import { BaseCardAnimated } from './BaseCardAnimated'
 import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
 import { DebouncedInput } from '../shared/debouncedInput'
-import { getCategoryColor,  getPriorityColor,  getRecurrenceColor,  withOpacity, dayColors } from '@/utils/styleUtils';
+import { getCategoryColor,  getPriorityColor,  getRecurrenceColor, getRecurrenceIcon, withOpacity, dayColors } from '@/utils/styleUtils';
 
 
 interface NewTaskModalProps {
@@ -20,8 +20,7 @@ interface NewTaskModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element | null { // Return type can be null
-  // If not open, render nothing
+export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element | null { 
   if (!open) {
     return null;
   }
@@ -38,8 +37,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   const [isSubmitting, setIsSubmitting] = useState(false)
   const inputRef = useRef<any>(null)
 
-  
-  
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
@@ -169,7 +166,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
     <BaseCardAnimated 
       onClose={() => {
         if (Platform.OS === 'web') {
-          // Extra delay for web to prevent animation glitches
           setTimeout(() => onOpenChange(false), 100)
         } else {
           onOpenChange(false)
@@ -183,7 +179,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           showsHorizontalScrollIndicator={false} 
           style={{ maxWidth: isWeb ? 800 : '100%' }}
         >
-        <Form gap="$4" onSubmit={handleAddTask}>
+        <Form gap="$3" onSubmit={handleAddTask}>
           <DebouncedInput
             ref={inputRef}
             placeholder="Enter task name"
@@ -207,7 +203,21 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             backgroundColor={isDark ? "$gray2" : "white"}
             borderColor={isDark ? "$gray7" : "$gray4"}
             color={isDark ? "$gray12" : "$gray11"}
+            focusStyle={{
+              borderColor: isDark ? "$gray7" : "$gray4", 
+            }}
           />
+          
+          <XStack alignItems="center" justifyContent="flex-start"  px="$2"> 
+            <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} marginRight="$2" fontSize={14}> 
+              Show in Calendar
+            </Text>
+            <Switch
+              value={newTask.showInCalendar || false}
+              onValueChange={val => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
+              style={{ transform: [{ scaleX: 0.9}, { scaleY: 0.9}] }} 
+            />
+          </XStack>
 
           <YStack gap="$2">
             <Button
@@ -333,7 +343,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     >
                       <XStack alignItems="center" gap="$1.5">
                         <Ionicons 
-                          name={pattern.icon as any} 
+                          name={getRecurrenceIcon(pattern.value) as any} // Use getRecurrenceIcon
                           size={16} 
                           color={newTask.recurrencePattern === pattern.value ? recurrenceColor : isDark ? "$gray12" : "$gray11"} 
                         />
@@ -490,58 +500,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             )}
           </AnimatePresence>
           <YStack px="$2" gap="$2">
-            <XStack justifyContent="space-between" alignItems="center">
-              <Text color={isDark ? "$gray12" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
-              <XStack alignItems="center" py={10}>
-                <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} marginRight="$2">
-                  Show in Calendar
-                </Text>
-                <Switch
-                  value={newTask.showInCalendar || false}
-                  onValueChange={val => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
-                />
-              </XStack>
-            </XStack>
-            <XStack gap="$2">
-            {['high', 'medium', 'low'].map(priority => {
-              const color = getPriorityColor(priority as TaskPriority);
-              
-              return (
-                <Button
-                  key={priority}
-                  onPress={(e) => handlePrioritySelect(priority as TaskPriority, e)}
-                  backgroundColor={
-                    newTask.priority === priority
-                      ? withOpacity(color, 0.15)
-                      : isDark ? "$gray2" : "white"
-                  }
-                  pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                  br={12}
-                  px="$3"
-                  py="$2.5"
-                  borderWidth={1}
-                  borderColor={
-                    newTask.priority === priority
-                      ? 'transparent'
-                      : isDark ? "$gray7" : "$gray4"
-                  }
-                >
-                  <Text
-                    fontSize={14}
-                    fontFamily="$body"
-                    fontWeight={newTask.priority === priority ? "700" : "600"}
-                    color={newTask.priority === priority ? color : isDark ? "$gray12" : "$gray11"}
-                  >
-                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
-                  </Text>
-                </Button>
-              );
-            })}
-            </XStack>
-          </YStack>
-
-          <YStack px="$2" gap="$2">
-            <Text color={isDark ? "$gray12" : "$gray11"}fontFamily="$body" fontWeight="500">Category</Text>
+            <Text color={isDark ? "$gray12" : "$gray11"} fontFamily="$body" fontWeight="500">Category</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
               <XStack gap="$2">
               {['work','health','personal','family','wealth'].map(cat => {
@@ -581,12 +540,52 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </XStack>
             </ScrollView>
           </YStack>
+
+          <YStack px="$2" gap="$1"> 
+            <Text color={isDark ? "$gray12" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
+            <XStack gap="$2" mt="$1"> 
+            {['high', 'medium', 'low'].map(priority => {
+              const color = getPriorityColor(priority as TaskPriority);
+              
+              return (
+                <Button
+                  key={priority}
+                  onPress={(e) => handlePrioritySelect(priority as TaskPriority, e)}
+                  backgroundColor={
+                    newTask.priority === priority
+                      ? withOpacity(color, 0.15)
+                      : isDark ? "$gray2" : "white"
+                  }
+                  pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                  br={12}
+                  px="$3"
+                  py="$2.5"
+                  borderWidth={1}
+                  borderColor={
+                    newTask.priority === priority
+                      ? 'transparent'
+                      : isDark ? "$gray7" : "$gray4"
+                  }
+                >
+                  <Text
+                    fontSize={14}
+                    fontFamily="$body"
+                    fontWeight={newTask.priority === priority ? "700" : "600"}
+                    color={newTask.priority === priority ? color : isDark ? "$gray12" : "$gray11"}
+                  >
+                    {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                  </Text>
+                </Button>
+              );
+            })}
+            </XStack>
+          </YStack>
           
           <Form.Trigger asChild>
           <Button
             backgroundColor={preferences.primaryColor}
-            height={50}
-            py={10}
+            height={42}
+            py={12}
             pressStyle={{ opacity: 0.8, scale: 0.98 }}
             br={12}
             px={12}

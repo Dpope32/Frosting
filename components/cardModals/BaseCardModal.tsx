@@ -22,7 +22,7 @@ export function BaseCardModal({
   onOpenChange,
   title,
   children,
-  snapPoints = isWeb ? [95] : [80],
+  snapPoints = isWeb ? [95] : [82],
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000,
@@ -54,13 +54,13 @@ export function BaseCardModal({
         />
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$1"}
-          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
+          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
           backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
           borderWidth={1}
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap={Platform.OS === 'web' ? "$1" : "$2"}
+          gap={Platform.OS === 'web' ? "$1" : "$1"}
           {...(Platform.OS === 'web' ?
             {
               maxWidth: 1000,
@@ -73,9 +73,9 @@ export function BaseCardModal({
           <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1, paddingTop: Math.max(topInset - 100, 0) }}
+            style={{ flex: 1, paddingTop: Math.max(topInset - 80, 0) }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginBottom: 12, paddingHorizontal: 6}}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: -12, marginBottom: 12, paddingHorizontal: 6}}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
                   fontSize={22}

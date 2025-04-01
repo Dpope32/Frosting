@@ -6,7 +6,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 export function YearCompleteSection() {
   const colorScheme = useColorScheme();
 
-  // Calculate the year progress
   const { percentage, currentDay, totalDays } = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -36,7 +35,7 @@ export function YearCompleteSection() {
       width="100%"
       br={16}
       px="$3"
-      py="$3"
+      py="$1"
     >
       <Stack width="100%" height={40} br={12} overflow="hidden">
         <Stack 
@@ -79,8 +78,7 @@ export function YearCompleteSection() {
           ) : null}
         </Stack>
       </Stack>
-      
-      <Text color="#dbd0c6" fontSize={12} textAlign="center" opacity={0.8}>
+      <Text color="#dbd0c6" fontSize={12} fontFamily="$body" marginTop="$2" textAlign="center" opacity={0.8}>
         {`${totalDays - currentDay} days remaining in ${new Date().getFullYear()}`}
       </Text>
     </YStack>

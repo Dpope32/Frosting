@@ -3,6 +3,7 @@ import { useQueries } from '@tanstack/react-query';
 import { getCurrentTeamCode, getESPNTeamCode, getNBASeason, fetchWithRetry } from '../services/nbaService';
 import type { Game } from '../store/NBAStore';
 import { useNBAStore } from '../store/NBAStore';
+import { useUserStore } from '../store/UserStore';
 import { nbaTeams } from '../constants/nba';
 import React from 'react';
 
@@ -11,11 +12,12 @@ export const useSportsAPI = () => {
   const teamCode = getCurrentTeamCode();
   const espnTeamCode = getESPNTeamCode(teamCode);
   const season = getNBASeason();
+  const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding); 
   const team = nbaTeams.find(t => t.code === teamCode);
   const teamName = team?.name || 'Oklahoma City Thunder';
-  
+
   React.useEffect(() => {
-    if (team) { 
+    if (hasCompletedOnboarding && team) {
       setTeamInfo(teamCode, teamName);
     }
   }, [teamCode, teamName, setTeamInfo]);
@@ -27,8 +29,7 @@ export const useSportsAPI = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Check cache first
+      // Check cache first - only if onboarding is complete
       const cachedData = getCachedSchedule(teamCode, season);
       if (cachedData) {
         console.log(`[NBA API] Using cached schedule for ${teamCode} (${season})`);
@@ -170,20 +171,22 @@ export const useSportsAPI = () => {
   const results = useQueries({
     queries: [
       {
-        queryKey: [`nba-schedule-${teamCode}-${season}`], // Include season in key for better caching
+        queryKey: [`nba-schedule-${teamCode}-${season}`], 
         queryFn: fetchNBASchedule,
-        staleTime: 1000 * 60 * 30, // 30 minutes instead of 24 hours
+        enabled: hasCompletedOnboarding && !!teamCode && !!espnTeamCode, 
+        staleTime: 1000 * 60 * 60 * 2, 
         gcTime: 1000 * 60 * 60 * 24,
-        refetchInterval: 1000 * 60 * 30, // Refetch every 30 minutes
+        refetchInterval: 1000 * 60 * 60 * 2,
         refetchOnWindowFocus: true,
         retry: 3,
       },
       {
         queryKey: [`nba-team-stats-${teamCode}`],
         queryFn: fetchTeamStats,
-        staleTime: 1000 * 60 * 30, // 30 minutes
+        enabled: hasCompletedOnboarding && !!teamCode && !!espnTeamCode, 
+        staleTime: 1000 * 60 * 60 * 2, 
         gcTime: 1000 * 60 * 60 * 24,
-        refetchInterval: 1000 * 60 * 30, // Refetch every 30 minutes
+        refetchInterval: 1000 * 60 * 60 * 2,
         retry: 3,
       }
     ]
@@ -191,11 +194,10 @@ export const useSportsAPI = () => {
   
   const [scheduleQuery, statsQuery] = results;
   
-  // Throttled refetch function to prevent API abuse
   const throttledRefetch = React.useCallback(
     (() => {
       let lastCall = 0;
-      const throttleTime = 5000; // 5 seconds
+      const throttleTime = 5000;
       
       return () => {
         const now = Date.now();
@@ -203,9 +205,7 @@ export const useSportsAPI = () => {
           lastCall = now;
           scheduleQuery.refetch();
           statsQuery.refetch();
-        } else {
-          console.log(`[NBA API] Throttling refetch request. Try again in ${throttleTime - (now - lastCall)}ms`);
-        }
+        } 
       };
     })(),
     [scheduleQuery, statsQuery]

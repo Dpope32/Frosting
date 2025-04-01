@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Image, Platform, useColorScheme, useWindowDimensions } from 'react-native'
-import { Sheet, Button, YStack, XStack, Text, ScrollView } from 'tamagui'
-import { nbaTeams } from '@/constants/nba'
-import { useNBAStore } from '@/store/NBAStore'
-import { useUserStore } from '@/store/UserStore'
+import { Button, YStack, XStack, Text, ScrollView } from 'tamagui'; // Removed Sheet
+import { nbaTeams } from '@/constants/nba';
+import { useNBAStore } from '@/store/NBAStore';
+import { useUserStore } from '@/store/UserStore';
+import { BaseCardModal } from '../cardModals/BaseCardModal'; // Added BaseCardModal
 
 interface NBATeamModalProps {
   open: boolean
@@ -23,14 +24,14 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
   // Get window dimensions for responsive layout
   const { width } = useWindowDimensions()
   
-  // Calculate grid columns based on screen width
+  // Calculate grid columns based on screen width - adjusted for larger web logos
   const getGridColumns = () => {
-    if (!isWeb) return 4
-    if (width > 1200) return 8
-    if (width > 900) return 6
-    if (width > 600) return 5
-    return 4
-  }
+    if (!isWeb) return 4; // Keep mobile grid the same
+    if (width > 1200) return 6; // Fewer columns for larger logos on web
+    if (width > 900) return 5;
+    if (width > 600) return 4;
+    return 3; // Default web columns
+  };
   
   const columns = getGridColumns()
   
@@ -69,141 +70,89 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
   }
 
   return (
-    <Sheet
-      modal
+    <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
-      dismissOnSnapToBottom
-      snapPoints={[70]}
-      zIndex={100000}
-      animation="quick"
+      title="Change Favorite NBA Team"
+      snapPoints={isWeb ? [95] : [80]} 
+      showCloseButton={true} 
     >
-      <Sheet.Overlay
-        animation="quick"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-        backgroundColor="rgba(0,0,0,0.5)"
-        opacity={0.8}
-      />
-      <Sheet.Frame
-        backgroundColor={isDark ? '#1c1c1c' : '#ffffff'}
-        padding="$4"
-        gap="$3"
-        {...(isWeb
-          ? {
-              style: {
-                overflowY: 'auto',
-                maxHeight: '70vh',
-                maxWidth: 600,
-                margin: '0 auto',
-                borderRadius: 8,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-              },
-            }
-          : {})}
-      >
-        <Sheet.Handle
-          backgroundColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}
-        />
-        <XStack width="100%" justifyContent="flex-end" position="absolute" top="$3" right="$3" zIndex={1000}>
-          <Text
-            fontSize={16}
-            fontWeight="bold"
-            color={isDark ? '#fff' : '#000'}
-            fontFamily="$body"
-            opacity={0.7}
-            pressStyle={{ opacity: 0.5 }}
-            onPress={() => onOpenChange(false)}
-          >
-            ✕
-          </Text>
-        </XStack>
-        <YStack gap="$3" paddingBottom="$3">
-          <Text fontSize={20} fontWeight="600" color={isDark ? '#fff' : '#000'} fontFamily="$body">
-            Change Favorite NBA Team
-          </Text>
-          
-          <ScrollView 
-            style={{ width: '100%' }}
-            contentContainerStyle={{ 
-              paddingBottom: isWeb ? 80 : 100,
-              alignItems: 'center'
-            }}
-            showsVerticalScrollIndicator={false}
-          >
-            <XStack 
-              flexWrap="wrap" 
-              justifyContent="center" 
-              gap="$2" 
-              marginBottom="$1"
-              width="100%"
-            >
-              {nbaTeams.map(team => (
-                <Button
-                  key={team.code}
-                  size="$3"
-                  backgroundColor={selectedTeam === team.code ? preferences.primaryColor : 'rgba(255, 255, 255, 0.1)'}
-                  borderColor={selectedTeam === team.code ? preferences.primaryColor : 'rgba(255, 255, 255, 0.2)'}
-                  borderWidth={2}
-                  marginVertical="$2"
-                  width={isWeb ? `${Math.floor(100 / columns) - 2}%` : 80}
-                  height={isWeb ? 80 : 80}
-                  pressStyle={{
-                    scale: 0.97,
-                    opacity: 0.8
-                  }}
-                  onPress={() => handleTeamSelect(team.code)}
-                  justifyContent="center"
-                  alignItems="center"
-                  padding="$2"
-                >
-                  <YStack flex={1} justifyContent="center" alignItems="center">
-                    <Image
-                      source={{ uri: team.logo }}
-                      style={{ 
-                        width: isWeb ? 50 : 40, 
-                        height: isWeb ? 50 : 40
-                      }}
-                      resizeMode="contain"
-                    />
-                  </YStack>
-                </Button>
-              ))}
-            </XStack>
-          </ScrollView>
-          
-          <XStack 
-            position="absolute" 
-            bottom={52} 
-            left={0} 
-            right={0} 
-            backgroundColor={isDark ? '#1c1c1c' : '#ffffff'}
-            borderTopWidth={1}
-            borderTopColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}
-            padding="$4"
+      <YStack flex={1} gap="$3" paddingBottom="$4">
+        <ScrollView
+          style={{ flex: 1 }} 
+          contentContainerStyle={{
+            paddingBottom: 60, 
+            alignItems: 'center',
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <XStack
+            flexWrap="wrap"
             justifyContent="center"
+            gap="$2"
+            width="100%"
           >
-            <Button
-              backgroundColor={preferences.primaryColor}
-              height={48}
-              width={isWeb ? 200 : "70%"}
-              paddingHorizontal={20}
-              pressStyle={{ opacity: 0.8, scale: 0.98 }}
-              onPress={handleSave}
-              br={24}
-              shadowColor="black"
-              shadowOffset={{ width: 0, height: 2 }}
-              shadowOpacity={0.1}
-              shadowRadius={4}
-              elevation={3}
-            >
-              <Text color="#fff" fontWeight="600" fontSize={16} fontFamily="$body">
-                Save
-              </Text>
-            </Button>
+            {nbaTeams.map(team => (
+              <Button
+                key={team.code}
+                size="$3"
+                backgroundColor={selectedTeam === team.code ? preferences.primaryColor : (isDark ? 'rgba(255, 255, 255, 0.1)' : '$gray3')}
+                borderColor={selectedTeam === team.code ? preferences.primaryColor : (isDark ? 'rgba(255, 255, 255, 0.2)' : '$gray5')}
+                borderWidth={2}
+                marginVertical="$0"
+                width={isWeb ? `${Math.floor(100 / columns) - 2}%` : '22%'}
+                aspectRatio={1} 
+                pressStyle={{
+                  scale: 0.97,
+                  opacity: 0.8,
+                }}
+                onPress={() => handleTeamSelect(team.code)}
+                justifyContent="center"
+                alignItems="center"
+                padding="$2"
+              >
+                <YStack flex={1} justifyContent="center" alignItems="center">
+                  <Image
+                    source={{ uri: team.logo }}
+                    style={{
+                      width: isWeb ? '70%' : '60%',
+                      height: isWeb ? '70%' : '60%',
+                    }}
+                    resizeMode="contain"
+                  />
+                </YStack>
+              </Button>
+            ))}
           </XStack>
-        </YStack>
-      </Sheet.Frame>
-    </Sheet>
-  )
+        </ScrollView>
+
+        {/* Save Button - moved inside the main flow */}
+        <XStack
+          paddingTop="$3" // Add some space above the button
+          justifyContent="center"
+          borderTopWidth={1}
+          borderColor={isDark ? '$gray4' : '$gray6'}
+        >
+          <Button
+            backgroundColor={preferences.primaryColor}
+            height={48}
+            width={isWeb ? 200 : '70%'}
+            paddingHorizontal={20}
+            pressStyle={{ opacity: 0.8, scale: 0.98 }}
+            onPress={handleSave}
+            br={24}
+            shadowColor="black"
+            shadowOffset={{ width: 0, height: 2 }}
+            shadowOpacity={0.1}
+            shadowRadius={4}
+            elevation={3}
+          >
+            <Text color="#fff" fontWeight="600" fontSize={16} fontFamily="$body">
+              Save
+            </Text>
+          </Button>
+        </XStack>
+      </YStack>
+    </BaseCardModal>
+  );
 }

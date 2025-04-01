@@ -3,9 +3,9 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { TaskPriority, TaskCategory } from '@/types/task'; // Import TaskCategory
+import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task'; // Import RecurrencePattern
 import { isWeb } from 'tamagui';
-import { getCategoryColor } from '@/utils/styleUtils'; // Import getCategoryColor
+import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils'; // Import recurrence utils
 
 interface TaskCardProps {
   title: string;
@@ -31,8 +31,8 @@ export function TaskCard({
   onCheck,
   onDelete
 }: TaskCardProps) {
-  // Calculate category color using the utility function
-  const calculatedCategoryColor = getCategoryColor(category as TaskCategory | undefined);
+  // Calculate category color using the utility function, providing a default if category is undefined
+  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#888888'; // Default grey if no category
 
   const getPriorityColor = (priority?: TaskPriority): string => {
     if (!priority) return '#607d8b';
@@ -53,6 +53,23 @@ export function TaskCard({
     };
     return icons[priority];
   };
+
+  // Map status string back to RecurrencePattern type
+  const mapStatusToRecurrencePattern = (status: string): RecurrencePattern | undefined => {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === 'one-time') return 'one-time';
+    if (lowerStatus === 'tomorrow') return 'tomorrow';
+    if (lowerStatus === 'everyday') return 'everyday';
+    if (lowerStatus === 'weekly') return 'weekly';
+    if (lowerStatus === 'biweekly') return 'biweekly';
+    if (lowerStatus === 'monthly') return 'monthly';
+    if (lowerStatus === 'yearly') return 'yearly';
+    return undefined; // Handle cases where status might not match a pattern
+  };
+
+  const recurrencePattern = mapStatusToRecurrencePattern(status);
+  const recurrenceColor = getRecurrenceColor(recurrencePattern);
+  const recurrenceIcon = getRecurrenceIcon(recurrencePattern);
 
   return (
     <Stack
@@ -225,23 +242,24 @@ export function TaskCard({
                 </Text>
               </XStack>
             )}
+            {/* Recurrence Chip - Use dynamic colors/icons */}
             <XStack 
               alignItems="center" 
-              backgroundColor={checked ? "rgba(0, 200, 81, 0.15)" : "rgba(33, 150, 243, 0.15)"}
+              backgroundColor={`${recurrenceColor}15`} // Use recurrence color with opacity
               px="$1"
               py="$0.5"
               br={12}
               opacity={checked ? 0.6 : 0.9}
             >
               <Ionicons 
-                name="repeat" 
+                name={recurrenceIcon as any} // Use dynamic icon
                 size={10} 
-                color={checked ? "#00C851" : "#2196F3"} 
+                color={recurrenceColor} // Use recurrence color
                 style={{ marginRight: 2, marginTop: 1 }}
               />
               <Text
                 fontFamily="$body"
-                color={checked ? "#00C851" : "#2196F3"}
+                color={recurrenceColor} // Use recurrence color
                 fontSize={11}
                 fontWeight="500"
               >

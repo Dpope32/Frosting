@@ -1,5 +1,6 @@
 import React from 'react'
 import { XStack, YStack, Text } from 'tamagui'
+import { LinearGradient } from 'expo-linear-gradient';
 import { VaultRecommendationChip } from '@/constants/recommendations/VaultRecommendations'
 
 interface VaultEmptyProps {
@@ -23,19 +24,26 @@ export const VaultEmpty = ({
 }: VaultEmptyProps) => {
   return (
     <XStack
-      bg={isDark ? '#1A1A1A' : '#f5f5f5'}
-      p={isWeb? "$6": "$4"}
-      br="$4"
+      p={isWeb? "$6": "$5"} // Restore original padding
+      br="$4" // Restore original border radius
       ai="flex-start"
       jc="center"
-      borderWidth={1}
-      borderColor={isDark ? '#222' : '#e0e0e0'}
-      width="100%"
+      borderWidth={1} // Restore border
+      borderColor={isDark ? '#222' : '#e0e0e0'} // Restore border color
+      width="100%" // Restore width
+      overflow="hidden" // Add overflow hidden
     >
-      <YStack gap="$3" width="100%" >
+      <LinearGradient
+        colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} // Stretch gradient to cover entire parent
+      />
+      {/* Content goes here, positioned above the gradient */}
+      <YStack gap="$3" width="100%" position="relative"> 
         <YStack gap="$3" px="$2">
           <XStack gap="$2" ai="flex-start">
-            <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
+              <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                 Store Your Credentials

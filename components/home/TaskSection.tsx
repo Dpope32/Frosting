@@ -4,7 +4,7 @@ import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
-import { getCategoryColor } from '@/utils/categoryUtils'
+import { getCategoryColor } from '@/utils/styleUtils'
 import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
@@ -81,22 +81,6 @@ export const TaskSection = ({
           width: '100%'
         } : {}}
       >
-        <Text
-          fontFamily="$body"
-          color="#dbd0c6"
-          fontSize={isWeb ? 15 : 13}
-          fontWeight="500"
-          paddingLeft="$8"
-          textAlign="left"
-          style={{
-            textShadowColor: 'rgba(0, 0, 0, 0.5)',
-            textShadowOffset: { width: 0.5, height: 0.5 },
-            textShadowRadius: 1,
-            lineHeight: 24
-          }}
-        >
-          Need some inspo?
-        </Text>
         <YStack width="100%">
           <XStack
             justifyContent={isWeb ? "space-between" : "center"}
@@ -138,7 +122,6 @@ export const TaskSection = ({
               category={task.category}
               priority={task.priority}
               status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-              categoryColor={getCategoryColor(task.category)}
               checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
               onCheck={() => toggleTaskCompletion(task.id)}
               onDelete={() => deleteTask(task.id)}
@@ -219,4 +202,3 @@ export const TaskSection = ({
 
   )
 }
-
