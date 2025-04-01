@@ -26,7 +26,7 @@ export const BillEmpty = ({
   return (
     <XStack 
       bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-      p={isWeb ? "$4" : "$5"}
+      p={isWeb ? "$6" : "$5"}
       br="$4" 
       px={isWeb ? "$6" : "$4"}
       ai="flex-start" 
@@ -35,7 +35,7 @@ export const BillEmpty = ({
       borderColor={isDark ? "#333" : "#e0e0e0"}
       width={isWeb ? "100%" : "100%"}
     >
-      <YStack gap="$4" width="100%">
+      <YStack gap="$4" width="100%" paddingTop={isWeb ? 32 : 16}>
         <YStack gap="$3" px={isWeb ? "$4" : "$4"}>
           <XStack gap="$2" ai="flex-start">
             <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>

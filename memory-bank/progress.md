@@ -19,6 +19,7 @@
   - ✅ Recurring task support
   - ✅ Task recommendations
   - ✅ Task synchronization with calendar events (March 29, 2025)
+  - ✅ Improved NewTaskModal animations and toast integration (April 1, 2025)
 - ✅ Calendar Integration
   - ✅ Event tracking
   - ✅ Bill due dates
@@ -26,6 +27,10 @@
   - ✅ NBA game schedules
   - ✅ Improved calendar month styles (March 28, 2025 - `9b12208`, `d8b2238`)
   - ✅ Enhanced event preview display (March 29, 2025)
+  - ✅ Responsive sizing optimizations (April 1, 2025):
+    - Dynamic element sizing based on column count
+    - Larger text/icons in single-column view
+    - Adjusted width percentages for better spacing
 - ✅ CRM (Contact Management)
   - ✅ Contact information storage
   - ✅ Custom attributes (payment methods, addresses, etc.)

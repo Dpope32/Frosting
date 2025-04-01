@@ -21,13 +21,10 @@ export const BackgroundSection = () => {
   const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
-    // Wait for store hydration
     if (!hasHydrated) {
-      console.log('[BackgroundSection] Waiting for hydration...');
       setIsLoading(true); 
       return;
     }
-     console.log(`[BackgroundSection] Hydrated. Selected style: ${selectedStyle}`);
 
     const loadWallpaper = async () => {
       setIsLoading(true); 
@@ -35,10 +32,8 @@ export const BackgroundSection = () => {
 
       if (selectedStyle && selectedStyle.startsWith('wallpaper-')) {
         try {
-          console.log(`[BackgroundSection] Attempting to load cached wallpaper: ${selectedStyle}`);
           const cachedUri = await wallpaperStore.getCachedWallpaper(selectedStyle);
           if (cachedUri) {
-            console.log(`[BackgroundSection] Found cached URI: ${cachedUri}`);
             setWallpaperSource({ uri: cachedUri });
           } else {
             console.warn(`[BackgroundSection] Wallpaper ${selectedStyle} not found in cache. Falling back to gradient.`);
@@ -51,7 +46,6 @@ export const BackgroundSection = () => {
           setIsLoading(false);
         }
       } else {
-        console.log('[BackgroundSection] Style is gradient or invalid, clearing wallpaper source.');
         setWallpaperSource(null); 
         setIsLoading(false);
       }
@@ -71,7 +65,6 @@ export const BackgroundSection = () => {
 
   const background = React.useMemo(() => {
     if (isLoading) {
-       console.log('[BackgroundSection] Rendering loading indicator.');
        return (
          <Stack flex={1} backgroundColor={isDark ? '#000' : '#fff'} alignItems="center" justifyContent="center">
            <ActivityIndicator size="large" color={primaryColor} />
@@ -79,7 +72,6 @@ export const BackgroundSection = () => {
        );
     }
 
-     console.log(`[BackgroundSection] Rendering background for style: ${selectedStyle}`);
     switch (selectedStyle) {
       case 'gradient': {
         const lighterColor = adjustColor(primaryColor, 100);
@@ -112,7 +104,6 @@ export const BackgroundSection = () => {
       }
       default:
         if (selectedStyle && selectedStyle.startsWith('wallpaper-') && wallpaperSource) {
-           console.log(`[BackgroundSection] Rendering wallpaper image: ${selectedStyle}`);
           return (
             <Stack position="absolute" width="100%" height="100%">
               <Image
@@ -152,7 +143,6 @@ export const BackgroundSection = () => {
             </Stack>
           );
         }
-         console.log(`[BackgroundSection] No valid condition met for style ${selectedStyle}, returning null.`);
         return null;
     }
   }, [isLoading, selectedStyle, primaryColor, adjustColor, isDark, wallpaperSource, preferences, setPreferences]);

@@ -187,7 +187,7 @@ export const espnTeamCodes: Record<string, string> = {
   "SAC": "sac",
   "SAS": "sa",
   "TOR": "tor",
-  "UTA": "uta",
+  "UTA": "utah",
   "WAS": "was"
 };
 

@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import { VAULT_DATA } from '@/constants/vaultData';
 
 interface VaultEntry {
   id: string;
@@ -14,6 +13,13 @@ interface VaultData {
   items: VaultEntry[];
   totalItems: number;
 }
+
+export const VAULT_DATA = {
+  page: 1,
+  perPage: 10,
+  totalItems: 0,
+  items: []
+};
 
 interface VaultStore {
   vaultData: VaultData;

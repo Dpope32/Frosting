@@ -1,3 +1,4 @@
+// Update NBAStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
@@ -19,12 +20,18 @@ export interface Game {
   teamCode: string; 
 }
 
+interface CachedSchedule {
+  timestamp: number;
+  data: Game[];
+}
+
 interface NBAStore {
   games: Game[];
   isLoading: boolean;
   error: string | null;
   teamCode: string; 
-  teamName: string; 
+  teamName: string;
+  gameScheduleCache: Record<string, CachedSchedule>;
   setGames: (games: Game[]) => void;
   setTeamInfo: (code: string, name: string) => void;
   setLoading: (loading: boolean) => void;
@@ -33,6 +40,8 @@ interface NBAStore {
   deleteAllGameTasks: () => void;
   syncNBAGames: () => void;
   clearNBACalendarEvents: () => void;
+  cacheSchedule: (teamCode: string, season: number, data: Game[]) => void;
+  getCachedSchedule: (teamCode: string, season: number) => Game[] | null;
 }
 
 export const useNBAStore = create<NBAStore>()(
@@ -43,10 +52,38 @@ export const useNBAStore = create<NBAStore>()(
       error: null,
       teamCode: 'OKC', 
       teamName: 'Oklahoma City Thunder',
+      gameScheduleCache: {},
+      
+      // Existing methods
       setGames: (games) => set({ games }),
       setTeamInfo: (code, name) => set({ teamCode: code, teamName: name }),
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
+      
+      // New caching methods
+      cacheSchedule: (teamCode, season, data) => {
+        const cacheKey = `${teamCode}-${season}`;
+        set(state => ({
+          gameScheduleCache: {
+            ...state.gameScheduleCache,
+            [cacheKey]: {
+              timestamp: Date.now(),
+              data
+            }
+          }
+        }));
+      },
+      getCachedSchedule: (teamCode, season) => {
+        const cacheKey = `${teamCode}-${season}`;
+        const cached = get().gameScheduleCache[cacheKey];
+        const maxAge = 1000 * 60 * 60; // 1 hour
+        if (cached && Date.now() - cached.timestamp < maxAge) {
+          return cached.data;
+        }
+        return null;
+      },
+      
+      // Existing methods
       deleteAllGameTasks: () => {
         const { tasks, deleteTask } = useProjectStore.getState();
         Object.entries(tasks).forEach(([id, task]) => {
@@ -88,8 +125,6 @@ export const useNBAStore = create<NBAStore>()(
           }
         });
       },
-      
-
       clearNBACalendarEvents: () => {
         const { events } = useCalendarStore.getState();
         const calendarStore = useCalendarStore.getState();
@@ -100,7 +135,6 @@ export const useNBAStore = create<NBAStore>()(
           }
         });
       },
-      
       syncNBAGames: () => {
         get().clearNBACalendarEvents();
         

@@ -160,7 +160,10 @@ export default function Sports() {
         renderItem={isLoading ? () => <GameCardSkeleton /> : renderGame}
         estimatedItemSize={100}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{
+          ...styles.listContent,
+          paddingBottom: !isWeb ? 120 : styles.listContent.paddingBottom
+        }}
       />
     )
   }
@@ -171,20 +174,37 @@ export default function Sports() {
 
   return (
     <View
-      style={[styles.container, {
-        backgroundColor: isDark ? '#010101' : '#f3f3f3'
-      }]}
+      style={[
+        styles.container, 
+        {
+          backgroundColor: isDark ? '#010101' : '#f3f3f3',
+          flex: 1,
+          // Add proper margin for mobile
+          marginTop: !isWeb ? 85 : 0
+        }
+      ]}
     >
       <View style={[
         styles.teamHeader, 
         isWeb && styles.webTeamHeader,
         { borderBottomColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' }
       ]}>
-        <Image
-          source={{ uri: team?.logo }}
-          style={[styles.teamLargeLogo, isWeb && styles.webTeamLargeLogo]}
-          resizeMode="contain"
-        />
+        {team?.logo ? (
+          <Image
+            source={{ uri: team.logo }}
+            style={[styles.teamLargeLogo, isWeb && styles.webTeamLargeLogo]}
+            resizeMode="contain"
+            onError={(e) => console.log(`Team logo failed to load: ${team.code}`, e.nativeEvent.error)}
+          />
+        ) : (
+          <View style={[
+            styles.teamLargeLogo, 
+            isWeb && styles.webTeamLargeLogo,
+            { backgroundColor: isDark ? '#333' : '#f0f0f0', alignItems: 'center', justifyContent: 'center' }
+          ]}>
+            <Text style={{ fontSize: 24 }}>🏀</Text>
+          </View>
+        )}
         <View style={styles.teamInfoContainer}>
           <Text style={[
             styles.teamName,
@@ -226,7 +246,7 @@ export default function Sports() {
           Error loading schedule: {error.message}
         </Text>
       ) : (
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, { flex: 1 }]}>
           {isWeb ? renderWebLayout() : renderMobileLayout()}
         </View>
       )}

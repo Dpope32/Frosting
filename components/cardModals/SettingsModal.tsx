@@ -203,7 +203,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
   useEffect(() => {
   const loadWallpapers = async () => {
-    console.log('[SettingsModal] Loading wallpapers');
     const sources: Record<string, ImageSourcePropType> = {
       'gradient': { uri: '' }
     };
@@ -214,20 +213,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       try {
         const wallpaperStore = useWallpaperStore.getState();
         const wallpaperKey = style.value;
-        
-        console.log(`[SettingsModal] Loading wallpaper: ${wallpaperKey}`);
-        
         const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
         
         if (cachedUri) {
-          console.log(`[SettingsModal] Found cached wallpaper at: ${cachedUri}`);
           sources[wallpaperKey] = { uri: cachedUri };
         } else {
-          console.log(`[SettingsModal] No cached wallpaper for: ${wallpaperKey}, trying to get from path`);
-          
           const wallpaperPath = await getWallpaperPath(wallpaperKey);
           if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
-            console.log(`[SettingsModal] Got wallpaper path for ${wallpaperKey}: ${wallpaperPath.uri}`);
             sources[wallpaperKey] = wallpaperPath;
             
             await wallpaperStore.cacheWallpaper(wallpaperKey, wallpaperPath.uri);
@@ -240,7 +232,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       }
     }
     
-    console.log(`[SettingsModal] Loaded ${Object.keys(sources).length} wallpaper sources`);
     setWallpaperSources(sources);
   };
     

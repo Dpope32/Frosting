@@ -1,20 +1,24 @@
+// Update useSportsAPI.tsx
 import { useQueries } from '@tanstack/react-query';
-import { getCurrentTeamCode, getESPNTeamCode, getNBASeason } from '../services/nbaService';
+import { getCurrentTeamCode, getESPNTeamCode, getNBASeason, fetchWithRetry } from '../services/nbaService';
 import type { Game } from '../store/NBAStore';
 import { useNBAStore } from '../store/NBAStore';
 import { nbaTeams } from '../constants/nba';
 import React from 'react';
 
 export const useSportsAPI = () => {
-  const { setGames, setLoading, setError, setTeamInfo } = useNBAStore();
+  const { setGames, setLoading, setError, setTeamInfo, cacheSchedule, getCachedSchedule } = useNBAStore();
   const teamCode = getCurrentTeamCode();
   const espnTeamCode = getESPNTeamCode(teamCode);
   const season = getNBASeason();
   const team = nbaTeams.find(t => t.code === teamCode);
   const teamName = team?.name || 'Oklahoma City Thunder';
   
-  React.useEffect(() => {if (team) { setTeamInfo(teamCode, teamName)}},
-   [teamCode, teamName, setTeamInfo]);
+  React.useEffect(() => {
+    if (team) { 
+      setTeamInfo(teamCode, teamName);
+    }
+  }, [teamCode, teamName, setTeamInfo]);
   
   const ESPN_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}/schedule`;
   const ESPN_TEAM_API_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${espnTeamCode.toLowerCase()}`;
@@ -23,72 +27,54 @@ export const useSportsAPI = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const response = await fetch(`${ESPN_API_URL}?season=${season}`, {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
+      
+      // Check cache first
+      const cachedData = getCachedSchedule(teamCode, season);
+      if (cachedData) {
+        console.log(`[NBA API] Using cached schedule for ${teamCode} (${season})`);
+        setGames(cachedData);
+        return cachedData;
+      }
+      
+      console.log(`[NBA API] Fetching schedule for ${teamCode} (${espnTeamCode}) - Season: ${season}`);
+      
+      const requestHeaders = {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
+      };
+      
+      // Try with current season
+      const response = await fetchWithRetry(
+        `${ESPN_API_URL}?season=${season}`,
+        { headers: requestHeaders }
+      );
+      
+      if (response.status === 400) {
+        console.log(`[NBA API] Bad request for ${teamCode} with season ${season}. Trying previous season...`);
+        // Try with previous season as fallback
+        const fallbackSeason = season - 1;
+        const fallbackResponse = await fetchWithRetry(
+          `${ESPN_API_URL}?season=${fallbackSeason}`,
+          { headers: requestHeaders }
+        );
+        
+        if (!fallbackResponse.ok) {
+          throw new Error(`Failed to fetch data for ${teamName}: ${fallbackResponse.status}`);
         }
-      });
+        
+        const data = await fallbackResponse.json();
+        const games = processScheduleData(data);
+        cacheSchedule(teamCode, fallbackSeason, games);
+        return games;
+      }
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+      
       const data = await response.json();
-
-      if (!data.events || !Array.isArray(data.events)) {
-        throw new Error('Invalid response format from API');
-      }
-
-      const today = new Date();
-      const games: Game[] = data.events
-        .filter((event: any) => new Date(event.date) >= today)
-        .map((event: any) => {
-          const isHomeGame = event.name.includes(`at ${teamName}`);
-          const teams = event.name.split(" at ");
-          let homeTeam, awayTeam;
-          
-          if (isHomeGame) {
-            homeTeam = teamName;
-            awayTeam = teams[0];
-          } else {
-            homeTeam = teams[1];
-            awayTeam = teamName;
-          }
-
-          let homeScore, awayScore;
-          if (event.competitions?.[0]?.competitors) {
-            const homeCompetitor = event.competitions[0].competitors.find((c: any) => c.homeAway === 'home');
-            const awayCompetitor = event.competitions[0].competitors.find((c: any) => c.homeAway === 'away');
-            homeScore = homeCompetitor?.score ? parseInt(homeCompetitor.score) : undefined;
-            awayScore = awayCompetitor?.score ? parseInt(awayCompetitor.score) : undefined;
-          }
-
-          let status: 'scheduled' | 'live' | 'finished' = 'scheduled';
-          if (event.status?.type) {
-            if (event.status.type.completed) {
-              status = 'finished';
-            } else if (event.status.type.state === 'in') {
-              status = 'live';
-            }
-          }
-
-          return {
-            id: parseInt(event.id),
-            date: event.date,
-            homeTeam,
-            awayTeam,
-            homeScore,
-            awayScore,
-            status,
-            season,
-            teamCode
-          };
-      });
-
-      setGames(games);
-      useNBAStore.getState().syncGameTasks();
+      const games = processScheduleData(data);
+      cacheSchedule(teamCode, season, games);
       return games;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `Failed to fetch ${teamName} schedule`;
@@ -99,14 +85,74 @@ export const useSportsAPI = () => {
     }
   };
   
+  const processScheduleData = (data: any): Game[] => {
+    if (!data.events || !Array.isArray(data.events)) {
+      throw new Error('Invalid response format from API');
+    }
+    
+    const today = new Date();
+    const games: Game[] = data.events
+      .filter((event: any) => new Date(event.date) >= today)
+      .map((event: any) => {
+        const isHomeGame = event.name.includes(`at ${teamName}`);
+        const teams = event.name.split(" at ");
+        let homeTeam, awayTeam;
+        
+        if (isHomeGame) {
+          homeTeam = teamName;
+          awayTeam = teams[0];
+        } else {
+          homeTeam = teams[1];
+          awayTeam = teamName;
+        }
+        
+        let homeScore, awayScore;
+        if (event.competitions?.[0]?.competitors) {
+          const homeCompetitor = event.competitions[0].competitors.find((c: any) => c.homeAway === 'home');
+          const awayCompetitor = event.competitions[0].competitors.find((c: any) => c.homeAway === 'away');
+          homeScore = homeCompetitor?.score ? parseInt(homeCompetitor.score) : undefined;
+          awayScore = awayCompetitor?.score ? parseInt(awayCompetitor.score) : undefined;
+        }
+        
+        let status: 'scheduled' | 'live' | 'finished' = 'scheduled';
+        if (event.status?.type) {
+          if (event.status.type.completed) {
+            status = 'finished';
+          } else if (event.status.type.state === 'in') {
+            status = 'live';
+          }
+        }
+        
+        return {
+          id: parseInt(event.id),
+          date: event.date,
+          homeTeam,
+          awayTeam,
+          homeScore,
+          awayScore,
+          status,
+          season,
+          teamCode
+        };
+      });
+    
+    setGames(games);
+    useNBAStore.getState().syncGameTasks();
+    return games;
+  };
+  
   const fetchTeamStats = async () => {
     try {
-      const response = await fetch(ESPN_TEAM_API_URL, {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
+      console.log(`[NBA API] Fetching team stats for ${teamCode} (${espnTeamCode})`);
+      const response = await fetchWithRetry(
+        ESPN_TEAM_API_URL,
+        {
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (compatible; NBA/1.0)'
+          }
         }
-      });
+      );
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -115,40 +161,61 @@ export const useSportsAPI = () => {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error fetching team stats:", error);
+      console.error(`[NBA API] Error fetching team stats:`, error);
       return null;
     }
   };
   
+  // Update the query parameters for better performance
   const results = useQueries({
     queries: [
       {
-        queryKey: [`nba-schedule-${teamCode}`],
+        queryKey: [`nba-schedule-${teamCode}-${season}`], // Include season in key for better caching
         queryFn: fetchNBASchedule,
-        staleTime: 1000 * 60 * 60 * 24, 
-        gcTime: 1000 * 60 * 60 * 24, 
-        refetchInterval: 1000 * 60 * 60 * 24, 
+        staleTime: 1000 * 60 * 30, // 30 minutes instead of 24 hours
+        gcTime: 1000 * 60 * 60 * 24,
+        refetchInterval: 1000 * 60 * 30, // Refetch every 30 minutes
+        refetchOnWindowFocus: true,
+        retry: 3,
       },
       {
         queryKey: [`nba-team-stats-${teamCode}`],
         queryFn: fetchTeamStats,
-        staleTime: 1000 * 60 * 60 * 6,
-        gcTime: 1000 * 60 * 60 * 24, 
-        refetchInterval: 1000 * 60 * 60 * 6, 
+        staleTime: 1000 * 60 * 30, // 30 minutes
+        gcTime: 1000 * 60 * 60 * 24,
+        refetchInterval: 1000 * 60 * 30, // Refetch every 30 minutes
+        retry: 3,
       }
     ]
   });
   
   const [scheduleQuery, statsQuery] = results;
-
+  
+  // Throttled refetch function to prevent API abuse
+  const throttledRefetch = React.useCallback(
+    (() => {
+      let lastCall = 0;
+      const throttleTime = 5000; // 5 seconds
+      
+      return () => {
+        const now = Date.now();
+        if (now - lastCall >= throttleTime) {
+          lastCall = now;
+          scheduleQuery.refetch();
+          statsQuery.refetch();
+        } else {
+          console.log(`[NBA API] Throttling refetch request. Try again in ${throttleTime - (now - lastCall)}ms`);
+        }
+      };
+    })(),
+    [scheduleQuery, statsQuery]
+  );
+  
   return {
     data: scheduleQuery.data,
-    isLoading: scheduleQuery.isLoading,
+    isLoading: scheduleQuery.isLoading || scheduleQuery.isFetching,
     error: scheduleQuery.error,
-    refetch: () => {
-      scheduleQuery.refetch();
-      statsQuery.refetch();
-    },
+    refetch: throttledRefetch,
     teamStats: statsQuery.data
   };
 };

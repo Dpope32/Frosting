@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
   calendar: {
     borderRadius: 20,
     elevation: 4,
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center'
   },
   weekDay: {
-    fontSize: 12,
+    fontSize: webColumnCount === 1 ? 16 : 12,
     fontWeight: '600'
   },
   daysGrid: {
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
   dayCell: {
     width: '14.28%',
     aspectRatio: 1,
-    padding: 2
+    padding: Platform.OS === 'web' ? 4 : 2
   },
   currentDateCell: {
     borderBottomWidth: 0.5,
@@ -69,9 +69,9 @@ export const styles = StyleSheet.create({
   },
   dayNumber: {
     position: 'absolute',
-    top: 2,
-    right: 2,
-    fontSize: 14,
+    top: Platform.OS === 'web' ? 4 : 2,
+    right: Platform.OS === 'web' ? 4 : 2,
+    fontSize: webColumnCount === 1 ? 20 : (Platform.OS === 'web' ? 16 : 14),
     fontWeight: '600'
   },
   today: {
@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
     left: 2
   },
   holidayIconText: {
-    fontSize: 12
+    fontSize: webColumnCount === 1 ? 16 : 12
   },
   billIconContainer: {
     position: 'absolute',
@@ -102,7 +102,7 @@ export const styles = StyleSheet.create({
     right: 2
   },
   birthdayIconText: {
-    fontSize: 12
+    fontSize: webColumnCount === 1 ? 16 : 12
   },
   // Dots
   indicatorContainer: {
@@ -115,18 +115,18 @@ export const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   eventDot: {
-    width: Platform.OS === 'web' ? 6 : 4,
-    height: Platform.OS === 'web' ? 6 : 4,
-    borderRadius: Platform.OS === 'web' ? 3 : 2,
-    marginTop: 2
+    width: Platform.OS === 'web' ? 8 : 4,
+    height: Platform.OS === 'web' ? 8 : 4,
+    borderRadius: Platform.OS === 'web' ? 4 : 2,
+    marginTop: Platform.OS === 'web' ? 4 : 2
   },
   // NBA
   nbaLogoContainer: {
     position: 'absolute',
     top: 2,
     left: 2,
-    width: Platform.OS === 'web' ? 16 : 12,
-    height: Platform.OS === 'web' ? 16 : 12,
+    width: webColumnCount === 1 ? 24 : (Platform.OS === 'web' ? 16 : 12),
+    height: webColumnCount === 1 ? 24 : (Platform.OS === 'web' ? 16 : 12),
     zIndex: 1
   },
   nbaLogo: {

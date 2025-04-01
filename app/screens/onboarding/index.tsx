@@ -53,11 +53,7 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (step >= 0 && !wallpapersPreloaded) {
-      console.log('[Onboarding] Starting wallpaper preload in step:', step);
-      
-      // Show a loading indicator if needed
       preloadWallpapers(() => {
-        console.log('[Onboarding] Wallpaper preload complete');
         setWallpapersPreloaded(true);
       });
     }

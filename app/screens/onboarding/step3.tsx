@@ -253,12 +253,10 @@ useEffect(() => {
         
         // This is the key - use the style name directly without adding another 'wallpaper-' prefix
         const wallpaperKey = formData.backgroundStyle;
-        console.log(`[Step3] Loading wallpaper: ${wallpaperKey}`);
         
         const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
         
         if (cachedUri) {
-          console.log(`[Step3] Found cached wallpaper at: ${cachedUri}`);
           setWallpaperSource({ uri: cachedUri });
         } else {
           console.warn(`[Step3] Wallpaper ${wallpaperKey} not found in cache, falling back to gradient`);

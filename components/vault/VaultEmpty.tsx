@@ -24,7 +24,7 @@ export const VaultEmpty = ({
   return (
     <XStack
       bg={isDark ? '#1A1A1A' : '#f5f5f5'}
-      p="$4"
+      p={isWeb? "$6": "$4"}
       br="$4"
       ai="flex-start"
       jc="center"
@@ -32,7 +32,7 @@ export const VaultEmpty = ({
       borderColor={isDark ? '#222' : '#e0e0e0'}
       width="100%"
     >
-      <YStack gap="$3" width="100%" paddingTop={16}>
+      <YStack gap="$3" width="100%" >
         <YStack gap="$3" px="$2">
           <XStack gap="$2" ai="flex-start">
             <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>

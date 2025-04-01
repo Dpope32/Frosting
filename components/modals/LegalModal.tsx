@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Sheet, Text, YStack, XStack, Theme } from 'tamagui';
+import { Sheet, Text, YStack, XStack, Theme, Button } from 'tamagui';
 import { Tabs } from '@tamagui/tabs';
 import { KeyboardAvoidingView, Platform, useColorScheme, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
+import Animated, { FadeIn, SlideInRight, SlideInLeft } from 'react-native-reanimated';
 import { useUserStore } from '@/store/UserStore';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface LegalModalProps {
   isVisible: boolean;
@@ -62,16 +63,26 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
             style={{ flex: 1, paddingTop: Math.max(topInset - 100, 0) }}
           >
             <Animated.View entering={FadeIn.duration(400)} style={{ marginBottom: 12 }}>
-              <Text 
-                fontSize={22}  
-                fontWeight="700"  
-                color={isDark ? "#fff" : "#000"} 
-                opacity={isDark ? 1 : 0.9} 
-                fontFamily="$body"
-                textAlign="center"
-              > 
-                Legal Information
-              </Text>
+              <XStack justifyContent="space-between" alignItems="center" width="100%">
+                <Text 
+                  fontSize={22}  
+                  fontWeight="700"  
+                  color={isDark ? "#fff" : "#000"} 
+                  opacity={isDark ? 1 : 0.9} 
+                  fontFamily="$body"
+                  flex={1}
+                  textAlign="center"
+                > 
+                  Legal Information
+                </Text>
+                <Button
+                  backgroundColor="transparent"
+                  onPress={onClose}
+                  padding={8}
+                  pressStyle={{ opacity: 0.7 }}
+                  icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                />
+              </XStack>   
             </Animated.View>
             
             <Tabs
@@ -83,7 +94,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
               onValueChange={setActiveTab}
             >
               <Tabs.List 
-                py="$2" 
                 backgroundColor={isDark ? "rgba(30,30,30,0.5)" : "rgba(240,240,240,0.8)"}
                 br={8}
                 marginBottom="$4"
@@ -149,7 +159,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                 <Tabs.Content value="privacy" flex={1}>
                   {activeTab === 'privacy' && (
                     <Animated.View 
-                      entering={SlideInRight.duration(300).springify()} 
+                      entering={SlideInLeft.duration(300).springify()} 
                       style={{ flex: 1 }}
                     >
                       <ScrollView 

@@ -24,6 +24,27 @@
 - **Added Web Welcome Screen:** Created `app/screens/onboarding/welcome.tsx` to display a welcome message and privacy notice specifically for web users before the main onboarding flow begins. Includes a simple cursor-following animation for the app icon.
 - **Updated Onboarding Logic:** Modified `app/screens/onboarding/index.tsx` to conditionally render the new `WelcomeScreen` as the first step (`step = -2`) only when `Platform.OS === 'web'`. Adjusted step transitions and back button logic accordingly. Fixed related TypeScript errors.
 
+## Recent Changes (Calendar View Improvements - April 1, 2025)
+- **Responsive Sizing:** Updated calendar to dynamically adjust element sizes based on column count
+- **Single-Column Optimizations:**
+  - Increased day numbers 
+  - Increased day names 
+  - Increased holiday/birthday icons 
+  - Increased NBA logo 
+- **Width Adjustments:**
+  - 3 columns: 33% width
+  - 2 columns: 45% width (changed from 49%)
+  - 1 column: 80% width (changed from 100%)
+
+## Recent Changes (NewTaskModal Improvements - April 1, 2025)
+- **Animation Improvements:**
+  - Added platform-specific close delays to BaseCardAnimated
+  - Implemented smooth animations for web with proper timing
+  - Maintained fast response on mobile
+- **Toast Integration:**
+  - Ensured toast visibility before modal closes
+  - Added proper timing between toast display and modal close
+
 ## Immediate Tasks
 - Continue performance improvements and dependency reduction across other modules.
 - Address known issues listed in `progress.md`.

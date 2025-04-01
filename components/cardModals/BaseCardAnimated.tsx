@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     borderRadius: 16,
     padding: 20,
+    paddingHorizontal: isWeb? 32 : 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,

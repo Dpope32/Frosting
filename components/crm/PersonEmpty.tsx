@@ -1,5 +1,5 @@
 import React from 'react'
-import { XStack, YStack, Text, Button } from 'tamagui'
+import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { FontAwesome5 } from '@expo/vector-icons'
 
 interface PersonEmptyProps {
@@ -12,13 +12,12 @@ interface PersonEmptyProps {
 export const PersonEmpty = ({
   isDark,
   primaryColor,
-  isWeb,
   onImportContacts
 }: PersonEmptyProps) => {
   return (
     <XStack 
       bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-      p="$4" 
+      p={ isWeb ? "$6" : "$4"} 
       br="$4" 
       ai="flex-start" 
       jc="center"
@@ -65,7 +64,7 @@ export const PersonEmpty = ({
             </YStack>
           </XStack>
         </YStack>
-        <XStack justifyContent="center" px={isWeb ? "$2" : "$1"} gap="$2" mt="$2">
+        <XStack justifyContent="center">
           {!isWeb && onImportContacts && (
             <Button
               size="$3"

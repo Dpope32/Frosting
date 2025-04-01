@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { CalendarEvent } from '@/store/CalendarStore';
 import { nbaTeams } from '@/constants/nba';
 import { useUserStore } from '@/store/UserStore';
-import { styles } from './MonthStyles';
+import { getMonthStyles } from './MonthStyles';
 
 const shouldUseDarkText = (backgroundColor: string): boolean => {
   const hex = backgroundColor.replace('#', '');
@@ -21,9 +21,11 @@ interface MonthProps {
   onDayPress: (date: Date) => void;
   isDark: boolean;
   primaryColor: string;
+  webColumnCount: number;
 }
 
-export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, primaryColor }) => {
+export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, primaryColor, webColumnCount }) => {
+  const styles = getMonthStyles(webColumnCount);
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
 
   const getDaysInMonth = (d: Date) => {
@@ -100,7 +102,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   }, [date, events]);
 
   return (
-    <View style={[styles.calendar, { backgroundColor: isDark ? '#111111' : '#fff' }]}>
+    <View style={[getMonthStyles(webColumnCount).calendar, { backgroundColor: isDark ? '#111111' : '#fff' }]}>
       <View style={styles.header}>
         <Text style={[styles.monthText, { color: isDark ? '#fff' : '#000' }]}>
           {monthName} {year}

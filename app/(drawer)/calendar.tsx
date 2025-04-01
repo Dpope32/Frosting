@@ -129,10 +129,20 @@ export default function CalendarScreen() {
                 key={index}
                 style={[
                   calendarStyles.webMonthWrapper,
-                  isWeb && { width: webColumnCount === 3 ? '33%' : '49%' }
+                  isWeb && { 
+                    width: webColumnCount === 3 ? '33%' : 
+                           webColumnCount === 2 ? '45%' : '80%' 
+                  }
                 ]}
               >
-                <Month date={date} events={combinedEvents} onDayPress={handleDayPress} isDark={isDark} primaryColor={primaryColor}/>
+                <Month 
+                  date={date}
+                  events={combinedEvents}
+                  onDayPress={handleDayPress}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  webColumnCount={webColumnCount}
+                />
               </View>
             ))}
           </View>
@@ -145,6 +155,7 @@ export default function CalendarScreen() {
               onDayPress={handleDayPress}
               isDark={isDark}
               primaryColor={primaryColor}
+              webColumnCount={webColumnCount}
             />
           ))
         )}
