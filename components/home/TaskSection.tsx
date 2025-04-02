@@ -4,7 +4,6 @@ import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
-import { getCategoryColor } from '@/utils/styleUtils'
 import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
@@ -62,7 +61,7 @@ export const TaskSection = ({
   </XStack>
   <Stack
     gap="$2"
-    px={16}
+    px={12}
     flex={1}
     position="relative"
     justifyContent={Platform.OS === 'web' ? 'flex-start' : 'center'}
@@ -101,7 +100,7 @@ export const TaskSection = ({
     ) : (
       <Stack
         gap="$1"
-        width={isWeb ? "90%" : "105%"}
+        width={isWeb ? "90%" : "104%"}
         style={Platform.OS === 'web' ? {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -115,7 +114,7 @@ export const TaskSection = ({
         }}
       >
         {todaysTasks.map((task: Task) => (
-          <Stack key={task.id} style={Platform.OS === 'web' ? { marginLeft: 4, width: '96%' } : { marginBottom: 8, marginLeft: 4, width: '96%' }}>
+          <Stack key={task.id} style={Platform.OS === 'web' ? { marginLeft: 4, width: '95%' } : { marginBottom: 8, marginLeft: 4, width: '96%' }}>
             <TaskCard
               title={task.name}
               time={task.time}

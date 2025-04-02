@@ -26,8 +26,18 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   switch (task.recurrencePattern) {
     case 'one-time': {
       if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
-        const gameDateStr = new Date(task.scheduledDate).toISOString().split('T')[0]
-        return gameDateStr === dateStr && !task.completed
+        const gameDate = new Date(task.scheduledDate)
+        const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
+        const localGameDateStr = localGameDate.toISOString().split('T')[0]
+        console.log(`[DEBUG] Checking game task: ${task.name}`, {
+          taskId: task.id,
+          gameDate: localGameDateStr,
+          today: dateStr,
+          isToday: localGameDateStr === dateStr,
+          completed: task.completed,
+          timezoneOffset: gameDate.getTimezoneOffset()
+        })
+        return localGameDateStr === dateStr && !task.completed
       }
       if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
         const bdayStr = new Date(task.scheduledDate).toISOString().split('T')[0]
@@ -104,7 +114,19 @@ const createTaskFilter = () => {
     })
     
     // Filter tasks that are due today
-    const filtered = Object.values(tasks).filter(task => isTaskDue(task, currentDate))
+    const filtered = Object.values(tasks).filter(task => {
+    const isDue = isTaskDue(task, currentDate)
+    if (task.name.includes('Thunder') || task.name.includes('OKC')) {
+      console.log(`[DEBUG] Thunder task filtered: ${task.name}`, {
+        id: task.id,
+        isDue,
+        scheduledDate: task.scheduledDate,
+        recurrencePattern: task.recurrencePattern,
+        completed: task.completed
+      })
+    }
+    return isDue
+  })
     debugTaskFilter('After initial filtering', filtered)
     
     // Map to track tasks we've already included

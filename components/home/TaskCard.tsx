@@ -13,7 +13,6 @@ interface TaskCardProps {
   category?: string;
   status: string;
   priority?: TaskPriority;
-  // categoryColor?: string; // Remove categoryColor prop
   checked?: boolean;
   oneTime?: boolean;
   onCheck?: (checked: boolean) => void;
@@ -26,13 +25,11 @@ export function TaskCard({
   category, 
   status,
   priority,
-  // categoryColor = '#9C27B0', // Remove categoryColor prop usage
   checked = false,
   onCheck,
   onDelete
 }: TaskCardProps) {
-  // Calculate category color using the utility function, providing a default if category is undefined
-  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#888888'; // Default grey if no category
+  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
 
   const getPriorityColor = (priority?: TaskPriority): string => {
     if (!priority) return '#607d8b';
@@ -54,7 +51,6 @@ export function TaskCard({
     return icons[priority];
   };
 
-  // Map status string back to RecurrencePattern type
   const mapStatusToRecurrencePattern = (status: string): RecurrencePattern | undefined => {
     const lowerStatus = status.toLowerCase();
     if (lowerStatus === 'one-time') return 'one-time';
@@ -64,7 +60,7 @@ export function TaskCard({
     if (lowerStatus === 'biweekly') return 'biweekly';
     if (lowerStatus === 'monthly') return 'monthly';
     if (lowerStatus === 'yearly') return 'yearly';
-    return undefined; // Handle cases where status might not match a pattern
+    return undefined;
   };
 
   const recurrencePattern = mapStatusToRecurrencePattern(status);
@@ -74,14 +70,14 @@ export function TaskCard({
   return (
     <Stack
       backgroundColor="rgba(14, 14, 14, 0.77)"
-      br={10}
+      br={12}
       padding={isWeb ? "$2" : "$2"}
       marginVertical={isWeb ? "$1" : "$0"}
       borderWidth={1}
       borderColor="rgba(52, 54, 55, 0.9)"
       style={{
         borderLeftWidth: 3,
-        borderLeftColor: calculatedCategoryColor, // Use calculated color
+        borderLeftColor: calculatedCategoryColor,
         position: 'relative',
         overflow: 'hidden',
         ...(Platform.OS === 'web' ? {
@@ -116,7 +112,7 @@ export function TaskCard({
           <Ionicons name="checkmark-circle" size={24} color="#00C851" />
         </View>
       )}
-      <XStack justifyContent="space-between" alignItems="center" gap="$1.5">
+      <XStack justifyContent="space-between" alignItems="center" gap="$1">
         <Pressable 
           onPress={() => {
             if (Platform.OS !== 'web') {
@@ -190,7 +186,7 @@ export function TaskCard({
             </Pressable>
           </XStack>
 
-          <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-6} mt={-4}>
+          <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-2} mt={-2}>
             {category && (
               <XStack
                 alignItems="center"
@@ -303,10 +299,11 @@ export function TaskCard({
 
 const styles = StyleSheet.create({
   checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1.5,
-    borderRadius: 6,
+    width: 18,
+    height: 18,
+    borderWidth: 1,
+      marginLeft: -4,
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
   }

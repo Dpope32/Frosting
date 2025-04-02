@@ -1,43 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { Stack, Text, isWeb, Spinner } from 'tamagui';
-import { getValueColor } from '@/constants/valueHelper';
+import { Stack, Spinner } from 'tamagui';
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed';
 
 export function WifiCard() {
-  const { speed, isLoading, isConnected, isWifi, wifiDetails } = useNetworkSpeed();
+  const { speed, isLoading, isConnected  } = useNetworkSpeed();
   const [displaySpeed, setDisplaySpeed] = useState<string | null>(null);
+  const [signalStrength, setSignalStrength] = useState<number>(0);
 
   useEffect(() => {
     if (speed) {
       setDisplaySpeed(speed);
+      setSignalStrength(calculateSignalStrength(speed));
     } else if (!isLoading && !displaySpeed) {
       const defaultSpeed = __DEV__ ? '89 ms' : (Platform.OS === 'web' ? '80 ms' : '75 ms');
       setDisplaySpeed(defaultSpeed);
+      setSignalStrength(calculateSignalStrength(defaultSpeed));
     }
   }, [speed, isLoading]);
 
-  const getSpeedColor = () => {
-    if (!isConnected) return 'white';
-    
-    if (!displaySpeed) return '#FFEB3B'; 
-    
-    if (displaySpeed.includes('Mbps')) {
-      const mbpsMatch = displaySpeed.match(/(\d+)\s*Mbps/i);
-      const speedValue = mbpsMatch ? parseInt(mbpsMatch[1]) : 0;
+  const calculateSignalStrength = (speedValue: string): number => {
+    if (!isConnected) return 0;
+    if (!speedValue) return 0;
+
+    if (speedValue.includes('Mbps')) {
+      const mbpsMatch = speedValue.match(/(\d+)\s*Mbps/i);
+      const speed = mbpsMatch ? parseInt(mbpsMatch[1]) : 0;
       
-      if (speedValue >= 1000) return '#2E7D32'; 
-      if (speedValue >= 300) return '#15803d';  
-      if (speedValue >= 100) return '#FFEB3B'; 
-      return '#FF9800';                     
+      if (speed >= 1000) return 4;
+      if (speed >= 300) return 3;
+      if (speed >= 100) return 2;
+      return 1;
     }
-    
-    const pingMatch = displaySpeed.match(/(\d+)\s*ms/);
+
+    const pingMatch = speedValue.match(/(\d+)\s*ms/);
     if (pingMatch) {
       const ping = parseInt(pingMatch[1]);
-      return getValueColor('wifi', ping, '');
+      if (ping < 50) return 4;
+      if (ping < 100) return 3;
+      if (ping < 150) return 2;
+      return 1;
     }
-    return '#FFEB3B';
+
+    return 0;
+  };
+
+  const getActiveBarColor = (): string => {
+    if (!isConnected) return 'rgba(255, 255, 255, 0.2)';
+    
+    switch (signalStrength) {
+      case 1: return '#FF0000';   // Red
+      case 2: return '#FFEB3B';   // Yellow
+      case 3: return '#90EE90';   // Light green
+      case 4: return '#2E7D32';   // Normal green
+      default: return 'rgba(255, 255, 255, 0.2)';
+    }
   };
 
   return (
@@ -53,16 +70,19 @@ export function WifiCard() {
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
     >
       {isLoading && !displaySpeed ? (
-        <Spinner size="small" color={getSpeedColor()} />
+        <Spinner size="small" color="white" />
       ) : (
-        <Text
-          color={getSpeedColor()}
-          fontSize={isWeb ? 18 : 16}
-          fontWeight="bold"
-          fontFamily="$body"
-        >
-          {displaySpeed || '89 ms'}
-        </Text>
+        <Stack flexDirection="row" alignItems="flex-end" height={20} space="$1">
+          {[1, 2, 3, 4].map((barLevel) => (
+            <Stack
+              key={barLevel}
+              width={6}
+              height={5 + (barLevel - 1) * 5}
+              backgroundColor={barLevel <= signalStrength ? getActiveBarColor() : 'rgba(255, 255, 255, 0.2)'}
+              borderRadius={1}
+            />
+          ))}
+        </Stack>
       )}
     </Stack>
   );
