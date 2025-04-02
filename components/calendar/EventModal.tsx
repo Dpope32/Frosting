@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal } from 'react-native'
-import { isWeb } from 'tamagui'
+import { isWeb, XStack } from 'tamagui'
+import { withOpacity } from '@/utils/styleUtils'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { format, parse } from 'date-fns'
+import { getCategoryColor } from '@/utils/styleUtils';
+import { TaskCategory } from '@/types/task';
 import { Ionicons } from '@expo/vector-icons'
 
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore'
@@ -168,15 +171,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           onRequestClose={closeEventModals}
         >
           <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.modalContent,
-                {
-                  backgroundColor: isDark ? '#1e1e1e' : '#ffffff',
-                  width: modalWidth
-                }
-              ]}
-            >
+            <View>
               <View style={styles.headerContainer}>
                 <Text style={[styles.headerText, { color: textColor }]}>
                   {`${editingEvent ? 'Edit' : 'Add'} Event for ${selectedDate?.toLocaleDateString() || ''}`}
@@ -219,31 +214,47 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </TouchableOpacity>
 
                 <Text style={[styles.sectionTitle, { color: textColor }]}>Event Type</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typesContainer}>
-                  {['personal', 'work', 'family', 'task', 'health'].map((type) => (
-                    <TouchableOpacity
-                      key={type}
-                      style={[
-                        styles.typeButton,
-                        {
-                          backgroundColor:
-                            type === selectedType ? primaryColor : isDark ? '#333333' : '#f0f0f0'
-                        }
-                      ]}
-                      onPress={() => setSelectedType(type as CalendarEvent['type'])}
-                    >
-                      <Text
-                        style={[
-                          styles.typeButtonText,
-                          {
-                            color: type === selectedType ? '#ffffff' : textColor
-                          }
-                        ]}
-                      >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+                  <XStack gap="$2">
+                    {['personal', 'work', 'family', 'task', 'health'].map((type) => {
+                      const color = getCategoryColor(type as TaskCategory);
+                      
+                      return (
+                        <TouchableOpacity
+                          key={type}
+                          style={[
+                            styles.typeButton,
+                            {
+                              backgroundColor:
+                                type === selectedType 
+                                  ? withOpacity(color, 0.15)
+                                  : isDark ? '#1f1f1f' : '#ffffff',
+                              borderWidth: 1,
+                              borderColor: type === selectedType 
+                                ? 'transparent'
+                                : isDark ? '#444444' : '#dddddd',
+                              borderRadius: 20,
+                              paddingHorizontal: 12,
+                              paddingVertical: 8
+                            }
+                          ]}
+                          onPress={() => setSelectedType(type as CalendarEvent['type'])}
+                        >
+                          <Text
+                            style={[
+                              styles.typeButtonText,
+                              {
+                                color: type === selectedType ? color : textColor,
+                                fontWeight: type === selectedType ? '600' : '500'
+                              }
+                            ]}
+                          >
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </XStack>
                 </ScrollView>
 
                 <Text style={[styles.sectionTitle, { color: textColor }]}>Notifications</Text>
@@ -357,7 +368,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   style={[styles.button, { backgroundColor: primaryColor }]}
                   onPress={handleAddEventWithNotifications}
                 >
-                  <Text style={[styles.buttonText, { color: '#ffffff' }]}>
+                  <Text style={[styles.buttonText, { color: '#f1f1f1' }]}>
                     {editingEvent ? 'Update' : 'Add Event'}
                   </Text>
                 </TouchableOpacity>

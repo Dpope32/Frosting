@@ -142,76 +142,78 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const weekday = currentDate.getDay();
           const isWeekend = weekday === 0 || weekday === 6;
 
-          return (
-            <TouchableOpacity
-              key={day}
-              onPress={() => onDayPress(currentDate)}
-              onPressIn={() => { if (Platform.OS !== 'web') Haptics.selectionAsync(); }}
-              style={[
-                styles.dayCell,
-                 {backgroundColor: isDark ? (isWeekend ? '#222222' : '#111111')  : (isWeekend ? '#f5f5f5' : '#fff')},
-                isToday && [styles.today, { backgroundColor: primaryColor }],
-                dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
-                !isPastDate && styles.currentDateCell,
-                isLastRow && styles.lastRowCell,
-                isPastDate && styles.pastDateCell,
-                Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 4 }
-              ]}
-            >
-              <View style={[
-                styles.dayCellContent, 
-                isPastDate && !isToday && styles.pastDateOverlay,
-                isPastDate && !isToday && { borderBottomWidth: 0 }
-              ]}>
-                <Text
-                  style={[
-                    styles.dayNumber,
-                    { color: isDark ? '#fff' : '#000' },
-                    isToday && { color: todayTextColor },
-                    dayEvents.holiday && !isToday && { color: dayEvents.holidayColor },
-                    dayEvents.birthday && !isToday && { color: '#FF69B4' }
-                  ]}
-                >
-                  {day}
-                </Text>
+            return (
+              <TouchableOpacity
+                key={day}
+                onPress={() => onDayPress(currentDate)}
+                onPressIn={() => { if (Platform.OS !== 'web') Haptics.selectionAsync(); }}
+                style={[
+                  styles.dayCell,
+                  {backgroundColor: isDark ? (isWeekend ? '#222222' : '#111111')  : (isWeekend ? '#f5f5f5' : '#fff')},
+                  isToday && [styles.today, { backgroundColor: primaryColor }],
+                  dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
+                  !isPastDate && styles.currentDateCell,
+                  isLastRow && styles.lastRowCell,
+                  isPastDate && styles.pastDateCell,
+                  Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 4 }
+                ]}
+              >
+                <View style={[
+                  styles.dayCellContent, 
+                  isPastDate && !isToday && styles.pastDateOverlay,
+                  isPastDate && !isToday && { borderBottomWidth: 0 }
+                ]}>
+                  <Text
+                    style={[
+                      styles.dayNumber,
+                      { color: isDark ? '#fff' : '#000' },
+                      isToday && { color: todayTextColor },
+                      dayEvents.holiday && !isToday && { color: dayEvents.holidayColor },
+                      dayEvents.birthday && !isToday && { color: '#FF69B4' }
+                    ]}
+                  >
+                    {day}
+                  </Text>
+            
+                  {dayEvents.holiday && (
+                    <View style={[styles.holidayIconContainer, { top: 1, right: 1 }]}>
+                      <Text style={styles.holidayIconText}>{dayEvents.holidayIcon}</Text>
+                    </View>
+                  )}
 
-                {dayEvents.holiday && (
-                  <View style={styles.holidayIconContainer}>
-                    <Text style={styles.holidayIconText}>{dayEvents.holidayIcon}</Text>
+                  {!dayEvents.holiday && dayEvents.birthday && (
+                    <View style={styles.birthdayIconContainer}>
+                      <Text style={styles.birthdayIconText}>🎉</Text>
+                    </View>
+                  )}
+            
+                  {!dayEvents.holiday && !dayEvents.birthday && dayEvents.bill && (
+                    <View style={styles.billIconContainer}>
+                      <Text style={styles.billIconText}>$</Text>
+                    </View>
+                  )}
+            
+                  <View style={styles.indicatorContainer}>
+                    {dayEvents.personal && <View style={[styles.eventDot, { backgroundColor: '#555' }]} />}
+                    {dayEvents.work && <View style={[styles.eventDot, { backgroundColor: '#2196F3' }]} />}
+                    {dayEvents.family && <View style={[styles.eventDot, { backgroundColor: '#9C27B0' }]} />}
+                    {dayEvents.birthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
+                    {dayEvents.task && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />}
                   </View>
-                )}
-                {dayEvents.bill && (
-                  <View style={styles.billIconContainer}>
-                    <Text style={styles.billIconText}>$</Text>
-                  </View>
-                )}
-                {dayEvents.birthday && (
-                  <View style={styles.birthdayIconContainer}>
-                    <Text style={styles.birthdayIconText}>🎉</Text>
-                  </View>
-                )}
-
-                <View style={styles.indicatorContainer}>
-                  {dayEvents.personal && <View style={[styles.eventDot, { backgroundColor: '#555' }]} />}
-                  {dayEvents.work && <View style={[styles.eventDot, { backgroundColor: '#2196F3' }]} />}
-                  {dayEvents.family && <View style={[styles.eventDot, { backgroundColor: '#9C27B0' }]} />}
-                  {dayEvents.birthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
-                  {dayEvents.task && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />}
+            
+                  {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && nbaTeams.find(t => t.code === dayEvents.teamCode) && (
+                    <View style={styles.nbaLogoContainer}>
+                      <Image
+                        source={{ uri: nbaTeams.find(t => t.code === dayEvents.teamCode)?.logo }}
+                        style={styles.nbaLogo}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
                 </View>
-
-                {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && nbaTeams.find(t => t.code === dayEvents.teamCode) && (
-                  <View style={styles.nbaLogoContainer}>
-                    <Image
-                      source={{ uri: nbaTeams.find(t => t.code === dayEvents.teamCode)?.logo }}
-                      style={styles.nbaLogo}
-                      resizeMode="contain"
-                    />
-                  </View>
-                )}
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+              </TouchableOpacity>
+            );
+          })}
       </View>
     </View>
   );

@@ -3,7 +3,7 @@ import { GetThemeValueForKey } from 'tamagui'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
-export type ToastPosition = 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center'
+export type ToastPosition = 'top-center'
 
 interface ToastOptions {
   duration?: number
@@ -30,7 +30,7 @@ interface ToastStore {
 
 const DEFAULT_DURATION = 3000
 const DEFAULT_FONT_FAMILY = "$body" as GetThemeValueForKey<'fontFamily'>
-const DEFAULT_POSITION = "top-right"
+const DEFAULT_POSITION = "top-center"
 
 export const useToastStore = create<ToastStore>((set) => ({
   toasts: [],

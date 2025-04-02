@@ -17,9 +17,6 @@ export default function PermissionsScreen({ isDark = true }: PermissionsScreenPr
         <Text fontFamily="$heading" fontWeight="600" fontSize={isWeb ? "$8" : "$7"} textAlign="center" color={isDark ? "rgba(191, 191, 191, 0.85)" : "rgba(80, 80, 80, 0.85)"}>
           Let's talk permissions..
         </Text>
-        <Text fontFamily="$body" fontSize="$3" textAlign="center" color={isDark ? "#666666" : "#444444"} marginBottom="$4">
-          I know they're annoying, but they are necessary.
-        </Text>
       </YStack>
       
       <YStack gap="$4" px={isWeb ? 36 : 24} width="100%" maxWidth={isWeb ? 600 : "100%"} alignSelf="center">

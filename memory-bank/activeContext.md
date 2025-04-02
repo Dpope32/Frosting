@@ -49,3 +49,25 @@
 - Continue performance improvements and dependency reduction across other modules.
 - Address known issues listed in `progress.md`.
 - Continue exploring cross-device sync solutions (PocketBase/Supabase).
+
+### Current Form Architecture Refactor
+
+```mermaid
+flowchart LR
+    EditForm[EditPersonForm] --> FormContent
+    AddForm[AddPersonForm] --> FormContent
+    FormContent --> ContactInfo
+    FormContent --> Profile
+    FormContent --> Payments
+    
+    style EditForm fill:#f9f,stroke:#333
+    style AddForm fill:#f9f,stroke:#333
+    style FormContent fill:#b8d,stroke:#333
+```
+
+Key improvements:
+- Eliminated duplicate form logic between Add/Edit variants
+- Created dedicated section components (ContactInfo, Profile, Payments)
+- Implemented shared DebouncedInput component with proper TypeScript typing
+- Standardized state management between form variants
+- Improved mobile/web responsive layouts

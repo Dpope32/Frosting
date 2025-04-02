@@ -1,14 +1,11 @@
-// services/holidayService.ts
 import { CalendarEvent } from '@/store/CalendarStore';
 import Holidays from 'date-holidays';
 
 export const getUSHolidays = (year: number): CalendarEvent[] => {
   // Initialize the date-holidays library with US holidays
   const holidays = new Holidays('US');
-  
   // Get all holidays for the specified year
   const holidayData = holidays.getHolidays(year);
-  
   // Custom holidays not included in the library
   const customHolidays = [
     { date: new Date(year, 1, 14), name: 'Valentine\'s Day', color: '#FF69B4', icon: '💖' },
@@ -37,16 +34,21 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
     'St. Patrick\'s Day': { color: '#008000', icon: '☘️' },
     'Halloween': { color: '#FF7518', icon: '🎃' },
   };
-
+  
   const currentDate = new Date().toISOString();
   
   const libraryHolidays = holidayData.map(h => {
     const name = h.name;
     const attributes = holidayAttributes[name] || { color: '#757575', icon: '📅' };
     
+    // FIX: Format the date correctly to ISO format without the time part
+    // Original: h.date.toString().split('T')[0] - this doesn't work with the date format from the library
+    const holidayDate = new Date(h.date);
+    const formattedDate = `${holidayDate.getFullYear()}-${String(holidayDate.getMonth() + 1).padStart(2, '0')}-${String(holidayDate.getDate()).padStart(2, '0')}`;
+    
     return {
       id: `holiday-${name.toLowerCase().replace(/\s/g, '-')}-${year}`,
-      date: h.date.toString().split('T')[0],
+      date: formattedDate, // Use the properly formatted date
       title: name,
       type: 'holiday' as any,
       time: '00:00',
@@ -60,11 +62,14 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
   const formattedCustomHolidays = customHolidays.map(h => {
     const attributes = holidayAttributes[h.name] || { color: h.color, icon: h.icon };
     
+    // FIX: Format the date correctly for custom holidays too
+    const formattedDate = `${h.date.getFullYear()}-${String(h.date.getMonth() + 1).padStart(2, '0')}-${String(h.date.getDate()).padStart(2, '0')}`;
+    
     return {
       id: `holiday-${h.name.toLowerCase().replace(/\s/g, '-')}-${year}`,
-      date: h.date.toISOString().split('T')[0],
+      date: formattedDate, // Use the properly formatted date
       title: h.name,
-      type: 'holiday' as any, 
+      type: 'holiday' as any,
       time: '00:00',
       createdAt: currentDate,
       updatedAt: currentDate,

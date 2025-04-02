@@ -49,7 +49,8 @@ export const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 2,
-    padding: Platform.OS === 'web' ? 12 : 8,
+    padding: Platform.OS === 'web' ? 12 : 6,
+    paddingHorizontal: 12,
     borderRadius: 8,
     ...(Platform.OS === 'web' ? webSpecificStyles.card : {
       shadowColor: "#000",
@@ -76,15 +77,13 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
     marginRight: 0,
     ...(Platform.OS === 'web' ? {
-      fontSize: 16,
-      fontWeight: '600',
+      fontSize: 17,
+      fontWeight: '800',
       marginLeft: 0,
       mt: 0,
       width: '100%', // Ensure text has full width of container
     } : {
       lineHeight: 20,
-      mt: -1,
-      marginLeft: 0,
     }),
   },
   occupationText: {
@@ -94,7 +93,6 @@ export const styles = StyleSheet.create({
       marginLeft: 4, // Added margin-left to align with name when checkmark is active
     } : {
       lineHeight: 14,
-      mt: 0, // Reduced from 1 to reduce padding below username
       marginLeft: 2, // Adjusted from -6 to align better with name when checkmark is active
       flexShrink: 1, // Prevent text from expanding container
       width: '100%', // Ensure text has full width of container
@@ -152,15 +150,15 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)"
   },
   modalContainer: {
-    borderRadius: 16,
+    borderRadius: 6,
     alignSelf: "center",
     backgroundColor: "rgba(20,20,20,0.95)",
     borderColor: "rgba(200,200,200,0.8)",
-    borderWidth: 1, 
+    paddingHorizontal: 4,
+    borderWidth: 2.5, 
     ...(Platform.OS === 'web' ? {
       width: 450,
       maxWidth: '90%',
-      // Use percentage instead of viewport units for React Native compatibility
       maxHeight: '80%',
     } : {
       width: "85%",

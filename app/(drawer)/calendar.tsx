@@ -44,6 +44,7 @@ export default function CalendarScreen() {
     
     setCombinedEvents([...storeEvents, ...holidays]);
   }, [storeEvents]);
+  
 
   const {
     selectedEvents,

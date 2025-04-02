@@ -12,20 +12,20 @@ import Animated, {
 import { MaterialIcons } from '@expo/vector-icons'
 
 interface BaseCardAnimatedProps {
-  // open prop is no longer needed here, parent will conditionally render this component
-  onClose: () => void // Changed onOpenChange to onClose
+  onClose: () => void 
   title: string
   children: React.ReactNode
   modalWidth?: number
   modalMaxWidth?: number
   showCloseButton?: boolean
+  titleProps?: any 
 }
 
 export function BaseCardAnimated({
   title,
   children,
   onClose, 
-  modalWidth = Platform.OS === 'web' ? 700 : 360,
+  modalWidth = Platform.OS === 'web' ? 700 : 350,
   modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
   showCloseButton = true,
 }: BaseCardAnimatedProps) {
@@ -34,8 +34,8 @@ export function BaseCardAnimated({
   const insets = useSafeAreaInsets()
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
   const actualWidth = Math.min(
-    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.9,
-    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.95
+    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.88,
+    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
   )
 
   return (
@@ -55,7 +55,7 @@ export function BaseCardAnimated({
         }}
       >
         <View 
-          style={{ marginTop: -100,flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center' }} 
           pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
@@ -66,19 +66,19 @@ export function BaseCardAnimated({
                   styles.modalContainer,
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top, 
-                    marginBottom: insets.bottom, 
+                    marginTop: insets.top + 20, 
+                    marginBottom: insets.bottom,
                     width: actualWidth,
                     maxHeight: screenHeight,
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" py="$2" marginBottom={isWeb ? 8 : 4} px="$2" alignItems="center">
-                  <Text
+                <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 4} px="$2" alignItems="center">
+                <Text
                     fontSize={isWeb? 24 : 20}
                     fontWeight="700"
                     fontFamily="$body"
-                    color={isDark ? "#fffaef" : "#black"}
+                    color={isDark ? "#fffaef" : "black"}
                     marginBottom={0}
                   >
                     {title}
