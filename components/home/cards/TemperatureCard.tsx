@@ -30,7 +30,7 @@ export function TemperatureCard() {
       padding="$3"
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
-      minWidth={80}
+      minWidth={70}
       alignItems="center"
       justifyContent="center"
     >

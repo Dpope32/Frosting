@@ -76,6 +76,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
       snapPoints={[80]}
       showCloseButton={true}
       zIndex={200000}
+      hideHandle={true}
     >
       <Animated.View 
         entering={FadeIn.duration(400)}

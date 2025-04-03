@@ -261,6 +261,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       title="Settings"
       snapPoints={isWeb ? [90] : [86]}
       zIndex={100000}
+      hideHandle={true}
       showCloseButton={!isSigningOut}
     >
       <YStack flex={1} gap="$2" paddingBottom="$2" paddingHorizontal={isWeb ? '$4' : '$4'}>

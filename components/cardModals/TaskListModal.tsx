@@ -94,6 +94,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
       title="All Tasks"
       snapPoints = {isWeb ? [95] : [80]}
       showCloseButton={true}
+      hideHandle={true}
     >
       <ScrollView 
         ref={scrollViewRef}

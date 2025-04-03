@@ -3,9 +3,9 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task'; // Import RecurrencePattern
+import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils'; // Import recurrence utils
+import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils';
 
 interface TaskCardProps {
   title: string;
@@ -112,7 +112,9 @@ export function TaskCard({
           <Ionicons name="checkmark-circle" size={24} color="#00C851" />
         </View>
       )}
-      <XStack justifyContent="space-between" alignItems="center" gap="$1">
+
+      {/* Changed to View for better layout control */}
+      <View style={styles.container}>
         <Pressable 
           onPress={() => {
             if (Platform.OS !== 'web') {
@@ -120,7 +122,7 @@ export function TaskCard({
             }
             onCheck?.(!checked);
           }}
-          style={{ paddingHorizontal: 4 }}
+          style={styles.checkboxContainer}
         >
           <View style={[
             styles.checkbox,
@@ -139,16 +141,17 @@ export function TaskCard({
           </View>
         </Pressable>
 
-        <Stack flex={1} gap="$1.5">
-          <XStack justifyContent="space-between" alignItems="center" gap="$1" mt={-2}>
-                <Text 
-                  fontFamily="$body"
-                  color="rgb(232, 230, 227)" 
-                  fontSize={14}
-                  fontWeight="500"
-                  flex={1}
-                  opacity={checked ? 0.6 : 1}
-                  style={{
+        <View style={styles.contentContainer}>
+          <View style={styles.titleRow}>
+            <Text 
+              fontFamily="$body"
+              color="rgb(232, 230, 227)" 
+              fontSize={14}
+              fontWeight="500"
+              opacity={checked ? 0.6 : 1}
+              style={{
+                flex: 1,
+                marginTop: -2,
                 textDecorationLine: checked ? 'line-through' : 'none',
                 textShadowColor: 'rgba(0, 0, 0, 0.5)',
                 textShadowOffset: { width: 0.5, height: 0.5 },
@@ -184,9 +187,9 @@ export function TaskCard({
             >
               <Text fontFamily="$body" color="#ff4444" fontSize={14}>✕</Text>
             </Pressable>
-          </XStack>
+          </View>
 
-          <XStack gap="$1.5" alignItems="center" flexWrap="wrap" marginLeft={-2} mt={-2}>
+          <View style={styles.tagsRow}>
             {category && (
               <XStack
                 alignItems="center"
@@ -195,12 +198,14 @@ export function TaskCard({
                 py="$0.5"
                 br={12}
                 opacity={checked ? 0.6 : 0.9}
+                marginRight={6}
+                marginBottom={4}
               >
                 <Ionicons
                   name="bookmark"
                   size={10}
                   color={calculatedCategoryColor} 
-                  style={{ marginLeft: 4, marginTop: 1 }}
+                  style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
                 />
                 <Text
                   fontFamily="$body"
@@ -221,6 +226,8 @@ export function TaskCard({
                 px="$1"
                 br={12}
                 opacity={checked ? 0.6 : 0.9}
+                marginRight={6}
+                marginBottom={4}
               >
                 <Ionicons 
                   name={getPriorityIcon(priority)} 
@@ -238,24 +245,26 @@ export function TaskCard({
                 </Text>
               </XStack>
             )}
-            {/* Recurrence Chip - Use dynamic colors/icons */}
+            
             <XStack 
               alignItems="center" 
-              backgroundColor={`${recurrenceColor}15`} // Use recurrence color with opacity
+              backgroundColor={`${recurrenceColor}15`}
               px="$1"
               py="$0.5"
               br={12}
               opacity={checked ? 0.6 : 0.9}
+              marginRight={6}
+              marginBottom={4}
             >
               <Ionicons 
-                name={recurrenceIcon as any} // Use dynamic icon
+                name={recurrenceIcon as any}
                 size={10} 
-                color={recurrenceColor} // Use recurrence color
+                color={recurrenceColor}
                 style={{ marginRight: 2, marginTop: 1 }}
               />
               <Text
                 fontFamily="$body"
-                color={recurrenceColor} // Use recurrence color
+                color={recurrenceColor}
                 fontSize={11}
                 fontWeight="500"
               >
@@ -273,6 +282,7 @@ export function TaskCard({
                 borderWidth={1}
                 borderColor="rgb(52, 54, 55)"
                 opacity={checked ? 0.6 : 0.9}
+                marginBottom={4}
               >
                 <Ionicons 
                   name="time-outline" 
@@ -290,21 +300,46 @@ export function TaskCard({
                 </Text>
               </XStack>
             )}
-          </XStack>
-        </Stack>
-      </XStack>
+          </View>
+        </View>
+      </View>
     </Stack>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  checkboxContainer: {
+    paddingHorizontal: 4,
+    paddingTop: 2,
+    paddingBottom: 2,
+    marginRight: 6,
+    alignSelf: 'flex-start'
+  },
   checkbox: {
     width: 18,
     height: 18,
     borderWidth: 1,
-      marginLeft: -4,
+    marginLeft: -4,
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  contentContainer: {
+    flex: 1
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 2,
+    marginLeft: -2
   }
 });

@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button, Input, Text, YStack, XStack, Slider, View, isWeb } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { BaseCardModal } from './BaseCardModal'
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { Platform, TouchableOpacity } from 'react-native'
+import { Platform, TouchableOpacity, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
+import { getOrdinalSuffix } from '@/store/BillStore'
 
 interface AddBillModalProps {
   isVisible: boolean
@@ -17,12 +18,16 @@ interface AddBillModalProps {
 export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps) {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState(0)
+  const [amountInputValue, setAmountInputValue] = useState('')
   const [dueDate, setDueDate] = useState(new Date())
   const [showDatePicker, setShowDatePicker] = useState(isWeb)
   const [sliderValue, setSliderValue] = useState(0)
+  const [inputError, setInputError] = useState(false)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const amountInputRef = useRef<any>(null)
+  const scrollViewRef = useRef<ScrollView>(null)
 
   // Max slider value - you can adjust this as needed
   const MAX_AMOUNT = 1000
@@ -36,12 +41,14 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       })
       setName('')
       setAmount(0)
+      setAmountInputValue('')
       setSliderValue(0)
       setDueDate(new Date())
       onClose()
     }
   }
 
+  // For native date picker (only used on web now)
   const onDateChange = (event: any, selectedDate?: Date) => {
     if (selectedDate) {
       setDueDate(selectedDate)
@@ -54,12 +61,20 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
   }
 
   const handleAmountChange = (value: number[]) => {
-    const newAmount = value[0]
-    setSliderValue(newAmount)
-    setAmount(parseFloat(newAmount.toFixed(2)))
+    try {
+      const newAmount = value[0]
+      setSliderValue(newAmount)
+      const fixedAmount = Math.floor(newAmount * 100) / 100
+      setAmount(fixedAmount)
+      setAmountInputValue(fixedAmount.toString())
+      setInputError(false)
+    } catch (error) {
+      console.error("Error updating slider value:", error)
+      setInputError(true)
+    }
   }
 
-  // Format amount to have 2 decimal places
+  // Format amount for display only (not for input)
   const formattedAmount = amount.toFixed(2)
 
   // Set date picker visibility for web by default
@@ -69,7 +84,12 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
     }
   }, [isVisible])
 
-  // Custom Web Date Picker component
+  // Get formatted day with ordinal suffix (1st, 2nd, 3rd, etc.)
+  const getFormattedDay = (day: number) => {
+    return `${day}${getOrdinalSuffix(day)} of each month`;
+  }
+
+  // Custom Web Date Picker component - day selector only
   const WebDatePicker = () => {
     const days = Array.from({ length: 31 }, (_, i) => i + 1);
     
@@ -82,7 +102,10 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
           borderRadius: 8
         }}
       >
-        <XStack flexWrap="wrap" gap="$6" justifyContent="flex-start">
+        <Text fontFamily="$body" color="$color" fontSize="$4" marginBottom="$2">
+          Select day of month:
+        </Text>
+        <XStack flexWrap="wrap" gap="$2" justifyContent="flex-start">
           {days.map(day => (
             <TouchableOpacity 
               key={day}
@@ -95,7 +118,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                 backgroundColor: dueDate.getDate() === day ? primaryColor : (isDark ? '#444' : '#ddd'),
                 padding: 10,
                 borderRadius: 6,
-                width: 44,
+                width: 38,
                 alignItems: 'center',
                 margin: 2
               }}
@@ -114,14 +137,62 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
     );
   };
 
+  // Simple Mobile Day Picker - without using FlatList
+  const MobileDayPicker = () => {
+    const days = Array.from({ length: 31 }, (_, i) => i + 1);
+    
+    return (
+      <View 
+        style={{ 
+          backgroundColor: isDark ? '#222' : '#f0f0f0', 
+          borderRadius: 8,
+          marginTop: 8,
+          height: 200
+        }}
+      >
+        {/* Use regular View components instead of FlatList to avoid VirtualizedList nesting */}
+        <View>
+          {days.map(day => (
+            <TouchableOpacity 
+              key={day}
+              onPress={() => {
+                const newDate = new Date();
+                newDate.setDate(day);
+                setDueDate(newDate);
+                setShowDatePicker(false);
+              }}
+              style={{
+                padding: 12,
+                borderRadius: 6,
+                backgroundColor: dueDate.getDate() === day ? primaryColor : 'transparent',
+                alignItems: 'center',
+                marginVertical: 2
+              }}
+            >
+              <Text 
+                fontFamily="$body" 
+                fontSize="$5"
+                fontWeight={dueDate.getDate() === day ? "600" : "400"}
+                color={dueDate.getDate() === day ? (isDark ? '#000' : '#fff') : '$color'}
+              >
+                {day}{getOrdinalSuffix(day)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <BaseCardModal
       open={isVisible}
       onOpenChange={onClose}
       title="Add New Bill"
-      snapPoints={[80]}
+
       showCloseButton={true}
       zIndex={200000}
+      hideHandle={true}
     >
       <Animated.View 
         entering={FadeIn.duration(400)}
@@ -146,10 +217,10 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   placeholderTextColor="$placeholderColor"
                   color="$color"
                   fontFamily="$body"
-                  width="60%"
+                  width="75%"
                   fontSize={isWeb ? "$5" : "$4"}
                 />
-                <XStack alignItems="center" flex={1} justifyContent="flex-end">
+                <XStack alignItems="center" flex={1} justifyContent="flex-end" paddingHorizontal="$1">
                   <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$6" : "$4"} fontWeight="500">
                     ${formattedAmount}
                   </Text>
@@ -158,20 +229,42 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(200).duration(500)}>
-              <XStack gap="$4" alignItems="center">
-                <XStack alignItems="center" width="60%">
-  
+              <XStack gap="$4" alignItems="center" paddingHorizontal="$2">
+                <XStack alignItems="center" width="30%">
                   <Input
-                    placeholder="Custom Amount"
-                    value={formattedAmount === "0.00" ? "" : formattedAmount}
+                    ref={amountInputRef}
+                    placeholder="Amount"
+                    value={amountInputValue}
                     onChangeText={(text) => {
-                      const value = parseFloat(text)
-                      if (!isNaN(value) && value <= MAX_AMOUNT) {
-                        setAmount(value)
-                        setSliderValue(value)
-                      } else if (text === '' || text === '0') {
-                        setAmount(0)
-                        setSliderValue(0)
+                      try {
+                        const sanitizedText = text.replace(/[^0-9.]/g, '');
+                        
+                        const parts = sanitizedText.split('.');
+                        let formattedText = sanitizedText;
+                        if (parts.length > 2) {
+                          formattedText = parts[0] + '.' + parts.slice(1).join('');
+                        }
+                        
+                        if (parts.length > 1 && parts[1].length > 2) {
+                          formattedText = parts[0] + '.' + parts[1].substring(0, 2);
+                        }
+                        
+                        setAmountInputValue(formattedText);
+                        
+                        const value = parseFloat(formattedText);
+                        if (!isNaN(value) && value <= MAX_AMOUNT) {
+                          const roundedValue = Math.floor(value * 100) / 100;
+                          setAmount(roundedValue);
+                          setSliderValue(roundedValue);
+                          setInputError(false);
+                        } else if (formattedText === '' || formattedText === '0') {
+                          setAmount(0);
+                          setSliderValue(0);
+                          setInputError(false);
+                        }
+                      } catch (error) {
+                        console.error("Error processing input:", error);
+                        setInputError(true);
                       }
                     }}
                     keyboardType="decimal-pad"
@@ -198,10 +291,10 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                     </Slider.Track>
                     <Slider.Thumb 
                       index={0} 
-                      width={isWeb ? 16 : 6}
-                      height={isWeb ? 16 : 6}
+                      width={isWeb ? 16 : 8}
+                      height={isWeb ? 16 : 8}
                       backgroundColor={primaryColor}
-                      br={isWeb ? 8 : 6}
+                      br={isWeb ? 8 : 4}
                       shadowColor="black"
                       shadowOffset={{ width: 0, height: 1 }}
                       shadowOpacity={0.15}
@@ -226,7 +319,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                     justifyContent="space-between"
                   >
                     <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$5" : "$4"}>
-                      {dueDate.getDate()} of each month
+                      {dueDate.getDate()}{getOrdinalSuffix(dueDate.getDate())} of each month
                     </Text>
                     <Ionicons name="calendar" size={isWeb ? 24 : 20} color={isDark ? "#fff" : "#000"} />
                   </XStack>
@@ -236,14 +329,44 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   isWeb ? (
                     <WebDatePicker />
                   ) : (
-                    <View style={{ marginTop: 10 }}>
-                      <DateTimePicker
-                        value={dueDate}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={onDateChange}
-                      />
-                    </View>
+                    <ScrollView 
+                      style={{ 
+                        height: 200,
+                        backgroundColor: isDark ? '#222' : '#f0f0f0',
+                        borderRadius: 8,
+                        marginTop: 8
+                      }}
+                      showsVerticalScrollIndicator={true}
+                    >
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+                        <TouchableOpacity 
+                          key={day}
+                          onPress={() => {
+                            const newDate = new Date();
+                            newDate.setDate(day);
+                            setDueDate(newDate);
+                            setShowDatePicker(false);
+                          }}
+                          style={{
+                            padding: 12,
+                            borderRadius: 6,
+                            backgroundColor: dueDate.getDate() === day ? primaryColor : 'transparent',
+                            alignItems: 'center',
+                            marginVertical: 2,
+                            marginHorizontal: 8
+                          }}
+                        >
+                          <Text 
+                            fontFamily="$body" 
+                            fontSize="$5"
+                            fontWeight={dueDate.getDate() === day ? "600" : "400"}
+                            color={dueDate.getDate() === day ? (isDark ? '#000' : '#fff') : '$color'}
+                          >
+                            {day}{getOrdinalSuffix(day)}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
                   )
                 )}
               </YStack>

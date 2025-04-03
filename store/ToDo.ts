@@ -24,6 +24,13 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
   const currentDateStrLocal = format(date, 'yyyy-MM-dd')
   const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt)
+  
+  // Special handling for bills - check this first before any recurrence patterns
+  if (task.category === 'bills' && task.dueDate) {
+    const isDueDate = date.getDate() === task.dueDate
+    return isDueDate
+  }
+  
   switch (task.recurrencePattern) {
     case 'one-time': {
       if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
@@ -66,8 +73,9 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       return task.schedule.includes(today) && (weekDiff % 2 === 0) && !task.completionHistory[currentDateStrLocal]
     }
     case 'monthly': {
+      // Skip bills in monthly recurrence since we handle them separately
+      if (task.category === 'bills') return false
       const recDay = fallbackRecDate.getDate()
-      // Check completion based on local date string
       return date.getDate() === recDay && !task.completionHistory[currentDateStrLocal]
     }
     case 'yearly': {
@@ -120,15 +128,6 @@ const createTaskFilter = () => {
     // Filter tasks that are due today
     const filtered = Object.values(tasks).filter(task => {
     const isDue = isTaskDue(task, currentDate)
-    if (task.name.includes('Thunder') || task.name.includes('OKC')) {
-      console.log(`[DEBUG] Thunder task filtered: ${task.name}`, {
-        id: task.id,
-        isDue,
-        scheduledDate: task.scheduledDate,
-        recurrencePattern: task.recurrencePattern,
-        completed: task.completed
-      })
-    }
     return isDue
   })
     debugTaskFilter('After initial filtering', filtered)
@@ -187,7 +186,8 @@ export const useProjectStore = create<ProjectStore>()(
           completionHistory: {},
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          recurrencePattern: data.recurrencePattern || 'one-time'
+          recurrencePattern: data.recurrencePattern || (data.category === 'bills' ? 'monthly' : 'one-time'),
+          dueDate: data.category === 'bills' ? data.dueDate : undefined
         }
         tasks[id] = newTask
         set({ tasks, todaysTasks: taskFilter(tasks) })

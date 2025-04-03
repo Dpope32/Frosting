@@ -57,7 +57,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
         }
       } catch (error) {
         console.error('Failed to initialize stocks data:', error)
-      }
+      } 
     }
     
     if (open) {
@@ -189,6 +189,7 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
       onOpenChange={onOpenChange}
       title={stock ? 'Edit Stock' : 'Add Stock'}
       zIndex={200000}
+      hideHandle={true}
     >
       <YStack gap="$3" py="$2"><YStack>
           <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">

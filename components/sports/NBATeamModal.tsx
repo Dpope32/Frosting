@@ -76,6 +76,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
       title="Change Favorite NBA Team"
       snapPoints={isWeb ? [95] : [80]} 
       showCloseButton={true} 
+      hideHandle={true}
     >
       <YStack flex={1} gap="$3" paddingBottom="$4">
         <ScrollView

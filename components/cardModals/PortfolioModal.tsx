@@ -104,6 +104,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       title="Portfolio"
       snapPoints={Platform.OS === 'web' ? [85] : [80]}
       showCloseButton={true}
+      hideHandle={true}
     >
       <YStack
         gap={Platform.OS === 'web' ? '$2' : '$3'}

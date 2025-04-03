@@ -31,22 +31,6 @@ export const BillCard = ({
   const isPastDue = bill.dueDate < currentDay
   const isDueToday = bill.dueDate === currentDay
 
-  const handleDelete = () => {
-    if (Platform.OS === 'web') {
-      if (window.confirm("Are you sure you want to delete this bill?")) {
-        onDelete(bill.id)
-      }
-    } else {
-      Alert.alert(
-        "Delete Bill",
-        "Are you sure you want to delete this bill?",
-        [
-          { text: "Cancel" },
-          { text: "Delete", onPress: () => onDelete(bill.id) }
-        ]
-      )
-    }
-  }
 
   return isWeb ? (
     <XStack 
@@ -58,7 +42,7 @@ export const BillCard = ({
       borderWidth={1}
       borderColor={isDueToday ? primaryColor : isDark ? "#222" : "#e0e0e0"}
       width={columnWidth}
-      minWidth={320} // Increased minimum width for web
+      minWidth={320}
       height={120}
       position="relative"
       opacity={isPastDue ? 0.8 : 1}
@@ -102,16 +86,6 @@ export const BillCard = ({
             {bill.name}
             {isDueToday && " (due today!)"}
           </Text>
-          <Button
-            size="$3"
-            bg="transparent"
-            pressStyle={{ scale: 0.9 }}
-            hoverStyle={{
-              bg: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
-            }}
-            onPress={handleDelete}
-            icon={<X size={18} color="#ff4444" />}
-          />
         </XStack>
         
         <XStack ai="center" gap="$2">
@@ -200,14 +174,6 @@ export const BillCard = ({
           <Paragraph color="#fffbf7" fontSize="$4" fontFamily="$body"> • Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}  </Paragraph>
         </XStack>
       </YStack>
-      <Button 
-        size="$3"
-        bg="transparent" 
-        pressStyle={{ scale: 0.9 }} 
-        animation="quick" 
-        onPress={handleDelete}
-        icon={<X size={18} color="#ff4444" />} 
-      />
     </XStack>
   )
 }

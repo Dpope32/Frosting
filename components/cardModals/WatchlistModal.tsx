@@ -115,7 +115,7 @@ export function WatchlistModal({ open, onOpenChange }: WatchlistModalProps) {
   };
   
   return (
-    <BaseCardModal open={open} onOpenChange={onOpenChange} title="Add to Watchlist">
+    <BaseCardModal open={open} onOpenChange={onOpenChange} title="Add to Watchlist" hideHandle={true}>
       <YStack flex={1} position="relative">
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
           <YStack gap="$3" py="$2">

@@ -331,7 +331,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </View>
           )}
           
-          {/* Recurrence Section */}
           <YStack gap="$2">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <XStack gap="$2" py="$1">

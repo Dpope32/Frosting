@@ -90,7 +90,7 @@
 - ⏳ More sports leagues and teams
 
 ## Known Issues
-- WiFi card wildly inconsistent
+- 🔄 WiFi card wildly inconsistent (Attempted fix April 3, 2025 - Refactored `useNetworkSpeed` to measure latency)
 - Bug in Drawer with profile picture not displaying
 - ~~Fixed settings modal bug~~ (Resolved March 28, 2025 - `9b12208`)
 

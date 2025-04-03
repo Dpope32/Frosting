@@ -36,7 +36,6 @@ export function useBills() {
 
   const addBill = (billData: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newBill = addBillToStore(billData);
-    
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth();
@@ -52,22 +51,22 @@ export function useBills() {
         description: `$${billData.amount.toFixed(2)} due`,
         type: 'bill'
       });
-
-      // Add task for bill payment
+      
+      // Add task for bill payment - FIXED: category should be 'bills', not 'wealth'
       const weekDay = getDayName(eventDate);
       addTask({
         name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
         schedule: [weekDay],
         priority: 'high',
-        category: 'wealth',
+        category: 'bills',  // Changed from 'wealth' to 'bills'
         scheduledDate: formattedDate,
-        recurrencePattern: 'monthly'
+        recurrencePattern: 'monthly',
+        dueDate: billData.dueDate  // Explicitly set the dueDate property
       });
     }
-
+    
     // Show success toast
     showToast("Bill added successfully", "success");
-
     // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });
     queryClient.refetchQueries({ queryKey: ['bills'] });

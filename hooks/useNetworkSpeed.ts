@@ -58,97 +58,61 @@ export function useNetworkSpeed() {
   };
 
   const checkConnection = async (isMounted: boolean) => {
-    console.log('Checking connection...', { isConnected, isWifi, wifiDetails });
-    if (!isMounted) return;
-    
-    
+    console.log('Checking connection...', { isConnected, isWifi });
+
+    if (!isMounted) return; // Prevent state updates on unmounted component
+
     if (!isConnected) {
       console.log('Not connected - setting offline state');
-      setNetworkState(prev => ({ ...prev, speed: 'Offline', isPingLoading: false }));
+      // Check if component is still mounted before setting state
+      if (isMounted) {
+        setNetworkState(prev => ({ ...prev, speed: 'Offline', isPingLoading: false }));
+      }
       return;
     }
 
     const now = Date.now();
-    if (now - lastCheckRef.current < CHECK_INTERVAL && networkState.speed !== null) {
-      return; // Skip if checked recently and we have a value
+    // Avoid checking too frequently only if we have a non-offline speed
+    if (now - lastCheckRef.current < CHECK_INTERVAL && networkState.speed !== null && networkState.speed !== 'Offline') {
+      console.log('Skipping check, checked recently.');
+      return; 
     }
 
-    setNetworkState(prev => ({ ...prev, isPingLoading: true }));
+    console.log('Proceeding with network speed check.');
+    // Check if component is still mounted before setting state
+    if (isMounted) {
+      setNetworkState(prev => ({ ...prev, isPingLoading: true }));
+    } else {
+      return; // Don't proceed if unmounted
+    }
     
     try {
-      let pingTime: number;
-      let speedDisplay: string;
+      // Actually measure the speed
+      const measuredDuration = await measureNetworkSpeed();
+      const speedDisplay = `${measuredDuration} ms`;
       
-      // Always prioritize link speed for WiFi connections if available
-      if (isWifi && wifiDetails?.linkSpeed && Platform.OS !== 'ios') {
-        console.log('Using WiFi link speed:', wifiDetails.linkSpeed);
-        speedDisplay = `${wifiDetails.linkSpeed} Mbps`;
-      } else {
-        // Try to measure network speed
-        try {
-          pingTime = await measureNetworkSpeed();
-          console.log('Measured network speed:', pingTime);
-          speedDisplay = `${pingTime} ms`;
-        } catch (error) {
-          
-          // Fallback based on platform
-          if (Platform.OS === 'web') {
-            // For web, estimate based on navigator info if available
-            if (navigator && 'connection' in navigator) {
-              const conn = (navigator as any).connection;
-              if (conn && conn.effectiveType) {
-                // Map network type to approximate ping values
-                const typeMap: Record<string, number> = {
-                  'slow-2g': 300,
-                  '2g': 250,
-                  '3g': 150,
-                  '4g': 75,
-                  '5g': 30
-                };
-                pingTime = typeMap[conn.effectiveType] || 100;
-              } else {
-                pingTime = 80; 
-              }
-            } else {
-              pingTime = 80; 
-            }
-          } else if (__DEV__) {
-            pingTime = 89;
-          } else {
-            pingTime = 75; 
-          }
-          
-          speedDisplay = `${pingTime} ms`;
-        }
-      }
-      
-          if (isMounted) {
-            console.log('Setting network state:', speedDisplay);
-            setNetworkState({
-              speed: speedDisplay,
-              isPingLoading: false
-            });
+      console.log('Measured network speed:', speedDisplay);
+      // Check if component is still mounted before setting state
+      if (isMounted) {
+        setNetworkState({
+          speed: speedDisplay,
+          isPingLoading: false
+        });
         lastCheckRef.current = now;
-        retryCountRef.current = 0;
+        retryCountRef.current = 0; // Reset retries on success
       }
     } catch (error) {
-      
+      console.error('Error measuring network speed:', error);
+      // Fallback or error indication
+      const fallbackDisplay = 'N/A'; 
+      // Check if component is still mounted before setting state
       if (isMounted) {
-        if (retryCountRef.current < MAX_RETRIES) {
-          retryCountRef.current++;
-          setTimeout(() => checkConnection(isMounted), RETRY_DELAY);
-        } else {
-          const fallbackSpeed = isWifi && wifiDetails?.linkSpeed 
-            ? `${wifiDetails.linkSpeed} Mbps` 
-            : 'Measuring...';
-            
-          
-          setNetworkState({
-            speed: fallbackSpeed,
-            isPingLoading: false
-          });
-          retryCountRef.current = 0;
-        }
+        setNetworkState({
+          speed: fallbackDisplay, 
+          isPingLoading: false
+        });
+        // Optionally implement retry logic here if needed, using retryCountRef
+        lastCheckRef.current = now; // Update last check time even on error to prevent rapid retries
       }
     }
   };
@@ -156,17 +120,19 @@ export function useNetworkSpeed() {
   useEffect(() => {
     let isMounted = true;
     let checkTimer: NodeJS.Timeout | null = null;
-    const initializeNetwork = async () => {
-      await fetchNetworkInfo();
-      
-      if (isMounted && isConnected) {
-        checkConnection(isMounted);
-      }
+
+    const initializeAndCheck = async () => {
+      await fetchNetworkInfo(); 
     };
-    initializeNetwork();
+
+    initializeAndCheck();
+    
     checkTimer = setInterval(() => {
-      if (isMounted && isConnected) {
+
+      if (isMounted && isConnected) { 
         checkConnection(isMounted);
+      } else if (isMounted && !isConnected) {
+         setNetworkState(prev => ({ ...prev, speed: 'Offline', isPingLoading: false }));
       }
     }, CHECK_INTERVAL);
 
@@ -181,15 +147,16 @@ export function useNetworkSpeed() {
 
   useEffect(() => {
     let isMounted = true;
-    
-    
     if (isConnected && !isLoading) {
       checkConnection(isMounted);
+    } else if (!isConnected && isMounted) {
+       setNetworkState(prev => ({ ...prev, speed: 'Offline', isPingLoading: false }));
     }
+
     return () => {
       isMounted = false;
     };
-  }, [isConnected]);
+  }, [isConnected, isLoading]);
 
   return {
     speed: networkState.speed,

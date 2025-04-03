@@ -15,6 +15,7 @@ interface BaseCardModalProps {
   dismissOnSnapToBottom?: boolean
   zIndex?: number
   showCloseButton?: boolean
+  hideHandle?: boolean
 }
 
 export function BaseCardModal({
@@ -26,14 +27,15 @@ export function BaseCardModal({
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000,
-  showCloseButton = false
+  showCloseButton = false,
+  hideHandle = false
 }: BaseCardModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
   const topInset = Platform.OS === 'ios' ? insets.top : 0
   const handleClose = () => {onOpenChange(false)}
-  
+
   return (
     <Theme name={isDark ? "dark" : "light"}>
       <Sheet
@@ -53,7 +55,7 @@ export function BaseCardModal({
           backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
-          py={Platform.OS === 'web' ? "$2" : "$1"}
+          py={Platform.OS === 'web' ? "$2" : "$2"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
           backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
@@ -70,12 +72,12 @@ export function BaseCardModal({
             } : {}
           )}
         >
-          <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>
+          {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1, paddingTop: Math.max(topInset - 80, 0) }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: -12, marginBottom: 12, paddingHorizontal: 6}}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 12, marginBottom: 12, paddingHorizontal: 6}}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
                   fontSize={22}
@@ -87,11 +89,11 @@ export function BaseCardModal({
                   {title}
                 </Text>
                 {showCloseButton && (
-                  <Button 
-                    backgroundColor="transparent" 
-                    onPress={handleClose} 
-                    padding="$1" 
-                    pressStyle={{ opacity: 0.7 }} 
+                  <Button
+                    backgroundColor="transparent"
+                    onPress={handleClose}
+                    padding="$1"
+                    pressStyle={{ opacity: 0.7 }}
                     icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
                   />
                 )}

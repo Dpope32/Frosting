@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Sheet, YStack, XStack, Text, ScrollView } from 'tamagui'
+import { YStack, XStack, Text, ScrollView } from 'tamagui'
 import { Pressable, Platform, useColorScheme, Alert } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
 import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations'
 import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal'
+import { BaseCardModal } from './BaseCardModal'
 
 interface BillsListModalProps {
   open: boolean
@@ -125,208 +126,165 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
 
   return (
     <>
-      <Sheet
-        modal
+      <BaseCardModal
         open={open}
         onOpenChange={onOpenChange}
-        snapPoints = {isWeb ? [95] : [85]}
-        dismissOnSnapToBottom
-        dismissOnOverlayPress
-        animation="quick"
+        title="All Bills"
+        snapPoints={isWeb ? [95] : [85]}
+        showCloseButton={true}
         zIndex={100000}
       >
-        <Sheet.Overlay
-          animation="quick"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-          opacity={0.7}
-        />
-        <Sheet.Frame
-          backgroundColor={isDark ? "$gray1" : "white"}
-          padding="$4"
-          gap={Platform.OS === 'web' ? '$4' : '$5'}
-          borderTopLeftRadius="$6"
-          borderTopRightRadius="$6"
-          {...(isWeb ? {
-            style: {
-              overflowY: 'auto',
-              maxHeight: '100vh',
-              maxWidth: 800,
-              margin: '0 auto',
-              borderRadius: 8,
-              boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
-            }
-          } : {})}
-        >
-          <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-            <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
-              <XStack justifyContent="space-between" alignItems="center">
-                <Text
-                  fontSize={20}
-                  fontWeight="700"
-                  padding={12}
-                  fontFamily="$body"
-                  color={isDark ? "$gray12" : "$gray11"}
-                >
-                  All Bills
-                </Text>
-                <Pressable onPress={() => onOpenChange(false)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 0.7, padding: 8 })}>
-                  <Ionicons name="close" size={24} color="#ffffff" />
-                </Pressable>
-              </XStack>
-              
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false} 
-                paddingBottom="$4" 
-                mt="$1"
-                contentContainerStyle={{ 
-                  px: 4
-                }}
-              >
-                <XStack gap="$2">
-                  {categories.map(category => (
-                    <ModifiedChip key={category} category={category} />
-                  ))}
-                </XStack>
-              </ScrollView>
-            </YStack>
-            
-            {bills && bills.length > 0 ? (
-              <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2">
-                {bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
-                  const IconComponent = getIconForBill(bill.name)
-                  const amountColor = getAmountColor(bill.amount)
-                  const isPastDue = bill.dueDate < currentDay
-                  const isDueToday = bill.dueDate === currentDay
-                  
-                  return (
-                    <XStack
-                      key={bill.id}
-                      backgroundColor={isDark ? "$gray2" : "$gray3"}
-                      br={8}
-                      padding="$3"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      marginBottom="$2"
-                      {...(isDueToday ? {
-                        borderWidth: 1,
-                        borderColor: isDark ? "$red9" : "$red10"
-                      } : {})}
-                    >
-                      <XStack flex={1} alignItems="center" gap="$3">
-                        <YStack 
-                          width={44} 
-                          height={44} 
-                          br="$4" 
-                          ai="center" 
-                          jc="center" 
-                          bg={isDark ? "#333" : "#e0e0e0"}
-                        >
-                          <IconComponent size={22} color={isDark ? "white" : "#666"} />
-                        </YStack>
-                        
-                        <YStack>
-                          <Text
-                            fontFamily="$body"
-                            color={isDueToday ? "$red11" : isDark ? "$gray12" : "$gray11"}
-                            fontSize={16}
-                            fontWeight="500"
-                          >
-                            {bill.name}
-                            {isDueToday && " (due today!)"}
-                          </Text>
-                          <XStack gap="$2" mt="$1" alignItems="center">
-                            <Text
-                              fontFamily="$body"
-                              color={amountColor}
-                              fontSize={14}
-                              fontWeight="700"
-                            >
-                              ${bill.amount.toFixed(2)}
-                            </Text>
-                            <Text
-                              fontFamily="$body"
-                              color={isDark ? "$gray11" : "$gray10"}
-                              fontSize={13}
-                            >
-                              • Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
-                            </Text>
-                            {isPastDue && (
-                              <XStack
-                                backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.05)"}
-                                px="$2"
-                                py="$1"
-                                br={4}
-                                alignItems="center"
-                              >
-                                <Text 
-                                  fontFamily="$body" 
-                                  color="#4CAF50" 
-                                  fontSize={12} 
-                                  fontWeight="600"
-                                >
-                                  PAID
-                                </Text>
-                              </XStack>
-                            )}
-                          </XStack>
-                        </YStack>
-                      </XStack>
-                      
-                      <Pressable
-                        onPress={() => {
-                          if (Platform.OS === 'web') {
-                            if (window.confirm("Are you sure you want to delete this bill?")) {
-                              deleteBill(bill.id);
-                            }
-                          } else {
-                            Alert.alert(
-                              "Delete Bill",
-                              "Are you sure you want to delete this bill?",
-                              [
-                                { text: "Cancel" },
-                                { text: "Delete", onPress: () => deleteBill(bill.id) }
-                              ]
-                            );
-                          }
-                        }}
-                        style={({ pressed }) => ({
-                          opacity: pressed ? 0.7 : 1,
-                          padding: 8
-                        })}
-                      >
-                        <Ionicons
-                          name="close"
-                          size={24}
-                          color="#ff4444"
-                          style={{ fontWeight: 200 }}
-                        />
-                      </Pressable>
-                    </XStack>
-                  )
-                })}
-              </YStack>
-            ) : (
-              <YStack
-                backgroundColor={isDark ? "$gray2" : "$gray3"}
-                br={8}
-                padding="$4"
-                alignItems="center"
-                mt="$4"
-              >
-                <Text
-                  fontFamily="$body"
-                  color={isDark ? "$gray12" : "$gray11"}
-                  opacity={0.7}
-                >
-                  No bills found
-                </Text>
-              </YStack>
-            )}
+        <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false} 
+            paddingBottom="$4" 
+            mt="$1"
+            contentContainerStyle={{ 
+              paddingHorizontal: 4
+            }}
+          >
+            <XStack gap="$2">
+              {categories.map(category => (
+                <ModifiedChip key={category} category={category} />
+              ))}
+            </XStack>
           </ScrollView>
-        </Sheet.Frame>
-      </Sheet>
+        </YStack>
+        
+        {bills && bills.length > 0 ? (
+          <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2">
+            {bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
+              const IconComponent = getIconForBill(bill.name)
+              const amountColor = getAmountColor(bill.amount)
+              const isPastDue = bill.dueDate < currentDay
+              const isDueToday = bill.dueDate === currentDay
+              
+              return (
+                <XStack
+                  key={bill.id}
+                  backgroundColor={isDark ? "$gray2" : "$gray3"}
+                  br={8}
+                  padding="$3"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  marginBottom="$2"
+                  {...(isDueToday ? {
+                    borderWidth: 1,
+                    borderColor: isDark ? "$red9" : "$red10"
+                  } : {})}
+                >
+                  <XStack flex={1} alignItems="center" gap="$3">
+                    <YStack 
+                      width={44} 
+                      height={44} 
+                      br="$4" 
+                      ai="center" 
+                      jc="center" 
+                      bg={isDark ? "#333" : "#e0e0e0"}
+                    >
+                      <IconComponent size={22} color={isDark ? "white" : "#666"} />
+                    </YStack>
+                    
+                    <YStack>
+                      <Text
+                        fontFamily="$body"
+                        color={isDueToday ? "$red11" : isDark ? "$gray12" : "$gray11"}
+                        fontSize={16}
+                        fontWeight="500"
+                      >
+                        {bill.name}
+                        {isDueToday && " (due today!)"}
+                      </Text>
+                      <XStack gap="$2" mt="$1" alignItems="center">
+                        <Text
+                          fontFamily="$body"
+                          color={amountColor}
+                          fontSize={14}
+                          fontWeight="700"
+                        >
+                          ${bill.amount.toFixed(2)}
+                        </Text>
+                        <Text
+                          fontFamily="$body"
+                          color={isDark ? "$gray11" : "$gray10"}
+                          fontSize={13}
+                        >
+                          • Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
+                        </Text>
+                        {isPastDue && (
+                          <XStack
+                            backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.05)"}
+                            px="$2"
+                            py="$1"
+                            br={4}
+                            alignItems="center"
+                          >
+                            <Text 
+                              fontFamily="$body" 
+                              color="#4CAF50" 
+                              fontSize={12} 
+                              fontWeight="600"
+                            >
+                              PAID
+                            </Text>
+                          </XStack>
+                        )}
+                      </XStack>
+                    </YStack>
+                  </XStack>
+                  
+                  <Pressable
+                    onPress={() => {
+                      if (Platform.OS === 'web') {
+                        if (window.confirm("Are you sure you want to delete this bill?")) {
+                          deleteBill(bill.id);
+                        }
+                      } else {
+                        Alert.alert(
+                          "Delete Bill",
+                          "Are you sure you want to delete this bill?",
+                          [
+                            { text: "Cancel" },
+                            { text: "Delete", onPress: () => deleteBill(bill.id) }
+                          ]
+                        );
+                      }
+                    }}
+                    style={({ pressed }) => ({
+                      opacity: pressed ? 0.7 : 1,
+                      padding: 8
+                    })}
+                  >
+                    <Ionicons
+                      name="close"
+                      size={24}
+                      color="#ff4444"
+                      style={{ fontWeight: 200 }}
+                    />
+                  </Pressable>
+                </XStack>
+              )
+            })}
+          </YStack>
+        ) : (
+          <YStack
+            backgroundColor={isDark ? "$gray2" : "$gray3"}
+            br={8}
+            padding="$4"
+            alignItems="center"
+            mt="$4"
+          >
+            <Text
+              fontFamily="$body"
+              color={isDark ? "$gray12" : "$gray11"}
+              opacity={0.7}
+            >
+              No bills found
+            </Text>
+          </YStack>
+        )}
+      </BaseCardModal>
       
       <BillRecommendationModal 
         open={housingModalOpen} 

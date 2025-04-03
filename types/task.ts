@@ -1,6 +1,6 @@
 
 export type TaskPriority = 'high' | 'medium' | 'low'
-export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth'
+export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth' | 'bills'
 export type RecurrencePattern = 'one-time' | 'tomorrow' | 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
@@ -19,4 +19,5 @@ export interface Task {
   recurrencePattern: RecurrencePattern
   recurrenceDate?: string
   showInCalendar?: boolean
+  dueDate?: number 
 }
