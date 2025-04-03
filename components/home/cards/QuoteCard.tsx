@@ -1,6 +1,7 @@
 import React from 'react'
 import { Platform } from 'react-native'
 import { Stack, Text, Spinner } from 'tamagui'
+import { MessageSquareQuote } from '@tamagui/lucide-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import { useUserStore } from '@/store/UserStore'
 
@@ -32,19 +33,7 @@ export function QuoteCard() {
         {isLoading ? (
           <Spinner size="small" color="#dbd0c6" />
         ) : (
-          <Text
-            color="#dbd0c6"
-            fontSize={isWeb ? 18 : 16}
-            fontWeight="bold"
-            fontFamily="$body"
-            style={{
-              textShadowColor: 'rgba(0, 0, 0, 0.5)',
-              textShadowOffset: { width: 0, height: 1 },
-              textShadowRadius: 2
-            }}
-          >
-            Quote
-          </Text>
+          <MessageSquareQuote size={isWeb ? 28 : 24} color="#dbd0c6" />
         )}
       </Stack>
     </>

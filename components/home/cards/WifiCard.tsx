@@ -27,19 +27,20 @@ export function WifiCard() {
       const mbpsMatch = speedValue.match(/(\d+)\s*Mbps/i);
       const speed = mbpsMatch ? parseInt(mbpsMatch[1]) : 0;
       
-      if (speed >= 1000) return 4;
-      if (speed >= 300) return 3;
-      if (speed >= 100) return 2;
+      if (speed >= 500) return 4;
+      if (speed >= 100) return 3;
+      if (speed >= 50) return 2;
       return 1;
     }
 
     const pingMatch = speedValue.match(/(\d+)\s*ms/);
     if (pingMatch) {
       const ping = parseInt(pingMatch[1]);
-      if (ping < 50) return 4;
-      if (ping < 100) return 3;
-      if (ping < 150) return 2;
-      return 1;
+      if (ping < 50) return 1;
+      if (ping < 100) return 2;
+      if (ping < 200) return 3;
+      if (ping < 300) return 4;
+      return 0;
     }
 
     return 0;
@@ -49,10 +50,10 @@ export function WifiCard() {
     if (!isConnected) return 'rgba(255, 255, 255, 0.2)';
     
     switch (signalStrength) {
-      case 1: return '#FF0000';   // Red
-      case 2: return '#FFEB3B';   // Yellow
-      case 3: return '#90EE90';   // Light green
-      case 4: return '#2E7D32';   // Normal green
+      case 1: return '#f97316';   // Orange
+      case 2: return '#eab308';   // Yellow
+      case 3: return '#22c55e';   // Green
+      case 4: return '#15803d';   // Dark green
       default: return 'rgba(255, 255, 255, 0.2)';
     }
   };

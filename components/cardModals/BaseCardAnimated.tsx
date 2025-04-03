@@ -67,13 +67,13 @@ export function BaseCardAnimated({
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
                     marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom,
+                    marginBottom: insets.bottom +20,
                     width: actualWidth,
                     maxHeight: screenHeight,
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 4} px="$2" alignItems="center">
+                <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 2} px="$2" alignItems="center">
                 <Text
                     fontSize={isWeb? 24 : 20}
                     fontWeight="700"
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 50 : 18,
+    paddingBottom: isWeb? 50 : 24,
     zIndex: 1,
   },
 })

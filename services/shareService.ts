@@ -1,21 +1,15 @@
-import { Alert } from 'react-native'
+import { Alert } from 'react-native';
+import { usePeopleStore } from '@/store/People';
 
-export const handleSharedContact = (url: string) => {
+export const handleSharedContact = (contactData: {
+  name: string;
+  nickname?: string;
+  phoneNumber?: string;
+  email?: string;
+  occupation?: string;
+}) => {
   try {
-    // Handle both full clipboard content and direct links
-    const shareUrl = url.includes('---') ? url.split('\n')[0] : url;
-    
-    const data = shareUrl.split('?data=')[1];
-    if (!data) {
-      // If no data parameter, check if it's a plain text contact
-      if (url.includes('Contact:')) {
-        Alert.alert("Contact Info", url.split('---')[1].trim());
-      }
-      return;
-    }
-
-    const decodedData = JSON.parse(atob(data));
-    const name = decodedData.name || decodedData.nickname;
+    const name = contactData.name || contactData.nickname || 'this contact';
     Alert.alert(
       "Add Contact",
       `Would you like to add ${name} to your contacts list?`,
@@ -24,18 +18,30 @@ export const handleSharedContact = (url: string) => {
         {
           text: "Add",
           onPress: () => {
-            const { usePeopleStore } = require('@/store/People');
-            usePeopleStore.getState().addPerson(decodedData);
+            usePeopleStore.getState().addPerson({
+              ...contactData,
+              id: Math.random().toString(36).substr(2, 9),
+              birthday: '', // Required field with empty default
+              profilePicture: '', // Required field with empty default
+              registered: false, // Required field with default
+              priority: false, // Required field with default
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              address: undefined,
+              notes: '',
+              tags: [],
+              lastContactDate: '',
+              importantDates: [],
+              socialMedia: [],
+              favoriteColor: '',
+              relationship: '',
+              additionalInfo: ''
+            });
           }
         }
       ]
     );
   } catch (error) {
-    // If error occurs, check if it's a plain text contact
-    if (url.includes('Contact:')) {
-      Alert.alert("Contact Info", url.split('---')[1].trim());
-    } else {
-      Alert.alert("Error", "Invalid contact link");
-    }
+    Alert.alert("Error", "Failed to process contact data");
   }
 };

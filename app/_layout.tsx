@@ -80,10 +80,19 @@ export default Sentry.wrap(function RootLayout() {
     }
   }, [loaded]);
 
-  const handleDeepLink = useCallback((event: { url: string }) => {
-    if (event.url.startsWith('kaiba-nexus://share')) {
-      handleSharedContact(event.url);
-    }
+    const handleDeepLink = useCallback((event: { url: string }) => {
+      if (event.url.startsWith('kaiba-nexus://share')) {
+        const url = new URL(event.url);
+        const params = Object.fromEntries(url.searchParams.entries());
+        const contactData = {
+          name: decodeURIComponent(params.name || ''),
+          nickname: params.nickname ? decodeURIComponent(params.nickname) : undefined,
+          phoneNumber: params.phone ? decodeURIComponent(params.phone) : undefined,
+          email: params.email ? decodeURIComponent(params.email) : undefined,
+          occupation: params.occupation ? decodeURIComponent(params.occupation) : undefined
+        };
+        handleSharedContact(contactData);
+      }
   }, []);
 
   useEffect(() => {
