@@ -228,7 +228,7 @@ export default function Onboarding() {
         {Platform.OS === 'ios' || Platform.OS === 'android' ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View flex={1}>
-              <View flex={1} style={{ paddingBottom: 80 }}> 
+              <View flex={1} style={{ paddingBottom: isWeb ? 80 : 0 }}> 
                 {renderStep()}
               </View>
               <View
