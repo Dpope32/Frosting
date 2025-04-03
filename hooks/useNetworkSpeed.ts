@@ -21,6 +21,7 @@ export function useNetworkSpeed() {
   const isWifi = details?.type === 'wifi';
 
   const measureNetworkSpeed = async (): Promise<number> => {
+    console.log('Measuring network speed...');
     // Use a small file to test download speed
     const testFileUrl = 'https://www.cloudflare.com/cdn-cgi/trace';
     const controller = new AbortController();
@@ -48,16 +49,7 @@ export function useNetworkSpeed() {
         return duration;
       }
       
-      // Calculate download speed in Mbps (very rough approximation)
-      const fileSizeInBits = data.length * 8;
-      const speedInMbps = (fileSizeInBits / 1000000) / (duration / 1000);
-      
-      
-      // If it's a reasonable speed, convert ping to equivalent value
-      if (speedInMbps < 50) {
-        return Math.floor(200 - speedInMbps * 4); // Rough conversion to ping equivalent
-      }
-      
+      // Return actual ping time (duration)
       return duration;
     } catch (error) {
       clearTimeout(timeoutId);
@@ -66,10 +58,12 @@ export function useNetworkSpeed() {
   };
 
   const checkConnection = async (isMounted: boolean) => {
+    console.log('Checking connection...', { isConnected, isWifi, wifiDetails });
     if (!isMounted) return;
     
     
     if (!isConnected) {
+      console.log('Not connected - setting offline state');
       setNetworkState(prev => ({ ...prev, speed: 'Offline', isPingLoading: false }));
       return;
     }
@@ -87,11 +81,13 @@ export function useNetworkSpeed() {
       
       // Always prioritize link speed for WiFi connections if available
       if (isWifi && wifiDetails?.linkSpeed && Platform.OS !== 'ios') {
+        console.log('Using WiFi link speed:', wifiDetails.linkSpeed);
         speedDisplay = `${wifiDetails.linkSpeed} Mbps`;
       } else {
         // Try to measure network speed
         try {
           pingTime = await measureNetworkSpeed();
+          console.log('Measured network speed:', pingTime);
           speedDisplay = `${pingTime} ms`;
         } catch (error) {
           
@@ -126,11 +122,12 @@ export function useNetworkSpeed() {
         }
       }
       
-      if (isMounted) {
-        setNetworkState({
-          speed: speedDisplay,
-          isPingLoading: false
-        });
+          if (isMounted) {
+            console.log('Setting network state:', speedDisplay);
+            setNetworkState({
+              speed: speedDisplay,
+              isPingLoading: false
+            });
         lastCheckRef.current = now;
         retryCountRef.current = 0;
       }
@@ -143,7 +140,7 @@ export function useNetworkSpeed() {
         } else {
           const fallbackSpeed = isWifi && wifiDetails?.linkSpeed 
             ? `${wifiDetails.linkSpeed} Mbps` 
-            : __DEV__ ? '89 ms' : '75 ms';
+            : 'Measuring...';
             
           
           setNetworkState({

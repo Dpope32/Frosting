@@ -341,7 +341,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
                         scrollEventThrottle={16}
                       >
-                        <YStack gap="$4" px="$2">
+                        <YStack gap="$4" py="$2" px="$2">
                           
                           <Text 
                             fontSize="$3" 
@@ -349,7 +349,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             fontFamily="$body"
                             lineHeight={22}
                           >
-                            If you have any questions, concerns, or feedback about our app, please don't hesitate to reach out to us:
+                              If you have any questions, concerns, or feedback about our app, please don't hesitate to reach out to us:
                           </Text>
                           
                           <YStack gap="$3" mt="$2">
@@ -359,12 +359,11 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                 <Pressable onPress={handleEmailPress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                                   <Text 
                                     fontSize="$3" 
-                                    fontWeight="700" 
-                                    color={primaryColor}
+                                    color={isDark ? "#fff" : "#000"}
                                     fontFamily="$body"
                                     textDecorationLine="underline"
                                   >
-                                    Email Us
+                                    Contact us via Email
                                   </Text>
                                 </Pressable>
                               </YStack>
@@ -376,12 +375,11 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                 <Pressable onPress={handleWebsitePress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                                   <Text 
                                     fontSize="$3" 
-                                    fontWeight="700" 
-                                    color={primaryColor}
+                                    color={isDark ? "#fff" : "#000"}
                                     fontFamily="$body"
                                     textDecorationLine="underline"
                                   >
-                                    Visit Our Website
+                                    Visit our Privacy Policy
                                   </Text>
                                 </Pressable>
                               </YStack>
@@ -390,14 +388,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             <XStack gap="$2" alignItems="flex-start">
                               <MaterialIcons name="schedule" size={18} color={primaryColor} />
                               <YStack>
-                                <Text 
-                                  fontSize="$3" 
-                                  fontWeight="700" 
-                                  color={isDark ? "#fff" : "#000"}
-                                  fontFamily="$body"
-                                >
-                                  Response Time
-                                </Text>
                                 <Text 
                                   fontSize="$3" 
                                   color={isDark ? "#ddd" : "#333"}
@@ -432,3 +422,4 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
     </Theme>
   );
 }
+
