@@ -102,7 +102,7 @@ export function WifiCard() {
       {isLoading && !displaySpeed ? (
         <Spinner size="small" color="white" />
       ) : (
-        <Stack flexDirection="row" alignItems="flex-end" height={24} gap="$1">
+        <Stack flexDirection="row" alignItems="flex-end" height={20} gap="$1">
           {[1, 2, 3, 4].map((barLevel) => (
             <Stack
               key={barLevel}
