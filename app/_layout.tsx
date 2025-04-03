@@ -63,20 +63,48 @@ export default Sentry.wrap(function RootLayout() {
 
   useEffect(() => {
     const checkAndApplyUpdate = async () => {
+      if (__DEV__) return;
+      
       try {
         const update = await Updates.checkForUpdateAsync();
+        
         if (update.isAvailable) {
           await Updates.fetchUpdateAsync();
-          Alert.alert('Update downloaded', 'Restarting app to apply update...');
-          await Updates.reloadAsync();
+          
+          // Platform-safe alert implementation
+          if (Platform.OS !== 'web') {
+            Alert.alert(
+              'Update Available',
+              'A new version is ready. Restart to apply?',
+              [
+                { text: 'Later', style: 'cancel' },
+                { 
+                  text: 'Restart', 
+                  onPress: () => Updates.reloadAsync() 
+                }
+              ]
+            );
+          } else {
+            // Web-friendly confirmation 
+            if (window.confirm('Update available. Reload to apply?')) {
+              Updates.reloadAsync();
+            }
+          }
         }
       } catch (error) {
-        console.error('Failed to fetch update:', error);
+        console.error('Update check failed:', error);
       }
     };
-
+  
+    // Only run when loaded and not in dev mode
     if (loaded && !__DEV__) {
+      // Initial check
       checkAndApplyUpdate();
+      
+      // Periodic checks
+      const updateInterval = setInterval(checkAndApplyUpdate, 60000);
+      
+      return () => clearInterval(updateInterval);
     }
   }, [loaded]);
 

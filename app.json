@@ -108,6 +108,8 @@
       }
     },
     "owner": "deedaw22",
-    "runtimeVersion": "1.0.0"
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
   }
 }

@@ -17,21 +17,15 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): State {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // --- Production Error Reporting ---
-    // TODO: Integrate with an error reporting service (e.g., Sentry, Bugsnag)
-    // Example: ErrorReportingService.logError(error, errorInfo);
-    console.error("Uncaught error:", error, errorInfo); // Keep console logging for dev/debugging
-    // ---------------------------------
+    console.error("Uncaught error:", error, errorInfo);
   }
 
   private handleReload = async () => {
     try {
-      // Attempt to reload the app using Expo Updates
       await Updates.reloadAsync();
     } catch (err) {
       console.error("Failed to reload app via Updates:", err);
