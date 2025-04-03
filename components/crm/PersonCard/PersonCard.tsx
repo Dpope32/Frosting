@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
+import { useCRMStore } from "@/store/CRMStore";
 import { Card, Image, Paragraph, XStack, YStack, Theme, Sheet, isWeb } from "tamagui";
 import { TouchableOpacity, View, StyleProp, ViewStyle, Linking, Alert, useColorScheme, Platform } from "react-native";
 import * as Clipboard from "expo-clipboard";
@@ -67,15 +68,44 @@ type PersonCardProps = {
 export function PersonCard({
   person,
   onEdit,
-  isExpanded = false,
-  onPress,
   containerStyle
 }: PersonCardProps) {
+  const {
+    expandedPersonId,
+    expandPersonCard,
+    collapsePersonCard,
+    openEditModal
+  } = useCRMStore();
+
+  const isExpanded = expandedPersonId === person.id;
+
+  useEffect(() => {
+    return () => {
+      if (isExpanded) {
+        collapsePersonCard();
+      }
+    };
+  }, [isExpanded, collapsePersonCard]);
+
+  const handlePress = () => {
+    if (isExpanded) {
+      collapsePersonCard();
+    } else {
+      expandPersonCard(person.id!);
+    }
+  };
+
+  const handleEdit = (person: Person) => {
+    collapsePersonCard();
+    openEditModal(person);
+    onEdit(person);
+  };
+
   const nicknameColor = getColorForPerson(person.id || person.name);
-const fullAddress = useMemo(() => {
-  if (!person.address) return "";
-  return person.address.street || "";
-}, [person.address]);
+  const fullAddress = useMemo(() => {
+    if (!person.address) return "";
+    return person.address.street || "";
+  }, [person.address]);
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -102,7 +132,7 @@ const fullAddress = useMemo(() => {
             applyWebStyle('card')
           ] as any}
         >
-          <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable as any}>
+          <TouchableOpacity onPress={handlePress} activeOpacity={0.8} style={styles.touchable as any}>
             <XStack alignItems="center" gap="$3" style={styles.cardContent as any}>
               <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
                 <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
@@ -134,7 +164,7 @@ const fullAddress = useMemo(() => {
                   )}
                   <Paragraph
                     fontWeight="600"
-                    fontSize={isWeb? 18 : 15}
+                    fontSize={isWeb? 18 : 16}
                     color={isDark ? adjustColor(nicknameColor, 250) : adjustColor(nicknameColor, -40)}
                     numberOfLines={1}
                     ellipsizeMode="tail"
@@ -149,6 +179,7 @@ const fullAddress = useMemo(() => {
                   color={isDark ? "#999" : "#333"}
                   numberOfLines={1}
                   ellipsizeMode="tail"
+                  style={{ marginTop: -2,}}
                 >
                   {person.occupation}
                 </Paragraph>
@@ -162,7 +193,7 @@ const fullAddress = useMemo(() => {
           modal
           open={isExpanded}
           onOpenChange={(isOpen: boolean) => {
-            if (!isOpen) onPress?.();
+            if (!isOpen) collapsePersonCard();
           }}
           snapPoints={[80, 95]}
           dismissOnSnapToBottom
@@ -177,7 +208,7 @@ const fullAddress = useMemo(() => {
                 {
                   backgroundColor: isDark ? "rgba(20,20,20,0.95)" : "rgba(255,255,255,0.95)",
                   borderColor: isDark ? "rgba(200,200,200,0.8)" : "rgba(100,100,100,0.3)",
-                  overflow: "hidden" // Moving the overflow property here instead of in the styles
+                  overflow: "hidden"
                 },
                 applyWebStyle('modalContainer')
               ] as any}
@@ -209,7 +240,7 @@ const fullAddress = useMemo(() => {
                     styles.closeIcon,
                     { backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(100,100,100,0.5)" }
                   ] as any}
-                  onPress={() => onPress?.()}
+                  onPress={() => handlePress?.()}
                 >
                   <Ionicons name="close-outline" size={24} color={isDark ? "#fff" : "#fff"} />
                 </TouchableOpacity>
@@ -329,7 +360,6 @@ const fullAddress = useMemo(() => {
                 )}
                 {person.additionalInfo && (
                   <XStack gap="$3" alignItems="center">
-                    <Ionicons name="information-circle-outline" size={22} color={isDark ? "#fff" : "#555"} />
                     <Paragraph fontFamily="$body" fontSize={14} color={isDark ? "#fff" : "#333"}>
                       {person.additionalInfo}
                     </Paragraph>
@@ -405,7 +435,7 @@ const fullAddress = useMemo(() => {
                 },
                 applyWebStyle('actionBar')
               ] as any}
-              pointerEvents="box-none" // Allow touch events to pass through this view
+              pointerEvents="box-none" 
             >
               {person.phoneNumber && (
                 <>
@@ -471,15 +501,13 @@ const fullAddress = useMemo(() => {
                   <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? "#fff" : "#555" }] as any}>Copy</Paragraph>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity
+                <TouchableOpacity
                 onPress={(e) => {
                   if (e) {
                     if (typeof e.preventDefault === 'function') e.preventDefault();
                     if (typeof e.stopPropagation === 'function') e.stopPropagation();
                   }
-                  // Close the sheet first, then edit after a small delay
-                  if (onPress) onPress();
-                  setTimeout(() => onEdit(person), 100);
+                  handleEdit(person);
                 }}
                 style={[styles.actionButton, { zIndex: 99 }] as any}
                 activeOpacity={0.6}
@@ -492,7 +520,6 @@ const fullAddress = useMemo(() => {
           </Sheet.Frame>
         </Sheet>
       </View>
-
     </Theme>
   );
 }

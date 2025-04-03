@@ -1,8 +1,6 @@
 import type { Person } from '@/types/people'
-import { Input} from 'tamagui'
 
-
-type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
+export type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 
 export const initialFormData: FormData = {
     name: '',
@@ -49,5 +47,3 @@ export const initialFormData: FormData = {
     paymentUsername: string;
     updatePaymentUsername: (username: string) => void;
   }
-
-  

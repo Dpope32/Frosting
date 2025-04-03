@@ -17,9 +17,11 @@ export const styles = StyleSheet.create({
     elevation: 5
   },
   headerContainer: {
-    padding: 20,
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)'
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    marginTop: 12,
+    marginBottom: -12
   },
   headerText: {
     fontSize: 18,
@@ -33,7 +35,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 14,
-    marginBottom: 16,
+    marginBottom: 12,
     fontSize: 16
   },
   sectionTitle: {
@@ -47,10 +49,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16
   },
   typeButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 6,
-    marginRight: 10
+    marginRight: 8,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8
   },
   typeButtonText: {
     fontSize: 14,
@@ -107,8 +110,8 @@ export const styles = StyleSheet.create({
     marginRight: 8
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600'
+    fontSize: 14,
+    fontWeight: '500'
   },
   timePickerContainer: {
     borderRadius: 16,

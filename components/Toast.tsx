@@ -1,10 +1,23 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { YStack, Text, XStack, GetThemeValueForKey } from 'tamagui'
-import { Animated, Dimensions } from 'react-native'
+import { Dimensions } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { BlurView } from 'expo-blur'
 import { useToastStore } from '@/store/ToastStore'
 
-const { height } = Dimensions.get('window')
+const { height, width } = Dimensions.get('window')
+
+const toastStyle: {
+  top: number;
+  left: number;
+  right: number;
+  alignItems: 'center';
+} = {
+  top: height * 0.15,
+  left: width * 0.15,
+  right: width * 0.15,
+  alignItems: 'center'
+}
 
 export function Toast() {
   const { toasts, removeToast } = useToastStore()
@@ -12,9 +25,7 @@ export function Toast() {
   return (
     <YStack
       position="absolute"
-      bottom={height * 0.1}
-      left={16}
-      right={16}
+      {...toastStyle}
       gap="$2"
       zIndex={100000}
       pointerEvents="box-none"
@@ -32,33 +43,37 @@ interface ToastItemProps {
   type: 'success' | 'error' | 'info' | 'warning'
   duration: number
   fontFamily: GetThemeValueForKey<'fontFamily'>
-  position: string
-  createdAt: number
   onRemove: (id: string) => void
 }
 
-function ToastItem({ id, message, type, fontFamily, duration, onRemove }: ToastItemProps) {
-  // Temporary removal for diagnostics
+const ToastItem: React.FC<ToastItemProps> = ({
+  id,
+  message,
+  type,
+  fontFamily,
+  duration,
+  onRemove
+}) => {
   useEffect(() => {
     const timer = setTimeout(() => {
         onRemove(id)
-    }, duration) // Use the passed duration
+    }, duration)
     return () => clearTimeout(timer)
   }, [])
 
   return (
-    <XStack
-      backgroundColor="rgba(45,45,45,0.95)"
-      br={8}
-      px="$4"
-      py="$3"
-      alignItems="center"
-      justifyContent="space-between"
-      elevation={5}
-      shadowColor="black"
-      shadowOffset={{ width: 0, height: 2 }}
-      shadowOpacity={0.25}
-      shadowRadius={8}
+    <BlurView
+      intensity={50}
+      tint="dark"
+      style={{
+        borderRadius: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        overflow: 'hidden',
+      }}
     >
       <Text color="#fff" fontSize={16} fontFamily={fontFamily}>
         {message}
@@ -75,6 +90,6 @@ function ToastItem({ id, message, type, fontFamily, duration, onRemove }: ToastI
       {type === 'warning' && (
         <Ionicons name="warning" size={24} color="#f59e0b" />
       )}
-    </XStack>
+    </BlurView>
   )
 }

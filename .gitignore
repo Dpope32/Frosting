@@ -81,3 +81,5 @@ coverage/
 # Cache
 .eslintcache
 .cache/
+
+.env.local

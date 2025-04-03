@@ -1,15 +1,16 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert } from 'react-native' 
+import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert, View, ActivityIndicator, StyleSheet, Modal } from 'react-native' // Added Modal import
 import { BaseCardModal } from './BaseCardModal'
 import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router'
-import { Sheet, Button, YStack, XStack, Text, Circle } from 'tamagui'
+import { Button, YStack, XStack, Text, Circle, Spinner } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useWallpaperStore } from '@/store/WallpaperStore'
 import { colorOptions } from '../../constants/Colors'
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds'
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
+import { BlurView } from 'expo-blur'
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -118,6 +119,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web'
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const [wallpapersToShow, setWallpapersToShow] = useState(isWeb ? 3 : 8)
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [settings, setSettings] = useState({
@@ -246,21 +248,26 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     }
     return undefined;
   }, [wallpaperSources]);
-  
+
   return (
+    <>
     <BaseCardModal
-      open={open} 
-      onOpenChange={onOpenChange} 
+      open={open}
+      onOpenChange={(newOpen) => {
+        if (!isSigningOut) {
+          onOpenChange(newOpen)
+        }
+      }}
       title="Settings"
       snapPoints={isWeb ? [90] : [86]}
       zIndex={100000}
-      showCloseButton={true}
+      showCloseButton={!isSigningOut}
     >
       <YStack flex={1} gap="$2" paddingBottom="$2" paddingHorizontal={isWeb ? '$4' : '$4'}>
-          <XStack gap="$3" flexWrap="wrap">
-            <YStack width={60} gap="$2" alignItems="center">
-              <Circle size={60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
-                {settings.profilePicture ? (
+        <XStack gap="$3" flexWrap="wrap">
+          <YStack width={60} gap="$2" alignItems="center">
+            <Circle size={60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
+              {settings.profilePicture ? (
                   <Image source={buildImageSource(settings.profilePicture)} style={{ width: 60, height: 60, borderRadius: 30 }} />
                 ) : (
                   <Text color={isDark ? '#fff' : '#000'} fontSize={11} fontFamily="$body">
@@ -469,44 +476,106 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             isDark={isDark}
           />
         </YStack>
-        <XStack justifyContent="space-between"  paddingHorizontal={isWeb ? '$4' : '$3'} mb="$2">
-          <Button 
-            backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} 
-            onPress={async () => {
-              const message = "Are you sure you want to reset all your data? This cannot be undone..."
-              const shouldReset = isWeb 
-                ? window.confirm(message)
-                : await new Promise(resolve => {
-                  Alert.alert(
-                    "Confirm Reset",
-                    message,
-                    [
-                      { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
-                      { text: "Reset", style: "destructive", onPress: () => resolve(true) }
-                    ]
-                  )
-                })
 
-              if (shouldReset) {
-                await StorageUtils.clear()
-                if (isWeb) {
-                   window.location.href = '/'
-                 } else {
-                   router.replace('/') // Navigate to root, index.tsx will handle redirect
-                 }
-               }
-            }}
+      <XStack
+        justifyContent="space-between"
+        paddingHorizontal={isWeb ? '$4' : '$3'}
+        paddingVertical={isWeb ? '$4' : '$3'}
+        paddingTop={isWeb ? '$20' : '$3'}
+      >
+        <Button
+          backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
+          disabled={isSigningOut}
+          onPress={async () => {
+            const message = "Are you sure you want to reset all your data? This cannot be undone..."
+            const shouldReset = isWeb
+              ? window.confirm(message)
+              : await new Promise(resolve => {
+                Alert.alert(
+                  "Confirm Reset",
+                  message,
+                  [
+                    { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+                    { text: "Reset", style: "destructive", onPress: () => resolve(true) },
+                  ],
+                  { cancelable: false }
+                )
+              });
+          
+            if (shouldReset) {
+              setIsSigningOut(true);
+              console.log('[SignOut] Starting sign out process...');
+              
+              try {
+                await Promise.all([
+                  useUserStore.getState().clearPreferences(),
+                  StorageUtils.clear()
+                ]);
+                
+                console.log('[SignOut] Storage cleared successfully');
+                
+                setTimeout(() => {
+                  if (isWeb) {
+                    window.location.href = '/screens/onboarding';
+                  } else {
+                    router.replace('/screens/onboarding');
+                  }
+                }, 300);
+              } catch (error) {
+                console.error("[SignOut] Error during sign out:", error);
+                Alert.alert("Error", "Failed to sign out. Please try again.");
+                setIsSigningOut(false);
+              }
+            }
+          }}
           >
             <Text color="$red10" fontWeight="bold" fontFamily="$body" fontSize={14}>
               Sign Out
             </Text>
           </Button>
-          <Button backgroundColor={settings.primaryColor} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }} onPress={handleSave}>
+          <Button
+            backgroundColor={settings.primaryColor}
+            height={40}
+            paddingHorizontal={20}
+            pressStyle={{ opacity: 0.8 }}
+            onPress={handleSave}
+            disabled={isSigningOut}
+          >
             <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
               Save
             </Text>
           </Button>
         </XStack>
     </BaseCardModal>
+
+    <Modal
+      visible={isSigningOut}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => {}} 
+    >
+      <View style={styles.overlayContainer}>
+        {isWeb ? (
+          <View style={styles.webOverlayBackground} />
+        ) : (
+          <BlurView intensity={90} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+        )}
+        {isWeb ? <ActivityIndicator size="large" color={isDark ? "#FFFFFF" : "#000000"} /> : <Spinner size="large" color="$color" />}
+        <Text mt="$3" color={isDark ? '#fff' : '#000'} fontSize={16} fontFamily="$body">Signing Out...</Text>
+      </View>
+    </Modal>
+    </>
   )
 }
+
+const styles = StyleSheet.create({
+  overlayContainer: {
+    flex: 1, 
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  webOverlayBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+})

@@ -148,9 +148,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         if (taskToAdd.showInCalendar) {
           syncTasksToCalendar()
         }
+        setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 200)
         showToast('Task added successfully')
-        // Small delay before closing to prevent visual glitches
-        setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 100)
       } catch {
         showToast('Failed to add task. Please try again.')
         setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 100)
@@ -179,7 +178,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           showsHorizontalScrollIndicator={false} 
           style={{ maxWidth: isWeb ? 800 : '100%' }}
         >
-        <Form gap="$3" onSubmit={handleAddTask}>
+        <Form gap="$2.5" onSubmit={handleAddTask}>
           <DebouncedInput
             ref={inputRef}
             placeholder="Enter task name"
@@ -313,7 +312,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                         backgroundColor={preferences.primaryColor}
                         px="$3"
                         py="$2"
-                        br={8}
+                        br={12}
                       >
                         <Text color="white" fontFamily="$body" fontWeight="600">Done</Text>
                       </Button>
@@ -336,6 +335,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           <YStack gap="$2">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <XStack gap="$2" py="$1">
+                
               {RECURRENCE_PATTERNS.map(pattern => {
                   const recurrenceColor = getRecurrenceColor(pattern.value);
                   
@@ -349,7 +349,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       }
                       pressStyle={{ opacity: 0.8, scale: 0.98 }}
                       onPress={(e) => handleRecurrenceSelect(pattern.value, e)}
-                      br={24}
+                      br={20}
                       px="$3"
                       py="$2.5"
                       borderWidth={1}
@@ -360,11 +360,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       }
                     >
                       <XStack alignItems="center" gap="$1.5">
-                        <Ionicons 
-                          name={getRecurrenceIcon(pattern.value) as any} // Use getRecurrenceIcon
-                          size={16} 
-                          color={newTask.recurrencePattern === pattern.value ? recurrenceColor : isDark ? "$gray12" : "$gray11"} 
-                        />
                         <Text
                           fontSize={14}
                           fontWeight="600"
@@ -517,8 +512,8 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               </YStack>
             )}
           </AnimatePresence>
-          <YStack px="$2" gap="$2">
-            <Text color={isDark ? "$gray12" : "$gray11"} fontFamily="$body" fontWeight="500">Category</Text>
+          <YStack px="$2" gap="$1.5">
+            <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
               <XStack gap="$2">
               {['work','health','personal','family','wealth'].map(cat => {
@@ -534,7 +529,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       : isDark ? "$gray2" : "white"
                   }
                   pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                  br={12}
+                  br={20}
                   px="$3"
                   py="$2.5"
                   borderWidth={1}
@@ -560,7 +555,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           </YStack>
 
           <YStack px="$2" gap="$1"> 
-            <Text color={isDark ? "$gray12" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
+            <Text color={isDark ? "$gray9" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
             <XStack gap="$2" mt="$1"> 
             {['high', 'medium', 'low'].map(priority => {
               const color = getPriorityColor(priority as TaskPriority);
@@ -575,7 +570,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                       : isDark ? "$gray2" : "white"
                   }
                   pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                  br={12}
+                  br={20}
                   px="$3"
                   py="$2.5"
                   borderWidth={1}
