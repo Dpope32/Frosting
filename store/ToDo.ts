@@ -29,14 +29,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         const gameDate = new Date(task.scheduledDate)
         const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
         const localGameDateStr = localGameDate.toISOString().split('T')[0]
-        console.log(`[DEBUG] Checking game task: ${task.name}`, {
-          taskId: task.id,
-          gameDate: localGameDateStr,
-          today: dateStr,
-          isToday: localGameDateStr === dateStr,
-          completed: task.completed,
-          timezoneOffset: gameDate.getTimezoneOffset()
-        })
         return localGameDateStr === dateStr && !task.completed
       }
       if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {

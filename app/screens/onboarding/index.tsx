@@ -23,7 +23,7 @@ import Step5 from './step5'
 
 
 export default function Onboarding() {
-  const [step, setStep] = useState(isWeb ? -2 : -1)
+  const [step, setStep] = useState<number>(isWeb ? -2 : 0)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const colorScheme = useColorScheme(); 
   const { showToast } = useToastStore();

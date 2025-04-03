@@ -69,20 +69,29 @@ export const StorageUtils = {
   }
 };
 
-export function createPersistStorage<T>(): PersistStorage<T> {
+export function createPersistStorage<T>(version: number = 1): PersistStorage<T> {
   return {
     getItem: async (name: string): Promise<StorageValue<T> | null> => {
       try {
         const value = await AsyncStorage.getItem(name);
         if (!value) return null;
-        return JSON.parse(value) as StorageValue<T>;
+        
+        const parsed = JSON.parse(value) as { state: StorageValue<T>; version: number };
+        if (parsed.version !== version) {
+          console.warn(`Version mismatch for ${name}: stored=${parsed.version}, current=${version}`);
+          return null;
+        }
+        return parsed.state;
       } catch {
         return null;
       }
     },
     setItem: async (name: string, value: StorageValue<T>): Promise<void> => {
       try {
-        await AsyncStorage.setItem(name, JSON.stringify(value));
+        await AsyncStorage.setItem(name, JSON.stringify({
+          state: value,
+          version
+        }));
       } catch (error) {
         console.error(`Error storing ${name}`, error);
       }

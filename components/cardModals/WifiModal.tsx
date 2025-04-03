@@ -67,8 +67,7 @@ interface WifiModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element | null { // Return type can be null
-  // If not open, render nothing
+export function WifiModal({ open, onOpenChange }: WifiModalProps): JSX.Element | null { 
   if (!open) {
     return null;
   }

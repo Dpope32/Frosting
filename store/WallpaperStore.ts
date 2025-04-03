@@ -174,10 +174,20 @@ export const useWallpaperStore = create<WallpaperStore>()(
     }),
     {
       name: 'wallpaper-cache',
-      storage: createPersistStorage<PersistedWallpaperState>(),
+      storage: createPersistStorage<PersistedWallpaperState>(2),
       partialize: (state) => {
         const { cache, currentWallpaper } = state;
         return { cache, currentWallpaper };
+      },
+      migrate: (persistedState, version) => {
+        if (version === 0 || version === 1) {
+          // Handle migration from unversioned or version 1 data
+          return {
+            cache: {},
+            currentWallpaper: null
+          };
+        }
+        return persistedState as PersistedWallpaperState;
       },
     }
   )
