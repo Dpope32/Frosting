@@ -1,5 +1,11 @@
 # Active Context
 
+## Recent Changes (Bills, Tasks, Network, UI - April 3, 2025)
+- **Bills & Tasks Integration:** Refactored `AddBillModal` with improved amount input and date picking. Removed delete from `BillCard`. Ensured tasks created for bills use the 'bills' category and correct `dueDate`, updating `ToDo.ts` filtering logic. Added 'bills' category to `TaskCategory` type.
+- **Network Speed Hook:** Overhauled `useNetworkSpeed` to prioritize latency measurement over potentially unreliable link speed. Improved loading, offline, and error states. Updated `WifiCard` to use the new hook logic and refined signal strength calculation/display.
+- **UI & Modal Consistency:** Added `hideHandle` prop to `BaseCardModal` and applied it to numerous modals (`AddBillModal`, `BillsListModal`, `SettingsModal`, etc.). Refactored `TaskCard` and `TaskSection` layouts for better structure and web responsiveness (CSS Grid). Made specific style adjustments for web vs. mobile web in onboarding and `PortfolioTable`.
+- **App Updates:** Improved OTA update handling in `_layout.tsx` with platform-specific prompts and periodic checks. Adjusted `runtimeVersion` policy in `app.json`.
+
 ## Current Focus
 - Refining feature set for the public release.
 - Setting up Electron for Desktop Applications

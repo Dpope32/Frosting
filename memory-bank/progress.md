@@ -20,6 +20,8 @@
   - ✅ Task recommendations
   - ✅ Task synchronization with calendar events (March 29, 2025)
   - ✅ Improved NewTaskModal animations and toast integration (April 1, 2025)
+  - ✅ Refined TaskCard layout and TaskSection responsiveness (April 3, 2025)
+  - ✅ Fixed task categorization for Bill-related tasks (April 3, 2025)
 - ✅ Calendar Integration
   - ✅ Event tracking
   - ✅ Bill due dates
@@ -44,13 +46,20 @@
   - ✅ Real-time stock updates
   - ✅ Updated Bill card design for consistency (March 28, 2025 - `9b12208`)
   - ✅ Modularized Bills components/logic (March 28, 2025 - `1b1185b`, `20214d4`)
+  - ✅ Enhanced AddBillModal with better input/date handling (April 3, 2025)
+  - ✅ Removed delete functionality from BillCard (April 3, 2025)
 - ✅ Dashboard Widgets
   - ✅ Weather display
-  - ✅ Network status
+  - ✅ Network status (Refactored `useNetworkSpeed` hook for latency measurement - April 3, 2025)
 - ✅ Customization
   - ✅ Multiple wallpapers
   - ✅ Theme options
   - ✅ Layout preferences
+- ✅ UI/Modal Consistency
+  - ✅ Applied `hideHandle` prop to BaseCardModal for cleaner look (April 3, 2025)
+  - ✅ Improved web/mobile web styling consistency (Onboarding, PortfolioTable) (April 3, 2025)
+- ✅ App Updates
+  - ✅ Improved OTA update handling with platform-specific prompts and periodic checks (April 3, 2025)
 - ✅ Bug Fixes
   - ✅ Fixed settings modal bug (related to wallpaper caching) (March 28, 2025 - `9b12208`)
 
@@ -90,7 +99,7 @@
 - ⏳ More sports leagues and teams
 
 ## Known Issues
-- 🔄 WiFi card wildly inconsistent (Attempted fix April 3, 2025 - Refactored `useNetworkSpeed` to measure latency)
+- 🔄 WiFi card status potentially improved (Refactored `useNetworkSpeed` to measure latency - April 3, 2025 - Needs monitoring)
 - Bug in Drawer with profile picture not displaying
 - ~~Fixed settings modal bug~~ (Resolved March 28, 2025 - `9b12208`)
 
