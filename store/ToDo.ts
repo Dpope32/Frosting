@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
 import { Task, WeekDay } from '@/types/task'
+import { format } from 'date-fns' // Added import
 
 interface ProjectStore {
   tasks: Record<string, Task>
@@ -21,20 +22,24 @@ const dayNames: WeekDay[] = [
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
-  const dateStr = date.toISOString().split('T')[0]
+  const currentDateStrLocal = format(date, 'yyyy-MM-dd') // Use local date string for today
   const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt)
   switch (task.recurrencePattern) {
     case 'one-time': {
       if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
-        const gameDateStr = new Date(task.scheduledDate).toISOString().split('T')[0]
-        return gameDateStr === dateStr && !task.completed
+        const gameDateLocal = new Date(task.scheduledDate)
+        const gameDateStrLocal = format(gameDateLocal, 'yyyy-MM-dd')
+        return gameDateStrLocal === currentDateStrLocal && !task.completed
       }
       if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
-        const bdayStr = new Date(task.scheduledDate).toISOString().split('T')[0]
-        return bdayStr === dateStr && !task.completed
+        const bdayDateLocal = new Date(task.scheduledDate)
+        const bdayStrLocal = format(bdayDateLocal, 'yyyy-MM-dd')
+        return bdayStrLocal === currentDateStrLocal && !task.completed
       }
       if (task.completed) {
-        return task.completionHistory[dateStr] === true
+        // Completion history should still use the UTC date string key it was saved with
+        const dateStrUTC = date.toISOString().split('T')[0]
+        return task.completionHistory[dateStrUTC] === true
       }
       return true
     }
@@ -45,23 +50,30 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       const yesterdayStr = yesterday.toISOString().split('T')[0]
       return createdDateStr === yesterdayStr
     }
-    case 'everyday':
-      return true
-    case 'weekly':
-      return task.schedule.includes(today)
+    case 'everyday': {
+      // Check completion based on local date string
+      return !task.completionHistory[currentDateStrLocal]
+    }
+    case 'weekly': {
+      // Check completion based on local date string
+      return task.schedule.includes(today) && !task.completionHistory[currentDateStrLocal]
+    }
     case 'biweekly': {
       const startDate = fallbackRecDate
       const weekDiff = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
-      return task.schedule.includes(today) && (weekDiff % 2 === 0)
+      // Check completion based on local date string
+      return task.schedule.includes(today) && (weekDiff % 2 === 0) && !task.completionHistory[currentDateStrLocal]
     }
     case 'monthly': {
       const recDay = fallbackRecDate.getDate()
-      return date.getDate() === recDay
+      // Check completion based on local date string
+      return date.getDate() === recDay && !task.completionHistory[currentDateStrLocal]
     }
     case 'yearly': {
       const recMonth = fallbackRecDate.getMonth()
       const recDay = fallbackRecDate.getDate()
-      return (date.getMonth() === recMonth && date.getDate() === recDay)
+      // Check completion based on local date string
+      return (date.getMonth() === recMonth && date.getDate() === recDay) && !task.completionHistory[currentDateStrLocal]
     }
     default:
       return false
@@ -96,24 +108,25 @@ const createTaskFilter = () => {
     lastToday = dateStr
     lastTasks = tasks
     
-    // Update completion status for recurring tasks
+    // Update completion status for recurring tasks based on local date
+    const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd')
     Object.values(tasks).forEach(task => {
       if (task.recurrencePattern !== 'one-time') {
-        task.completed = task.completionHistory[dateStr] || false
+        task.completed = task.completionHistory[currentDateStrLocal] || false
       }
     })
-    
-    // Filter tasks that are due today
+
+    // Filter tasks that are due today (local time)
     const filtered = Object.values(tasks).filter(task => isTaskDue(task, currentDate))
     debugTaskFilter('After initial filtering', filtered)
     
     // Map to track tasks we've already included
     const includedTaskMap: Record<string, boolean> = {}
-    
-    // More aggressive deduplication for monthly bills
+    // More aggressive deduplication for monthly bills (using local date context if needed)
     const uniqueFiltered = filtered.filter(task => {
       // Create a unique key for each task based on identifying properties
-      const taskKey = `${task.name}-${task.recurrencePattern}-${task.category}`
+      // Consider if local date affects uniqueness (e.g., monthly bill on 1st vs last day)
+      const taskKey = `${task.name}-${task.recurrencePattern}-${task.category}` // Keep simple for now
       
       // If we've already seen this task, skip it
       if (includedTaskMap[taskKey]) {
@@ -127,9 +140,11 @@ const createTaskFilter = () => {
     
     debugTaskFilter('After deduplication', uniqueFiltered)
     const sorted = [...uniqueFiltered].sort((a, b) => {
-      const aCompletedToday = a.completionHistory[dateStr] || false
-      const bCompletedToday = b.completionHistory[dateStr] || false
+      // Sort based on completion status for the current local date
+      const aCompletedToday = a.completionHistory[currentDateStrLocal] || false
+      const bCompletedToday = b.completionHistory[currentDateStrLocal] || false
       if (aCompletedToday !== bCompletedToday) return aCompletedToday ? 1 : -1
+      // Keep existing time/priority sorting logic
       if (a.time && b.time) return a.time.localeCompare(b.time)
       if (a.time) return -1
       if (b.time) return 1
@@ -172,8 +187,8 @@ export const useProjectStore = create<ProjectStore>()(
       toggleTaskCompletion: (id) => {
         const tasks = { ...get().tasks }
         if (tasks[id]) {
-          const today = new Date().toISOString().split('T')[0]
-          const currentStatus = tasks[id].completionHistory[today] || false
+          const todayLocalStr = format(new Date(), 'yyyy-MM-dd') // Use local date string as key
+          const currentStatus = tasks[id].completionHistory[todayLocalStr] || false
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
           const cleanedHistory = Object.entries(tasks[id].completionHistory)
@@ -181,10 +196,10 @@ export const useProjectStore = create<ProjectStore>()(
             .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
           tasks[id] = {
             ...tasks[id],
-            completed: !currentStatus,
+            completed: !currentStatus, // This reflects completion for the local day
             completionHistory: {
               ...cleanedHistory,
-              [today]: !currentStatus
+              [todayLocalStr]: !currentStatus // Store completion status with local date string key
             },
             updatedAt: new Date().toISOString()
           }
@@ -205,10 +220,10 @@ export const useProjectStore = create<ProjectStore>()(
           let needsMigration = false
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-          const today = new Date().toISOString().split('T')[0]
+          const todayLocalStr = format(new Date(), 'yyyy-MM-dd') // Use local date string
           Object.keys(tasks).forEach(id => {
             if (!tasks[id].recurrencePattern) {
-              tasks[id].recurrencePattern = 'weekly'
+              tasks[id].recurrencePattern = 'weekly' // Keep existing migration logic
               needsMigration = true
             }
             if (!tasks[id].completionHistory) {
@@ -225,8 +240,9 @@ export const useProjectStore = create<ProjectStore>()(
                 .filter(([date]) => new Date(date) >= thirtyDaysAgo)
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
             }
+            // Update completion status based on local date string
             if (tasks[id].recurrencePattern !== 'one-time') {
-              tasks[id].completed = tasks[id].completionHistory[today] || false
+              tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false
             }
           })
           if (needsMigration) {

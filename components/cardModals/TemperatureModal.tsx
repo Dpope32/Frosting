@@ -1,7 +1,7 @@
 // TemperatureModal.tsx
-import React, { useEffect, useMemo } from 'react'
-import { useColorScheme, Platform, Dimensions, ScrollView, View, StyleSheet } from 'react-native'
-import { YStack, Text, XStack, Stack } from 'tamagui'
+import React, { useEffect, useMemo } from 'react';
+import { useColorScheme, Platform, Dimensions, ScrollView, View, StyleSheet, DimensionValue } from 'react-native'; // Import DimensionValue
+import { YStack, Text, XStack, Stack } from 'tamagui';
 import Animated, {
   withSpring,
   useAnimatedStyle,
@@ -12,9 +12,10 @@ import Animated, {
   withSequence,
   Easing
 } from 'react-native-reanimated'
-import { BaseCardAnimated } from './BaseCardAnimated'
-import { useWeatherStore } from '@/store/WeatherStore'
-import { getTemperatureColor } from '@/services/weatherServices'
+import { BaseCardAnimated } from './BaseCardAnimated';
+import { useWeatherStore } from '@/store/WeatherStore';
+import { getTemperatureColor } from '@/services/weatherServices';
+import RainDrop from '../shared/RainDrop'; // Import the new component
 
 // Add global styles for web animations
 if (Platform.OS === 'web') {
@@ -252,7 +253,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   return (
     <BaseCardAnimated onClose={() => onOpenChange(false)} title="Weather">
       <ScrollView>
-        <YStack gap="$1" paddingBottom="$1">
+        <YStack gap="$1" paddingBottom="$2">
           <XStack gap="$3">
             <YStack
               backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.8)"}
@@ -366,48 +367,64 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                     padding="$3"
                     position="relative"
                   >
-                    {/* Rain effect that varies based on forecast and precipitation level */}
+                    {/* Rain effect - Conditional rendering based on platform */}
                     {period.precipitation > 10 && (
-                      <XStack
-                        position="absolute"
-                        top={0}
-                        left={0}
-                        right={0}
-                        bottom={0}
-                        opacity={Math.min(0.8, period.precipitation/100)}
-                        pointerEvents="none"
-                      >
-                        {/* Generate varied rain drops based on precipitation intensity */}
-                        {[...Array(Math.floor(period.precipitation/4))].map((_, i) => {
-                          // Determine if it's a light, medium, or heavy raindrop
+                      <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                        {[...Array(Math.floor(period.precipitation / 4))].map((_, i) => {
                           const isHeavy = i % 5 === 0 && period.precipitation > 60;
                           const isLight = i % 3 === 0 || period.precipitation < 40;
-                          const animationType = isHeavy ? 'heavyRain' : isLight ? 'lightRain' : 'rain';
                           const dropSpeed = isHeavy ? 0.6 + Math.random() * 0.2 : isLight ? 1.2 + Math.random() * 0.3 : 0.8 + Math.random() * 0.3;
                           const dropWidth = isHeavy ? 1.5 : isLight ? 0.8 : 1.2;
                           const dropHeight = isHeavy ? 14 : isLight ? 6 : 9;
-                          
-                          return (
-                            <XStack
-                              key={`rain-${i}`}
-                              position="absolute"
-                              top={-10}
-                              left={`${Math.random() * 100}%`}
-                              height={dropHeight}
-                              width={dropWidth}
-                              backgroundColor={isDark ? "#7cb3ff" : "#1d4ed8"}
-                              opacity={0.4 + Math.random() * 0.3}
-                              style={Platform.OS === 'web' ? {
-                                animation: `${animationType} ${dropSpeed}s linear infinite`,
-                                animationDelay: `${Math.random() * 1.5}s`,
-                                willChange: 'transform'
-                              } : {}}
-                            />
-                          );
+                          const initialX: DimensionValue = `${Math.random() * 100}%`; // Explicitly type as DimensionValue
+                          const delay = Math.random() * 1.5;
+                          const dropColor = isDark ? "#7cb3ff" : "#1d4ed8";
+                          const dropOpacity = 0.4 + Math.random() * 0.3;
+                          const containerHeight = Platform.OS === 'web' ? 100 : 90; // Match container height
+                          const rotation = isHeavy ? -45 : isLight ? -20 : -30; // Vary rotation
+
+                          if (Platform.OS === 'web') {
+                            // Use existing CSS animation for web
+                            const animationType = isHeavy ? 'heavyRain' : isLight ? 'lightRain' : 'rain';
+                            return (
+                              <View
+                                key={`rain-web-${i}`}
+                                style={{
+                                  position: 'absolute',
+                                  top: -10, // Start above the container
+                                  left: initialX,
+                                  height: dropHeight,
+                                  width: dropWidth,
+                                  backgroundColor: dropColor,
+                                  opacity: dropOpacity,
+                                  animation: `${animationType} ${dropSpeed}s linear infinite`,
+                                  animationDelay: `${delay}s`,
+                                  willChange: 'transform', // Performance hint for browsers
+                                } as any} // Cast to any to allow web-specific CSS properties
+                              />
+                            );
+                          } else {
+                            // Use RainDrop component for native
+                            return (
+                              <RainDrop
+                                key={`rain-native-${i}`}
+                                delay={delay}
+                                duration={dropSpeed}
+                                initialX={initialX}
+                                startY={-10} // Start above the container
+                                endY={containerHeight + 10} // Fall below the container
+                                width={dropWidth}
+                                height={dropHeight}
+                                color={dropColor}
+                                opacity={dropOpacity}
+                                rotation={rotation}
+                              />
+                            );
+                          }
                         })}
-                      </XStack>
+                      </View>
                     )}
-                    
+
                     {/* Cloud effect for cloudy days */}
                     {period.shortForecast.toLowerCase().includes('cloud') && !period.shortForecast.toLowerCase().includes('rain') && (
                       <XStack

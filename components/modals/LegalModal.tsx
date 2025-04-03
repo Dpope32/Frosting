@@ -354,57 +354,41 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                           
                           <YStack gap="$3" mt="$2">
                             <XStack gap="$2" alignItems="flex-start">
-                              <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
+                              <MaterialIcons name="email" size={18} color={primaryColor} />
                               <YStack>
-                                <Text 
-                                  fontSize="$3" 
-                                  fontWeight="700" 
-                                  color={isDark ? "#fff" : "#000"}
-                                  fontFamily="$body"
-                                >
-                                  Email
-                                </Text>
                                 <Pressable onPress={handleEmailPress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                                   <Text 
                                     fontSize="$3" 
-                                    color={primaryColor} 
+                                    fontWeight="700" 
+                                    color={primaryColor}
                                     fontFamily="$body"
-                                    lineHeight={20}
                                     textDecorationLine="underline"
                                   >
-                                    kaibanexusdev@gmail.com
+                                    Email Us
                                   </Text>
                                 </Pressable>
                               </YStack>
                             </XStack>
                             
                             <XStack gap="$2" alignItems="flex-start">
-                              <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
+                              <MaterialIcons name="public" size={18} color={primaryColor} />
                               <YStack>
-                                <Text 
-                                  fontSize="$3" 
-                                  fontWeight="700" 
-                                  color={isDark ? "#fff" : "#000"}
-                                  fontFamily="$body"
-                                >
-                                  Website
-                                </Text>
                                 <Pressable onPress={handleWebsitePress} style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}>
                                   <Text 
                                     fontSize="$3" 
+                                    fontWeight="700" 
                                     color={primaryColor}
                                     fontFamily="$body"
-                                    lineHeight={20}
                                     textDecorationLine="underline"
                                   >
-                                    deedaw.cc/pages/privacy.html
+                                    Visit Our Website
                                   </Text>
                                 </Pressable>
                               </YStack>
                             </XStack>
                             
                             <XStack gap="$2" alignItems="flex-start">
-                              <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
+                              <MaterialIcons name="schedule" size={18} color={primaryColor} />
                               <YStack>
                                 <Text 
                                   fontSize="$3" 

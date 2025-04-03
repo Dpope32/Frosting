@@ -103,20 +103,61 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
       titleColor: "#FF9D5C",
       icon: "stats-chart-outline" as any,
       iconColor: "#FF9D5C"
+    },
+    {
+      id: 5,
+      title: "CRM",
+      items: [
+        "Manage contacts with custom attributes",
+        "Track payment methods and addresses", 
+        "Organize your professional network"
+      ],
+      titleColor: "#4CAF50",
+      icon: "people-outline" as any,
+      iconColor: "#4CAF50"
+    },
+    {
+      id: 6,
+      title: "Password Vault",
+      items: [
+        "Securely store passwords locally",
+        "Private encrypted storage",
+        "Quick access to credentials"
+      ],
+      titleColor: "#FFD700",
+      icon: "lock-closed-outline" as any,
+      iconColor: "#FFD700"
     }
   ];
 
+  const [gradientPos, setGradientPos] = useState(0);
+  
+  useEffect(() => {
+    if (!isWeb) return;
+    
+    const interval = setInterval(() => {
+      setGradientPos(prev => (prev + 0.5) % 100);
+    }, 50);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const webBackgroundStyle = isWeb ? {
     backgroundImage: [
-      'radial-gradient(circle at 15% 25%, rgba(192, 128, 255, 0.25) 0%, transparent 40%)',
-      'radial-gradient(circle at 85% 75%, rgba(74, 222, 205, 0.15) 0%, transparent 35%)',
-      'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 30%)',
-      'linear-gradient(135deg, transparent 40%, rgba(255, 215, 0, 0.08) 50%, transparent 60%)',
-      'linear-gradient(45deg, transparent 45%, rgba(200, 200, 255, 0.06) 50%, transparent 55%)',
-      'linear-gradient(160deg, #161A30 0%, #272A4F 50%, #05050A 100%)'
+      'radial-gradient(circle at 10% 20%, rgba(192, 128, 255, 0.15) 0%, transparent 35%)',
+      'radial-gradient(circle at 80% 70%, rgba(74, 222, 205, 0.1) 0%, transparent 30%)',
+      'radial-gradient(circle at 20% 80%, rgba(100, 149, 237, 0.1) 0%, transparent 30%)',
+      'radial-gradient(circle at 80% 20%, rgba(255, 157, 92, 0.1) 0%, transparent 30%)',
+      'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 25%)',
+      'linear-gradient(135deg, transparent 40%, rgba(255, 215, 0, 0.05) 50%, transparent 60%)',
+      'linear-gradient(45deg, transparent 45%, rgba(200, 200, 255, 0.04) 50%, transparent 55%)',
+      'linear-gradient(225deg, transparent 45%, rgba(192, 128, 255, 0.04) 50%, transparent 55%)',
+      'linear-gradient(315deg, transparent 45%, rgba(74, 222, 205, 0.04) 50%, transparent 55%)',
+      'linear-gradient(160deg, #0E1120 0%, #1E2140 50%, #030308 100%)'
     ].join(', '),
     backgroundSize: 'cover',
-    backgroundAttachment: 'fixed'
+    backgroundAttachment: 'fixed',
+    backgroundPosition: `${gradientPos}% 50%`
   } : {};
 
   const combinedContentContainerStyle = {
@@ -127,12 +168,20 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
   return (
     <ScrollView contentContainerStyle={combinedContentContainerStyle}>
       <YStack flex={1} padding="$4" gap="$4" maxWidth={1200} marginHorizontal="auto" position="relative" zi={1}>
-        <YStack alignItems="center" gap="$5" marginVertical="$8">
+        <YStack alignItems="center" gap="$4" marginVertical="$6">
           <XStack position="relative" alignItems="center">
             {isWeb && (
-              <Image
+            <Image
                 source={require('@/assets/images/icon.png')}
-                style={[iconStyle, { position: 'absolute', left: -150, top: -20 }]}
+                style={[iconStyle, { 
+                  position: 'absolute', 
+                  left: -125, 
+                  top: -20,
+                  transform: [
+                    { rotate: `${rotation}deg` },
+                    { translateY: Math.sin(Date.now() / 600) * 10 }
+                  ]
+                }]}
               />
             )}
             <H1 
@@ -164,11 +213,11 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
               return (
                 <YStack
                   key={feature.id}
-                  width="45%"
+                  width="49%"
                   minWidth={300}
-                  height={150}
+                  height={160}
                   bc={bgColor}
-                  br="$4"
+                  br="$8"
                   overflow="hidden"
                   position="relative"
                   marginBottom="$4"
@@ -177,8 +226,8 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                     <YStack flex={1} justifyContent="center">
                       <H3
                         fontFamily="$heading"
-                        fontWeight="600"
-                        fontSize="$5"
+                        fontWeight="700"
+                        fontSize="$7"
                         color={feature.titleColor}
                         marginBottom="$2"
                       >
@@ -188,7 +237,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                         {feature.items.map((item, i) => (
                           <XStack key={i} alignItems="flex-start" gap="$2">
                             <Text fontFamily="$body" color={feature.iconColor} mt={1}>•</Text>
-                            <Text fontFamily="$body" fontSize="$3" color="$onboardingLabel" flex={1}>{item}</Text>
+                            <Text fontFamily="$body" fontSize="$5" color="$onboardingLabel" flex={1}>{item}</Text>
                           </XStack>
                         ))}
                       </YStack>
