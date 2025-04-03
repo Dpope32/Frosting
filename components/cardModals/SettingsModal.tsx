@@ -2,12 +2,15 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert, View, ActivityIndicator, StyleSheet, Modal } from 'react-native' // Added Modal import
 import { BaseCardModal } from './BaseCardModal'
 import { StorageUtils } from '@/store/AsyncStorage'
-import { router } from 'expo-router'
-import { Button, YStack, XStack, Text, Circle, Spinner } from 'tamagui'
-import { useUserStore } from '@/store/UserStore'
-import { useWallpaperStore } from '@/store/WallpaperStore'
-import { colorOptions } from '../../constants/Colors'
-import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds'
+import { router } from 'expo-router';
+import { Button, YStack, XStack, Text, Circle, Spinner } from 'tamagui';
+import { useUserStore } from '@/store/UserStore';
+import { useBillStore } from '@/store/BillStore'; // Import BillStore
+import { useProjectStore } from '@/store/ToDo'; // Import ProjectStore (ToDo)
+import { usePeopleStore } from '@/store/People'; // Import PeopleStore
+import { useWallpaperStore } from '@/store/WallpaperStore';
+import { colorOptions } from '../../constants/Colors';
+import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds';
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { BlurView } from 'expo-blur'
@@ -508,12 +511,18 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               console.log('[SignOut] Starting sign out process...');
               
               try {
-                await Promise.all([
-                  useUserStore.getState().clearPreferences(),
-                  StorageUtils.clear()
-                ]);
-                
-                console.log('[SignOut] Storage cleared successfully');
+                // 1. Clear state in individual stores
+                console.log('[SignOut] Clearing individual stores...');
+                useBillStore.getState().clearBills();
+                useProjectStore.getState().clearTasks();
+                usePeopleStore.getState().clearContacts();
+                useUserStore.getState().clearPreferences(); // Clear user preferences last before general storage
+                console.log('[SignOut] Individual stores cleared.');
+
+                // 2. Clear the underlying AsyncStorage
+                console.log('[SignOut] Clearing AsyncStorage...');
+                await StorageUtils.clear();
+                console.log('[SignOut] AsyncStorage cleared successfully');
                 
                 setTimeout(() => {
                   if (isWeb) {

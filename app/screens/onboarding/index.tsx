@@ -245,7 +245,7 @@ export default function Onboarding() {
                   zIndex: 10 
                 }}> 
                 <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
-                  {step > -1 && (
+                  {step > 0 && (
                     <Button
                       flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
                       width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}

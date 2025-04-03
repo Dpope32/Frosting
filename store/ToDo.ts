@@ -14,6 +14,7 @@ interface ProjectStore {
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
   getTodaysTasks: () => Task[]
+  clearTasks: () => void
 }
 
 const dayNames: WeekDay[] = [
@@ -222,7 +223,10 @@ export const useProjectStore = create<ProjectStore>()(
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         }
       },
-      getTodaysTasks: () => get().todaysTasks
+      getTodaysTasks: () => get().todaysTasks,
+      clearTasks: () => {
+        set({ tasks: {}, todaysTasks: [] }) // Reset tasks and todaysTasks
+      }
     }),
     {
       name: 'tasks-store',
