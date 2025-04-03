@@ -21,8 +21,7 @@ export function QuoteCard() {
       <Stack
         backgroundColor="rgba(0, 0, 0, 0.3)"
         br={12}
-        py={isWeb ? "$3" : "$3"}
-        px={isWeb ? "$3" : "$3"}
+        padding="$3"
         borderWidth={1}
         borderColor="rgba(255, 255, 255, 0.1)"
         minWidth={80}
@@ -33,7 +32,7 @@ export function QuoteCard() {
         {isLoading ? (
           <Spinner size="small" color="#dbd0c6" />
         ) : (
-          <MessageSquareQuote size={isWeb ? 28 : 24} color="#dbd0c6" />
+          <MessageSquareQuote size={isWeb ? 24 : 24} color="#dbd0c6" />
         )}
       </Stack>
     </>

@@ -73,12 +73,6 @@ export const TaskSection = ({
         mt={Platform.OS === 'web' ? '$6' : 0}
         gap={Platform.OS === 'web' ? '$4' : '$2'}
         backgroundColor={colorScheme === 'dark' ? undefined : "rgba(0, 0, 0, 0.5"}
-        style={Platform.OS === 'web' ? {
-          boxShadow: colorScheme === 'dark' ? '0px 0px 8px rgba(255, 255, 255, 0.05)' : '0px 0px 8px rgba(0, 0, 0, 0.05)',
-          maxWidth: '800px',
-          alignSelf: 'flex-start',
-          width: '100%'
-        } : {}}
       >
         <YStack width="100%">
           <XStack

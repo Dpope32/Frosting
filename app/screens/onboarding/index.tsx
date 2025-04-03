@@ -21,7 +21,6 @@ import Step3 from './step3'
 import Step4 from './step4'
 import Step5 from './step5'
 
-
 export default function Onboarding() {
   const [step, setStep] = useState<number>(isWeb ? -2 : 0)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
@@ -37,6 +36,10 @@ export default function Onboarding() {
   })
   const [wallpapersPreloaded, setWallpapersPreloaded] = useState(false);
   const setPreferences = useUserStore((state) => state.setPreferences)
+
+  // Check if device is a mobile browser
+  const isMobileBrowser = isWeb && typeof window !== 'undefined' && 
+    (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
 
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener('keyboardWillShow', () => {
@@ -59,44 +62,55 @@ export default function Onboarding() {
     }
   }, [step, wallpapersPreloaded]);
 
-const handleNext = async () => {
-  if (step === -2) { 
-    setStep(0);
-  } else if (step === -1) { 
-    setStep(0);
-    await markPermissionsAsExplained();
-  } else if (step === 0) { 
-    if (Platform.OS === 'web') {
-      if (formData.username.length < 2) {
-        showToast('Username must be at least 2 characters long.')
-        return
+  const handleNext = async () => {
+    try {
+      if (step === -2) { 
+        setStep(isWeb ? 0 : -1); // Skip permissions screen on web
+      } else if (step === -1) { 
+        setStep(0);
+        await markPermissionsAsExplained();
+      } else if (step === 0) { 
+        if (formData.username.length < 2) {
+          showToast('Username must be at least 2 characters long.')
+          return
+        }
+        
+        if (Platform.OS !== 'web') {
+          try {
+            const permissions = await requestPermissionsWithDelay(1000);
+            await setupPermissionsAndNotifications(permissions);
+          } catch (error) {
+            console.error("Error setting up permissions:", error);
+            // Continue anyway to not block users
+          }
+        }
+        
+        setStep(1);
+      } else if (step === 5) {
+        setPreferences({ ...formData, hasCompletedOnboarding: true })
+        setTimeout(() => {
+          router.replace('/(drawer)/(tabs)')
+        }, 100)
+      } else {
+        setStep((prev) => prev + 1)
       }
-      setStep(1);
-    } else {
-      const permissions = await requestPermissionsWithDelay(1000);
-      await setupPermissionsAndNotifications(permissions);
-      if (formData.username.length < 2) {
-        showToast('Username must be at least 2 characters long.')
-        return
-      }
-      setStep(1);
+    } catch (error) {
+      console.error("Navigation error:", error);
+      showToast('Something went wrong. Please try again.');
     }
-  } else if (step === 5) {
-    setPreferences({ ...formData, hasCompletedOnboarding: true })
-    setTimeout(() => {
-      router.replace('/(drawer)/(tabs)')
-    }, 100)
-  } else {
-    setStep((prev) => prev + 1)
   }
-}
 
   const handleBack = () => {
-    setStep((prev) => prev - 1)
+    if (isWeb && step === 0) {
+      setStep(-2); // Skip permissions screen on web
+    } else {
+      setStep((prev) => prev - 1)
+    }
   }
 
   const canProceed = () => {
     switch (step) {
+      case -2:
       case -1: 
         return true
       case 0:
@@ -186,7 +200,6 @@ const handleNext = async () => {
     }
   }
 
-
   const getButtonColor = () => {
     if (step < 2 && !isDark) {
       return '$blue9';
@@ -196,6 +209,13 @@ const handleNext = async () => {
   
   const getButtonTextColor = () => {
     return 'white'; 
+  }
+
+  const getBottomPadding = () => {
+    if (Platform.OS === 'ios') {
+      return keyboardVisible ? 16 : 40;
+    }
+    return 24;
   }
 
   return (
@@ -208,48 +228,56 @@ const handleNext = async () => {
         {Platform.OS === 'ios' || Platform.OS === 'android' ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View flex={1}>
-              {renderStep()}
+              <View flex={1} style={{ paddingBottom: 80 }}> 
+                {renderStep()}
+              </View>
               <View
                 position="absolute"
                 bottom={0}
                 left={0}
                 right={0}
                 padding="$4"
-                paddingBottom={Platform.OS === 'ios' ? (keyboardVisible ? 16 : 40) : 24}
+                paddingBottom={getBottomPadding()}
                 backgroundColor="$onboardingIndexBackground" 
-                style={{ borderTopWidth: keyboardVisible ? 0 : 1, borderTopColor: '$onboardingIndexBorder'}}> 
-              <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
-                {step > -1 && (
+                style={{ 
+                  borderTopWidth: keyboardVisible ? 0 : 1, 
+                  borderTopColor: '$onboardingIndexBorder',
+                  zIndex: 10 
+                }}> 
+                <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
+                  {step > -1 && (
+                    <Button
+                      flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
+                      width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
+                      variant="outlined"
+                      onPress={handleBack}
+                      backgroundColor="$onboardingIndexButtonBackground" 
+                      borderColor="$onboardingIndexButtonBorder"> 
+                      <Text fontFamily="$body" color="$onboardingIndexButtonText">Back</Text> 
+                    </Button>
+                  )}
                   <Button
-                    flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
-                    width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
-                    variant="outlined"
-                    onPress={handleBack}
-                    backgroundColor="$onboardingIndexButtonBackground" 
-                    borderColor="$onboardingIndexButtonBorder"> 
-                    <Text fontFamily="$body" color="$onboardingIndexButtonText">Back</Text> 
+                    flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
+                    width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
+                    backgroundColor={getButtonColor()} 
+                    borderColor="$onboardingIndexButtonBorder" 
+                    borderWidth={1}
+                    opacity={!canProceed() ? 0.5 : 1}
+                    disabled={!canProceed()}
+                    onPress={handleNext}>
+                    <Text fontFamily="$body" color={getButtonTextColor()} fontWeight="bold">
+                      {step === 5 ? 'Complete' : 'Continue'}
+                    </Text>
                   </Button>
-                )}
-                <Button
-                  flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
-                  width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
-                  backgroundColor={getButtonColor()} 
-                  borderColor="$onboardingIndexButtonBorder" 
-                  borderWidth={1}
-                  opacity={!canProceed() ? 0.5 : 1}
-                  disabled={!canProceed()}
-                  onPress={handleNext}>
-                  <Text fontFamily="$body" color={getButtonTextColor()} fontWeight="bold">
-                    {step === 5 ? 'Complete' : 'Continue'}
-                  </Text>
-                </Button>
-              </XStack>
+                </XStack>
               </View>
             </View>
           </TouchableWithoutFeedback>
         ) : (
           <View flex={1}>
-            {renderStep()}
+            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }}> {/* Add padding only for mobile browsers */}
+              {renderStep()}
+            </View>
             <View
               position="absolute"
               bottom={0}
@@ -258,11 +286,15 @@ const handleNext = async () => {
               padding="$4"
               paddingBottom={24}
               backgroundColor="$onboardingIndexBackground" 
-              style={{ borderTopWidth: 1, borderTopColor: '$onboardingIndexBorder'}}> 
+              style={{ 
+                borderTopWidth: 1, 
+                borderTopColor: '$onboardingIndexBorder',
+                zIndex: 10 
+              }}> 
               <XStack gap="$3" justifyContent="center">
-                {(Platform.OS === 'web' ? step > -2 : step > -1) && (
+                {(step > -1) && (
                   <Button
-                    width={145}
+                    width={isMobileBrowser ? 120 : 145}
                     variant="outlined"
                     onPress={handleBack}
                     backgroundColor="$onboardingIndexButtonBackground" 
@@ -271,7 +303,7 @@ const handleNext = async () => {
                   </Button>
                 )}
                 <Button
-                  width={300}
+                  width={isMobileBrowser ? 200 : 300}
                   backgroundColor={getButtonColor()} 
                   borderColor="$onboardingIndexButtonBorder" 
                   borderWidth={1}

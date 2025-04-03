@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
 import { Task, WeekDay } from '@/types/task'
-import { format } from 'date-fns' // Added import
+import { format } from 'date-fns'
 
 interface ProjectStore {
   tasks: Record<string, Task>
@@ -22,7 +22,7 @@ const dayNames: WeekDay[] = [
 
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
-  const currentDateStrLocal = format(date, 'yyyy-MM-dd') // Use local date string for today
+  const currentDateStrLocal = format(date, 'yyyy-MM-dd')
   const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt)
   switch (task.recurrencePattern) {
     case 'one-time': {
@@ -30,7 +30,7 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         const gameDate = new Date(task.scheduledDate)
         const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
         const localGameDateStr = localGameDate.toISOString().split('T')[0]
-        return localGameDateStr === dateStr && !task.completed
+        return localGameDateStr === currentDateStrLocal && !task.completed
       }
       if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
         const bdayDateLocal = new Date(task.scheduledDate)

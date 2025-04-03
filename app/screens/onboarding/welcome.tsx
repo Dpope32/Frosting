@@ -160,10 +160,16 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
     backgroundPosition: `${gradientPos}% 50%`
   } : {};
 
+  // Use paddingBottom to create space for the fixed button at the bottom
   const combinedContentContainerStyle = {
     flexGrow: 1,
+    paddingBottom: isWeb ? 80 : 0, // Add padding at the bottom to prevent content from being hidden behind the button
     ...webBackgroundStyle
   };
+
+  // Check if device is a mobile browser
+  const isMobileBrowser = isWeb && typeof window !== 'undefined' && 
+    (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
 
   return (
     <ScrollView contentContainerStyle={combinedContentContainerStyle}>
@@ -187,7 +193,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
             <H1 
               color="$onboardingLabel" 
               fontFamily="$heading" 
-              fontSize={isWeb ? "$12" : "$9"}
+              fontSize={isWeb ? (isMobileBrowser ? "$10" : "$12") : "$9"}
               letterSpacing={1}
             >
               Kaiba Nexus
@@ -197,7 +203,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
           <H2 
             color="$onboardingLabel" 
             fontFamily="$heading" 
-            fontSize={isWeb ? "$8" : "$6"} 
+            fontSize={isWeb ? (isMobileBrowser ? "$6" : "$8") : "$6"} 
             fontWeight="500"
             opacity={0.8}
             pt={isWeb ? "$1" : "$0"}
@@ -210,12 +216,13 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
           {features.map((feature) => {
             if (isWeb) {
               const bgColor = feature.titleColor + "20";
+              const isCRM = feature.title === "CRM";
               return (
                 <YStack
                   key={feature.id}
-                  width="49%"
-                  minWidth={300}
-                  height={160}
+                  width={isMobileBrowser ? "100%" : "49%"}
+                  minWidth={isMobileBrowser ? 250 : 300}
+                  height={isMobileBrowser ? (isCRM ? 180 : 160) : 160}
                   bc={bgColor}
                   br="$8"
                   overflow="hidden"
@@ -227,7 +234,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                       <H3
                         fontFamily="$heading"
                         fontWeight="700"
-                        fontSize="$7"
+                        fontSize={isMobileBrowser ? "$6" : "$7"}
                         color={feature.titleColor}
                         marginBottom="$2"
                       >
@@ -237,7 +244,12 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                         {feature.items.map((item, i) => (
                           <XStack key={i} alignItems="flex-start" gap="$2">
                             <Text fontFamily="$body" color={feature.iconColor} mt={1}>•</Text>
-                            <Text fontFamily="$body" fontSize="$5" color="$onboardingLabel" flex={1}>{item}</Text>
+                            <Text 
+                              fontFamily="$body" 
+                              fontSize={isMobileBrowser ? "$4" : "$5"} 
+                              color="$onboardingLabel" 
+                              flex={1}
+                            >{item}</Text>
                           </XStack>
                         ))}
                       </YStack>

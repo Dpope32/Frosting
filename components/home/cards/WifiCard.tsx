@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import { Stack, Spinner } from 'tamagui';
+import { Stack, Spinner, isWeb } from 'tamagui';
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed';
 
 export function WifiCard() {
@@ -59,21 +59,21 @@ export function WifiCard() {
   };
 
   return (
-    <Stack
-      backgroundColor="rgba(0, 0, 0, 0.3)"
-      br={12}
-      padding="$3"
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)"
-      minWidth={80}
-      alignItems="center"
-      justifyContent="center"
-      style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
-    >
+      <Stack
+        backgroundColor="rgba(0, 0, 0, 0.3)"
+        br={12}
+        padding="$3"
+        borderWidth={1}
+        borderColor="rgba(255, 255, 255, 0.1)"
+        minWidth={80}
+        alignItems="center"
+        justifyContent="center"
+        style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+      >
       {isLoading && !displaySpeed ? (
         <Spinner size="small" color="white" />
       ) : (
-        <Stack flexDirection="row" alignItems="flex-end" height={20} space="$1">
+        <Stack flexDirection="row" alignItems="flex-end" height={24} gap="$1">
           {[1, 2, 3, 4].map((barLevel) => (
             <Stack
               key={barLevel}
