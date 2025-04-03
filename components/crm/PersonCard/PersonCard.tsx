@@ -222,8 +222,11 @@ export function PersonCard({
                     { backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(100,100,100,0.5)" }
                   ] as any}
                   onPress={() => {
-                    const shareData = btoa(JSON.stringify(person));
-                    const shareUrl = `kaiba-nexus://share?data=${shareData}`;
+                    const shareUrl = `kaiba-nexus://share?name=${encodeURIComponent(person.name)}` +
+                      (person.nickname ? `&nickname=${encodeURIComponent(person.nickname)}` : '') +
+                      (person.phoneNumber ? `&phone=${encodeURIComponent(formatPhoneNumber(person.phoneNumber))}` : '') +
+                      (person.email ? `&email=${encodeURIComponent(person.email)}` : '') +
+                      (person.occupation ? `&occupation=${encodeURIComponent(person.occupation)}` : '');
                     const plainText = `Contact: ${person.nickname || person.name}\n` +
                       (person.phoneNumber ? `Phone: ${formatPhoneNumber(person.phoneNumber)}\n` : '') +
                       (person.email ? `Email: ${person.email}\n` : '') +

@@ -27,9 +27,9 @@ export function WifiCard() {
       const mbpsMatch = speedValue.match(/(\d+)\s*Mbps/i);
       const speed = mbpsMatch ? parseInt(mbpsMatch[1]) : 0;
       
-      if (speed >= 1000) return 4;
-      if (speed >= 300) return 3;
-      if (speed >= 100) return 2;
+      if (speed >= 500) return 4;
+      if (speed >= 100) return 3;
+      if (speed >= 50) return 2;
       return 1;
     }
 
