@@ -180,14 +180,21 @@ export const useWallpaperStore = create<WallpaperStore>()(
         return { cache, currentWallpaper };
       },
       migrate: (persistedState, version) => {
-        if (version === 0 || version === 1) {
-          // Handle migration from unversioned or version 1 data
+        const state = persistedState as PersistedWallpaperState;
+        
+        // Version 0 had no structure - reset completely
+        if (version === 0) {
           return {
             cache: {},
             currentWallpaper: null
           };
         }
-        return persistedState as PersistedWallpaperState;
+
+        // For any version > 0, preserve what we can
+        return {
+          cache: state.cache || {},
+          currentWallpaper: state.currentWallpaper || null
+        };
       },
     }
   )

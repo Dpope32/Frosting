@@ -94,7 +94,6 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
               onPress={refreshQuote}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.7 : 1,
-                backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
                 padding: 12,
                 borderRadius: 8,
                 flexDirection: 'row',
