@@ -83,82 +83,66 @@ export const useNBAStore = create<NBAStore>()(
         return null;
       },
 
-      // // Removed - Handled within syncGameTasks now
-      // deleteAllGameTasks: () => {
-      //   const { tasks, deleteTask } = useProjectStore.getState();
-      //   Object.entries(tasks).forEach(([id, task]) => {
-      //     if (task.name.startsWith('🏀') || task.gameId) { // Check for gameId too
-      //       deleteTask(id);
-      //     }
-      //   });
-      // },
-
       syncGameTasks: () => {
         const { tasks, addTask, deleteTask } = useProjectStore.getState();
         const state = get();
         const fetchedGameIds = new Set(state.games.map(g => g.id));
-        const existingNbaTasks = new Map<number, string>(); // Map gameId to taskId
-
-        // 1. Identify existing NBA tasks and their gameIds
+        const existingNbaTasks = new Map<number, string>();
+      
+        // Delete legacy NBA tasks (no gameId) to prevent duplicates
+        Object.entries(tasks).forEach(([taskId, task]) => {
+          if (!task.gameId && task.name.startsWith('🏀') && task.recurrencePattern === 'one-time') {
+            console.log(`[syncGameTasks] Deleting legacy NBA task ID: ${taskId}`);
+            deleteTask(taskId);
+          }
+        });
+      
+        // Identify existing NBA tasks with gameId
         Object.entries(tasks).forEach(([taskId, task]) => {
           if (task.gameId) {
             existingNbaTasks.set(task.gameId, taskId);
           }
-          // Legacy check for tasks created before gameId was added
-          else if (task.name.startsWith('🏀') && task.recurrencePattern === 'one-time') {
-             // We can't reliably link these old tasks, maybe delete them?
-             // Or try to match by name/date? For now, let's leave them and focus on new ones.
-             // Consider adding a migration step later if needed.
-          }
         });
-
-        // 2. Add new tasks for fetched games that don't exist yet
+      
+        // Add new tasks for fetched games that don't exist yet
         state.games.forEach((game: Game) => {
           if (!existingNbaTasks.has(game.id)) {
-            // Only add if the game hasn't already passed significantly (e.g., > 1 day old)
-            // This prevents adding very old games if the fetch returns them.
-            // The isTaskDue logic will handle showing it only on the correct day.
             const gameDate = new Date(game.date);
             const oneDayAgo = new Date();
             oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-
             if (gameDate >= oneDayAgo) {
               const teamName = state.teamName.replace('Oklahoma City ', '');
               const isHome = game.homeTeam.includes(state.teamName);
               const opponent = (isHome ? game.awayTeam : game.homeTeam).replace(`${state.teamName} `, '');
               const location = isHome ? 'vs ' : '@ ';
               const taskName = `🏀 ${teamName} ${location}${opponent}`;
-
               const gameTime = new Date(game.date).toLocaleTimeString('en-US', {
                 hour: 'numeric',
                 minute: '2-digit'
               });
-
               console.log(`[syncGameTasks] Adding task for game ID: ${game.id}, Name: ${taskName}`);
               addTask({
                 name: taskName,
                 schedule: [],
                 priority: 'medium',
                 category: 'personal',
-                scheduledDate: game.date, // Store the original game date string
+                scheduledDate: game.date,
                 time: gameTime,
                 recurrencePattern: 'one-time',
-                gameId: game.id // Add the game ID here
+                gameId: game.id
               });
             }
           }
-          // Potential place to update existing tasks if needed (e.g., time change)
-          // else { const existingTaskId = existingNbaTasks.get(game.id); ... updateTask(existingTaskId, ...) }
         });
-
-        // 3. Delete existing tasks whose gameId is NOT in the latest fetch
+      
+        // Delete tasks whose gameId is not in the latest fetched games
         existingNbaTasks.forEach((taskId, gameId) => {
           if (!fetchedGameIds.has(gameId)) {
             console.log(`[syncGameTasks] Deleting task ID: ${taskId} for stale game ID: ${gameId}`);
             deleteTask(taskId);
           }
         });
-      },
+      },      
 
       clearNBACalendarEvents: () => {
         const { events } = useCalendarStore.getState();

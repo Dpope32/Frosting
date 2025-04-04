@@ -100,13 +100,13 @@ export function TaskCard({
         <View style={{
           position: 'absolute',
           top: 0,
-          left: 28,  // Start after checkbox area
+          left: 0, // Changed from 28 to 0 to cover the entire card
           right: 0,
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           borderRadius: 10,
           zIndex: 1,
-          pointerEvents: 'none'
+          pointerEvents: 'none' // This ensures the overlay doesn't capture clicks
         }} />
       )}
       
@@ -119,7 +119,7 @@ export function TaskCard({
               }
               onCheck?.(!checked);
             }}
-            style={styles.checkboxContainer}
+            style={[styles.checkboxContainer, { zIndex: 5 }]} // Added higher zIndex to ensure it's clickable
           >
             <View style={[
               styles.checkbox,
@@ -181,7 +181,7 @@ export function TaskCard({
                 opacity: pressed ? 0.7 : 1,
                 padding: 6,
                 marginRight: -4,
-                zIndex: 5
+                zIndex: 5 // Increased z-index to ensure it remains clickable
               })}
             >
               <Text fontFamily="$body" color="#ff4444" fontSize={14}>✕</Text>
