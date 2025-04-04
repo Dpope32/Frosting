@@ -1,11 +1,12 @@
-import React, { useState, useRef } from 'react'
-import { Sheet, YStack, XStack, Text, ScrollView } from 'tamagui'
-import { Pressable, Platform, useColorScheme, Alert } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import { useVault } from '@/hooks/useVault'
-import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations'
-import { VaultRecommendationModal } from '@/components/modals/VaultRecommendationModal'
-import { useToastStore } from '@/store/ToastStore'
+import React, { useState } from 'react';
+import { YStack, XStack, Text, isWeb } from 'tamagui'; 
+import { Pressable, Platform, useColorScheme, Alert } from 'react-native'; 
+import { Ionicons } from '@expo/vector-icons';
+import { useVault } from '@/hooks/useVault';
+import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
+import { VaultRecommendationModal } from '@/components/modals/VaultRecommendationModal';
+import { useToastStore } from '@/store/ToastStore';
+import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; 
 
 interface VaultListModalProps {
   open: boolean
@@ -22,26 +23,13 @@ interface VaultEntry {
 export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
   const { data, deleteVaultEntry } = useVault()
   const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
+  const isDark = colorScheme === 'dark';
+  const [socialMediaModalOpen, setSocialMediaModalOpen] = useState(false);
+  const [emailCloudModalOpen, setEmailCloudModalOpen] = useState(false);
+  const [shoppingModalOpen, setShoppingModalOpen] = useState(false);
+  const [workModalOpen, setWorkModalOpen] = useState(false);
 
-  // Mimic TaskListModal's ref-based scroll logic
-  const [scrollY, setScrollY] = useState(0)
-  const scrollViewRef = useRef<ScrollView>(null)
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && scrollY > 0) {
-      scrollViewRef.current?.scrollTo({ y: 0, animated: true })
-      return
-    }
-    onOpenChange(newOpen)
-  }
-
-  const [socialMediaModalOpen, setSocialMediaModalOpen] = useState(false)
-  const [emailCloudModalOpen, setEmailCloudModalOpen] = useState(false)
-  const [shoppingModalOpen, setShoppingModalOpen] = useState(false)
-  const [workModalOpen, setWorkModalOpen] = useState(false)
-
-  const categories: VaultRecommendationCategory[] = ['Social Media', 'Misc', 'Shopping', 'Work']
+  const categories: VaultRecommendationCategory[] = ['Social Media', 'Misc', 'Shopping', 'Work'];
 
   const getCategoryWidth = (category: VaultRecommendationCategory): number => {
     switch (category) {
@@ -49,9 +37,9 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
       case 'Misc': return 80
       case 'Shopping': return 110
       case 'Work': return 90
-      default: return 120
+      default: return 120;
     }
-  }
+  };
 
   const getChipStyle = (category: VaultRecommendationCategory) => {
     switch (category) {
@@ -88,22 +76,22 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
           backgroundColor: 'rgba(107, 114, 128, 0.15)',
           borderColor: 'rgba(107, 114, 128, 0.3)',
           textColor: '#6b7280',
-          fontFamily: '$body'
-        }
+          fontFamily: '$body',
+        };
     }
-  }
+  };
 
   const ModifiedChip = ({ category }: { category: VaultRecommendationCategory }) => {
-    const style = getChipStyle(category)
+    const style = getChipStyle(category);
     const handlePress = () => {
-      handleOpenChange(false)
+      onOpenChange(false); 
       switch (category) {
-        case 'Social Media': setSocialMediaModalOpen(true); break
-        case 'Misc': setEmailCloudModalOpen(true); break
-        case 'Shopping': setShoppingModalOpen(true); break
-        case 'Work': setWorkModalOpen(true); break
+        case 'Social Media': setSocialMediaModalOpen(true); break;
+        case 'Misc': setEmailCloudModalOpen(true); break;
+        case 'Shopping': setShoppingModalOpen(true); break;
+        case 'Work': setWorkModalOpen(true); break;
       }
-    }
+    };
     return (
       <XStack
         width={getCategoryWidth(category)}
@@ -123,18 +111,18 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
           {category}
         </Text>
       </XStack>
-    )
-  }
+    );
+  };
 
-  const { showToast } = useToastStore()
+  const { showToast } = useToastStore();
   const handleDelete = (id: string) => {
     if (Platform.OS === 'web') {
       if (confirm('Are you sure you want to delete this password entry?')) {
-        deleteVaultEntry(id)
-        handleOpenChange(false)
+        deleteVaultEntry(id);
+        onOpenChange(false); 
         setTimeout(() => {
-          showToast('Vault Entry Successfully removed', 'success')
-        }, 300)
+          showToast('Vault Entry Successfully removed', 'success');
+        }, 300);
       }
     } else {
       Alert.alert(
@@ -146,94 +134,41 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
             text: 'Yes',
             style: 'destructive',
             onPress: () => {
-              deleteVaultEntry(id)
-              handleOpenChange(false)
+              deleteVaultEntry(id);
+              onOpenChange(false); 
               setTimeout(() => {
-                showToast('Vault Entry Successfully removed', 'success')
-              }, 300)
-            }
-          }
+                showToast('Vault Entry Successfully removed', 'success');
+              }, 300);
+            },
+          },
         ]
-      )
+      );
     }
-  }
+  };
+
+  const vaultRecommendations = (
+    <>
+      {categories.map((category) => (
+        <ModifiedChip key={category} category={category} />
+      ))}
+    </>
+  );
 
   return (
     <>
-      <Sheet
-        modal
+      <BaseCardWithRecommendationsModal
         open={open}
-        onOpenChange={handleOpenChange}
+        onOpenChange={onOpenChange} 
+        title="Vault Entries"
         snapPoints={isWeb ? [90] : [80]}
-        dismissOnSnapToBottom
-        dismissOnOverlayPress
-        animation="quick"
         zIndex={100000}
+        showCloseButton={true} 
+        hideHandle={true}
+        recommendations={vaultRecommendations} 
       >
-        <Sheet.Overlay
-          animation="quick"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-          opacity={0.7} 
-        />
-        <Sheet.Frame
-          backgroundColor={isDark ? '$gray1' : 'white'}
-          padding="$4"
-          gap={Platform.OS === 'web' ? '$4' : '$3'}
-          borderTopLeftRadius="$6"
-          borderTopRightRadius="$6"
-          {...(isWeb
-            ? {
-                style: {
-                  overflowY: 'auto',
-                  maxHeight: '100vh',
-                  maxWidth: 800,
-                  margin: '0 auto',
-                  borderRadius: 8,
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
-                }
-              }
-            : {})}
-        >
-          <ScrollView
-            ref={scrollViewRef}
-            bounces={false}
-            showsVerticalScrollIndicator={false}
-            onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
-            scrollEventThrottle={16}
-          >
-            <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
-              <XStack justifyContent="space-between" alignItems="center">
-                <Text
-                  fontSize={22}
-                  fontWeight="700"
-                  padding={12}
-                  fontFamily="$body"
-                  color={isDark ? '$gray12' : '$gray11'}
-                >
-                  Vault Entries
-                </Text>
-                <Pressable onPress={() => handleOpenChange(false)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1, padding: 8 })}>
-                  <Ionicons name="close" size={24} color="#ffffff" />
-                </Pressable>
-              </XStack>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                paddingBottom="$4"
-                mt="$1"
-                contentContainerStyle={{ paddingHorizontal: 4 }}
-              >
-                <XStack gap="$2">
-                  {categories.map((category) => (
-                    <ModifiedChip key={category} category={category} />
-                  ))}
-                </XStack>
-              </ScrollView>
-            </YStack>
-
+        <>
             {data?.items && data.items.length > 0 ? (
-              <YStack gap="$2" mt="$2">
+              <YStack gap="$2" mt="$2"> 
                 <XStack flexWrap="wrap" justifyContent="space-between" gap="$2">
                   {data.items.map((entry: VaultEntry) => (
                     <YStack
@@ -300,10 +235,8 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                 </Text>
               </YStack>
             )}
-          </ScrollView>
-        </Sheet.Frame>
-      </Sheet>
-
+        </>
+      </BaseCardWithRecommendationsModal>
       <VaultRecommendationModal
         open={socialMediaModalOpen}
         onOpenChange={setSocialMediaModalOpen}

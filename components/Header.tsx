@@ -11,6 +11,7 @@ import { SettingsModal } from './cardModals/SettingsModal';
 import { NBATeamModal } from './sports/NBATeamModal';
 import { BillsListModal } from './cardModals/BillsListModal';
 import { VaultListModal } from './cardModals/VaultListModal';
+import { PeopleListModal } from './cardModals/PeopleListModal'; 
 import { useCalendarViewStore } from '@/store/CalendarViewStore';
 
 interface HeaderProps {
@@ -26,20 +27,19 @@ export function Header({ title }: HeaderProps) {
   const [showNBATeamModal, setShowNBATeamModal] = useState(false);
   const [showBillsListModal, setShowBillsListModal] = useState(false);
   const [showVaultListModal, setShowVaultListModal] = useState(false);
-  const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore(); // Get state and action from store
+  const [showPeopleListModal, setShowPeopleListModal] = useState(false); 
+  const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore(); 
 
   // Check current screen
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
-  const isCalendarScreen = route.name === 'calendar'; // Check for calendar screen
+  const isCrmScreen = route.name === 'crm'; 
+  const isCalendarScreen = route.name === 'calendar'; 
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#00000';
   const isWeb = Platform.OS === 'web';
-
-  // Calculate the spacer height based on platform
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
 
-  // Animation setup for the 3/2 toggle
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -47,7 +47,6 @@ export function Header({ title }: HeaderProps) {
     };
   });
 
-  // Determine which icon/element to show based on the current screen and platform
   const getRightHeaderElement = () => {
     if (isWeb && isCalendarScreen) {
       return (
@@ -69,10 +68,11 @@ export function Header({ title }: HeaderProps) {
       );
     }
 
-    let iconName: keyof typeof Ionicons.glyphMap = "settings-outline";
+    let iconName: keyof typeof Ionicons.glyphMap = "settings-outline"; 
     if (isSportsScreen) iconName = "basketball-outline";
     else if (isBillsScreen) iconName = "receipt-outline";
     else if (isVaultScreen) iconName = "key-outline";
+    else if (isCrmScreen) iconName = "people-outline"; 
 
     return (
       <Pressable
@@ -88,9 +88,7 @@ export function Header({ title }: HeaderProps) {
     );
   };
 
-  // Handle the icon press based on the current screen
   const handleIconPress = () => {
-    // Trigger haptic feedback on non-web platforms
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -98,7 +96,8 @@ export function Header({ title }: HeaderProps) {
     if (isSportsScreen) setShowNBATeamModal(true);
     else if (isBillsScreen) setShowBillsListModal(true);
     else if (isVaultScreen) setShowVaultListModal(true);
-    else setShowSettings(true);
+    else if (isCrmScreen) setShowPeopleListModal(true); 
+    else setShowSettings(true); 
   };
 
   return (
@@ -192,6 +191,7 @@ export function Header({ title }: HeaderProps) {
       {isSportsScreen && <NBATeamModal open={showNBATeamModal} onOpenChange={setShowNBATeamModal} />}
       {isBillsScreen && <BillsListModal open={showBillsListModal} onOpenChange={setShowBillsListModal} />}
       {isVaultScreen && <VaultListModal open={showVaultListModal} onOpenChange={setShowVaultListModal} />}
+      {isCrmScreen && <PeopleListModal open={showPeopleListModal} onOpenChange={setShowPeopleListModal} />} 
     </>
   );
 }

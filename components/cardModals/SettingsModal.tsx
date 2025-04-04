@@ -137,10 +137,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     temperatureEnabled: preferences.temperatureEnabled ?? true,
     wifiEnabled: preferences.wifiEnabled ?? true,
   })
-  const sheetFrameStyle = useMemo(
-    () => (isWeb ? { overflowY: 'auto', maxHeight: '90vh', maxWidth: 600, margin: '0 auto', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' } : {}),
-    [isWeb]
-  )
   const filteredBackgroundStyles = useMemo(() => {
     if (!isWeb || wallpapersToShow >= backgroundStyles.length) return backgroundStyles
     return backgroundStyles.slice(0, wallpapersToShow)
@@ -188,7 +184,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     if (value.startsWith('wallpaper-')) {
       const wallpaperStore = useWallpaperStore.getState();
       try {
-        // Ensure the wallpaper is in the cache
         const cachedUri = await wallpaperStore.getCachedWallpaper(value);
         if (!cachedUri) {
           const wallpaperPath = await getWallpaperPath(value);
@@ -196,7 +191,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             await wallpaperStore.cacheWallpaper(value, wallpaperPath.uri);
           }
         }
-        // Set the wallpaper as current to prevent it from being cleared
         wallpaperStore.setCurrentWallpaper(value);
       } catch (error) {
         console.error(`Failed to cache wallpaper ${value}:`, error);
@@ -262,7 +256,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         }
       }}
       title="Settings"
-      snapPoints={isWeb ? [90] : [86]}
+      snapPoints={isWeb ? [90] : [85]}
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
@@ -435,7 +429,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </Text>
             <YStack>
               {Array.from({ length: Math.ceil(filteredBackgroundStyles.length / 3) }).map((_, rowIndex) => (
-                <XStack key={`row-${rowIndex}`} height={75} marginBottom={8}>
+                <XStack key={`row-${rowIndex}`} height={60} marginBottom={8}>
                   {filteredBackgroundStyles.slice(rowIndex * 3, rowIndex * 3 + 3).map((styleItem, index) => (
                     <OptimizedWallpaperButton
                       key={styleItem.value}

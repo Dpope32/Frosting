@@ -459,16 +459,6 @@ useEffect(() => {
           >
             Choose your wallpaper
           </Label>
-          <Text
-            fontFamily="$body"
-            fontSize="$3"
-            textAlign="center"
-            color={isWeb ? "#CCCCCC" : "#ccc"} 
-            opacity={0.8}
-            fontWeight="400"
-          >
-            (you can always change this in the settings later)
-          </Text>
         </YStack>
 
         <YStack

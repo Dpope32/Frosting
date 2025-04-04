@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
-import { YStack, XStack, Text, ScrollView } from 'tamagui'
-import { Pressable, Platform, useColorScheme, Alert } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
-import { useBills } from '@/hooks/useBills'
-import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
-import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations'
-import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal'
-import { BaseCardModal } from './BaseCardModal'
+import React, { useState } from 'react';
+import { YStack, XStack, Text, ScrollView as TamaguiScrollView } from 'tamagui';
+import { Pressable, Platform, useColorScheme, Alert, ScrollView as RNScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useBills } from '@/hooks/useBills';
+import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
+import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
+import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
+import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; // Import the new base modal
 
 interface BillsListModalProps {
   open: boolean
@@ -17,28 +17,26 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
   const { bills, deleteBill } = useBills()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
-  const [housingModalOpen, setHousingModalOpen] = useState(false)
-  const [transportationModalOpen, setTransportationModalOpen] = useState(false)
-  const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false)
-  const [insuranceModalOpen, setInsuranceModalOpen] = useState(false)
-  
-  const currentDay = new Date().getDate()
+  const isWeb = Platform.OS === 'web';
+  const [housingModalOpen, setHousingModalOpen] = useState(false);
+  const [transportationModalOpen, setTransportationModalOpen] = useState(false);
+  const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
+  const [insuranceModalOpen, setInsuranceModalOpen] = useState(false);
 
-  const categories: BillRecommendationCategory[] = ['Housing', 'Transportation', 'Subscriptions', 'Insurance']
-  
-  // Get appropriate width for each category
+  const currentDay = new Date().getDate();
+
+  const categories: BillRecommendationCategory[] = ['Housing', 'Transportation', 'Subscriptions', 'Insurance'];
+
   const getCategoryWidth = (category: BillRecommendationCategory): number => {
     switch (category) {
       case 'Housing': return 100
       case 'Transportation': return 140
       case 'Subscriptions': return 130
       case 'Insurance': return 110
-      default: return 120
+      default: return 120;
     }
-  }
+  };
 
-  // Creating a modified chip component to ensure full text is visible
   const ModifiedChip = ({ category }: { category: BillRecommendationCategory }) => {
     const handlePress = () => {
       onOpenChange(false)
@@ -53,13 +51,13 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
           setSubscriptionsModalOpen(true)
           break
         case 'Insurance':
-          setInsuranceModalOpen(true)
-          break
-      }
-    }
-    
-    const style = getChipStyle(category)
-    
+          setInsuranceModalOpen(true);
+          break;
+      } 
+    };
+
+    const style = getChipStyle(category);
+
     return (
       <XStack 
         width={getCategoryWidth(category)} 
@@ -86,80 +84,73 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
           {category}
         </Text>
       </XStack>
-    )
-  }
-  
+    );
+  };
+
   const getChipStyle = (category: BillRecommendationCategory) => {
     switch (category) {
       case 'Housing':
         return {
-          backgroundColor: "rgba(16, 185, 129, 0.15)", // green
+          backgroundColor: "rgba(16, 185, 129, 0.15)", 
           borderColor: "rgba(16, 185, 129, 0.3)",
           textColor: "#10b981"
         }
       case 'Transportation':
         return {
-          backgroundColor: "rgba(59, 130, 246, 0.15)", // blue
+          backgroundColor: "rgba(59, 130, 246, 0.15)", 
           borderColor: "rgba(59, 130, 246, 0.3)",
           textColor: "#3b82f6"
         }
       case 'Subscriptions':
         return {
-          backgroundColor: "rgba(139, 92, 246, 0.15)", // purple
+          backgroundColor: "rgba(139, 92, 246, 0.15)", 
           borderColor: "rgba(139, 92, 246, 0.3)",
           textColor: "#8b5cf6"
         }
       case 'Insurance':
         return {
-          backgroundColor: "rgba(239, 68, 68, 0.15)", // red
+          backgroundColor: "rgba(239, 68, 68, 0.15)", 
           borderColor: "rgba(239, 68, 68, 0.3)",
           textColor: "#ef4444"
         }
       default:
         return {
-          backgroundColor: "rgba(107, 114, 128, 0.15)", // gray
+          backgroundColor: "rgba(107, 114, 128, 0.15)", 
           borderColor: "rgba(107, 114, 128, 0.3)",
-          textColor: "#6b7280"
-        }
+          textColor: "#6b7280",
+        };
     }
-  }
+  };
+
+  const billRecommendations = (
+    <>
+      {categories.map(category => (
+        <ModifiedChip key={category} category={category} />
+      ))}
+    </>
+  );
+
 
   return (
     <>
-      <BaseCardModal
+      <BaseCardWithRecommendationsModal
         open={open}
         onOpenChange={onOpenChange}
         title="All Bills"
         snapPoints={isWeb ? [95] : [85]}
         showCloseButton={true}
         zIndex={100000}
+        recommendations={billRecommendations} 
       >
-        <YStack gap={Platform.OS === 'web' ? '$4' : '$2'}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            paddingBottom="$4" 
-            mt="$1"
-            contentContainerStyle={{ 
-              paddingHorizontal: 4
-            }}
-          >
-            <XStack gap="$2">
-              {categories.map(category => (
-                <ModifiedChip key={category} category={category} />
-              ))}
-            </XStack>
-          </ScrollView>
-        </YStack>
-        
+        <>
         {bills && bills.length > 0 ? (
-          <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2">
+          <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2"> 
             {bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
-              const IconComponent = getIconForBill(bill.name)
-              const amountColor = getAmountColor(bill.amount)
-              const isPastDue = bill.dueDate < currentDay
-              const isDueToday = bill.dueDate === currentDay
-              
+              const IconComponent = getIconForBill(bill.name);
+              const amountColor = getAmountColor(bill.amount);
+              const isPastDue = bill.dueDate < currentDay;
+              const isDueToday = bill.dueDate === currentDay;
+
               return (
                 <XStack
                   key={bill.id}
@@ -273,7 +264,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
             br={8}
             padding="$4"
             alignItems="center"
-            mt="$4"
+            mt="$4" 
           >
             <Text
               fontFamily="$body"
@@ -284,9 +275,10 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
             </Text>
           </YStack>
         )}
-      </BaseCardModal>
-      
-      <BillRecommendationModal 
+        </>
+      </BaseCardWithRecommendationsModal>
+
+      <BillRecommendationModal
         open={housingModalOpen} 
         onOpenChange={setHousingModalOpen} 
         category="Housing" 

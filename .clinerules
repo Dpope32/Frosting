@@ -1,4 +1,4 @@
-# Kaiba Nexus Project Intelligence
+  # Kaiba Nexus Project Intelligence
 
 This file captures important patterns, preferences, and project intelligence for the Kaiba Nexus application.
 
@@ -72,6 +72,7 @@ This file captures important patterns, preferences, and project intelligence for
 - Test UI on all target platforms (iOS, Android, web, desktop)
 - Use platform-specific code sparingly and only when necessary
 - Follow responsive design patterns for different screen sizes
+- **Modal Gesture Handling:** For bottom sheet modals (`Sheet`) containing horizontal `ScrollView`s (e.g., recommendation chips), use the `BaseCardWithRecommendationsModal` pattern. This component aims to resolve conflicts between the sheet's vertical drag-to-close gesture and the scroll view's horizontal swipe gesture, allowing both to function correctly. (April 3, 2025)
 
 ### Performance
 - Minimize dependencies where possible

@@ -33,12 +33,14 @@ flowchart TD
 - **Functional Components**: React functional components with hooks
 - **Component Composition**: Building complex UIs from smaller, reusable components
 - **Shared Components**: Extraction of common UI elements (e.g., `DebouncedInput` in `components/shared/`) for reusability
+- **Modal Abstraction**: Use of base modal components (`BaseCardModal`, `BaseCardWithRecommendationsModal`) to standardize appearance and behavior.
 - **Theming**: Theme-aware components that adapt to user preferences
 
 ### Navigation
 - **Expo Router**: File-based routing system for navigation
 - **Drawer Navigation**: Main navigation pattern for mobile interfaces
 - **Tab-based Navigation**: Used for sub-sections within major features
+- **Gesture Handling in Modals**: For modals containing horizontal scroll views (like recommendation chips), `BaseCardWithRecommendationsModal` uses `react-native-gesture-handler` (or relies on underlying Sheet behavior) to allow horizontal swiping without inadvertently closing the modal via vertical drag. (April 3, 2025)
 
 ### Data Services
 - **Service Layer**: Abstraction for data operations (billServices, calendarService, etc.)
