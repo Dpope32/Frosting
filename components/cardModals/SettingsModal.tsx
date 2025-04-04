@@ -5,9 +5,9 @@ import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router';
 import { Button, YStack, XStack, Text, Circle, Spinner } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
-import { useBillStore } from '@/store/BillStore'; // Import BillStore
-import { useProjectStore } from '@/store/ToDo'; // Import ProjectStore (ToDo)
-import { usePeopleStore } from '@/store/People'; // Import PeopleStore
+import { useBillStore } from '@/store/BillStore'; 
+import { useProjectStore } from '@/store/ToDo'; 
+import { usePeopleStore } from '@/store/People'; 
 import { useWallpaperStore } from '@/store/WallpaperStore';
 import { colorOptions } from '../../constants/Colors';
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds';
@@ -508,21 +508,15 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           
             if (shouldReset) {
               setIsSigningOut(true);
-              console.log('[SignOut] Starting sign out process...');
               
               try {
-                // 1. Clear state in individual stores
-                console.log('[SignOut] Clearing individual stores...');
                 useBillStore.getState().clearBills();
                 useProjectStore.getState().clearTasks();
                 usePeopleStore.getState().clearContacts();
-                useUserStore.getState().clearPreferences(); // Clear user preferences last before general storage
-                console.log('[SignOut] Individual stores cleared.');
+                useUserStore.getState().clearPreferences();
 
-                // 2. Clear the underlying AsyncStorage
-                console.log('[SignOut] Clearing AsyncStorage...');
                 await StorageUtils.clear();
-                console.log('[SignOut] AsyncStorage cleared successfully');
+
                 
                 setTimeout(() => {
                   if (isWeb) {

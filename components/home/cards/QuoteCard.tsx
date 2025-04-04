@@ -11,25 +11,24 @@ export function QuoteCard() {
   const { data, isLoading } = useStoicQuote()
   const { preferences } = useUserStore()
   
-  // If quotes are disabled in preferences, don't render anything
   if (preferences.quoteEnabled === false) {
     return null
   }
 
   return (
     <>
-      <Stack
-        backgroundColor="rgba(0, 0, 0, 0.3)"
-        br={12}
-        py={isWeb ? "$3" : "$2.5"}
-        px={isWeb ? "$3" : "$2.5"}
-        borderWidth={1}
-        borderColor="rgba(255, 255, 255, 0.1)"
-        minWidth={80}
-        alignItems="center"
-        justifyContent="center"
-        style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
-      >
+    <Stack
+      backgroundColor="rgba(0, 0, 0, 0.3)"
+      br={12}
+      padding="$3"  
+      borderWidth={1}
+      borderColor="rgba(255, 255, 255, 0.1)"
+      minWidth={80}
+      height={isWeb ? 60 : 40}    
+      alignItems="center"
+      justifyContent="center"
+      style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+    >
         {isLoading ? (
           <Spinner size="small" color="#dbd0c6" />
         ) : (

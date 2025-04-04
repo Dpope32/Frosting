@@ -48,10 +48,8 @@ export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps
     }
   }, [refetch]);
 
-  const displayValue = isLoading
-    ? '...'
-    : totalValue !== null
-    ? `$${totalValue.toLocaleString('en-US', { 
+  const displayValue = isLoading ? '...'
+    : totalValue !== null ? `$${totalValue.toLocaleString('en-US', { 
         minimumFractionDigits: roundToWholeNumber ? 0 : 2, 
         maximumFractionDigits: roundToWholeNumber ? 0 : 2,
         notation: 'compact',
@@ -60,8 +58,6 @@ export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps
     : '$0.00';
 
   const valueColor = getValueColor('portfolio', totalValue ?? 0, '');
-  const lastUpdateTime = lastUpdate ? new Date(lastUpdate) : null;
-  const isStale = lastUpdateTime && (new Date().getTime() - lastUpdateTime.getTime()) > 5 * 60 * 1000;
 
   return (
     <Stack
@@ -71,6 +67,7 @@ export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
       minWidth={80}
+      height={isWeb ? 60 : 40} 
       alignItems="center"
       justifyContent="center"
       gap="$0.5"

@@ -70,11 +70,11 @@ export function WifiCard() {
     <Stack
       backgroundColor="rgba(0, 0, 0, 0.3)"
       br={12}
-      padding="$2.5"
+      padding="$3" 
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
       minWidth={70}
-      minHeight={41}
+      height={isWeb ? 60 : 40}   
       alignItems="center"
       justifyContent="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}

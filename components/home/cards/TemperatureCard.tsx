@@ -31,6 +31,7 @@ export function TemperatureCard() {
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
       minWidth={70}
+      height={isWeb ? 60 : 40} 
       alignItems="center"
       justifyContent="center"
     >
