@@ -11,6 +11,7 @@ import { TaskListModal } from './cardModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
+import { EditTaskModal } from './cardModals/EditTaskModal' 
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
@@ -36,10 +37,9 @@ export function LandingPage() {
   
   // Delay mounting of modals to prevent focus issues during navigation
   React.useEffect(() => {
-    // Use a small timeout to ensure component is fully mounted before rendering modals
     const timer = setTimeout(() => {
       setIsMounted(true)
-    }, 500)
+    }, 300)
     
     return () => clearTimeout(timer)
   }, [])
@@ -126,6 +126,7 @@ export function LandingPage() {
           <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
           {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
           {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
+          <EditTaskModal /> 
         </>
       )}
     </Stack>

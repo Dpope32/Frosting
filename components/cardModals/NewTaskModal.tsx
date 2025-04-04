@@ -11,7 +11,7 @@ import { syncTasksToCalendar } from '@/services'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
 import { DebouncedInput } from '../shared/debouncedInput'
-import { getCategoryColor,  getPriorityColor,  getRecurrenceColor, getRecurrenceIcon, withOpacity, dayColors } from '@/utils/styleUtils';
+import { getCategoryColor,  getPriorityColor,  getRecurrenceColor, withOpacity, dayColors } from '@/utils/styleUtils';
 
 
 interface NewTaskModalProps {

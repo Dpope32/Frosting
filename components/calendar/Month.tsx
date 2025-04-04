@@ -102,7 +102,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   }, [date, events]);
 
   return (
-    <View style={[getMonthStyles(webColumnCount).calendar, { backgroundColor: isDark ? '#111111' : '#fff' }]}>
+    <View style={[getMonthStyles(webColumnCount).calendar, { backgroundColor: isDark ? '#010101' : '#fff' }]}>
       <View style={styles.header}>
         <Text style={[styles.monthText, { color: isDark ? '#fff' : '#000' }]}>
           {monthName} {year}

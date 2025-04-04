@@ -14,6 +14,7 @@ interface ProjectStore {
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
   getTodaysTasks: () => Task[]
+  updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void // Add updateTask signature
   clearTasks: () => void
 }
 
@@ -271,10 +272,34 @@ export const useProjectStore = create<ProjectStore>()(
         }
       },
       getTodaysTasks: () => get().todaysTasks,
+      // Correctly placed updateTask function
+      updateTask: (taskId, updatedData) => {
+        const tasks = { ...get().tasks };
+        if (tasks[taskId]) {
+          // Merge existing task with updated data
+          tasks[taskId] = {
+            ...tasks[taskId],
+            ...updatedData,
+            updatedAt: new Date().toISOString(), // Update the timestamp
+          };
+
+          // Recalculate todaysTasks after update
+          set({ tasks, todaysTasks: taskFilter(tasks) });
+
+          // Optional: Trigger haptics if needed
+          if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }
+        } else {
+          console.warn(`Task with id ${taskId} not found for update.`);
+        }
+      },
+      // Correctly placed clearTasks function
       clearTasks: () => {
         set({ tasks: {}, todaysTasks: [] }) // Reset tasks and todaysTasks
       }
-    }),
+    }), // End of the state object creator function
+    // Persist middleware options
     {
       name: 'tasks-store',
       storage: createPersistStorage<ProjectStore>(),
@@ -319,8 +344,8 @@ export const useProjectStore = create<ProjectStore>()(
         }
       }
     }
-  )
-)
+  ) // End of persist middleware call
+) // End of create call
 
 export const useStoreTasks = () => useProjectStore((s) => s.tasks)
 export const useStoreHydrated = () => useProjectStore((s) => s.hydrated)

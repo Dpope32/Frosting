@@ -2,19 +2,20 @@ import { Platform, StyleSheet } from 'react-native';
 
 export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
   calendar: {
-    borderRadius: 20,
+    borderRadius: 16,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    padding: 16,
+    padding: 10,
+    paddingTop: 16,
     margin: 16,
     ...(Platform.OS === 'web' ? { boxShadow: '0 4px 12px rgba(0,0,0,0.15)' } : {})
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 16,
+    alignItems: 'flex-start',
+    marginLeft: 12,
     height: 48
   },
   monthText: {
