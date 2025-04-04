@@ -3,7 +3,7 @@ import { Alert, Linking, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 interface ImagePickerOptions {
-  mediaTypes?: ImagePicker.MediaTypeOptions;
+  mediaTypes?: ImagePicker.MediaType | ImagePicker.MediaType[];
   allowsEditing?: boolean;
   aspect?: [number, number];
   quality?: number;
@@ -18,14 +18,14 @@ interface UseImagePickerResult {
 /**
  * A custom hook for handling image picking functionality using expo-image-picker.
  * This hook strictly uses launchImageLibraryAsync and does NOT invoke camera access.
- * 
+ *
  * @param defaultOptions Default options for the image picker
  * @returns An object containing the pickImage function, loading state, and error state
- * 
+ *
  * @example
  * ```tsx
  * const { pickImage, isLoading, error } = useImagePicker();
- * 
+ *
  * const handleSelectImage = async () => {
  *   const imageUri = await pickImage();
  *   if (imageUri) {
@@ -46,7 +46,6 @@ export function useImagePicker(
     try {
       setIsLoading(true);
       setError(null);
-
       // Request permissions first
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
@@ -56,9 +55,9 @@ export function useImagePicker(
             "Media library permission is needed to select images. Please enable it in your device settings.",
             [
               { text: "Cancel", style: "cancel" },
-              { 
-                text: "Open Settings", 
-                onPress: () => Linking.openSettings() 
+              {
+                text: "Open Settings",
+                onPress: () => Linking.openSettings()
               }
             ]
           );
@@ -67,20 +66,19 @@ export function useImagePicker(
         }
         return null; // Don't proceed if permission denied
       }
-
+      
       // Permissions granted, proceed with picking
       const mergedOptions: ImagePickerOptions = {
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: 'images',
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
         ...defaultOptions,
         ...options,
       };
-
+      
       // launchImageLibraryAsync ONLY. No camera invocation.
       const result = await ImagePicker.launchImageLibraryAsync(mergedOptions);
-
       if (!result.canceled && result.assets && result.assets[0]) {
         return result.assets[0].uri;
       }

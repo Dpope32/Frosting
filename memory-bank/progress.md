@@ -12,6 +12,7 @@
 - ✅ Extracted shared components (e.g., `DebouncedInput`) (March 28, 2025 - `1b1185b`)
 - ✅ Implemented `ErrorBoundary` component for global rendering error handling (March 30, 2025)
 - ✅ Extracted `StarsBackground` component from onboarding (March 31, 2025) - Reduced step3.tsx by ~150 lines while maintaining all animation functionality
+- ✅ Refactored list modals (`Task`, `Bill`, `Vault`) to use `BaseCardWithRecommendationsModal` for consistent structure and improved horizontal scroll gesture handling (April 3, 2025)
 
 ### Feature Modules
 - ✅ Task Management
@@ -35,6 +36,7 @@
   - ✅ Contact information storage
   - ✅ Custom attributes (payment methods, addresses, etc.)
   - ✅ Modularized components/logic (similar to Vault) (March 28, 2025 - `1b1185b`)
+- ✅ Added `PeopleListModal` triggered from Header on CRM screen (April 3, 2025)
 - ✅ Password Vault
   - ✅ Secure credential storage
   - ✅ Local authentication
@@ -74,6 +76,7 @@
 - 🔄 Investigating PocketBase for Zustand store synchronization
 - 🔄 Exploring lightweight authentication solutions
 - ✅ Task-to-calendar event synchronization (March 29, 2025)
+- 🔄 Test/Refine gesture handling in `BaseCardWithRecommendationsModal` (April 3, 2025)
 
 ## Planned Features
 
@@ -88,11 +91,13 @@
 ### Additional Integrations
 - ⏳ Additional financial data sources
 - ⏳ More sports leagues and teams
+- ⏳ Refine recommendations for `PeopleListModal`
 
 ## Known Issues
 - 🔄 WiFi card wildly inconsistent (Attempted fix April 3, 2025 - Refactored `useNetworkSpeed` to measure latency)
 - Bug in Drawer with profile picture not displaying
 - ~~Fixed settings modal bug~~ (Resolved March 28, 2025 - `9b12208`)
+- 🔄 Horizontal scroll gesture conflict in modals (Addressed by refactor April 3, 2025 - Needs testing)
 
 ### Performance
 - 3ms to open the app (too slow)

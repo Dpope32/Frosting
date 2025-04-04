@@ -127,13 +127,6 @@ export default function Step2({
           </View>
         )}
       </YStack>
-
-      <XStack gap="$2" alignItems="center" justifyContent="center">
-        <Circle size={50} backgroundColor={currentColor} />
-        <Text fontFamily="$body" fontSize={16} color={textColor}>
-          {currentColor.toUpperCase()}
-        </Text>
-      </XStack>
     </YStack>
   )
 }

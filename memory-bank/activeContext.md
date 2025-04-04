@@ -45,7 +45,15 @@
   - Ensured toast visibility before modal closes
   - Added proper timing between toast display and modal close
 
+## Recent Changes (Modal Refactor & CRM Header - April 3, 2025)
+- **Created `BaseCardWithRecommendationsModal`:** Abstracted common modal structure with a horizontal recommendation scroll view (`components/cardModals/BaseCardWithRecommendationsModal.tsx`). Includes basic gesture handling setup to allow horizontal scrolling within the modal without triggering the vertical close gesture.
+- **Refactored Modals:** Updated `TaskListModal`, `BillsListModal`, and `VaultListModal` to use the new `BaseCardWithRecommendationsModal`, removing redundant code and standardizing structure.
+- **Added `PeopleListModal`:** Created a new modal (`components/cardModals/PeopleListModal.tsx`) using the base component to display CRM contacts. Includes placeholder recommendations.
+- **Updated Header:** Modified `components/Header.tsx` to display a "people" icon and trigger the `PeopleListModal` when the CRM screen (`app/(drawer)/crm.tsx`) is active.
+
 ## Immediate Tasks
+- Test gesture handling in refactored modals (`TaskListModal`, `BillsListModal`, `VaultListModal`) to ensure horizontal scroll works smoothly without closing the modal.
+- Refine recommendations for `PeopleListModal`.
 - Continue performance improvements and dependency reduction across other modules.
 - Address known issues listed in `progress.md`.
 - Continue exploring cross-device sync solutions (PocketBase/Supabase).

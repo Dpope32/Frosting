@@ -24,7 +24,7 @@ export function QuoteCard() {
       borderWidth={1}
       borderColor="rgba(255, 255, 255, 0.1)"
       minWidth={80}
-      height={isWeb ? 60 : 40}    
+      height={isWeb ? 60 : 50}    
       alignItems="center"
       justifyContent="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
