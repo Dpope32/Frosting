@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Input, Text, YStack, XStack, Slider, View, isWeb } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../baseModals/BaseCardModal'
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Platform, TouchableOpacity, ScrollView } from 'react-native'

@@ -100,46 +100,44 @@ export function TaskCard({
         <View style={{
           position: 'absolute',
           top: 0,
-          left: 0,
+          left: 28,  // Start after checkbox area
           right: 0,
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          justifyContent: 'center',
-          alignItems: 'center',
           borderRadius: 10,
-          zIndex: 1
-        }}>
-          <Ionicons name="checkmark-circle" size={24} color="#00C851" />
-        </View>
+          zIndex: 1,
+          pointerEvents: 'none'
+        }} />
       )}
-
-      {/* Changed to View for better layout control */}
+      
       <View style={styles.container}>
-        <Pressable 
-          onPress={() => {
-            if (Platform.OS !== 'web') {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }
-            onCheck?.(!checked);
-          }}
-          style={styles.checkboxContainer}
-        >
-          <View style={[
-            styles.checkbox,
-            { 
-              borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
-              backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)'
-            }
-          ]}>
-            {checked && (
-              <Ionicons 
-                name="checkmark-sharp" 
-                size={13} 
-                color="#00C851"
-              />
-            )}
-          </View>
-        </Pressable>
+        <View style={styles.leftColumn}>
+          <Pressable 
+            onPress={() => {
+              if (Platform.OS !== 'web') {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }
+              onCheck?.(!checked);
+            }}
+            style={styles.checkboxContainer}
+          >
+            <View style={[
+              styles.checkbox,
+              { 
+                borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
+                backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)'
+              }
+            ]}>
+              {checked && (
+                <Ionicons 
+                  name="checkmark-sharp" 
+                  size={13} 
+                  color="#00C851"
+                />
+              )}
+            </View>
+          </Pressable>
+        </View>
 
         <View style={styles.contentContainer}>
           <View style={styles.titleRow}>
@@ -182,127 +180,145 @@ export function TaskCard({
               style={({ pressed }) => ({
                 opacity: pressed ? 0.7 : 1,
                 padding: 6,
-                marginRight: -4
+                marginRight: -4,
+                zIndex: 5
               })}
             >
               <Text fontFamily="$body" color="#ff4444" fontSize={14}>✕</Text>
             </Pressable>
           </View>
-
-          <View style={styles.tagsRow}>
-            {category && (
-              <XStack
-                alignItems="center"
-                backgroundColor={`${calculatedCategoryColor}15`}
-                px="$1"
-                py="$0.5"
-                br={12}
-                opacity={checked ? 0.6 : 0.9}
-                marginRight={6}
-                marginBottom={4}
-              >
-                <Ionicons
-                  name="bookmark"
-                  size={10}
-                  color={calculatedCategoryColor} 
-                  style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
-                />
-                <Text
-                  fontFamily="$body"
-                  color={calculatedCategoryColor}
-                  fontSize={11}
-                  fontWeight="500"
-                >
-                  {category.toLowerCase()}
-                </Text>
-              </XStack>
-            )}
-
-            {priority && (
-              <XStack 
-                alignItems="center" 
-                backgroundColor={`${getPriorityColor(priority)}15`}
-                py="$0.5"
-                px="$1"
-                br={12}
-                opacity={checked ? 0.6 : 0.9}
-                marginRight={6}
-                marginBottom={4}
-              >
-                <Ionicons 
-                  name={getPriorityIcon(priority)} 
-                  size={10} 
-                  color={getPriorityColor(priority)} 
-                  style={{ marginRight: 2, marginTop: 1 }}
-                />
-                <Text
-                  fontFamily="$body"
-                  color={getPriorityColor(priority)}
-                  fontSize={11}
-                  fontWeight="500"
-                >
-                  {priority}
-                </Text>
-              </XStack>
-            )}
-            
-            <XStack 
-              alignItems="center" 
-              backgroundColor={`${recurrenceColor}15`}
-              px="$1"
-              py="$0.5"
-              br={12}
-              opacity={checked ? 0.6 : 0.9}
-              marginRight={6}
-              marginBottom={4}
-            >
-              <Ionicons 
-                name={recurrenceIcon as any}
-                size={10} 
-                color={recurrenceColor}
-                style={{ marginRight: 2, marginTop: 1 }}
-              />
-              <Text
-                fontFamily="$body"
-                color={recurrenceColor}
-                fontSize={11}
-                fontWeight="500"
-              >
-                {status.toLowerCase()}
-              </Text>
-            </XStack>
-
-            {time && (
-              <XStack 
-                alignItems="center" 
-                backgroundColor="rgba(255, 255, 255, 0.05)"
-                px="$1"
-                py="$0.5"
-                br={12}
-                borderWidth={1}
-                borderColor="rgb(52, 54, 55)"
-                opacity={checked ? 0.6 : 0.9}
-                marginBottom={4}
-              >
-                <Ionicons 
-                  name="time-outline" 
-                  size={10} 
-                  color="rgb(157, 157, 157)" 
-                  style={{ marginRight: 4, marginTop: 1 }}
-                />
-                <Text
-                  fontFamily="$body"
-                  color="rgb(157, 157, 157)"
-                  fontSize={11}
-                  fontWeight="500"
-                >
-                  {time}
-                </Text>
-              </XStack>
-            )}
-          </View>
         </View>
       </View>
+
+      <View style={styles.tagsRow}>
+        {category && (
+          <XStack
+            alignItems="center"
+            backgroundColor={`${calculatedCategoryColor}15`}
+            px="$1"
+            py="$0.5"
+            br={12}
+            opacity={checked ? 0.6 : 0.9}
+            marginRight={6}
+            marginBottom={4}
+          >
+            <Ionicons
+              name="bookmark"
+              size={10}
+              color={calculatedCategoryColor} 
+              style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
+            />
+            <Text
+              fontFamily="$body"
+              color={calculatedCategoryColor}
+              fontSize={11}
+              fontWeight="500"
+            >
+              {category.toLowerCase()}
+            </Text>
+          </XStack>
+        )}
+
+        {priority && (
+          <XStack 
+            alignItems="center" 
+            backgroundColor={`${getPriorityColor(priority)}15`}
+            py="$0.5"
+            px="$1"
+            br={12}
+            opacity={checked ? 0.6 : 0.9}
+            marginRight={6}
+            marginBottom={4}
+          >
+            <Ionicons 
+              name={getPriorityIcon(priority)} 
+              size={10} 
+              color={getPriorityColor(priority)} 
+              style={{ marginRight: 2, marginTop: 1 }}
+            />
+            <Text
+              fontFamily="$body"
+              color={getPriorityColor(priority)}
+              fontSize={11}
+              fontWeight="500"
+            >
+              {priority}
+            </Text>
+          </XStack>
+        )}
+        
+        <XStack 
+          alignItems="center" 
+          backgroundColor={`${recurrenceColor}15`}
+          px="$1"
+          py="$0.5"
+          br={12}
+          opacity={checked ? 0.6 : 0.9}
+          marginRight={6}
+          marginBottom={4}
+        >
+          <Ionicons 
+            name={recurrenceIcon as any}
+            size={10} 
+            color={recurrenceColor}
+            style={{ marginRight: 2, marginTop: 1 }}
+          />
+          <Text
+            fontFamily="$body"
+            color={recurrenceColor}
+            fontSize={11}
+            fontWeight="500"
+          >
+            {status.toLowerCase()}
+          </Text>
+        </XStack>
+
+        {time && (
+          <XStack 
+            alignItems="center" 
+            backgroundColor="rgba(255, 255, 255, 0.05)"
+            px="$1"
+            py="$0.5"
+            br={12}
+            borderWidth={1}
+            borderColor="rgb(52, 54, 55)"
+            opacity={checked ? 0.6 : 0.9}
+            marginBottom={4}
+          >
+            <Ionicons 
+              name="time-outline" 
+              size={10} 
+              color="rgb(157, 157, 157)" 
+              style={{ marginRight: 4, marginTop: 1 }}
+            />
+            <Text
+              fontFamily="$body"
+              color="rgb(157, 157, 157)"
+              fontSize={11}
+              fontWeight="500"
+            >
+              {time}
+            </Text>
+          </XStack>
+        )}
+      </View>
+      
+      {checked && (
+        <View style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'transparent',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2,
+          pointerEvents: 'none'
+        }}>
+          <Ionicons name="checkmark-circle" size={24} color="#00C851" />
+        </View>
+      )}
     </Stack>
   );
 }
@@ -311,13 +327,18 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    zIndex: 3
+  },
+  leftColumn: {
+    marginRight: 6,
+    zIndex: 4
   },
   checkboxContainer: {
     paddingHorizontal: 4,
     paddingTop: 2,
     paddingBottom: 2,
-    marginRight: 6,
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
+    zIndex: 4
   },
   checkbox: {
     width: 18,
@@ -329,17 +350,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   contentContainer: {
-    flex: 1
+    flex: 1,
+    position: 'relative'
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    zIndex: 3
   },
   tagsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 2,
-    marginLeft: -2
+    marginTop: 0,
+    paddingLeft: 4,
+    alignItems: 'center',
+    zIndex: 3
   }
 });

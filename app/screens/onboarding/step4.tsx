@@ -1,5 +1,5 @@
 import React from 'react'
-import { YStack, Input, Label, Text, Button } from 'tamagui'
+import { YStack, Input, Label, Text, Button, isWeb } from 'tamagui'
 import { FormData } from '@/types'
 import { Alert, Platform } from 'react-native'
 import { useState, useEffect } from 'react'
@@ -14,7 +14,6 @@ export default function Step4({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
 }) {
-  const isWeb = Platform.OS === 'web';
   const [zipError, setZipError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 

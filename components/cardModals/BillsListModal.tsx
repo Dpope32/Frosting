@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { YStack, XStack, Text, ScrollView as TamaguiScrollView } from 'tamagui';
-import { Pressable, Platform, useColorScheme, Alert, ScrollView as RNScrollView } from 'react-native';
+import { YStack, XStack, Text, isWeb } from 'tamagui';
+import { Pressable, Platform, useColorScheme, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useBills } from '@/hooks/useBills';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
 import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
 import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; // Import the new base modal
+import { BaseCardWithRecommendationsModal } from '../baseModals/BaseCardWithRecommendationsModal'; 
 
 interface BillsListModalProps {
   open: boolean
@@ -17,7 +17,6 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
   const { bills, deleteBill } = useBills()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web';
   const [housingModalOpen, setHousingModalOpen] = useState(false);
   const [transportationModalOpen, setTransportationModalOpen] = useState(false);
   const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);

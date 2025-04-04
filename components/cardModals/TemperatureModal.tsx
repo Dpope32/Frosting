@@ -12,7 +12,7 @@ import Animated, {
   withSequence,
   Easing
 } from 'react-native-reanimated'
-import { BaseCardAnimated } from './BaseCardAnimated';
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated';
 import { useWeatherStore } from '@/store/WeatherStore';
 import { getTemperatureColor } from '@/services/weatherServices';
 import RainDrop from '../shared/RainDrop'; // Import the new component

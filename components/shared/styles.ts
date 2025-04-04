@@ -1,5 +1,6 @@
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { isWeb } from 'tamagui';
 import { useMemo } from 'react';
 
 export const useDrawerStyles = () => {
@@ -8,7 +9,6 @@ export const useDrawerStyles = () => {
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
-  const isWeb = Platform.OS === 'web';
 
   return useMemo(() => StyleSheet.create({
     wrapper: {

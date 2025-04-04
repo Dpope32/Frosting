@@ -1,73 +1,53 @@
-import React, { useState, useCallback } from 'react'; // Import useCallback
-import { Platform, useColorScheme } from 'react-native';
-import { Button, Input, Text, YStack, XStack } from 'tamagui';
+import React, { useState, useCallback } from 'react'; 
+import { useColorScheme } from 'react-native';
+import { Button, Input, Text, YStack, XStack, isWeb } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
-import { BaseCardAnimated } from './BaseCardAnimated'; // Import BaseCardAnimated
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'; 
 
 interface IncomeModalProps {
-  // isVisible is no longer needed as BaseCardAnimated handles visibility
   onClose: () => void;
   currentIncome: number;
   onSubmit: (income: number) => void;
 }
 
-// Helper function to format number with commas
 const formatNumberWithCommas = (value: string): string => {
   if (!value) return '';
-  // Remove non-digit characters except decimal point
   const numericValue = value.replace(/[^0-9.]/g, '');
   const parts = numericValue.split('.');
-  // Add commas to the integer part
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  // Reassemble the parts
   return parts.join('.');
 };
 
-// Helper function to parse the formatted number
 const parseFormattedNumber = (value: string): number => {
   if (!value) return NaN;
-  // Remove commas before parsing
   const numericValue = value.replace(/,/g, '');
   return parseFloat(numericValue);
 };
 
 
-// Remove isVisible from props as BaseCardAnimated handles visibility via conditional rendering in parent
 export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalProps) {
-  // Store the formatted string in state
-  const [formattedIncome, setFormattedIncome] = useState(() =>
-    currentIncome ? formatNumberWithCommas(currentIncome.toString()) : ''
-  );
+  const [formattedIncome, setFormattedIncome] = useState(() => currentIncome ? formatNumberWithCommas(currentIncome.toString()) : '' );
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const colorScheme = useColorScheme(); // Get color scheme
-  const isDark = colorScheme === 'dark'; // Check if dark mode
-  const isWeb = Platform.OS === 'web'; // Check if web platform
-
+  const colorScheme = useColorScheme(); 
+  const isDark = colorScheme === 'dark'; 
+  const modalWidth = isWeb ? 500 : 320;
+  const modalMaxWidth = isWeb ? 460 : 360;
+  
   const handleIncomeChange = useCallback((text: string) => {
-    // Allow only numbers and a single decimal point
     const cleaned = text.replace(/[^0-9.]/g, '');
     const parts = cleaned.split('.');
-    // Ensure only one decimal point
     const valueToFormat = parts.length > 1 ? `${parts[0]}.${parts.slice(1).join('')}` : parts[0];
     setFormattedIncome(formatNumberWithCommas(valueToFormat));
   }, []);
 
 
   const handleSubmit = () => {
-    const incomeNum = parseFormattedNumber(formattedIncome); // Parse the formatted string
+    const incomeNum = parseFormattedNumber(formattedIncome); 
     if (!isNaN(incomeNum) && incomeNum >= 0) {
-      onSubmit(incomeNum); // Submit the parsed number
+      onSubmit(incomeNum); 
       onClose();
     }
   };
-
-  // BaseCardAnimated expects to be conditionally rendered by its parent based on an 'open' or 'isVisible' state
-  // BaseCardAnimated expects to be conditionally rendered by its parent based on an 'open' or 'isVisible' state
-  // It handles the overlay and animation internally.
-  // Define platform/theme specific styles
-  const modalWidth = isWeb ? 500 : 320;
-  const modalMaxWidth = isWeb ? 460 : 360;
-  // Removed inputContainerMaxWidth and inputPadding
 
   return (
     <BaseCardAnimated

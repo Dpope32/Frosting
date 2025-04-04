@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useColorScheme, TextInput} from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
-import { BaseCardModal } from '../cardModals/BaseCardModal'
+import { BaseCardModal } from '../baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
 import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'

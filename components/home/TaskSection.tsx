@@ -1,12 +1,15 @@
 import React from 'react'
-import { Pressable, Platform, useColorScheme, Animated } from 'react-native'
+import { Pressable, Platform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
+import { format } from 'date-fns' 
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
 import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
+import { debugTasks } from '@/store/ToDo' // Already imported
+import { useEffect } from 'react' // Import useEffect if needed, or just add a button
 
 interface TaskSectionProps {
   todaysTasks: Task[]
@@ -175,7 +178,7 @@ export const TaskSection = ({
                     category={task.category}
                     priority={task.priority}
                     status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
+                    checked={task.completionHistory[format(new Date(), 'yyyy-MM-dd')] || false} // Use local date format
                     onCheck={() => toggleTaskCompletion(task.id)}
                     onDelete={() => deleteTask(task.id)}
                   />
@@ -202,7 +205,7 @@ export const TaskSection = ({
                     category={task.category}
                     priority={task.priority}
                     status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
+                    checked={task.completionHistory[format(new Date(), 'yyyy-MM-dd')] || false}
                     onCheck={() => toggleTaskCompletion(task.id)}
                     onDelete={() => deleteTask(task.id)}
                   />
@@ -239,6 +242,39 @@ export const TaskSection = ({
         >
           <Ionicons name="add" size={isWeb ? 26 : 22} color="#dbd0c6" />
         </Pressable>
+
+        {__DEV__ && (
+          <Pressable
+            onPress={() => {
+              console.log("--- Running debugTasks ---");
+              debugTasks();
+              console.log("--- Finished debugTasks ---");
+              if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
+              }
+            }}
+            style={({ pressed }) => ({
+              position: 'absolute',
+              bottom: -30,
+              right: 45,
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: 'rgba(255, 0, 0, 0.5)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              opacity: pressed ? 0.8 : 1,
+              shadowColor: "#f00",
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.2,
+              shadowRadius: 6,
+              elevation: 3,
+              transform: [{ scale: pressed ? 0.95 : 1 }]
+            })}
+          >
+            <Ionicons name="bug" size={isWeb ? 20 : 18} color="#fff" />
+          </Pressable>
+        )}
       </Stack>
     </Stack>
   )

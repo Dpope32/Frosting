@@ -1,11 +1,10 @@
 import React from 'react'
 import { Platform } from 'react-native'
-import { Stack, Text, Spinner } from 'tamagui'
+import { Stack, isWeb, Spinner } from 'tamagui'
 import { MessageSquareQuote } from '@tamagui/lucide-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import { useUserStore } from '@/store/UserStore'
 
-const isWeb = Platform.OS === 'web';
 
 export function QuoteCard() {
   const { data, isLoading } = useStoicQuote()

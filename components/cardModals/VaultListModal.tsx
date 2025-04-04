@@ -6,7 +6,7 @@ import { useVault } from '@/hooks/useVault';
 import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
 import { VaultRecommendationModal } from '@/components/modals/VaultRecommendationModal';
 import { useToastStore } from '@/store/ToastStore';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; 
+import { BaseCardWithRecommendationsModal } from '../baseModals/BaseCardWithRecommendationsModal'; 
 
 interface VaultListModalProps {
   open: boolean

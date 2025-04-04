@@ -1,5 +1,10 @@
 # Active Context
 
+## Recent Changes (Refactoring & Debug - April 4, 2025)
+- **ToDo Store (`store/ToDo.ts`):** Refactored task filtering logic (`taskFilter`, `isTaskDue`) for improved stability and accuracy. Added an "undo complete" capability within the `toggleTaskCompletion` function (implicitly, by toggling the status in `completionHistory`).
+- **`isWeb` Refactor:** Replaced local `const isWeb = Platform.OS === 'web'` declarations across multiple components with the `isWeb` import directly from `tamagui`.
+- **Task Debugging:** Added a temporary, development-only (`__DEV__`) button to `TaskSection.tsx` to trigger the `debugTasks` function for easier debugging.
+
 ## Recent Changes (Bills, Tasks, Network, UI - April 3, 2025)
 - **Bills & Tasks Integration:** Refactored `AddBillModal` with improved amount input and date picking. Removed delete from `BillCard`. Ensured tasks created for bills use the 'bills' category and correct `dueDate`, updating `ToDo.ts` filtering logic. Added 'bills' category to `TaskCategory` type.
 - **Network Speed Hook:** Overhauled `useNetworkSpeed` to prioritize latency measurement over potentially unreliable link speed. Improved loading, offline, and error states. Updated `WifiCard` to use the new hook logic and refined signal strength calculation/display.

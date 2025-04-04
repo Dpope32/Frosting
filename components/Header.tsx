@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Platform, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Stack, XStack, YStack } from 'tamagui';
+import { Stack, XStack, YStack, isWeb } from 'tamagui';
 import { Text } from 'tamagui';
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,14 +30,12 @@ export function Header({ title }: HeaderProps) {
   const [showPeopleListModal, setShowPeopleListModal] = useState(false); 
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore(); 
 
-  // Check current screen
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
   const isCrmScreen = route.name === 'crm'; 
   const isCalendarScreen = route.name === 'calendar'; 
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#00000';
-  const isWeb = Platform.OS === 'web';
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
 
   const scale = useSharedValue(1);

@@ -12,7 +12,7 @@ import { useImagePicker } from '@/hooks/useImagePicker'
 import type { Person } from '@/types/people'
 import { initialFormData } from './types'
 import { FormContent } from './FormContent'
-import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated'
+import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated'
 
 type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 

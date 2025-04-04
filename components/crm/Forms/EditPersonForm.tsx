@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useUserStore } from "@/store/UserStore";
 import { useImagePicker } from "@/hooks/useImagePicker";
-import { BaseCardAnimated } from "@/components/cardModals/BaseCardAnimated";
+import { BaseCardAnimated } from "@/components/baseModals/BaseCardAnimated";
 import { Platform, useColorScheme } from "react-native";
 import type { Person } from "@/types/people";
 import { format } from "date-fns";

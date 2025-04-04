@@ -23,6 +23,7 @@
   - ✅ Improved NewTaskModal animations and toast integration (April 1, 2025)
   - ✅ Refined TaskCard layout and TaskSection responsiveness (April 3, 2025)
   - ✅ Fixed task categorization for Bill-related tasks (April 3, 2025)
+  - ✅ Refactored ToDo store (`store/ToDo.ts`) for more stable filtering and added undo complete capability (April 4, 2025)
 - ✅ Calendar Integration
   - ✅ Event tracking
   - ✅ Bill due dates

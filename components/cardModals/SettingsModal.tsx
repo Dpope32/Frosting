@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert, View, ActivityIndicator, StyleSheet, Modal } from 'react-native' // Added Modal import
-import { BaseCardModal } from './BaseCardModal'
-import { StorageUtils } from '@/store/AsyncStorage'
+import { BaseCardModal } from '../baseModals/BaseCardModal'
 import { router } from 'expo-router';
-import { Button, YStack, XStack, Text, Circle, Spinner } from 'tamagui';
+import { Button, YStack, XStack, Text, Circle, Spinner, isWeb } from 'tamagui';
+import { BlurView } from 'expo-blur'
+
+import { StorageUtils } from '@/store/AsyncStorage'
 import { useUserStore } from '@/store/UserStore';
 import { useBillStore } from '@/store/BillStore'; 
 import { useProjectStore } from '@/store/ToDo'; 
@@ -13,7 +15,6 @@ import { colorOptions } from '../../constants/Colors';
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds';
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
-import { BlurView } from 'expo-blur'
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -121,7 +122,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [wallpapersToShow, setWallpapersToShow] = useState(isWeb ? 3 : 8)
   const [colorPickerOpen, setColorPickerOpen] = useState(false)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform } from 'react-native';
-import { Button, XStack, YStack, Text } from 'tamagui';
+import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BillCard } from '@/components/bills/BillCard';
@@ -26,7 +26,6 @@ export default function BillsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const currentDay = new Date().getDate();
-  const isWeb = Platform.OS === 'web';
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
   useEffect(() => {

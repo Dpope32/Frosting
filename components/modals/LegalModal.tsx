@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sheet, Text, YStack, XStack, Theme, Button } from 'tamagui';
+import { Sheet, Text, YStack, XStack, Theme, Button, isWeb } from 'tamagui';
 import { Tabs } from '@tamagui/tabs';
 import { KeyboardAvoidingView, Platform, useColorScheme, ScrollView, Pressable, Linking } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -18,7 +18,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
   const isDark = colorScheme === 'dark';
   const insets = useSafeAreaInsets();
   const bottomInset = Platform.OS === 'ios' ? insets.bottom : 0;
-  const isWeb = Platform.OS === 'web';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [activeTab, setActiveTab] = useState('privacy');
   const [scrollY, setScrollY] = React.useState(0);
@@ -39,12 +38,9 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
     const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
     try {
-      // For iOS, we'll use a more robust approach since we need LSApplicationQueriesSchemes
       if (Platform.OS === 'ios') {
-        // First try to copy to clipboard as a fallback
         await Clipboard.setStringAsync(email);
         
-        // Then try to open the URL
         Linking.openURL(mailtoUrl).catch(() => {
           alert('Email copied to clipboard! Please paste it in your email client.');
         });
@@ -59,14 +55,12 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
       }
     } catch (err) {
       console.error('Failed to open email client:', err);
-      // Fallback for simulator/web - copy email to clipboard
       await Clipboard.setStringAsync(email);
       alert('Email copied to clipboard! Please paste it in your email client.');
     }
   };
 
   const handleWebsitePress = async () => {
-    // Updated to the correct URL
     const websiteUrl = 'https://deedaw.cc/pages/privacy.html';
     
     try {
@@ -74,13 +68,11 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
       if (supported) {
         await Linking.openURL(websiteUrl);
       } else {
-        // Fallback for simulator/web - copy URL to clipboard
         await Clipboard.setStringAsync(websiteUrl);
         alert('Website URL copied to clipboard! Please paste it in your browser.');
       }
     } catch (err) {
       console.error('Failed to open website:', err);
-      // Fallback for simulator/web - copy URL to clipboard
       await Clipboard.setStringAsync(websiteUrl);
       alert('Website URL copied to clipboard! Please paste it in your browser.');
     }
@@ -121,8 +113,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
             } : {}
           )}
         >
-          <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom={0}/>
-          
+          <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"}/>
           <KeyboardAvoidingView 
             behavior={Platform.OS === "ios" ? "padding" : "height"}  
             style={{ flex: 1, paddingTop: 0 }}
@@ -136,7 +127,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                 icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
               />
             </Animated.View>
-            
             <Tabs
               defaultValue="privacy"
               orientation="horizontal"
@@ -207,7 +197,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                   </YStack>
                 </Tabs.Tab>
               </Tabs.List>
-
               <YStack flex={1}>
                 <Tabs.Content value="privacy" flex={1}>
                   {activeTab === 'privacy' && (
@@ -225,7 +214,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         style={{ marginTop: 10 }}
                       >
                         <YStack gap="$4" px="$2">
-                          
                           <Text 
                             fontSize="$3" 
                             color={isDark ? "#ddd" : "#333"}
@@ -249,7 +237,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                 </Text>
                               </YStack>
                             </XStack>
-                            
                             <XStack gap="$2" alignItems="flex-start">
                               <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
                               <YStack>
@@ -262,8 +249,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                   Calendar access allows Kaiba to help you manage events native events. 
                                 </Text>
                               </YStack>
-                            </XStack>
-                            
+                            </XStack>    
                             <XStack gap="$2" alignItems="flex-start">
                               <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
                               <YStack>
@@ -277,7 +263,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                 </Text>
                               </YStack>
                             </XStack>
-                            
                             <XStack gap="$2" alignItems="flex-start">
                               <Text fontSize="$4" color={primaryColor} fontWeight="bold">•</Text>
                               <YStack>
@@ -292,7 +277,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                               </YStack>
                             </XStack>
                           </YStack>
-                          
                           <Text 
                             fontSize="$3" 
                             color={isDark ? "#ddd" : "#333"}
@@ -311,7 +295,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                           >
                             This privacy policy may be updated from time to time. Please check back for any changes.
                           </Text>
-                          
                           <Text 
                             fontSize="$3" 
                             color={isDark ? "#999" : "#666"}
@@ -326,7 +309,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                     </Animated.View>
                   )}
                 </Tabs.Content>
-                
                 <Tabs.Content value="contact" flex={1}>
                   {activeTab === 'contact' && (
                     <Animated.View 
@@ -342,7 +324,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         scrollEventThrottle={16}
                       >
                         <YStack gap="$4" py="$2" px="$2">
-                          
                           <Text 
                             fontSize="$3" 
                             color={isDark ? "#ddd" : "#333"}
@@ -351,7 +332,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                           >
                               If you have any questions, concerns, or feedback about our app, please don't hesitate to reach out to us:
                           </Text>
-                          
                           <YStack gap="$3" mt="$2">
                             <XStack gap="$2" alignItems="flex-start">
                               <MaterialIcons name="email" size={18} color={primaryColor} />
@@ -368,7 +348,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                                 </Pressable>
                               </YStack>
                             </XStack>
-                            
                             <XStack gap="$2" alignItems="flex-start">
                               <MaterialIcons name="public" size={18} color={primaryColor} />
                               <YStack>
@@ -399,7 +378,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                               </YStack>
                             </XStack>
                           </YStack>
-                          
                           <Text 
                             fontSize="$3" 
                             color={isDark ? "#ddd" : "#333"}

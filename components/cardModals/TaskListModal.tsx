@@ -1,5 +1,5 @@
 import React from 'react';
-import { YStack, XStack, Text } from 'tamagui';
+import { YStack, XStack, Text, isWeb } from 'tamagui';
 import { useProjectStore } from '@/store/ToDo';
 import { Task, WeekDay } from '@/types/task';
 import { useRecommendationStore } from '@/store/RecommendationStore';
@@ -7,7 +7,7 @@ import { Pressable, Platform, useColorScheme} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getCategoryColor } from '../../utils/styleUtils';
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; 
+import { BaseCardWithRecommendationsModal } from '../baseModals/BaseCardWithRecommendationsModal'; 
 
 interface TaskListModalProps {
   open: boolean
@@ -20,7 +20,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   const openRecommendationModal = useRecommendationStore(s => s.openModal);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const isWeb = Platform.OS === 'web';
   const tasksByDay = React.useMemo(() => {
     const days: Record<WeekDay, Task[]> = {
       monday: [],

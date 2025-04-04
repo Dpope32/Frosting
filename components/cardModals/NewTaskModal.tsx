@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Button, Form, YStack, XStack, Text, ScrollView, AnimatePresence } from 'tamagui'
+import { Button, Form, YStack, XStack, Text, ScrollView, AnimatePresence, isWeb } from 'tamagui'
 import { Switch, useColorScheme, Platform, View } from 'react-native'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
-import { Ionicons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
-import { BaseCardAnimated } from './BaseCardAnimated'
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { getCategoryColor,  getPriorityColor,  getRecurrenceColor, getRecurrenceIcon, withOpacity, dayColors } from '@/utils/styleUtils';
@@ -27,7 +26,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
 
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
@@ -223,21 +221,19 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               />
             </XStack>
 
-            {/* Time Picker Section */}
             <YStack flex={1} alignItems='flex-end'> 
-              {/* Time Picker Button - Restyled */}
               <Button
                 onPress={handleTimePress}
                 theme={isDark ? "dark" : "light"}
-              backgroundColor="transparent" // Removed background
+              backgroundColor="transparent" 
               br={12}
-              // height={50} // Removed fixed height
-              // borderColor={isDark ? "$gray7" : "$gray4"} // Removed border
-              // borderWidth={1} // Removed border
+              height={50} 
+              borderColor={isDark ? "$gray7" : "$gray4"} 
+              borderWidth={1} 
               px="$3"
               pressStyle={{ opacity: 0.8 }}
                 jc="flex-start" 
-                width="100%" // Ensure button takes available width in the YStack
+                width="100%" 
               >
                 <XStack flex={1} alignItems="center" justifyContent="space-between">
                   <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}>
@@ -249,17 +245,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                 </XStack>
               </Button>
               
-              {/* Time Picker View is now rendered conditionally *after* the XStack */}
             </YStack> 
           </XStack> 
           
-          {/* Conditionally Render Time Picker View Here */}
           {showTimePicker && (
             <View
               style={{
-                // Removed absolute positioning
-                zIndex: 10, // Keep zIndex if needed for overlap
-                width: '100%', // Take full width
+                zIndex: 10, 
+                width: '100%', 
                 backgroundColor: isDark ? '#1c1c1e' : 'white',
                   borderRadius: 12,
                   elevation: 10,
@@ -269,7 +262,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                   shadowRadius: 8,
                   borderWidth: 1,
                   borderColor: isDark ? '#2c2c2e' : '#e5e5ea',
-                    marginTop: 8, // Add margin back
+                  marginTop: 8,
                   }}
                 >
                   <YStack
@@ -278,7 +271,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     alignItems="center"
                     padding="$4"
                     backgroundColor={isDark ? "$gray1" : "white"}
-                    borderRadius={12} // Added border radius to the inner stack as well
+                    borderRadius={12}
                   >
                     {Platform.OS === 'web' ? (
                       <XStack width="100%" alignItems="center" justifyContent="space-between">

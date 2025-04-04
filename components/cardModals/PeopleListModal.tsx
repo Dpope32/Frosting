@@ -1,7 +1,7 @@
 import React from 'react';
-import { YStack, XStack, Text, Button } from 'tamagui';
-import { Platform, useColorScheme } from 'react-native';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal';
+import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
+import {  useColorScheme } from 'react-native';
+import { BaseCardWithRecommendationsModal } from '../baseModals/BaseCardWithRecommendationsModal';
 import { usePeopleStore } from '@/store/People';
 import type { Person } from '@/types/people';
 
@@ -39,7 +39,6 @@ export function PeopleListModal({ open, onOpenChange }: PeopleListModalProps) {
   const allContacts = Object.values(contacts);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const isWeb = Platform.OS === 'web';
 
   const crmRecommendations = (
     <>

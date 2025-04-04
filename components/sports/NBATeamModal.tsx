@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Image, Platform, useColorScheme, useWindowDimensions } from 'react-native'
-import { Button, YStack, XStack, Text, ScrollView } from 'tamagui'; // Removed Sheet
+import { Image, useColorScheme, useWindowDimensions } from 'react-native'
+import { Button, YStack, XStack, Text, ScrollView, isWeb } from 'tamagui'; 
 import { nbaTeams } from '@/constants/nba';
 import { useNBAStore } from '@/store/NBAStore';
 import { useUserStore } from '@/store/UserStore';
-import { BaseCardModal } from '../cardModals/BaseCardModal'; // Added BaseCardModal
+import { BaseCardModal } from '../baseModals/BaseCardModal'; 
 
 interface NBATeamModalProps {
   open: boolean
@@ -16,56 +16,37 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
   const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
-  
-  // State to track the selected team (initially set to current team)
   const [selectedTeam, setSelectedTeam] = useState(teamCode)
-  
-  // Get window dimensions for responsive layout
   const { width } = useWindowDimensions()
   
-  // Calculate grid columns based on screen width - adjusted for larger web logos
   const getGridColumns = () => {
-    if (!isWeb) return 4; // Keep mobile grid the same
-    if (width > 1200) return 6; // Fewer columns for larger logos on web
+    if (width > 1200) return 6; 
     if (width > 900) return 5;
     if (width > 600) return 4;
-    return 3; // Default web columns
+    return 3; 
   };
   
   const columns = getGridColumns()
   
-  // Reset selected team when modal opens
   useEffect(() => {
     if (open) {
       setSelectedTeam(teamCode)
     }
   }, [open, teamCode])
   
-  // Handle team selection
-  const handleTeamSelect = (teamCode: string) => {
-    setSelectedTeam(teamCode)
-  }
+  const handleTeamSelect = (teamCode: string) => {setSelectedTeam(teamCode)}
   
-  // Save the selected team
   const handleSave = () => {
-    // Only update if the team has changed
     if (selectedTeam !== teamCode) {
-      // Find the team name
       const team = nbaTeams.find(t => t.code === selectedTeam)
       if (team) {
-        // Update NBAStore
         setTeamInfo(selectedTeam, team.name)
-        
-        // Update UserStore preferences
         setPreferences({
           ...preferences,
           favoriteNBATeam: selectedTeam
         })
       }
     }
-    
-    // Close the modal
     onOpenChange(false)
   }
 
@@ -127,9 +108,8 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
           </XStack>
         </ScrollView>
 
-        {/* Save Button - moved inside the main flow */}
         <XStack
-          paddingTop="$3" // Add some space above the button
+          paddingTop="$3" 
           justifyContent="center"
           borderTopWidth={1}
           borderColor={isDark ? '$gray4' : '$gray6'}

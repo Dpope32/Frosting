@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button, Input, Text, YStack, XStack, Stack } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../baseModals/BaseCardModal'
 import Animated, { SlideInRight, FadeIn } from 'react-native-reanimated'
 import { Ionicons } from '@expo/vector-icons'
 import { TouchableOpacity, Platform, useColorScheme, View } from 'react-native'

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
+import { isWeb } from 'tamagui';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, Platform, Button } from 'react-native'; 
+import { View, Image, Text, Platform } from 'react-native'; 
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Sentry from '@sentry/react-native'; 
 import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
@@ -92,7 +92,6 @@ export default function DrawerLayout() {
   const backgroundColor = isDark ? '#0e0e0e' : '#F5F5F5';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark  ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
-  const isWeb = Platform.OS === 'web';
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
