@@ -1,9 +1,21 @@
 # Active Context
 
-## Recent Changes (Refactoring & Debug - April 4, 2025)
-- **ToDo Store (`store/ToDo.ts`):** Refactored task filtering logic (`taskFilter`, `isTaskDue`) for improved stability and accuracy. Added an "undo complete" capability within the `toggleTaskCompletion` function (implicitly, by toggling the status in `completionHistory`).
-- **`isWeb` Refactor:** Replaced local `const isWeb = Platform.OS === 'web'` declarations across multiple components with the `isWeb` import directly from `tamagui`.
-- **Task Debugging:** Added a temporary, development-only (`__DEV__`) button to `TaskSection.tsx` to trigger the `debugTasks` function for easier debugging.
+## Recent Changes (Task & NBA Sync Fix - April 4, 2025)
+- **Task Type (`types/task.ts`):** Added optional `gameId: number` field to link tasks to specific NBA games.
+- **NBA Store (`store/NBAStore.ts`):**
+    - Refactored `syncGameTasks` to use a non-destructive approach:
+        - Identifies existing NBA tasks using `gameId`.
+        - Adds tasks for new games, including the `gameId`.
+        - Deletes tasks for games no longer present in the fetched schedule.
+    - Removed the old `deleteAllGameTasks` function.
+    - This resolves the issue where NBA game tasks could disappear intermittently due to a race condition between game start time and sync execution.
+- **ToDo Store (`store/ToDo.ts`):**
+    - Refined `isTaskDue` logic for `one-time` tasks (including specific NBA game handling) to ensure correct display based on scheduled date, creation date, or interaction.
+    - Simplified `taskFilter`.
+    - Corrected `toggleTaskCompletion` to rely solely on `completionHistory`.
+    - Added diagnostic logging for NBA task filtering (can be removed later).
+- **`isWeb` Refactor:** Replaced local `const isWeb = Platform.OS === 'web'` declarations across multiple components with the `isWeb` import directly from `tamagui`. (Previous change)
+- **Task Debugging:** Added a temporary, development-only (`__DEV__`) button to `TaskSection.tsx` to trigger the `debugTasks` function for easier debugging. (Previous change)
 
 ## Recent Changes (Bills, Tasks, Network, UI - April 3, 2025)
 - **Bills & Tasks Integration:** Refactored `AddBillModal` with improved amount input and date picking. Removed delete from `BillCard`. Ensured tasks created for bills use the 'bills' category and correct `dueDate`, updating `ToDo.ts` filtering logic. Added 'bills' category to `TaskCategory` type.
@@ -63,10 +75,10 @@
 - **Updated Header:** Modified `components/Header.tsx` to display a "people" icon and trigger the `PeopleListModal` when the CRM screen (`app/(drawer)/crm.tsx`) is active.
 
 ## Immediate Tasks
-- Test gesture handling in refactored modals (`TaskListModal`, `BillsListModal`, `VaultListModal`) to ensure horizontal scroll works smoothly without closing the modal.
+- Test gesture handling in refactored modals (`TaskListModal`, `BillsListModal`, `VaultListModal`).
 - Refine recommendations for `PeopleListModal`.
-- Continue performance improvements and dependency reduction across other modules.
-- Address known issues listed in `progress.md`.
+- Continue performance improvements and dependency reduction.
+- Address remaining known issues listed in `progress.md`.
 - Continue exploring cross-device sync solutions (PocketBase/Supabase).
 
 ### Current Form Architecture Refactor

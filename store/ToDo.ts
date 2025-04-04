@@ -25,8 +25,8 @@ const dayNames: WeekDay[] = [
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()];
   const currentDateStrLocal = format(date, 'yyyy-MM-dd');
-  const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt);
-  
+  const fallbackRecDate = new Date(task.recurrenceDate || task.createdAt); // Simplified fallback
+
   // Special handling for bills
   if (task.category === 'bills' && task.dueDate) {
     const isDueDate = date.getDate() === task.dueDate;
@@ -35,48 +35,62 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   
   // Check if this task was interacted with today
   const hasInteractionToday = currentDateStrLocal in task.completionHistory;
-  
+  // Check if this task was interacted with today (relevant for all types)
+  if (hasInteractionToday) {
+    return true;
+  }
+
   switch (task.recurrencePattern) {
     case 'one-time': {
-      // Special handling for NBA games
-      if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
-        try {
-          const gameDate = new Date(task.scheduledDate);
-          const gameDateStr = format(gameDate, 'yyyy-MM-dd');
-          
-          // Show NBA games only if they're scheduled for today OR were interacted with today
-          return gameDateStr === currentDateStrLocal || hasInteractionToday;
-        } catch (error) {
-          console.error("Error parsing game date:", error);
-          return false;
-        }
-      }
-      
-      // For other one-time tasks
-      if (hasInteractionToday) {
-        return true;
-      }
-      
-      if (task.scheduledDate || task.recurrenceDate) {
-        const dateStr = task.scheduledDate || task.recurrenceDate;
-        try {
-          if (dateStr) {
-            const taskDate = new Date(dateStr);
-            const taskDateStr = format(taskDate, 'yyyy-MM-dd');
-            return taskDateStr === currentDateStrLocal;
+      // Handle NBA games specifically first
+      const isNBAGame = task.name.includes(' vs ') || task.name.includes(' @ ');
+      if (isNBAGame) {
+        let isDue = false;
+        let reason = '';
+        if (task.scheduledDate) {
+          try {
+            const gameDate = new Date(task.scheduledDate);
+            const gameDateStr = format(gameDate, 'yyyy-MM-dd');
+            isDue = gameDateStr === currentDateStrLocal;
+            reason = isDue ? 'Scheduled for today' : 'Scheduled for different day';
+          } catch (error) {
+            console.error("Error parsing game date:", error);
+            reason = 'Error parsing game date';
+            isDue = false; // Rely on interaction check if date is invalid
           }
+        } else {
+           reason = 'No scheduled date';
+           isDue = false; // Rely on interaction check if no scheduled date
+        }
+        console.log(`[isTaskDue NBA Check] Task: ${task.name}, ID: ${task.id}, Scheduled: ${task.scheduledDate}, Today: ${currentDateStrLocal}, Has Interaction: ${hasInteractionToday}, Is Due: ${isDue}, Reason: ${reason}`);
+        // Return the calculated 'isDue'. Interaction check already happened.
+        return isDue;
+      }
+
+      // For other one-time tasks:
+      // Due if scheduled for today OR created today (and not scheduled elsewhere)
+      // Interaction check is handled outside the switch.
+      if (task.scheduledDate) {
+        try {
+          const scheduledDate = new Date(task.scheduledDate);
+          const scheduledDateStr = format(scheduledDate, 'yyyy-MM-dd');
+          return scheduledDateStr === currentDateStrLocal;
         } catch (error) {
-          console.error("Error parsing task date:", error);
+          console.error("Error parsing scheduled date:", error);
+          // Fall through if parsing fails
         }
       }
-      
-      // For tasks created today without a date
-      const createdDate = new Date(task.createdAt);
-      const createdDateStr = format(createdDate, 'yyyy-MM-dd');
-      return createdDateStr === currentDateStrLocal;
+
+      // If no valid scheduled date, check creation date
+      try {
+        const createdDate = new Date(task.createdAt);
+        const createdDateStr = format(createdDate, 'yyyy-MM-dd');
+        return createdDateStr === currentDateStrLocal;
+      } catch (error) {
+        console.error("Error parsing creation date:", error);
+        return false; // Cannot determine date
+      }
     }
-    
-    // Rest of the cases remain the same...
     case 'tomorrow': {
       const createdDateStr = format(new Date(task.createdAt), 'yyyy-MM-dd');
       const yesterday = new Date(date);
@@ -160,9 +174,12 @@ const taskFilter = (tasks: Record<string, Task>): Task[] => {
   
   // Create a map to store unique bills by name
   const uniqueBills = new Map();
-  
+  const allTasks = Object.values(tasks); // Get all tasks first for logging
+  console.log(`[taskFilter Pre] Filtering ${allTasks.length} tasks for date: ${currentDateStrLocal}`);
+  console.log(`[taskFilter Pre NBA] NBA Games Before Filter:`, allTasks.filter(t => t.name.includes(' vs ') || t.name.includes(' @ ')).map(t => ({ id: t.id, name: t.name, scheduled: t.scheduledDate })));
+
   // Get tasks due today, handling bills specially
-  const filteredTasks = Object.values(tasks).filter(task => {
+  const filteredTasks = allTasks.filter(task => {
     // For bills, deduplicate by name and only show if due today
     if (task.category === 'bills') {
       if (task.dueDate === currentDay) {
@@ -177,11 +194,16 @@ const taskFilter = (tasks: Record<string, Task>): Task[] => {
       // Not due today
       return false;
     }
-    
     // For non-bill tasks, use regular filtering
-    return isTaskDue(task, currentDate) || currentDateStrLocal in task.completionHistory;
+    // The check for completionHistory is now handled within isTaskDue
+    const shouldInclude = isTaskDue(task, currentDate);
+    // console.log(`[taskFilter Check] Task: ${task.name}, ID: ${task.id}, Recurrence: ${task.recurrencePattern}, isTaskDue: ${shouldInclude}`); // Optional: Log every task check
+    return shouldInclude;
   });
-  
+
+  console.log(`[taskFilter Post] ${filteredTasks.length} tasks remaining after filter.`);
+  console.log(`[taskFilter Post NBA] NBA Games After Filter:`, filteredTasks.filter(t => t.name.includes(' vs ') || t.name.includes(' @ ')).map(t => ({ id: t.id, name: t.name, scheduled: t.scheduledDate })));
+
   // Sort the tasks (completed at bottom)
   return filteredTasks.sort((a, b) => {
     const aCompletedToday = a.completionHistory[currentDateStrLocal] || false;
@@ -239,13 +261,14 @@ export const useProjectStore = create<ProjectStore>()(
           const cleanedHistory = Object.entries(tasks[id].completionHistory)
             .filter(([date]) => new Date(date) >= thirtyDaysAgo)
             .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
-          
+          // The top-level 'completed' flag is potentially misleading for daily status.
+          // Rely solely on completionHistory for today's status.
           tasks[id] = {
             ...tasks[id],
-            completed: !currentStatus,
+            // completed: !currentStatus, // REMOVED - Rely on completionHistory
             completionHistory: {
               ...cleanedHistory,
-              [todayLocalStr]: !currentStatus
+              [todayLocalStr]: !currentStatus // Toggle today's status
             },
             updatedAt: new Date().toISOString()
           }
@@ -329,10 +352,9 @@ export const useProjectStore = create<ProjectStore>()(
                 .filter(([date]) => new Date(date) >= thirtyDaysAgo)
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
             }
-            // Update completion status based on local date string
-            if (tasks[id].recurrencePattern !== 'one-time') {
-              tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false
-            }
+            // Update completion status based on local date string for all tasks on load
+            // Let's remove this logic for now and rely on components checking the history directly.
+            // tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false;
           })
           if (needsMigration) {
             state.tasks = tasks

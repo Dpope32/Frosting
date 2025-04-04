@@ -8,8 +8,6 @@ import { TaskCard } from '@/components/home/TaskCard'
 import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
-import { debugTasks } from '@/store/ToDo' // Already imported
-import { useEffect } from 'react' // Import useEffect if needed, or just add a button
 
 interface TaskSectionProps {
   todaysTasks: Task[]
@@ -242,39 +240,6 @@ export const TaskSection = ({
         >
           <Ionicons name="add" size={isWeb ? 26 : 22} color="#dbd0c6" />
         </Pressable>
-
-        {__DEV__ && (
-          <Pressable
-            onPress={() => {
-              console.log("--- Running debugTasks ---");
-              debugTasks();
-              console.log("--- Finished debugTasks ---");
-              if (Platform.OS !== 'web') {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
-              }
-            }}
-            style={({ pressed }) => ({
-              position: 'absolute',
-              bottom: -30,
-              right: 45,
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              backgroundColor: 'rgba(255, 0, 0, 0.5)',
-              justifyContent: 'center',
-              alignItems: 'center',
-              opacity: pressed ? 0.8 : 1,
-              shadowColor: "#f00",
-              shadowOffset: { width: 0, height: 0 },
-              shadowOpacity: 0.2,
-              shadowRadius: 6,
-              elevation: 3,
-              transform: [{ scale: pressed ? 0.95 : 1 }]
-            })}
-          >
-            <Ionicons name="bug" size={isWeb ? 20 : 18} color="#fff" />
-          </Pressable>
-        )}
       </Stack>
     </Stack>
   )
