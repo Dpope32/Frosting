@@ -27,11 +27,7 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Internet' },
         { name: 'TV' },
         { name: 'Home Insurance' },
-        { name: 'Property Tax' },
-        { name: 'HOA Fees' },
-        { name: 'Home Maintenance' },
         { name: 'Lawn Care' },
-        { name: 'Pest Control' }
       ]
     case 'Transportation':
       return [
@@ -57,9 +53,6 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'DoorDash' },
         { name: 'Uber' },
         { name: 'Gym' },
-        { name: 'Cloud Storage' },
-        { name: 'Microsoft 365' },
-        { name: 'Adobe Creative Cloud' },
         { name: 'PlayStation Plus' },
         { name: 'Xbox Game Pass' }
       ]

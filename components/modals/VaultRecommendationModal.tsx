@@ -5,6 +5,7 @@ import { BaseCardModal } from '../baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
 import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
+import { useUserStore } from '@/store/UserStore'
 
 type DebouncedTextInputProps = {
   value: string
@@ -52,6 +53,7 @@ export function VaultRecommendationModal({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const { addVaultEntry } = useVault()
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [selectedEntries, setSelectedEntries] = useState<Record<number, boolean>>({})
   const [usernames, setUsernames] = useState<Record<number, string>>({})
   const [passwords, setPasswords] = useState<Record<number, string>>({})
@@ -118,11 +120,12 @@ export function VaultRecommendationModal({
     <BaseCardModal
       open={open}
       onOpenChange={(newOpen) => { onOpenChange(newOpen)}}
-     title={`${category} Accounts`}
+      title={`${category} Accounts`}
       hideHandle={true}
       snapPoints={isWeb? [90] : [85]}
+      showCloseButton={true}
     >
-      <YStack gap={isWeb ? "$3" : "$1"} paddingBottom={isWeb ? "$1" : "$8"}>
+      <YStack gap={isWeb ? "$3" : "$1"} paddingBottom={isWeb ? "$1" : "$6"}>
         <Text 
           color={isDark ? "#dbd0c6" : "#666"} 
           fontSize={15}
@@ -236,20 +239,23 @@ export function VaultRecommendationModal({
         </ScrollView>
         
         <Button
-          backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
-          color={isDark ? "#dbd0c6" : "#000"}
+          backgroundColor={isDark ? `${primaryColor}40` : `${primaryColor}80`}
+          color={isDark ? `${primaryColor}` : `${primaryColor}`}
           br={8}
-          py="$3"
-          mt="$4"
+          py={isWeb ? "$1" : "$2"}
+          mt={isWeb ? "$4" : "$4"}
           onPress={handleSaveSelectedEntries}
           pressStyle={{ opacity: 0.7 }}
           disabled={!hasValidSelections}
-          opacity={!hasValidSelections ? 0.5 : 1}
+          opacity={!hasValidSelections ? 0.1 : 1}
+          borderWidth={2}
+          borderColor={primaryColor}
         >
           <Text 
-            color={isDark ? "#dbd0c6" : "#000"} 
-            fontSize={16} 
+            color={isDark ? `#f9f9f9` : primaryColor} 
+            fontSize={15} 
             fontWeight="600"
+            fontFamily="$body"
           >
             Add Selected Accounts
           </Text>

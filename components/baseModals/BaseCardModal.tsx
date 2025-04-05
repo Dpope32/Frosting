@@ -77,7 +77,7 @@ export function BaseCardModal({
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1, paddingTop: Math.max(topInset - 80, 0) }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 12, marginBottom: 12, paddingHorizontal: 6}}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 12, marginBottom: hideHandle ? -2 : 12, paddingHorizontal: 6}}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
                   fontSize={22}

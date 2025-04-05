@@ -73,12 +73,16 @@ export function useBills() {
   };
 
   const deleteBill = async (id: string) => {
+    // Get the bill name before deleting it
+    const billToDelete = bills?.find(b => b.id === id);
+    if (!billToDelete) return;
+
     // Delete the bill from store
     deleteBillFromStore(id);
     
     // Delete associated calendar events
     const billEvents = events.filter(
-      event => event.type === 'bill' && event.title.includes(bills?.find(b => b.id === id)?.name || '')
+      event => event.type === 'bill' && event.title.includes(billToDelete.name)
     );
     
     for (const event of billEvents) {
@@ -90,7 +94,6 @@ export function useBills() {
 
     // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });
-    queryClient.refetchQueries({ queryKey: ['bills'] });
   };
 
   // Calculate total monthly bills amount

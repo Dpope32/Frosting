@@ -5,6 +5,7 @@ import { BaseCardModal } from '../baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { BillRecommendationCategory, getRecommendedBills} from '@/constants/recommendations/BillRecommendations'
+import { useUserStore } from '@/store/UserStore'
 
 type DebouncedTextInputProps = {
   value: string
@@ -57,6 +58,7 @@ export function BillRecommendationModal({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const { addBill } = useBills()
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [selectedBills, setSelectedBills] = useState<Record<number, boolean>>({})
   const [amounts, setAmounts] = useState<Record<number, string>>({})
   const [dueDates, setDueDates] = useState<Record<number, string>>({})
@@ -90,10 +92,15 @@ export function BillRecommendationModal({
       if (isSelected) {
         const index = parseInt(indexStr)
         const bill = recommendedBills[index]
-        const amount = parseFloat(amounts[index] || '0')
-        const dueDate = parseInt(dueDates[index] || '1', 10)
+        if (!bill) return; // Skip if bill is undefined
         
-        if (amount > 0 && dueDate >= 1 && dueDate <= 31) {
+        const amountStr = amounts[index] || '0'
+        const dueDateStr = dueDates[index] || '1'
+        
+        const amount = parseFloat(amountStr)
+        const dueDate = parseInt(dueDateStr, 10)
+        
+        if (!isNaN(amount) && amount > 0 && !isNaN(dueDate) && dueDate >= 1 && dueDate <= 31) {
           addBill({
             name: bill.name,
             amount: amount,
@@ -127,6 +134,7 @@ export function BillRecommendationModal({
       snapPoints = {isWeb ? [90] : [85]}
       zIndex={200000}
       hideHandle={true}
+      showCloseButton={true}
     >
       <YStack gap="$4" px="$1" paddingBottom={isWeb ? "$4" : "$8"}>
         <Text
@@ -149,7 +157,7 @@ export function BillRecommendationModal({
           }}
           scrollEventThrottle={16}
         >
-          <YStack gap="$3">
+          <YStack gap="$2">
             {recommendedBills.map((bill, index) => (
               <XStack
                 key={index}
@@ -249,20 +257,23 @@ export function BillRecommendationModal({
         </ScrollView>
         
         <Button
-          backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
-          color={isDark ? "#dbd0c6" : "#000"}
+          backgroundColor={isDark ? `${primaryColor}40` : `${primaryColor}80`}
+          color={isDark ? `${primaryColor}` : `${primaryColor}`}
           br={8}
-          py="$3"
-          mt="$4"
+          py={isWeb ? "$1" : "$2"}
+          mt={isWeb ? "$4" : "$3"}
           onPress={handleSaveSelectedBills}
           pressStyle={{ opacity: 0.7 }}
           disabled={!hasValidSelections}
-          opacity={!hasValidSelections ? 0.5 : 1}
+          opacity={!hasValidSelections ? 0.1 : 1}
+          borderWidth={2}
+          borderColor={primaryColor}
         >
-          <Text
-            color={isDark ? "#dbd0c6" : "#000"}
-            fontSize={16}
+          <Text 
+            color={isDark ? `#f9f9f9` : primaryColor} 
+            fontSize={15} 
             fontWeight="600"
+            fontFamily="$body"
           >
             Add Selected Bills
           </Text>

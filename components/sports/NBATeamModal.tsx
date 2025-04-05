@@ -23,7 +23,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
     if (width > 1200) return 6; 
     if (width > 900) return 5;
     if (width > 600) return 4;
-    return 3; 
+    return 5;
   };
   
   const columns = getGridColumns()
@@ -115,20 +115,22 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
           borderColor={isDark ? '$gray4' : '$gray6'}
         >
           <Button
-            backgroundColor={preferences.primaryColor}
+            backgroundColor={isDark ? `${preferences.primaryColor}40` : `${preferences.primaryColor}80`}
             height={48}
             width={isWeb ? 200 : '70%'}
             paddingHorizontal={20}
-            pressStyle={{ opacity: 0.8, scale: 0.98 }}
+            pressStyle={{ opacity: 0.7 }}
             onPress={handleSave}
-            br={24}
-            shadowColor="black"
-            shadowOffset={{ width: 0, height: 2 }}
-            shadowOpacity={0.1}
-            shadowRadius={4}
-            elevation={3}
+            br={8}
+            borderWidth={2}
+            borderColor={preferences.primaryColor}
           >
-            <Text color="#fff" fontWeight="600" fontSize={16} fontFamily="$body">
+            <Text 
+              color={isDark ? '#f9f9f9' : preferences.primaryColor} 
+              fontWeight="600" 
+              fontSize={15} 
+              fontFamily="$body"
+            >
               Save
             </Text>
           </Button>
