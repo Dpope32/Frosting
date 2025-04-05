@@ -115,11 +115,16 @@ export function TaskCard({
           <Pressable 
             onPress={() => {
               if (Platform.OS !== 'web') {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               }
               onCheck?.(!checked);
             }}
-            style={[styles.checkboxContainer, { zIndex: 5 }]} // Added higher zIndex to ensure it's clickable
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={({ pressed }) => [
+              styles.checkboxContainer,
+              { zIndex: 10 },
+              pressed && { opacity: 0.8 }
+            ]}
           >
             <View style={[
               styles.checkbox,

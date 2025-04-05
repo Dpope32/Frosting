@@ -176,7 +176,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           showsHorizontalScrollIndicator={false} 
           style={{ maxWidth: isWeb ? 800 : '100%' }}
         >
-        <Form gap="$2.5" onSubmit={handleAddTask}>
+        <Form gap="$3" onSubmit={handleAddTask}>
           <DebouncedInput
             ref={inputRef}
             placeholder="Enter task name"
@@ -195,7 +195,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             br={12}
             fontFamily="$body"
             px="$3"
-            height={50}
+            height={44}
             fontSize={17}
             fontWeight="400"
             theme={isDark ? "dark" : "light"}
@@ -207,9 +207,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
             }}
           />
           
-          {/* Combined Row for Calendar Switch and Time Picker */}
           <XStack alignItems="center" justifyContent="space-between" px="$2" gap="$3"> 
-            {/* Show in Calendar Switch */}
             <XStack alignItems="center" gap="$1">
               <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}> 
                 Show in Calendar
@@ -217,7 +215,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               <Switch
                 value={newTask.showInCalendar || false}
                 onValueChange={val => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
-                style={{ transform: [{ scaleX: 0.8}, { scaleY: 0.8}] }} // Slightly smaller scale
+                style={{ transform: [{ scaleX: 0.8}, { scaleY: 0.8}] }}
               />
             </XStack>
 
@@ -226,10 +224,10 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                 onPress={handleTimePress}
                 theme={isDark ? "dark" : "light"}
               backgroundColor="transparent" 
-              br={12}
-              height={50} 
+              br={24}
+              height={36} 
               borderColor={isDark ? "$gray7" : "$gray4"} 
-              borderWidth={1} 
+              borderWidth={0.5} 
               px="$3"
               pressStyle={{ opacity: 0.8 }}
                 jc="flex-start" 

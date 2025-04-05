@@ -33,11 +33,11 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
 
   const getCategoryWidth = (category: VaultRecommendationCategory): number => {
     switch (category) {
-      case 'Social Media': return 120
-      case 'Misc': return 80
-      case 'Shopping': return 110
-      case 'Work': return 90
-      default: return 120;
+      case 'Social Media': return 100
+      case 'Misc': return 70
+      case 'Shopping': return 80
+      case 'Work': return 70
+      default: return 110;
     }
   };
 
@@ -99,10 +99,10 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         borderColor={style.borderColor}
         borderWidth={1}
         br={8}
-        px="$4"
+        px="$2"
         py="$3"
         pressStyle={{ opacity: 0.7 }}
-        marginRight="$2"
+        marginRight="$0"
         justifyContent="center"
         alignItems="center"
         onPress={handlePress}

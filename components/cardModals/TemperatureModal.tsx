@@ -1,6 +1,5 @@
-// TemperatureModal.tsx
 import React, { useEffect, useMemo } from 'react';
-import { useColorScheme, Platform, Dimensions, ScrollView, View, StyleSheet, DimensionValue } from 'react-native'; // Import DimensionValue
+import { useColorScheme, Platform, Dimensions, ScrollView, View, StyleSheet, DimensionValue } from 'react-native';
 import { YStack, Text, XStack, Stack } from 'tamagui';
 import Animated, {
   withSpring,
@@ -15,9 +14,8 @@ import Animated, {
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated';
 import { useWeatherStore } from '@/store/WeatherStore';
 import { getTemperatureColor } from '@/services/weatherServices';
-import RainDrop from '../shared/RainDrop'; // Import the new component
+import RainDrop from '../shared/RainDrop';
 
-// Add global styles for web animations
 if (Platform.OS === 'web') {
   const style = document.createElement('style');
   style.textContent = `
@@ -25,24 +23,24 @@ if (Platform.OS === 'web') {
       0% { transform: translateY(-10px) rotate(-30deg); }
       100% { transform: translateY(120px) rotate(-30deg); }
     }
-    
+
     @keyframes lightRain {
       0% { transform: translateY(-10px) rotate(-20deg); }
       100% { transform: translateY(100px) rotate(-20deg); }
     }
-    
+
     @keyframes heavyRain {
       0% { transform: translateY(-10px) rotate(-45deg); }
       100% { transform: translateY(140px) rotate(-45deg); }
     }
-    
+
     @keyframes flash {
       0% { opacity: 0; }
       10% { opacity: 0.9; }
       20% { opacity: 0; }
       100% { opacity: 0; }
     }
-    
+
     @keyframes lightningBolt {
       0% { opacity: 0; transform: scaleY(0.5); }
       5% { opacity: 1; transform: scaleY(1); }
@@ -50,19 +48,19 @@ if (Platform.OS === 'web') {
       20% { opacity: 0; transform: scaleY(1); }
       100% { opacity: 0; transform: scaleY(1); }
     }
-    
+
     @keyframes windFloat {
       0% { transform: translateX(0); }
       50% { transform: translateX(10px); }
       100% { transform: translateX(0); }
     }
-    
+
     @keyframes cloudFloat {
       0% { transform: translateX(0); }
       50% { transform: translateX(15px); }
       100% { transform: translateX(0); }
     }
-    
+
     @keyframes cloudPulse {
       0% { opacity: 0.7; }
       50% { opacity: 0.9; }
@@ -84,26 +82,21 @@ function getWeatherIcon(shortForecast: string) {
 
 function getCardBackground(shortForecast: string, isDark: boolean, precipitation = 0) {
   const f = shortForecast.toLowerCase()
-  
-  // Enhanced weather backgrounds with intensity levels and more variety
+
   if (f.includes('thunderstorm')) {
-    // Dark blue/purple for thunderstorms
     return isDark ? '#0C1836' : '#1E3A8A'
   }
-  
+
   if (f.includes('rain') || f.includes('shower')) {
-    // Scale darkness with precipitation %
     const intensity = Math.min(1, precipitation / 100 * 0.7 + 0.3)
-    
+
     if (isDark) {
-      // Darker blue for rain in dark mode
       const base = 30
       const r = Math.floor(base * intensity * 0.7)
       const g = Math.floor(base * intensity * 0.8)
       const b = Math.floor(60 * intensity)
       return `rgb(${r},${g},${b})`
     } else {
-      // Grayish blue for rain in light mode
       const base = 180
       const r = Math.floor(base - (base * intensity * 0.3))
       const g = Math.floor(base - (base * intensity * 0.2))
@@ -111,28 +104,23 @@ function getCardBackground(shortForecast: string, isDark: boolean, precipitation
       return `rgb(${r},${g},${b})`
     }
   }
-  
+
   if (f.includes('wind')) {
-    // Teal/blue for windy conditions
     return isDark ? '#193548' : '#BAE6FD'
   }
-  
+
   if (f.includes('sun') || f.includes('clear')) {
-    // Brighter blue for sunny days
     return isDark ? '#1E40AF' : '#60A5FA'
   }
-  
+
   if (f.includes('snow')) {
-    // Light blue for snow
     return isDark ? '#1E293B' : '#E0F2FE'
   }
-  
+
   if (f.includes('cloud')) {
-    // Gray for cloudy conditions
     return isDark ? '#374151' : '#F3F4F6'
   }
-  
-  // Default fallback
+
   return isDark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)'
 }
 
@@ -143,7 +131,6 @@ interface TemperatureModalProps {
 }
 
 export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) {
-  // If not open, render nothing
   if (!open) {
     return null;
   }
@@ -153,24 +140,21 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
   const progress = useSharedValue(0)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  
-  // For lightning animation (mobile)
+
   const flashOpacity = useSharedValue(0)
 
   useEffect(() => {
     if (open && currentTemp !== null) {
-      // Reset and trigger the animation when modal opens
       progress.value = 0
       progress.value = withSpring(Math.min(currentTemp, 120) / 120, {
         mass: 1,
         damping: 15,
-        stiffness: 90,
+        stiffness: 80,
         overshootClamping: false,
         restDisplacementThreshold: 0.01,
         restSpeedThreshold: 2,
       })
-      
-      // Trigger lightning animations for mobile
+
       if (Platform.OS !== 'web') {
         const startFlash = () => {
           flashOpacity.value = withSequence(
@@ -178,11 +162,10 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
             withTiming(0, { duration: 100 }),
             withTiming(0, { duration: Math.random() * 3000 + 2000 })
           );
-          
-          // Schedule the next flash
+
           setTimeout(startFlash, Math.random() * 3000 + 2000);
         }
-        
+
         startFlash();
       }
     }
@@ -197,7 +180,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
       borderRadius: 4,
     }
   })
-  
+
   const flashStyle = useAnimatedStyle(() => {
     'worklet'
     return {
@@ -213,17 +196,17 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
 
   const allForecastDays = []
   let dayCount = 0
-  
+
   for (let i = 0; i < forecast.length; i++) {
     const period = forecast[i]
     if (period && period.isDaytime) {
-      const nightPeriod = forecast.find(p => 
+      const nightPeriod = forecast.find(p =>
         !p.isDaytime && p.name.includes(period.name.replace('This', '').trim())
       )
-      
+
       const precipitation = period.probabilityOfPrecipitation?.value || 0
       const isThunderstorm = period.shortForecast.toLowerCase().includes('thunder')
-      
+
       allForecastDays.push({
         day: period.name.replace('This', '').trim(),
         high: period.temperature,
@@ -241,60 +224,30 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
           precipitation
         )
       })
-      
+
       dayCount++
       if (dayCount >= 5) break
     }
   }
-  
+
   const todayForecast = allForecastDays.length > 0 ? allForecastDays[0] : null
   const nextDays = allForecastDays.slice(1)
 
   return (
     <BaseCardAnimated onClose={() => onOpenChange(false)} title="Weather">
       <ScrollView>
-        <YStack gap="$1" paddingBottom="$2">
-          <XStack gap="$3">
-            <YStack
-              backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.8)"}
-              br={12}
-              padding="$4"
-              borderWidth={1}
-              borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-              flex={1}
-            >
-              <Text color={isDark ? "#fff" : "#000"} fontSize={16} fontFamily="$body" fontWeight="500">
-                Current Temperature
-              </Text>
-              <YStack gap="$3" mt="$2">
-                <Animated.Text
-                  style={{
-                    color: getTemperatureColor(currentTemp || 0, isDark),
-                    fontSize: 32,
-                    fontWeight: '600'
-                  }}
-                  entering={FadeIn.duration(800)}
-                >
-                  {currentTemp ? `${currentTemp}°F` : 'N/A'}
-                </Animated.Text>
-                <Stack
-                  backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-                  br={4}
-                  height={8}
-                  overflow="hidden"
-                >
-                  <Animated.View style={progressStyle} />
-                </Stack>
-              </YStack>
-            </YStack>
-            {todayForecast && (
+        <YStack gap="$2" paddingBottom="$2">
+          {todayForecast && (
+            <XStack gap="$2">
               <YStack
-                backgroundColor={getCardBackground(todayForecast.shortForecast, isDark)}
+                backgroundColor={getCardBackground(todayForecast.shortForecast, isDark, todayForecast.precipitation)}
+                flex={1}
                 br={12}
-                padding="$3"
+                paddingVertical="$2"
+                paddingHorizontal="$3"
+                height={Platform.OS === 'web' ? 100 : 90}
                 borderWidth={1}
                 borderColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
-                width={120}
                 justifyContent="space-between"
                 position="relative"
                 overflow="hidden"
@@ -302,54 +255,76 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                 {todayForecast.isThunderstorm && Platform.OS !== 'web' && (
                   <Animated.View style={flashStyle} />
                 )}
-                <YStack alignItems="center">
-                  <Text fontFamily="$body" fontSize={14} fontWeight="600" color={isDark ? "#fff" : "#000"}>
-                    Today
-                  </Text>
-                  <Animated.Text 
-                    style={{
-                      fontSize: 28,
-                      marginTop: 4,
-                      fontFamily: 'System',
-                    }}
-                    entering={FadeIn.duration(800)}
-                  >
-                    {getWeatherIcon(todayForecast.shortForecast)}
-                  </Animated.Text>
-                </YStack>
-                <YStack gap="$1" mt="$2">
-                  {todayForecast.precipitation > 0 && (
-                    <XStack alignItems="center" justifyContent="center" gap="$1">
-                      <Text fontFamily="$body" fontSize={11}>💧</Text>
-                      <Text fontFamily="$body" textAlign="center" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={11}>
-                        {todayForecast.precipitation}%
-                      </Text>
-                    </XStack>
-                  )}
-                </YStack>
-                <XStack alignSelf="stretch" padding="$2" br={8} backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"} justifyContent="space-between" alignItems="center" mt="$2">
-                  <YStack>
-                    <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>Low</Text>
-                    <Text fontFamily="$body" fontSize={12} fontWeight="700" color={getTemperatureColor(todayForecast.low ?? 0, isDark)}>
-                      {todayForecast.low !== null ? `${todayForecast.low}°` : 'N/A'}
+                <XStack justifyContent="space-between" alignItems="center" mt="$1.5">
+                  <YStack alignItems="flex-start" gap="$1">
+                    <Text fontFamily="$body" fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"}>
+                      Today
                     </Text>
+                    <Animated.Text
+                      style={{ fontSize: 28, fontFamily: 'System' }}
+                      entering={FadeIn.duration(800)}
+                    >
+                      {getWeatherIcon(todayForecast.shortForecast)}
+                    </Animated.Text>
                   </YStack>
-                  <YStack>
-                    <Text fontFamily="$body" fontSize={10} color={isDark ? "#ccc" : "#666"}>High</Text>
-                    <Text fontFamily="$body" fontSize={12} fontWeight="700" color={getTemperatureColor(todayForecast.high, isDark)}>
-                      {todayForecast.high}°
+                  <XStack alignItems="center" gap="$2">
+                     <YStack alignItems="center">
+                       <Text fontFamily="$body" fontSize={11} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                       <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(todayForecast.low ?? 0, isDark)}>
+                         {todayForecast.low !== null ? `${todayForecast.low}°` : 'N/A'}
+                       </Text>
+                     </YStack>
+                     <YStack alignItems="center">
+                       <Text fontFamily="$body" fontSize={11} color={isDark ? "#ccc" : "#666"}>High</Text>
+                       <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(todayForecast.high, isDark)}>
+                         {todayForecast.high}°
+                       </Text>
+                     </YStack>
+                   </XStack>
+                  <YStack alignItems="flex-end">
+                    <Text color={isDark ? "#ccc" : "#333"} fontSize={12} fontFamily="$body" fontWeight="500" mb="$1">
+                      Current
                     </Text>
+                    <Animated.Text
+                      style={{
+                        color: getTemperatureColor(currentTemp || 0, isDark),
+                        fontSize: 18,
+                        fontWeight: '600'
+                      }}
+                      entering={FadeIn.duration(800)}
+                    >
+                      {currentTemp ? `${currentTemp}°F` : 'N/A'}
+                    </Animated.Text>
+                     {todayForecast.precipitation > 0 && (
+                       <XStack alignItems="center" justifyContent="flex-end" gap="$1" mt="$1">
+                         <Text fontFamily="$body" fontSize={11}>💧</Text>
+                         <Text fontFamily="$body" textAlign="right" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={11}>
+                           {todayForecast.precipitation}%
+                         </Text>
+                       </XStack>
+                     )}
                   </YStack>
                 </XStack>
+
+                <YStack gap="$1" mt="$0">
+                  <Stack
+                    backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+                    br={4}
+                    height={8}
+                    overflow="hidden"
+                  >
+                    <Animated.View style={progressStyle} />
+                  </Stack>
+                </YStack>
               </YStack>
-            )}
-          </XStack>
-          <YStack mt="$3" gap="$3">
+            </XStack>
+          )}
+          <YStack gap="$3">
             {nextDays.map((period, idx) => {
               const windIntensity = period.windValue;
               const hasHighWind = windIntensity > 10;
               const hasVeryHighWind = windIntensity > 20;
-              
+
               return (
                 <Animated.View
                   key={period.day}
@@ -357,41 +332,44 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                   style={{ width: '100%' }}
                 >
                   <XStack
-                    height={Platform.OS === 'web' ? 100 : 90}
+                    height={Platform.OS === 'web' ? 100 : 80}
                     width="100%"
                     br={12}
                     overflow="hidden"
                     borderWidth={1}
                     borderColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}
-                    backgroundColor={getCardBackground(period.shortForecast, isDark)}
-                    padding="$3"
+                    backgroundColor={getCardBackground(period.shortForecast, isDark, period.precipitation)}
+                    paddingVertical="$0.5"
+                    paddingHorizontal="$3"
                     position="relative"
+                    alignItems="center"
+                    gap="$1"
                   >
-                    {/* Rain effect - Conditional rendering based on platform */}
                     {period.precipitation > 10 && (
                       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-                        {[...Array(Math.floor(period.precipitation / 4))].map((_, i) => {
+                        {[...Array(Math.floor(period.precipitation / 2))].map((_, i) => {
                           const isHeavy = i % 5 === 0 && period.precipitation > 60;
                           const isLight = i % 3 === 0 || period.precipitation < 40;
                           const dropSpeed = isHeavy ? 0.6 + Math.random() * 0.2 : isLight ? 1.2 + Math.random() * 0.3 : 0.8 + Math.random() * 0.3;
-                          const dropWidth = isHeavy ? 1.5 : isLight ? 0.8 : 1.2;
-                          const dropHeight = isHeavy ? 14 : isLight ? 6 : 9;
-                          const initialX: DimensionValue = `${Math.random() * 100}%`; // Explicitly type as DimensionValue
+                          const dropWidth = isHeavy ? 1.0 : isLight ? 0.5 : 0.8;
+                          const dropHeight = Platform.OS === 'web'
+                            ? (isHeavy ? 14 : isLight ? 6 : 9)
+                            : (isHeavy ? 4 : isLight ? 2 : 3);
+                          const initialX: DimensionValue = `${Math.random() * 100}%`;
                           const delay = Math.random() * 1.5;
                           const dropColor = isDark ? "#7cb3ff" : "#1d4ed8";
                           const dropOpacity = 0.4 + Math.random() * 0.3;
-                          const containerHeight = Platform.OS === 'web' ? 100 : 90; // Match container height
-                          const rotation = isHeavy ? -45 : isLight ? -20 : -30; // Vary rotation
+                          const containerHeight = Platform.OS === 'web' ? 100 : 80;
+                          const rotation = isHeavy ? -45 : isLight ? -20 : -30;
 
                           if (Platform.OS === 'web') {
-                            // Use existing CSS animation for web
                             const animationType = isHeavy ? 'heavyRain' : isLight ? 'lightRain' : 'rain';
                             return (
                               <View
                                 key={`rain-web-${i}`}
                                 style={{
                                   position: 'absolute',
-                                  top: -10, // Start above the container
+                                  top: -10,
                                   left: initialX,
                                   height: dropHeight,
                                   width: dropWidth,
@@ -399,20 +377,19 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                                   opacity: dropOpacity,
                                   animation: `${animationType} ${dropSpeed}s linear infinite`,
                                   animationDelay: `${delay}s`,
-                                  willChange: 'transform', // Performance hint for browsers
-                                } as any} // Cast to any to allow web-specific CSS properties
+                                  willChange: 'transform',
+                                } as any}
                               />
                             );
                           } else {
-                            // Use RainDrop component for native
                             return (
                               <RainDrop
                                 key={`rain-native-${i}`}
                                 delay={delay}
                                 duration={dropSpeed}
                                 initialX={initialX}
-                                startY={-10} // Start above the container
-                                endY={containerHeight + 10} // Fall below the container
+                                startY={-10}
+                                endY={containerHeight + 10}
                                 width={dropWidth}
                                 height={dropHeight}
                                 color={dropColor}
@@ -425,7 +402,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                       </View>
                     )}
 
-                    {/* Cloud effect for cloudy days */}
                     {period.shortForecast.toLowerCase().includes('cloud') && !period.shortForecast.toLowerCase().includes('rain') && (
                       <XStack
                         position="absolute"
@@ -457,8 +433,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         })}
                       </XStack>
                     )}
-                    
-                    {/* Thunderstorm effect with random lightning flashes */}
+
                     {period.isThunderstorm && Platform.OS === 'web' && (
                       <XStack
                         position="absolute"
@@ -467,7 +442,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         right={0}
                         bottom={0}
                       >
-                        {/* Full screen flash */}
                         <XStack
                           position="absolute"
                           top={0}
@@ -481,8 +455,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                             animationDelay: `${Math.random() * 3}s`
                           }}
                         />
-                        
-                        {/* Lightning bolt 1 */}
+
                         <XStack
                           position="absolute"
                           top={10}
@@ -497,8 +470,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                             transform: 'rotate(-5deg)'
                           }}
                         />
-                        
-                        {/* Lightning branch */}
+
                         <XStack
                           position="absolute"
                           top={25}
@@ -513,8 +485,7 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                             transform: 'rotate(-30deg)'
                           }}
                         />
-                        
-                        {/* Lightning bolt 2 */}
+
                         <XStack
                           position="absolute"
                           top={5}
@@ -531,7 +502,6 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         />
                       </XStack>
                     )}
-                    {/* Wind effect with varied intensities */}
                     {hasHighWind && (
                       <XStack
                         position="absolute"
@@ -542,24 +512,22 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         opacity={hasVeryHighWind ? 0.4 : 0.2}
                         pointerEvents="none"
                       >
-                        {/* Create multiple wind streaks with varying animation speeds */}
                         {[...Array(hasVeryHighWind ? 10 : 6)].map((_, i) => {
-                          // Calculate positions with some randomization
                           const top = 10 + (i * 8) + (Math.random() * 5);
                           const left = 20 + (i * 6) + (Math.random() * 30);
-                          const width = hasVeryHighWind ? 
-                            15 + (Math.random() * 25) : 
+                          const width = hasVeryHighWind ?
+                            15 + (Math.random() * 25) :
                             10 + (Math.random() * 15);
                           const height = 1 + (Math.random() * 0.5);
-                          const speed = hasVeryHighWind ? 
-                            2 + (Math.random() * 1.5) : 
+                          const speed = hasVeryHighWind ?
+                            2 + (Math.random() * 1.5) :
                             3 + (Math.random() * 2);
                           const delay = Math.random() * 2;
-                          
+
                           return (
-                            <XStack 
+                            <XStack
                               key={`wind-${i}`}
-                              position="absolute" 
+                              position="absolute"
                               top={top}
                               left={left}
                               height={height}
@@ -575,19 +543,18 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                             />
                           );
                         })}
-                        
-                        {/* Add some leaves/debris for very high wind */}
+
                         {hasVeryHighWind && (
                           <>
                             {[...Array(3)].map((_, i) => {
                               const size = 3 + (Math.random() * 2);
                               const top = 15 + (i * 25) + (Math.random() * 20);
                               const speed = 1.5 + (Math.random() * 1);
-                              
+
                               return (
-                                <XStack 
+                                <XStack
                                   key={`debris-${i}`}
-                                  position="absolute" 
+                                  position="absolute"
                                   top={top}
                                   left={40 + (i * 30)}
                                   height={size}
@@ -607,58 +574,53 @@ export function TemperatureModal({ open, onOpenChange }: TemperatureModalProps) 
                         )}
                       </XStack>
                     )}
-                    <YStack flex={1} justifyContent="center" gap="$1">
-                      <XStack alignItems="center" gap="$2">
-                        <Text fontSize={28} fontFamily="$body">
-                          {getWeatherIcon(period.shortForecast)}
-                        </Text>
-                        <YStack>
+                    <YStack flex={1} justifyContent="center" gap="$0.5" pl="$1">
+                      <XStack alignItems="center" gap="$1">
+                        <YStack alignItems="center">
+                          <Text fontSize={28} fontFamily="$body">
+                            {getWeatherIcon(period.shortForecast)}
+                          </Text>
+                        </YStack>
+                        <YStack flex={1} ml="$1">
                           <Text fontFamily="$body" color={isDark ? "#fff" : "#000"} fontSize={16} fontWeight="600">
                             {period.day}
                           </Text>
                           <Text color={isDark ? "#ccc" : "#444"} fontSize={12} numberOfLines={1} fontFamily="$body" ellipsizeMode="tail">
                             {period.shortForecast}
                           </Text>
+                          {period.precipitation > 0 && (
+                            <XStack alignItems="center" gap="$1" mt="$1">
+                              <Text fontFamily="$body" fontSize={11}>💧</Text>
+                              <Text fontFamily="$body" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={11}>
+                                {period.precipitation}%
+                              </Text>
+                            </XStack>
+                          )}
                         </YStack>
                       </XStack>
-                      <XStack alignItems="center" gap="$1" marginLeft="$8" mt="$1">
-                        <Text fontFamily="$body" fontSize={12}>💨</Text>
-                        <Text fontFamily="$body" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={12}>
-                          {period.windSpeed} {period.windDirection}
-                        </Text>
-                      </XStack>
-                      {period.precipitation > 0 && (
-                        <XStack alignItems="center" gap="$1" marginLeft="$8">
-                          <Text fontFamily="$body" fontSize={12}>💧</Text>
-                          <Text fontFamily="$body" color={isDark ? "#7cb3ff" : "#1d4ed8"} fontSize={12}>
-                            {period.precipitation}%
-                          </Text>
-                        </XStack>
-                      )}
                     </YStack>
-                    <XStack 
-                      padding="$2" 
-                      br={8} 
-                      backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"}
-                      alignItems="center"
-                      justifyContent="space-between"
-                      alignSelf="stretch"
-                      height={60}
-                      width={70}
-                    >
-                      <YStack>
-                        <Text fontFamily="$body" fontSize={12} color={isDark ? "#ccc" : "#666"}>Low</Text>
-                        <Text fontFamily="$body" fontSize={16} fontWeight="700" color={getTemperatureColor(period.low ?? 0, isDark)}>
-                          {period.low !== null ? `${period.low}°` : 'N/A'}
-                        </Text>
-                      </YStack>
-                      <YStack>
-                        <Text fontFamily="$body" fontSize={12} color={isDark ? "#ccc" : "#666"}>High</Text>
-                        <Text fontFamily="$body" fontSize={16} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
-                          {period.high}°
-                        </Text>
-                      </YStack>
-                    </XStack>
+                    <YStack alignItems="center" justifyContent="center" alignSelf="center" height={55} width={75} gap="$0">
+                       <XStack alignItems="center" gap="$2">
+                         <YStack alignItems="center">
+                           <Text fontFamily="$body" fontSize={11} color={isDark ? "#ccc" : "#666"}>Low</Text>
+                           <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(period.low ?? 0, isDark)}>
+                             {period.low !== null ? `${period.low}°` : 'N/A'}
+                           </Text>
+                         </YStack>
+                         <YStack alignItems="center">
+                           <Text fontFamily="$body" fontSize={11} color={isDark ? "#ccc" : "#666"}>High</Text>
+                           <Text fontFamily="$body" fontSize={14} fontWeight="700" color={getTemperatureColor(period.high, isDark)}>
+                             {period.high}°
+                           </Text>
+                         </YStack>
+                       </XStack>
+                       <XStack alignItems="center" gap="$1" mt="$0.5">
+                         <Text fontFamily="$body" fontSize={11}>💨</Text>
+                         <Text fontFamily="$body" color={isDark ? "#a1a1aa" : "#52525b"} fontSize={11}>
+                           {period.windValue} mph
+                         </Text>
+                       </XStack>
+                    </YStack>
                   </XStack>
                 </Animated.View>
               );
@@ -677,11 +639,9 @@ function parseWindSpeed(windSpeedStr: string): number {
 }
 
 function calculateFeelsLike(temp: number, windSpeed: number, precipitation: number): number {
-  // Simple wind chill calculation
   if (temp <= 50 && windSpeed > 3) {
     return 35.74 + 0.6215 * temp - 35.75 * Math.pow(windSpeed, 0.16) + 0.4275 * temp * Math.pow(windSpeed, 0.16)
   }
-  // Account for rain making it feel colder
   if (precipitation > 50 && temp < 70) {
     return temp - (precipitation / 100 * 5)
   }

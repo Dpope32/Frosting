@@ -16,7 +16,7 @@ import { DimensionValue } from 'react-native';
 interface RainDropProps {
   delay: number;
   duration: number;
-  initialX: DimensionValue; // Use DimensionValue for better type safety
+  initialX: DimensionValue;
   startY: number;
   endY: number;
   width: number;
@@ -35,46 +35,36 @@ const RainDrop: React.FC<RainDropProps> = ({
   width,
   height,
   color,
-  opacity: targetOpacity, // Rename to avoid conflict with animatedOpacity
-  rotation = -30, // Default rotation matching common CSS rain
+  opacity: targetOpacity,
+  rotation = -30,
 }) => {
   const translateY = useSharedValue(startY);
-  const animatedOpacity = useSharedValue(0); // Start invisible
+  const animatedOpacity = useSharedValue(0);
 
   useEffect(() => {
-    // Use withDelay to handle the animation start time
-    // Use withSequence to fade in, then start the repeating fall
     translateY.value = withDelay(
-      delay * 1000, // Convert delay seconds to ms
+      delay * 1000,
       withRepeat(
         withSequence(
-          // Reset position to startY before each fall (ensures clean loop)
           withTiming(startY, { duration: 0 }),
-          // Fade in quickly
-          withTiming(startY, { duration: 50 }, () => { // Use callback to set opacity
+          withTiming(startY, { duration: 50 }, () => {
             animatedOpacity.value = withTiming(targetOpacity, { duration: 100 });
           }),
-          // Fall down
           withTiming(endY, {
-            duration: duration * 1000, // Convert duration seconds to ms
+            duration: duration * 1000,
             easing: Easing.linear,
           }),
-          // Fade out at the end (optional, but can look smoother)
            withTiming(endY, { duration: 50 }, () => {
              animatedOpacity.value = withTiming(0, { duration: 100 });
            })
         ),
-        -1, // Infinite repeat
-        false // Don't reverse
+        -1,
+        false
       )
     );
 
-    // Cleanup function not strictly needed for shared values,
-    // but good practice if managing other side effects.
     return () => {
-        // Optional: Cancel animation if component unmounts mid-animation
-        // cancelAnimation(translateY);
-        // cancelAnimation(animatedOpacity);
+
     };
   }, [delay, duration, endY, startY, targetOpacity, translateY, animatedOpacity]);
 
@@ -93,7 +83,6 @@ const RainDrop: React.FC<RainDropProps> = ({
     };
   });
 
-  // Use Animated.View for the animated styles
   return <Animated.View style={animatedStyle} />;
 };
 

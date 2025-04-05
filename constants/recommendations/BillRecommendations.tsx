@@ -131,7 +131,7 @@ export const BillRecommendationChip: React.FC<BillRecommendationChipProps> = ({ 
       borderColor={style.borderColor}
       borderWidth={1}
       br={8}
-      px={isWeb ? "$4" : "$4"}
+      px={isWeb ? "$4" : "$2"}
       py="$1"
       fontFamily="$body"
       onPress={onPress}
@@ -139,7 +139,7 @@ export const BillRecommendationChip: React.FC<BillRecommendationChipProps> = ({ 
       scale={1}
       minWidth={0}
       flex={Platform.OS === 'web' ? 1 : 0}
-      width={Platform.OS === 'web' ? 'auto' : '48%'}
+      width={Platform.OS === 'web' ? 'auto' : '40%'}
       marginBottom={Platform.OS === 'web' ? 0 : '$2'}
     >
       <XStack gap="$1" alignItems="center" justifyContent="center">

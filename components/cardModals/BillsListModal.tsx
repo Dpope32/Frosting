@@ -28,11 +28,11 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
 
   const getCategoryWidth = (category: BillRecommendationCategory): number => {
     switch (category) {
-      case 'Housing': return 100
-      case 'Transportation': return 140
-      case 'Subscriptions': return 130
-      case 'Insurance': return 110
-      default: return 120;
+      case 'Housing': return 80
+      case 'Transportation': return 120
+      case 'Subscriptions': return 110
+      case 'Insurance': return 90
+      default: return 100;
     }
   };
 
@@ -64,10 +64,10 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
         borderColor={style.borderColor}
         borderWidth={1}
         br={8}
-        px="$4"
+        px="$1.5"
         py="$3"
         pressStyle={{ opacity: 0.7 }}
-        marginRight="$2"
+        marginRight="$1"
         justifyContent="center"
         alignItems="center"
         onPress={handlePress}
@@ -143,7 +143,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
       >
         <>
         {bills && bills.length > 0 ? (
-          <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2"> 
+          <YStack gap={Platform.OS === 'web' ? '$0' : '$2'} mt="$2"> 
             {bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
               const IconComponent = getIconForBill(bill.name);
               const amountColor = getAmountColor(bill.amount);

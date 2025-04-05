@@ -66,20 +66,19 @@ export function BaseCardAnimated({
                   styles.modalContainer,
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom +20,
+                    marginTop: insets.top + 30, 
+                    marginBottom: insets.bottom + 60,
                     width: actualWidth,
                     maxHeight: screenHeight,
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 2} px="$2" alignItems="center">
+                <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={isWeb ? 8 : 0} px="$2" alignItems="center">
                 <Text
                     fontSize={isWeb? 24 : 20}
                     fontWeight="700"
                     fontFamily="$body"
                     color={isDark ? "#fffaef" : "black"}
-                    marginBottom={0}
                   >
                     {title}
                   </Text>
@@ -87,9 +86,9 @@ export function BaseCardAnimated({
                     <Button
                       backgroundColor="transparent"
                       onPress={onClose} 
-                      padding={8}
+                      padding={0}
                       pressStyle={{ opacity: 0.7 }}
-                      icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                      icon={<MaterialIcons name="close" size={22} color={isDark ? "#fff" : "#000"}/>}
                     />
                   )}
                 </XStack>
@@ -116,14 +115,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'flex-start',
     borderRadius: 16,
-    padding: 20,
+    padding: 16,
     paddingHorizontal: isWeb? 32 : 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 50 : 24,
+    paddingBottom: isWeb? 50 : 16,
     zIndex: 1,
   },
 })

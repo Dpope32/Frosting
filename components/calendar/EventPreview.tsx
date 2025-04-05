@@ -2,7 +2,9 @@ import React from 'react'
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { CalendarEvent } from '@/store/CalendarStore'
 import { Ionicons } from '@expo/vector-icons'
-import { TaskPriority } from '@/types/task'
+import { TaskPriority, TaskCategory } from '@/types/task' // Added TaskCategory
+import { formatNbaGameTitle } from '@/utils/stringUtils'
+import { getCategoryColor, getPriorityColor, getPriorityIcon } from '@/utils/styleUtils' // Import style utils
 
 export const EventPreview: React.FC<{
   event: CalendarEvent
@@ -13,41 +15,7 @@ export const EventPreview: React.FC<{
 }> = ({ event, onEdit, onDelete, isDark, primaryColor }) => {
   const isBirthday = event.type === 'birthday'
   
-  // Get category color based on type
-  const getCategoryColor = (type: string): string => {
-    const colors: Record<string, string> = {
-      personal: '#9C27B0', // Purple
-      work: '#2196F3',     // Blue
-      family: '#FF9800',   // Orange
-      task: '#4CAF50',     // Green
-      health: '#F44336',   // Red
-      wealth: '#607D8B',   // Blue Gray
-      bill: '#795548'      // Brown
-    };
-    return colors[type] || primaryColor;
-  };
-  
-  // Get priority color function
-  const getPriorityColor = (priority?: TaskPriority): string => {
-    if (!priority) return '#607d8b';
-    const colors: Record<TaskPriority, string> = {
-      high: '#F44336', // Red
-      medium: '#FF9800', // Orange
-      low: '#4CAF50', // Green
-    };
-    return colors[priority];
-  };
-
-  // Get priority icon function
-  const getPriorityIcon = (priority?: TaskPriority) => {
-    if (!priority) return 'flag-outline';
-    const icons: Record<TaskPriority, any> = {
-      high: 'alert-circle',
-      medium: 'alert',
-      low: 'information-circle-outline',
-    };
-    return icons[priority];
-  };
+  // Removed local definitions of getCategoryColor, getPriorityColor, getPriorityIcon
   
   const formatTime = (timeString?: string) => {
     if (!timeString) return ''
@@ -159,7 +127,8 @@ export const EventPreview: React.FC<{
 
   return (
     <View style={dynamicStyles.container}>
-      <Text style={dynamicStyles.title}>{event.title}</Text>
+      {/* Apply formatting to the title */}
+      <Text style={dynamicStyles.title}>{formatNbaGameTitle(event.title)}</Text> 
       {!isBirthday && (
         <TouchableOpacity onPress={onDelete} style={styles.deleteIconButton}>
           <Ionicons name="close" size={20} style={dynamicStyles.closeIcon} />
@@ -184,17 +153,20 @@ export const EventPreview: React.FC<{
           {event.type && !isBirthday && (
             <View style={[
               dynamicStyles.typeChip, 
-              { backgroundColor: `${getCategoryColor(event.type)}15` }
+              // Use imported function, cast type
+              { backgroundColor: `${getCategoryColor(event.type as TaskCategory)}15` } 
             ]}>
               <Ionicons 
                 name="bookmark" 
                 size={10} 
-                color={getCategoryColor(event.type)} 
+                // Use imported function, cast type
+                color={getCategoryColor(event.type as TaskCategory)} 
                 style={{ marginTop: 1 }}
               />
               <Text style={[
                 dynamicStyles.typeChipText, 
-                { color: getCategoryColor(event.type) }
+                // Use imported function, cast type
+                { color: getCategoryColor(event.type as TaskCategory) } 
               ]}>
                 {event.type.toLowerCase()}
               </Text>
@@ -207,7 +179,7 @@ export const EventPreview: React.FC<{
               { backgroundColor: `${getPriorityColor(event.priority as TaskPriority)}15` }
             ]}>
               <Ionicons 
-                name={getPriorityIcon(event.priority as TaskPriority)} 
+                name={getPriorityIcon(event.priority as TaskPriority) as any} // Cast to any to fix TS error
                 size={10} 
                 color={getPriorityColor(event.priority as TaskPriority)} 
                 style={{ marginTop: 1 }}
@@ -233,7 +205,8 @@ export const EventPreview: React.FC<{
         
         {event.description && (
           <Text numberOfLines={2} style={dynamicStyles.description}>
-            {event.description}
+            {/* Apply formatting to the description */}
+            {formatNbaGameTitle(event.description)} 
           </Text>
         )}
       </View>

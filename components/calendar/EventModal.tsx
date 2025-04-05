@@ -152,7 +152,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               width: 44,
               height: 44,
               borderRadius: 22,
-              backgroundColor: primaryColor,
+              backgroundColor: '#transparent',
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -365,7 +365,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.button, { backgroundColor: primaryColor }]}
+                  style={[styles.button, { backgroundColor: '#transparent' }]}
                   onPress={handleAddEventWithNotifications}
                 >
                   <Text style={[styles.buttonText, { color: '#f1f1f1' }]}>
