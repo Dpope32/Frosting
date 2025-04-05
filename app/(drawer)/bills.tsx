@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform } from 'react-native';
 import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { BillSummary } from '@/components/bills/BillSummary';
-import { Plus, Edit3 } from '@tamagui/lucide-icons';
+import { Plus } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
-import { IncomeModal } from '@/components/editModals/IncomeModal';
-import { getAmountColor } from '@/services/billServices';
+import { IncomeModal } from '@/components/cardModals/IncomeModal';
 import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
 
 export default function BillsScreen() {
