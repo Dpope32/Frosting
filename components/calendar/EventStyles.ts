@@ -45,14 +45,14 @@ export const styles = StyleSheet.create({
   },
   typesContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
-    paddingHorizontal: 16
+    marginBottom: 8,
+    paddingHorizontal: 8
   },
   typeButton: {
     marginRight: 8,
     borderWidth: 1,
     borderRadius: 20,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 8
   },
   typeButtonText: {

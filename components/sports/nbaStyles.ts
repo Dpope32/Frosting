@@ -1,5 +1,4 @@
 import { StyleSheet, Platform } from 'react-native'
-import { isWeb } from 'tamagui'
 
 export const styles = StyleSheet.create({
   container: {
@@ -20,7 +19,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingVertical: 12,
     marginBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
@@ -144,7 +143,7 @@ export const styles = StyleSheet.create({
   },
   teamInfoContainer: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 8,
     justifyContent: 'center',
   },
   recordContainer: {
@@ -163,7 +162,6 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#0a84ff',
   },
-  // Keeping the original styles
   teamLogoContainer: {
     width: 50,
     height: 50,
@@ -179,7 +177,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 4,
-    color: '#fff',
+    color: '#FCF5E5',
   },
   recordRow: {
     flexDirection: 'row',

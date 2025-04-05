@@ -4,6 +4,7 @@ import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
+import { useToastStore } from '@/store/ToastStore'; // Import the toast store hook
 import { isWeb } from 'tamagui';
 import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils';
 
@@ -29,6 +30,7 @@ export function TaskCard({
   onCheck,
   onDelete
 }: TaskCardProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
 
   const getPriorityColor = (priority?: TaskPriority): string => {
@@ -100,13 +102,13 @@ export function TaskCard({
         <View style={{
           position: 'absolute',
           top: 0,
-          left: 0, // Changed from 28 to 0 to cover the entire card
+          left: 0,
           right: 0,
           bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           borderRadius: 10,
           zIndex: 1,
-          pointerEvents: 'none' // This ensures the overlay doesn't capture clicks
+          pointerEvents: 'none'
         }} />
       )}
       
@@ -169,6 +171,7 @@ export function TaskCard({
                   if (Platform.OS === 'web') {
                     if (confirm('Are you sure you want to delete this task?')) {
                       onDelete();
+                      showToast('Successfully deleted task'); 
                     }
                   } else {
                     Alert.alert(
@@ -176,7 +179,14 @@ export function TaskCard({
                       'Are you sure you want to delete this task?',
                       [
                         { text: 'Cancel', style: 'cancel' },
-                        { text: 'Delete', onPress: onDelete, style: 'destructive' }
+                        { 
+                          text: 'Delete', 
+                          onPress: () => {
+                            onDelete(); 
+                            showToast('Successfully deleted task'); 
+                          }, 
+                          style: 'destructive' 
+                        }
                       ]
                     );
                   }
@@ -186,7 +196,7 @@ export function TaskCard({
                 opacity: pressed ? 0.7 : 1,
                 padding: 6,
                 marginRight: -4,
-                zIndex: 5 // Increased z-index to ensure it remains clickable
+                zIndex: 5 
               })}
             >
               <Text fontFamily="$body" color="#ff4444" fontSize={14}>✕</Text>

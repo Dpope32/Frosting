@@ -15,7 +15,6 @@ export const EventPreview: React.FC<{
 }> = ({ event, onEdit, onDelete, isDark, primaryColor }) => {
   const isBirthday = event.type === 'birthday'
   
-  // Removed local definitions of getCategoryColor, getPriorityColor, getPriorityIcon
   
   const formatTime = (timeString?: string) => {
     if (!timeString) return ''
@@ -45,74 +44,67 @@ export const EventPreview: React.FC<{
       color: isDark ? '#ffffff' : '#010101',
       fontSize: 16,
       fontWeight: '600',
-      marginRight: 40
+      marginRight: 40, // Keep space for delete icon
+      marginBottom: 4, // Reduced space below title
     },
-    timeChip: {
+    chip: { // Base style for all chips
+      borderRadius: 12,
+      paddingVertical: 3, // Reduced vertical padding
+      paddingHorizontal: 7, // Reduced horizontal padding
+      marginRight: 6, // Reduced spacing between chips
+      marginBottom: 4, // Reduced spacing below chips
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1, // Add border for consistency
+    },
+    chipText: { // Base text style for chips
+      fontSize: 10, // Slightly smaller text
+      fontWeight: '500',
+      marginLeft: 3, // Reduced space after icon
+    },
+    timeChip: { // Specific styles merged with base 'chip'
       backgroundColor: "rgba(255, 255, 255, 0.05)",
-      borderRadius: 12,
-      paddingVertical: 4,
-      paddingHorizontal: 8,
-      alignSelf: 'flex-start',
-      marginRight: 8,
-      marginBottom: 6,
-      borderWidth: 1,
       borderColor: "rgb(52, 54, 55)",
-      flexDirection: 'row',
-      alignItems: 'center',
     },
-    timeChipText: {
+    timeChipText: { // Specific text styles merged with base 'chipText'
       color: "rgb(157, 157, 157)",
-      fontSize: 11,
-      fontWeight: '500',
-      marginLeft: 4,
     },
-    typeChip: {
-      borderRadius: 12,
-      paddingVertical: 4, 
-      paddingHorizontal: 8,
-      alignSelf: 'flex-start',
-      marginRight: 8,
-      marginBottom: 6,
-      flexDirection: 'row',
-      alignItems: 'center',
+    typeChip: { // Specific styles merged with base 'chip'
+      // Background color set dynamically
+      borderColor: 'transparent', // Remove border if background is set
     },
-    typeChipText: {
-      fontSize: 11,
-      fontWeight: '500',
-      marginLeft: 4,
+    typeChipText: { // Specific text styles merged with base 'chipText'
+      // Color set dynamically
     },
-    priorityChip: {
-      borderRadius: 12,
-      paddingVertical: 4,
-      paddingHorizontal: 8,
-      alignSelf: 'flex-start',
-      marginRight: 8,
-      marginBottom: 6,
-      flexDirection: 'row',
-      alignItems: 'center',
+    priorityChip: { // Specific styles merged with base 'chip'
+      // Background color set dynamically
+      borderColor: 'transparent', // Remove border if background is set
     },
-    priorityChipText: {
-      fontSize: 11,
-      fontWeight: '500',
-      marginLeft: 4,
+    priorityChipText: { // Specific text styles merged with base 'chipText'
+      // Color set dynamically
     },
     description: {
       color: isDark ? '#cccccc' : '#555555',
-      fontSize: 15,
-      lineHeight: 20,
-      marginTop: 6
+      fontSize: 14, // Slightly smaller description
+      lineHeight: 18,
+      marginTop: 4 // Reduced space above description
     },
     notificationIcon: {
       marginRight: 6,
-      marginBottom: 6
+      marginBottom: 4 // Match chip margin
     },
     metaInfo: {
       color: isDark ? '#999999' : '#777777',
       fontSize: 12,
-      marginTop: 6
+      marginTop: 4 // Reduced space
     },
     icon: {
       color: isDark ? '#ffffff' : '#010101'
+    },
+    editIcon: { // Specific style for edit icon alignment
+       color: isDark ? '#cccccc' : '#555555', // Match description color
+       marginLeft: 'auto', // Push to the right
+       paddingLeft: 8, // Space before icon
     },
     closeIcon: {
       color: '#F44336'
@@ -121,30 +113,27 @@ export const EventPreview: React.FC<{
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',
-      marginTop: 6
+      // marginTop: 6 // Removed marginTop, handled by title marginBottom
     }
   })
 
   return (
     <View style={dynamicStyles.container}>
-      {/* Apply formatting to the title */}
       <Text style={dynamicStyles.title}>{formatNbaGameTitle(event.title)}</Text> 
       {!isBirthday && (
         <TouchableOpacity onPress={onDelete} style={styles.deleteIconButton}>
-          <Ionicons name="close" size={20} style={dynamicStyles.closeIcon} />
+          <Ionicons name="close" size={18} style={dynamicStyles.closeIcon} /> 
         </TouchableOpacity>
       )}
-      <View style={styles.detailsRow}>
-        <View style={dynamicStyles.infoRow}>
+      <View style={dynamicStyles.infoRow}> 
           {event.time && !isBirthday && (
-            <View style={dynamicStyles.timeChip}>
+            <View style={[dynamicStyles.chip, dynamicStyles.timeChip]}> 
               <Ionicons 
                 name="time-outline" 
-                size={10} 
+                size={9} 
                 color="rgb(157, 157, 157)" 
-                style={{ marginTop: 1 }}
               />
-              <Text style={dynamicStyles.timeChipText}>
+              <Text style={[dynamicStyles.chipText, dynamicStyles.timeChipText]}> 
                 {formatTime(event.time)}
               </Text>
             </View>
@@ -152,20 +141,18 @@ export const EventPreview: React.FC<{
           
           {event.type && !isBirthday && (
             <View style={[
+              dynamicStyles.chip,
               dynamicStyles.typeChip, 
-              // Use imported function, cast type
               { backgroundColor: `${getCategoryColor(event.type as TaskCategory)}15` } 
             ]}>
               <Ionicons 
                 name="bookmark" 
-                size={10} 
-                // Use imported function, cast type
+                size={9} 
                 color={getCategoryColor(event.type as TaskCategory)} 
-                style={{ marginTop: 1 }}
               />
               <Text style={[
+                dynamicStyles.chipText, 
                 dynamicStyles.typeChipText, 
-                // Use imported function, cast type
                 { color: getCategoryColor(event.type as TaskCategory) } 
               ]}>
                 {event.type.toLowerCase()}
@@ -175,16 +162,17 @@ export const EventPreview: React.FC<{
           
           {event.priority && !isBirthday && (
             <View style={[
+              dynamicStyles.chip, 
               dynamicStyles.priorityChip, 
               { backgroundColor: `${getPriorityColor(event.priority as TaskPriority)}15` }
             ]}>
               <Ionicons 
-                name={getPriorityIcon(event.priority as TaskPriority) as any} // Cast to any to fix TS error
-                size={10} 
+                name={getPriorityIcon(event.priority as TaskPriority) as any} 
+                size={9} 
                 color={getPriorityColor(event.priority as TaskPriority)} 
-                style={{ marginTop: 1 }}
               />
               <Text style={[
+                dynamicStyles.chipText, 
                 dynamicStyles.priorityChipText, 
                 { color: getPriorityColor(event.priority as TaskPriority) }
               ]}>
@@ -196,26 +184,25 @@ export const EventPreview: React.FC<{
           {(event.notifyOnDay || event.notifyBefore) && (
             <Ionicons
               name="notifications"
-              size={14}
+              size={12} 
               color={primaryColor}
               style={dynamicStyles.notificationIcon}
             />
           )}
-        </View>
+
+          {!isBirthday && ( 
+            <TouchableOpacity onPress={onEdit} style={dynamicStyles.editIcon}> 
+              <Ionicons name="pencil" size={14} /> 
+            </TouchableOpacity>
+          )}
+        </View> 
         
         {event.description && (
           <Text numberOfLines={2} style={dynamicStyles.description}>
-            {/* Apply formatting to the description */}
             {formatNbaGameTitle(event.description)} 
           </Text>
         )}
-      </View>
       
-      {!isBirthday && (
-        <TouchableOpacity onPress={onEdit} style={styles.editIconButton}>
-          <Ionicons name="pencil" size={17} style={dynamicStyles.icon} />
-        </TouchableOpacity>
-      )}
     </View>
   )
 }
@@ -223,17 +210,8 @@ export const EventPreview: React.FC<{
 const styles = StyleSheet.create({
   deleteIconButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    padding: 6
-  },
-  editIconButton: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    padding: 6
-  },
-  detailsRow: {
-    marginTop: 8
+    top: 6, 
+    right: 6, 
+    padding: 4 
   }
 })

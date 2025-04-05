@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { Image, Text, useColorScheme, Platform, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { View, isWeb } from 'tamagui'
-
 import { useSportsAPI } from '../../hooks/useSportsAPI'
 import { format, isSameDay } from 'date-fns'
 import { useNBAStore } from '../../store/NBAStore'
@@ -69,14 +68,14 @@ export default function Sports() {
           <Text
             style={[
               styles.date,
-              { fontFamily: '$body' },
+              { fontFamily: '$body', color: isDark ? '#FCF5E5' : '#000' },
               isToday && [styles.todayDate, { color: teamColor }],
-              !isToday && { color: isDark ? '#fff' : '#000' },
+              !isToday && { color: isDark ? '#FCF5E5' : '#000' },
             ]}
           >
             {formattedDate}
           </Text>
-          <Text style={[styles.time, { fontFamily: '$body' }]}>{formattedTime}</Text>
+          <Text style={[styles.time, { fontFamily: '$body', color: isDark ? '#FCF5E5' : '#000' }]}>{formattedTime}</Text>
         </View>
 
         <View style={styles.teamsContainer}>
@@ -178,8 +177,7 @@ export default function Sports() {
         {
           backgroundColor: isDark ? '#010101' : '#f3f3f3',
           flex: 1,
-          // Add proper margin for mobile
-          marginTop: !isWeb ? 85 : 0
+          marginTop: !isWeb ? 80 : 0
         }
       ]}
     >
@@ -208,7 +206,7 @@ export default function Sports() {
           <Text style={[
             styles.teamName,
             isWeb && styles.webTeamName,
-            { color: isDark ? '#ffffff' : '#010101' }
+            { color: isDark ? '#FCF5E5' : '#010101' }
           ]}>
             {teamName}
           </Text>
@@ -234,7 +232,7 @@ export default function Sports() {
       <View style={[styles.header]}>
         <Text style={[
           styles.headerTitle, 
-          { color: isDark ? '#fff' : '#111', fontFamily: '$body' }
+          { color: isDark ? '#FCF5E5' : '#111', fontFamily: '$body' }
         ]}>
           {seasonText}
         </Text>

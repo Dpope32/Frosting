@@ -13,9 +13,9 @@ import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore'
 import { useToastStore } from '@/store/ToastStore'
 import { EventPreview } from './EventPreview'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
-import { styles } from './EventStyles'
-import { EventModalProps } from '../../types/modal'
-import { NOTIFICATION_TIME_OPTIONS } from '@/constants/notifications'
+import { styles } from './EventStyles';
+import { EventModalProps } from '../../types/modal';
+import { NOTIFICATION_TIME_OPTIONS } from '@/constants/notifications';
 
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,
@@ -109,10 +109,11 @@ export const EventModal: React.FC<EventModalProps> = ({
           modalWidth={getViewModalMaxWidth()}
         modalMaxWidth={getViewModalMaxWidth()}
       >
-        <View style={{ paddingBottom: 50, ...noScrollbar }}>
+        {/* Reduced paddingBottom to bring button closer */}
+        <View style={{ paddingBottom: 40, ...noScrollbar }}> 
           <ScrollView
             style={{
-              paddingHorizontal: 12,
+              paddingHorizontal: 6, // Reduced horizontal padding for wider cards
               maxHeight: screenHeight * 0.77
             }}
             showsVerticalScrollIndicator={!isWeb}
@@ -149,15 +150,15 @@ export const EventModal: React.FC<EventModalProps> = ({
               position: 'absolute',
               bottom: 0,
               right: 0,
-              width: 44,
-              height: 44,
+              width: 32,
+              height: 32,
               borderRadius: 22,
-              backgroundColor: '#transparent',
+              backgroundColor: 'transparent', 
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <Ionicons name="add" size={24} color="#fffbf7" />
+            <Ionicons name="add" size={32} color={primaryColor} /> 
           </TouchableOpacity>
         </View>
       </BaseCardAnimated>
@@ -171,14 +172,15 @@ export const EventModal: React.FC<EventModalProps> = ({
           onRequestClose={closeEventModals}
         >
           <View style={styles.modalOverlay}>
-            <View>
+            <View style={[styles.modalContent, { backgroundColor: isDark ? '#1e1e1e' : '#fffbf7', width: modalWidth }]}>
               <View style={styles.headerContainer}>
                 <Text style={[styles.headerText, { color: textColor }]}>
                   {`${editingEvent ? 'Edit' : 'Add'} Event for ${selectedDate?.toLocaleDateString() || ''}`}
                 </Text>
               </View>
 
-              <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>
+              {/* Add maxHeight to ScrollView */}
+              <ScrollView style={[styles.formContainer, noScrollbar, { maxHeight: screenHeight * 0.7 }]} showsVerticalScrollIndicator={!isWeb}>
                 <TextInput
                   style={[
                     styles.input,

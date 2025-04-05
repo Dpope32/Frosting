@@ -55,7 +55,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Change Favorite NBA Team"
-      snapPoints={isWeb ? [95] : [80]} 
+      snapPoints={isWeb ? [95] : [85]} 
       showCloseButton={true} 
       hideHandle={true}
     >
