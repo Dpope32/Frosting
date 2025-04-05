@@ -9,7 +9,7 @@ import { BillSummary } from '@/components/bills/BillSummary';
 import { Plus, Edit3 } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
-import { AddBillModal } from '@/components/addModals/AddBillModal';
+import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/editModals/IncomeModal';
 import { getAmountColor } from '@/services/billServices';
 import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
