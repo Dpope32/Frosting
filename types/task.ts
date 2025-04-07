@@ -19,5 +19,6 @@ export interface Task {
   recurrencePattern: RecurrencePattern
   recurrenceDate?: string
   showInCalendar?: boolean
-  dueDate?: number 
+  dueDate?: number
+  gameId?: number 
 }

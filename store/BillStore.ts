@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-
+import { Bill } from '@/types/bills';
 export { getOrdinalSuffix };
 
 const getOrdinalSuffix = (day: number): string => {
@@ -20,14 +20,6 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
-export interface Bill {
-  id: string;
-  name: string;
-  amount: number;
-  dueDate: number; // 1-31
-  createdAt: string;
-  updatedAt: string;
-}
 
 interface BillStore {
   bills: Record<string, Bill>;
@@ -39,7 +31,6 @@ interface BillStore {
   setMonthlyIncome: (income: number) => void;
 }
 
-// Using the createPersistStorage helper from our AsyncStorage wrapper
 const asyncStorage = createPersistStorage<BillStore>();
 
 export const useBillStore = create<BillStore>()(

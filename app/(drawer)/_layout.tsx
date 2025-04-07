@@ -83,6 +83,7 @@ const DRAWER_ICONS: Record<string, IconConfig> = {
   crm: { name: 'person' as MaterialIconName, type: 'material' },
   vault: { name: 'lock' as MaterialIconName, type: 'material' },
   bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
+  notes: { name: 'note' as MaterialIconName, type: 'material' },
 };
 
 export default function DrawerLayout() {
@@ -241,6 +242,14 @@ export default function DrawerLayout() {
             title: 'Bills',
             drawerLabel: 'Bills',
           drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
+        }}
+      />
+        <Drawer.Screen
+          name="notes"
+          options={{
+            title: 'Notes',
+            drawerLabel: 'Notes',
+          drawerIcon: (props) => renderIcon({ ...props, route: 'notes' })
         }}
       />
       </Drawer>
