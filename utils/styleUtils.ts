@@ -75,3 +75,22 @@ export const dayColors = {
   sat: '#FF9800',
   sun: '#FFC107'
 };
+
+// Tag colors
+export const tagColors = [
+  '#2196F3', // Blue
+  '#F44336', // Red
+  '#9C27B0', // Purple
+  '#FF9800', // Orange
+  '#4CAF50', // Green
+  '#E91E63', // Pink
+  '#00BCD4', // Cyan
+  '#FFEB3B', // Yellow
+  '#795548', // Brown
+  '#607D8B', // Blue Grey
+];
+
+export const getRandomTagColor = (): string => {
+  const randomIndex = Math.floor(Math.random() * tagColors.length);
+  return tagColors[randomIndex];
+};

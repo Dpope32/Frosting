@@ -1,5 +1,6 @@
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Bill, useBillStore } from '@/store/BillStore';
+import { useBillStore } from '@/store/BillStore';
+import { Bill } from '@/types/bills';
 import { useMemo } from 'react';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useProjectStore } from '@/store/ToDo';

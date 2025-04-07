@@ -1,212 +1,269 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Platform, FlatList } from 'react-native';
-import { YStack, H1, Button, Dialog, Input, TextArea, XStack, Adapt, Sheet, Unspaced } from 'tamagui';
-import { Plus, X } from '@tamagui/lucide-icons';
-import { useNoteStore } from '@/store/NoteStore';
+import React, { useState, useCallback } from 'react';
+import { Platform, View, StyleSheet, StatusBar, Dimensions } from 'react-native';
+import { YStack, Button, XStack, Text } from 'tamagui';
+import { Plus } from '@tamagui/lucide-icons';
 import { NoteCard } from '@/components/notes/NoteCard';
+import { NotesEmpty } from '@/components/notes/NotesEmpty';
+import { AddNoteSheet } from '@/components/notes/AddNoteSheet';
 import type { Note } from '@/types/notes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserStore } from '@/store/UserStore';
+import { useNotes } from '@/hooks/useNotes';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useImagePicker } from '@/hooks/useImagePicker';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 
 export default function NotesScreen() {
   const insets = useSafeAreaInsets();
   const preferences = useUserStore((state) => state.preferences);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
   
-  // Simple state access with explicit dependencies
-  const notes = useNoteStore((state) => state.notes);
-  const noteOrder = useNoteStore((state) => state.noteOrder);
-  const loadNotes = useNoteStore((state) => state.loadNotes);
-  const addNote = useNoteStore((state) => state.addNote);
-  const updateNote = useNoteStore((state) => state.updateNote);
-  const deleteNote = useNoteStore((state) => state.deleteNote);
-  const updateNoteOrder = useNoteStore((state) => state.updateNoteOrder);
+  const {
+    notes,
+    selectedNote,
+    isModalOpen,
+    editTitle,
+    editContent,
+    editTags,
+    editAttachments,
+    handleAddNote,
+    handleSelectNote,
+    handleSaveNote,
+    handleDeleteNote,
+    handleCloseModal,
+    setEditTitle,
+    setEditContent,
+    handleTagsChange,
+    handleAddAttachment,
+    handleRemoveAttachment,
+    updateNotes, // Make sure this exists in your useNotes hook
+  } = useNotes();
 
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editTitle, setEditTitle] = useState('');
-  const [editContent, setEditContent] = useState('');
+  const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();
 
-  const numColumns = 2;
+  // Handle notes reordering
+  const handleDragEnd = useCallback(({ data }: { data: Note[] }) => {
+    // Update the notes order in your state or database
+    updateNotes(data);
+  }, [updateNotes]);
 
-  // Safely load notes on mount
-  useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+  // Improved formatting functions with better selection handling
+  const handleBold = useCallback(() => {
+    const start = selection.start;
+    const end = selection.end;
+    
+    // If there's no selection, just add bold markers at cursor position
+    if (start === end) {
+      const newContent = 
+        editContent.substring(0, start) + 
+        '**bold text**' + 
+        editContent.substring(end);
+      setEditContent(newContent);
+      return;
+    }
+    
+    const selectedText = editContent.substring(start, end);
+    const newContent = 
+      editContent.substring(0, start) + 
+      `**${selectedText}**` + 
+      editContent.substring(end);
+    setEditContent(newContent);
+  }, [editContent, selection, setEditContent]);
 
-  // Compute ordered notes from raw state data
-  const orderedNotes = useMemo(() => {
-    return noteOrder
-      .map(id => notes[id])
-      .filter(Boolean)
-      .filter(note => !note.archived);
-  }, [notes, noteOrder]);
+  const handleItalic = useCallback(() => {
+    const start = selection.start;
+    const end = selection.end;
+    
+    // If there's no selection, just add italic markers at cursor position
+    if (start === end) {
+      const newContent = 
+        editContent.substring(0, start) + 
+        '*italic text*' + 
+        editContent.substring(end);
+      setEditContent(newContent);
+      return;
+    }
+    
+    const selectedText = editContent.substring(start, end);
+    const newContent = 
+      editContent.substring(0, start) + 
+      `*${selectedText}*` + 
+      editContent.substring(end);
+    setEditContent(newContent);
+  }, [editContent, selection, setEditContent]);
 
-  const handleAddNote = () => {
-    setSelectedNote(null); 
-    setEditTitle('');
-    setEditContent('');
-    setIsModalOpen(true);
-  };
+  const handleBullet = useCallback(() => {
+    const start = selection.start;
+    const end = selection.end;
+    
+    // If no selection, just add a bullet point
+    if (start === end) {
+      const newContent = 
+        editContent.substring(0, start) + 
+        '\n- ' + 
+        editContent.substring(end);
+      setEditContent(newContent);
+      return;
+    }
+    
+    const selectedText = editContent.substring(start, end);
+    
+    // Handle multi-line selections
+    if (selectedText.includes('\n')) {
+      const lines = selectedText.split('\n');
+      const bulletedLines = lines.map(line => line.trim() ? `- ${line}` : line).join('\n');
+      const newContent = 
+        editContent.substring(0, start) + 
+        bulletedLines + 
+        editContent.substring(end);
+      setEditContent(newContent);
+    } else {
+      // Single line
+      const newContent = 
+        editContent.substring(0, start) + 
+        `- ${selectedText}` + 
+        editContent.substring(end);
+      setEditContent(newContent);
+    }
+  }, [editContent, selection, setEditContent]);
 
-  const handleSelectNote = useCallback((note: Note) => {
-    setSelectedNote(note);
-    setEditTitle(note.title);
-    setEditContent(note.content);
-    setIsModalOpen(true);
+  // Improved image handling - only store the markdown, never show it directly
+  const handleImagePick = useCallback(async () => {
+    try {
+      if (isImagePickerLoading) return;
+      
+      const result = await pickImage();
+      if (result) {
+        // Generate a more user-friendly name (just the number)
+        const imageNum = editAttachments.length + 1;
+        const imageName = `Image ${imageNum}`;
+        
+        // Create attachment record
+        const newAttachment = {
+          id: Date.now().toString(),
+          name: imageName,
+          url: result,
+          type: 'image'
+        };
+        
+        // Add attachment to storage
+        handleAddAttachment(newAttachment);
+        
+        // Markdown insertion removed - image is attached via handleAddAttachment
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+    }
+  }, [
+    pickImage, 
+    isImagePickerLoading, 
+    editAttachments.length, 
+    handleAddAttachment, 
+    editContent, 
+    selection, 
+    setEditContent
+  ]);
+
+  // Handle selection change
+  const handleSelectionChange = useCallback((event: any) => {
+    setSelection(event.nativeEvent.selection);
   }, []);
 
-  const handleSaveNote = async () => {
-    if (selectedNote) {
-      await updateNote(selectedNote.id, { title: editTitle, content: editContent });
-    } else {
-      await addNote({ title: editTitle, content: editContent });
-    }
-    setIsModalOpen(false);
-    setSelectedNote(null);
-  };
-
-  const handleDeleteNote = async () => {
-    if (selectedNote) {
-      await deleteNote(selectedNote.id);
-      setIsModalOpen(false);
-      setSelectedNote(null);
-    }
-  };
-
-  // Simplified render item function for FlatList
-  const renderItem = useCallback(({ item }: { item: Note }) => {
-    return (
-      <NoteCard
-        note={item}
-        onPress={() => handleSelectNote(item)}
-      />
-    );
-  }, [handleSelectNote]);
+  // Render each note card with drag functionality
+  const renderItem = useCallback(({ item, drag, isActive }: { 
+    item: Note; 
+    drag: () => void; 
+    isActive: boolean 
+  }) => (
+    <ScaleDecorator activeScale={1.02}>
+      <View style={styles.itemContainer}>
+        <NoteCard
+          note={item}
+          onPress={() => handleSelectNote(item)}
+          onLongPress={drag}
+          isDragging={isActive}
+        />
+      </View>
+    </ScaleDecorator>
+  ), [handleSelectNote]);
 
   return (
-    <YStack flex={1} backgroundColor="$background" paddingTop={insets.top +80} paddingHorizontal={10}>
-        <FlatList
-            data={orderedNotes}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            numColumns={numColumns}
-            contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
-        />
-        <Button
-            icon={<Plus color="white" />}
-            circular
-            size="$6"
-            position="absolute"
-            bottom={insets.bottom + 20}
-            right={20}
-            onPress={handleAddNote}
-            backgroundColor={preferences.primaryColor}
-            pressStyle={{ opacity: 0.8, scale: 0.98 }}
-            shadowColor="black"
-            shadowOffset={{ width: 0, height: 2 }}
-            shadowOpacity={0.1}
-            shadowRadius={4}
-            elevation={3}
-        />
-        <Dialog
-            modal
-            open={isModalOpen}
-            onOpenChange={(open) => {
-            if (!open) {
-                setIsModalOpen(false);
-                setSelectedNote(null);
-            } else {
-                setIsModalOpen(true);
-            }
-            }}
-        >
-        <Adapt when="sm" platform="touch">
-          <Sheet animation="quick" zIndex={200000} modal dismissOnSnapToBottom>
-            <Sheet.Frame padding="$4" gap="$4">
-              <Adapt.Contents />
-            </Sheet.Frame>
-            <Sheet.Handle />
-          </Sheet>
-        </Adapt>
-        <Dialog.Portal>
-          <Dialog.Overlay
-            key="overlay"
-            animation="quick"
-            opacity={0.5}
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
+    <YStack flex={1} backgroundColor="$background">
+      <XStack
+        paddingTop={insets.top + 10}
+        paddingBottom={16}
+        paddingHorizontal={16}
+        backgroundColor="$background"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+      </XStack>
+      
+      <DraggableFlatList
+        data={notes}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        onDragEnd={handleDragEnd}
+        numColumns={1}
+        contentContainerStyle={{ 
+          paddingHorizontal: 6,
+          paddingBottom: insets.bottom + 80,
+          paddingTop: 8
+        }}
+        ListEmptyComponent={
+          <NotesEmpty 
+            isDark={isDark}
+            primaryColor={preferences.primaryColor}
+            isWeb={isWeb}
           />
-          <Dialog.Content
-            bordered
-            elevate
-            key="content"
-            animateOnly={['transform', 'opacity']}
-            animation={[
-              'quick',
-              {
-                opacity: {
-                  overshootClamping: true,
-                },
-              },
-            ]}
-            enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-            exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-            gap="$4"
-            width="90%"
-            maxWidth={450}
-          >
-            <Dialog.Title>{selectedNote ? 'Edit Note' : 'Add Note'}</Dialog.Title>
-            <Input
-              placeholder="Title"
-              value={editTitle}
-              onChangeText={setEditTitle}
-              fontSize="$5"
-            />
-            <TextArea
-              placeholder="Content"
-              value={editContent}
-              onChangeText={setEditContent}
-              numberOfLines={8}
-              flex={1} 
-              minHeight={150}
-              fontSize="$4"
-            />
+        }
+      />
+      <Button
+        size="$4"
+        circular
+        position="absolute"
+        bottom={insets.bottom + 20}
+        right={20}
+        onPress={handleAddNote}
+        backgroundColor={preferences.primaryColor}
+        pressStyle={{ scale: 0.95 }}
+        animation="quick"
+        elevation={4}
+        icon={<Plus size={24} color="white" />}
+      />
 
-            <XStack justifyContent="space-between" gap="$3">
-               {selectedNote && ( 
-                 <Button
-                   backgroundColor="$red10"
-                   pressStyle={{ backgroundColor: '$red9' }}
-                   onPress={handleDeleteNote}
-                   flex={1}
-                 >
-                   Delete
-                 </Button>
-               )}
-               <Button
-                 backgroundColor="$green10"
-                 pressStyle={{ backgroundColor: '$green9' }}
-                 onPress={handleSaveNote}
-                 flex={1}
-               >
-                 Save
-               </Button>
-            </XStack>
-            <Unspaced>
-              <Dialog.Close asChild>
-                <Button
-                  position="absolute"
-                  top="$3"
-                  right="$3"
-                  size="$2"
-                  circular
-                  icon={<X size={18} />}
-                />
-              </Dialog.Close>
-            </Unspaced>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog>
+      <AddNoteSheet
+        isModalOpen={isModalOpen}
+        selectedNote={selectedNote}
+        editTitle={editTitle}
+        editContent={editContent}
+        editTags={editTags}
+        editAttachments={editAttachments}
+        handleCloseModal={handleCloseModal}
+        setEditTitle={setEditTitle}
+        setEditContent={setEditContent}
+        handleTagsChange={handleTagsChange}
+        handleSaveNote={handleSaveNote}
+        handleDeleteNote={handleDeleteNote}
+        handleRemoveAttachment={handleRemoveAttachment}
+        handleBold={handleBold}
+        handleItalic={handleItalic}
+        handleBullet={handleBullet}
+        handleImagePick={handleImagePick}
+        onSelectionChange={handleSelectionChange}
+      />
     </YStack>
   );
 }
+
+const styles = StyleSheet.create({
+  itemContainer: {
+    width: '100%',
+    padding: 8,
+    paddingHorizontal: 12,
+  },
+});
