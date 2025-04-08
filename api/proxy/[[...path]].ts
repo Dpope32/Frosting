@@ -4,14 +4,33 @@ import cors from 'cors';
 
 // Initialize CORS middleware
 const corsMiddleware = cors({
-  origin: true, // Consider making this more specific for production if possible
+  origin: true,
   methods: ['GET', 'OPTIONS'],
 });
 
-// Define a common User-Agent header
-const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+// Define a common User-Agent header that mimics a regular browser
+const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+// Add more browser-like headers to avoid detection
+const BROWSER_HEADERS = {
+  'User-Agent': BROWSER_USER_AGENT,
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.5',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'DNT': '1',
+  'Connection': 'keep-alive',
+  'Upgrade-Insecure-Requests': '1',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'none',
+  'Sec-Fetch-User': '?1',
+  'Pragma': 'no-cache',
+  'Cache-Control': 'no-cache',
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  console.log(`[DEBUG] Received request: ${req.method} ${req.url}`);
+  
   // Apply CORS middleware
   await new Promise((resolve, reject) => {
     corsMiddleware(req, res, (result: any) => {
@@ -34,143 +53,157 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // --- START: Parse req.url instead of req.query.path ---
-    const url = req.url;
-    if (!url) {
-        // Add a basic check for the URL itself
-        console.warn('Proxy request with missing req.url');
-        return res.status(400).json({ error: 'Bad Request: Missing URL' });
+    // Simple path extraction - first try using the query param method which worked before
+    let pathSegments: string[] = [];
+    let endpoint = '';
+    
+    if (req.query.path) {
+      // This is the method that worked before
+      const path = req.query.path;
+      pathSegments = Array.isArray(path) ? path : [path];
+      endpoint = pathSegments.join('/');
+      console.log(`[DEBUG] Using req.query.path: ${endpoint}`);
+    } else {
+      // Fallback to URL parsing as a backup method
+      const url = req.url || '';
+      console.log(`[DEBUG] Raw URL: ${url}`);
+      
+      const basePath = '/api/proxy/';
+      const basePathIndex = url.indexOf(basePath);
+      
+      if (basePathIndex !== -1) {
+        endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
+        pathSegments = endpoint.split('/');
+        console.log(`[DEBUG] Extracted from URL: ${endpoint}`);
+      }
+    }
+    
+    if (!endpoint) {
+      console.warn('[ERROR] Could not determine endpoint from request');
+      return res.status(400).json({ error: 'Bad Request: Could not determine endpoint' });
     }
 
-    // Define the base path of this proxy function
-    const basePath = '/api/proxy/';
-    let relativePath = '';
-    const basePathIndex = url.indexOf(basePath);
+    console.log(`[INFO] Processing endpoint: ${endpoint}`);
 
-    if (basePathIndex !== -1) {
-        // Extract the part *after* /api/proxy/
-        // Also, remove any query string parameters (like ?interval=...)
-        relativePath = url.substring(basePathIndex + basePath.length).split('?')[0];
-    }
-
-    // Handle cases where the extracted path is empty
-    if (!relativePath) {
-        console.warn('Proxy request with empty relative path derived from URL:', req.url);
-        return res.status(404).json({ error: 'Endpoint not specified' });
-    }
-    // --- END: Parse req.url ---
-
-    // Keep the original relative path for case-sensitive parts like stock symbols
-    const originalRelativePath = relativePath;
-
-    // Normalize the endpoint for matching (lowercase, remove trailing slash)
-    let endpoint = relativePath.toLowerCase();
-    if (endpoint.endsWith('/')) {
-      endpoint = endpoint.slice(0, -1);
-    }
-
-    // Optional: Log the derived endpoint for debugging (remove later)
-    // console.log(`Processing normalized endpoint from URL: ${endpoint}`);
-
-    // Route requests based on normalized path
+    // Now route based on the extracted endpoint
     if (endpoint.startsWith('yahoo-finance/')) {
-      const parts = endpoint.split('/');
-      if (parts.length < 2 || !parts[1]) {
-         console.error('[Yahoo Finance] Missing symbol in endpoint:', endpoint); // Log error
-         return res.status(400).json({ error: 'Missing stock symbol for Yahoo Finance' });
+      const symbol = pathSegments[1] || '';
+      if (!symbol) {
+        console.error('[Yahoo Finance] Missing symbol');
+        return res.status(400).json({ error: 'Missing stock symbol' });
       }
-      const originalParts = originalRelativePath.split('/');
-      const symbol = originalParts[1]; // Use original case symbol
-
-      // --- Add Logging ---
-      console.log(`[Yahoo Finance] Attempting symbol: ${symbol}`);
-      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d`;
+      
+      console.log(`[Yahoo Finance] Attempting to fetch data for symbol: ${symbol}`);
+      
+      // Use a more comprehensive URL with additional crumb parameter
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&includePrePost=false`;
       console.log(`[Yahoo Finance] Requesting URL: ${yahooUrl}`);
-      // --- End Logging ---
-
-      // --- Add User-Agent header to Axios request ---
-      const response = await axios.get(yahooUrl, {
-        headers: { 'User-Agent': BROWSER_USER_AGENT }
-      });
-      // --- End Add User-Agent ---
-
-      console.log(`[Yahoo Finance] Success for symbol: ${symbol}`); // Log success
-      return res.status(200).json(response.data);
-
-    } else if (endpoint.startsWith('yahoo-finance-history/')) {
-      const parts = endpoint.split('/');
-       if (parts.length < 2 || !parts[1]) {
-         console.error('[Yahoo History] Missing symbol in endpoint:', endpoint); // Log error
-         return res.status(400).json({ error: 'Missing stock symbol for Yahoo Finance History' });
+      
+      try {
+        const response = await axios.get(yahooUrl, {
+          headers: BROWSER_HEADERS,
+          timeout: 10000, // 10 second timeout
+        });
+        
+        console.log(`[Yahoo Finance] Success for symbol: ${symbol}`);
+        return res.status(200).json(response.data);
+      } catch (yahooError) {
+        console.error(`[Yahoo Finance] Error fetching data for symbol ${symbol}:`, yahooError);
+        
+        // Try alternative service if Yahoo fails
+        try {
+          console.log(`[Fallback] Attempting to use alternative finance API for ${symbol}`);
+          const fallbackUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=demo`;
+          const fallbackResponse = await axios.get(fallbackUrl);
+          return res.status(200).json(fallbackResponse.data);
+        } catch (fallbackError) {
+          console.error('[Fallback] Alternative service also failed:', fallbackError);
+          throw yahooError; // Rethrow the original error
+        }
       }
-      const originalParts = originalRelativePath.split('/');
-      const symbol = originalParts[1]; // Use original case symbol
+      
+    } else if (endpoint.startsWith('yahoo-finance-history/')) {
+      const symbol = pathSegments[1] || '';
+      if (!symbol) {
+        console.error('[Yahoo History] Missing symbol');
+        return res.status(400).json({ error: 'Missing stock symbol' });
+      }
+      
       const interval = req.query.interval || '1d';
       const range = req.query.range || '1y';
-
-      // --- Add Logging ---
+      
       console.log(`[Yahoo History] Attempting symbol: ${symbol}, interval: ${interval}, range: ${range}`);
-      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
+      
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}&includePrePost=false`;
       console.log(`[Yahoo History] Requesting URL: ${yahooUrl}`);
-      // --- End Logging ---
-
-      // --- Add User-Agent header to Axios request ---
+      
       const response = await axios.get(yahooUrl, {
-          headers: { 'User-Agent': BROWSER_USER_AGENT }
+        headers: BROWSER_HEADERS,
+        timeout: 10000, // 10 second timeout
       });
-      // --- End Add User-Agent ---
-
-      console.log(`[Yahoo History] Success for symbol: ${symbol}, interval: ${interval}, range: ${range}`);
+      
+      console.log(`[Yahoo History] Success for symbol: ${symbol}`);
       return res.status(200).json(response.data);
-
+      
     } else if (endpoint === 'stoic-quote') {
-      // --- Add User-Agent header to Axios request (Good practice) ---
-      const response = await axios.get('https://stoic-quotes.com/api/quote', {
-          headers: { 'User-Agent': BROWSER_USER_AGENT }
-      });
-      // --- End Add User-Agent ---
-      console.log('[Stoic Quote] Request successful'); // Log success
-      return res.status(200).json(response.data);
-
+      console.log('[Stoic Quote] Attempting to fetch quote');
+      
+      // Try stoic-quotes.com first
+      try {
+        const response = await axios.get('https://stoic-quotes.com/api/quote', {
+          headers: { 'User-Agent': BROWSER_USER_AGENT },
+        });
+        
+        console.log('[Stoic Quote] Request successful');
+        return res.status(200).json(response.data);
+      } catch (error) {
+        // Fallback to tekloon if the first one fails
+        console.log('[Stoic Quote] Primary source failed, trying backup');
+        const response = await axios.get('https://stoic.tekloon.net/stoic-quote', {
+          headers: { 'User-Agent': BROWSER_USER_AGENT },
+        });
+        
+        console.log('[Stoic Quote] Backup request successful');
+        return res.status(200).json(response.data);
+      }
+      
     } else if (endpoint === 'ping') {
-      console.log('[Ping] Request successful'); // Log success
-      return res.status(200).json({ status: 'ok' });
-
+      console.log('[Ping] Request received');
+      return res.status(200).json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        message: 'Proxy is functioning properly'
+      });
+      
     } else {
-      console.warn(`[Not Found] Endpoint not matched: ${endpoint}`, req.url); // Log 404
+      console.warn(`[Not Found] Endpoint not recognized: ${endpoint}`);
       return res.status(404).json({ error: 'Endpoint not found' });
     }
   } catch (error) {
-    const endpointAttempt = req.url || 'unknown URL';
-    // --- Improved Error Logging ---
-    console.error(`[Proxy Catch Error] Failed processing URL: ${endpointAttempt}`);
+    console.error(`[Proxy Error] Error processing request:`, error);
+    
     if (axios.isAxiosError(error)) {
-        console.error('[Proxy Catch Error] Axios error:', {
-            message: error.message,
-            url: error.config?.url, // Log the URL Axios *actually* tried to hit
-            method: error.config?.method,
-            headers: error.config?.headers, // Log headers sent
-            status: error.response?.status, // Log status received
-            statusText: error.response?.statusText,
-            data: error.response?.data,
-        });
-        // Forward status from downstream if available, otherwise 500
-        const statusCode = error.response?.status || 500;
-        // Return more detailed error temporarily for debugging
-        return res.status(statusCode).json({
-            error: 'Proxy error during downstream request',
-            details: error.message,
-            downstreamStatus: error.response?.status,
-            downstreamData: error.response?.data, // Send downstream error back
-        });
+      console.error('[Proxy Error] Axios error details:', {
+        message: error.message,
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+      });
+      
+      const statusCode = error.response?.status || 500;
+      return res.status(statusCode).json({
+        error: 'Proxy error during downstream request',
+        message: error.message,
+        status: error.response?.status,
+      });
     } else {
-        console.error('[Proxy Catch Error] Non-Axios error:', error);
-        // Return more detailed error temporarily for debugging
-        return res.status(500).json({
-          error: 'Internal server error in proxy',
-          details: error instanceof Error ? error.message : 'Unknown error',
-        });
+      console.error('[Proxy Error] Non-Axios error:', error);
+      return res.status(500).json({
+        error: 'Internal server error in proxy',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
-    // --- End Improved Error Logging ---
   }
 }
