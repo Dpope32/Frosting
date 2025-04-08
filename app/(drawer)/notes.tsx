@@ -284,7 +284,11 @@ export default function NotesScreen() {
   }, [handleEditNote]);
 
   return (
-    <YStack flex={1} backgroundColor={isDark ? '#000000' : '$backgroundLight' }>
+    <YStack
+      flex={1}
+      backgroundColor={isDark ? '#000000' : '$backgroundLight'}
+      style={isWeb ? styles.webContainer : undefined}
+    >
       <XStack
         paddingTop={insets.top + 20}
         paddingBottom={16}
@@ -412,4 +416,7 @@ const styles = StyleSheet.create({
     padding: 8,
     paddingHorizontal: 12,
   },
+  webContainer: {
+    overflow: 'visible',
+  }
 });
