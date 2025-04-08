@@ -1,21 +1,21 @@
-//utils/ProxyServerManager.ts
-
+// utils/ProxyServerManager.ts
 import { Platform } from 'react-native';
 
-class ProxyServerManager {
-  private static instance: ProxyServerManager;
+class ProxyServerManagerClass {
   private isServerRunning: boolean = false;
   private serverCheckPromise: Promise<boolean> | null = null;
   private lastCheckTime: number = 0;
-  private readonly CHECK_INTERVAL = 30000; 
+  private readonly CHECK_INTERVAL = 60000; // 1 minute
 
   private constructor() {}
 
-  public static getInstance(): ProxyServerManager {
-    if (!ProxyServerManager.instance) {
-      ProxyServerManager.instance = new ProxyServerManager();
+  private static instance: ProxyServerManagerClass;
+
+  public static getInstance(): ProxyServerManagerClass {
+    if (!ProxyServerManagerClass.instance) {
+      ProxyServerManagerClass.instance = new ProxyServerManagerClass();
     }
-    return ProxyServerManager.instance;
+    return ProxyServerManagerClass.instance;
   }
 
   public async isRunning(): Promise<boolean> {
@@ -44,11 +44,19 @@ class ProxyServerManager {
 
   public async getApiUrl(endpoint: string, directUrl: string): Promise<string> {
     if (Platform.OS !== 'web') {
-      return directUrl; 
+      return directUrl;
     }
 
     // Use Vercel API route in production
     if (process.env.NODE_ENV === 'production') {
+      // For Yahoo Finance endpoints, route through stoic-quote using path parameter
+      if (endpoint.startsWith('yahoo-finance/') || endpoint.startsWith('yahoo-finance-history/')) {
+        // Instead of using /api/proxy/yahoo-finance/TSLA which isn't working,
+        // use /api/proxy?path=yahoo-finance/TSLA which should work with your current server code
+        return `/api/proxy?path=${encodeURIComponent(endpoint)}`;
+      }
+      
+      // For all other endpoints, use the normal approach
       return `/api/proxy/${endpoint}`;
     }
 
@@ -57,24 +65,23 @@ class ProxyServerManager {
       return `http://localhost:3000/api/${endpoint}`;
     } else {
       console.warn(`Proxy server not running. Some features may not work correctly.`);
-      return directUrl; 
+      return directUrl;
     }
   }
 
   private async checkServerStatus(): Promise<boolean> {
     try {
-      const url = process.env.NODE_ENV === 'production' 
-        ? '/api/proxy/ping' 
+      const url = process.env.NODE_ENV === 'production'
+        ? '/api/proxy/ping'
         : 'http://localhost:3000/api/ping';
-        
-      const response = await fetch(url, { 
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
         signal: AbortSignal.timeout(2000)
       });
       
       const isRunning = response.ok;
-      
       if (isRunning) {
         console.info(
           '%c[ProxyServerManager] Proxy server detected! ✅',
@@ -83,7 +90,6 @@ class ProxyServerManager {
       } else {
         this.showServerNotRunningWarning();
       }
-      
       return isRunning;
     } catch (error) {
       console.error('[ProxyServerManager] Error checking proxy server:', error);
@@ -105,4 +111,5 @@ class ProxyServerManager {
   }
 }
 
-export default ProxyServerManager.getInstance();
+const ProxyServerManager = ProxyServerManagerClass.getInstance();
+export default ProxyServerManager;

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Platform } from 'react-native'
-import { Stack, Text, Spinner } from 'tamagui'
+import { Stack, Spinner } from 'tamagui'
 import { MessageSquareQuote } from '@tamagui/lucide-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import { useUserStore } from '@/store/UserStore'
