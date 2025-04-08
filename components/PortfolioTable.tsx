@@ -101,9 +101,9 @@ export function PortfolioTable({
             {activeTab === 'portfolio' && (
               <Text width="5%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body">{stock.quantity}</Text>
             )}
-            <Text width="10%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body">${currentPrice ? currentPrice.toFixed(2) : 'N/A'}</Text>
+            <Text width="10%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body">{typeof currentPrice === 'number' && !isNaN(currentPrice) ? `$${currentPrice.toFixed(2)}` : 'N/A'}</Text>
             {activeTab === 'portfolio' && (
-            <Text width="10%" color={isDark ? "#4caf50" : "#2e7d32"} fontSize={14} fontFamily="$body">${totalValue ? totalValue.toFixed(2) : 'N/A'}</Text>
+              <Text width="10%" color={isDark ? "#4caf50" : "#2e7d32"} fontSize={14} fontFamily="$body">{typeof totalValue === 'number' && !isNaN(totalValue) ? `$${totalValue.toFixed(2)}` : 'N/A'}</Text>
             )}
             <Text width="8%" color={getValueColor('portfolio', todayChangePercent, '')} fontSize={14} fontFamily="$body">{renderReturn(todayChangePercent)}</Text>
             <Text width="8%" color={getValueColor('portfolio', returns?.['ytd'] || 0, '')} fontSize={14} fontFamily="$body">{returns ? renderReturn(returns['ytd']) : 'N/A'}</Text>
@@ -165,7 +165,7 @@ export function PortfolioTable({
       {activeTab === 'portfolio' && (
         <XStack borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} py="$2" px="$2" alignItems="center">
           <Text width="5%" textAlign="right" fontSize={14} fontFamily="$body">Total</Text>
-          <Text width="10%" textAlign="right" fontSize={14} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue.toFixed(2), '')}>{totalPortfolioValue ? totalPortfolioValue.toFixed(2) : 'N/A'}</Text>
+          <Text width="10%" textAlign="right" fontSize={14} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '')}>{typeof totalPortfolioValue === 'number' && !isNaN(totalPortfolioValue) ? `$${totalPortfolioValue.toFixed(2)}` : 'N/A'}</Text>
           <XStack flex={1} />
         </XStack>
       )}
