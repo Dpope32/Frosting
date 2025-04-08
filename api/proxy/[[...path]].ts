@@ -168,6 +168,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       
     } 
+    else if (endpoint === 'debug-query') {
+      console.log('[Debug] Query object:', req.query);
+      return res.status(200).json({
+        query: req.query,
+        url: req.url,
+        method: req.method,
+        headers: req.headers
+      });
+    }
     else if (endpoint === 'debug') {
       console.log('[Debug] Debug endpoint called');
       return res.status(200).json({
