@@ -5,6 +5,7 @@ import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
 import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
+import { useToastStore } from '@/store/ToastStore'
 
 type DebouncedTextInputProps = {
   value: string
@@ -52,6 +53,7 @@ export function VaultRecommendationModal({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const { addVaultEntry } = useVault()
+  const { showToast } = useToastStore()
   const [selectedEntries, setSelectedEntries] = useState<Record<number, boolean>>({})
   const [usernames, setUsernames] = useState<Record<number, string>>({})
   const [passwords, setPasswords] = useState<Record<number, string>>({})
@@ -81,6 +83,8 @@ export function VaultRecommendationModal({
   
   const handleSaveSelectedEntries = () => {
     const recommendedEntries = getRecommendedVaultEntries(category)
+    let addedCount = 0
+    
     Object.entries(selectedEntries).forEach(([indexStr, isSelected]) => {
       if (isSelected) {
         const index = parseInt(indexStr)
@@ -94,9 +98,18 @@ export function VaultRecommendationModal({
             username: username,
             password: password
           })
+          addedCount++
         }
       }
     })
+    
+    if (addedCount > 0) {
+      showToast(
+        `Successfully added ${addedCount} account${addedCount > 1 ? 's' : ''} to your vault`,
+        'success'
+      )
+    }
+    
     setSelectedEntries({})
     setUsernames({})
     setPasswords({})

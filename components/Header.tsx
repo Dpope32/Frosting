@@ -124,8 +124,8 @@ export function Header({ title }: HeaderProps) {
                 ? 'rgba(0,0,0,0.0)' 
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
-                ? 'rgba(0,0,0,0.6)' 
-                : 'rgba(255, 255, 255, 0.2)' 
+                ? 'rgba(0,0,0,0.4)' 
+                : 'rgba(255, 255, 255, 0.1)' 
           }
           style={{
             shadowColor: colorScheme === 'dark' ? undefined : '#000',

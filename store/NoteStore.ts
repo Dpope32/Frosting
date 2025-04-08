@@ -19,8 +19,6 @@ type NoteStoreActions = {
   deleteNote: (id: string) => Promise<void>
   updateNoteOrder: (orderedNotes: Note[]) => Promise<void>
   togglePinned: (id: string) => Promise<void>
-  archiveNote: (id: string) => Promise<void>
-  unarchiveNote: (id: string) => Promise<void>
   clearNotes: () => Promise<void>
   loadNotes: () => Promise<void>
 }
@@ -64,6 +62,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   addNote: async (noteData) => {
+    // console.log('[NoteStore] addNote received data:', JSON.stringify(noteData, null, 2)); // <-- Removed log
     const newId = generateNoteId()
     const now = new Date().toISOString()
     const newNote: Note = {
@@ -71,7 +70,6 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       id: newId,
       createdAt: now,
       updatedAt: now,
-      archived: false,
       isPinned: false,
     }
 
@@ -87,6 +85,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   updateNote: async (id, updates) => {
+    // console.log(`[NoteStore] updateNote (id: ${id}) received updates:`, JSON.stringify(updates, null, 2)); // <-- Removed log
     const notes = get().notes
     if (notes[id]) {
       const updatedNote = {
@@ -117,28 +116,20 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
   updateNoteOrder: async (orderedNotes) => {
     const newOrder = orderedNotes.map(note => note.id)
-    await StorageUtils.set(ORDER_STORAGE_KEY, newOrder)
+    
+    // Update state immediately
     set({ noteOrder: newOrder })
+    
+    // Then save to storage in the background
+    StorageUtils.set(ORDER_STORAGE_KEY, newOrder).catch(error => {
+      console.error('Error saving note order:', error)
+    })
   },
 
   togglePinned: async (id) => {
     const notes = get().notes
     if (notes[id]) {
       await get().updateNote(id, { isPinned: !notes[id].isPinned })
-    }
-  },
-
-  archiveNote: async (id) => {
-    const notes = get().notes
-    if (notes[id] && !notes[id].archived) {
-      await get().updateNote(id, { archived: true })
-    }
-  },
-
-  unarchiveNote: async (id) => {
-    const notes = get().notes
-    if (notes[id] && notes[id].archived) {
-      await get().updateNote(id, { archived: false })
     }
   },
 

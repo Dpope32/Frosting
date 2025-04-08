@@ -19,6 +19,7 @@ export type Tag = {
     title: string
     content: string
     isPinned?: boolean
+    isExpanded?: boolean
     color?: string
     tags?: Tag[]
     attachments?: Attachment[]

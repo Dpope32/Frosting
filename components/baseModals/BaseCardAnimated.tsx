@@ -38,9 +38,19 @@ export function BaseCardAnimated({
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
   )
 
+  // Calculate available height accounting for header and safe areas
+  const headerHeight = Platform.OS === 'ios' ? 44 : 56 // Standard header heights
+  const availableHeight = screenHeight - (insets.top + headerHeight + insets.bottom)
+
   return (
     <Animated.View
-      style={styles.overlay}
+      style={[
+        styles.overlay,
+        {
+          paddingTop: insets.top + headerHeight,
+          paddingBottom: insets.bottom,
+        }
+      ]}
       entering={FadeIn.duration(200)}
       exiting={FadeOut.duration(300)}
       pointerEvents="box-none"
@@ -55,7 +65,7 @@ export function BaseCardAnimated({
         }}
       >
         <View 
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+          style={styles.container}
           pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
@@ -66,15 +76,13 @@ export function BaseCardAnimated({
                   styles.modalContainer,
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top + 30, 
-                    marginBottom: insets.bottom + 60,
                     width: actualWidth,
-                    maxHeight: screenHeight,
+                    maxHeight: availableHeight - 40, // Leave some padding
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" paddingVertical="$2" marginTop={isWeb ? 0 : -6} marginBottom={isWeb ? 8 : 0} paddingHorizontal="$2" alignItems="center">
-                <Text
+                <XStack justifyContent="space-between" paddingVertical="$2" marginTop={-8} marginBottom={4} paddingHorizontal="$2" alignItems="center">
+                  <Text
                     fontSize={isWeb? 24 : 20}
                     fontWeight="700"
                     fontFamily="$body"
@@ -92,14 +100,12 @@ export function BaseCardAnimated({
                     />
                   )}
                 </XStack>
-                <View style={{ position: 'relative' }}>
-                    {children}
-                  </View>
-                </Animated.View>
-                </Theme>
-          </View>
-        </TouchableWithoutFeedback>
-      </Animated.View>
+                {children}
+              </Animated.View>
+          </Theme>
+        </View>
+      </TouchableWithoutFeedback>
+    </Animated.View>
   )
 }
 
@@ -107,13 +113,15 @@ const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    zIndex: 300000,
+  },
+  container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 300000, // Increased zIndex significantly higher than PeopleListModal
   },
   modalContainer: {
     alignSelf: 'center',
-    justifyContent: 'flex-start',
     borderRadius: 16,
     padding: 16,
     paddingHorizontal: isWeb? 32 : 16,
@@ -122,7 +130,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 50 : 16,
-    zIndex: 1,
   },
 })

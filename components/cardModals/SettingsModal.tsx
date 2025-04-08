@@ -9,6 +9,7 @@ import { useBillStore } from '@/store/BillStore';
 import { useProjectStore } from '@/store/ToDo'; 
 import { usePeopleStore } from '@/store/People'; 
 import { useWallpaperStore } from '@/store/WallpaperStore';
+import { useNoteStore } from '@/store/NoteStore';
 import { colorOptions } from '../../constants/Colors';
 import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds';
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
@@ -508,6 +509,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 useProjectStore.getState().clearTasks();
                 usePeopleStore.getState().clearContacts();
                 useUserStore.getState().clearPreferences();
+                useNoteStore.getState().clearNotes();
 
                 await StorageUtils.clear();
 

@@ -1,148 +1,140 @@
 import React, { useState, useCallback } from 'react';
-import { Platform, View, StyleSheet, StatusBar, Dimensions } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { YStack, Button, XStack, Text } from 'tamagui';
-import { Plus } from '@tamagui/lucide-icons';
+import { Plus, Trash2, RefreshCw } from '@tamagui/lucide-icons';
 import { NoteCard } from '@/components/notes/NoteCard';
 import { NotesEmpty } from '@/components/notes/NotesEmpty';
 import { AddNoteSheet } from '@/components/notes/AddNoteSheet';
-import type { Note } from '@/types/notes';
+import type { Note, Tag, Attachment } from '@/types/notes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUserStore } from '@/store/UserStore';
 import { useNotes } from '@/hooks/useNotes';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
+import { generateTestNotes } from '@/constants/devNotes';
+import { useNoteStore } from '@/store/NoteStore';
+import * as Haptics from 'expo-haptics';
+import { useToastStore } from '@/store/ToastStore';
+
+// Helper function to trigger haptics only on non-web platforms
+const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) => {
+  if (Platform.OS !== 'web') {
+    Haptics.impactAsync(style);
+  }
+};
 
 export default function NotesScreen() {
   const insets = useSafeAreaInsets();
-  const preferences = useUserStore((state) => state.preferences);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isWeb = Platform.OS === 'web';
-  const screenWidth = Dimensions.get('window').width;
-  const [selection, setSelection] = useState({ start: 0, end: 0 });
-  
+  const preferences = useUserStore((state) => state.preferences);
+
+  // State management
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [editTags, setEditTags] = useState<Tag[]>([]);
+  const [editAttachments, setEditAttachments] = useState<Attachment[]>([]);
+  const [selection, setSelection] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
+
   const {
     notes,
-    selectedNote,
-    isModalOpen,
-    editTitle,
-    editContent,
-    editTags,
-    editAttachments,
     handleAddNote,
-    handleSelectNote,
     handleSaveNote,
     handleDeleteNote,
-    handleCloseModal,
-    setEditTitle,
-    setEditContent,
-    handleTagsChange,
-    handleAddAttachment,
-    handleRemoveAttachment,
-    updateNotes, // Make sure this exists in your useNotes hook
+    handleTagsChange: useNotesHandleTagsChange,
+    updateNotes,
   } = useNotes();
 
+  // Local handler for tag changes
+  const handleTagsChange = useCallback((tags: Tag[]) => {
+    setEditTags(tags);
+  }, []);
+
+  // Local handler for adding attachments
+  const handleAddAttachment = useCallback((attachment: Attachment) => {
+    setEditAttachments(prev => [...prev, attachment]);
+  }, []);
+
+  // Local handler for removing attachments
+  const handleRemoveAttachment = useCallback((attachmentId: string) => {
+    setEditAttachments(prev => prev.filter(a => a.id !== attachmentId));
+  }, []);
+
   const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();
+  const showToast = useToastStore(state => state.showToast);
+  const noteStore = useNoteStore();
 
-  // Handle notes reordering
+  // Add test notes function
+  const addTestNotes = useCallback(async () => {
+    const testNotes = generateTestNotes();
+    // Add notes one by one with a delay
+    for (let i = 0; i < testNotes.length; i++) {
+      const note = testNotes[i];
+      await noteStore.addNote({
+        title: note.title,
+        content: note.content,
+        tags: note.tags,
+        attachments: note.attachments
+      });
+      // Add delay between notes
+      if (i < testNotes.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+  }, [noteStore]);
+
+  // Clear all notes function
+  const clearNotes = useCallback(async () => {
+    await noteStore.clearNotes();
+  }, [noteStore]);
+
+  // Handle adding test notes
+  const handleAddTestNotes = useCallback(async () => {
+    triggerHaptic();
+    await addTestNotes();
+    showToast('Test notes added', 'success');
+  }, [addTestNotes, showToast]);
+
+  // Handle clearing all notes
+  const handleClearNotes = useCallback(async () => {
+    triggerHaptic();
+    await clearNotes();
+    showToast('All notes cleared', 'success');
+  }, [clearNotes, showToast]);
+
+  // Handle note editing
+  const handleEditNote = useCallback((note: Note) => {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    setSelectedNote(note);
+    setEditTitle(note.title);
+    setEditContent(note.content);
+    setEditTags(note.tags || []);
+    setEditAttachments(note.attachments || []);
+    setIsModalOpen(true);
+  }, []);
+
+  // Handle drag end
   const handleDragEnd = useCallback(({ data }: { data: Note[] }) => {
-    // Update the notes order in your state or database
-    updateNotes(data);
-  }, [updateNotes]);
+    triggerHaptic();
+    
+    // Update the store immediately
+    noteStore.updateNoteOrder(data);
+  }, [noteStore]);
 
-  // Improved formatting functions with better selection handling
-  const handleBold = useCallback(() => {
-    const start = selection.start;
-    const end = selection.end;
-    
-    // If there's no selection, just add bold markers at cursor position
-    if (start === end) {
-      const newContent = 
-        editContent.substring(0, start) + 
-        '**bold text**' + 
-        editContent.substring(end);
-      setEditContent(newContent);
-      return;
-    }
-    
-    const selectedText = editContent.substring(start, end);
-    const newContent = 
-      editContent.substring(0, start) + 
-      `**${selectedText}**` + 
-      editContent.substring(end);
-    setEditContent(newContent);
-  }, [editContent, selection, setEditContent]);
-
-  const handleItalic = useCallback(() => {
-    const start = selection.start;
-    const end = selection.end;
-    
-    // If there's no selection, just add italic markers at cursor position
-    if (start === end) {
-      const newContent = 
-        editContent.substring(0, start) + 
-        '*italic text*' + 
-        editContent.substring(end);
-      setEditContent(newContent);
-      return;
-    }
-    
-    const selectedText = editContent.substring(start, end);
-    const newContent = 
-      editContent.substring(0, start) + 
-      `*${selectedText}*` + 
-      editContent.substring(end);
-    setEditContent(newContent);
-  }, [editContent, selection, setEditContent]);
-
-  const handleBullet = useCallback(() => {
-    const start = selection.start;
-    const end = selection.end;
-    
-    // If no selection, just add a bullet point
-    if (start === end) {
-      const newContent = 
-        editContent.substring(0, start) + 
-        '\n- ' + 
-        editContent.substring(end);
-      setEditContent(newContent);
-      return;
-    }
-    
-    const selectedText = editContent.substring(start, end);
-    
-    // Handle multi-line selections
-    if (selectedText.includes('\n')) {
-      const lines = selectedText.split('\n');
-      const bulletedLines = lines.map(line => line.trim() ? `- ${line}` : line).join('\n');
-      const newContent = 
-        editContent.substring(0, start) + 
-        bulletedLines + 
-        editContent.substring(end);
-      setEditContent(newContent);
-    } else {
-      // Single line
-      const newContent = 
-        editContent.substring(0, start) + 
-        `- ${selectedText}` + 
-        editContent.substring(end);
-      setEditContent(newContent);
-    }
-  }, [editContent, selection, setEditContent]);
-
-  // Improved image handling - only store the markdown, never show it directly
+  // Handle image picking
   const handleImagePick = useCallback(async () => {
     try {
       if (isImagePickerLoading) return;
       
       const result = await pickImage();
       if (result) {
-        // Generate a more user-friendly name (just the number)
         const imageNum = editAttachments.length + 1;
         const imageName = `Image ${imageNum}`;
         
-        // Create attachment record
         const newAttachment = {
           id: Date.now().toString(),
           name: imageName,
@@ -150,54 +142,154 @@ export default function NotesScreen() {
           type: 'image'
         };
         
-        // Add attachment to storage
         handleAddAttachment(newAttachment);
-        
-        // Markdown insertion removed - image is attached via handleAddAttachment
       }
     } catch (error) {
       console.error('Error picking image:', error);
     }
-  }, [
-    pickImage, 
-    isImagePickerLoading, 
-    editAttachments.length, 
-    handleAddAttachment, 
-    editContent, 
-    selection, 
-    setEditContent
-  ]);
+  }, [pickImage, isImagePickerLoading, editAttachments.length, handleAddAttachment]);
 
   // Handle selection change
   const handleSelectionChange = useCallback((event: any) => {
     setSelection(event.nativeEvent.selection);
   }, []);
 
-  // Render each note card with drag functionality
-  const renderItem = useCallback(({ item, drag, isActive }: { 
-    item: Note; 
-    drag: () => void; 
-    isActive: boolean 
-  }) => (
-    <ScaleDecorator activeScale={1.02}>
-      <View style={styles.itemContainer}>
-        <NoteCard
-          note={item}
-          onPress={() => handleSelectNote(item)}
-          onLongPress={drag}
-          isDragging={isActive}
-        />
-      </View>
-    </ScaleDecorator>
-  ), [handleSelectNote]);
+  // Handle text formatting
+  const handleBold = useCallback(() => {
+    if (selection.start === selection.end) return;
+    
+    const before = editContent.substring(0, selection.start);
+    const selected = editContent.substring(selection.start, selection.end);
+    const after = editContent.substring(selection.end);
+    
+    setEditContent(`${before}**${selected}**${after}`);
+  }, [editContent, selection]);
+
+  const handleItalic = useCallback(() => {
+    if (selection.start === selection.end) return;
+    
+    const before = editContent.substring(0, selection.start);
+    const selected = editContent.substring(selection.start, selection.end);
+    const after = editContent.substring(selection.end);
+    
+    setEditContent(`${before}*${selected}*${after}`);
+  }, [editContent, selection]);
+
+  const handleBullet = useCallback(() => {
+    const before = editContent.substring(0, selection.start);
+    const after = editContent.substring(selection.start);
+    
+    if (before.endsWith('\n') || before === '') {
+      setEditContent(`${before}- ${after}`);
+    } else {
+      setEditContent(`${before}\n- ${after}`);
+    }
+  }, [editContent, selection]);
+
+  const handleSaveNoteWithHaptic = useCallback(async () => {
+    triggerHaptic();
+    const isUpdating = !!selectedNote; // Store whether we're updating before handleSaveNote clears it
+    
+    // Pass the selectedNote to handleSaveNote
+    if (selectedNote) {
+      await noteStore.updateNote(selectedNote.id, {
+        title: editTitle,
+        content: editContent,
+        tags: editTags,
+        attachments: editAttachments
+      });
+    } else {
+      await noteStore.addNote({
+        title: editTitle,
+        content: editContent,
+        tags: editTags,
+        attachments: editAttachments
+      });
+    }
+    
+    setIsModalOpen(false);
+    setSelectedNote(null);
+    
+    if (isUpdating) {
+      showToast('Note updated successfully', 'success');
+    } else {
+      showToast('Note created successfully', 'success');
+    }
+  }, [selectedNote, editTitle, editContent, editTags, editAttachments, noteStore, showToast]);
+
+  const handleDeleteNoteWithHaptic = useCallback(async () => {
+    triggerHaptic();
+    
+    // Show confirmation dialog
+    const confirmDelete = Platform.OS === 'web' 
+      ? window.confirm('Are you sure you want to delete this note?')
+      : new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Delete Note',
+            'Are you sure you want to delete this note?',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => resolve(false)
+              },
+              {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: () => resolve(true)
+              }
+            ]
+          );
+        });
+    
+    // Wait for the confirmation dialog to be resolved
+    const shouldDelete = await confirmDelete;
+    
+    if (shouldDelete && selectedNote) {
+      await noteStore.deleteNote(selectedNote.id);
+      setIsModalOpen(false);
+      setSelectedNote(null);
+      showToast('Note deleted successfully', 'success');
+    }
+  }, [selectedNote, noteStore, showToast]);
+
+  const handleAddNoteWithHaptic = useCallback(() => {
+    triggerHaptic();
+    setSelectedNote(null);
+    setEditTitle('');
+    setEditContent('');
+    setEditTags([]);
+    setEditAttachments([]);
+    setIsModalOpen(true);
+  }, []);
+
+  const renderItem = useCallback(({ item, drag, isActive }: { item: Note; drag: () => void; isActive: boolean }) => {
+    return (
+      <ScaleDecorator>
+        <TouchableOpacity
+          onLongPress={!item.isExpanded ? drag : undefined}
+          disabled={isActive || item.isExpanded}
+          delayLongPress={300}
+          style={{ marginBottom: 8 }}
+        >
+          <NoteCard
+            note={item}
+            onPress={() => handleEditNote(item)}
+            isDragging={isActive}
+            onEdit={handleEditNote}
+          />
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  }, [handleEditNote]);
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <YStack flex={1} backgroundColor={isDark ? '#000000' : '$backgroundLight' }>
       <XStack
-        paddingTop={insets.top + 10}
+        paddingTop={insets.top + 20}
         paddingBottom={16}
         paddingHorizontal={16}
-        backgroundColor="$background"
+        backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
         justifyContent="space-between"
         alignItems="center"
       >
@@ -210,7 +302,7 @@ export default function NotesScreen() {
         onDragEnd={handleDragEnd}
         numColumns={1}
         contentContainerStyle={{ 
-          paddingHorizontal: 6,
+          paddingHorizontal: 16,
           paddingBottom: insets.bottom + 80,
           paddingTop: 8
         }}
@@ -221,20 +313,71 @@ export default function NotesScreen() {
             isWeb={isWeb}
           />
         }
+        dragItemOverflow={false}
+        dragHitSlop={{ top: -20, bottom: -20, left: 0, right: 0 }}
       />
+
       <Button
         size="$4"
         circular
         position="absolute"
         bottom={insets.bottom + 20}
         right={20}
-        onPress={handleAddNote}
+        onPress={handleAddNoteWithHaptic}
         backgroundColor={preferences.primaryColor}
         pressStyle={{ scale: 0.95 }}
         animation="quick"
         elevation={4}
         icon={<Plus size={24} color="white" />}
       />
+
+      {__DEV__ && (
+        <XStack 
+          position="absolute" 
+          bottom={50} 
+          left={40} 
+          gap={10} 
+          zIndex={100}
+        >
+          <TouchableOpacity 
+            onPress={handleClearNotes}
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              backgroundColor: isDark ? '#333' : '#f0f0f0',
+              justifyContent: 'center',
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 2,
+              elevation: 3,
+            }}
+          >
+            <Trash2 size={20} color={isDark ? '#ff6b6b' : '#e74c3c'} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={handleAddTestNotes}
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              backgroundColor: isDark ? '#333' : '#f0f0f0',
+              justifyContent: 'center',
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 2,
+              elevation: 3,
+            }}
+          >
+            <RefreshCw size={20} color={isDark ? '#4dabf7' : '#3498db'} />
+          </TouchableOpacity>
+        </XStack>
+      )}
 
       <AddNoteSheet
         isModalOpen={isModalOpen}
@@ -243,12 +386,15 @@ export default function NotesScreen() {
         editContent={editContent}
         editTags={editTags}
         editAttachments={editAttachments}
-        handleCloseModal={handleCloseModal}
+        handleCloseModal={() => {
+          setIsModalOpen(false);
+          setSelectedNote(null);
+        }}
         setEditTitle={setEditTitle}
         setEditContent={setEditContent}
         handleTagsChange={handleTagsChange}
-        handleSaveNote={handleSaveNote}
-        handleDeleteNote={handleDeleteNote}
+        handleSaveNote={handleSaveNoteWithHaptic}
+        handleDeleteNote={handleDeleteNoteWithHaptic}
         handleRemoveAttachment={handleRemoveAttachment}
         handleBold={handleBold}
         handleItalic={handleItalic}

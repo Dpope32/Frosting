@@ -113,7 +113,6 @@ export function AddNoteSheet({
     
     return (
       <YStack gap="$2">
-        <Text fontSize="$4" fontWeight="600">Attachments</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <XStack gap="$2">
             {editAttachments.map(attachment => (
@@ -137,20 +136,6 @@ export function AddNoteSheet({
                     <View style={styles.overlay} />
                   </>
                 )}
-                
-                <Text 
-                  color="white"
-                  fontSize={13}
-                  position="absolute"
-                  bottom={8}
-                  paddingHorizontal={6}
-                  paddingVertical={2}
-                  backgroundColor="rgba(0,0,0,0.5)"
-                  borderRadius={4}
-                  zIndex={2}
-                >
-                  {attachment.name}
-                </Text>
                 
                 <Button
                   position="absolute"
@@ -216,84 +201,116 @@ export function AddNoteSheet({
           />
         </XStack>
         
-        <RNScrollView
-          ref={scrollViewRef}
-          style={{ flex: 1 }}
-          contentContainerStyle={{ 
-            paddingBottom: contentPadding
-          }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <YStack gap={isWeb ? "$3" : "$2"} paddingTop="$2">
-            <DebouncedInput
-              placeholder="Title"
-              value={editTitle}
-              onDebouncedChange={setEditTitle}
-              fontSize="$5"
-            />
-            
-            <TagSelector
-              tags={editTags}
-              onTagsChange={handleTagsChange}
-            />
-            
-            <FormattingToolbar
-              onBold={handleBold}
-              onItalic={handleItalic}
-              onBullet={handleBullet}
-              onAttachImage={handleImagePick}
-            />
-            
-            {/* Our new improved content input component */}
-            <ContentInput
-              ref={contentInputRef}
-              value={editContent}
-              onChangeText={setEditContent}
-              onSelectionChange={handleSelectionChange}
-              numberOfLines={keyboardVisible ? 5 : 10}
-              minHeight={keyboardVisible ? 100 : 150}
-            />
-            
-            {renderAttachments()}
-            
-            <YStack gap="$3" paddingTop="$2">
-              {selectedNote && (
+        <YStack flex={1}>
+          <RNScrollView
+            ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ 
+              paddingBottom: contentPadding
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <YStack gap={isWeb ? "$3" : "$2"} paddingTop="$2">
+              <DebouncedInput
+                placeholder="Title"
+                value={editTitle}
+                onDebouncedChange={setEditTitle}
+                fontSize="$5"
+              />
+              
+              <TagSelector
+                tags={editTags}
+                onTagsChange={handleTagsChange}
+              />
+              
+              <FormattingToolbar
+                onBold={handleBold}
+                onUnderline={handleItalic} 
+                onBullet={handleBullet}
+                onAttachImage={handleImagePick}
+              />
+              
+              <ContentInput
+                ref={contentInputRef}
+                value={editContent}
+                onChangeText={setEditContent}
+                onSelectionChange={handleSelectionChange}
+                numberOfLines={keyboardVisible ? 8 : 15}
+                minHeight={keyboardVisible ? 120 : 200}
+              />
+              
+              {renderAttachments()}
+            </YStack>
+          </RNScrollView>
+          
+          <XStack 
+            gap="$2" 
+            justifyContent="space-between" 
+            paddingTop="$2"
+            paddingBottom="$2"
+            marginBottom="$4"
+            borderTopWidth={1}
+            borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+          >
+            {selectedNote ? (
+              <>
                 <Button
-                  backgroundColor={isDark ? "$red10" : "$red8"}
+                  backgroundColor={isDark ? "rgba(255, 0, 0, 0.2)" : "rgba(255, 0, 0, 0.1)"}
                   pressStyle={{ opacity: 0.7 }}
                   onPress={handleDeleteNote}
-                  br={8}
-                  py={isWeb ? "$1" : "$2"}
+                  br={12}
+                  py={isWeb ? "$1" : "$1.5"}
+                  flex={1}
                 >
-                  <Text color="white" fontFamily="$body" fontSize={15} fontWeight="600">
+                  <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
                     Delete Note
                   </Text>
                 </Button>
-              )}
-              
+                
+                <Button
+                  backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
+                  br={12}
+                  py={isWeb ? "$1" : "$1.5"}
+                  onPress={handleSaveNote}
+                  pressStyle={{ opacity: 0.7 }}
+                  borderWidth={2}
+                  borderColor={preferences.primaryColor}
+                  flex={1}
+                >
+                  <Text
+                    color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
+                    fontFamily="$body"
+                    fontSize={13}
+                    fontWeight="600"
+                  >
+                    Save Changes
+                  </Text>
+                </Button>
+              </>
+            ) : (
               <Button
                 backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
-                br={8}
-                py={isWeb ? "$1" : "$2"}
+                br={12}
+                py={isWeb ? "$1" : "$1.5"}
                 onPress={handleSaveNote}
-                marginTop={8}
                 pressStyle={{ opacity: 0.7 }}
                 borderWidth={2}
                 borderColor={preferences.primaryColor}
+                flex={1}
               >
                 <Text
                   color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
                   fontFamily="$body"
-                  fontSize={15}
+                  fontSize={14}
                   fontWeight="600"
                 >
-                  {selectedNote ? 'Save Changes' : 'Save Note'}
+                  Save Note
                 </Text>
               </Button>
-            </YStack>
-          </YStack>
-        </RNScrollView>
+            )}
+          </XStack>
+        </YStack>
       </Sheet.Frame>
     </Sheet>
   );
