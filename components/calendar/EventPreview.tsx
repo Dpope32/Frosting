@@ -117,7 +117,8 @@ export const EventPreview: React.FC<{
       borderColor: isDark ? '#444444' : '#dddddd',
       borderWidth: isBirthday ? 2 : 1,
       borderRadius: 10,
-      marginBottom: 8,
+      marginRight: 8,
+      marginLeft: 6,
       position: 'relative',
       padding: 12,
       ...(isBirthday && { borderColor: primaryColor })
@@ -126,20 +127,22 @@ export const EventPreview: React.FC<{
       color: isDark ? '#ffffff' : '#010101',
       fontSize: 16,
       fontWeight: '600',
-      marginRight: 40
+      marginRight: 40,
+      marginLeft: 4,
     },
     timeChip: {
       backgroundColor: "rgba(255, 255, 255, 0.05)",
       borderRadius: 12,
-      paddingVertical: 4,
+      paddingVertical: 3,
       paddingHorizontal: 8,
       alignSelf: 'flex-start',
       marginRight: 8,
-      marginBottom: 6,
+      marginBottom: 0,
       borderWidth: 1,
       borderColor: "rgb(52, 54, 55)",
       flexDirection: 'row',
       alignItems: 'center',
+      marginLeft: 4,
     },
     timeChipText: {
       color: "rgb(157, 157, 157)",
@@ -150,7 +153,7 @@ export const EventPreview: React.FC<{
     typeChip: {
       borderRadius: 12,
       paddingVertical: 4, 
-      paddingHorizontal: 8,
+      paddingHorizontal: 6,
       alignSelf: 'flex-start',
       marginRight: 8,
       marginBottom: 6,
@@ -164,13 +167,13 @@ export const EventPreview: React.FC<{
     },
     priorityChip: {
       borderRadius: 12,
-      paddingVertical: 4,
       paddingHorizontal: 8,
       alignSelf: 'flex-start',
       marginRight: 8,
       marginBottom: 6,
       flexDirection: 'row',
       alignItems: 'center',
+      marginLeft: 4,
     },
     priorityChipText: {
       fontSize: 11,
@@ -181,7 +184,8 @@ export const EventPreview: React.FC<{
       color: isDark ? '#cccccc' : '#555555',
       fontSize: 15,
       lineHeight: 20,
-      marginTop: 6
+      marginLeft: 4,
+      marginTop: 8,
     },
     notificationIcon: {
       marginRight: 6,
@@ -190,7 +194,7 @@ export const EventPreview: React.FC<{
     metaInfo: {
       color: isDark ? '#999999' : '#777777',
       fontSize: 12,
-      marginTop: 6
+      marginLeft: 3,
     },
     icon: {
       color: isDark ? '#ffffff' : '#010101'
@@ -202,7 +206,7 @@ export const EventPreview: React.FC<{
       flexDirection: 'row',
       flexWrap: 'wrap',
       alignItems: 'center',
-      marginTop: 6
+      marginLeft: 2,
     }
   })
 
@@ -214,6 +218,11 @@ export const EventPreview: React.FC<{
           <Ionicons name="close" size={20} style={dynamicStyles.closeIcon} />
         </TouchableOpacity>
       )}
+       {event.description && (
+          <Text numberOfLines={2} style={dynamicStyles.description}>
+            {formatNBATitle(event.description)}
+          </Text>
+        )}
       <View style={styles.detailsRow}>
         <View style={dynamicStyles.infoRow}>
           {event.time && !isBirthday && (
@@ -279,15 +288,9 @@ export const EventPreview: React.FC<{
             />
           )}
         </View>
-        
-        {event.description && (
-          <Text numberOfLines={2} style={dynamicStyles.description}>
-            {formatNBATitle(event.description)}
-          </Text>
-        )}
       </View>
       
-      {!isBirthday && !isDeviceEvent && !isNBAEvent && (
+      {!isBirthday && !isDeviceEvent && !isNBAEvent && event.type !== 'bill' && (
         <TouchableOpacity 
           onPress={() => {
             console.log('Edit icon clicked for event:', {

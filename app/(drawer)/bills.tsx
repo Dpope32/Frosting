@@ -52,7 +52,7 @@ export default function BillsScreen() {
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
   return (
-    <YStack f={1} mt={isWeb ? 45 : 95} bg={isDark ? "#010101" : "#fffbf7fff"}>
+    <YStack f={1} mt={isWeb ? 45 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
       {isWeb ? (
         <XStack 
           width="100%" 
@@ -63,15 +63,13 @@ export default function BillsScreen() {
           gap="$8"
           px={0} 
         >
-
-          
           <XStack gap="$4" ai="center" flex={1} jc="flex-start" pl="$6">
-            <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
                 <XStack ai="center" gap="$2">
                   <Text fontSize="$4" fontWeight="bold" color="#4CAF50" fontFamily="$body">
-                    ${monthlyIncome.toFixed(2)}
+                    ${monthlyIncome.toFixed(0)}
                   </Text>
                   <Button
                     size="$1"
@@ -87,21 +85,21 @@ export default function BillsScreen() {
               </YStack>
             </XStack>
             
-            <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
                 <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
-                  ${totalMonthlyAmount.toFixed(2)}
+                  ${totalMonthlyAmount.toFixed(0)}
                 </Text>
               </YStack>
             </XStack>
             
             {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$2" px="$4" br="$4" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
                 <YStack>
                   <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
-                  <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
-                    ${monthlyBalance.toFixed(2)}
+                  <Text fontSize="$4" fontWeight="bold" color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'} fontFamily="$body">
+                    ${monthlyBalance.toFixed(0)}
                   </Text>
                 </YStack>
               </XStack>
@@ -150,7 +148,7 @@ export default function BillsScreen() {
                     color={isDark ? '#aaa' : '#000'}
                     fontFamily="$body"
                   >
-                    ${monthlyIncome.toFixed(2)}
+                    ${monthlyIncome.toFixed(0)}
                   </Text>
                 </XStack>
               </XStack>
@@ -162,10 +160,10 @@ export default function BillsScreen() {
                 <Text 
                   fontSize={16}
                   fontWeight="600"
-                  color={getAmountColor(totalMonthlyAmount)}
+                  color="#FF5252"
                   fontFamily="$body"
                 >
-                  ${totalMonthlyAmount.toFixed(2)}
+                  ${totalMonthlyAmount.toFixed(0)}
                 </Text>
               </XStack>
               
@@ -180,7 +178,7 @@ export default function BillsScreen() {
                     color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'}
                     fontFamily="$body"
                   >
-                    ${monthlyBalance.toFixed(2)}
+                    ${monthlyBalance.toFixed(0)}
                   </Text>
                 </XStack>
               )}

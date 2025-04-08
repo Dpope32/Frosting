@@ -180,14 +180,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                         onDelete={() => handleDeleteEventWithConfirmation(event.id)}
                         isDark={isDark}
                         primaryColor={primaryColor}
-                        isDeviceEvent={event.id.startsWith('device-')}
                       />
                     </Animated.View>
                   ))}
             </ScrollView>
             <TouchableOpacity
               onPress={handleAddNewEvent}
-              style={[styles.addButton, { backgroundColor: primaryColor }]}
+              style={[styles.buttonEvent, { backgroundColor: primaryColor }]}
             >
               <Ionicons name="add" size={24} color="#fffbf7" />
             </TouchableOpacity>

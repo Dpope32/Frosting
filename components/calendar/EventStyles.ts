@@ -107,6 +107,21 @@ export const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: 'center'
   },
+
+  buttonEvent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    minWidth: 32,
+    maxWidth: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 8,
+    bottom: 0,
+    width: 32,
+    height: 32,
+  },
   cancelButton: {
     marginRight: 8
   },

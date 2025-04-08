@@ -61,10 +61,11 @@ export const NotesEmpty = ({
             <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Stay Organized
+                 Markdown Support
               </Text>
               <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Keep your thoughts organized with a clean, simple interface.
+                Write in Markdown to format your notes. 
+                Use bold, underline, bullet points, and more to make your notes more readable.
               </Text>
             </YStack>
           </XStack>

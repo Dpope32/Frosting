@@ -8,7 +8,8 @@ export const getCategoryColor = (category?: TaskCategory): string => {
     personal: '#9C27B0', // Purple
     family: '#FF9800',  // Orange
     wealth: '#4CAF50',  // Green
-    bills: '#4CAF50'    // Same green as wealth for bills
+    bills: '#4CAF50',    // Same green as wealth for bills
+    task: '#FF9800', // Brown
   };
   return colors[category];
 };

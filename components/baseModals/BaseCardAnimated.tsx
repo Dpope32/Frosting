@@ -1,8 +1,7 @@
 // BaseCardAnimated.tsx
 import React from 'react'
-import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' // Removed Modal
+import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
 import Animated, {
   ZoomIn,
@@ -10,6 +9,7 @@ import Animated, {
   FadeOut,
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useColorScheme } from '@/hooks/useColorScheme'
 
 interface BaseCardAnimatedProps {
   onClose: () => void 
@@ -38,8 +38,7 @@ export function BaseCardAnimated({
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
   )
 
-  // Calculate available height accounting for header and safe areas
-  const headerHeight = Platform.OS === 'ios' ? 44 : 56 // Standard header heights
+  const headerHeight = Platform.OS === 'ios' ? 44 : 50 
   const availableHeight = screenHeight - (insets.top + headerHeight + insets.bottom)
 
   return (
@@ -68,7 +67,6 @@ export function BaseCardAnimated({
           style={styles.container}
           pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
-          <Theme name={isDark ? 'dark' : 'light'}>
               <Animated.View
                 entering={ZoomIn.duration(300).springify()}
                 exiting={FadeOut.duration(300)} 
@@ -77,16 +75,16 @@ export function BaseCardAnimated({
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
                     width: actualWidth,
-                    maxHeight: availableHeight - 40, // Leave some padding
+                    maxHeight: availableHeight - 40,
                   }
                 ]}
               >
-                <XStack justifyContent="space-between" paddingVertical="$2" marginTop={-8} marginBottom={4} paddingHorizontal="$2" alignItems="center">
+                <XStack justifyContent="space-between" paddingVertical="$2" marginTop={-8}  paddingHorizontal={isWeb? "$0" : "$2"} alignItems="center">
                   <Text
                     fontSize={isWeb? 24 : 20}
                     fontWeight="700"
                     fontFamily="$body"
-                    color={isDark ? "#fffaef" : "black"}
+                    color={isDark ? "#f5f5f5" : "black"}
                   >
                     {title}
                   </Text>
@@ -96,13 +94,12 @@ export function BaseCardAnimated({
                       onPress={onClose} 
                       padding={0}
                       pressStyle={{ opacity: 0.7 }}
-                      icon={<MaterialIcons name="close" size={22} color={isDark ? "#fff" : "#000"}/>}
+                      icon={<MaterialIcons name="close" size={22} color={isDark ? "#f5f5f5" : "#000"}/>}
                     />
                   )}
                 </XStack>
                 {children}
               </Animated.View>
-          </Theme>
         </View>
       </TouchableWithoutFeedback>
     </Animated.View>
