@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sheet, Text, YStack, XStack, Theme, Button } from 'tamagui';
+import { Sheet, Text, YStack, XStack, Theme, Button, isWeb } from 'tamagui';
 import { Tabs } from '@tamagui/tabs';
 import { KeyboardAvoidingView, Platform, useColorScheme, ScrollView, Pressable, Linking } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -18,7 +18,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
   const isDark = colorScheme === 'dark';
   const insets = useSafeAreaInsets();
   const bottomInset = Platform.OS === 'ios' ? insets.bottom : 0;
-  const isWeb = Platform.OS === 'web';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [activeTab, setActiveTab] = useState('privacy');
   const [scrollY, setScrollY] = React.useState(0);

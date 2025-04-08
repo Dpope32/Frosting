@@ -11,7 +11,7 @@ import Animated, {
 import { MaterialIcons } from '@expo/vector-icons'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
-interface BaseCardAnimatedProps {
+export interface BaseCardAnimatedProps {
   onClose: () => void 
   title: string
   children: React.ReactNode

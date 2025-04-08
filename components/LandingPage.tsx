@@ -11,9 +11,11 @@ import { TaskListModal } from './cardModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
+import { EditTaskModal } from './cardModals/EditTaskModal'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
+import { useEditTaskStore } from '@/store/EditTaskStore'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { GreetingSection } from '@/components/home/GreetingSection'
@@ -31,12 +33,11 @@ export function LandingPage() {
   const deleteTask = useProjectStore(useCallback((s) => s.deleteTask, []))
   const projectHydrated = useStoreHydrated()
   const todaysTasks = useProjectStore(useCallback((s) => s.todaysTasks, []))
-  // Add a mounted state to delay modal rendering
+  const isEditModalOpen = useEditTaskStore(s => s.isOpen);
+  const closeEditModal = useEditTaskStore(s => s.closeModal);
   const [isMounted, setIsMounted] = useState(false)
   
-  // Delay mounting of modals to prevent focus issues during navigation
   React.useEffect(() => {
-    // Use a small timeout to ensure component is fully mounted before rendering modals
     const timer = setTimeout(() => {
       setIsMounted(true)
     }, 500)
@@ -126,6 +127,7 @@ export function LandingPage() {
           <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
           {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
           {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
+          {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
         </>
       )}
     </Stack>

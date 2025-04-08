@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
 import { BackgroundStyle } from '../constants/Backgrounds';
 
-interface UserPreferences {
+export interface UserPreferences {
   username: string;
   profilePicture?: string;
   primaryColor: string;

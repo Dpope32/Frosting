@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
-import { Task, WeekDay } from '@/types/task'
+import { Task, WeekDay, RecurrencePattern } from '@/types/task'
 import { format } from 'date-fns'
 
 // Enable debugging
@@ -22,6 +22,7 @@ interface ProjectStore {
   addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
+  updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
   getTodaysTasks: () => Task[]
   clearTasks: () => void
 }
@@ -368,6 +369,51 @@ export const useProjectStore = create<ProjectStore>()(
         
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
+      },
+      updateTask: (taskId, updatedData) => {
+        if (DEBUG) log(`========== UPDATING TASK: ${taskId} ==========`);
+        const tasks = { ...get().tasks };
+        const task = tasks[taskId];
+
+        if (task) {
+          if (DEBUG) {
+            log(`Original task data:`, task);
+            log(`Update data received:`, updatedData);
+          }
+
+          // Ensure schedule is handled correctly based on recurrence pattern
+          let finalSchedule = updatedData.schedule ?? task.schedule;
+          if (updatedData.recurrencePattern === 'one-time') {
+            finalSchedule = []; // One-time tasks should have an empty schedule array
+            if (DEBUG) log(`Setting schedule to [] for one-time task.`);
+          }
+
+          const updatedTask: Task = {
+            ...task, // Spread existing task data
+            ...updatedData, // Spread updated data (overwrites existing fields)
+            schedule: finalSchedule, // Apply potentially modified schedule
+            updatedAt: new Date().toISOString(), // Update the timestamp
+            // Ensure read-only/managed fields are preserved correctly
+            id: task.id, // Keep original ID
+            createdAt: task.createdAt, // Keep original creation date
+            // Preserve existing completion status and history unless explicitly part of updatedData
+            // (which is unlikely based on the Omit in the function signature)
+            completed: task.completed,
+            completionHistory: task.completionHistory || {}, // Ensure history is an object
+          };
+
+          tasks[taskId] = updatedTask; // Update the task in the tasks object
+
+          if (DEBUG) log(`Updated task data:`, updatedTask);
+
+          // Recalculate todaysTasks after updating
+          const updatedTodaysTasks = taskFilter(tasks);
+          if (DEBUG) log(`Task list after update - count: ${updatedTodaysTasks.length}`);
+
+          set({ tasks, todaysTasks: updatedTodaysTasks }); // Update state
+        } else {
+          if (DEBUG) log(`Task ${taskId} not found for update!`);
         }
       },
       getTodaysTasks: () => get().todaysTasks,
