@@ -194,7 +194,7 @@ export function TaskCard({
               <XStack
                 alignItems="center"
                 backgroundColor={`${calculatedCategoryColor}15`}
-                px="$1"
+                px="$0.5"
                 py="$0.5"
                 br={12}
                 opacity={checked ? 0.6 : 0.9}
@@ -338,8 +338,8 @@ const styles = StyleSheet.create({
   },
   tagsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     marginTop: 2,
-    marginLeft: -2
+    marginLeft: isWeb ? -10 : -2
   }
 });

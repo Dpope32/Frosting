@@ -134,32 +134,10 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
     };
 
     const uniqueBillNames = new Set<string>();
-    const seenBirthdayWishTasks = new Set<string>();
-    const seenBirthdayPresentTasks = new Set<string>();
+    const seenBirthdayNames = new Set<string>();
 
     Object.values(tasks).forEach(task => {
       if (task.name.includes(' vs ') || task.name.includes(' @ ')) {
-        return;
-      }
-
-      const isBirthdayWishTask = task.name.includes(' happy birthday!');
-      const isBirthdayPresentTask = task.name.includes("'s birthday present");
-
-      if (isBirthdayWishTask) {
-        const personName = extractNameFromBirthdayTask(task.name);
-        if (personName && !seenBirthdayWishTasks.has(personName)) {
-          recurrenceGroups['yearly'].push(task);
-          seenBirthdayWishTasks.add(personName);
-        }
-        return;
-      }
-
-      if (isBirthdayPresentTask) {
-        const personName = extractNameFromBirthdayTask(task.name);
-        if (personName && !seenBirthdayPresentTasks.has(personName)) {
-          recurrenceGroups['yearly'].push(task);
-          seenBirthdayPresentTasks.add(personName);
-        }
         return;
       }
 
@@ -174,6 +152,18 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
         }
         uniqueBillNames.add(baseBillName);
         recurrenceGroups['monthly'].push(task);
+        return;
+      }
+
+      const isBirthdayWishTask = task.name.includes(' happy birthday!');
+      const isBirthdayPresentTask = task.name.includes("'s birthday present");
+
+      if (isBirthdayWishTask || isBirthdayPresentTask) {
+        const personName = extractNameFromBirthdayTask(task.name);
+        if (personName && !seenBirthdayNames.has(personName)) {
+          recurrenceGroups['yearly'].push(task);
+          seenBirthdayNames.add(personName);
+        }
         return;
       }
 
@@ -192,7 +182,13 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
 
     Object.keys(recurrenceGroups).forEach(key => {
       recurrenceGroups[key].sort((a, b) => {
-        if (a.time && b.time) return a.time.localeCompare(b.time);
+        if (a.time && b.time) {
+            const timeA = new Date(`1970-01-01T${a.time.replace(' ', '')}`);
+            const timeB = new Date(`1970-01-01T${b.time.replace(' ', '')}`);
+            if (!isNaN(timeA.getTime()) && !isNaN(timeB.getTime())) {
+                return timeA.getTime() - timeB.getTime();
+            }
+        }
         if (a.time) return -1;
         if (b.time) return 1;
         return a.name.localeCompare(b.name);
@@ -221,7 +217,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   };
 
   const taskRecommendations = (
-    <XStack flexWrap="wrap" space="$2" alignItems="center" marginBottom="$1">
+    <XStack flexWrap="wrap" gap="$2" alignItems="center" marginBottom="$1">
       <RecommendationChip category="Cleaning" onPress={() => { onOpenChange(false); openRecommendationModal('Cleaning'); }} isDark={isDark} />
       <RecommendationChip category="Financial" onPress={() => { onOpenChange(false); openRecommendationModal('Financial'); }} isDark={isDark} />
       <RecommendationChip category="Gym" onPress={() => { onOpenChange(false); openRecommendationModal('Gym'); }} isDark={isDark} />
@@ -263,11 +259,18 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
   const headerContent = totalTasks >= 4 ? filterChips : taskRecommendations;
 
   const renderTaskItem = (task: Task) => {
-    const isBirthdayTask = task.name.includes(' happy birthday!') || task.name.includes("'s birthday present");
-    const displayPattern = isBirthdayTask ? 'yearly' : (task.recurrencePattern || 'one-time');
+    let displayPattern: RecurrencePattern | 'one-time' = 'one-time';
+    if (task.category === 'bills') {
+        displayPattern = 'monthly';
+    } else if (task.name.includes(' happy birthday!') || task.name.includes("'s birthday present")) {
+        displayPattern = 'yearly';
+    } else {
+        displayPattern = task.recurrencePattern || 'one-time';
+    }
+
     const recurrenceColor = getRecurrenceColor(displayPattern);
     const recurrenceIcon = getRecurrenceIcon(displayPattern);
-    const statusText = displayPattern === 'one-time' ? 'One-time' : displayPattern.charAt(0).toUpperCase() + displayPattern.slice(1);
+    const statusText = displayPattern === 'one-time' ? 'One-time' : getRecurrenceTitle(displayPattern);
 
     return (
       <XStack
@@ -277,12 +280,13 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
         padding="$3"
         alignItems="flex-start"
         justifyContent="space-between"
-        marginBottom="$1"
+        marginBottom="$2"
       >
-        <YStack flex={1} marginLeft={4} marginRight={4} marginBottom={4}>
-          <XStack width="100%" justifyContent="space-between" alignItems="center">
+        <YStack flex={1} gap={isWeb ? "$3.5" : "$2"} marginRight="$2">
+          <XStack width="100%" alignItems="center" justifyContent="center">
             <Text
               fontFamily="$body"
+              paddingLeft={isWeb ? "$1" : "$0"}
               color={isDark ? "$gray12" : "$gray11"}
               fontSize={15}
               fontWeight="500"
@@ -290,87 +294,33 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
             >
               {task.name}
             </Text>
-            <Pressable
-              onPress={() => {
-                if (deletingTaskId === task.id) return;
-
-                if (Platform.OS === 'web') {
-                  setTaskToDelete(task);
-                  setIsDeleteTaskAlertOpen(true);
-                } else {
-                  Alert.alert(
-                    "Delete Task",
-                    `Are you sure you want to delete "${task.name}"?`,
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Delete",
-                        style: "destructive",
-                        onPress: () => {
-                          setDeletingTaskId(task.id);
-                          try {
-                            deleteTask(task.id);
-                            showToast("Task deleted successfully", "success");
-                          } catch (error) {
-                             console.error("Error deleting task:", error);
-                             showToast("Failed to delete task", "error");
-                          } finally {
-                            setDeletingTaskId(null);
-                          }
-                        }
-                      }
-                    ],
-                    { cancelable: true }
-                  );
-                }
-              }}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.7 : 1,
-                padding: 4,
-                width: 26,
-                height: 26,
-                alignItems: 'center',
-                justifyContent: 'center'
-              })}
-              disabled={deletingTaskId === task.id} 
-            >
-              {deletingTaskId === task.id ? (
-                <ActivityIndicator size="small" color="#ff4444" />
-              ) : (
-                <Ionicons
-                  name="close"
-                  size={18}
-                  color="#ff4444"
-                />
-              )}
-            </Pressable>
           </XStack>
 
-          <XStack marginTop={10} marginLeft={-4} flexWrap="wrap">
-            {task.category && (
+          <XStack flexWrap="wrap" alignItems="center" >
+            {task.category && task.category !== 'bills' && (
               <XStack
                 alignItems="center"
-                backgroundColor={`${getCategoryColor(task.category)}15`}
-                px="$1"
+                backgroundColor={`${getCategoryColor(task.category)}1A`}
+                px="$1.5"
                 py="$0.5"
                 br={12}
-                opacity={0.9}
-                marginRight={6}
-                marginBottom={4}
+                mr="$1.5"
+                mb="$1"
               >
                 <Ionicons
                   name="bookmark"
-                  size={10}
+                  size={11}
                   color={getCategoryColor(task.category)}
-                  style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
+                  style={{ marginRight: 3 }}
                 />
                 <Text
                   fontFamily="$body"
                   color={getCategoryColor(task.category)}
                   fontSize={11}
                   fontWeight="500"
+                  textTransform="capitalize"
                 >
-                  {task.category.toLowerCase()}
+                  {task.category}
                 </Text>
               </XStack>
             )}
@@ -378,25 +328,25 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
             {task.priority && (
               <XStack
                 alignItems="center"
-                backgroundColor={`${getPriorityColor(task.priority)}15`}
+                backgroundColor={`${getPriorityColor(task.priority)}1A`}
                 py="$0.5"
-                px="$1"
+                px="$1.5"
                 br={12}
-                opacity={0.9}
-                marginRight={6}
-                marginBottom={4}
+                mr="$1.5"
+                mb="$1"
               >
                 <Ionicons
                   name={getPriorityIcon(task.priority)}
-                  size={10}
+                  size={11}
                   color={getPriorityColor(task.priority)}
-                  style={{ marginRight: 2, marginTop: 1 }}
+                  style={{ marginRight: 3 }}
                 />
                 <Text
                   fontFamily="$body"
                   color={getPriorityColor(task.priority)}
                   fontSize={11}
                   fontWeight="500"
+                  textTransform="capitalize"
                 >
                   {task.priority}
                 </Text>
@@ -405,51 +355,48 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
 
             <XStack
               alignItems="center"
-              backgroundColor={`${recurrenceColor}15`}
-              px="$1"
+              backgroundColor={`${recurrenceColor}1A`}
+              px="$1.5"
               py="$0.5"
               br={12}
-              opacity={0.9}
-              marginRight={6}
-              marginBottom={4}
+              mr="$1.5"
+              mb="$1"
             >
               <Ionicons
                 name={recurrenceIcon as any}
-                size={10}
+                size={11}
                 color={recurrenceColor}
-                style={{ marginRight: 2, marginTop: 1 }}
+                style={{ marginRight: 3 }}
               />
               <Text
                 fontFamily="$body"
                 color={recurrenceColor}
                 fontSize={11}
                 fontWeight="500"
+                textTransform="capitalize"
               >
-                {statusText.toLowerCase()}
+                {statusText}
               </Text>
             </XStack>
 
             {task.time && (
               <XStack
                 alignItems="center"
-                backgroundColor="rgba(255, 255, 255, 0.05)"
-                px="$1"
+                backgroundColor={isDark ? "$gray4" : "$gray5"}
+                px="$1.5"
                 py="$0.5"
                 br={12}
-                borderWidth={1}
-                borderColor="rgb(52, 54, 55)"
-                opacity={0.9}
-                marginBottom={4}
+                mb="$1"
               >
                 <Ionicons
                   name="time-outline"
-                  size={10}
-                  color="rgb(157, 157, 157)"
-                  style={{ marginRight: 4, marginTop: 1 }}
+                  size={11}
+                  color={isDark ? "$gray10" : "$gray11"}
+                  style={{ marginRight: 3 }}
                 />
                 <Text
                   fontFamily="$body"
-                  color="rgb(157, 157, 157)"
+                  color={isDark ? "$gray10" : "$gray11"}
                   fontSize={11}
                   fontWeight="500"
                 >
@@ -458,35 +405,71 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               </XStack>
             )}
           </XStack>
+        </YStack>
+
+        <YStack alignItems="center">
           <Pressable
             onPress={() => {
-              onOpenChange(false);
-              setTimeout(() => {
-                openEditTaskModal(task);
-              }, 150);
+              if (deletingTaskId === task.id) return;
+              if (Platform.OS === 'web') {
+                setTaskToDelete(task);
+                setIsDeleteTaskAlertOpen(true);
+              } else {
+                Alert.alert(
+                  "Delete Task",
+                  `Are you sure you want to delete "${task.name}"?`,
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Delete", style: "destructive",
+                      onPress: () => {
+                        setDeletingTaskId(task.id);
+                        try {
+                          deleteTask(task.id);
+                          showToast("Task deleted successfully", "success");
+                        } catch (error) {
+                           console.error("Error deleting task:", error);
+                           showToast("Failed to delete task", "error");
+                        } finally {
+                          setDeletingTaskId(null);
+                        }
+                      }
+                    }
+                  ],
+                  { cancelable: true }
+                );
+              }
             }}
             style={({ pressed }) => ({
               opacity: pressed ? 0.7 : 1,
-              alignSelf: 'flex-end',
-              marginTop: -22,
-              paddingVertical: 2
+              padding: 4,
+              alignItems: 'center',
+              justifyContent: 'center'
+            })}
+            disabled={deletingTaskId === task.id}
+          >
+            {deletingTaskId === task.id ? (
+              <ActivityIndicator size="small" color="#ff4444" />
+            ) : (
+              <Ionicons name="close-circle" size={20} color="#ff6b6b" />
+            )}
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              onOpenChange(false);
+              setTimeout(() => { openEditTaskModal(task); }, 150);
+            }}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+              padding: 4,
             })}
           >
-            <XStack alignItems="center">
-              <Ionicons
-                name="pencil"
-                size={14}
-                color={isDark ? "#888" : "#666"}
-              />
-              <Text
-                fontFamily="$body"
-                color={isDark ? "#888" : "#666"}
-                fontSize={12}
-                marginLeft={4}
-              >
-                Edit
-              </Text>
-            </XStack>
+            <Ionicons
+              name="pencil-outline"
+              size={16}
+              color={isDark ? "$gray9" : "$gray10"}
+            />
           </Pressable>
         </YStack>
       </XStack>

@@ -65,7 +65,7 @@ export function TagSelector({
     <YStack gap="$1" paddingHorizontal="$2" paddingTop="$2">
       <XStack alignItems="center" justifyContent="space-between">
         <XStack alignItems="center" justifyContent='center' gap="$2">
-          <Text fontSize="$4" fontWeight="600">Tags:</Text>
+          <Text fontSize="$4" fontFamily="$body" fontWeight="600">Tags:</Text>
           {tags.length > 0 && (
             <XStack flexWrap="wrap" gap="$2">
               {tags.map(tag => (
@@ -84,6 +84,7 @@ export function TagSelector({
                     fontSize="$3" 
                     color={darkenColor(tag.color)}
                     fontWeight="700"
+                    fontFamily="$body"
                   >
                     {tag.name}
                   </Text>

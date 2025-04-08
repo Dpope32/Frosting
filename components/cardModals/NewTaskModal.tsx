@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Button, Form, YStack, XStack, Text, ScrollView, AnimatePresence } from 'tamagui'
+import { Button, Form, YStack, XStack, Text, ScrollView, AnimatePresence, isWeb } from 'tamagui'
 import { Switch, useColorScheme, Platform, View } from 'react-native'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
@@ -465,8 +465,15 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     </XStack>
                   </ScrollView>
                 )}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <XStack gap="$2" py="$1">
+                <ScrollView
+                  horizontal={!isWeb}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  <XStack
+                    gap="$2"
+                    py="$1"
+                    flexWrap={isWeb ? 'wrap' : 'nowrap'}
+                  >
                     {Array.from({ length: 31 }, (_, idx) => idx + 1).map(d => (
                       <Button
                         key={d}
@@ -491,6 +498,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                             : isDark ? "$gray7" : "$gray4"
                         }
                         minWidth={45}
+                        mb={isWeb ? '$2' : '$0'}
                       >
                         <Text
                           fontSize={14}

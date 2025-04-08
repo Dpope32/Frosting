@@ -61,11 +61,13 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
       style={[
         styles.input,
         {
-          color: isDark ? '#ffffff' : '#000000',
+          color: isDark ? '#fcfcfc' : '#000000',
           backgroundColor: isDark ? '#1c1c1e' : '#ffffff',
           borderColor: isDark ? '#3a3a3c' : '#d1d1d6',
           height: contentHeight,
+          fontFamily: '$body',
           minHeight: minHeight,
+          fontWeight: '500',
         }
       ]}
       {...(isIOS ? {
