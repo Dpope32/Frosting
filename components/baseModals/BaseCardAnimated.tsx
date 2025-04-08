@@ -46,7 +46,7 @@ export function BaseCardAnimated({
       style={[
         styles.overlay,
         {
-          paddingTop: insets.top + headerHeight,
+          paddingTop: insets.top,
           paddingBottom: insets.bottom,
         }
       ]}
