@@ -21,17 +21,17 @@ A feature-rich personal dashboard app built with React Native and Expo, designed
 
 ## Features
 
-- **Notes**: Create rich notes with with Markdown formatting and drag-and-drop organization
-- **Todo List**: Manage tasks with recurring, one-time todos, priority levels, and categories
-- **Calendar**: Track birthdays, bills, events, and more
-- **CRM**: Manage contacts with attributes like Payment Methods, Addresses, Birthdays (recieve notifications on day of to remind you to wish them a happy birthday)
-- **Password Vault**: Securely store passwords locally using Cryptograpgy
-- **Finance Tracking**: Monitor portfolio with real-time stock updates
-- **Year Progress Bar**: Visualize the current year's progress
-- **Weather**: 5 Day forecast with animations and current temp! 
-- **Network**: Check your network speed and ping right from the app
-- **NBA**: Follow your favorite teams' schedules
-- **Customization**: Choose your favorite wallpaper and color scheme
+- **📝Notes**: Create rich notes with with Markdown formatting and drag-and-drop organization
+- **✅Todo List**: Manage tasks with recurring, one-time todos, priority levels, and categories
+- **📅Calendar**: Track birthdays, bills, events, and more
+- **👤CRM**: Manage contacts with attributes like Payment Methods, Addresses, Birthdays (recieve notifications on day of to remind you to wish them a happy birthday)
+- **🔒Password Vault**: Securely store passwords locally using Cryptograpgy
+- **💰Finance Tracking**: Monitor portfolio with real-time stock updates
+- **🔄Year Progress Bar**: Visualize the current year's progress
+- **🌤️Weather**: 5 Day forecast with animations and current temp! 
+- **🌐Network**: Check your network speed and ping right from the app
+- **🏀NBA**: Follow your favorite teams' schedules
+- **🎨Customization**: Choose your favorite wallpaper and color scheme
 
 **Coming Soon**: Cross-Device Sync with TinyBase integration
 
