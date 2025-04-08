@@ -1,7 +1,15 @@
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="assets/images/icon.png" style="height: 50px; width: auto; margin-right: 20px;" />
-  <h1 style="margin: 0;">Kaiba Nexus</h1>
+<div style="display: flex; gap: 2px; margin-bottom: 20px; overflow-x: auto;">
+  <img src="assets/screenshots/iosAppstore/image1.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image2.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image3.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image4.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image5.png" style="height: 300px; width: auto; object-fit: cover;" />
 </div>
+
+<h1 style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="assets/images/icon.png" style="height: 50px; width: auto; margin-right: 20px;" />
+  Kaiba Nexus
+</h1>
 
 <div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
   <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 0 15px;">Web Version</a>
@@ -84,7 +92,7 @@ npx start web-dev
 MIT License - see [LICENSE](LICENSE) for details.
 
 <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
-  <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
   <img src="assets/screenshots/web/web2.png" style="width: 100%; max-width: 800px;" />
+  <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
   <img src="assets/screenshots/web/web3.png" style="width: 100%; max-width: 800px;" />
 </div>
