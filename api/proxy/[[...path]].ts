@@ -8,6 +8,9 @@ const corsMiddleware = cors({
   methods: ['GET', 'OPTIONS'],
 });
 
+// Define a common User-Agent header
+const BROWSER_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Apply CORS middleware
   await new Promise((resolve, reject) => {
@@ -85,7 +88,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[Yahoo Finance] Requesting URL: ${yahooUrl}`);
       // --- End Logging ---
 
-      const response = await axios.get(yahooUrl);
+      // --- Add User-Agent header to Axios request ---
+      const response = await axios.get(yahooUrl, {
+        headers: { 'User-Agent': BROWSER_USER_AGENT }
+      });
+      // --- End Add User-Agent ---
+
       console.log(`[Yahoo Finance] Success for symbol: ${symbol}`); // Log success
       return res.status(200).json(response.data);
 
@@ -106,13 +114,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       console.log(`[Yahoo History] Requesting URL: ${yahooUrl}`);
       // --- End Logging ---
 
-      const response = await axios.get(yahooUrl);
-      console.log(`[Yahoo History] Success for symbol: ${symbol}`); // Log success
+      // --- Add User-Agent header to Axios request ---
+      const response = await axios.get(yahooUrl, {
+          headers: { 'User-Agent': BROWSER_USER_AGENT }
+      });
+      // --- End Add User-Agent ---
+
+      console.log(`[Yahoo History] Success for symbol: ${symbol}, interval: ${interval}, range: ${range}`);
       return res.status(200).json(response.data);
 
     } else if (endpoint === 'stoic-quote') {
-      const stoicUrl = 'https://stoic.tekloon.net/stoic-quote';
-      const response = await axios.get(stoicUrl);
+      // --- Add User-Agent header to Axios request (Good practice) ---
+      const response = await axios.get('https://stoic-quotes.com/api/quote', {
+          headers: { 'User-Agent': BROWSER_USER_AGENT }
+      });
+      // --- End Add User-Agent ---
       console.log('[Stoic Quote] Request successful'); // Log success
       return res.status(200).json(response.data);
 
@@ -131,10 +147,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (axios.isAxiosError(error)) {
         console.error('[Proxy Catch Error] Axios error:', {
             message: error.message,
-            url: error.config?.url,
-            status: error.response?.status,
+            url: error.config?.url, // Log the URL Axios *actually* tried to hit
+            method: error.config?.method,
+            headers: error.config?.headers, // Log headers sent
+            status: error.response?.status, // Log status received
             statusText: error.response?.statusText,
-            data: error.response?.data, // Log response data from Yahoo if available
+            data: error.response?.data,
         });
         // Forward status from downstream if available, otherwise 500
         const statusCode = error.response?.status || 500;
