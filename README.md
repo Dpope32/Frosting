@@ -1,46 +1,33 @@
-<div style="display: flex; gap: 2px; margin-bottom: 20px; overflow-x: auto;">
-  <img src="assets/screenshots/iosAppstore/image1.png" style="height: 300px; width: auto; object-fit: cover;" />
-  <img src="assets/screenshots/iosAppstore/image2.png" style="height: 300px; width: auto; object-fit: cover;" />
-  <img src="assets/screenshots/iosAppstore/image3.png" style="height: 300px; width: auto; object-fit: cover;" />
-  <img src="assets/screenshots/iosAppstore/image4.png" style="height: 300px; width: auto; object-fit: cover;" />
-  <img src="assets/screenshots/iosAppstore/image5.png" style="height: 300px; width: auto; object-fit: cover;" />
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="assets/images/icon.png" style="height: 50px; width: auto; margin-right: 20px;" />
+  <h1 style="margin: 0;">Kaiba Nexus</h1>
 </div>
 
-<div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-  <a href="https://kaiba.vercel.app/" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
-    <img src="assets/images/splash-icon.png" width="50" />
-    <span>Web Version</span>
-  </a>
-  <a href="https://apps.apple.com/us/app/kaiba-nexus/idXXXXXXXXXX" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
-    <img src="assets/images/icon.png" width="50" />
-    <span>Download on App Store</span>
-  </a>
-  <a href="https://deedaw.cc/pages/privacy.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
-    <img src="assets/images/favicon.png" width="50" />
-    <span>Privacy Policy</span>
-  </a>
+<div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
+  <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 0 15px;">Web Version</a>
+  <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 0 15px;">Download on App Store</a>
+  <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 0 15px;">Privacy Policy</a>
 </div>
-
-# Kaiba Nexus
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
 
-## ✨ Features
+## Features
 
-- **📝 Notes with Markdown Support**: Create rich notes with markdown formatting and drag-and-drop organization
-- **✅ Todo List**: Manage tasks with recurring and one-time todos
-- **📅 Calendar**: Track birthdays, bills, events, NBA schedules, and more
-- **👥 CRM**: Manage contacts with attributes like Payment Methods, Addresses, etc
-- **🔐 Password Vault**: Securely store passwords locally
-- **📊 Finance Tracking**: Monitor portfolio with real-time stock updates
-- **⏳ Year Progress Bar**: Visualize your year's progress
-- **🌦️ Weather & Network**: Check conditions and network status
-- **🏀 NBA**: Follow your favorite teams' schedules
-- **🎨 Customization**: Choose from wallpapers, themes, and more
+- **Notes**: Create rich notes with with Markdown formatting and drag-and-drop organization
+- **Todo List**: Manage tasks with recurring, one-time todos, priority levels, and categories
+- **Calendar**: Track birthdays, bills, events, and more
+- **CRM**: Manage contacts with attributes like Payment Methods, Addresses, Birthdays (recieve notifications on day of to remind you to wish them a happy birthday)
+- **Password Vault**: Securely store passwords locally using Cryptograpgy
+- **Finance Tracking**: Monitor portfolio with real-time stock updates
+- **Year Progress Bar**: Visualize the current year's progress
+- **Weather**: 5 Day forecast with animations and current temp! 
+- **Network**: Check your network speed and ping right from the app
+- **NBA**: Follow your favorite teams' schedules
+- **Customization**: Choose your favorite wallpaper and color scheme
 
-**👀 Coming Soon**: Cross-Device Sync with TinyBase integration
+**Coming Soon**: Cross-Device Sync with TinyBase integration
 
-![Home Screen Preview](assets/screenshots/HomeScreenWebLoaded.png)
+![Home Screen Preview](assets/screenshots/web/loaded.png)
 
 ## 🚀 Getting Started
 
@@ -75,7 +62,7 @@ npx expo run:android
 #### Web Version
 ```bash
 # Start with proxy server (recommended)
-yarn web-dev
+npx start web-dev
 
 # See PROXY_SERVER.md for details on proxy setup
 ```
@@ -92,11 +79,12 @@ yarn web-dev
 | Web Hosting        | Vercel           |
 | Updates            | Expo OTA Updates |
 
-## 📜 License
-
-- **Updates**: Seamless OTA updates via Expo
-- **Coming Soon**: TinyBase for cross-platform sync
-
-## 📜 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+<div style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
+  <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
+  <img src="assets/screenshots/web/web2.png" style="width: 100%; max-width: 800px;" />
+  <img src="assets/screenshots/web/web3.png" style="width: 100%; max-width: 800px;" />
+</div>

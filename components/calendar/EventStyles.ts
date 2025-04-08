@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 12,
-    paddingVertical: 8
+    paddingVertical: 12
   },
   typeButtonText: {
     fontSize: 14,

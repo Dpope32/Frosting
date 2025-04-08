@@ -22,7 +22,7 @@ export const EventPreview: React.FC<{
       work: '#2196F3',     // Blue
       family: '#FF9800',   // Orange
       task: '#4CAF50',     // Green
-      health: '#F44336',   // Red
+      health: '#f1c40f',   // Yellow
       wealth: '#607D8B',   // Blue Gray
       bill: '#795548',     // Brown
       nba: '#FF6B00'       // NBA Orange
@@ -152,8 +152,8 @@ export const EventPreview: React.FC<{
     },
     typeChip: {
       borderRadius: 12,
-      paddingVertical: 4, 
-      paddingHorizontal: 6,
+      paddingVertical: 5, 
+      paddingHorizontal: 8,
       alignSelf: 'flex-start',
       marginRight: 8,
       marginBottom: 6,
@@ -167,7 +167,8 @@ export const EventPreview: React.FC<{
     },
     priorityChip: {
       borderRadius: 12,
-      paddingHorizontal: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
       alignSelf: 'flex-start',
       marginRight: 8,
       marginBottom: 6,
