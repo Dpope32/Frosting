@@ -7,7 +7,7 @@ import { Task, WeekDay, RecurrencePattern } from '@/types/task'
 import { format } from 'date-fns'
 
 // Enable debugging
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args: any[]) {
   if (DEBUG) {

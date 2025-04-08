@@ -10,7 +10,7 @@ import { useRecommendationStore } from '@/store/RecommendationStore'
 import { format } from 'date-fns'
 
 // Enable debugging
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args: any[]) {
   if (DEBUG) {
