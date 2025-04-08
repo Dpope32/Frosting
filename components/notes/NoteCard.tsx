@@ -128,7 +128,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
           >
             <XStack
               paddingHorizontal={horizontalPadding}
-              paddingTop="$3"
+              paddingTop="$2"
               paddingBottom={isExpanded ? "$2" : "$2"}
               justifyContent="space-between"
               alignItems="flex-start"
@@ -174,7 +174,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                     alignItems="center"
                   >
                     <Text
-                      fontSize={isWeb? 12 : 9}
+                      fontSize={isWeb? 12 : 10}
                       color={darkenColor(tag.color)}
                       fontWeight="bold"
                       fontFamily="$body"
@@ -185,7 +185,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                 ))}
               </XStack>
               <Text
-                fontSize={isWeb? 12 : 9}
+                fontSize={isWeb? 12 : 10}
                 color={colors.textSecondary}
                 fontFamily="$body"
                 flexShrink={0}
@@ -286,7 +286,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                         alignItems="center"
                       >
                         <Text
-                          fontSize={isWeb? 12 : 9}
+                          fontSize={isWeb? 12 : 11}
                           color={darkenColor(tag.color)}
                           fontWeight="bold"
                           fontFamily="$body"
@@ -295,10 +295,10 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                         </Text>
                       </XStack>
                     ))}
-                  </XStack>
-                  <XStack alignItems="center" gap="$2">
+                  </XStack>   
+                  <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
                     <Text
-                      fontSize={isWeb? 12 : 9}
+                      fontSize={isWeb? 12 : 11}
                       color={colors.textSecondary}
                       fontFamily="$body"
                       flexShrink={0}

@@ -68,9 +68,6 @@ export function AddNoteSheet({
       'keyboardDidShow',
       () => {
         setKeyboardVisible(true);
-        setTimeout(() => {
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
       },
     );
     const keyboardDidHideListener = Keyboard.addListener(
@@ -152,8 +149,8 @@ export function AddNoteSheet({
   };
 
   const contentPadding = Platform.select({
-    ios: keyboardVisible ? 320 : 80,
-    android: keyboardVisible ? 260 : 80,
+    ios: keyboardVisible ? 340 : 80,
+    android: keyboardVisible ? 280 : 80,
     default: 80,
   });
 
@@ -204,10 +201,12 @@ export function AddNoteSheet({
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
+            keyboardDismissMode="interactive"
           >
             <YStack gap={isWeb ? "$3" : "$2"} paddingTop="$2">
               <DebouncedInput
                 placeholder="Title"
+                autoCapitalize='words'
                 value={editTitle}
                 onDebouncedChange={setEditTitle}
                 fontSize="$5"
@@ -230,8 +229,8 @@ export function AddNoteSheet({
                 value={editContent}
                 onChangeText={setEditContent}
                 onSelectionChange={handleSelectionChange}
-                numberOfLines={keyboardVisible ? 8 : 15}
-                minHeight={keyboardVisible ? 120 : 200}
+                numberOfLines={keyboardVisible ? 6 : 12}
+                minHeight={keyboardVisible ? 100 : 180}
               />
               
               {renderAttachments()}
