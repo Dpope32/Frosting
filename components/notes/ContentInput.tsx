@@ -23,24 +23,19 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
   const isDark = colorScheme === 'dark';
   const isIOS = Platform.OS === 'ios';
   
-  // Track content height for auto-expanding
   const [contentHeight, setContentHeight] = useState(minHeight);
   
-  // Local state for the input value
   const [localValue, setLocalValue] = useState(value);
   
-  // Update local value when prop value changes
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
   
-  // Handle text changes with local state
   const handleChangeText = (text: string) => {
     setLocalValue(text);
     onChangeText(text);
   };
   
-  // Calculate content height
   const handleContentSizeChange = (event: any) => {
     const { height } = event.nativeEvent.contentSize;
     setContentHeight(Math.max(minHeight, height));
@@ -73,16 +68,13 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
           minHeight: minHeight,
         }
       ]}
-      // iOS specific properties for better keyboard experience
       {...(isIOS ? {
         keyboardAppearance: isDark ? 'dark' : 'light',
         scrollEnabled: true,
         contextMenuHidden: false,
-        // These help reduce input lag on iOS
         disableFullscreenUI: true,
-        maxLength: 100000, // Large enough for notes but prevents excessive entry
+        maxLength: 100000,
       } : {})}
-      // Android specific properties
       {...(!isIOS ? {
         textBreakStrategy: 'simple',
       } : {})}

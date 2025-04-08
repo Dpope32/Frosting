@@ -29,14 +29,12 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
 
-  // Update note.isExpanded when local state changes
   useEffect(() => {
     if (note.isExpanded !== isExpanded) {
       noteStore.updateNote(note.id, { isExpanded });
     }
   }, [isExpanded, note.id]);
 
-  // Helper function to darken colors
   const darkenColor = (color: string | undefined): string => {
     if (!color) return isDark ? '#FFFFFF' : '#000000';
     try {
@@ -88,6 +86,9 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     noteStore.updateNote(note.id, { isExpanded: newExpandedState });
   };
 
+  // Define padding constants before they are used in useMemo
+  const horizontalPadding = isWeb ? 20 : 18;
+  const verticalPadding = isWeb ? 16 : 14;
 
   const cardSpecificStyle = useMemo(() => ({
     backgroundColor: colors.background,
@@ -101,9 +102,6 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     borderColor: isDragging ? colors.cardBorderDragging : 'transparent',
     overflow: 'hidden' as 'hidden',
   }), [isDragging, colors]);
-
-  const horizontalPadding = isWeb ? 20 : 18;
-  const verticalPadding = isWeb ? 16 : 14;
 
   return (
     <View style={localStyles.touchableContainer}>

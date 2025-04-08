@@ -31,25 +31,20 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   isLoaded: false,
 
   loadNotes: async () => {
-    // Only load data if it hasn't been loaded already
     if (get().isLoaded) return;
     
     try {
       const storedNotes = await StorageUtils.get<Record<string, Note>>(NOTES_STORAGE_KEY, {})
       const storedOrder = await StorageUtils.get<string[]>(ORDER_STORAGE_KEY, [])
 
-      // Ensure we have valid objects
       const safeNotes = storedNotes || {}
       const safeOrder = storedOrder || []
 
-      // Filter out any IDs in order that don't exist in notes (data integrity)
       const validOrder = safeOrder.filter(id => safeNotes[id])
       
-      // Add any notes not in the order array to the beginning (e.g., from older versions)
       const notesNotInOrder = Object.keys(safeNotes).filter(id => !validOrder.includes(id))
       const finalOrder = [...notesNotInOrder, ...validOrder]
 
-      // Update state in a single batch to avoid triggering multiple renders
       set({ 
         notes: safeNotes, 
         noteOrder: finalOrder,
@@ -57,12 +52,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       })
     } catch (error) {
       console.error('Error loading notes:', error)
-      set({ isLoaded: true }) // Mark as loaded even on error so we don't retry indefinitely
+      set({ isLoaded: true })
     }
   },
 
   addNote: async (noteData) => {
-    // console.log('[NoteStore] addNote received data:', JSON.stringify(noteData, null, 2)); // <-- Removed log
     const newId = generateNoteId()
     const now = new Date().toISOString()
     const newNote: Note = {
@@ -77,7 +71,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     const currentOrder = get().noteOrder
 
     const newNotes = { ...currentNotes, [newId]: newNote }
-    const newOrder = [newId, ...currentOrder] // Add new note to the beginning
+    const newOrder = [newId, ...currentOrder]
 
     await StorageUtils.set(NOTES_STORAGE_KEY, newNotes)
     await StorageUtils.set(ORDER_STORAGE_KEY, newOrder)
@@ -85,7 +79,6 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   updateNote: async (id, updates) => {
-    // console.log(`[NoteStore] updateNote (id: ${id}) received updates:`, JSON.stringify(updates, null, 2)); // <-- Removed log
     const notes = get().notes
     if (notes[id]) {
       const updatedNote = {
@@ -105,8 +98,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     const order = get().noteOrder
 
     if (notes[id]) {
-      const { [id]: _, ...remainingNotes } = notes // Remove note from record
-      const newOrder = order.filter(noteId => noteId !== id) // Remove note ID from order
+      const { [id]: _, ...remainingNotes } = notes
+      const newOrder = order.filter(noteId => noteId !== id)
 
       await StorageUtils.set(NOTES_STORAGE_KEY, remainingNotes)
       await StorageUtils.set(ORDER_STORAGE_KEY, newOrder)
@@ -117,10 +110,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   updateNoteOrder: async (orderedNotes) => {
     const newOrder = orderedNotes.map(note => note.id)
     
-    // Update state immediately
     set({ noteOrder: newOrder })
     
-    // Then save to storage in the background
     StorageUtils.set(ORDER_STORAGE_KEY, newOrder).catch(error => {
       console.error('Error saving note order:', error)
     })

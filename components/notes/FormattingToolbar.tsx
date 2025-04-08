@@ -1,18 +1,18 @@
 import React from 'react';
-import { XStack, Button, Text, isWeb } from 'tamagui'; // Removed useTheme
+import { XStack, Button, Text, isWeb } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface FormattingToolbarProps {
   onBold: () => void;
-  onUnderline: () => void; // Renamed from onItalic
+  onUnderline: () => void;
   onBullet: () => void;
   onAttachImage: () => void;
 }
 
 export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onBold,
-  onUnderline, // Destructure the new prop
+  onUnderline,
   onBullet,
   onAttachImage,
 }) => {

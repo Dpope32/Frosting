@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from './FormattingToolbar';
-import { ContentInput } from './ContentInput'; // Import our new component
+import { ContentInput } from './ContentInput'; 
 import type { Note, Attachment, Tag } from '@/types/notes';
 import { useUserStore } from '@/store/UserStore';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -61,7 +61,6 @@ export function AddNoteSheet({
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const scrollViewRef = useRef<RNScrollView>(null);
   
-  // Handle keyboard visibility
   useEffect(() => {
     if (Platform.OS === 'web') return;
     
@@ -69,7 +68,6 @@ export function AddNoteSheet({
       'keyboardDidShow',
       () => {
         setKeyboardVisible(true);
-        // Slight delay to ensure the keyboard is fully shown
         setTimeout(() => {
           scrollViewRef.current?.scrollToEnd({ animated: true });
         }, 100);
@@ -86,13 +84,11 @@ export function AddNoteSheet({
     };
   }, []);
 
-  // Improved selection handling
+
   const handleSelectionChange = (event: any) => {
-    // Store selection locally
     const newSelection = event.nativeEvent.selection;
     setSelection(newSelection);
     
-    // Forward the event to parent if needed
     if (onSelectionChange) {
       onSelectionChange(event);
     }
@@ -107,7 +103,6 @@ export function AddNoteSheet({
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`;
   };
 
-  // Render attachment previews
   const renderAttachments = () => {
     if (editAttachments.length === 0) return null;
     
@@ -156,7 +151,6 @@ export function AddNoteSheet({
     );
   };
 
-  // Platform-specific padding to account for keyboard on mobile
   const contentPadding = Platform.select({
     ios: keyboardVisible ? 320 : 80,
     android: keyboardVisible ? 260 : 80,

@@ -23,15 +23,12 @@ const TAG_COLORS = [
   '#EF4444', // Red
 ];
 
-// Helper function to darken color for text
 const darkenColor = (color: string | undefined) => {
   if (!color) return '#000000';
-  // Convert hex to RGB
   const r = parseInt(color.slice(1, 3), 16);
   const g = parseInt(color.slice(3, 5), 16);
   const b = parseInt(color.slice(5, 7), 16);
   
-  // Darken by reducing RGB values by 30% (making it darker than before)
   return `rgb(${Math.floor(r * 0.7)}, ${Math.floor(g * 0.7)}, ${Math.floor(b * 0.7)})`;
 };
 

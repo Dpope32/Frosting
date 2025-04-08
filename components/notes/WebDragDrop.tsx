@@ -3,19 +3,14 @@ import { View } from 'react-native';
 import { XStack } from 'tamagui';
 import { NoteCard } from '@/components/notes/NoteCard';
 import type { Note } from '@/types/notes';
-// Use dynamic imports for ESM modules
-// Use dynamic imports for ESM modules
 import type { DragSourceMonitor, DropTargetMonitor } from 'react-dnd' with { 'resolution-mode': 'import' };
 
-// We'll dynamically import these at runtime
 let DndProvider: any;
 let useDrag: any;
 let useDrop: any;
 let HTML5Backend: any;
 
-// Only attempt to load these in a web environment
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  // Using Promise.resolve().then() to avoid the top-level await
   Promise.resolve().then(async () => {
     const dndModule = await import('react-dnd');
     const backendModule = await import('react-dnd-html5-backend');
@@ -27,10 +22,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   });
 }
 
-// Item type for drag and drop
 const ITEM_TYPE = 'note';
 
-// Explicit types for drag items
 interface DragItem {
   id: string;
   index: number;
@@ -43,7 +36,6 @@ interface DraggableNoteProps {
   onPress: () => void;
 }
 
-// Draggable Note component
 const DraggableNote: React.FC<DraggableNoteProps> = ({ note, index, moveNote, onPress }) => {
   const ref = useRef<HTMLDivElement>(null);
   
@@ -65,7 +57,6 @@ const DraggableNote: React.FC<DraggableNoteProps> = ({ note, index, moveNote, on
       const dragIndex = item.index;
       const hoverIndex = index;
       
-      // Don't replace items with themselves
       if (dragIndex === hoverIndex) {
         return;
       }
@@ -75,11 +66,9 @@ const DraggableNote: React.FC<DraggableNoteProps> = ({ note, index, moveNote, on
     },
   });
 
-  // Combine the drag and drop refs
   const combinedRef = (el: HTMLDivElement | null) => {
-    // Use function form since we can't directly assign to ref.current
     if (el) {
-      // Apply both refs to the element
+      dragRef(el);
       dragRef(el);
       dropRef(el);
     }
@@ -113,7 +102,6 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   numColumns,
   bottomPadding 
 }) => {
-  // If DndProvider hasn't loaded yet, render a placeholder
   if (!DndProvider) {
     return (
       <XStack flexWrap="wrap" paddingBottom={bottomPadding}>
