@@ -1,11 +1,9 @@
-<div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 20px;">
-  <div style="display: flex; gap: 0; overflow-x: auto;">
-    <img src="assets/screenshots/iosAppstore/image1.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
-    <img src="assets/screenshots/iosAppstore/image2.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
-    <img src="assets/screenshots/iosAppstore/image3.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
-    <img src="assets/screenshots/iosAppstore/image4.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
-    <img src="assets/screenshots/iosAppstore/image5.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
-  </div>
+<div style="display: flex; gap: 2px; margin-bottom: 20px; overflow-x: auto;">
+  <img src="assets/screenshots/iosAppstore/image1.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image2.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image3.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image4.png" style="height: 300px; width: auto; object-fit: cover;" />
+  <img src="assets/screenshots/iosAppstore/image5.png" style="height: 300px; width: auto; object-fit: cover;" />
 </div>
 
 <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
