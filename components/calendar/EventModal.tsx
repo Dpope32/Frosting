@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal, Alert, StyleSheet } from 'react-native'
 import { isWeb, XStack } from 'tamagui'
 import { withOpacity } from '@/utils/styleUtils'
 import DateTimePicker from '@react-native-community/datetimepicker'
@@ -100,6 +100,48 @@ export const EventModal: React.FC<EventModalProps> = ({
     }, 300)
   }
 
+  const handleDeleteEventWithConfirmation = (eventId: string) => {
+    if (isWeb) {
+      if (window.confirm('Are you sure you want to remove this event?')) {
+        handleDeleteEvent(eventId)
+        showToast('Successfully removed event!', 'success')
+      }
+    } else {
+      Alert.alert(
+        'Delete Event',
+        'Are you sure you want to remove this event?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Delete',
+            onPress: () => {
+              handleDeleteEvent(eventId)
+              showToast('Successfully removed event!', 'success')
+            },
+            style: 'destructive'
+          }
+        ]
+      )
+    }
+  }
+
+  const handleEditEventInternal = (event: CalendarEvent) => {
+    console.log('Edit event clicked:', event);
+    setNewEventTitle(event.title);
+    setNewEventTime(event.time || '');
+    setSelectedType(event.type);
+    setNotifyOnDay(event.notifyOnDay || false);
+    setNotifyBefore(event.notifyBefore || false);
+    setNotifyBeforeTime(event.notifyBeforeTime || '1h');
+    closeEventModals();
+    setTimeout(() => {
+      openEventModal();
+    }, 300);
+  };
+
   return (
     <>
       {isViewEventModalVisible && (
@@ -107,275 +149,257 @@ export const EventModal: React.FC<EventModalProps> = ({
           onClose={closeEventModals} 
           title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
           modalWidth={getViewModalMaxWidth()}
-        modalMaxWidth={getViewModalMaxWidth()}
-      >
-        <View style={{ paddingBottom: 50, ...noScrollbar }}>
-          <ScrollView
-            style={{
-              paddingHorizontal: 12,
-              maxHeight: screenHeight * 0.77
-            }}
-            showsVerticalScrollIndicator={!isWeb}
-          >
-              {selectedEvents
-                .slice()
-                .sort((a, b) => {
-                  if (!a.time && !b.time) return 0;
-                  if (!a.time) return 1; 
-                  if (!b.time) return -1; 
-                  
-                  const timeA = parse(a.time, 'h:mm a', selectedDate || new Date());
-                  const timeB = parse(b.time, 'h:mm a', selectedDate || new Date());
-                  return timeB.getTime() - timeA.getTime(); 
-                })
-                .map((event) => (
-                  <Animated.View
-                    key={event.id}
-                    entering={FadeIn.duration(300).delay(100)}
-                  >
-                    <EventPreview
-                      event={event}
-                      onEdit={() => handleEditEvent(event)}
-                      onDelete={() => handleDeleteEvent(event.id)}
-                      isDark={isDark}
-                      primaryColor={primaryColor}
-                    />
-                  </Animated.View>
-                ))}
-          </ScrollView>
-          <TouchableOpacity
-            onPress={handleAddNewEvent}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              width: 44,
-              height: 44,
-              borderRadius: 22,
-              backgroundColor: primaryColor,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ionicons name="add" size={24} color="#fffbf7" />
-          </TouchableOpacity>
-        </View>
-      </BaseCardAnimated>
+          modalMaxWidth={getViewModalMaxWidth()}
+        >
+          <View style={{ paddingBottom: 50, ...noScrollbar }}>
+            <ScrollView
+              style={{
+                maxHeight: screenHeight * 0.77
+              }}
+              showsVerticalScrollIndicator={!isWeb}
+            >
+                {selectedEvents
+                  .slice()
+                  .sort((a, b) => {
+                    if (!a.time && !b.time) return 0;
+                    if (!a.time) return 1; 
+                    if (!b.time) return -1; 
+                    
+                    const timeA = parse(a.time, 'h:mm a', selectedDate || new Date());
+                    const timeB = parse(b.time, 'h:mm a', selectedDate || new Date());
+                    return timeB.getTime() - timeA.getTime(); 
+                  })
+                  .map((event) => (
+                    <Animated.View
+                      key={event.id}
+                      entering={FadeIn.duration(300).delay(100)}
+                    >
+                      <EventPreview
+                        event={event}
+                        onEdit={() => handleEditEventInternal(event)}
+                        onDelete={() => handleDeleteEventWithConfirmation(event.id)}
+                        isDark={isDark}
+                        primaryColor={primaryColor}
+                        isDeviceEvent={event.id.startsWith('device-')}
+                      />
+                    </Animated.View>
+                  ))}
+            </ScrollView>
+            <TouchableOpacity
+              onPress={handleAddNewEvent}
+              style={[styles.addButton, { backgroundColor: primaryColor }]}
+            >
+              <Ionicons name="add" size={24} color="#fffbf7" />
+            </TouchableOpacity>
+          </View>
+        </BaseCardAnimated>
       )}
 
       {isEventModalVisible && (
-        <Modal
-          visible={isEventModalVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={closeEventModals}
+        <BaseCardAnimated
+          onClose={closeEventModals}
+          title={`${editingEvent ? 'Edit' : 'Add'} Event for ${selectedDate?.toLocaleDateString() || ''}`}
+          modalWidth={modalWidth}
+          modalMaxWidth={modalWidth}
         >
-          <View style={styles.modalOverlay}>
-            <View>
-              <View style={styles.headerContainer}>
-                <Text style={[styles.headerText, { color: textColor }]}>
-                  {`${editingEvent ? 'Edit' : 'Add'} Event for ${selectedDate?.toLocaleDateString() || ''}`}
+          <View style={{ paddingBottom: 20, ...noScrollbar }}>
+            <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                    color: textColor,
+                    borderColor: isDark ? '#444444' : '#dddddd'
+                  }
+                ]}
+                placeholder="Event Title"
+                placeholderTextColor={isDark ? '#888888' : '#666666'}
+                value={newEventTitle}
+                onChangeText={setNewEventTitle}
+              />
+
+              <TouchableOpacity
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                    borderColor: isDark ? '#444444' : '#dddddd',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }
+                ]}
+                onPress={() => setShowTimePicker(true)}
+              >
+                <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666' }}>
+                  {newEventTime || 'Event Time (CT)'}
                 </Text>
-              </View>
+                <Ionicons name="time-outline" size={18} color={textColor} />
+              </TouchableOpacity>
 
-              <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: isDark ? '#333333' : '#f5f5f5',
-                      color: textColor,
-                      borderColor: isDark ? '#444444' : '#dddddd'
-                    }
-                  ]}
-                  placeholder="Event Title"
-                  placeholderTextColor={isDark ? '#888888' : '#666666'}
-                  value={newEventTitle}
-                  onChangeText={setNewEventTitle}
-                />
-
-                <TouchableOpacity
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: isDark ? '#333333' : '#f5f5f5',
-                      borderColor: isDark ? '#444444' : '#dddddd',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }
-                  ]}
-                  onPress={() => setShowTimePicker(true)}
-                >
-                  <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666' }}>
-                    {newEventTime || 'Event Time (CT)'}
-                  </Text>
-                  <Ionicons name="time-outline" size={18} color={textColor} />
-                </TouchableOpacity>
-
-                <Text style={[styles.sectionTitle, { color: textColor }]}>Event Type</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
-                  <XStack gap="$2">
-                    {['personal', 'work', 'family', 'task', 'health'].map((type) => {
-                      const color = getCategoryColor(type as TaskCategory);
-                      
-                      return (
-                        <TouchableOpacity
-                          key={type}
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Event Type</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+                <XStack gap="$2">
+                  {['personal', 'work', 'family', 'task', 'health'].map((type) => {
+                    const color = getCategoryColor(type as TaskCategory);
+                    
+                    return (
+                      <TouchableOpacity
+                        key={type}
+                        style={[
+                          styles.typeButton,
+                          {
+                            backgroundColor:
+                              type === selectedType 
+                                ? withOpacity(color, 0.15)
+                                : isDark ? '#1f1f1f' : '#ffffff',
+                            borderWidth: 1,
+                            borderColor: type === selectedType 
+                              ? 'transparent'
+                              : isDark ? '#444444' : '#dddddd',
+                            borderRadius: 20,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8
+                          }
+                        ]}
+                        onPress={() => setSelectedType(type as CalendarEvent['type'])}
+                      >
+                        <Text
                           style={[
-                            styles.typeButton,
+                            styles.typeButtonText,
                             {
-                              backgroundColor:
-                                type === selectedType 
-                                  ? withOpacity(color, 0.15)
-                                  : isDark ? '#1f1f1f' : '#ffffff',
-                              borderWidth: 1,
-                              borderColor: type === selectedType 
-                                ? 'transparent'
-                                : isDark ? '#444444' : '#dddddd',
-                              borderRadius: 20,
-                              paddingHorizontal: 12,
-                              paddingVertical: 8
+                              color: type === selectedType ? color : textColor,
+                              fontWeight: type === selectedType ? '600' : '500'
                             }
                           ]}
-                          onPress={() => setSelectedType(type as CalendarEvent['type'])}
                         >
-                          <Text
-                            style={[
-                              styles.typeButtonText,
-                              {
-                                color: type === selectedType ? color : textColor,
-                                fontWeight: type === selectedType ? '600' : '500'
-                              }
-                            ]}
-                          >
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </XStack>
-                </ScrollView>
-
-                <Text style={[styles.sectionTitle, { color: textColor }]}>Notifications</Text>
-                <View
-                  style={[
-                    styles.notificationContainer,
-                    {
-                      backgroundColor: isDark ? '#333333' : '#f5f5f5',
-                      borderColor: isDark ? '#444444' : '#dddddd'
-                    }
-                  ]}
-                >
-                  <View style={styles.switchRow}>
-                    <Text style={[styles.switchLabel, { color: textColor }]}>Notify on day of event</Text>
-                    <Switch
-                      value={notifyOnDay}
-                      onValueChange={setNotifyOnDay}
-                      trackColor={{ false: '#767577', true: primaryColor }}
-                      thumbColor="#f4f3f4"
-                    />
-                  </View>
-
-                  <View style={styles.switchRow}>
-                    <Text style={[styles.switchLabel, { color: textColor }]}>Notify before event</Text>
-                    <Switch
-                      value={notifyBefore}
-                      onValueChange={setNotifyBefore}
-                      trackColor={{ false: '#767577', true: primaryColor }}
-                      thumbColor="#f4f3f4"
-                    />
-                  </View>
-
-                  {notifyBefore && (
-                    <TouchableOpacity
-                      style={[
-                        styles.dropdownButton,
-                        {
-                          backgroundColor: isDark ? '#444444' : '#e0e0e0',
-                          borderColor: isDark ? '#555555' : '#cccccc'
-                        }
-                      ]}
-                      onPress={() => setShowTimeOptions(!showTimeOptions)}
-                    >
-                      <Text style={{ color: textColor }}>
-                        {NOTIFICATION_TIME_OPTIONS.find((option) => option.value === notifyBeforeTime)?.label ||
-                          'Select time'}
-                      </Text>
-                      <Ionicons
-                        name={showTimeOptions ? 'chevron-up' : 'chevron-down'}
-                        size={18}
-                        color={textColor}
-                      />
-                    </TouchableOpacity>
-                  )}
-
-                  {showTimeOptions && (
-                    <View
-                      style={[
-                        styles.dropdown,
-                        {
-                          backgroundColor: isDark ? '#222222' : '#ffffff',
-                          borderColor: isDark ? '#444444' : '#dddddd'
-                        }
-                      ]}
-                    >
-                      {NOTIFICATION_TIME_OPTIONS.map((option) => (
-                        <TouchableOpacity
-                          key={option.value}
-                          style={[
-                            styles.dropdownItem,
-                            {
-                              backgroundColor:
-                                notifyBeforeTime === option.value ? primaryColor : 'transparent',
-                              borderBottomColor: isDark ? '#333333' : '#f0f0f0'
-                            }
-                          ]}
-                          onPress={() => {
-                            setNotifyBeforeTime(option.value)
-                            setShowTimeOptions(false)
-                          }}
-                        >
-                          <Text
-                            style={{
-                              color: notifyBeforeTime === option.value ? '#ffffff' : textColor
-                            }}
-                          >
-                            {option.label}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  )}
-                </View>
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </XStack>
               </ScrollView>
 
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    styles.cancelButton,
-                    { backgroundColor: isDark ? '#444444' : '#e0e0e0' }
-                  ]}
-                  onPress={closeEventModals}
-                >
-                  <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#000000' }]}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Notifications</Text>
+              <View
+                style={[
+                  styles.notificationContainer,
+                  {
+                    backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                    borderColor: isDark ? '#444444' : '#dddddd'
+                  }
+                ]}
+              >
+                <View style={styles.switchRow}>
+                  <Text style={[styles.switchLabel, { color: textColor }]}>Notify on day of event</Text>
+                  <Switch
+                    value={notifyOnDay}
+                    onValueChange={setNotifyOnDay}
+                    trackColor={{ false: '#767577', true: primaryColor }}
+                    thumbColor="#f4f3f4"
+                  />
+                </View>
 
-                <TouchableOpacity
-                  style={[styles.button, { backgroundColor: primaryColor }]}
-                  onPress={handleAddEventWithNotifications}
-                >
-                  <Text style={[styles.buttonText, { color: '#f1f1f1' }]}>
-                    {editingEvent ? 'Update' : 'Add Event'}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.switchRow}>
+                  <Text style={[styles.switchLabel, { color: textColor }]}>Notify before event</Text>
+                  <Switch
+                    value={notifyBefore}
+                    onValueChange={setNotifyBefore}
+                    trackColor={{ false: '#767577', true: primaryColor }}
+                    thumbColor="#f4f3f4"
+                  />
+                </View>
+
+                {notifyBefore && (
+                  <TouchableOpacity
+                    style={[
+                      styles.dropdownButton,
+                      {
+                        backgroundColor: isDark ? '#444444' : '#e0e0e0',
+                        borderColor: isDark ? '#555555' : '#cccccc'
+                      }
+                    ]}
+                    onPress={() => setShowTimeOptions(!showTimeOptions)}
+                  >
+                    <Text style={{ color: textColor }}>
+                      {NOTIFICATION_TIME_OPTIONS.find((option) => option.value === notifyBeforeTime)?.label ||
+                        'Select time'}
+                    </Text>
+                    <Ionicons
+                      name={showTimeOptions ? 'chevron-up' : 'chevron-down'}
+                      size={18}
+                      color={textColor}
+                    />
+                  </TouchableOpacity>
+                )}
+
+                {showTimeOptions && (
+                  <View
+                    style={[
+                      styles.dropdown,
+                      {
+                        backgroundColor: isDark ? '#222222' : '#ffffff',
+                        borderColor: isDark ? '#444444' : '#dddddd'
+                      }
+                    ]}
+                  >
+                    {NOTIFICATION_TIME_OPTIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[
+                          styles.dropdownItem,
+                          {
+                            backgroundColor:
+                              notifyBeforeTime === option.value ? primaryColor : 'transparent',
+                            borderBottomColor: isDark ? '#333333' : '#f0f0f0'
+                          }
+                        ]}
+                        onPress={() => {
+                          setNotifyBeforeTime(option.value)
+                          setShowTimeOptions(false)
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: notifyBeforeTime === option.value ? '#ffffff' : textColor
+                          }}
+                        >
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </View>
+            </ScrollView>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  styles.cancelButton,
+                  { backgroundColor: isDark ? '#444444' : '#e0e0e0' }
+                ]}
+                onPress={closeEventModals}
+              >
+                <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#000000' }]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: primaryColor }]}
+                onPress={handleAddEventWithNotifications}
+              >
+                <Text style={[styles.buttonText, { color: '#f1f1f1' }]}>
+                  {editingEvent ? 'Update' : 'Add Event'}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </Modal>
+        </BaseCardAnimated>
       )}
 
       {showTimePicker && (

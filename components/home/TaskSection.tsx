@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Pressable, Platform, useColorScheme, Animated } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
@@ -7,6 +7,16 @@ import { TaskCard } from '@/components/home/TaskCard'
 import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
+import { format } from 'date-fns'
+
+// Enable debugging
+const DEBUG = true;
+
+function log(...args: any[]) {
+  if (DEBUG) {
+    console.log('[TaskSection]', ...args);
+  }
+}
 
 interface TaskSectionProps {
   todaysTasks: Task[]
@@ -26,6 +36,44 @@ export const TaskSection = ({
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  
+  // Use the same date format as in toggleTaskCompletion
+  const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
+  
+  useEffect(() => {
+    if (DEBUG) {
+      log(`todaysTasks updated - count: ${todaysTasks.length}`);
+      
+      if (todaysTasks.length > 0) {
+        log('First 3 tasks:');
+        todaysTasks.slice(0, 3).forEach(task => {
+          const isCompletedToday = task.completionHistory[todayLocalStr] || false;
+          log(`- ${task.name} (${task.id}): ${task.recurrencePattern}, completed: ${isCompletedToday}`);
+        });
+        
+        // Check for completed tasks
+        const completedTasks = todaysTasks.filter(task => task.completionHistory[todayLocalStr]);
+        log(`Completed tasks: ${completedTasks.length}`);
+        completedTasks.forEach(task => {
+          log(`- ${task.name} (${task.id}): ${task.recurrencePattern}`);
+        });
+      }
+    }
+  }, [todaysTasks, todayLocalStr]);
+  
+  // Local wrapper for toggleTaskCompletion with logging
+  const handleToggleTask = (id: string) => {
+    if (DEBUG) {
+      const task = todaysTasks.find(t => t.id === id);
+      if (task) {
+        log(`Toggling task: ${task.name} (${id})`);
+        log(`Current completion status: ${task.completionHistory[todayLocalStr] || false}`);
+      } else {
+        log(`Task ${id} not found in todaysTasks!`);
+      }
+    }
+    toggleTaskCompletion(id);
+  };
 
   return (
     <Stack
@@ -34,7 +82,7 @@ export const TaskSection = ({
       px="$3"
       py="$4"
       paddingBottom="$7"
-      borderWidth={2.5}
+      borderWidth={2}
       borderColor="rgba(255, 255, 255, 0.15)"
       minHeight={Platform.OS === 'web' ? (todaysTasks.length < 5 ? 'auto' : 300) : 'auto'}
       style={{
@@ -117,8 +165,6 @@ export const TaskSection = ({
             gap={Platform.OS === 'web' ? '$4' : '$2'}
             backgroundColor={isDark ? undefined : "rgba(0, 0, 0, 0.5"}
             br={12}
-            borderWidth={1}
-            borderColor="rgba(255, 255, 255, 0.05)"
             style={{
               backdropFilter: 'blur(8px)'
             }}
@@ -155,32 +201,42 @@ export const TaskSection = ({
               scrollbarColor: 'rgba(219, 208, 198, 0.3) rgba(0, 0, 0, 0.1)',
               padding: '4px'
             }}>
-              {todaysTasks.map((task: Task) => (
-                <div key={task.id} style={{ 
-                  marginBottom: 10,
-                  width: '100%',
-                  transition: 'transform 0.2s ease',
-                  transform: 'translateY(0)',
-                  cursor: 'default'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}>
-                  <TaskCard
-                    title={task.name}
-                    time={task.time}
-                    category={task.category}
-                    priority={task.priority}
-                    status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
-                    onCheck={() => toggleTaskCompletion(task.id)}
-                    onDelete={() => deleteTask(task.id)}
-                  />
-                </div>
-              ))}
+              {todaysTasks.map((task: Task) => {
+                const isCompleted = task.completionHistory[todayLocalStr] || false;
+                
+                if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
+                  log(`Rendering task: ${task.name} (${task.id})`);
+                  log(`Completed status: ${isCompleted}`);
+                  log(`CompletionHistory keys: ${Object.keys(task.completionHistory)}`);
+                }
+                
+                return (
+                  <div key={task.id} style={{ 
+                    marginBottom: 10,
+                    width: '100%',
+                    transition: 'transform 0.2s ease',
+                    transform: 'translateY(0)',
+                    cursor: 'default'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}>
+                    <TaskCard
+                      title={task.name}
+                      time={task.time}
+                      category={task.category}
+                      priority={task.priority}
+                      status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
+                      checked={isCompleted}
+                      onCheck={() => handleToggleTask(task.id)}
+                      onDelete={() => deleteTask(task.id)}
+                    />
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <YStack
@@ -189,25 +245,34 @@ export const TaskSection = ({
               paddingHorizontal="$1"
               paddingBottom="$2"
             >
-              {todaysTasks.map((task: Task) => (
-                <Stack 
-                  key={task.id} 
-                  width="100%"
-                  marginBottom="$1.5"
-                  animation="quick"
-                >
-                  <TaskCard
-                    title={task.name}
-                    time={task.time}
-                    category={task.category}
-                    priority={task.priority}
-                    status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                    checked={task.completionHistory[new Date().toISOString().split('T')[0]] || false}
-                    onCheck={() => toggleTaskCompletion(task.id)}
-                    onDelete={() => deleteTask(task.id)}
-                  />
-                </Stack>
-              ))}
+              {todaysTasks.map((task: Task) => {
+                const isCompleted = task.completionHistory[todayLocalStr] || false;
+                
+                if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
+                  log(`Rendering task (mobile): ${task.name} (${task.id})`);
+                  log(`Completed status: ${isCompleted}`);
+                }
+                
+                return (
+                  <Stack 
+                    key={task.id} 
+                    width="100%"
+                    marginBottom="$1.5"
+                    animation="quick"
+                  >
+                    <TaskCard
+                      title={task.name}
+                      time={task.time}
+                      category={task.category}
+                      priority={task.priority}
+                      status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
+                      checked={isCompleted}
+                      onCheck={() => handleToggleTask(task.id)}
+                      onDelete={() => deleteTask(task.id)}
+                    />
+                  </Stack>
+                );
+              })}
             </YStack>
           )
         )}

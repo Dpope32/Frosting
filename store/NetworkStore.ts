@@ -14,11 +14,9 @@ export const useNetworkStore = create<NetworkState>((set) => ({
   isLoading: false,
   error: null,
   fetchNetworkInfo: async () => {
-    console.log('Fetching network info...');
     set({ isLoading: true, error: null });
     try {
       const state = await NetInfo.fetch();
-      console.log('Received network state:', state);
       set({
         details: state,
         isLoading: false
@@ -32,10 +30,7 @@ export const useNetworkStore = create<NetworkState>((set) => ({
     }
   },
   startNetworkListener: () => {
-    console.log('Starting network listener');
-    // Return unsubscribe function for cleanup
     return NetInfo.addEventListener(state => {
-      console.log('Network state changed:', state);
       set({ details: state });
     });
   }

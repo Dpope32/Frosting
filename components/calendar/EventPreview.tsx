@@ -10,8 +10,10 @@ export const EventPreview: React.FC<{
   onDelete: () => void
   isDark: boolean
   primaryColor: string
-}> = ({ event, onEdit, onDelete, isDark, primaryColor }) => {
+  isDeviceEvent?: boolean
+}> = ({ event, onEdit, onDelete, isDark, primaryColor, isDeviceEvent = false }) => {
   const isBirthday = event.type === 'birthday'
+  const isNBAEvent = event.type === 'nba'
   
   // Get category color based on type
   const getCategoryColor = (type: string): string => {
@@ -22,7 +24,8 @@ export const EventPreview: React.FC<{
       task: '#4CAF50',     // Green
       health: '#F44336',   // Red
       wealth: '#607D8B',   // Blue Gray
-      bill: '#795548'      // Brown
+      bill: '#795548',     // Brown
+      nba: '#FF6B00'       // NBA Orange
     };
     return colors[type] || primaryColor;
   };
@@ -61,6 +64,52 @@ export const EventPreview: React.FC<{
       return timeString
     }
   }
+
+  // Format NBA team names to be shorter
+  const formatNBATitle = (title: string): string => {
+    if (!isNBAEvent) return title;
+    
+    // Replace full team names with shorter versions
+    const replacements: Record<string, string> = {
+      'Oklahoma City Thunder': 'Thunder',
+      'Los Angeles Lakers': 'Lakers',
+      'Los Angeles Clippers': 'Clippers',
+      'Golden State Warriors': 'Warriors',
+      'Phoenix Suns': 'Suns',
+      'Sacramento Kings': 'Kings',
+      'Portland Trail Blazers': 'Blazers',
+      'Denver Nuggets': 'Nuggets',
+      'Minnesota Timberwolves': 'Timberwolves',
+      'Utah Jazz': 'Jazz',
+      'San Antonio Spurs': 'Spurs',
+      'Houston Rockets': 'Rockets',
+      'Dallas Mavericks': 'Mavericks',
+      'Memphis Grizzlies': 'Grizzlies',
+      'New Orleans Pelicans': 'Pelicans',
+      'Miami Heat': 'Heat',
+      'Orlando Magic': 'Magic',
+      'Atlanta Hawks': 'Hawks',
+      'Washington Wizards': 'Wizards',
+      'Charlotte Hornets': 'Hornets',
+      'Detroit Pistons': 'Pistons',
+      'Indiana Pacers': 'Pacers',
+      'Cleveland Cavaliers': 'Cavaliers',
+      'Chicago Bulls': 'Bulls',
+      'Milwaukee Bucks': 'Bucks',
+      'Toronto Raptors': 'Raptors',
+      'Boston Celtics': 'Celtics',
+      'New York Knicks': 'Knicks',
+      'Philadelphia 76ers': '76ers',
+      'Brooklyn Nets': 'Nets'
+    };
+    
+    let formattedTitle = title;
+    Object.entries(replacements).forEach(([fullName, shortName]) => {
+      formattedTitle = formattedTitle.replace(fullName, shortName);
+    });
+    
+    return formattedTitle;
+  };
 
   const dynamicStyles = StyleSheet.create({
     container: {
@@ -159,7 +208,7 @@ export const EventPreview: React.FC<{
 
   return (
     <View style={dynamicStyles.container}>
-      <Text style={dynamicStyles.title}>{event.title}</Text>
+      <Text style={dynamicStyles.title}>{formatNBATitle(event.title)}</Text>
       {!isBirthday && (
         <TouchableOpacity onPress={onDelete} style={styles.deleteIconButton}>
           <Ionicons name="close" size={20} style={dynamicStyles.closeIcon} />
@@ -233,13 +282,25 @@ export const EventPreview: React.FC<{
         
         {event.description && (
           <Text numberOfLines={2} style={dynamicStyles.description}>
-            {event.description}
+            {formatNBATitle(event.description)}
           </Text>
         )}
       </View>
       
-      {!isBirthday && (
-        <TouchableOpacity onPress={onEdit} style={styles.editIconButton}>
+      {!isBirthday && !isDeviceEvent && !isNBAEvent && (
+        <TouchableOpacity 
+          onPress={() => {
+            console.log('Edit icon clicked for event:', {
+              id: event.id,
+              title: event.title,
+              type: event.type,
+              isDeviceEvent,
+              isNBAEvent
+            });
+            onEdit();
+          }} 
+          style={styles.editIconButton}
+        >
           <Ionicons name="pencil" size={17} style={dynamicStyles.icon} />
         </TouchableOpacity>
       )}

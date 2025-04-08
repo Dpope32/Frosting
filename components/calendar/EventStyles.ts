@@ -29,7 +29,8 @@ export const styles = StyleSheet.create({
     textAlign: 'center'
   },
   formContainer: {
-    padding: 20
+    padding: 20,
+    paddingLeft: 24
   },
   input: {
     borderWidth: 1,
@@ -45,7 +46,7 @@ export const styles = StyleSheet.create({
   },
   typesContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 12,
     paddingHorizontal: 16
   },
   typeButton: {
@@ -148,10 +149,31 @@ export const styles = StyleSheet.create({
     fontSize: 16
   },
   eventCard: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 12,
     backgroundColor: '#f0f0f0',
     borderRadius: 8,
-    marginVertical: 8
-  }
+    marginVertical: 8,
+    width: '98%',
+    alignSelf: 'center'
+  },
+  addButton: {
+    position: 'absolute',
+    right: 8,
+    bottom: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FF6B00',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
 })
