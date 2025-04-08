@@ -7,14 +7,14 @@
 </div>
 
 <h1 style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="assets/images/icon.png" style="height: 50px; width: auto; margin-right: 20px;" />
+  <img src="assets/images/icon.png" style="height: 50px; width: auto; margin-right: 40px;" />
   Kaiba Nexus
 </h1>
 
 <div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
-  <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 0 15px;">Web Version</a>
-  <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 0 15px;">Download on App Store</a>
-  <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 0 15px;">Privacy Policy</a>
+  <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 15px 15px;">Web Version</a>
+  <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 15px 15px;">Download on App Store</a>
+  <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 15px 15px;">Privacy Policy</a>
 </div>
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
@@ -93,6 +93,8 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
   <img src="assets/screenshots/web/web2.png" style="width: 100%; max-width: 800px;" />
-  <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
+  Change the layout of the app by clicking the number in the top right corner
   <img src="assets/screenshots/web/web3.png" style="width: 100%; max-width: 800px;" />
+  Pick between 3 2 or 1 column layout
+  <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
 </div>
