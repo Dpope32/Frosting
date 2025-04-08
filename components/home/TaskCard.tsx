@@ -69,7 +69,7 @@ export function TaskCard({
 
   return (
     <Stack
-      backgroundColor="rgba(14, 14, 14, 0.77)"
+      backgroundColor="rgba(22, 22, 22, 0.55)"
       br={12}
       padding={isWeb ? "$2" : "$2"}
       marginVertical={isWeb ? "$1" : "$0"}
@@ -108,12 +108,11 @@ export function TaskCard({
           alignItems: 'center',
           borderRadius: 10,
           zIndex: 1
-        }}>
+        }}
+        pointerEvents="none">
           <Ionicons name="checkmark-circle" size={24} color="#00C851" />
         </View>
       )}
-
-      {/* Changed to View for better layout control */}
       <View style={styles.container}>
         <Pressable 
           onPress={() => {
@@ -314,9 +313,9 @@ const styles = StyleSheet.create({
   },
   checkboxContainer: {
     paddingHorizontal: 4,
-    paddingTop: 2,
+    paddingTop: 6,
     paddingBottom: 2,
-    marginRight: 6,
+    marginRight: 2,
     alignSelf: 'flex-start'
   },
   checkbox: {

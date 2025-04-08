@@ -48,30 +48,58 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     if (task.scheduledDate) log("- scheduledDate:", task.scheduledDate);
   }
   
-  // STEP 1: If completed today, always show it regardless of task type
-  if (task.completionHistory[currentDateStrLocal] === true) {
-    if (shouldDebug) log("- task was completed today, showing it");
+  // ONE-TIME TASKS SPECIAL HANDLING
+  if (task.recurrencePattern === 'one-time') {
+    // If completed today, still show it (so user can untoggle if needed)
+    if (task.completionHistory[currentDateStrLocal] === true) {
+      if (shouldDebug) log("- one-time task completed today, showing it");
+      return true;
+    }
+    
+    // If completed on a previous day, hide it
+    if (task.completed) {
+      if (shouldDebug) log("- one-time task completed on a previous day, hiding it");
+      return false;
+    }
+    
+    // Special handling for games
+    if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
+      const gameDate = new Date(task.scheduledDate)
+      const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
+      const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
+      
+      // Only show game if it's scheduled for today
+      const isGameDay = localGameDateStr === currentDateStrLocal;
+      
+      if (shouldDebug) {
+        log("- game check:");
+        log("  - localGameDateStr:", localGameDateStr);
+        log("  - currentDateStrLocal:", currentDateStrLocal);
+        log("  - isGameDay:", isGameDay);
+      }
+      
+      return isGameDay;
+    }
+    
+    // Special handling for birthdays
+    if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
+      const bdayDateLocal = new Date(task.scheduledDate)
+      const bdayStrLocal = format(bdayDateLocal, 'yyyy-MM-dd')
+      const isBirthdayToday = bdayStrLocal === currentDateStrLocal;
+      if (shouldDebug) log("- birthday check, isBirthdayToday:", isBirthdayToday);
+      return isBirthdayToday;
+    }
+    
+    // For regular one-time tasks, show if not completed
+    if (shouldDebug) log("- one-time regular task, not completed, showing it");
     return true;
   }
   
-  // STEP 2: Special handling for games and events (Basketball games, etc.)
-  // Check if this is a game or event (special one-time task with scheduledDate)
-  if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
-    const gameDate = new Date(task.scheduledDate)
-    const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
-    const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
-    
-    // Only show game if it's scheduled for today and not completed
-    const isGameDay = localGameDateStr === currentDateStrLocal && !task.completed
-    
-    if (shouldDebug) {
-      log("- game check:");
-      log("  - localGameDateStr:", localGameDateStr);
-      log("  - currentDateStrLocal:", currentDateStrLocal);
-      log("  - isGameDay:", isGameDay);
-    }
-    
-    return isGameDay;
+  // RECURRING TASKS
+  // If completed today, always show recurring tasks (so user can untoggle if needed)
+  if (task.completionHistory[currentDateStrLocal] === true) {
+    if (shouldDebug) log("- recurring task completed today, showing it");
+    return true;
   }
   
   // STEP 3: Special handling for bills
@@ -79,45 +107,29 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     const isDueDate = date.getDate() === task.dueDate;
     if (shouldDebug) log("- bills check, isDueDate:", isDueDate);
     // Only show bills that are due today and not completed
-    return isDueDate && !task.completed;
+    return isDueDate;
   }
   
   // STEP 4: Handle different recurrence patterns
   switch (task.recurrencePattern) {
-    case 'one-time': {
-      // Special handling for birthdays
-      if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
-        const bdayDateLocal = new Date(task.scheduledDate)
-        const bdayStrLocal = format(bdayDateLocal, 'yyyy-MM-dd')
-        const isBirthdayToday = bdayStrLocal === currentDateStrLocal && !task.completed;
-        if (shouldDebug) log("- birthday check, isBirthdayToday:", isBirthdayToday);
-        return isBirthdayToday;
-      }
-      
-      // For regular one-time tasks, show if not completed
-      const result = !task.completed;
-      if (shouldDebug) log("- one-time regular task, showing:", result);
-      return result;
-    }
-    
     case 'tomorrow': {
       const createdDateStr = new Date(task.createdAt).toISOString().split('T')[0]
       const yesterday = new Date(date)
       yesterday.setDate(yesterday.getDate() - 1)
       const yesterdayStr = yesterday.toISOString().split('T')[0]
-      const result = createdDateStr === yesterdayStr && !task.completed;
+      const result = createdDateStr === yesterdayStr;
       if (shouldDebug) log("- tomorrow check, result:", result);
       return result;
     }
     
     case 'everyday': {
-      // For everyday tasks, show if not completed today
-      if (shouldDebug) log("- everyday task, not completed yet today");
+      // For everyday tasks, always show
+      if (shouldDebug) log("- everyday task, showing it");
       return true;
     }
     
     case 'weekly': {
-      // Only show weekly tasks on their scheduled days if not completed
+      // Only show weekly tasks on their scheduled days
       const isDueToday = task.schedule.includes(today);
       if (shouldDebug) {
         log("- weekly check:");

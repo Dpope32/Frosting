@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sheet, Text, YStack, XStack, Theme, Button, isWeb } from 'tamagui';
+import  useAppVersion  from 'expo-constants';
 import { Tabs } from '@tamagui/tabs';
 import { KeyboardAvoidingView, Platform, useColorScheme, ScrollView, Pressable, Linking } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -319,6 +320,16 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                             mt="$2"
                           >
                             Last updated: March 2025
+                          </Text>
+                          <Text 
+                            fontSize={isWeb ? 12 : "$3"} 
+                            color={isDark ? "#666" : "#999"}
+                            fontFamily="$body"
+                            lineHeight={20}
+                            mt="$2"
+                            textAlign="left"
+                          >
+                            App Version: {useAppVersion.version}
                           </Text>
                         </YStack>
                       </ScrollView>

@@ -195,20 +195,19 @@ export function PersonCard({
           onOpenChange={(isOpen: boolean) => {
             if (!isOpen) collapsePersonCard();
           }}
-          snapPoints={[80, 95]}
+          snapPoints={[85, 95]}
           dismissOnSnapToBottom
           dismissOnOverlayPress
-          animation="quick"
+          animation="modal"
           zIndex={100000}
         >
-          <Sheet.Overlay animation="quick" style={styles.overlay as any} />
-          <Sheet.Frame 
+          <Sheet.Overlay animation="modal" style={styles.overlay as any} />
+          <Sheet.Frame
               style={[
-                styles.modalContainer, 
+                styles.modalContainer,
                 {
                   backgroundColor: isDark ? "rgba(20,20,20,0.95)" : "rgba(255,255,255,0.95)",
                   borderColor: isDark ? "rgba(200,200,200,0.8)" : "rgba(100,100,100,0.3)",
-                  overflow: "hidden"
                 },
                 applyWebStyle('modalContainer')
               ] as any}

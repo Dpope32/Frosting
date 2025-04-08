@@ -45,7 +45,7 @@ export const calculateBuyIndicator = (
   return Math.min(100, Math.max(0, combinedScore));
 };
 
-type ReturnType = {
+export type ReturnType = {
   '1w': number | null;
   '1m': number | null;
   '3m': number | null;
