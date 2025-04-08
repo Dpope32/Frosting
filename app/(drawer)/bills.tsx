@@ -85,14 +85,16 @@ export default function BillsScreen() {
               </YStack>
             </XStack>
             
-            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
-              <YStack>
-                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
-                <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
-                  ${totalMonthlyAmount.toFixed(0)}
-                </Text>
-              </YStack>
-            </XStack>
+            {bills && bills.length > 0 && (
+              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+                <YStack>
+                  <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
+                  <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
+                    ${totalMonthlyAmount.toFixed(0)}
+                  </Text>
+                </YStack>
+              </XStack>
+            )}
             
             {bills && bills.length > 0 && (
               <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>

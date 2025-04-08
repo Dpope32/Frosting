@@ -167,7 +167,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json(response.data);
       }
       
-    } else if (endpoint === 'ping') {
+    } 
+    else if (endpoint === 'debug') {
+      console.log('[Debug] Debug endpoint called');
+      return res.status(200).json({
+        status: 'ok',
+        time: new Date().toISOString(),
+        version: 'latest deployment'
+      });
+    }else if (endpoint === 'ping') {
       console.log('[Ping] Request received');
       return res.status(200).json({ 
         status: 'ok', 

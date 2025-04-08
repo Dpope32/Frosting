@@ -1,27 +1,55 @@
-# Kaiba-Nexus
+<div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 20px;">
+  <div style="display: flex; gap: 0; overflow-x: auto;">
+    <img src="assets/screenshots/iosAppstore/image1.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
+    <img src="assets/screenshots/iosAppstore/image2.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
+    <img src="assets/screenshots/iosAppstore/image3.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
+    <img src="assets/screenshots/iosAppstore/image4.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
+    <img src="assets/screenshots/iosAppstore/image5.png" style="width: 100%; max-width: 200px; object-fit: contain;" />
+  </div>
+</div>
+
+<div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+  <a href="https://kaiba.vercel.app/" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+    <img src="assets/images/splash-icon.png" width="50" />
+    <span>Web Version</span>
+  </a>
+  <a href="https://apps.apple.com/us/app/kaiba-nexus/idXXXXXXXXXX" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+    <img src="assets/images/icon.png" width="50" />
+    <span>Download on App Store</span>
+  </a>
+  <a href="https://deedaw.cc/pages/privacy.html" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+    <img src="assets/images/favicon.png" width="50" />
+    <span>Privacy Policy</span>
+  </a>
+</div>
+
+# Kaiba Nexus
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
 
-## Features
+## ✨ Features
 
-- **Task Management**: Track recurring and one-time tasks on the landing page
-- **Calendar**: Track birthdays, bills, events, NBA schedules, and more. 
-- **CRM**: Manage your contacts with intuitive attributes like Payment Methods, Addresses, Phone Numbers, and more
-- **Notifications**: Never miss another birthday or anniversary
-- **Password Vault**: Securely store your passwords locally
-- **Finance Tracking**: Monitor your portfolio with real-time stock updates. Build your own Watchlist on the Web version
-- **Weather & Network**: Check current conditions and network status from the home page.
-- **NBA**: Follow your favorite NBA teams' schedule
-- **Customization**: Choose from various wallpapers, themes, and more
+- **📝 Notes with Markdown Support**: Create rich notes with markdown formatting and drag-and-drop organization
+- **✅ Todo List**: Manage tasks with recurring and one-time todos
+- **📅 Calendar**: Track birthdays, bills, events, NBA schedules, and more
+- **👥 CRM**: Manage contacts with attributes like Payment Methods, Addresses, etc
+- **🔐 Password Vault**: Securely store passwords locally
+- **📊 Finance Tracking**: Monitor portfolio with real-time stock updates
+- **⏳ Year Progress Bar**: Visualize your year's progress
+- **🌦️ Weather & Network**: Check conditions and network status
+- **🏀 NBA**: Follow your favorite teams' schedules
+- **🎨 Customization**: Choose from wallpapers, themes, and more
 
-All data is stored locally first, with future plans for cross-device synchronization.
+**👀 Coming Soon**: Cross-Device Sync with TinyBase integration
 
-## Getting Started
+![Home Screen Preview](assets/screenshots/HomeScreenWebLoaded.png)
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 
-- npm or yarn
+- Yarn (recommended) or npm
 - Expo CLI
 
 ### Installation
@@ -31,33 +59,46 @@ All data is stored locally first, with future plans for cross-device synchroniza
 git clone https://github.com/dpope32/frosting.git
 cd frosting
 
-# Install dependencies
-npm install
+# Install dependencies (Yarn recommended)
+yarn install
 ```
 
 ### Running the App
+
+#### Mobile (iOS/Android)
 ```bash
-npx expo run
+# For iOS
+npx expo run:ios
+
+# For Android
+npx expo run:android
 ```
 
-#### Web
+#### Web Version
 ```bash
-# Option 1: Standard web start (some features may not work due to CORS)
-npm run web
+# Start with proxy server (recommended)
+yarn web-dev
 
-# Option 2: Recommended for web development (includes proxy server)
-npm run web-dev
+# See PROXY_SERVER.md for details on proxy setup
 ```
 
-See [PROXY_SERVER.md](PROXY_SERVER.md) for more details on the proxy server used for web development.
+## Development Stack
 
-## Development
+| Category           | Technology       |
+|--------------------|------------------|
+| Framework          | Expo + React Native |
+| UI Components      | Tamagui          |
+| State Management   | Zustand          |
+| Data Fetching      | React Query      |
+| Testing            | Jest             |
+| Web Hosting        | Vercel           |
+| Updates            | Expo OTA Updates |
 
-- The app uses Expo and React Native for cross-platform compatibility
-- Tamagui is used for UI components
-- Zustand for state management
-- React Query for data fetching
+## 📜 License
 
-## License
+- **Updates**: Seamless OTA updates via Expo
+- **Coming Soon**: TinyBase for cross-platform sync
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 📜 License
+
+MIT License - see [LICENSE](LICENSE) for details.

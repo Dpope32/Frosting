@@ -34,6 +34,8 @@ export function Header({ title }: HeaderProps) {
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
+  const isNotesScreen = route.name === 'notes';
+  const isNBAScreen = route.name === 'nba';
   const isCrmScreen = route.name === 'crm'; 
   const isCalendarScreen = route.name === 'calendar'; 
   const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#00000';
