@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { debounce } from 'lodash'
 import { YStack, Text, Button, XStack, ScrollView, useTheme, Input } from 'tamagui'
-import { Platform, useColorScheme, StyleSheet, Vibration, TextInput } from 'react-native'
+import { Platform, useColorScheme, StyleSheet, Vibration, TextInput, TouchableOpacity } from 'react-native'
 import { StockCardAnimated } from '../baseModals/StockCardAnimated'
 import { useUserStore } from '@/store/UserStore'
 import { Stock } from '@/types/stocks'
@@ -44,12 +44,11 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
   const [searchResults, setSearchResults] = useState<StockData[]>([])
   const [stocksInitialized, setStocksInitialized] = useState(false)
   const [dropdownActive, setDropdownActive] = useState(false)
-  // Add this to track if we have an explicit selection, not just matching text
   const [hasExplicitSelection, setHasExplicitSelection] = useState(false)
-  // Add state to track if quantity input is focused
   const [isQuantityFocused, setIsQuantityFocused] = useState(false)
-  // Add state to track if we're in edit mode for quantity
   const [isQuantityEditMode, setIsQuantityEditMode] = useState(false)
+  // Add this to prevent blur from closing dropdown during selection
+  const [isSelectingStock, setIsSelectingStock] = useState(false)
 
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
@@ -74,7 +73,6 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
 
     if (open) {
       initStocks()
-      // Set quantity edit mode to true when modal opens
       setIsQuantityEditMode(true)
     }
   }, [open, stocksInitialized])
@@ -154,13 +152,13 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     setError('')
   }, [])
 
-  // Add handler for quantity input focus
+  // Handle quantity input focus
   const handleQuantityFocus = useCallback(() => {
     setIsQuantityFocused(true)
     setIsQuantityEditMode(true)
   }, [])
 
-  // Add handler for quantity input blur
+  // Handle quantity input blur
   const handleQuantityBlur = useCallback(() => {
     setIsQuantityFocused(false)
     // Only exit edit mode if there's a value
@@ -169,7 +167,7 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     }
   }, [formData.quantity])
 
-  // Add handler for ticker input focus
+  // Handle ticker input focus
   const handleTickerFocus = useCallback(() => {
     setIsQuantityFocused(false)
     // Only show dropdown if we don't have an explicit selection and have results
@@ -180,24 +178,36 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
 
   // Handle selecting a stock from search results
   const handleSelectStock = useCallback((selectedStockData: StockData) => {
+    // Mark that we're in the process of selecting to prevent dropdown from closing
+    setIsSelectingStock(true);
+    
     // Cancel any pending searches
-    debouncedSearch.cancel()
+    debouncedSearch.cancel();
 
-    // Set the ticker and name in the parent state
-    setFormData(prev => ({
-      ...prev,
+    // Immediately update the form data
+    setFormData({
       ticker: selectedStockData.symbol,
+      quantity: formData.quantity,
       name: selectedStockData.name
-    }))
+    });
     
     // Mark that we have an explicit selection
-    setHasExplicitSelection(true)
-
-    // Close the dropdown and explicitly blur the input
-    setSearchResults([])
-    setDropdownActive(false)
-    tickerInputRef.current?.blur()
-  }, [debouncedSearch])
+    setHasExplicitSelection(true);
+    
+    // Close the dropdown after a slight delay to ensure the selection is processed
+    setTimeout(() => {
+      setDropdownActive(false);
+      setIsSelectingStock(false);
+      
+      // Only blur after selection is complete
+      if (Platform.OS !== 'web') {
+        if (tickerInputRef.current?.blur) {
+          tickerInputRef.current.blur();
+        }
+      }
+    }, 100);
+    
+  }, [debouncedSearch, formData.quantity]);
 
   // Handle removing a selected stock
   const handleRemoveStock = useCallback(() => {
@@ -206,8 +216,10 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     setDropdownActive(false)
     // Allow time for state to update before attempting to focus
     setTimeout(() => {
-      tickerInputRef.current?.focus()
-    }, 100)
+      if (tickerInputRef.current?.focus) {
+        tickerInputRef.current.focus()
+      }
+    }, 150)
   }, [])
 
   const handleSave = useCallback(() => {
@@ -276,13 +288,15 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     }
   }, [stock, onOpenChange, queryClient])
 
-
   const handleInputBlur = useCallback(() => {
+    // Don't close dropdown if we're in the process of selecting a stock
+    if (isSelectingStock) return;
+    
     // Use a small delay to allow selection to complete before hiding dropdown
     setTimeout(() => {
       setDropdownActive(false)
     }, 300)
-  }, [])
+  }, [isSelectingStock])
 
   // Render stock icon helper function
   const renderStockIcon = useCallback((symbol: string, size: number, color: string) => {
@@ -321,7 +335,7 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     onOpenChange(false)
   }, [onOpenChange])
 
-  // Add function to adjust color brightness
+  // Function to adjust color brightness
   const adjustColor = useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
     const num = parseInt(hex, 16)
@@ -330,6 +344,12 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
     return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
   }, [])
+
+  // Function to handle stock selection row click
+  const handleStockRowPress = useCallback((selectedStockData: StockData) => {
+    // Use the same logic as handleSelectStock
+    handleSelectStock(selectedStockData);
+  }, [handleSelectStock]);
 
   return (
     <StockCardAnimated
@@ -353,7 +373,7 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
                 borderColor={formData.quantity ? (isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)") : "transparent"}
               >
                 <YStack gap="$1" flex={1}>
-                  <XStack  mb="$-2"  alignItems="center" justifyContent="space-between" px="$2">
+                  <XStack mb="$-2" alignItems="center" justifyContent="space-between" px="$2">
                     <XStack jc="center" alignItems="center" gap="$1">
                       <XStack
                         width={28}
@@ -476,47 +496,43 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <YStack gap="$2">
                     {searchResults.map((result, index) => (
-                      <XStack
+                      <TouchableOpacity 
                         key={`${result.symbol}-${index}`}
-                        backgroundColor={isDark ? "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)"}
-                        br={8}
-                        padding="$2"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        pressStyle={{ opacity: 0.7 }}
+                        onPress={() => handleStockRowPress(result)}
+                        activeOpacity={0.7}
                       >
-                        <XStack alignItems="center" gap="$2" flex={1}>
-                          <XStack
-                            width={32}
-                            height={32}
-                            br={16}
-                            backgroundColor={isDark ?  "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)"}
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            {renderStockIcon(result.symbol, 18, isDark ? "#f7f7f7" : theme.color10.get())}
-                          </XStack>
-                          <YStack>
-                            <Text color={isDark ? "$color" : "$color12"} fontWeight="600" fontSize={14} fontFamily="$body">
-                              {result.symbol}
-                            </Text>
-                            <Text color={isDark ? "$color11" : "$color10"} fontSize={12} fontFamily="$body" numberOfLines={1}>
-                              {result.name}
-                            </Text>
-                          </YStack>
-                        </XStack>
-                        <Button
-                          size="$2"
-                          backgroundColor={'transparent'}
-                          br={4}
-                          px="$2"
-                          onPress={() => handleSelectStock(result)}
+                        <XStack
+                          backgroundColor={isDark ? "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)"}
+                          br={8}
+                          padding="$2"
+                          alignItems="center"
+                          justifyContent="space-between"
                         >
+                          <XStack alignItems="center" gap="$2" flex={1}>
+                            <XStack
+                              width={32}
+                              height={32}
+                              br={16}
+                              backgroundColor={isDark ?  "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)"}
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              {renderStockIcon(result.symbol, 18, isDark ? "#f7f7f7" : theme.color10.get())}
+                            </XStack>
+                            <YStack>
+                              <Text color={isDark ? "$color" : "$color12"} fontWeight="600" fontSize={14} fontFamily="$body">
+                                {result.symbol}
+                              </Text>
+                              <Text color={isDark ? "$color11" : "$color10"} fontSize={12} fontFamily="$body" numberOfLines={1}>
+                                {result.name}
+                              </Text>
+                            </YStack>
+                          </XStack>
                           <Text color="$blue10" fontSize={12} fontWeight="500">
                             Select
                           </Text>
-                        </Button>
-                      </XStack>
+                        </XStack>
+                      </TouchableOpacity>
                     ))}
                   </YStack>
                 </ScrollView>
