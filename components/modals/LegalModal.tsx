@@ -92,7 +92,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
         modal
         open={isVisible}
         onOpenChange={handleOpenChange}
-        snapPoints={[85]}
+        snapPoints={isWeb ? [85] : [80]}
         position={0}
         dismissOnSnapToBottom={true}
         zIndex={100000}
@@ -219,7 +219,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         ref={scrollViewRef}
                         showsVerticalScrollIndicator={true}
                         bounces={true}
-                        contentContainerStyle={{ paddingBottom: 40 + bottomInset }}
+                        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 40 + bottomInset }}
                         onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
                         scrollEventThrottle={16}
                         style={{ marginTop: 10 }}
