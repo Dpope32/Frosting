@@ -36,7 +36,10 @@
   - ✅ Contact information storage
   - ✅ Custom attributes (payment methods, addresses, etc.)
   - ✅ Modularized components/logic (similar to Vault) (March 28, 2025 - `1b1185b`)
-- ✅ Added `PeopleListModal` triggered from Header on CRM screen (April 3, 2025)
+  - ✅ Added `PeopleListModal` triggered from Header on CRM screen (April 3, 2025)
+- ✅ Notes
+  - ✅ Basic note creation/editing/deletion
+  - ✅ Cross-platform drag-and-drop reordering (April 9, 2025)
 - ✅ Password Vault
   - ✅ Secure credential storage
   - ✅ Local authentication

@@ -54,6 +54,18 @@ flowchart TD
 - **Web Optimizations**: Special considerations for web version (useColorScheme.web.ts)
 - **Electron Integration**: Desktop application support via Electron
 
+### Drag and Drop (Notes Example - April 9, 2025)
+- **Cross-Platform Strategy**: Implemented using platform-specific libraries for optimal experience.
+    - **Web**: `react-dnd` with `react-dnd-html5-backend` for native HTML5 drag operations.
+    - **Mobile**: `react-native-draggable-flatlist` for gesture-based reordering.
+- **Dynamic Loading (Web)**: Utilized dynamic imports (`import()`) within a dedicated web wrapper (`WebDragDrop.tsx`) to lazy-load web-only drag-and-drop dependencies (`react-dnd`, `react-dnd-html5-backend`), preventing bundling issues in React Native. Fallback implementations are used if libraries fail to load.
+- **Core Components**:
+    - `WebDragDrop.tsx`: Web-specific wrapper providing `DndProvider` context and handling lazy loading.
+    - `DraggableNote`: Compound component attaching drag/drop refs, calculating position changes, applying visual feedback (opacity, scaling), and managing drag state.
+    - `NoteCard`: Enhanced base component to reflect visual states based on drag status (`isDragging`).
+- **State Management**: Updates note order in the relevant Zustand store (`NoteStore`) upon drag completion, using optimistic UI updates for a smooth user experience. Order is persisted via AsyncStorage.
+- **UX**: Visual feedback includes scaling, shadows, opacity changes, and cursor indicators (web). Responsive behavior adapts to screen sizes. Performance optimized via memoization and efficient updates.
+
 ## Technical Decisions
 
 ### Local Storage

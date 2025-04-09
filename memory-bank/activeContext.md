@@ -79,3 +79,12 @@ Key improvements:
 - Implemented shared DebouncedInput component with proper TypeScript typing
 - Standardized state management between form variants
 - Improved mobile/web responsive layouts
+
+## Recent Changes (Notes Drag & Drop - April 9, 2025)
+- **Implemented Cross-Platform Drag & Drop:** Added functionality to reorder notes using platform-specific libraries (`react-dnd` for web, `react-native-draggable-flatlist` for mobile).
+- **Architectural Changes:**
+    - Created `WebDragDrop.tsx` for web-specific logic, including lazy-loading of `react-dnd`.
+    - Developed `DraggableNote` compound component for handling drag interactions and visual feedback.
+    - Enhanced `NoteCard` to support dragging states.
+- **State Management:** Integrated reordering logic with `NoteStore` using optimistic updates and persistence via AsyncStorage.
+- **UX Improvements:** Added visual cues (scaling, opacity, shadows) during drag operations. Ensured responsive behavior.

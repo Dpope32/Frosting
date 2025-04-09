@@ -3,12 +3,12 @@ import { persist } from 'zustand/middleware'
 import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
-import { Task, WeekDay, RecurrencePattern } from '@/types/task'
+import { Task, WeekDay } from '@/types/task'
 import { format } from 'date-fns'
-import { useUserStore } from './UserStore' // Import UserStore
+import { useUserStore } from './UserStore' 
 
 // Enable debugging
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args: any[]) {
   if (DEBUG) {
@@ -26,7 +26,7 @@ interface ProjectStore {
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
   getTodaysTasks: () => Task[]
   clearTasks: () => void
-  recalculateTodaysTasks: () => void; // Add recalculation function interface
+  recalculateTodaysTasks: () => void; 
 }
 
 const dayNames: WeekDay[] = [

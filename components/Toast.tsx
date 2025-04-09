@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { YStack, Text, XStack, GetThemeValueForKey } from 'tamagui'
+import { YStack, Text, GetThemeValueForKey, useMedia, isWeb } from 'tamagui'
 import { Dimensions } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
@@ -14,8 +14,8 @@ const toastStyle: {
   alignItems: 'center';
 } = {
   top: height * 0.15,
-  left: width * 0.15,
-  right: width * 0.15,
+  left: width * 0.1,
+  right: width * 0.1,
   alignItems: 'center'
 }
 
@@ -26,7 +26,7 @@ export function Toast() {
     <YStack
       position="absolute"
       {...toastStyle}
-      gap="$2"
+      gap="$1"
       zIndex={100000}
       pointerEvents="box-none"
     >
@@ -54,9 +54,12 @@ const ToastItem: React.FC<ToastItemProps> = ({
   duration,
   onRemove
 }) => {
+  const media = useMedia()
+  const isWeb = media.gtMd // Use gtMd or similar breakpoint for web-like sizes
+
   useEffect(() => {
     const timer = setTimeout(() => {
-        onRemove(id)
+      onRemove(id)
     }, duration)
     return () => clearTimeout(timer)
   }, [])
@@ -67,28 +70,30 @@ const ToastItem: React.FC<ToastItemProps> = ({
       tint="dark"
       style={{
         borderRadius: 8,
-        paddingHorizontal: 16,
+        paddingHorizontal: isWeb ? 24 : 10, 
         paddingVertical: 12,
+        minWidth: isWeb ? 500 : 350, 
         alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'row',
         overflow: 'hidden',
+        backgroundColor: "rgba(159, 159, 159, 0.13)",
       }}
     >
-      <Text color="#fff" fontSize={16} fontFamily={fontFamily}>
+      <Text flexWrap='nowrap' color="$color.gray1" fontSize={isWeb ? '$6' : '$4'} fontFamily="$body"> 
         {message}
       </Text>
-      {type === 'success' && (
-        <Ionicons name="checkmark-circle" size={24} color="#22c55e" />
+      {type === 'success' && ( 
+        <Ionicons name="checkmark-circle" size={isWeb ? 24 : 20} color="#22c55e" />
       )}
       {type === 'error' && (
-        <Ionicons name="alert-circle" size={24} color="#ef4444" />
+        <Ionicons name="alert-circle" size={isWeb ? 24 : 20} color="#ef4444" />
       )}
       {type === 'info' && (
-        <Ionicons name="information-circle" size={24} color="#3b82f6" />
+        <Ionicons name="information-circle" size={isWeb ? 24 : 20} color="#3b82f6" />
       )}
       {type === 'warning' && (
-        <Ionicons name="warning" size={24} color="#f59e0b" />
+        <Ionicons name="warning" size={isWeb ? 24 : 20} color="#f59e0b" />
       )}
     </BlurView>
   )

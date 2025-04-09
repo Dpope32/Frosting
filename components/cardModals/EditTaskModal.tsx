@@ -9,7 +9,7 @@ import { useEditTaskStore } from '@/store/EditTaskStore' // Import the new store
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format, parse } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
-import { BaseCardAnimatedProps, BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated'
+import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated'
 import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity, dayColors } from '@/utils/styleUtils';

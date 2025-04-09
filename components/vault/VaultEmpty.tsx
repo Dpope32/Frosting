@@ -32,7 +32,7 @@ export const VaultEmpty = ({
       borderColor={isDark ? '#222' : '#e0e0e0'} 
       width="100%" 
       overflow="hidden" 
-      marginTop={isWeb ? 10 : 6}
+      marginTop={isWeb ? 10 : 16}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}

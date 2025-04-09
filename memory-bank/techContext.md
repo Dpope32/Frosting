@@ -44,6 +44,9 @@
 - React Native components for UI elements
 - Navigation libraries for app routing
 - Date/time manipulation libraries
+- **Drag & Drop Libraries (Notes - April 9, 2025):**
+    - `react-dnd` & `react-dnd-html5-backend` (Web - dynamically loaded)
+    - `react-native-draggable-flatlist` (Mobile)
 - **`expo-file-system`**: Used for native wallpaper caching (March 28, 2025 - `1459baa`)
 - **Removed (March 28, 2025 - `1459baa`, `1508286`):** `expo-av`, `expo-network`, `expo-sharing`, `expo-video`, `react-native-figma-squircle`, `react-native-progress`, `react-circular-progressbar`
 

@@ -25,7 +25,7 @@ export function BaseCardAnimated({
   title,
   children,
   onClose, 
-  modalWidth = Platform.OS === 'web' ? 700 : 350,
+  modalWidth = Platform.OS === 'web' ? 700 : 360,
   modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
   showCloseButton = true,
 }: BaseCardAnimatedProps) {
