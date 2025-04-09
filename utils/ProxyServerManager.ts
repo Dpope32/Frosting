@@ -49,14 +49,8 @@ class ProxyServerManagerClass {
 
     // Use Vercel API route in production
     if (process.env.NODE_ENV === 'production') {
-      // For Yahoo Finance endpoints, route through stoic-quote using path parameter
-      if (endpoint.startsWith('yahoo-finance/') || endpoint.startsWith('yahoo-finance-history/')) {
-        // Instead of using /api/proxy/yahoo-finance/TSLA which isn't working,
-        // use /api/proxy?path=yahoo-finance/TSLA which should work with your current server code
-        return `/api/proxy?path=${encodeURIComponent(endpoint)}`;
-      }
-      
-      // For all other endpoints, use the normal approach
+      // Change this to use the proper URL format for all endpoints
+      // Instead of query parameters, use path segments
       return `/api/proxy/${endpoint}`;
     }
 
@@ -67,7 +61,7 @@ class ProxyServerManagerClass {
       console.warn(`Proxy server not running. Some features may not work correctly.`);
       return directUrl;
     }
-  }
+}
 
   private async checkServerStatus(): Promise<boolean> {
     try {
