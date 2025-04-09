@@ -5,9 +5,10 @@ import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
 import { Task, WeekDay, RecurrencePattern } from '@/types/task'
 import { format } from 'date-fns'
+import { useUserStore } from './UserStore' // Import UserStore
 
 // Enable debugging
-const DEBUG = false;
+const DEBUG = true;
 
 function log(...args: any[]) {
   if (DEBUG) {
@@ -25,6 +26,7 @@ interface ProjectStore {
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
   getTodaysTasks: () => Task[]
   clearTasks: () => void
+  recalculateTodaysTasks: () => void; // Add recalculation function interface
 }
 
 const dayNames: WeekDay[] = [
@@ -36,10 +38,11 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
   const currentDateStrLocal = format(date, 'yyyy-MM-dd')
   const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt)
-  
+  const showNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks; // Get preference
+
   // Debug specific tasks
   const shouldDebug = DEBUG && (task.name.includes("Thunder") || task.name.includes("Journal"))
-  
+
   if (shouldDebug) {
     log("isTaskDue checking task:", task.id, task.name, task.recurrencePattern);
     log("- currentDateStrLocal:", currentDateStrLocal);
@@ -64,6 +67,12 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     
     // Special handling for games
     if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
+      // Check user preference first
+      if (!showNBAGameTasks) {
+        if (shouldDebug) log("- NBA game task, but showNBAGameTasks is false, hiding it");
+        return false;
+      }
+
       const gameDate = new Date(task.scheduledDate)
       const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
       const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
@@ -149,7 +158,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     }
     
     case 'monthly': {
-      // Skip bills in monthly recurrence since we handle them separately
       if (task.category === 'bills') {
         if (shouldDebug) log("- monthly bills, skipping");
         return false;
@@ -175,10 +183,11 @@ const isTaskDue = (task: Task, date: Date): boolean => {
 }
 
 const createTaskFilter = () => {
-  let lastToday: string | null = null
-  let lastTasks: Record<string, Task> | null = null
-  let lastResult: Task[] | null = null
-  
+  let lastToday: string | null = null;
+  let lastTasks: Record<string, Task> | null = null;
+  let lastShowNBAGameTasks: boolean | null = null; // Add preference to cache key
+  let lastResult: Task[] | null = null;
+
   // Debug function for monitoring task filtering
   const debugTaskFilter = (stage: string, tasks: Task[]) => {
     if (!DEBUG) return;
@@ -201,24 +210,33 @@ const createTaskFilter = () => {
   }
   
   return (tasks: Record<string, Task>): Task[] => {
-    const currentDate = new Date()
-    const dateStr = currentDate.toISOString().split('T')[0]
-    const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd')
-    
+    const currentDate = new Date();
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd');
+    const currentShowNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks; // Get current preference
+
     if (DEBUG) {
       log("========== RUNNING TASK FILTER ==========");
       log("- currentDateStrLocal:", currentDateStrLocal);
       log("- total tasks:", Object.keys(tasks).length);
+      log("- currentShowNBAGameTasks:", currentShowNBAGameTasks); // Log preference state
     }
-    
-    if (lastToday === dateStr && lastTasks === tasks && lastResult !== null) {
+
+    // Check cache, including the preference state
+    if (
+      lastToday === dateStr &&
+      lastTasks === tasks &&
+      lastShowNBAGameTasks === currentShowNBAGameTasks && // Check preference cache
+      lastResult !== null
+    ) {
       if (DEBUG) log("- returning cached result:", lastResult.length, "tasks");
-      return lastResult
+      return lastResult;
     }
-    
-    lastToday = dateStr
-    lastTasks = tasks
-    
+
+    lastToday = dateStr;
+    lastTasks = tasks;
+    lastShowNBAGameTasks = currentShowNBAGameTasks; // Update preference cache
+
     // Update completion status for recurring tasks based on local date
     Object.values(tasks).forEach(task => {
       if (task.recurrencePattern !== 'one-time') {
@@ -302,7 +320,7 @@ const taskFilter = createTaskFilter()
 
 export const useProjectStore = create<ProjectStore>()(
   persist(
-    (set, get) => ({
+    (set, get) => ({ // Added 'get' to access state within actions
       tasks: {},
       hydrated: false,
       todaysTasks: [],
@@ -431,7 +449,13 @@ export const useProjectStore = create<ProjectStore>()(
       getTodaysTasks: () => get().todaysTasks,
       clearTasks: () => {
         set({ tasks: {}, todaysTasks: [] }) // Reset tasks and todaysTasks
-      }
+      },
+      recalculateTodaysTasks: () => { // Implement recalculation function
+        const tasks = get().tasks;
+        const filteredTasks = taskFilter(tasks);
+        if (DEBUG) log("Recalculating todaysTasks due to preference change. New count:", filteredTasks.length);
+        set({ todaysTasks: filteredTasks });
+      },
     }),
     {
       name: 'tasks-store',

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react'
-import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert, View, ActivityIndicator, StyleSheet, Modal } from 'react-native' // Added Modal import
+import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert, View, ActivityIndicator, StyleSheet, Modal } from 'react-native' 
 import { BaseCardModal } from './BaseCardModal'
 import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router';
@@ -15,6 +15,7 @@ import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../const
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { BlurView } from 'expo-blur'
+import { OptimizedWallpaperButton } from '@/utils/OptimizedWallpaperButton'
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -30,93 +31,6 @@ interface SettingsModalProps {
   onOpenChange: (open: boolean) => void
 }
 
-
-const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
-  styleItem,
-  isSelected,
-  isDark,
-  primaryColor,
-  isWeb,
-  onSelect,
-  getWallpaperImageSource,
-  index,
-  totalInRow,
-}: {
-  styleItem: { value: BackgroundStyle; label: string }
-  isSelected: boolean
-  isDark: boolean
-  primaryColor: string
-  isWeb: boolean
-  onSelect: (value: BackgroundStyle) => void
-  getWallpaperImageSource: (style: BackgroundStyle) => ImageSourcePropType | undefined
-  index: number
-  totalInRow: number
-}) {
-  const borderColor = isSelected ? 'white' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
-  const isLastInRow = index === totalInRow - 1
-  return (
-    <YStack flex={1} height="100%" marginRight={isLastInRow ? 0 : 8} minWidth={isWeb ? 100 : undefined}>
-      <Button
-        size="$3"
-        height="100%"
-        width="100%"
-        padding={0}
-        backgroundColor={isSelected ? primaryColor : isDark ? '#333' : '#f5f5f5'}
-        borderColor={borderColor}
-        borderWidth={isSelected ? 2 : 1}
-        scale={isSelected ? 1.05 : 1}
-        onPress={() => onSelect(styleItem.value)}
-      >
-      {styleItem.value === 'gradient' ? (
-        <YStack
-          width="100%"
-          height="100%"
-          br={4}
-          {...(isWeb
-            ? {
-                style: {
-                  background: 'linear-gradient(120deg, #3a7bd5, #00d2ff, #3a7bd5)',
-                  backgroundSize: '200% 200%',
-                  animation: 'gradientAnimation 5s ease infinite',
-                  position: 'relative',
-                },
-              }
-            : { backgroundColor: '#3a7bd5' })}
-        >
-          {isWeb && (
-            <style
-              dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes gradientAnimation {
-                  0% { background-position: 0% 50% }
-                  50% { background-position: 100% 50% }
-                  100% { background-position: 0% 50% }
-                }
-              `,
-              }}
-            />
-          )}
-        </YStack>
-      ) : (
-        <YStack width="100%" height="100%" overflow="hidden" br={4} backgroundColor="#242424">
-          {getWallpaperImageSource(styleItem.value) ? (
-            <Image
-              source={getWallpaperImageSource(styleItem.value)}
-              style={{ width: '100%', height: '100%', borderRadius: 4 }}
-              resizeMode="cover"
-              {...(isWeb ? { loading: 'lazy' } : {})}
-            />
-          ) : (
-            <Text color="white" fontSize={10} textAlign="center" padding="$2">
-              {styleItem.label}
-            </Text>
-          )}
-        </YStack>
-      )}
-      </Button>
-    </YStack>
-  )
-})
 
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { preferences, setPreferences } = useUserStore()
@@ -146,6 +60,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     if (!uri) return undefined
     return { uri }
   }, [])
+
   const pickImage = useCallback(async () => {
     if (isWeb) {
       const input = document.createElement('input')
@@ -177,10 +92,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       }
     }
   }, [isWeb])
+
   const handleSave = useCallback(() => {
     setPreferences({ ...settings })
     onOpenChange(false)
   }, [settings, setPreferences, onOpenChange])
+  
   const handleSelectBackground = useCallback(async (value: BackgroundStyle) => {
     if (value.startsWith('wallpaper-')) {
       const wallpaperStore = useWallpaperStore.getState();
@@ -257,12 +174,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         }
       }}
       title="Settings"
-      snapPoints={isWeb ? [90] : [85]}
+      snapPoints={isWeb ? [90] : [82]}
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
     >
-      <YStack flex={1} gap="$2" paddingBottom="$2" paddingHorizontal={isWeb ? '$4' : '$4'}>
+      <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$4' : '$4'}>
         <XStack gap="$3" flexWrap="wrap">
           <YStack width={60} gap="$2" alignItems="center">
             <Circle size={60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
@@ -286,7 +203,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     placeholder="Enter username" 
                     value={settings.username} 
                     onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, username: text }))} 
-                    backgroundColor={isDark ? '#333' : '#f5f5f5'} 
+                    backgroundColor={isDark ? '#222' : '#f5f5f5'} 
                     color={isDark ? '#fff' : '#000'} 
                     borderWidth={isDark ? 0 : 1}
                     borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
@@ -301,7 +218,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     placeholder="Enter zip code" 
                     value={settings.zipCode} 
                     onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, zipCode: text }))} 
-                    backgroundColor={isDark ? '#333' : '#f5f5f5'} 
+                    backgroundColor={isDark ? '#222' : '#f5f5f5'} 
                     color={isDark ? '#fff' : '#000'} 
                     borderWidth={isDark ? 0 : 1}
                     borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
@@ -311,9 +228,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           </XStack>
           {Platform.OS !== 'web' ? (
-            <YStack mt="$2" py="$2" borderRadius="$4" backgroundColor={isDark ? '#1a1a1a' : '#f7f7f7'}>
+            <YStack mt="$2" py="$2">
               <YStack gap="$3"> 
-                <XStack gap="$4" justifyContent="space-around"> 
+                <XStack gap="$4" justifyContent="center"> 
                   <YStack alignItems="center" gap={4} flex={1}> 
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Quote</Text>
                   <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor="#fff" trackColor={{ false: '#555', true: settings.primaryColor }} style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
@@ -466,21 +383,15 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </Button>
             )}
           </YStack>
-          <ColorPickerModal
-            open={colorPickerOpen}
-            onOpenChange={setColorPickerOpen}
-            selectedColor={settings.primaryColor}
-            onColorChange={(color) => setSettings((prev) => ({ ...prev, primaryColor: color }))}
-            colorOptions={colorOptions}
-            isDark={isDark}
-          />
         </YStack>
 
-      <XStack
+
+      <XStack 
         justifyContent="space-between"
         paddingHorizontal={isWeb ? '$4' : '$3'}
         paddingVertical={isWeb ? '$4' : '$3'}
-        paddingTop={isWeb ? '$20' : '$3'}
+        paddingTop={isWeb ? '$15' : '$3'}
+        marginTop={isWeb ? 0 : 32}
       >
         <Button
           backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
@@ -546,8 +457,15 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </Text>
           </Button>
         </XStack>
-    </BaseCardModal>
-
+      </BaseCardModal>
+    <ColorPickerModal
+      open={colorPickerOpen}
+      onOpenChange={setColorPickerOpen}
+      selectedColor={settings.primaryColor}
+      onColorChange={(color) => setSettings((prev) => ({ ...prev, primaryColor: color }))}
+      colorOptions={colorOptions}
+      isDark={isDark}
+    />
     <Modal
       visible={isSigningOut}
       transparent={true}

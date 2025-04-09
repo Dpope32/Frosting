@@ -1,3 +1,10 @@
+export interface Stock {
+  symbol: string;
+  quantity: number;
+  name: string;
+  purchasePrice?: number; 
+}
+
 export interface PortfolioQueryData {
     prices: Record<string, number>;
     previousClose: Record<string, number>;

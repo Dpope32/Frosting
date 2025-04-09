@@ -57,7 +57,7 @@ export function BaseCardModal({
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$2"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
-          backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
+          backgroundColor={isDark ? "rgb(7, 7, 7)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
           borderWidth={1}

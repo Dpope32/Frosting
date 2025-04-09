@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { Image, Platform, useColorScheme, useWindowDimensions } from 'react-native'
-import { Button, YStack, XStack, Text, ScrollView } from 'tamagui'; // Removed Sheet
+import { Button, YStack, XStack, Text, ScrollView, Switch } from 'tamagui'; // Added Switch
 import { nbaTeams } from '@/constants/nba';
 import { useNBAStore } from '@/store/NBAStore';
 import { useUserStore } from '@/store/UserStore';
-import { BaseCardModal } from '../cardModals/BaseCardModal'; // Added BaseCardModal
+import { useToastStore } from '@/store/ToastStore'; // Import ToastStore
+import { BaseCardModal } from '../cardModals/BaseCardModal';
 
 interface NBATeamModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
-  const { teamCode, setTeamInfo } = useNBAStore()
-  const { preferences, setPreferences } = useUserStore()
-  const colorScheme = useColorScheme()
+  const { teamCode, setTeamInfo } = useNBAStore();
+  const { preferences, setPreferences } = useUserStore();
+  const showToast = useToastStore((s) => s.showToast); // Get toast function
+  const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web'
   
@@ -24,10 +26,10 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
   // Get window dimensions for responsive layout
   const { width } = useWindowDimensions()
   
-  // Calculate grid columns based on screen width - adjusted for larger web logos
+  // Calculate grid columns based on screen width - adjusted for mobile
   const getGridColumns = () => {
-    if (!isWeb) return 4; // Keep mobile grid the same
-    if (width > 1200) return 6; // Fewer columns for larger logos on web
+    if (!isWeb) return 6; // Changed mobile grid to 6 columns
+    if (width > 1200) return 6;
     if (width > 900) return 5;
     if (width > 600) return 4;
     return 3; // Default web columns
@@ -64,25 +66,26 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
         })
       }
     }
-    
-    // Close the modal
-    onOpenChange(false)
-  }
+    onOpenChange(false);
+    setTimeout(() => {
+      showToast('Preferences saved successfully!', 'success');
+    }, 300); 
+  };
 
   return (
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
       title="Change Favorite NBA Team"
-      snapPoints={isWeb ? [95] : [80]} 
+      snapPoints={isWeb ? [95] : [70]} 
       showCloseButton={true} 
       hideHandle={true}
     >
-      <YStack flex={1} gap="$3" paddingBottom="$4">
+      <YStack flex={1} gap="$3" paddingBottom="$4" paddingHorizontal="$2">
         <ScrollView
-          style={{ flex: 1 }} 
+          style={{ flex: 1 }}
           contentContainerStyle={{
-            paddingBottom: 60, 
+            paddingBottom: 20, 
             alignItems: 'center',
           }}
           showsVerticalScrollIndicator={false}
@@ -90,7 +93,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
           <XStack
             flexWrap="wrap"
             justifyContent="center"
-            gap="$2"
+            gap={isWeb ? "$2" : "$2"} 
             width="100%"
           >
             {nbaTeams.map(team => (
@@ -101,8 +104,8 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
                 borderColor={selectedTeam === team.code ? preferences.primaryColor : (isDark ? 'rgba(255, 255, 255, 0.2)' : '$gray5')}
                 borderWidth={2}
                 marginVertical="$0"
-                width={isWeb ? `${Math.floor(100 / columns) - 2}%` : '22%'}
-                aspectRatio={1} 
+                width={isWeb ? `${Math.floor(100 / columns) - 2}%` : `${Math.floor(100 / columns) - 2}%`}
+                aspectRatio={1}
                 pressStyle={{
                   scale: 0.97,
                   opacity: 0.8,
@@ -116,8 +119,8 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
                   <Image
                     source={{ uri: team.logo }}
                     style={{
-                      width: isWeb ? '70%' : '60%',
-                      height: isWeb ? '70%' : '60%',
+                      width: isWeb ? '70%' : '90%',
+                      height: isWeb ? '70%' : '90%',
                     }}
                     resizeMode="contain"
                   />
@@ -126,18 +129,45 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
             ))}
           </XStack>
         </ScrollView>
+        <YStack gap="$3" paddingHorizontal="$4" paddingTop="$3" borderTopWidth={1} borderColor={isDark ? '$gray4' : '$gray6'}>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text color="$color11" fontSize={14} fontWeight="500">Show games in calendar?</Text>
+            <Switch
+              checked={preferences.showNBAGamesInCalendar}
+              onCheckedChange={(checked) => setPreferences({ showNBAGamesInCalendar: checked })}
+              backgroundColor={preferences.showNBAGamesInCalendar ? preferences.primaryColor : "$background"}
+              borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+              size="$3"
+            >
+              <Switch.Thumb animation="bouncy" backgroundColor="$backgroundStrong" />
+            </Switch>
+          </XStack>
+          <XStack justifyContent="space-between" alignItems="center">
+            <Text color="$color11" fontSize={14} fontWeight="500">Show game days on Home Screen?</Text>
+            <Switch
+              checked={preferences.showNBAGameTasks}
+              onCheckedChange={(checked) => setPreferences({ showNBAGameTasks: checked })}
+              backgroundColor={preferences.showNBAGameTasks ? preferences.primaryColor : "$background"}
+              borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+              size="$3"
+            >
+              <Switch.Thumb animation="bouncy" backgroundColor="$backgroundStrong" />
+            </Switch>
+          </XStack>
+        </YStack>
 
-        {/* Save Button - moved inside the main flow */}
         <XStack
-          paddingTop="$3" // Add some space above the button
-          justifyContent="center"
+          paddingTop="$3"
+          justifyContent={isWeb ? "center" : "flex-end"}
           borderTopWidth={1}
           borderColor={isDark ? '$gray4' : '$gray6'}
         >
           <Button
-            backgroundColor={preferences.primaryColor}
-            height={48}
-            width={isWeb ? 200 : '70%'}
+            backgroundColor='transparent'
+            borderColor={preferences.primaryColor}
+            borderWidth={2}
+            height={45}
+            width={isWeb ? 200 : '50%'}
             paddingHorizontal={20}
             pressStyle={{ opacity: 0.8, scale: 0.98 }}
             onPress={handleSave}
@@ -148,7 +178,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
             shadowRadius={4}
             elevation={3}
           >
-            <Text color="#fff" fontWeight="600" fontSize={16} fontFamily="$body">
+            <Text color={preferences.primaryColor} fontWeight="600" fontSize={17} fontFamily="$body">
               Save
             </Text>
           </Button>

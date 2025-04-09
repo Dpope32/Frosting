@@ -1,6 +1,6 @@
 import React from 'react';
 import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
-import { FormData, ColorOption } from '@/types'
+import { FormData, ColorOption } from '@/types/onboarding'
 import { View, useColorScheme, Platform } from 'react-native' 
 
 const EmptyColorPicker = () => null;

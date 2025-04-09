@@ -1,35 +1,35 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
-import { Image, useWindowDimensions, useColorScheme } from 'react-native' // Add useColorScheme
-import { FormData } from '@/types'
+import { Image, useWindowDimensions, useColorScheme } from 'react-native' 
+import { FormData } from '@/types/onboarding'
 import { nbaTeams } from '@/constants/nba'
-// Removed getOnboardingColor import
 
 export default function Step5({
   formData,
   setFormData,
   handleNext,
-  // Removed isDark prop
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
 }) {
-  const colorScheme = useColorScheme(); // Keep for specific logic below
-  const isDark = colorScheme === 'dark'; // Keep for specific logic below
+  const colorScheme = useColorScheme(); 
+  const isDark = colorScheme === 'dark'; 
   const { width } = useWindowDimensions()
   const [showAllTeams, setShowAllTeams] = useState(isWeb)
   const selectedTeam = formData.favoriteNBATeam || ''
   const [showNBAGamesInCalendar, setShowNBAGamesInCalendar] = useState(true)
+  const [showNBAGameTasks, setShowNBAGameTasks] = useState(true) 
 
   const handleTeamSelect = (teamCode: string) => {
     setFormData(prev => ({
       ...prev,
       favoriteNBATeam: teamCode,
-      showNBAGamesInCalendar: showNBAGamesInCalendar
+      showNBAGamesInCalendar: showNBAGamesInCalendar,
+      showNBAGameTasks: showNBAGameTasks 
     }))
   }
-  
+
   const handleToggleNBAGames = (value: boolean) => {
     setShowNBAGamesInCalendar(value)
     if (selectedTeam) {
@@ -39,12 +39,23 @@ export default function Step5({
       }))
     }
   }
-  
+
+  const handleToggleNBAGameTasks = (value: boolean) => { 
+    setShowNBAGameTasks(value)
+    if (selectedTeam) {
+      setFormData(prev => ({
+        ...prev,
+        showNBAGameTasks: value
+      }))
+    }
+  }
+
   const handleSkip = () => {
     setFormData(prev => ({
       ...prev,
       favoriteNBATeam: 'OKC',
-      showNBAGamesInCalendar: showNBAGamesInCalendar
+      showNBAGamesInCalendar: false, 
+      showNBAGameTasks: false 
     }))
     handleNext()
   }
@@ -68,7 +79,6 @@ export default function Step5({
   const showAllTeamsButtonBackground = "transparent"; 
   const preferencesBackgroundColor = "transparent"; 
   const switchBorderColor = isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)";
-
   const mobileButtonWidth = 140;
   const mobileButtonHeight = 105;
   const mobileScrollMaxWidth = 600;
@@ -241,30 +251,68 @@ export default function Step5({
                 >
                   <XStack justifyContent="space-between" alignItems="center">
                     <YStack>
-                      <Text 
-                        fontFamily="$heading" 
-                        color="$onboardingLabel" 
-                        fontSize={16} 
+                      <Text
+                        fontFamily="$heading"
+                        color="$onboardingLabel"
+                        fontSize={16}
                         fontWeight="600"
                       >
                         Show games in calendar?
                       </Text>
                     </YStack>
-                      <Switch 
-                        checked={showNBAGamesInCalendar} 
+                      <Switch
+                        checked={showNBAGamesInCalendar}
                         onCheckedChange={handleToggleNBAGames}
-                        backgroundColor={showNBAGamesInCalendar ? buttonColor : "$onboardingInputBorder"} 
+                        backgroundColor={showNBAGamesInCalendar ? buttonColor : "$onboardingInputBorder"}
                         borderColor={switchBorderColor}
                       >
-                        <Switch.Thumb 
-                          animation="bouncy" 
-                          backgroundColor="$onboardingIndexBackground" 
+                        <Switch.Thumb
+                          animation="bouncy"
+                          backgroundColor="$onboardingIndexBackground"
                         />
                       </Switch>
                     </XStack>
                 </YStack>
-                <Button 
-                  variant="outlined" 
+                <YStack
+                  flex={1}
+                  backgroundColor={preferencesBackgroundColor}
+                  br={16}
+                  padding="$4"
+                  borderWidth={2}
+                  borderColor={buttonColor}
+                  style={{
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)'
+                  }}
+                  animation="quick"
+                  enterStyle={{ opacity: 0, scale: 0.95 }}
+                >
+                  <XStack justifyContent="space-between" alignItems="center">
+                    <YStack>
+                      <Text
+                        fontFamily="$heading"
+                        color="$onboardingLabel"
+                        fontSize={16}
+                        fontWeight="600"
+                      >
+                        Show game days on Home Screen?
+                      </Text>
+                    </YStack>
+                      <Switch
+                        checked={showNBAGameTasks}
+                        onCheckedChange={handleToggleNBAGameTasks} 
+                        backgroundColor={showNBAGameTasks ? buttonColor : "$onboardingInputBorder"} 
+                        borderColor={switchBorderColor}
+                      >
+                        <Switch.Thumb
+                          animation="bouncy"
+                          backgroundColor="$onboardingIndexBackground"
+                        />
+                      </Switch>
+                    </XStack>
+                </YStack>
+                <Button
+                  variant="outlined"
                   size="$3" 
                   onPress={handleSkip}
                   br={12}
@@ -293,38 +341,61 @@ export default function Step5({
                   padding="$3"
                   animation="quick"
                   enterStyle={{ opacity: 0, scale: 0.95 }}
-                  width="70%"
-                  alignContent='center'
-                  alignItems='center'
+                  width="90%" 
                   alignSelf='center'
+                  gap="$3" 
                 >
-                  <XStack justifyContent="space-between" alignItems="center">
-                    <YStack flex={1} marginRight="$3">
-                      <Text 
-                        fontFamily="$body" 
+                  <XStack justifyContent="space-between" alignItems="center" flex={1}>
+                    <YStack flex={1} marginRight="$2">
+                      <Text
+                        fontFamily="$body"
                         color="$onboardingLabel"
-                        fontSize={14} 
+                        fontSize={14}
                         fontWeight="500"
                       >
                         Show games in calendar?
                       </Text>
                     </YStack>
-                      <Switch 
-                        checked={showNBAGamesInCalendar} 
+                      <Switch
+                        checked={showNBAGamesInCalendar}
                         onCheckedChange={handleToggleNBAGames}
-                        backgroundColor={showNBAGamesInCalendar ? buttonColor : "$onboardingInputBorder"} 
-                        borderColor={switchBorderColor} 
+                        backgroundColor={showNBAGamesInCalendar ? buttonColor : "$onboardingInputBorder"}
+                        borderColor={switchBorderColor}
                         size="$3"
                       >
-                        <Switch.Thumb 
-                          animation="bouncy" 
-                          backgroundColor="$onboardingIndexBackground" 
+                        <Switch.Thumb
+                          animation="bouncy"
+                          backgroundColor="$onboardingIndexBackground"
+                        />
+                      </Switch>
+                    </XStack>
+                  <XStack justifyContent="space-between" alignItems="center" flex={1}>
+                    <YStack flex={1} marginRight="$2">
+                      <Text
+                        fontFamily="$body"
+                        color="$onboardingLabel"
+                        fontSize={14}
+                        fontWeight="500"
+                      >
+                        Show game days on Home?
+                      </Text>
+                    </YStack>
+                      <Switch
+                        checked={showNBAGameTasks}
+                        onCheckedChange={handleToggleNBAGameTasks} 
+                        backgroundColor={showNBAGameTasks ? buttonColor : "$onboardingInputBorder"} 
+                        borderColor={switchBorderColor}
+                        size="$3"
+                      >
+                        <Switch.Thumb
+                          animation="bouncy"
+                          backgroundColor="$onboardingIndexBackground"
                         />
                       </Switch>
                     </XStack>
                 </YStack>
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   size="$3" 
                   onPress={handleSkip}
                   br={20}

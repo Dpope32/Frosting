@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { debounce } from 'lodash'
-import { YStack, Text, Button, XStack, ScrollView, useTheme } from 'tamagui'
-import { Platform, useColorScheme } from 'react-native'
-import { BaseCardModal } from './BaseCardModal'
+import { YStack, Text, Button, XStack, ScrollView, useTheme, Input } from 'tamagui'
+import { Platform, useColorScheme, StyleSheet } from 'react-native'
+import { BaseCardAnimated } from './BaseCardAnimated'
 import { useUserStore } from '@/store/UserStore'
-import { Stock } from '@/types'
+import { Stock } from '@/types/stocks'
 import { portfolioData, updatePortfolioData } from '@/utils/Portfolio'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEditStockStore } from '@/store/EditStockStore'
-import { initializeStocksData,  searchStocks } from '@/services/stockSearchService'
+import { initializeStocksData, searchStocks } from '@/services/stockSearchService'
 import { StockData } from '@/constants/stocks'
-import { getIconForStock} from '../../constants/popularStocks'
+import { getIconForStock } from '../../constants/popularStocks'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
+import { MaterialIcons } from '@expo/vector-icons'
 
 export function EditStockModal() {
   const isOpen = useEditStockStore(s => s.isOpen)
@@ -183,101 +184,131 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
     px: "$2",
   }), [])
 
+  const handleDelete = useCallback(() => {
+    if (!stock) return
+    
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Are you sure you want to delete ${stock.symbol} from your portfolio?`)) {
+        const updatedPortfolio = portfolioData.filter(s => s.symbol !== stock.symbol)
+        updatePortfolioData(updatedPortfolio)
+        queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
+        onOpenChange(false)
+      }
+    } else {
+      // For mobile, you might want to use Alert here
+      const updatedPortfolio = portfolioData.filter(s => s.symbol !== stock.symbol)
+      updatePortfolioData(updatedPortfolio)
+      queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
+      onOpenChange(false)
+    }
+  }, [stock, onOpenChange, queryClient])
+
+  const modalTitle = stock 
+    ? `Edit Holdings for ${stock.symbol}`
+    : 'Add New Stock'
+
   return (
-    <BaseCardModal
-      open={open}
-      onOpenChange={onOpenChange}
-      title={stock ? 'Edit Stock' : 'Add Stock'}
-      zIndex={200000}
-      hideHandle={true}
+    <BaseCardAnimated
+      onClose={() => onOpenChange(false)}
+      title={modalTitle}
+      showCloseButton={true}
     >
-      <YStack gap="$3" py="$2"><YStack>
-          <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
-            Ticker Symbol
-          </Text>
-          <DebouncedInput
-            value={formData.ticker}
-            onDebouncedChange={handleTickerChange}
-            placeholder="e.g. AAPL or search by name"
-            placeholderTextColor="$color11"
-            autoCapitalize="characters"
-            disabled={!!stock}
-            opacity={!!stock ? 0.6 : 1}
-            fontFamily="$body"
-            {...inputStyle}
-          />
-          {searchResults.length > 0 && !stock && (
-            <YStack 
-              backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)"}
-              br={8}
-              padding="$2"
-              mt="$1"
-              maxHeight={Platform.OS === 'web' ? 350 : 250}
-            >
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <YStack gap="$2">
-                  {searchResults.map((result, index) => (
-                    <XStack
-                      key={`${result.symbol}-${index}`}
-                      backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)"}
-                      br={8}
-                      padding="$2"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      pressStyle={{ opacity: 0.7 }}
-                      onPress={() => handleSelectStock(result)}
-                    >
-                      <XStack alignItems="center" gap="$2" flex={1}>
-                        <XStack
-                          width={32}
-                          height={32}
-                          br={16}
-                          backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
-                          alignItems="center"
-                          justifyContent="center"
-                        >
-                          {renderStockIcon(result.symbol, 16, isDark ? theme.color11.get() : theme.color10.get())}
-                        </XStack>
-                        <YStack>
-                          <Text color={isDark ? "$color" : "$color12"} fontWeight="600" fontSize={14} fontFamily="$body">
-                            {result.symbol}
-                          </Text>
-                          <Text color={isDark ? "$color11" : "$color10"} fontSize={12} fontFamily="$body" numberOfLines={1}>
-                            {result.name}
-                          </Text>
-                        </YStack>
-                      </XStack>
-                      <Button
-                        size="$2"
-                        backgroundColor={primaryColor}
-                        br={4}
-                        px="$2"
+      <YStack gap="$4" py="$4" px="$2">
+        {!stock && (
+          <YStack>
+            <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
+              Ticker Symbol
+            </Text>
+            <DebouncedInput
+              value={formData.ticker}
+              onDebouncedChange={handleTickerChange}
+              placeholder="e.g. AAPL or search by name"
+              placeholderTextColor="$color11"
+              autoCapitalize="characters"
+              fontFamily="$body"
+              {...inputStyle}
+            />
+            {searchResults.length > 0 && (
+              <YStack 
+                backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.05)"}
+                br={8}
+                padding="$2"
+                mt="$1"
+                maxHeight={Platform.OS === 'web' ? 350 : 250}
+              >
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <YStack gap="$2">
+                    {searchResults.map((result, index) => (
+                      <XStack
+                        key={`${result.symbol}-${index}`}
+                        backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)"}
+                        br={8}
+                        padding="$2"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        pressStyle={{ opacity: 0.7 }}
                         onPress={() => handleSelectStock(result)}
                       >
-                        <Text color="#fff" fontSize={12} fontWeight="500">
-                          Select
-                        </Text>
-                      </Button>
-                    </XStack>
-                  ))}
-                </YStack>
-              </ScrollView>
-            </YStack>
-          )}
-        </YStack>
+                        <XStack alignItems="center" gap="$2" flex={1}>
+                          <XStack
+                            width={32}
+                            height={32}
+                            br={16}
+                            backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
+                            alignItems="center"
+                            justifyContent="center"
+                          >
+                            {renderStockIcon(result.symbol, 16, isDark ? theme.color11.get() : theme.color10.get())}
+                          </XStack>
+                          <YStack>
+                            <Text color={isDark ? "$color" : "$color12"} fontWeight="600" fontSize={14} fontFamily="$body">
+                              {result.symbol}
+                            </Text>
+                            <Text color={isDark ? "$color11" : "$color10"} fontSize={12} fontFamily="$body" numberOfLines={1}>
+                              {result.name}
+                            </Text>
+                          </YStack>
+                        </XStack>
+                        <Button
+                          size="$2"
+                          backgroundColor={primaryColor}
+                          br={4}
+                          px="$2"
+                          onPress={() => handleSelectStock(result)}
+                        >
+                          <Text color="#fff" fontSize={12} fontWeight="500">
+                            Select
+                          </Text>
+                        </Button>
+                      </XStack>
+                    ))}
+                  </YStack>
+                </ScrollView>
+              </YStack>
+            )}
+          </YStack>
+        )}
+        
         <YStack>
-          <Text color="$colorSubdued"  fontFamily="$body" fontSize={12} marginBottom="$1">
+          <Text color="$colorSubdued" fontFamily="$body" fontSize={12} marginBottom="$1">
             Quantity
           </Text>
-          <DebouncedInput
-            value={formData.quantity}
-            onDebouncedChange={handleQuantityChange}
-            placeholder="Number of shares"
-            placeholderTextColor="$color11"
-            keyboardType="numeric"
-            {...inputStyle}
-          />
+          <XStack alignItems="center" gap="$2">
+            <Input
+              value={formData.quantity}
+              onChangeText={handleQuantityChange}
+              placeholder="Number of shares"
+              placeholderTextColor="$color11"
+              keyboardType="numeric"
+              width={120}
+              {...inputStyle}
+            />
+            <Text color={isDark ? "$color11" : "$color10"} fontSize={14} fontFamily="$body">
+              shares
+            </Text>
+          </XStack>
         </YStack>
+        
         {formData.name ? (
           <YStack alignItems="center" py="$2">
             <Text 
@@ -308,20 +339,37 @@ function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) 
             {error}
           </Text>
         )}
-        <Button
-          backgroundColor={primaryColor}
-          height={40}
-          br={8}
-          opacity={!formData.ticker || !formData.quantity || !formData.name ? 0.5 : 1}
-          disabled={!formData.ticker || !formData.quantity || !formData.name}
-          pressStyle={{ opacity: 0.8, scale: 0.98 }}
-          onPress={handleSave}
-        >
-          <Text color="#fff" fontWeight="500" fontSize={14}>
-            {stock ? 'Update Stock' : 'Add Stock'}
-          </Text>
-        </Button>
+        
+        <XStack gap="$2" justifyContent="space-between">
+          <Button
+            backgroundColor={primaryColor}
+            height={40}
+            flex={1}
+            br={8}
+            opacity={!formData.ticker || !formData.quantity || !formData.name ? 0.5 : 1}
+            disabled={!formData.ticker || !formData.quantity || !formData.name}
+            pressStyle={{ opacity: 0.8, scale: 0.98 }}
+            onPress={handleSave}
+          >
+            <Text color="#fff" fontWeight="500" fontSize={14}>
+              {stock ? 'Update' : 'Add Stock'}
+            </Text>
+          </Button>
+          
+          {stock && (
+            <Button
+              backgroundColor={isDark ? "$red8" : "$red6"}
+              height={40}
+              width={40}
+              br={8}
+              pressStyle={{ opacity: 0.8, scale: 0.98 }}
+              onPress={handleDelete}
+            >
+              <MaterialIcons name="delete" size={20} color="#fff" />
+            </Button>
+          )}
+        </XStack>
       </YStack>
-    </BaseCardModal>
+    </BaseCardAnimated>
   )
 }

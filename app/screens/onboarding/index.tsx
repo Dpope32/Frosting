@@ -7,7 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore'
 import { colorOptions } from '@/constants/Colors' 
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
-import { FormData } from '@/types'
+import { FormData } from '@/types/onboarding'
 import { preloadWallpapers } from '../../../components/wpPreload'
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissionService'
 import { setupPermissionsAndNotifications } from '@/hooks/useAppInitialization'

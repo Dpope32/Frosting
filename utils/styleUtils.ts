@@ -95,3 +95,13 @@ export const getRandomTagColor = (): string => {
   const randomIndex = Math.floor(Math.random() * tagColors.length);
   return tagColors[randomIndex];
 };
+
+export const getPriorityIonIcon = (priority?: string) => {
+  if (!priority) return 'flag-outline';
+  const icons: Record<string, any> = {
+    high: 'alert-circle',
+    medium: 'alert',
+    low: 'information-circle-outline',
+  };
+  return icons[priority] || 'flag-outline';
+};

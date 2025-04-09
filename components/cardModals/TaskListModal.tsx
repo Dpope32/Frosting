@@ -8,9 +8,10 @@ import { useEditTaskStore } from '@/store/EditTaskStore';
 import { useToastStore } from '@/store/ToastStore'; 
 import { Pressable, Platform, useColorScheme, Alert, ActivityIndicator } from 'react-native'; 
 import { Ionicons } from '@expo/vector-icons';
-import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
+import { getCategoryColor, getPriorityIcon, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations';
 import { BaseCardWithRecommendationsModal } from '../cardModals/BaseCardWithRecommendationsModal';
+import { getPriorityColor, getPriorityIonIcon } from '@/utils/styleUtils';
 
 interface TaskListModalProps {
   open: boolean
@@ -336,7 +337,7 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
                 mb="$1"
               >
                 <Ionicons
-                  name={getPriorityIcon(task.priority)}
+                  name={getPriorityIonIcon(task.priority)}
                   size={11}
                   color={getPriorityColor(task.priority)}
                   style={{ marginRight: 3 }}
@@ -408,52 +409,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
         </YStack>
 
         <YStack alignItems="center">
-          <Pressable
-            onPress={() => {
-              if (deletingTaskId === task.id) return;
-              if (Platform.OS === 'web') {
-                setTaskToDelete(task);
-                setIsDeleteTaskAlertOpen(true);
-              } else {
-                Alert.alert(
-                  "Delete Task",
-                  `Are you sure you want to delete "${task.name}"?`,
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete", style: "destructive",
-                      onPress: () => {
-                        setDeletingTaskId(task.id);
-                        try {
-                          deleteTask(task.id);
-                          showToast("Task deleted successfully", "success");
-                        } catch (error) {
-                           console.error("Error deleting task:", error);
-                           showToast("Failed to delete task", "error");
-                        } finally {
-                          setDeletingTaskId(null);
-                        }
-                      }
-                    }
-                  ],
-                  { cancelable: true }
-                );
-              }
-            }}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
-              padding: 4,
-              alignItems: 'center',
-              justifyContent: 'center'
-            })}
-            disabled={deletingTaskId === task.id}
-          >
-            {deletingTaskId === task.id ? (
-              <ActivityIndicator size="small" color="#ff4444" />
-            ) : (
-              <Ionicons name="close-circle" size={20} color="#ff6b6b" />
-            )}
-          </Pressable>
 
           <Pressable
             onPress={() => {
@@ -468,32 +423,12 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
             <Ionicons
               name="pencil-outline"
               size={16}
-              color={isDark ? "$gray9" : "$gray10"}
+              color={isDark ? "#888888" : "$gray10"}
             />
           </Pressable>
         </YStack>
       </XStack>
     );
-  };
-
-  const getPriorityColor = (priority?: string): string => {
-    if (!priority) return '#607d8b';
-    const colors: Record<string, string> = {
-      high: '#F44336',
-      medium: '#FF9800',
-      low: '#4CAF50',
-    };
-    return colors[priority] || '#607d8b';
-  };
-
-  const getPriorityIcon = (priority?: string) => {
-    if (!priority) return 'flag-outline';
-    const icons: Record<string, any> = {
-      high: 'alert-circle',
-      medium: 'alert',
-      low: 'information-circle-outline',
-    };
-    return icons[priority] || 'flag-outline';
   };
 
   const hasNoTasks = Object.values(tasksByRecurrence).every(group => group.length === 0);
@@ -540,7 +475,6 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
               >
                 {getRecurrenceTitle(pattern)}
               </Text>
-              {console.log(`[TaskListModal] Rendering tasks for pattern: ${pattern}`)}
               {patternTasks.map(renderTaskItem)}
             </YStack>
           ) : null;

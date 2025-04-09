@@ -1,6 +1,6 @@
 import React from 'react'
 import { YStack, Input, Label, Text, Button } from 'tamagui'
-import { FormData } from '@/types'
+import { FormData } from '@/types/onboarding'
 import { Alert, Platform } from 'react-native'
 import { useState, useEffect } from 'react'
 import { validateZipCode, FALLBACK_ZIP_CODES } from '@/utils/zipCodeValidator'

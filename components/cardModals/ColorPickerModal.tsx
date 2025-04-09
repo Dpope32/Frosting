@@ -1,6 +1,8 @@
-import React, { useCallback } from 'react'
-import { View, StyleSheet, Platform } from 'react-native'
-import { Sheet, Button, Text, Circle, XStack, YStack } from 'tamagui'
+import React, { useCallback, useState } from 'react'; // Import useState
+import { View, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { Sheet, Button, Text, Circle, XStack, YStack } from 'tamagui';
+import { useToastStore } from '@/store/ToastStore';
+import { X } from '@tamagui/lucide-icons'; // Import X icon
 
 // Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;
@@ -29,13 +31,13 @@ export function ColorPickerModal({
   colorOptions = [],
   isDark = false,
 }: ColorPickerModalProps) {
-  const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)'
-  const textColor = isDark ? '#fff' : '#000'
-  const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
+  const showToast = useToastStore((state) => state.showToast);
+  // Removed isPickerInteracting state
+  const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)';
+  const textColor = isDark ? '#fff' : '#000';
+  const borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
 
-  // Debounce color changes to prevent infinite updates
   const handleColorChange = useCallback((color: string) => {
-    // Only update if color has actually changed
     if (color !== selectedColor) {
       onColorChange(color)
     }
@@ -46,9 +48,9 @@ export function ColorPickerModal({
       modal
       open={open}
       onOpenChange={onOpenChange}
-      dismissOnSnapToBottom
-      snapPoints={[85]}
+      snapPoints={[60]}
       zIndex={100000}
+      disableDrag={true} 
     >
       <Sheet.Overlay
         animation="quick"
@@ -59,20 +61,22 @@ export function ColorPickerModal({
       />
       <Sheet.Frame
         backgroundColor={backgroundColor}
-        padding="$4"
+        paddingHorizontal="$4" 
+        paddingVertical="$4"
         gap="$3"
+        position="relative"
       >
-        <Sheet.Handle backgroundColor={borderColor} />
         
-        <YStack gap="$4">
-          <Text fontSize={20} fontWeight="600" color={textColor}>
+        <XStack justifyContent="space-between" alignItems="center" paddingBottom="$1">
+          <Text fontSize={20} fontWeight="600" color={textColor} flex={1} textAlign="center" marginLeft="$6"> 
             Color Selection
           </Text>
-
+          <TouchableOpacity onPress={() => onOpenChange(false)} style={{ padding: 8 }}> 
+            <X size={24} color={textColor} />
+          </TouchableOpacity>
+        </XStack>
+        <YStack gap="$3"> 
           <YStack gap="$2">
-            <Text fontSize={14} color={textColor}>
-              Custom Color
-            </Text>
             <View style={styles.pickerContainer}>
               {Platform.OS === 'web' ? (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -94,38 +98,33 @@ export function ColorPickerModal({
                 <ColorPicker
                   color={selectedColor}
                   onColorChange={handleColorChange}
-                  thumbSize={30}
-                  sliderSize={30}
+                  thumbSize={25}
+                  sliderSize={25}
                   noSnap={true}
                   row={false}
                 />
               )}
             </View>
           </YStack>
-
-          <XStack gap="$2" alignItems="center">
-            <Text fontSize={14} color={textColor}>
-              Selected Color:
-            </Text>
-            <Circle size={34} backgroundColor={selectedColor} />
-            <Text fontSize={14} color={textColor}>
-              {selectedColor.toUpperCase()}
-            </Text>
-          </XStack>
-
-          <Button
+        </YStack>
+        <Button
             backgroundColor={selectedColor}
             height={45}
-            width={150}
+            width={120} 
+            position='absolute'
+            bottom={50}
+            right={30}
             pressStyle={{ opacity: 0.8 }}
-            onPress={() => onOpenChange(false)}
+            onPress={() => {
+              onOpenChange(false);
+              showToast('Primary color updated!', 'success'); 
+            }}
             alignSelf="flex-end"
           >
             <Text color="#fff" fontWeight="500">
               Done
             </Text>
           </Button>
-        </YStack>
       </Sheet.Frame>
     </Sheet>
   )
@@ -133,8 +132,15 @@ export function ColorPickerModal({
 
 const styles = StyleSheet.create({
   pickerContainer: {
-    height: 350,
+    height: 330, // Reduced height
     width: '100%',
-    padding: 20,
+    padding: 12, // Adjusted padding
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 15,
+    right: 15,
+    zIndex: 1,
+    padding: 5,
   },
 })

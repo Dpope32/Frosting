@@ -5,7 +5,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { getValueColor } from '@/constants/valueHelper';
 import { PortfolioQueryData } from '@/types/stocks';
 import { ReturnType } from '@/services/calculationService';
-import { Stock } from '@/types';
+import { Stock } from '@/types/stocks';
 
 interface PortfolioTableProps {
   activeTab: 'portfolio' | 'watchlist';

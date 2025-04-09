@@ -1,7 +1,7 @@
 import React from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
 import { Platform } from 'react-native'
-import { FormData } from '@/types'
+import { FormData } from '@/types/onboarding'
 
 
 export default function Step0({

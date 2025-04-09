@@ -1,5 +1,5 @@
 // src/utils/Portfolio.ts
-import { Stock } from "@/types";
+import { Stock } from "@/types/onboarding";
 import { StorageUtils } from '../store/AsyncStorage';
 
 const defaultPortfolio: Stock[] = [

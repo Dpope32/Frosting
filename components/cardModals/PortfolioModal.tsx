@@ -63,11 +63,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   }
   const styles = StyleSheet.create({
     card: {
-      backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+      backgroundColor: isDark ? 'rgb(15, 15, 15)' : 'rgba(231, 231, 231, 0.8)',
       borderRadius: 12,
-      padding: Platform.OS === 'web' ? 10 : 8,
-      borderWidth: 1.5,
-      borderColor: isDark ? '#223' : 'rgba(0, 0, 0, 0.1)',
+      paddingVertical: Platform.OS === 'web' ? 10 : 12,
+      paddingHorizontal: Platform.OS === 'web' ? 10 : 4,
+      borderWidth: 1,
+      borderColor: isDark ? '#111' : 'rgba(0, 0, 0, 0.1)',
     },
   })
   const calculateROI = () => {
@@ -78,7 +79,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const calculateReturn = (currentPrice: number, historicalPrice: number | null | undefined) => {
     if (!historicalPrice || historicalPrice === 0) return '-'
     const returnPercentage = ((currentPrice - historicalPrice) / historicalPrice) * 100
-    return `${returnPercentage.toFixed(1)}%`
+    return `${returnPercentage.toFixed(0)}%`
   }
   const webCardStyle = isWeb
     ? {
@@ -102,18 +103,18 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [85] : [80]}
+      snapPoints={Platform.OS === 'web' ? [85] : [85]}
       showCloseButton={true}
       hideHandle={true}
     >
       <YStack
-        gap={Platform.OS === 'web' ? '$2' : '$3'}
+        gap={Platform.OS === 'web' ? '$2' : '$2'}
         paddingTop={Platform.OS === 'web' ? 0 : '$1'}
         paddingBottom={Platform.OS === 'web' ? '$5' : '$2'}
       >
         <YStack>
           <Animated.View entering={FadeIn.duration(600)} style={[styles.card, webCardStyle]}>
-            <YStack gap={isWeb ? '$4' : '$2'} px="$2">
+            <YStack gap={isWeb ? '$4' : '$2'} px="$3">
               <XStack justifyContent="space-between" alignItems="center">
                 <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 14} fontFamily="$body">
                   Value
@@ -124,7 +125,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   fontWeight="600"
                   fontFamily="$body"
                 >
-                  ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </Text>
               </XStack>
               <XStack justifyContent="space-between" alignItems="center">
@@ -159,7 +160,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                     }}
                     fontFamily="$body"
                   >
-                    -${principal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    -${principal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </Text>
                 )}
               </XStack>
@@ -174,8 +175,8 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                   fontFamily="$body"
                 >
                   ${(currentTotalValue - principal).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
                   })}
                 </Text>
               </XStack>
@@ -210,7 +211,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
               }}
               padding="$1"
               pressStyle={{ opacity: 0.7 }}
-              icon={<MaterialIcons name="add" size={24} color={isDark ? '#fff' : '#000'} />}
+              icon={<MaterialIcons name="add" size={24} color={isDark ? '#f9f9f9' : '#000'} />}
             />
           </XStack>
           <ScrollView
@@ -255,22 +256,9 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                       entering={FadeIn.delay(index * 50)}
                       style={[styles.card, isWeb && { width: '48%' }]}
                     >
-                      <YStack gap="$2">
+                      <YStack paddingHorizontal="$3">
                         <XStack justifyContent="space-between" alignItems="center">
                           <XStack alignItems="center" gap="$2" flex={1}>
-                            <Button
-                              icon={<MaterialIcons name="edit" size={16} color={isDark ? '#fff' : '#000'} />}
-                              circular
-                              {...iconButtonStyle}
-                              pressStyle={{ opacity: 0.7 }}
-                              backgroundColor="transparent"
-                              onPress={() => {
-                                closePortfolioModal()
-                                setTimeout(() => {
-                                  openEditStockModal(stock)
-                                }, 100)
-                              }}
-                            />
                             <YStack>
                               {isWeb ? (
                                 <XStack alignItems="center" gap="$2">
@@ -286,64 +274,52 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                 </XStack>
                               ) : (
                                 <YStack>
-                                  <XStack alignItems="center" gap="$2">
-                                    <Text color={isDark ? '#fff' : '#000'} fontSize={16} fontWeight="500" fontFamily="$body">
+                                  <XStack alignItems="center" gap="$3">
+                                    <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={16} fontWeight="500" fontFamily="$heading">
                                       {stock.symbol}
                                     </Text>
-                                    <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
+                                    <Text color={isDark ? '#999' : '#666'} fontSize={15} fontFamily="$body">
                                       {stock.name}
                                     </Text>
-                                  </XStack>
-                                  <Text color={isDark ? '#666' : '#333'} fontSize={13} fontFamily="$body" mt="$0.5">
-                                    {stock.quantity} shares
+                                    <Text color={isDark ? '#666' : '#333'} fontSize={13} fontFamily="$body" mt="$0.5">
+                                    x{stock.quantity}
                                   </Text>
+                                  </XStack>
                                 </YStack>
                               )}
                             </YStack>
                           </XStack>
                           <YStack alignItems="flex-end" flex={1}>
-                            <Text color={getStockValueColor(totalValue)} fontSize={16} fontWeight="900" fontFamily="$body">
-                              ${totalValue.toLocaleString('en-US', {
+                            <Text color={getStockValueColor(currentPrice)} fontSize={15} fontWeight="900" fontFamily="$heading">
+                              ${currentPrice.toLocaleString('en-US', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
                               })}
                             </Text>
                           </YStack>
                           <Button
-                            icon={<MaterialIcons name="close" size={16} color={isDark ? '#fff' : '#000'} />}
+                            icon={<MaterialIcons name="edit" size={16} color={isDark ? '#777777' : '#000'} />}
                             circular
                             {...iconButtonStyle}
-                            marginLeft="$3"
+                            marginLeft="$6"
                             pressStyle={{ opacity: 0.7 }}
                             backgroundColor="transparent"
                             onPress={() => {
-                              if (Platform.OS === 'web') {
-                                if (window.confirm('Are you sure you want to delete this stock from your portfolio?')) {
-                                  removeFromPortfolio(stock.symbol)
-                                }
-                              } else {
-                                Alert.alert(
-                                  'Delete Stock',
-                                  'Are you sure you want to delete this stock from your portfolio?',
-                                  [
-                                    { text: 'Cancel', style: 'cancel' },
-                                    { text: 'Yes', onPress: () => removeFromPortfolio(stock.symbol) },
-                                  ]
-                                )
-                              }
+                              closePortfolioModal()
+                              setTimeout(() => {
+                                openEditStockModal(stock)
+                              }, 100)
                             }}
                           />
                         </XStack>
                         <XStack
-                          justifyContent="space-between"
-                          backgroundColor={isDark ? 'rgba(255, 255, 255, 0.025)' : 'rgba(0, 0, 0, 0.03)'}
+                          justifyContent="flex-start"
                           br={8}
-                          padding={Platform.OS === 'web' ? '$1.5' : '$1'}
-                          mt="$0.5"
-                          height={isWeb ? undefined : 40}
+                          alignItems="flex-start"
+                          height={isWeb ? undefined : 30}
                         >
-                          <YStack alignItems="center" flex={1}>
-                            <Text color={isDark ? '#999' : '#666'} fontSize={11} fontWeight="500" fontFamily="$body">
+                          <XStack alignItems="center" flex={1} gap="$2">
+                            <Text color={isDark ? '#999' : '#666'} fontSize={14} fontWeight="500" fontFamily="$body">
                               1D
                             </Text>
                             <Text
@@ -354,15 +330,15 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                   ? '#777'
                                   : '#999'
                               }
-                              fontSize={isWeb ? 16 : 14}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
                               {stockHistoricalData?.['1d'] ? calculateReturn(currentPrice, stockHistoricalData['1d']) : '-'}
                             </Text>
-                          </YStack>
-                          <YStack alignItems="center" flex={1}>
-                            <Text color={isDark ? '#999' : '#666'} fontSize={11} fontWeight="500" fontFamily="$body">
+                          </XStack>
+                          <XStack alignItems="center" flex={1} gap="$1.5">
+                            <Text color={isDark ? '#999' : '#666'} fontSize={14} fontWeight="500" fontFamily="$body">
                               1W
                             </Text>
                             <Text
@@ -373,15 +349,15 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                   ? '#777'
                                   : '#999'
                               }
-                              fontSize={isWeb ? 16 : 14}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
                               {stockHistoricalData?.['1w'] ? calculateReturn(currentPrice, stockHistoricalData['1w']) : '-'}
                             </Text>
-                          </YStack>
-                          <YStack alignItems="center" flex={1}>
-                            <Text color={isDark ? '#999' : '#666'} fontSize={12} fontWeight="500" fontFamily="$body">
+                          </XStack>
+                          <XStack alignItems="center" flex={1} gap="$1.5">
+                            <Text color={isDark ? '#999' : '#666'} fontSize={14} fontWeight="500" fontFamily="$body">
                               3M
                             </Text>
                             <Text
@@ -392,15 +368,15 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                   ? '#777'
                                   : '#999'
                               }
-                              fontSize={isWeb ? 16 : 14}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
                               {stockHistoricalData?.['3m'] ? calculateReturn(currentPrice, stockHistoricalData['3m']) : '-'}
                             </Text>
-                          </YStack>
-                          <YStack alignItems="center" flex={1}>
-                            <Text color={isDark ? '#999' : '#666'} fontSize={12} fontWeight="500" fontFamily="$body">
+                          </XStack>
+                          <XStack alignItems="center" flex={1} gap="$1.5">
+                            <Text color={isDark ? '#999' : '#666'} fontSize={14} fontWeight="500" fontFamily="$body">
                               1Y
                             </Text>
                             <Text
@@ -411,13 +387,13 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                                   ? '#777'
                                   : '#999'
                               }
-                              fontSize={isWeb ? 16 : 14}
+                              fontSize={14}
                               fontWeight="600"
                               fontFamily="$body"
                             >
                               {stockHistoricalData?.['1y'] ? calculateReturn(currentPrice, stockHistoricalData['1y']) : '-'}
                             </Text>
-                          </YStack>
+                          </XStack>
                         </XStack>
                       </YStack>
                     </Animated.View>

@@ -1,11 +1,7 @@
 import { getWallpapers, type S3Wallpaper, preloadImage, isImagePreloaded } from '../services/s3Service';
 import { useWallpaperStore } from '../store/WallpaperStore';
 import { Platform, ImageSourcePropType } from 'react-native';
-
-export type BackgroundStyleOption = {
-  label: string;
-  value: 'gradient' | `wallpaper-${string}` ;
-};
+import { BackgroundStyleOption } from '@/types/background';
 
 const s3Wallpapers = getWallpapers();
 
