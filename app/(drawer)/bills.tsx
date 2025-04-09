@@ -48,7 +48,7 @@ export default function BillsScreen() {
   };
   
   const columnCount = getColumnCount();
-  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 28 / columnCount}px)`;
+  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 29 / columnCount}px)`;
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
   return (
@@ -60,7 +60,7 @@ export default function BillsScreen() {
           mb="$6"
           ai="center"
           jc="flex-start"
-          gap="$8"
+          gap="$6+"
           px={0} 
         >
           <XStack gap="$4" ai="center" flex={1} jc="flex-start" pl="$6">
@@ -192,7 +192,7 @@ export default function BillsScreen() {
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
-          padding: isWeb ? 8 : 6,
+          padding: isWeb ? 12 : 6,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 0 : 12,
           paddingLeft: isWeb ? 40 : 16,
@@ -201,7 +201,7 @@ export default function BillsScreen() {
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,
           justifyContent: isWeb ? 'flex-start' : undefined,
-          gap: isWeb ? 26 : undefined, 
+          gap: isWeb ? 20 : undefined, 
           maxWidth: isWeb ? 1780 : undefined, 
           marginHorizontal: isWeb ? 'auto' : undefined,
         }}

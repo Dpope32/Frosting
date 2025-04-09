@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView } from 'react-native';
-import { YStack, Button, XStack, Sheet, H2, Text, ScrollView } from 'tamagui';
+import { YStack, Button, XStack, Sheet, H2, Text, ScrollView, isWeb } from 'tamagui';
 import { X } from '@tamagui/lucide-icons';
-import { Ionicons } from '@expo/vector-icons';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from './FormattingToolbar';
@@ -27,7 +26,9 @@ interface AddNoteSheetProps {
   handleRemoveAttachment: (id: string) => void;
   handleBold: () => void;
   handleItalic: () => void;
+  handleUnderline: () => void;
   handleBullet: () => void;
+  handleCode: () => void;
   handleImagePick: () => void;
   onSelectionChange?: (event: any) => void;
 }
@@ -48,7 +49,9 @@ export function AddNoteSheet({
   handleRemoveAttachment,
   handleBold,
   handleItalic,
+  handleUnderline,
   handleBullet,
+  handleCode,
   handleImagePick,
   onSelectionChange
 }: AddNoteSheetProps) {
@@ -173,6 +176,9 @@ export function AddNoteSheet({
         paddingBottom="$4"
         paddingTop={isWeb ? "$1" : 0}
         backgroundColor="$background"
+        maxWidth={isWeb ? 600 : "100%"}
+        width={isWeb ? 600 : "100%"} 
+        alignSelf="center"
       >
         <Sheet.Handle />
         
@@ -219,8 +225,10 @@ export function AddNoteSheet({
               
               <FormattingToolbar
                 onBold={handleBold}
-                onUnderline={handleItalic} 
+                onItalic={handleItalic}
+                onUnderline={handleUnderline}
                 onBullet={handleBullet}
+                onCode={handleCode}
                 onAttachImage={handleImagePick}
               />
               

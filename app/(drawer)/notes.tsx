@@ -16,6 +16,7 @@ import { generateTestNotes } from '@/constants/devNotes';
 import { useNoteStore } from '@/store/NoteStore';
 import * as Haptics from 'expo-haptics';
 import { useToastStore } from '@/store/ToastStore';
+import WebDragDrop from '@/components/notes/WebDragDrop';
 
 // Helper function to trigger haptics only on non-web platforms
 const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) => {
@@ -39,15 +40,7 @@ export default function NotesScreen() {
   const [editTags, setEditTags] = useState<Tag[]>([]);
   const [editAttachments, setEditAttachments] = useState<Attachment[]>([]);
   const [selection, setSelection] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
-
-  const {
-    notes,
-    handleAddNote,
-    handleSaveNote,
-    handleDeleteNote,
-    handleTagsChange: useNotesHandleTagsChange,
-    updateNotes,
-  } = useNotes();
+  const {notes} = useNotes();
 
   // Local handler for tag changes
   const handleTagsChange = useCallback((tags: Tag[]) => {
@@ -119,6 +112,7 @@ export default function NotesScreen() {
 
   // Handle drag end
   const handleDragEnd = useCallback(({ data }: { data: Note[] }) => {
+    console.log('Drag ended:', { data });
     triggerHaptic();
     
     // Update the store immediately
@@ -155,6 +149,27 @@ export default function NotesScreen() {
   }, []);
 
   // Handle text formatting
+  const handleUnderline = useCallback(() => {
+    if (selection.start === selection.end) return;
+    
+    const before = editContent.substring(0, selection.start);
+    const selected = editContent.substring(selection.start, selection.end);
+    const after = editContent.substring(selection.end);
+
+    setEditContent(`${before}__${selected}__${after}`);
+  }, [editContent, selection]);
+
+  const handleCode = useCallback(() => {
+    if (selection.start === selection.end) return;
+  
+    const before = editContent.substring(0, selection.start);
+    const selected = editContent.substring(selection.start, selection.end);
+    const after = editContent.substring(selection.end);
+  
+    setEditContent(`${before}\`\`\`${selected}\`\`\`${after}`);
+  }, [editContent, selection]);
+
+
   const handleBold = useCallback(() => {
     if (selection.start === selection.end) return;
     
@@ -299,27 +314,47 @@ export default function NotesScreen() {
       >
       </XStack>
       
-      <DraggableFlatList
-        data={notes}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        onDragEnd={handleDragEnd}
-        numColumns={1}
-        contentContainerStyle={{ 
-          paddingHorizontal: 16,
-          paddingBottom: insets.bottom + 80,
-          paddingTop: 8
-        }}
-        ListEmptyComponent={
-          <NotesEmpty 
-            isDark={isDark}
-            primaryColor={preferences.primaryColor}
-            isWeb={isWeb}
-          />
-        }
-        dragItemOverflow={false}
-        dragHitSlop={{ top: -20, bottom: -20, left: 0, right: 0 }}
-      />
+      {isWeb ? (
+        <WebDragDrop
+          notes={notes}
+          onMoveNote={(dragIndex, hoverIndex) => {
+            const updatedNotes = [...notes];
+            const [draggedItem] = updatedNotes.splice(dragIndex, 1);
+            updatedNotes.splice(hoverIndex, 0, draggedItem);
+            const reorderedNotes = updatedNotes.map((note, index) => ({
+              ...note,
+              order: index
+            }));
+            noteStore.updateNoteOrder(reorderedNotes);
+          }}
+          onSelectNote={handleEditNote}
+          onEditNote={handleEditNote}
+          numColumns={1}
+          bottomPadding={insets.bottom + 80}
+        />
+      ) : (
+        <DraggableFlatList
+          data={notes}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          onDragEnd={handleDragEnd}
+          numColumns={1}
+          contentContainerStyle={{ 
+            paddingHorizontal: 16,
+            paddingBottom: insets.bottom + 80,
+            paddingTop: 8
+          }}
+          ListEmptyComponent={
+            <NotesEmpty 
+              isDark={isDark}
+              primaryColor={preferences.primaryColor}
+              isWeb={isWeb}
+            />
+          }
+          dragItemOverflow={false}
+          dragHitSlop={{ top: -20, bottom: -20, left: 0, right: 0 }}
+        />
+      )}
 
       <Button
         size="$4"
@@ -401,6 +436,8 @@ export default function NotesScreen() {
         handleDeleteNote={handleDeleteNoteWithHaptic}
         handleRemoveAttachment={handleRemoveAttachment}
         handleBold={handleBold}
+        handleUnderline={handleUnderline}
+        handleCode={handleCode}
         handleItalic={handleItalic}
         handleBullet={handleBullet}
         handleImagePick={handleImagePick}

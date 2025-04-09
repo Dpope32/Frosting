@@ -61,7 +61,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const { showToast } = useToastStore()
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
-  const modalWidth = isWeb ? Math.min(screenWidth * 0.7, 800) : Math.min(screenWidth * 0.85, 400)
+  const modalWidth = isWeb ? Math.min(screenWidth * 0.8, 800) : Math.min(screenWidth * 0.85, 400)
   const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 700) : Math.min(screenWidth * 0.85, 400)}
   const noScrollbar = isWeb ? { overflow: 'hidden' as const } : {}
 

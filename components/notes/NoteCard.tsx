@@ -6,6 +6,7 @@ import Markdown from 'react-native-markdown-display';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
 import { useNoteStore } from '@/store/NoteStore';
+import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 
 type NoteCardProps = {
   note: Note;
@@ -28,6 +29,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
   const isWeb = Platform.OS === 'web';
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
+  const { colors } = useMarkdownStyles();
 
   useEffect(() => {
     if (note.isExpanded !== isExpanded) {
@@ -47,21 +49,6 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     } catch (e) {
       return isDark ? '#FFFFFF' : '#000000';
     }
-  };
-
-  const colors = {
-    background: isDark ? 'rgba(146, 143, 143, 0.1)' : '#FFFFFF',
-    text: isDark ? '#FFFFFF' : '#000000',
-    textSecondary: isDark ? '#8E8E93' : '#6C757D',
-    shadow: isDark ? '#000000' : '#000000',
-    accent: isDark ? '#0A84FF' : '#007AFF',
-    cardBorderDragging: isDark ? '#0A84FF' : '#007AFF',
-    cardBorder: isDark ? '#444444' : '#DDDDDD',
-    blockquoteBg: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-    blockquoteBorder: isDark ? '#555' : '#DDD',
-    codeBg: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)',
-    hr: isDark ? '#444' : '#CCC',
-    tableBorder: isDark ? '#555' : '#DDD',
   };
 
   const imageAttachments = useMemo(() => {
@@ -103,6 +90,32 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     overflow: 'hidden' as 'hidden',
   }), [isDragging, colors]);
 
+  // Tag component to ensure consistent styling
+  const TagChip = ({ tag }: { tag: { id: string, name: string, color?: string } }) => (
+    <XStack
+      key={tag.id}
+      backgroundColor={`${tag.color || '#888888'}30`}
+      borderRadius={isWeb ? '$8' : '$6'}
+      paddingVertical={isWeb ? 4 : 3}
+      paddingHorizontal="$3"
+      borderWidth={1}
+      borderColor={tag.color || colors.textSecondary}
+      alignItems="center"
+      margin={isWeb ? 2 : 0}
+      className={isWeb ? "note-tag" : undefined}
+    >
+      <Text
+        fontSize={isWeb ? 12 : 10}
+        color={darkenColor(tag.color)}
+        fontWeight="bold"
+        fontFamily="$body"
+        className={isWeb ? "note-text" : undefined}
+      >
+        {tag.name}
+      </Text>
+    </XStack>
+  );
+
   return (
     <View style={localStyles.touchableContainer}>
       <Card
@@ -128,26 +141,27 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
           >
             <XStack
               paddingHorizontal={horizontalPadding}
-              paddingTop="$2"
+              paddingTop={isWeb ? "$4" : "$2"}
               paddingBottom={isExpanded ? "$2" : "$2"}
               justifyContent="space-between"
               alignItems="flex-start"
             >
               <Text
                 flex={1}
-                fontSize="$4"
+                fontSize={isWeb ? "$5" : "$4"}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"
                 color={colors.text}
                 mr="$2"
+                className={isWeb ? "note-text" : undefined}
               >
                 {note.title || 'Untitled Note'}
               </Text>
               {isExpanded ? (
-                <ChevronUp size={20} color={colors.textSecondary} />
+                <ChevronUp size={isWeb ? 24 : 20} color={colors.textSecondary} />
               ) : (
-                <ChevronDown size={20} color={colors.textSecondary} />
+                <ChevronDown size={isWeb ? 24 : 20} color={colors.textSecondary} />
               )}
             </XStack>
           </TouchableOpacity>
@@ -163,35 +177,31 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
             >
               <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2">
                 {note.tags?.map((tag) => (
-                  <XStack
-                    key={tag.id}
-                    backgroundColor={`${tag.color || '#888888'}30`}
-                    borderRadius="$6"
-                    paddingVertical={isWeb? 6 : 3}
-                    paddingHorizontal="$2"
-                    borderWidth={1}
-                    borderColor={tag.color || colors.textSecondary}
-                    alignItems="center"
-                  >
-                    <Text
-                      fontSize={isWeb? 12 : 10}
-                      color={darkenColor(tag.color)}
-                      fontWeight="bold"
-                      fontFamily="$body"
-                    >
-                      {tag.name}
-                    </Text>
-                  </XStack>
+                  <TagChip key={tag.id} tag={tag} />
                 ))}
               </XStack>
-              <Text
-                fontSize={isWeb? 12 : 10}
-                color={colors.textSecondary}
-                fontFamily="$body"
-                flexShrink={0}
-              >
-                {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
-              </Text>
+              <XStack alignItems="center" gap="$2">
+                <Text
+                  fontSize={isWeb ? 13 : 10}
+                  color={colors.textSecondary}
+                  fontFamily="$body"
+                  flexShrink={0}
+                  className={isWeb ? "note-text" : undefined}
+                >
+                  {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                </Text>
+                {onEdit && (
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      onEdit(note);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Pencil size={isWeb ? 18 : 16} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                )}
+              </XStack>
             </XStack>
           ) : (
             <YStack>
@@ -200,10 +210,10 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                   <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2">
                     <Markdown
                       style={{
-                        body: { color: colors.text, fontFamily: 'Inter-Regular' },
-                        heading1: { color: colors.text, fontFamily: 'Inter-Bold', fontSize: 24 },
-                        heading2: { color: colors.text, fontFamily: 'Inter-Bold', fontSize: 20 },
-                        heading3: { color: colors.text, fontFamily: 'Inter-Bold', fontSize: 18 },
+                        body: { color: colors.text, fontFamily: '$body', fontSize: 16 },
+                        heading1: { color: colors.text, fontFamily: '$heading', fontSize: 24 },
+                        heading2: { color: colors.text, fontFamily: '$heading', fontSize: 20 },
+                        heading3: { color: colors.text, fontFamily: '$heading', fontSize: 18 },
                         link: { color: colors.accent },
                         blockquote: { backgroundColor: colors.cardBorder, padding: 8, borderRadius: 4 },
                         code_inline: { backgroundColor: colors.cardBorder, padding: 4, borderRadius: 4 },
@@ -231,6 +241,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                     paddingHorizontal={horizontalPadding}
                     paddingVertical="$2"
                     color={colors.text}
+                    className={isWeb ? "note-text" : undefined}
                   >
                     {displayContent || ''}
                   </Paragraph>
@@ -275,33 +286,16 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                 >
                   <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2">
                     {note.tags?.map((tag) => (
-                      <XStack
-                        key={tag.id}
-                        backgroundColor={`${tag.color || '#888888'}30`}
-                        borderRadius="$8"
-                        paddingVertical={isWeb? 6 : 3}
-                        paddingHorizontal="$2"
-                        borderWidth={1}
-                        borderColor={tag.color || colors.textSecondary}
-                        alignItems="center"
-                      >
-                        <Text
-                          fontSize={isWeb? 12 : 11}
-                          color={darkenColor(tag.color)}
-                          fontWeight="bold"
-                          fontFamily="$body"
-                        >
-                          {tag.name}
-                        </Text>
-                      </XStack>
+                      <TagChip key={tag.id} tag={tag} />
                     ))}
                   </XStack>   
                   <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
                     <Text
-                      fontSize={isWeb? 12 : 11}
+                      fontSize={isWeb? 13 : 11}
                       color={colors.textSecondary}
                       fontFamily="$body"
                       flexShrink={0}
+                      className={isWeb ? "note-text" : undefined}
                     >
                       {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
                     </Text>
@@ -313,7 +307,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                         }}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                       >
-                        <Pencil size={16} color={colors.textSecondary} />
+                        <Pencil size={isWeb ? 18 : 16} color={colors.textSecondary} />
                       </TouchableOpacity>
                     )}
                   </XStack>

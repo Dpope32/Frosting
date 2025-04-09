@@ -34,15 +34,16 @@ export const BillCard = ({
   return isWeb ? (
     <XStack 
       bg={isDark ? "#111" : "#f5f5f5"}
-      px="$4"
+      px="$5"
+      py="$4"
       br="$4" 
       ai="center" 
       animation="quick"
       borderWidth={1}
       borderColor={isDueToday ? primaryColor : isDark ? "#222" : "#e0e0e0"}
       width={columnWidth}
-      minWidth={320}
-      height={120}
+      minWidth={300}
+      height={110}
       position="relative"
       opacity={isPastDue ? 0.8 : 1}
       hoverStyle={{ 
@@ -77,7 +78,7 @@ export const BillCard = ({
      <YStack flex={1} zIndex={1} jc="center" mt="$-1" pb="$1">
         <XStack jc="space-between" ai="center" >
           <Text 
-            color={isDark ? "#f6f6f6" : "#222"} 
+            color={isDark ? "#f9f9f9" : "#222"} 
             fontSize="$4" 
             fontWeight="bold"
             fontFamily="$body"
@@ -87,25 +88,25 @@ export const BillCard = ({
           </Text>
         </XStack>
         
-        <XStack ai="center" gap="$2">
+        <XStack mt="$1" ai="center" gap="$1">
           <YStack 
-            width={44} 
-            height={44} 
-            br="$4" 
+            width={42} 
+            height={42} 
+            br="$6" 
             ai="center" 
             jc="center" 
-            bg={isDark ? "#333" : "#e0e0e0"}
+            bg={isDark ? "transparent" : "transparent"}
           >
             <IconComponent size={26} color={isDark ? "white" : "#666"} />
           </YStack>
-          <YStack flex={1}>
-            <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body">
+          <XStack flex={1} pl="$2">
+            <Paragraph color={amountColor} fontSize="$5" fontWeight={900} fontFamily="$body">
               ${bill.amount.toFixed(2)}
             </Paragraph>
-            <Paragraph color={isDark ? "#666" : "#666"} fontSize="$3" fontFamily="$body">
+            <Paragraph pl="$3" color={isDark ? "#666" : "#666"} alignSelf="flex-end" fontSize="$4" fontFamily="$body">
               Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
             </Paragraph>
-          </YStack>
+          </XStack>
         </XStack>
       </YStack>
     </XStack>

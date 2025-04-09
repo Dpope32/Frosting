@@ -5,15 +5,19 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 interface FormattingToolbarProps {
   onBold: () => void;
+  onItalic: () => void;
   onUnderline: () => void;
   onBullet: () => void;
+  onCode: () => void;
   onAttachImage: () => void;
 }
 
 export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onBold,
+  onItalic,
   onUnderline,
   onBullet,
+  onCode,
   onAttachImage,
 }) => {
   const colorScheme = useColorScheme();
@@ -21,12 +25,20 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   const iconColor = "#ccc";
 
   return (
-    <XStack gap="$6" marginBottom={isWeb ? 0 : -10} >
+    <XStack gap="$5" marginBottom={isWeb ? 0 : -10} flexWrap="wrap" >
       <Button
         size="$4"
         circular
         icon={<Text style={{ fontWeight: 'bold', color: iconColor, fontSize: 18 }}>B</Text>} 
         onPress={onBold}
+        backgroundColor="transparent"
+        pressStyle={{ opacity: 0.7 }}
+      />
+      <Button
+        size="$4"
+        circular
+        icon={<Text style={{ fontStyle: 'italic', color: iconColor, fontSize: 18 }}>I</Text>} 
+        onPress={onItalic}
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
@@ -51,6 +63,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         circular
         icon={<Ionicons name="attach" size={22} color={iconColor} />}
         onPress={onAttachImage}
+        backgroundColor="transparent"
+        pressStyle={{ opacity: 0.7 }}
+      />
+      <Button
+        size="$4"
+        circular
+        icon={<Text style={{ fontFamily: '$body', color: iconColor, fontSize: 16 }}>{'<>'}</Text>}
+        onPress={onCode}
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />

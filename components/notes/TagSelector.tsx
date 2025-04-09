@@ -11,7 +11,9 @@ interface TagSelectorProps {
   onTagsChange: (tags: Tag[]) => void;
   onBold?: () => void;
   onItalic?: () => void;
+  onUnderline?: () => void;
   onBullet?: () => void;
+  onCode?: () => void;
   onAttachImage?: () => void;
 }
 
@@ -62,12 +64,12 @@ export function TagSelector({
   };
 
   return (
-    <YStack gap="$1" paddingHorizontal="$2" paddingTop="$2">
+    <YStack gap="$1" paddingTop="$2" backgroundColor={'$background'} borderRadius={8} padding="$3" marginVertical="$1">
       <XStack alignItems="center" justifyContent="space-between">
         <XStack alignItems="center" justifyContent='center' gap="$2">
-          <Text fontSize="$4" fontFamily="$body" fontWeight="600">Tags:</Text>
+          <Text fontSize="$4" mb={isWeb ? 12 : 4} fontFamily="$body" fontWeight="600" color={isDark ? '#e0e0e0' : '#333333'}>Tags:</Text>
           {tags.length > 0 && (
-            <XStack flexWrap="wrap" gap="$2">
+            <XStack flexWrap="wrap" gap="$2" paddingLeft="$1">
               {tags.map(tag => (
                 <XStack
                   key={tag.id}
@@ -105,17 +107,18 @@ export function TagSelector({
           <Button
             size="$2"
             circular
-            icon={<Plus size={isWeb ? 16 : 18} />}
+            icon={<Plus size={isWeb ? 16 : 18} color={isDark ? "#e0e0e0" : "#333333"} />}
             onPress={() => setIsAdding(true)}
-            backgroundColor={isDark ? "$gray4" : "$gray2"}
-            color={isDark ? "white" : "black"}
+            backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
+            hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+            pressStyle={{ opacity: 0.7 }}
           />
         )}
       </XStack>
 
       {isAdding && (
-        <YStack gap="$3">
-          <XStack alignItems="center" gap="$2">
+        <YStack gap={isWeb ? "$4" : "$3"}>
+          <XStack alignItems="center" gap={isWeb ? "$3" : "$2"}>
             <XStack position="relative" width={150}>
               <DebouncedInput
                 width="100%"
@@ -128,6 +131,13 @@ export function TagSelector({
                 onSubmitEditing={handleAddTag}
                 onDebouncedChange={setNewTagName}
                 paddingRight="$4"
+                backgroundColor={isDark ? "transparent" : "rgba(0,0,0,0.03)"}
+                borderBottomWidth={1}
+                borderRightWidth={0}
+                borderTopWidth={0}
+                borderLeftWidth={0}
+                borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+                fontFamily="$body"
               />
               <Button
                 size="$2"
@@ -141,7 +151,7 @@ export function TagSelector({
                 top={isWeb ? 0 : 6}
               />
             </XStack>
-            <XStack flexWrap="wrap" gap="$2" alignItems="center">
+            <XStack flexWrap="wrap" gap={isWeb ? "$3" : "$2"} alignItems="center">
               {TAG_COLORS.map(color => (
                 <Button
                   key={color}
@@ -157,7 +167,7 @@ export function TagSelector({
             <Button
               size="$2"
               circular
-              icon={<Check size={isWeb ? 16 : 18} />}
+              icon={<Check size={isWeb ? 24 : 18} />}
               onPress={handleAddTag}
               backgroundColor="transparent"
               color="#1E40AF"
