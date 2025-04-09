@@ -4,21 +4,13 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { createPersistStorage } from './AsyncStorage';
 
-interface WallpaperCacheEntry {
-  uri: string;
-  version: string;
-  lastAccessed: number;
-  checksum?: string;
-}
-
 interface WallpaperCache {
-  [key: string]: WallpaperCacheEntry; 
+  [key: string]: string; 
 }
 
 interface PersistedWallpaperState {
   cache: WallpaperCache;
   currentWallpaper: string | null;
-  schemaVersion?: number;
 }
 
 interface WallpaperStore extends PersistedWallpaperState {
@@ -38,7 +30,6 @@ export const useWallpaperStore = create<WallpaperStore>()(
     (set, get) => ({
       cache: {},
       currentWallpaper: null,
-      schemaVersion: 1,
       
       initializeCache: async () => {
         if (Platform.OS === 'web') return;
@@ -59,26 +50,14 @@ export const useWallpaperStore = create<WallpaperStore>()(
       
       getCachedWallpaper: async (wallpaperName: string) => {
         const { cache } = get();
-        const entry = cache[wallpaperName];
-        if (!entry) { return null }
-        
-        // Update last accessed time
-        set((state) => ({
-          cache: {
-            ...state.cache,
-            [wallpaperName]: {
-              ...entry,
-              lastAccessed: Date.now()
-            }
-          }
-        }));
-
-        if (Platform.OS === 'web') { return entry.uri; }
+        const cachedPath = cache[wallpaperName];
+        if (!cachedPath) { return null }
+        if (Platform.OS === 'web') { return cachedPath; }
         
         try {
-          const fileInfo = await FileSystem.getInfoAsync(entry.uri);
+          const fileInfo = await FileSystem.getInfoAsync(cachedPath);
           if (fileInfo.exists) {
-            return entry.uri;
+            return cachedPath;
           } else {
             set((state) => ({
               cache: Object.fromEntries(
@@ -93,41 +72,38 @@ export const useWallpaperStore = create<WallpaperStore>()(
         }
       },
       cacheWallpaper: async (wallpaperName: string, remoteUri: string) => {
-        const newEntry: WallpaperCacheEntry = {
-          uri: remoteUri,
-          version: '1.0',
-          lastAccessed: Date.now()
-        };
-
         if (Platform.OS === 'web') {
           set((state) => ({
             cache: {
               ...state.cache,
-              [wallpaperName]: newEntry,
+              [wallpaperName]: remoteUri,
             },
           }));
+          
           return;
         }
         
         try {
           await get().initializeCache();
+          
           const localUri = `${WALLPAPER_CACHE_DIR}${wallpaperName}.jpg`;
           const fileInfo = await FileSystem.getInfoAsync(localUri);
           
           if (fileInfo.exists) {
+            
             set((state) => ({
               cache: {
                 ...state.cache,
-                [wallpaperName]: {
-                  ...newEntry,
-                  uri: localUri
-                },
+                [wallpaperName]: localUri,
               },
             }));
+            
             return;
           }
 
+          
           const downloadResult = await FileSystem.downloadAsync(remoteUri, localUri);
+          
           if (downloadResult.status !== 200) {
             throw new Error(`Download failed with status ${downloadResult.status}`);
           }
@@ -135,18 +111,16 @@ export const useWallpaperStore = create<WallpaperStore>()(
           set((state) => ({
             cache: {
               ...state.cache,
-              [wallpaperName]: {
-                ...newEntry,
-                uri: localUri
-              },
+              [wallpaperName]: localUri,
             },
           }));
         } catch (error) {
           console.error(`[WallpaperStore] Error caching wallpaper ${wallpaperName}:`, error);
+          
           set((state) => ({
             cache: {
               ...state.cache,
-              [wallpaperName]: newEntry,
+              [wallpaperName]: remoteUri,
             },
           }));
         }
@@ -202,8 +176,8 @@ export const useWallpaperStore = create<WallpaperStore>()(
       name: 'wallpaper-cache',
       storage: createPersistStorage<PersistedWallpaperState>(2),
       partialize: (state) => {
-        const { cache, currentWallpaper, schemaVersion } = state;
-        return { cache, currentWallpaper, schemaVersion };
+        const { cache, currentWallpaper } = state;
+        return { cache, currentWallpaper };
       },
       migrate: (persistedState, version) => {
         const state = persistedState as PersistedWallpaperState;

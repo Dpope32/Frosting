@@ -6,7 +6,6 @@ import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useWallpaperStore } from '@/store/WallpaperStore'
 import { useColorScheme } from '@/hooks/useColorScheme'
-import { getWallpaperPath } from '@/constants/Backgrounds'
 
 export const BackgroundSection = () => {
   const preferences = useUserStore(s => s.preferences);
@@ -18,80 +17,42 @@ export const BackgroundSection = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const [wallpaperSource, setWallpaperSource] = useState<{uri: string} | null>(null);
+  const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null);
   const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
     if (!hasHydrated) {
-      setIsLoading(true);
+      setIsLoading(true); 
       return;
     }
 
     const loadWallpaper = async () => {
-      setIsLoading(true);
+      setIsLoading(true); 
       setWallpaperSource(null);
 
       if (selectedStyle && selectedStyle.startsWith('wallpaper-')) {
-        let retryCount = 0;
-        const MAX_RETRIES = 3;
-        let success = false;
-
-        while (retryCount < MAX_RETRIES && !success) {
-          try {
-            const cachedUri = await wallpaperStore.getCachedWallpaper(selectedStyle);
-            if (cachedUri) {
-              // Verify the URI is actually accessible
-              const response = await fetch(cachedUri, { method: 'HEAD' });
-              if (response.ok) {
-                setWallpaperSource({ uri: cachedUri });
-                success = true;
-              } else {
-                throw new Error('Wallpaper exists but is not accessible');
-              }
-            } else {
-              // If not cached, try to cache it
-              const wallpaperPath = await getWallpaperPath(selectedStyle);
-              if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
-                await wallpaperStore.cacheWallpaper(selectedStyle, wallpaperPath.uri as string);
-                // Verify it was cached successfully
-                const verifiedUri = await wallpaperStore.getCachedWallpaper(selectedStyle);
-                if (verifiedUri) {
-                  setWallpaperSource({ uri: verifiedUri });
-                  success = true;
-                }
-              }
-            }
-          } catch (error) {
-            retryCount++;
-            if (retryCount >= MAX_RETRIES) {
-              console.error(`[BackgroundSection] Failed to load wallpaper ${selectedStyle} after ${MAX_RETRIES} attempts:`, error);
-              setPreferences({ ...preferences, backgroundStyle: 'gradient' });
-            } else {
-              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-            }
+        try {
+          const cachedUri = await wallpaperStore.getCachedWallpaper(selectedStyle);
+          if (cachedUri) {
+            setWallpaperSource({ uri: cachedUri });
+          } else {
+            console.warn(`[BackgroundSection] Wallpaper ${selectedStyle} not found in cache. Falling back to gradient.`);
+            setPreferences({ ...preferences, backgroundStyle: 'gradient' });
           }
+        } catch (error) {
+          console.error(`[BackgroundSection] Error loading cached wallpaper ${selectedStyle}:`, error);
+          setPreferences({ ...preferences, backgroundStyle: 'gradient' });
+        } finally {
+          setIsLoading(false);
         }
       } else {
-        setWallpaperSource(null);
+        setWallpaperSource(null); 
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadWallpaper();
-
-    // Add periodic refresh to ensure wallpaper stays loaded
-    const refreshInterval = setInterval(() => {
-      if (selectedStyle && selectedStyle.startsWith('wallpaper-') && wallpaperSource) {
-        // Verify the wallpaper is still accessible
-        fetch(wallpaperSource.uri, { method: 'HEAD' }).catch(() => {
-          console.warn('[BackgroundSection] Wallpaper verification failed, reloading...');
-          loadWallpaper();
-        });
-      }
-    }, 3600000); // Check every hour
-
-    return () => clearInterval(refreshInterval);
-  }, [selectedStyle, wallpaperStore, hasHydrated, setPreferences, preferences, wallpaperSource]);
+  }, [selectedStyle, wallpaperStore, hasHydrated, setPreferences, preferences]);
 
   const adjustColor = useCallback((color: string, amount: number) => {
     const hex = color.replace('#', '')
