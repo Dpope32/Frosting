@@ -75,7 +75,7 @@ export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps
       <Text
         color={valueColor}
         fontSize={isWeb ? 18 : 16}
-        fontWeight="bold"
+        fontWeight="700"
         fontFamily="$body"
         textAlign="center"
         numberOfLines={1}

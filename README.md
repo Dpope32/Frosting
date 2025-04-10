@@ -11,7 +11,7 @@
   Kaiba Nexus
 </h1>
 
-<div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
+<div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 30px;">
   <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 15px 15px;">Web Version</a>
   <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 15px 15px;">Download on App Store</a>
   <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 15px 15px;">Privacy Policy</a>

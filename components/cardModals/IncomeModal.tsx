@@ -48,10 +48,8 @@ export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalPro
     }
   };
 
-  const modalWidth = isWeb ? 500 : 320;
-  const modalMaxWidth = isWeb ? 460 : 360;
-  
-  // Define better contrasting colors
+  const modalWidth = isWeb ? 400 : 320;
+  const modalMaxWidth = isWeb ? 420 : 360;
   const inputBgColor = isDark ? '$color3' : '$color2';
   const inputTextColor = isDark ? '$color12' : '$color12';
   const cancelColor = isDark ? '$red10' : '$red10';
@@ -96,13 +94,6 @@ export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalPro
             color={inputTextColor}
             fontSize="$5"
             fontWeight="500"
-            focusStyle={{
-              borderWidth: 0,
-              backgroundColor: inputBgColor,
-              outlineColor: primaryColor,
-              outlineWidth: 1,
-              outlineStyle: "solid",
-            }}
             placeholderTextColor={isDark ? '$color9' : '$color8'}
           />
         </XStack>

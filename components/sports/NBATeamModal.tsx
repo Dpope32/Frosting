@@ -123,6 +123,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
                       height: isWeb ? '70%' : '90%',
                     }}
                     resizeMode="contain"
+                    {...(isWeb && { referrerPolicy: 'no-referrer' })}
                   />
                 </YStack>
               </Button>

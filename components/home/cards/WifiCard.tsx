@@ -17,7 +17,7 @@ export function WifiCard() {
     }
 
     if (!speedValue || speedValue === 'Offline' || speedValue === 'N/A') {
-      return 1; 
+      return 3; 
     }
 
     if (speedValue.includes('Mbps')) {
@@ -28,7 +28,7 @@ export function WifiCard() {
       if (speedNum >= 100) return 3;
       if (speedNum >= 50) return 2;
       if (speedNum >= 10) return 1;
-      return 1; 
+      return 3; 
     }
 
     const pingMatch = speedValue.match(/(\d+)\s*ms/);
@@ -48,7 +48,7 @@ export function WifiCard() {
       if (speedNum >= 100) return 3;
       if (speedNum >= 50) return 2;
       if (speedNum >= 10) return 1;
-      return 1; 
+      return 3; 
     }
 
     return 3;
