@@ -1,5 +1,6 @@
 import { getWallpapers } from '@/services/s3Service';
 import { useWallpaperStore } from '@/store/WallpaperStore';
+import * as Sentry from '@sentry/react-native';
 
 export interface WallpaperPreloaderProps {
   onComplete?: () => void;
@@ -9,6 +10,12 @@ export interface WallpaperPreloaderProps {
 export async function preloadWallpapers(onComplete?: () => void) {
   const wallpaperStore = useWallpaperStore.getState();
   
+  Sentry.addBreadcrumb({
+    category: 'wallpaper',
+    message: 'Starting wallpaper preload',
+    level: 'info',
+  });
+  
   try {
     const wallpapers = getWallpapers();
     for (const wallpaper of wallpapers) {
@@ -17,14 +24,29 @@ export async function preloadWallpapers(onComplete?: () => void) {
         const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
         
         if (!cachedUri) {
+          Sentry.addBreadcrumb({
+            category: 'wallpaper',
+            message: `Caching new wallpaper: ${wallpaperKey}`,
+            level: 'info',
+          });
+          
           await wallpaperStore.cacheWallpaper(wallpaperKey, wallpaper.uri);
         }
       } catch (err) {
-        console.error(`[wpPreload] Failed to cache wallpaper ${wallpaper.name}:`, err);
+        Sentry.captureException(err, {
+          extra: {
+            wallpaperName: wallpaper.name,
+            operation: 'preloadWallpapers_inner',
+          },
+        });
       }
     }
   } catch (err) {
-    console.error('[wpPreload] Error in preloadWallpapers:', err);
+    Sentry.captureException(err, {
+      extra: {
+        operation: 'preloadWallpapers_outer',
+      },
+    });
   } finally {
     if (onComplete) {
       onComplete();

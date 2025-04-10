@@ -6,6 +6,8 @@ import { useSportsAPI } from './useSportsAPI';
 import { configureNotifications } from '@/services/notificationServices';
 import { useUserStore } from '@/store/UserStore';
 import { useColorScheme as useRNColorScheme, ColorSchemeName } from 'react-native';
+import { useWallpaperStore } from '@/store/WallpaperStore';
+import * as Sentry from '@sentry/react-native';
 
 const THEME_STORAGE_KEY = '@frosting/color-scheme';
 
@@ -42,6 +44,17 @@ export function useAppInitialization() {
       // Pre-load the theme to prevent theme bounce
       // Pass the systemColorScheme to the function instead of calling the hook inside
       await preloadTheme(systemColorScheme);
+      
+      // Check and redownload wallpapers if needed
+      try {
+        await useWallpaperStore.getState().checkAndRedownloadWallpapers();
+      } catch (error) {
+        Sentry.captureException(error, {
+          extra: {
+            operation: 'useAppInitialization_checkAndRedownloadWallpapers',
+          },
+        });
+      }
     };
     
     initializeApp();

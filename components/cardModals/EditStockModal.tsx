@@ -169,10 +169,10 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     }
   }, [formData.quantity])
 
-  // Add handler for ticker input focus
+  // Update the ticker input focus handler to show dropdown when typing
   const handleTickerFocus = useCallback(() => {
     setIsQuantityFocused(false)
-    // Only show dropdown if we don't have an explicit selection and have results
+    // Show dropdown if we have results and no explicit selection
     if (!stock && !hasExplicitSelection && formData.ticker.trim() && searchResults.length > 0) {
       setDropdownActive(true)
     }
@@ -193,9 +193,11 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     // Mark that we have an explicit selection
     setHasExplicitSelection(true)
 
-    // Close the dropdown and explicitly blur the input
+    // Close the dropdown
     setSearchResults([])
     setDropdownActive(false)
+    
+    // Blur the input after selection is complete
     tickerInputRef.current?.blur()
   }, [debouncedSearch])
 
@@ -276,12 +278,10 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     }
   }, [stock, onOpenChange, queryClient])
 
-
+  // Simplify the input blur handler - don't hide dropdown on blur
   const handleInputBlur = useCallback(() => {
-    // Use a small delay to allow selection to complete before hiding dropdown
-    setTimeout(() => {
-      setDropdownActive(false)
-    }, 300)
+    // We don't do anything on blur anymore
+    // The dropdown will stay visible until a selection is made
   }, [])
 
   // Render stock icon helper function
@@ -312,9 +312,7 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
     py: "$2",
   }), [])
 
-  const modalTitle = stock
-    ? `Edit Holdings for ${stock.symbol}`
-    : 'Add New Stock'
+  const modalTitle = stock ? `Edit Holdings for ${stock.symbol}` : 'Add New Stock'
 
   // Ensure the modal closes when the close button is clicked
   const handleClose = useCallback(() => {
@@ -510,7 +508,12 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
                           backgroundColor={'transparent'}
                           br={4}
                           px="$2"
-                          onPress={() => handleSelectStock(result)}
+                          onPress={(e) => {
+                            // Prevent default behavior to avoid keyboard dismissal
+                            e.preventDefault && e.preventDefault();
+                            // Process the selection immediately
+                            handleSelectStock(result);
+                          }}
                         >
                           <Text color="$blue10" fontSize={12} fontWeight="500">
                             Select

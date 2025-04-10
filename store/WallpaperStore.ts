@@ -3,6 +3,10 @@ import { persist } from 'zustand/middleware';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { createPersistStorage } from './AsyncStorage';
+import * as Sentry from '@sentry/react-native';
+import { getWallpapers } from '@/services/s3Service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 interface WallpaperCache {
   [key: string]: string; 
@@ -19,11 +23,14 @@ interface WallpaperStore extends PersistedWallpaperState {
   cacheWallpaper: (wallpaperName: string, uri: string) => Promise<void>;
   setCurrentWallpaper: (wallpaperName: string) => void;
   clearUnusedWallpapers: (keep: string[]) => Promise<void>;
+  checkAndRedownloadWallpapers: () => Promise<void>;
 }
 
 const WALLPAPER_CACHE_DIR = Platform.OS !== 'web' 
   ? `${FileSystem.cacheDirectory || ''}wallpapers/` 
   : '';
+
+const LAST_APP_VERSION_KEY = '@frosting/last-app-version';
 
 export const useWallpaperStore = create<WallpaperStore>()(
   persist(
@@ -51,7 +58,16 @@ export const useWallpaperStore = create<WallpaperStore>()(
       getCachedWallpaper: async (wallpaperName: string) => {
         const { cache } = get();
         const cachedPath = cache[wallpaperName];
-        if (!cachedPath) { return null }
+        
+        if (!cachedPath) {
+          Sentry.addBreadcrumb({
+            category: 'wallpaper',
+            message: `No cached path found for wallpaper: ${wallpaperName}`,
+            level: 'info',
+          });
+          return null;
+        }
+        
         if (Platform.OS === 'web') { return cachedPath; }
         
         try {
@@ -59,6 +75,15 @@ export const useWallpaperStore = create<WallpaperStore>()(
           if (fileInfo.exists) {
             return cachedPath;
           } else {
+            Sentry.captureMessage(`Wallpaper file missing despite cache entry: ${wallpaperName}`, {
+              level: 'warning',
+              extra: {
+                cachedPath,
+                wallpaperName,
+                cacheState: cache,
+              },
+            });
+            
             set((state) => ({
               cache: Object.fromEntries(
                 Object.entries(state.cache).filter(([key]) => key !== wallpaperName)
@@ -67,7 +92,13 @@ export const useWallpaperStore = create<WallpaperStore>()(
             return null;
           }
         } catch (error) {
-          console.error(`[WallpaperStore] Error checking cached file for ${wallpaperName}:`, error);
+          Sentry.captureException(error, {
+            extra: {
+              wallpaperName,
+              cachedPath,
+              operation: 'getCachedWallpaper',
+            },
+          });
           return null;
         }
       },
@@ -79,7 +110,6 @@ export const useWallpaperStore = create<WallpaperStore>()(
               [wallpaperName]: remoteUri,
             },
           }));
-          
           return;
         }
         
@@ -89,23 +119,22 @@ export const useWallpaperStore = create<WallpaperStore>()(
           const localUri = `${WALLPAPER_CACHE_DIR}${wallpaperName}.jpg`;
           const fileInfo = await FileSystem.getInfoAsync(localUri);
           
-          if (fileInfo.exists) {
-            
-            set((state) => ({
-              cache: {
-                ...state.cache,
-                [wallpaperName]: localUri,
+          if (!fileInfo.exists) {
+            Sentry.addBreadcrumb({
+              category: 'wallpaper',
+              message: `Downloading wallpaper: ${wallpaperName}`,
+              level: 'info',
+              data: {
+                remoteUri,
+                localUri,
               },
-            }));
+            });
             
-            return;
-          }
-
-          
-          const downloadResult = await FileSystem.downloadAsync(remoteUri, localUri);
-          
-          if (downloadResult.status !== 200) {
-            throw new Error(`Download failed with status ${downloadResult.status}`);
+            const downloadResult = await FileSystem.downloadAsync(remoteUri, localUri);
+            
+            if (downloadResult.status !== 200) {
+              throw new Error(`Download failed with status ${downloadResult.status}`);
+            }
           }
           
           set((state) => ({
@@ -115,8 +144,15 @@ export const useWallpaperStore = create<WallpaperStore>()(
             },
           }));
         } catch (error) {
-          console.error(`[WallpaperStore] Error caching wallpaper ${wallpaperName}:`, error);
+          Sentry.captureException(error, {
+            extra: {
+              wallpaperName,
+              remoteUri,
+              operation: 'cacheWallpaper',
+            },
+          });
           
+          // Fallback to remote URI as before
           set((state) => ({
             cache: {
               ...state.cache,
@@ -169,6 +205,78 @@ export const useWallpaperStore = create<WallpaperStore>()(
           }));
         } catch (error) {
           console.error('[WallpaperStore] Error clearing unused wallpapers:', error);
+        }
+      },
+      
+      checkAndRedownloadWallpapers: async () => {
+        if (Platform.OS === 'web') return;
+        
+        try {
+          // Get the current app version
+          const currentVersion = Constants.expoConfig?.version || '1.0.0';
+          
+          // Get the last app version we checked from AsyncStorage (not from state)
+          const lastVersion = await AsyncStorage.getItem(LAST_APP_VERSION_KEY);
+          
+          // If this is the first time or the app has been updated, redownload wallpapers
+          if (!lastVersion || lastVersion !== currentVersion) {
+            Sentry.addBreadcrumb({
+              category: 'wallpaper',
+              message: `App version changed from ${lastVersion || 'none'} to ${currentVersion}, checking wallpapers`,
+              level: 'info',
+            });
+            
+            // Update the last version in AsyncStorage
+            await AsyncStorage.setItem(LAST_APP_VERSION_KEY, currentVersion);
+            
+            // Get all available wallpapers
+            const wallpapers = getWallpapers();
+            const { cache } = get();
+            
+            // Check each wallpaper
+            for (const wallpaper of wallpapers) {
+              const wallpaperKey = wallpaper.name;
+              const cachedPath = cache[wallpaperKey];
+              
+              // If we don't have this wallpaper cached or the file doesn't exist, download it
+              if (!cachedPath) {
+                Sentry.addBreadcrumb({
+                  category: 'wallpaper',
+                  message: `Redownloading missing wallpaper: ${wallpaperKey}`,
+                  level: 'info',
+                });
+                
+                await get().cacheWallpaper(wallpaperKey, wallpaper.uri);
+              } else {
+                try {
+                  const fileInfo = await FileSystem.getInfoAsync(cachedPath);
+                  if (!fileInfo.exists) {
+                    Sentry.addBreadcrumb({
+                      category: 'wallpaper',
+                      message: `Redownloading missing file for wallpaper: ${wallpaperKey}`,
+                      level: 'info',
+                    });
+                    
+                    await get().cacheWallpaper(wallpaperKey, wallpaper.uri);
+                  }
+                } catch (error) {
+                  Sentry.captureException(error, {
+                    extra: {
+                      wallpaperKey,
+                      cachedPath,
+                      operation: 'checkAndRedownloadWallpapers',
+                    },
+                  });
+                }
+              }
+            }
+          }
+        } catch (error) {
+          Sentry.captureException(error, {
+            extra: {
+              operation: 'checkAndRedownloadWallpapers',
+            },
+          });
         }
       },
     }),

@@ -1,8 +1,10 @@
-import React from 'react'
-import { Image, ImageSourcePropType, Platform } from 'react-native' 
-import { Button, YStack, Text} from 'tamagui';
+import React, { useCallback, useMemo } from 'react';
+import { Image, ImageSourcePropType, Platform, TouchableOpacity, View } from 'react-native';
+import { Button, YStack, Text } from 'tamagui';
 import { BackgroundStyle } from '@/constants/Backgrounds';
-
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import * as Sentry from '@sentry/react-native';
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -14,89 +16,180 @@ if (Platform.OS !== 'web') {
   }
 }
 
-export const OptimizedWallpaperButton = React.memo(function OptimizedWallpaperButton({
-    styleItem,
-    isSelected,
-    isDark,
-    primaryColor,
-    isWeb,
-    onSelect,
-    getWallpaperImageSource,
-    index,
-    totalInRow,
-  }: {
-    styleItem: { value: BackgroundStyle; label: string }
-    isSelected: boolean
-    isDark: boolean
-    primaryColor: string
-    isWeb: boolean
-    onSelect: (value: BackgroundStyle) => void
-    getWallpaperImageSource: (style: BackgroundStyle) => ImageSourcePropType | undefined
-    index: number
-    totalInRow: number
-  }) {
-    const borderColor = isSelected ? 'white' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'
-    const isLastInRow = index === totalInRow - 1
-    return (
-      <YStack flex={1} height="100%" marginRight={isLastInRow ? 0 : 8} minWidth={isWeb ? 100 : undefined}>
-        <Button
-          size="$3"
-          height="100%"
-          width="100%"
-          padding={0}
-          backgroundColor={isSelected ? primaryColor : isDark ? '#333' : '#f5f5f5'}
-          borderColor={borderColor}
-          borderWidth={isSelected ? 2 : 1}
-          scale={isSelected ? 1.05 : 1}
-          onPress={() => onSelect(styleItem.value)}
-        >
+// Simple helper to adjust hex color brightness
+const adjustColor = (hex: string, percent: number): string => {
+  // Remove # if present
+  hex = hex.replace('#', '');
+  
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  // Adjust brightness
+  const adjustment = percent < 0 ? (100 + percent) / 100 : (100 + percent) / 100;
+  
+  // Clamp values
+  const adjustR = Math.min(255, Math.max(0, Math.round(r * adjustment)));
+  const adjustG = Math.min(255, Math.max(0, Math.round(g * adjustment)));
+  const adjustB = Math.min(255, Math.max(0, Math.round(b * adjustment)));
+  
+  // Convert back to hex
+  const toHex = (n: number) => {
+    const hex = n.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  
+  return `#${toHex(adjustR)}${toHex(adjustG)}${toHex(adjustB)}`;
+};
+
+export const OptimizedWallpaperButton = ({
+  styleItem,
+  isSelected,
+  isDark,
+  primaryColor,
+  isWeb,
+  onSelect,
+  getWallpaperImageSource,
+  index,
+  totalInRow,
+}: {
+  styleItem: { value: BackgroundStyle; label: string }
+  isSelected: boolean
+  isDark: boolean
+  primaryColor: string
+  isWeb: boolean
+  onSelect: (value: BackgroundStyle) => void
+  getWallpaperImageSource: (style: BackgroundStyle) => ImageSourcePropType | undefined
+  index: number
+  totalInRow: number
+}) => {
+  const source = useMemo(() => {
+    try {
+      return getWallpaperImageSource(styleItem.value);
+    } catch (error) {
+      Sentry.captureException(error, {
+        extra: {
+          styleItem,
+          operation: 'getWallpaperImageSource',
+        },
+      });
+      return null;
+    }
+  }, [styleItem.value, getWallpaperImageSource]);
+
+  // Memoize the glossy gradient colors based on dark mode
+  const glossColors = useMemo(() => {
+    if (isDark) {
+      return ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)', 'rgba(0,0,0,0.2)'] as const;
+    }
+    return ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)', 'rgba(255,255,255,0.3)'] as const;
+  }, [isDark]);
+
+  // Memoize gradient colors
+  const gradientColors = useMemo(() => {
+    const adjustedColor = adjustColor(primaryColor, isDark ? -40 : 40);
+    return [primaryColor, adjustedColor] as const;
+  }, [primaryColor, isDark]);
+
+  const marginRight = index < totalInRow - 1 ? 8 : 0;
+
+  return (
+    <TouchableOpacity
+      onPress={() => onSelect(styleItem.value)}
+      style={{
+        flex: 1,
+        height: '100%',
+        marginRight,
+        borderRadius: 8,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: isSelected ? primaryColor : 'transparent',
+      }}
+    >
+      <YStack
+        flex={1}
+        backgroundColor={isDark ? '#222' : '#f5f5f5'}
+        overflow="hidden"
+        position="relative"
+      >
         {styleItem.value === 'gradient' ? (
-          <YStack
-            width="100%"
-            height="100%"
-            br={4}
-            {...(isWeb
-              ? {
-                  style: {
-                    background: 'linear-gradient(120deg, #3a7bd5, #00d2ff, #3a7bd5)',
-                    backgroundSize: '200% 200%',
-                    animation: 'gradientAnimation 5s ease infinite',
-                    position: 'relative',
+          <LinearGradient
+            colors={gradientColors}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1 }}
+          />
+        ) : source ? (
+          <View style={{ flex: 1 }}>
+            <Image
+              source={source}
+              style={{ width: '100%', height: '100%', position: 'absolute' }}
+              onError={(error) => {
+                Sentry.captureException(error, {
+                  extra: {
+                    styleItem,
+                    source,
+                    operation: 'WallpaperImage_onError',
                   },
-                }
-              : { backgroundColor: '#3a7bd5' })}
-          >
-            {isWeb && (
-              <style
-                dangerouslySetInnerHTML={{
-                  __html: `
-                  @keyframes gradientAnimation {
-                    0% { background-position: 0% 50% }
-                    50% { background-position: 100% 50% }
-                    100% { background-position: 0% 50% }
-                  }
-                `,
-                }}
-              />
-            )}
-          </YStack>
+                });
+              }}
+            />
+            <LinearGradient
+              colors={glossColors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                opacity: 0.8,
+              }}
+            />
+          </View>
         ) : (
-          <YStack width="100%" height="100%" overflow="hidden" br={4} backgroundColor="#242424">
-            {getWallpaperImageSource(styleItem.value) ? (
-              <Image
-                source={getWallpaperImageSource(styleItem.value)}
-                style={{ width: '100%', height: '100%', borderRadius: 4 }}
-                resizeMode="cover"
-                {...(isWeb ? { loading: 'lazy' } : {})}
-              />
-            ) : (
-              <Text color="white" fontSize={10} textAlign="center" padding="$2">
-                {styleItem.label}
-              </Text>
-            )}
+          <YStack
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor={isDark ? '#333' : '#e0e0e0'}
+          >
+            <Text
+              color={isDark ? '#666' : '#999'}
+              fontSize={10}
+              textAlign="center"
+              padding={4}
+            >
+              {styleItem.label}
+            </Text>
           </YStack>
         )}
-        </Button>
+
+        {/* Selection indicator */}
+        {isSelected && (
+          <BlurView
+            intensity={isDark ? 40 : 20}
+            tint={isDark ? "dark" : "light"}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 24,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Text
+              color={isDark ? '#fff' : '#000'}
+              fontSize={10}
+              fontWeight="500"
+            >
+              Selected
+            </Text>
+          </BlurView>
+        )}
       </YStack>
-    )
-  })
+    </TouchableOpacity>
+  );
+};

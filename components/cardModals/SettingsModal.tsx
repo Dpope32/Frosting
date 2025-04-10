@@ -16,6 +16,7 @@ import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { BlurView } from 'expo-blur'
 import { OptimizedWallpaperButton } from '@/utils/OptimizedWallpaperButton'
+import * as Sentry from '@sentry/react-native';
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -125,6 +126,12 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       'gradient': { uri: '' }
     };
     
+    Sentry.addBreadcrumb({
+      category: 'wallpaper',
+      message: 'Starting wallpaper load in SettingsModal',
+      level: 'info',
+    });
+    
     for (const style of backgroundStyles) {
       if (style.value === 'gradient') continue;
       
@@ -136,15 +143,34 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         if (cachedUri) {
           sources[wallpaperKey] = { uri: cachedUri };
         } else {
+          Sentry.addBreadcrumb({
+            category: 'wallpaper',
+            message: `No cached URI found for ${wallpaperKey}, fetching new path`,
+            level: 'info',
+          });
+          
           const wallpaperPath = await getWallpaperPath(wallpaperKey);
           if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
             sources[wallpaperKey] = wallpaperPath;
             
             await wallpaperStore.cacheWallpaper(wallpaperKey, wallpaperPath.uri);
+          } else {
+            Sentry.captureMessage(`Invalid wallpaper path for ${wallpaperKey}`, {
+              level: 'error',
+              extra: {
+                wallpaperPath,
+                wallpaperKey,
+              },
+            });
           }
         }
       } catch (error) {
-        console.error(`[SettingsModal] Failed to load wallpaper ${style.value}:`, error);
+        Sentry.captureException(error, {
+          extra: {
+            wallpaperStyle: style.value,
+            operation: 'loadWallpapers',
+          },
+        });
       }
     }
     
@@ -341,7 +367,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </XStack>
           </YStack>
           )}
-          <YStack gap="$2" >
+          <YStack gap="$2" paddingHorizontal={isWeb ? '$4' : '$3'}>
             <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
               Wallpaper
             </Text>
@@ -388,10 +414,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
 
       <XStack 
         justifyContent="space-between"
-        paddingHorizontal={isWeb ? '$4' : '$3'}
+        paddingHorizontal={isWeb ? '$4' : '$6'}
         paddingVertical={isWeb ? '$4' : '$3'}
         paddingTop={isWeb ? '$15' : '$3'}
-        marginTop={isWeb ? 0 : 32}
+        marginTop={isWeb ? 0 : 12}
       >
         <Button
           backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
