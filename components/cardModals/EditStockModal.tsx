@@ -493,7 +493,10 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
                 py="$2"
                 maxHeight={Platform.OS === 'web' ? 500 : 450}
               >
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                >
                   <YStack gap="$2">
                     {searchResults.map((result, index) => (
                       <TouchableOpacity 

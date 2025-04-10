@@ -219,12 +219,12 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         ref={scrollViewRef}
                         showsVerticalScrollIndicator={true}
                         bounces={true}
-                        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 40 + bottomInset }}
+                        contentContainerStyle={{ paddingBottom: 40 + bottomInset }} // Removed paddingHorizontal
                         onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
                         scrollEventThrottle={16}
                         style={{ marginTop: 10 }}
                       >
-                        <YStack gap="$4" px="$2">
+                        <YStack gap="$4" px="$3"> {/* Increased padding */}
                           
                           <Text 
                             fontSize="$3" 
@@ -351,7 +351,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
                         scrollEventThrottle={16}
                       >
-                        <YStack gap="$4" py="$2" px="$2">
+                        <YStack gap="$4" py="$2" px="$3"> {/* Increased padding */}
                           
                           <Text 
                             fontSize="$3" 
@@ -432,4 +432,3 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
     </Theme>
   );
 }
-
