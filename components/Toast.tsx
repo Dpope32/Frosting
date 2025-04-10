@@ -13,9 +13,9 @@ const toastStyle: {
   right: number;
   alignItems: 'center';
 } = {
-  top: height * 0.15,
-  left: width * 0.1,
-  right: width * 0.1,
+  top: isWeb ? height * 0.1 : height * 0.15,
+  left: width * 0.11,
+  right: width * 0.11,
   alignItems: 'center'
 }
 
@@ -55,7 +55,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   onRemove
 }) => {
   const media = useMedia()
-  const isWeb = media.gtMd // Use gtMd or similar breakpoint for web-like sizes
+  const isWeb = media.gtMd
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -70,7 +70,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
       tint="dark"
       style={{
         borderRadius: 8,
-        paddingHorizontal: isWeb ? 24 : 10, 
+        paddingHorizontal: isWeb ? 18 : 10, 
         paddingVertical: 12,
         minWidth: isWeb ? 500 : 350, 
         alignItems: 'center',
@@ -80,7 +80,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
         backgroundColor: "rgba(159, 159, 159, 0.13)",
       }}
     >
-      <Text flexWrap='nowrap' color="$color.gray1" fontSize={isWeb ? '$6' : '$4'} fontFamily="$body"> 
+      <Text flexWrap='nowrap' color="$color.gray1" fontSize={isWeb ? '$5' : '$4'} fontFamily="$body"> 
         {message}
       </Text>
       {type === 'success' && ( 

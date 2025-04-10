@@ -29,13 +29,12 @@ export const styles = StyleSheet.create({
     textAlign: 'center'
   },
   formContainer: {
-    padding: 20,
-    paddingLeft: 24
+    padding: 8,
   },
   input: {
     borderWidth: 1,
     borderRadius: 8,
-    padding: 14,
+    padding: 12,
     marginBottom: 12,
     fontSize: 16
   },
@@ -47,13 +46,13 @@ export const styles = StyleSheet.create({
   typesContainer: {
     flexDirection: 'row',
     marginBottom: 12,
-    paddingHorizontal: 16
+    paddingHorizontal: 12
   },
   typeButton: {
     marginRight: 8,
     borderWidth: 1,
     borderRadius: 20,
-    paddingHorizontal: 12,
+    paddingHorizontal: 6,
     paddingVertical: 12
   },
   typeButtonText: {
@@ -81,13 +80,15 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     marginTop: 6,
     borderWidth: 1
   },
   dropdown: {
     borderWidth: 1,
     borderRadius: 8,
-    marginTop: 6
+    marginTop: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0)'
   },
   dropdownItem: {
     padding: 14,
@@ -96,21 +97,22 @@ export const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 20,
+    padding: 8,
+    paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.1)'
   },
   button: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 8,
     minWidth: 100,
     alignItems: 'center'
   },
 
   buttonEvent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderRadius: 16,
     minWidth: 32,
     maxWidth: 40,
@@ -145,8 +147,8 @@ export const styles = StyleSheet.create({
     marginBottom: 20
   },
   webTimePicker: {
-    width: '100%',
-    marginBottom: 20
+    width: '80%',
+    marginBottom: 40
   },
   nativeTimePicker: {
     height: 180,

@@ -37,7 +37,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
   
   const styles = StyleSheet.create({
     card: {
-      backgroundColor: isDark ? 'rgb(15, 15, 15)' : 'rgba(231, 231, 231, 0.8)',
+      backgroundColor: isDark ? 'rgba(41, 41, 41, 0.5)' : 'rgba(231, 231, 231, 0.8)',
       borderRadius: 12,
       paddingVertical: Platform.OS === 'web' ? 8 : 10,
       paddingHorizontal: Platform.OS === 'web' ? 10 : 4,
@@ -113,7 +113,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                   entering={FadeIn.delay(index * 50)}
                   style={[styles.card, isWeb && { width: '48%' }]}
                 >
-                  <YStack paddingHorizontal="$4">
+                  <YStack paddingHorizontal="$4" pb="$2">
                     <XStack justifyContent="space-between" alignItems="center">
                       <XStack alignItems="center" gap="$2" flex={1}>
                         <YStack>

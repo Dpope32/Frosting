@@ -91,6 +91,7 @@ npx start web-dev
 
 MIT License - see [LICENSE](LICENSE) for details.
 
+## Web Calendar Layout
 <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
   <img src="assets/screenshots/web/web2.png" style="width: 100%; max-width: 800px;" />
   Change the layout of the app by clicking the number in the top right corner
@@ -98,3 +99,13 @@ MIT License - see [LICENSE](LICENSE) for details.
   Pick between 3 2 or 1 column layout
   <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
 </div>
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request. 
+  - The current workflow involves running npx expo-doctor on every push to ensure the project's health.
+    - This is automatically done through github actions.
+
+## License
+
+

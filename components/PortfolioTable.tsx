@@ -6,6 +6,7 @@ import { getValueColor } from '@/constants/valueHelper';
 import { PortfolioQueryData } from '@/types/stocks';
 import { ReturnType } from '@/services/calculationService';
 import { Stock } from '@/types/stocks';
+import { usePortfolioStore } from '@/store/PortfolioStore'
 
 interface PortfolioTableProps {
   activeTab: 'portfolio' | 'watchlist';
@@ -30,9 +31,9 @@ export function PortfolioTable({
 }: PortfolioTableProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const stocks = activeTab === 'portfolio'
-    ? portfolioData
-    : watchlist.map(symbol => ({ symbol, name: symbol, quantity: 0 }));
+  const { totalValue } = usePortfolioStore()
+  const currentTotalValue = totalValue ?? 0
+  const stocks = activeTab === 'portfolio' ? portfolioData : watchlist.map(symbol => ({ symbol, name: symbol, quantity: 0 }));
   if (stocks.length === 0) {
     return (
       <YStack height={100} alignItems="center" justifyContent="center" bc={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"} br={12} padding="$4" borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"} mt="$4">
@@ -164,9 +165,12 @@ export function PortfolioTable({
       })}
       {activeTab === 'portfolio' && (
         <XStack borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} py="$2" px="$2" alignItems="center">
-          <Text width="5%"justifyContent="flex-start" fontSize={14} fontFamily="$body">Total</Text>
-          <Text width="10%" textAlign="right" fontSize={14} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '')}>{typeof totalPortfolioValue === 'number' && !isNaN(totalPortfolioValue) ? `$${totalPortfolioValue.toFixed(2)}` : 'N/A'}</Text>
-          <XStack flex={1} />
+          <Text width="5%"justifyContent="flex-start" fontSize={14} fontFamily="$body">
+            Total
+            </Text>
+          <Text width="10%" textAlign="right" fontSize={14} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '')}> 
+            ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </Text>
         </XStack>
       )}
     </YStack>

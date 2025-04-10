@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
 import { useNoteStore } from '@/store/NoteStore';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
+import { ImageViewerModal } from './ImageViewerModal'; 
 
 type NoteCardProps = {
   note: Note;
@@ -24,12 +25,14 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
   onEdit,
 }, ref) => {
   const [isExpanded, setIsExpanded] = useState(note.isExpanded || false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null); 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isWeb = Platform.OS === 'web';
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
   const { colors } = useMarkdownStyles();
+  const noTagSpacerHeight = isWeb ? 40 : 6;
 
   useEffect(() => {
     if (note.isExpanded !== isExpanded) {
@@ -50,7 +53,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
       return isDark ? '#FFFFFF' : '#000000';
     }
   };
-
+``
   const imageAttachments = useMemo(() => {
     return note.attachments?.filter(att => att.type === 'image') ?? [];
   }, [note.attachments]);
@@ -94,9 +97,9 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
   const TagChip = ({ tag }: { tag: { id: string, name: string, color?: string } }) => (
     <XStack
       key={tag.id}
-      backgroundColor={`${tag.color || '#888888'}30`}
+      backgroundColor={`${tag.color || '#888888'}20`}
       borderRadius={isWeb ? '$8' : '$6'}
-      paddingVertical={isWeb ? 4 : 3}
+      paddingVertical={isWeb ? 6 : 4}
       paddingHorizontal="$3"
       borderWidth={1}
       borderColor={tag.color || colors.textSecondary}
@@ -105,9 +108,9 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
       className={isWeb ? "note-tag" : undefined}
     >
       <Text
-        fontSize={isWeb ? 12 : 10}
+        fontSize={isWeb ? 12 : 11}
         color={darkenColor(tag.color)}
-        fontWeight="bold"
+        fontWeight="700"
         fontFamily="$body"
         className={isWeb ? "note-text" : undefined}
       >
@@ -125,12 +128,12 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
         scale={isDragging ? 1.05 : 1}
         opacity={isDragging ? 0.9 : 1}
         paddingBottom="$2"
-        minHeight={isExpanded ? undefined : 80}
         shadowOffset={{ width: 0, height: 1 }}
         shadowOpacity={0.1}
         shadowRadius={2}
         borderRadius={10}
         style={cardSpecificStyle}
+        minWidth={isWeb ? 300 : undefined}
       >
         <YStack gap="$0">
           <TouchableOpacity
@@ -141,8 +144,8 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
           >
             <XStack
               paddingHorizontal={horizontalPadding}
-              paddingTop={isWeb ? "$4" : "$2"}
-              paddingBottom={isExpanded ? "$2" : "$2"}
+              paddingTop={isWeb ? "$3" : "$2"}
+              paddingBottom={isExpanded ? "$2" : (note.tags?.length ? "$3" : "$2")} 
               justifyContent="space-between"
               alignItems="flex-start"
             >
@@ -171,14 +174,17 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
               flexWrap="wrap"
               paddingHorizontal={horizontalPadding}
               paddingBottom="$2"
-              gap="$1.5"
+              gap="$2"
               justifyContent="space-between"
               alignItems="center"
             >
-              <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2">
+              <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
                 {note.tags?.map((tag) => (
                   <TagChip key={tag.id} tag={tag} />
                 ))}
+                {(!note.tags || note.tags.length === 0) && (
+                  <View style={{ height: noTagSpacerHeight, width: 1 }} />
+                )}
               </XStack>
               <XStack alignItems="center" gap="$2">
                 <Text
@@ -190,17 +196,6 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                 >
                   {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
                 </Text>
-                {onEdit && (
-                  <TouchableOpacity
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      onEdit(note);
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Pencil size={isWeb ? 18 : 16} color={colors.textSecondary} />
-                  </TouchableOpacity>
-                )}
               </XStack>
             </XStack>
           ) : (
@@ -258,10 +253,11 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                     style={{ flexGrow: 0 }}
                   >
                     {imageAttachments.map((att) => (
-                      <TouchableOpacity 
-                        key={att.id} 
+                      <TouchableOpacity
+                        key={att.id}
                         onPress={(e) => {
                           e.stopPropagation();
+                          setSelectedImageUrl(att.url);
                         }}
                       >
                         <View style={[localStyles.attachmentContainer, { width: 150, height: 120 }]}>
@@ -284,11 +280,14 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                   justifyContent="space-between"
                   alignItems="center"
                 >
-                  <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2">
+                  <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
                     {note.tags?.map((tag) => (
                       <TagChip key={tag.id} tag={tag} />
                     ))}
-                  </XStack>   
+                    {(!note.tags || note.tags.length === 0) && (
+                      <View style={{ height: noTagSpacerHeight, width: 1 }} />
+                    )}
+                  </XStack>
                   <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
                     <Text
                       fontSize={isWeb? 13 : 11}
@@ -317,6 +316,10 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
           )}
         </YStack>
       </Card>
+      <ImageViewerModal
+        imageUrl={selectedImageUrl}
+        onClose={() => setSelectedImageUrl(null)}
+      />
     </View>
   );
 });

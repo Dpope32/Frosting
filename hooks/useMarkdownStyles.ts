@@ -9,7 +9,7 @@ export const useMarkdownStyles = () => {
   const isDark = colorScheme === 'dark';
 
   const colors = {
-    background: isDark ? 'rgba(146, 143, 143, 0.1)' : '#FFFFFF',
+    background: isDark ? 'rgba(190, 190, 190, 0.1)' : '#FFFFFF',
     text: isDark ? '#FFFFFF' : '#000000',
     textSecondary: isDark ? '#8E8E93' : '#6C757D',
     shadow: isDark ? '#000000' : '#000000',

@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Platform, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Platform, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { YStack, Button, XStack, Text } from 'tamagui';
 import { Plus, Trash2, RefreshCw } from '@tamagui/lucide-icons';
 import { NoteCard } from '@/components/notes/NoteCard';
@@ -41,6 +41,34 @@ export default function NotesScreen() {
   const [editAttachments, setEditAttachments] = useState<Attachment[]>([]);
   const [selection, setSelection] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
   const {notes} = useNotes();
+  const [numColumns, setNumColumns] = useState(1);
+
+  // Effect to calculate columns based on screen width for web
+  useEffect(() => {
+    if (isWeb) {
+      const calculateColumns = () => {
+        // Get window width (more reliable than Dimensions on web for browser window size)
+        const screenWidth = window.innerWidth;
+        console.log('screenWidth', screenWidth);
+        if (screenWidth > 1200) {
+          setNumColumns(3); // Use 3 columns for large screens
+        } else if (screenWidth > 768) {
+          setNumColumns(2); // Use 2 columns for medium screens
+        } else {
+          setNumColumns(1); // Default to 1 column for smaller screens
+        }
+        console.log('numColumns', numColumns);
+      };
+
+      calculateColumns(); // Initial calculation
+      window.addEventListener('resize', calculateColumns); // Recalculate on resize
+
+      // Cleanup listener on component unmount
+      return () => window.removeEventListener('resize', calculateColumns);
+    } else {
+      setNumColumns(1); // Ensure mobile always uses 1 column
+    }
+  }, [isWeb]); // Rerun effect if isWeb changes (though unlikely)
 
   // Local handler for tag changes
   const handleTagsChange = useCallback((tags: Tag[]) => {
@@ -203,9 +231,8 @@ export default function NotesScreen() {
 
   const handleSaveNoteWithHaptic = useCallback(async () => {
     triggerHaptic();
-    const isUpdating = !!selectedNote; // Store whether we're updating before handleSaveNote clears it
+    const isUpdating = !!selectedNote; 
     
-    // Pass the selectedNote to handleSaveNote
     if (selectedNote) {
       await noteStore.updateNote(selectedNote.id, {
         title: editTitle,
@@ -234,8 +261,6 @@ export default function NotesScreen() {
 
   const handleDeleteNoteWithHaptic = useCallback(async () => {
     triggerHaptic();
-    
-    // Show confirmation dialog
     const confirmDelete = Platform.OS === 'web' 
       ? window.confirm('Are you sure you want to delete this note?')
       : new Promise<boolean>((resolve) => {
@@ -257,7 +282,6 @@ export default function NotesScreen() {
           );
         });
     
-    // Wait for the confirmation dialog to be resolved
     const shouldDelete = await confirmDelete;
     
     if (shouldDelete && selectedNote) {
@@ -329,7 +353,7 @@ export default function NotesScreen() {
           }}
           onSelectNote={handleEditNote}
           onEditNote={handleEditNote}
-          numColumns={1}
+          numColumns={numColumns}
           bottomPadding={insets.bottom + 80}
         />
       ) : (

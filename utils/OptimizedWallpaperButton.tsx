@@ -164,8 +164,6 @@ export const OptimizedWallpaperButton = ({
             </Text>
           </YStack>
         )}
-
-        {/* Selection indicator */}
         {isSelected && (
           <BlurView
             intensity={isDark ? 40 : 20}

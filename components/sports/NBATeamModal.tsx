@@ -131,7 +131,7 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
         </ScrollView>
         <YStack gap="$3" paddingHorizontal="$4" paddingTop="$3" borderTopWidth={1} borderColor={isDark ? '$gray4' : '$gray6'}>
           <XStack justifyContent="space-between" alignItems="center">
-            <Text color="$color11" fontSize={14} fontWeight="500">Show games in calendar?</Text>
+            <Text color="$color11" fontSize={14} fontFamily="$body" fontWeight="500">Show games in calendar?</Text>
             <Switch
               checked={preferences.showNBAGamesInCalendar}
               onCheckedChange={(checked) => setPreferences({ showNBAGamesInCalendar: checked })}
@@ -142,14 +142,14 @@ export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
               <Switch.Thumb animation="bouncy" backgroundColor="$backgroundStrong" />
             </Switch>
           </XStack>
-          <XStack justifyContent="space-between" alignItems="center">
-            <Text color="$color11" fontSize={14} fontWeight="500">Show game days on Home Screen?</Text>
+          <XStack justifyContent="space-between" py="$2" alignItems="center">
+            <Text color="$color11" fontSize={14} fontFamily="$body" fontWeight="500">Show game days on Home Screen?</Text>
             <Switch
               checked={preferences.showNBAGameTasks}
               onCheckedChange={(checked) => setPreferences({ showNBAGameTasks: checked })}
               backgroundColor={preferences.showNBAGameTasks ? preferences.primaryColor : "$background"}
               borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.1)"}
-              size="$3"
+              size={isWeb ? "$3" : "$3"}
             >
               <Switch.Thumb animation="bouncy" backgroundColor="$backgroundStrong" />
             </Switch>

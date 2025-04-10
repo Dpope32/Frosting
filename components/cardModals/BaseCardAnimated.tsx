@@ -1,6 +1,6 @@
 // BaseCardAnimated.tsx
 import React from 'react'
-import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' // Removed Modal
+import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
@@ -54,8 +54,13 @@ export function BaseCardAnimated({
           }
         }}
       >
-        <View 
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center' }} 
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingBottom: Platform.OS !== 'web' ? screenHeight * 0.1 : 0,
+          }}
           pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
           <Theme name={isDark ? 'dark' : 'light'}>

@@ -61,7 +61,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const { showToast } = useToastStore()
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
-  const modalWidth = isWeb ? Math.min(screenWidth * 0.8, 800) : Math.min(screenWidth * 0.85, 400)
+  const modalWidth = isWeb ? Math.min(screenWidth * 0.8, 600) : Math.min(screenWidth * 0.85, 400)
   const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 700) : Math.min(screenWidth * 0.85, 400)}
   const noScrollbar = isWeb ? { overflow: 'hidden' as const } : {}
 
@@ -201,7 +201,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           modalWidth={modalWidth}
           modalMaxWidth={modalWidth}
         >
-          <View style={{ paddingBottom: 20, ...noScrollbar }}>
+          <View style={{...noScrollbar }}>
             <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>
               <TextInput
                 style={[
@@ -220,24 +220,27 @@ export const EventModal: React.FC<EventModalProps> = ({
 
               <TouchableOpacity
                 style={[
-                  styles.input,
                   {
-                    backgroundColor: isDark ? '#333333' : '#f5f5f5',
-                    borderColor: isDark ? '#444444' : '#dddddd',
+                    backgroundColor: 'transparent',
+                    borderBottomWidth: 1,
+                    borderBottomColor: isDark ? '#555555' : '#cccccc',
                     flexDirection: 'row',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    paddingVertical: 10,
+                    paddingHorizontal: 5,
+                    marginBottom: 20,
                   }
                 ]}
                 onPress={() => setShowTimePicker(true)}
               >
-                <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666' }}>
-                  {newEventTime || 'Event Time (CT)'}
+                <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666', fontSize: 16 }}>
+                  {newEventTime || 'Select Event Time'}
                 </Text>
-                <Ionicons name="time-outline" size={18} color={textColor} />
+                <Ionicons name="time-outline" size={20} color={primaryColor} />
               </TouchableOpacity>
 
-              <Text style={[styles.sectionTitle, { color: textColor }]}>Event Type</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}></Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
                 <XStack gap="$2">
                   {['personal', 'work', 'family', 'task', 'health'].map((type) => {
@@ -281,7 +284,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </XStack>
               </ScrollView>
 
-              <Text style={[styles.sectionTitle, { color: textColor }]}>Notifications</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}></Text>
               <View
                 style={[
                   styles.notificationContainer,
