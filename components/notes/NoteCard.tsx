@@ -8,22 +8,23 @@ import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
 import { useNoteStore } from '@/store/NoteStore';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 import { ImageViewerModal } from './ImageViewerModal'; 
+import { TagChip } from './TagChip';
 
 type NoteCardProps = {
   note: Note;
   onPress: () => void;
-  onLongPress?: () => void;
   isDragging?: boolean;
   onEdit?: (note: Note) => void;
+  drag?: () => void;
 };
 
-export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, NoteCardProps>(({
+export const NoteCard = ({
   note,
   onPress,
-  onLongPress,
   isDragging = false,
   onEdit,
-}, ref) => {
+  drag,
+}: NoteCardProps) => {
   const [isExpanded, setIsExpanded] = useState(note.isExpanded || false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null); 
   const colorScheme = useColorScheme();
@@ -40,20 +41,6 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     }
   }, [isExpanded, note.id]);
 
-  const darkenColor = (color: string | undefined): string => {
-    if (!color) return isDark ? '#FFFFFF' : '#000000';
-    try {
-      let hex = color.replace("#", "");
-      if (hex.length !== 6) return isDark ? '#FFFFFF' : '#000000';
-      const r = parseInt(hex.slice(0, 2), 16);
-      const g = parseInt(hex.slice(2, 4), 16);
-      const b = parseInt(hex.slice(4, 6), 16);
-      return `rgb(${Math.floor(r * 0.7)}, ${Math.floor(g * 0.7)}, ${Math.floor(b * 0.7)})`;
-    } catch (e) {
-      return isDark ? '#FFFFFF' : '#000000';
-    }
-  };
-``
   const imageAttachments = useMemo(() => {
     return note.attachments?.filter(att => att.type === 'image') ?? [];
   }, [note.attachments]);
@@ -76,9 +63,8 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     noteStore.updateNote(note.id, { isExpanded: newExpandedState });
   };
 
-  // Define padding constants before they are used in useMemo
-  const horizontalPadding = isWeb ? 20 : 18;
-  const verticalPadding = isWeb ? 16 : 14;
+  const horizontalPadding = isWeb ? 20 : 12;
+  const verticalPadding = isWeb ? 16 : 10;
 
   const cardSpecificStyle = useMemo(() => ({
     backgroundColor: colors.background,
@@ -93,31 +79,6 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
     overflow: 'hidden' as 'hidden',
   }), [isDragging, colors]);
 
-  // Tag component to ensure consistent styling
-  const TagChip = ({ tag }: { tag: { id: string, name: string, color?: string } }) => (
-    <XStack
-      key={tag.id}
-      backgroundColor={`${tag.color || '#888888'}20`}
-      borderRadius={isWeb ? '$8' : '$6'}
-      paddingVertical={isWeb ? 6 : 4}
-      paddingHorizontal="$3"
-      borderWidth={1}
-      borderColor={tag.color || colors.textSecondary}
-      alignItems="center"
-      margin={isWeb ? 2 : 0}
-      className={isWeb ? "note-tag" : undefined}
-    >
-      <Text
-        fontSize={isWeb ? 12 : 11}
-        color={darkenColor(tag.color)}
-        fontWeight="700"
-        fontFamily="$body"
-        className={isWeb ? "note-text" : undefined}
-      >
-        {tag.name}
-      </Text>
-    </XStack>
-  );
 
   return (
     <View style={localStyles.touchableContainer}>
@@ -125,7 +86,7 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
         elevate
         bordered
         animation="bouncy"
-        scale={isDragging ? 1.05 : 1}
+        scale={isDragging ? 0.9 : 1}
         opacity={isDragging ? 0.9 : 1}
         paddingBottom="$2"
         shadowOffset={{ width: 0, height: 1 }}
@@ -137,10 +98,19 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
       >
         <YStack gap="$0">
           <TouchableOpacity
-            onPress={handlePress}
-            onLongPress={onLongPress}
+            onPress={(e) => {
+              e.stopPropagation();
+              handlePress();
+            }}
+            onLongPress={(e) => {
+              if (drag && !note.isExpanded) {
+                e.stopPropagation();
+                drag();
+              }
+            }}
             delayLongPress={300}
             activeOpacity={0.7}
+            style={{ width: '100%' }}
           >
             <XStack
               paddingHorizontal={horizontalPadding}
@@ -170,34 +140,46 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
           </TouchableOpacity>
 
           {!isExpanded ? (
-            <XStack
-              flexWrap="wrap"
-              paddingHorizontal={horizontalPadding}
-              paddingBottom="$2"
-              gap="$2"
-              justifyContent="space-between"
-              alignItems="center"
+            <TouchableOpacity
+              onLongPress={(e) => {
+                if (drag && !note.isExpanded) {
+                  e.stopPropagation();
+                  drag();
+                }
+              }}
+              delayLongPress={300}
+              activeOpacity={0.7}
+              style={{ width: '100%' }}
             >
-              <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
-                {note.tags?.map((tag) => (
-                  <TagChip key={tag.id} tag={tag} />
-                ))}
-                {(!note.tags || note.tags.length === 0) && (
-                  <View style={{ height: noTagSpacerHeight, width: 1 }} />
-                )}
+              <XStack
+                flexWrap="wrap"
+                paddingHorizontal={horizontalPadding}
+                paddingBottom="$2"
+                gap="$2"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
+                  {note.tags?.map((tag) => (
+                    <TagChip key={tag.id} tag={tag} />
+                  ))}
+                  {(!note.tags || note.tags.length === 0) && (
+                    <View style={{ height: noTagSpacerHeight, width: 1 }} />
+                  )}
+                </XStack>
+                <XStack alignItems="center" gap="$2">
+                  <Text
+                    fontSize={isWeb ? 13 : 10}
+                    color={colors.textSecondary}
+                    fontFamily="$body"
+                    flexShrink={0}
+                    className={isWeb ? "note-text" : undefined}
+                  >
+                    {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                  </Text>
+                </XStack>
               </XStack>
-              <XStack alignItems="center" gap="$2">
-                <Text
-                  fontSize={isWeb ? 13 : 10}
-                  color={colors.textSecondary}
-                  fontFamily="$body"
-                  flexShrink={0}
-                  className={isWeb ? "note-text" : undefined}
-                >
-                  {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
-                </Text>
-              </XStack>
-            </XStack>
+            </TouchableOpacity>
           ) : (
             <YStack>
               <View style={{ flex: 1 }}>
@@ -271,46 +253,58 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
                   </ScrollView>
                 )}
 
-                <XStack
-                  flexWrap="wrap"
-                  paddingHorizontal={horizontalPadding}
-                  paddingTop="$1"
-                  paddingBottom="$2"
-                  gap="$1.5"
-                  justifyContent="space-between"
-                  alignItems="center"
+                <TouchableOpacity
+                  onLongPress={(e) => {
+                    if (drag && !note.isExpanded) {
+                      e.stopPropagation();
+                      drag();
+                    }
+                  }}
+                  delayLongPress={300}
+                  activeOpacity={0.7}
+                  style={{ width: '100%' }}
                 >
-                  <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
-                    {note.tags?.map((tag) => (
-                      <TagChip key={tag.id} tag={tag} />
-                    ))}
-                    {(!note.tags || note.tags.length === 0) && (
-                      <View style={{ height: noTagSpacerHeight, width: 1 }} />
-                    )}
-                  </XStack>
-                  <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
-                    <Text
-                      fontSize={isWeb? 13 : 11}
-                      color={colors.textSecondary}
-                      fontFamily="$body"
-                      flexShrink={0}
-                      className={isWeb ? "note-text" : undefined}
-                    >
-                      {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
-                    </Text>
-                    {onEdit && (
-                      <TouchableOpacity
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          onEdit(note);
-                        }}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  <XStack
+                    flexWrap="wrap"
+                    paddingHorizontal={horizontalPadding}
+                    paddingTop="$1"
+                    paddingBottom="$2"
+                    gap="$1.5"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
+                      {note.tags?.map((tag) => (
+                        <TagChip key={tag.id} tag={tag} />
+                      ))}
+                      {(!note.tags || note.tags.length === 0) && (
+                        <View style={{ height: noTagSpacerHeight, width: 1 }} />
+                      )}
+                    </XStack>
+                    <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
+                      <Text
+                        fontSize={isWeb? 13 : 11}
+                        color={colors.textSecondary}
+                        fontFamily="$body"
+                        flexShrink={0}
+                        className={isWeb ? "note-text" : undefined}
                       >
-                        <Pencil size={isWeb ? 18 : 16} color={colors.textSecondary} />
-                      </TouchableOpacity>
-                    )}
+                        {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                      </Text>
+                      {onEdit && (
+                        <TouchableOpacity
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            onEdit(note);
+                          }}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        >
+                          <Pencil size={isWeb ? 18 : 16} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                      )}
+                    </XStack>
                   </XStack>
-                </XStack>
+                </TouchableOpacity>
               </View>
             </YStack>
           )}
@@ -322,14 +316,15 @@ export const NoteCard = forwardRef<React.ElementRef<typeof TouchableOpacity>, No
       />
     </View>
   );
-});
+};
 
 NoteCard.displayName = 'NoteCard';
 
 const localStyles = StyleSheet.create({
   touchableContainer: {
     width: '100%',
-    padding: 2,
+    paddingVertical: Platform.OS === 'web' ? 2 : 8,
+    paddingHorizontal: Platform.OS === 'web' ? 2 : 0,
     flexShrink: 1,
     alignSelf: 'flex-start',
     height: 'auto',

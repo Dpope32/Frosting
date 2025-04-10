@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: Platform.OS === 'web' ? 'auto' as any : 40,
     justifyContent: 'center',
-    marginLeft: Platform.OS === 'web' ? 12 : 8,
+    marginLeft: Platform.OS === 'web' ? 12 : 2,
   },
   nameText: {
     flexShrink: 1,
@@ -89,7 +89,6 @@ export const styles = StyleSheet.create({
   occupationText: {
     ...(Platform.OS === 'web' ? {
       fontSize: 13,
-      mt: 2, // Reduced from 4 to reduce padding below username
       marginLeft: 4, // Added margin-left to align with name when checkmark is active
     } : {
       lineHeight: 14,
@@ -128,8 +127,8 @@ export const styles = StyleSheet.create({
       width: 60, // Increased from 40 to 60 on web to match webStyles
       height: 60, // Increased from 40 to 60 on web to match webStyles
     } : {
-      width: 30,
-      height: 30
+      width: 33,
+      height: 33
     }),
   },
   starIndicator: {

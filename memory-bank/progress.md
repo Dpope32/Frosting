@@ -58,6 +58,7 @@
   - ✅ Layout preferences
 - ✅ Bug Fixes
   - ✅ Fixed settings modal bug (related to wallpaper caching) (March 28, 2025 - `9b12208`)
+  - ✅ Fixed Sentry error ("Invalid wallpaper path") in Settings Modal by correcting wallpaper loading logic for uncached items (April 10, 2025)
 
 ## In Progress
 
@@ -100,6 +101,7 @@
 - 🔄 WiFi card wildly inconsistent (Attempted fix April 3, 2025 - Refactored `useNetworkSpeed` to measure latency)
 - Bug in Drawer with profile picture not displaying
 - ~~Fixed settings modal bug~~ (Resolved March 28, 2025 - `9b12208`)
+- ~~Fixed Sentry error ("Invalid wallpaper path") in Settings Modal~~ (Resolved April 10, 2025)
 - 🔄 Horizontal scroll gesture conflict in modals (Addressed by refactor April 3, 2025 - Needs testing)
 
 ### Performance

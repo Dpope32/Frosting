@@ -77,28 +77,11 @@ export const TaskSection = ({
 
   return (
     <Stack
-      backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.71)"}
       br={16}
-      px="$3"
-      py="$4"
-      paddingBottom="$7"
-      borderWidth={2}
-      borderColor="rgba(255, 255, 255, 0.15)"
+      px="$2"
+      py="$2"
+      paddingBottom="$6"
       minHeight={Platform.OS === 'web' ? (todaysTasks.length < 5 ? 'auto' : 300) : 'auto'}
-      style={{
-        ...(Platform.OS === 'web' 
-          ? {
-              boxShadow: '0px 0px 15px rgba(255, 255, 255, 0.07)'
-            } 
-          : {
-              shadowColor: "rgba(255, 255, 255, 0.1)",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.3,
-              shadowRadius: 10,
-              elevation: 5
-            }
-        )
-      }}
     >
       <XStack 
         alignItems={Platform.OS === 'web' ? 'flex-start' : 'center'} 
@@ -130,17 +113,17 @@ export const TaskSection = ({
           }}
           style={({ pressed }) => ({
             opacity: pressed ? 0.7 : 1,
-            width: 34,
-            height: 34,
-            borderRadius: 17,
+            width: 30,
+            height: 30,
+            borderRadius: 15,
             justifyContent: 'center',
             alignItems: 'center',
-            marginRight: 5
+            marginRight: -5
           })}
         >
           <Ionicons
             name="reorder-three-outline"
-            size={isWeb ? 22 : 20}
+            size={isWeb ? 22 : 21}
             color="#dbd0c6"
             style={{
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
@@ -159,21 +142,19 @@ export const TaskSection = ({
       >
         {todaysTasks.length === 0 ? (
           <Stack 
-            p={Platform.OS === 'web' ? '$6' : '$4'} 
+            p={Platform.OS === 'web' ? '$6' : '$2'} 
             px={Platform.OS === 'web' ? '$4' : '$1'}
             mt={Platform.OS === 'web' ? '$6' : 0}
             gap={Platform.OS === 'web' ? '$4' : '$2'}
-            backgroundColor={isDark ? undefined : "rgba(0, 0, 0, 0.5"}
             br={12}
             style={{
-              backdropFilter: 'blur(8px)'
+              backdropFilter: Platform.OS === 'web' ? 'blur(8px)' : undefined
             }}
           >
             <YStack width="100%">
               <XStack
-                justifyContent={isWeb ? "space-between" : "center"}
+                justifyContent={isWeb ? "space-between" : "space-evenly"}
                 gap="$2"
-                paddingBottom="$2"
                 px="$2"
                 flexWrap="wrap"
                 width="100%"
@@ -286,11 +267,11 @@ export const TaskSection = ({
           }}
           style={({ pressed }) => ({
             position: 'absolute',
-            bottom: -30,
-            right: 0,
-            width: 36,
-            height: 36,
-            borderRadius: 18,
+            bottom: -36,
+            right: -6,
+            width: 32,
+            height: 32,
+            borderRadius: 16,
             justifyContent: 'center',
             alignItems: 'center',
             opacity: pressed ? 0.8 : 1,

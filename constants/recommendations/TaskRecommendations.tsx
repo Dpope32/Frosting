@@ -19,6 +19,7 @@ export interface RecommendationChipProps {
   category: RecommendationCategory
   onPress: () => void
   isDark?: boolean
+  width?: number | string
 }
 
 export const getRecommendedTasks = (category: RecommendationCategory): RecommendedTask[] => {
@@ -130,12 +131,12 @@ export const getPriorityColor = (priority: string) => {
   }
 }
 
-export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category, onPress, isDark = false }) => {
+export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category, onPress, isDark = false, width }) => {
   const getChipStyle = () => {
     switch (category) {
       case 'Cleaning':
         return {
-          backgroundColor: isDark ? "rgba(16, 185, 129, 0.20)" : "rgba(16, 185, 129, 0.30)", // green
+          backgroundColor: isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(16, 185, 129, 0.30)", // green
           borderColor: "rgba(16, 185, 129, 0.5)",
           iconName: "water-outline" as const,
           iconColor: isDark ? "#4ade80" : "#047857", // brighter green for dark mode, darker for light
@@ -143,7 +144,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
         }
       case 'Financial':
         return {
-          backgroundColor: isDark ? "rgba(59, 130, 246, 0.20)" : "rgba(59, 130, 246, 0.30)", // blue
+          backgroundColor: isDark ? "rgba(59, 130, 246, 0.10)" : "rgba(59, 130, 246, 0.30)", // blue
           borderColor: "rgba(59, 130, 246, 0.5)",
           iconName: "cash-outline" as const,
           iconColor: isDark ? "#60a5fa" : "#1e40af", // brighter blue for dark mode, darker for light
@@ -151,7 +152,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
         }
       case 'Gym':
         return {
-          backgroundColor: isDark ? "rgba(239, 68, 68, 0.20)" : "rgba(239, 68, 68, 0.30)", // red
+          backgroundColor: isDark ? "rgba(239, 68, 68, 0.10)" : "rgba(239, 68, 68, 0.30)", // red
           borderColor: "rgba(239, 68, 68, 0.5)",
           iconName: "fitness-outline" as const,
           iconColor: isDark ? "#f87171" : "#b91c1c", // brighter red for dark mode, darker for light
@@ -159,7 +160,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
         }
       case 'Self-Care':
         return {
-          backgroundColor: isDark ? "rgba(139, 92, 246, 0.20)" : "rgba(139, 92, 246, 0.30)", // purple
+          backgroundColor: isDark ? "rgba(139, 92, 246, 0.10)" : "rgba(139, 92, 246, 0.30)", // purple
           borderColor: "rgba(139, 92, 246, 0.5)",
           iconName: "heart-outline" as const,
           iconColor: isDark ? "#a78bfa" : "#5b21b6", // brighter purple for dark mode, darker for light
@@ -167,7 +168,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
         }
       default:
         return {
-          backgroundColor: isDark ? "rgba(107, 114, 128, 0.20)" : "rgba(107, 114, 128, 0.30)", // gray
+          backgroundColor: isDark ? "rgba(107, 114, 128, 0.10)" : "rgba(107, 114, 128, 0.30)", // gray
           borderColor: "rgba(107, 114, 128, 0.5)",
           iconName: "add-circle-outline" as const,
           iconColor: isDark ? "#d1d5db" : "#374151", // brighter gray for dark mode, darker for light
@@ -192,7 +193,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       scale={1}
       minWidth={0}
       flex={Platform.OS === 'web' ? 1 : 0}
-      width={Platform.OS === 'web' ? 'auto' : 130}
+      width={width || (Platform.OS === 'web' ? 'auto' : 130)}
       marginBottom={Platform.OS === 'web' ? 0 : '$1'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
@@ -201,7 +202,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
           color={style.textColor} 
           fontFamily="$body" 
           fontSize={isWeb ? 13 : 12}  
-          fontWeight="700" 
+          fontWeight="900" 
           numberOfLines={1}
         > 
           {category}  

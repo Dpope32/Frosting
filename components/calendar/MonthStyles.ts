@@ -4,21 +4,17 @@ export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
   calendar: {
     borderRadius: 20,
     elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    padding: 16,
-    margin: 16,
+    padding: 18,
+    margin: 12,
     ...(Platform.OS === 'web' ? { boxShadow: '0 4px 12px rgba(0,0,0,0.15)' } : {})
   },
   header: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 2,
     height: 48
   },
   monthText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold'
   },
   weekDays: {

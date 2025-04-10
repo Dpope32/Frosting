@@ -93,32 +93,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Missing stock symbol' });
       }
       
-      console.log(`[Yahoo Finance] Attempting to fetch data for symbol: ${symbol}`);
       
-      // Use a more comprehensive URL with additional crumb parameter
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&includePrePost=false`;
-      console.log(`[Yahoo Finance] Requesting URL: ${yahooUrl}`);
       
       try {
         const response = await axios.get(yahooUrl, {
           headers: BROWSER_HEADERS,
-          timeout: 10000, // 10 second timeout
+          timeout: 10000, 
         });
         
-        console.log(`[Yahoo Finance] Success for symbol: ${symbol}`);
         return res.status(200).json(response.data);
       } catch (yahooError) {
         console.error(`[Yahoo Finance] Error fetching data for symbol ${symbol}:`, yahooError);
         
         // Try alternative service if Yahoo fails
         try {
-          console.log(`[Fallback] Attempting to use alternative finance API for ${symbol}`);
           const fallbackUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=demo`;
           const fallbackResponse = await axios.get(fallbackUrl);
           return res.status(200).json(fallbackResponse.data);
         } catch (fallbackError) {
           console.error('[Fallback] Alternative service also failed:', fallbackError);
-          throw yahooError; // Rethrow the original error
+          throw yahooError; 
         }
       }
       
@@ -132,17 +127,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const interval = req.query.interval || '1d';
       const range = req.query.range || '1y';
       
-      console.log(`[Yahoo History] Attempting symbol: ${symbol}, interval: ${interval}, range: ${range}`);
       
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}&includePrePost=false`;
-      console.log(`[Yahoo History] Requesting URL: ${yahooUrl}`);
       
       const response = await axios.get(yahooUrl, {
         headers: BROWSER_HEADERS,
         timeout: 10000, // 10 second timeout
       });
       
-      console.log(`[Yahoo History] Success for symbol: ${symbol}`);
       return res.status(200).json(response.data);
       
     } else if (endpoint === 'stoic-quote') {

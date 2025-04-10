@@ -11,12 +11,13 @@ import { usePeopleStore } from '@/store/People';
 import { useWallpaperStore } from '@/store/WallpaperStore';
 import { useNoteStore } from '@/store/NoteStore';
 import { colorOptions } from '../../constants/Colors';
-import { backgroundStyles, BackgroundStyle, getWallpaperPath } from '../../constants/Backgrounds';
+import { backgroundStyles, BackgroundStyle, getWallpaperPath, wallpapers } from '../../constants/Backgrounds'; // Import wallpapers
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { BlurView } from 'expo-blur'
 import { OptimizedWallpaperButton } from '@/utils/OptimizedWallpaperButton'
 import * as Sentry from '@sentry/react-native';
+import { ImageURISource } from 'react-native';
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
@@ -27,11 +28,15 @@ if (Platform.OS !== 'web') {
     console.warn('ImagePicker not available:', error)
   }
 }
+
 interface SettingsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
+interface WallpaperSource extends ImageURISource {
+  failed?: boolean;
+}
 
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { preferences, setPreferences } = useUserStore()
@@ -116,76 +121,87 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     
     setSettings((prev) => ({ ...prev, backgroundStyle: value }))
   }, [])
-  const [wallpaperSources, setWallpaperSources] = useState<Record<string, ImageSourcePropType>>({});
+  const [wallpaperSources, setWallpaperSources] = useState<Record<string, WallpaperSource>>({});
 
   useEffect(() => {
-  const loadWallpapers = async () => {
-    const sources: Record<string, ImageSourcePropType> = {
-      'gradient': { uri: '' }
-    };
-    
-    Sentry.addBreadcrumb({
-      category: 'wallpaper',
-      message: 'Starting wallpaper load in SettingsModal',
-      level: 'info',
-    });
-    
-    for (const style of backgroundStyles) {
-      if (style.value === 'gradient') continue;
+    const loadWallpapers = async () => {
+      const sources: Record<string, WallpaperSource> = {
+        'gradient': { uri: '' }
+      };
       
-      try {
-        const wallpaperStore = useWallpaperStore.getState();
-        const wallpaperKey = style.value;
-        const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
+      Sentry.addBreadcrumb({
+        category: 'wallpaper',
+        message: 'Starting wallpaper load in SettingsModal',
+        level: 'info',
+      });
+      
+      for (const style of backgroundStyles) {
+        if (style.value === 'gradient') continue;
         
-        if (cachedUri) {
-          sources[wallpaperKey] = { uri: cachedUri };
-        } else {
-          Sentry.addBreadcrumb({
-            category: 'wallpaper',
-            message: `No cached URI found for ${wallpaperKey}, fetching new path`,
-            level: 'info',
+        try {
+          const wallpaperStore = useWallpaperStore.getState();
+          const wallpaperKey = style.value;
+          const cachedUri = await wallpaperStore.getCachedWallpaper(wallpaperKey);
+          
+          if (cachedUri) {
+            sources[wallpaperKey] = { uri: cachedUri };
+          } else {
+            // If not cached, get the original URI from the imported wallpapers object
+            const originalWallpaperData = wallpapers[wallpaperKey];
+            if (originalWallpaperData && originalWallpaperData.uri) {
+              sources[wallpaperKey] = { uri: originalWallpaperData.uri };
+              // Attempt to cache the original URI
+              try {
+                await wallpaperStore.cacheWallpaper(wallpaperKey, originalWallpaperData.uri);
+              } catch (cacheError) {
+                console.error(`Failed to cache wallpaper ${wallpaperKey} during load:`, cacheError);
+                Sentry.captureException(cacheError, {
+                  extra: {
+                    wallpaperKey: wallpaperKey,
+                    operation: 'cacheWallpaperInLoad',
+                  },
+                });
+                // Optionally mark as failed if caching is critical for display
+                // sources[wallpaperKey] = { uri: '', failed: true }; 
+              }
+            } else {
+              // Handle case where wallpaperKey is not found in wallpapers object
+              console.error(`Original wallpaper data not found for key: ${wallpaperKey}`);
+              Sentry.captureMessage('Missing original wallpaper definition', {
+                level: 'error',
+                extra: { wallpaperKey: wallpaperKey, operation: 'loadWallpapers' },
+              });
+              sources[wallpaperKey] = { uri: '', failed: true };
+            }
+          }
+        } catch (error) {
+          // Catch errors from getCachedWallpaper or other unexpected issues
+          console.error(`Error processing wallpaper ${style.value}:`, error);
+          Sentry.captureException(error, {
+            extra: {
+              wallpaperKey: style.value, // Use style.value as wallpaperKey might not be set yet
+              operation: 'loadWallpapers',
+            },
           });
           
-          const wallpaperPath = await getWallpaperPath(wallpaperKey);
-          if (wallpaperPath && typeof wallpaperPath === 'object' && 'uri' in wallpaperPath && wallpaperPath.uri) {
-            sources[wallpaperKey] = wallpaperPath;
-            
-            await wallpaperStore.cacheWallpaper(wallpaperKey, wallpaperPath.uri);
-          } else {
-            Sentry.captureMessage(`Invalid wallpaper path for ${wallpaperKey}`, {
-              level: 'error',
-              extra: {
-                wallpaperPath,
-                wallpaperKey,
-              },
-            });
-          }
+          sources[style.value] = { 
+            uri: '',
+            failed: true
+          };
         }
-      } catch (error) {
-        Sentry.captureException(error, {
-          extra: {
-            wallpaperStyle: style.value,
-            operation: 'loadWallpapers',
-          },
-        });
       }
-    }
-    
-    setWallpaperSources(sources);
-  };
+      
+      setWallpaperSources(sources);
+    };
     
     loadWallpapers();
-  }, []);
+  }, [settings.primaryColor]);
 
-  const getWallpaperImageSource = useCallback((style: BackgroundStyle): ImageSourcePropType | undefined => {
+  const getWallpaperImageSource = useCallback((style: BackgroundStyle): WallpaperSource | undefined => {
     if (style === 'gradient') {
       return { uri: '' };
     }
-    if (wallpaperSources[style]) {
-      return wallpaperSources[style];
-    }
-    return undefined;
+    return wallpaperSources[style];
   }, [wallpaperSources]);
 
   return (

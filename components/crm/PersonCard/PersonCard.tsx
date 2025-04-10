@@ -140,9 +140,9 @@ export function PersonCard({
                     source={{
                       uri: person.profilePicture || "https://via.placeholder.com/80"
                     }}
-                    width={Platform.OS === 'web' ? 80 : 30}
-                    height={Platform.OS === 'web' ? 60 : 30}
-                    br={Platform.OS === 'web' ? 30 : 15}
+                    width={Platform.OS === 'web' ? 80 : 34}
+                    height={Platform.OS === 'web' ? 60 : 34}
+                    br={Platform.OS === 'web' ? 30 : 27}
                     style={styles.avatarImage as any}
                   />
                 </View>

@@ -88,3 +88,13 @@ Key improvements:
     - Enhanced `NoteCard` to support dragging states.
 - **State Management:** Integrated reordering logic with `NoteStore` using optimistic updates and persistence via AsyncStorage.
 - **UX Improvements:** Added visual cues (scaling, opacity, shadows) during drag operations. Ensured responsive behavior.
+
+## Recent Changes (Settings Modal Wallpaper Fix - April 10, 2025)
+- **Fixed Sentry Error:** Resolved "Invalid wallpaper path" error in `components/cardModals/SettingsModal.tsx`.
+- **Updated Logic:** Modified the `useEffect` hook responsible for loading wallpaper previews. It now correctly handles uncached wallpapers by:
+    - Importing the `wallpapers` object (containing original URIs) from `constants/Backgrounds.ts`.
+    - Checking the `WallpaperStore` cache first.
+    - If not cached, retrieving the original URI from the `wallpapers` object.
+    - Using the original URI to set the preview source and initiating caching via `WallpaperStore.cacheWallpaper`.
+    - Added error handling for cases where the original wallpaper definition might be missing.
+- **Root Cause:** The previous logic incorrectly assumed `getWallpaperPath` would return the original URI if not cached, whereas it only returned cached URIs or `null`.

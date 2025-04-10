@@ -146,7 +146,7 @@ export const BackgroundSection = () => {
             {Platform.OS !== 'web' && (
               <BlurView
                 intensity={isDark ? 20 : 15}
-                tint={isDark ? "dark" : "light"}
+                tint={isDark ? "dark" : "dark"}
                 style={{ 
                   position: 'absolute', 
                   width: '100%', 
@@ -192,13 +192,13 @@ export const BackgroundSection = () => {
               />
               {Platform.OS !== 'web' && (
                 <BlurView
-                  intensity={isDark ? 40 : 20}
+                  intensity={isDark ? 40 : 60}
                   tint="dark"
                   style={{
                     position: 'absolute',
                     width: '100%',
                     height: '100%',
-                    backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.1)'
+                    backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0, 0, 0, 0.1)'
                   }}
                 />
               )}

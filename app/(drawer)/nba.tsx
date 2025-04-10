@@ -179,8 +179,7 @@ export default function Sports() {
         {
           backgroundColor: isDark ? '#010101' : '#f3f3f3',
           flex: 1,
-          // Add proper margin for mobile
-          marginTop: !isWeb ? 85 : 0
+          marginTop: !isWeb ? 75 : 0
         }
       ]}
     >

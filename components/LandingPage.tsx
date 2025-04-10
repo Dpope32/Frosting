@@ -86,7 +86,29 @@ export function LandingPage() {
      <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <YStack paddingTop={Platform.OS === 'web' ? 10 : 105} gap="$3">
-          <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={Platform.OS === 'web' ? { boxShadow: isDark ? '0px 0px 10px rgba(255, 255, 255, 0.05)' : '0px 0px 10px rgba(0, 0, 0, 0.05)' } : { shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
+          <Stack 
+            backgroundColor={isDark 
+              ? "rgba(22, 22, 30, 0.75)" 
+              : "rgba(255, 255, 255, 0.08)"} 
+            borderRadius={16} 
+            padding="$4" 
+            borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+            borderWidth={1} 
+            style={Platform.OS === 'web' 
+              ? { 
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: isDark 
+                    ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
+                    : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+                } 
+              : { 
+                  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+                  shadowOffset: { width: 0, height: 4 }, 
+                  shadowOpacity: 0.35, 
+                  shadowRadius: 12 
+                }
+            }
+          >
             <GreetingSection username={username} />
             <CardSection 
               onPortfolioPress={handlePortfolioPress} 
@@ -95,10 +117,57 @@ export function LandingPage() {
               onWifiPress={handleWifiPress}
             />
           </Stack>
-          <TaskSection todaysTasks={todaysTasks} toggleTaskCompletion={toggleTaskCompletion} deleteTask={deleteTask} onAddTaskPress={handleNewTaskPress} onTaskListPress={() => setTaskListModalOpen(true)} />
+          
+          <Stack 
+            backgroundColor={isDark 
+              ? "rgba(22, 22, 30, 0.75)" 
+              : "rgba(255, 255, 255, 0.08)"} 
+            borderRadius={16} 
+            padding="$4" 
+            borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+            borderWidth={1} 
+            style={Platform.OS === 'web' 
+              ? { 
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: isDark 
+                    ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
+                    : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+                } 
+              : { 
+                  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+                  shadowOffset: { width: 0, height: 4 }, 
+                  shadowOpacity: 0.35, 
+                  shadowRadius: 12 
+                }
+            }
+          >
+            <TaskSection 
+              todaysTasks={todaysTasks} 
+              toggleTaskCompletion={toggleTaskCompletion} 
+              deleteTask={deleteTask} 
+              onAddTaskPress={handleNewTaskPress} 
+              onTaskListPress={() => setTaskListModalOpen(true)} 
+            />
+          </Stack>
          
-          {Platform.OS === 'web' && (
-            <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" marginTop="$2" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} minWidth={300}>
+          {Platform.OS === 'web' ? (
+            <Stack 
+              backgroundColor={isDark 
+                ? "rgba(22, 22, 30, 0.75)" 
+                : "rgba(255, 255, 255, 0.08)"} 
+              borderRadius={16} 
+              padding="$4" 
+              marginTop="$2" 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+              borderWidth={1} 
+              minWidth={300}
+              style={{
+                backdropFilter: 'blur(12px)',
+                boxShadow: isDark 
+                  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
+                  : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+              }}
+            >
               <XStack justifyContent="space-between" alignItems="center">
                 <Text fontFamily="$body" color="#dbd0c6" fontSize={20} fontWeight="bold" marginBottom="$2" paddingLeft="$4" style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
                   Asset Tracker
@@ -108,10 +177,22 @@ export function LandingPage() {
                 <AssetSection onAddToWatchlist={() => setWatchlistModalOpen(true)} />
               </Stack>
             </Stack>
-          )}
-          
-          {Platform.OS !== 'web' && (
-            <Stack backgroundColor={isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.5)"} borderRadius={12} padding="$4" borderColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"} borderWidth={2} style={{ shadowColor: isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.3, shadowRadius: 10 }}>
+          ) : (
+            <Stack 
+              backgroundColor={isDark 
+                ? "rgba(22, 22, 30, 0.75)" 
+                : "rgba(255, 255, 255, 0.08)"} 
+              borderRadius={16} 
+              padding="$4" 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+              borderWidth={1} 
+              style={{ 
+                shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+                shadowOffset: { width: 0, height: 4 }, 
+                shadowOpacity: 0.35, 
+                shadowRadius: 12 
+              }}
+            >
               <YearCompleteSection />
             </Stack>
           )}
