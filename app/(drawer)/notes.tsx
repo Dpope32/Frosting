@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { isWeb } from 'tamagui';
 import { Platform, StyleSheet, TouchableOpacity, Alert, Dimensions, View } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -32,10 +33,7 @@ export default function NotesScreen() {
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const isWeb = Platform.OS === 'web';
   const preferences = useUserStore((state) => state.preferences);
-
-  // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [editTitle, setEditTitle] = useState('');

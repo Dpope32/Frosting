@@ -28,8 +28,6 @@ import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
-  // (https://spotlightjs.com)
-  // spotlight: __DEV__,
 });
 
 const queryClient = new QueryClient({
@@ -165,4 +163,4 @@ export default Sentry.wrap(function RootLayout() {
       </TamaguiProvider>
     </QueryClientProvider>
   );
-}); // Close Sentry.wrap
+});

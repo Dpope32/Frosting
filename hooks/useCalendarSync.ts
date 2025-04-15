@@ -3,6 +3,7 @@ import { useCalendarStore } from '@/store/CalendarStore';
 import { Platform } from 'react-native';
 import { useUserStore } from '@/store/UserStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PERMISSIONS_EXPLAINED_KEY } from '@/constants/KEYS'
 
 let permissionService: any = null;
 if (Platform.OS !== 'web') {
@@ -13,7 +14,6 @@ if (Platform.OS !== 'web') {
   }
 }
 
-const PERMISSIONS_EXPLAINED_KEY = '@frosting/permissions_explained';
 
 export const useCalendarSync = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -23,32 +23,26 @@ export const useCalendarSync = () => {
   useEffect(() => {
     // Only run once, only on non-web platforms, and only if onboarding is completed
     if (isInitialized || Platform.OS === 'web') return;
-    
     const initializeCalendarSync = async () => {
       try {
         // Check if onboarding is completed and permissions have been explained
         if (!hasCompletedOnboarding) {
           return;
         }
-        
         // Check if permissions have been explained
         const permissionsExplained = await AsyncStorage.getItem(PERMISSIONS_EXPLAINED_KEY);
         if (permissionsExplained !== 'true') {
           return;
         }
-        
         // Only request permissions if we have the permission service and onboarding is completed
         let hasPermission = false;
         if (permissionService && permissionService.requestCalendarPermissions) {
           hasPermission = await permissionService.requestCalendarPermissions();
         }
-        
         if (hasPermission) {
-          
           const startDate = new Date();
           const endDate = new Date();
           endDate.setMonth(endDate.getMonth() + 6);
-          
           setTimeout(() => {
             syncDeviceCalendarEvents(startDate, endDate)
               .then(() => {
@@ -64,9 +58,7 @@ export const useCalendarSync = () => {
         setIsInitialized(true);
       }
     };
-    
     initializeCalendarSync();
-  }, [isInitialized, syncDeviceCalendarEvents]);
-  
+  }, [isInitialized, syncDeviceCalendarEvents])
   return null;
 };

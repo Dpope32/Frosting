@@ -1,11 +1,11 @@
 // permissionService.ts
 // This service handles all permission requests for the app.
-import { Alert, Platform } from 'react-native';
-import { router } from 'expo-router';
+import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as ImagePicker from 'expo-image-picker';
 import * as Contacts from 'expo-contacts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PERMISSIONS_EXPLAINED_KEY } from '@/constants/KEYS';
 
 // Import Calendar conditionally to avoid issues on web
 let Calendar: any = null;
@@ -17,9 +17,6 @@ if (Platform.OS !== 'web') {
     console.error('Error importing expo-calendar:', err);
   }
 }
-
-// Key for storing whether permissions have been explained
-const PERMISSIONS_EXPLAINED_KEY = '@frosting/permissions_explained';
 
 // Request all permissions at once
 export const requestAllPermissions = async () => {

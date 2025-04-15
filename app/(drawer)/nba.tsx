@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { Image, Text, useColorScheme, Platform, ScrollView } from 'react-native'
+import { Image, Text, useColorScheme, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import { View } from 'tamagui'
+import { View, isWeb } from 'tamagui'
 
 import { useSportsAPI } from '../../hooks/useSportsAPI'
 import { format, isSameDay } from 'date-fns'
@@ -41,7 +41,6 @@ export default function Sports() {
   const today = new Date()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
   const team = nbaTeams.find(t => t.code === teamCode)
   const teamColor =  '#007AFF' 
   const teamRecord = teamStats?.team?.record?.items?.[0]?.summary || '0-0'

@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/react-native';
 import { getWallpapers } from '@/services/s3Service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { WALLPAPER_CACHE_DIR, LAST_APP_VERSION_KEY } from '@/constants/KEYS';
 
 interface WallpaperCache {
   [key: string]: string; 
@@ -25,12 +26,6 @@ interface WallpaperStore extends PersistedWallpaperState {
   clearUnusedWallpapers: (keep: string[]) => Promise<void>;
   checkAndRedownloadWallpapers: () => Promise<void>;
 }
-
-const WALLPAPER_CACHE_DIR = Platform.OS !== 'web' 
-  ? `${FileSystem.cacheDirectory || ''}wallpapers/` 
-  : '';
-
-const LAST_APP_VERSION_KEY = '@frosting/last-app-version';
 
 export const useWallpaperStore = create<WallpaperStore>()(
   persist(

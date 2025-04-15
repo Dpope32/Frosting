@@ -1,51 +1,23 @@
 import { useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Sentry from '@sentry/react-native';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useNBAStore } from '@/store/NBAStore';
 import { useSportsAPI } from './useSportsAPI';
-import { configureNotifications } from '@/services/notificationServices';
-import { useUserStore } from '@/store/UserStore';
-import { useColorScheme as useRNColorScheme, ColorSchemeName } from 'react-native';
+import { useColorScheme as useRNColorScheme } from 'react-native';
 import { useWallpaperStore } from '@/store/WallpaperStore';
-import * as Sentry from '@sentry/react-native';
-
-const THEME_STORAGE_KEY = '@frosting/color-scheme';
-
-// Modified function that doesn't use hooks
-export async function preloadTheme(systemColorScheme: ColorSchemeName) {
-  try {
-    if (systemColorScheme) {
-      // Check if we already have a stored theme
-      const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      // If no stored theme or it's different from system theme, update it
-      if (!storedTheme || storedTheme !== systemColorScheme) {
-        await AsyncStorage.setItem(THEME_STORAGE_KEY, systemColorScheme);
-      }
-    }
-  } catch (error) {
-    console.error('Error preloading theme:', error);
-  }
-}
+import { preloadTheme } from '@/utils/preloadTheme';
 
 export function useAppInitialization() {
   // Get the system theme using the hook properly at the top level
   const systemColorScheme = useRNColorScheme();
-  
-  // Initialize Thunder and NBA schedules
+  // Initialize NFL and NBA schedules
+  // TODO: add NFL schedule with NBA szn coming to an end
   useSportsAPI();
-  
-  // Initialize app without requesting permissions
-  // Permissions will be requested after the user views the permissions screen
   useEffect(() => {
     const initializeApp = async () => {
-      // We no longer request permissions here
-      // This is now handled in the onboarding flow
-      
       // Pre-load the theme to prevent theme bounce
       // Pass the systemColorScheme to the function instead of calling the hook inside
       await preloadTheme(systemColorScheme);
-      
-      // Check and redownload wallpapers if needed
       try {
         await useWallpaperStore.getState().checkAndRedownloadWallpapers();
       } catch (error) {
@@ -56,27 +28,13 @@ export function useAppInitialization() {
         });
       }
     };
-    
     initializeApp();
-  }, [systemColorScheme]); // Add systemColorScheme as a dependency
+  }, [systemColorScheme]); 
 
+  // TODO do not sync API if disabled in Settings
   useEffect(() => {
     useNBAStore.getState().syncNBAGames();
     useNBAStore.getState().syncGameTasks();
     useCalendarStore.getState().syncBirthdays();
   }, []);
-}
-
-// Function to handle permission requests and notification setup
-// This will be called from the onboarding flow after the user views the permissions screen
-export async function setupPermissionsAndNotifications(permissions: any) {
-  // Configure notifications if permission granted
-  if (permissions.notifications) {
-    await configureNotifications();
-  }
-  // Update user preferences with permission status
-  useUserStore.getState().setPreferences({
-    notificationsEnabled: permissions.notifications
-  });
-  return true;
 }
