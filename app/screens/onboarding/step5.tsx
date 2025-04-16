@@ -167,20 +167,20 @@ export default function Step5({
                 WebkitBackdropFilter: 'blur(5px)'
               } : undefined}
             >
-              <YStack flex={1} justifyContent="center" alignItems="center" paddingTop={isWeb ? 10 : 5}>
+              <YStack flex={1} justifyContent="center" alignItems="center" paddingTop={isWeb ? 10 : 0}>
                 <Image
                   source={{ uri: team.logo }}
                   style={{ 
-                    width: isWeb ? 55 : 40, 
-                    height: isWeb ? 55 : 40,
-                    opacity: selectedTeam === team.code ? 1 : 0.85
+                    width: isWeb ? 55 : 50, 
+                    height: isWeb ? 55 : 50,
+                    opacity: selectedTeam === team.code ? 1 : 0.4
                   }}
                   resizeMode="contain"
                 />
               </YStack>
               <Text
                 fontFamily="$body"
-                color={selectedTeam === team.code ? (isDark ? 'white' : 'black') : "$onboardingButtonSecondaryText"} 
+                color={selectedTeam === team.code ? (isDark ? 'white' : 'white') : "$onboardingButtonSecondaryText"} 
                 textAlign="center"
                 fontSize={isWeb ? 12 : 12}
                 fontWeight={selectedTeam === team.code ? "600" : "400"}
@@ -325,7 +325,7 @@ export default function Step5({
                     scale: 0.97
                   }}
                 >
-                  <Text fontFamily="$body" color="$onboardingButtonSecondaryText">or skip for now</Text> 
+                  <Text fontFamily="$body" color="$onboardingButtonPrimary">or skip for now</Text> 
                 </Button>
               </XStack>
             ) : (
@@ -395,14 +395,11 @@ export default function Step5({
                     </XStack>
                 </YStack>
                 <Button
-                  variant="outlined"
+                  chromeless
                   size="$3" 
                   onPress={handleSkip}
-                  br={20}
                   width="50%"
                   alignSelf="center"
-                  borderColor="$onboardingButtonSecondaryBorder" 
-                  backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)'} 
                   pressStyle={{
                     scale: 0.98
                   }}
@@ -410,7 +407,7 @@ export default function Step5({
                   animation="quick"
                   enterStyle={{ opacity: 0, y: 10 }}
                 >
-                  <Text fontFamily="$body" color="$onboardingButtonSecondaryText" fontSize="$3">or skip for now</Text> 
+                  <Text fontFamily="$body" color="$onboardingButtonPrimary" fontSize="$3">or skip for now</Text> 
                 </Button>
               </YStack>
             )

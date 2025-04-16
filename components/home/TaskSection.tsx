@@ -80,7 +80,7 @@ export const TaskSection = ({
       br={16}
       px="$2"
       py="$2"
-      paddingBottom="$6"
+      paddingBottom="$4"
       minHeight={Platform.OS === 'web' ? (todaysTasks.length < 5 ? 'auto' : 300) : 'auto'}
     >
       <XStack 
@@ -92,14 +92,9 @@ export const TaskSection = ({
       >
         <Text
           fontFamily="$body"
-          color={isDark ? "#dbd0c6" : "#F5F5F5"}
+          color={isDark ? "#dbd0c6" : "#dbd0c6"}
           fontSize={20}
           fontWeight="bold"
-          style={{
-            textShadowColor: 'rgba(219, 208, 198, 0.15)',
-            textShadowOffset: { width: 0, height: 0 },
-            textShadowRadius: 4
-          }}
         >
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>

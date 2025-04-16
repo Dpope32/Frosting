@@ -61,7 +61,9 @@ export default function Onboarding() {
 
   const handleNext = async () => {
     try {
-      if (step === -1) { 
+      if (step === -2) { 
+        setStep(isWeb ? 0 : -1); // Skip permissions screen on web
+      } else if (step === -1) { 
         setStep(0);
         await markPermissionsAsExplained();
       } else if (step === 0) { 
@@ -69,14 +71,17 @@ export default function Onboarding() {
           showToast('Username must be at least 2 characters long.')
           return
         }
+        
         if (Platform.OS !== 'web') {
           try {
-            const permissions = await requestPermissionsWithDelay(500);
+            const permissions = await requestPermissionsWithDelay(1000);
             await setupPermissionsAndNotifications(permissions);
           } catch (error) {
-            Sentry.captureException(error);
+            console.error("Error setting up permissions:", error);
+            // Continue anyway to not block users
           }
         }
+        
         setStep(1);
       } else if (step === 5) {
         setPreferences({ ...formData, hasCompletedOnboarding: true })
@@ -94,7 +99,7 @@ export default function Onboarding() {
 
   const handleBack = () => {
     if (isWeb && step === 0) {
-      setStep(-1); 
+      setStep(-2); // Skip permissions screen on web
     } else {
       setStep((prev) => prev - 1)
     }
@@ -205,11 +210,11 @@ export default function Onboarding() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
       style={{ flex: 1 }}
     >
-      <View flex={1} backgroundColor="$onboardingIndexBackground"> 
+      <View flex={1}>
         {Platform.OS === 'ios' || Platform.OS === 'android' ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View flex={1}>
-              <View flex={1} style={{ paddingBottom: isWeb ? 70 : 0 }}> 
+              <View flex={1} style={{ paddingBottom: isWeb ? 70 : 0 }} backgroundColor={step >= 0 && !isDark ? '$backgroundSoft' : '$onboardingIndexBackground'}>
                 {renderStep()}
               </View>
               <View
@@ -256,7 +261,7 @@ export default function Onboarding() {
           </TouchableWithoutFeedback>
         ) : (
           <View flex={1}>
-            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }}> 
+            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }} backgroundColor={step >= 0 && !isDark ? '$backgroundSoft' : '$onboardingIndexBackground'}>
               {renderStep()}
             </View>
             <View

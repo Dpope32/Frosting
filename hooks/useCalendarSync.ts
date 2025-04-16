@@ -8,7 +8,7 @@ import { PERMISSIONS_EXPLAINED_KEY } from '@/constants/KEYS'
 let permissionService: any = null;
 if (Platform.OS !== 'web') {
   try {
-    permissionService = require('@/services/permissionService');
+    permissionService = require('@/services/permissions/permissionService');
   } catch (err) {
     console.error('Error importing permissionService:', err);
   }

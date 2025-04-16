@@ -3,9 +3,9 @@ import { Platform } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack } from 'tamagui'
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 
 import { NewTaskModal } from './cardModals/NewTaskModal'
-import { TemperatureModal } from './cardModals/TemperatureModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './cardModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
@@ -36,6 +36,7 @@ export function LandingPage() {
   const isEditModalOpen = useEditTaskStore(s => s.isOpen);
   const closeEditModal = useEditTaskStore(s => s.closeModal);
   const [isMounted, setIsMounted] = useState(false)
+  const router = useRouter();
   
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -53,7 +54,6 @@ export function LandingPage() {
     )
   }
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [tempModalOpen, setTempModalOpen] = useState(false)
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
@@ -64,8 +64,8 @@ export function LandingPage() {
     setSheetOpen(true) 
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
-  const handleTemperaturePress = () => { 
-    setTempModalOpen(true) 
+  const handleTemperaturePress = () => {
+    router.push('/modals/temperature');
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handlePortfolioPress = () => { 
@@ -201,7 +201,6 @@ export function LandingPage() {
       </ScrollView>
       {isMounted && (
         <>
-          <TemperatureModal open={tempModalOpen} onOpenChange={setTempModalOpen} />
           <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
           <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
           <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />

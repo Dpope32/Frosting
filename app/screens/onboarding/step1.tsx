@@ -21,9 +21,6 @@ export default function Step1({
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <YStack gap="$2" alignItems="center">
-        <Label fontFamily="$heading"  fontWeight={isWeb ? 500 : 800}  fontSize={isWeb ? "$9" : "$8"} textAlign="center" paddingBottom={16} color="$onboardingLabel">
-          Profile Picture
-        </Label>
         <Circle
           size={180}
           borderWidth={2}
@@ -53,7 +50,7 @@ export default function Step1({
                 <Text fontFamily="$body" fontSize={24}>{defaultIcon.icon}</Text>
               </Circle>
               <Text color="$onboardingSubText" fontFamily="$heading" fontWeight="700">
-                Pick Photo
+                Profile Picture
               </Text>
             </YStack>
           )}

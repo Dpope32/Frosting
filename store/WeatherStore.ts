@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { useQuery } from '@tanstack/react-query';
 import { validateZipCode, FALLBACK_ZIP_CODES } from '../utils/zipCodeValidator';
 
-interface WeatherPeriod {
+export interface WeatherPeriod {
   number: number;
   name: string;
   startTime: string;

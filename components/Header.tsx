@@ -38,7 +38,7 @@ export function Header({ title }: HeaderProps) {
   const isNBAScreen = route.name === 'nba';
   const isCrmScreen = route.name === 'crm'; 
   const isCalendarScreen = route.name === 'calendar'; 
-  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#00000';
+  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#fcf5e5';
   const isWeb = Platform.OS === 'web';
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
 

@@ -4,15 +4,20 @@ import React, { useEffect, useRef } from 'react';
 import { useUserStore } from '@/store/UserStore';
 import { useWeatherQuery, useWeatherStore } from '@/store/WeatherStore';
 import { getValueColor } from '@/constants/valueHelper';
+import { Pressable } from 'react-native';
 
 const ONE_HOUR = 1000 * 60 * 60;
 
-export function TemperatureCard() {
+interface TemperatureCardProps {
+  onPress?: () => void;
+}
+
+export function TemperatureCard({ onPress }: TemperatureCardProps) {
   const zipCode = useUserStore(s => s.preferences.zipCode);
   const lastFetchRef = useRef<number | null>(null);
   const { isLoading, refetch } = useWeatherQuery(zipCode);
   const currentTemp = useWeatherStore(s => s.currentTemp);
-  const valueColor = currentTemp !== null ?  getValueColor('temperature', currentTemp, '') :  'white';
+  const valueColor = currentTemp !== null ? getValueColor('temperature', currentTemp, '') : 'white';
   
   useEffect(() => {
     const now = Date.now();
@@ -22,9 +27,30 @@ export function TemperatureCard() {
     }
   }, [zipCode, refetch]);
   
-  
+  // Log received prop immediately
+  console.log("--- TemperatureCard: Received props ---", {
+      onPress: typeof onPress, // Log type
+      _onPressValue: onPress // Log value
+  });
+
+  // Existing useEffect log
+  React.useEffect(() => {
+    console.log("--- TemperatureCard: useEffect check ---", typeof onPress);
+  }, [onPress]);
+
+  const handlePress = () => {
+    console.log("--- TemperatureCard: handlePress triggered ---");
+    if (onPress) {
+      console.log("--- TemperatureCard: onPress is defined, calling it ---");
+      onPress();
+    } else {
+      console.log("--- TemperatureCard: onPress is MISSING inside handlePress! ---");
+    }
+  };
+
   return (
     <Stack
+      onPress={handlePress}
       backgroundColor="rgba(0, 0, 0, 0.3)"
       br={12}
       padding="$3"
@@ -34,6 +60,9 @@ export function TemperatureCard() {
       height={isWeb ? 60 : 50} 
       alignItems="center"
       justifyContent="center"
+      hoverStyle={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
+      pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      cursor="pointer"
     >
       {isLoading ? (
         <Spinner

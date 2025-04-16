@@ -6,31 +6,43 @@ import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
 import { QuoteCard } from '@/components/home/cards/QuoteCard'
 import { useUserStore } from '@/store/UserStore'
+import { useRouter } from 'expo-router'
 
 interface CardSectionProps {
-  onPortfolioPress: () => void
-  onTemperaturePress: () => void
-  onQuotePress: () => void
-  onWifiPress: () => void
+  onPortfolioPress?: () => void
+  onTemperaturePress?: () => void
+  onQuotePress?: () => void
+  onWifiPress?: () => void
 }
 
-export const CardSection = ({ onPortfolioPress, onTemperaturePress, onQuotePress, onWifiPress }: CardSectionProps) => {
+export function CardSection({
+  onPortfolioPress,
+  onTemperaturePress,
+  onQuotePress,
+  onWifiPress
+}: CardSectionProps) {
   const { preferences } = useUserStore()
   const portfolioEnabled = preferences.portfolioEnabled ?? true
   const temperatureEnabled = preferences.temperatureEnabled ?? true
   const wifiEnabled = preferences.wifiEnabled ?? true
   const quoteEnabled = preferences.quoteEnabled ?? true
-  
+  const router = useRouter();
+
   return (
-    <XStack ml="$2" gap={isWeb ? "$2" : "$0"} flexWrap="nowrap" justifyContent="flex-start" alignItems={isWeb ? "flex-start" : "center"}  paddingHorizontal={isWeb ? "$1" : "$0"}>
+    <XStack
+      gap="$2"
+      marginTop="$1"
+      flexWrap={isWeb ? 'nowrap' : 'wrap'}
+      justifyContent={isWeb ? 'flex-start' : 'flex-start'}
+    >
       {portfolioEnabled && (
         <Pressable onPress={onPortfolioPress}>
-          <PortfolioCard roundToWholeNumber={true} />
+          <PortfolioCard />
         </Pressable>
       )}
       {temperatureEnabled && (
-        <Pressable onPress={onTemperaturePress}>
-          <TemperatureCard />
+        <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
+          <TemperatureCard onPress={onTemperaturePress} />
         </Pressable>
       )}
       {wifiEnabled && (

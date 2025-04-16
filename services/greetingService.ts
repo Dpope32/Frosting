@@ -1,3 +1,5 @@
+import { getUSHolidays } from './holidayService';
+
 // Helper function for the time-based part (keeps original logic)
 const getTimeBasedGreeting = (hour: number): string => {
   switch (Math.floor(hour / 2)) {
@@ -25,22 +27,171 @@ const getDayOfYear = (date: Date): number => {
   return Math.floor(diff / oneDay);
 };
 
-export const getGreeting = (username: string) => {
+export const getGreeting = (username: string, temp?: number) => {
   const now = new Date();
   const hour = now.getHours();
-  const dayOfYear = getDayOfYear(now); // Get the current day of the year
-
+  const dayOfYear = getDayOfYear(now);
+  const dayOfWeek = now.toLocaleDateString(undefined, { weekday: 'long' });
   const timeBasedGreeting = getTimeBasedGreeting(hour);
 
-  // Define the "changeup" greetings for specific days
+  // --- Holiday Greeting Logic ---
+  const year = now.getFullYear();
+  const todayISO = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const holidays = getUSHolidays(year);
+  const todayHoliday = holidays.find(h => h.date === todayISO);
+
+  if (todayHoliday) {
+    // Map of holiday name to possible greetings
+    const holidayGreetingMap: Record<string, string[]> = {
+      "New Year's Day": [
+        "Happy New Year!",
+        "Wishing you a fantastic New Year!",
+        "Cheers to a new beginning!",
+        "Welcome to the new year, let's make it great!"
+      ],
+      "Martin Luther King Jr. Day": [
+        "Honoring Dr. King today.",
+        "Happy Martin Luther King Jr. Day!",
+        "Remembering the dream."
+      ],
+      "Presidents' Day": [
+        "Happy Presidents' Day!",
+        "Celebrating our leaders today."
+      ],
+      "Washington's Birthday": [
+        "Happy Washington's Birthday!",
+        "Remembering George Washington today."
+      ],
+      "Good Friday": [
+        "Reflecting on Good Friday.",
+        "Wishing you a peaceful Good Friday."
+      ],
+      "Easter Sunday": [
+        "Happy Easter!",
+        "Hope you have a wonderful Easter!",
+        "Wishing you a joyful Easter Sunday."
+      ],
+      "Memorial Day": [
+        "Honoring our heroes this Memorial Day.",
+        "Happy Memorial Day!",
+        "Remembering those who served."
+      ],
+      "Juneteenth": [
+        "Happy Juneteenth!",
+        "Celebrating freedom today."
+      ],
+      "Independence Day": [
+        "Happy 4th of July!",
+        "Happy Independence Day!",
+        "Enjoy the fireworks!"
+      ],
+      "Labor Day": [
+        "Happy Labor Day!",
+        "Enjoy your well-deserved break!"
+      ],
+      "Columbus Day": [
+        "Happy Columbus Day!",
+        "Exploring new horizons today."
+      ],
+      "Indigenous Peoples' Day": [
+        "Honoring Indigenous Peoples today.",
+        "Happy Indigenous Peoples' Day!"
+      ],
+      "Veterans Day": [
+        "Thank you, veterans!",
+        "Honoring all who served.",
+        "Happy Veterans Day!"
+      ],
+      "Thanksgiving Day": [
+        "Happy Thanksgiving!",
+        "Hope you have a wonderful Thanksgiving!",
+        "Grateful for you this Thanksgiving."
+      ],
+      "Christmas Day": [
+        "Merry Christmas!",
+        "Wishing you a joyful Christmas!",
+        "Hope your Christmas is merry and bright!"
+      ],
+      "Valentine's Day": [
+        "Happy Valentine's Day!",
+        "Sending love your way!",
+        "Hope your day is filled with love."
+      ],
+      "St. Patrick's Day": [
+        "Happy St. Patrick's Day!",
+        "Wishing you the luck of the Irish!",
+        "Don't forget to wear green!"
+      ],
+      "Halloween": [
+        "Happy Halloween!",
+        "Spooky greetings!",
+        "Hope you have a frightfully fun Halloween!"
+      ]
+    };
+
+    // Fallback for custom holidays or missing ones
+    const holidayGreetings = holidayGreetingMap[todayHoliday.title] || [
+      `Happy ${todayHoliday.title}!`
+    ];
+    // Add some variety by including username or time-based
+    const possibleHolidayGreetings = [
+      ...holidayGreetings,
+      `${holidayGreetings[0]} ${username}!`,
+      `${holidayGreetings[0]} ${timeBasedGreeting}, ${username}!`
+    ];
+    const randomIndex = Math.floor(Math.random() * possibleHolidayGreetings.length);
+    return possibleHolidayGreetings[randomIndex];
+  }
+
+  // --- Temperature-based Greetings (12 new, only if temp is provided) ---
+  const tempGreetings = temp !== undefined && temp !== null ? [
+    temp >= 95 ? `It's a scorcher at ${temp}°F, ${username}!` : null,
+    temp >= 85 && temp < 95 ? `Stay cool, it's ${temp}°F today, ${username}!` : null,
+    temp >= 75 && temp < 85 ? `Perfect weather at ${temp}°F, ${username}!` : null,
+    temp >= 65 && temp < 75 ? `Mild and comfy: ${temp}°F, ${username}.` : null,
+    temp >= 55 && temp < 65 ? `A crisp ${temp}°F out there, ${username}.` : null,
+    temp >= 45 && temp < 55 ? `Sweater weather: ${temp}°F, ${username}!` : null,
+    temp >= 35 && temp < 45 ? `Chilly ${temp}°F today, ${username}.` : null,
+    temp >= 25 && temp < 35 ? `Bundle up, it's ${temp}°F, ${username}!` : null,
+    temp < 25 ? `Brrr! Only ${temp}°F, ${username}!` : null,
+    temp >= 100 ? `Heatwave alert: ${temp}°F, ${username}!` : null,
+    temp <= 10 ? `Arctic vibes: ${temp}°F, ${username}!` : null,
+    temp >= 60 && temp < 70 ? `Nice and pleasant: ${temp}°F, ${username}.` : null,
+  ].filter(Boolean) as string[] : [];
+
+  // --- Changeup Greetings (expanded and more varied) ---
   const changeupGreetings = [
-    `${username}. ${username}, ${username}!`,
+    ...tempGreetings,
+    `${username}. ${username}, ${username}`,
     `${username} returns!`,
-    `Look who it is! ${username}!`
+    `Look who it is! ${username}!`,
+    `Guess who's back? It's ${username}!`,
+    `The legend, ${username}, has arrived.`,
+    `All hail ${username}!`,
+    `Welcome to the matrix, ${username}.`,
+    `Hey ${username}, ready to conquer ${dayOfWeek}?`,
+    `It's a beautiful ${dayOfWeek}, ${username}!`,
+    `Alert: ${username} detected.`,
+    `The one and only ${username}!`,
+    `You again, ${username}? Just kidding, glad you're here!`,
+    `Mission start: ${username} online.`,
+    `Status: ${username} is present.`,
+    `Welcome, agent ${username}.`,
+    `Rise and grind, ${username}!`,
+    `Let's get after it, ${username}!`,
+    `Another day, another adventure, ${username}.`,
+    `The universe welcomes you, ${username}.`,
+    `Hey superstar, ${username}!`,
+    `Time to shine, ${username}!`,
+    `Did someone say ${username}? Oh, that's you!`,
+    `Welcome back, time traveler ${username}.`,
+    `You made it, ${username}!`,
+    `Good vibes only, ${username}!`,
+    `Ready for greatness, ${username}?`,
+    `Let's make today awesome, ${username}!`
   ];
 
-  // Define the "regular" personalized greetings (excluding the changeups)
-  // Added the base time greeting here too for more variety on regular days
+  // --- Regular Personalized Greetings (expanded) ---
   const regularPersonalizedGreetings = [
     `${timeBasedGreeting}, ${username}`,
     `Welcome back, ${username}`,
@@ -48,7 +199,19 @@ export const getGreeting = (username: string) => {
     `What's up, ${username}?`,
     `${timeBasedGreeting}! Ready for action, ${username}?`,
     `Greetings, ${username}`,
-    timeBasedGreeting // Include the base time greeting itself
+    timeBasedGreeting, // Include the base time greeting itself
+    `Hope you're having a great ${dayOfWeek}, ${username}`,
+    `How's your ${dayOfWeek} going, ${username}?`,
+    `Let's make the most of this ${dayOfWeek}, ${username}!`,
+    `Sending positive vibes, ${username}`,
+    `You got this, ${username}!`,
+    `Keep crushing it, ${username}!`,
+    `Stay awesome, ${username}!`,
+    `Let's do this, ${username}!`,
+    `Onward and upward, ${username}!`,
+    `The day is yours, ${username}!`,
+    `Seize the day, ${username}!`,
+    `Hope your day is as awesome as you are, ${username}!`
   ];
 
   let finalGreeting: string;
@@ -99,5 +262,10 @@ export const getGreeting = (username: string) => {
     finalGreeting = selectedGreeting;
   }
 
+  // Ensure greeting fits UI constraints (max 48 chars)
+  const MAX_GREETING_LENGTH = 48;
+  if (finalGreeting.length > MAX_GREETING_LENGTH) {
+    return finalGreeting.slice(0, MAX_GREETING_LENGTH - 1) + "…";
+  }
   return finalGreeting;
 }

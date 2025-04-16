@@ -1,0 +1,8 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
+android/
+ios/
+node_modules/
+.git/
+.gitignore
+.cursorignore
+yarn.lock

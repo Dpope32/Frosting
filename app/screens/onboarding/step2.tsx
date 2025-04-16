@@ -76,7 +76,7 @@ export default function Step2({
   }
 
   return (
-    <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$5" paddingTop="$8">
+    <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop="$8">
       <YStack 
         position="absolute" 
         top={isWeb ? "20%" : "35%"} 
@@ -95,7 +95,7 @@ export default function Step2({
           textAlign="center" 
           color="$onboardingLabel" 
         >
-          Pick your primary color
+           Select theme color
         </Label>
         <Text
           fontFamily="$body"
@@ -116,8 +116,9 @@ export default function Step2({
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}
-              thumbSize={24}
-              sliderSize={30}
+              thumbSize={18}
+              sliderSize={20}
+              shadeWheelThumb={true}
               noSnap={true}
               row={false}
               swatches={false}

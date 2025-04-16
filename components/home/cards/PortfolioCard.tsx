@@ -50,8 +50,8 @@ export function PortfolioCard({ roundToWholeNumber = false }: PortfolioCardProps
 
   const displayValue = isLoading ? '...'
     : totalValue !== null ? `$${totalValue.toLocaleString('en-US', { 
-        minimumFractionDigits: roundToWholeNumber ? 0 : 2, 
-        maximumFractionDigits: roundToWholeNumber ? 0 : 2,
+        minimumFractionDigits: roundToWholeNumber ? 0 : 0, 
+        maximumFractionDigits: roundToWholeNumber ? 0 : 0,
         notation: 'compact',
         compactDisplay: 'short'
       })}`

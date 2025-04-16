@@ -58,7 +58,7 @@ export default function Step4({
           fontWeight="400"
           fontStyle="italic"
         >
-          If you want to display local weather data
+          If you want a 5 day forecast
         </Text>
       </YStack>
 
