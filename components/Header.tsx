@@ -59,7 +59,7 @@ export function Header({ title }: HeaderProps) {
               scale.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.ease) });
             });
           }}
-          style={{ padding: 8, marginRight: -8, marginTop: 5, marginLeft: -40 }}
+          style={{ padding: 6, marginRight: -8, marginTop: 5, marginLeft: -40 }}
         >
           <Animated.View style={animatedStyle}>
             <Text fontWeight="bold" fontSize={20} color={textColor}>
@@ -141,7 +141,7 @@ export function Header({ title }: HeaderProps) {
             alignItems="center" 
             justifyContent="space-between" 
             px="$4" 
-            height={isWeb ? 60 : Platform.OS === 'ios' ? 92 : 90}
+            height={isWeb ? 60 : Platform.OS === 'ios' ? 88 : 90}
             paddingTop={isWeb ? 15 : Platform.OS === 'ios' ? 40 : 40}
           >
             <XStack alignItems="center" gap="$3">
