@@ -137,14 +137,11 @@ export const TaskSection = ({
       >
         {todaysTasks.length === 0 ? (
           <Stack 
-            p={Platform.OS === 'web' ? '$6' : '$2'} 
-            px={Platform.OS === 'web' ? '$4' : '$1'}
-            mt={Platform.OS === 'web' ? '$6' : 0}
+            p={Platform.OS === 'web' ? '$2' : '$2'} 
+            px={Platform.OS === 'web' ? '$2' : '$1'}
+            mt={Platform.OS === 'web' ? '$3' : 0}
             gap={Platform.OS === 'web' ? '$4' : '$2'}
             br={12}
-            style={{
-              backdropFilter: Platform.OS === 'web' ? 'blur(8px)' : undefined
-            }}
           >
             <YStack width="100%">
               <XStack
@@ -261,20 +258,14 @@ export const TaskSection = ({
             onAddTaskPress()
           }}
           style={({ pressed }) => ({
-            position: 'absolute',
-            bottom: -36,
-            right: -6,
-            width: 32,
-            height: 32,
+            position: 'relative',
+            bottom: 0,
+            paddingTop: 12,
             borderRadius: 16,
             justifyContent: 'center',
             alignItems: 'center',
             opacity: pressed ? 0.8 : 1,
             shadowColor: "#fff",
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.1,
-            shadowRadius: 6,
-            elevation: 3,
             transform: [{ scale: pressed ? 0.95 : 1 }]
           })}
         >

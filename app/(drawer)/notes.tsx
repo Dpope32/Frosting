@@ -447,25 +447,21 @@ export default function NotesScreen() {
       
       {isWeb ? (
         <WebDragDrop
-          notes={notes}
-          isTrashcanVisible={isTrashVisible}
-          handleAttemptDelete={handleAttemptDelete}
-          onLayoutTrashcan={() => {}}
-          onDragStateChange={handleDragStateChange}
-          onMoveNote={(dragIndex: number, hoverIndex: number) => {
-            const updatedNotes = [...notes];
-            const [draggedItem] = updatedNotes.splice(dragIndex, 1);
-            updatedNotes.splice(hoverIndex, 0, draggedItem);
-            const reorderedNotes = updatedNotes.map((note, index) => ({
-              ...note,
-              order: index
-            }));
-            noteStore.updateNoteOrder(reorderedNotes);
-          }}
-          onSelectNote={handleEditNote}
-          onEditNote={handleEditNote}
-          numColumns={numColumns}
-          bottomPadding={insets.bottom + 80}
+        notes={notes}
+        onMoveNote={(dragIndex, hoverIndex) => {
+          const updatedNotes = [...notes];
+          const [draggedItem] = updatedNotes.splice(dragIndex, 1);
+          updatedNotes.splice(hoverIndex, 0, draggedItem);
+          const reorderedNotes = updatedNotes.map((note, index) => ({
+            ...note,
+            order: index
+          }));
+          noteStore.updateNoteOrder(reorderedNotes);
+        }}
+        onSelectNote={handleEditNote}
+        onEditNote={handleEditNote}
+        numColumns={numColumns}
+        bottomPadding={insets.bottom + 80}
         />
       ) : (
         <GestureHandlerRootView style={{ flex: 1 }}>

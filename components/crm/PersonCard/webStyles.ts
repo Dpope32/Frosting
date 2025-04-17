@@ -4,8 +4,12 @@ export const webStyles = {
   card: {
     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
     transition: 'all 0.2s ease',
-    padding: 12,
+    padding: 16,
     borderRadius: 8,
+    width: 350,
+    height: 100,
+    minWidth: 300,
+    minHeight: 100,
   },
   
   // Text styles
@@ -35,8 +39,8 @@ export const webStyles = {
   },
   
   avatarImage: {
-    width: 120, // Increased from 40 (default in styles.ts)
-    height: 120, // Increased from 40 (default in styles.ts)
+    width: 60, // Increased from 40 (default in styles.ts)
+    height: 60, // Increased from 40 (default in styles.ts)
   },
   
   // Modal styles

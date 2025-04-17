@@ -1,34 +1,14 @@
-import React, { useRef, useEffect, useState, memo, useCallback } from 'react';
-import { Platform, StyleSheet, ScrollView, LayoutChangeEvent } from 'react-native';
-import { XStack, Stack, StackProps, View } from 'tamagui';
+import React, { useRef, useEffect, useState, memo } from 'react';
+import { Platform, StyleSheet, ScrollView } from 'react-native';
+import { XStack, Stack, StackProps } from 'tamagui';
 import { NoteCard } from '@/components/notes/NoteCard';
 import type { Note } from '@/types/notes';
-import { TrashcanArea } from './TrashcanArea'; // Import TrashcanArea
-import { SharedValue } from 'react-native-reanimated';
 
-// Define more specific types for react-dnd
-// Define connector types locally as 'any' to bypass module resolution issue
-type ConnectDragSource = any;
-type ConnectDropTarget = any;
-type ConnectDragPreview = any;
-// import type { ConnectDragSource, ConnectDropTarget, ConnectDragPreview } from 'react-dnd';
-
-
-type DragSourceMonitor<DragObject = unknown, DropResult = unknown> = any; // Replace 'any' with actual type if available
-type DropTargetMonitor<DragObject = unknown, DropResult = unknown> = any; // Replace 'any' with actual type if available
-type DropTargetHookSpec<DragObject = unknown, DropResult = unknown, CollectedProps = unknown> = any; // Replace 'any' with actual type if available
-type DragSourceHookSpec<DragObject = unknown, DropResult = unknown, CollectedProps = unknown> = any; // Replace 'any' with actual type if available
-type DragObjectWithType = { type: string }; // Base type for dragged items
-
-// Dynamically import react-dnd stuff only on web
-let DndProvider: React.ComponentType<{ backend: any; children: React.ReactNode }> | null = null;
-// Correct types for useDrag and useDrop return values (connector functions)
-let useDrag: (<DragObject extends DragObjectWithType, DropResult, CollectedProps>(
-  spec: DragSourceHookSpec<DragObject, DropResult, CollectedProps>
-) => [CollectedProps, ConnectDragSource, ConnectDragPreview]) | null = null;
-let useDrop: (<DragObject extends DragObjectWithType, DropResult, CollectedProps>(
-  spec: DropTargetHookSpec<DragObject, DropResult, CollectedProps>
-) => [CollectedProps, ConnectDropTarget]) | null = null;
+type DragSourceMonitor = any;
+type DropTargetMonitor = any;
+let DndProvider: React.ComponentType<{backend: any; children: React.ReactNode}> | null = null;
+let useDrag: ((spec: any) => [{ isDragging: boolean }, any, any]) | null = null;
+let useDrop: ((spec: any) => [any, any]) | null = null;
 let HTML5Backend: any = null;
 
 if (Platform.OS === 'web') {
@@ -48,7 +28,6 @@ const ITEM_TYPE = 'note';
 interface DragItem {
   id: string;
   index: number;
-  type: typeof ITEM_TYPE; // Ensure type is part of the interface
 }
 
 interface DraggableNoteProps extends StackProps {
@@ -57,43 +36,22 @@ interface DraggableNoteProps extends StackProps {
   moveNote: (dragIndex: number, hoverIndex: number) => void;
   onCardPress: () => void;
   onEdit?: (note: Note) => void;
-  onDragStateChange: (isDragging: boolean, noteId: string) => void; // Callback for drag state
 }
 
-// Define collected props type for useDrag
-interface DraggableNoteCollectedProps {
-  isDragging: boolean;
-}
-
-const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNote, onCardPress, onEdit, onDragStateChange, ...rest }) => {
-  const ref = useRef<HTMLDivElement>(null); // Use specific HTML element type
-
-  const [{ isDragging }, drag, preview] = useDrag ? useDrag<DragItem, void, DraggableNoteCollectedProps>({
+const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNote, onCardPress, onEdit, ...rest }) => {
+  const ref = useRef<any>(null); 
+  
+  const [{ isDragging }, dragRef] = useDrag ? useDrag({
     type: ITEM_TYPE,
-    item: { id: note.id, index, type: ITEM_TYPE }, // Added type property
-    collect: (monitor: DragSourceMonitor<DragItem, void>) => ({
+    item: { id: note.id, index } as DragItem,
+    collect: (monitor: DragSourceMonitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    // Optional: Callback when dragging starts/ends
-    // end: (item, monitor) => {
-    //   if (!monitor.didDrop()) {
-    //     // Handle case where drag ends without dropping on a target
-    //     onDragStateChange(false, item.id);
-    //   }
-    // }
-  }) : [{ isDragging: false }, null, null]; // Provide default values matching the expected tuple structure
+  }) : [{ isDragging: false }, null];
 
-  // Effect to report drag state changes
-  useEffect(() => {
-    onDragStateChange(isDragging, note.id);
-  }, [isDragging, note.id, onDragStateChange]);
-
-  // Define collected props type for useDrop (empty for hover-only)
-  interface DraggableNoteDropCollectedProps {}
-
-  const [, drop] = useDrop ? useDrop<DragItem, void, DraggableNoteDropCollectedProps>({
-    accept: ITEM_TYPE, // Accept other notes for reordering
-    hover: (item: DragItem, monitor: DropTargetMonitor<DragItem, void>) => {
+  const [, dropRef] = useDrop ? useDrop({
+    accept: ITEM_TYPE,
+    hover: (item: DragItem, monitor: DropTargetMonitor) => {
       if (!ref.current) {
         return;
       }
@@ -121,20 +79,21 @@ const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNot
         return;
       }
       moveNote(dragIndex, hoverIndex);
-      item.index = hoverIndex; 
+      item.index = hoverIndex;
     },
   }) : [{}, null]; 
 
-  drag && drag(ref); 
-  drop && drop(ref); 
-
+  const setupRef = (el: any) => {
+    ref.current = el;
+    if (dragRef) dragRef(el);
+    if (dropRef) dropRef(el);
+  };
 
   const opacity = isDragging ? 0.5 : 1;
 
-
   return (
     <Stack
-      ref={ref} 
+      ref={setupRef}
       className="draggable-note"
       style={{ opacity }}
       {...rest}
@@ -156,14 +115,6 @@ interface WebDragDropProps {
   onEditNote?: (note: Note) => void;
   numColumns: number;
   bottomPadding: number;
-  isTrashcanVisible: SharedValue<boolean>;
-  handleAttemptDelete: (noteId: string) => void;
-  onLayoutTrashcan: (event: LayoutChangeEvent) => void;
-  onDragStateChange: (isDragging: boolean, noteId: string | null) => void;
-}
-
-interface TrashcanDropCollectedProps {
-  isOverTrashcan: boolean;
 }
 
 const WebDragDrop: React.FC<WebDragDropProps> = ({
@@ -172,31 +123,17 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   onSelectNote,
   onEditNote,
   numColumns,
-  bottomPadding,
-  isTrashcanVisible,
-  handleAttemptDelete,
-  onLayoutTrashcan,
-  onDragStateChange,
+  bottomPadding
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isClient, setIsClient] = useState(false); 
 
   useEffect(() => {
-    setIsClient(true); 
     if (Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop) {
       setIsLoaded(true);
     } else if (Platform.OS !== 'web') {
-      setIsLoaded(false);
-    }
-  }, []); 
-
-  useEffect(() => {
-    if (isClient && Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop) {
       setIsLoaded(true);
-    } else if (isClient && Platform.OS !== 'web') {
-      setIsLoaded(false);
     }
-  }, [isClient]); 
+  }, []);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
@@ -264,57 +201,48 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   };
 
   const itemStackProps: StackProps = {
-    flexBasis: `${95 / numColumns}%`, 
+    flexBasis: `${95 / numColumns}%`,
     marginBottom: 16,
   };
 
-  const [{ isOverTrashcan }, trashcanDropRef] = useDrop && isLoaded ? useDrop<DragItem, void, TrashcanDropCollectedProps>({
-    accept: ITEM_TYPE, 
-    drop: (item: DragItem) => { 
-      handleAttemptDelete(item.id);
-      onDragStateChange(false, null); 
-    },
-    collect: (monitor: DropTargetMonitor<DragItem, void>) => ({
-      isOverTrashcan: monitor.isOver(), 
-    }),
-  }) : [{ isOverTrashcan: false }, null]; 
-
-
-  if (!isClient || !isLoaded || Platform.OS !== 'web' || !DndProvider || !HTML5Backend || !useDrag || !useDrop) {
+  if (!isLoaded || Platform.OS !== 'web' || !DndProvider || !HTML5Backend) {
     return (
-       <ContentWrapper>
-         <XStack 
-           flexWrap="wrap"
-           paddingBottom={bottomPadding}
-           paddingTop={30}
-           alignItems="flex-start"
-           gap={16} 
-           paddingHorizontal={16} 
-         >
-           {notes.map((note) => (
-             <Stack key={note.id} {...itemStackProps}>
+      <ContentWrapper>
+        <XStack
+          flexWrap="wrap"
+          paddingBottom={bottomPadding}
+          paddingTop={30}
+          alignItems="flex-start"
+          gap={12}
+          paddingHorizontal={12}
+        >
+          {notes.map((note) => (
+             <Stack
+               key={note.id}
+               {...itemStackProps}
+             >
                <NoteCard
                  note={note}
                  onPress={() => onSelectNote(note)}
                  onEdit={onEditNote ? () => onEditNote(note) : undefined}
                />
              </Stack>
-           ))}
-         </XStack>
-       </ContentWrapper>
-     );
+          ))}
+        </XStack>
+      </ContentWrapper>
+    );
   }
 
   return (
     <DndProvider backend={HTML5Backend}>
       <ContentWrapper>
-        <XStack 
+        <XStack
           flexWrap="wrap"
           paddingBottom={bottomPadding}
           paddingTop={30}
-          alignItems="flex-start" 
-          gap={16} 
-          paddingHorizontal={16} 
+          alignItems="flex-start"
+          gap={16}
+          paddingHorizontal={16}
         >
           {notes.map((note, index) => (
             <DraggableNote
@@ -324,29 +252,12 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
               moveNote={onMoveNote}
               onCardPress={() => onSelectNote(note)}
               onEdit={onEditNote ? () => onEditNote(note) : undefined}
-              onDragStateChange={onDragStateChange}
-              {...itemStackProps}
+              {...itemStackProps} 
             />
           ))}
         </XStack>
       </ContentWrapper>
-
-      <div ref={trashcanDropRef} style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '100px', 
-        zIndex: 10,
-        pointerEvents: isTrashcanVisible.value ? 'auto' : 'none', 
-      }}>
-        <TrashcanArea
-          isVisible={isTrashcanVisible.value} 
-          onLayout={onLayoutTrashcan} 
-          isHovering={isOverTrashcan} 
-        />
-      </div> 
-    </DndProvider> 
+    </DndProvider>
   );
 };
 
@@ -358,12 +269,6 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
   },
-  trashcanWrapper: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    zIndex: 10,
-  },
 });
 
-export default WebDragDrop; 
+export default WebDragDrop;

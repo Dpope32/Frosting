@@ -266,7 +266,7 @@ export default function TemperatureScreen() {
         showsVerticalScrollIndicator={false}
       >
         <YStack gap="$2" paddingBottom="$2">
-          <XStack paddingHorizontal="$4" alignItems="center" space="$3">
+          <XStack paddingHorizontal="$4" alignItems="center" justifyContent="center" position="relative">
             <Button
               icon={ChevronLeft}
               onPress={() => router.back()}
@@ -275,8 +275,10 @@ export default function TemperatureScreen() {
               elevation="$1"
               backgroundColor={isDark ? "transparent" : "transparent"}
               pressStyle={{ backgroundColor: isDark ? "$gray700" : "$gray300" }}
+              position="absolute"
+              left="$4"
             />
-            <Text fontSize={22} pl="$6" fontFamily="$body"  justifyContent="center"  alignSelf="center" fontWeight="600" color={isDark ? "$gray100" : "$gray900"}>
+            <Text fontSize={22} fontFamily="$body" fontWeight="600" color={isDark ? "$gray100" : "$gray900"}>
               Weather Forecast
             </Text>
           </XStack>

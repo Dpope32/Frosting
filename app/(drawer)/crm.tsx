@@ -146,7 +146,8 @@ export default function CRM() {
         numColumns={NUM_COLUMNS}
         contentContainerStyle={{
           paddingTop: 8,
-          paddingBottom: 100
+          paddingBottom: 100,
+          paddingHorizontal: isWeb ? 8 : 0
         }}
         ListEmptyComponent={
           <PersonEmpty 
