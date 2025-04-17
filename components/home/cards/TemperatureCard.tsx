@@ -27,18 +27,11 @@ export function TemperatureCard({ onPress }: TemperatureCardProps) {
     }
   }, [zipCode, refetch]);
   
-  // Log received prop immediately
-  console.log("--- TemperatureCard: Received props ---", {
-      onPress: typeof onPress, // Log type
-      _onPressValue: onPress // Log value
-  });
 
     const handlePress = () => {
-    console.log("--- TemperatureCard: handlePress triggered ---");
     if (onPress) {
       onPress();
     } else {
-      console.log("--- TemperatureCard: onPress is MISSING inside handlePress! ---");
     }
   };
 

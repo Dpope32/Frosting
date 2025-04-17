@@ -17,11 +17,27 @@ export function useAppInitialization() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // Run critical operations in parallel
-        await Promise.all([
+        // Run critical operations in parallel with a timeout
+        const criticalInitPromise = Promise.all([
           preloadTheme(systemColorScheme),
           // Add other critical initialization here
         ]);
+        
+        // Set a timeout for critical operations
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Critical initialization timeout')), 2000);
+        });
+        
+        // Race between critical operations and timeout
+        await Promise.race([criticalInitPromise, timeoutPromise])
+          .catch(error => {
+            console.warn('Critical initialization timed out or failed:', error);
+            Sentry.captureException(error, {
+              extra: {
+                operation: 'useAppInitialization_critical_timeout',
+              },
+            });
+          });
 
         // Defer non-critical operations
         setTimeout(() => {

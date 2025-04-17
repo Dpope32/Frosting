@@ -58,20 +58,32 @@ export default Sentry.wrap(function RootLayout() {
     const hideSplash = async () => {
       if (!loaded) return;
       
-      // Wait for both fonts and user store hydration
-      await Promise.all([
-        new Promise(resolve => {
-          const unsubscribe = useUserStore.subscribe((state) => {
-            if (state.hydrated) {
-              unsubscribe();
-              resolve(null);
-            }
-          });
-        })
+      // Create a promise that resolves after a timeout
+      const timeoutPromise = new Promise(resolve => {
+        setTimeout(resolve, 3000); // Maximum 3 seconds wait
+      });
+      
+      // Wait for either fonts and user store hydration OR timeout
+      await Promise.race([
+        // Wait for both fonts and user store hydration
+        Promise.all([
+          new Promise(resolve => {
+            const unsubscribe = useUserStore.subscribe((state) => {
+              if (state.hydrated) {
+                unsubscribe();
+                resolve(null);
+              }
+            });
+          })
+        ]),
+        // Timeout after 3 seconds
+        timeoutPromise
       ]);
 
-      // Hide splash screen
-      await SplashScreen.hideAsync().catch(() => {});
+      // Hide splash screen regardless of what happened above
+      await SplashScreen.hideAsync().catch(() => {
+        console.log('Splash screen hide failed, continuing anyway');
+      });
     };
 
     hideSplash();
