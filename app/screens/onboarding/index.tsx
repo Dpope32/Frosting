@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Keyboard, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native'
 import { XStack, Button, Text, View, isWeb } from 'tamagui'
+import { useImagePicker } from '@/hooks/useImagePicker'
 import { router } from 'expo-router'
-import * as Sentry from '@sentry/react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore'
-import { useImagePicker } from '@/hooks/useImagePicker'
 import { colorOptions } from '@/constants/Colors' 
 import { backgroundStyles, getWallpaperPath } from '@/constants/Backgrounds'
 import { FormData } from '@/types/onboarding'
@@ -13,8 +12,8 @@ import { preloadWallpapers } from '../../../components/wpPreload'
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services/permissions/permissionService'
 import { setupPermissionsAndNotifications } from '@/services/permissions/setupPandN'
 import { useToastStore } from '@/store/ToastStore'
-import { isMobileBrowser } from '@/utils/deviceUtils'
 import WelcomeScreen from './welcome' 
+import PermissionsScreen from './permissions'
 import Step0 from './step0'
 import Step1 from './step1'
 import Step2 from './step2'
@@ -37,7 +36,11 @@ export default function Onboarding() {
   })
   const [wallpapersPreloaded, setWallpapersPreloaded] = useState(false);
   const setPreferences = useUserStore((state) => state.setPreferences)
-  
+
+  // Check if device is a mobile browser
+  const isMobileBrowser = isWeb && typeof window !== 'undefined' && 
+    (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
+
   useEffect(() => {
     const keyboardWillShow = Keyboard.addListener('keyboardWillShow', () => {
       setKeyboardVisible(true)
@@ -107,15 +110,21 @@ export default function Onboarding() {
 
   const canProceed = () => {
     switch (step) {
-      case -1:  return true
-      case 0: return formData.username.length >= 2
-      case 4: return formData.zipCode.length === 5
-      case 5: return true
-      default: return true
+      case -2:
+      case -1: 
+        return true
+      case 0:
+        return formData.username.length >= 2
+      case 4:
+        return formData.zipCode.length === 5
+      case 5:
+        return true
+      default:
+        return true
     }
   }
 
-  const { pickImage: pickImageFromLibrary } = useImagePicker();
+  const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
 
   const pickImage = async () => {
     const imageUri = await pickImageFromLibrary();
@@ -129,9 +138,13 @@ export default function Onboarding() {
 
   const renderStep = () => {
     switch (step) {
-      case -1:
+      case -2:
         return (
           <WelcomeScreen onComplete={handleNext} />
+        )
+      case -1: 
+        return (
+          <PermissionsScreen isDark={isDark}/> 
         )
       case 0: 
         return (
@@ -195,7 +208,7 @@ export default function Onboarding() {
   }
   
   const getButtonTextColor = () => {
-    return '#f3f3f3'; 
+    return 'white'; 
   }
 
   const getBottomPadding = () => {
@@ -209,12 +222,13 @@ export default function Onboarding() {
     <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
       style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
-      <View flex={1}>
+      <View flex={1} backgroundColor="$onboardingIndexBackground"> 
         {Platform.OS === 'ios' || Platform.OS === 'android' ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View flex={1}>
-              <View flex={1} style={{ paddingBottom: isWeb ? 70 : 0 }} backgroundColor={step >= 0 && !isDark ? '$backgroundSoft' : '$onboardingIndexBackground'}>
+              <View flex={1} style={{ paddingBottom: isWeb ? 80 : 0 }}> 
                 {renderStep()}
               </View>
               <View
@@ -261,7 +275,7 @@ export default function Onboarding() {
           </TouchableWithoutFeedback>
         ) : (
           <View flex={1}>
-            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }} backgroundColor={step >= 0 && !isDark ? '$backgroundSoft' : '$onboardingIndexBackground'}>
+            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }}> {/* Add padding only for mobile browsers */}
               {renderStep()}
             </View>
             <View

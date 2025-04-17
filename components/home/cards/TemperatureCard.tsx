@@ -33,15 +33,9 @@ export function TemperatureCard({ onPress }: TemperatureCardProps) {
       _onPressValue: onPress // Log value
   });
 
-  // Existing useEffect log
-  React.useEffect(() => {
-    console.log("--- TemperatureCard: useEffect check ---", typeof onPress);
-  }, [onPress]);
-
-  const handlePress = () => {
+    const handlePress = () => {
     console.log("--- TemperatureCard: handlePress triggered ---");
     if (onPress) {
-      console.log("--- TemperatureCard: onPress is defined, calling it ---");
       onPress();
     } else {
       console.log("--- TemperatureCard: onPress is MISSING inside handlePress! ---");

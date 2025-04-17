@@ -168,7 +168,7 @@ export function PortfolioTable({
           <Text width="5%"justifyContent="flex-start" fontSize={14} fontFamily="$body">
             Total
             </Text>
-          <Text width="10%" textAlign="right" fontSize={14} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '')}> 
+          <Text width="23%" textAlign="right" fontSize={15} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '')}> 
             ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </Text>
         </XStack>

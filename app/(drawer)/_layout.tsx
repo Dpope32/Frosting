@@ -84,6 +84,7 @@ const DRAWER_ICONS: Record<string, IconConfig> = {
   vault: { name: 'lock' as MaterialIconName, type: 'material' },
   bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
   notes: { name: 'note' as MaterialIconName, type: 'material' },
+  habits: { name: 'playlist-check' as MaterialCommunityIconName, type: 'community' },
 };
 
 export default function DrawerLayout() {
@@ -250,6 +251,14 @@ export default function DrawerLayout() {
             title: 'Notes',
             drawerLabel: 'Notes',
           drawerIcon: (props) => renderIcon({ ...props, route: 'notes' })
+        }}
+      />
+      <Drawer.Screen
+        name="habits"
+        options={{
+          title: 'Habits',
+          drawerLabel: 'Habits',
+          drawerIcon: props => renderIcon({ ...props, route: 'habits' }),
         }}
       />
       </Drawer>

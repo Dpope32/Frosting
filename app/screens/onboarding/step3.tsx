@@ -443,7 +443,7 @@ useEffect(() => {
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$5">
         <YStack 
           position="absolute" 
-          top={isWeb ? "8%" : "25%"} 
+          top={isWeb ? "20%" : "25%"} 
           left={0} 
           right={0} 
           alignItems="center"

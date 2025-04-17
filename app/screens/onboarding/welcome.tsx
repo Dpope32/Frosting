@@ -3,79 +3,43 @@ import { YStack, XStack, H1, H2, H3, Text, Image, isWeb, ScrollView, Card, View,
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 
-// Define CSS keyframes for the marquee animation
-const marqueeAnimation = `
-  @keyframes marquee {
-    0% { transform: translateX(0%); }
-    100% { transform: translateX(-50%); }
-  }
-`;
-
-// Inject the keyframes into the document head (runs once)
-if (isWeb && typeof window !== 'undefined') {
-  const styleSheet = document.styleSheets[0];
-  try {
-    // Check if the animation already exists to avoid duplicates during HMR
-    let marqueeRuleExists = false;
-    let hoverRuleExists = false;
-    if (styleSheet) {
-      for (let i = 0; i < styleSheet.cssRules.length; i++) {
-        const rule = styleSheet.cssRules[i];
-        // Check for keyframes rule
-        if (rule instanceof CSSKeyframesRule && rule.name === 'marquee') {
-          marqueeRuleExists = true;
-        }
-        // Check for hover rule (adjust selector if className changes)
-        if (rule instanceof CSSStyleRule && rule.selectorText === '.marquee-content:hover') {
-           hoverRuleExists = true;
-        }
-        if (marqueeRuleExists && hoverRuleExists) break; // Found both, no need to continue loop
+// Component to inject keyframes CSS
+const MarqueeStyles = () => {
+  if (!isWeb) return null;
+  return (
+    <style dangerouslySetInnerHTML={{ __html: `
+      @keyframes marquee {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-50%); }
       }
-    }
-    // Insert marquee animation if it doesn't exist
-    if (!marqueeRuleExists && styleSheet) {
-       styleSheet.insertRule(marqueeAnimation, styleSheet.cssRules.length);
-    }
-    // Insert hover pause rule if it doesn't exist
-    const hoverPauseRule = `.marquee-content:hover { animation-play-state: paused; }`;
-    if (!hoverRuleExists && styleSheet) {
-       styleSheet.insertRule(hoverPauseRule, styleSheet.cssRules.length);
-    }
-
-  } catch (e) {
-    console.error("Could not insert CSS rules:", e);
-    // Fallback: Add a style tag to the head for both rules if insertion fails
-    const hoverPauseRuleString = `.marquee-content:hover { animation-play-state: paused; }`;
-    const style = document.createElement('style');
-    style.textContent = marqueeAnimation + '\n' + hoverPauseRuleString;
-    document.head.appendChild(style);
-  }
-}
-
-
-// Styled component for the marquee container
+      .marquee-content {
+        animation: marquee 40s linear infinite;
+        will-change: transform;
+      }
+      .marquee-content:hover {
+        animation-play-state: paused;
+      }
+    `}} />
+  );
+};
 const MarqueeContainer = styled(XStack, {
   name: 'MarqueeContainer',
   overflow: 'hidden',
   width: '100%',
   position: 'relative',
-  // Add fading edges using maskImage (requires -webkit- prefix for broader compatibility)
-  maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
-  // @ts-ignore - Tamagui doesn't type this CSS property well
-  '-webkit-mask-image': 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
 });
 
 const MarqueeContent = styled(XStack, {
   name: 'MarqueeContent',
-  display: 'flex', // Use flex for web layout
+  display: 'flex',
   flexDirection: 'row',
-  width: '200%', // Double width because we duplicate the content
-  // Animation properties are applied via CSS using the className
-  gap: '$4', // Keep the gap between cards consistent
-  className: 'marquee-content', // Add class name for CSS targeting
+  width: '200%',
+  gap: '$4',
+  className: 'marquee-content',
 });
 
-export default function WelcomeScreen({ onComplete }: { onComplete: () => void }) {
+export default function WelcomeScreen({}: { onComplete: () => void }) {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const targetRotation = useRef(0);
   const animationRef = useRef<number>();
@@ -87,7 +51,9 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
     const animate = () => {
       setRotation(prev => {
         const diff = targetRotation.current - prev;
-        return prev + diff * 0.1;
+        // Add a check to prevent NaN if diff is extremely small
+        const step = !isNaN(diff) ? diff * 0.1 : 0;
+        return prev + step;
       });
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -103,6 +69,10 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
     window.addEventListener('resize', updateScreenCenter);
 
     const handleMouseMove = (event: MouseEvent) => {
+      // Update mouse position for spotlight
+      setMousePos({ x: event.clientX, y: event.clientY });
+
+      // Existing rotation logic
       const mouseX = event.clientX;
       const mouseY = event.clientY;
       const deltaX = mouseX - screenCenter.current.x;
@@ -182,7 +152,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
       title: "CRM",
       items: [
         "Manage contacts with custom attributes",
-        "Track payment methods and addresses", 
+        "Track payment methods and addresses",
         "Organize your professional network"
       ],
       titleColor: "#4CAF50",
@@ -204,19 +174,21 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
   ];
 
   const [gradientPos, setGradientPos] = useState(0);
-  
+
   useEffect(() => {
     if (!isWeb) return;
-    
+
     const interval = setInterval(() => {
       setGradientPos(prev => (prev + 0.5) % 100);
     }, 50);
-    
+
     return () => clearInterval(interval);
   }, []);
 
+  // Ambient background style (applied to ScrollView container)
   const webBackgroundStyle = isWeb ? {
     backgroundImage: [
+      // Removed spotlight from here
       'radial-gradient(circle at 10% 20%, rgba(192, 128, 255, 0.15) 0%, transparent 35%)',
       'radial-gradient(circle at 80% 70%, rgba(74, 222, 205, 0.1) 0%, transparent 30%)',
       'radial-gradient(circle at 20% 80%, rgba(100, 149, 237, 0.1) 0%, transparent 30%)',
@@ -233,28 +205,51 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
     backgroundPosition: `${gradientPos}% 50%`
   } : {};
 
+  // Spotlight style (applied directly to the main YStack)
+  const spotlightStyle = isWeb ? {
+    backgroundImage: `radial-gradient(circle at ${mousePos.x}px ${mousePos.y}px, rgba(255, 255, 255, 0.12) 0%, transparent 30%)`,
+    backgroundAttachment: 'fixed', // Keep spotlight fixed relative to viewport
+    backgroundSize: 'cover',      // Ensure gradient covers the area
+    // No backgroundPosition needed here as it's controlled by mousePos
+  } : {};
+
+
   // Use paddingBottom to create space for the fixed button at the bottom
   const combinedContentContainerStyle = {
     flexGrow: 1,
     paddingBottom: isWeb ? 80 : 0, // Add padding at the bottom to prevent content from being hidden behind the button
-    ...webBackgroundStyle
+    ...webBackgroundStyle // Apply ambient background here
   };
 
   // Check if device is a mobile browser
-  const isMobileBrowser = isWeb && typeof window !== 'undefined' && 
+  const isMobileBrowser = isWeb && typeof window !== 'undefined' &&
     (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
 
   return (
     <ScrollView contentContainerStyle={combinedContentContainerStyle}>
-      <YStack flex={1} padding="$4" gap="$4" maxWidth={1200} marginHorizontal="auto" position="relative" zi={1}>
-        <YStack alignItems="center" gap="$4" marginVertical="$6">
+      {/* Inject the keyframes CSS */}
+      {isWeb && <MarqueeStyles />}
+      <YStack
+        flex={1}
+        paddingHorizontal="$4"
+        paddingTop="$4"
+        gap="$2"
+        width="100%"
+        position="relative"
+        zi={1} // Ensure content is above the ScrollView background but potentially below other absolute elements if needed
+        minHeight="100vh"
+        justifyContent="space-between"
+        // Apply spotlight style directly to this container
+        style={spotlightStyle}
+      >
+        <YStack alignItems="center" gap="$4" marginVertical="$6" maxWidth={1200} marginHorizontal="auto">
           <XStack position="relative" alignItems="center">
             {isWeb && (
             <Image
                 source={require('@/assets/images/icon.png')}
-                style={[iconStyle, { 
-                  position: 'absolute', 
-                  left: -125, 
+                style={[iconStyle, {
+                  position: 'absolute',
+                  left: -125,
                   top: -20,
                   transform: [
                     { rotate: `${rotation}deg` },
@@ -263,62 +258,72 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                 }]}
               />
             )}
-            <H1 
-              color="$onboardingLabel" 
-              fontFamily="$heading" 
+            <H1
+              color="$onboardingLabel"
+              fontFamily="$heading"
               fontSize={isWeb ? (isMobileBrowser ? "$10" : "$12") : "$9"}
               letterSpacing={1}
             >
               Kaiba Nexus
             </H1>
           </XStack>
-          
-          <H2 
-            color="$onboardingLabel" 
-            fontFamily="$heading" 
-            fontSize={isWeb ? (isMobileBrowser ? "$6" : "$8") : "$6"} 
+
+          <H2
+            color="$onboardingLabel"
+            fontFamily="$heading"
+            fontSize={isWeb ? (isMobileBrowser ? "$6" : "$8") : "$6"}
             fontWeight="500"
             opacity={0.8}
-            pt={isWeb ? "$1" : "$0"}
+            pt={isWeb ? "$-1" : "$0"}
           >
             Your world, all in one place
           </H2>
         </YStack>
 
-        {/* Feature Cards Section */}
+        {isWeb && (
+          <YStack alignItems="center" paddingVertical="$-2" flexGrow={1} justifyContent="center">
+            <Image
+              source={require('@/assets/screenshots/web/web1.png')}
+              width={800}
+              height={400}
+              objectFit="contain"
+              alt="App Screenshot"
+              borderRadius="$4"
+              borderWidth={1}
+              borderColor="$borderColor"
+            />
+          </YStack>
+        )}
+
         {isWeb ? (
-          <MarqueeContainer>
-            <MarqueeContent>
-              {/* Render features twice for seamless loop */}
+          <YStack width="100%" mb="$16">
+             <MarqueeContainer>
+               <MarqueeContent>
               {[...features, ...features].map((feature, index) => {
                 const bgColor = feature.titleColor + "20";
                 const isCRM = feature.title === "CRM";
-                // Use a unique key for React rendering
-                const uniqueKey = `${feature.id}-${index}`; 
+                const uniqueKey = `${feature.id}-${index}`;
                 return (
                   <YStack
                     key={uniqueKey}
-                    // Adjust width to show ~3 cards. 30% * 3 = 90% + gaps
-                    width="30%" 
-                    minWidth={280} // Ensure minimum width for content
-                    height={isMobileBrowser ? (isCRM ? 180 : 160) : 180} // Increased height slightly for web
+                    minWidth={320}
+                    maxWidth={360}
+                    height={isMobileBrowser ? (isCRM ? 180 : 160) : 180}
                     bc={bgColor}
                     br="$8"
                     overflow="hidden"
                     position="relative"
                     // Add animation prop for smooth transitions on hover
-                    animation="bouncy" 
+                    animation="bouncy"
+                    // Simplified hoverStyle: removed scale, adjusted shadow
                     hoverStyle={{
-                      scale: 1.05, // Scale up slightly
-                      // Add a subtle tilt effect
-                      // Note: perspective needs to be on the parent (MarqueeContainer) or applied directly if possible
-                      // Tamagui might not directly support perspective in transform array easily, let's try elevation/shadow first
-                      elevation: '$6', // Increase elevation
-                      shadowColor: feature.titleColor, // Use feature color for shadow
-                      shadowOpacity: 0.5,
-                      shadowRadius: 10,
-                      shadowOffset: { width: 0, height: 4 },
-                      // transform: [{ perspective: 1000 }, { rotateY: '3deg' }], // Tilt effect - might require CSS
+                      // scale: 1.05, // Removed scale to prevent potential glitches/clipping
+                      elevation: '$6',
+                      shadowColor: feature.titleColor,
+                      shadowOpacity: 0.3, // Reduced opacity
+                      shadowRadius: 8,   // Reduced radius
+                      shadowOffset: { width: 0, height: 2 }, // Reduced offset
+                      // transform: [{ perspective: 1000 }, { rotateY: '3deg' }], // Keep commented out
                     }}
                     // No marginBottom needed here as gap is handled by MarqueeContent
                   >
@@ -339,42 +344,40 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                           {feature.items.map((item, i) => (
                             <XStack key={i} alignItems="flex-start" gap="$2" flexShrink={1}>
                               <Text fontFamily="$body" color={feature.iconColor} mt={1} fontSize="$5">•</Text>
-                              <Text 
-                                fontFamily="$body" 
-                                fontSize={isMobileBrowser ? "$3" : "$4"} // Smaller font size
-                                color="$onboardingLabel" 
+                              <Text
+                                fontFamily="$body"
+                                fontSize={isMobileBrowser ? "$3" : "$4"}
+                                color="$onboardingLabel"
                                 flex={1}
-                                // Allow text to wrap within the smaller card
-                                whiteSpace="normal" 
+                                whiteSpace="normal"
                               >{item}</Text>
                             </XStack>
                           ))}
                         </YStack>
                       </YStack>
                       <View
-                        width={45} // Slightly smaller icon container
+                        width={45}
                         height={45}
                         backgroundColor="rgba(0,0,0,0.2)"
                         br={22.5}
                         justifyContent="center"
                         alignItems="center"
-                        // Removed marginLeft, rely on paddingRight of text container
                       >
-                        <Ionicons name={feature.icon} size={24} color={feature.iconColor} /> 
+                        <Ionicons name={feature.icon} size={24} color={feature.iconColor} />
                       </View>
                     </XStack>
                   </YStack>
                 );
               })}
-            </MarqueeContent>
-          </MarqueeContainer>
+               </MarqueeContent>
+             </MarqueeContainer>
+          </YStack>
         ) : (
-          // Original Mobile Layout (Grid)
-          <XStack flexWrap="wrap" justifyContent="center" gap="$4" marginBottom="$4">
+          <XStack flexWrap="wrap" justifyContent="center" gap="$4" marginBottom="$4" maxWidth={1200} marginHorizontal="auto">
             {features.map((feature) => (
               <Card
                 key={feature.id}
-                width="100%" 
+                width="100%"
                 minWidth={300}
                 padding="$4"
                 marginBottom="$4"
@@ -382,9 +385,9 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                 borderColor="$onboardingCardBorder"
                 borderWidth={1}
               >
-                <H3 
-                  color="$onboardingLabel" 
-                  fontFamily="$heading" 
+                <H3
+                  color="$onboardingLabel"
+                  fontFamily="$heading"
                   fontSize="$6"
                   marginBottom="$3"
                 >

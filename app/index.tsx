@@ -9,18 +9,10 @@ export default function Index() {
   const [initializing, setInitializing] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
 
-  // Wait for app initialization to complete before redirecting
+  // Call app initialization hook at the top level (per React rules)
+  useAppInitialization();
   useEffect(() => {
-    let isMounted = true;
-    const init = async () => {
-      try {
-        await useAppInitialization();
-      } finally {
-        if (isMounted) setInitializing(false);
-      }
-    };
-    init();
-    return () => { isMounted = false; };
+    setInitializing(false);
   }, []);
 
   if (initializing) {
