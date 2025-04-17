@@ -25,7 +25,7 @@ export function BaseCardWithRecommendationsModal({
   title,
   children,
   recommendations,
-  snapPoints = isWeb ? [95] : [85],
+  snapPoints = isWeb ? [95] : [90],
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000,

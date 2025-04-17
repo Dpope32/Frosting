@@ -6,6 +6,7 @@ import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { Ionicons } from '@expo/vector-icons'
+import * as Haptics from 'expo-haptics'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
@@ -123,12 +124,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
     if (isSubmitting) return
     try {
       if (!newTask.name.trim()) {
-        showToast('Please enter a task name')
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        showToast('Please enter a task name', 'error')
         return
       }
       if (newTask.schedule.length === 0 &&
           (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')) {
-        showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`)
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`, 'error')
         return
       }
       setIsSubmitting(true)
@@ -149,13 +152,16 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           syncTasksToCalendar()
         }
         setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 200)
-        showToast('Task added successfully')
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        showToast('Task added successfully', 'success')
       } catch {
-        showToast('Failed to add task. Please try again.')
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        showToast('Failed to add task. Please try again.', 'error')
         setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 100)
       }
     } catch {
-      showToast('An error occurred. Please try again.')
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      showToast('An error occurred. Please try again.', 'error')
     } finally {
       setIsSubmitting(false)
     }

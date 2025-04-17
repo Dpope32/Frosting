@@ -1,35 +1,27 @@
-import React, { useEffect } from 'react'
-import { YStack, Text, GetThemeValueForKey, useMedia, isWeb } from 'tamagui'
-import { Dimensions } from 'react-native'
+import React, { useEffect, useRef } from 'react'
+import { Animated, Dimensions } from 'react-native'
+import { YStack, Text, GetThemeValueForKey, useMedia } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { useToastStore } from '@/store/ToastStore'
 
 const { height, width } = Dimensions.get('window')
 
-const toastStyle: {
-  top: number;
-  left: number;
-  right: number;
-  alignItems: 'center';
-} = {
-  top: isWeb ? height * 0.1 : height * 0.15,
-  left: width * 0.11,
-  right: width * 0.11,
-  alignItems: 'center'
+const toastStyle = {
+  position: 'absolute' as const,
+  top: height * 0.15,
+  left: 0,
+  right: 0,
+  alignItems: 'center' as const,
+  zIndex: 100000,
+  pointerEvents: 'box-none' as const,
 }
 
 export function Toast() {
   const { toasts, removeToast } = useToastStore()
 
   return (
-    <YStack
-      position="absolute"
-      {...toastStyle}
-      gap="$1"
-      zIndex={100000}
-      pointerEvents="box-none"
-    >
+    <YStack {...toastStyle} gap="$2">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} {...toast} onRemove={removeToast} />
       ))}
@@ -37,10 +29,12 @@ export function Toast() {
   )
 }
 
+type ToastType = 'success' | 'error' | 'info' | 'warning'
+
 interface ToastItemProps {
   id: string
   message: string
-  type: 'success' | 'error' | 'info' | 'warning'
+  type: ToastType
   duration: number
   fontFamily: GetThemeValueForKey<'fontFamily'>
   onRemove: (id: string) => void
@@ -52,49 +46,112 @@ const ToastItem: React.FC<ToastItemProps> = ({
   type,
   fontFamily,
   duration,
-  onRemove
+  onRemove,
 }) => {
   const media = useMedia()
-  const isWeb = media.gtMd
+  const isLarge = media.gtMd
+  const fadeAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onRemove(id)
-    }, duration)
-    return () => clearTimeout(timer)
-  }, [])
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.delay(duration - 600),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        onRemove(id)
+      }
+    })
+  }, [fadeAnim, duration, id, onRemove])
+
+  const colorMap: Record<ToastType, string> = {
+    success: '#22c55e',
+    error: '#ef4444',
+    info: '#3b82f6',
+    warning: '#f59e0b',
+  }
+
+  const backgroundMap: Record<ToastType, string> = {
+    success: 'rgba(34,197,94,0.15)',
+    error: 'rgba(239,68,68,0.15)',
+    info: 'rgba(59,130,246,0.15)',
+    warning: 'rgba(245,158,11,0.15)',
+  }
+
+  const iconMap: Record<ToastType, any> = {
+    success: 'checkmark-circle',
+    error: 'alert-circle',
+    info: 'information-circle',
+    warning: 'warning',
+  }
+   
+  const borderColorMap: Record<ToastType, string> = {
+    success: 'rgba(34,197,94,0.15)',
+    error: 'rgba(239,68,68,0.15)',
+    info: 'rgba(59,130,246,0.15)',
+    warning: 'rgba(245,158,11,0.15)',
+  }
+
+  const iconColor = colorMap[type]
+  const textColor = colorMap[type]
+  const backgroundColor = backgroundMap[type]
+  const iconName = iconMap[type]
 
   return (
-    <BlurView
-      intensity={50}
-      tint="dark"
+    <Animated.View
       style={{
-        borderRadius: 8,
-        paddingHorizontal: isWeb ? 18 : 10, 
-        paddingVertical: 12,
-        minWidth: isWeb ? 500 : 350, 
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        overflow: 'hidden',
-        backgroundColor: "rgba(159, 159, 159, 0.13)",
+        opacity: fadeAnim,
+        transform: [
+          {
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [10, 0],
+            }),
+          },
+        ],
+        alignSelf: 'center',
       }}
     >
-      <Text flexWrap='nowrap' color="$color.gray1" fontSize={isWeb ? '$5' : '$4'} fontFamily="$body"> 
-        {message}
-      </Text>
-      {type === 'success' && ( 
-        <Ionicons name="checkmark-circle" size={isWeb ? 24 : 20} color="#22c55e" />
-      )}
-      {type === 'error' && (
-        <Ionicons name="alert-circle" size={isWeb ? 24 : 20} color="#ef4444" />
-      )}
-      {type === 'info' && (
-        <Ionicons name="information-circle" size={isWeb ? 24 : 20} color="#3b82f6" />
-      )}
-      {type === 'warning' && (
-        <Ionicons name="warning" size={isWeb ? 24 : 20} color="#f59e0b" />
-      )}
-    </BlurView>
+      <BlurView
+        intensity={50}
+        tint="dark"
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: isLarge ? 14 : 12,
+          paddingVertical: isLarge ? 14 : 12,  
+          backgroundColor,
+          borderRadius: 8,
+          borderBlockColor: borderColorMap[type],
+          borderWidth: 3,
+          borderColor: borderColorMap[type],
+        }}
+      >
+        <Ionicons
+          name={iconName}
+          size={isLarge ? 24 : 20}
+          color={iconColor}
+          style={{ marginRight: 8 }}
+        />
+        <Text
+          color={textColor}
+          fontSize={isLarge ? '$5' : 16}
+          fontFamily={fontFamily}
+          numberOfLines={1}
+          fontWeight="bold"
+          ellipsizeMode="tail"
+        >
+          {message}
+        </Text>
+      </BlurView>
+    </Animated.View>
   )
 }

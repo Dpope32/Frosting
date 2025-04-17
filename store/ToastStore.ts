@@ -28,7 +28,7 @@ interface ToastStore {
   clearAllToasts: () => void
 }
 
-const DEFAULT_DURATION = 3000
+const DEFAULT_DURATION = 2000
 const DEFAULT_FONT_FAMILY = "$body" as GetThemeValueForKey<'fontFamily'>
 const DEFAULT_POSITION = "top-center"
 

@@ -3,9 +3,10 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useToastStore } from '@/store/ToastStore';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils';
+import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils';
 
 interface TaskCardProps {
   title: string;
@@ -30,17 +31,8 @@ export function TaskCard({
   onDelete
 }: TaskCardProps) {
   const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
-
-  const getPriorityColor = (priority?: TaskPriority): string => {
-    if (!priority) return '#607d8b';
-    const colors: Record<TaskPriority, string> = {
-      high: '#F44336', 
-      medium: '#FF9800', 
-      low: '#4CAF50', 
-    };
-    return colors[priority];
-  };
-
+  const showToast = useToastStore(s => s.showToast);
+  
   const getPriorityIcon = (priority?: TaskPriority) => {
     if (!priority) return 'flag-outline';
     const icons: Record<TaskPriority, any> = {
@@ -165,6 +157,8 @@ export function TaskCard({
                   if (Platform.OS === 'web') {
                     if (confirm('Are you sure you want to delete this task?')) {
                       onDelete();
+                      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                      showToast('Deleted successfully', 'success');
                     }
                   } else {
                     Alert.alert(
@@ -172,7 +166,11 @@ export function TaskCard({
                       'Are you sure you want to delete this task?',
                       [
                         { text: 'Cancel', style: 'cancel' },
-                        { text: 'Delete', onPress: onDelete, style: 'destructive' }
+                        { text: 'Delete', onPress: () => {
+                            onDelete();
+                            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            showToast('Deleted successfully', 'success');
+                          }, style: 'destructive' }
                       ]
                     );
                   }

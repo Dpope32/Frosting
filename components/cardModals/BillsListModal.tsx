@@ -22,9 +22,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
   const [transportationModalOpen, setTransportationModalOpen] = useState(false);
   const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
   const [insuranceModalOpen, setInsuranceModalOpen] = useState(false);
-
   const currentDay = new Date().getDate();
-
   const categories: BillRecommendationCategory[] = ['Housing', 'Transportation', 'Subscriptions', 'Insurance'];
 
   const getCategoryWidth = (category: BillRecommendationCategory): number => {
@@ -136,8 +134,9 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
       <BaseCardWithRecommendationsModal
         open={open}
         onOpenChange={onOpenChange}
+        hideHandle={false}
         title="All Bills"
-        snapPoints={isWeb ? [95] : [85]}
+        snapPoints={isWeb ? [95] : [90]}
         showCloseButton={true}
         zIndex={100000}
         recommendations={billRecommendations} 
