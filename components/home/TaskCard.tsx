@@ -111,7 +111,28 @@ export function TaskCard({
             if (Platform.OS !== 'web') {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
-            onCheck?.(!checked);
+            const newValue = !checked;
+            onCheck?.(newValue);
+            if (newValue) {
+              const variants = [
+                "Too easy 😂",
+                "Piece of cake 😆",
+                "Nailed it 🤣",
+                "Easy peasy 😹",
+                "Smooth sailing 😄",
+                "You rock 😁",
+                "Child's play 😅",
+                "Boom! Done 🤗",
+                "No problemo 🤗",
+                "YOURE HIM",
+                "All u do is grind huh",
+                "You're a literal machine"
+              ];
+              const msg = variants[Math.floor(Math.random() * variants.length)];
+              showToast(msg, 'success');
+            } else {
+              showToast("Undo successful", 'success');
+            }
           }}
           style={styles.checkboxContainer}
         >
