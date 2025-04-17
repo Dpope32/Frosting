@@ -31,9 +31,14 @@ A feature-rich personal dashboard app built with React Native and Expo, designed
 - **🌤️Weather**: 5 Day forecast with animations and current temp! 
 - **🌐Network**: Check your network speed and ping right from the app
 - **🏀NBA**: Follow your favorite teams' schedules
+- **☑️HabitTracker** Track your habits, recieve notification reminders on mobile
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
-**Coming Soon**: Cross-Device Sync with TinyBase integration
+**Coming Soon**: 
+1. Cross-Device Sync with TinyBase integration
+2. Feature Request powered by FeatureBase
+3. Video Demo on Welcome Screen powered by ScreenStudio
+4. 👀 WebSockets to connect to selfhosted Jellyfin Server 👀
 
 ![Home Screen Preview](assets/screenshots/web/loaded.png)
 
