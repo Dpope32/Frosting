@@ -113,4 +113,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## License
 
+This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).  
+You may fork, modify, and submit pull requests, but **commercial use is strictly prohibited** and **credit is required**.
+
 
