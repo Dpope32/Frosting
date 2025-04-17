@@ -82,9 +82,9 @@ function LoadingScreen() {
           transform: [{ scale: scaleAnim }]
         }}>
           <XStack 
-            width={80} 
-            height={80} 
-            borderRadius={40} 
+            width={120} 
+            height={120} 
+            borderRadius={60} 
             backgroundColor={isDark ? '#111111' : '#F5F5F5'}
             borderWidth={2}
             borderColor="#dbd0c6"
@@ -93,7 +93,7 @@ function LoadingScreen() {
           >
             <Text 
               fontFamily="$heading"
-              fontSize={38}
+              fontSize={30}
               fontWeight="bold"
               style={{ color: '#dbd0c6' }}
             >
@@ -105,7 +105,7 @@ function LoadingScreen() {
           <Text 
             fontFamily="$body"
             fontSize={14}
-            style={{ color: isDark ? "rgba(219, 208, 198, 0.7)" : "rgba(219, 208, 198, 0.8)" }}
+            style={{ color: isDark ? "rgba(0, 255, 238, 0.7)" : "rgba(219, 208, 198, 0.8)" }}
           >
             Getting things ready for you...
           </Text>
