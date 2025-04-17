@@ -53,14 +53,28 @@ export default Sentry.wrap(function RootLayout() {
     injectSpeedInsights();
   }
 
-  // Hide splash screen as soon as fonts are loaded
+  // Hide splash screen after critical initializations complete
   useEffect(() => {
-    if (loaded) {
-      // Hide splash screen immediately
-      SplashScreen.hideAsync().catch(() => {
-        // Ignore any errors from hiding the splash screen
-      });
-    }
+    const hideSplash = async () => {
+      if (!loaded) return;
+      
+      // Wait for both fonts and user store hydration
+      await Promise.all([
+        new Promise(resolve => {
+          const unsubscribe = useUserStore.subscribe((state) => {
+            if (state.hydrated) {
+              unsubscribe();
+              resolve(null);
+            }
+          });
+        })
+      ]);
+
+      // Hide splash screen
+      await SplashScreen.hideAsync().catch(() => {});
+    };
+
+    hideSplash();
   }, [loaded]);
 
   // Move update check to a separate effect to not block initial render
