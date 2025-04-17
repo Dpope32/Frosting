@@ -6,6 +6,7 @@ import { Platform, useColorScheme } from "react-native";
 import type { Person } from "@/types/people";
 import { format } from "date-fns";
 import { FormContent } from "./FormContent";
+import { useToastStore } from "@/store/ToastStore";
 
 type FormData = Omit<Person, "id" | "createdAt" | "updatedAt">;
 
@@ -26,7 +27,7 @@ export function EditPersonForm({
   const [selectedDate, setSelectedDate] = useState(person.birthday ? new Date(person.birthday) : new Date());
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [paymentUsername, setPaymentUsername] = useState<string>("");
-
+  const { showToast } = useToastStore();
   const { pickImage: pickImageFromLibrary } = useImagePicker();
   const updateFormField = (field: keyof FormData, value: any): void => { setFormData((prev) => ({ ...prev, [field]: value }))};
 
@@ -62,6 +63,7 @@ export function EditPersonForm({
       updatedFormData.socialMedia = [{ platform: paymentMethod, username: paymentUsername }];
     }
     onSave({ ...person, ...updatedFormData });
+    showToast("Person updated successfully", "success");
     handleClose();
   };
 

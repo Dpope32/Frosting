@@ -10,8 +10,7 @@ import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal';
-import { getAmountColor } from '@/services/billServices';
-import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
+import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);

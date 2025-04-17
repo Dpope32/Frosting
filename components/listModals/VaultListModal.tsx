@@ -4,9 +4,9 @@ import { Pressable, Platform, useColorScheme, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useVault } from '@/hooks/useVault';
 import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
-import { VaultRecommendationModal } from '@/components/modals/VaultRecommendationModal';
+import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal';
 import { useToastStore } from '@/store/ToastStore';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; 
+import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
 
 interface VaultListModalProps {
   open: boolean

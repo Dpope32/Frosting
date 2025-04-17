@@ -1,7 +1,7 @@
 import React from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { Platform, useColorScheme } from 'react-native';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal';
+import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal';
 import { usePeopleStore } from '@/store/People';
 import type { Person } from '@/types/people';
 

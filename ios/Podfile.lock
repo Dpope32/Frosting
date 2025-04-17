@@ -15,7 +15,7 @@ PODS:
     - ExpoModulesCore
   - EXNotifications (0.29.14):
     - ExpoModulesCore
-  - Expo (52.0.42):
+  - Expo (52.0.46):
     - ExpoModulesCore
   - ExpoAsset (11.0.5):
     - ExpoModulesCore
@@ -69,7 +69,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - ExpoSplashScreen (0.29.22):
+  - ExpoSplashScreen (0.29.24):
     - ExpoModulesCore
   - ExpoSystemUI (4.0.9):
     - ExpoModulesCore
@@ -1820,7 +1820,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSentry (6.3.0):
+  - RNSentry (6.10.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1841,11 +1841,11 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - Sentry/HybridSDK (= 8.41.0)
+    - Sentry/HybridSDK (= 8.48.0)
     - Yoga
   - RNSVG (15.8.0):
     - React-Core
-  - Sentry/HybridSDK (8.41.0)
+  - Sentry/HybridSDK (8.48.0)
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
 
@@ -2178,7 +2178,7 @@ SPEC CHECKSUMS:
   EXJSONUtils: 01fc7492b66c234e395dcffdd5f53439c5c29c93
   EXManifests: 807ab5394ca9f8dd5e64283f02876b2f85c4eb72
   EXNotifications: 9d3d17e52c95f377750d4a2ae553a716313dd4aa
-  Expo: e8f11c8e0290deca7be9254569e23f884b95a777
+  Expo: a6ff273c618506b12129a0d06f2a08201bfbcf43
   ExpoAsset: 48386d40d53a8c1738929b3ed509bcad595b5516
   ExpoBlur: 392c1207f71d0ecf22371621c1fbd44ba84d9742
   ExpoCalendar: 12208702ad2461776a5a59b6e51e37ef23f9efac
@@ -2194,7 +2194,7 @@ SPEC CHECKSUMS:
   ExpoLinking: 8d12bee174ba0cdf31239706578e29e74a417402
   ExpoMediaLibrary: 2709fc2e4fcf87d28767714abcc603c4bec228c6
   ExpoModulesCore: 725faec070d590810d2ea5983d9f78f7cf6a38ec
-  ExpoSplashScreen: cb4e3d3ee646ed59810f7776cca0ae5c03ab4285
+  ExpoSplashScreen: 399ee9f85b6c8a61b965e13a1ecff8384db591c2
   ExpoSystemUI: b82a45cf0f6a4fa18d07c46deba8725dd27688b4
   EXStructuredHeaders: 09c70347b282e3d2507e25fb4c747b1b885f87f6
   EXUpdates: 6cb35d269f033f8f72aaf25c6f18ad14678771b5
@@ -2269,9 +2269,9 @@ SPEC CHECKSUMS:
   RNGestureHandler: 32336458ef842088a459ccfcc10b583186de2633
   RNReanimated: 6d22a1aec06a9787b797bc0c40fc2779be0599a5
   RNScreens: 295d9c0aaeb7f680d03d7e9b476569a4959aae89
-  RNSentry: 1ecc488b212c7cac47a495ff3bc7646f99ea4e55
+  RNSentry: 41eab31e46a191a4f9296d64a318b2a6bf0f98c5
   RNSVG: 8542aa11770b27563714bbd8494a8436385fc85f
-  Sentry: 54d0fe6c0df448497c8ed4cce66ccf7027e1823e
+  Sentry: 1ca8405451040482877dcd344dfa3ef80b646631
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: feb4910aba9742cfedc059e2b2902e22ffe9954a
 

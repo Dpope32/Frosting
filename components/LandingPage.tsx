@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 
 import { NewTaskModal } from './cardModals/NewTaskModal'
 import { PortfolioModal } from './cardModals/PortfolioModal'
-import { TaskListModal } from './cardModals/TaskListModal'
+import { TaskListModal } from './listModals/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'

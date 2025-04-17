@@ -3,21 +3,41 @@ import { useUserStore } from '@/store/UserStore';
 import { useState, useEffect } from 'react';
 import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
-import { View, Animated } from 'react-native';
+import { View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { YStack, XStack, Text, Spinner } from 'tamagui';
-import { useRef } from 'react';
+import { YStack, XStack, Text } from 'tamagui';
+import Animated, { 
+  useAnimatedStyle, 
+  withRepeat, 
+  withTiming, 
+  withSequence,
+  useSharedValue,
+  Easing
+} from 'react-native-reanimated';
 
 export default function Index() {
   const [initializing, setInitializing] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
+  const hasHydrated = useUserStore((state) => (state as any).hydrated ?? false);
 
   // Call app initialization hook at the top level (per React rules)
   useAppInitialization();
+
+  // Set a maximum initialization time of 2 seconds
   useEffect(() => {
-    setInitializing(false);
+    const timer = setTimeout(() => {
+      setInitializing(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
+  // If the store hasn't hydrated yet, show loading screen
+  if (!hasHydrated) {
+    return <LoadingScreen />;
+  }
+
+  // After hydration, proceed with normal flow
   if (initializing) {
     return <LoadingScreen />;
   }
@@ -31,41 +51,61 @@ export default function Index() {
 function LoadingScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark' || !colorScheme;
-  const fadeAnim = useRef(new Animated.Value(0.4)).current;
-  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  
+  // Get user preferences from store
+  const username = useUserStore((state) => state.preferences.username);
+  const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  
+  // Derived colors
+  const textColor = isDark ? "#A0A0A0" : "#707070";
+  const logoBackgroundColor = isDark ? 'rgba(30, 30, 30, 0.8)' : 'rgba(245, 245, 245, 0.9)';
+  const logoBorderColor = primaryColor || "#00BFFF";
+  const loadingMessage = username 
+    ? `Getting things ready for you, ${username}...` 
+    : "Getting things ready for you...";
+
+  const opacity = useSharedValue(0.4);
+  const scale = useSharedValue(0.95);
+  const rotation = useSharedValue(0);
 
   useEffect(() => {
-    const fadeIn = Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true
-    });
-    
-    const fadeOut = Animated.timing(fadeAnim, {
-      toValue: 0.4,
-      duration: 1000,
-      useNativeDriver: true
-    });
-    
-    const scaleUp = Animated.timing(scaleAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true
-    });
-    
-    const scaleDown = Animated.timing(scaleAnim, {
-      toValue: 0.95,
-      duration: 1000,
-      useNativeDriver: true
-    });
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1000 }),
+        withTiming(0.6, { duration: 1000 })
+      ),
+      -1,
+      true
+    );
 
-    Animated.loop(
-      Animated.parallel([
-        Animated.sequence([fadeIn, fadeOut]),
-        Animated.sequence([scaleUp, scaleDown])
-      ])
-    ).start();
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, { duration: 1000 }),
+        withTiming(0.95, { duration: 1000 })
+      ),
+      -1,
+      true
+    );
+
+    rotation.value = withRepeat(
+      withTiming(1, { duration: 6000, easing: Easing.linear }),
+      -1,
+      false
+    );
   }, []);
+
+  const logoStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+      transform: [{ scale: scale.value }]
+    };
+  });
+
+  const borderStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ rotate: `${rotation.value * 360}deg` }]
+    };
+  });
 
   return (
     <View style={{
@@ -76,40 +116,49 @@ function LoadingScreen() {
       height: '100%',
       width: '100%'
     }}>
-      <YStack alignItems="center" gap="$4">
-        <Animated.View style={{ 
-          opacity: fadeAnim,
-          transform: [{ scale: scaleAnim }]
-        }}>
-          <XStack 
-            width={120} 
-            height={120} 
-            borderRadius={60} 
-            backgroundColor={isDark ? '#111111' : '#F5F5F5'}
+      <YStack alignItems="center" gap="$5">
+        <Animated.View style={logoStyle}>
+          <XStack
+            width={120}
+            height={120}
+            borderRadius={60}
+            backgroundColor={logoBackgroundColor}
             borderWidth={2}
-            borderColor="#dbd0c6"
-            alignItems="center" 
+            borderColor={logoBorderColor}
+            alignItems="center"
             justifyContent="center"
           >
-            <Text 
+            <Animated.View
+              style={[{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                borderRadius: 60,
+                borderWidth: 3,
+                borderColor: logoBorderColor,
+                borderTopColor: 'transparent',
+                borderRightColor: 'transparent'
+              }, borderStyle]}
+            />
+            <Text
               fontFamily="$heading"
               fontSize={30}
               fontWeight="bold"
-              style={{ color: '#dbd0c6' }}
+              color={primaryColor}
             >
               Kaiba
             </Text>
           </XStack>
         </Animated.View>
-        <YStack alignItems="center" gap="$2" marginTop="$2">
-          <Text 
+        <YStack alignItems="center" gap="$3" marginTop="$3">
+          <Text
             fontFamily="$body"
-            fontSize={14}
-            style={{ color: isDark ? "rgba(0, 255, 238, 0.7)" : "rgba(219, 208, 198, 0.8)" }}
+            fontSize={16}
+            textAlign="center"
+            color={textColor}
           >
-            Getting things ready for you...
+            {loadingMessage}
           </Text>
-          <Spinner size="large" color={isDark ? "white" : "black"} />
         </YStack>
       </YStack>
     </View>

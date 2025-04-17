@@ -111,25 +111,26 @@ export const styles = StyleSheet.create({
   },
 
   buttonEvent: {
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    minWidth: 32,
-    maxWidth: 40,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
     right: 8,
-    bottom: 0,
-    width: 32,
-    height: 32,
+    bottom: 8,
+    width: 36,
+    height: 36,
+    zIndex: 10,
+    elevation: 6,
   },
   cancelButton: {
     marginRight: 8
   },
   buttonText: {
     fontSize: 14,
-    fontWeight: '500'
+    fontWeight: '500',
+    color: '#fff'
   },
   timePickerContainer: {
     borderRadius: 16,

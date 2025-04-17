@@ -13,23 +13,42 @@ export function useAppInitialization() {
   // Initialize NFL and NBA schedules
   // TODO: add NFL schedule with NBA szn coming to an end
   useSportsAPI();
+
   useEffect(() => {
     const initializeApp = async () => {
-      // Pre-load the theme to prevent theme bounce
-      // Pass the systemColorScheme to the function instead of calling the hook inside
-      await preloadTheme(systemColorScheme);
       try {
-        await useWallpaperStore.getState().checkAndRedownloadWallpapers();
+        // Run critical operations in parallel
+        await Promise.all([
+          preloadTheme(systemColorScheme),
+          // Add other critical initialization here
+        ]);
+
+        // Defer non-critical operations
+        setTimeout(() => {
+          Promise.all([
+            useWallpaperStore.getState().checkAndRedownloadWallpapers(),
+            useNBAStore.getState().syncNBAGames(),
+            useNBAStore.getState().syncGameTasks(),
+            useCalendarStore.getState().syncBirthdays(),
+          ]).catch(error => {
+            Sentry.captureException(error, {
+              extra: {
+                operation: 'useAppInitialization_deferred',
+              },
+            });
+          });
+        }, 1000); // Delay non-critical operations by 1 second
       } catch (error) {
         Sentry.captureException(error, {
           extra: {
-            operation: 'useAppInitialization_checkAndRedownloadWallpapers',
+            operation: 'useAppInitialization_critical',
           },
         });
       }
     };
+
     initializeApp();
-  }, [systemColorScheme]); 
+  }, [systemColorScheme]);
 
   // TODO do not sync API if disabled in Settings
   useEffect(() => {

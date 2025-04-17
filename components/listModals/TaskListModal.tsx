@@ -1,16 +1,16 @@
 import React, { useState } from 'react'; 
-import { YStack, XStack, Text, isWeb, Spinner, Button, AlertDialog } from 'tamagui';
+import { YStack, XStack, Text, isWeb, Button, AlertDialog } from 'tamagui';
 import { useProjectStore } from '@/store/ToDo';
 import { useBillStore } from '@/store/BillStore'; 
 import { Task, RecurrencePattern } from '@/types/task';
 import { useRecommendationStore } from '@/store/RecommendationStore';
 import { useEditTaskStore } from '@/store/EditTaskStore';
 import { useToastStore } from '@/store/ToastStore'; 
-import { Pressable, Platform, useColorScheme, Alert, ActivityIndicator } from 'react-native'; 
+import { Pressable, Platform, useColorScheme} from 'react-native'; 
 import { Ionicons } from '@expo/vector-icons';
-import { getCategoryColor, getPriorityIcon, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
+import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations';
-import { BaseCardWithRecommendationsModal } from '../cardModals/BaseCardWithRecommendationsModal';
+import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal';
 import { getPriorityColor, getPriorityIonIcon } from '@/utils/styleUtils';
 
 interface TaskListModalProps {

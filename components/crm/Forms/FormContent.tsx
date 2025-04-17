@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { YStack, XStack, ScrollView, Text, Button, isWeb } from 'tamagui'
 import { TextInput, useColorScheme } from 'react-native'
 import { useMedia } from 'tamagui'
-import { DebouncedInput, DateDebouncedInput } from '@/components/shared/debouncedInput'
+import { DebouncedInput, DateDebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput'
 import { ProfileSection } from './ProfileSection'
 import { PaymentMethodSection } from './PaymentMethodSection'
 import type { FormContentProps } from './types'
@@ -25,11 +25,11 @@ export const FormContent = React.memo((props: FormContentProps) => {
 
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const nameRef = useRef<TextInput>(null)
+  const nameRef = useRef<DebouncedInputHandle>(null)
   const birthdayRef = useRef<TextInput>(null)
-  const phoneRef = useRef<TextInput>(null)
-  const emailRef = useRef<TextInput>(null)
-  const occupationRef = useRef<TextInput>(null)
+  const phoneRef = useRef<DebouncedInputHandle>(null)
+  const emailRef = useRef<DebouncedInputHandle>(null)
+  const occupationRef = useRef<DebouncedInputHandle>(null)
   const media = useMedia()
   const isSmallScreen = media.sm
 

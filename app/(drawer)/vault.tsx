@@ -7,7 +7,7 @@ import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal'
 import { Plus } from '@tamagui/lucide-icons'
-import { VaultRecommendationModal } from '@/components/modals/VaultRecommendationModal'
+import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal'
 import { VaultCard } from '@/components/vault/VaultCard'
 import { VaultEmpty } from '@/components/vault/VaultEmpty'
 

@@ -20,7 +20,7 @@ import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
-import { TaskRecommendationModal } from '@/components/modals/TaskRecommendationModal';
+import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
 import { handleSharedContact } from '../services/shareService';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
@@ -53,23 +53,27 @@ export default Sentry.wrap(function RootLayout() {
     injectSpeedInsights();
   }
 
+  // Hide splash screen as soon as fonts are loaded
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      // Hide splash screen immediately
+      SplashScreen.hideAsync().catch(() => {
+        // Ignore any errors from hiding the splash screen
+      });
     }
   }, [loaded]);
 
+  // Move update check to a separate effect to not block initial render
   useEffect(() => {
+    if (!loaded || __DEV__) return;
+
     const checkAndApplyUpdate = async () => {
-      if (__DEV__) return;
-      
       try {
         const update = await Updates.checkForUpdateAsync();
         
         if (update.isAvailable) {
           await Updates.fetchUpdateAsync();
           
-          // Platform-safe alert implementation
           if (Platform.OS !== 'web') {
             Alert.alert(
               'Update Available',
@@ -83,7 +87,6 @@ export default Sentry.wrap(function RootLayout() {
               ]
             );
           } else {
-            // Web-friendly confirmation 
             if (window.confirm('Update available. Reload to apply?')) {
               Updates.reloadAsync();
             }
@@ -93,17 +96,14 @@ export default Sentry.wrap(function RootLayout() {
         console.error('Update check failed:', error);
       }
     };
-  
-    // Only run when loaded and not in dev mode
-    if (loaded && !__DEV__) {
-      // Initial check
-      checkAndApplyUpdate();
-      
-      // Periodic checks
-      const updateInterval = setInterval(checkAndApplyUpdate, 60000);
-      
-      return () => clearInterval(updateInterval);
-    }
+    
+    // Initial check with a delay to not block app startup
+    setTimeout(checkAndApplyUpdate, 2000);
+    
+    // Periodic checks
+    const updateInterval = setInterval(checkAndApplyUpdate, 60000);
+    
+    return () => clearInterval(updateInterval);
   }, [loaded]);
 
     const handleDeepLink = useCallback((event: { url: string }) => {

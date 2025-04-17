@@ -1,15 +1,8 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "expo-router";
 import { ScrollView, Platform, View, StyleSheet, useColorScheme } from "react-native";
-import { YStack, Text, XStack, Stack, Button } from "tamagui";
-import Animated, {
-  withSpring,
-  useAnimatedStyle,
-  useSharedValue,
-  FadeIn,
-  withTiming,
-  Easing,
-} from "react-native-reanimated";
+import { YStack, Text, XStack, Stack, Button, isWeb } from "tamagui";
+import Animated, { FadeIn} from "react-native-reanimated";
 import { useWeatherStore, WeatherPeriod } from "@/store/WeatherStore";
 import { getTemperatureColor } from "@/services/weatherServices";
 import { ChevronLeft } from '@tamagui/lucide-icons';
@@ -17,7 +10,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AnimatedCloud from '@/components/weather/AnimatedCloud';
 import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
 
-// Add global styles for web animations (only if not already added)
 if (Platform.OS === 'web') {
   const styleId = 'weather-animations-style';
   if (!document.getElementById(styleId)) {
@@ -76,10 +68,6 @@ if (Platform.OS === 'web') {
   }
 }
 
-// Create an animated version of XStack
-const AnimatedXStack = Animated.createAnimatedComponent(XStack);
-
-// Helper functions moved to top for cleaner code organization
 function getWeatherIcon(shortForecast: string): string {
   const forecast = shortForecast.toLowerCase();
   if (forecast.includes("thunderstorm")) return "⚡";
@@ -171,7 +159,6 @@ function parseWindSpeed(speed: string | undefined): number {
   return match ? parseInt(match[0], 10) : 0;
 }
 
-// Structure for the processed daily forecast
 interface DailyForecast {
   dayName: string;
   dayPeriod: WeatherPeriod;
@@ -219,7 +206,7 @@ export default function TemperatureScreen() {
           lowTemp,
         });
 
-        if (processed.length >= 7) { // Show a full week
+        if (processed.length >= 7) {
           break;
         }
       }
@@ -227,7 +214,6 @@ export default function TemperatureScreen() {
     return processed;
   }, [forecastPeriods]);
 
-  // Get today's forecast (first raw period)
   const todayForecast = forecastPeriods && forecastPeriods.length > 0 ? forecastPeriods[0] : null;
 
   if (!forecastPeriods || forecastPeriods.length === 0 || !todayForecast) {
@@ -247,7 +233,6 @@ export default function TemperatureScreen() {
     );
   }
 
-  // Today card data
   const todayPrecipitation = todayForecast.probabilityOfPrecipitation?.value ?? 0;
   const todayCardBg = getCardBackground(todayForecast.shortForecast, isDark, todayPrecipitation);
   const todayTextColor = getTextColorForBackground(todayCardBg);
@@ -265,7 +250,7 @@ export default function TemperatureScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <YStack gap="$2" paddingBottom="$2">
+        <YStack gap="$2" paddingVertical="$2">
           <XStack paddingHorizontal="$4" alignItems="center" justifyContent="center" position="relative">
             <Button
               icon={ChevronLeft}
@@ -278,7 +263,7 @@ export default function TemperatureScreen() {
               position="absolute"
               left="$4"
             />
-            <Text fontSize={22} fontFamily="$body" fontWeight="600" color={isDark ? "$gray100" : "$gray900"}>
+            <Text fontSize={isWeb ? 24 : 20} pb="$4" fontFamily="$body" fontWeight="600" color={isDark ? "$gray100" : "$gray900"}>
               Weather Forecast
             </Text>
           </XStack>
@@ -314,23 +299,32 @@ export default function TemperatureScreen() {
                     />
                   ))}
                 </View>
+                <View 
+                  style={[
+                    StyleSheet.absoluteFill, 
+                    { 
+                      backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)',
+                      pointerEvents: 'none'
+                    }
+                  ]} 
+                />
 
-                <YStack flex={1} justifyContent="space-between" gap="$2" zIndex={1}>
-                  <XStack alignItems="center" gap="$3">
+                <YStack flex={1} justifyContent="space-between" gap="$1" zIndex={1}>
+                  <XStack alignItems="center" gap="$2">
                     <Text fontSize={36} fontFamily="$body">
                       {getWeatherIcon(todayForecast.shortForecast)}
                     </Text>
                     <YStack flex={1} alignItems="flex-start">
-                      <Text fontFamily="$body" color={todayTextColor} fontSize={22} fontWeight="600">
+                      <Text fontFamily="$body" color={todayTextColor} fontSize={isWeb ? 22 : 18} fontWeight="600">
                         Today
                       </Text>
-                      <Text color={todayTextColor} fontSize={16} numberOfLines={1} fontFamily="$body" ellipsizeMode="tail">
+                      <Text color={todayTextColor} fontSize={isWeb ? 18 : 16} numberOfLines={1} fontFamily="$body" ellipsizeMode="tail">
                         {todayForecast.shortForecast}
                       </Text>
                     </YStack>
                   </XStack>
-                  <XStack justifyContent="space-between" alignItems="flex-end" mt="$3">
-                    <YStack gap="$2">
+                  <XStack justifyContent="space-between" alignItems="flex-end">
+                    <YStack gap="$1">
                       <XStack alignItems="center" gap="$2">
                         <Text fontFamily="$body" fontSize={16}>💨</Text>
                         <Text fontFamily="$body" color={todayTextColor} fontSize={15}>
@@ -371,11 +365,9 @@ export default function TemperatureScreen() {
             </Animated.View>
           )}
 
-          {/* Week Forecast */}
           <YStack mt="$4" gap="$3" paddingHorizontal="$4">
             {dailyForecasts.map((daily: DailyForecast, idx) => {
-              if (idx === 0) return null; // Skip today's forecast as it's already shown above
-              
+              if (idx === 0) return null;
               const dayPeriod = daily.dayPeriod;
               const precipitationValue = dayPeriod.probabilityOfPrecipitation?.value ?? 0;
               const cardBg = getCardBackground(dayPeriod.shortForecast, isDark, precipitationValue);
@@ -393,7 +385,7 @@ export default function TemperatureScreen() {
                   entering={FadeIn.duration(500).delay(100 * idx)}
                 >
                   <XStack
-                    padding="$3.5"
+                    padding="$3"
                     borderRadius="$5"
                     backgroundColor={cardBg}
                     overflow="hidden"
@@ -404,6 +396,7 @@ export default function TemperatureScreen() {
                     shadowRadius={2}
                     elevation={3}
                   >
+                      
                     <View style={StyleSheet.absoluteFill} pointerEvents="none">
                       <WeatherCardAnimations
                         shortForecast={dayPeriod.shortForecast}
@@ -421,6 +414,15 @@ export default function TemperatureScreen() {
                         />
                       ))}
                     </View>
+                    <View 
+                      style={[
+                        StyleSheet.absoluteFill, 
+                        { 
+                          backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.3)',
+                          pointerEvents: 'none'
+                        }
+                      ]} 
+                    />
 
                     <YStack flex={1} justifyContent="space-between" gap="$1" zIndex={1}>
                       <XStack alignItems="center" gap="$2.5">

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { YStack, XStack, Text, ScrollView as TamaguiScrollView } from 'tamagui';
-import { Pressable, Platform, useColorScheme, Alert, ScrollView as RNScrollView } from 'react-native';
+import { YStack, XStack, Text } from 'tamagui';
+import { Pressable, Platform, useColorScheme, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useBills } from '@/hooks/useBills';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
 import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
-import { BillRecommendationModal } from '@/components/modals/BillRecommendationModal';
-import { BaseCardWithRecommendationsModal } from './BaseCardWithRecommendationsModal'; // Import the new base modal
+import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
+import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
 
 interface BillsListModalProps {
   open: boolean

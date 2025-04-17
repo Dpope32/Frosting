@@ -3,7 +3,7 @@ import { Image, ImageSourcePropType, Platform, Switch, useColorScheme, Alert, Vi
 import { BaseCardModal } from './BaseCardModal'
 import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router';
-import { Button, YStack, XStack, Text, Circle, Spinner } from 'tamagui';
+import { Button, YStack, XStack, Text, Circle, Spinner, isWeb } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
 import { useBillStore } from '@/store/BillStore'; 
 import { useProjectStore } from '@/store/ToDo'; 
@@ -11,14 +11,14 @@ import { usePeopleStore } from '@/store/People';
 import { useWallpaperStore } from '@/store/WallpaperStore';
 import { useNoteStore } from '@/store/NoteStore';
 import { colorOptions } from '../../constants/Colors';
-import { backgroundStyles, BackgroundStyle, getWallpaperPath, wallpapers } from '../../constants/Backgrounds'; // Import wallpapers
+import { backgroundStyles, BackgroundStyle, getWallpaperPath, wallpapers } from '../../constants/Backgrounds'; 
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { BlurView } from 'expo-blur'
 import { OptimizedWallpaperButton } from '@/utils/OptimizedWallpaperButton'
 import * as Sentry from '@sentry/react-native';
 import { ImageURISource } from 'react-native';
-
+import { useToastStore } from '@/store/ToastStore';
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
   try {
@@ -42,7 +42,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const { preferences, setPreferences } = useUserStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const [settings, setSettings] = useState({
@@ -57,6 +56,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     temperatureEnabled: preferences.temperatureEnabled ?? true,
     wifiEnabled: preferences.wifiEnabled ?? true,
   })
+  const { showToast } = useToastStore();
   const filteredBackgroundStyles = useMemo(() => {
     return backgroundStyles
   }, [])
@@ -100,6 +100,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
   const handleSave = useCallback(() => {
     setPreferences({ ...settings })
     onOpenChange(false)
+    showToast("Settings saved successfully", "success");
   }, [settings, setPreferences, onOpenChange])
   
   const handleSelectBackground = useCallback(async (value: BackgroundStyle) => {
@@ -161,11 +162,9 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     operation: 'cacheWallpaperInLoad',
                   },
                 });
-                // Optionally mark as failed if caching is critical for display
                 // sources[wallpaperKey] = { uri: '', failed: true }; 
               }
             } else {
-              // Handle case where wallpaperKey is not found in wallpapers object
               console.error(`Original wallpaper data not found for key: ${wallpaperKey}`);
               Sentry.captureMessage('Missing original wallpaper definition', {
                 level: 'error',
@@ -214,7 +213,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         }
       }}
       title="Settings"
-      snapPoints={isWeb ? [90] : [82]}
+      snapPoints={isWeb ? [90] : [85]}
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
@@ -222,7 +221,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$5' : '$4'}>
         <XStack gap="$3" flexWrap="wrap">
           <YStack width={isWeb ? 100 : 60} gap="$2" alignItems="center">
-            <Circle size={isWeb ? 80 : 60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#333' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
+            <Circle size={isWeb ? 80 : 60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
               {settings.profilePicture ? (
                   <Image source={buildImageSource(settings.profilePicture)} style={{ width: 60, height: 60, borderRadius: 30 }} />
                 ) : (
@@ -412,8 +411,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           </YStack>
         </YStack>
-
-
       <XStack 
         justifyContent="space-between"
         paddingHorizontal={isWeb ? '$7' : '$6'}

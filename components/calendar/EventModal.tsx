@@ -186,9 +186,20 @@ export const EventModal: React.FC<EventModalProps> = ({
             </ScrollView>
             <TouchableOpacity
               onPress={handleAddNewEvent}
-              style={[styles.buttonEvent, { backgroundColor: primaryColor }]}
+              style={[styles.buttonEvent]}
             >
-              <Ionicons name="add" size={24} color="#fffbf7" />
+              <Text style={{ 
+                position: 'absolute',
+                color: '#ffffff', 
+                fontSize: 32,
+                top: '50%',
+                left: '50%',
+                transform: [
+                  { translateX: -8 },
+                  { translateY: -10 }
+                ],
+                fontWeight: '300'
+              }}>+</Text>
             </TouchableOpacity>
           </View>
         </BaseCardAnimated>
