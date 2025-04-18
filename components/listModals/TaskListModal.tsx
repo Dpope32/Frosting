@@ -219,36 +219,36 @@ export function TaskListModal({ open, onOpenChange }: TaskListModalProps) {
 
   const taskRecommendations = (
     <XStack 
-      flexWrap="wrap" 
+      flexWrap="nowrap" 
       gap="$2" 
       alignItems="center" 
       marginBottom="$1" 
-      justifyContent="space-between"
+      justifyContent={isWeb ? "space-between" : "flex-start"}
       width="100%"
     >
       <RecommendationChip 
         category="Cleaning" 
         onPress={() => { onOpenChange(false); openRecommendationModal('Cleaning'); }} 
         isDark={isDark} 
-        width={Platform.OS === 'web' ? 'auto' : '48%'}
+        width={Platform.OS === 'web' ? 'auto' : '30%'}
       />
       <RecommendationChip 
-        category="Financial" 
-        onPress={() => { onOpenChange(false); openRecommendationModal('Financial'); }} 
+        category="Wealth" 
+        onPress={() => { onOpenChange(false); openRecommendationModal('Wealth'); }} 
         isDark={isDark} 
-        width={Platform.OS === 'web' ? 'auto' : '48%'}
+        width={Platform.OS === 'web' ? 'auto' : '30%'}
       />
       <RecommendationChip 
         category="Gym" 
         onPress={() => { onOpenChange(false); openRecommendationModal('Gym'); }} 
         isDark={isDark} 
-        width={Platform.OS === 'web' ? 'auto' : '48%'}
+        width={Platform.OS === 'web' ? 'auto' : '30%'}
       />
       <RecommendationChip 
         category="Self-Care" 
         onPress={() => { onOpenChange(false); openRecommendationModal('Self-Care'); }} 
         isDark={isDark} 
-        width={Platform.OS === 'web' ? 'auto' : '48%'}
+        width={Platform.OS === 'web' ? 'auto' : '30%'}
       />
     </XStack>
   );

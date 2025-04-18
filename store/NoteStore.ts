@@ -23,7 +23,7 @@ type NoteStoreActions = {
   loadNotes: () => Promise<void>
 }
 
-type NoteStore = NoteStoreState & NoteStoreActions
+export type NoteStore = NoteStoreState & NoteStoreActions // Export the type
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: {},

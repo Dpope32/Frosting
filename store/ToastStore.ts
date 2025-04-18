@@ -5,7 +5,7 @@ export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
 export type ToastPosition = 'top-center'
 
-interface ToastOptions {
+export interface ToastOptions {
   duration?: number
   fontFamily?: GetThemeValueForKey<'fontFamily'>
   position?: ToastPosition
@@ -21,12 +21,14 @@ interface Toast {
   createdAt: number
 }
 
-interface ToastStore {
+export interface ToastStore { 
   toasts: Toast[]
   showToast: (message: string, type?: ToastType, options?: ToastOptions) => string
   removeToast: (id: string) => void
   clearAllToasts: () => void
 }
+
+export type ToastStoreType = ReturnType<typeof useToastStore>;
 
 const DEFAULT_DURATION = 2000
 const DEFAULT_FONT_FAMILY = "$body" as GetThemeValueForKey<'fontFamily'>

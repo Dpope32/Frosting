@@ -153,7 +153,7 @@ export const TaskSection = ({
                 flexDirection="row"
               >
                 <RecommendationChip category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
-                <RecommendationChip category="Financial" onPress={() => openRecommendationModal('Financial')} isDark={true}/>
+                <RecommendationChip category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
                 <RecommendationChip category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
                 <RecommendationChip category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
               </XStack>

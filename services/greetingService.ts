@@ -1,5 +1,10 @@
 import { getUSHolidays } from './holidayService';
 
+// --- Cache for Greeting Cooldown ---
+let cachedGreeting: string | null = null;
+let lastGreetingTimestamp: number | null = null;
+const GREETING_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
+
 // Helper function for the time-based part (keeps original logic)
 const getTimeBasedGreeting = (hour: number): string => {
   switch (Math.floor(hour / 2)) {
@@ -32,8 +37,23 @@ const getRandomEmoji = (): string => {
   return emojis[Math.floor(Math.random() * emojis.length)];
 };
 
-export const getGreeting = (username: string, temp?: number) => {
-  const now = new Date();
+export const getGreeting = (username: string, temp?: number): string => {
+  const nowMs = Date.now();
+
+  // --- Cooldown Check ---
+  if (cachedGreeting && lastGreetingTimestamp && (nowMs - lastGreetingTimestamp < GREETING_COOLDOWN_MS)) {
+    // Return cached greeting if within cooldown period
+    // Ensure username is still correct (in case it changed, though unlikely for this use case)
+    // Basic check: if cached greeting contains a placeholder or a different name structure, regenerate.
+    // This is a simple heuristic; adjust if needed.
+    if (cachedGreeting.includes(username) || !cachedGreeting.includes(',')) { // Assuming most greetings include ", username"
+        return cachedGreeting;
+    }
+    // If username seems different or format is unexpected, proceed to generate a new one.
+  }
+
+  // --- Generate New Greeting ---
+  const now = new Date(nowMs); // Use the timestamp we already have
   const hour = now.getHours();
   const dayOfYear = getDayOfYear(now);
   const dayOfWeek = now.toLocaleDateString(undefined, { weekday: 'long' });
@@ -302,7 +322,12 @@ export const getGreeting = (username: string, temp?: number) => {
   // Ensure greeting fits UI constraints (max 48 chars)
   const MAX_GREETING_LENGTH = 48;
   if (finalGreeting.length > MAX_GREETING_LENGTH) {
-    return finalGreeting.slice(0, MAX_GREETING_LENGTH - 1) + "…";
+    finalGreeting = finalGreeting.slice(0, MAX_GREETING_LENGTH - 1) + "…";
   }
+
+  // --- Update Cache ---
+  cachedGreeting = finalGreeting;
+  lastGreetingTimestamp = nowMs;
+
   return finalGreeting;
 }

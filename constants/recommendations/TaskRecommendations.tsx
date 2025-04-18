@@ -13,7 +13,7 @@ export interface RecommendedTask {
   schedule: WeekDay[]
 }
 
-export type RecommendationCategory = 'Cleaning' | 'Financial' | 'Gym' | 'Self-Care'
+export type RecommendationCategory = 'Cleaning' | 'Wealth' | 'Gym' | 'Self-Care'
 
 export interface RecommendationChipProps {
   category: RecommendationCategory
@@ -43,7 +43,7 @@ export const getRecommendedTasks = (category: RecommendationCategory): Recommend
         { name: 'Clean behind and under appliances', recurrencePattern: 'yearly', category: 'personal', priority: 'low', schedule: ['sunday'] },
         { name: 'Clean gutters', recurrencePattern: 'yearly', category: 'personal', priority: 'high', schedule: ['saturday'] }
       ]
-    case 'Financial':
+    case 'Wealth':
       return [
         { name: 'Check bank accounts', recurrencePattern: 'weekly', category: 'wealth', priority: 'high', schedule: ['monday','friday'] },
         { name: 'Review recent expenses', recurrencePattern: 'weekly', category: 'wealth', priority: 'medium', schedule: ['friday'] },
@@ -142,7 +142,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
           iconColor: isDark ? "#4ade80" : "#047857", // brighter green for dark mode, darker for light
           textColor: isDark ? "#4ade80" : "#047857"  // brighter green for dark mode, darker for light
         }
-      case 'Financial':
+      case 'Wealth':
         return {
           backgroundColor: isDark ? "rgba(59, 130, 246, 0.10)" : "rgba(59, 130, 246, 0.30)", // blue
           borderColor: "rgba(59, 130, 246, 0.5)",
