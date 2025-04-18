@@ -16,8 +16,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
   onChangeText,
   placeholder = "Note content",
   onSelectionChange,
-  numberOfLines = 10,
-  minHeight = 150
+  minHeight = 300
 }, ref) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -120,7 +119,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         textAlignVertical="top"
         returnKeyType="default"
         enablesReturnKeyAutomatically={false}
-        blurOnSubmit={false}
+        submitBehavior={isWeb ? 'submit' : 'blurAndSubmit'}
         onSelectionChange={onSelectionChange}
         onContentSizeChange={handleContentSizeChange}
         className={isWeb ? "content-input" : undefined}

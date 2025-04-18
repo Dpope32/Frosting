@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView } from 'react-native';
-import { YStack, Button, XStack, Sheet, H2, Text, ScrollView, isWeb } from 'tamagui';
+import { YStack, Button, XStack, Sheet, H3, Text, ScrollView, isWeb } from 'tamagui';
 import { X } from '@tamagui/lucide-icons';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { TagSelector } from '@/components/notes/TagSelector';
@@ -162,7 +162,7 @@ export function AddNoteSheet({
       modal
       open={isModalOpen}
       onOpenChange={handleCloseModal}
-      snapPoints={isWeb ? [85] : [85]}
+      snapPoints={isWeb ? [85] : [93]}
       dismissOnSnapToBottom
     >
       <Sheet.Overlay
@@ -188,9 +188,9 @@ export function AddNoteSheet({
           marginBottom="$2"
           paddingTop="$2"
         >
-          <H2>{selectedNote ? 'Edit Note' : 'Add Note'}</H2>
+          <H3>{selectedNote ? 'Edit Note' : 'Add Note'}</H3>
           <Button
-            size={isWeb ? "$2" : "$3"}
+            size={isWeb ? "$2" : "$2"}
             circular
             icon={<X size={isWeb ? 18 : 22} />}
             onPress={handleCloseModal}
@@ -209,18 +209,13 @@ export function AddNoteSheet({
             showsVerticalScrollIndicator={false}
             keyboardDismissMode="interactive"
           >
-            <YStack gap={isWeb ? "$3" : "$2"} paddingTop="$2">
+            <YStack gap={isWeb ? "$3" : "$0"} paddingTop="$2">
               <DebouncedInput
                 placeholder="Title"
                 autoCapitalize='words'
                 value={editTitle}
                 onDebouncedChange={setEditTitle}
                 fontSize="$5"
-              />
-              
-              <TagSelector
-                tags={editTags}
-                onTagsChange={handleTagsChange}
               />
               
               <FormattingToolbar
@@ -237,18 +232,17 @@ export function AddNoteSheet({
                 value={editContent}
                 onChangeText={setEditContent}
                 onSelectionChange={handleSelectionChange}
-                numberOfLines={keyboardVisible ? 6 : 12}
-                minHeight={keyboardVisible ? 100 : 180}
+                numberOfLines={keyboardVisible ? 8 : 12}
+                minHeight={keyboardVisible ? 100 : 350}
               />
-              
               {renderAttachments()}
             </YStack>
           </RNScrollView>
-          
+          <TagSelector tags={editTags} onTagsChange={handleTagsChange}/>
           <XStack 
             gap="$2" 
             justifyContent="space-between" 
-            paddingTop="$2"
+            paddingTop="$4"
             paddingBottom="$2"
             marginBottom="$4"
             borderTopWidth={1}

@@ -25,7 +25,7 @@ export function useAppInitialization() {
         
         // Set a timeout for critical operations
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Critical initialization timeout')), 2000);
+          setTimeout(() => reject(new Error('Critical initialization timeout')), 1000);
         });
         
         // Race between critical operations and timeout
@@ -41,7 +41,7 @@ export function useAppInitialization() {
 
         // Defer non-critical operations
         setTimeout(() => {
-          Promise.all([
+          Promise.allSettled([
             useWallpaperStore.getState().checkAndRedownloadWallpapers(),
             useNBAStore.getState().syncNBAGames(),
             useNBAStore.getState().syncGameTasks(),

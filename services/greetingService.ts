@@ -27,6 +27,11 @@ const getDayOfYear = (date: Date): number => {
   return Math.floor(diff / oneDay);
 };
 
+const getRandomEmoji = (): string => {
+  const emojis = ['👋', '✨', '🌟', '🎉', '💫', '🌈', '⭐', '🔥', '💪', '🚀'];
+  return emojis[Math.floor(Math.random() * emojis.length)];
+};
+
 export const getGreeting = (username: string, temp?: number) => {
   const now = new Date();
   const hour = now.getHours();
@@ -169,11 +174,11 @@ export const getGreeting = (username: string, temp?: number) => {
     `The legend, ${username}, has arrived.`,
     `All hail ${username}!`,
     `Welcome to the matrix, ${username}.`,
-    `Hey ${username}, ready to conquer ${dayOfWeek}?`,
+    `Ready to conquer ${dayOfWeek}?`,
     `It's a beautiful ${dayOfWeek}, ${username}!`,
     `Alert: ${username} detected.`,
     `The one and only ${username}!`,
-    `You again, ${username}? Just kidding, glad you're here!`,
+    `You again, ${username}?`,
     `Mission start: ${username} online.`,
     `Status: ${username} is present.`,
     `Welcome, agent ${username}.`,
@@ -183,12 +188,22 @@ export const getGreeting = (username: string, temp?: number) => {
     `The universe welcomes you, ${username}.`,
     `Hey superstar, ${username}!`,
     `Time to shine, ${username}!`,
-    `Did someone say ${username}? Oh, that's you!`,
+    `Did someone say ${username}?`,
     `Welcome back, time traveler ${username}.`,
     `You made it, ${username}!`,
     `Good vibes only, ${username}!`,
     `Ready for greatness, ${username}?`,
-    `Let's make today awesome, ${username}!`
+    `Let's make today awesome, ${username}!`,
+    `Who let the ${username} out?`,
+    `You're back!`,
+    `Hey ${username}, ready to conquer ${dayOfWeek}?`,
+    `Let's make today awesome, ${username}!`,
+    `Who let the ${username} out?`,
+    `You're back! ${username} is here!`,
+    `Hey ${username}, ready to conquer ${dayOfWeek}?`,
+    'Well, well, well..',
+    'About time you check your fav app!',
+    'OH ${username}!',
   ];
 
   // --- Regular Personalized Greetings (expanded) ---
@@ -200,9 +215,9 @@ export const getGreeting = (username: string, temp?: number) => {
     `${timeBasedGreeting}! Ready for action, ${username}?`,
     `Greetings, ${username}`,
     timeBasedGreeting, // Include the base time greeting itself
-    `Hope you're having a great ${dayOfWeek}, ${username}`,
+    `Hope you're having a great ${dayOfWeek}`,
     `How's your ${dayOfWeek} going, ${username}?`,
-    `Let's make the most of this ${dayOfWeek}, ${username}!`,
+    `Let's make the most of this ${dayOfWeek}`,
     `Sending positive vibes, ${username}`,
     `You got this, ${username}!`,
     `Keep crushing it, ${username}!`,
@@ -211,7 +226,17 @@ export const getGreeting = (username: string, temp?: number) => {
     `Onward and upward, ${username}!`,
     `The day is yours, ${username}!`,
     `Seize the day, ${username}!`,
-    `Hope your day is as awesome as you are, ${username}!`
+    `Hope ur day is as awesome as you are, ${username} :)`
+  ];
+
+  const edgyGreetingsThatShouldBeUsedRarely = [
+    'IF YOU DONT START CHECKING OFF YOUR TODO LIST, I WILL BE VERY DISAPPOINTED IN YOU',
+    'I think you are doing great, ${username}',
+    'CHECK THE WEATHER BY CLICKING THE TEMP',
+    'CHECK YOUR WIFI BY CLICKING THE WIFI',
+    'CHECK YOUR STOCKS BY CLICKING THE MONEY',
+    'CHECK THE DAILY QUOTE BY CLICKING THE QUOTE',
+    'DISABLE ANY BUTTON BELOW THIS IN THE SETTINGS'
   ];
 
   let finalGreeting: string;
@@ -224,6 +249,18 @@ export const getGreeting = (username: string, temp?: number) => {
     // Ensure punctuation if needed for changeup greetings
     if (!/[.,!?]$/.test(finalGreeting)) {
         finalGreeting += '!';
+    }
+  } else if (dayOfYear % 5 === 0) {
+    // Select a random greeting from the edgy list
+    const randomIndex = Math.floor(Math.random() * edgyGreetingsThatShouldBeUsedRarely.length);
+    finalGreeting = edgyGreetingsThatShouldBeUsedRarely[randomIndex];
+    // Check if its a curveball day, if so, add a random emoji to the greeting
+    if (dayOfYear % 5 === 0) {
+      finalGreeting += ' ' + getRandomEmoji();
+    }
+    // Random check to remind user to text a friend or family member and check in on them
+    if (Math.random() < 0.1) {
+      finalGreeting += ' Text a friend or family member and check in on them today!';
     }
   } else {
     // Select a random greeting from the regular list
@@ -259,7 +296,7 @@ export const getGreeting = (username: string, temp?: number) => {
     }
     // --- End Post-processing ---
 
-    finalGreeting = selectedGreeting;
+      finalGreeting = selectedGreeting;
   }
 
   // Ensure greeting fits UI constraints (max 48 chars)

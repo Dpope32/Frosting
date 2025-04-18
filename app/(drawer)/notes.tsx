@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { isWeb } from 'tamagui';
-import { Platform, StyleSheet, TouchableOpacity, Alert, Dimensions, View } from 'react-native';
+  // Add import for ViewStyle
+  import { Platform, StyleSheet, TouchableOpacity, Alert, Dimensions, View, ViewStyle } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { YStack, Button, XStack, Text } from 'tamagui';
@@ -48,6 +49,11 @@ export default function NotesScreen() {
   const noteToDeleteRef = useRef<string | null>(null);
   const [isHoveringTrash, setIsHoveringTrash] = useState(false);
   
+  // Add state for pending delete mode
+  const [isPendingDelete, setIsPendingDelete] = useState(false);
+  const [pendingDeleteNote, setPendingDeleteNote] = useState<Note | null>(null);
+  const [pendingDeletePosition, setPendingDeletePosition] = useState({ x: 0, y: 0 });
+  
   // Track original position to prevent bouncing
   const originalIndexRef = useRef<number | null>(null);
   const preventReorder = useRef(false);
@@ -57,13 +63,15 @@ export default function NotesScreen() {
   
   // Callback for WebDragDrop to report drag state changes
   const handleDragStateChange = useCallback((isDragging: boolean, noteId: string | null) => {
+    if (isPendingDelete) return; // Don't change drag state during pending delete
+    
     setDraggingNoteId(isDragging ? noteId : null);
     isTrashVisible.value = isDragging;
     
     if (isDragging) {
       triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     }
-  }, [isTrashVisible]);
+  }, [isTrashVisible, isPendingDelete]);
 
   // Effect to calculate columns based on screen width for web
   useEffect(() => {
@@ -147,15 +155,9 @@ export default function NotesScreen() {
     setIsModalOpen(true);
   }, []);
 
+  // Modified to handle the pending delete state
   const handleAttemptDelete = useCallback(async (noteId: string) => {
     const noteToDelete = notes.find(n => n.id === noteId);
-
-    // Reset UI state
-    isTrashVisible.value = false;
-    setDraggingNoteId(null);
-    setIsHoveringTrash(false);
-    noteToDeleteRef.current = null;
-    preventReorder.current = false;
 
     if (!noteToDelete) {
       console.warn("Attempted to delete a note that wasn't found:", noteId);
@@ -164,6 +166,9 @@ export default function NotesScreen() {
 
     triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
 
+    // Don't reset UI state yet - we want to keep the note visually in the trash
+    // until the user makes a decision
+    
     const confirmDelete = Platform.OS === 'web'
       ? window.confirm(`Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`)
       : await new Promise<boolean>((resolve) => {
@@ -217,7 +222,14 @@ export default function NotesScreen() {
       }
     }
     
-    // Reset tracking
+    // Reset all pending delete state
+    setIsPendingDelete(false);
+    setPendingDeleteNote(null);
+    setDraggingNoteId(null);
+    isTrashVisible.value = false;
+    setIsHoveringTrash(false);
+    noteToDeleteRef.current = null;
+    preventReorder.current = false;
     originalIndexRef.current = null;
   }, [notes, noteStore, showToast, selectedNote, isTrashVisible]);
 
@@ -350,7 +362,7 @@ export default function NotesScreen() {
 
   // Handler for dragging over trash
   const handleDragging = useCallback((evt: any) => {
-    if (!draggingNoteId) return;
+    if (!draggingNoteId || isPendingDelete) return;
     
     // Update the last known position
     lastDragPosition.current = {
@@ -366,7 +378,7 @@ export default function NotesScreen() {
         triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
       }
     }
-  }, [draggingNoteId, isHoveringTrash, isPointInTrashArea]);
+  }, [draggingNoteId, isHoveringTrash, isPointInTrashArea, isPendingDelete]);
 
   // Handler for drag end with direct delete approach - FIXED TO PREVENT BOUNCING
   const handleDragEnd = useCallback(({ data, from, to }: { data: Note[]; from: number; to: number }) => {
@@ -375,24 +387,40 @@ export default function NotesScreen() {
       // Set flag to prevent reordering
       preventReorder.current = true;
       
-      // If we're dropping in trash area, don't update the list order
-      // Instead, immediately attempt to delete the note
-      handleAttemptDelete(draggingNoteId);
+      // Find the note that was being dragged
+      const noteToDelete = notes.find(note => note.id === draggingNoteId);
+      if (noteToDelete) {
+        // Enter pending delete mode
+        setIsPendingDelete(true);
+        setPendingDeleteNote(noteToDelete);
+        setPendingDeletePosition({
+          x: lastDragPosition.current.x,
+          y: lastDragPosition.current.y
+        });
+        
+        // Immediately attempt to delete the note while keeping visual state
+        handleAttemptDelete(draggingNoteId);
+      }
     } else if (!preventReorder.current) {
       // Only update order if we're not deleting
       noteStore.updateNoteOrder(data);
+      
+      // Reset state
+      setDraggingNoteId(null);
+      isTrashVisible.value = false;
+      setIsHoveringTrash(false);
+      
+      // Feedback
+      triggerHaptic();
     }
-    
-    // Reset state
-    setDraggingNoteId(null);
-    isTrashVisible.value = false;
-    setIsHoveringTrash(false);
-    
-    // Feedback
-    triggerHaptic();
-  }, [draggingNoteId, isHoveringTrash, handleAttemptDelete, noteStore]);
+  }, [draggingNoteId, isHoveringTrash, handleAttemptDelete, noteStore, notes]);
 
   const renderItem = useCallback(({ item, drag, isActive }: RenderItemParams<Note>) => {
+    // Skip rendering this item if it's the one we're pending deletion for
+    if (isPendingDelete && pendingDeleteNote && pendingDeleteNote.id === item.id) {
+      return null; // Don't render the note in the list while we're showing it over the trash
+    }
+    
     // Find the index manually - RenderItemParams doesn't include index
     const itemIndex = notes.findIndex(note => note.id === item.id);
     
@@ -404,6 +432,9 @@ export default function NotesScreen() {
           isDragging={isActive}
           onEdit={handleEditNote}
           drag={() => {
+            // Don't allow new drags during pending delete
+            if (isPendingDelete) return;
+            
             // Start the drag and save the note ID and original index
             setDraggingNoteId(item.id);
             originalIndexRef.current = itemIndex;
@@ -416,7 +447,7 @@ export default function NotesScreen() {
         />
       </ScaleDecorator>
     );
-  }, [handleEditNote, notes]);
+  }, [handleEditNote, notes, isPendingDelete, pendingDeleteNote]);
 
   // Create an animated style for trash visibility
   const trashAnimatedStyle = useAnimatedStyle(() => {
@@ -427,6 +458,16 @@ export default function NotesScreen() {
       ]
     };
   });
+
+  // Style for the "ghost" note that stays in the trash area during delete confirmation
+  const ghostNoteStyle: ViewStyle = {
+    position: 'absolute', 
+    top: Dimensions.get('window').height - 160, // Position it just above the trash area
+    left: 20,
+    right: 20,
+    zIndex: 9999,
+    opacity: 0.9
+  };
 
   return (
     <YStack
@@ -473,6 +514,8 @@ export default function NotesScreen() {
               onDragEnd={handleDragEnd}
               numColumns={1}
               onDragBegin={(index) => {
+                if (isPendingDelete) return;
+                
                 const note = notes[index];
                 if (note) {
                   setDraggingNoteId(note.id);
@@ -500,16 +543,28 @@ export default function NotesScreen() {
             />
           </View>
           
+          {isPendingDelete && pendingDeleteNote && (
+            <View style={ghostNoteStyle}>
+              <NoteCard
+                note={pendingDeleteNote}
+                onPress={() => {}}
+                isDragging={false}
+                onEdit={() => {}}
+                drag={() => {}}
+              />
+            </View>
+          )}
+          
           <Animated.View style={[styles.trashOverlay, trashAnimatedStyle]}>
             <TrashcanArea 
               isVisible={true} 
-              isHovering={isHoveringTrash}
+              isHovering={isHoveringTrash || isPendingDelete}
             />
           </Animated.View>
         </GestureHandlerRootView>
       )}
       
-      {!draggingNoteId && (
+      {!draggingNoteId && !isPendingDelete && (
         <Button
           size="$4"
           circular

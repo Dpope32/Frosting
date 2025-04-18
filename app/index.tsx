@@ -18,7 +18,7 @@ export default function Index() {
     // Always proceed after 3 seconds, regardless of hydration status
     const timer = setTimeout(() => {
       setShowIntro(false);
-    }, 3000);
+    }, 1000);
     
     return () => clearTimeout(timer);
   }, []);

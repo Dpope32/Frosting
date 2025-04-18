@@ -10,10 +10,10 @@ interface TrashcanAreaProps {
   isHovering?: boolean;
 }
 
-export const TrashcanArea: React.FC<TrashcanAreaProps> = ({ 
-  isVisible, 
-  onLayout, 
-  isHovering = false 
+export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
+  isVisible,
+  onLayout,
+  isHovering = false
 }) => {
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -29,13 +29,18 @@ export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
   });
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[styles.container, animatedStyle]}
       onLayout={onLayout}
       testID="trashcan-drop-area"
     >
       <YStack alignItems="center" gap="$2">
         <Trash2 size={40} color="$red11" />
+        {isHovering && (
+          <Text color="$red11" fontWeight="bold">
+            Final answer?
+          </Text>
+        )}
       </YStack>
     </Animated.View>
   );

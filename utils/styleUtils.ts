@@ -105,3 +105,20 @@ export const getPriorityIonIcon = (priority?: string) => {
   };
   return icons[priority] || 'flag-outline';
 };
+
+// Habit color by category or fallback
+export const getHabitColor = (category?: string): string => {
+  // Map habit categories to colors, fallback to tagColors[0]
+  if (!category) return tagColors[0];
+  const habitColors: Record<string, string> = {
+    health: '#4CAF50',    // Green
+    productivity: '#2196F3', // Blue
+    mindfulness: '#9C27B0', // Purple
+    learning: '#FF9800',  // Orange
+    fitness: '#F44336',   // Red
+    reading: '#795548',   // Brown
+    hydration: '#00BCD4', // Cyan
+    // Add more as needed
+  };
+  return habitColors[category.toLowerCase()] || getCategoryColor(category as any) || tagColors[0];
+};

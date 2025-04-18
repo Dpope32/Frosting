@@ -9,7 +9,7 @@ const { height, width } = Dimensions.get('window')
 
 const toastStyle = {
   position: 'absolute' as const,
-  top: height * 0.15,
+  top: height * 0.12,
   left: 0,
   right: 0,
   alignItems: 'center' as const,
@@ -80,7 +80,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
 
   const backgroundMap: Record<ToastType, string> = {
-    success: 'rgba(34,197,94,0.15)',
+    success: 'rgba(34, 197, 94, 0.07)',
     error: 'rgba(239,68,68,0.15)',
     info: 'rgba(59,130,246,0.15)',
     warning: 'rgba(245,158,11,0.15)',
@@ -106,6 +106,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   const iconName = iconMap[type]
 
   return (
+    // @ts-ignore
     <Animated.View
       style={{
         opacity: fadeAnim,
