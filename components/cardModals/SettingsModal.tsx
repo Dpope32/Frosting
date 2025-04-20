@@ -272,26 +272,26 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <XStack gap="$4" justifyContent="center">
                   <YStack alignItems="center" gap={4} flex={1}>
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Quote</Text>
-                    <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor={'#fff'} trackColor={{ false: '$red10', true: settings.primaryColor }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor={settings.quoteEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
-                  <YStack alignItems="center" gap={4} flex={1}>
+                  <YStack alignItems="center" gap={4} flex={1}> 
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Stocks</Text>
-                    <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} thumbColor={'#fff'} trackColor={{ false: '$red10', true: settings.primaryColor }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} thumbColor={settings.portfolioEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                   <YStack alignItems="center" gap={4} flex={1}>
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Weather</Text>
-                    <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} thumbColor={'#fff'} trackColor={{ false: '$red10', true: settings.primaryColor }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} thumbColor={settings.temperatureEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                 </XStack>
                 <XStack gap="$4" justifyContent="space-around">
                   <YStack alignItems="center" gap={4} flex={1}>
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Network</Text>
-                    <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} thumbColor={'#fff'} trackColor={{ false: '$red10', true: settings.primaryColor }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} thumbColor={settings.wifiEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff'}} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                   {!isWeb && (
                     <YStack alignItems="center" gap={4} flex={1}>
                       <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Notifications</Text>
-                      <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor={'#fff'} trackColor={{ false: '$red10', true: settings.primaryColor }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
+                      <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor={settings.notificationsEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
                     </YStack>
                   )}
                   <YStack alignItems="center" gap={4} flex={1}>
@@ -311,9 +311,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <Switch
                   value={settings.quoteEnabled}
                   onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))}
-                  thumbColor={'#fff'}
-                  trackColor={{ false: '$red10', true: settings.primaryColor }}
-                  ios_backgroundColor="$red10"
+                  thumbColor={settings.quoteEnabled ? '$green10' : '$red10'}
+                  trackColor={{ false: '#fff', true: '#fff' }}
                   style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
                 />
               </YStack>
@@ -324,9 +323,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <Switch
                   value={settings.portfolioEnabled}
                   onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))}
-                  thumbColor={'#fff'}
-                  trackColor={{ false: '$red10', true: settings.primaryColor }}
-                  ios_backgroundColor="$red10"
+                  thumbColor={settings.portfolioEnabled ? '$green10' : '$red10'}
+                  trackColor={{ false: '$red10', true: '#fff' }}
                   style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
                 />
               </YStack>
@@ -337,8 +335,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <Switch
                   value={settings.temperatureEnabled}
                   onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))}
-                  thumbColor={'#fff'}
-                  trackColor={{ false: '$red10', true: settings.primaryColor }}
+                  thumbColor={settings.temperatureEnabled ? '$green10' : '$red10'}
+                  trackColor={{ false: '$red10', true: '#fff' }}
                   ios_backgroundColor="$red10"
                   style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
                 />
@@ -350,8 +348,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 <Switch
                   value={settings.wifiEnabled}
                   onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))}
-                  thumbColor={'#fff'}
-                  trackColor={{ false: '$red10', true: settings.primaryColor }}
+                  thumbColor={settings.wifiEnabled ? '$green10' : '$red10'}
+                  trackColor={{ false: '$red10', true: '#fff' }}
                   ios_backgroundColor="$red10"
                   style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
                 />
@@ -364,8 +362,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   <Switch
                     value={settings.notificationsEnabled}
                     onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))}
-                    thumbColor={'#fff'}
-                    trackColor={{ false: '$red10', true: settings.primaryColor }}
+                    thumbColor={settings.notificationsEnabled ? '$green10' : '$red10'}
+                    trackColor={{ false: '#fff', true: '$red10' }}
                     ios_backgroundColor="$red10"
                     style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
                   />
@@ -419,7 +417,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         marginTop={isWeb ? 0 : 12}
       >
         <Button
-          backgroundColor="transparent" height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
+          backgroundColor="transparent" borderColor={'$red10'} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
           disabled={isSigningOut}
           onPress={async () => {
             const message = "Are you sure you want to reset all your data? This cannot be undone..."

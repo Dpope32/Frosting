@@ -54,15 +54,16 @@ export default function BillsScreen() {
     <YStack f={1} mt={isWeb ? 45 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
       {isWeb ? (
         <XStack 
-          width="100%" 
-          height={20}
+          width="96%" 
+          mx="auto" 
+          p="$4" 
           mb="$6"
           ai="center"
           jc="flex-start"
           gap="$6+"
-          px={0} 
+          br="$4" 
         >
-          <XStack gap="$4" ai="center" flex={1} jc="flex-start" pl="$6">
+          <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
             <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
@@ -202,7 +203,6 @@ export default function BillsScreen() {
           justifyContent: isWeb ? 'flex-start' : undefined,
           gap: isWeb ? 20 : undefined, 
           maxWidth: isWeb ? 1780 : undefined, 
-          marginHorizontal: isWeb ? 'auto' : undefined,
         }}
       >
         {isLoading ? (

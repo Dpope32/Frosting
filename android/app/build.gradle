@@ -87,14 +87,14 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.deedaw22.kaibanexus'
-    defaultConfig {
-        applicationId 'com.deedaw22.kaibanexus'
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.18"
-    }
+    namespace 'com.deedaw22.kaiba'
+        defaultConfig {
+            applicationId 'com.deedaw22.kaiba'
+            minSdkVersion rootProject.ext.minSdkVersion
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            versionCode 61 
+            versionName "1.1.61" 
+        }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -102,15 +102,19 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('kaiba-release-key.keystore')
+            storePassword 'Johnfkennedy2!'
+            keyAlias 'kaiba-key-alias'  
+            keyPassword 'Johnfkennedy2!'
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

@@ -16,9 +16,6 @@ const MarqueeStyles = () => {
         animation: marquee 40s linear infinite;
         will-change: transform;
       }
-      .marquee-content:hover {
-        animation-play-state: paused;
-      }
     `}} />
   );
 };
@@ -39,7 +36,7 @@ const MarqueeContent = styled(XStack, {
 });
 
 export default function WelcomeScreen({}: { onComplete: () => void }) {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  // Removed mousePos state for performance optimization
   const [rotation, setRotation] = useState(0);
   const targetRotation = useRef(0);
   const animationRef = useRef<number>();
@@ -69,8 +66,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
     window.addEventListener('resize', updateScreenCenter);
 
     const handleMouseMove = (event: MouseEvent) => {
-      // Update mouse position for spotlight
-      setMousePos({ x: event.clientX, y: event.clientY });
+      // Update CSS custom properties for spotlight instead of state
+      document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`);
 
       // Existing rotation logic
       const mouseX = event.clientX;
@@ -88,6 +86,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       }
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', updateScreenCenter);
+      // Clean up CSS variables
+      document.documentElement.style.removeProperty('--mouse-x');
+      document.documentElement.style.removeProperty('--mouse-y');
     };
   }, []);
 
@@ -205,12 +206,12 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
     backgroundPosition: `${gradientPos}% 50%`
   } : {};
 
-  // Spotlight style (applied directly to the main YStack)
+  // Spotlight style (applied directly to the main YStack) - using CSS variables
   const spotlightStyle = isWeb ? {
-    backgroundImage: `radial-gradient(circle at ${mousePos.x}px ${mousePos.y}px, rgba(255, 255, 255, 0.12) 0%, transparent 30%)`,
+    // Using CSS variables for mouse position and adjusted gradient for concentration
+    backgroundImage: `radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.15) 0%, transparent 15%)`,
     backgroundAttachment: 'fixed', // Keep spotlight fixed relative to viewport
     backgroundSize: 'cover',      // Ensure gradient covers the area
-    // No backgroundPosition needed here as it's controlled by mousePos
   } : {};
 
 

@@ -193,7 +193,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       scale={1}
       minWidth={0}
       flex={Platform.OS === 'web' ? 1 : 0}
-      width={width || (Platform.OS === 'web' ? 'auto' : 130)}
+      width={width || (Platform.OS === 'web' ? 150 : 120)}
       marginBottom={Platform.OS === 'web' ? 0 : '$1'}
     >
       <XStack gap={Platform.OS === 'web' ? '$2' : '$1'} alignItems="center" justifyContent="center" >
@@ -202,7 +202,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
           color={style.textColor} 
           fontFamily="$body" 
           fontSize={isWeb ? 13 : 12}  
-          fontWeight="900" 
+          fontWeight="500" 
           numberOfLines={1}
         > 
           {category}  

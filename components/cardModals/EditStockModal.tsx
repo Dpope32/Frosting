@@ -241,19 +241,8 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
 
       // Show success message
       setError('')
-
-      // Show toast only when adding a new stock
-      if (!stock) {
-        showToast('Successfully added stock!')
-      }
-
-      // Add haptic feedback on mobile
-      if (Platform.OS !== 'web') {
-        Vibration.vibrate(100)
-      }
-
-      // Close the modal
       onOpenChange(false)
+      showToast('Successfully added stock!', 'success')
     } catch (err) {
       setError('Failed to update portfolio. Please try again.')
     }

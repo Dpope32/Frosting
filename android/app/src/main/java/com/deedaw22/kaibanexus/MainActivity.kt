@@ -1,4 +1,4 @@
-package com.deedaw22.kaibanexus
+package com.deedaw22.kaiba
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

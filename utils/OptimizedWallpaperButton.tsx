@@ -182,6 +182,7 @@ export const OptimizedWallpaperButton = ({
               color={isDark ? '#fff' : '#000'}
               fontSize={10}
               fontWeight="500"
+              fontFamily="$body"
             >
               Selected
             </Text>

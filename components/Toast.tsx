@@ -122,7 +122,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
       }}
     >
       <BlurView
-        intensity={50}
+        intensity={80}
         tint="dark"
         style={{
           flexDirection: 'row',
@@ -144,10 +144,10 @@ const ToastItem: React.FC<ToastItemProps> = ({
         />
         <Text
           color={textColor}
-          fontSize={isLarge ? '$5' : 16}
+          fontSize={isLarge ? '$4' : 16}
           fontFamily={fontFamily}
           numberOfLines={1}
-          fontWeight="bold"
+          fontWeight="500"
           ellipsizeMode="tail"
         >
           {message}

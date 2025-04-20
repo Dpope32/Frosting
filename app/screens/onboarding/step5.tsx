@@ -229,14 +229,13 @@ export default function Step5({
             isWeb ? (
               <XStack
                 width="100%"
-                justifyContent="space-between"
+                justifyContent="center"
                 alignItems="center"
                 animation="quick"
                 enterStyle={{ opacity: 0, y: -10 }}
-                gap="$4"
+                gap="$6" 
               >
                 <YStack 
-                  flex={1} 
                   backgroundColor={preferencesBackgroundColor} 
                   br={16}
                   padding="$4"
@@ -274,7 +273,6 @@ export default function Step5({
                     </XStack>
                 </YStack>
                 <YStack
-                  flex={1}
                   backgroundColor={preferencesBackgroundColor}
                   br={16}
                   padding="$4"
@@ -313,19 +311,20 @@ export default function Step5({
                 </YStack>
                 <Button
                   variant="outlined"
-                  size="$3" 
+                  size="$3"
                   onPress={handleSkip}
                   br={12}
-                  borderColor="$onboardingButtonSecondaryBorder" 
-                  backgroundColor="transparent" 
+                  borderColor="$onboardingButtonSecondaryBorder"
+                  backgroundColor="transparent"
+                  alignSelf="center"
                   hoverStyle={{
-                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)', 
+                    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
                   }}
                   pressStyle={{
                     scale: 0.97
                   }}
                 >
-                  <Text fontFamily="$body" color="$onboardingButtonPrimary">or skip for now</Text> 
+                  <Text fontFamily="$body" color="$onboardingButtonPrimary">or skip for now</Text>
                 </Button>
               </XStack>
             ) : (

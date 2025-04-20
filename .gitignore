@@ -34,6 +34,10 @@ ios/*
 *.p12
 *.key
 *.mobileprovision
+android/app/build.gradle
+android\app\build.gradle
+android\app\src\main\build.gradle
+android/app/src/main/build.gradle
 
 # Metro
 .metro-health-check*
@@ -83,3 +87,5 @@ coverage/
 .cache/
 
 .env.local
+android/app/build.gradle
+

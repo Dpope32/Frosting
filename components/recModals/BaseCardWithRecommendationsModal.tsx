@@ -10,7 +10,8 @@ interface BaseCardWithRecommendationsModalProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   children: React.ReactNode;
-  recommendations: React.ReactNode; 
+  recommendationChips?: React.ReactNode;
+  filterChips?: React.ReactNode;
   snapPoints?: number[];
   position?: number;
   dismissOnSnapToBottom?: boolean;
@@ -24,12 +25,13 @@ export function BaseCardWithRecommendationsModal({
   onOpenChange,
   title,
   children,
-  recommendations,
+  recommendationChips,
+  filterChips,
   snapPoints = isWeb ? [95] : [90],
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000,
-  showCloseButton = true, 
+  showCloseButton = true,
   hideHandle = false
 }: BaseCardWithRecommendationsModalProps) {
   const colorScheme = useColorScheme();
@@ -49,7 +51,7 @@ export function BaseCardWithRecommendationsModal({
         position={position}
         dismissOnSnapToBottom={dismissOnSnapToBottom}
         zIndex={zIndex}
-        disableDrag={false} 
+        disableDrag={false}
       >
         <Sheet.Overlay
           animation="quick"
@@ -103,19 +105,32 @@ export function BaseCardWithRecommendationsModal({
                     </XStack>
                   </Animated.View>
 
-                  <YStack paddingBottom="$4" mt="$1">
-                    <RNScrollView
-                      ref={horizontalScrollRef} 
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={{ paddingHorizontal: 4 }}  
-                    >
-                      <XStack gap="$2">
-                        {recommendations}
-                      </XStack>
-                    </RNScrollView>
-                  </YStack>
-
+                  {(recommendationChips || filterChips) && (
+                    <YStack paddingBottom="$4" mt="$1">
+                      {recommendationChips && (
+                        <RNScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={{ paddingHorizontal: 4, marginBottom: filterChips ? 8 : 0 }}
+                        >
+                          <XStack gap="$2">
+                            {recommendationChips}
+                          </XStack>
+                        </RNScrollView>
+                      )}
+                      {filterChips && (
+                         <RNScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={{ paddingHorizontal: 4 }}
+                        >
+                          <XStack gap="$2">
+                            {filterChips}
+                          </XStack>
+                        </RNScrollView>
+                      )}
+                    </YStack>
+                  )}
                   <Sheet.ScrollView
                     bounces={false}
                     showsVerticalScrollIndicator={false}
