@@ -139,7 +139,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
         snapPoints={isWeb ? [95] : [90]}
         showCloseButton={true}
         zIndex={100000}
-        recommendations={billRecommendations} 
+        recommendationChips={billRecommendations} 
       >
         <>
         {bills && bills.length > 0 ? (

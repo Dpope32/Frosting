@@ -2,7 +2,7 @@
 import React from 'react'
 import { AlertDialog, Button, YStack, XStack, isWeb } from 'tamagui'
 import { Task } from '@/types/task'
-import { useColorScheme } from '@/hooks/useColorScheme'
+import { useColorScheme as useRNColorScheme } from 'react-native'
 
 interface DeleteTaskDialogProps {
   task: Task | null
@@ -12,7 +12,7 @@ interface DeleteTaskDialogProps {
 }
 
 export const DeleteTaskDialog: React.FC<DeleteTaskDialogProps> = ({ task, isOpen, onCancel, onConfirm }) => {
-  const isDark = useColorScheme() === 'dark'
+  const isDark = useRNColorScheme() === 'dark'
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onCancel}>

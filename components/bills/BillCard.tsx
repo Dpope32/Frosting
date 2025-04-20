@@ -4,6 +4,10 @@ import { CheckCircle } from '@tamagui/lucide-icons'
 import type { Bill } from '@/types/bills'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices'
 import { useColorScheme } from '@/hooks/useColorScheme'
+import { LongPressDelete } from '../common/LongPressDelete'
+import { useToastStore } from '@/store/ToastStore'
+import { Alert, Platform } from 'react-native'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface BillCardProps {
   bill: Bill
@@ -26,34 +30,65 @@ export const BillCard = ({
   const isDark = colorScheme === 'dark'
   const IconComponent = getIconForBill(bill.name)
   const amountColor = getAmountColor(bill.amount)
+  const showToast = useToastStore(s => s.showToast)
+  const queryClient = useQueryClient()
   
   const isPastDue = bill.dueDate < currentDay
   const isDueToday = bill.dueDate === currentDay
 
+  const handleDelete = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm(`Are you sure you want to delete "${bill.name}"? This action cannot be undone.`)) {
+        onDelete(bill.id)
+        queryClient.invalidateQueries({ queryKey: ['bills'] })
+        setTimeout(() => {
+          showToast(`Deleted ${bill.name}`, 'success')
+        }, 100)
+      }
+    } else {
+      Alert.alert(
+        'Delete Bill',
+        `Are you sure you want to delete "${bill.name}"? This action cannot be undone.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Delete', 
+            style: 'destructive',
+            onPress: () => {
+              onDelete(bill.id)
+              queryClient.invalidateQueries({ queryKey: ['bills'] })
+              setTimeout(() => {
+                showToast(`Deleted ${bill.name}`, 'success')
+              }, 100)
+            }
+          }
+        ]
+      )
+    }
+  }
 
-  return isWeb ? (
+  const content = (
     <XStack 
       bg={isDark ? "#111" : "#f5f5f5"}
-      px="$5"
-      py="$4"
+      p={isWeb ? "$3" : "$4"}
+      mb="$2"
       br="$4" 
       ai="center" 
       animation="quick"
       borderWidth={1}
       borderColor={isDueToday ? primaryColor : isDark ? "#222" : "#e0e0e0"}
-      width={columnWidth}
-      minWidth={300}
-      height={110}
+      width={isWeb ? columnWidth : "100%"}
+      height={isWeb ? 80 : undefined}
       position="relative"
       opacity={isPastDue ? 0.8 : 1}
-      hoverStyle={{ 
+      hoverStyle={isWeb ? { 
         transform: [{ scale: 1.02 }],
         borderColor: primaryColor,
         shadowColor: primaryColor,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
         shadowRadius: 8
-      }}
+      } : undefined}
     >
       {isPastDue && (
         <YStack
@@ -75,8 +110,8 @@ export const BillCard = ({
         </YStack>
       )}
       
-     <YStack flex={1} zIndex={1} jc="center" mt="$-1" pb="$1">
-        <XStack jc="space-between" ai="center" >
+      <YStack flex={1} zIndex={1} jc="center">
+        <XStack jc="space-between" ai="center">
           <Text 
             color={isDark ? "#f9f9f9" : "#222"} 
             fontSize="$4" 
@@ -110,70 +145,11 @@ export const BillCard = ({
         </XStack>
       </YStack>
     </XStack>
-  ) : (
-    <XStack 
-      bg={isDark ? "#1A1A1A" : "#f5f5f5"}
-      p="$3"
-      mb="$2"
-      br="$4" 
-      ai="center" 
-      pressStyle={{ opacity: 0.7 }} 
-      animation="quick"
-      borderWidth={1}
-      borderColor={isDueToday ? primaryColor : isDark ? "#333" : "#e0e0e0"}
-      width="100%"
-      position="relative"
-      opacity={isPastDue ? 0.8 : 1}
-    >
-      <YStack 
-        width={44} 
-        height={44} 
-        br="$4" 
-        ai="center" 
-        jc="center" 
-        bg={isDark ? "#333" : "#e0e0e0"}
-        zIndex={1}
-      >
-        <IconComponent size={26} color={isDark ? "white" : "#666"} />
-      </YStack>
-      
-      {isPastDue && (
-        <YStack
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          br="$4"
-          bg={isDark ? "rgba(0,0,0,0.8)" : "rgba(0,0,0,0.8)"}
-          ai="center"
-          jc="center"
-          zIndex={5}
-        >
-          <XStack ai="center" gap="$2">
-            <CheckCircle size={20} color="#4CAF50" />
-            <Text color="#4CAF50" fontSize="$4" fontWeight="bold" fontFamily="$body">Paid</Text>
-          </XStack>
-        </YStack>
-      )}
-      
-      <YStack ml="$3" flex={1} zIndex={1}>
-        <Text 
-          color={isDueToday ? "$red11" : isDark ? "#fffbf7" : "#000"} 
-          fontSize="$4" 
-          fontWeight="bold"
-          fontFamily="$body"
-        >
-          {bill.name}
-          {isDueToday && " (due today)"}
-        </Text>
-        <XStack ai="center" gap="$1">
-          <Paragraph color={amountColor} fontSize="$4" fontWeight={900} fontFamily="$body">
-            ${bill.amount.toFixed(2)}
-          </Paragraph>
-          <Paragraph color="#fffbf7" fontSize="$4" fontFamily="$body"> • Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}  </Paragraph>
-        </XStack>
-      </YStack>
-    </XStack>
+  )
+
+  return (
+    <LongPressDelete onDelete={handleDelete}>
+      {content}
+    </LongPressDelete>
   )
 }

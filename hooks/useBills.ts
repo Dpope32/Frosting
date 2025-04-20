@@ -1,4 +1,4 @@
-import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { useBillStore } from '@/store/BillStore';
 import { Bill } from '@/types/bills';
 import { useMemo } from 'react';
@@ -28,6 +28,31 @@ export function useBills() {
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+  });
+
+  const deleteBillMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const billToDelete = bills?.find(b => b.id === id);
+      const billName = billToDelete?.name || '';
+
+      // Delete from store
+      deleteBillFromStore(id);
+      
+      // Delete associated events
+      const billEvents = events.filter(
+        event => event.type === 'bill' && event.title.includes(billName)
+      );
+      
+      for (const event of billEvents) {
+        deleteEvent(event.id);
+      }
+
+      return { id, name: billName };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['bills'] });
+      showToast(`Deleted ${data.name}`, 'success');
+    }
   });
 
   const getDayName = (date: Date): WeekDay => {
@@ -73,27 +98,6 @@ export function useBills() {
     queryClient.refetchQueries({ queryKey: ['bills'] });
   };
 
-  const deleteBill = async (id: string) => {
-    // Delete the bill from store
-    deleteBillFromStore(id);
-    
-    // Delete associated calendar events
-    const billEvents = events.filter(
-      event => event.type === 'bill' && event.title.includes(bills?.find(b => b.id === id)?.name || '')
-    );
-    
-    for (const event of billEvents) {
-      deleteEvent(event.id);
-    }
-
-    // Show success toast
-    showToast("Bill deleted successfully", "success");
-
-    // Force immediate refetch to update UI
-    queryClient.invalidateQueries({ queryKey: ['bills'] });
-    queryClient.refetchQueries({ queryKey: ['bills'] });
-  };
-
   // Calculate total monthly bills amount
   const totalMonthlyAmount = useMemo(() => {
     if (!bills || bills.length === 0) return 0;
@@ -109,7 +113,7 @@ export function useBills() {
     bills,
     isLoading,
     addBill,
-    deleteBill,
+    deleteBill: deleteBillMutation.mutate,
     monthlyIncome,
     setMonthlyIncome,
     totalMonthlyAmount,

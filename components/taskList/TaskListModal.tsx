@@ -1,7 +1,8 @@
 // components/tasklist/TaskListModal.tsx
 import React from 'react'
-import { XStack  } from 'tamagui' 
-import { useColorScheme } from 'react-native'
+import { XStack, isWeb } from 'tamagui' 
+import { useColorScheme, Platform, Alert } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'
 import { FilterChip } from './filterChip'
 import { DeleteTaskDialog } from './DeleteTaskDialog'
@@ -114,15 +115,57 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
     </>
   ), [openRecModal, onOpenChange, isDark]); 
 
-  const onLongPress = (task: Task) => { setDialogTask(task); setDialogOpen(true) }
+  const onLongPress = (task: Task) => {
+    if (Platform.OS === 'web') {
+      setDialogTask(task);
+      setDialogOpen(true);
+    } else {
+      // Use native Alert for mobile
+      if (task.category === 'bills') {
+        Alert.alert(
+          'Bills Notice',
+          'To delete bills, please go to the Bills screen.',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Delete Task',
+          `Are you sure you want to delete "${task.name}"? This action cannot be undone.`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Delete', 
+              style: 'destructive',
+              onPress: () => {
+                deleteTask(task.id);
+                onOpenChange(false);
+                showToast(`Deleted "${task.name}"`, 'success');
+              }
+            }
+          ]
+        );
+      }
+    }
+  }
+
   const onConfirm = () => {
-    if (dialogTask?.category==='bills') showToast('Delete in Bills screen','warning')
-    else if (dialogTask) { deleteTask(dialogTask.id); showToast('Deleted','success') }
-    setDialogOpen(false); setDialogTask(null)
+    if (dialogTask?.category === 'bills') {
+      showToast('Delete in Bills screen', 'warning');
+    } else if (dialogTask) {
+      const taskName = dialogTask.name; // Store the name before cleanup
+      deleteTask(dialogTask.id);
+      setDialogOpen(false);
+      setDialogTask(null);
+      onOpenChange(false);
+      // Show toast after modal is closed
+      setTimeout(() => {
+        showToast(`Deleted "${taskName}"`, 'success');
+      }, 100);
+    }
   }
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <BaseCardWithRecommendationsModal
         open={open}
         onOpenChange={o => { if(!o) setFilter(null); onOpenChange(o) }}
@@ -138,12 +181,14 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
           />
         )))}
       </BaseCardWithRecommendationsModal>
-      <DeleteTaskDialog
-        task={dialogTask}
-        isOpen={dialogOpen}
-        onCancel={() => setDialogOpen(false)}
-        onConfirm={onConfirm}
-      />
-    </>
+      {Platform.OS === 'web' && (
+        <DeleteTaskDialog
+          task={dialogTask}
+          isOpen={dialogOpen}
+          onCancel={() => setDialogOpen(false)}
+          onConfirm={onConfirm}
+        />
+      )}
+    </GestureHandlerRootView>
   )
 }

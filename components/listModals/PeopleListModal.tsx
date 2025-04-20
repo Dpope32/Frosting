@@ -56,7 +56,7 @@ export function PeopleListModal({ open, onOpenChange }: PeopleListModalProps) {
       title="Contacts"
       snapPoints={isWeb ? [95] : [85]} 
       showCloseButton={true}
-      recommendations={crmRecommendations}
+      recommendationChips={crmRecommendations}
     >
       <>
         {allContacts.length > 0 ? (

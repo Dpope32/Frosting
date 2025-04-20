@@ -164,7 +164,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         zIndex={100000}
         showCloseButton={true} 
         hideHandle={true}
-        recommendations={vaultRecommendations} 
+        recommendationChips={vaultRecommendations} 
       >
         <>
             {data?.items && data.items.length > 0 ? (
