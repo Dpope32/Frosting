@@ -21,7 +21,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const screen = Platform.OS
 
   const longPress = Gesture.LongPress()
-    .minDuration(500)
+    .minDuration(1000)
     .onStart(() => {
       if (screen !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
       scale.value = withTiming(1.05, { duration: 150 })
