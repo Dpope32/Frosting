@@ -195,7 +195,7 @@ export const getGreeting = (username: string, temp?: number): string => {
     `All hail ${username}!`,
     `Welcome to the matrix, ${username}.`,
     `Ready to conquer ${dayOfWeek}?`,
-    `It's a beautiful ${dayOfWeek}, ${username}!`,
+    `It's a beautiful ${dayOfWeek}`,
     `Alert: ${username} detected.`,
     `The one and only ${username}!`,
     `You again, ${username}?`,
@@ -216,14 +216,13 @@ export const getGreeting = (username: string, temp?: number): string => {
     `Let's make today awesome, ${username}!`,
     `Who let the ${username} out?`,
     `You're back!`,
-    `Hey ${username}, ready to conquer ${dayOfWeek}?`,
+    `Ready to conquer ${dayOfWeek}?`,
     `Let's make today awesome, ${username}!`,
     `Who let the ${username} out?`,
     `You're back! ${username} is here!`,
     `Hey ${username}, ready to conquer ${dayOfWeek}?`,
     'Well, well, well..',
     'About time you check your fav app!',
-    'OH ${username}!',
   ];
 
   // --- Regular Personalized Greetings (expanded) ---

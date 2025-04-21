@@ -173,7 +173,7 @@ export function AddNoteSheet({
       />
       <Sheet.Frame
         paddingHorizontal="$5"
-        paddingBottom="$4"
+        paddingBottom="$8"
         paddingTop={isWeb ? "$1" : 0}
         backgroundColor="$background"
         maxWidth={isWeb ? 600 : "100%"}
@@ -199,9 +199,11 @@ export function AddNoteSheet({
         </XStack>
         
         <KeyboardAvoidingView 
+          enabled={Platform.OS === 'ios'}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1, justifyContent: 'flex-end' }}
           keyboardVerticalOffset={Platform.OS === 'ios' ? -124 : 0}
+          
         >
           <YStack flex={1}>
             <RNScrollView
