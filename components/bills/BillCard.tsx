@@ -7,13 +7,12 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { LongPressDelete } from '../common/LongPressDelete'
 import { useToastStore } from '@/store/ToastStore'
 import { Alert, Platform } from 'react-native'
-import { useQueryClient } from '@tanstack/react-query'
 
 interface BillCardProps {
   bill: Bill
   currentDay: number
   primaryColor: string
-  onDelete: (id: string) => void
+  onDelete: (id: string) => void  // This is deleteBillMutation.mutate
   isWeb: boolean
   columnWidth?: string
 }
@@ -31,19 +30,19 @@ export const BillCard = ({
   const IconComponent = getIconForBill(bill.name)
   const amountColor = getAmountColor(bill.amount)
   const showToast = useToastStore(s => s.showToast)
-  const queryClient = useQueryClient()
   
   const isPastDue = bill.dueDate < currentDay
   const isDueToday = bill.dueDate === currentDay
 
   const handleDelete = () => {
+    const confirmDelete = () => {
+      // Just call the mutation directly - it handles everything internally
+      onDelete(bill.id);
+    };
+    
     if (Platform.OS === 'web') {
       if (window.confirm(`Are you sure you want to delete "${bill.name}"? This action cannot be undone.`)) {
-        onDelete(bill.id)
-        queryClient.invalidateQueries({ queryKey: ['bills'] })
-        setTimeout(() => {
-          showToast(`Deleted ${bill.name}`, 'success')
-        }, 100)
+        confirmDelete();
       }
     } else {
       Alert.alert(
@@ -51,19 +50,9 @@ export const BillCard = ({
         `Are you sure you want to delete "${bill.name}"? This action cannot be undone.`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Delete', 
-            style: 'destructive',
-            onPress: () => {
-              onDelete(bill.id)
-              queryClient.invalidateQueries({ queryKey: ['bills'] })
-              setTimeout(() => {
-                showToast(`Deleted ${bill.name}`, 'success')
-              }, 100)
-            }
-          }
+          { text: 'Delete', style: 'destructive', onPress: confirmDelete }
         ]
-      )
+      );
     }
   }
 
@@ -126,7 +115,7 @@ export const BillCard = ({
         <XStack mt="$1" ai="center" gap="$1">
           <YStack 
             width={42} 
-            height={42} 
+            height={28} 
             br="$6" 
             ai="center" 
             jc="center" 

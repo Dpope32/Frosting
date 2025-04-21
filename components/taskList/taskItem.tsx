@@ -28,7 +28,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const isDark = useColorScheme() === 'dark'
   const scale = useSharedValue(1)
   const progress = useSharedValue(0)
-  const isReady = useSharedValue(false)
+  const isDeleting = useSharedValue(false)
   const screen = Platform.OS
   const LONG_PRESS_DURATION = 800 // 0.8 seconds
 
@@ -50,11 +50,19 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     }
   }
 
+  const triggerDeleteAction = () => {
+    if (!isDeleting.value) {
+      isDeleting.value = true;
+      handleNotificationFeedback();
+      onLongPress(task);
+    }
+  };
+
   const longPressGesture = Gesture.LongPress()
     .minDuration(50)
     .onBegin(() => {
       'worklet';
-      isReady.value = false;
+      isDeleting.value = false;
       runOnJS(handleHapticFeedback)();
       scale.value = withSpring(1.02, { damping: 15, stiffness: 100 });
       progress.value = withTiming(1, { 
@@ -62,27 +70,28 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
         easing: Easing.linear 
       }, (finished) => {
         if (finished) {
-          isReady.value = true;
           runOnJS(handleReadyHaptic)();
+          // Automatically trigger delete when progress completes
+          runOnJS(triggerDeleteAction)();
         }
       });
     })
     .onFinalize(() => {
       'worklet';
-      if (isReady.value) {
-        runOnJS(handleNotificationFeedback)();
-        runOnJS(onLongPress)(task);
+      // Only reset visuals if we're not deleting
+      if (!isDeleting.value) {
+        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+        progress.value = withTiming(0, { duration: 200 });
       }
-      isReady.value = false;
-      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      progress.value = withTiming(0, { duration: 200 });
     })
     .onTouchesMove(() => {
       'worklet';
-      cancelAnimation(progress);
-      progress.value = withTiming(0, { duration: 200 });
-      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      isReady.value = false;
+      // Only cancel if not already deleting
+      if (!isDeleting.value) {
+        cancelAnimation(progress);
+        progress.value = withTiming(0, { duration: 200 });
+        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      }
     });
 
   const animatedStyle = useAnimatedStyle(() => ({ 
@@ -166,7 +175,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       <Animated.View style={deleteTextStyle}>
         <XStack gap="$2" ai="center">
           <Ionicons name="trash-outline" size={16} color="#ff3b30" />
-          <Text color="#ff3b30" fontSize={12} fontWeight="500">Release to Delete</Text>
+          <Text color="#ff3b30" fontSize={12} fontWeight="500">Hold to Delete</Text>
         </XStack>
       </Animated.View>
       <Animated.View style={progressStyle} />
@@ -174,9 +183,11 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   );
 
   const webTimer = useRef<NodeJS.Timeout>()
+  
   const handlePressIn = () => {
     if (screen === 'web') webTimer.current = setTimeout(() => onLongPress(task), 500)
   }
+  
   const handlePressOut = () => {
     if (screen === 'web') clearTimeout(webTimer.current)
   }

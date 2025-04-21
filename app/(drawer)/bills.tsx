@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform } from 'react-native';
-import { Button, XStack, YStack, Text } from 'tamagui';
+import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BillCard } from '@/components/bills/BillCard';
@@ -20,7 +20,20 @@ export default function BillsScreen() {
   const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
   const [insuranceModalOpen, setInsuranceModalOpen] = useState(false);
   
-  const { bills,  addBill,  deleteBill,  isLoading,  monthlyIncome,  setMonthlyIncome, totalMonthlyAmount, monthlyBalance} = useBills();
+  const { 
+    bills, 
+    addBill, 
+    deleteBill, 
+    isLoading, 
+    monthlyIncome, 
+    setMonthlyIncome, 
+    totalMonthlyAmount, 
+    monthlyBalance
+  } = useBills();
+
+  // Track if delete mutation is in progress
+  const [isDeletingBill, setIsDeletingBill] = useState(false);
+  
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -49,6 +62,20 @@ export default function BillsScreen() {
   const columnCount = getColumnCount();
   const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 29 / columnCount}px)`;
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
+
+  // Wrapped delete function to handle UI state
+  const handleDeleteBill = (id: string) => {
+    setIsDeletingBill(true);
+    
+    // Add a slight delay to allow UI to update
+    setTimeout(() => {
+      deleteBill(id);
+      // Clear the deleting state after a short delay
+      setTimeout(() => {
+        setIsDeletingBill(false);
+      }, 300);
+    }, 0);
+  };
 
   return (
     <YStack f={1} mt={isWeb ? 45 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
@@ -112,7 +139,7 @@ export default function BillsScreen() {
         <Animated.View 
           entering={FadeIn.duration(600)}
           style={{
-            width: '93%',
+            width: '90%',
             marginHorizontal: 'auto',
             borderRadius: 12,
             borderWidth: 1.5,
@@ -189,19 +216,49 @@ export default function BillsScreen() {
         </Animated.View>
       )}
       
+      {isDeletingBill && (
+        <YStack
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          zIndex={1000}
+          alignItems="center"
+          justifyContent="center"
+          backgroundColor={isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)"}
+        >
+          <XStack
+            backgroundColor={isDark ? "#222" : "white"}
+            padding="$4"
+            borderRadius="$4"
+            alignItems="center"
+            gap="$3"
+            shadowColor="black"
+            shadowOffset={{ width: 0, height: 4 }}
+            shadowOpacity={0.2}
+            shadowRadius={8}
+            elevation={8}
+          >
+            <Spinner size="large" color={primaryColor} />
+            <Text fontWeight="600" color={isDark ? "white" : "black"}>Deleting bill...</Text>
+          </XStack>
+        </YStack>
+      )}
+      
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
           padding: isWeb ? 12 : 6,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 0 : 12,
-          paddingLeft: isWeb ? 40 : 16,
-          paddingRight: isWeb ? 20 : 16, 
+          paddingLeft: isWeb ? 40 : 20,
+          paddingRight: isWeb ? 20 : 20, 
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,
           justifyContent: isWeb ? 'flex-start' : undefined,
-          gap: isWeb ? 20 : undefined, 
+          gap: isWeb ? 20 : 6, 
           maxWidth: isWeb ? 1780 : undefined, 
         }}
       >
@@ -242,7 +299,7 @@ export default function BillsScreen() {
               bill={bill}
               currentDay={currentDay}
               primaryColor={primaryColor}
-              onDelete={deleteBill}
+              onDelete={handleDeleteBill}
               isWeb={isWeb}
               columnWidth={columnWidth}
             />

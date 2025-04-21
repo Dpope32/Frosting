@@ -1,10 +1,10 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, Platform, Pressable } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
   withSpring,
   runOnJS,
   Easing,
@@ -23,61 +23,77 @@ interface LongPressDeleteProps {
 export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, children }) => {
   const scale = useSharedValue(1)
   const progress = useSharedValue(0)
-  const isReady = useSharedValue(false)
+  const isDeleting = useSharedValue(false)
+  const screen = Platform.OS
   const LONG_PRESS_DURATION = 800
-
+  
   const handleHapticFeedback = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    if (screen !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    }
   }
-
+  
   const handleReadyHaptic = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+    if (screen !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+    }
   }
-
+  
   const handleNotificationFeedback = () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    if (screen !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    }
   }
 
+  const triggerDeleteAction = () => {
+    if (!isDeleting.value) {
+      isDeleting.value = true;
+      handleNotificationFeedback();
+      onDelete();
+    }
+  };
+  
   const longPressGesture = Gesture.LongPress()
     .minDuration(50)
     .onBegin(() => {
       'worklet';
-      isReady.value = false;
+      isDeleting.value = false;
       runOnJS(handleHapticFeedback)();
       scale.value = withSpring(1.02, { damping: 15, stiffness: 100 });
-      progress.value = withTiming(1, { 
+      progress.value = withTiming(1, {
         duration: LONG_PRESS_DURATION,
-        easing: Easing.linear 
+        easing: Easing.linear
       }, (finished) => {
         if (finished) {
-          isReady.value = true;
           runOnJS(handleReadyHaptic)();
+          // Automatically trigger delete when progress completes
+          runOnJS(triggerDeleteAction)();
         }
       });
     })
     .onFinalize(() => {
       'worklet';
-      if (isReady.value) {
-        runOnJS(handleNotificationFeedback)();
-        runOnJS(onDelete)();
+      // Only reset visuals if we're not deleting
+      if (!isDeleting.value) {
+        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+        progress.value = withTiming(0, { duration: 200 });
       }
-      isReady.value = false;
-      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      progress.value = withTiming(0, { duration: 200 });
     })
     .onTouchesMove(() => {
       'worklet';
-      cancelAnimation(progress);
-      progress.value = withTiming(0, { duration: 200 });
-      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      isReady.value = false;
+      // Only cancel if not already deleting
+      if (!isDeleting.value) {
+        cancelAnimation(progress);
+        progress.value = withTiming(0, { duration: 200 });
+        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      }
     });
-
-  const animatedStyle = useAnimatedStyle(() => ({ 
+    
+  const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     position: 'relative',
   }));
-
+  
   const progressStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     bottom: 0,
@@ -88,7 +104,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
     borderRadius: 2,
     zIndex: 999,
   }));
-
+  
   const deleteIndicatorStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     top: 0,
@@ -100,7 +116,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
     borderRadius: 8,
     zIndex: 1,
   }));
-
+  
   const deleteTextStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     right: 16,
@@ -110,19 +126,32 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
     zIndex: 2,
   }));
 
-  return (
-    <GestureDetector gesture={longPressGesture}>
-      <Animated.View style={animatedStyle}>
-        <Animated.View style={deleteIndicatorStyle} />
-        <View style={{ zIndex: 3 }}>{children}</View>
-        <Animated.View style={deleteTextStyle}>
-          <XStack gap="$2" ai="center">
-            <Ionicons name="trash-outline" size={16} color="#ff3b30" />
-            <Text color="#ff3b30" fontSize={12} fontWeight="500">Release to Delete</Text>
-          </XStack>
-        </Animated.View>
-        <Animated.View style={progressStyle} />
+  // For web fallback
+  const webTimer = React.useRef<NodeJS.Timeout>()
+  
+  const handlePressIn = () => {
+    if (screen === 'web') webTimer.current = setTimeout(() => onDelete(), 500)
+  }
+  
+  const handlePressOut = () => {
+    if (screen === 'web') clearTimeout(webTimer.current)
+  }
+
+  const content = (
+    <>
+      <Animated.View style={deleteIndicatorStyle} />
+      <View style={{ zIndex: 3 }}>{children}</View>
+      <Animated.View style={deleteTextStyle}>
+        <XStack gap="$2" ai="center">
+          <Ionicons name="trash-outline" size={16} color="#ff3b30" />
+          <Text color="#ff3b30" fontSize={12} fontWeight="500">Hold to Delete</Text>
+        </XStack>
       </Animated.View>
-    </GestureDetector>
+      <Animated.View style={progressStyle} />
+    </>
   );
-} 
+  
+  return screen === 'web'
+    ? <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}><Animated.View style={animatedStyle}>{content}</Animated.View></Pressable>
+    : <GestureDetector gesture={longPressGesture}><Animated.View style={animatedStyle}>{content}</Animated.View></GestureDetector>
+}

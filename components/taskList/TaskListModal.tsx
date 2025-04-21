@@ -39,6 +39,11 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
     const seenBills = new Set<string>()
     let seenNbaGame = false
     Object.values(tasks).forEach(task => {
+      // Filter out birthday tasks
+      if (task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) {
+        return;
+      }
+
       if (task.name.includes('🏀') && !preferences.showNBAGameTasks) {
         return;
       }

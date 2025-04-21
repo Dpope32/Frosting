@@ -126,6 +126,7 @@ export function BillRecommendationModal({
       title={`${category} Bills`}
       snapPoints = {isWeb ? [90] : [85]}
       zIndex={200000}
+      showCloseButton={true}
       hideHandle={true}
     >
       <YStack gap="$4" px="$1" paddingBottom={isWeb ? "$4" : "$8"}>

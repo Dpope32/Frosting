@@ -132,7 +132,8 @@ export function VaultRecommendationModal({
       open={open}
       onOpenChange={(newOpen) => { onOpenChange(newOpen)}}
      title={`${category} Accounts`}
-      hideHandle={true}
+      hideHandle={true} 
+      showCloseButton={true}
       snapPoints={isWeb? [90] : [85]}
     >
       <YStack gap={isWeb ? "$3" : "$1"} paddingBottom={isWeb ? "$1" : "$8"}>
