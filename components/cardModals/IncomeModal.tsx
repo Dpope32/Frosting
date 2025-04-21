@@ -60,6 +60,7 @@ export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalPro
       onClose={onClose}
       modalWidth={modalWidth}
       modalMaxWidth={modalMaxWidth}
+      showCloseButton={true}
     >
       <YStack gap="$3" px="$2">
         <XStack

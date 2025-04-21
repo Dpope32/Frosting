@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Platform, Keyboard, View, KeyboardEvent } from 'react-native';
 import { XStack, YStack, Text, Button, Input } from 'tamagui';
 import { Plus, X, Check } from '@tamagui/lucide-icons';
 import type { Tag } from '@/types/notes';
@@ -41,9 +41,37 @@ export function TagSelector({
   const [isAdding, setIsAdding] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0]);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isWeb = Platform.OS === 'web';
+
+  // Handle keyboard visibility
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (event: KeyboardEvent) => {
+        setKeyboardVisible(true);
+        setKeyboardHeight(event.endCoordinates.height);
+      }
+    );
+    
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
 
   const handleAddTag = () => {
     if (newTagName.trim() === '') return;
@@ -64,7 +92,17 @@ export function TagSelector({
   };
 
   return (
-    <YStack gap="$1" paddingTop="$2" backgroundColor={'$background'} borderRadius={8} padding="$3" marginVertical="$1">
+    <YStack 
+      gap="$1" 
+      paddingTop={keyboardVisible ? "$1" : "$2"}
+      backgroundColor={'$background'} 
+      borderRadius={8} 
+      padding={keyboardVisible ? "$2" : "$3"}
+      marginVertical="$1"
+      style={{
+        marginBottom: keyboardVisible ? keyboardHeight * 0.3 : 0,
+      }}
+    >
       <XStack alignItems="center" justifyContent="space-between">
         <XStack alignItems="center" justifyContent='center' gap="$2">
           <Text fontSize="$4" mb={isWeb ? 12 : 4} fontFamily="$body" fontWeight="600" color={isDark ? '#e0e0e0' : '#333333'}>Tags:</Text>
@@ -131,13 +169,13 @@ export function TagSelector({
                 onSubmitEditing={handleAddTag}
                 onDebouncedChange={setNewTagName}
                 paddingRight="$4"
-                backgroundColor={isDark ? "transparent" : "rgba(0,0,0,0.03)"}
-                borderBottomWidth={1}
-                borderRightWidth={0}
-                borderTopWidth={0}
-                borderLeftWidth={0}
-                borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+                backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
+                borderWidth={1}
+                borderColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}
+                borderRadius={4}
                 fontFamily="$body"
+                color={isDark ? "white" : "black"}
+                placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
               />
               <Button
                 size="$2"

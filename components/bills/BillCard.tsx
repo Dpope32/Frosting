@@ -59,8 +59,8 @@ export const BillCard = ({
   const content = (
     <XStack 
       bg={isDark ? "#111" : "#f5f5f5"}
-      p={isWeb ? "$3" : "$4"}
-      mb="$2"
+      p={isWeb ? "$3" : "$3"}
+      mb="$1.5"
       br="$4" 
       ai="center" 
       animation="quick"

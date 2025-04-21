@@ -28,7 +28,7 @@ const DebouncedTextInput = ({
   useEffect(() => {
     const handler = setTimeout(() => {
       onDebouncedChange(text)
-    }, 300)
+    }, 100)
     
     return () => clearTimeout(handler)
   }, [text, onDebouncedChange])
@@ -56,10 +56,12 @@ export function BillRecommendationModal({
 }: BillRecommendationModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const { addBill } = useBills()
+  const { addBills } = useBills()
   const [selectedBills, setSelectedBills] = useState<Record<number, boolean>>({})
   const [amounts, setAmounts] = useState<Record<number, string>>({})
   const [dueDates, setDueDates] = useState<Record<number, string>>({})
+  const [validationErrors, setValidationErrors] = useState<Record<number, string>>({})
+  const [isSaving, setIsSaving] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
   
@@ -84,27 +86,55 @@ export function BillRecommendationModal({
     }))
   }
   
-  const handleSaveSelectedBills = () => {
+  const handleSaveSelectedBills = async () => {
+    setIsSaving(true)
+    setValidationErrors({})
+    
+    const billsToAdd = []
+    let billsAdded = 0
+    const errors: Record<number, string> = {}
+    
     const recommendedBills = getRecommendedBills(category)
-    Object.entries(selectedBills).forEach(([indexStr, isSelected]) => {
-      if (isSelected) {
-        const index = parseInt(indexStr)
-        const bill = recommendedBills[index]
-        const amount = parseFloat(amounts[index] || '0')
-        const dueDate = parseInt(dueDates[index] || '1', 10)
-        
-        if (amount > 0 && dueDate >= 1 && dueDate <= 31) {
-          addBill({
-            name: bill.name,
-            amount: amount,
-            dueDate: dueDate
-          })
-        }
+    
+    for (const [indexStr, isSelected] of Object.entries(selectedBills)) {
+      if (!isSelected) continue
+      
+      const index = parseInt(indexStr)
+      const amount = parseFloat(amounts[index] || '0')
+      const dueDate = parseInt(dueDates[index] || '0')
+      
+      if (amount <= 0) {
+        errors[index] = 'Please enter a valid amount'
+        continue
       }
-    })
-    setSelectedBills({})
-    setAmounts({})
-    setDueDates({})
+      
+      if (dueDate < 1 || dueDate > 31) {
+        errors[index] = 'Please enter a valid due date (1-31)'
+        continue
+      }
+      
+      billsToAdd.push({
+        name: recommendedBills[index].name,
+        amount: amount,
+        dueDate: dueDate
+      })
+      billsAdded++
+    }
+    
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors)
+      setIsSaving(false)
+      return
+    }
+    
+    if (billsToAdd.length > 0) {
+      await addBills(billsToAdd, { 
+        showToastNotification: true,
+        batchCategory: category
+      })
+    }
+    
+    setIsSaving(false)
     onOpenChange(false)
   }
   
@@ -158,7 +188,7 @@ export function BillRecommendationModal({
                 br={12}
                 padding="$3"
                 borderWidth={1}
-                borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
+                borderColor={validationErrors[index] ? (isDark ? "#ff4444" : "#ff0000") : (isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)")}
                 alignItems="center"
               >
                 <Checkbox
@@ -180,68 +210,77 @@ export function BillRecommendationModal({
                   </Text>
                   
                   {selectedBills[index] && (
-                    <XStack gap="$2" flexWrap="wrap">
-                      <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
-                        <Ionicons name="cash-outline" size={16} color={isDark ? "#999" : "#666"} />
-                        <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
-                          Amount:
-                        </Text>
-                        <XStack
-                          backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
-                          px="$2"
-                          py="$1"
-                          br={4}
-                          flex={1}
-                          alignItems="center"
-                        >
+                    <YStack gap="$2" flex={1}>
+                      <XStack gap="$2" flexWrap="wrap">
+                        <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
+                          <Ionicons name="cash-outline" size={16} color={isDark ? "#999" : "#666"} />
                           <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
-                            $
+                            Amount:
                           </Text>
-                          <DebouncedTextInput
-                            keyboardType="decimal-pad"
-                            value={amounts[index] || ''}
-                            onDebouncedChange={(value) => handleAmountChange(index, value)}
-                            style={{
-                              backgroundColor: 'transparent',
-                              color: isDark ? '#fff' : '#000',
-                              fontSize: 12,
-                              padding: 0,
-                              flex: 1,
-                              height: 20
-                            }}
-                          />
+                          <XStack
+                            backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
+                            px="$2"
+                            py="$1"
+                            br={4}
+                            flex={1}
+                            alignItems="center"
+                            borderColor={validationErrors[index] ? (isDark ? "#ff4444" : "#ff0000") : "transparent"}
+                            borderWidth={validationErrors[index] ? 1 : 0}
+                          >
+                            <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
+                              $
+                            </Text>
+                            <DebouncedTextInput
+                              keyboardType="decimal-pad"
+                              value={amounts[index] || ''}
+                              onDebouncedChange={(value) => handleAmountChange(index, value)}
+                              style={{
+                                backgroundColor: 'transparent',
+                                color: isDark ? '#fff' : '#000',
+                                fontSize: 12,
+                                padding: 0,
+                                flex: 1,
+                                height: 20
+                              }}
+                            />
+                          </XStack>
+                        </XStack>
+                        
+                        <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
+                          <Ionicons name="calendar-outline" size={16} color={isDark ? "#999" : "#666"} />
+                          <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
+                            Due Date:
+                          </Text>
+                          <XStack
+                            backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
+                            px="$2"
+                            py="$1"
+                            br={4}
+                            flex={1}
+                            alignItems="center"
+                          >
+                            <DebouncedTextInput
+                              keyboardType="number-pad"
+                              value={dueDates[index] || ''}
+                              onDebouncedChange={(value) => handleDueDateChange(index, value)}
+                              style={{
+                                backgroundColor: 'transparent',
+                                color: isDark ? '#fff' : '#000',
+                                fontSize: 12,
+                                padding: 0,
+                                flex: 1,
+                                height: 20
+                              }}
+                            />
+                          </XStack>
                         </XStack>
                       </XStack>
-                      
-                      <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
-                        <Ionicons name="calendar-outline" size={16} color={isDark ? "#999" : "#666"} />
-                        <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
-                          Due Date:
+                      {validationErrors[index] && (
+                        <Text color={isDark ? "#ff4444" : "#ff0000"} fontSize={12}>
+                          {validationErrors[index]}
                         </Text>
-                        <XStack
-                          backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
-                          px="$2"
-                          py="$1"
-                          br={4}
-                          flex={1}
-                          alignItems="center"
-                        >
-                          <DebouncedTextInput
-                            keyboardType="number-pad"
-                            value={dueDates[index] || ''}
-                            onDebouncedChange={(value) => handleDueDateChange(index, value)}
-                            style={{
-                              backgroundColor: 'transparent',
-                              color: isDark ? '#fff' : '#000',
-                              fontSize: 12,
-                              padding: 0,
-                              flex: 1,
-                              height: 20
-                            }}
-                          />
-                        </XStack>
-                      </XStack>
-                    </XStack>
+                      )}
+                    </YStack>
                   )}
                 </YStack>
               </XStack>
@@ -250,22 +289,24 @@ export function BillRecommendationModal({
         </ScrollView>
         
         <Button
-          backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+          backgroundColor={isDark ? "rgba(0, 59, 254, 0.89)" : "rgba(0, 0, 0, 0.1)"}
           color={isDark ? "#dbd0c6" : "#000"}
           br={8}
           py="$3"
           mt="$4"
           onPress={handleSaveSelectedBills}
           pressStyle={{ opacity: 0.7 }}
-          disabled={!hasValidSelections}
-          opacity={!hasValidSelections ? 0.5 : 1}
+          disabled={!hasValidSelections || isSaving}
+          opacity={!hasValidSelections || isSaving ? 0.5 : 1}
         >
           <Text
             color={isDark ? "#dbd0c6" : "#000"}
             fontSize={16}
             fontWeight="600"
+            fontFamily={"$body"}
+            opacity={!hasValidSelections || isSaving ? 0.5 : 1}
           >
-            Add Selected Bills
+            {isSaving ? "Saving..." : "Add Selected Bills"}
           </Text>
         </Button>
         

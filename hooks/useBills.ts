@@ -14,6 +14,28 @@ type EventToAdd = Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>;
 // Using type from the Task interface but omitting fields that will be generated
 type TaskToAdd = Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>;
 
+// Import the taskFilter function from ToDo store
+const taskFilter = (tasks: Record<string, Task>): Task[] => {
+  const currentDate = new Date();
+  const dateStr = currentDate.toISOString().split('T')[0];
+  const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd');
+  
+  // Filter tasks that are due today
+  return Object.values(tasks).filter(task => {
+    // For recurring tasks, check if they're due today
+    if (task.recurrencePattern !== 'one-time') {
+      return true; // Include all recurring tasks
+    }
+    
+    // For one-time tasks, check if they're due today
+    if (task.scheduledDate === currentDateStrLocal) {
+      return true;
+    }
+    
+    return false;
+  });
+};
+
 export function useBills() {
   const queryClient = useQueryClient();
   const {
@@ -23,8 +45,8 @@ export function useBills() {
     monthlyIncome,
     setMonthlyIncome
   } = useBillStore();
-  const { addEvent, deleteEvent, events } = useCalendarStore();
-  const { addTask } = useProjectStore();
+  const { addEvent, deleteEvent, events, addEvents } = useCalendarStore();
+  const { addTask, addTasks } = useProjectStore();
   const { showToast } = useToastStore();
   
   const { data: bills, isLoading } = useQuery({
@@ -36,47 +58,61 @@ export function useBills() {
     refetchOnWindowFocus: true,
   });
   
-  // PERFORMANCE OPTIMIZATION: Efficient batch deletion
+  // SIMPLIFIED INSTANT DELETION
   const deleteBillMutation = useMutation({
-    mutationFn: async (id: string) => {
-      try {
-        const billToDelete = bills?.find(b => b.id === id);
-        if (!billToDelete) {
-          throw new Error('Bill not found');
-        }
-        
-        const billName = billToDelete.name;
-        
-        // 1. Delete from store - this should be fast
-        deleteBillFromStore(id);
-        
-        // 2. Use Promise.all for batch deletion of events (this is a key optimization)
-        // First, efficiently find all event IDs to delete
-        const eventIdsToDelete = events
-          .filter(event => event.type === 'bill' && event.title.includes(billName))
-          .map(event => event.id);
-          
-        // Then delete them all in parallel
-        await Promise.all(eventIdsToDelete.map(eventId => 
-          // Use a small timeout to prevent UI blockage
-          new Promise(resolve => setTimeout(() => {
-            deleteEvent(eventId);
-            resolve(null);
-          }, 0))
-        ));
-        
-        return { id, name: billName };
-      } catch (error) {
-        console.error('Error deleting bill:', error);
-        throw error;
+    mutationFn: (id: string): Promise<{ id: string; name: string }> => {
+      
+      // 1. Find the bill to delete
+      const billToDelete = bills?.find(b => b.id === id);
+      if (!billToDelete) {
+        console.error(`[Delete] Bill not found with ID: ${id}`);
+        throw new Error('Bill not found');
       }
+      
+      const billName = billToDelete.name;
+      
+      // 2. Delete from bill store immediately
+      deleteBillFromStore(id);
+      
+      // 3. Get direct access to the stores
+      const calendarStore = useCalendarStore.getState();
+      const projectStore = useProjectStore.getState();
+      
+      // 4. Delete all events in a single operation
+      const billEvents = calendarStore.events.filter(event => 
+        event.type === 'bill' && event.title.includes(billName)
+      );
+      
+      if (billEvents.length > 0) {
+        useCalendarStore.setState(state => ({
+          events: state.events.filter(event => 
+            !billEvents.some(e => e.id === event.id)
+          )
+        }));
+      }
+      
+      // 5. Delete all tasks in a single operation
+      const billTasks = Object.values(projectStore.tasks).filter(task => 
+        task.category === 'bills' && task.name.includes(`Pay ${billName}`)
+      );
+      
+      if (billTasks.length > 0) {
+        useProjectStore.setState(state => {
+          const newTasks = { ...state.tasks };
+          billTasks.forEach(task => {
+            delete newTasks[task.id];
+          });
+          return { tasks: newTasks };
+        });
+      }
+      return Promise.resolve({ id, name: billName });
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { id: string; name: string }) => {
       queryClient.invalidateQueries({ queryKey: ['bills'] });
       showToast(`Deleted ${data.name}`, 'success');
     },
     onError: (error) => {
-      console.error('Mutation error:', error);
+      console.error('[Delete] Mutation error:', error);
       showToast('Failed to delete bill', 'error');
     }
   });
@@ -86,65 +122,131 @@ export function useBills() {
     return days[date.getDay()];
   };
   
-  const addBill = (billData: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newBill = addBillToStore(billData);
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
+  const addBill = (billData: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>, options: { 
+    showToastNotification?: boolean, 
+    isBatchOperation?: boolean,
+    batchCount?: number,
+    batchCategory?: string
+  } = {}) => {
     
-    // PERFORMANCE OPTIMIZATION: Use batch processing for adding events
+    const { 
+      showToastNotification = true, 
+      isBatchOperation = false,
+      batchCount = 0,
+      batchCategory = ''
+    } = options;
+    
+    const newBill = addBillToStore(billData);
+    const start = new Date();
+    const end = new Date(start.getFullYear() + 5, 11, 31); // End of December 5 years from now
+    
+    // Collect all events and tasks to add
     const eventsToAdd: EventToAdd[] = [];
     const tasksToAdd: TaskToAdd[] = [];
-    
-    // Generate events for current month through next 5 years
-    for (let i = 0; i < 60; i++) {
-      const eventDate = new Date(currentYear, currentMonth + i, billData.dueDate);
-      const formattedDate = format(eventDate, 'yyyy-MM-dd');
+    // Create an event for each month from start to end
+    let currentDate = new Date(start.getFullYear(), start.getMonth(), billData.dueDate);
+    let count = 0;
+    while (currentDate <= end) {
+      const formattedDate = format(currentDate, 'yyyy-MM-dd');
+      const weekDay = getDayName(currentDate);
       
+      // Collect event for this month
       eventsToAdd.push({
         date: formattedDate,
         title: `Bill Due: ${billData.name}`,
         description: `$${billData.amount.toFixed(2)} due`,
-        type: 'bill'  // Now correctly typed as one of the allowed event types
+        type: 'bill'
       });
       
-      // Create task data
-      const weekDay = getDayName(eventDate);
+      // Collect task for this month
       tasksToAdd.push({
         name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
         schedule: [weekDay],
         priority: 'high',
         category: 'bills',
         scheduledDate: formattedDate,
-        recurrencePattern: 'monthly',
-        dueDate: billData.dueDate
+        dueDate: billData.dueDate,
+        recurrencePattern: 'monthly'
       });
-    }
-    
-    // Batch add events to improve performance
-    setTimeout(() => {
-      // Add events in chunks to prevent UI freezing
-      const CHUNK_SIZE = 10;
-      for (let i = 0; i < eventsToAdd.length; i += CHUNK_SIZE) {
-        const chunk = eventsToAdd.slice(i, i + CHUNK_SIZE);
-        setTimeout(() => {
-          chunk.forEach(event => addEvent(event));
-        }, 0);
-      }
       
-      // Add tasks in chunks
-      for (let i = 0; i < tasksToAdd.length; i += CHUNK_SIZE) {
-        const chunk = tasksToAdd.slice(i, i + CHUNK_SIZE);
-        setTimeout(() => {
-          chunk.forEach(task => addTask(task));
-        }, 0);
+      // Move to next month
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, billData.dueDate);
+      count++;
+    }
+    addEvents(eventsToAdd);
+    addTasks(tasksToAdd);
+    
+    // Show success toast based on the options
+    if (showToastNotification) {
+      if (isBatchOperation && batchCount > 1) {
+        // For batch operations with multiple bills, show a summary toast
+        showToast(`${batchCount} ${batchCategory} bill${batchCount > 1 ? 's' : ''} added successfully`, "success");
+      } else {
+        // For single bill additions
+        showToast("Bill added successfully", "success");
       }
-    }, 0);
+    }
+    queryClient.invalidateQueries({ queryKey: ['bills'] });
+    queryClient.refetchQueries({ queryKey: ['bills'] });
+  };
+  
+  // Add a new function for batch operations
+  const addBills = (billsData: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>[], options: {
+    showToastNotification?: boolean,
+    batchCategory?: string
+  } = {}) => {
+    
+    const {
+      showToastNotification = true,
+      batchCategory = ''
+    } = options;
+    billsData.forEach(billData => addBillToStore(billData));
+    
+    // Collect all events and tasks to add
+    const eventsToAdd: EventToAdd[] = [];
+    const tasksToAdd: TaskToAdd[] = [];
+    // For each bill, generate events and tasks
+    billsData.forEach(billData => {
+      // Generate events for the next 5 years
+      const start = new Date();
+      const end = new Date(start.getFullYear() + 10, 11, 31); // End of December 5 years from now
+      
+      // Create an event for each month from start to end
+      let currentDate = new Date(start.getFullYear(), start.getMonth(), billData.dueDate);
+      while (currentDate <= end) {
+        const formattedDate = format(currentDate, 'yyyy-MM-dd');
+        const weekDay = getDayName(currentDate);
+        
+        // Collect event for this month
+        eventsToAdd.push({
+          date: formattedDate,
+          title: `Bill Due: ${billData.name}`,
+          description: `$${billData.amount.toFixed(2)} due`,
+          type: 'bill'
+        });
+        
+        // Collect task for this month
+        tasksToAdd.push({
+          name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
+          schedule: [weekDay],
+          priority: 'high',
+          category: 'bills',
+          scheduledDate: formattedDate,
+          dueDate: billData.dueDate,
+          recurrencePattern: 'monthly'
+        });
+        
+        // Move to next month
+        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, billData.dueDate);
+      }
+    });
+    addTasks(tasksToAdd);
     
     // Show success toast
-    showToast("Bill added successfully", "success");
+    if (showToastNotification) {
+      showToast(`${billsData.length} ${batchCategory} bill${billsData.length > 1 ? 's' : ''} added successfully`, "success");
+    }
     
-    // Force immediate refetch to update UI
     queryClient.invalidateQueries({ queryKey: ['bills'] });
     queryClient.refetchQueries({ queryKey: ['bills'] });
   };
@@ -164,7 +266,17 @@ export function useBills() {
     bills,
     isLoading,
     addBill,
-    deleteBill: deleteBillMutation.mutate,
+    addBills,
+    deleteBill: (id: string, options?: { onSuccess?: () => void, onError?: () => void }) => {
+      deleteBillMutation.mutate(id, {
+        onSuccess: () => {
+          if (options?.onSuccess) options.onSuccess();
+        },
+        onError: () => {
+          if (options?.onError) options.onError();
+        }
+      });
+    },
     monthlyIncome,
     setMonthlyIncome,
     totalMonthlyAmount,

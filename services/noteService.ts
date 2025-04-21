@@ -224,7 +224,6 @@ export const attemptDeleteNote = async ({
     originalIndexRef,
     isTrashVisibleValue
 }: AttemptDeleteArgs) => {
-    console.log("attemptDeleteNote called with noteId:", noteId);
     
     const noteToDelete = notes.find(n => n.id === noteId);
     if (!noteToDelete) {
@@ -252,7 +251,6 @@ export const attemptDeleteNote = async ({
                 );
               });
 
-        console.log("Delete confirmation result:", confirmDelete);
         
         if (confirmDelete) {
             await noteStore.deleteNote(noteId);
@@ -335,13 +333,11 @@ export const isPointInTrashArea = (y: number): boolean => {
     // We need to check if it's in the bottom portion of the screen
     const { height } = Dimensions.get('window');
     
-    // Make the trash area much larger to make it easier to trigger
-    // This will make the bottom 30% of the screen count as the trash area
-    const trashAreaThreshold = height * 0.7;
+    // Make the trash area more precise to avoid interfering with normal dragging
+    // This will make the bottom 15% of the screen count as the trash area
+    const trashAreaThreshold = height * 0.85; // Increased from 0.6 to 0.85 to make it more precise
     
-    // For debugging
-    console.log("isPointInTrashArea - y:", y, "height:", height, "trashAreaThreshold:", trashAreaThreshold);
-    
+    // For debugging  
     // Check if the y-coordinate is in the trash area
     return y > trashAreaThreshold;
 };

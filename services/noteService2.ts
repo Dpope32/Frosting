@@ -3,12 +3,13 @@
 // It is used to handle the logic for the notes screen and the note list.
 // It is also used to handle the logic for the note list item.
 
-import { Dimensions, ViewStyle } from 'react-native';
+import { Dimensions, ViewStyle, Platform } from 'react-native';
 import { SharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import type { Note, Tag, Attachment } from '@/types/notes';
 import type { NoteStore } from '@/store/NoteStore';
 import { triggerHaptic, setupEditNote, isPointInTrashArea } from './noteService';
+import { GestureResponderEvent } from 'react-native';
 
 export const calculateColumns = (screenWidth: number): number => {
   if (screenWidth > 1200) {
@@ -50,41 +51,42 @@ export const createFormattingHandler = (
 };
 
 interface HandleDraggingArgs {
-  draggingNoteId: string | null;
-  isPendingDelete: boolean;
   lastDragPosition: React.MutableRefObject<{ x: number; y: number }>;
   isHoveringTrash: boolean;
   setIsHoveringTrash: (isHovering: boolean) => void;
+  isTrashVisible: SharedValue<boolean>;
 }
 
 export const handleDragging = ({
-    draggingNoteId,
-    isPendingDelete,
-    lastDragPosition,
-    isHoveringTrash,
-    setIsHoveringTrash
-    }: HandleDraggingArgs) => (evt: any) => {
-    if (!draggingNoteId || isPendingDelete) return;
+  isHoveringTrash,
+  lastDragPosition,
+  setIsHoveringTrash,
+  isTrashVisible
+}: HandleDraggingArgs) => (event: GestureResponderEvent) => {
+  const { pageY } = event.nativeEvent;
+  
+  // Update the last drag position immediately
+  lastDragPosition.current = {
+    x: event.nativeEvent.pageX,
+    y: pageY
+  };
+  
+  
+  // Check if we're in the trash area
+  const isInTrashArea = isPointInTrashArea(pageY);
+  
+  // Only trigger haptic feedback when crossing the trash area boundary
+  if (isInTrashArea !== isHoveringTrash) {
+    triggerHaptic();
+    setIsHoveringTrash(isInTrashArea);
     
-    // Store the current position
-    lastDragPosition.current = {
-        x: evt.nativeEvent.pageX,
-        y: evt.nativeEvent.pageY
-    };
-    
-    // Check if the note is over the trash area
-    const isOverTrash = isPointInTrashArea(evt.nativeEvent.pageY);
-    
-    // Only update the state if the hover state has changed
-    if (isOverTrash !== isHoveringTrash) {
-        console.log("Trash hover state changed:", isOverTrash, "y:", evt.nativeEvent.pageY);
-        setIsHoveringTrash(isOverTrash);
-        
-        if (isOverTrash) {
-            // Provide haptic feedback when entering the trash area
-            triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-        }
+    // Add null check for isTrashVisible
+    if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
+      isTrashVisible.value = isInTrashArea;
+    } else {
+      console.warn("isTrashVisible is undefined or doesn't have a value property");
     }
+  }
 };
 
 interface HandleDragEndArgs {
@@ -134,19 +136,15 @@ export const handleDragEnd = ({
   isTrashVisibleValue,
   showToast
 }: HandleDragEndArgs) => ({ data, from, to }: { data: Note[]; from: number; to: number }) => {
-  console.log("Drag end - isHoveringTrash:", isHoveringTrash, "draggingNoteId:", draggingNoteId);
   
-  // Check if the note is in the trash area
+  // Check if the note is in the trash area using the last known position
   const isOverTrash = isPointInTrashArea(lastDragPosition.current.y);
-  console.log("Final position check - isOverTrash:", isOverTrash, "y:", lastDragPosition.current.y);
   
   // If the note is in the trash area or was hovering over it, attempt to delete it
   if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
-    console.log("Attempting to delete note:", draggingNoteId);
     preventReorder.current = true;
     const noteToDelete = notes.find(note => note.id === draggingNoteId);
     if (noteToDelete) {
-      console.log("Found note to delete:", noteToDelete.title);
       setIsPendingDelete(true);
       setPendingDeleteNote(noteToDelete);
       setPendingDeletePosition({
@@ -181,12 +179,13 @@ export const handleDragEnd = ({
   } else if (!preventReorder.current) {
     // If not in trash area, update the note order
     noteStore.updateNoteOrder(data);
-
-    setDraggingNoteId(null);
-    isTrashVisible.value = false;
-    setIsHoveringTrash(false);
-    triggerHaptic();
   }
+
+  // Always clean up these states
+  setDraggingNoteId(null);
+  isTrashVisible.value = false;
+  setIsHoveringTrash(false);
+  triggerHaptic();
 };
 
 

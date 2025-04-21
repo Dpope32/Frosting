@@ -214,10 +214,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               borderColor: isDark ? "$gray7" : "$gray4", 
             }}
           />
-          
-          {/* Combined Row for Calendar Switch and Time Picker */}
           <XStack alignItems="center" justifyContent="space-between" px="$2" gap="$3"> 
-            {/* Show in Calendar Switch */}
             <XStack alignItems="center" gap="$1">
               <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}> 
                 Show in Calendar
@@ -225,25 +222,20 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               <Switch
                 value={newTask.showInCalendar || false}
                 onValueChange={val => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
-                style={{ transform: [{ scaleX: 0.8}, { scaleY: 0.8}] }} // Slightly smaller scale
+                style={{ transform: [{ scaleX: 0.8}, { scaleY: 0.8}] }} 
               />
             </XStack>
 
-            {/* Time Picker Section */}
             <YStack flex={1} alignItems='flex-end'> 
-              {/* Time Picker Button - Restyled */}
               <Button
                 onPress={handleTimePress}
                 theme={isDark ? "dark" : "light"}
-              backgroundColor="transparent" // Removed background
+              backgroundColor="transparent" 
               br={12}
-              // height={50} // Removed fixed height
-              // borderColor={isDark ? "$gray7" : "$gray4"} // Removed border
-              // borderWidth={1} // Removed border
               px="$3"
               pressStyle={{ opacity: 0.8 }}
                 jc="flex-start" 
-                width="100%" // Ensure button takes available width in the YStack
+                width="100%" 
               >
                 <XStack flex={1} alignItems="center" justifyContent="space-between">
                   <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}>
@@ -255,17 +247,14 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                 </XStack>
               </Button>
               
-              {/* Time Picker View is now rendered conditionally *after* the XStack */}
             </YStack> 
           </XStack> 
           
-          {/* Conditionally Render Time Picker View Here */}
           {showTimePicker && (
             <View
               style={{
-                // Removed absolute positioning
-                zIndex: 10, // Keep zIndex if needed for overlap
-                width: '100%', // Take full width
+                zIndex: 10, 
+                width: '100%', 
                 backgroundColor: isDark ? '#1c1c1e' : 'white',
                   borderRadius: 12,
                   elevation: 10,
@@ -275,7 +264,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                   shadowRadius: 8,
                   borderWidth: 1,
                   borderColor: isDark ? '#2c2c2e' : '#e5e5ea',
-                    marginTop: 8, // Add margin back
+                  marginTop: 8,
                   }}
                 >
                   <YStack
@@ -284,7 +273,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
                     alignItems="center"
                     padding="$4"
                     backgroundColor={isDark ? "$gray1" : "white"}
-                    borderRadius={12} // Added border radius to the inner stack as well
+                    borderRadius={12}
                   >
                     {Platform.OS === 'web' ? (
                       <XStack width="100%" alignItems="center" justifyContent="space-between">

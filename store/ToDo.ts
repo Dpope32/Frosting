@@ -21,6 +21,7 @@ interface ProjectStore {
   hydrated: boolean
   todaysTasks: Task[]
   addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
+  addTasks: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>[]) => void
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
@@ -339,6 +340,27 @@ export const useProjectStore = create<ProjectStore>()(
         }
         tasks[id] = newTask
         set({ tasks, todaysTasks: taskFilter(tasks) })
+      },
+      addTasks: (dataArray) => {
+        const tasks = { ...get().tasks }
+        const newTasks: Record<string, Task> = {}
+        
+        dataArray.forEach(data => {
+          const id = Date.now().toString() + Math.random().toString(36).substr(2, 5)
+          newTasks[id] = {
+            ...data,
+            id,
+            completed: false,
+            completionHistory: {},
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        })
+        
+        set({ 
+          tasks: { ...tasks, ...newTasks }, 
+          todaysTasks: taskFilter({ ...tasks, ...newTasks }) 
+        })
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }

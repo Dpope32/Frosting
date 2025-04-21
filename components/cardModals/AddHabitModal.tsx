@@ -3,14 +3,18 @@ import { TextInput } from 'react-native';
 import { XStack, YStack, Text, Switch, Button } from 'tamagui';
 import { StockCardAnimated } from '@/components/baseModals/StockCardAnimated';
 import { scheduleEventNotification } from '@/services/notificationServices';
+import { CategorySelector } from '@/components/shared/debouncedInput';
+import { TaskCategory } from '@/types/task';
 
 interface AddHabitModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSave?: (name: string, category: TaskCategory) => void;
 }
 
-export function AddHabitModal({ open, onOpenChange }: AddHabitModalProps) {
+export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps) {
   const [name, setName] = useState('');
+  const [category, setCategory] = useState<TaskCategory>('health');
   const [notifyMorning, setNotifyMorning] = useState(true);
   const [notifyNight, setNotifyNight] = useState(false);
 
@@ -41,17 +45,20 @@ export function AddHabitModal({ open, onOpenChange }: AddHabitModalProps) {
       );
     }
 
-    // TODO: persist habit
+    if (onSave) {
+      onSave(name, category);
+    }
 
     onOpenChange(false);
     setName('');
+    setCategory('health');
     setNotifyMorning(true);
     setNotifyNight(false);
   };
 
   return (
     <StockCardAnimated open={open} title="Add New Habit" onClose={() => onOpenChange(false)}>
-      <YStack space="$3">
+      <YStack gap="$3">
         <Text fontFamily="$body" fontSize={14}>Habit Name</Text>
         <TextInput
           style={{
@@ -66,6 +73,11 @@ export function AddHabitModal({ open, onOpenChange }: AddHabitModalProps) {
           placeholderTextColor="#999"
           value={name}
           onChangeText={setName}
+        />
+
+        <CategorySelector 
+          value={category} 
+          onChange={(cat) => setCategory(cat as TaskCategory)} 
         />
 
         <XStack justifyContent="space-between" alignItems="center">

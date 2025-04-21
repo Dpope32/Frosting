@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
 import { Bill } from '@/types/bills';
+import { Task } from '@/types/task';
 export { getOrdinalSuffix };
 
 const getOrdinalSuffix = (day: number): string => {
@@ -20,6 +21,12 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
+// Function to get task store dynamically to avoid circular dependency
+const getTaskStore = () => {
+  // Using require instead of import to avoid circular dependency
+  const { useProjectStore } = require('./ToDo');
+  return useProjectStore.getState();
+};
 
 interface BillStore {
   bills: Record<string, Bill>;
@@ -62,8 +69,36 @@ export const useBillStore = create<BillStore>()(
 
       deleteBill: (id) => {
         set((state) => {
+          // Store the bill info before deleting
+          const billToDelete = state.bills[id];
           const newBills = { ...state.bills };
           delete newBills[id];
+
+          // Use setTimeout to break the circular dependency
+          if (billToDelete) {
+            setTimeout(() => {
+              try {
+                // Dynamic import to avoid circular dependency
+                const { useProjectStore } = require('./ToDo');
+                const { tasks, deleteTask, recalculateTodaysTasks } = useProjectStore.getState();
+                
+                // Delete associated tasks
+                Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
+                  if (task?.category === 'bills' && 
+                      (task?.name === billToDelete.name || 
+                       task?.name === `Pay ${billToDelete.name} ($${billToDelete.amount.toFixed(2)})`)) {
+                    deleteTask(taskId);
+                  }
+                });
+
+                // Force recalculation
+                recalculateTodaysTasks();
+              } catch (error) {
+                console.error('Error cleaning up tasks:', error);
+              }
+            }, 0);
+          }
+
           return { bills: newBills };
         });
       },

@@ -36,11 +36,6 @@ export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
     >
       <YStack alignItems="center" gap="$2">
         <Trash2 size={40} color="$red11" />
-        {isHovering && (
-          <Text color="$red11" fontWeight="bold">
-            Drop to delete
-          </Text>
-        )}
       </YStack>
     </Animated.View>
   );
@@ -52,7 +47,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 120,
+    height: 80,
     backgroundColor: 'rgba(255, 50, 50, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',

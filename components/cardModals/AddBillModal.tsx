@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Button, Input, Text, YStack, XStack, Slider, View, isWeb } from 'tamagui'
+import { Button, Input, Text, YStack, XStack, View, isWeb, Slider } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { BaseCardModal } from './BaseCardModal'
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { Platform, TouchableOpacity, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
 import { getOrdinalSuffix } from '@/store/BillStore'
+import { BaseCardAnimated } from './BaseCardAnimated'
 
 interface AddBillModalProps {
   isVisible: boolean
@@ -32,6 +31,18 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
   // Max slider value - you can adjust this as needed
   const MAX_AMOUNT = 1000
 
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isVisible) {
+      setName('')
+      setAmount(0)
+      setAmountInputValue('')
+      setSliderValue(0)
+      setDueDate(new Date())
+    }
+  }, [isVisible])
+
+
   const handleSubmit = () => {
     if (name && amount > 0 && dueDate) {
       onSubmit({
@@ -44,20 +55,8 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       setAmountInputValue('')
       setSliderValue(0)
       setDueDate(new Date())
-      onClose()
     }
-  }
-
-  // For native date picker (only used on web now)
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      setDueDate(selectedDate)
-    }
-    
-    // Only hide the picker on mobile platforms
-    if (Platform.OS !== 'web') {
-      setShowDatePicker(Platform.OS === 'ios')
-    }
+    onClose()
   }
 
   const handleAmountChange = (value: number[]) => {
@@ -83,11 +82,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       setShowDatePicker(true)
     }
   }, [isVisible])
-
-  // Get formatted day with ordinal suffix (1st, 2nd, 3rd, etc.)
-  const getFormattedDay = (day: number) => {
-    return `${day}${getOrdinalSuffix(day)} of each month`;
-  }
 
   // Custom Web Date Picker component - day selector only
   const WebDatePicker = () => {
@@ -137,74 +131,22 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
     );
   };
 
-  // Simple Mobile Day Picker - without using FlatList
-  const MobileDayPicker = () => {
-    const days = Array.from({ length: 31 }, (_, i) => i + 1);
-    
-    return (
-      <View 
-        style={{ 
-          backgroundColor: isDark ? '#222' : '#f0f0f0', 
-          borderRadius: 8,
-          marginTop: 8,
-          height: 200
-        }}
-      >
-        {/* Use regular View components instead of FlatList to avoid VirtualizedList nesting */}
-        <View>
-          {days.map(day => (
-            <TouchableOpacity 
-              key={day}
-              onPress={() => {
-                const newDate = new Date();
-                newDate.setDate(day);
-                setDueDate(newDate);
-                setShowDatePicker(false);
-              }}
-              style={{
-                padding: 12,
-                borderRadius: 6,
-                backgroundColor: dueDate.getDate() === day ? primaryColor : 'transparent',
-                alignItems: 'center',
-                marginVertical: 2
-              }}
-            >
-              <Text 
-                fontFamily="$body" 
-                fontSize="$5"
-                fontWeight={dueDate.getDate() === day ? "600" : "400"}
-                color={dueDate.getDate() === day ? (isDark ? '#000' : '#fff') : '$color'}
-              >
-                {day}{getOrdinalSuffix(day)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    );
-  };
-
   return (
-    <BaseCardModal
-      open={isVisible}
-      onOpenChange={onClose}
-      title="Add New Bill"
-
+    <BaseCardAnimated
+      onClose={onClose}
       showCloseButton={true}
-      zIndex={200000}
-      hideHandle={true}
+      title="Add New Bill"
     >
       <Animated.View 
         entering={FadeIn.duration(400)}
         style={{ width: '100%' }}
       >
         <View
-          backgroundColor={isDark ? "#090909" : "#f8f8f8"}
           borderRadius={12}
-          padding="$4"
+          padding={ isWeb ? "$4" : "$2"}
           marginVertical="$2"
         >
-          <YStack gap="$6" paddingVertical="$4">
+          <YStack gap="$4">
             <Animated.View entering={FadeInDown.delay(100).duration(500)}>
               <XStack gap="$4" alignItems="center">
                 <Input
@@ -229,7 +171,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(200).duration(500)}>
-              <XStack gap="$4" alignItems="center" paddingHorizontal="$2">
+              <XStack gap="$5" alignItems="center" justifyContent="center"  paddingHorizontal="$2">
                 <XStack alignItems="center" width="30%">
                   <Input
                     ref={amountInputRef}
@@ -282,12 +224,24 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   <Slider
                     value={[sliderValue]}
                     onValueChange={handleAmountChange}
-                    step={5}
+                    step={1}
+                    min={0}
                     flex={1}
                     max={MAX_AMOUNT}
+                    defaultValue={[0]}
+                    minStepsBetweenThumbs={1}
+                    orientation="horizontal"
                   >
-                    <Slider.Track backgroundColor={isDark ? "$gray5" : "$gray3"} height={4} br={8}>
-                      <Slider.TrackActive backgroundColor={primaryColor} />
+                    <Slider.Track 
+                      backgroundColor={isDark ? "$gray5" : "$gray3"}
+                      height={isWeb ? 6 : 8}
+                      borderRadius={8}
+                    >
+                      <Slider.TrackActive 
+                        backgroundColor={primaryColor}
+                        height={isWeb ? 6 : 8}
+                        borderRadius={8}
+                      />
                     </Slider.Track>
                     <Slider.Thumb 
                       index={0} 
@@ -373,14 +327,15 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             </Animated.View>
             
             <Animated.View entering={FadeInDown.delay(400).duration(500)}>
-              <XStack gap="$3" justifyContent="flex-end" marginTop="$2">
+              <XStack gap="$3" justifyContent="space-between" marginTop="$2">
                 <Button
                   onPress={onClose}
-                  backgroundColor="$backgroundHover"
+                  backgroundColor="rgba(255, 4, 4, 0.1)"
                   borderColor="$borderColor"
                   fontFamily="$body"
                   fontSize={isWeb ? "$5" : "$4"}
                   paddingHorizontal="$4"
+                  color={isDark ? "$red10" : "$red10"}
                 >
                   Cancel
                 </Button>
@@ -399,6 +354,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
           </YStack>
         </View>
       </Animated.View>
-    </BaseCardModal>
+    </BaseCardAnimated>
   )
 }

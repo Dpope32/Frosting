@@ -66,15 +66,19 @@ export default function BillsScreen() {
 
   // Wrapped delete function to handle UI state
   const handleDeleteBill = (id: string) => {
+    
     setIsDeletingBill(true);
     
-    // Add a slight delay to allow UI to update
+
     setTimeout(() => {
-      deleteBill(id);
-      // Clear the deleting state after a short delay
-      setTimeout(() => {
-        setIsDeletingBill(false);
-      }, 300);
+      deleteBill(id, {
+        onSuccess: () => {
+          setIsDeletingBill(false);
+        },
+        onError: () => {
+          setIsDeletingBill(false);
+        }
+      });
     }, 0);
   };
 
@@ -98,7 +102,8 @@ export default function BillsScreen() {
           bottom={0}
           zIndex={1000}
           alignItems="center"
-          justifyContent="center"
+          justifyContent="flex-start"
+          pt={isWeb ? 100 : 150}
           backgroundColor={isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)"}
         >
           <XStack
@@ -114,7 +119,10 @@ export default function BillsScreen() {
             elevation={8}
           >
             <Spinner size="large" color={primaryColor} />
-            <Text fontWeight="600" color={isDark ? "white" : "black"}>Deleting bill...</Text>
+            <YStack>
+              <Text fontWeight="600" color={isDark ? "white" : "black"}>Deleting bill...</Text>
+              <Text fontSize={12} color={isDark ? "#aaa" : "#666"}>This may take a moment</Text>
+            </YStack>
           </XStack>
         </YStack>
       )}
@@ -180,7 +188,13 @@ export default function BillsScreen() {
         ) : null}
       </ScrollView>
       
-      <AddBillModal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)} onSubmit={handleAddBill} />
+      {isModalVisible && (
+        <AddBillModal 
+          isVisible={isModalVisible} 
+          onClose={() => setIsModalVisible(false)} 
+          onSubmit={handleAddBill} 
+        />
+      )}
         
       {isIncomeModalVisible && (
         <IncomeModal 

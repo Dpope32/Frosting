@@ -34,6 +34,7 @@ export interface CalendarEvent {
 interface CalendarState {
   events: CalendarEvent[]
   addEvent: (event: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>) => void
+  addEvents: (events: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>[]) => void
   updateEvent: (id: string, eventUpdate: Partial<Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>>) => void
   deleteEvent: (id: string) => void
   getEventsForDate: (date: string) => CalendarEvent[]
@@ -58,6 +59,17 @@ export const useCalendarStore = create<CalendarState>()(
             updatedAt: new Date().toISOString(),
           }
           return { events: [...state.events, newEvent] }
+        }),
+
+      addEvents: (eventsData) =>
+        set((state) => {
+          const newEvents: CalendarEvent[] = eventsData.map(eventData => ({
+            ...eventData,
+            id: Math.random().toString(36).substr(2, 9),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }));
+          return { events: [...state.events, ...newEvents] }
         }),
 
       updateEvent: (id, eventUpdate) =>

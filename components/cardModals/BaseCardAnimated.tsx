@@ -45,15 +45,7 @@ export function BaseCardAnimated({
       exiting={FadeOut.duration(300)}
       pointerEvents="box-none"
     >
-      <TouchableWithoutFeedback 
-        onPress={(e) => {
-          if (Platform.OS === 'web' && e.target === e.currentTarget) {
-            onClose();
-          } else if (Platform.OS !== 'web') {
-            onClose();
-          }
-        }}
-      >
+      <TouchableWithoutFeedback onPress={onClose}>
         <View
           style={{
             flex: 1,
@@ -61,7 +53,6 @@ export function BaseCardAnimated({
             alignItems: 'center',
             paddingBottom: Platform.OS !== 'web' ? screenHeight * 0.1 : 0,
           }}
-          pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
               <Animated.View
@@ -77,6 +68,7 @@ export function BaseCardAnimated({
                     maxHeight: screenHeight,
                   }
                 ]}
+                onTouchEnd={(e) => e.stopPropagation()}
               >
                 <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 2} px="$2" alignItems="center">
                 <Text

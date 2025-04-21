@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView } from 'react-native';
+import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView } from 'react-native';
 import { YStack, Button, XStack, Sheet, H3, Text, ScrollView, isWeb } from 'tamagui';
 import { X } from '@tamagui/lucide-icons';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
@@ -152,8 +152,8 @@ export function AddNoteSheet({
   };
 
   const contentPadding = Platform.select({
-    ios: keyboardVisible ? 340 : 80,
-    android: keyboardVisible ? 280 : 80,
+    ios: keyboardVisible ? 100 : 80,
+    android: keyboardVisible ? 80 : 80,
     default: 80,
   });
 
@@ -198,114 +198,126 @@ export function AddNoteSheet({
           />
         </XStack>
         
-        <YStack flex={1}>
-          <RNScrollView
-            ref={scrollViewRef}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ 
-              paddingBottom: contentPadding
-            }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            keyboardDismissMode="interactive"
-          >
-            <YStack gap={isWeb ? "$3" : "$0"} paddingTop="$2">
-              <DebouncedInput
-                placeholder="Title"
-                autoCapitalize='words'
-                value={editTitle}
-                onDebouncedChange={setEditTitle}
-                fontSize="$5"
-              />
-              
-              <FormattingToolbar
-                onBold={handleBold}
-                onItalic={handleItalic}
-                onUnderline={handleUnderline}
-                onBullet={handleBullet}
-                onCode={handleCode}
-                onAttachImage={handleImagePick}
-              />
-              
-              <ContentInput
-                ref={contentInputRef}
-                value={editContent}
-                onChangeText={setEditContent}
-                onSelectionChange={handleSelectionChange}
-                numberOfLines={keyboardVisible ? 8 : 12}
-                minHeight={keyboardVisible ? 100 : 350}
-              />
-              {renderAttachments()}
-            </YStack>
-          </RNScrollView>
-          <TagSelector tags={editTags} onTagsChange={handleTagsChange}/>
-          <XStack 
-            gap="$2" 
-            justifyContent="space-between" 
-            paddingTop="$4"
-            paddingBottom="$2"
-            marginBottom="$4"
-            borderTopWidth={1}
-            borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
-          >
-            {selectedNote ? (
-              <>
-                <Button
-                  backgroundColor={isDark ? "rgba(255, 0, 0, 0.2)" : "rgba(255, 0, 0, 0.1)"}
-                  pressStyle={{ opacity: 0.7 }}
-                  onPress={handleDeleteNote}
-                  br={12}
-                  py={isWeb ? "$1" : "$1.5"}
-                  flex={1}
-                >
-                  <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
-                    Delete Note
-                  </Text>
-                </Button>
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, justifyContent: 'flex-end' }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? -124 : 0}
+        >
+          <YStack flex={1}>
+            <RNScrollView
+              ref={scrollViewRef}
+              style={{ flex: 1, maxHeight: keyboardVisible ? '60%' : '100%' }}
+              contentContainerStyle={{ 
+                paddingBottom: keyboardVisible ? 0 : contentPadding
+              }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              keyboardDismissMode="none"
+            >
+              <YStack gap={isWeb ? "$3" : "$0"} paddingTop="$2">
+                <DebouncedInput
+                  placeholder="Title"
+                  autoCapitalize='words'
+                  value={editTitle}
+                  onDebouncedChange={setEditTitle}
+                  fontSize="$5"
+                />
                 
-                <Button
-                  backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
-                  br={12}
-                  py={isWeb ? "$1" : "$1.5"}
-                  onPress={handleSaveNote}
-                  pressStyle={{ opacity: 0.7 }}
-                  borderWidth={2}
-                  borderColor={preferences.primaryColor}
-                  flex={1}
-                >
-                  <Text
-                    color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
-                    fontFamily="$body"
-                    fontSize={13}
-                    fontWeight="600"
-                  >
-                    Save Changes
-                  </Text>
-                </Button>
-              </>
-            ) : (
-              <Button
-                backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
-                br={12}
-                py={isWeb ? "$1" : "$1.5"}
-                onPress={handleSaveNote}
-                pressStyle={{ opacity: 0.7 }}
-                borderWidth={2}
-                borderColor={preferences.primaryColor}
-                flex={1}
+                <FormattingToolbar
+                  onBold={handleBold}
+                  onItalic={handleItalic}
+                  onUnderline={handleUnderline}
+                  onBullet={handleBullet}
+                  onCode={handleCode}
+                  onAttachImage={handleImagePick}
+                />
+                
+                <ContentInput
+                  ref={contentInputRef}
+                  value={editContent}
+                  onChangeText={setEditContent}
+                  onSelectionChange={handleSelectionChange}
+                  numberOfLines={keyboardVisible ? 5 : 12}
+                  minHeight={keyboardVisible ? 300 : 450}
+                />
+                {renderAttachments()}
+              </YStack>
+            </RNScrollView>
+            <YStack 
+              style={{ 
+                marginBottom: keyboardVisible ? Platform.OS === 'ios' ? 20 : 0 : 0
+              }}
+            >
+              <TagSelector tags={editTags} onTagsChange={handleTagsChange}/>
+              <XStack 
+                gap="$2" 
+                justifyContent="space-between" 
+                marginTop={8}
+                paddingBottom={0}
+                marginBottom={0}
+                borderTopWidth={1}
+                borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
               >
-                <Text
-                  color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
-                  fontFamily="$body"
-                  fontSize={14}
-                  fontWeight="600"
-                >
-                  Save Note
-                </Text>
-              </Button>
-            )}
-          </XStack>
-        </YStack>
+                {selectedNote ? (
+                  <>
+                    <Button
+                      backgroundColor={isDark ? "rgba(255, 0, 0, 0.2)" : "rgba(255, 0, 0, 0.1)"}
+                      pressStyle={{ opacity: 0.7 }}
+                      onPress={handleDeleteNote}
+                      br={12}
+                      py={isWeb ? "$1" : "$1.5"}
+                      flex={1}
+                    >
+                      <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
+                        Delete Note
+                      </Text>
+                    </Button>
+                    
+                    <Button
+                      backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
+                      br={12}
+                      py={isWeb ? "$1" : "$1.5"}
+                      onPress={handleSaveNote}
+                      pressStyle={{ opacity: 0.7 }}
+                      borderWidth={2}
+                      borderColor={preferences.primaryColor}
+                      flex={1}
+                    >
+                      <Text
+                        color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
+                        fontFamily="$body"
+                        fontSize={13}
+                        fontWeight="600"
+                      >
+                        Save Changes
+                      </Text>
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
+                    br={12}
+                    py={isWeb ? "$1" : "$1.5"}
+                    onPress={handleSaveNote}
+                    pressStyle={{ opacity: 0.7 }}
+                    borderWidth={2}
+                    borderColor={preferences.primaryColor}
+                    flex={1}
+                  >
+                    <Text
+                      color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
+                      fontFamily="$body"
+                      fontSize={14}
+                      fontWeight="600"
+                    >
+                      Save Note
+                    </Text>
+                  </Button>
+                )}
+              </XStack>
+            </YStack>
+          </YStack>
+        </KeyboardAvoidingView>
       </Sheet.Frame>
     </Sheet>
   );
