@@ -222,6 +222,7 @@ export function AddNoteSheet({
                   autoCapitalize='words'
                   value={editTitle}
                   onDebouncedChange={setEditTitle}
+                  returnKeyType="none"
                   fontSize="$5"
                 />
                 

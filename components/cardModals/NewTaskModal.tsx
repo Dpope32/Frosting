@@ -197,7 +197,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               }
             }}
             borderWidth={1}
-            autoCapitalize="sentences"
+            autoCapitalize="words"
             autoCorrect={true}
             spellCheck={true}
             br={12}

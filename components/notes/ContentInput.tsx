@@ -128,7 +128,8 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         onChangeText={handleChangeText}
         placeholder={placeholder}
         multiline
-        autoCapitalize="sentences"
+        blurOnSubmit={false}
+        autoCapitalize="words"
         spellCheck={true}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -136,8 +137,10 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         keyboardType="default"
         placeholderTextColor={isDark ? '#555555' : '#888888'}
         textAlignVertical="top"
-        returnKeyType="default"
-        submitBehavior={isWeb ? 'submit' : 'blurAndSubmit'}
+        {...(isWeb
+          ? { returnKeyType: 'none', submitBehavior: 'submit' }
+          : {}
+        )}
         enablesReturnKeyAutomatically={false}
         onSubmitEditing={handleSubmitEditing}
         onSelectionChange={onSelectionChange}
