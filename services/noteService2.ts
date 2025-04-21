@@ -66,18 +66,25 @@ export const handleDragging = ({
     }: HandleDraggingArgs) => (evt: any) => {
     if (!draggingNoteId || isPendingDelete) return;
     
+    // Store the current position
     lastDragPosition.current = {
         x: evt.nativeEvent.pageX,
         y: evt.nativeEvent.pageY
     };
-  
-  const isOverTrash = isPointInTrashArea(evt.nativeEvent.pageY);
-  if (isOverTrash !== isHoveringTrash) {
-    setIsHoveringTrash(isOverTrash);
-    if (isOverTrash) {
-      triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+    
+    // Check if the note is over the trash area
+    const isOverTrash = isPointInTrashArea(evt.nativeEvent.pageY);
+    
+    // Only update the state if the hover state has changed
+    if (isOverTrash !== isHoveringTrash) {
+        console.log("Trash hover state changed:", isOverTrash, "y:", evt.nativeEvent.pageY);
+        setIsHoveringTrash(isOverTrash);
+        
+        if (isOverTrash) {
+            // Provide haptic feedback when entering the trash area
+            triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+        }
     }
-  }
 };
 
 interface HandleDragEndArgs {
@@ -127,10 +134,19 @@ export const handleDragEnd = ({
   isTrashVisibleValue,
   showToast
 }: HandleDragEndArgs) => ({ data, from, to }: { data: Note[]; from: number; to: number }) => {
-  if (isHoveringTrash && draggingNoteId) {
+  console.log("Drag end - isHoveringTrash:", isHoveringTrash, "draggingNoteId:", draggingNoteId);
+  
+  // Check if the note is in the trash area
+  const isOverTrash = isPointInTrashArea(lastDragPosition.current.y);
+  console.log("Final position check - isOverTrash:", isOverTrash, "y:", lastDragPosition.current.y);
+  
+  // If the note is in the trash area or was hovering over it, attempt to delete it
+  if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
+    console.log("Attempting to delete note:", draggingNoteId);
     preventReorder.current = true;
     const noteToDelete = notes.find(note => note.id === draggingNoteId);
     if (noteToDelete) {
+      console.log("Found note to delete:", noteToDelete.title);
       setIsPendingDelete(true);
       setPendingDeleteNote(noteToDelete);
       setPendingDeletePosition({
@@ -138,6 +154,10 @@ export const handleDragEnd = ({
         y: lastDragPosition.current.y
       });
       
+      // Store the note ID to delete in the ref to ensure it's available during the delete process
+      noteToDeleteRef.current = draggingNoteId;
+      
+      // Call attemptDeleteNote with the correct parameters
       attemptDeleteNote({
         noteId: draggingNoteId,
         notes,
@@ -155,8 +175,11 @@ export const handleDragEnd = ({
         originalIndexRef,
         isTrashVisibleValue
       });
+    } else {
+      console.log("Note not found:", draggingNoteId);
     }
   } else if (!preventReorder.current) {
+    // If not in trash area, update the note order
     noteStore.updateNoteOrder(data);
 
     setDraggingNoteId(null);
@@ -200,9 +223,9 @@ export const getNoteRenderData = (
 export const createTrashAnimatedStyle = (isTrashVisible: SharedValue<boolean>) => {
   return useAnimatedStyle(() => {
     return {
-      opacity: withTiming(isTrashVisible.value ? 1 : 0, { duration: 300 }),
+      opacity: withTiming(isTrashVisible.value ? 1 : 0, { duration: 200 }),
       transform: [
-        { translateY: withTiming(isTrashVisible.value ? 0 : 100, { duration: 300 }) }
+        { translateY: withTiming(isTrashVisible.value ? 0 : 100, { duration: 200 }) }
       ]
     };
   });

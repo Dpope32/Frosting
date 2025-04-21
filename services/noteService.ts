@@ -224,58 +224,73 @@ export const attemptDeleteNote = async ({
     originalIndexRef,
     isTrashVisibleValue
 }: AttemptDeleteArgs) => {
+    console.log("attemptDeleteNote called with noteId:", noteId);
+    
     const noteToDelete = notes.find(n => n.id === noteId);
     if (!noteToDelete) {
       console.warn("Attempted to delete a note that wasn't found:", noteId);
       return;
     }
+    
+    // Provide haptic feedback
     triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
+    
+    // Use a timeout to ensure the UI has time to update before showing the confirmation dialog
+    setTimeout(async () => {
+      try {
+        const confirmDelete = Platform.OS === 'web'
+            ? window.confirm(`Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`)
+            : await new Promise<boolean>((resolve) => {
+                Alert.alert(
+                  'Delete Note',
+                  `Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`,
+                  [
+                    { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+                    { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                  ],
+                  { cancelable: true }
+                );
+              });
 
-    const confirmDelete = Platform.OS === 'web'
-        ? window.confirm(`Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`)
-        : await new Promise<boolean>((resolve) => {
-            Alert.alert(
-              'Delete Note',
-              `Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`,
-              [
-                { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-                { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
-              ],
-              { cancelable: true }
-            );
-          });
+        console.log("Delete confirmation result:", confirmDelete);
+        
+        if (confirmDelete) {
+            await noteStore.deleteNote(noteId);
+            if (selectedNote?.id === noteId) {
+                setIsModalOpen(false);
+                setSelectedNote(null);
+            }
+            showToast('Note deleted', 'success');
+        } else {
+            if (originalIndexRef.current !== null) {
+                const updatedNotes = [...notes];
+                const noteIndex = updatedNotes.findIndex(n => n.id === noteId);
 
-    if (confirmDelete) {
-        await noteStore.deleteNote(noteId);
-        if (selectedNote?.id === noteId) {
-            setIsModalOpen(false);
-            setSelectedNote(null);
-        }
-        showToast('Note deleted', 'success');
-    } else {
-        if (originalIndexRef.current !== null) {
-            const updatedNotes = [...notes];
-            const noteIndex = updatedNotes.findIndex(n => n.id === noteId);
-
-            if (noteIndex !== -1 && noteIndex !== originalIndexRef.current) {
-                const [movedNote] = updatedNotes.splice(noteIndex, 1);
-                updatedNotes.splice(originalIndexRef.current, 0, movedNote);
-                const reorderedNotes = updatedNotes.map((note, index) => ({
-                    ...note,
-                    order: index
-                }));
-                noteStore.updateNoteOrder(reorderedNotes);
+                if (noteIndex !== -1 && noteIndex !== originalIndexRef.current) {
+                    const [movedNote] = updatedNotes.splice(noteIndex, 1);
+                    updatedNotes.splice(originalIndexRef.current, 0, movedNote);
+                    const reorderedNotes = updatedNotes.map((note, index) => ({
+                        ...note,
+                        order: index
+                    }));
+                    noteStore.updateNoteOrder(reorderedNotes);
+                }
             }
         }
-    }
-    setIsPendingDelete(false);
-    setPendingDeleteNote(null);
-    setDraggingNoteId(null);
-    isTrashVisibleValue.value = false;
-    setIsHoveringTrash(false);
-    noteToDeleteRef.current = null;
-    preventReorderRef.current = false;
-    originalIndexRef.current = null;
+      } catch (error) {
+        console.error("Error in delete confirmation:", error);
+      } finally {
+        // Clean up state regardless of the outcome
+        setIsPendingDelete(false);
+        setPendingDeleteNote(null);
+        setDraggingNoteId(null);
+        isTrashVisibleValue.value = false;
+        setIsHoveringTrash(false);
+        noteToDeleteRef.current = null;
+        preventReorderRef.current = false;
+        originalIndexRef.current = null;
+      }
+    }, 100);
 };
 
 
@@ -316,9 +331,19 @@ export const handleImagePick = async ({
 
 
 export const isPointInTrashArea = (y: number): boolean => {
+    // The y-coordinate from the drag event is relative to the top of the screen
+    // We need to check if it's in the bottom portion of the screen
     const { height } = Dimensions.get('window');
-    const trashAreaTop = height - 120;
-    return y > trashAreaTop;
+    
+    // Make the trash area much larger to make it easier to trigger
+    // This will make the bottom 30% of the screen count as the trash area
+    const trashAreaThreshold = height * 0.7;
+    
+    // For debugging
+    console.log("isPointInTrashArea - y:", y, "height:", height, "trashAreaThreshold:", trashAreaThreshold);
+    
+    // Check if the y-coordinate is in the trash area
+    return y > trashAreaThreshold;
 };
 
 

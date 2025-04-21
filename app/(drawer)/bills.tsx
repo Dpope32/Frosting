@@ -5,6 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
+import { BillSummary } from '@/components/bills/BillSummary';
 import { Plus, Edit3 } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
@@ -79,142 +80,14 @@ export default function BillsScreen() {
 
   return (
     <YStack f={1} mt={isWeb ? 45 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
-      {isWeb ? (
-        <XStack 
-          width="96%" 
-          mx="auto" 
-          p="$4" 
-          mb="$6"
-          ai="center"
-          jc="flex-start"
-          gap="$6+"
-          br="$4" 
-        >
-          <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
-            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
-              <YStack>
-                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
-                <XStack ai="center" gap="$2">
-                  <Text fontSize="$4" fontWeight="bold" color="#4CAF50" fontFamily="$body">
-                    ${monthlyIncome.toFixed(0)}
-                  </Text>
-                  <Button
-                    size="$1"
-                    bg="transparent"
-                    pressStyle={{ scale: 0.9 }}
-                    hoverStyle={{
-                      bg: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
-                    }}
-                    onPress={() => setIsIncomeModalVisible(true)}
-                    icon={<Edit3 size={14} color={isDark ? "#999" : "#666"} />}
-                  />
-                </XStack>
-              </YStack>
-            </XStack>
-            
-            {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
-                <YStack>
-                  <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
-                  <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
-                    ${totalMonthlyAmount.toFixed(0)}
-                  </Text>
-                </YStack>
-              </XStack>
-            )}
-            
-            {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
-                <YStack>
-                  <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
-                  <Text fontSize="$4" fontWeight="bold" color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'} fontFamily="$body">
-                    ${monthlyBalance.toFixed(0)}
-                  </Text>
-                </YStack>
-              </XStack>
-            )}
-          </XStack>
-        </XStack>
-      ) : (
-        <Animated.View 
-          entering={FadeIn.duration(600)}
-          style={{
-            width: '90%',
-            marginHorizontal: 'auto',
-            borderRadius: 12,
-            borderWidth: 1.5,
-            borderColor: isDark ? '#223' : 'rgba(0, 0, 0, 0.1)',
-            marginBottom: 16,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.5,
-            shadowRadius: 8,
-            elevation: 10,
-            overflow: 'hidden',
-          }}
-        >
-          <LinearGradient
-            colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ padding: 16, borderRadius: 11 }}
-          >
-            <YStack gap="$3" px="$2">
-              <XStack ai="center" jc="space-between">
-                <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
-                  Income
-                </Text>
-                <XStack ai="center" gap="$2">
-                  <Button
-                    size="$1"
-                    bg="transparent"
-                    onPress={() => setIsIncomeModalVisible(true)}
-                    icon={<Edit3 size={16} color={isDark ? '#999' : '#666'} />}
-                  />
-                  <Text
-                    fontSize={16}
-                    fontWeight="600"
-                    color={isDark ? '#aaa' : '#000'}
-                    fontFamily="$body"
-                  >
-                    ${monthlyIncome.toFixed(0)}
-                  </Text>
-                </XStack>
-              </XStack>
-              
-              <XStack ai="center" jc="space-between">
-                <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
-                  Bills
-                </Text>
-                <Text 
-                  fontSize={16}
-                  fontWeight="600"
-                  color="#FF5252"
-                  fontFamily="$body"
-                >
-                  ${totalMonthlyAmount.toFixed(0)}
-                </Text>
-              </XStack>
-              
-              {bills && bills.length > 0 && (
-                <XStack ai="center" jc="space-between">
-                  <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
-                    Monthly P/L
-                  </Text>
-                  <Text 
-                    fontSize={16}
-                    fontWeight="600"
-                    color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'}
-                    fontFamily="$body"
-                  >
-                    ${monthlyBalance.toFixed(0)}
-                  </Text>
-                </XStack>
-              )}
-            </YStack>
-          </LinearGradient>
-        </Animated.View>
-      )}
+      <BillSummary 
+        monthlyIncome={monthlyIncome}
+        totalMonthlyAmount={totalMonthlyAmount}
+        monthlyBalance={monthlyBalance}
+        bills={bills}
+        isWeb={isWeb}
+        onEditIncome={() => setIsIncomeModalVisible(true)}
+      />
       
       {isDeletingBill && (
         <YStack

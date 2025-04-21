@@ -38,7 +38,7 @@ export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
         <Trash2 size={40} color="$red11" />
         {isHovering && (
           <Text color="$red11" fontWeight="bold">
-            Final answer?
+            Drop to delete
           </Text>
         )}
       </YStack>

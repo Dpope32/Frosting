@@ -133,7 +133,16 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const priColor = task.priority ? getPriorityColor(task.priority) : null
   const priIcon = task.priority ? getPriorityIonIcon(task.priority) : null
 
-  const content = (
+  // Handle edit button press
+  const handleEditPress = (e: any) => {
+    // Stop propagation to prevent the long press gesture from activating
+    e?.stopPropagation?.();
+    onPressEdit(task);
+    return false; // Prevent event bubbling
+  };
+
+  // Main content of the task item
+  const mainContent = (
     <XStack 
       bg={isDark ? '$gray2' : '$gray3'} 
       br={8} 
@@ -169,9 +178,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
           </XStack>
         </XStack>
       </YStack>
-      <Pressable onPress={() => onPressEdit(task)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-        <Ionicons name="pencil-outline" size={isWeb ? 16 : 18} color={isDark ? '#888' : '$gray10'} />
-      </Pressable>
+      
       <Animated.View style={deleteTextStyle}>
         <XStack gap="$2" ai="center">
           <Ionicons name="trash-outline" size={16} color="#ff3b30" />
@@ -180,6 +187,20 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       </Animated.View>
       <Animated.View style={progressStyle} />
     </XStack>
+  );
+
+  // Edit button component
+  const editButton = (
+    <Pressable 
+      onPress={handleEditPress} 
+      style={({ pressed }) => ({ 
+        opacity: pressed ? 0.7 : 1,
+        padding: 8, 
+        marginRight: 4 
+      })}
+    >
+      <Ionicons name="pencil-outline" size={isWeb ? 16 : 18} color={isDark ? '#888' : '$gray10'} />
+    </Pressable>
   );
 
   const webTimer = useRef<NodeJS.Timeout>()
@@ -192,7 +213,30 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     if (screen === 'web') clearTimeout(webTimer.current)
   }
 
-  return screen === 'web'
-    ? <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>{content}</Pressable>
-    : <GestureDetector gesture={longPressGesture}><Animated.View style={animatedStyle}>{content}</Animated.View></GestureDetector>
+  if (screen === 'web') {
+    return (
+      <XStack width="100%" position="relative">
+        <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} style={{ flex: 1 }}>
+          {mainContent}
+        </Pressable>
+        <View style={{ position: 'absolute', right: 8, top: 0, bottom: 0, justifyContent: 'center' }}>
+          {editButton}
+        </View>
+      </XStack>
+    );
+  }
+
+  // For mobile, use a combination of gesture detector for long press but allow direct interaction with edit button
+  return (
+    <XStack width="100%" position="relative">
+      <View style={{ flex: 1 }}>
+        <GestureDetector gesture={longPressGesture}>
+          <Animated.View style={animatedStyle}>{mainContent}</Animated.View>
+        </GestureDetector>
+      </View>
+      <View style={{ position: 'absolute', right: 8, top: 0, bottom: 0, justifyContent: 'center' }}>
+        {editButton}
+      </View>
+    </XStack>
+  );
 }
