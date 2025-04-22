@@ -28,14 +28,13 @@ export const CategorySelector = ({ value, onChange, categories = ['health', 'per
   const isDark = colorScheme === 'dark';
   
   return (
-    <YStack space="$2">
-      <Text fontFamily="$body" fontSize={14}>Category</Text>
+    <YStack gap="$2">
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingVertical: 8 }}
       >
-        <XStack space="$2">
+        <XStack gap="$2">
           {categories.map((category) => {
             const isSelected = value === category;
             const categoryColor = getCategoryColor(category as TaskCategory);
@@ -45,17 +44,17 @@ export const CategorySelector = ({ value, onChange, categories = ['health', 'per
                 key={category}
                 onPress={() => onChange(category)}
                 style={{
-                  marginRight: 8,
+                  marginRight: 4,
                 }}
               >
                 <XStack
                   alignItems="center"
-                  backgroundColor={isSelected ? withOpacity(categoryColor, 0.2) : isDark ? '#333' : '#f0f0f0'}
+                  backgroundColor={isSelected ? withOpacity(categoryColor, 0.15) : isDark ? '#333' : '#f0f0f0'}
                   borderWidth={1}
                   borderColor={isSelected ? categoryColor : isDark ? '#444' : '#ddd'}
                   px={12}
                   py={8}
-                  borderRadius={8}
+                  borderRadius={20}
                 >
                   <Ionicons
                     name="bookmark"

@@ -9,7 +9,6 @@ interface GreetingSectionProps { username: string }
 export const GreetingSection = ({ username }: GreetingSectionProps) => {
   const colorScheme = useColorScheme()
   const currentTemp = useWeatherStore(s => s.currentTemp)
-  // Get the full, personalized greeting string, passing temperature if available
   const fullGreeting = getGreeting(username, currentTemp ?? undefined)
 
   return (

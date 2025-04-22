@@ -5,7 +5,7 @@ import { YStack, Text, Stack, ScrollView, XStack } from 'tamagui'
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
-import { NewTaskModal } from './cardModals/NewTaskModal'
+import { NewTaskModal } from './cardModals/NewTaskModal/index'
 import { PortfolioModal } from './cardModals/PortfolioModal'
 import { TaskListModal } from './taskList/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
@@ -119,26 +119,15 @@ export function LandingPage() {
           </Stack>
           
           <Stack 
-            backgroundColor={isDark 
-              ? "rgba(22, 22, 30, 0.75)" 
-              : "rgba(255, 255, 255, 0.08)"} 
+            backgroundColor={isDark ? "rgba(22, 22, 30, 0.75)"   : "rgba(255, 255, 255, 0.08)"} 
             borderRadius={16} 
             padding="$4" 
             borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
             borderWidth={1} 
-            style={Platform.OS === 'web' 
-              ? { 
-                  backdropFilter: 'blur(12px)',
-                  boxShadow: isDark 
-                    ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
-                    : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
-                } 
-              : { 
-                  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
-                  shadowOffset: { width: 0, height: 4 }, 
-                  shadowOpacity: 0.35, 
-                  shadowRadius: 12 
-                }
+            style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
+                  boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
+              : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+                  shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35,  shadowRadius: 12  }
             }
           >
             <TaskSection 

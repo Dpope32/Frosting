@@ -1,0 +1,242 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import { Platform } from 'react-native'
+import { Form, ScrollView } from 'tamagui'
+import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
+import { useProjectStore } from '@/store/ToDo'
+import { useUserStore } from '@/store/UserStore'
+import { useToastStore } from '@/store/ToastStore'
+import * as Haptics from 'expo-haptics'
+import { format } from 'date-fns'
+import { syncTasksToCalendar } from '@/services'
+import { BaseCardAnimated } from '../BaseCardAnimated'
+import { getDefaultTask, WEEKDAYS } from '@/services/taskService'
+
+import { TaskNameInput } from './TaskNameInput'
+import { CalendarSettings } from './CalendarSettings'
+import { RecurrenceSelector } from './RecurrenceSelector'
+import { DaySelector } from './DaySelector'
+import { DateSelector } from './DateSelector'
+import { CategorySelector } from './CategorySelector'
+import { PrioritySelector } from './PrioritySelector'
+import { SubmitButton } from './SubmitButton'
+
+interface NewTaskModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element | null {
+  if (!open) {
+    return null
+  }
+
+  const isWeb = Platform.OS === 'web'
+  const { addTask } = useProjectStore()
+  const { preferences } = useUserStore()
+  const { showToast } = useToastStore()
+  const [showTimePicker, setShowTimePicker] = useState(false)
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setShowTimePicker(false)
+        setNewTask(getDefaultTask())
+        setIsSubmitting(false)
+      }, 200)
+    }
+  }, [open])
+
+  const handleTextChange = useCallback((text: string) => {
+    setNewTask(prev => ({ ...prev, name: text }))
+  }, [])
+
+  const toggleDay = useCallback((day: keyof typeof WEEKDAYS, e?: any) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    const fullDay = WEEKDAYS[day] as WeekDay
+    setNewTask(prev => ({
+      ...prev,
+      schedule: prev.schedule.includes(fullDay)
+        ? prev.schedule.filter(d => d !== fullDay)
+        : [...prev.schedule, fullDay],
+    }))
+  }, [])
+
+  const handleTimeChange = useCallback((event: any, pickedDate?: Date) => {
+    if (pickedDate) {
+      setSelectedDate(pickedDate)
+      const timeString = format(pickedDate, 'h:mm a')
+      setNewTask(prev => ({ ...prev, time: timeString }))
+    }
+  }, [])
+
+  const handleWebTimeChange = useCallback((date: Date) => {
+    const timeString = format(date, 'h:mm a')
+    setNewTask(prev => ({ ...prev, time: timeString }))
+    setSelectedDate(date)
+  }, [])
+
+  const handleTimePickerToggle = useCallback(() => {
+    setShowTimePicker(!showTimePicker)
+  }, [showTimePicker])
+
+  const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern, e?: any) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    setNewTask(prev => ({
+      ...prev,
+      recurrencePattern: pattern,
+      recurrenceDate: new Date().toISOString().split('T')[0]
+    }))
+  }, [])
+
+  const handlePrioritySelect = useCallback((value: TaskPriority, e?: any) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    setNewTask(prev => ({ ...prev, priority: value }))
+  }, [])
+
+  const handleCategorySelect = useCallback((value: TaskCategory, e?: any) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    setNewTask(prev => ({ ...prev, category: value }))
+  }, [])
+
+  const handleAddTask = useCallback(async () => {
+    if (isSubmitting) return
+    try {
+      if (!newTask.name.trim()) {
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        showToast('Please enter a task name', 'error')
+        return
+      }
+      if (newTask.schedule.length === 0 &&
+          (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')) {
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`, 'error')
+        return
+      }
+      setIsSubmitting(true)
+      const taskToAdd = {
+        ...newTask,
+        name: newTask.name.trim(),
+        schedule:
+          newTask.recurrencePattern === 'one-time'
+            ? []
+            : (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')
+              ? newTask.schedule
+              : [],
+        recurrenceDate: newTask.recurrenceDate
+      }
+      try {
+        addTask(taskToAdd)
+        if (taskToAdd.showInCalendar) {
+          syncTasksToCalendar()
+        }
+        setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 200)
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        showToast('Task added successfully', 'success')
+      } catch {
+        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+        showToast('Failed to add task. Please try again.', 'error')
+        setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 100)
+      }
+    } catch {
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+      showToast('An error occurred. Please try again.', 'error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
+
+  return (
+    <BaseCardAnimated
+      onClose={() => {
+        if (Platform.OS === 'web') {
+          setTimeout(() => onOpenChange(false), 100)
+        } else {
+          onOpenChange(false)
+        }
+      }}
+      title="New ToDo"
+    >
+      <ScrollView
+        bounces={false}
+        keyboardShouldPersistTaps="handled"
+        showsHorizontalScrollIndicator={false}
+        style={{ maxWidth: isWeb ? 800 : '100%' }}
+      >
+        <Form gap="$2.5" onSubmit={handleAddTask}>
+          <TaskNameInput
+            value={newTask.name}
+            onChange={handleTextChange}
+          />
+
+          <CalendarSettings
+            showInCalendar={newTask.showInCalendar || false}
+            onShowInCalendarChange={(val) => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
+            time={newTask.time || ''}
+            showTimePicker={showTimePicker}
+            onTimePickerToggle={handleTimePickerToggle}
+            selectedDate={selectedDate}
+            onTimeChange={handleTimeChange}
+            onWebTimeChange={handleWebTimeChange}
+          />
+
+          <RecurrenceSelector
+            selectedPattern={newTask.recurrencePattern}
+            onPatternSelect={handleRecurrenceSelect}
+          />
+
+          {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
+            <DaySelector
+              selectedDays={newTask.schedule}
+              onDayToggle={toggleDay}
+            />
+          )}
+
+          {(newTask.recurrencePattern === 'monthly' || newTask.recurrencePattern === 'yearly') && (
+            <DateSelector
+              isYearly={newTask.recurrencePattern === 'yearly'}
+              recurrenceDate={newTask.recurrenceDate || new Date().toISOString().split('T')[0]}
+              onDateSelect={(date) => setNewTask(prev => ({ ...prev, recurrenceDate: date }))}
+              preferences={preferences}
+            />
+          )}
+
+          <CategorySelector
+            selectedCategory={newTask.category}
+            onCategorySelect={handleCategorySelect}
+          />
+
+          <PrioritySelector
+            selectedPriority={newTask.priority}
+            onPrioritySelect={handlePrioritySelect}
+          />
+
+          <Form.Trigger asChild>
+            <SubmitButton
+              isSubmitting={isSubmitting}
+              preferences={preferences}
+            />
+          </Form.Trigger>
+        </Form>
+      </ScrollView>
+    </BaseCardAnimated>
+  )
+} 

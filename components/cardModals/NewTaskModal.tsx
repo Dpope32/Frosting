@@ -625,3 +625,4 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
     </BaseCardAnimated>
   )
 }
+
