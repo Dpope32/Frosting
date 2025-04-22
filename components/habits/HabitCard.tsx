@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, View, StyleSheet, Platform } from 'react-native';
+import { Pressable, View, StyleSheet, Platform, Alert } from 'react-native';
 import { XStack, YStack, Text, Button } from 'tamagui';
 import { Pencil } from '@tamagui/lucide-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { getHabitColor, getCategoryColor } from '@/utils/styleUtils';
 import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/store/HabitStore';
+import { useToastStore } from '@/store/ToastStore';
 
 interface HabitCardProps {
   habit: Habit;
@@ -20,6 +21,7 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
   const isMobile = Platform.OS !== 'web';
   const { getRecentHistory } = useHabits();
   const [showStats, setShowStats] = useState(false);
+  const showToast = useToastStore((state) => state.showToast);
 
   const today = new Date().toISOString().split('T')[0];
   const doneToday = habit.completionHistory[today] || false;
@@ -50,6 +52,34 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
 
   const squareSize = isMobile ? 14 : 16;
   const gap = isMobile ? 3 : 4;
+
+  const handleDelete = () => {
+    if (isMobile) {
+      Alert.alert(
+        'Delete Habit',
+        'Are you sure you want to delete this habit?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => {
+              onDelete();
+              showToast('Habit deleted successfully', 'success');
+            },
+          },
+        ],
+      );
+    } else {
+      if (window.confirm('Are you sure you want to delete this habit?')) {
+        onDelete();
+        showToast('Habit deleted successfully', 'success');
+      }
+    }
+  };
 
   return (
     <YStack
@@ -134,11 +164,11 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
               color={isDark ? '#666' : '#999'} 
             />
           </Pressable>
-          <Pressable onPress={onDelete} style={{ padding: 4 }}>
+          <Pressable onPress={handleDelete} style={{ padding: 4 }}>
             <Ionicons 
               name="trash-outline" 
               size={isMobile ? 16 : 20} 
-              color={isDark ? '#666' : '#999'} 
+              color="$red10"
             />
           </Pressable>
         </XStack>

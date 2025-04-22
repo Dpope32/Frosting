@@ -3,8 +3,8 @@ import { Platform, ScrollView } from 'react-native';
 import { YStack, Text, Button, XStack } from 'tamagui';
 import { Plus } from '@tamagui/lucide-icons';
 import { Header } from '@/components/Header';
+import { HabitEmpty } from '@/components/habits/HabitEmpty';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useNotifications } from '@/hooks/useNotifications';
 import { AddHabitModal } from '@/components/cardModals/AddHabitModal';
 import { HabitCard } from '@/components/habits/HabitCard';
 import { useHabits } from '@/hooks/useHabits';
@@ -24,7 +24,7 @@ export default function HabitsScreen() {
 
       <YStack 
         f={1} 
-        pt={isWeb ? 60 : 95} 
+        pt={isWeb ? 60 : 90} 
         px={isWeb ? 24 : 16} 
         bg={isDark ? '#000' : '#F6F6F6'}
       >
@@ -43,9 +43,11 @@ export default function HabitsScreen() {
             })}
           </Text>
           
-          <XStack alignItems="center" gap="$2">
-            <Text
-              fontFamily="$body"
+          {habits.length > 0 && ( 
+            <>
+              <XStack alignItems="center" gap="$2">
+                <Text
+                  fontFamily="$body"
               color={isDark ? "#dbd0c6" : "#dbd0c6"}
               fontSize={16}
             >
@@ -66,25 +68,35 @@ export default function HabitsScreen() {
               borderRadius={2}
             />
           </YStack>
+            </>
+          )} 
         </YStack>
 
-        <ScrollView 
-          showsVerticalScrollIndicator={false} 
-          contentContainerStyle={{ 
-            gap: 16,
-            paddingTop: 16,
-            paddingBottom: 140,
-          }}
-        >
-          {habits.map((habit) => (
-            <HabitCard 
-              key={habit.id}
-              habit={habit}
-              onToggle={() => toggleHabit(habit.id)}
-              onDelete={() => deleteHabit(habit.id)}
-            />
-          ))}
-        </ScrollView>
+        {habits.length === 0 ? (
+          <HabitEmpty 
+            isDark={isDark} 
+            primaryColor={primaryColor} 
+            isWeb={isWeb} 
+          />
+        ) : (
+          <ScrollView 
+            showsVerticalScrollIndicator={false} 
+            contentContainerStyle={{ 
+              gap: 16,
+              paddingTop: 16,
+              paddingBottom: 140,
+            }}
+          >
+            {habits.map((habit) => (
+              <HabitCard 
+                key={habit.id}
+                habit={habit}
+                onToggle={() => toggleHabit(habit.id)}
+                onDelete={() => deleteHabit(habit.id)}
+              />
+            ))}
+          </ScrollView>
+        )}
 
         <Button
           onPress={() => setShowAdd(true)}

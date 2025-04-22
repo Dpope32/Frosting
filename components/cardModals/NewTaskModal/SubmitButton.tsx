@@ -4,9 +4,10 @@ import { Button, Text } from 'tamagui'
 interface SubmitButtonProps {
   isSubmitting: boolean
   preferences: any
+  onPress: () => void
 }
 
-export const SubmitButton = React.forwardRef<any, SubmitButtonProps>(({ isSubmitting, preferences }, ref) => {
+export const SubmitButton = React.forwardRef<any, SubmitButtonProps>(({ isSubmitting, preferences, onPress }, ref) => {
   return (
     <Button
       ref={ref}
@@ -26,6 +27,7 @@ export const SubmitButton = React.forwardRef<any, SubmitButtonProps>(({ isSubmit
       elevation={3}
       disabled={isSubmitting}
       opacity={isSubmitting ? 0.7 : 1}
+      onPress={onPress}
     >
       <Text fontFamily="$body" color="white" fontWeight="600" fontSize={16}>
         {isSubmitting ? 'Adding...' : 'Add Task'}

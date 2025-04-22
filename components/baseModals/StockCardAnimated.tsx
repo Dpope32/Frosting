@@ -62,10 +62,11 @@ export function StockCardAnimated({
           style={{flex: 1, justifyContent: 'center', alignItems: 'center' }} 
           pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
         >
-          <Theme name={isDark ? 'dark' : 'light'}>
-              <Animated.View
-                entering={ZoomIn.duration(300).springify()}
-                exiting={FadeOut.duration(300)} 
+       <View onStartShouldSetResponder={() => true}> 
+            <Theme name={isDark ? 'dark' : 'light'}>
+                <Animated.View
+                  entering={ZoomIn.duration(300).springify()}
+                  exiting={FadeOut.duration(300)} 
                 style={[
                   styles.modalContainer,
                   {
@@ -99,9 +100,10 @@ export function StockCardAnimated({
                 </XStack>
                 <View style={{ position: 'relative' }}>
                     {children}
-                  </View>
-                </Animated.View>
-                </Theme>
+                    </View>
+                  </Animated.View>
+                  </Theme>
+            </View> 
           </View>
         </TouchableWithoutFeedback>
       </Animated.View>

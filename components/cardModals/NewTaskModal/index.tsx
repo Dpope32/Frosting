@@ -181,7 +181,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         showsHorizontalScrollIndicator={false}
         style={{ maxWidth: isWeb ? 800 : '100%' }}
       >
-        <Form gap="$2.5" onSubmit={handleAddTask}>
+        <Form gap="$2.5">
           <TaskNameInput
             value={newTask.name}
             onChange={handleTextChange}
@@ -230,9 +230,10 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           />
 
           <Form.Trigger asChild>
-            <SubmitButton
-              isSubmitting={isSubmitting}
+            <SubmitButton 
+              isSubmitting={isSubmitting} 
               preferences={preferences}
+              onPress={handleAddTask}
             />
           </Form.Trigger>
         </Form>

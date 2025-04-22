@@ -32,7 +32,7 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
     setNotificationOpen(false);
   };
 
-  const handleClose = () => {
+  const handleClose: () => void = () => {
     resetForm();
     onOpenChange(false);
   };
@@ -119,7 +119,7 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
   );
 
   return (
-    <StockCardAnimated open={open} title="New Habit" onClose={handleClose}>
+    <StockCardAnimated open={open} title="New Habit" onClose={handleClose} >
       <YStack px="$2" py="$2" gap="$3">
         <TextInput
           style={[
@@ -236,4 +236,4 @@ const styles = StyleSheet.create({
     height: 44,
     fontSize: 16,
   }
-}); 
+});
