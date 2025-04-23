@@ -1,6 +1,7 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
+import { isWeb } from 'tamagui';
 
 export default function ModalLayout() {
   const isIOS = Platform.OS === 'ios';
@@ -10,7 +11,7 @@ export default function ModalLayout() {
       screenOptions={{
         gestureEnabled: true,
         headerShown: false,
-        presentation: 'modal',
+        presentation: isWeb ? 'card' : 'modal',
         animation: isIOS ? 'ios_from_right' : 'fade',
         animationDuration: 300,
         gestureDirection: 'vertical',

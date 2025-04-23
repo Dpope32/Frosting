@@ -6,28 +6,28 @@ import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
 import { QuoteCard } from '@/components/home/cards/QuoteCard'
 import { useUserStore } from '@/store/UserStore'
-import { useRouter } from 'expo-router'
 
 interface CardSectionProps {
   onPortfolioPress?: () => void
   onTemperaturePress?: () => void
   onQuotePress?: () => void
   onWifiPress?: () => void
+  isHome?: boolean
 }
 
 export function CardSection({
   onPortfolioPress,
   onTemperaturePress,
   onQuotePress,
-  onWifiPress
+  onWifiPress,
+  isHome
 }: CardSectionProps) {
   const { preferences } = useUserStore()
   const portfolioEnabled = preferences.portfolioEnabled ?? true
   const temperatureEnabled = preferences.temperatureEnabled ?? true
   const wifiEnabled = preferences.wifiEnabled ?? true
   const quoteEnabled = preferences.quoteEnabled ?? true
-  const router = useRouter();
-
+  
   return (
     <XStack
       gap="$2"
@@ -36,23 +36,23 @@ export function CardSection({
       justifyContent={isWeb ? 'flex-start' : 'flex-start'}
     >
       {portfolioEnabled && (
-        <Pressable onPress={onPortfolioPress}>
-          <PortfolioCard />
+        <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})} onPress={onPortfolioPress}>
+          <PortfolioCard isHome={isHome} />
         </Pressable>
       )}
       {temperatureEnabled && (
-        <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
-          <TemperatureCard onPress={onTemperaturePress} />
+        <Pressable onPress={onTemperaturePress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
+          <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
         </Pressable>
       )}
       {wifiEnabled && (
-        <Pressable  onPress={onWifiPress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
-          <WifiCard />
+        <Pressable onPress={onWifiPress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
+          <WifiCard isHome={isHome} />
         </Pressable>
       )}
       {quoteEnabled && (
-        <Pressable  onPress={onQuotePress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
-          <QuoteCard />
+        <Pressable onPress={onQuotePress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
+          <QuoteCard isHome={isHome} />
         </Pressable>
       )}
     </XStack>

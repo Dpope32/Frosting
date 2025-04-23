@@ -3,7 +3,7 @@ import React from 'react'
 import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
-import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
+import { Text, Theme, XStack, Button, isWeb, YStack } from 'tamagui'
 import Animated, {
   ZoomIn,
   FadeIn, 
@@ -38,23 +38,34 @@ export function BaseCardAnimated({
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
   )
 
-  return (
-    <Animated.View
-      style={styles.overlay}
-      entering={FadeIn.duration(200)}
-      exiting={FadeOut.duration(300)}
-      pointerEvents="box-none"
-    >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
+  // Web implementation with position:fixed uses a Portal or YStack with absolute positioning + custom styling
+  if (isWeb) {
+    return (
+      <YStack
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        width="100%"
+        height="100%"
+        backgroundColor="rgba(0, 0, 0, 0.85)"
+        alignItems="center"
+        justifyContent="center"
+        zIndex={10000}
+        enterStyle={{ opacity: 0 }}
+        animation="quick"
+        {...(isWeb ? { style: { position: 'fixed' } as any } : {})}
+      >
+        <TouchableWithoutFeedback>
+          <View style={{ 
+            flex: 1, 
+            justifyContent: 'center', 
             alignItems: 'center',
-            paddingBottom: Platform.OS !== 'web' ? screenHeight * 0.1 : 0,
-          }}
-        >
-          <Theme name={isDark ? 'dark' : 'light'}>
+            width: '100%',
+            height: '100%'
+          }}>
+            <Theme name={isDark ? 'dark' : 'light'}>
               <Animated.View
                 entering={ZoomIn.duration(300).springify()}
                 exiting={FadeOut.duration(300)} 
@@ -63,16 +74,16 @@ export function BaseCardAnimated({
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
                     marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom +20,
+                    marginBottom: insets.bottom + 20,
                     width: actualWidth,
-                    maxHeight: screenHeight,
+                    maxHeight: screenHeight * 0.9,
                   }
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 2} px="$2" alignItems="center">
-                <Text
-                    fontSize={isWeb? 24 : 20}
+                <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={8} px="$2" alignItems="center">
+                  <Text
+                    fontSize={24}
                     fontWeight="700"
                     fontFamily="$body"
                     color={isDark ? "#fffaef" : "black"}
@@ -91,13 +102,77 @@ export function BaseCardAnimated({
                   )}
                 </XStack>
                 <View style={{ position: 'relative' }}>
-                    {children}
-                  </View>
-                </Animated.View>
-                </Theme>
+                  {children}
+                </View>
+              </Animated.View>
+            </Theme>
           </View>
         </TouchableWithoutFeedback>
-      </Animated.View>
+      </YStack>
+    )
+  }
+
+  // Native implementation
+  return (
+    <Animated.View
+      style={styles.overlay}
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(300)}
+      pointerEvents="box-none"
+    >
+      <TouchableWithoutFeedback>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingBottom: screenHeight * 0.08,
+          }}
+        >
+          <Theme name={isDark ? 'dark' : 'light'}>
+            <Animated.View
+              entering={ZoomIn.duration(300).springify()}
+              exiting={FadeOut.duration(300)} 
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: isDark ? '#222' : '#fff',
+                  marginTop: insets.top + 20, 
+                  marginBottom: insets.bottom + 20,
+                  width: actualWidth,
+                  maxHeight: screenHeight,
+                }
+              ]}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={2} px="$2" alignItems="center">
+                <Text
+                  fontSize={20}
+                  fontWeight="700"
+                  fontFamily="$body"
+                  color={isDark ? "#fffaef" : "black"}
+                  marginBottom={0}
+                >
+                  {title}
+                </Text>
+                {showCloseButton && (
+                  <Button
+                    backgroundColor="transparent"
+                    onPress={onClose} 
+                    padding={8}
+                    pressStyle={{ opacity: 0.7 }}
+                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                  />
+                )}
+              </XStack>
+              <View style={{ position: 'relative' }}>
+                {children}
+              </View>
+            </Animated.View>
+          </Theme>
+        </View>
+      </TouchableWithoutFeedback>
+    </Animated.View>
   )
 }
 

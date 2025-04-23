@@ -35,12 +35,25 @@ export const useStoicQuote = () => {
         const response = await fetch(quoteUrl);
         
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          // Handle non-2xx responses
+          throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
         }
-        
+
+        // Check content type before parsing JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          // Handle cases where the response is 200 OK but not JSON (e.g., proxy returning HTML)
+          const responseText = await response.text(); // Get the text content for logging
+          console.error('Received non-JSON response from quote API:', responseText);
+          throw new Error(`Expected JSON response, but received content type: ${contentType}`);
+        }
+
+        // If response is OK and content type is JSON, parse it
         return response.json();
+
       } catch (error) {
-        console.error('Error fetching stoic quote:', error);
+        // Log the specific error and re-throw for React Query
+        console.error('Error fetching or parsing stoic quote:', error);
         throw error;
       }
     },

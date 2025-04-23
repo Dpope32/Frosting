@@ -1,5 +1,8 @@
 <resources>
   <string name="app_name">Kaiba</string>
+  <string name="expo_navigation_bar_visibility" translatable="false">hidden</string>
+  <string name="expo_navigation_bar_position" translatable="false">absolute</string>
+  <string name="expo_navigation_bar_behavior" translatable="false">inset-swipe</string>
   <string name="expo_system_ui_user_interface_style" translatable="false">automatic</string>
   <string name="expo_runtime_version">1.0.0</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>

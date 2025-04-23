@@ -7,6 +7,7 @@ import { TaskCard } from '@/components/home/TaskCard'
 import { Task } from '@/types/task'
 import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
 import { useRecommendationStore } from '@/store/RecommendationStore'
+import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 import { format } from 'date-fns'
 
 // Enable debugging
@@ -36,8 +37,6 @@ export const TaskSection = ({
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  
-  // Use the same date format as in toggleTaskCompletion
   const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
   
   useEffect(() => {
@@ -50,8 +49,6 @@ export const TaskSection = ({
           const isCompletedToday = task.completionHistory[todayLocalStr] || false;
           log(`- ${task.name} (${task.id}): ${task.recurrencePattern}, completed: ${isCompletedToday}`);
         });
-        
-        // Check for completed tasks
         const completedTasks = todaysTasks.filter(task => task.completionHistory[todayLocalStr]);
         log(`Completed tasks: ${completedTasks.length}`);
         completedTasks.forEach(task => {
@@ -60,8 +57,7 @@ export const TaskSection = ({
       }
     }
   }, [todaysTasks, todayLocalStr]);
-  
-  // Local wrapper for toggleTaskCompletion with logging
+
   const handleToggleTask = (id: string) => {
     if (DEBUG) {
       const task = todaysTasks.find(t => t.id === id);
@@ -78,27 +74,18 @@ export const TaskSection = ({
   return (
     <Stack
       br={16}
-      px="$2"
+      px="$1"
       py="$2"
-      paddingBottom="$4"
-      minHeight={Platform.OS === 'web' ? (todaysTasks.length < 5 ? 'auto' : 300) : 'auto'}
-    >
-      <XStack 
-        alignItems={Platform.OS === 'web' ? 'flex-start' : 'center'} 
-        width="100%" 
-        marginBottom="$3" 
-        paddingLeft="$4"
-        justifyContent="space-between"
+      paddingBottom="$2"
       >
-        <Text
-          fontFamily="$body"
-          color={isDark ? "#dbd0c6" : "#dbd0c6"}
-          fontSize={20}
-          fontWeight="bold"
-        >
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </Text>
-        
+      <XStack
+        alignItems="center"
+        width="100%" 
+        marginBottom="$2" 
+        gap={isWeb ? "$2" : "$0"}
+        px={Platform.OS === 'web' ? "$3" : "$0"}
+        justifyContent={isWeb ? "flex-start" : "space-between" }
+      >
         <Pressable
           onPress={() => {
             if (Platform.OS !== 'web') {
@@ -113,7 +100,7 @@ export const TaskSection = ({
             borderRadius: 15,
             justifyContent: 'center',
             alignItems: 'center',
-            marginRight: -5
+            marginRight: isWeb ? 20 : 0,
           })}
         >
           <Ionicons
@@ -127,52 +114,82 @@ export const TaskSection = ({
             }}
           />
         </Pressable>
+        
+        <Text
+          fontFamily="$body"
+          color={isDark ? "#dbd0c6" : "#dbd0c6"}
+          fontSize={20}
+          fontWeight="bold"
+          marginRight={isWeb ? 20 : 0}
+        >
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </Text>
+        <Pressable
+          onPress={() => {
+            if (Platform.OS !== 'web') {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            }
+            onAddTaskPress()
+          }}
+          style={({ pressed }) => ({
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+            justifyContent: 'center',
+            alignItems: 'center',
+            opacity: pressed ? 0.8 : 1,
+            transform: [{ scale: pressed ? 0.95 : 1 }]
+          })}
+        >
+          <Ionicons name="add" size={isWeb ? 22 : 21} color="#dbd0c6" />
+        </Pressable>
       </XStack>
       
       <Stack
         flex={1}
         position="relative"
         justifyContent={Platform.OS === 'web' ? 'flex-start' : 'center'}
-        px={Platform.OS === 'web' ? "$3" : "$2"}
+        px={Platform.OS === 'web' ? "$3" : "$1"}
+        py={Platform.OS === 'web' ? "$2" : "$1"}
       >
-        {todaysTasks.length === 0 ? (
-          <Stack 
-            p={Platform.OS === 'web' ? '$2' : '$2'} 
-            px={Platform.OS === 'web' ? '$2' : '$1'}
-            mt={Platform.OS === 'web' ? '$3' : 0}
-            gap={Platform.OS === 'web' ? '$4' : '$2'}
-            br={12}
-          >
-            <YStack width="100%">
-              <XStack
-                justifyContent={isWeb ? "space-between" : "space-evenly"}
-                gap="$2"
-                px="$2"
-                flexWrap="wrap"
-                width="100%"
-                flexDirection="row"
-              >
-                <RecommendationChip category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
-                <RecommendationChip category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
-                <RecommendationChip category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
-                <RecommendationChip category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
-              </XStack>
-            </YStack>
-          </Stack>
-        ) : (
-          Platform.OS === 'web' ? (
+        {Platform.OS === 'web' ? (
+          todaysTasks.length === 0 ? (
+            <Stack 
+              p="$2"
+              px="$2"
+              mt="$3"
+              gap="$4"
+              br={12}
+            >
+              <YStack width="100%">
+                <XStack
+                  justifyContent="space-between"
+                  gap="$2"
+                  px="$2"
+                  flexWrap="wrap"
+                  width="100%"
+                  flexDirection="row"
+                >
+                  <RecommendationChip category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
+                  <RecommendationChip category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
+                  <RecommendationChip category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
+                  <RecommendationChip category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
+                </XStack>
+              </YStack>
+            </Stack>
+          ) : (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: 14,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: 10,
               alignItems: 'flex-start',
               justifyItems: 'flex-start',
-              width: '100%',
-              maxHeight: todaysTasks.length > 5 ? '400px' : 'auto',
-              overflowY: todaysTasks.length > 5 ? 'auto' : 'visible',
+              width: '95%',
+              maxHeight: todaysTasks.length > 4 ? '200px' : 'auto',
+              overflowY: todaysTasks.length > 4 ? 'auto' : 'visible',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(219, 208, 198, 0.3) rgba(0, 0, 0, 0.1)',
-              padding: '4px'
+              padding: '10px'
             }}>
               {todaysTasks.map((task: Task) => {
                 const isCompleted = task.completionHistory[todayLocalStr] || false;
@@ -185,7 +202,7 @@ export const TaskSection = ({
                 
                 return (
                   <div key={task.id} style={{ 
-                    marginBottom: 10,
+                    marginBottom: 0,
                     width: '100%',
                     transition: 'transform 0.2s ease',
                     transform: 'translateY(0)',
@@ -211,66 +228,67 @@ export const TaskSection = ({
                 );
               })}
             </div>
-          ) : (
-            <YStack
-              gap="$1"
-              width="100%"
-              paddingHorizontal="$1"
-              paddingBottom="$2"
-            >
-              {todaysTasks.map((task: Task) => {
-                const isCompleted = task.completionHistory[todayLocalStr] || false;
-                
-                if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
-                  log(`Rendering task (mobile): ${task.name} (${task.id})`);
-                  log(`Completed status: ${isCompleted}`);
-                }
-                
-                return (
-                  <Stack 
-                    key={task.id} 
-                    width="100%"
-                    marginBottom="$1.5"
-                    animation="quick"
-                  >
-                    <TaskCard
-                      title={task.name}
-                      time={task.time}
-                      category={task.category}
-                      priority={task.priority}
-                      status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                      checked={isCompleted}
-                      onCheck={() => handleToggleTask(task.id)}
-                      onDelete={() => deleteTask(task.id)}
-                    />
-                  </Stack>
-                );
-              })}
-            </YStack>
           )
+        ) : (
+          <>
+            {todaysTasks.length === 0 ? (
+              <Stack 
+                p="$2"
+                px="$1"
+                mt={0}
+                gap="$2"
+                br={12}
+              >
+                <YStack width="100%">
+                  <XStack
+                    justifyContent="space-evenly"
+                    gap="$2"
+                    px="$2"
+                    flexWrap="wrap"
+                    width="100%"
+                    flexDirection="row"
+                  >
+                    <RecommendationChip category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
+                    <RecommendationChip category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
+                    <RecommendationChip category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
+                    <RecommendationChip category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
+                  </XStack>
+                </YStack>
+              </Stack>
+            ) : (
+              <YStack
+                gap="$1.5"
+                width="100%"
+                paddingHorizontal="$1"
+                paddingVertical="$1"
+              >
+                {todaysTasks.map((task: Task) => {
+                  const isCompleted = task.completionHistory[todayLocalStr] || false;
+                  return (
+                    <Stack 
+                      key={task.id} 
+                      width="100%"
+                      marginBottom="$1.5"
+                      animation="quick"
+                    >
+                      <TaskCard
+                        title={task.name}
+                        time={task.time}
+                        category={task.category}
+                        priority={task.priority}
+                        status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
+                        checked={isCompleted}
+                        onCheck={() => handleToggleTask(task.id)}
+                        onDelete={() => deleteTask(task.id)}
+                      />
+                    </Stack>
+                  );
+                })}
+              </YStack>
+            )}
+            <YearCompleteSection />
+          </>
         )}
-        
-        <Pressable
-          onPress={() => {
-            if (Platform.OS !== 'web') {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-            }
-            onAddTaskPress()
-          }}
-          style={({ pressed }) => ({
-            position: 'relative',
-            bottom: 0,
-            paddingTop: 12,
-            borderRadius: 16,
-            justifyContent: 'center',
-            alignItems: 'center',
-            opacity: pressed ? 0.8 : 1,
-            shadowColor: "#fff",
-            transform: [{ scale: pressed ? 0.95 : 1 }]
-          })}
-        >
-          <Ionicons name="add" size={isWeb ? 26 : 22} color="#dbd0c6" />
-        </Pressable>
       </Stack>
     </Stack>
   )

@@ -7,7 +7,11 @@ import { useUserStore } from '@/store/UserStore'
 
 const isWeb = Platform.OS === 'web';
 
-export function QuoteCard() {
+interface QuoteCardProps {
+  isHome?: boolean;
+}
+
+export function QuoteCard({ isHome }: QuoteCardProps) {
   const { data, isLoading } = useStoicQuote()
   const { preferences } = useUserStore()
   
@@ -18,11 +22,11 @@ export function QuoteCard() {
   return (
     <>
     <Stack
-      backgroundColor="rgba(0, 0, 0, 0.3)"
+      backgroundColor={isHome ? 'transparent' : "rgba(0, 0, 0, 0.3)"}
       br={12}
       padding="$3"  
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)"
+      borderWidth={isHome ? 0 : 1}
+      borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
       minWidth={80}
       height={isWeb ? 60 : 50}    
       alignItems="center"

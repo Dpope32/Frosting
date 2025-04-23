@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { useToastStore } from '@/store/ToastStore';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils';
+import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
 
 interface TaskCardProps {
   title: string;
@@ -59,11 +59,22 @@ export function TaskCard({
   const recurrenceColor = getRecurrenceColor(recurrencePattern);
   const recurrenceIcon = getRecurrenceIcon(recurrencePattern);
 
+  // Determine card background color
+  let cardBgColor = "rgba(22, 22, 22, 0.1)";
+  if (category) {
+    cardBgColor = withOpacity(getCategoryColor(category as TaskCategory), 0.05
+  );
+  } else if (priority) {
+    cardBgColor = withOpacity(getPriorityColor(priority), 0.05);
+  } else if (recurrencePattern && recurrencePattern !== 'one-time') {
+    cardBgColor = withOpacity(getRecurrenceColor(recurrencePattern), 0.05);
+  }
+
   return (
     <Stack
-      backgroundColor="rgba(22, 22, 22, 0.55)"
+      backgroundColor={cardBgColor}
       br={12}
-      padding={isWeb ? "$2" : "$2"}
+      padding={0}
       marginVertical={isWeb ? "$1" : "$0"}
       borderWidth={1}
       borderColor="rgba(52, 54, 55, 0.9)"
@@ -80,11 +91,6 @@ export function TaskCard({
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
           }
         } : {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.2,
-          shadowRadius: 4,
-          elevation: 3
         })
       }}
     >
@@ -337,6 +343,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
   },
   checkboxContainer: {
     paddingHorizontal: 4,

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { Platform } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { YStack, Text, Stack, ScrollView, XStack } from 'tamagui'
+import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
@@ -18,14 +18,11 @@ import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
 import { useEditTaskStore } from '@/store/EditTaskStore'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
-import { GreetingSection } from '@/components/home/GreetingSection'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
-import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 
 export function LandingPage() {
-  const username = useUserStore(s => s.preferences.username)
   const userHydrated = useUserStore(s => s.hydrated)
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -85,41 +82,20 @@ export function LandingPage() {
       <BackgroundSection />
      <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <YStack paddingTop={Platform.OS === 'web' ? 10 : 105} gap="$3">
-          <Stack 
-            backgroundColor={isDark 
-              ? "rgba(22, 22, 30, 0.75)" 
-              : "rgba(255, 255, 255, 0.08)"} 
-            borderRadius={16} 
-            padding="$4" 
-            borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
-            borderWidth={1} 
-            style={Platform.OS === 'web' 
-              ? { 
-                  backdropFilter: 'blur(12px)',
-                  boxShadow: isDark 
-                    ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
-                    : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
-                } 
-              : { 
-                  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
-                  shadowOffset: { width: 0, height: 4 }, 
-                  shadowOpacity: 0.35, 
-                  shadowRadius: 12 
-                }
-            }
-          >
-            <GreetingSection username={username} />
-            <CardSection 
-              onPortfolioPress={handlePortfolioPress} 
-              onTemperaturePress={handleTemperaturePress} 
-              onQuotePress={handleQuotePress}
-              onWifiPress={handleWifiPress}
-            />
-          </Stack>
+        <YStack paddingTop={Platform.OS === 'web' ? 95 : 80} gap="$3">
+          {!isWeb && (
+            <Stack borderRadius={16} p="$4">
+              <CardSection 
+                onPortfolioPress={handlePortfolioPress} 
+                onTemperaturePress={handleTemperaturePress} 
+                onQuotePress={handleQuotePress}
+                onWifiPress={handleWifiPress}
+              />
+            </Stack>
+          )}
           
           <Stack 
-            backgroundColor={isDark ? "rgba(22, 22, 30, 0.75)"   : "rgba(255, 255, 255, 0.08)"} 
+              backgroundColor={isDark ? "rgba(14, 14, 15, 0.9)"   : "rgba(255, 255, 255, 0.08)"} 
             borderRadius={16} 
             padding="$4" 
             borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
@@ -142,7 +118,7 @@ export function LandingPage() {
           {Platform.OS === 'web' ? (
             <Stack 
               backgroundColor={isDark 
-                ? "rgba(22, 22, 30, 0.75)" 
+                ? "rgba(14, 14, 15, 0.9)" 
                 : "rgba(255, 255, 255, 0.08)"} 
               borderRadius={16} 
               padding="$4" 
@@ -167,22 +143,8 @@ export function LandingPage() {
               </Stack>
             </Stack>
           ) : (
-            <Stack 
-              backgroundColor={isDark 
-                ? "rgba(22, 22, 30, 0.75)" 
-                : "rgba(255, 255, 255, 0.08)"} 
-              borderRadius={16} 
-              padding="$4" 
-              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
-              borderWidth={1} 
-              style={{ 
-                shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
-                shadowOffset: { width: 0, height: 4 }, 
-                shadowOpacity: 0.35, 
-                shadowRadius: 12 
-              }}
-            >
-              <YearCompleteSection />
+            <Stack position="absolute" bottom={0} left={0} right={0} padding="$4"  >
+              <Text color="#dbd0c6" fontSize={12} fontFamily="$body" marginTop="$2" textAlign="center" opacity={0}>Version 1.1.70</Text>
             </Stack>
           )}
 

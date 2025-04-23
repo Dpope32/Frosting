@@ -15,7 +15,7 @@ import { backgroundStyles, BackgroundStyle, getWallpaperPath, wallpapers } from 
 import { ColorPickerModal } from '../cardModals/ColorPickerModal'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { BlurView } from 'expo-blur'
-import { OptimizedWallpaperButton } from '@/utils/OptimizedWallpaperButton'
+import { OptimizedWallpaperButton } from '@/components/common/OptimizedWallpaperButton'
 import * as Sentry from '@sentry/react-native';
 import { ImageURISource } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';

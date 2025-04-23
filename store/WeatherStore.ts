@@ -64,7 +64,7 @@ export const useWeatherQuery = (zipCode: string | null | undefined) => {
           `https://geocoding-api.open-meteo.com/v1/search?name=${validZipCode}&count=1&language=en&format=json`
         );
         const geoData = await geoResponse.json();
-        
+
         if (!geoData.results?.[0]) {
           console.warn(`[WeatherStore] Location not found for ZIP: ${validZipCode}, falling back to Dallas`);
           // If location not found, try with Dallas ZIP code
@@ -76,11 +76,10 @@ export const useWeatherQuery = (zipCode: string | null | undefined) => {
           if (!fallbackData.results?.[0]) {
             throw new Error('Location not found even with fallback ZIP');
           }
-          
           return await fetchForecastWithCoordinates(fallbackData.results[0]);
         }
-        
         return await fetchForecastWithCoordinates(geoData.results[0]);
+        
       } catch (error) {
         console.error('[WeatherStore] Error fetching weather:', error);
         throw error;
@@ -101,25 +100,53 @@ export const useWeatherQuery = (zipCode: string | null | undefined) => {
  */
 async function fetchForecastWithCoordinates(location: { latitude: number; longitude: number }) {
   const { latitude, longitude } = location;
-  
+
   // Step 2: Get NWS grid points
-  const pointsResponse = await fetch(
-    `https://api.weather.gov/points/${latitude.toFixed(4)},${longitude.toFixed(4)}`
-  );
+  const pointsUrl = `https://api.weather.gov/points/${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+  const pointsResponse = await fetch(pointsUrl);
   const pointsData = await pointsResponse.json();
-  
+
   // Step 3: Get forecast
-  const forecastResponse = await fetch(pointsData.properties.forecast);
+  if (!pointsData.properties || !pointsData.properties.forecast) {
+    console.error('[WeatherStore] pointsData missing properties or forecast URL:', pointsData);
+    throw new Error('NWS grid points response missing forecast URL');
+  }
+  const forecastUrl = pointsData.properties.forecast;
+  const forecastResponse = await fetch(forecastUrl);
   const forecastData = await forecastResponse.json();
-  
+
+  // Handle "Forecast Grid Expired" error by falling back to Dallas if not already
+  if (
+    forecastData &&
+    forecastData.status === 503 &&
+    forecastData.title === "Forecast Grid Expired"
+  ) {
+    console.warn('[WeatherStore] Forecast grid expired for location:', location);
+    // Dallas fallback coordinates
+    const dallas = { latitude: 32.7767, longitude: -96.7970 };
+    // If already using fallback, throw error
+    if (
+      Math.abs(location.latitude - dallas.latitude) < 0.01 &&
+      Math.abs(location.longitude - dallas.longitude) < 0.01
+    ) {
+      throw new Error('Forecast grid expired for fallback location (Dallas)');
+    }
+    return await fetchForecastWithCoordinates(dallas);
+  }
+
+  if (!forecastData.properties || !forecastData.properties.periods) {
+    console.error('[WeatherStore] forecastData missing properties or periods:', forecastData);
+    throw new Error('Forecast data missing periods');
+  }
+
   // Update store with current temperature and last fetch time
   const currentPeriod = forecastData.properties.periods[0];
-  
+
   useWeatherStore.setState({
     currentTemp: currentPeriod.temperature,
     forecast: forecastData.properties.periods,
     lastFetchTime: Date.now(),
   });
-  
+
   return forecastData;
 }

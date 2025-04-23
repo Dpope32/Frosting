@@ -17,16 +17,14 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
     return { hasError: true, errorMessage };
   }
 
-  componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(error: any, errorInfo: any) { 
     // Enhanced error logging with more details
     console.log('[ErrorBoundary] Error caught:', error);
     console.log('[ErrorBoundary] Error message:', error?.message);
     console.log('[ErrorBoundary] Error stack:', error?.stack);
     console.log('[ErrorBoundary] Error info:', errorInfo);
     
-    // Log if it's the setCursor error we're trying to fix
-    const isCursorError = error?.message?.includes('setCursor') || 
-                           error?.toString()?.includes('setCursor');
+    const isCursorError = error?.message?.includes('setCursor') ||   error?.toString()?.includes('setCursor');
     if (isCursorError) {
       console.log('[ErrorBoundary] DETECTED setCursor ERROR');
     }

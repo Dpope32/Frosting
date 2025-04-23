@@ -10,15 +10,15 @@ const ONE_HOUR = 1000 * 60 * 60;
 
 interface TemperatureCardProps {
   onPress?: () => void;
+  isHome?: boolean;
 }
 
-export function TemperatureCard({ onPress }: TemperatureCardProps) {
+export function TemperatureCard({ onPress, isHome }: TemperatureCardProps) {
   const zipCode = useUserStore(s => s.preferences.zipCode);
   const lastFetchRef = useRef<number | null>(null);
   const { isLoading, refetch } = useWeatherQuery(zipCode);
   const currentTemp = useWeatherStore(s => s.currentTemp);
   const valueColor = currentTemp !== null ? getValueColor('temperature', currentTemp, '') : 'white';
-  
   useEffect(() => {
     const now = Date.now();
     if (zipCode && (!lastFetchRef.current || now - lastFetchRef.current >= ONE_HOUR)) {
@@ -38,11 +38,11 @@ export function TemperatureCard({ onPress }: TemperatureCardProps) {
   return (
     <Stack
       onPress={handlePress}
-      backgroundColor="rgba(0, 0, 0, 0.3)"
+      backgroundColor={isHome ? 'transparent' : "rgba(0, 0, 0, 0.3)"}
       br={12}
       padding="$3"
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)"
+      borderWidth={isHome ? 0 : 1}
+      borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
       minWidth={70}
       height={isWeb ? 60 : 50} 
       alignItems="center"

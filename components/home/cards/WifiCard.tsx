@@ -3,7 +3,11 @@ import { Platform } from 'react-native';
 import { Stack, Spinner, isWeb } from 'tamagui';
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed';
 
-export function WifiCard() {
+interface WifiCardProps {
+  isHome?: boolean;
+}
+
+export function WifiCard({ isHome }: WifiCardProps) {
   const { speed, isLoading, isConnected  } = useNetworkSpeed();
   const [signalStrength, setSignalStrength] = useState<number>(0);
 
@@ -66,11 +70,11 @@ export function WifiCard() {
 
   return (
     <Stack
-      backgroundColor="rgba(0, 0, 0, 0.3)"
+      backgroundColor={isHome ? 'transparent' : "rgba(0, 0, 0, 0.3)"}
       br={12}
       padding="$3" 
-      borderWidth={1}
-      borderColor="rgba(255, 255, 255, 0.1)"
+      borderWidth={isHome ? 0 : 1}
+      borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
       minWidth={70}
       height={isWeb ? 60 : 50}   
       alignItems="center"

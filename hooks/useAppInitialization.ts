@@ -53,7 +53,7 @@ export function useAppInitialization() {
               },
             });
           });
-        }, 1000); // Delay non-critical operations by 1 second
+        }, 1000); 
       } catch (error) {
         Sentry.captureException(error, {
           extra: {

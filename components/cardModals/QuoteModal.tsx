@@ -57,7 +57,7 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
                   Loading quote...
                 </Text>
               </YStack>
-            ) : isError || !data ? (
+            ) : isError || !data || !data.data ? (
               <YStack alignItems="center" mt="$2">
                 <Text fontFamily="$body" color="#ff6b6b" fontSize={14}>
                   Unable to load quote. Try again later.

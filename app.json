@@ -91,6 +91,14 @@
       "expo-contacts",
       "expo-system-ui",
       [
+        "expo-navigation-bar",
+        {
+          "visibility": "hidden",
+          "behavior": "inset-swipe",
+          "position": "absolute"
+        }
+      ],
+      [
         "@sentry/react-native/expo",
         {
           "url": "https://sentry.io/",

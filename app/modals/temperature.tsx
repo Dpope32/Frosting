@@ -254,7 +254,13 @@ export default function TemperatureScreen() {
           <XStack paddingHorizontal="$4" alignItems="center" justifyContent="center" position="relative">
             <Button
               icon={ChevronLeft}
-              onPress={() => router.back()}
+              onPress={() => {
+                if (isWeb) {
+                  router.dismiss();
+                } else {
+                  router.back();
+                }
+              }}
               circular
               size="$4"
               elevation="$1"

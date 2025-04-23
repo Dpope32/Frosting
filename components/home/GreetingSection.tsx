@@ -14,15 +14,15 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
   return (
     <XStack 
       alignItems="center" 
-      justifyContent="space-between"
+      justifyContent="flex-start"
       br={16}
-      px="$3"
+      px="$1"
       py="$2"
     >
-      <XStack alignItems="center" gap="$2" paddingLeft={isWeb ? "$1" : "$0"}>
+      <XStack alignItems="center" gap="$2" paddingRight={isWeb ? "$6" : "$0"}>
         <Text
           fontFamily="$heading"
-          fontSize={21}
+          fontSize={isWeb ? 21 : 20}
           color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
           fontWeight="bold"
           numberOfLines={1}
