@@ -105,10 +105,10 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+            storeFile file('kaiba-release-key.keystore')
+            storePassword 'Johnfkennedy2@'
+            keyAlias 'kaiba-key-alias'  
+            keyPassword 'Johnfkennedy2@'
         }
     }
     buildTypes {
