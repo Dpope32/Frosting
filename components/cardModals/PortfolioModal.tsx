@@ -89,7 +89,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [85] : [85]}
+      snapPoints={Platform.OS === 'web' ? [92] : [85]}
       showCloseButton={true}
       hideHandle={true}
     >

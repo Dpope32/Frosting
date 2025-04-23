@@ -178,7 +178,7 @@ export default function Sports() {
         {
           backgroundColor: isDark ? '#010101' : '#f3f3f3',
           flex: 1,
-          marginTop: !isWeb ? 75 : 0
+          marginTop: !isWeb ? 75 : 70
         }
       ]}
     >

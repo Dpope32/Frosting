@@ -55,17 +55,20 @@ interface HandleDraggingArgs {
   isHoveringTrash: boolean;
   setIsHoveringTrash: (isHovering: boolean) => void;
   isTrashVisible: SharedValue<boolean>;
+  draggingNoteId: string | null;
+  isPendingDelete: boolean;
 }
 
 export const handleDragging = ({
   isHoveringTrash,
   lastDragPosition,
   setIsHoveringTrash,
-  isTrashVisible
+  isTrashVisible,
+  draggingNoteId,
+  isPendingDelete
 }: HandleDraggingArgs) => (event: GestureResponderEvent) => {
   const { pageY } = event.nativeEvent;
-  
-  // Update the last drag position immediately
+
   lastDragPosition.current = {
     x: event.nativeEvent.pageX,
     y: pageY
@@ -79,8 +82,6 @@ export const handleDragging = ({
   if (isInTrashArea !== isHoveringTrash) {
     triggerHaptic();
     setIsHoveringTrash(isInTrashArea);
-    
-    // Add null check for isTrashVisible
     if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
       isTrashVisible.value = isInTrashArea;
     } else {

@@ -1,8 +1,7 @@
 import React from 'react';
-import { useColorScheme, Platform } from 'react-native';
-import { Button, XStack, YStack, Text } from 'tamagui';
+import { useColorScheme } from 'react-native';
+import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Edit3 } from '@tamagui/lucide-icons';
 
 interface BillSummaryProps {
@@ -10,7 +9,6 @@ interface BillSummaryProps {
   totalMonthlyAmount: number;
   monthlyBalance: number;
   bills: any[] | undefined;
-  isWeb: boolean;
   onEditIncome: () => void;
 }
 
@@ -19,13 +17,10 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
   totalMonthlyAmount,
   monthlyBalance,
   bills,
-  isWeb,
   onEditIncome,
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  
-  // Calculate the height percentage for the visual bars
   const maxValue = Math.max(monthlyIncome, totalMonthlyAmount);
   const incomeHeightPercent = maxValue > 0 ? (monthlyIncome / maxValue) * 100 : 0;
   const billsHeightPercent = maxValue > 0 ? (totalMonthlyAmount / maxValue) * 100 : 0;
@@ -33,22 +28,22 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
   if (isWeb) {
     return (
       <XStack 
-        width="96%" 
-        mx="auto" 
-        p="$4" 
-        mb="$6"
+        width="100%" 
+        mx="$1" 
+        p="$3" 
+        my="$3"
+        ml="$-5"
         ai="center"
         jc="flex-start"
-        gap="$6+"
+        gap="$6"
         br="$4" 
       >
-        <XStack gap="$4" ai="center" flex={1} jc="flex-start" position="relative"> 
-          {/* Visual bars in a separate container */}
+        <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
           <XStack 
             width={20}
             height="100%"
-            ai="flex-end"
-            jc="flex-end"
+            ai="flex-start"
+            jc="flex-start"
             mr={16}
           >
             <XStack 
@@ -75,7 +70,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             </XStack>
           </XStack>
           
-          {/* Content container */}
           <XStack gap="$4" ai="center" flex={1} jc="flex-start">
             <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
@@ -144,7 +138,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
       }}
     >
       <YStack gap="$3" position="relative">
-        {/* Visual bars in a separate container */}
         <XStack 
           position="absolute" 
           left={0} 
@@ -179,7 +172,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
           </XStack>
         </XStack>
         
-        {/* Content with more spacing from the bars */}
         <YStack pl={32} gap="$3">
           <XStack ai="center" jc="space-between">
             <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">

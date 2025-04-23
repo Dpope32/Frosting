@@ -73,7 +73,7 @@ export default function NotesScreen() {
   const localHandleUnderline = createFormattingHandler(formatUnderline, selection, setEditContent);
   const localHandleCode = createFormattingHandler(formatCode, selection, setEditContent);
   const localHandleBullet = createFormattingHandler(formatBullet, selection, setEditContent);
-  const localHandleDragging = handleDragging({ draggingNoteId, isPendingDelete, lastDragPosition, isHoveringTrash, setIsHoveringTrash});
+  const localHandleDragging = handleDragging({ draggingNoteId, isPendingDelete, lastDragPosition, isHoveringTrash, setIsHoveringTrash, isTrashVisible});
   const localHandleDragEnd = handleDragEnd({
     isHoveringTrash, draggingNoteId, preventReorder, notes, lastDragPosition,
     setIsPendingDelete, setPendingDeleteNote, setPendingDeletePosition,

@@ -1,12 +1,11 @@
 import React from 'react'
-import { XStack, YStack, Text } from 'tamagui'
+import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { BillRecommendationChip } from '@/constants/recommendations/BillRecommendations'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { useUserStore } from '@/store/UserStore'
 
 interface BillEmptyProps {
-  isWeb: boolean
   setHousingModalOpen: (open: boolean) => void
   setTransportationModalOpen: (open: boolean) => void
   setSubscriptionsModalOpen: (open: boolean) => void
@@ -14,7 +13,6 @@ interface BillEmptyProps {
 }
 
 export const BillEmpty = ({
-  isWeb,
   setHousingModalOpen,
   setTransportationModalOpen,
   setSubscriptionsModalOpen,

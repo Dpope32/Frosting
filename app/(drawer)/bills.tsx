@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, useColorScheme, Platform } from 'react-native';
 import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { BillSummary } from '@/components/bills/BillSummary';
-import { Plus, Edit3 } from '@tamagui/lucide-icons';
+import { Plus } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
@@ -32,9 +30,7 @@ export default function BillsScreen() {
     monthlyBalance
   } = useBills();
 
-  // Track if delete mutation is in progress
   const [isDeletingBill, setIsDeletingBill] = useState(false);
-  
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -61,15 +57,11 @@ export default function BillsScreen() {
   };
   
   const columnCount = getColumnCount();
-  const columnWidth = `calc(${100 / columnCount}% - ${(columnCount - 1) * 29 / columnCount}px)`;
+  const columnWidth = `${100 / columnCount}%` ;
   const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
 
-  // Wrapped delete function to handle UI state
   const handleDeleteBill = (id: string) => {
-    
     setIsDeletingBill(true);
-    
-
     setTimeout(() => {
       deleteBill(id, {
         onSuccess: () => {
@@ -83,13 +75,12 @@ export default function BillsScreen() {
   };
 
   return (
-    <YStack f={1} mt={isWeb ? 45 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
+    <YStack f={1} mt={isWeb ? 65 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
       <BillSummary 
         monthlyIncome={monthlyIncome}
         totalMonthlyAmount={totalMonthlyAmount}
         monthlyBalance={monthlyBalance}
         bills={bills}
-        isWeb={isWeb}
         onEditIncome={() => setIsIncomeModalVisible(true)}
       />
       
@@ -101,8 +92,8 @@ export default function BillsScreen() {
           right={0}
           bottom={0}
           zIndex={1000}
-          alignItems="center"
-          justifyContent="flex-start"
+          alignItems={isWeb ? "flex-start" : "center"}
+          justifyContent={isWeb ? "flex-start" : "center"}
           pt={isWeb ? 100 : 150}
           backgroundColor={isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)"}
         >
@@ -167,7 +158,6 @@ export default function BillsScreen() {
           ))
         ) : bills?.length === 0 ? (
           <BillEmpty
-            isWeb={isWeb}
             setHousingModalOpen={setHousingModalOpen}
             setTransportationModalOpen={setTransportationModalOpen}
             setSubscriptionsModalOpen={setSubscriptionsModalOpen}
@@ -181,7 +171,6 @@ export default function BillsScreen() {
               currentDay={currentDay}
               primaryColor={primaryColor}
               onDelete={handleDeleteBill}
-              isWeb={isWeb}
               columnWidth={columnWidth}
             />
           ))
