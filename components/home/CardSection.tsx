@@ -1,11 +1,12 @@
 import React from 'react'
 import { Pressable } from 'react-native'
-import { XStack, isWeb } from 'tamagui'
+import { XStack, YStack, isWeb } from 'tamagui'
 import { PortfolioCard } from '@/components/home/cards/PortfolioCard'
 import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
 import { QuoteCard } from '@/components/home/cards/QuoteCard'
 import { useUserStore } from '@/store/UserStore'
+import { GreetingSection } from '@/components/home/GreetingSection'
 
 interface CardSectionProps {
   onPortfolioPress?: () => void
@@ -27,8 +28,11 @@ export function CardSection({
   const temperatureEnabled = preferences.temperatureEnabled ?? true
   const wifiEnabled = preferences.wifiEnabled ?? true
   const quoteEnabled = preferences.quoteEnabled ?? true
+  const username = useUserStore(s => s.preferences.username);
   
   return (
+    <YStack gap="$2">
+      <GreetingSection username={username} />
     <XStack
       gap="$2"
       marginTop="$1"
@@ -56,5 +60,6 @@ export function CardSection({
         </Pressable>
       )}
     </XStack>
+    </YStack>
   )
 }

@@ -81,10 +81,10 @@ export function LandingPage() {
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
      <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <YStack paddingTop={Platform.OS === 'web' ? 95 : 80} gap="$3">
+      <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100}}>
+        <YStack paddingTop={Platform.OS === 'web' ? 95 : 95} gap="$3">
           {!isWeb && (
-            <Stack borderRadius={16} p="$4">
+            <Stack borderRadius={16} p="$4" backgroundColor={isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(255, 255, 255, 0.08)"} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} borderWidth={1}>
               <CardSection 
                 onPortfolioPress={handlePortfolioPress} 
                 onTemperaturePress={handleTemperaturePress} 

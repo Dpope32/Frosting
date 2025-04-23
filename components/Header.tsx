@@ -8,7 +8,6 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
-import { GreetingSection } from '@/components/home/GreetingSection';
 import { CardSection } from '@/components/home/CardSection'; 
 import { SettingsModal } from './cardModals/SettingsModal';
 import { PortfolioModal } from './cardModals/PortfolioModal'; 
@@ -191,9 +190,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                   />
                 </Pressable>
               )}
-              {isHome ? (
-                <GreetingSection username={username} />
-              ) : (
                 <Text
                   fontSize={isWeb ? 18 : 18}
                   color={textColor}
@@ -203,7 +199,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                 >
                   {title}
                 </Text>
-              )}
               {isWeb && isHome && (
                 <CardSection
                   isHome={isHome}
