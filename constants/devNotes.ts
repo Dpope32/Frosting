@@ -31,7 +31,7 @@ export const generateTestNotes = (): Note[] => {
   notes.push({
     id: generateId(),
     title: 'Small Note',
-    content: 'This is a small note with just a few lines of text. It\'s good for quick reminders or simple thoughts.',
+    content: 'This is a small note with just a few lines of text. Its good for quick reminders or simple thoughts.',
     tags: [generateRandomTag(0), generateRandomTag(1)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),

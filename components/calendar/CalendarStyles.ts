@@ -13,8 +13,9 @@ export const calendarStyles = StyleSheet.create({
       paddingHorizontal: 0,
     } as any : {}),
     ...(isIpad() ? {
-      paddingTop: 60,
-      paddingHorizontal: 12,
+      paddingTop: 100,
+      paddingHorizontal: 0,
+      paddingLeft: 14,
     } as any : {}),
   },
   webMonthsContainer: {

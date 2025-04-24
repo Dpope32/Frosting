@@ -9,7 +9,7 @@ import { RecommendationChip } from '@/constants/recommendations/TaskRecommendati
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 import { format } from 'date-fns'
-
+import { isIpad } from '@/utils/deviceUtils'
 // Enable debugging
 const DEBUG = false;
 
@@ -84,7 +84,7 @@ export const TaskSection = ({
         marginBottom="$2" 
         gap={isWeb ? "$2" : "$0"}
         px={Platform.OS === 'web' ? "$3" : "$0"}
-        justifyContent={isWeb ? "flex-start" : "space-between" }
+        justifyContent={isWeb ? "flex-start" : isIpad() ? "space-between" : "space-between" }
       >
         <Pressable
           onPress={() => {
@@ -148,7 +148,7 @@ export const TaskSection = ({
       <Stack
         flex={1}
         position="relative"
-        justifyContent={Platform.OS === 'web' ? 'flex-start' : 'center'}
+        justifyContent={Platform.OS === 'web' ? 'flex-start' : isIpad() ? 'flex-start' : 'center'}
         px={Platform.OS === 'web' ? "$3" : "$1"}
         py={Platform.OS === 'web' ? "$2" : "$1"}
       >
@@ -256,18 +256,20 @@ export const TaskSection = ({
                 </YStack>
               </Stack>
             ) : (
-              <YStack
+              <XStack
+                flexWrap="wrap"
                 gap="$1.5"
                 width="100%"
                 paddingHorizontal="$1"
                 paddingVertical="$1"
+                justifyContent={isIpad() ? "space-between" : "flex-start"}
               >
                 {todaysTasks.map((task: Task) => {
                   const isCompleted = task.completionHistory[todayLocalStr] || false;
                   return (
                     <Stack 
                       key={task.id} 
-                      width="100%"
+                      width={isIpad() ? "48%" : "100%"}
                       marginBottom="$1.5"
                       animation="quick"
                     >
@@ -284,7 +286,7 @@ export const TaskSection = ({
                     </Stack>
                   );
                 })}
-              </YStack>
+              </XStack>
             )}
             <YearCompleteSection />
           </>

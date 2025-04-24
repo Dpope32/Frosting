@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BillRecommendationChip } from '@/constants/recommendations/BillRecommendations'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { useUserStore } from '@/store/UserStore'
+import { isIpad } from '@/utils/deviceUtils';
 
 interface BillEmptyProps {
   setHousingModalOpen: (open: boolean) => void
@@ -26,7 +27,7 @@ export const BillEmpty = ({
     <XStack 
       p={isWeb ? "$6" : "$5"} 
       br="$4" 
-      px={isWeb ? "$6" : "$4"} 
+      px={isWeb ? "$6" : isIpad() ? "$5" : "$4"} 
       ai="flex-start" 
       jc="center"
       borderWidth={1} 

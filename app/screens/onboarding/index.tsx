@@ -14,6 +14,7 @@ import { setupPermissionsAndNotifications } from '@/services/permissions/setupPa
 import { useToastStore } from '@/store/ToastStore'
 import WelcomeScreen from './welcome' 
 import PermissionsScreen from './permissions'
+import { isIpad } from '@/utils/deviceUtils'
 import Step0 from './step0'
 import Step1 from './step1'
 import Step2 from './step2'
@@ -201,14 +202,14 @@ export default function Onboarding() {
   }
 
   const getButtonColor = () => {
-    if (step < 2 && !isDark) {
-      return '$blue9';
+    if (step < 2) {
+      return canProceed() ? '$blue9' : '$gray5';
     }
     return formData.primaryColor || '$onboardingButtonPrimary'; 
   }
   
   const getButtonTextColor = () => {
-    return 'white'; 
+    return '#f3f3f3'; 
   }
 
   const getBottomPadding = () => {
@@ -244,11 +245,12 @@ export default function Onboarding() {
                   borderTopColor: '$onboardingIndexBorder',
                   zIndex: 10 
                 }}> 
-                <XStack gap="$3" justifyContent={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 'center' : 'space-between'}>
+                <XStack gap="$3" justifyContent="center" maxWidth={500} alignSelf="center" width="100%">
                   {step > 0 && (
                     <Button
-                      flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 1}
-                      width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 145 : undefined}
+                      flex={1}
+                      width={isWeb ? 200 : isIpad() ? 150 : 100}
+                      height={isIpad() ? 50 : 43}
                       variant="outlined"
                       onPress={handleBack}
                       backgroundColor="$onboardingIndexButtonBackground" 
@@ -257,15 +259,16 @@ export default function Onboarding() {
                     </Button>
                   )}
                   <Button
-                    flex={Platform.OS !== 'ios' && Platform.OS !== 'android' ? undefined : 2}
-                    width={Platform.OS !== 'ios' && Platform.OS !== 'android' ? 300 : undefined}
+                    flex={1}
+                    width={isWeb ? 200 : isIpad() ? 150 : 100}
+                    height={isIpad() ? 50 : 43}
                     backgroundColor={getButtonColor()} 
                     borderColor="$onboardingIndexButtonBorder" 
                     borderWidth={1}
-                    opacity={!canProceed() ? 0.5 : 1}
+                    opacity={1}
                     disabled={!canProceed()}
                     onPress={handleNext}>
-                    <Text fontFamily="$body" color={getButtonTextColor()} fontWeight="bold">
+                    <Text fontFamily="$body" color={getButtonTextColor()} fontSize={14} fontWeight="bold">
                       {step === 5 ? 'Complete' : 'Continue'}
                     </Text>
                   </Button>
@@ -275,7 +278,7 @@ export default function Onboarding() {
           </TouchableWithoutFeedback>
         ) : (
           <View flex={1}>
-            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }}> {/* Add padding only for mobile browsers */}
+            <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }}> 
               {renderStep()}
             </View>
             <View
@@ -291,11 +294,11 @@ export default function Onboarding() {
                 borderTopColor: '$onboardingIndexBorder',
                 zIndex: 10 
               }}> 
-              <XStack gap="$3" justifyContent="center">
+              <XStack gap="$3" justifyContent="center" maxWidth={500} alignSelf="center" width="100%">
                 {(step > -1) && (
                   <Button
-                    width={isMobileBrowser ? 120 : 145}
-                    variant="outlined"
+                    width={120}
+                    height={43}
                     onPress={handleBack}
                     backgroundColor="$onboardingIndexButtonBackground" 
                     borderColor="$onboardingIndexButtonBorder"> 
@@ -303,14 +306,15 @@ export default function Onboarding() {
                   </Button>
                 )}
                 <Button
-                  width={isMobileBrowser ? 200 : 300}
+                  width={120}
+                  height={43}
                   backgroundColor={getButtonColor()} 
                   borderColor="$onboardingIndexButtonBorder" 
                   borderWidth={1}
-                  opacity={!canProceed() ? 0.5 : 1}
+                  opacity={1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color={getButtonTextColor()} fontWeight="bold">
+                  <Text fontFamily="$body" color={getButtonTextColor()} fontSize={14} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

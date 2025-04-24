@@ -21,7 +21,7 @@ import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
-
+import { isIpad } from '@/utils/deviceUtils';
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
   const colorScheme = useColorScheme();
@@ -34,6 +34,7 @@ export function LandingPage() {
   const closeEditModal = useEditTaskStore(s => s.closeModal);
   const [isMounted, setIsMounted] = useState(false)
   const router = useRouter();
+  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.8)" : "rgba(255, 255, 255, 0.08)"
   
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -82,20 +83,21 @@ export function LandingPage() {
       <BackgroundSection />
      <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100}}>
-        <YStack paddingTop={Platform.OS === 'web' ? 95 : 95} gap="$3">
+        <YStack pt={100} gap="$3">
           {!isWeb && (
-            <Stack borderRadius={16} p="$4" backgroundColor={isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(255, 255, 255, 0.08)"} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} borderWidth={1}>
+            <Stack borderRadius={16} p="$4" backgroundColor={backgroundColor} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} borderWidth={1}>
               <CardSection 
                 onPortfolioPress={handlePortfolioPress} 
                 onTemperaturePress={handleTemperaturePress} 
                 onQuotePress={handleQuotePress}
                 onWifiPress={handleWifiPress}
+                isDark={isDark}
               />
             </Stack>
           )}
           
           <Stack 
-              backgroundColor={isDark ? "rgba(14, 14, 15, 0.9)"   : "rgba(255, 255, 255, 0.08)"} 
+            backgroundColor={backgroundColor} 
             borderRadius={16} 
             padding="$4" 
             borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
@@ -117,9 +119,7 @@ export function LandingPage() {
          
           {Platform.OS === 'web' ? (
             <Stack 
-              backgroundColor={isDark 
-                ? "rgba(14, 14, 15, 0.9)" 
-                : "rgba(255, 255, 255, 0.08)"} 
+              backgroundColor={backgroundColor} 
               borderRadius={16} 
               padding="$4" 
               marginTop="$2" 

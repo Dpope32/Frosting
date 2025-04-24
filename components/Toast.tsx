@@ -1,10 +1,12 @@
+// toast.tsx
+
 import React, { useEffect, useRef } from 'react'
 import { Animated, Dimensions } from 'react-native'
 import { YStack, Text, GetThemeValueForKey, useMedia } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { useToastStore } from '@/store/ToastStore'
-
+import { isIpad } from '@/utils/deviceUtils'
 const { height, width } = Dimensions.get('window')
 
 const toastStyle = {
@@ -119,10 +121,11 @@ const ToastItem: React.FC<ToastItemProps> = ({
           },
         ],
         alignSelf: 'center',
+        marginLeft: isIpad() ? 100 : 0,
       }}
     >
       <BlurView
-        intensity={80}
+        intensity={70}
         tint="dark"
         style={{
           flexDirection: 'row',

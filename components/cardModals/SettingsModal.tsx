@@ -19,6 +19,7 @@ import { OptimizedWallpaperButton } from '@/components/common/OptimizedWallpaper
 import * as Sentry from '@sentry/react-native';
 import { ImageURISource } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';
+import { useCustomWallpaper } from '@/hooks/useCustomWallpaper';
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
   try {
@@ -202,6 +203,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
     }
     return wallpaperSources[style];
   }, [wallpaperSources]);
+
+  const { uploadCustomWallpaper, isUploading } = useCustomWallpaper();
 
   return (
     <>
@@ -406,6 +409,30 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                   ))}
                 </XStack>
               ))}
+              <XStack height={isWeb ? 80 : 60} marginBottom={8}>
+                <OptimizedWallpaperButton
+                  styleItem={{
+                    label: "Custom Wallpaper",
+                    value: "wallpaper-custom-upload"
+                  }}
+                  isSelected={false}
+                  isDark={isDark}
+                  primaryColor={settings.primaryColor}
+                  isWeb={isWeb}
+                  onSelect={async () => {
+                    const wallpaperKey = await uploadCustomWallpaper();
+                    if (wallpaperKey) {
+                      handleSelectBackground(wallpaperKey);
+                      setSettings((prev) => ({ ...prev, backgroundStyle: wallpaperKey }));
+                      setPreferences({ ...preferences, backgroundStyle: wallpaperKey });
+                      onOpenChange(false);
+                    }
+                  }}
+                  getWallpaperImageSource={getWallpaperImageSource}
+                  index={3}
+                  totalInRow={4}
+                />
+              </XStack>
             </YStack>
           </YStack>
         </YStack>

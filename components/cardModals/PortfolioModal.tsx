@@ -7,6 +7,7 @@ import { useEditStockStore } from '@/store/EditStockStore'
 import { getValueColor } from '@/constants/valueHelper'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { HoldingsCards } from '@/components/modals/HoldingsCards'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface PortfolioModalProps {
   open: boolean
@@ -45,9 +46,9 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
   const openEditStockModal = useEditStockStore(s => s.openModal)
   const closePortfolioModal = () => onOpenChange(false)
   const getStockValueColor = (value: number): string => {
-    const color = getValueColor('portfolio', value, '')
+    const color = getValueColor('portfolio', value, '', isDark)
     if (!isDark) {
-      if (color === '#22c55e') return '#15803d'
+      if (color === '#22c55e') return '#16a34a' 
       if (color === '#ef4444') return '#b91c1c'
     }
     return color
@@ -89,7 +90,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       open={open}
       onOpenChange={onOpenChange}
       title="Portfolio"
-      snapPoints={Platform.OS === 'web' ? [92] : [85]}
+      snapPoints={Platform.OS === 'web' ? [92] : [90]}
       showCloseButton={true}
       hideHandle={true}
     >
@@ -102,12 +103,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           <Animated.View entering={FadeIn.duration(600)} style={[styles.card, webCardStyle]}>
             <YStack gap={isWeb ? '$4' : '$2'} px="$3">
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 14} fontFamily="$body">
+                <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 18 : isIpad() ? 16 : 14} fontFamily="$body">
                   Value
                 </Text>
                 <Text
                   color={getStockValueColor(currentTotalValue)}
-                  fontSize={isWeb ? 18 : 14}
+                  fontSize={isWeb ? 18 : isIpad() ? 16 : 14}
                   fontWeight="600"
                   fontFamily="$body"
                 >
@@ -115,7 +116,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
                 </Text>
               </XStack>
               <XStack justifyContent="space-between" alignItems="center">
-                <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 14} fontFamily="$body">
+                <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 18 : isIpad() ? 16 : 14} fontFamily="$body">
                   Principal
                 </Text>
                 {isEditingPrincipal ? (

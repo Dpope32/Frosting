@@ -14,6 +14,7 @@ interface CardSectionProps {
   onQuotePress?: () => void
   onWifiPress?: () => void
   isHome?: boolean
+  isDark?: boolean
 }
 
 export function CardSection({
@@ -21,7 +22,8 @@ export function CardSection({
   onTemperaturePress,
   onQuotePress,
   onWifiPress,
-  isHome
+  isHome,
+  isDark
 }: CardSectionProps) {
   const { preferences } = useUserStore()
   const portfolioEnabled = preferences.portfolioEnabled ?? true
@@ -31,7 +33,7 @@ export function CardSection({
   const username = useUserStore(s => s.preferences.username);
   
   return (
-    <YStack gap="$2">
+    <YStack gap="$1">
       <GreetingSection username={username} />
     <XStack
       gap="$2"
@@ -41,7 +43,7 @@ export function CardSection({
     >
       {portfolioEnabled && (
         <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})} onPress={onPortfolioPress}>
-          <PortfolioCard isHome={isHome} />
+          <PortfolioCard isHome={isHome} isDark={isDark} />
         </Pressable>
       )}
       {temperatureEnabled && (

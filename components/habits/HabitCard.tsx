@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Pressable, View, StyleSheet, Platform, Alert } from 'react-native';
 import { XStack, YStack, Text, Button } from 'tamagui';
@@ -90,9 +91,32 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
       backgroundColor={isDark ? '#111' : '#fff'}
       borderWidth={1}
       borderColor={isDark ? '#333' : '#E0E0E0'}
+      position="relative"
+      overflow="hidden"
     >
+      {/* Dark overlay when habit is completed for the day */}
+      {doneToday && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1,
+            borderRadius: 11, // slightly smaller than parent to respect border
+          }}
+          pointerEvents="none"
+        >
+          <Ionicons name="checkmark-circle" size={24} color="#00C851" />
+        </View>
+      )}
+      
       <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 10 : 12}>
-        <XStack alignItems="center" flex={1} gap="$3">
+        <XStack alignItems="center" flex={1} gap="$3" style={{ zIndex: 2 }}>
           <Pressable
             onPress={onToggle}
             style={styles.checkboxContainer}
@@ -156,7 +180,7 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
           </XStack>
         </XStack>
 
-        <XStack gap="$3" alignItems="center">
+        <XStack gap="$3" alignItems="center" style={{ zIndex: 2 }}>
           <Pressable onPress={() => setShowStats(true)} style={{ padding: 4 }}>
             <Ionicons 
               name="stats-chart" 
@@ -222,32 +246,46 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
         </View>
       )}
 
-      <XStack alignItems="center">
-        <XStack flexWrap="wrap" gap={gap}>
-          {history.map((day, idx) => (
-            <YStack
-              key={day.date}
-              width={squareSize}
-              height={squareSize}
-              borderRadius={3}
-              backgroundColor={day.completed ? '#00C851' : isDark ? '#333' : '#E0E0E0'}
-              alignItems="center"
-              justifyContent="center"
-              opacity={day.date === today ? 1 : 0.8}
-            >
-              {day.date === today && (
-                <View
-                  style={{
-                    position: "absolute",
-                    width: 4,
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#FFD600",
-                  }}
-                />
-              )}
-            </YStack>
-          ))}
+      {/* Improved history display */}
+      <XStack alignItems="center" style={{ zIndex: 2 }}>
+        <XStack
+          flexWrap="wrap"
+          gap={gap}
+          borderRadius={6}
+          padding={6}
+          backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}
+          mb={history.length === 1 ? 4 : 0}
+        >
+          {history.length > 0 ? (
+            history.map((day, idx) => (
+              <YStack
+                key={day.date}
+                width={squareSize}
+                height={squareSize}
+                borderRadius={3}
+                backgroundColor={day.completed ? '#00C851' : isDark ? '#333' : '#E0E0E0'}
+                alignItems="center"
+                justifyContent="center"
+                opacity={day.date === today ? 1 : 0.8}
+              >
+                {day.date === today && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      width: 4,
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: "#FFD600",
+                    }}
+                  />
+                )}
+              </YStack>
+            ))
+          ) : (
+            <Text fontFamily="$body" fontSize={12} color={isDark ? '#777' : '#999'}>
+              No history yet
+            </Text>
+          )}
         </XStack>
       </XStack>
     </YStack>
@@ -269,4 +307,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}); 
+});

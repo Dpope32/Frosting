@@ -10,6 +10,7 @@ import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
+import { isIpad } from '@/utils/deviceUtils';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -92,9 +93,9 @@ export default function BillsScreen() {
           right={0}
           bottom={0}
           zIndex={1000}
-          alignItems={isWeb ? "flex-start" : "center"}
-          justifyContent={isWeb ? "flex-start" : "center"}
-          pt={isWeb ? 100 : 150}
+          alignItems={isWeb ? "flex-start" : isIpad() ? "flex-start" : "center"}
+          justifyContent={isWeb ? "flex-start" : isIpad() ? "flex-start" : "center"}
+          pt={isWeb ? 100 : isIpad() ? 100 : 150}
           backgroundColor={isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)"}
         >
           <XStack
@@ -121,16 +122,16 @@ export default function BillsScreen() {
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ 
-          padding: isWeb ? 12 : 6,
+          padding: isWeb ? 12 : isIpad() ? 8 : 6,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : 12,
-          paddingLeft: isWeb ? 40 : 20,
-          paddingRight: isWeb ? 20 : 20, 
-          display: isWeb ? 'flex' : undefined,
-          flexDirection: isWeb ? 'row' : undefined,
-          flexWrap: isWeb ? 'wrap' : undefined,
-          justifyContent: isWeb ? 'flex-start' : undefined,
-          gap: isWeb ? 20 : 6, 
+          paddingHorizontal: isWeb ? 0 : isIpad() ? 12 : 12,
+          paddingLeft: isWeb ? 40 : isIpad() ? 60 : 20,
+          paddingRight: isWeb ? 20 : isIpad() ? 60 : 20, 
+          display: isWeb ? 'flex' : isIpad() ? 'flex' :  undefined,
+          flexDirection: isWeb ? 'row' : isIpad() ? 'row' : undefined,
+          flexWrap: isWeb ? 'wrap' : isIpad() ? 'wrap' : undefined,
+          justifyContent: isWeb ? 'flex-start' : isIpad() ? 'flex-start' : undefined,
+          gap: isWeb ? 20 : isIpad() ? 12 : 6, 
           maxWidth: isWeb ? 1780 : undefined, 
         }}
       >
@@ -171,7 +172,6 @@ export default function BillsScreen() {
               currentDay={currentDay}
               primaryColor={primaryColor}
               onDelete={handleDeleteBill}
-              columnWidth={columnWidth}
             />
           ))
         ) : null}

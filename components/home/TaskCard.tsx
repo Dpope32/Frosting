@@ -3,10 +3,13 @@ import { Stack, Text, XStack } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useToastStore } from '@/store/ToastStore';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 import { isWeb } from 'tamagui';
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface TaskCardProps {
   title: string;
@@ -32,7 +35,7 @@ export function TaskCard({
 }: TaskCardProps) {
   const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
   const showToast = useToastStore(s => s.showToast);
-  
+  const isDark = useColorScheme() === 'dark';
   const getPriorityIcon = (priority?: TaskPriority) => {
     if (!priority) return 'flag-outline';
     const icons: Record<TaskPriority, any> = {
@@ -60,14 +63,31 @@ export function TaskCard({
   const recurrenceIcon = getRecurrenceIcon(recurrencePattern);
 
   // Determine card background color
-  let cardBgColor = "rgba(22, 22, 22, 0.1)";
+  const baseOpacity = 0.075; // Increased opacity for colored backgrounds
+  
+  let cardBgColor = isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(220, 220, 220, 0.8)"; // Adjusted default light mode background
+  let gradientColors: readonly [string, string, string] | undefined;
+  
   if (category) {
-    cardBgColor = withOpacity(getCategoryColor(category as TaskCategory), 0.05
-  );
+    const categoryColor = getCategoryColor(category as TaskCategory);
+    gradientColors = [
+      withOpacity(categoryColor, baseOpacity * 0.7),  // Top - darker
+      withOpacity(categoryColor, baseOpacity),        // Middle
+      withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
+    ] as const;
   } else if (priority) {
-    cardBgColor = withOpacity(getPriorityColor(priority), 0.05);
+    const priorityColor = getPriorityColor(priority);
+    gradientColors = [
+      withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
+      withOpacity(priorityColor, baseOpacity),        // Middle
+      withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
+    ] as const;
   } else if (recurrencePattern && recurrencePattern !== 'one-time') {
-    cardBgColor = withOpacity(getRecurrenceColor(recurrencePattern), 0.05);
+    gradientColors = [
+      withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
+      withOpacity(recurrenceColor, baseOpacity),        // Middle
+      withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
+    ] as const;
   }
 
   return (
@@ -90,10 +110,17 @@ export function TaskCard({
             transform: 'translateY(-2px)',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
           }
-        } : {
-        })
+        } : {})
       }}
     >
+      {gradientColors && (
+        <LinearGradient
+          colors={gradientColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+      )}
       {checked && (
         <View style={{
           position: 'absolute',
@@ -129,10 +156,15 @@ export function TaskCard({
                 "You rock 😁",
                 "Child's play 😅",
                 "Boom! Done 🤗",
-                "No problemo 🤗",
+                "No problemo ",
                 "YOURE HIM",
                 "All u do is grind huh",
-                "You're a literal machine"
+                "You're a literal machine",
+                "ayuuuup",
+                "Good looks",
+                "Whats next?",
+                "You're a machine!",
+                "Idk how you do it"
               ];
               const msg = variants[Math.floor(Math.random() * variants.length)];
               showToast(msg, 'success');
@@ -164,7 +196,7 @@ export function TaskCard({
             <Text 
               fontFamily="$body"
               color="rgb(232, 230, 227)" 
-              fontSize={14}
+              fontSize={isIpad() ? 16 : 14}
               fontWeight="500"
               opacity={checked ? 0.6 : 1}
               style={{

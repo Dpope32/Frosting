@@ -3,18 +3,23 @@ import { StyleSheet, Dimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Trash2 } from '@tamagui/lucide-icons';
 import { Text, YStack } from 'tamagui';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface TrashcanAreaProps {
   isVisible: boolean;
   onLayout?: (event: any) => void;
   isHovering?: boolean;
+  height?: number;
 }
 
 export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
   isVisible,
   onLayout,
-  isHovering = false
+  isHovering = false,
+  height
 }) => {
+  const containerHeight = height || (isIpad() ? 120 : 80);
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isVisible ? 1 : 0, { duration: 200 }),
@@ -30,12 +35,12 @@ export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
 
   return (
     <Animated.View
-      style={[styles.container, animatedStyle]}
+      style={[styles.container, animatedStyle, { height: containerHeight }]}
       onLayout={onLayout}
       testID="trashcan-drop-area"
     >
       <YStack alignItems="center" gap="$2">
-        <Trash2 size={40} color="$red11" />
+        <Trash2 size={isIpad() ? 50 : 40} color="$red11" />
       </YStack>
     </Animated.View>
   );
@@ -47,7 +52,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 80,
     backgroundColor: 'rgba(255, 50, 50, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',

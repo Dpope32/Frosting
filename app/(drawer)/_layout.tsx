@@ -10,6 +10,10 @@ import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
 import { isIpad } from '@/utils/deviceUtils';
+import { DRAWER_ICONS } from '@/constants/drawerIcons';
+
+type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
+type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
   props: DrawerContentComponentProps; 
@@ -19,29 +23,19 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
   isWeb: boolean;
 }) => {
   
-  // Determine the image source based on platform and availability
   const imageSource = (() => {
     if (!profilePicture) {
       return require('@/assets/images/adaptive-icon.png');
     }
-    
-    // For web, ensure the URI is properly formatted
     if (isWeb) {
-      // If it's a data URL (starts with data:), use it directly
       if (profilePicture.startsWith('data:')) {
         return { uri: profilePicture };
       }
-      
-      // If it's a file URI that might not work on web, use the fallback
       if (profilePicture.startsWith('file:')) {
         return require('@/assets/images/adaptive-icon.png');
       }
-      
-      // Otherwise use the URI as is
       return { uri: profilePicture };
     }
-    
-    // For mobile, use the URI directly
     return { uri: profilePicture };
   })();
   
@@ -69,22 +63,6 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
     </View>
   );
 });
-
-type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
-type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
-
-interface IconConfig {name: MaterialIconName | MaterialCommunityIconName; type: 'material' | 'community';}
-
-const DRAWER_ICONS: Record<string, IconConfig> = {
-  '(tabs)/index': { name: 'home' as MaterialIconName, type: 'material' },
-  calendar: { name: 'calendar-today' as MaterialIconName, type: 'material' },
-  nba: { name: 'sports-basketball' as MaterialIconName, type: 'material' },
-  crm: { name: 'person' as MaterialIconName, type: 'material' },
-  vault: { name: 'lock' as MaterialIconName, type: 'material' },
-  bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
-  notes: { name: 'note' as MaterialIconName, type: 'material' },
-  habits: { name: 'playlist-check' as MaterialCommunityIconName, type: 'community' },
-};
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
@@ -132,7 +110,6 @@ export default function DrawerLayout() {
       },
       headerTransparent: true,
       useNativeDriver: true,
-      
       drawerStyle: {
         backgroundColor,
         width: drawerWidth,
@@ -151,7 +128,7 @@ export default function DrawerLayout() {
         ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
       },
       drawerLabelStyle: {
-        fontSize: isIpadDevice ? 17 : 16,
+        fontSize: isIpadDevice ? 18 : 16,
         fontWeight: "600" as const,
         marginLeft: -8,
       },
@@ -164,7 +141,6 @@ export default function DrawerLayout() {
       drawerHideStatusBarOnOpen: true,
       keyboardDismissMode: 'on-drag',
     };
-
     if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
         enabled: true,
@@ -180,17 +156,7 @@ export default function DrawerLayout() {
     }
       options.drawerOpeningAnimation = {
         type: 'spring',
-        stiffness: 1000,
-        damping: 70,
-        mass: 1,
-        overshootClamping: false,
-        restDisplacementThreshold: 0.01,
-        restSpeedThreshold: 0.01,
-      };
-    
-      options.drawerOpeningAnimation = {
-        type: 'spring',
-        stiffness: 1000,
+        stiffness: 750,
         damping: 70,
         mass: 1,
         overshootClamping: false,

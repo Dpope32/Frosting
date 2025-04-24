@@ -17,7 +17,7 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
   return (
     <YStack gap="$2">
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <XStack gap="$2" py="$1">
+        <XStack gap="$2" py="$1" ml="$1.5">
           {RECURRENCE_PATTERNS.map(pattern => {
             const recurrenceColor = getRecurrenceColor(pattern.value)
             

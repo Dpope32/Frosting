@@ -1,6 +1,6 @@
 // valueHelper.ts
 
-export const getValueColor = (valueType: string, value: string | number, primaryColor: string): string => {
+export const getValueColor = (valueType: string, value: string | number, primaryColor: string, isDark: boolean): string => {
   const numericValue = typeof value === 'string' ? parseFloat(value) : value;
 
   switch (valueType) {
@@ -31,8 +31,14 @@ export const getValueColor = (valueType: string, value: string | number, primary
       if (numericValue < 150) return '#FFA500';  // Fair (<150ms)
       return '#FF0000';                          // Poor (>=150ms)
     case 'portfolio':
-      if (numericValue < 0) return '#FF0000';    // Red for negative values
-      return '#00FC66';                          // Bright Green for positive values
+      // adjust the green for light mode  
+      if (isDark) {
+        if (numericValue < 0) return '#FF0000';    // Red for negative values
+        return  '#00FC66';                          // Bright Green for positive values
+      } else {
+        if (numericValue < 0) return '#FF0000';    // Red for negative values
+        return  '#3e9c35';                          // Darker Green for positive values
+      }
     case 'time':
       return '#C0C0C0';  // Light gray that's visible on dark background
     default:

@@ -1,6 +1,6 @@
 // BaseCardAnimated.tsx
 import React from 'react'
-import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' 
+import { StyleSheet, TouchableWithoutFeedback, View, Dimensions } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button, isWeb, YStack } from 'tamagui'
@@ -10,7 +10,7 @@ import Animated, {
   FadeOut,
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
-
+import { isIpad } from '@/utils/deviceUtils'
 interface BaseCardAnimatedProps {
   onClose: () => void 
   title: string
@@ -25,8 +25,8 @@ export function BaseCardAnimated({
   title,
   children,
   onClose, 
-  modalWidth = Platform.OS === 'web' ? 700 : 360,
-  modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
+  modalWidth = isWeb ? 700 : isIpad() ? 670 : 360,
+  modalMaxWidth = isWeb ? 700 : isIpad() ? 670 : 500,
   showCloseButton = true,
 }: BaseCardAnimatedProps) {
   const colorScheme = useColorScheme()
@@ -136,7 +136,7 @@ export function BaseCardAnimated({
               style={[
                 styles.modalContainer,
                 {
-                  backgroundColor: isDark ? '#222' : '#fff',
+                  backgroundColor: isDark ? '#141415' : '#fff',
                   marginTop: insets.top + 20, 
                   marginBottom: insets.bottom + 20,
                   width: actualWidth,

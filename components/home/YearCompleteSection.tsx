@@ -60,7 +60,7 @@ export function YearCompleteSection() {
           top={0}
           width={`${100 - percentage}%`}
           height="100%"
-          backgroundColor={isDark ? "#18171c" : "#f5f3ef"}
+          backgroundColor={isDark ? "#010101" : "#555555"}
           zIndex={1}
         />
         <Stack

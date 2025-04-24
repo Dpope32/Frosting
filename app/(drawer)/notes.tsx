@@ -30,6 +30,7 @@ import { createTrashAnimatedStyle, getGhostNoteStyle, noteStyles } from '@/utils
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/noteService';
 import { setupColumnCalculation, createFormattingHandler, handleDragging, handleDragEnd, handleMoveNote, handleSelectNote } from '@/services/noteService2';
 import { createNoteHandlers } from '@/services/noteHandlers';
+import { isIpad } from '@/utils/deviceUtils';
 
 export default function NotesScreen() {
   const insets = useSafeAreaInsets();
@@ -91,7 +92,7 @@ export default function NotesScreen() {
   return (
     <YStack flex={1} backgroundColor={isDark ? '#000000' : '$backgroundLight'} style={isWeb ? noteStyles.webContainer : undefined} onTouchMove={localHandleDragging} >
       <XStack
-        paddingTop={insets.top + 20}
+        paddingTop={isIpad() ? insets.top + 70 : insets.top}
         paddingBottom={16}
         paddingHorizontal={16}
         backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
@@ -124,7 +125,7 @@ export default function NotesScreen() {
           setIsModalOpen
         })}
         numColumns={numColumns}
-        bottomPadding={insets.bottom + 80}
+        bottomPadding={insets.bottom + 20}
         />
       ) : (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -189,6 +190,7 @@ export default function NotesScreen() {
             <TrashcanArea
               isVisible={true}
               isHovering={isHoveringTrash || isPendingDelete}
+              height={isIpad() ? 120 : 80}
             />
           </Animated.View>
         </GestureHandlerRootView>

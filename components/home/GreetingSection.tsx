@@ -3,6 +3,7 @@ import { XStack, Text, isWeb } from 'tamagui'
 import { getGreeting } from '@/services/greetingService'
 import { useColorScheme } from 'react-native'
 import { useWeatherStore } from '@/store/WeatherStore'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface GreetingSectionProps { username: string }
 
@@ -16,13 +17,13 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       alignItems="center" 
       justifyContent="flex-start"
       br={16}
-      px="$1"
-      py="$2"
+      px={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
+      py={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
     >
       <XStack alignItems="center" gap="$2" paddingRight={isWeb ? "$6" : "$0"}>
         <Text
           fontFamily="$heading"
-          fontSize={isWeb ? 21 : 19}
+          fontSize={isWeb ? 21 : isIpad() ? 23 : 19}
           color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
           fontWeight="bold"
           numberOfLines={1}

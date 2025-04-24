@@ -65,6 +65,11 @@ export const styles = StyleSheet.create({
     margin: 8,
     minWidth: 200,
   },
+  ipadGameCard: {
+    width: '40%',
+    margin: 8,
+    minWidth: 200,
+  },
   webGridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -220,5 +225,15 @@ export const styles = StyleSheet.create({
     
     webRankingText: {
       fontSize: 20,
+    },
+
+    ipadGridContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-start',
+      padding: 8,
+      maxWidth: 1800,
+      marginHorizontal: 'auto',
+      width: '100%',
     },
 })

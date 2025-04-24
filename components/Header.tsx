@@ -19,6 +19,7 @@ import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
 import { useCalendarViewStore } from '@/store/CalendarViewStore';
 import { useUserStore } from '@/store/UserStore';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface HeaderProps {
   title: string;
@@ -52,7 +53,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isNBAScreen = route.name === 'nba';
   const isCrmScreen = route.name === 'crm';
   const isCalendarScreen = route.name === 'calendar';
-  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#fcf5e5';
+  const isHabitsScreen = route.name === 'habits';
+  const textColor = isHome ? colorScheme === 'dark' ? '#FCF5E5' : '#fcf5e5' : colorScheme === 'dark' ? '#FCF5E5' : '#000000';
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
   const scale = useSharedValue(1);
 
@@ -129,23 +131,38 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       {isWeb && (
         <YStack height={spacerHeight} />
       )}
-      <YStack
-        position="absolute"
-        top={0}
-        left={isPermanentDrawer ? drawerWidth : 0}
-        right={0}
+      <YStack 
+        position="absolute" 
+        top={0} 
+        left={0} 
+        right={0} 
         zIndex={isWeb ? 10 : 50}
-        {...(isWeb ? { style: { position: 'fixed'} as any } : {})}
+        {...(isIpad() ? {
+          style: {
+            position: 'fixed',
+            marginLeft: isPermanentDrawer ? -(drawerWidth ?? 0) : 0,
+          } as any
+        } : {})}
+        {...(isWeb ? {
+          style: {
+            position: 'fixed', 
+          } as any
+        } : {})}
       >
         <YStack
+        marginLeft={isPermanentDrawer ? drawerWidth : 0} 
         backgroundColor={
           isWeb 
             ? colorScheme === 'dark' 
-              ? 'rgba(14, 14, 15, 0.9)'  
+              ? 'rgba(14, 14, 15, 0.9)' 
               : 'rgba(255,255,255,0.0)'
-            : colorScheme === 'dark' 
-              ? 'rgba(0,0,0,0.4)' 
-              : 'rgba(255, 255, 255, 0.1)' 
+            : isHome
+              ? colorScheme === 'dark' 
+                ? 'rgba(14, 14, 15, 0.7)'
+                : 'rgba(255,255,255,0.0)'
+              : colorScheme === 'dark' 
+                ?  'rgba(14, 14, 15, 0.9)'
+                : 'rgba(255, 255, 255, 0.1)' 
         }
         style={{
           shadowColor: colorScheme === 'dark' ? undefined : '#000',
@@ -158,10 +175,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
             alignItems="center"
             justifyContent="space-between"
             px="$4"
-            height={isWeb ? 80 : Platform.OS === 'ios' ? 88 : 90}
-            paddingTop={isWeb ? 0 : Platform.OS === 'ios' ? 40 : 40}
+            height={isWeb ? 80 : isIpad() ? 80 : 90}
+            paddingTop={isWeb ? 0 : isIpad() ? 10 : 40}
           >
-            <XStack alignItems="center" gap="$0" style={{ marginLeft: isPermanentDrawer ? 10 : 0 }}>
+            <XStack alignItems="center" gap="$1" style={{ marginLeft: isPermanentDrawer ? 10 : 0 }}>
               {!isWeb && (
                 <Pressable
                   onPress={() => {
@@ -171,7 +188,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                     navigation.dispatch(DrawerActions.toggleDrawer());
                   }}
                   style={{
-                    padding: 8,
+                    padding: isIpad() ? 8 : 8,
                     marginLeft: -8,
                     ...(isWeb ? {
                       cursor: 'pointer',
@@ -191,8 +208,9 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                 </Pressable>
               )}
                 <Text
-                  fontSize={isWeb ? 18 : 18}
+                  fontSize={isWeb ? 18 : isIpad() ? 22 : 18}
                   color={textColor}
+                  style={{ marginLeft: isIpad() ? 24 : 0 }}
                   numberOfLines={1}
                   fontWeight= 'bold'
                   fontFamily="$heading"

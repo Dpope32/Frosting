@@ -6,13 +6,12 @@ import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/bil
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { LongPressDelete } from '../common/LongPressDelete'
 import { Alert, Platform } from 'react-native'
-
+import { isIpad } from '@/utils/deviceUtils'
 interface BillCardProps {
   bill: Bill
   currentDay: number
   primaryColor: string
   onDelete: (id: string) => void
-  columnWidth?: string
 }
 
 export const BillCard = ({
@@ -20,7 +19,6 @@ export const BillCard = ({
   currentDay,
   primaryColor,
   onDelete,
-  columnWidth
 }: BillCardProps) => {
   const isDark = useColorScheme() === 'dark'
   const Icon = getIconForBill(bill.name)
@@ -40,7 +38,7 @@ export const BillCard = ({
   return (
     <LongPressDelete onDelete={handleDelete}>
       <XStack
-       style={{ width: isWeb ? 320 : '100%' }}  
+       style={{ width: isWeb ? 320 : isIpad() ? 320 : '100%' }}  
         minHeight={100}
         flexShrink={0}
         bg={isDark ? '#111' : '#f5f5f5'}
@@ -50,9 +48,9 @@ export const BillCard = ({
         ai="center"
         borderWidth={1}
         borderColor={isToday ? primaryColor : isDark ? '#222' : '#e0e0e0'}
-        width={isWeb ? 320 : '100%'}
-        maxWidth={isWeb ? 320 : '100%'}
-        minWidth={isWeb ? 320 : '100%'}
+        width={isWeb ? 320 : isIpad() ? 320 : '100%'}
+        maxWidth={isWeb ? 320 : isIpad() ? 320 : '100%'}
+        minWidth={isWeb ? 320 : isIpad() ? 320 : '100%'}
         position="relative"
         opacity={isPast ? 0.8 : 1}
         overflow="hidden"

@@ -26,10 +26,7 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Gas' },
         { name: 'Internet' },
         { name: 'TV' },
-        { name: 'Home Insurance' },
         { name: 'Property Tax' },
-        { name: 'HOA Fees' },
-        { name: 'Home Maintenance' },
         { name: 'Lawn Care' },
         { name: 'Pest Control' }
       ]
@@ -39,8 +36,7 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'Car Insurance' },
         { name: 'Gas' },
         { name: 'Oil Change' },
-        { name: 'Car Maintenance' },
-        { name: 'Public Transit Pass' },
+        { name: 'Maintenance' },
         { name: 'Parking' },
         { name: 'Car Wash' }
       ]
@@ -57,9 +53,6 @@ export const getRecommendedBills = (category: BillRecommendationCategory): Recom
         { name: 'DoorDash' },
         { name: 'Uber' },
         { name: 'Gym' },
-        { name: 'Cloud Storage' },
-        { name: 'Microsoft 365' },
-        { name: 'Adobe Creative Cloud' },
         { name: 'PlayStation Plus' },
         { name: 'Xbox Game Pass' }
       ]

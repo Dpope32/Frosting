@@ -1,14 +1,14 @@
 import React, { forwardRef, useMemo, useState, useEffect } from 'react';
-import { Card, YStack, Text, Paragraph, XStack, ScrollView } from 'tamagui';
+import { Card, YStack, Text, Paragraph, XStack, ScrollView, isWeb } from 'tamagui';
 import { TouchableOpacity, Platform, StyleSheet, View, Image } from 'react-native';
 import type { Note } from '@/types/notes';
 import Markdown from 'react-native-markdown-display';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
 import { useNoteStore } from '@/store/NoteStore';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 import { ImageViewerModal } from './ImageViewerModal'; 
 import { TagChip } from './TagChip';
+import { isIpad } from '@/utils/deviceUtils';
 
 type NoteCardProps = {
   note: Note;
@@ -27,12 +27,9 @@ export const NoteCard = ({
 }: NoteCardProps) => {
   const [isExpanded, setIsExpanded] = useState(note.isExpanded || false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null); 
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const isWeb = Platform.OS === 'web';
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
-  const { colors } = useMarkdownStyles();
+  const { colors, markdownStyles } = useMarkdownStyles();
   const noTagSpacerHeight = isWeb ? 40 : 6;
 
   useEffect(() => {
@@ -111,6 +108,7 @@ export const NoteCard = ({
             delayLongPress={300}
             activeOpacity={0.7}
             style={{ width: '100%' }}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <XStack
               paddingHorizontal={horizontalPadding}
@@ -121,7 +119,7 @@ export const NoteCard = ({
             >
               <Text
                 flex={1}
-                fontSize={isWeb ? "$5" : "$4"}
+                fontSize={isWeb ? "$5" : isIpad() ? 24 : 19}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"
@@ -138,6 +136,19 @@ export const NoteCard = ({
               )}
             </XStack>
           </TouchableOpacity>
+
+          {isExpanded && (
+          <View
+            style={{
+              height: 2,
+              backgroundColor: colors.cardBorder,
+              marginHorizontal: horizontalPadding,
+              marginTop: 4,
+              marginBottom: 8,
+              borderRadius: 2,
+            }}
+          />
+        )}
 
           {!isExpanded ? (
             <TouchableOpacity
@@ -169,7 +180,7 @@ export const NoteCard = ({
                 </XStack>
                 <XStack alignItems="center" gap="$2">
                   <Text
-                    fontSize={isWeb ? 13 : 10}
+                    fontSize={isWeb ? 13 : isIpad() ? 14 : 10}
                     color={colors.textSecondary}
                     fontFamily="$body"
                     flexShrink={0}
@@ -185,29 +196,7 @@ export const NoteCard = ({
               <View style={{ flex: 1 }}>
                 {hasMarkdown ? (
                   <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2">
-                    <Markdown
-                      style={{
-                        body: { color: colors.text, fontFamily: '$body', fontSize: 16 },
-                        heading1: { color: colors.text, fontFamily: '$heading', fontSize: 24 },
-                        heading2: { color: colors.text, fontFamily: '$heading', fontSize: 20 },
-                        heading3: { color: colors.text, fontFamily: '$heading', fontSize: 18 },
-                        link: { color: colors.accent },
-                        blockquote: { backgroundColor: colors.cardBorder, padding: 8, borderRadius: 4 },
-                        code_inline: { backgroundColor: colors.cardBorder, padding: 4, borderRadius: 4 },
-                        code_block: { backgroundColor: colors.cardBorder, padding: 8, borderRadius: 4 },
-                        list_item: { color: colors.text },
-                        bullet_list: { color: colors.text },
-                        ordered_list: { color: colors.text },
-                        hr: { backgroundColor: colors.cardBorder, height: 1 },
-                        table: { borderWidth: 1, borderColor: colors.tableBorder },
-                        thead: { backgroundColor: colors.cardBorder },
-                        th: { padding: 4, borderWidth: 1, borderColor: colors.tableBorder, color: colors.text },
-                        td: { padding: 4, borderWidth: 1, borderColor: colors.tableBorder, color: colors.text },
-                        em: { fontStyle: 'italic', fontFamily: 'Inter-Regular' },
-                        strong: { fontWeight: 'bold' },
-                        del: { textDecorationLine: 'line-through' }
-                      }}
-                    >
+                    <Markdown style={markdownStyles}>
                       {displayContent || ''}
                     </Markdown>
                   </YStack>

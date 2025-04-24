@@ -174,14 +174,15 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
         }
       }}
       title="New ToDo"
+      showCloseButton={true}
     >
       <ScrollView
         bounces={false}
         keyboardShouldPersistTaps="handled"
         showsHorizontalScrollIndicator={false}
-        style={{ maxWidth: isWeb ? 800 : '100%' }}
+        style={{ maxWidth: isWeb ? 800 : '100%', paddingHorizontal: 2 }}
       >
-        <Form gap="$2.5">
+        <Form gap="$2.5" px={4}>
           <TaskNameInput
             value={newTask.name}
             onChange={handleTextChange}

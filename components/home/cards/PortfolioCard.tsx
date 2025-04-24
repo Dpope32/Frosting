@@ -7,14 +7,15 @@ import { StorageUtils } from '@/store/AsyncStorage';
 interface PortfolioCardProps {
   roundToWholeNumber?: boolean;
   isHome?: boolean;
+  isDark?: boolean;
 }
 
-export function PortfolioCard({ roundToWholeNumber = false, isHome }: PortfolioCardProps) {
+export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark }: PortfolioCardProps) {
   const { isLoading, refetch } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   
-  // Load last update time
+
   useEffect(() => {
     let mounted = true;
     
@@ -31,7 +32,7 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome }: PortfolioC
     return () => {
       mounted = false;
     };
-  }, [totalValue]); // Reload when totalValue changes, as this indicates a portfolio update
+  }, [totalValue]); 
 
   useEffect(() => {
     const isMarketHours = () => {
@@ -58,7 +59,7 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome }: PortfolioC
       })}`
     : '$0.00';
 
-  const valueColor = getValueColor('portfolio', totalValue ?? 0, '');
+  const valueColor = getValueColor('portfolio', totalValue ?? 0, '', isDark ?? false);
 
   return (
     <Stack
