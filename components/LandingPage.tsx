@@ -85,7 +85,7 @@ export function LandingPage() {
       <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100}}>
         <YStack pt={100} gap="$3">
           {!isWeb && (
-            <Stack borderRadius={16} p="$4" backgroundColor={backgroundColor} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} borderWidth={1}>
+            <Stack borderRadius={16} p="$3" backgroundColor={backgroundColor} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} borderWidth={1}>
               <CardSection 
                 onPortfolioPress={handlePortfolioPress} 
                 onTemperaturePress={handleTemperaturePress} 
@@ -99,7 +99,7 @@ export function LandingPage() {
           <Stack 
             backgroundColor={backgroundColor} 
             borderRadius={16} 
-            padding="$4" 
+            padding="$3" 
             borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
             borderWidth={1} 
             style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',

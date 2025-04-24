@@ -221,7 +221,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       hideHandle={true}
       showCloseButton={!isSigningOut}
     >
-      <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$5' : '$4'}>
+      <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$5' : '$2'}>
         <XStack gap="$3" flexWrap="wrap">
           <YStack width={isWeb ? 100 : 60} gap="$2" alignItems="center">
             <Circle size={isWeb ? 80 : 60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
@@ -235,7 +235,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </Circle>
             </YStack>
             <YStack gap="$3" flex={1}>
-              <XStack gap="$3" flexWrap="wrap">
+              <XStack gap="$2" flexWrap="wrap">
                 <YStack width={110} gap="$1">
                   <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
                     Username
@@ -270,31 +270,31 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           </XStack>
           {Platform.OS !== 'web' ? (
-            <YStack mt="$2" py="$2">
+            <YStack mt="$2" py="$1">
               <YStack gap="$3">
                 <XStack gap="$4" justifyContent="center">
                   <YStack alignItems="center" gap={4} flex={1}>
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Quote</Text>
-                    <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor={settings.quoteEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor={settings.quoteEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                   <YStack alignItems="center" gap={4} flex={1}> 
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Stocks</Text>
-                    <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} thumbColor={settings.portfolioEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} thumbColor={settings.portfolioEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                   <YStack alignItems="center" gap={4} flex={1}>
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Weather</Text>
-                    <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} thumbColor={settings.temperatureEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} thumbColor={settings.temperatureEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                 </XStack>
                 <XStack gap="$4" justifyContent="space-around">
                   <YStack alignItems="center" gap={4} flex={1}>
                     <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Network</Text>
-                    <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} thumbColor={settings.wifiEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff'}} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
+                    <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} thumbColor={settings.wifiEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00'}} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
                   </YStack>
                   {!isWeb && (
                     <YStack alignItems="center" gap={4} flex={1}>
                       <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Notifications</Text>
-                      <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor={settings.notificationsEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#fff' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
+                      <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor={settings.notificationsEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
                     </YStack>
                   )}
                   <YStack alignItems="center" gap={4} flex={1}>
@@ -391,48 +391,53 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               Wallpaper
             </Text>
             <YStack>
-              {Array.from({ length: Math.ceil(filteredBackgroundStyles.length / 3) }).map((_, rowIndex) => (
-                <XStack key={`row-${rowIndex}`} height={isWeb ? 80 : 60} marginBottom={8}>
-                  {filteredBackgroundStyles.slice(rowIndex * 3, rowIndex * 3 + 3).map((styleItem, index) => (
-                    <OptimizedWallpaperButton
-                      key={styleItem.value}
-                      styleItem={styleItem}
-                      isSelected={settings.backgroundStyle === styleItem.value}
-                      isDark={isDark}
-                      primaryColor={settings.primaryColor}
-                      isWeb={isWeb}
-                      onSelect={handleSelectBackground}
-                      getWallpaperImageSource={getWallpaperImageSource}
-                      index={index}
-                      totalInRow={3}
-                    />
-                  ))}
-                </XStack>
-              ))}
-              <XStack height={isWeb ? 80 : 60} marginBottom={8}>
-                <OptimizedWallpaperButton
-                  styleItem={{
-                    label: "Custom Wallpaper",
-                    value: "wallpaper-custom-upload"
-                  }}
-                  isSelected={false}
-                  isDark={isDark}
-                  primaryColor={settings.primaryColor}
-                  isWeb={isWeb}
-                  onSelect={async () => {
-                    const wallpaperKey = await uploadCustomWallpaper();
-                    if (wallpaperKey) {
-                      handleSelectBackground(wallpaperKey);
-                      setSettings((prev) => ({ ...prev, backgroundStyle: wallpaperKey }));
-                      setPreferences({ ...preferences, backgroundStyle: wallpaperKey });
-                      onOpenChange(false);
+              {Array.from({ length: Math.ceil((filteredBackgroundStyles.length + 1) / 3) }).map((_, rowIndex) => {
+                const itemsForRow = filteredBackgroundStyles.slice(rowIndex * 3, rowIndex * 3 + 3);
+                // Add custom wallpaper button to the last row if there's space, or create a new row
+                if (rowIndex === Math.ceil((filteredBackgroundStyles.length + 1) / 3) - 1) {
+                  while (itemsForRow.length < 3) {
+                    if (itemsForRow.length === 0 || (rowIndex * 3 + itemsForRow.length) === filteredBackgroundStyles.length) {
+                      itemsForRow.push({
+                        label: "Custom Wallpaper",
+                        value: "wallpaper-custom-upload"
+                      });
+                      break;
+                    } else {
+                      itemsForRow.push(filteredBackgroundStyles[rowIndex * 3 + itemsForRow.length]);
                     }
-                  }}
-                  getWallpaperImageSource={getWallpaperImageSource}
-                  index={3}
-                  totalInRow={4}
-                />
-              </XStack>
+                  }
+                }
+                
+                return (
+                  <XStack key={`row-${rowIndex}`} height={isWeb ? 80 : 60} marginBottom={8}>
+                    {itemsForRow.map((styleItem, index) => (
+                      <OptimizedWallpaperButton
+                        key={styleItem.value}
+                        styleItem={styleItem}
+                        isSelected={settings.backgroundStyle === styleItem.value}
+                        isDark={isDark}
+                        primaryColor={settings.primaryColor}
+                        isWeb={isWeb}
+                        onSelect={styleItem.value === "wallpaper-custom-upload" 
+                          ? async () => {
+                              const wallpaperKey = await uploadCustomWallpaper();
+                              if (wallpaperKey) {
+                                handleSelectBackground(wallpaperKey);
+                                setSettings((prev) => ({ ...prev, backgroundStyle: wallpaperKey }));
+                                setPreferences({ ...preferences, backgroundStyle: wallpaperKey });
+                                onOpenChange(false);
+                              }
+                            }
+                          : handleSelectBackground
+                        }
+                        getWallpaperImageSource={getWallpaperImageSource}
+                        index={index}
+                        totalInRow={3}
+                      />
+                    ))}
+                  </XStack>
+                );
+              })}
             </YStack>
           </YStack>
         </YStack>

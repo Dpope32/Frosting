@@ -29,9 +29,6 @@ export const getRecommendedVaultEntries = (category: VaultRecommendationCategory
         { name: 'Pinterest' },
         { name: 'Snapchat' },
         { name: 'Reddit' },
-        { name: 'Discord' },
-        { name: 'WhatsApp' },
-        { name: 'Telegram' },
         { name: 'YouTube' }
       ]
     case 'Misc':

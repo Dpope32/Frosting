@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, SlideInRight, SlideInLeft } from 'react-native-reanimated';
 import { useUserStore } from '@/store/UserStore';
 import { MaterialIcons } from '@expo/vector-icons';
+import { BaseCardModal } from '../cardModals/BaseCardModal';
 
 interface LegalModalProps {
   isVisible: boolean;
@@ -88,15 +89,15 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
 
   return (
     <Theme name={isDark ? "dark" : "light"}>
-      <Sheet
-        modal
+      <BaseCardModal
         open={isVisible}
+        title={activeTab === 'privacy' ? 'Privacy Policy' : 'Contact'}
         onOpenChange={handleOpenChange}
-        snapPoints={isWeb ? [85] : [80]}
+        snapPoints={isWeb ? [85] : [95]}
         position={0}
         dismissOnSnapToBottom={true}
         zIndex={100000}
-        animation="quick"
+        showCloseButton={true}
       >
         <Sheet.Overlay
           animation="quick"
@@ -104,39 +105,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
           exitStyle={{ opacity: 0 }}
           backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.4)"}
         />
-        <Sheet.Frame
-          padding="$2"
-          backgroundColor={isDark ? "rgba(17,17,17,0.98)" : "rgba(250,250,250,0.98)"}
-          borderTopLeftRadius={20}
-          borderTopRightRadius={20}
-          borderWidth={1}
-          borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap="$4"
-          {...(isWeb ? 
-            { 
-              maxWidth: 600, 
-              marginHorizontal: 'auto',
-              minHeight: 500,
-              maxHeight: 'calc(100vh - 80px)',
-            } : {}
-          )}
-        >
-          <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom={0}/>
-          
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === "ios" ? "padding" : "height"}  
-            style={{ flex: 1, paddingTop: 0 }}
-          >
-            <Animated.View entering={FadeIn.duration(400)} style={{ position: 'absolute', right: 0, top: -16, zIndex: 100 }}>
-              <Button
-                backgroundColor="transparent"
-                onPress={onClose}
-                padding={8}
-                pressStyle={{ opacity: 0.7 }}
-                icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
-              />
-            </Animated.View>
-            
             <Tabs
               defaultValue="privacy"
               orientation="horizontal"
@@ -147,9 +115,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
             >
               <Tabs.List 
                 backgroundColor={isDark ? "rgba(30,30,30,0.5)" : "rgba(240,240,240,0.8)"}
-                br={8}
-                marginTop={"$6"}
-                marginBottom="$2"
               >
                 <Tabs.Tab
                   value="privacy"
@@ -218,13 +183,13 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                       <ScrollView
                         ref={scrollViewRef}
                         showsVerticalScrollIndicator={true}
-                        bounces={true}
+                        bounces={false}
                         contentContainerStyle={{ paddingBottom: 40 + bottomInset }}
                         onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
                         scrollEventThrottle={16}
                         style={{ marginTop: 10 }}
                       >
-                        <YStack gap="$4" px="$3"> 
+                        <YStack gap="$2" px="$2"> 
                           
                           <Text 
                             fontSize="$3" 
@@ -351,7 +316,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                         onScroll={({ nativeEvent }) => setScrollY(nativeEvent.contentOffset.y)}
                         scrollEventThrottle={16}
                       >
-                        <YStack gap="$4" py="$2" px="$3">
+                        <YStack gap="$3" py="$2" px="$3">
                           
                           <Text 
                             fontSize="$3" 
@@ -426,9 +391,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
                 </Tabs.Content>
               </YStack>
             </Tabs>
-          </KeyboardAvoidingView>
-        </Sheet.Frame>
-      </Sheet>
+      </BaseCardModal>
     </Theme>
   );
 }

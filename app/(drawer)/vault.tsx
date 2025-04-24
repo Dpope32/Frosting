@@ -58,7 +58,7 @@ export default function VaultScreen() {
   const columnWidthWeb = `calc(${100 / columnCount}% - ${(columnCount - 100) / columnCount}px)`
 
   return (
-    <YStack f={1} mt={isWeb ? 80 : 90} bg={isDark ? '#000000' : '#f6f6f6'} marginLeft={isWeb? 24 : 0}>
+    <YStack f={1} mt={isWeb ? 80 : 100} bg={isDark ? '#000000' : '#f6f6f6'} marginLeft={isWeb? 24 : 0}>
       <ScrollView
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -99,7 +99,7 @@ export default function VaultScreen() {
             />
           ))
         ) : (
-          <YStack gap="$2" width="100%">
+          <YStack gap="$3" width="100%">
             {data?.items.map((cred: VaultEntry) => (
               <VaultCard
                 key={cred.id}

@@ -160,7 +160,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         open={open}
         onOpenChange={onOpenChange} 
         title="Vault Entries"
-        snapPoints={isWeb ? [90] : [80]}
+        snapPoints={isWeb ? [90] : [75]}
         zIndex={100000}
         showCloseButton={true} 
         hideHandle={true}
@@ -168,21 +168,23 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
       >
         <>
             {data?.items && data.items.length > 0 ? (
-              <YStack gap="$2" mt="$2"> 
+              <YStack gap="$1"> 
                 <XStack flexWrap="wrap" justifyContent="space-between" gap="$2">
                   {data.items.map((entry: VaultEntry) => (
                     <YStack
                       key={entry.id}
-                      width="48%"
+                      width="100%"
                       backgroundColor={isDark ? '$gray3' : '$gray2'}
                       br={8}
-                      padding="$4"
+                      padding="$3"
                       marginBottom="$2"
                     >
                       <XStack
                         justifyContent="space-between"
                         alignItems="center"
-                        marginBottom="$2"
+                        marginTop="$-2"
+                        paddingLeft="$2"
+                        width="100%"
                       >
                         <Text
                           fontFamily="$body"
@@ -211,6 +213,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                         fontFamily="$body"
                         color={isDark ? '$gray11' : '$gray10'}
                         fontSize={13}
+                        paddingLeft="$2"
                       >
                         {entry.username}
                       </Text>

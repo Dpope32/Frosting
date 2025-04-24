@@ -132,7 +132,7 @@ export default function CRM() {
       )}
       {!isWeb && allContacts.length > 0 && (
         <>
-          <H4 fontFamily="$heading" fontSize="$7" fontWeight="bold" mt={0} textAlign="center" marginBottom={8}>
+          <H4 fontFamily="$heading" fontSize="$7" fontWeight="bold" mt={12} textAlign="center" marginBottom={8}>
             All Contacts ({allContacts.length})
           </H4>
           <Separator borderColor="$gray8" borderWidth={1} marginBottom={2} />

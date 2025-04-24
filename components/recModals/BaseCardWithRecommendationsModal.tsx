@@ -40,7 +40,6 @@ export function BaseCardWithRecommendationsModal({
   const insets = useSafeAreaInsets();
   const topInset = Platform.OS === 'ios' ? insets.top : 0;
   const handleClose = () => { onOpenChange(false); };
-  const horizontalScrollRef = useRef<RNScrollView>(null);
 
   return (
     <Theme name={isDark ? "dark" : "light"}>
@@ -61,8 +60,8 @@ export function BaseCardWithRecommendationsModal({
           backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
-          py={Platform.OS === 'web' ? "$2" : "$2"}
-          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3"}
+          py={Platform.OS === 'web' ? "$2" : "$1"}
+          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
           backgroundColor={isDark ? "rgba(17,17,17,1)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
@@ -78,12 +77,12 @@ export function BaseCardWithRecommendationsModal({
             } : {}
           )}
         >
-          {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4" />}
+          {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$2" />}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1, paddingTop: Math.max(topInset - 60, 0) }}
+            style={{ flex: 1, paddingTop: Math.max(topInset - 45, 0) }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 8 : -12, marginBottom: 12, paddingHorizontal: 6 }}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 8 : -12, paddingHorizontal: 6 }}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
                   fontSize={22}
@@ -107,14 +106,14 @@ export function BaseCardWithRecommendationsModal({
             </Animated.View>
 
             {(recommendationChips || filterChips) && (
-              <YStack paddingBottom="$4" mt="$1">
+              <YStack paddingBottom="$1" mt="$1">
                 {recommendationChips && (
                   <RNScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ paddingHorizontal: 4, marginBottom: filterChips ? 8 : 0 }}
                   >
-                    <XStack gap="$2">
+                    <XStack gap="$0">
                       {recommendationChips}
                     </XStack>
                   </RNScrollView>
@@ -140,7 +139,7 @@ export function BaseCardWithRecommendationsModal({
               contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 40 } : {}}
             >
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <YStack f={1} p="$4" space="$4">
+                <YStack f={1} p="$4" gap="$4">
                   {children}
                 </YStack>
               </GestureHandlerRootView>
