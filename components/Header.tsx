@@ -215,7 +215,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                   fontWeight= 'bold'
                   fontFamily="$heading"
                 >
-                  {title}
+                  {isHome ? title : isIpad() ? '' : title}
                 </Text>
               {isWeb && isHome && (
                 <CardSection

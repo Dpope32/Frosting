@@ -3,6 +3,7 @@ import { Platform } from 'react-native'
 import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { RecurrencePattern, TaskCategory, WeekDay } from '@/types/task'
+import { isIpad } from '@/utils/deviceUtils'
 
 export interface RecommendedTask {
   name: string
@@ -193,7 +194,7 @@ export const RecommendationChip: React.FC<RecommendationChipProps> = ({ category
       scale={1}
       minWidth={0}
       flex={isWeb ? 1 : 0}
-      width={width || (isWeb ? 150 : 130)}
+      width={width || (isWeb ? 150 : isIpad() ? 130 : 110)}
       marginBottom={isWeb ? 0 : '$1'}
     >
       <XStack gap={isWeb ? '$2' : '$1'} alignItems="center" justifyContent="center" >
