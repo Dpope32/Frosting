@@ -138,7 +138,7 @@ export function BaseCardAnimated({
                 {
                   backgroundColor: isDark ? '#141415' : '#fff',
                   marginTop: insets.top + 20, 
-                  marginBottom: insets.bottom + 20,
+                  marginBottom: insets.bottom + 10,
                   width: actualWidth,
                   maxHeight: screenHeight,
                 }
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'flex-start',
     borderRadius: 16,
-    padding: 20,
+    padding: 12,
     paddingHorizontal: isWeb? 32 : 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

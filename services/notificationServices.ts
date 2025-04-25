@@ -1,6 +1,8 @@
 import { Alert, Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import { SchedulableTriggerInputTypes, AndroidNotificationPriority } from 'expo-notifications'
+import { useHabitStore } from '@/store/HabitStore'
+import { format } from 'date-fns'
 
 // Configure notifications to work properly even when the app is in the background
 export const configureNotifications = async () => {
@@ -81,6 +83,20 @@ export const scheduleEventNotification = async (
   try {
     const hasPermission = await requestNotificationPermissions();
     if (!hasPermission) return 'permission-denied';
+    
+    // Check if this is a habit notification
+    if (identifier && identifier.includes('-')) {
+      const [habitName, time] = identifier.split('-');
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const habits = useHabitStore.getState().habits;
+      
+      // Find the habit by name
+      const habit = Object.values(habits).find(h => h.title === habitName);
+      if (habit && habit.completionHistory[today]) {
+        // Habit already completed today, don't send notification
+        return 'habit-completed';
+      }
+    }
     
     const notifId = await Notifications.scheduleNotificationAsync({
       content: {

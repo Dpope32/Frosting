@@ -3,6 +3,7 @@ import { useColorScheme } from 'react-native';
 import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Edit3 } from '@tamagui/lucide-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface BillSummaryProps {
   monthlyIncome: number;
@@ -36,8 +37,15 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
         ai="center"
         jc="flex-start"
         gap="$6"
-        br="$4" 
+        br="$4"
+        position="relative"
       >
+        <LinearGradient
+          colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        />
         <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
           <XStack 
             width={20}
@@ -71,7 +79,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
           </XStack>
           
           <XStack gap="$4" ai="center" flex={1} jc="flex-start">
-            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+            <XStack width={180} ai="center" py="$3" px="$3" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
                 <XStack ai="center" gap="$2">
@@ -126,7 +134,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
         width: '90%',
         marginHorizontal: 'auto',
         borderRadius: 12,
-        backgroundColor: isDark ? '#111' : '#fff',
         marginBottom: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -135,8 +142,15 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
         elevation: 10,
         overflow: 'hidden',
         padding: 16,
+        position: 'relative',
       }}
     >
+      <LinearGradient
+        colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+      />
       <YStack gap="$3" position="relative">
         <XStack 
           position="absolute" 

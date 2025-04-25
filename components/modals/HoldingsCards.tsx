@@ -4,7 +4,7 @@ import { YStack, Text, XStack, ScrollView, Button, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { portfolioData } from '@/utils/Portfolio'
 import { usePortfolioStore } from '@/store/PortfolioStore'
-import { getValueColor } from '@/constants/valueHelper'
+import { getStockValueColor } from '@/utils/styleUtils'
 import Animated, { FadeIn } from 'react-native-reanimated'
 
 interface HoldingsCardsProps {
@@ -17,14 +17,6 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   
-  const getStockValueColor = (value: number): string => {
-    const color = getValueColor('portfolio', value, '')
-    if (!isDark) {
-      if (color === '#22c55e') return '#15803d'
-      if (color === '#ef4444') return '#b91c1c'
-    }
-    return color
-  }
   
   const iconButtonStyle = {
     backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
@@ -72,14 +64,14 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
         />
       </XStack>
       <ScrollView
-        maxHeight={Platform.OS === 'web' ? 600 : '100%'}
+        maxHeight={isWeb ? 600 : '100%'}
         bounces={true}
         showsVerticalScrollIndicator={false}
         style={{ flexGrow: 0 }}
       >
         <YStack
-          gap="$3"
-          paddingBottom={Platform.OS === 'web' ? '$4' : '$2'}
+          gap={isWeb ? "$3" : "$3"}
+          paddingBottom={isWeb ? '$4' : '$2'}
           flexDirection={isWeb ? 'row' : 'column'}
           flexWrap={isWeb ? 'wrap' : 'nowrap'}
           justifyContent={isWeb ? 'space-between' : 'flex-start'}
@@ -113,8 +105,8 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                   entering={FadeIn.delay(index * 50)}
                   style={[styles.card, isWeb && { width: '48%' }]}
                 >
-                  <YStack paddingHorizontal="$4" pb="$2">
-                    <XStack justifyContent="space-between" alignItems="center">
+                  <YStack paddingHorizontal="$3" >
+                    <XStack justifyContent="space-between" alignItems="center" height={isWeb ? undefined : 30}>
                       <XStack alignItems="center" gap="$2" flex={1}>
                         <YStack>
                           {isWeb ? (
@@ -132,13 +124,13 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                           ) : (
                             <YStack>
                               <XStack alignItems="center" gap="$3">
-                                <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={16} fontWeight="500" fontFamily="$heading">
+                                <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={isWeb ? 18 : 16} fontWeight="500" fontFamily="$heading">
                                   {stock.symbol}
                                 </Text>
-                                <Text color={isDark ? '#999' : '#666'} fontSize={15} fontFamily="$body">
+                                <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 16} fontFamily="$body">
                                   {stock.name}
                                 </Text>
-                                <Text color={isDark ? '#666' : '#333'} fontSize={13} fontFamily="$body" mt="$0.5">
+                                <Text color={isDark ? '#666' : '#333'} fontSize={isWeb ? 14 : 12} fontFamily="$body" mt="$0.5">
                                   x{stock.quantity}
                                 </Text>
                               </XStack>
@@ -147,7 +139,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                         </YStack>
                       </XStack>
                       <XStack alignItems="center" gap="$2">
-                        <Text color={getStockValueColor(currentPrice)} fontSize={15} fontWeight="900" fontFamily="$heading">
+                        <Text color={getStockValueColor(currentPrice, isDark)} fontSize={15} fontWeight="900" fontFamily="$heading">
                           ${currentPrice.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
@@ -173,22 +165,16 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                       justifyContent="flex-start"
                       br={8}
                       alignItems="flex-start"
-                      height={isWeb ? undefined : 30}
+                      height={isWeb ? undefined : 20}
                       paddingLeft="$1"
                     >
                       <XStack alignItems="center" flex={1} gap="$2">
-                        <Text color={isDark ? '#999' : '#666'} fontSize={14} fontWeight="500" fontFamily="$body">
+                        <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 14 : 12} fontWeight="500" fontFamily="$body">
                           1D
                         </Text>
                         <Text
-                          color={
-                            stockHistoricalData?.['1d']
-                              ? getStockValueColor(currentPrice - (stockHistoricalData['1d'] || 0))
-                              : isDark
-                              ? '#777'
-                              : '#999'
-                          }
-                          fontSize={14}
+                          color={ stockHistoricalData?.['1d'] ? getStockValueColor(currentPrice - (stockHistoricalData['1d'] || 0), isDark) : isDark ? '#777' : '#999' }
+                          fontSize={isWeb ? 14 : 12}
                           fontWeight="600"
                           fontFamily="$body"
                         >
@@ -200,14 +186,8 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                           1W
                         </Text>
                         <Text
-                          color={
-                            stockHistoricalData?.['1w']
-                              ? getStockValueColor(currentPrice - (stockHistoricalData['1w'] || 0))
-                              : isDark
-                              ? '#777'
-                              : '#999'
-                          }
-                          fontSize={14}
+                          color={ stockHistoricalData?.['1w'] ? getStockValueColor(currentPrice - (stockHistoricalData['1w'] || 0), isDark)  : isDark  ? '#777' : '#999' }
+                          fontSize={isWeb ? 14 : 12}
                           fontWeight="600"
                           fontFamily="$body"
                         >
@@ -219,13 +199,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                           3M
                         </Text>
                         <Text
-                          color={
-                            stockHistoricalData?.['3m']
-                              ? getStockValueColor(currentPrice - (stockHistoricalData['3m'] || 0))
-                              : isDark
-                              ? '#777'
-                              : '#999'
-                          }
+                       color={stockHistoricalData?.['3m']  ? getStockValueColor(currentPrice - (stockHistoricalData['3m'] || 0), isDark) : isDark ? '#777' : '#999' }
                           fontSize={14}
                           fontWeight="600"
                           fontFamily="$body"
@@ -238,14 +212,8 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                           1Y
                         </Text>
                         <Text
-                          color={
-                            stockHistoricalData?.['1y']
-                              ? getStockValueColor(currentPrice - (stockHistoricalData['1y'] || 0))
-                              : isDark
-                              ? '#777'
-                              : '#999'
-                          }
-                          fontSize={14}
+                          color={ stockHistoricalData?.['1y'] ? getStockValueColor(currentPrice - (stockHistoricalData['1y'] || 0), isDark) : isDark ? '#777' : '#999' }
+                          fontSize={isWeb ? 14 : 12}
                           fontWeight="600"
                           fontFamily="$body"
                         >

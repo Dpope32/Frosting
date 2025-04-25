@@ -1,4 +1,4 @@
-// BaseCardAnimated.tsx
+// StockCardAnimated.tsx
 import React from 'react'
 import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' // Removed Modal
 import { useSafeAreaInsets } from 'react-native-safe-area-context'

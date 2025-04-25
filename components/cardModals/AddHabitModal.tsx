@@ -9,6 +9,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
 import { NotificationTime } from '@/store/HabitStore';
 import { useToastStore } from '@/store/ToastStore';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 
 interface AddHabitModalProps {
   open: boolean;
@@ -19,8 +21,8 @@ interface AddHabitModalProps {
 export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<TaskCategory>('health');
-  const [notificationTime, setNotificationTime] = useState<NotificationTime | ''>('');
-  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationTime, setNotificationTime] = useState<Date | null>(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { showToast } = useToastStore();
@@ -28,8 +30,8 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
   const resetForm = () => {
     setName('');
     setCategory('health');
-    setNotificationTime('');
-    setNotificationOpen(false);
+    setNotificationTime(null);
+    setShowTimePicker(false);
   };
 
   const handleClose: () => void = () => {
@@ -37,87 +39,60 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
     onOpenChange(false);
   };
 
+  const handleTimeChange = (event: any, selectedTime?: Date) => {
+    setShowTimePicker(false);
+    if (selectedTime) {
+      setNotificationTime(selectedTime);
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim()) return;
 
-    if (notificationTime && notificationTime !== 'none') {
-      const notificationTimes = {
-        morning: { hour: 9, minute: 0 },
-        afternoon: { hour: 14, minute: 0 },
-        evening: { hour: 18, minute: 0 },
-        night: { hour: 21, minute: 0 }
-      };
-
-      const time = notificationTimes[notificationTime];
+    if (notificationTime) {
       const notificationDate = new Date();
-      notificationDate.setHours(time.hour, time.minute, 0, 0);
+      notificationDate.setHours(notificationTime.getHours(), notificationTime.getMinutes(), 0, 0);
+      
+      // If the time has already passed today, schedule for tomorrow
       if (notificationDate <= new Date()) {
         notificationDate.setDate(notificationDate.getDate() + 1);
       }
 
-      await scheduleEventNotification(
+      const result = await scheduleEventNotification(
         notificationDate,
         `${name} Reminder`,
-        `Don't forget to complete "${name}" this ${notificationTime}`,
-        `${name}-${notificationTime}`,
+        `Don't forget to complete "${name}" today`,
+        `${name}-${format(notificationTime, 'HH:mm')}`,
         'kaiba-nexus://habits'
       );
+
+      if (result === 'habit-completed') {
+        showToast('Habit already completed today, notification not scheduled', 'info', { duration: 3000 });
+      } else if (result === 'error') {
+        showToast('Failed to schedule notification', 'error', { duration: 3000 });
+      }
     }
 
-    onSave(name.trim(), category, notificationTime as NotificationTime);
+    // Convert the time to one of the predefined notification times
+    let notificationTimeValue: NotificationTime = 'none';
+    if (notificationTime) {
+      const hours = notificationTime.getHours();
+      if (hours >= 5 && hours < 12) {
+        notificationTimeValue = 'morning';
+      } else if (hours >= 12 && hours < 17) {
+        notificationTimeValue = 'afternoon';
+      } else if (hours >= 17 && hours < 21) {
+        notificationTimeValue = 'evening';
+      } else {
+        notificationTimeValue = 'night';
+      }
+    }
+
+    onSave(name.trim(), category, notificationTimeValue);
     showToast('Habit added successfully!', 'success', { duration: 3000 });
     resetForm();
     onOpenChange(false);
   };
-
-  const notificationOptions = [
-    { label: 'No Notification', value: 'none' },
-    { label: 'Morning (9:00 AM)', value: 'morning' },
-    { label: 'Afternoon (2:00 PM)', value: 'afternoon' },
-    { label: 'Evening (6:00 PM)', value: 'evening' },
-    { label: 'Night (9:00 PM)', value: 'night' }
-  ];
-
-  const SelectedValue = ({ label, value, onPress }: { label: string; value: string; onPress: () => void }) => (
-    <Pressable onPress={onPress}>
-      <XStack 
-        borderRadius={8}
-        paddingHorizontal={12}
-        paddingVertical={10}
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <Text fontFamily="$body" color={isDark ? '#fff' : '#000'}>
-          {value}
-        </Text>
-        <XStack alignItems="center" gap="$2">
-          <Ionicons name="checkmark-circle" size={18} color="#00C851" />
-          <Ionicons name="pencil" size={16} color={isDark ? '#fff' : '#000'} opacity={0.5} />
-        </XStack>
-      </XStack>
-    </Pressable>
-  );
-
-  const SelectButton = ({ label, onPress }: { label: string; onPress: () => void }) => (
-    <Button
-      onPress={onPress}
-      width="100%"
-      backgroundColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
-      borderColor="rgba(255, 255, 255, 0.1)"
-      borderWidth={1}
-      borderRadius={8}
-      height={44}
-      justifyContent="space-between"
-      alignItems="center"
-      flexDirection="row"
-      paddingHorizontal={12}
-    >
-      <Text fontFamily="$body" color={isDark ? '#fff' : '#000'}>
-        Select {label.toLowerCase()}
-      </Text>
-      <Ionicons name="chevron-down" size={16} color={isDark ? '#fff' : '#000'} />
-    </Button>
-  );
 
   return (
     <StockCardAnimated open={open} title="New Habit" onClose={handleClose} >
@@ -143,15 +118,52 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
         />
 
         {notificationTime ? (
-          <SelectedValue 
-            label="Notification"
-            value={notificationOptions.find(opt => opt.value === notificationTime)?.label || ''}
-            onPress={() => setNotificationOpen(true)}
-          />
+          <Pressable onPress={() => setShowTimePicker(true)}>
+            <XStack 
+              borderRadius={8}
+              paddingHorizontal={12}
+              paddingVertical={10}
+              alignItems="center"
+              justifyContent="space-between"
+              backgroundColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+            >
+              <Text fontFamily="$body" color={isDark ? '#fff' : '#000'}>
+                {format(notificationTime, 'h:mm a')}
+              </Text>
+              <XStack alignItems="center" gap="$2">
+                <Ionicons name="checkmark-circle" size={18} color="#00C851" />
+                <Ionicons name="pencil" size={16} color={isDark ? '#fff' : '#000'} opacity={0.5} />
+              </XStack>
+            </XStack>
+          </Pressable>
         ) : (
-          <SelectButton 
-            label="Notification"
-            onPress={() => setNotificationOpen(true)}
+          <Button
+            onPress={() => setShowTimePicker(true)}
+            width="100%"
+            backgroundColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+            borderColor="rgba(255, 255, 255, 0.1)"
+            borderWidth={1}
+            borderRadius={8}
+            height={44}
+            justifyContent="space-between"
+            alignItems="center"
+            flexDirection="row"
+            paddingHorizontal={12}
+          >
+            <Text fontFamily="$body" color={isDark ? '#fff' : '#000'}>
+              Select notification time
+            </Text>
+            <Ionicons name="chevron-down" size={16} color={isDark ? '#fff' : '#000'} />
+          </Button>
+        )}
+
+        {showTimePicker && (
+          <DateTimePicker
+            value={notificationTime || new Date()}
+            mode="time"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleTimeChange}
+            style={{ width: '100%' }}
           />
         )}
 
@@ -175,54 +187,6 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
             Save Habit
           </Text>
         </Button>
-
-        <Sheet
-          modal
-          open={notificationOpen}
-          onOpenChange={setNotificationOpen}
-          snapPoints={[55]}
-          dismissOnSnapToBottom
-          zIndex={100000}
-          animation="quick"
-        >
-          <Sheet.Overlay 
-            backgroundColor="rgba(0,0,0,0.4)"
-            animation="quick"
-          />
-          <Sheet.Frame
-            backgroundColor={isDark ? '#161616' : '#fff'}
-            padding="$4"
-          >
-            <Sheet.Handle backgroundColor={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} />
-            <YStack gap="$4">
-              <Text fontFamily="$body" fontSize={18} fontWeight="600" color={isDark ? '#fff' : '#000'}>
-                Select Notification Time
-              </Text>
-              {notificationOptions.map((option) => (
-                <ListItem
-                  key={option.value}
-                  pressTheme
-                  hoverTheme
-                  onPress={() => {
-                    setNotificationTime(option.value as NotificationTime);
-                    setNotificationOpen(false);
-                  }}
-                  backgroundColor={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'}
-                  borderRadius={8}
-                  paddingHorizontal="$3"
-                  paddingVertical="$2.5"
-                >
-                  <Text fontFamily="$body" fontSize={16} color={isDark ? '#fff' : '#000'}>
-                    {option.label}
-                  </Text>
-                  {notificationTime === option.value && (
-                    <Ionicons name="checkmark" size={20} color="#00C851" />
-                  )}
-                </ListItem>
-              ))}
-            </YStack>
-          </Sheet.Frame>
-        </Sheet>
       </YStack>
     </StockCardAnimated>
   );

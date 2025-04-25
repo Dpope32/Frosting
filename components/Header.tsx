@@ -136,7 +136,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         top={0} 
         left={0} 
         right={0} 
-        zIndex={isWeb ? 10 : 50}
+        zIndex={isWeb ? 10 : 10}
         {...(isIpad() ? {
           style: {
             position: 'fixed',

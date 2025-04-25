@@ -6857,6 +6857,11 @@ expo-calendar@^14.0.6:
   resolved "https://registry.npmjs.org/expo-calendar/-/expo-calendar-14.0.6.tgz"
   integrity sha512-aOby7ueR8lB9sWTHXkECZiPDZNVRsGQYhJTe05puNZicMWCV4c53Z/LRiCTTq3LBXV4zpBOB5rXiCyA1f082yA==
 
+expo-cellular@^7.0.2:
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/expo-cellular/-/expo-cellular-7.0.2.tgz#bf626fd8222b3b5a785eb950d796e3d2b4432095"
+  integrity sha512-+Y5MguSERwAgUpODVyl+imKOoSBgcPD5iKSse8uT3Ehql7rV5GzVfLvNPBNcSoNfXQjR9u4tmXseF76YCiQOGw==
+
 expo-clipboard@~7.0.1:
   version "7.0.1"
   resolved "https://registry.npmjs.org/expo-clipboard/-/expo-clipboard-7.0.1.tgz"
@@ -6874,6 +6879,13 @@ expo-contacts@~14.0.5:
   version "14.0.5"
   resolved "https://registry.npmjs.org/expo-contacts/-/expo-contacts-14.0.5.tgz"
   integrity sha512-PjuwJmXgQLQ5CnuhFvgP+jRdYFFh23ARP3urln9GXwMm1uqR5Y0ZdQC44PgJsKxGlJYVzPQlDxer03mGsoXN8g==
+
+expo-device@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/expo-device/-/expo-device-7.0.3.tgz#e8d502ac5ff7644dd617fa38a71fe49e7508856b"
+  integrity sha512-uNGhDYmpDj/3GySWZmRiYSt52Phdim11p0pXfgpCq/nMks0+UPZwl3D0vin5N8/gpVe5yzb13GYuFxiVoDyniw==
+  dependencies:
+    ua-parser-js "^0.7.33"
 
 expo-doctor@^1.12.7:
   version "1.12.8"
@@ -12447,6 +12459,11 @@ typescript@^5.1.3, typescript@^5.4.3:
   version "5.8.2"
   resolved "https://registry.npmjs.org/typescript/-/typescript-5.8.2.tgz"
   integrity sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==
+
+ua-parser-js@^0.7.33:
+  version "0.7.40"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.40.tgz#c87d83b7bb25822ecfa6397a0da5903934ea1562"
+  integrity sha512-us1E3K+3jJppDBa3Tl0L3MOJiGhe1C6P0+nIvQAFYbxlMAx0h81eOwLmU57xgqToduDDPx3y5QsdjPfDu+FgOQ==
 
 ua-parser-js@^1.0.35:
   version "1.0.40"

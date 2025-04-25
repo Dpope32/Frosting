@@ -23,8 +23,8 @@ export const NotesEmpty = ({
       borderColor={isDark ? "#333" : "#e0e0e0"} 
       width={isWeb ? "80%" : "90%"} 
       maxWidth={isWeb ? 800 : "100%"} 
-      mx="auto" 
-      my="$4" 
+      px="auto" 
+      py="$4" 
       overflow="hidden" 
     >
       <LinearGradient
