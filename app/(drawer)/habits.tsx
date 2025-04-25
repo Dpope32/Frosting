@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Platform, ScrollView } from 'react-native';
 import { YStack, Text, Button, XStack } from 'tamagui';
 import { Plus, Database, Trash } from '@tamagui/lucide-icons';
@@ -10,6 +10,7 @@ import { useHabits } from '@/hooks/useHabits';
 import { useUserStore } from '@/store/UserStore';
 import { generateTestHabits, clearAllHabits } from '@/services/habitService';
 import { isIpad } from '@/utils/deviceUtils';
+import { useHabitStore } from '@/store/HabitStore';
 
 export default function HabitsScreen() {
   const colorScheme = useColorScheme();
@@ -17,17 +18,23 @@ export default function HabitsScreen() {
   const isWeb = Platform.OS === 'web';
   const [showAdd, setShowAdd] = useState(false);
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
+  const hydrated = useHabitStore((state) => state.hydrated);
   const { habits, addHabit, toggleHabit, deleteHabit, completedToday, progressPercentage } = useHabits();
+
+  // Wait for hydration before showing content
+  if (!hydrated) {
+    return null;
+  }
 
   return (
     <>
       <YStack 
         f={1} 
-        pt={isWeb ? 60 : isIpad() ? 100 : 85} 
+        pt={isWeb ? 60 : isIpad() ? 100 : 100} 
         px={isWeb ? 24 : 16} 
         bg={isDark ? '#000' : '#F6F6F6'}
       >
-        <YStack gap="$2" mb="$4">
+        <YStack gap="$2" mb="$1">
           {habits.length > 0 && ( 
             <>
               <XStack alignItems="center" gap="$2">
@@ -67,8 +74,8 @@ export default function HabitsScreen() {
           <ScrollView 
             showsVerticalScrollIndicator={false} 
             contentContainerStyle={{ 
-              gap: 16,
-              paddingTop: 16,
+              gap: 6,
+              paddingTop: 12,
               paddingBottom: 140,
             }}
           >

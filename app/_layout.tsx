@@ -3,7 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } fro
 import { inject } from '@vercel/analytics';
 import { injectSpeedInsights } from '@vercel/speed-insights';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useCallback } from 'react';
@@ -14,6 +14,8 @@ import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
 import * as Updates from 'expo-updates';
 import { Alert } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import type { NotificationResponse } from 'expo-notifications';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
@@ -132,33 +134,54 @@ export default Sentry.wrap(function RootLayout() {
     return () => clearInterval(updateInterval);
   }, [loaded]);
 
-    const handleDeepLink = useCallback((event: { url: string }) => {
-      if (event.url.startsWith('kaiba-nexus://share')) {
-        const url = new URL(event.url);
-        const params = Object.fromEntries(url.searchParams.entries());
-        const contactData = {
-          name: decodeURIComponent(params.name || ''),
-          nickname: params.nickname ? decodeURIComponent(params.nickname) : undefined,
-          phoneNumber: params.phone ? decodeURIComponent(params.phone) : undefined,
-          email: params.email ? decodeURIComponent(params.email) : undefined,
-          occupation: params.occupation ? decodeURIComponent(params.occupation) : undefined
-        };
-        handleSharedContact(contactData);
+  const handleDeepLink = useCallback((event: { url: string | NotificationResponse }) => {
+    console.log('Handling deep link:', event.url);
+    
+    // Handle notification response
+    if (typeof event.url === 'object' && 'notification' in event.url) {
+      const url = event.url.notification.request.content.data?.url;
+      if (url) {
+        router.push(url.replace('kaiba-nexus://', '/(drawer)/'));
+        return;
       }
+    }
+    
+    // Handle URL-based deep links
+    if (typeof event.url === 'string' && event.url.startsWith('kaiba-nexus://share')) {
+      const url = new URL(event.url);
+      const params = Object.fromEntries(url.searchParams.entries());
+      const contactData = {
+        name: decodeURIComponent(params.name || ''),
+        nickname: params.nickname ? decodeURIComponent(params.nickname) : undefined,
+        phoneNumber: params.phone ? decodeURIComponent(params.phone) : undefined,
+        email: params.email ? decodeURIComponent(params.email) : undefined,
+        occupation: params.occupation ? decodeURIComponent(params.occupation) : undefined
+      };
+      handleSharedContact(contactData);
+    } else if (typeof event.url === 'string' && event.url.startsWith('kaiba-nexus://habits')) {
+      // Route to habits screen
+      router.push('/(drawer)/habits');
+    }
   }, []);
 
   useEffect(() => {
+    // Set up notification response handler
+    const notificationSubscription = Notifications.addNotificationResponseReceivedListener(response => {
+      handleDeepLink({ url: response });
+    });
 
+    // Set up URL-based deep link handler
     Linking.getInitialURL().then(url => {
       if (url) {
         handleDeepLink({ url });
       }
     });
 
-    const subscription = Linking.addEventListener('url', handleDeepLink);
+    const urlSubscription = Linking.addEventListener('url', handleDeepLink);
 
     return () => {
-      subscription.remove();
+      notificationSubscription.remove();
+      urlSubscription.remove();
     };
   }, [handleDeepLink]);
 

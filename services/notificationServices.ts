@@ -73,7 +73,8 @@ export const scheduleEventNotification = async (
   date: Date, 
   title: string, 
   body: string, 
-  identifier?: string
+  identifier?: string,
+  deepLinkUrl?: string
 ) => {
   if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return 'web-not-supported';
   
@@ -89,6 +90,7 @@ export const scheduleEventNotification = async (
         priority: AndroidNotificationPriority.MAX,
         vibrate: [0, 250, 250, 250],
         autoDismiss: true,
+        data: deepLinkUrl ? { url: deepLinkUrl } : undefined,
       },
       trigger: {
         type: SchedulableTriggerInputTypes.DATE,

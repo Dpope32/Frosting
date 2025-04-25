@@ -59,7 +59,8 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
         notificationDate,
         `${name} Reminder`,
         `Don't forget to complete "${name}" this ${notificationTime}`,
-        `${name}-${notificationTime}`
+        `${name}-${notificationTime}`,
+        'kaiba-nexus://habits'
       );
     }
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory } from '@/types/task';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type NotificationTime = 'morning' | 'afternoon' | 'evening' | 'night' | 'none';
 
@@ -15,6 +16,7 @@ export interface Habit {
 
 interface HabitStore {
   habits: Record<string, Habit>;
+  hydrated: boolean;
   addHabit: (title: string, category: TaskCategory, notificationTime: NotificationTime) => void;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
@@ -25,6 +27,7 @@ export const useHabitStore = create<HabitStore>()(
   persist(
     (set) => ({
       habits: {},
+      hydrated: false,
       
       addHabit: (title: string, category: TaskCategory, notificationTime: NotificationTime) => set((state) => {
         const id = Math.random().toString(36).substring(2, 9);
@@ -84,7 +87,16 @@ export const useHabitStore = create<HabitStore>()(
       })
     }),
     {
-      name: 'habit-storage'
+      name: 'habit-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      onRehydrateStorage: () => (state) => {
+        console.log('HabitStore hydration started');
+        if (state) {
+          state.hydrated = true;
+          console.log('HabitStore hydration completed', state.habits);
+        }
+      },
+      partialize: (state) => ({ habits: state.habits }),
     }
   )
 ); 

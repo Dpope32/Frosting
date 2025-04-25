@@ -94,7 +94,6 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
       position="relative"
       overflow="hidden"
     >
-      {/* Dark overlay when habit is completed for the day */}
       {doneToday && (
         <View
           style={{
@@ -107,7 +106,7 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1,
-            borderRadius: 11, // slightly smaller than parent to respect border
+            borderRadius: 11,
           }}
           pointerEvents="none"
         >
@@ -116,7 +115,7 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
       )}
       
       <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 10 : 12}>
-        <XStack alignItems="center" flex={1} gap="$3" style={{ zIndex: 2 }}>
+        <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
           <Pressable
             onPress={onToggle}
             style={styles.checkboxContainer}
