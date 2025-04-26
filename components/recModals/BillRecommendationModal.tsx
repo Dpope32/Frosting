@@ -11,13 +11,17 @@ type DebouncedTextInputProps = {
   onDebouncedChange: (value: string) => void
   style?: any
   keyboardType?: string
+  placeholder?: string
+  placeholderTextColor?: string
 }
 
-const DebouncedTextInput = ({
+export const DebouncedTextInput = ({
   value,
   onDebouncedChange,
   style,
-  keyboardType = 'default'
+  keyboardType = 'default',
+  placeholder = '',
+  placeholderTextColor = 'gray'
 }: DebouncedTextInputProps) => {
   const [text, setText] = useState(value)
   

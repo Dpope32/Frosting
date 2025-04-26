@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory } from '@/types/task';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type NotificationTime = 'morning' | 'afternoon' | 'evening' | 'night' | 'none';
+export type NotificationTimeLabel = 'morning' | 'afternoon' | 'evening' | 'night' | 'none';
 
 export interface Habit {
   id: string;
@@ -11,13 +11,14 @@ export interface Habit {
   category: TaskCategory;
   createdAt: string; // ISO date string
   completionHistory: Record<string, boolean>; // date string -> completed
-  notificationTime: NotificationTime;
+  notificationTimeLabel: NotificationTimeLabel;
+  notificationTimeValue: string; // 'HH:mm' or ''
 }
 
 interface HabitStore {
   habits: Record<string, Habit>;
   hydrated: boolean;
-  addHabit: (title: string, category: TaskCategory, notificationTime: NotificationTime) => void;
+  addHabit: (title: string, category: TaskCategory, notificationTimeLabel: NotificationTimeLabel, notificationTimeValue: string) => void;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
   editHabit: (habitId: string, updates: Partial<Habit>) => void;
@@ -29,7 +30,7 @@ export const useHabitStore = create<HabitStore>()(
       habits: {},
       hydrated: false,
       
-      addHabit: (title: string, category: TaskCategory, notificationTime: NotificationTime) => set((state) => {
+      addHabit: (title: string, category: TaskCategory, notificationTimeLabel: NotificationTimeLabel, notificationTimeValue: string) => set((state) => {
         const id = Math.random().toString(36).substring(2, 9);
         const today = new Date().toISOString().split('T')[0];
         
@@ -42,7 +43,8 @@ export const useHabitStore = create<HabitStore>()(
               category,
               createdAt: today,
               completionHistory: {},
-              notificationTime
+              notificationTimeLabel,
+              notificationTimeValue
             }
           }
         };

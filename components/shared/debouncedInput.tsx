@@ -28,7 +28,7 @@ export const CategorySelector = ({ value, onChange, categories = ['health', 'per
   const isDark = colorScheme === 'dark';
   
   return (
-    <YStack gap="$2">
+    <YStack gap="$2" py={8}>
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
@@ -53,7 +53,7 @@ export const CategorySelector = ({ value, onChange, categories = ['health', 'per
                   borderWidth={1}
                   borderColor={isSelected ? categoryColor : isDark ? '#444' : '#ddd'}
                   px={12}
-                  py={8}
+                  py={10}
                   borderRadius={20}
                 >
                   <Ionicons

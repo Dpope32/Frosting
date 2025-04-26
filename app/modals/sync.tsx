@@ -8,7 +8,6 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
-import { useRegistryStore } from '@/store/RegistryStore';
 import { useToastStore } from '@/store/ToastStore';
 
 const devices: any[] = [
@@ -35,7 +34,6 @@ export default function SyncScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const { stocksLastUpdated } = useRegistryStore();
 
   useEffect(() => {
     loadCurrentSpace();
@@ -64,18 +62,8 @@ export default function SyncScreen() {
     }
   };
 
-  const handleJoinSpace = async (spaceId: string) => {
-    setIsLoading(true);
-    try {
-      await loadCurrentSpace();
-    } catch (error) {
-      console.error('Error joining sync space:', error);
-      useToastStore.getState().showToast('Failed to join sync space', 'error');
-    } finally {
-      setIsLoading(false);
-      setShowAddDevice(false);
-    }
-  };
+  
+
 
   if (!isInitialized) {
     return (
