@@ -2,7 +2,7 @@ import React from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Header } from '@/components/Header';
-import { View, Image, Text, Platform } from 'react-native'; 
+import { View, Image, Text, Platform, TouchableOpacity } from 'react-native'; 
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
@@ -11,6 +11,7 @@ import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
 import { isIpad } from '@/utils/deviceUtils';
 import { DRAWER_ICONS } from '@/constants/drawerIcons';
+import { useRouter } from 'expo-router';
 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
@@ -22,6 +23,7 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
   styles: any;
   isWeb: boolean;
 }) => {
+  const router = useRouter();
   
   const imageSource = (() => {
     if (!profilePicture) {
@@ -42,10 +44,12 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Image 
-            source={imageSource}
-            style={styles.profileImage}
-          />
+          <TouchableOpacity onPress={() => router.push('/modals/sync')}>
+            <Image 
+              source={imageSource}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
           <Text style={styles.username}>
             {username || 'User'}
           </Text>

@@ -21,7 +21,7 @@ import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
-import { isIpad } from '@/utils/deviceUtils';
+
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
   const colorScheme = useColorScheme();
