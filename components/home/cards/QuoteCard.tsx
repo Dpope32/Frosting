@@ -27,8 +27,8 @@ export function QuoteCard({ isHome }: QuoteCardProps) {
       padding="$3"  
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
-      minWidth={80}
-      height={isWeb ? 60 : 50}    
+      minWidth={60}
+      height={isWeb ? 60 : 48}    
       alignItems="center"
       justifyContent="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}

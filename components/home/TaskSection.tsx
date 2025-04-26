@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
 import { Task } from '@/types/task'
-import { RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
+import { RecommendationChipHome } from '@/constants/recommendations/recChipHome'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 import { format } from 'date-fns'
@@ -170,10 +170,10 @@ export const TaskSection = ({
                   width="100%"
                   flexDirection="row"
                 >
-                  <RecommendationChip category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
-                  <RecommendationChip category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
-                  <RecommendationChip category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
-                  <RecommendationChip category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
+                  <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
+                  <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
+                  <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
+                  <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
                 </XStack>
               </YStack>
             </Stack>
@@ -248,10 +248,10 @@ export const TaskSection = ({
                     width="100%"
                     flexDirection="row"
                   >
-                    <RecommendationChip category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
-                    <RecommendationChip category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
-                    <RecommendationChip category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
-                    <RecommendationChip category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
+                    <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
+                    <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
+                    <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
+                    <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
                   </XStack>
                 </YStack>
               </Stack>

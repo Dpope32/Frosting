@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useColorScheme, TextInput} from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from '../cardModals/BaseCardModal'
@@ -59,6 +59,15 @@ export function VaultRecommendationModal({
   const [passwords, setPasswords] = useState<Record<number, string>>({})
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
+
+  // Reset state when modal is closed
+  useEffect(() => {
+    if (!open) {
+      setSelectedEntries({});
+      setUsernames({});
+      setPasswords({});
+    }
+  }, [open]);
 
   const handleToggleEntry = (index: number) => {
     setSelectedEntries(prev => ({
@@ -169,20 +178,26 @@ export function VaultRecommendationModal({
                 <Checkbox
                   checked={selectedEntries[index] || false}
                   onCheckedChange={() => handleToggleEntry(index)}
-                  backgroundColor={selectedEntries[index] ? (isDark ? "#dbd0c6" : "#000") : "transparent"}
-                  borderColor={isDark ? "#dbd0c6" : "#000"}
+                  backgroundColor={selectedEntries[index] ? "#000" : "#F5F5DC"}
+                  borderColor={selectedEntries[index] ? "#000" : "#D3D3D3"}
                   marginRight="$2"
-                />
-                
-                <YStack flex={1} gap="$2">
-                  <Text 
-                    color={isDark ? "#fff" : "#000"} 
-                    fontSize={16} 
+                >
+                  {selectedEntries[index] && (
+                    <Checkbox.Indicator>
+                      <Ionicons name="checkmark" size={16} color="#00C851" />
+                    </Checkbox.Indicator>
+                  )}
+                </Checkbox>
+
+                <YStack flex={1} gap="$2" opacity={selectedEntries[index] ? 0.6 : 1}>
+                  <Text
+                    color={isDark ? "#fff" : "#000"}
+                    fontSize={16}
                     fontWeight="500"
                   >
                     {entry.name}
                   </Text>
-                  
+
                   {selectedEntries[index] && (
                     <YStack gap="$2">
                       <XStack alignItems="center" gap="$1">
@@ -190,7 +205,7 @@ export function VaultRecommendationModal({
                         <Text color={isDark ? "#999" : "#666"} fontSize={12} width={70}>
                           Username:
                         </Text>
-                        <XStack 
+                        <XStack
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
                           px="$2"
                           py="$1"
@@ -212,13 +227,13 @@ export function VaultRecommendationModal({
                           />
                         </XStack>
                       </XStack>
-                      
+
                       <XStack alignItems="center" gap="$1">
                         <Ionicons name="lock-closed-outline" size={16} color={isDark ? "#999" : "#666"} />
                         <Text color={isDark ? "#999" : "#666"} fontSize={12} width={70}>
                           Password:
                         </Text>
-                        <XStack 
+                        <XStack
                           backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
                           px="$2"
                           py="$1"

@@ -21,9 +21,9 @@ export const NotesEmpty = ({
       jc="center"
       borderWidth={1} 
       borderColor={isDark ? "#333" : "#e0e0e0"} 
-      width={isWeb ? "80%" : "90%"} 
+      width={isWeb ? "80%" : "100%"} 
       maxWidth={isWeb ? 800 : "100%"} 
-      px="auto" 
+      px="$4" 
       py="$4" 
       overflow="hidden" 
     >

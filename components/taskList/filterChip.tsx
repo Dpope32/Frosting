@@ -41,7 +41,7 @@ export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelect
       borderColor={borderColor}
       borderWidth={1}
       borderRadius="$4"
-      paddingHorizontal="$3"
+      paddingHorizontal="$2"
       height="$3"
       unstyled
       marginRight="$2"

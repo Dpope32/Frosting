@@ -144,7 +144,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   // Main content of the task item
   const mainContent = (
     <XStack 
-      bg={isDark ? '$gray2' : '$gray3'} 
+      bg={isDark ? '#0d0d0d' : '$gray3'} 
       br={8} 
       p={isWeb ? "$4" : "$3"} 
       mb={isWeb ? "$3" : "$2"} 

@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useHabitStore, Habit, NotificationTime } from '@/store/HabitStore';
 import { TaskCategory } from '@/types/task';
+import { isWeb } from 'tamagui';
 import { differenceInDays, subDays, format } from 'date-fns';
-
+import { useToastStore } from '@/store/ToastStore';
+import { triggerHaptic } from '@/services/noteService';
+import { ImpactFeedbackStyle } from 'expo-haptics';
 export function useHabits() {
   const { habits, addHabit, toggleHabitCompletion, deleteHabit, editHabit } = useHabitStore();
-
   const habitsList = useMemo(() => Object.values(habits), [habits]);
 
   const getCompletedToday = () => {
@@ -48,6 +50,10 @@ export function useHabits() {
   const handleToggleHabit = (habitId: string) => {
     const today = format(new Date(), 'yyyy-MM-dd');
     toggleHabitCompletion(habitId, today);
+    if (!isWeb) {
+      triggerHaptic(ImpactFeedbackStyle.Light);
+      console.log('haptic triggered', ImpactFeedbackStyle.Light);
+    }
   };
 
   return {

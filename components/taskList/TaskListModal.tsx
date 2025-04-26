@@ -1,6 +1,6 @@
 // components/tasklist/TaskListModal.tsx
 import React from 'react'
-import { XStack, isWeb } from 'tamagui' 
+import { XStack, isWeb, YStack } from 'tamagui' 
 import { useColorScheme, Platform, Alert } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'
@@ -62,6 +62,10 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
         return
       }
       const pat = task.recurrencePattern || 'one-time'
+      // Filter out completed one-time tasks
+      if (pat === 'one-time' && task.completed) {
+        return;
+      }
       if (pat === 'one-time') groups['one-time'].push(task)
       else groups[pat]?.push(task)
     })
@@ -79,7 +83,7 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
   const header = React.useMemo(() => {
     if (filterChipCount < 2) return null
     return (
-      <XStack mb="$2" flexWrap="wrap" gap="$2">
+      <XStack mb="$2" px="$2" flexWrap="wrap" gap="$1">
         <FilterChip
           key="all"
           label="All"
@@ -98,7 +102,6 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
       </XStack>
     )
   }, [tasksByRec, filter, keys, filterChipCount])
-
 
   const taskRecommendationCategories: RecommendationCategory[] = ['Cleaning', 'Wealth', 'Gym', 'Self-Care'];
   const taskRecommendations = React.useMemo(() => (
@@ -125,7 +128,6 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
       setDialogTask(task);
       setDialogOpen(true);
     } else {
-      // Use native Alert for mobile
       if (task.category === 'bills') {
         Alert.alert(
           'Bills Notice',
@@ -157,12 +159,11 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
     if (dialogTask?.category === 'bills') {
       showToast('Delete in Bills screen', 'warning');
     } else if (dialogTask) {
-      const taskName = dialogTask.name; // Store the name before cleanup
+      const taskName = dialogTask.name;
       deleteTask(dialogTask.id);
       setDialogOpen(false);
       setDialogTask(null);
       onOpenChange(false);
-      // Show toast after modal is closed
       setTimeout(() => {
         showToast(`Deleted "${taskName}"`, 'success');
       }, 100);
@@ -178,12 +179,13 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
         recommendationChips={filterChipCount < 2 ? taskRecommendations : header}
       >
         {entries.map(([_, arr]) => arr.map(t => (
-          <TaskItem
-            key={t.id}
-            task={t}
-            onLongPress={onLongPress}
-            onPressEdit={t => { onOpenChange(false); openEditModal(t) }}
-          />
+          <YStack mt="$2" key={t.id} >
+            <TaskItem
+              task={t}
+              onLongPress={onLongPress}
+              onPressEdit={t => { onOpenChange(false); openEditModal(t) }}
+            />
+          </YStack>
         )))}
       </BaseCardWithRecommendationsModal>
       {Platform.OS === 'web' && (

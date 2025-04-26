@@ -90,10 +90,8 @@ export const useHabitStore = create<HabitStore>()(
       name: 'habit-storage',
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
-        console.log('HabitStore hydration started');
         if (state) {
           state.hydrated = true;
-          console.log('HabitStore hydration completed', state.habits);
         }
       },
       partialize: (state) => ({ habits: state.habits }),

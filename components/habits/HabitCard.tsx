@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { Pressable, View, StyleSheet, Platform, Alert } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal } from 'react-native';
 import { XStack, YStack, Text, Button } from 'tamagui';
 import { Pencil } from '@tamagui/lucide-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,18 +13,21 @@ interface HabitCardProps {
   habit: Habit;
   onToggle: () => void;
   onDelete: () => void;
+  doneToday: boolean; 
 }
 
-export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
+export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardProps) { // Destructure doneToday prop
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isMobile = Platform.OS !== 'web';
   const { getRecentHistory } = useHabits();
   const [showStats, setShowStats] = useState(false);
   const showToast = useToastStore((state) => state.showToast);
+  const statsButtonRef = useRef<View>(null);
+  const [statsButtonLayout, setStatsButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   const today = new Date().toISOString().split('T')[0];
-  const doneToday = habit.completionHistory[today] || false;
+  // Removed internal calculation of doneToday
   const history = getRecentHistory(habit);
 
   // compute streaks and stats
@@ -82,13 +84,26 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
     }
   };
 
+  const handleStatsPress = () => {
+    if (statsButtonRef.current && Platform.OS === 'web') {
+      statsButtonRef.current.measure(
+        (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+          setStatsButtonLayout({ x: pageX, y: pageY, width, height });
+          setShowStats(true);
+        }
+      );
+    } else {
+      setShowStats(true);
+    }
+  };
+
   return (
     <YStack
       mb={10}
       p={isMobile ? 8 : 10}
       px={isMobile ? 12 : 16}
       borderRadius={12}
-      backgroundColor={isDark ? '#111' : '#fff'}
+      backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#1a1a1a' : '#fff')} 
       borderWidth={1}
       borderColor={isDark ? '#333' : '#E0E0E0'}
       position="relative"
@@ -180,7 +195,11 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
         </XStack>
 
         <XStack gap="$3" alignItems="center" style={{ zIndex: 2 }}>
-          <Pressable onPress={() => setShowStats(true)} style={{ padding: 4 }}>
+          <Pressable 
+            ref={statsButtonRef}
+            onPress={handleStatsPress}
+            style={{ padding: 4 }}
+          >
             <Ionicons 
               name="stats-chart" 
               size={isMobile ? 16 : 20} 
@@ -197,55 +216,60 @@ export function HabitCard({ habit, onToggle, onDelete }: HabitCardProps) {
         </XStack>
       </XStack>
 
-      {showStats && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 40,
-            right: 20,
-            zIndex: 100,
-            backgroundColor: isDark ? '#181818' : '#FFF',
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: isDark ? '#333' : '#E0E0E0',
-            padding: 16,
-            shadowColor: '#000',
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            shadowOffset: { width: 0, height: 2 },
-            minWidth: 180,
-          }}
+      <Modal
+        visible={showStats}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowStats(false)}
+      >
+        <Pressable 
+          style={styles.modalOverlay}
+          onPress={() => setShowStats(false)}
         >
-          <Text fontFamily="$body" fontSize={15} fontWeight="700" mb={8} color={isDark ? '#fff' : '#000'}>
-            Habit Stats
-          </Text>
-          <Text fontFamily="$body" fontSize={14} mb={4} color={isDark ? '#ccc' : '#666'}>
-            Current Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{currentStreak}</Text>
-          </Text>
-          <Text fontFamily="$body" fontSize={14} mb={4} color={isDark ? '#ccc' : '#666'}>
-            Longest Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{longestStreak}</Text>
-          </Text>
-          <Text fontFamily="$body" fontSize={14} mb={4} color={isDark ? '#ccc' : '#666'}>
-            Total Completions: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{totalCompletions}</Text>
-          </Text>
-          <Text fontFamily="$body" fontSize={14} mb={8} color={isDark ? '#ccc' : '#666'}>
-            Completion %: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{percentComplete}%</Text>
-          </Text>
-          <Button
-            size="$2"
-            onPress={() => setShowStats(false)}
-            backgroundColor="#00C851"
-            color="#FFF"
-            mt={4}
-            br={8}
-            alignSelf="flex-end"
+          <View 
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: isDark ? '#181818' : '#FFF',
+                borderColor: isDark ? '#333' : '#E0E0E0',
+              }
+            ]}
           >
-            Close
-          </Button>
-        </View>
-      )}
+            <XStack justifyContent="space-between" alignItems="center" mb={8}>
+              <Text fontFamily="$body" fontSize={18} fontWeight="700" color={isDark ? '#fff' : '#000'}>
+                {habit.title} Stats
+              </Text>
+              <Pressable 
+                onPress={() => setShowStats(false)}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.7 : 1,
+                  padding: 4,
+                })}
+                hitSlop={8}
+              >
+                <Ionicons 
+                  name="close" 
+                  size={24} 
+                  color={isDark ? '#666' : '#999'} 
+                />
+              </Pressable>
+            </XStack>
+            <Text fontFamily="$body" fontSize={16} mb={8} color={isDark ? '#ccc' : '#666'}>
+              Current Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{currentStreak}</Text>
+            </Text>
+            <Text fontFamily="$body" fontSize={16} mb={8} color={isDark ? '#ccc' : '#666'}>
+              Longest Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{longestStreak}</Text>
+            </Text>
+            <Text fontFamily="$body" fontSize={16} mb={8} color={isDark ? '#ccc' : '#666'}>
+              Total Completions: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{totalCompletions}</Text>
+            </Text>
+            <Text fontFamily="$body" fontSize={16} color={isDark ? '#ccc' : '#666'}>
+              Completion %: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{percentComplete}%</Text>
+            </Text>
+          </View>
+        </Pressable>
+      </Modal>
 
-      {/* Improved history display */}
       <XStack alignItems="center" style={{ zIndex: 2 }}>
         <XStack
           flexWrap="wrap"
@@ -306,4 +330,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 12,
+  },
+  modalContent: {
+    width: Platform.OS === 'web' ? 400 : '100%',
+    maxWidth: 400,
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  }
 });

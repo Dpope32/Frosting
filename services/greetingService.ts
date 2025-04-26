@@ -251,11 +251,8 @@ export const getGreeting = (username: string, temp?: number): string => {
   const edgyGreetingsThatShouldBeUsedRarely = [
     'IF YOU DONT START CHECKING OFF YOUR TODO LIST, I WILL BE VERY DISAPPOINTED IN YOU',
     'I think you are doing great, ${username}',
-    'CHECK THE WEATHER BY CLICKING THE TEMP',
-    'CHECK YOUR WIFI BY CLICKING THE WIFI',
-    'CHECK YOUR STOCKS BY CLICKING THE MONEY',
-    'CHECK THE DAILY QUOTE BY CLICKING THE QUOTE',
-    'DISABLE ANY BUTTON BELOW THIS IN THE SETTINGS'
+    'A wise man once said, ${username}',
+    'A wise man once said nothing at all',
   ];
 
   let finalGreeting: string;
@@ -269,8 +266,8 @@ export const getGreeting = (username: string, temp?: number): string => {
     if (!/[.,!?]$/.test(finalGreeting)) {
         finalGreeting += '!';
     }
-  } else if (dayOfYear % 5 === 0) {
-    // Select a random greeting from the edgy list
+  } else if (dayOfYear % 10 === 0) {
+    // Select a random greeting from the edgy list every 10 days
     const randomIndex = Math.floor(Math.random() * edgyGreetingsThatShouldBeUsedRarely.length);
     finalGreeting = edgyGreetingsThatShouldBeUsedRarely[randomIndex];
     // Check if its a curveball day, if so, add a random emoji to the greeting

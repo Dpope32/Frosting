@@ -17,7 +17,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       alignItems="center" 
       justifyContent="flex-start"
       br={16}
-      px={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
+      pl={isWeb ? "$2" : isIpad() ? "$2" : "$2"}
       py={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
     >
       <XStack alignItems="center" gap="$2" paddingRight={isWeb ? "$6" : "$0"}>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from 'react'
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useColorScheme } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
 import { BaseCardModal } from '../cardModals/BaseCardModal'
@@ -46,10 +46,10 @@ interface CategoryTaskModalProps {
   category: RecommendationCategory
 }
 
-function CategoryTaskModal({ 
-  open, 
-  onOpenChange, 
-  category 
+function CategoryTaskModal({
+  open,
+  onOpenChange,
+  category
 }: CategoryTaskModalProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -58,6 +58,14 @@ function CategoryTaskModal({
   const [selectedTasks, setSelectedTasks] = useState<Record<number, boolean>>({})
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
+
+  // Reset state when modal is closed
+  useEffect(() => {
+    if (!open) {
+      setSelectedTasks({});
+    }
+  }, [open]);
+
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
 
   const adjustColor = useCallback((color: string, amount: number) => {
@@ -122,7 +130,7 @@ function CategoryTaskModal({
       open={open} 
       onOpenChange={(newOpen) => { onOpenChange(newOpen)}} 
       title={`${category} Tasks`}
-      snapPoints={[isWeb? 90 : 85]}
+      snapPoints={[isWeb? 90 : 90]}
       zIndex={200000}
       showCloseButton={true}
       hideHandle={true}
@@ -177,24 +185,30 @@ function CategoryTaskModal({
                         <Checkbox
                           checked={selectedTasks[index] || false}
                           onCheckedChange={() => handleToggleTask(index)}
-                          backgroundColor={selectedTasks[index] ? (isDark ? "#dbd0c6" : "#000") : "transparent"}
-                          borderColor={isDark ? "#dbd0c6" : "#000"}
+                          backgroundColor={selectedTasks[index] ? "#000" : "#F5F5DC"}
+                          borderColor={selectedTasks[index] ? "#000" : "#D3D3D3"}
                           marginRight="$2"
-                        />
-                        
-                        <YStack flex={1} gap="$1">
+                        >
+                          {selectedTasks[index] && (
+                            <Checkbox.Indicator>
+                              <Ionicons name="checkmark" size={16} color="#00C851" />
+                            </Checkbox.Indicator>
+                          )}
+                        </Checkbox>
+
+                        <YStack flex={1} gap="$1" opacity={selectedTasks[index] ? 0.6 : 1}>
                           <XStack alignItems="center" gap="$2">
                             <Ionicons name={getPriorityIcon(task.priority)} size={16} color={getPriorityColor(task.priority)} />
                             <Text color={isDark ? "#fff" : "#000"} fontFamily="$body" fontSize={16} fontWeight="500"> {task.name} </Text>
                           </XStack>
-                          
+
                           <XStack gap="$2" alignItems="center" flexWrap="wrap">
                             <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} px="$2" py="$1" br={4} >
                               <Text fontFamily="$body" color={getRecurrenceColor(task.recurrencePattern)} fontSize={12} fontWeight="600">
                                 {task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                               </Text>
                             </XStack>
-                            
+
                             {task.time && ( <Text color={isDark ? "#999" : "#666"} fontSize={12}> {task.time} </Text>)}
                             {task.schedule.length > 0 && (<Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={12}> {formatScheduleDays(task.schedule)} </Text>)}
                           </XStack>
@@ -203,14 +217,14 @@ function CategoryTaskModal({
                     );
                   })}
               </YStack>
-              
+
               <YStack flex={1} gap="$2">
                 {recommendedTasks
                   .filter((_, index) => index % 2 === 1)
                   .map((task, columnIndex) => {
                     const index = columnIndex * 2 + 1;
                     return (
-                      <XStack 
+                      <XStack
                         key={index}
                         backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
                         br={12}
@@ -223,24 +237,30 @@ function CategoryTaskModal({
                         <Checkbox
                           checked={selectedTasks[index] || false}
                           onCheckedChange={() => handleToggleTask(index)}
-                          backgroundColor={selectedTasks[index] ? (isDark ? "#dbd0c6" : "#000") : "transparent"}
-                          borderColor={isDark ? "#dbd0c6" : "#000"}
+                          backgroundColor={selectedTasks[index] ? "#000" : "#F5F5DC"}
+                          borderColor={selectedTasks[index] ? "#000" : "#D3D3D3"}
                           marginRight="$2"
-                        />
-                        
-                        <YStack flex={1} gap="$1">
+                        >
+                          {selectedTasks[index] && (
+                            <Checkbox.Indicator>
+                              <Ionicons name="checkmark" size={16} color="#00C851" />
+                            </Checkbox.Indicator>
+                          )}
+                        </Checkbox>
+
+                        <YStack flex={1} gap="$1" opacity={selectedTasks[index] ? 0.6 : 1}>
                           <XStack alignItems="center" gap="$2">
                             <Ionicons name={getPriorityIcon(task.priority)} size={16} color={getPriorityColor(task.priority)} />
                             <Text color={isDark ? "#fff" : "#000"} fontFamily="$body" fontSize={16} fontWeight="500"> {task.name} </Text>
                           </XStack>
-                          
+
                           <XStack gap="$2" alignItems="center" flexWrap="wrap">
                             <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} px="$2" py="$1" br={4} >
                               <Text fontFamily="$body" color={getRecurrenceColor(task.recurrencePattern)} fontSize={12} fontWeight="600">
                                 {task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                               </Text>
                             </XStack>
-                            
+
                             {task.time && ( <Text color={isDark ? "#999" : "#666"} fontSize={12}> {task.time} </Text>)}
                             {task.schedule.length > 0 && (<Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={12}> {formatScheduleDays(task.schedule)} </Text>)}
                           </XStack>
@@ -253,7 +273,7 @@ function CategoryTaskModal({
           ) : (
             <YStack gap={isWeb ? "$3" : "$1.5"}>
               {recommendedTasks.map((task, index) => (
-                <XStack 
+                <XStack
                   key={index}
                   backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
                   br={12}
@@ -262,28 +282,35 @@ function CategoryTaskModal({
                   borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
                   alignItems="center"
                   justifyContent="space-between"
+                  mb="$1"
                 >
                   <Checkbox
                     checked={selectedTasks[index] || false}
                     onCheckedChange={() => handleToggleTask(index)}
-                    backgroundColor={selectedTasks[index] ? (isDark ? "#dbd0c6" : "#000") : "transparent"}
-                    borderColor={isDark ? "#dbd0c6" : "#000"}
+                    backgroundColor={selectedTasks[index] ? "#000" : "#F5F5DC"}
+                    borderColor={selectedTasks[index] ? "#000" : "#D3D3D3"}
                     marginRight="$2"
-                  />
-                  
-                  <YStack flex={1} gap="$1">
+                  >
+                    {selectedTasks[index] && (
+                      <Checkbox.Indicator>
+                        <Ionicons name="checkmark" size={16} color="#00C851" />
+                      </Checkbox.Indicator>
+                    )}
+                  </Checkbox>
+
+                  <YStack flex={1} gap="$1" opacity={selectedTasks[index] ? 0.6 : 1}>
                     <XStack alignItems="center" gap="$2">
                       <Ionicons name={getPriorityIcon(task.priority)} size={16} color={getPriorityColor(task.priority)} />
                       <Text color={isDark ? "#fff" : "#000"} fontFamily="$body" fontSize={16} fontWeight="500"> {task.name} </Text>
                     </XStack>
-                    
+
                     <XStack gap="$2" alignItems="center" flexWrap="wrap">
                       <XStack backgroundColor={`${getRecurrenceColor(task.recurrencePattern)}20`} px="$2" py="$1" br={4} >
                         <Text fontFamily="$body" color={getRecurrenceColor(task.recurrencePattern)} fontSize={12} fontWeight="600">
                           {task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                         </Text>
                       </XStack>
-                      
+
                       {task.time && ( <Text color={isDark ? "#999" : "#666"} fontSize={12}> {task.time} </Text>)}
                       {task.schedule.length > 0 && (<Text color={isDark ? "#999" : "#666"} fontFamily="$body" fontSize={12}> {formatScheduleDays(task.schedule)} </Text>)}
                     </XStack>
@@ -293,7 +320,7 @@ function CategoryTaskModal({
             </YStack>
           )}
         </ScrollView>
-        
+
         {recommendedTasks.length > 0 && (
           <Button
             backgroundColor={isDark ? `${primaryColor}40` : `${adjustColor(primaryColor, 20)}80`}
@@ -313,7 +340,7 @@ function CategoryTaskModal({
             </Text>
           </Button>
         )}
-        
+
         {!isWeb && showScrollToTop && (
           <Circle
             size={44}

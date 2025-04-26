@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from '../cardModals/BaseCardModal'
@@ -64,7 +64,17 @@ export function BillRecommendationModal({
   const [isSaving, setIsSaving] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
-  
+
+  // Reset state when modal is closed
+  useEffect(() => {
+    if (!open) {
+      setSelectedBills({});
+      setAmounts({});
+      setDueDates({});
+      setValidationErrors({});
+    }
+  }, [open]);
+
   const handleToggleBill = (index: number) => {
     setSelectedBills(prev => ({
       ...prev,
@@ -194,12 +204,18 @@ export function BillRecommendationModal({
                 <Checkbox
                   checked={selectedBills[index] || false}
                   onCheckedChange={() => handleToggleBill(index)}
-                  backgroundColor={selectedBills[index] ? (isDark ? "#dbd0c6" : "#000") : "transparent"}
-                  borderColor={isDark ? "#dbd0c6" : "#000"}
+                  backgroundColor={selectedBills[index] ? "#000" : "#F5F5DC"}
+                  borderColor={selectedBills[index] ? "#000" : "#D3D3D3"}
                   marginRight="$2.5"
-                />
-                
-                <YStack flex={1} gap="$2">
+                >
+                  {selectedBills[index] && (
+                    <Checkbox.Indicator>
+                      <Ionicons name="checkmark" size={16} color="#00C851" />
+                    </Checkbox.Indicator>
+                  )}
+                </Checkbox>
+
+                <YStack flex={1} gap="$2" opacity={selectedBills[index] ? 0.6 : 1}>
                   <Text
                     color={isDark ? "#fff" : "#000"}
                     fontSize={15}
@@ -208,7 +224,7 @@ export function BillRecommendationModal({
                   >
                     {bill.name}
                   </Text>
-                  
+
                   {selectedBills[index] && (
                     <YStack gap="$2" flex={1}>
                       <XStack gap="$2" flexWrap="wrap">
@@ -245,7 +261,7 @@ export function BillRecommendationModal({
                             />
                           </XStack>
                         </XStack>
-                        
+
                         <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
                           <Ionicons name="calendar-outline" size={16} color={isDark ? "#999" : "#666"} />
                           <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">

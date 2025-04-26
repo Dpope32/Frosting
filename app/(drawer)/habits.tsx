@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Platform, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { Platform, ScrollView, View } from 'react-native';
 import { YStack, Text, Button, XStack } from 'tamagui';
 import { Plus, Database, Trash } from '@tamagui/lucide-icons';
 import { HabitEmpty } from '@/components/habits/HabitEmpty';
@@ -11,6 +11,7 @@ import { useUserStore } from '@/store/UserStore';
 import { generateTestHabits, clearAllHabits } from '@/services/habitService';
 import { isIpad } from '@/utils/deviceUtils';
 import { useHabitStore } from '@/store/HabitStore';
+import { format } from 'date-fns';
 
 export default function HabitsScreen() {
   const colorScheme = useColorScheme();
@@ -21,13 +22,12 @@ export default function HabitsScreen() {
   const hydrated = useHabitStore((state) => state.hydrated);
   const { habits, addHabit, toggleHabit, deleteHabit, completedToday, progressPercentage } = useHabits();
 
-  // Wait for hydration before showing content
   if (!hydrated) {
     return null;
   }
 
   return (
-    <>
+    <View style={{ flex: 1, position: 'relative' }}>
       <YStack 
         f={1} 
         pt={isWeb ? 60 : isIpad() ? 100 : 100} 
@@ -35,7 +35,7 @@ export default function HabitsScreen() {
         bg={isDark ? '#000' : '#F6F6F6'}
       >
         <YStack gap="$2" mb="$1">
-          {habits.length > 0 && ( 
+          {habits.length > 0 && (
             <>
               <XStack alignItems="center" gap="$2">
                 <Text
@@ -61,34 +61,46 @@ export default function HabitsScreen() {
                 />
               </YStack>
             </>
-          )} 
+          )}
         </YStack>
 
-        {habits.length === 0 ? (
-          <HabitEmpty 
-            isDark={isDark} 
-            primaryColor={primaryColor} 
-            isWeb={isWeb} 
-          />
-        ) : (
-          <ScrollView 
-            showsVerticalScrollIndicator={false} 
-            contentContainerStyle={{ 
-              gap: 6,
-              paddingTop: 12,
-              paddingBottom: 140,
-            }}
-          >
-            {habits.map((habit) => (
-              <HabitCard 
-                key={habit.id}
-                habit={habit}
-                onToggle={() => toggleHabit(habit.id)}
-                onDelete={() => deleteHabit(habit.id)}
-              />
-            ))}
-          </ScrollView>
-        )}
+        <View style={{ flex: 1, position: 'relative' }}>
+          {habits.length === 0 ? (
+            <HabitEmpty 
+              isDark={isDark} 
+              primaryColor={primaryColor} 
+              isWeb={isWeb} 
+            />
+          ) : (
+            <ScrollView 
+              showsVerticalScrollIndicator={false} 
+              contentContainerStyle={{ 
+                paddingTop: 12,
+                paddingBottom: 140,
+              }}
+              style={{
+                height: '100%',
+              }}
+            >
+              <View style={{ position: 'relative', zIndex: 1 }}>
+                {habits.map((habit) => {
+                  const today = format(new Date(), 'yyyy-MM-dd');
+                  const doneToday = habit.completionHistory[today] || false;
+
+                  return (
+                    <HabitCard
+                      key={habit.id}
+                      habit={habit}
+                      doneToday={doneToday}
+                      onToggle={() => toggleHabit(habit.id)}
+                      onDelete={() => deleteHabit(habit.id)}
+                    />
+                  );
+                })}
+              </View>
+            </ScrollView>
+          )}
+        </View>
 
         <Button
           onPress={() => setShowAdd(true)}
@@ -102,10 +114,11 @@ export default function HabitsScreen() {
           pressStyle={{ scale: 0.95 }}
           animation="quick"
           elevation={4}
+          zIndex={1}
         />
 
         {__DEV__ && (
-          <XStack position="absolute" bottom={40} left={24} gap="$2">
+          <XStack position="absolute" bottom={40} left={24} gap="$2" zIndex={1}>
             <Button
               size="$4"
               circular
@@ -128,7 +141,6 @@ export default function HabitsScreen() {
             />
           </XStack>
         )}
-
       </YStack>
 
       <AddHabitModal 
@@ -136,6 +148,6 @@ export default function HabitsScreen() {
         onOpenChange={setShowAdd} 
         onSave={addHabit}
       />
-    </>
+    </View>
   );
 }

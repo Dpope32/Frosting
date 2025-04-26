@@ -33,7 +33,7 @@ export function CardSection({
   const username = useUserStore(s => s.preferences.username);
   
   return (
-    <YStack gap="$1">
+    <YStack gap="$1" mt="$1" ml="$2">
       <GreetingSection username={username} />
     <XStack
       gap="$2"
