@@ -53,7 +53,6 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
       const notificationDate = new Date();
       notificationDate.setHours(notificationTime.getHours(), notificationTime.getMinutes(), 0, 0);
       
-      // If the time has already passed today, schedule for tomorrow
       if (notificationDate <= new Date()) {
         notificationDate.setDate(notificationDate.getDate() + 1);
       }
@@ -73,7 +72,6 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
       }
     }
 
-    // Convert the time to one of the predefined notification times
     let notificationTimeValue: NotificationTime = 'none';
     if (notificationTime) {
       const hours = notificationTime.getHours();
@@ -87,7 +85,6 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
         notificationTimeValue = 'night';
       }
     }
-
     onSave(name.trim(), category, notificationTimeValue);
     showToast('Habit added successfully!', 'success', { duration: 3000 });
     resetForm();
@@ -95,16 +92,10 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
   };
 
   return (
-    <StockCardAnimated open={open} title="New Habit" onClose={handleClose} >
+    <StockCardAnimated open={open} title="New Habit" onClose={handleClose}>
       <YStack px="$2" py="$2" gap="$3">
         <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-              color: isDark ? '#fff' : '#000',
-            }
-          ]}
+          style={[ styles.input, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
           placeholder="Habit Name"
           placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
           value={name}
