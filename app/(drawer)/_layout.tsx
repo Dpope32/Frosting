@@ -1,6 +1,7 @@
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { isWeb } from 'tamagui';
 import { Header } from '@/components/Header';
 import { View, Image, Text, Platform, TouchableOpacity } from 'react-native'; 
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
@@ -72,10 +73,9 @@ export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? 'rgba(14, 14, 15, 0.9)' : '#F5F5F5';
+  const backgroundColor = isDark ? 'rgba(14, 14, 15, 0.9)' : '#f7f4ea';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark  ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
-  const isWeb = Platform.OS === 'web';
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();

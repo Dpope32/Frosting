@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, View, StyleSheet, Platform, Pressable, ScrollView } from 'react-native';
 import { XStack, YStack, Text, Button, Sheet, ListItem } from 'tamagui';
 import { StockCardAnimated } from '@/components/baseModals/StockCardAnimated';
-import { scheduleHabitNotification } from '@/services/notificationServices';
+import { scheduleEventNotification } from '@/services/notificationServices';
 import { CategorySelector } from '@/components/shared/debouncedInput';
 import { TaskCategory } from '@/types/task';
 import { Ionicons } from '@expo/vector-icons';
@@ -79,7 +79,7 @@ export function AddHabitModal({ open, onOpenChange, onSave }: AddHabitModalProps
         identifier: `${name}-${format(notificationTime, 'HH:mm')}`
       });
 
-      const result = await scheduleHabitNotification(
+      const result = await scheduleEventNotification(
         notificationDate,
         `${name} Reminder`,
         customMessage.trim() || `Don't forget to complete "${name}" today`,

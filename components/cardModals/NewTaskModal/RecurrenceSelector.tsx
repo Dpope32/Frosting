@@ -15,9 +15,10 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
   const isDark = colorScheme === 'dark'
 
   return (
-    <YStack gap="$2">
+    <YStack px="$2" gap="$1">
+      <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Recurrence</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <XStack gap="$2" py="$1" ml="$1.5">
+        <XStack gap="$2" py="$1">
           {RECURRENCE_PATTERNS.map(pattern => {
             const recurrenceColor = getRecurrenceColor(pattern.value)
             

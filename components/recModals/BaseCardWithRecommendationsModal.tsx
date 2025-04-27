@@ -124,8 +124,20 @@ export function BaseCardWithRecommendationsModal({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ paddingHorizontal: 4 }}
                   >
-                    <XStack gap="$2">
-                      {filterChips}
+                    <XStack gap={Platform.OS === 'web' ? "$2" : "$3"}>
+                      {React.Children.toArray(filterChips).map((chip, idx) => {
+                        if (!chip || typeof chip !== 'object' || !('props' in chip)) return null;
+                        if (!React.isValidElement(chip)) return null;
+                        if (Platform.OS === 'web') return chip;
+                        const extraProps: any = {
+                          style: [{ ...(chip.props && chip.props.style ? chip.props.style : {}), minHeight: 38, minWidth: 38, paddingHorizontal: 14, fontSize: 12 }],
+                          key: chip.key ?? idx 
+                        };
+                        if ('size' in chip.props) {
+                          extraProps.size = chip.props.size ? chip.props.size : '$5' ;
+                        }
+                        return React.cloneElement(chip, extraProps);
+                      })}
                     </XStack>
                   </RNScrollView>
                 )}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Platform, Pressable } from 'react-native'
+import { View, Platform, Pressable, StyleSheet } from 'react-native'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import Animated, {
   useSharedValue,
@@ -14,18 +14,27 @@ import Animated, {
 import * as Haptics from 'expo-haptics'
 import { XStack, Text } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
+import { LinearGradient } from 'expo-linear-gradient'
 
 interface LongPressDeleteProps {
-  onDelete: () => void
+  onDelete: (onComplete: (deleted: boolean) => void) => void
   children: React.ReactNode
+  progressBarStyle?: {
+    paddingHorizontal?: number
+  }
+  longPressDuration?: number
 }
 
-export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, children }) => {
+export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ 
+  onDelete, 
+  children,
+  progressBarStyle,
+  longPressDuration = 800
+}) => {
   const scale = useSharedValue(1)
   const progress = useSharedValue(0)
   const isDeleting = useSharedValue(false)
   const screen = Platform.OS
-  const LONG_PRESS_DURATION = 800
   
   const handleHapticFeedback = () => {
     if (screen !== 'web') {
@@ -48,8 +57,15 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
   const triggerDeleteAction = () => {
     if (!isDeleting.value) {
       isDeleting.value = true;
-      handleNotificationFeedback();
-      onDelete();
+      runOnJS(handleNotificationFeedback)();
+      runOnJS(onDelete)((deleted: boolean) => {
+        'worklet';
+        if (!deleted) {
+          scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+          progress.value = withTiming(0, { duration: 200 });
+          isDeleting.value = false;
+        }
+      });
     }
   };
   
@@ -61,7 +77,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
       runOnJS(handleHapticFeedback)();
       scale.value = withSpring(1.02, { damping: 15, stiffness: 100 });
       progress.value = withTiming(1, {
-        duration: LONG_PRESS_DURATION,
+        duration: longPressDuration,
         easing: Easing.linear
       }, (finished) => {
         if (finished) {
@@ -73,20 +89,18 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
     })
     .onFinalize(() => {
       'worklet';
-      // Only reset visuals if we're not deleting
-      if (!isDeleting.value) {
-        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-        progress.value = withTiming(0, { duration: 200 });
-      }
+      // Always reset visuals and deleting state on finalize
+      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      progress.value = withTiming(0, { duration: 200 });
+      isDeleting.value = false; // Reset deleting state
     })
     .onTouchesMove(() => {
       'worklet';
-      // Only cancel if not already deleting
-      if (!isDeleting.value) {
-        cancelAnimation(progress);
-        progress.value = withTiming(0, { duration: 200 });
-        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      }
+      // Always cancel animation and reset visuals/deleting state on touches move
+      cancelAnimation(progress);
+      progress.value = withTiming(0, { duration: 200 });
+      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      isDeleting.value = false; // Reset deleting state
     });
     
   const animatedStyle = useAnimatedStyle(() => ({
@@ -97,10 +111,10 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
   const progressStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     bottom: 0,
-    left: 0,
+    left: progressBarStyle?.paddingHorizontal || 0,
+    right: progressBarStyle?.paddingHorizontal || 0,
     height: 2,
     width: `${progress.value * 100}%`,
-    backgroundColor: '#ff3b30',
     borderRadius: 2,
     zIndex: 999,
   }));
@@ -111,7 +125,6 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#ff3b30',
     opacity: interpolate(progress.value, [0, 1], [0, 0.1]),
     borderRadius: 8,
     zIndex: 1,
@@ -119,35 +132,80 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ onDelete, chil
   
   const deleteTextStyle = useAnimatedStyle(() => ({
     position: 'absolute',
-    right: 16,
+    left: 0,
+    right: 0,
     top: '50%',
     transform: [{ translateY: -10 }],
     opacity: progress.value,
     zIndex: 2,
   }));
 
+  const dimOverlayStyle = useAnimatedStyle(() => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    opacity: interpolate(progress.value, [0, 1], [0, 0.5]),
+    zIndex: 1,
+  }));
+
   // For web fallback
   const webTimer = React.useRef<NodeJS.Timeout>()
   
   const handlePressIn = () => {
-    if (screen === 'web') webTimer.current = setTimeout(() => onDelete(), 500)
+    if (screen === 'web') {
+      webTimer.current = setTimeout(() => {
+        isDeleting.value = true; // Set deleting state for web
+        onDelete((deleted) => { // Pass callback for web
+          if (!deleted) {
+            scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+            progress.value = withTiming(0, { duration: 200 });
+            isDeleting.value = false;
+          }
+        });
+      }, longPressDuration);
+    }
   }
   
   const handlePressOut = () => {
-    if (screen === 'web') clearTimeout(webTimer.current)
+    if (screen === 'web') {
+      clearTimeout(webTimer.current);
+      // Reset visuals on web if not deleting
+      if (!isDeleting.value) {
+        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+        progress.value = withTiming(0, { duration: 200 });
+      }
+    }
   }
 
   const content = (
     <>
-      <Animated.View style={deleteIndicatorStyle} />
+      <Animated.View style={deleteIndicatorStyle}>
+        <LinearGradient
+          colors={['#666666', '#ff3b30']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
+      <Animated.View style={dimOverlayStyle} />
       <View style={{ zIndex: 3 }}>{children}</View>
       <Animated.View style={deleteTextStyle}>
-        <XStack gap="$2" ai="center">
+        <XStack gap="$2" ai="center" justifyContent="center">
           <Ionicons name="trash-outline" size={16} color="#ff3b30" />
-          <Text color="#ff3b30" fontSize={12} fontWeight="500">Hold to Delete</Text>
+          <Text color="#ff3b30" fontSize={12} fontWeight="500">Delete</Text>
         </XStack>
       </Animated.View>
-      <Animated.View style={progressStyle} />
+      <Animated.View style={progressStyle}>
+        <LinearGradient
+          colors={['#666666', '#ff3b30']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={StyleSheet.absoluteFill}
+        />
+      </Animated.View>
     </>
   );
   

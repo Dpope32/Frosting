@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Platform } from 'react-native'
+import { Platform, Keyboard, KeyboardEvent } from 'react-native'
 import { Form, ScrollView } from 'tamagui'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
@@ -8,7 +8,7 @@ import { useToastStore } from '@/store/ToastStore'
 import * as Haptics from 'expo-haptics'
 import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
-import { BaseCardAnimated } from '../BaseCardAnimated'
+import { Base } from './Base'
 import { getDefaultTask, WEEKDAYS } from '@/services/taskService'
 
 import { TaskNameInput } from './TaskNameInput'
@@ -38,6 +38,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [keyboardOffset, setKeyboardOffset] = useState(0)
 
   useEffect(() => {
     if (!open) {
@@ -48,6 +49,24 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       }, 200)
     }
   }, [open])
+
+  useEffect(() => {
+    const onKeyboardShow = (e: KeyboardEvent) => setKeyboardOffset(e.endCoordinates.height)
+    const onKeyboardHide = () => setKeyboardOffset(0)
+
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      onKeyboardShow
+    )
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      onKeyboardHide
+    )
+    return () => {
+      showSub.remove()
+      hideSub.remove()
+    }
+  }, [])
 
   const handleTextChange = useCallback((text: string) => {
     setNewTask(prev => ({ ...prev, name: text }))
@@ -165,7 +184,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
 
   return (
-    <BaseCardAnimated
+    <Base
       onClose={() => {
         if (Platform.OS === 'web') {
           setTimeout(() => onOpenChange(false), 100)
@@ -175,12 +194,11 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       }}
       title="New ToDo"
       showCloseButton={true}
+      keyboardOffset={keyboardOffset}
     >
-      <ScrollView
-        bounces={false}
+      <ScrollView 
+        contentContainerStyle={{}}
         keyboardShouldPersistTaps="handled"
-        showsHorizontalScrollIndicator={false}
-        style={{ maxWidth: isWeb ? 800 : '100%', paddingHorizontal: 2 }}
       >
         <Form gap="$2.5" px={4}>
           <TaskNameInput
@@ -239,6 +257,6 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
           </Form.Trigger>
         </Form>
       </ScrollView>
-    </BaseCardAnimated>
+    </Base>
   )
 } 

@@ -27,13 +27,20 @@ export const BillCard = ({
   const isToday = bill.dueDate === currentDay
 
   const confirmDelete = () => onDelete(bill.id)
-  const handleDelete = () =>
-    Platform.OS === 'web'
-      ? window.confirm(`Delete "${bill.name}"?`) && confirmDelete()
-      : Alert.alert('Delete Bill', `Delete "${bill.name}"?`, [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Delete', style: 'destructive', onPress: confirmDelete }
-        ])
+  const handleDelete = (onComplete: (deleted: boolean) => void) => {
+    if (Platform.OS === 'web') {
+      const deleted = window.confirm(`Delete "${bill.name}"?`);
+      if (deleted) {
+        confirmDelete();
+      }
+      onComplete(deleted);
+    } else {
+      Alert.alert('Delete Bill', `Delete "${bill.name}"?`, [
+        { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
+        { text: 'Delete', style: 'destructive', onPress: () => { confirmDelete(); onComplete(true); } }
+      ]);
+    }
+  };
 
   return (
     <LongPressDelete onDelete={handleDelete}>

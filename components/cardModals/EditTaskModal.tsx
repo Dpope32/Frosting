@@ -15,6 +15,7 @@ import { DebouncedInput } from '../shared/debouncedInput'
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity, dayColors } from '@/utils/styleUtils';
 
 import { UserPreferences } from '@/store/UserStore'; // Import UserPreferences type
+import { Base } from './NewTaskModal/Base'
 
 interface EditTaskModalProps {
   open: boolean;
@@ -672,7 +673,7 @@ export function EditTaskModal({ open, onOpenChange }: EditTaskModalProps): JSX.E
 
   // Pass necessary props down to BaseCardAnimated or handle modal visibility/closing
   return (
-    <BaseCardAnimated
+    <Base
       onClose={() => onOpenChange(false)} 
       title="Edit Task"
       showCloseButton={true}
@@ -685,6 +686,6 @@ export function EditTaskModal({ open, onOpenChange }: EditTaskModalProps): JSX.E
         updateTask={useProjectStore().updateTask}
         showToast={useToastStore().showToast}
       />
-    </BaseCardAnimated>
+    </Base>
   );
 }

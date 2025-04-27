@@ -258,10 +258,10 @@ export const TaskSection = ({
             ) : (
               <XStack
                 flexWrap="wrap"
-                gap="$1.5"
-                width="100%"
-                paddingHorizontal="$1"
-                paddingVertical="$1"
+                gap="$2"
+                width="95%"
+                paddingLeft="$4"
+                paddingVertical="$2"
                 justifyContent={isIpad() ? "space-between" : "flex-start"}
               >
                 {todaysTasks.map((task: Task) => {

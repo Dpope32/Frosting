@@ -109,9 +109,8 @@ export const scheduleEventNotification = async (
         data: deepLinkUrl ? { url: deepLinkUrl } : undefined,
       },
       trigger: {
-        type: SchedulableTriggerInputTypes.DAILY,
-        hour: date.getHours(),
-        minute: date.getMinutes(),
+        type: SchedulableTriggerInputTypes.DATE,
+        date,
         channelId: Platform.OS === 'android' ? 'events' : undefined,
       },
       identifier,
@@ -120,60 +119,6 @@ export const scheduleEventNotification = async (
     return notifId;
   } catch (error) {
     console.error('Error scheduling notification:', error);
-    return 'error';
-  }
-};
-
-// Schedule a daily notification for a habit
-export const scheduleHabitNotification = async (
-  date: Date,
-  title: string,
-  body: string,
-  identifier?: string,
-  deepLinkUrl?: string
-) => {
-  if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return 'web-not-supported';
-  
-  try {
-    const hasPermission = await requestNotificationPermissions();
-    if (!hasPermission) return 'permission-denied';
-    
-    // Check if this is a habit notification
-    if (identifier && identifier.includes('-')) {
-      const [habitName, time] = identifier.split('-');
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const habits = useHabitStore.getState().habits;
-      
-      // Find the habit by name
-      const habit = Object.values(habits).find(h => h.title === habitName);
-      if (habit && habit.completionHistory[today]) {
-        // Habit already completed today, don't send notification
-        return 'habit-completed';
-      }
-    }
-    
-    const notifId = await Notifications.scheduleNotificationAsync({
-      content: {
-        title,
-        body,
-        sound: true,
-        priority: AndroidNotificationPriority.MAX,
-        vibrate: [0, 250, 250, 250],
-        autoDismiss: true,
-        data: deepLinkUrl ? { url: deepLinkUrl } : undefined,
-      },
-      trigger: {
-        type: SchedulableTriggerInputTypes.DAILY,
-        hour: date.getHours(),
-        minute: date.getMinutes(),
-        channelId: Platform.OS === 'android' ? 'events' : undefined,
-      },
-      identifier,
-    });
-    
-    return notifId;
-  } catch (error) {
-    console.error('Error scheduling habit notification:', error);
     return 'error';
   }
 };

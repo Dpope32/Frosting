@@ -1,12 +1,12 @@
 import React, { useRef } from 'react'
-import { Pressable, View } from 'react-native'
+import { Pressable, View, Alert } from 'react-native'
 import { Task, RecurrencePattern } from '@/types/task'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withTiming, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
   withSpring,
   runOnJS,
   Easing,
@@ -20,7 +20,7 @@ import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, getPriorityCol
 
 interface TaskCardItemProps {
   task: Task
-  onLongPress: (task: Task) => void
+  onLongPress: (task: Task, onComplete: (deleted: boolean) => void) => void
   onPressEdit: (task: Task) => void
 }
 
@@ -30,7 +30,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const progress = useSharedValue(0)
   const isDeleting = useSharedValue(false)
   const screen = Platform.OS
-  const LONG_PRESS_DURATION = 800 // 0.8 seconds
+  const LONG_PRESS_DURATION = 1000 // 1 second
 
   const handleHapticFeedback = () => {
     if (screen !== 'web') {
@@ -53,8 +53,12 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const triggerDeleteAction = () => {
     if (!isDeleting.value) {
       isDeleting.value = true;
-      handleNotificationFeedback();
-      onLongPress(task);
+      runOnJS(handleNotificationFeedback)();
+      runOnJS(onLongPress)(task, (deleted: boolean) => {
+        'worklet';
+        // The reset logic is now handled in onFinalize/onTouchesMove
+        // This callback can be used for other logic if needed after alert dismissal
+      });
     }
   };
 
@@ -65,9 +69,9 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       isDeleting.value = false;
       runOnJS(handleHapticFeedback)();
       scale.value = withSpring(1.02, { damping: 15, stiffness: 100 });
-      progress.value = withTiming(1, { 
+      progress.value = withTiming(1, {
         duration: LONG_PRESS_DURATION,
-        easing: Easing.linear 
+        easing: Easing.linear
       }, (finished) => {
         if (finished) {
           runOnJS(handleReadyHaptic)();
@@ -78,24 +82,22 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     })
     .onFinalize(() => {
       'worklet';
-      // Only reset visuals if we're not deleting
-      if (!isDeleting.value) {
-        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-        progress.value = withTiming(0, { duration: 200 });
-      }
+      // Always reset visuals and deleting state on finalize
+      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      progress.value = withTiming(0, { duration: 200 });
+      isDeleting.value = false; // Reset deleting state
     })
     .onTouchesMove(() => {
       'worklet';
-      // Only cancel if not already deleting
-      if (!isDeleting.value) {
-        cancelAnimation(progress);
-        progress.value = withTiming(0, { duration: 200 });
-        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      }
+      // Always cancel animation and reset visuals/deleting state on touches move
+      cancelAnimation(progress);
+      progress.value = withTiming(0, { duration: 200 });
+      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      isDeleting.value = false; // Reset deleting state
     });
 
-  const animatedStyle = useAnimatedStyle(() => ({ 
-    transform: [{ scale: scale.value }] 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }]
   }));
 
   const progressStyle = useAnimatedStyle(() => ({
@@ -143,14 +145,13 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
 
   // Main content of the task item
   const mainContent = (
-    <XStack 
-      bg={isDark ? '#0d0d0d' : '$gray3'} 
-      br={8} 
-      p={isWeb ? "$4" : "$3"} 
-      mb={isWeb ? "$3" : "$2"} 
-      py={isWeb ? "$4" : "$3"} 
+    <XStack
+      bg={isDark ? '#1e1e1e' : '$gray1'}
+      br={8}
+      p={isWeb ? "$4" : "$3"}
+      py={isWeb ? "$4" : "$3"}
       px={isWeb ? "$4" : "$3"}
-      alignItems="center" 
+      alignItems="center"
       justifyContent="space-between"
       width="100%"
       position="relative"
@@ -178,11 +179,11 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
           </XStack>
         </XStack>
       </YStack>
-      
+
       <Animated.View style={deleteTextStyle}>
         <XStack gap="$2" ai="center">
           <Ionicons name="trash-outline" size={16} color="#ff3b30" />
-          <Text color="#ff3b30" fontSize={12} fontWeight="500">Hold to Delete</Text>
+          <Text color="#ff3b30" fontSize={12} fontWeight="500">Delete</Text>
         </XStack>
       </Animated.View>
       <Animated.View style={progressStyle} />
@@ -191,12 +192,12 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
 
   // Edit button component
   const editButton = (
-    <Pressable 
-      onPress={handleEditPress} 
-      style={({ pressed }) => ({ 
+    <Pressable
+      onPress={handleEditPress}
+      style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
-        padding: 8, 
-        marginRight: 4 
+        padding: 8,
+        marginRight: 4
       })}
     >
       <Ionicons name="pencil-outline" size={isWeb ? 16 : 18} color={isDark ? '#888' : '$gray10'} />
@@ -204,13 +205,31 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   );
 
   const webTimer = useRef<NodeJS.Timeout>()
-  
+
   const handlePressIn = () => {
-    if (screen === 'web') webTimer.current = setTimeout(() => onLongPress(task), 500)
+    if (screen === 'web') {
+      webTimer.current = setTimeout(() => {
+        isDeleting.value = true; // Set deleting state for web
+        onLongPress(task, (deleted) => { // Pass callback for web
+          if (!deleted) {
+            scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+            progress.value = withTiming(0, { duration: 200 });
+            isDeleting.value = false;
+          }
+        });
+      }, 500);
+    }
   }
-  
+
   const handlePressOut = () => {
-    if (screen === 'web') clearTimeout(webTimer.current)
+    if (screen === 'web') {
+      clearTimeout(webTimer.current);
+      // Reset visuals on web if not deleting
+      if (!isDeleting.value) {
+        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+        progress.value = withTiming(0, { duration: 200 });
+      }
+    }
   }
 
   if (screen === 'web') {

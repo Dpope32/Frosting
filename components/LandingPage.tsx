@@ -12,6 +12,7 @@ import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
 import { EditTaskModal } from './cardModals/EditTaskModal'
+import { FloatingActionSection } from './home/FloatingActionSection'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
@@ -21,6 +22,7 @@ import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
+import { isIpad } from '@/utils/deviceUtils';
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
@@ -34,7 +36,7 @@ export function LandingPage() {
   const closeEditModal = useEditTaskStore(s => s.closeModal);
   const [isMounted, setIsMounted] = useState(false)
   const router = useRouter();
-  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.8)" : "rgba(255, 255, 255, 0.08)"
+  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.8)" : "rgba(255, 255, 255, 0.0)"
   
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -78,14 +80,20 @@ export function LandingPage() {
     setWifiModalOpen(true) 
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
+
+  const handleActionPress = (name: string) => {
+    console.log(`selected button: ${name}`);
+    // You can implement the routing logic here
+  };
+
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
-     <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal="$3" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100}}>
-        <YStack pt={100} gap="$3">
+      <StarsAnimation /> 
+      <ScrollView flex={1} paddingHorizontal="$4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100}}>
+        <YStack pt={isIpad() ? 60 : 100} gap="$3">
           {!isWeb && (
-            <Stack borderRadius={16} p="$3" backgroundColor={backgroundColor} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} borderWidth={1}>
+            <Stack borderRadius={16} p="$3" backgroundColor={backgroundColor} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} borderWidth={1}>
               <CardSection 
                 onPortfolioPress={handlePortfolioPress} 
                 onTemperaturePress={handleTemperaturePress} 
@@ -100,7 +108,7 @@ export function LandingPage() {
             backgroundColor={backgroundColor} 
             borderRadius={16} 
             padding="$3" 
-            borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+            borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
             borderWidth={1} 
             style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
                   boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
@@ -123,7 +131,7 @@ export function LandingPage() {
               borderRadius={16} 
               padding="$4" 
               marginTop="$2" 
-              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
               borderWidth={1} 
               minWidth={300}
               style={{
@@ -161,6 +169,7 @@ export function LandingPage() {
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
         </>
       )}
+      <FloatingActionSection onActionPress={handleActionPress} />
     </Stack>
   )
 }

@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { Image, ImageSourcePropType, ActivityIndicator, Platform } from 'react-native'
-import { Stack } from 'tamagui'
+import { Stack, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useWallpaperStore } from '@/store/WallpaperStore'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import * as Sentry from '@sentry/react-native'
-
+import { isIpad } from '@/utils/deviceUtils'
 export const BackgroundSection = () => {
   const preferences = useUserStore(s => s.preferences);
   const setPreferences = useUserStore(s => s.setPreferences);
@@ -192,8 +192,8 @@ export const BackgroundSection = () => {
               />
               {Platform.OS !== 'web' && (
                 <BlurView
-                  intensity={isDark ? 40 : 60}
-                  tint="dark"
+                  intensity={isDark ? 70 : 60}
+                  tint={isDark ? "dark" : "dark"}
                   style={{
                     position: 'absolute',
                     width: '100%',

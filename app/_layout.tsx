@@ -62,7 +62,7 @@ export default Sentry.wrap(function RootLayout() {
       
       // Create a promise that resolves after a timeout
       const timeoutPromise = new Promise(resolve => {
-        setTimeout(resolve, 3000); // Maximum 3 seconds wait
+        setTimeout(resolve, 2000); // Maximum 3 seconds wait
       });
       
       // Wait for either fonts and user store hydration OR timeout

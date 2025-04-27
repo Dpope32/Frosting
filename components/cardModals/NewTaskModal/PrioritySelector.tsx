@@ -3,6 +3,7 @@ import { useColorScheme } from 'react-native'
 import { YStack, XStack, Text, Button } from 'tamagui'
 import { TaskPriority } from '@/types/task'
 import { getPriorityColor, withOpacity } from '@/utils/styleUtils'
+import { ArrowUp, ArrowRight, ArrowDown } from '@tamagui/lucide-icons'
 
 interface PrioritySelectorProps {
   selectedPriority: TaskPriority
@@ -13,12 +14,19 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
+  const priorityIcons = {
+    high: ArrowUp,
+    medium: ArrowRight,
+    low: ArrowDown
+  }
+
   return (
     <YStack px="$2" gap="$1">
       <Text color={isDark ? "$gray9" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
       <XStack gap="$2" mt="$1">
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)
+          const Icon = priorityIcons[priority as keyof typeof priorityIcons]
           
           return (
             <Button
@@ -40,14 +48,10 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
                   : isDark ? "$gray7" : "$gray4"
               }
             >
-              <Text
-                fontSize={14}
-                fontFamily="$body"
-                fontWeight={selectedPriority === priority ? "700" : "600"}
+              <Icon
+                size={20}
                 color={selectedPriority === priority ? color : isDark ? "$gray12" : "$gray11"}
-              >
-                {priority.charAt(0).toUpperCase() + priority.slice(1)}
-              </Text>
+              />
             </Button>
           )
         })}

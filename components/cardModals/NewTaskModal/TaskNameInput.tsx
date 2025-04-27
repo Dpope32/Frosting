@@ -24,10 +24,19 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
           e.preventDefault();
         }
       }}
+      {...(Platform.OS === 'ios' ? {
+        scrollEnabled: false,
+        selection: undefined,
+        contextMenuHidden: false,
+        caretHidden: false,
+        autoCapitalize: 'words'
+      } : {})}
       borderWidth={1}
-      autoCapitalize="sentences"
+      autoCapitalize="words"
       autoCorrect={true}
       spellCheck={true}
+      multiline={false}
+      maxLength={100}
       br={12}
       fontFamily="$body"
       px="$3"

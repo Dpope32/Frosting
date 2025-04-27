@@ -5,7 +5,7 @@ import { FormData } from '@/types/onboarding'
 import { BackgroundStyleOption } from '@/types/background'
 import { BackgroundStyle } from '@/constants/Backgrounds'
 import { useWallpaperStore } from '@/store/WallpaperStore'
-
+import { isIpad } from '@/utils/deviceUtils';
 let LinearGradient: any = null;
 let BlurView: any = null;
 let Animated: any = null;
@@ -366,7 +366,7 @@ useEffect(() => {
                   }}
                 />
                 <BlurView
-                  intensity={isDark ? 20 : 30}
+                  intensity={isDark ? 60 : 30}
                   tint="dark"
                   style={{ position: 'absolute', width: '100%', height: '100%' }}
                 />
@@ -443,23 +443,31 @@ useEffect(() => {
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$5">
         <YStack 
           position="absolute" 
-          top={isWeb ? "20%" : "25%"} 
+          top={isWeb ? "20%" : isIpad() ? "32%" : "25%"} 
           left={0} 
           right={0} 
           alignItems="center"
           py={isWeb ? "$4" : "$0"}
           my={isWeb ? "$10" : 0}
         >
+          <XStack alignItems="center" gap="$2" alignSelf="center" alignContent="center" justifyContent="center" >
+          {formData.profilePicture && (
+            <Image
+              source={{ uri: formData.profilePicture }}
+              style={{ width: 56, height: 56, borderRadius: 28, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.18, shadowRadius: 4 }}
+            />
+          )}
           <Label 
-            paddingBottom={20} 
+            pl={isWeb ? 0 : 10}
             fontFamily="$heading" 
             fontWeight={isWeb ? "500" : "800"} 
             fontSize={isWeb ? "$9" : "$7"} 
             textAlign="center" 
             color="$onboardingLabel"
           >
-            Choose your wallpaper
+            Choose your wallpaper {formData.username}!
           </Label>
+          </XStack>
         </YStack>
 
         <YStack
@@ -468,7 +476,7 @@ useEffect(() => {
           borderColor={formData.primaryColor} 
           borderWidth={2}
           padding="$4"
-          maxWidth={isWeb ? 520 : "100%"}
+          maxWidth={isWeb ? 520 : isIpad() ? 520 : "100%"}
           style={{
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)'
@@ -486,9 +494,9 @@ useEffect(() => {
               return (
                 <Button
                   key={style.value}
-                  px={isWeb ? "$4" : "$3"}
-                  py={isWeb ? "$3" : "$2"}
-                  marginVertical="$2"
+                  px={isWeb ? "$4" : isIpad() ? "$5" : "$2"}
+                  py={isWeb ? "$3" : isIpad() ? "$2" : "$1"}
+                  marginVertical="$3"
                   backgroundColor={
                     isSelected
                       ? formData.primaryColor
@@ -532,7 +540,7 @@ useEffect(() => {
                   <Text
                     fontFamily="$body" 
                     fontWeight={isSelected ? "700" : "500"}
-                    fontSize={isWeb ? "$4" : "$3"} 
+                    fontSize={isWeb ? "$4" : isIpad() ? "$4" : "$3"} 
                     color={isSelected ? 'white' : "$onboardingButtonSecondaryText"} 
                     textAlign="center"
                     letterSpacing={0.5}  

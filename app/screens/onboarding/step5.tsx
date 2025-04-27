@@ -3,7 +3,7 @@ import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch } from '
 import { Image, useWindowDimensions, useColorScheme } from 'react-native' 
 import { FormData } from '@/types/onboarding'
 import { nbaTeams } from '@/constants/nba'
-
+import { isIpad } from '@/utils/deviceUtils';
 export default function Step5({
   formData,
   setFormData,
@@ -64,10 +64,14 @@ export default function Step5({
   const initialTeams = nbaTeams.filter(team => popularTeams.includes(team.code))
   const teamsToDisplay = showAllTeams ? nbaTeams : initialTeams
   
-  useEffect(() => { if (isWeb) { setShowAllTeams(true)}}, [isWeb])
+  useEffect(() => { 
+    if (isWeb || isIpad()) { 
+      setShowAllTeams(true)
+    }
+  }, [isWeb])
   
   const getGridColumns = () => {
-    if (!isWeb) return 2 
+    if (!isWeb && !isIpad()) return 2 
     if (width > 1200) return 6
     if (width > 900) return 5
     if (width > 600) return 4
@@ -94,7 +98,7 @@ export default function Step5({
     >
       <YStack 
         position="absolute" 
-        top={isWeb ? "2%" : "13%"} 
+        top={isWeb ? "2%" : isIpad() ? "7%" : "13%"} 
         left={0} 
         right={0} 
         alignItems="center"
@@ -109,15 +113,15 @@ export default function Step5({
           textAlign="center" 
           color="$onboardingLabel"
         >
-          Follow your favorite NBA team
+          What is {formData.username}s favorite NBA team?
         </Label>
       </YStack>
 
       <ScrollView 
         style={{ 
           width: '100%', 
-          maxWidth: isWeb ? 1200 : mobileScrollMaxWidth,
-          marginTop: isWeb ? 90 : 140
+          maxWidth: isWeb ? 1200 : isIpad() ? 1200 : mobileScrollMaxWidth,
+          marginTop: isWeb ? 90 : isIpad() ? 120 : 140
         }}
         contentContainerStyle={{ 
           paddingBottom: isWeb ? 80 : 100,
@@ -195,7 +199,7 @@ export default function Step5({
           ))}
         </XStack>
         
-        {!isWeb && !showAllTeams && (
+        {!isWeb && !showAllTeams && !isIpad() && (
           <Button
             mt="$2"
             marginBottom="$4"
@@ -253,7 +257,7 @@ export default function Step5({
                       <Text
                         fontFamily="$heading"
                         color="$onboardingLabel"
-                        fontSize={16}
+                        fontSize={isWeb ? 20 : isIpad() ? 20 : 16}
                         fontWeight="600"
                       >
                         Show games in calendar?
@@ -290,7 +294,7 @@ export default function Step5({
                       <Text
                         fontFamily="$heading"
                         color="$onboardingLabel"
-                        fontSize={16}
+                        fontSize={isWeb ? 20 : isIpad() ? 20 : 16}
                         fontWeight="600"
                       >
                         Show game days on Home Screen?

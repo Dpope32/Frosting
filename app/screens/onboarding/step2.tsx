@@ -1,8 +1,9 @@
 import React from 'react';
-import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
+import { YStack, Text, XStack, Circle, Label, isWeb, Image } from 'tamagui'
 import { FormData, ColorOption } from '@/types/onboarding'
 import { View, useColorScheme, Platform } from 'react-native' 
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { isIpad } from '@/utils/deviceUtils';
 const EmptyColorPicker = () => null;
 
 import WheelColorPicker from 'react-native-wheel-color-picker';
@@ -22,7 +23,7 @@ export default function Step2({
   const isDark = colorScheme === 'dark' 
   const textColor = isDark ? '#fff' : '#000'
   const currentColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : '#010101')
-
+  const insets = useSafeAreaInsets();
   const handleColorChange = (color: string) => { setFormData((prev) => ({ ...prev, primaryColor: color }))}
 
   const WebColorPicker = () => {
@@ -76,43 +77,52 @@ export default function Step2({
   }
 
   return (
-    <YStack gap="$1" flex={1} justifyContent="flex-start" alignItems="center" padding="$4" paddingTop="$8">
-      <YStack 
-        position="absolute" 
-        top={isWeb ? "20%" : "35%"} 
-        left={0} 
-        right={0} 
-        alignItems="center"
-        py={isWeb ? "$4" : "$0"}
-        br={isWeb ? "$4" : 0}
-        my={isWeb ? "$2" : 0}
-      >
+    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? isIpad() ? "$4" : "$20" : "$20"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
+      <YStack alignItems="center" width="100%">
+      <XStack 
+          position="relative"
+          alignSelf="center"
+          gap="$2" 
+          paddingBottom="$4"
+          justifyContent="center"
+          alignItems="center"
+        >
+          {formData.profilePicture ? (
+            <Image
+              source={{ uri: formData.profilePicture }}
+              style={{ width: 56, height: 56, borderRadius: 28, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.18, shadowRadius: 4, elevation: 4 }}
+            />
+          ) : (
+            <Circle size={56} backgroundColor="$onboardingStep1CircleBackground" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.18, shadowRadius: 4, elevation: 4 }}>
+              <Text fontFamily="$body" fontSize={24}>👤</Text>
+            </Circle>
+          )}
+          <Text 
+            color="$onboardingLabel" 
+            fontFamily="$heading" 
+            fontWeight="700" 
+            fontSize={isWeb ? "$7" : "$7"}
+            textAlign="center"
+            style={{ lineHeight: 56, height: 56, paddingLeft: 12 }}
+          >
+            {formData.username}
+          </Text>
+        </XStack>
         <Label 
-          paddingBottom={20} 
-          fontFamily="$heading" 
-          fontWeight={isWeb ? 500 : 800} 
-          fontSize={isWeb ? "$9" : "$7"} 
-          textAlign="center" 
-          color="$onboardingLabel" 
-        >
-           Select theme color
-        </Label>
-        <Text
-          fontFamily="$body"
-          fontSize="$3"
-          textAlign="center"
-          color={isWeb ? "#CCCCCC" : "$onboardingSubText"} 
-          opacity={0.8}
-          fontWeight="400"
-        >
-          (yes you can change this later)
-        </Text>
+            fontFamily="$heading" 
+            fontWeight={isWeb ? 500 : 800} 
+            fontSize={isWeb ? "$9" : "$7"} 
+            textAlign="center" 
+            color="$onboardingLabel" 
+          >
+             Select theme color
+          </Label>
       </YStack>
-      <YStack flex={1} paddingTop={isWeb ? "$10" : "$8"}>
+      <YStack width="100%" alignItems="center" marginTop={0}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (
-          <View style={{ flex: 1, padding: isWeb ? 0 : 50 }}>
+          <View style={{ flex: 1}}>
             <ColorPicker
               color={currentColor}
               onColorChange={handleColorChange}
@@ -129,5 +139,6 @@ export default function Step2({
         )}
       </YStack>
     </YStack>
+    
   )
 }

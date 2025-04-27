@@ -179,7 +179,7 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
         recommendationChips={filterChipCount < 2 ? taskRecommendations : header}
       >
         {entries.map(([_, arr]) => arr.map(t => (
-          <YStack mt="$2" key={t.id} >
+          <YStack mt={1} key={t.id} >
             <TaskItem
               task={t}
               onLongPress={onLongPress}

@@ -20,6 +20,15 @@ export default function Step1({
 
   return (
     <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
+      <Text 
+        color="$onboardingLabel" 
+        fontFamily="$heading" 
+        fontWeight="700" 
+        fontSize={isWeb ? "$8" : "$7"}
+        textAlign="center"
+      >
+        Welcome, {formData.username}!
+      </Text>
       <YStack gap="$2" alignItems="center">
         <Circle
           size={180}
