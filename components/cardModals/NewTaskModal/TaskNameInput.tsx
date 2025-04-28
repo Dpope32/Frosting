@@ -19,7 +19,7 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
     // Auto-focus after a short delay to allow animations to complete
     const timer = setTimeout(() => {
       inputRef.current?.focus()
-    }, 500)
+    }, 750)
 
     return () => clearTimeout(timer)
   }, [])

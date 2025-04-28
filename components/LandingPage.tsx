@@ -116,9 +116,6 @@ export function LandingPage() {
   }
 
   const handleActionPress = (name: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
     switch (name) {
       case 'bt_password':
         setVaultModalOpen(true);
