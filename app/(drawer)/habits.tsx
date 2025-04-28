@@ -144,8 +144,8 @@ export default function HabitsScreen() {
       </YStack>
 
       <AddHabitModal 
-        open={showAdd} 
-        onOpenChange={setShowAdd} 
+        isVisible={showAdd}
+        onClose={() => setShowAdd(false)}
         onSave={addHabit}
       />
     </View>

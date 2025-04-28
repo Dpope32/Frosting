@@ -1,4 +1,6 @@
 import React from 'react';
+import  { Suspense, lazy } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isWeb } from 'tamagui';
@@ -12,6 +14,7 @@ import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
 import { isIpad } from '@/utils/deviceUtils';
 import { DRAWER_ICONS } from '@/constants/drawerIcons';
+
 import { useRouter } from 'expo-router';
 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;

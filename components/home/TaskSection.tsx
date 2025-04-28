@@ -133,26 +133,6 @@ export const TaskSection = ({
             </Text>
           )}
         </XStack>
-
-        <Pressable
-          onPress={() => {
-            if (Platform.OS !== 'web') {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-            }
-            onAddTaskPress()
-          }}
-          style={({ pressed }) => ({
-            width: 30,
-            height: 30,
-            borderRadius: 15,
-            justifyContent: 'center',
-            alignItems: 'center',
-            opacity: pressed ? 0.8 : 1,
-            transform: [{ scale: pressed ? 0.95 : 1 }]
-          })}
-        >
-          <Ionicons name="add" size={isWeb ? 22 : 21} color="#dbd0c6" />
-        </Pressable>
       </XStack>
       
       <Stack

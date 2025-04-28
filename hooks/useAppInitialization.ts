@@ -65,11 +65,4 @@ export function useAppInitialization() {
 
     initializeApp();
   }, [systemColorScheme]);
-
-  // TODO do not sync API if disabled in Settings
-  useEffect(() => {
-    useNBAStore.getState().syncNBAGames();
-    useNBAStore.getState().syncGameTasks();
-    useCalendarStore.getState().syncBirthdays();
-  }, []);
 }

@@ -131,7 +131,6 @@ export const useSportsAPI = () => {
       });
     
     setGames(games);
-    useNBAStore.getState().syncGameTasks();
     return games;
   };
   
