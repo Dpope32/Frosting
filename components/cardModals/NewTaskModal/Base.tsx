@@ -166,7 +166,7 @@ export function Base({
               ]}
               onTouchEnd={(e) => e.stopPropagation()}
             >
-              <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={2} px="$2" alignItems="center">
+              <XStack justifyContent="space-between" py="$2" marginTop={-5} marginBottom={2} px="$2" alignItems="center">
                 <Text
                   fontSize={20}
                   fontWeight="700"
@@ -180,7 +180,7 @@ export function Base({
                   <Button
                     backgroundColor="transparent"
                     onPress={onClose} 
-                    padding={8}
+                    padding={0}
                     pressStyle={{ opacity: 0.7 }}
                     icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
                   />

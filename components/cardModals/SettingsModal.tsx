@@ -20,6 +20,8 @@ import * as Sentry from '@sentry/react-native';
 import { ImageURISource } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';
 import { useCustomWallpaper } from '@/hooks/useCustomWallpaper';
+import { isIpad } from '@/utils/deviceUtils';
+
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
   try {
@@ -216,15 +218,15 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         }
       }}
       title="Settings"
-      snapPoints={isWeb ? [90] : [85]}
+      snapPoints={isWeb ? [90] : isIpad() ? [60] : [75]}
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
     >
-      <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$5' : '$2'}>
+      <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$2'}>
         <XStack gap="$3" flexWrap="wrap">
-          <YStack width={isWeb ? 100 : 60} gap="$2" alignItems="center">
-            <Circle size={isWeb ? 80 : 60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
+          <YStack width={isWeb ? 100 : isIpad() ? 80 : 60} gap="$2" alignItems="center">
+            <Circle size={isWeb ? 80 : isIpad() ? 60 : 60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
               {settings.profilePicture ? (
                   <Image source={buildImageSource(settings.profilePicture)} style={{ width: 60, height: 60, borderRadius: 30 }} />
                 ) : (
@@ -269,124 +271,37 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </XStack>
             </YStack>
           </XStack>
-          {Platform.OS !== 'web' ? (
+          {Platform.OS !== 'web' && isIpad() && (
             <YStack mt="$2" py="$1">
-              <YStack gap="$3">
-                <XStack gap="$4" justifyContent="center">
-                  <YStack alignItems="center" gap={4} flex={1}>
-                    <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Quote</Text>
-                    <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} thumbColor={settings.quoteEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
-                  </YStack>
-                  <YStack alignItems="center" gap={4} flex={1}> 
-                    <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Stocks</Text>
-                    <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} thumbColor={settings.portfolioEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
-                  </YStack>
-                  <YStack alignItems="center" gap={4} flex={1}>
-                    <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Weather</Text>
-                    <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} thumbColor={settings.temperatureEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
-                  </YStack>
-                </XStack>
-                <XStack gap="$4" justifyContent="space-around">
-                  <YStack alignItems="center" gap={4} flex={1}>
-                    <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Network</Text>
-                    <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} thumbColor={settings.wifiEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00'}} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1}] }} />
-                  </YStack>
-                  {!isWeb && (
-                    <YStack alignItems="center" gap={4} flex={1}>
-                      <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Notifications</Text>
-                      <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} thumbColor={settings.notificationsEnabled ? '$green10' : '$red10'} trackColor={{ false: '$red10', true: '#00ff00' }} ios_backgroundColor="$red10" style={{ transform: [{ scaleX: 1 }, { scaleY: 1 }] }} />
-                    </YStack>
-                  )}
-                  <YStack alignItems="center" gap={4} flex={1}>
-                    <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Primary Color</Text>
-                    <Circle size={36} backgroundColor={settings.primaryColor} pressStyle={{ scale: 0.97 }} onPress={() => setColorPickerOpen(true)} />
-                  </YStack>
-                </XStack>
-              </YStack>
-            </YStack>
-          ) : (
-            <YStack mt="$3" padding="$2" borderRadius="$4" >
-            <XStack gap="$6" justifyContent="flex-start" marginBottom="$4">
-              <YStack alignItems="center" gap="$2" width={100}>
-                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                  Quote
-                </Text>
-                <Switch
-                  value={settings.quoteEnabled}
-                  onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))}
-                  thumbColor={settings.quoteEnabled ? '$green10' : '$red10'}
-                  trackColor={{ false: '#fff', true: '#fff' }}
-                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
-                />
-              </YStack>
-              <YStack alignItems="center" gap="$2" width={100}>
-                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                  Stocks
-                </Text>
-                <Switch
-                  value={settings.portfolioEnabled}
-                  onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))}
-                  thumbColor={settings.portfolioEnabled ? '$green10' : '$red10'}
-                  trackColor={{ false: '$red10', true: '#fff' }}
-                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
-                />
-              </YStack>
-              <YStack alignItems="center" gap="$2" width={100}>
-                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                  Weather
-                </Text>
-                <Switch
-                  value={settings.temperatureEnabled}
-                  onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))}
-                  thumbColor={settings.temperatureEnabled ? '$green10' : '$red10'}
-                  trackColor={{ false: '$red10', true: '#fff' }}
-                  ios_backgroundColor="$red10"
-                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
-                />
-              </YStack>
-              <YStack alignItems="center" gap="$2" width={100}>
-                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                  Network
-                </Text>
-                <Switch
-                  value={settings.wifiEnabled}
-                  onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))}
-                  thumbColor={settings.wifiEnabled ? '$green10' : '$red10'}
-                  trackColor={{ false: '$red10', true: '#fff' }}
-                  ios_backgroundColor="$red10"
-                  style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
-                />
-              </YStack>
-              {!isWeb && (
-                <YStack alignItems="center" gap="$2" width={100}>
-                  <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                    Notifications
-                  </Text>
-                  <Switch
-                    value={settings.notificationsEnabled}
-                    onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))}
-                    thumbColor={settings.notificationsEnabled ? '$green10' : '$red10'}
-                    trackColor={{ false: '#fff', true: '$red10' }}
-                    ios_backgroundColor="$red10"
-                    style={{ transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }] }}
-                  />
+              <XStack gap="$4" justifyContent="center">
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Quote</Text>
+                  <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} />
                 </YStack>
-              )}
-              <YStack alignItems="center" gap="$2" width={100}>
-                <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
-                  Primary Color
-                </Text>
-                <Circle
-                  size={34}
-                  backgroundColor={settings.primaryColor}
-                  pressStyle={{ scale: 0.97 }}
-                  onPress={() => setColorPickerOpen(true)}
-                />
-              </YStack>
-            </XStack>
-          </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Stocks</Text>
+                  <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Weather</Text>
+                  <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Network</Text>
+                  <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Notifications</Text>
+                  <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#fff' : '#000'} fontFamily="$body">Primary Color</Text>
+                  <Circle size={36} backgroundColor={settings.primaryColor} pressStyle={{ scale: 0.97 }} onPress={() => setColorPickerOpen(true)} />
+                </YStack>
+              </XStack>
+            </YStack>
           )}
-          <YStack gap="$2" paddingHorizontal={isWeb ? '$4' : '$3'}>
+          <YStack gap="$2" px={isWeb ? '$4' : '$3'} py={isWeb ? '$4' : '$3'}>
             <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
               Wallpaper
             </Text>
@@ -409,7 +324,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 }
                 
                 return (
-                  <XStack key={`row-${rowIndex}`} height={isWeb ? 80 : 60} marginBottom={8}>
+                  <XStack key={`row-${rowIndex}`} height={isWeb ? 80 : isIpad() ? 100 : 60} marginBottom={8}>
                     {itemsForRow.map((styleItem, index) => (
                       <OptimizedWallpaperButton
                         key={styleItem.value}

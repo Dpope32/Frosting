@@ -10,6 +10,8 @@ import { useRecommendationStore } from '@/store/RecommendationStore'
 import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 import { format } from 'date-fns'
 import { isIpad } from '@/utils/deviceUtils'
+import { GreetingSection } from '@/components/home/GreetingSection'
+import { useUserStore } from '@/store/UserStore'
 // Enable debugging
 const DEBUG = false;
 
@@ -38,6 +40,7 @@ export const TaskSection = ({
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
+  const username = useUserStore(s => s.preferences.username);
   
   useEffect(() => {
     if (DEBUG) {
@@ -115,15 +118,22 @@ export const TaskSection = ({
           />
         </Pressable>
         
-        <Text
-          fontFamily="$body"
-          color={isDark ? "#dbd0c6" : "#dbd0c6"}
-          fontSize={20}
-          fontWeight="bold"
-          marginRight={isWeb ? 20 : 0}
-        >
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </Text>
+        <XStack flex={1} justifyContent="center">
+          {isIpad() ? (
+            <GreetingSection username={username} />
+          ) : (
+            <Text
+              fontFamily="$body"
+              color={isDark ? "#dbd0c6" : "#dbd0c6"}
+              fontSize={20}
+              fontWeight="bold"
+              marginRight={isWeb ? 20 : 0}
+            >
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </Text>
+          )}
+        </XStack>
+
         <Pressable
           onPress={() => {
             if (Platform.OS !== 'web') {
@@ -170,10 +180,10 @@ export const TaskSection = ({
                   width="100%"
                   flexDirection="row"
                 >
-                  <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
-                  <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
-                  <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
-                  <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
+                  <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={isDark}/>
+                  <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={isDark}/>
+                  <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={isDark}/>
+                  <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={isDark}/>
                 </XStack>
               </YStack>
             </Stack>
@@ -248,10 +258,10 @@ export const TaskSection = ({
                     width="100%"
                     flexDirection="row"
                   >
-                    <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={true}/>
-                    <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={true}/>
-                    <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={true}/>
-                    <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={true}/>
+                    <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={isDark}/>
+                    <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={isDark}/>
+                    <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={isDark}/>
+                    <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={isDark}/>
                   </XStack>
                 </YStack>
               </Stack>

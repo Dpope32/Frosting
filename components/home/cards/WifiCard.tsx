@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { Stack, Spinner, isWeb } from 'tamagui';
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed';
+import { getActiveBarColor } from '@/utils/styleUtils';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface WifiCardProps {
   isHome?: boolean;
+  isDark?: boolean;
 }
 
-export function WifiCard({ isHome }: WifiCardProps) {
+export function WifiCard({ isHome, isDark }: WifiCardProps) {
   const { speed, isLoading, isConnected  } = useNetworkSpeed();
   const [signalStrength, setSignalStrength] = useState<number>(0);
 
@@ -58,25 +61,15 @@ export function WifiCard({ isHome }: WifiCardProps) {
     return 3;
   };
 
-  const getActiveBarColor = (): string => {
-    switch (signalStrength) {
-      case 1: return '#f97316'; // Orange 
-      case 2: return '#eab308'; // Yellow 
-      case 3: return '#22c55e'; // Green 
-      case 4: return '#15803d'; // Dark green 
-      default: return 'rgba(0, 224, 15, 0.2)'; // Greenish Grey 
-    }
-  };
-
   return (
     <Stack
-      backgroundColor={isHome ? 'transparent' : "rgba(0, 0, 0, 0.3)"}
-      br={12}
-      padding="$3" 
+      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.5)"}
+      br={isIpad() ? 18 : 12}
+      padding="$2" 
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
-      minWidth={65}
-      height={isWeb ? 60 : 48}   
+      minWidth={isIpad() ? 75 : 60}
+      height={isWeb ? 60 : isIpad() ? 60 : 48}   
       alignItems="center"
       justifyContent="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
@@ -84,13 +77,13 @@ export function WifiCard({ isHome }: WifiCardProps) {
       {isLoading ? (
         <Spinner size="small" color="white" />
       ) : (
-        <Stack flexDirection="row" alignItems="flex-end" height={20} gap="$1">
+        <Stack flexDirection="row" alignItems="flex-end" justifyContent="center" height={isIpad() ? 24 : 20} gap="$0.5">
           {[1, 2, 3, 4].map((barLevel) => (
             <Stack
               key={barLevel}
-              width={6}
-              height={5 + (barLevel - 1) * 5}
-              backgroundColor={barLevel <= signalStrength ? getActiveBarColor() : 'rgba(255, 255, 255, 0.2)'}
+              width={isIpad() ? 8 : 6}
+              height={isIpad() ? 8 + (barLevel - 1) * 6 : 6 + (barLevel - 1) * 5} 
+              backgroundColor={barLevel <= signalStrength ? getActiveBarColor(signalStrength) : 'rgba(255, 255, 255, 0.2)'}
               borderRadius={1}
             />
           ))}

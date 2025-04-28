@@ -1,8 +1,9 @@
 import React from 'react'
 import { useColorScheme } from 'react-native'
-import { YStack, XStack, Text, Button, ScrollView } from 'tamagui'
+import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { TaskCategory } from '@/types/task'
 import { getCategoryColor, withOpacity } from '@/utils/styleUtils'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface CategorySelectorProps {
   selectedCategory: TaskCategory
@@ -14,8 +15,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   const isDark = colorScheme === 'dark'
 
   return (
-    <YStack px="$2" gap="$1.5">
-      <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>
+    <YStack px="$1.5" gap="$1.5">
+      {isWeb && isIpad() && <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
         <XStack gap="$2">
           {['work','health','personal','family','wealth'].map(cat => {

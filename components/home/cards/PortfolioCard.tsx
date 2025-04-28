@@ -3,6 +3,7 @@ import { isWeb, Stack, Text } from 'tamagui';
 import { getValueColor } from '@/constants/valueHelper';
 import { usePortfolioQuery, usePortfolioStore } from '@/store/PortfolioStore';
 import { StorageUtils } from '@/store/AsyncStorage';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface PortfolioCardProps {
   roundToWholeNumber?: boolean;
@@ -63,29 +64,24 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark }: Po
 
   return (
     <Stack
-      backgroundColor={isHome ? "transparent" : "rgba(0, 0, 0, 0.3)"}
-      br={12}
+    backgroundColor={isHome ? 'transparent' : isDark ? "rgba(0, 0, 0, 0.5)" :"rgba(198, 198, 198, 0.05)"}
+      br={isIpad() ? 18 : 12}
       padding="$3"
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
       minWidth={75}
-      height={isWeb ? 60 : 48} 
+      height={isWeb ? 60 : isIpad() ? 60 : 48} 
       alignItems="center"
       justifyContent="center"
       gap="$0.5"
     >
       <Text
         color={valueColor}
-        fontSize={isWeb ? 18 : 16}
+        fontSize={isWeb ? 18 : isIpad() ? 18 : 16}
         fontWeight="700"
         fontFamily="$body"
         textAlign="center"
         numberOfLines={1}
-        style={{
-          textShadowColor: 'rgba(0, 0, 0, 0.5)',
-          textShadowOffset: { width: 0, height: 1 },
-          textShadowRadius: 2
-        }}
       >
         {displayValue}
       </Text>

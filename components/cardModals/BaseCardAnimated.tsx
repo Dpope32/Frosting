@@ -19,6 +19,7 @@ interface BaseCardAnimatedProps {
   modalMaxWidth?: number
   showCloseButton?: boolean
   titleProps?: any 
+  visible?: boolean
 }
 
 export function BaseCardAnimated({
@@ -28,6 +29,7 @@ export function BaseCardAnimated({
   modalWidth = isWeb ? 700 : isIpad() ? 670 : 360,
   modalMaxWidth = isWeb ? 700 : isIpad() ? 670 : 500,
   showCloseButton = true,
+  visible = true,
 }: BaseCardAnimatedProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -37,6 +39,8 @@ export function BaseCardAnimated({
     typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.88,
     typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
   )
+
+  if (!visible) return null;
 
   // Web implementation with position:fixed uses a Portal or YStack with absolute positioning + custom styling
   if (isWeb) {

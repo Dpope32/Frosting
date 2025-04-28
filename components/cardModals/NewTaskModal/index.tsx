@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Platform, Keyboard, KeyboardEvent } from 'react-native'
-import { Form, ScrollView } from 'tamagui'
+import { Platform, Keyboard, KeyboardEvent, Pressable, View, useColorScheme } from 'react-native'
+import { Form, ScrollView, XStack, Text } from 'tamagui'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
@@ -10,6 +10,7 @@ import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
 import { Base } from './Base'
 import { getDefaultTask, WEEKDAYS } from '@/services/taskService'
+import { Ionicons } from '@expo/vector-icons'
 
 import { TaskNameInput } from './TaskNameInput'
 import { CalendarSettings } from './CalendarSettings'
@@ -23,14 +24,14 @@ import { SubmitButton } from './SubmitButton'
 interface NewTaskModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  isDark: boolean
 }
 
-export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Element | null {
+export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps): JSX.Element | null {
   if (!open) {
     return null
   }
 
-  const isWeb = Platform.OS === 'web'
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
@@ -39,6 +40,7 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [keyboardOffset, setKeyboardOffset] = useState(0)
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
     if (!open) {
@@ -196,31 +198,54 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
       showCloseButton={true}
       keyboardOffset={keyboardOffset}
     >
-      <ScrollView 
-        contentContainerStyle={{}}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Form gap="$2.5" px={4}>
+      <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
+        <Form gap="$2.5" px={6}>
           <TaskNameInput
             value={newTask.name}
             onChange={handleTextChange}
           />
-
-          <CalendarSettings
-            showInCalendar={newTask.showInCalendar || false}
-            onShowInCalendarChange={(val) => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
-            time={newTask.time || ''}
-            showTimePicker={showTimePicker}
-            onTimePickerToggle={handleTimePickerToggle}
-            selectedDate={selectedDate}
-            onTimeChange={handleTimeChange}
-            onWebTimeChange={handleWebTimeChange}
-          />
-
+          <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
           <RecurrenceSelector
             selectedPattern={newTask.recurrencePattern}
             onPatternSelect={handleRecurrenceSelect}
           />
+          <XStack alignItems="center" gap={8} px={10} py={2}>
+            <Text fontFamily="$body" color={isDark ? "$gray9" : "$gray11"} fontSize={14}>
+              Show in Calendar?
+            </Text>
+            <Pressable
+              onPress={() => setNewTask(prev => ({ ...prev, showInCalendar: !prev.showInCalendar }))}
+              style={{ 
+                paddingHorizontal: 2, 
+                paddingVertical: 2, 
+                marginLeft: 2,
+                backgroundColor: newTask.showInCalendar ? (isDark ? '#1a1a1a' : '#f0f0f0') : 'transparent',
+                borderRadius: 8,
+                padding: 8
+              }}
+            >
+              <View style={{
+                width: 22,
+                height: 22,
+                borderWidth: 1.5,
+                borderRadius: 6,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderColor: newTask.showInCalendar ? '#00C851' : '#bbb',
+                backgroundColor: newTask.showInCalendar 
+                  ? (isDark ? '#181f1b' : '#b6f2d3') 
+                  : (isDark ? '#232323' : '#f7f7f7'),
+                shadowColor: '#000',
+                shadowOpacity: 0.08,
+                shadowRadius: 2,
+                shadowOffset: { width: 0, height: 1 },
+              }}>
+                {newTask.showInCalendar && (
+                  <Ionicons name="checkmark-sharp" size={15} color="#00C851" />
+                )}
+              </View>
+            </Pressable>
+          </XStack>
 
           {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
             <DaySelector
@@ -237,17 +262,17 @@ export function NewTaskModal({ open, onOpenChange }: NewTaskModalProps): JSX.Ele
               preferences={preferences}
             />
           )}
-
-          <CategorySelector
-            selectedCategory={newTask.category}
-            onCategorySelect={handleCategorySelect}
+          <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
+          <CalendarSettings
+            showInCalendar={newTask.showInCalendar || false}
+            onShowInCalendarChange={(val) => setNewTask(prev => ({ ...prev, showInCalendar: val }))}
+            time={newTask.time || ''}
+            showTimePicker={showTimePicker}
+            onTimePickerToggle={handleTimePickerToggle}
+            selectedDate={selectedDate}
+            onTimeChange={handleTimeChange}
+            onWebTimeChange={handleWebTimeChange}
           />
-
-          <PrioritySelector
-            selectedPriority={newTask.priority}
-            onPrioritySelect={handlePrioritySelect}
-          />
-
           <Form.Trigger asChild>
             <SubmitButton 
               isSubmitting={isSubmitting} 

@@ -176,7 +176,7 @@ export const BackgroundSection = () => {
                   position: 'absolute',
                   width: '100%',
                   height: '100%',
-                  resizeMode: 'cover',
+                  resizeMode: isIpad() ? 'stretch' : 'cover',
                 }}
                 onError={error => {
                   Sentry.captureException(error.nativeEvent, {

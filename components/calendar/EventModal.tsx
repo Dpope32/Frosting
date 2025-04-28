@@ -150,6 +150,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
           modalWidth={getViewModalMaxWidth()}
           modalMaxWidth={getViewModalMaxWidth()}
+          visible={isViewEventModalVisible}
         >
           <View style={{ paddingBottom: 50, ...noScrollbar }}>
             <ScrollView
@@ -211,6 +212,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           title={`${editingEvent ? 'Edit' : 'Add'} Event for ${selectedDate?.toLocaleDateString() || ''}`}
           modalWidth={modalWidth}
           modalMaxWidth={modalWidth}
+          visible={isEventModalVisible}
         >
           <View style={{...noScrollbar }}>
             <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>

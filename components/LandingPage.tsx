@@ -13,6 +13,11 @@ import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
 import { EditTaskModal } from './cardModals/EditTaskModal'
 import { FloatingActionSection } from './home/FloatingActionSection'
+import { AddVaultEntryModal } from './cardModals/AddVaultEntryModal'
+import { AddHabitModal } from './cardModals/AddHabitModal'
+import { AddNoteSheet } from './notes/AddNoteSheet'
+import { AddBillModal } from './cardModals/AddBillModal'
+import { EventModal } from './calendar/EventModal'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
@@ -23,21 +28,49 @@ import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
 import { isIpad } from '@/utils/deviceUtils';
+import { CalendarEvent } from '@/store/CalendarStore'
 
 export function LandingPage() {
+  // Store hooks
   const userHydrated = useUserStore(s => s.hydrated)
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const toggleTaskCompletion = useProjectStore(useCallback((s) => s.toggleTaskCompletion, []))
-  const deleteTask = useProjectStore(useCallback((s) => s.deleteTask, []))
   const projectHydrated = useStoreHydrated()
-  const todaysTasks = useProjectStore(useCallback((s) => s.todaysTasks, []))
-  const isEditModalOpen = useEditTaskStore(s => s.isOpen);
-  const closeEditModal = useEditTaskStore(s => s.closeModal);
+  const todaysTasks = useProjectStore(s => s.todaysTasks)
+  const toggleTaskCompletion = useProjectStore(s => s.toggleTaskCompletion)
+  const deleteTask = useProjectStore(s => s.deleteTask)
+  const isEditModalOpen = useEditTaskStore(s => s.isOpen)
+  const closeEditModal = useEditTaskStore(s => s.closeModal)
+  const primaryColor = useUserStore(s => s.preferences.primaryColor)
+
+  // Theme and router hooks
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
+  const router = useRouter()
+  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.8)" : "rgba(255, 255, 255, 0.1)"
+
+  // State hooks
   const [isMounted, setIsMounted] = useState(false)
-  const router = useRouter();
-  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.8)" : "rgba(255, 255, 255, 0.0)"
-  
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
+  const [taskListModalOpen, setTaskListModalOpen] = useState(false)
+  const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false)
+  const [wifiModalOpen, setWifiModalOpen] = useState(false)
+  const [vaultModalOpen, setVaultModalOpen] = useState(false)
+  const [habitModalOpen, setHabitModalOpen] = useState(false)
+  const [noteModalOpen, setNoteModalOpen] = useState(false)
+  const [billModalOpen, setBillModalOpen] = useState(false)
+  const [eventModalOpen, setEventModalOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedEvents, setSelectedEvents] = useState<any[]>([])
+  const [newEventTitle, setNewEventTitle] = useState('')
+  const [newEventTime, setNewEventTime] = useState('')
+  const [selectedType, setSelectedType] = useState<CalendarEvent['type']>('personal')
+  const [notifyOnDay, setNotifyOnDay] = useState(false)
+  const [notifyBefore, setNotifyBefore] = useState(false)
+  const [notifyBeforeTime, setNotifyBeforeTime] = useState('1h')
+  const [editingEvent, setEditingEvent] = useState<any>(null)
+
+  // Effect hooks
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsMounted(true)
@@ -53,13 +86,14 @@ export function LandingPage() {
       </Stack>
     )
   }
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
-  const [taskListModalOpen, setTaskListModalOpen] = useState(false)
-  const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
-  const [quoteModalOpen, setQuoteModalOpen] = useState(false)
-  const [wifiModalOpen, setWifiModalOpen] = useState(false)
   
+  // Reset bill modal state when component mounts
+  React.useEffect(() => {
+    if (isMounted) {
+      setBillModalOpen(false)
+    }
+  }, [isMounted])
+
   const handleNewTaskPress = () => { 
     setSheetOpen(true) 
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
@@ -82,18 +116,43 @@ export function LandingPage() {
   }
 
   const handleActionPress = (name: string) => {
-    console.log(`selected button: ${name}`);
-    // You can implement the routing logic here
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    switch (name) {
+      case 'bt_password':
+        setVaultModalOpen(true);
+        break;
+      case 'bt_habit':
+        setHabitModalOpen(true);
+        break;
+      case 'bt_note':
+        setNoteModalOpen(true);
+        break;
+      case 'bt_bill':
+        setBillModalOpen(true);
+        break;
+      case 'bt_event':
+        setSelectedDate(new Date());
+        setEventModalOpen(true);
+        break;
+      case 'bt_todo':
+        setSheetOpen(true);
+        break;
+    }
   };
 
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal="$4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100}}>
-        <YStack pt={isIpad() ? 60 : 100} gap="$3">
+      <ScrollView flex={1} paddingHorizontal="$4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 200}}>
+        <YStack pt={isIpad() ? isDark ? 75 : 75 : 100} gap="$3">
           {!isWeb && (
-            <Stack borderRadius={16} p="$3" backgroundColor={backgroundColor} borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} borderWidth={1}>
+            <Stack 
+              borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"}  borderWidth={1}
+            >
               <CardSection 
                 onPortfolioPress={handlePortfolioPress} 
                 onTemperaturePress={handleTemperaturePress} 
@@ -103,7 +162,6 @@ export function LandingPage() {
               />
             </Stack>
           )}
-          
           <Stack 
             backgroundColor={backgroundColor} 
             borderRadius={16} 
@@ -131,7 +189,7 @@ export function LandingPage() {
               borderRadius={16} 
               padding="$4" 
               marginTop="$2" 
-              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
               borderWidth={1} 
               minWidth={300}
               style={{
@@ -155,7 +213,6 @@ export function LandingPage() {
               <Text color="#dbd0c6" fontSize={12} fontFamily="$body" marginTop="$2" textAlign="center" opacity={0}>Version 1.1.70</Text>
             </Stack>
           )}
-
         </YStack>
       </ScrollView>
       {isMounted && (
@@ -164,12 +221,76 @@ export function LandingPage() {
           <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
           <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
           <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
-          {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} />}
+          {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} isDark={isDark} />}
           {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
+          <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
+          <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={(name, category, notificationTimeLabel, notificationTimeValue) => { setHabitModalOpen(false)}}/>
+          <AddNoteSheet 
+            isModalOpen={noteModalOpen}
+            selectedNote={null}
+            editTitle=""
+            editContent=""
+            editTags={[]}
+            editAttachments={[]}
+            handleCloseModal={() => setNoteModalOpen(false)}
+            setEditTitle={() => {}}
+            setEditContent={() => {}}
+            handleTagsChange={() => {}}
+            handleSaveNote={() => setNoteModalOpen(false)}
+            handleDeleteNote={() => {}}
+            handleRemoveAttachment={() => {}}
+            handleBold={() => {}}
+            handleItalic={() => {}}
+            handleUnderline={() => {}}
+            handleBullet={() => {}}
+            handleCode={() => {}}
+            handleImagePick={() => {}}
+          />
+          <AddBillModal 
+            isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}
+            onSubmit={(entry: { name: string; amount: number; dueDate: number }) => { setBillModalOpen(false) }}
+          />
+          <EventModal 
+            isEventModalVisible={eventModalOpen}
+            isViewEventModalVisible={false}
+            selectedDate={selectedDate}
+            selectedEvents={selectedEvents}
+            newEventTitle={newEventTitle}
+            setNewEventTitle={setNewEventTitle}
+            newEventTime={newEventTime}
+            setNewEventTime={setNewEventTime}
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            notifyOnDay={notifyOnDay}
+            setNotifyOnDay={setNotifyOnDay}
+            notifyBefore={notifyBefore}
+            setNotifyBefore={setNotifyBefore}
+            notifyBeforeTime={notifyBeforeTime}
+            setNotifyBeforeTime={setNotifyBeforeTime}
+            editingEvent={editingEvent}
+            handleAddEvent={() => { setEventModalOpen(false)}}
+            handleEditEvent={() => {}}
+            handleDeleteEvent={() => {}}
+            resetForm={() => {
+              setNewEventTitle('');
+              setNewEventTime('');
+              setSelectedType('personal');
+              setNotifyOnDay(false);
+              setNotifyBefore(false);
+              setNotifyBeforeTime('1h');
+              setEditingEvent(null);
+            }}
+            closeEventModals={() => setEventModalOpen(false)}
+            openEventModal={() => setEventModalOpen(true)}
+            isDark={isDark}
+            primaryColor={primaryColor}
+          />
         </>
       )}
-      <FloatingActionSection onActionPress={handleActionPress} />
+      <Stack position="absolute" bottom={isWeb ? 30 : isIpad() ? 30 : 25} right={0} left={0}>
+        <FloatingActionSection onActionPress={handleActionPress} isDark={isDark} />
+      </Stack>
     </Stack>
   )
 }

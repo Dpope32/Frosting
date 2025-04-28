@@ -1,9 +1,10 @@
 import React from 'react'
 import { useColorScheme } from 'react-native'
-import { YStack, XStack, Text, Button, ScrollView } from 'tamagui'
+import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { RecurrencePattern } from '@/types/task'
 import { RECURRENCE_PATTERNS } from '@/services/taskService'
 import { getRecurrenceColor, withOpacity } from '@/utils/styleUtils'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface RecurrenceSelectorProps {
   selectedPattern: RecurrencePattern
@@ -15,8 +16,8 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
   const isDark = colorScheme === 'dark'
 
   return (
-    <YStack px="$2" gap="$1">
-      <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Recurrence</Text>
+    <YStack px="$1" gap="$1">
+      {isWeb && isIpad() && <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Recurrence</Text>}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <XStack gap="$2" py="$1">
           {RECURRENCE_PATTERNS.map(pattern => {

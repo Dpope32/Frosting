@@ -109,7 +109,7 @@ export default function Step5({
           paddingBottom={isWeb ? 20 : 40}
           fontFamily="$heading" 
           fontWeight={isWeb ? "500" : "800"} 
-          fontSize={isWeb ? "$9" : "$8"} 
+          fontSize={isWeb ? "$9" : "$7"} 
           textAlign="center" 
           color="$onboardingLabel"
         >

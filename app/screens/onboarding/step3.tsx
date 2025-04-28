@@ -5,6 +5,7 @@ import { FormData } from '@/types/onboarding'
 import { BackgroundStyleOption } from '@/types/background'
 import { BackgroundStyle } from '@/constants/Backgrounds'
 import { useWallpaperStore } from '@/store/WallpaperStore'
+import { useCustomWallpaper } from '@/hooks/useCustomWallpaper'
 import { isIpad } from '@/utils/deviceUtils';
 let LinearGradient: any = null;
 let BlurView: any = null;
@@ -45,6 +46,7 @@ export default function Step3({
   const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+  const { uploadCustomWallpaper, isUploading } = useCustomWallpaper();
 
   React.useEffect(() => {
     if (Platform.OS !== 'web' && translateX && translateY && withRepeat && withTiming) {
@@ -443,7 +445,7 @@ useEffect(() => {
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$5">
         <YStack 
           position="absolute" 
-          top={isWeb ? "20%" : isIpad() ? "32%" : "25%"} 
+          top={isWeb ? "20%" : isIpad() ? "32%" : "29%"} 
           left={0} 
           right={0} 
           alignItems="center"
@@ -465,7 +467,7 @@ useEffect(() => {
             textAlign="center" 
             color="$onboardingLabel"
           >
-            Choose your wallpaper {formData.username}!
+            Want a wallpaper {formData.username}?
           </Label>
           </XStack>
         </YStack>
@@ -475,7 +477,7 @@ useEffect(() => {
           br={24}
           borderColor={formData.primaryColor} 
           borderWidth={2}
-          padding="$4"
+          padding={isWeb ? "$3" : isIpad() ? "$2" : "$2"}
           maxWidth={isWeb ? 520 : isIpad() ? 520 : "100%"}
           style={{
             backdropFilter: 'blur(12px)',
@@ -486,8 +488,8 @@ useEffect(() => {
             flexWrap="wrap" 
             justifyContent="center" 
             alignItems="center"
-            gap="$3" 
-            padding="$2"
+            gap={isWeb ? "$3" : isIpad() ? "$3" : "$2"} 
+            padding={isWeb ? "$2" : isIpad() ? "$2" : "$0"}
           >
             {backgroundStyles.map((style) => {
               const isSelected = formData.backgroundStyle === style.value;
@@ -495,7 +497,7 @@ useEffect(() => {
                 <Button
                   key={style.value}
                   px={isWeb ? "$4" : isIpad() ? "$5" : "$2"}
-                  py={isWeb ? "$3" : isIpad() ? "$2" : "$1"}
+                  py={isWeb ? "$3" : isIpad() ? "$2" : "$2"}
                   marginVertical="$3"
                   backgroundColor={
                     isSelected
@@ -510,7 +512,7 @@ useEffect(() => {
                   borderWidth={2}
                   br={16}
                   opacity={isSelected ? 1 : 0.8}
-
+                  disabled={isUploading}
                   hoverStyle={{
                     backgroundColor: isSelected 
                       ? adjustColor(formData.primaryColor, 30) 
@@ -520,21 +522,28 @@ useEffect(() => {
                     scale: 0.97,
                     opacity: 0.9
                   }}
-                  onPress={() => {
-                    const newStyle = style.value as FormData['backgroundStyle'];
-                    
-                    if (newStyle.startsWith('wallpaper-') && newStyle !== formData.backgroundStyle) {
-                      setLoadingWallpaper(true);
-                      setWallpaperSource(null);
-                    } else if (!newStyle.startsWith('wallpaper-') && formData.backgroundStyle.startsWith('wallpaper-')) {
-                      setWallpaperSource(null);
-                      setLoadingWallpaper(false);
+                  onPress={async () => {
+                    if (style.value === "wallpaper-custom-upload") {
+                      const wallpaperKey = await uploadCustomWallpaper();
+                      if (wallpaperKey) {
+                        setFormData(prev => ({ ...prev, backgroundStyle: wallpaperKey }));
+                      }
+                    } else {
+                      const newStyle = style.value as FormData['backgroundStyle'];
+                      
+                      if (newStyle.startsWith('wallpaper-') && newStyle !== formData.backgroundStyle) {
+                        setLoadingWallpaper(true);
+                        setWallpaperSource(null);
+                      } else if (!newStyle.startsWith('wallpaper-') && formData.backgroundStyle.startsWith('wallpaper-')) {
+                        setWallpaperSource(null);
+                        setLoadingWallpaper(false);
+                      }
+                      
+                      setFormData((prev) => ({
+                        ...prev,
+                        backgroundStyle: newStyle, 
+                      }));
                     }
-                    
-                    setFormData((prev) => ({
-                      ...prev,
-                      backgroundStyle: newStyle, 
-                    }));
                   }}
                 >
                   <Text
@@ -550,6 +559,51 @@ useEffect(() => {
                 </Button>
               );
             })}
+            <Button
+              px={isWeb ? "$4" : isIpad() ? "$5" : "$2"}
+              py={isWeb ? "$3" : isIpad() ? "$2" : "$2"}
+              marginVertical="$3"
+              backgroundColor={
+                formData.backgroundStyle.startsWith('wallpaper-custom-')
+                  ? formData.primaryColor
+                  : "$onboardingButtonSecondaryBackground"
+              }
+              borderColor={
+                formData.backgroundStyle.startsWith('wallpaper-custom-')
+                  ? buttonSelectedBorderColor
+                  : "$onboardingButtonSecondaryBorder"
+              }
+              borderWidth={2}
+              br={16}
+              opacity={formData.backgroundStyle.startsWith('wallpaper-custom-') ? 1 : 0.8}
+              disabled={isUploading}
+              hoverStyle={{
+                backgroundColor: formData.backgroundStyle.startsWith('wallpaper-custom-')
+                  ? adjustColor(formData.primaryColor, 30)
+                  : buttonHoverBackgroundColor
+              }}
+              pressStyle={{
+                scale: 0.97,
+                opacity: 0.9
+              }}
+              onPress={async () => {
+                const wallpaperKey = await uploadCustomWallpaper();
+                if (wallpaperKey) {
+                  setFormData(prev => ({ ...prev, backgroundStyle: wallpaperKey }));
+                }
+              }}
+            >
+              <Text
+                fontFamily="$body" 
+                fontWeight={formData.backgroundStyle.startsWith('wallpaper-custom-') ? "700" : "500"}
+                fontSize={isWeb ? "$4" : isIpad() ? "$4" : "$3"} 
+                color={formData.backgroundStyle.startsWith('wallpaper-custom-') ? 'white' : "$onboardingButtonSecondaryText"}
+                textAlign="center"
+                letterSpacing={0.5}  
+              >
+                Custom Wallpaper
+              </Text>
+            </Button>
           </XStack>
         </YStack>
       </YStack>

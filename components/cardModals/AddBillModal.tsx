@@ -136,6 +136,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       onClose={onClose}
       showCloseButton={true}
       title="Add New Bill"
+      visible={isVisible}
     >
       <Animated.View 
         entering={FadeIn.duration(400)}

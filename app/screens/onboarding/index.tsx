@@ -209,7 +209,7 @@ export default function Onboarding() {
   }
   
   const getButtonTextColor = () => {
-    return '#f3f3f3'; 
+    return isDark ? '#f3f3f3' : '#f9f9f9'; 
   }
 
   const getBottomPadding = () => {
@@ -314,7 +314,7 @@ export default function Onboarding() {
                   opacity={1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color={getButtonTextColor()} fontSize={14} fontWeight="bold">
+                  <Text fontFamily="$body" color={getButtonTextColor()} fontSize={isWeb ? 20 : isIpad() ? 18 : 16} fontWeight="bold">
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

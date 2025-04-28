@@ -1,9 +1,11 @@
 import React from 'react'
 import { useColorScheme, Platform, View } from 'react-native'
-import { XStack, YStack, Text, Button } from 'tamagui'
+import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { Switch } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
+import { isIpad } from '@/utils/deviceUtils'
+import { Pencil, ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
 
 interface CalendarSettingsProps {
   showInCalendar: boolean
@@ -30,63 +32,49 @@ export function CalendarSettings({
   const isDark = colorScheme === 'dark'
 
   return (
-    <XStack alignItems="center" justifyContent="space-between" px="$2" gap="$3">
-      <XStack alignItems="center" gap="$1">
-        <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}>
-          Show in Calendar
-        </Text>
-        <Switch
-          value={showInCalendar}
-          onValueChange={onShowInCalendarChange}
-          style={{ transform: [{ scaleX: 0.8}, { scaleY: 0.8}] }}
-        />
-      </XStack>
-
-      <YStack flex={1} alignItems='flex-end'>
-        <Button
-          onPress={onTimePickerToggle}
-          theme={isDark ? "dark" : "light"}
-          backgroundColor="transparent"
-          br={12}
-          px="$3"
-          pressStyle={{ opacity: 0.8 }}
-          jc="flex-start"
-          width="100%"
-        >
-          <XStack flex={1} alignItems="center" justifyContent="space-between">
-            <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}>
-              {time || "Select time"}
-            </Text>
-            <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
-              {showTimePicker ? '▲' : '▼'}
-            </Text>
-          </XStack>
-        </Button>
-      </YStack>
-
+    <XStack alignItems="center" gap="$3">
+      <Button
+        onPress={onTimePickerToggle}
+        theme={isDark ? "dark" : "light"}
+        backgroundColor={time ? "transparent" : "transparent"}
+        br={12}
+        px="$3"
+        py="$2"
+        pressStyle={{ opacity: 0.8 }}
+        width="auto"
+        alignSelf="flex-start"
+      >
+        <XStack alignItems="center" justifyContent="center" gap="$2">
+          <Text fontFamily="$body" color={isDark ? time ? "#ffffff" : "$gray11" : time ? "#6c6c6c" : "$gray11"} fontSize={time? isIpad() ? 18 : 16 : isIpad() ? 16 : 14}>
+            {time ? time : "Select Time"}
+          </Text>
+          {showTimePicker ? (
+            <ChevronUp size={isIpad() ? 20 : 16} color={isDark ? "#fff" : "#6c6c6c"} />
+          ) : (
+            <ChevronDown size={isIpad() ? 20 : 16} color={isDark ? "#fff" : "#6c6c6c"} />
+          )}
+        </XStack>
+      </Button>
       {showTimePicker && (
         <View
           style={{
             zIndex: 10,
-            width: '100%',
-            backgroundColor: isDark ? '#1c1c1e' : 'white',
+            width: isIpad() ? 220 : 140,
+            maxWidth: isIpad() ? 220 : 190,
             borderRadius: 12,
-            elevation: 10,
-            shadowColor: 'black',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
             borderWidth: 1,
             borderColor: isDark ? '#2c2c2e' : '#e5e5ea',
-            marginTop: 8,
+            maxHeight: isIpad() ? 260 : 160,
+            height: isIpad() ? 260 : 80,
+            overflow: 'scroll',
           }}
         >
           <YStack
-            height={Platform.OS === 'web' ? 100 : 200}
+            height={Platform.OS === 'web' ? 180 : 75}
             justifyContent="center"
             alignItems="center"
-            padding="$4"
-            backgroundColor={isDark ? "$gray1" : "white"}
+            w={isIpad() ? 220 : 150}
+            padding={isIpad() ? 0 : "$2"}
             borderRadius={12}
           >
             {Platform.OS === 'web' ? (
@@ -106,19 +94,18 @@ export function CalendarSettings({
                     onWebTimeChange(newDate)
                   }}
                   style={{
-                    padding: 12,
-                    fontSize: 16,
+                    padding: 8,
+                    fontSize: 14,
                     borderRadius: 8,
-                    border: `1px solid ${isDark ? '#444' : '#ddd'}`,
                     backgroundColor: isDark ? '#222' : '#fff',
                     color: isDark ? '#fff' : '#000',
                     width: '100%',
-                    marginRight: 10
+                    marginRight: 0
                   }}
                 />
                 <Button
                   onPress={() => onTimePickerToggle()}
-                  backgroundColor={isDark ? "$gray7" : "$gray4"}
+                  backgroundColor={isDark ? "transparent" : "transparent"}
                   px="$3"
                   py="$2"
                   br={12}
@@ -134,6 +121,13 @@ export function CalendarSettings({
                 onChange={onTimeChange}
                 display="spinner"
                 themeVariant={isDark ? "dark" : "light"}
+                style={{
+                  height: isIpad() ? 200 : 100,
+                  width: isIpad() ? 230 : 132,
+                  minWidth: 0,
+                  maxWidth: 320,
+                  backgroundColor: isDark ? "#111" : "#fff",
+                }}
               />
             )}
           </YStack>

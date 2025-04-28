@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { useColorScheme, Platform } from 'react-native'
 import { DebouncedInput } from '../../shared/debouncedInput'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface TaskNameInputProps {
   value: string
@@ -15,7 +16,7 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
   return (
     <DebouncedInput
       ref={inputRef}
-      placeholder="Enter task name"
+      placeholder="What do you need to do?"
       value={value}
       onDebouncedChange={onChange}
       onFocus={(e) => {
@@ -29,20 +30,22 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
         selection: undefined,
         contextMenuHidden: false,
         caretHidden: false,
-        autoCapitalize: 'words'
+        autoCapitalize: 'words',
       } : {})}
       borderWidth={1}
       autoCapitalize="words"
       autoCorrect={true}
       spellCheck={true}
       multiline={false}
+      width={'98%'}
       maxLength={100}
       br={12}
       fontFamily="$body"
-      px="$3"
-      height={50}
-      fontSize={17}
+      px="$2.5"
+      height={isIpad() ? 50 : 45}
+      fontSize={isIpad() ? 17 : 16}
       fontWeight="400"
+      backgroundColor={isDark ? "#121212" : "#fff"}
     />
   )
 } 

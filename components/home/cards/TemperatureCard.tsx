@@ -5,6 +5,7 @@ import { useUserStore } from '@/store/UserStore';
 import { useWeatherQuery, useWeatherStore } from '@/store/WeatherStore';
 import { getValueColor } from '@/constants/valueHelper';
 import { Pressable } from 'react-native';
+import { isIpad } from '@/utils/deviceUtils';
 
 const ONE_HOUR = 1000 * 60 * 60;
 
@@ -39,18 +40,17 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
   return (
     <Stack
       onPress={handlePress}
-      backgroundColor={isHome ? 'transparent' : "rgba(0, 0, 0, 0.3)"}
-      br={12}
+      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.5)"}
+      br={isIpad() ? 18 : 12}
       padding="$3"
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
-      minWidth={70}
-      height={isWeb ? 60 : 48} 
+      minWidth={isIpad() ? 70 : 60}
+      height={isWeb ? 60 : isIpad() ? 60 : 48} 
       alignItems="center"
       justifyContent="center"
       hoverStyle={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
       pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-      cursor="pointer"
     >
       {isLoading ? (
         <Spinner
@@ -60,11 +60,11 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
       ) : (
         <Text
           color={valueColor}
-          fontSize={isWeb ? 18 : 16}
+          fontSize={isWeb ? 20 : isIpad() ? 19 : 16}
           fontWeight="bold"
           fontFamily="$body"
         >
-          {currentTemp !== null ? `${currentTemp}°F` : 'N/A'}
+          {currentTemp !== null ? `${currentTemp}°` : 'N/A'}
         </Text>
       )}
     </Stack>

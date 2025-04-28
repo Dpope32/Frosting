@@ -1,6 +1,16 @@
 import { getValueColor } from '@/constants/valueHelper';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 
+export const getActiveBarColor = (signalStrength: number): string => {
+  switch (signalStrength) {
+    case 1: return '#f97316'; // Orange 
+    case 2: return '#eab308'; // Yellow 
+    case 3: return '#22c55e'; // Green 
+    case 4: return '#15803d'; // Dark green 
+    default: return 'rgba(0, 224, 15, 0.2)'; // Greenish Grey 
+  }
+};
+
 export const getCategoryColor = (category?: TaskCategory): string => {
   if (!category) return '#607d8b';
   const colors: Record<TaskCategory, string> = {

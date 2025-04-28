@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
-import { Platform, View, Text } from 'react-native'
+import { Platform, View, Text, Animated, Easing } from 'react-native'
 import { FormData } from '@/types/onboarding'
 import MaskedView from '@react-native-masked-view/masked-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils/deviceUtils'
+
+const AnimatedLinearGradient: any = Animated.createAnimatedComponent(LinearGradient as any)
 
 export default function Step0({
   formData,
@@ -13,6 +15,30 @@ export default function Step0({
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }) {
+  const translateX = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(translateX, {
+        toValue: 1,
+        duration: 4000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start()
+  }, [])
+
+  // Interpolate translateX to a pixel value (e.g., -100 to 100)
+  const animatedStyle = {
+    transform: [
+      {
+        translateX: translateX.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-100, 100], // adjust as needed
+        }),
+      },
+    ],
+  }
 
   return (
     <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$6" : "$10"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
@@ -44,12 +70,23 @@ export default function Step0({
           </View>
         }
       >
-        <LinearGradient
-          colors={['#89CFF0', '#C0C0C0', '#89CFF0', '#C0C0C0', '#89CFF0', '#C0C0C0', '#89CFF0', '#C0C0C0', '#89CFF0', '#C0C0C0', '#89CFF0']}
+        <AnimatedLinearGradient
+          colors={[
+            '#b2d7fe',
+            '#aad3fe',
+            '#c2e0fe',
+            '#dbecff',
+            '#9acbfe',
+            '#d3e8ff',
+            '#92c7fe',
+            '#cbe4fe',
+            '#badcfe',
+            '#a2cffe',
+            '#00f0ff'
+          ]}
           start={{ x: 1, y: 0 }}
           end={{ x: 0, y: 1 }}
-          locations={[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]}
-          style={{ flex: 1 }}
+          style={[{ flex: 1 }, animatedStyle]}
         />
       </MaskedView>
       <Label paddingBottom={isWeb ? 14 : isIpad() ? 12 : 8} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">

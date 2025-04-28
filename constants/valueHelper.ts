@@ -37,7 +37,7 @@ export const getValueColor = (valueType: string, value: string | number, primary
         return  '#00FC66';                          // Bright Green for positive values
       } else {
         if (numericValue < 0) return '#FF0000';    // Red for negative values
-        return  '#3e9c35';                          // Darker Green for positive values
+        return  '#19ff00';                          // Brighter Green for positive values
       }
     case 'time':
       return '#C0C0C0';  // Light gray that's visible on dark background

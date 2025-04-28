@@ -1,12 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Pressable } from 'react-native'
-import { XStack, YStack, isWeb } from 'tamagui'
+import { XStack, YStack, isWeb, Text } from 'tamagui'
 import { PortfolioCard } from '@/components/home/cards/PortfolioCard'
 import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
 import { QuoteCard } from '@/components/home/cards/QuoteCard'
+import { SettingsCard } from '@/components/home/cards/SettingsCard'
 import { useUserStore } from '@/store/UserStore'
 import { GreetingSection } from '@/components/home/GreetingSection'
+import { isIpad } from '@/utils/deviceUtils'
+import { Ionicons } from '@expo/vector-icons'
+import * as Haptics from 'expo-haptics'
+import { SettingsModal } from '@/components/cardModals/SettingsModal'
 
 interface CardSectionProps {
   onPortfolioPress?: () => void
@@ -31,37 +36,56 @@ export function CardSection({
   const wifiEnabled = preferences.wifiEnabled ?? true
   const quoteEnabled = preferences.quoteEnabled ?? true
   const username = useUserStore(s => s.preferences.username);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   
   return (
-    <YStack gap="$1" mt="$1" ml="$2">
-      <GreetingSection username={username} />
-    <XStack
-      gap="$2"
-      marginTop="$1"
-      flexWrap={isWeb ? 'nowrap' : 'wrap'}
-      justifyContent={isWeb ? 'flex-start' : 'flex-start'}
-    >
-      {portfolioEnabled && (
-        <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})} onPress={onPortfolioPress}>
-          <PortfolioCard isHome={isHome} isDark={isDark} />
-        </Pressable>
+    <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$2"} alignSelf={isIpad() ? "center" : "center"} justifyContent={isIpad() ? "center" : "flex-start"} alignItems="center">
+      {!isIpad() ? (
+        <GreetingSection username={username} />
+      ) : (
+        <Text
+          fontFamily="$body"
+          color={isDark ? "#dbd0c6" : "#dbd0c6"}
+          fontSize={20}
+          fontWeight="bold"
+          textAlign="center"
+        >
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </Text>
       )}
-      {temperatureEnabled && (
-        <Pressable onPress={onTemperaturePress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
-          <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
-        </Pressable>
-      )}
-      {wifiEnabled && (
-        <Pressable onPress={onWifiPress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
-          <WifiCard isHome={isHome} />
-        </Pressable>
-      )}
-      {quoteEnabled && (
-        <Pressable onPress={onQuotePress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
-          <QuoteCard isHome={isHome} />
-        </Pressable>
-      )}
-    </XStack>
+      <XStack
+        gap="$2"
+        marginTop="$2"
+        flexWrap={'nowrap'}
+        justifyContent={isWeb ? 'flex-start' : isIpad() ? 'center' : 'center'}
+      >
+        {portfolioEnabled && (
+          <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})} onPress={onPortfolioPress}>
+            <PortfolioCard isHome={isHome} isDark={isDark} />
+          </Pressable>
+        )}
+        {temperatureEnabled && (
+          <Pressable onPress={onTemperaturePress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
+            <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
+          </Pressable>
+        )}
+        {wifiEnabled && (
+          <Pressable onPress={onWifiPress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
+            <WifiCard isHome={isHome} />
+          </Pressable>
+        )}
+        {quoteEnabled && (
+          <Pressable onPress={onQuotePress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
+            <QuoteCard isHome={isHome} />
+          </Pressable>
+        )}
+        {isIpad() && (
+          <>
+            <SettingsCard isHome={isHome} isDark={isDark} onPress={() => setSettingsOpen(true)} />
+            <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+          </>
+        )}
+      </XStack>
     </YStack>
   )
 }

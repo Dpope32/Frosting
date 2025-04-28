@@ -52,12 +52,12 @@ export function BaseCardModal({
           animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
-          backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)"}
+          backgroundColor={isDark ? "rgba(14, 14, 14, 0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$2"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
-          backgroundColor={isDark ? "rgb(12, 12, 12)" : "rgba(250,250,250,0.95)"}
+          backgroundColor={isDark ? "rgb(16, 16, 16)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
           borderWidth={1}

@@ -5,7 +5,7 @@ import { BackgroundStyle } from '@/constants/Backgrounds';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Sentry from '@sentry/react-native';
-
+import { isIpad } from '@/utils/deviceUtils';
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {
   try {
@@ -92,7 +92,7 @@ export const OptimizedWallpaperButton = ({
     return [primaryColor, adjustedColor] as const;
   }, [primaryColor, isDark]);
 
-  const marginRight = index < totalInRow - 1 ? 8 : 0;
+  const marginRight = index < totalInRow - 1 ? 8 : 2;
 
   return (
     <TouchableOpacity
@@ -101,7 +101,7 @@ export const OptimizedWallpaperButton = ({
         flex: 1,
         height: '100%',
         marginRight,
-        borderRadius: 8,
+        borderRadius: isIpad() ? 30 : 8,
         overflow: 'hidden',
         borderWidth: 2,
         borderColor: isSelected ? primaryColor : 'transparent',

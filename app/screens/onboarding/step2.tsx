@@ -77,47 +77,36 @@ export default function Step2({
   }
 
   return (
-    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? isIpad() ? "$4" : "$20" : "$20"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
-      <YStack alignItems="center" width="100%">
-      <XStack 
+    <YStack gap="$1.5" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? isIpad() ? "$4" : "$20" : 200} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
+        <XStack 
           position="relative"
           alignSelf="center"
           gap="$2" 
-          paddingBottom="$4"
           justifyContent="center"
           alignItems="center"
         >
-          {formData.profilePicture ? (
-            <Image
-              source={{ uri: formData.profilePicture }}
-              style={{ width: 56, height: 56, borderRadius: 28, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.18, shadowRadius: 4, elevation: 4 }}
-            />
-          ) : (
-            <Circle size={56} backgroundColor="$onboardingStep1CircleBackground" style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.18, shadowRadius: 4, elevation: 4 }}>
-              <Text fontFamily="$body" fontSize={24}>👤</Text>
-            </Circle>
-          )}
-          <Text 
-            color="$onboardingLabel" 
-            fontFamily="$heading" 
-            fontWeight="700" 
-            fontSize={isWeb ? "$7" : "$7"}
-            textAlign="center"
-            style={{ lineHeight: 56, height: 56, paddingLeft: 12 }}
-          >
-            {formData.username}
-          </Text>
-        </XStack>
+        <Text 
+          color={formData.primaryColor || "#000"}
+          fontFamily="$heading" 
+          fontWeight="700" 
+          fontSize={isWeb ? "$8" : "$6"}
+          textAlign="center"
+          style={{ lineHeight: 56, height: 56, paddingLeft: 12 }}
+        >
+          {formData.username}!
+        </Text>
+
         <Label 
-            fontFamily="$heading" 
-            fontWeight={isWeb ? 500 : 800} 
-            fontSize={isWeb ? "$9" : "$7"} 
-            textAlign="center" 
-            color="$onboardingLabel" 
-          >
-             Select theme color
-          </Label>
-      </YStack>
+          fontFamily="$heading" 
+          fontWeight={isWeb ? 500 : 800} 
+          fontSize={isWeb ? "$8" : "$6"} 
+          textAlign="center" 
+          color="$onboardingLabel" 
+          px="$1.5"
+        >
+          Select your theme
+        </Label>
+      </XStack>
       <YStack width="100%" alignItems="center" marginTop={0}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
@@ -139,6 +128,5 @@ export default function Step2({
         )}
       </YStack>
     </YStack>
-    
   )
 }

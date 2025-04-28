@@ -21,9 +21,9 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   }
 
   return (
-    <YStack px="$2" gap="$1">
-      <Text color={isDark ? "$gray9" : "$gray11"} fontFamily="$body" fontWeight="500">Priority</Text>
-      <XStack gap="$2" mt="$1">
+    <XStack py="$1" px="$2.5" gap="$1.5" alignItems="center" justifyContent="flex-start">
+      <Text color={isDark ? "$gray9" : "$gray11"} fontFamily="$body" fontWeight="500">Priority?</Text>
+      <XStack gap="$2" ml="$3">
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)
           const Icon = priorityIcons[priority as keyof typeof priorityIcons]
@@ -39,7 +39,7 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
               }
               pressStyle={{ opacity: 0.8, scale: 0.98 }}
               br={20}
-              px="$3"
+              px="$2.5"
               py="$2.5"
               borderWidth={1}
               borderColor={
@@ -56,6 +56,6 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
           )
         })}
       </XStack>
-    </YStack>
+    </XStack>
   )
 } 

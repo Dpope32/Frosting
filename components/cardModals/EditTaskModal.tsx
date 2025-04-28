@@ -249,8 +249,8 @@ function EditTaskModalContent({
           }}
         />
         <XStack alignItems="center" justifyContent="space-between" px="$2" gap="$3">
-          <XStack alignItems="center" gap="$1">
-            <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14}>
+          <XStack alignItems="center" gap="$2">
+            <Text fontFamily="$body" color={isDark ? "$gray12" : "$gray11"} fontSize={14} flexWrap= "nowrap">
               Show in Calendar
             </Text>
             <Switch

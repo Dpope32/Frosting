@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-import { Button, Input, Text, YStack, XStack, Stack } from 'tamagui'
+import { Button, Input, YStack, XStack, isWeb } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { BaseCardModal } from './BaseCardModal'
-import Animated, { SlideInRight, FadeIn } from 'react-native-reanimated'
-import { Ionicons } from '@expo/vector-icons'
-import { TouchableOpacity, Platform, useColorScheme, View } from 'react-native'
+import { BaseCardAnimated } from './BaseCardAnimated'
+import {  Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
 
 interface AddVaultEntryModalProps {
@@ -17,182 +15,103 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [passwordStrength, setPasswordStrength] = useState(0)
-  const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const primaryColor = useUserStore(s => s.preferences.primaryColor)
 
-  const evaluatePasswordStrength = (pwd: string) => {
-    // A simple password strength evaluator
-    let strength = 0
-    
-    if (pwd.length >= 8) strength += 1
-    if (pwd.length >= 12) strength += 1
-    if (/[A-Z]/.test(pwd)) strength += 1
-    if (/[a-z]/.test(pwd)) strength += 1
-    if (/[0-9]/.test(pwd)) strength += 1
-    if (/[^A-Za-z0-9]/.test(pwd)) strength += 1
-    
-    return Math.min(5, strength)
+  const resetForm = () => {
+    setName('')
+    setUsername('')
+    setPassword('')
   }
 
-  const handlePasswordChange = (text: string) => {
-    setPassword(text)
-    setPasswordStrength(evaluatePasswordStrength(text))
+  const handleClose = () => {
+    resetForm()
+    onClose()
   }
 
   const handleSubmit = () => {
-    if (name && username && password) {
+    if (!name.trim() || !username.trim() || !password.trim()) {
       if (Platform.OS !== 'web') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       }
-      onSubmit({ name, username, password })
-      setName('')
-      setUsername('')
-      setPassword('')
-      setPasswordStrength(0)
-      onClose()
+      return
     }
-  }
 
-  const getStrengthColor = (strength: number) => {
-    if (strength < 2) return '#FF4444'
-    if (strength < 4) return '#FFBB33'
-    return '#00C851'
-  }
-
-  const getStrengthText = (strength: number) => {
-    if (strength < 2) return 'Weak'
-    if (strength < 4) return 'Medium'
-    return 'Strong'
+    onSubmit({
+      name: name.trim(),
+      username: username.trim(),
+      password: password.trim()
+    })
+    resetForm()
+    onClose()
   }
 
   return (
-    <BaseCardModal
-      open={isVisible}
-      onOpenChange={onClose}
-      title="Add New Entry"
-      snapPoints={[80]}
-      showCloseButton={true}
-      zIndex={200000}
-      hideHandle={true}
+    <BaseCardAnimated
+      onClose={handleClose}
+      title="Add New Vault Entry"
+      visible={isVisible}
     >
-      <Animated.View 
-        entering={FadeIn.duration(400)}
-        style={{ width: '100%' }}
-      >
-        <YStack gap="$4" paddingBottom="$4">
-          <Animated.View entering={SlideInRight.delay(150).duration(400)}>
-            <XStack alignItems="center" gap="$2">
-              <Ionicons name="bookmark-outline" size={18} color={isDark ? "#aaa" : "#666"} />
-              <Input
-                flex={1}
-                placeholder="Service or Website Name"
-                value={name}
-                onChangeText={setName}
-                backgroundColor="$backgroundHover"
-                borderColor="$borderColor"
-                placeholderTextColor="$placeholderColor"
-                fontFamily="$body"
-                color="$color"
-              />
-            </XStack>
-          </Animated.View>
-          
-          <Animated.View entering={SlideInRight.delay(250).duration(400)}>
-            <XStack alignItems="center" gap="$2">
-              <Ionicons name="person-outline" size={18} color={isDark ? "#aaa" : "#666"} />
-              <Input
-                flex={1}
-                placeholder="Username or Email"
-                value={username}
-                onChangeText={setUsername}
-                backgroundColor="$backgroundHover"
-                borderColor="$borderColor"
-                placeholderTextColor="$placeholderColor"
-                fontFamily="$body"
-                color="$color"
-              />
-            </XStack>
-          </Animated.View>
-          
-          <Animated.View entering={SlideInRight.delay(350).duration(400)}>
-            <XStack alignItems="center" gap="$2">
-              <Ionicons name="lock-closed-outline" size={18} color={isDark ? "#aaa" : "#666"} />
-              <Input
-                flex={1}
-                placeholder="Password"
-                value={password}
-                onChangeText={handlePasswordChange}
-                secureTextEntry={!showPassword}
-                backgroundColor="$backgroundHover"
-                borderColor="$borderColor"
-                placeholderTextColor="$placeholderColor"
-                fontFamily="$body"
-                color="$color"
-              />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                <Ionicons 
-                  name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                  size={18} 
-                  color={isDark ? "#aaa" : "#666"} 
-                />
-              </TouchableOpacity>
-            </XStack>
-            
-            {password.length > 0 && (
-              <YStack mt="$2" gap="$1">
-                <XStack alignItems="center" justifyContent="space-between">
-                  <Text fontFamily="$body" fontSize={12} color="$color" opacity={0.7}>
-                    Password strength: {getStrengthText(passwordStrength)}
-                  </Text>
-                  <Text fontFamily="$body" fontSize={12} color={getStrengthColor(passwordStrength)}>
-                    {passwordStrength}/5
-                  </Text>
-                </XStack>
-                <XStack height={4} backgroundColor={isDark ? "$gray3" : "$gray2"} br={2} overflow="hidden">
-                  <Animated.View 
-                    style={{
-                      width: `${(passwordStrength / 5) * 100}%`,
-                      height: '100%',
-                      backgroundColor: getStrengthColor(passwordStrength)
-                    }}
-                  />
-                </XStack>
-                
-                {passwordStrength < 3 && (
-                  <Text fontFamily="$body" fontSize={11} color="$color" opacity={0.7} mt="$1">
-                    Tip: Use a mix of letters, numbers, and symbols
-                  </Text>
-                )}
-              </YStack>
-            )}
-          </Animated.View>
-          
-          <Animated.View entering={FadeIn.delay(450).duration(400)}>
-            <XStack gap="$3" jc="flex-end" mt="$2">
-              <Button
-                onPress={onClose}
-                backgroundColor="$backgroundHover"
-                borderColor="$borderColor"
-                fontFamily="$body"
-              >
-                Cancel
-              </Button>
-              <Button
-                onPress={handleSubmit}
-                backgroundColor={primaryColor}
-                disabled={!name || !username || !password}
-                fontFamily="$body"
-                pressStyle={{ scale: 0.97 }}
-              >
-                Save
-              </Button>
-            </XStack>
-          </Animated.View>
-        </YStack>
-      </Animated.View>
-    </BaseCardModal>
+      <YStack gap="$4" padding="$4">
+        <Input
+          placeholder="Name"
+          value={name}
+          onChangeText={setName}
+          autoCapitalize="none"
+          backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
+          borderColor="transparent"
+          color={isDark ? '#fff' : '#000'}
+          placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
+        />
+
+        <Input
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+          backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
+          borderColor="transparent"
+          color={isDark ? '#fff' : '#000'}
+          placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
+        />
+
+        <Input
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          autoCapitalize="none"
+          secureTextEntry
+          backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
+          borderColor="transparent"
+          color={isDark ? '#fff' : '#000'}
+          placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
+        />
+
+        <XStack gap="$3" justifyContent="space-between" marginTop="$2">
+          <Button
+            onPress={handleClose}
+            backgroundColor="rgba(255, 4, 4, 0.1)"
+            borderColor="$borderColor"
+            fontFamily="$body"
+            fontSize={isWeb ? "$5" : "$4"}
+            paddingHorizontal="$4"
+            color={isDark ? "$red10" : "$red10"}
+          >
+            Cancel
+          </Button>
+          <Button
+            onPress={handleSubmit}
+            backgroundColor={primaryColor}
+            disabled={!name.trim() || !username.trim() || !password.trim()}
+            fontFamily="$body"
+            fontSize={isWeb ? "$5" : "$4"}
+            paddingHorizontal="$4"
+          >
+            Save
+          </Button>
+        </XStack>
+      </YStack>
+    </BaseCardAnimated>
   )
 }

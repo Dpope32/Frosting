@@ -36,7 +36,7 @@ export default function Step4({
 
 
   return (
-    <YStack flex={1} justifyContent="center" alignItems="center">
+    <YStack flex={1} justifyContent="center" alignItems="center" marginBottom={isWeb ? "$3" : 100}>
 
       <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$3" : "$2"}>
         <Label
@@ -58,7 +58,7 @@ export default function Step4({
           fontWeight="400"
           fontStyle="italic"
         >
-          If you want a 5 day forecast
+          (If you want to see a 5 day forecast)
         </Text>
       </YStack>
 

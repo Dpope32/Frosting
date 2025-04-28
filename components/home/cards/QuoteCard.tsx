@@ -4,14 +4,16 @@ import { Stack, Spinner } from 'tamagui'
 import { MessageSquareQuote } from '@tamagui/lucide-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import { useUserStore } from '@/store/UserStore'
+import { isIpad } from '@/utils/deviceUtils'
 
 const isWeb = Platform.OS === 'web';
 
 interface QuoteCardProps {
   isHome?: boolean;
+  isDark?: boolean;
 }
 
-export function QuoteCard({ isHome }: QuoteCardProps) {
+export function QuoteCard({ isHome, isDark }: QuoteCardProps) {
   const { data, isLoading } = useStoicQuote()
   const { preferences } = useUserStore()
   
@@ -22,13 +24,13 @@ export function QuoteCard({ isHome }: QuoteCardProps) {
   return (
     <>
     <Stack
-      backgroundColor={isHome ? 'transparent' : "rgba(0, 0, 0, 0.3)"}
-      br={12}
+      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.5)"}
+      br={isIpad() ? 18 : 12}
       padding="$3"  
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
-      minWidth={60}
-      height={isWeb ? 60 : 48}    
+      minWidth={isIpad() ? 70 : 60}
+      height={isWeb ? 60 : isIpad() ? 60 : 48}    
       alignItems="center"
       justifyContent="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
@@ -36,7 +38,7 @@ export function QuoteCard({ isHome }: QuoteCardProps) {
         {isLoading ? (
           <Spinner size="small" color="#dbd0c6" />
         ) : (
-          <MessageSquareQuote size={isWeb ? 28 : 20} color="#dbd0c6" />
+          <MessageSquareQuote size={isWeb ? 28 : isIpad() ? 24 : 20} color="#dbd0c6" />
         )}
       </Stack>
     </>

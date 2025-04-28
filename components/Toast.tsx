@@ -40,6 +40,7 @@ interface ToastItemProps {
   duration: number
   fontFamily: GetThemeValueForKey<'fontFamily'>
   onRemove: (id: string) => void
+  isDark?: boolean
 }
 
 const ToastItem: React.FC<ToastItemProps> = ({
@@ -49,6 +50,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   fontFamily,
   duration,
   onRemove,
+  isDark,
 }) => {
   const media = useMedia()
   const isLarge = media.gtMd
@@ -82,10 +84,10 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
 
   const backgroundMap: Record<ToastType, string> = {
-    success: 'rgba(34, 197, 94, 0.07)',
-    error: 'rgba(239,68,68,0.15)',
-    info: 'rgba(59,130,246,0.15)',
-    warning: 'rgba(245,158,11,0.15)',
+    success: isDark ? 'rgba(34, 197, 94, 0.07)' : 'rgba(34, 197, 94, 0.15)',
+    error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
+    info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
+    warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
   }
 
   const iconMap: Record<ToastType, any> = {
@@ -96,10 +98,10 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
    
   const borderColorMap: Record<ToastType, string> = {
-    success: 'rgba(34,197,94,0.15)',
-    error: 'rgba(239,68,68,0.15)',
-    info: 'rgba(59,130,246,0.15)',
-    warning: 'rgba(245,158,11,0.15)',
+    success: isDark ? 'rgba(34,197,94,0.07)' : 'rgba(34,197,94,0.15)',
+    error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
+    info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
+    warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
   }
 
   const iconColor = colorMap[type]
@@ -125,8 +127,8 @@ const ToastItem: React.FC<ToastItemProps> = ({
       }}
     >
       <BlurView
-        intensity={70}
-        tint="dark"
+        intensity={isDark ? 70 : 20}
+        tint={isDark ? 'dark' : 'light'}
         style={{
           flexDirection: 'row',
           alignItems: 'center',

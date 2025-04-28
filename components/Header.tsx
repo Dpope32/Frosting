@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
-import { CardSection } from '@/components/home/CardSection'; 
+import { CardSection } from '@/components/home/CardSection';
 import { SettingsModal } from './cardModals/SettingsModal';
 import { PortfolioModal } from './cardModals/PortfolioModal'; 
 import { QuoteModal } from './cardModals/QuoteModal'; 
@@ -34,7 +34,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const navigation = useNavigation();
   const route = useRoute();
   const router = useRouter(); 
-  const isDark = colorScheme === 'dark';
   const [showSettings, setShowSettings] = useState(false);
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false); 
   const [quoteModalOpen, setQuoteModalOpen] = useState(false); 
@@ -107,6 +106,11 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     else if (isVaultScreen) iconName = "key-outline";
     else if (isCrmScreen) iconName = "people-outline";
 
+    // Don't show settings icon on iPad
+    if (isIpad() && !isSportsScreen && !isBillsScreen && !isVaultScreen && !isCrmScreen) {
+      return null;
+    }
+
     return (
       <Pressable
         onPress={handleIconPress}
@@ -158,7 +162,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
               : 'rgba(255,255,255,0.0)'
             : isHome
               ? colorScheme === 'dark' 
-                ? 'rgba(14, 14, 15, 0.7)'
+                ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : 'rgba(14, 14, 15, 0.7)'
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
                 ?  'rgba(14, 14, 15, 0.9)'
@@ -179,7 +183,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
             paddingTop={isWeb ? 0 : isIpad() ? 10 : 40}
           >
             <XStack alignItems="center" gap="$1" style={{ marginLeft: isPermanentDrawer ? 10 : 0 }}>
-              {!isWeb && (
+              {!isWeb && !isIpad() && (
                 <Pressable
                   onPress={() => {
                     if (Platform.OS !== 'web') {
