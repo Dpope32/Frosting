@@ -193,14 +193,14 @@ export default function DrawerLayout() {
             drawerIcon: (props) => renderIcon({ ...props, route: 'calendar' })
           }}
         />
-        <Drawer.Screen
+        {/* <Drawer.Screen
           name="nba"
           options={{
             title: 'NBA',
             drawerLabel: 'NBA',
             drawerIcon: (props) => renderIcon({ ...props, route: 'nba' })
           }}
-        />
+        /> */}
         <Drawer.Screen
           name="crm"
           options={{

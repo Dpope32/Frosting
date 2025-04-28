@@ -43,8 +43,8 @@ export function useAppInitialization() {
         setTimeout(() => {
           Promise.allSettled([
             useWallpaperStore.getState().checkAndRedownloadWallpapers(),
-            useNBAStore.getState().syncNBAGames(),
-            useNBAStore.getState().syncGameTasks(),
+            // useNBAStore.getState().syncNBAGames(), // Commented out as NBA season is over
+            // useNBAStore.getState().syncGameTasks(), // Commented out as NBA season is over
             useCalendarStore.getState().syncBirthdays(),
           ]).catch(error => {
             Sentry.captureException(error, {
