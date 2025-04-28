@@ -93,7 +93,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
         open={isVisible}
         title={activeTab === 'privacy' ? 'Privacy Policy' : 'Contact'}
         onOpenChange={handleOpenChange}
-        snapPoints={isWeb ? [85] : [95]}
+        snapPoints={isWeb ? [85] : [93]}
         position={0}
         dismissOnSnapToBottom={true}
         zIndex={100000}
@@ -111,6 +111,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
               flexDirection="column"
               flex={1}
               value={activeTab}
+              marginTop={-12}
               onValueChange={setActiveTab}
             >
               <Tabs.List 
