@@ -60,7 +60,7 @@ export function Base({
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
-      paddingBottom: isWeb? 50 : 24,
+      paddingBottom: isWeb? 50 : 16,
       zIndex: 1,
       maxHeight: screenHeight * 0.8,
     },
@@ -159,7 +159,7 @@ export function Base({
                 {
                   backgroundColor: isDark ? '#141415' : '#fff',
                   marginTop: insets.top, 
-                  marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.6 : 50),
+                  marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.72 : 100),
                   width: actualWidth,
                   maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
                 }

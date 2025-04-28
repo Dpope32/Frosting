@@ -1,11 +1,12 @@
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, Dimensions } from 'react-native';
 import { isWeb } from 'tamagui';
 import * as Haptics from 'expo-haptics';
 import { FloatingAction } from "react-native-floating-action";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
+import { ActionButton } from './ActionButton';
 
 interface FloatingActionSectionProps {
   onActionPress: (name: string) => void;
@@ -31,128 +32,138 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   const darkerPrimary = darkenColor(primaryColor, 0.7);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const actions = [
-    {
-      text: "Password",
-      icon: <MaterialIcons name="lock" size={isIpad() ? 26 : 20} color={textColor} />,
-      name: "bt_password",
-      position: 1,
-      textBackground: "rgba(0, 0, 0, 0.0)",
-      color: primaryColor,
-      textStyle: { 
-        color: textColor,
-        fontSize: isIpad() ? 20 : 18,
-        fontFamily: "$heading",
-        fontWeight: "600",
-        textShadow: "0px 1px 2px rgba(0,0,0,0.3)"
-      }
-    },
-    {
-      text: "Habit",
-      icon: <MaterialIcons name="repeat" size={isIpad() ? 26 : 20} color={textColor} />,
-      name: "bt_habit",
-      position: 2,
-      textBackground: "rgba(0, 0, 0, 0.0)",
-      color: primaryColor,
-      textStyle: { 
-        color: textColor,
-        fontSize: isIpad() ? 20 : 18,
-        fontFamily: "$heading",
-        fontWeight: "600",
-        textShadow: "0px 1px 2px rgba(0,0,0,0.3)"
-      }
-    },
-    {
-      text: "Note",
-      icon: <MaterialIcons name="sticky-note-2" size={isIpad() ? 26 : 20} color={textColor} />,
-      name: "bt_note",
-      position: 3,
-      textBackground: "rgba(0, 0, 0, 0.0)",
-      color: primaryColor,
-      textStyle: { 
-        color: textColor,
-        fontSize: isIpad() ? 20 : 18,
-        fontFamily: "$heading",
-        fontWeight: "600",
-        textShadow: "0px 1px 2px rgba(0,0,0,0.3)"
-      }
-    },
-    {
-      text: "Bill",
-      icon: <MaterialIcons name="currency-exchange" size={isIpad() ? 26 : 20} color={textColor} />,
-      name: "bt_bill",
-      position: 4,
-      textBackground: "rgba(0, 0, 0, 0.0)",
-      color: primaryColor,
-      textStyle: { 
-        color: textColor,
-        fontSize: isIpad() ? 20 : 18,
-        fontFamily: "$heading",
-        fontWeight: "600",
-        textShadow: "0px 1px 2px rgba(0,0,0,0.3)"
-      }
-    },
-    {
-      text: "Event",
-      icon: <MaterialIcons name="calendar-month" size={isIpad() ? 26 : 20} color={textColor} />,
-      name: "bt_event",
-      position: 5,
-      textBackground: "rgba(0, 0, 0, 0.0)",
-      color: primaryColor,
-      textStyle: { 
-        color: textColor,
-        fontSize: isIpad() ? 20 : 18,
-        fontFamily: "$heading",
-        fontWeight: "600",
-        textShadow: "0px 1px 2px rgba(0,0,0,0.3)"
-      }
-    },
-    {
-      text: "ToDo",
-      icon: <MaterialIcons name="check-box" size={isIpad() ? 26 : 20} color={textColor} />,
-      name: "bt_todo",
-      position: 6,
-      textBackground: "rgba(0, 0, 0, 0.0)",
-      color: primaryColor,
-      textStyle: { 
-        color: textColor,
-        fontSize: isIpad() ? 20 : 18,
-        fontFamily: "$heading",
-        fontWeight: "600",
-        textShadow: "0px 1px 2px rgba(0,0,0,0.3)"
-      }
-    },
-  ];
 
-  const handleActionPress = (name?: string) => {
-    if (!name) return;
+  const handleActionPress = (name: string) => {
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     onActionPress(name);
   };
 
+  const actions = [
+    {
+      text: "Password",
+      icon: <MaterialIcons name="lock" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_password",
+      position: 1,
+      render: () => (
+        <ActionButton
+          key="password-action"
+          onPress={() => handleActionPress("bt_password")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="lock"
+          text="Password"
+        />
+      )
+    },
+    {
+      text: "Habit",
+      icon: <MaterialIcons name="repeat" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_habit",
+      position: 2,
+      render: () => (
+        <ActionButton
+          key="habit-action"
+          onPress={() => handleActionPress("bt_habit")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="repeat"
+          text="Habit"
+        />
+      )
+    },
+    {
+      text: "Note",
+      icon: <MaterialIcons name="sticky-note-2" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_note",
+      position: 3,
+      render: () => (
+        <ActionButton
+          key="note-action"
+          onPress={() => handleActionPress("bt_note")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="sticky-note-2"
+          text="Note"
+        />
+      )
+    },
+    {
+      text: "Bill",
+      icon: <MaterialIcons name="currency-exchange" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_bill",
+      position: 4,
+      render: () => (
+        <ActionButton
+          key="bill-action"
+          onPress={() => handleActionPress("bt_bill")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="currency-exchange"
+          text="Bill"
+        />
+      )
+    },
+    {
+      text: "Event",
+      icon: <MaterialIcons name="calendar-month" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_event",
+      position: 5,
+      render: () => (
+        <ActionButton
+          key="event-action"
+          onPress={() => handleActionPress("bt_event")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="calendar-month"
+          text="Event"
+        />
+      )
+    },
+    {
+      text: "ToDo",
+      icon: <MaterialIcons name="check-box" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_todo",
+      position: 6,
+      render: () => (
+        <ActionButton
+          key="todo-action"
+          onPress={() => handleActionPress("bt_todo")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="check-box"
+          text="ToDo"
+        />
+      )
+    },
+  ];
+
   return (
     <>
       <FloatingAction
         actions={actions}
-        onPressItem={handleActionPress}
+        onPressItem={(name?: string) => name && handleActionPress(name)}
         color={isOpen ? darkerPrimary : primaryColor}
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
-        position="right"
-        distanceToEdge={{ vertical: 70, horizontal: 50 }}
+        position="center"
+        distanceToEdge={{vertical: 65, horizontal: 0}}
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}
-        overlayColor={isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)'}
-        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 8}
+        overlayColor={isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.8)'}
+        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 10}
         shadow={{
           shadowOpacity: 0.4,
-          shadowOffset: { width: 0, height: 6 },
+          shadowOffset: { width: 0, height: 4 },
           shadowColor: "#000000",
           shadowRadius: 4
         }}
+        openOnMount={false}
+        floatingIcon={<MaterialIcons name={isOpen ? "close" : "add"} size={isIpad() ? 32 : 24} color={textColor} />}
+        showBackground={true}
+        animated={true}
       />
     </>
   );

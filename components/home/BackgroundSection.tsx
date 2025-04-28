@@ -8,6 +8,9 @@ import { useWallpaperStore } from '@/store/WallpaperStore'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import * as Sentry from '@sentry/react-native'
 import { isIpad } from '@/utils/deviceUtils'
+
+
+
 export const BackgroundSection = () => {
   const preferences = useUserStore(s => s.preferences);
   const setPreferences = useUserStore(s => s.setPreferences);
@@ -192,7 +195,7 @@ export const BackgroundSection = () => {
               />
               {Platform.OS !== 'web' && (
                 <BlurView
-                  intensity={isDark ? 70 : 60}
+                  intensity={isDark ? 70 : 40}
                   tint={isDark ? "dark" : "dark"}
                   style={{
                     position: 'absolute',

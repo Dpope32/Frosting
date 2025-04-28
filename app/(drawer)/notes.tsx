@@ -92,7 +92,7 @@ export default function NotesScreen() {
   return (
     <YStack flex={1} backgroundColor={isDark ? '#000000' : '$backgroundLight'} style={isWeb ? noteStyles.webContainer : undefined} onTouchMove={localHandleDragging} >
       <XStack
-        paddingTop={isIpad() ? insets.top + 70 : insets.top + 30}
+        paddingTop={isIpad() ? insets.top + 70 : insets.top + 20}
         paddingBottom={16}
         paddingHorizontal={16}
         backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Text } from 'tamagui'
-
+import { isIpad } from '@/utils/deviceUtils'
 interface SubmitButtonProps {
   isSubmitting: boolean
   preferences: any
@@ -18,9 +18,9 @@ export const SubmitButton = React.forwardRef<any, SubmitButtonProps>(({ isSubmit
       br={12}
       px={12}
       alignSelf="center"
-      m={20}
+      m={isIpad() ? 20 : 0} 
       width="100%"
-      shadowColor="black"
+      shadowColor="black" 
       shadowOffset={{ width: 0, height: 2 }}
       shadowOpacity={0.1}
       shadowRadius={4}

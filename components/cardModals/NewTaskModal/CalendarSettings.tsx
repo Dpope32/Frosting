@@ -38,14 +38,14 @@ export function CalendarSettings({
         theme={isDark ? "dark" : "light"}
         backgroundColor={time ? "transparent" : "transparent"}
         br={12}
-        px="$3"
-        py="$2"
+        px={"$3"}
+        py={isIpad() ? "$2" : "$1"}
         pressStyle={{ opacity: 0.8 }}
         width="auto"
         alignSelf="flex-start"
       >
         <XStack alignItems="center" justifyContent="center" gap="$2">
-          <Text fontFamily="$body" color={isDark ? time ? "#ffffff" : "$gray11" : time ? "#6c6c6c" : "$gray11"} fontSize={time? isIpad() ? 18 : 16 : isIpad() ? 16 : 14}>
+          <Text fontFamily="$body" color={isDark ? time ? "#ffffff" : "#6c6c6c" : time ? "#6c6c6c" : "$gray11"} fontSize={time? isIpad() ? 18 : 16 : isIpad() ? 16 : 14}>
             {time ? time : "Select Time"}
           </Text>
           {showTimePicker ? (

@@ -122,17 +122,21 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
         backgroundColor={isDark ? "$gray2" : "white"}
         borderColor={isDark ? "$gray7" : "$gray4"}
         fontFamily="$body"
-        textContentType="none"
-        autoComplete="off"
         spellCheck={false}
         maxFontSizeMultiplier={1.4}
         {...(Platform.OS === 'ios' ? {
           scrollEnabled: false,
           selection: undefined,
           contextMenuHidden: false,
-          caretHidden: false
-        } : {})}
+          caretHidden: false,
+          textContentType: 'none',
+          autoComplete: 'off'
+        } : {
+          textContentType: 'none',
+          autoComplete: 'off'
+        })}
         {...props}
+        autoCapitalize={props.autoCapitalize || 'none'}
       />
     )
   }

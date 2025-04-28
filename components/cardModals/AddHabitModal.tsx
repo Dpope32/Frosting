@@ -136,7 +136,7 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
       title="New Habit"
       visible={isVisible}
     >
-      <YStack style={{ backgroundColor: isDark ? '#222' : '#fff', borderRadius: 16 }}>
+      <YStack style={{  borderRadius: 16 }}>
         <ScrollView 
           showsVerticalScrollIndicator={false}
           style={{ maxHeight: 600, minHeight: 200 }}
@@ -265,7 +265,6 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
         height={44}
         justifyContent="center"
         alignItems="center"
-        marginTop={24}
         marginBottom={8}
       >
         <Text 

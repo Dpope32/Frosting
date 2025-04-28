@@ -9,7 +9,8 @@ import Animated, {
   runOnJS,
   Easing,
   cancelAnimation,
-  interpolate
+  interpolate,
+  withDelay
 } from 'react-native-reanimated'
 import * as Haptics from 'expo-haptics'
 import { XStack, Text } from 'tamagui'
@@ -35,12 +36,6 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   const progress = useSharedValue(0)
   const isDeleting = useSharedValue(false)
   const screen = Platform.OS
-  
-  const handleHapticFeedback = () => {
-    if (screen !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    }
-  }
   
   const handleReadyHaptic = () => {
     if (screen !== 'web') {
@@ -71,36 +66,40 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   
   const longPressGesture = Gesture.LongPress()
     .minDuration(50)
+    .hitSlop({ left: 0, right: -32, top: 0, bottom: 0 })
     .onBegin(() => {
       'worklet';
       isDeleting.value = false;
-      runOnJS(handleHapticFeedback)();
-      scale.value = withSpring(1.02, { damping: 15, stiffness: 100 });
-      progress.value = withTiming(1, {
-        duration: longPressDuration,
-        easing: Easing.linear
-      }, (finished) => {
-        if (finished) {
-          runOnJS(handleReadyHaptic)();
-          // Automatically trigger delete when progress completes
-          runOnJS(triggerDeleteAction)();
-        }
-      });
+      scale.value = withDelay(
+        1000,
+        withSpring(1.02, { damping: 15, stiffness: 100 })
+      );
+      progress.value = withDelay(
+        1000,
+        withTiming(1, {
+          duration: longPressDuration,
+          easing: Easing.linear
+        }, (finished) => {
+          'worklet';
+          if (finished) {
+            runOnJS(handleReadyHaptic)();
+            runOnJS(triggerDeleteAction)();
+          }
+        })
+      );
     })
     .onFinalize(() => {
       'worklet';
-      // Always reset visuals and deleting state on finalize
       scale.value = withSpring(1, { damping: 15, stiffness: 100 });
       progress.value = withTiming(0, { duration: 200 });
-      isDeleting.value = false; // Reset deleting state
+      isDeleting.value = false;
     })
     .onTouchesMove(() => {
       'worklet';
-      // Always cancel animation and reset visuals/deleting state on touches move
       cancelAnimation(progress);
       progress.value = withTiming(0, { duration: 200 });
       scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      isDeleting.value = false; // Reset deleting state
+      isDeleting.value = false;
     });
     
   const animatedStyle = useAnimatedStyle(() => ({
@@ -114,7 +113,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     left: progressBarStyle?.paddingHorizontal || 0,
     right: progressBarStyle?.paddingHorizontal || 0,
     height: 2,
-    width: `${progress.value * 100}%`,
+    width: `${progress.value * 95}%`,
     borderRadius: 2,
     zIndex: 999,
   }));
@@ -151,14 +150,13 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     zIndex: 1,
   }));
 
-  // For web fallback
   const webTimer = React.useRef<NodeJS.Timeout>()
   
   const handlePressIn = () => {
     if (screen === 'web') {
       webTimer.current = setTimeout(() => {
-        isDeleting.value = true; // Set deleting state for web
-        onDelete((deleted) => { // Pass callback for web
+        isDeleting.value = true;
+        onDelete((deleted) => {
           if (!deleted) {
             scale.value = withSpring(1, { damping: 15, stiffness: 100 });
             progress.value = withTiming(0, { duration: 200 });
@@ -172,7 +170,6 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   const handlePressOut = () => {
     if (screen === 'web') {
       clearTimeout(webTimer.current);
-      // Reset visuals on web if not deleting
       if (!isDeleting.value) {
         scale.value = withSpring(1, { damping: 15, stiffness: 100 });
         progress.value = withTiming(0, { duration: 200 });

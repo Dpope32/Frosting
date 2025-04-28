@@ -46,7 +46,8 @@ export const BillCard = ({
     <LongPressDelete onDelete={handleDelete}>
       <XStack
        style={{ width: isWeb ? 320 : isIpad() ? 320 : '100%' }}  
-        minHeight={100}
+        minHeight={isWeb ? 100 : isIpad() ? 100 : 70}
+        height={isWeb ? 100 : isIpad() ? 100 : 75}
         flexShrink={0}
         bg={isDark ? '#111' : '#f5f5f5'}
         p="$3"

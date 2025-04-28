@@ -227,16 +227,16 @@ export const getGreeting = (username: string, temp?: number): string => {
 
   // --- Regular Personalized Greetings (expanded) ---
   const regularPersonalizedGreetings = [
-    `${timeBasedGreeting}, ${username}`,
+    `${timeBasedGreeting}`,
     `Welcome back, ${username}`,
     `Hey ${username}, ${timeBasedGreeting.toLowerCase()}`,
     `What's up, ${username}?`,
     `${timeBasedGreeting}! Ready for action, ${username}?`,
     `Greetings, ${username}`,
-    timeBasedGreeting, // Include the base time greeting itself
+    timeBasedGreeting, 
     `Hope you're having a great ${dayOfWeek}`,
-    `How's your ${dayOfWeek} going, ${username}?`,
-    `Let's make the most of this ${dayOfWeek}`,
+    `How's your ${dayOfWeek} going?`,
+    `Let's make the most of ${dayOfWeek}!`,
     `Sending positive vibes, ${username}`,
     `You got this, ${username}!`,
     `Keep crushing it, ${username}!`,
@@ -245,7 +245,7 @@ export const getGreeting = (username: string, temp?: number): string => {
     `Onward and upward, ${username}!`,
     `The day is yours, ${username}!`,
     `Seize the day, ${username}!`,
-    `Hope ur day is as awesome as you are, ${username} :)`
+    `Hope ur day is as awesome as you r! :)`
   ];
 
   const edgyGreetingsThatShouldBeUsedRarely = [

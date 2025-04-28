@@ -45,7 +45,7 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
       padding="$3"
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
-      minWidth={isIpad() ? 70 : 60}
+      minWidth={isIpad() ? 70 : 65}
       height={isWeb ? 60 : isIpad() ? 60 : 48} 
       alignItems="center"
       justifyContent="center"

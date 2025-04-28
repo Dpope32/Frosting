@@ -4,7 +4,7 @@ import { useUserStore } from '@/store/UserStore'
 import { BaseCardAnimated } from './BaseCardAnimated'
 import {  Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
-
+import { isIpad } from '@/utils/deviceUtils'
 interface AddVaultEntryModalProps {
   isVisible: boolean
   onClose: () => void
@@ -53,7 +53,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
       title="Add New Vault Entry"
       visible={isVisible}
     >
-      <YStack gap="$4" padding="$4">
+      <YStack gap={isIpad() ? "$4" : "$2"} py={isIpad() ? "$4" : "$2"} px={isIpad() ? "$4" : "$3"}>
         <Input
           placeholder="Name"
           value={name}

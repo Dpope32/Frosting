@@ -5,6 +5,7 @@ import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { BillRecommendationCategory, getRecommendedBills} from '@/constants/recommendations/BillRecommendations'
+import { useUserStore } from '@/store/UserStore'
 
 type DebouncedTextInputProps = {
   value: string
@@ -68,7 +69,7 @@ export function BillRecommendationModal({
   const [isSaving, setIsSaving] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
-
+  const primaryColor = useUserStore(s => s.preferences.primaryColor)
   // Reset state when modal is closed
   useEffect(() => {
     if (!open) {
@@ -309,7 +310,7 @@ export function BillRecommendationModal({
         </ScrollView>
         
         <Button
-          backgroundColor={isDark ? "rgba(0, 59, 254, 0.89)" : "rgba(0, 0, 0, 0.1)"}
+          backgroundColor={primaryColor}
           color={isDark ? "#dbd0c6" : "#000"}
           br={8}
           py="$3"

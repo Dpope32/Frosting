@@ -162,19 +162,12 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
               : 'rgba(255,255,255,0.0)'
             : isHome
               ? colorScheme === 'dark' 
-                ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : 'rgba(14, 14, 15, 0.7)'
+                ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : "rgba(14, 14, 15, 0.94)"
                 : 'rgba(255,255,255,0.0)'
               : colorScheme === 'dark' 
                 ?  'rgba(14, 14, 15, 0.9)'
                 : 'rgba(255, 255, 255, 0.1)' 
-        }
-        style={{
-          shadowColor: colorScheme === 'dark' ? undefined : '#000',
-          shadowOffset: colorScheme === 'dark' ? undefined : { width: 0, height: 1 },
-          shadowOpacity: colorScheme === 'dark' ? undefined : 0.1,
-          shadowRadius: colorScheme === 'dark' ? undefined : 2,
-          elevation: colorScheme === 'dark' ? undefined : 2,
-        }}>
+        }>
           <XStack
             alignItems="center"
             justifyContent="space-between"

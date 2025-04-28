@@ -11,6 +11,7 @@ import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIc
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isIpad } from '@/utils/deviceUtils';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
+import { variants } from '@/constants/variants';
 
 interface TaskCardProps {
   title: string;
@@ -210,26 +211,8 @@ export function TaskCard({
                   const newValue = !checked;
                   onCheck?.(newValue);
                   if (newValue) {
-                    const variants = [
-                      "Too easy 😂",
-                      "Piece of cake 😆",
-                      "Nailed it 🤣",
-                      "Easy peasy 😹",
-                      "Smooth sailing 😄",
-                      "You rock 😁",
-                      "Child's play 😅",
-                      "Boom! Done 🤗",
-                      "No problemo ",
-                      "YOURE HIM",
-                      "All u do is grind huh",
-                      "You're a literal machine",
-                      "ayuuuup",
-                      "Good looks",
-                      "Whats next?",
-                      "You're a machine!",
-                      "Idk how you do it"
-                    ];
                     const msg = variants[Math.floor(Math.random() * variants.length)];
+
                     showToast(msg, 'success');
                   } else {
                     showToast("Undo successful", 'success');

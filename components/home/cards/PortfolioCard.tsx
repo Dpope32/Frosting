@@ -64,7 +64,7 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark }: Po
 
   return (
     <Stack
-    backgroundColor={isHome ? 'transparent' : isDark ? "rgba(0, 0, 0, 0.5)" :"rgba(198, 198, 198, 0.05)"}
+    backgroundColor={isHome ? 'transparent' : isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.5)"}
       br={isIpad() ? 18 : 12}
       padding="$3"
       borderWidth={isHome ? 0 : 1}

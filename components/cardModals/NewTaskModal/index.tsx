@@ -20,7 +20,7 @@ import { DateSelector } from './DateSelector'
 import { CategorySelector } from './CategorySelector'
 import { PrioritySelector } from './PrioritySelector'
 import { SubmitButton } from './SubmitButton'
-
+import { isIpad } from '@/utils/deviceUtils'
 interface NewTaskModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -199,7 +199,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap="$2.5" px={6}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4} py={isIpad() ? 4 : 2} pb={12}>
           <TaskNameInput
             value={newTask.name}
             onChange={handleTextChange}
@@ -221,7 +221,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                 marginLeft: 2,
                 backgroundColor: newTask.showInCalendar ? (isDark ? '#1a1a1a' : '#f0f0f0') : 'transparent',
                 borderRadius: 8,
-                padding: 8
+
               }}
             >
               <View style={{

@@ -103,6 +103,7 @@ export const TaskSection = ({
             justifyContent: 'center',
             alignItems: 'center',
             marginRight: isWeb ? 20 : 0,
+            marginLeft: isWeb ? 0 : 16
           })}
         >
           <Ionicons
@@ -127,7 +128,7 @@ export const TaskSection = ({
               fontSize={20}
               fontWeight="bold"
               marginRight={isWeb ? 20 : 10}
-              marginLeft={isWeb ? 20 : -4}
+              marginLeft={isWeb ? 20 : -30}
             >
               {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </Text>
@@ -259,8 +260,8 @@ export const TaskSection = ({
                   return (
                     <Stack 
                       key={task.id} 
-                      width={isIpad() ? "48%" : "100%"}
-                      marginBottom="$1.5"
+                      width={isIpad() ? "48%" : "99%"}
+                      marginBottom="$2"
                       animation="quick"
                     >
                       <TaskCard

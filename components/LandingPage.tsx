@@ -12,7 +12,7 @@ import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
 import { EditTaskModal } from './cardModals/EditTaskModal'
-import { FloatingActionSection } from './home/FloatingActionSection'
+import { FloatingActionSection } from './home/float/FloatingActionSection'
 import { AddVaultEntryModal } from './cardModals/AddVaultEntryModal'
 import { AddHabitModal } from './cardModals/AddHabitModal'
 import { AddNoteSheet } from './notes/AddNoteSheet'
@@ -45,7 +45,7 @@ export function LandingPage() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
-  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.8)" : "rgba(255, 255, 255, 0.1)"
+  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.99)" : "rgba(255, 255, 255, 0.1)"
 
   // State hooks
   const [isMounted, setIsMounted] = useState(false)
@@ -146,7 +146,7 @@ export function LandingPage() {
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal="$4" showsVerticalScrollIndicator={false} >
+      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} showsVerticalScrollIndicator={false} >
         <YStack pt={isIpad() ? isDark ? 75 : 75 : 100}gap="$3">
           {!isWeb && (
             <Stack 
@@ -226,26 +226,10 @@ export function LandingPage() {
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
           <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
           <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={(name, category, notificationTimeLabel, notificationTimeValue) => { setHabitModalOpen(false)}}/>
-          <AddNoteSheet 
-            isModalOpen={noteModalOpen}
-            selectedNote={null}
-            editTitle=""
-            editContent=""
-            editTags={[]}
-            editAttachments={[]}
-            handleCloseModal={() => setNoteModalOpen(false)}
-            setEditTitle={() => {}}
-            setEditContent={() => {}}
-            handleTagsChange={() => {}}
-            handleSaveNote={() => setNoteModalOpen(false)}
-            handleDeleteNote={() => {}}
-            handleRemoveAttachment={() => {}}
-            handleBold={() => {}}
-            handleItalic={() => {}}
-            handleUnderline={() => {}}
-            handleBullet={() => {}}
-            handleCode={() => {}}
-            handleImagePick={() => {}}
+          <AddNoteSheet  isModalOpen={noteModalOpen} selectedNote={null}  editTitle="" editContent="" editTags={[]}
+            editAttachments={[]} handleCloseModal={() => setNoteModalOpen(false)} setEditTitle={() => {}} setEditContent={() => {}} handleTagsChange={() => {}}
+            handleSaveNote={() => setNoteModalOpen(false)} handleDeleteNote={() => {}} handleRemoveAttachment={() => {}} handleBold={() => {}} handleItalic={() => {}}
+            handleUnderline={() => {}} handleBullet={() => {}} handleCode={() => {}} handleImagePick={() => {}}
           />
           <AddBillModal 
             isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}

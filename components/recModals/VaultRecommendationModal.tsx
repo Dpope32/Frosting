@@ -6,7 +6,7 @@ import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
 import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
 import { useToastStore } from '@/store/ToastStore'
-
+import { useUserStore } from '@/store/UserStore'
 type DebouncedTextInputProps = {
   value: string
   onDebouncedChange: (value: string) => void
@@ -59,7 +59,7 @@ export function VaultRecommendationModal({
   const [passwords, setPasswords] = useState<Record<number, string>>({})
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
-
+  const primaryColor = useUserStore(s => s.preferences.primaryColor)
   // Reset state when modal is closed
   useEffect(() => {
     if (!open) {
@@ -287,7 +287,7 @@ export function VaultRecommendationModal({
         {showScrollToTop && (
           <Circle
             size={44}
-            backgroundColor={isDark ? "rgba(219, 208, 198, 0.2)" : "rgba(0, 0, 0, 0.1)"}
+            backgroundColor={primaryColor}
             position="absolute"
             bottom={70}
             right={10}

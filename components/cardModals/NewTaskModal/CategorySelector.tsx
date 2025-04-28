@@ -15,7 +15,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   const isDark = colorScheme === 'dark'
 
   return (
-    <YStack px="$1.5" gap="$1.5">
+    <YStack px="$1.5" gap="$1">
       {isWeb && isIpad() && <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
         <XStack gap="$2">
