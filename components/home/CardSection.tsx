@@ -9,8 +9,6 @@ import { SettingsCard } from '@/components/home/cards/SettingsCard'
 import { useUserStore } from '@/store/UserStore'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { isIpad } from '@/utils/deviceUtils'
-import { Ionicons } from '@expo/vector-icons'
-import * as Haptics from 'expo-haptics'
 import { SettingsModal } from '@/components/cardModals/SettingsModal'
 
 interface CardSectionProps {
@@ -39,7 +37,7 @@ export function CardSection({
   const [settingsOpen, setSettingsOpen] = useState(false);
   
   return (
-    <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$2"} alignSelf={isIpad() ? "center" : "center"} justifyContent={isIpad() ? "center" : "flex-start"} alignItems="center">
+    <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$0"} alignSelf={isIpad() ? "center" : "center"} justifyContent={isIpad() ? "center" : "flex-start"} alignItems="center">
       {!isIpad() ? (
         <GreetingSection username={username} />
       ) : (

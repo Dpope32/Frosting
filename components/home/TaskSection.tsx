@@ -33,7 +33,6 @@ export const TaskSection = ({
   todaysTasks,
   toggleTaskCompletion,
   deleteTask,
-  onAddTaskPress,
   onTaskListPress
 }: TaskSectionProps) => {
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
@@ -77,7 +76,7 @@ export const TaskSection = ({
   return (
     <Stack
       br={16}
-      px="$1"
+      px="$0"
       py="$2"
       paddingBottom="$2"
       >
@@ -127,7 +126,8 @@ export const TaskSection = ({
               color={isDark ? "#dbd0c6" : "#dbd0c6"}
               fontSize={20}
               fontWeight="bold"
-              marginRight={isWeb ? 20 : 0}
+              marginRight={isWeb ? 20 : 10}
+              marginLeft={isWeb ? 20 : -4}
             >
               {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </Text>

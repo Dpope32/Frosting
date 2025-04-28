@@ -146,8 +146,8 @@ export function LandingPage() {
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal="$4" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 200}}>
-        <YStack pt={isIpad() ? isDark ? 75 : 75 : 100} gap="$3">
+      <ScrollView flex={1} paddingHorizontal="$4" showsVerticalScrollIndicator={false} >
+        <YStack pt={isIpad() ? isDark ? 75 : 75 : 100}gap="$3">
           {!isWeb && (
             <Stack 
               borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
@@ -288,9 +288,7 @@ export function LandingPage() {
           />
         </>
       )}
-      <Stack position="absolute" bottom={isWeb ? 30 : isIpad() ? 30 : 25} right={0} left={0}>
         <FloatingActionSection onActionPress={handleActionPress} isDark={isDark} />
-      </Stack>
     </Stack>
   )
 }

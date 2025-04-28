@@ -24,7 +24,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       alignItems={isIpad() ? "flex-start" : "center"} 
       justifyContent={isIpad() ? "center" : "flex-start"}
       br={16}
-      pl={isWeb ? "$2" : "$2"}
+      pl={isWeb ? "$2" : "$0"}
       py={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
       width="100%"
     >

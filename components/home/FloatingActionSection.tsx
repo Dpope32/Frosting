@@ -1,5 +1,5 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { isWeb } from 'tamagui';
 import * as Haptics from 'expo-haptics';
 import { FloatingAction } from "react-native-floating-action";
@@ -133,25 +133,27 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   };
 
   return (
-    <FloatingAction
-      actions={actions}
-      onPressItem={handleActionPress}
-      color={isOpen ? darkerPrimary : primaryColor}
-      onOpen={() => setIsOpen(true)}
-      onClose={() => setIsOpen(false)}
-      position="right"
-      distanceToEdge={isWeb ? 50 : isIpad() ? 50 : 40}
-      overlayColor={isDark ? "rgba(0, 0, 0, 0.88)" : "rgba(0, 0, 0, 0.8)"}
-      buttonSize={isIpad() ? 64 : 56}
-      iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
-      iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}
-      actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 8}
-      shadow={{
-        shadowOpacity: 0.4,
-        shadowOffset: { width: 0, height: 6 },
-        shadowColor: "#000000",
-        shadowRadius: 4
-      }}
-    />
+    <>
+      <FloatingAction
+        actions={actions}
+        onPressItem={handleActionPress}
+        color={isOpen ? darkerPrimary : primaryColor}
+        onOpen={() => setIsOpen(true)}
+        onClose={() => setIsOpen(false)}
+        position="right"
+        distanceToEdge={{ vertical: 70, horizontal: 50 }}
+        buttonSize={isIpad() ? 64 : 56}
+        iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
+        iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}
+        overlayColor={isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)'}
+        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 8}
+        shadow={{
+          shadowOpacity: 0.4,
+          shadowOffset: { width: 0, height: 6 },
+          shadowColor: "#000000",
+          shadowRadius: 4
+        }}
+      />
+    </>
   );
 } 
