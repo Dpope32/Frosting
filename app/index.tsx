@@ -1,23 +1,40 @@
-import React, { useEffect } from 'react';
-import { Redirect } from 'expo-router';
+import React, { useState, useEffect } from 'react';
 import { useUserStore } from '@/store/UserStore';
+import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
+//import { useRegistryStore } from '@/store/RegistryStore';
 
 export default function Index() {
-  // only a cheap selector
-  const hasCompletedOnboarding = useUserStore(
-    (s) => s.preferences.hasCompletedOnboarding
-  );
-
-  // kick off your "I do not care about holding up navigation" init
+  const [showIntro, setShowIntro] = useState(true);
+  const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
+  const hasHydrated = useUserStore((state) => (state as any).hydrated ?? false);
+  
+  //const { logSyncStatus } = useRegistryStore();
+  
+  // Call app initialization hook at the top level (per React rules)
+  useAppInitialization();
+  
+  // Set a timeout to ensure we don't get stuck in the intro state
   useEffect(() => {
-    // fire-and-forget
-    useAppInitialization();
+    setShowIntro(true);
+    
+    // Log sync status when app starts
+   // logSyncStatus();
+    
+    // Always proceed after 3 seconds, regardless of hydration status
+    const timer = setTimeout(() => {
+      setShowIntro(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
-
-  // instant redirect, no waiting
+  
+  
+  // If onboarding is not completed, go to onboarding
   if (!hasCompletedOnboarding) {
     return <Redirect href="/screens/onboarding" />;
   }
+  
+  // If onboarding is completed, go to drawer tabs layout
   return <Redirect href="/(drawer)/(tabs)" />;
 }
