@@ -63,7 +63,7 @@ export function WifiCard({ isHome, isDark }: WifiCardProps) {
 
   return (
     <Stack
-      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.5)"}
+      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.3)"}
       br={isIpad() ? 18 : 12}
       padding="$2" 
       borderWidth={isHome ? 0 : 1}

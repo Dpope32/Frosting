@@ -88,7 +88,6 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
   };
 
   return (
-    <Theme name={isDark ? "dark" : "light"}>
       <BaseCardModal
         open={isVisible}
         title={activeTab === 'privacy' ? 'Privacy Policy' : 'Contact'}
@@ -97,6 +96,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
         position={0}
         dismissOnSnapToBottom={true}
         zIndex={100000}
+        hideHandle={true}
         showCloseButton={true}
       >
         <Sheet.Overlay
@@ -111,7 +111,7 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
               flexDirection="column"
               flex={1}
               value={activeTab}
-              marginTop={-12}
+              marginTop={12}
               onValueChange={setActiveTab}
             >
               <Tabs.List 
@@ -393,6 +393,5 @@ export function LegalModal({ isVisible, onClose }: LegalModalProps) {
               </YStack>
             </Tabs>
       </BaseCardModal>
-    </Theme>
   );
 }

@@ -129,9 +129,11 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         placeholder={placeholder}
         multiline
         blurOnSubmit={false}
-        autoCapitalize="words"
+        autoCapitalize="sentences"
         spellCheck={true}
+        enterKeyHint="next"
         onFocus={handleFocus}
+        cursorColor={isDark ? '#4a8fff' : '#2271b1'}
         onBlur={handleBlur}
         autoCorrect={true}
         keyboardType="default"

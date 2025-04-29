@@ -1,6 +1,4 @@
 import React from 'react';
-import  { Suspense, lazy } from 'react';
-import { ActivityIndicator } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isWeb } from 'tamagui';
@@ -12,10 +10,11 @@ import { useUserStore } from '@/store/UserStore';
 import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';
+import  { ChangeLogButton } from '@/components/drawer/changeLogButton';
 import { isIpad } from '@/utils/deviceUtils';
 import { DRAWER_ICONS } from '@/constants/drawerIcons';
-
 import { useRouter } from 'expo-router';
+import { XStack } from 'tamagui';
 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
@@ -67,7 +66,10 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
             <DrawerItemList {...props} />
           </DrawerContentScrollView>
         </View>
-        <LegalButton />
+        <XStack alignItems="center" justifyContent="space-between" marginBottom={32} paddingHorizontal={isWeb ? 24 : isIpad() ? 20 : 16}>
+          <ChangeLogButton />
+          <LegalButton />
+        </XStack>
     </View>
   );
 });
@@ -76,13 +78,13 @@ export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? 'rgba(14, 14, 15, 0.9)' : '#f7f4ea';
+  const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : '#f7f4ea';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark  ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
-  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 250  : 230;
+  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 250  : 220;
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 
@@ -128,11 +130,10 @@ export default function DrawerLayout() {
       drawerInactiveTintColor: inactiveColor,
       drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
       drawerItemStyle: {
-        borderRadius: 8, 
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
-        ...(!isPermanentDrawer ? { marginHorizontal: 4 } : {})
+        borderRadius: 4,
       },
       drawerLabelStyle: {
         fontSize: isIpadDevice ? 18 : 16,
@@ -163,8 +164,8 @@ export default function DrawerLayout() {
     }
       options.drawerOpeningAnimation = {
         type: 'spring',
-        stiffness: 750,
-        damping: 70,
+        stiffness: 650,
+        damping: 60,
         mass: 1,
         overshootClamping: false,
         restDisplacementThreshold: 0.01,
@@ -193,14 +194,6 @@ export default function DrawerLayout() {
             drawerIcon: (props) => renderIcon({ ...props, route: 'calendar' })
           }}
         />
-         <Drawer.Screen
-          name="nba"
-          options={{
-            title: 'NBA',
-            drawerLabel: 'NBA',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'nba' })
-          }}
-        /> 
         <Drawer.Screen
           name="crm"
           options={{

@@ -12,6 +12,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { isIpad } from '@/utils/deviceUtils';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { variants } from '@/constants/variants';
+import { TaskChips } from './TaskChips';
 
 interface TaskCardProps {
   title: string;
@@ -35,18 +36,9 @@ export function TaskCard({
   onCheck,
   onDelete
 }: TaskCardProps) {
-  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
+  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#2196F3';
   const showToast = useToastStore(s => s.showToast);
   const isDark = useColorScheme() === 'dark';
-  const getPriorityIcon = (priority?: TaskPriority) => {
-    if (!priority) return 'flag-outline';
-    const icons: Record<TaskPriority, any> = {
-      high: 'alert-circle',
-      medium: 'alert',
-      low: 'information-circle-outline',
-    };
-    return icons[priority];
-  };
 
   const mapStatusToRecurrencePattern = (status: string): RecurrencePattern | undefined => {
     const lowerStatus = status.toLowerCase();
@@ -62,36 +54,57 @@ export function TaskCard({
 
   const recurrencePattern = mapStatusToRecurrencePattern(status);
   const recurrenceColor = getRecurrenceColor(recurrencePattern);
-  const recurrenceIcon = getRecurrenceIcon(recurrencePattern);
 
-  // Determine card background color
-  const baseOpacity = 0.075; // Increased opacity for colored backgrounds
+  const baseOpacity = 0.075; 
   
-  let cardBgColor = isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(220, 220, 220, 0.15)"; // Adjusted default light mode background
+  let cardBgColor = isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(25, 25, 25, 0.7)"; 
   let gradientColors: readonly [string, string, string] | undefined;
   
-  if (category) {
+  // Dark mode
+  if (isDark && category) {
     const categoryColor = getCategoryColor(category as TaskCategory);
     gradientColors = [
       withOpacity(categoryColor, baseOpacity * 0.7),  // Top - darker
       withOpacity(categoryColor, baseOpacity),        // Middle
       withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
     ] as const;
-  } else if (priority) {
+  } else if (isDark && priority) {
     const priorityColor = getPriorityColor(priority);
     gradientColors = [
       withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
       withOpacity(priorityColor, baseOpacity),        // Middle
       withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
     ] as const;
-  } else if (recurrencePattern && recurrencePattern !== 'one-time') {
+  } else if (isDark && recurrencePattern) {
+    gradientColors = [
+      withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
+      withOpacity(recurrenceColor, baseOpacity),        // Middle
+      withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
+    ] as const;
+  } 
+  // Light mode
+    else if (!isDark && category) {
+    const categoryColor = getCategoryColor(category as TaskCategory);
+     gradientColors = [
+      withOpacity(categoryColor, baseOpacity * 0.9),  // Top - darker
+      withOpacity(categoryColor, baseOpacity),        // Middle
+      withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
+    ] as const;
+  } else if (!isDark && priority) {
+    const priorityColor = getPriorityColor(priority);
+    gradientColors = [
+      withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
+      withOpacity(priorityColor, baseOpacity),        // Middle
+      withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
+    ] as const;
+  } else if (!isDark && recurrencePattern) {
     gradientColors = [
       withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
       withOpacity(recurrenceColor, baseOpacity),        // Middle
       withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
     ] as const;
   }
-
+  
   return (
     <LongPressDelete 
       onDelete={(onComplete) => {
@@ -139,7 +152,7 @@ export function TaskCard({
       <Stack
         backgroundColor={cardBgColor}
         br={12}
-        padding={0}
+        paddingHorizontal={3}
         marginVertical={isWeb ? "$1" : "$0"}
         borderWidth={1}
         borderColor="rgba(52, 54, 55, 0.9)"
@@ -212,7 +225,6 @@ export function TaskCard({
                   onCheck?.(newValue);
                   if (newValue) {
                     const msg = variants[Math.floor(Math.random() * variants.length)];
-
                     showToast(msg, 'success');
                   } else {
                     showToast("Undo successful", 'success');
@@ -238,118 +250,13 @@ export function TaskCard({
               </Pressable>
             </View>
 
-            <View style={styles.tagsRow}>
-              {category && (
-                <XStack
-                  alignItems="center"
-                  backgroundColor={`${calculatedCategoryColor}15`}
-                  px="$0.5"
-                  py="$0.5"
-                  br={12}
-                  opacity={checked ? 0.6 : 0.9}
-                  marginRight={6}
-                  marginBottom={4}
-                >
-                  <Ionicons
-                    name="bookmark"
-                    size={10}
-                    color={calculatedCategoryColor} 
-                    style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
-                  />
-                  <Text
-                    fontFamily="$body"
-                    color={calculatedCategoryColor}
-                    fontSize={11}
-                    fontWeight="500"
-                  >
-                    {category.toLowerCase()}
-                  </Text>
-                </XStack>
-              )}
-
-              {priority && (
-                <XStack 
-                  alignItems="center" 
-                  backgroundColor={`${getPriorityColor(priority)}15`}
-                  py="$0.5"
-                  px="$1"
-                  br={12}
-                  opacity={checked ? 0.6 : 0.9}
-                  marginRight={6}
-                  marginBottom={4}
-                >
-                  <Ionicons 
-                    name={getPriorityIcon(priority)} 
-                    size={10} 
-                    color={getPriorityColor(priority)} 
-                    style={{ marginRight: 2, marginTop: 1 }}
-                  />
-                  <Text
-                    fontFamily="$body"
-                    color={getPriorityColor(priority)}
-                    fontSize={11}
-                    fontWeight="500"
-                  >
-                    {priority}
-                  </Text>
-                </XStack>
-              )}
-              
-              <XStack 
-                alignItems="center" 
-                backgroundColor={`${recurrenceColor}15`}
-                px="$1"
-                py="$0.5"
-                br={12}
-                opacity={checked ? 0.6 : 0.9}
-                marginRight={6}
-                marginBottom={4}
-              >
-                <Ionicons 
-                  name={recurrenceIcon as any}
-                  size={10} 
-                  color={recurrenceColor}
-                  style={{ marginRight: 2, marginTop: 1 }}
-                />
-                <Text
-                  fontFamily="$body"
-                  color={recurrenceColor}
-                  fontSize={11}
-                  fontWeight="500"
-                >
-                  {status.toLowerCase()}
-                </Text>
-              </XStack>
-
-              {time && (
-                <XStack 
-                  alignItems="center" 
-                  backgroundColor="rgba(255, 255, 255, 0.05)"
-                  px="$1"
-                  py="$0.5"
-                  br={12}
-                  borderWidth={1}
-                  borderColor="rgb(52, 54, 55)"
-                  opacity={checked ? 0.6 : 0.9}
-                  marginBottom={4}
-                >
-                  <Ionicons 
-                    name="time-outline" 
-                    size={10} 
-                    color="rgb(157, 157, 157)" 
-                    style={{ marginRight: 4, marginTop: 1 }}
-                  />
-                  <Text
-                    fontFamily="$body"
-                    color="rgb(157, 157, 157)"
-                    fontSize={11}
-                    fontWeight="500"
-                  >
-                    {time}
-                  </Text>
-                </XStack>
-              )}
-            </View>
+            <TaskChips
+              category={category}
+              priority={priority}
+              status={status}
+              time={time}
+              checked={checked}
+            />
           </View>
         </View>
       </Stack>
@@ -387,11 +294,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    marginTop: 2,
-    marginLeft: isWeb ? -10 : -2
   }
 });

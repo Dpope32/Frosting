@@ -71,11 +71,11 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
       'worklet';
       isDeleting.value = false;
       scale.value = withDelay(
-        1000,
+        500,
         withSpring(1.02, { damping: 15, stiffness: 100 })
       );
       progress.value = withDelay(
-        1000,
+        500,
         withTiming(1, {
           duration: longPressDuration,
           easing: Easing.linear
@@ -116,6 +116,8 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     width: `${progress.value * 95}%`,
     borderRadius: 2,
     zIndex: 999,
+    margin: 0,
+    padding: 0,
   }));
   
   const deleteIndicatorStyle = useAnimatedStyle(() => ({
@@ -127,16 +129,19 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     opacity: interpolate(progress.value, [0, 1], [0, 0.1]),
     borderRadius: 8,
     zIndex: 1,
+    margin: 0,
+    padding: 0,
   }));
   
   const deleteTextStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     left: 0,
     right: 0,
-    top: '50%',
-    transform: [{ translateY: -10 }],
+    bottom: 8,
     opacity: progress.value,
     zIndex: 2,
+    margin: 0,
+    padding: 0,
   }));
 
   const dimOverlayStyle = useAnimatedStyle(() => ({
@@ -148,6 +153,8 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     opacity: interpolate(progress.value, [0, 1], [0, 0.5]),
     zIndex: 1,
+    margin: 0,
+    padding: 0,
   }));
 
   const webTimer = React.useRef<NodeJS.Timeout>()
@@ -181,14 +188,14 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     <>
       <Animated.View style={deleteIndicatorStyle}>
         <LinearGradient
-          colors={['#666666', '#ff3b30']}
+          colors={['#ffffff', '#ff3b30']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
+          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0 }]}
         />
       </Animated.View>
       <Animated.View style={dimOverlayStyle} />
-      <View style={{ zIndex: 3 }}>{children}</View>
+      <View style={{ zIndex: 3, margin: 0, padding: 0 }}>{children}</View>
       <Animated.View style={deleteTextStyle}>
         <XStack gap="$2" ai="center" justifyContent="center">
           <Ionicons name="trash-outline" size={16} color="#ff3b30" />
@@ -197,10 +204,10 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
       </Animated.View>
       <Animated.View style={progressStyle}>
         <LinearGradient
-          colors={['#666666', '#ff3b30']}
+          colors={['#ffffff', '#ff3b30']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={StyleSheet.absoluteFill}
+          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0 }]}
         />
       </Animated.View>
     </>

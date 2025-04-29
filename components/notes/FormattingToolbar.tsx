@@ -21,11 +21,10 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onAttachImage,
 }) => {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const iconColor = "#ccc";
+  const iconColor = "#bbb";
 
   return (
-    <XStack gap="$2" marginBottom={isWeb ? 0 : 0} flexWrap="wrap" >
+    <XStack gap="$2" marginBottom={isWeb ? 0 : -16} flexWrap="wrap" >
       <Button
         size="$4"
         circular

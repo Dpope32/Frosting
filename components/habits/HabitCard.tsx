@@ -8,6 +8,7 @@ import { getHabitColor, getCategoryColor } from '@/utils/styleUtils';
 import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/store/HabitStore';
 import { useToastStore } from '@/store/ToastStore';
+import { LongPressDelete } from '@/components/common/LongPressDelete';
 
 interface HabitCardProps {
   habit: Habit;
@@ -15,6 +16,32 @@ interface HabitCardProps {
   onDelete: () => void;
   doneToday: boolean; 
 }
+
+const styles = StyleSheet.create({
+  checkboxContainer: {
+    padding: 4,
+  },
+  checkbox: {
+    borderWidth: 1,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    maxWidth: 400,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: -40
+  },
+});
 
 export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardProps) { // Destructure doneToday prop
   const colorScheme = useColorScheme();
@@ -56,7 +83,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   const squareSize = isMobile ? 14 : 16;
   const gap = isMobile ? 3 : 4;
 
-  const handleDelete = () => {
+  const handleDelete = (onComplete: (deleted: boolean) => void) => {
     if (isMobile) {
       Alert.alert(
         'Delete Habit',
@@ -65,6 +92,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           {
             text: 'Cancel',
             style: 'cancel',
+            onPress: () => onComplete(false),
           },
           {
             text: 'Delete',
@@ -72,6 +100,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             onPress: () => {
               onDelete();
               showToast('Habit deleted successfully', 'success');
+              onComplete(true);
             },
           },
         ],
@@ -80,6 +109,9 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
       if (window.confirm('Are you sure you want to delete this habit?')) {
         onDelete();
         showToast('Habit deleted successfully', 'success');
+        onComplete(true);
+      } else {
+        onComplete(false);
       }
     }
   };
@@ -98,255 +130,213 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   };
 
   return (
-    <YStack
-      mb={10}
-      p={isMobile ? 8 : 10}
-      px={isMobile ? 12 : 16}
-      borderRadius={12}
-      backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#1a1a1a' : '#fff')} 
-      borderWidth={1}
-      borderColor={isDark ? '#333' : '#E0E0E0'}
-      position="relative"
-      overflow="hidden"
-    >
-      {doneToday && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1,
-            borderRadius: 11,
-          }}
-          pointerEvents="none"
-        >
-          <Ionicons name="checkmark-circle" size={24} color="#00C851" />
-        </View>
-      )}
-      
-      <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 10 : 12}>
-        <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
-          <Pressable
-            onPress={onToggle}
-            style={styles.checkboxContainer}
-            hitSlop={8}
-          >
-            <View
-              style={[
-                styles.checkbox,
-                {
-                  borderColor: doneToday ? '#00C851' : isDark ? '#333' : 'rgb(52, 54, 55)',
-                  backgroundColor: doneToday
-                    ? 'rgba(0, 200, 81, 0.1)'
-                    : isDark
-                    ? '#181818'
-                    : 'rgba(255,255,255,0.65)',
-                  width: isMobile ? 20 : 24,
-                  height: isMobile ? 20 : 24,
-                },
-              ]}
-            >
-              {doneToday && (
-                <Ionicons 
-                  name="checkmark-sharp" 
-                  size={isMobile ? 14 : 16} 
-                  color="#00C851" 
-                />
-              )}
-            </View>
-          </Pressable>
-          
-          <Text
-            fontFamily="$body"
-            fontSize={isMobile ? 15 : 16}
-            fontWeight="600"
-            color={isDark ? '#fff' : '#000'}
-            opacity={doneToday ? 0.6 : 1}
+    <LongPressDelete onDelete={handleDelete}>
+      <YStack
+        mb={10}
+        p={isMobile ? 8 : 10}
+        px={isMobile ? 12 : 16}
+        borderRadius={12}
+        backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#1a1a1a' : '#fff')} 
+        borderWidth={1}
+        borderColor={isDark ? '#333' : '#E0E0E0'}
+        position="relative"
+        overflow="hidden"
+      >
+        {doneToday && (
+          <View
             style={{
-              textDecorationLine: doneToday ? 'line-through' : 'none',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1,
+              borderRadius: 11,
             }}
+            pointerEvents="none"
           >
-            {habit.title}
-          </Text>
-
-          <XStack
-            alignItems="center"
-            backgroundColor={getCategoryColor(habit.category) + '15'}
-            px={isMobile ? 12 : 8}
-            py={isMobile ? 1 : 2}
-            br={10}
-            opacity={doneToday ? 0.6 : 0.9}
-          >
+            <Ionicons name="checkmark-circle" size={24} color="#00C851" />
+          </View>
+        )}
+        
+        <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 10 : 12}>
+          <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
+            <Pressable 
+              ref={statsButtonRef}
+              onPress={handleStatsPress}
+              style={{ padding: 4 }}
+            >
+              <Ionicons 
+                name="stats-chart" 
+                size={isMobile ? 16 : 20} 
+                color={isDark ? '#666' : '#999'} 
+              />
+            </Pressable>
             <Text
               fontFamily="$body"
-              color={getCategoryColor(habit.category)}
-              fontSize={isMobile ? 14 : 16}
-              fontWeight="500"
-              style={{ textTransform: 'capitalize' }}
+              fontSize={isMobile ? 15 : 16}
+              fontWeight="600"
+              color={isDark ? '#fff' : '#000'}
+              opacity={doneToday ? 0.6 : 1}
+              style={{
+                textDecorationLine: doneToday ? 'line-through' : 'none',
+              }}
             >
-              {habit.category}
+              {habit.title}
             </Text>
+
+            <XStack
+              alignItems="center"
+              backgroundColor={getCategoryColor(habit.category) + '15'}
+              px={isMobile ? 12 : 8}
+              py={isMobile ? 1 : 2}
+              br={10}
+              opacity={doneToday ? 0.6 : 0.9}
+            >
+              <Text
+                fontFamily="$body"
+                color={getCategoryColor(habit.category)}
+                fontSize={isMobile ? 14 : 16}
+                fontWeight="500"
+                style={{ textTransform: 'capitalize' }}
+              >
+                {habit.category}
+              </Text>
+            </XStack>
+          </XStack>
+
+          <XStack gap="$3" alignItems="center" style={{ zIndex: 2 }}>
+            <Pressable
+              onPress={onToggle}
+              style={styles.checkboxContainer}
+              hitSlop={8}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  {
+                    borderColor: doneToday ? '#00C851' : isDark ? '#333' : 'rgb(52, 54, 55)',
+                    backgroundColor: doneToday
+                      ? 'rgba(0, 200, 81, 0.1)'
+                      : isDark
+                      ? '#181818'
+                      : 'rgba(255,255,255,0.65)',
+                    width: isMobile ? 20 : 24,
+                    height: isMobile ? 20 : 24,
+                  },
+                ]}
+              >
+                {doneToday && (
+                  <Ionicons 
+                    name="checkmark-sharp" 
+                    size={isMobile ? 14 : 16} 
+                    color="#00C851" 
+                  />
+                )}
+              </View>
+            </Pressable>
           </XStack>
         </XStack>
 
-        <XStack gap="$3" alignItems="center" style={{ zIndex: 2 }}>
+        <Modal
+          visible={showStats}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowStats(false)}
+        >
           <Pressable 
-            ref={statsButtonRef}
-            onPress={handleStatsPress}
-            style={{ padding: 4 }}
+            style={styles.modalOverlay}
+            onPress={() => setShowStats(false)}
           >
-            <Ionicons 
-              name="stats-chart" 
-              size={isMobile ? 16 : 20} 
-              color={isDark ? '#666' : '#999'} 
-            />
-          </Pressable>
-          <Pressable onPress={handleDelete} style={{ padding: 4 }}>
-            <Ionicons 
-              name="trash-outline" 
-              size={isMobile ? 16 : 20} 
-              color="$red10"
-            />
-          </Pressable>
-        </XStack>
-      </XStack>
-
-      <Modal
-        visible={showStats}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowStats(false)}
-      >
-        <Pressable 
-          style={styles.modalOverlay}
-          onPress={() => setShowStats(false)}
-        >
-          <View 
-            style={[
-              styles.modalContent,
-              {
-                backgroundColor: isDark ? '#181818' : '#FFF',
-                borderColor: isDark ? '#333' : '#E0E0E0',
-              }
-            ]}
-          >
-            <XStack justifyContent="space-between" alignItems="center" mb={8}>
-              <Text fontFamily="$body" fontSize={18} fontWeight="700" color={isDark ? '#fff' : '#000'}>
-                {habit.title} Stats
-              </Text>
-              <Pressable 
-                onPress={() => setShowStats(false)}
-                style={({ pressed }) => ({
-                  opacity: pressed ? 0.7 : 1,
-                  padding: 4,
-                })}
-                hitSlop={8}
-              >
-                <Ionicons 
-                  name="close" 
-                  size={24} 
-                  color={isDark ? '#666' : '#999'} 
-                />
-              </Pressable>
-            </XStack>
-            <Text fontFamily="$body" fontSize={16} mb={8} color={isDark ? '#ccc' : '#666'}>
-              Current Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{currentStreak}</Text>
-            </Text>
-            <Text fontFamily="$body" fontSize={16} mb={8} color={isDark ? '#ccc' : '#666'}>
-              Longest Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{longestStreak}</Text>
-            </Text>
-            <Text fontFamily="$body" fontSize={16} mb={8} color={isDark ? '#ccc' : '#666'}>
-              Total Completions: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{totalCompletions}</Text>
-            </Text>
-            <Text fontFamily="$body" fontSize={16} color={isDark ? '#ccc' : '#666'}>
-              Completion %: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{percentComplete}%</Text>
-            </Text>
-          </View>
-        </Pressable>
-      </Modal>
-
-      <XStack alignItems="center" style={{ zIndex: 2 }}>
-        <XStack
-          flexWrap="wrap"
-          gap={gap}
-          borderRadius={6}
-          padding={6}
-          backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}
-          mb={history.length === 1 ? 4 : 0}
-        >
-          {history.length > 0 ? (
-            history.map((day, idx) => (
-              <YStack
-                key={day.date}
-                width={squareSize}
-                height={squareSize}
-                borderRadius={3}
-                backgroundColor={day.completed ? '#00C851' : isDark ? '#333' : '#E0E0E0'}
-                alignItems="center"
-                justifyContent="center"
-                opacity={day.date === today ? 1 : 0.8}
-              >
-                {day.date === today && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      width: 4,
-                      height: 4,
-                      borderRadius: 2,
-                      backgroundColor: "#FFD600",
-                    }}
+            <View 
+              style={[
+                styles.modalContent,
+                {
+                  backgroundColor: isDark ? '#181818' : '#FFF',
+                  borderColor: isDark ? '#333' : '#E0E0E0',
+                }
+              ]}
+            >
+              <XStack justifyContent="space-between" alignItems="center" mb={4} mt={-4}>
+                <Text fontFamily="$body" fontSize={18} fontWeight="700" color={isDark ? '#fff' : '#000'}>
+                  {habit.title} Stats
+                </Text>
+                <Pressable 
+                  onPress={() => setShowStats(false)}
+                  style={({ pressed }) => ({
+                    opacity: pressed ? 0.7 : 1,
+                    padding: 4,
+                  })}
+                  hitSlop={8}
+                >
+                  <Ionicons 
+                    name="close" 
+                    size={24} 
+                    color={isDark ? '#666' : '#999'} 
                   />
-                )}
-              </YStack>
-            ))
-          ) : (
-            <Text fontFamily="$body" fontSize={12} color={isDark ? '#777' : '#999'}>
-              No history yet
-            </Text>
-          )}
+                </Pressable>
+              </XStack>
+              <Text fontFamily="$body" fontSize={16} ml={8} mb={8} color={isDark ? '#ccc' : '#666'}>
+                Current Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{currentStreak}</Text>
+              </Text>
+              <Text fontFamily="$body" fontSize={16} ml={8} mb={8} color={isDark ? '#ccc' : '#666'}>
+                Longest Streak: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{longestStreak}</Text>
+              </Text>
+              <Text fontFamily="$body" fontSize={16} ml={8} mb={8} color={isDark ? '#ccc' : '#666'}>
+                Total Completions: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{totalCompletions}</Text>
+              </Text>
+              <Text fontFamily="$body" fontSize={16} ml={8} mb={8} color={isDark ? '#ccc' : '#666'}>
+                Completion %: <Text fontWeight="700" color={isDark ? '#fff' : '#000'}>{percentComplete}%</Text>
+              </Text>
+            </View>
+          </Pressable>
+        </Modal>
+
+        <XStack alignItems="center" style={{ zIndex: 2 }}>
+          <XStack
+            flexWrap="wrap"
+            gap={gap}
+            borderRadius={6}
+            padding={6}
+            backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}
+            mb={history.length === 1 ? 4 : 0}
+          >
+            {history.length > 0 ? (
+              history.map((day, idx) => (
+                <YStack
+                  key={day.date}
+                  width={squareSize}
+                  height={squareSize}
+                  borderRadius={3}
+                  backgroundColor={day.completed ? '#00C851' : isDark ? '#333' : '#E0E0E0'}
+                  alignItems="center"
+                  justifyContent="center"
+                  opacity={day.date === today ? 1 : 0.8}
+                >
+                  {day.date === today && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        width: 4,
+                        height: 4,
+                        borderRadius: 2,
+                        backgroundColor: "#FFD600",
+                      }}
+                    />
+                  )}
+                </YStack>
+              ))
+            ) : (
+              <Text fontFamily="$body" fontSize={12} color={isDark ? '#777' : '#999'}>
+                No history yet
+              </Text>
+            )}
+          </XStack>
         </XStack>
-      </XStack>
-    </YStack>
+      </YStack>
+    </LongPressDelete>
   );
 }
-
-const styles = StyleSheet.create({
-  checkboxContainer: {
-    paddingHorizontal: 4,
-    paddingTop: 6,
-    paddingBottom: 2,
-    marginRight: 2,
-    alignSelf: 'flex-start',
-  },
-  checkbox: {
-    borderWidth: 1,
-    marginLeft: -4,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 12,
-  },
-  modalContent: {
-    width: Platform.OS === 'web' ? 400 : '100%',
-    maxWidth: 400,
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 8,
-  }
-});

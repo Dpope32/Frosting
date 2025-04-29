@@ -174,7 +174,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                     <YStack
                       key={entry.id}
                       width="100%"
-                      backgroundColor={isDark ? '$gray3' : '$gray2'}
+                      backgroundColor={isDark ? '$gray3' : '$gray3'}
                       br={8}
                       padding="$3"
                       marginBottom="$2"

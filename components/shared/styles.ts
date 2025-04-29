@@ -1,11 +1,12 @@
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { StyleSheet, Platform } from 'react-native';
 import { useMemo } from 'react';
+import { isIpad } from '@/utils/deviceUtils';
 
 export const useDrawerStyles = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? 'rgba(14, 14, 15, 0.9)' : '#f7f4ea';
+  const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : '#f7f4ea';
   const textColor = isDark ? '#fff' : '#000';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const isWeb = Platform.OS === 'web';
@@ -21,19 +22,17 @@ export const useDrawerStyles = () => {
       transform: [{ perspective: 1000 }],
     },
     header: {
-      paddingTop: isWeb ? 30: 50,
-      paddingBottom: isWeb ? 10: 20,
-      paddingHorizontal: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: borderColor,
+      paddingTop: isWeb ? isIpad() ? 50 : 50 : 50,
+      paddingBottom: isWeb ? isIpad() ? 10 : 15 : 15,
+      paddingHorizontal: isWeb ? isIpad() ? 20 : 18 : 24,
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor
     },
     profileImage: {
-      width: isWeb ? 40 : 50,
-      height: isWeb ? 40 : 50,
-      borderRadius: isWeb ?  20 : 25,
+      width: isWeb ? 40 : 40,
+      height: isWeb ? 40 : 40,
+      borderRadius: isWeb ?  20 : 20,
       marginRight: 12
     },
     username: {
@@ -46,12 +45,11 @@ export const useDrawerStyles = () => {
       backgroundColor
     },
     scrollView: {
-      marginTop: 10,
       overflowX: 'hidden',
       overflowY: 'auto'
     },
     scrollViewContent: {
-      paddingTop: 0
+      paddingTop: 6
     }
   }), [backgroundColor, textColor, borderColor, isWeb]);
 };

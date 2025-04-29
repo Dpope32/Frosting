@@ -9,6 +9,7 @@ import { ContentInput } from './ContentInput';
 import type { Note, Attachment, Tag } from '@/types/notes';
 import { useUserStore } from '@/store/UserStore';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface AddNoteSheetProps {
   isModalOpen: boolean;
@@ -151,18 +152,14 @@ export function AddNoteSheet({
     );
   };
 
-  const contentPadding = Platform.select({
-    ios: keyboardVisible ? 100 : 80,
-    android: keyboardVisible ? 80 : 80,
-    default: 80,
-  });
+  const contentPadding = isWeb ? 20 : isIpad() ? 20 : keyboardVisible ? 20 : 20;
 
   return (
     <Sheet
       modal
       open={isModalOpen}
       onOpenChange={handleCloseModal}
-      snapPoints={isWeb ? [85] : [93]}
+      snapPoints={isWeb ? [85] : [90]}
       dismissOnSnapToBottom
     >
       <Sheet.Overlay
@@ -185,7 +182,7 @@ export function AddNoteSheet({
         <XStack
           justifyContent="space-between"
           alignItems="center"
-          marginBottom="$2"
+          marginBottom="$3"
           paddingTop="$2"
         >
           <H3>{selectedNote ? 'Edit Note' : 'Add Note'}</H3>
@@ -208,7 +205,7 @@ export function AddNoteSheet({
           <YStack flex={1}>
             <RNScrollView
               ref={scrollViewRef}
-              style={{ flex: 1, maxHeight: keyboardVisible ? '60%' : '100%' }}
+              style={{ flex: 1, maxHeight: keyboardVisible ? isIpad() ? '35%' : '55%' : '100%' }}
               contentContainerStyle={{ 
                 paddingBottom: keyboardVisible ? 0 : contentPadding
               }}
@@ -216,7 +213,7 @@ export function AddNoteSheet({
               showsVerticalScrollIndicator={false}
               keyboardDismissMode="none"
             >
-              <YStack gap={isWeb ? "$3" : "$0"} paddingTop="$2">
+              <YStack gap={isWeb ? "$3" : "$0.5"} paddingTop="$1">
                 <DebouncedInput
                   placeholder="Title"
                   autoCapitalize='words'
@@ -248,7 +245,7 @@ export function AddNoteSheet({
             </RNScrollView>
             <YStack 
               style={{ 
-                marginBottom: keyboardVisible ? Platform.OS === 'ios' ? 20 : 0 : 0
+                marginBottom: keyboardVisible ? Platform.OS === 'ios' ? 60 : 0 : 0
               }}
             >
               <TagSelector tags={editTags} onTagsChange={handleTagsChange}/>

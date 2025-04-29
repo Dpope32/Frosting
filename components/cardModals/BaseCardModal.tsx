@@ -55,7 +55,7 @@ export function BaseCardModal({
           backgroundColor={isDark ? "rgba(14, 14, 14, 0.3)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
-          py={Platform.OS === 'web' ? "$2" : "$2"}
+          py={Platform.OS === 'web' ? "$2" : "$0"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
           backgroundColor={isDark ? "rgb(16, 16, 16)" : "rgba(250,250,250,0.95)"}
           borderTopLeftRadius={20}
@@ -77,7 +77,7 @@ export function BaseCardModal({
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={{ flex: 1, paddingTop: Math.max(topInset - 80, 0) }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 12, marginBottom: 12, paddingHorizontal: 6}}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 0, paddingHorizontal: 6}}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
                   fontSize={22}

@@ -1,23 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
-  withTiming,
-  Easing,
-  interpolate,
-  Extrapolation
-} from 'react-native-reanimated';
-import { LegalModal } from '@/components/modals/LegalModal';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing, interpolate, Extrapolation } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 
-export const LegalButton = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+export const ChangeLogButton = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const animationProgress = useSharedValue(0);
   const scale = useSharedValue(1);
+  const router = useRouter();
 
   const handlePress = () => {
     scale.value = withSpring(0.9, { damping: 10 });
@@ -28,16 +20,12 @@ export const LegalButton = () => {
         easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       });
       setTimeout(() => {
-        setModalVisible(true);
+        router.push('/modals/changelog');
       }, 400);
     }, 100);
   };
 
-  const buttonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
+  const buttonStyle = useAnimatedStyle(() => { return { transform: [{ scale: scale.value }] } });
 
   const rippleStyle = useAnimatedStyle(() => {
     const rippleScale = interpolate(
@@ -59,32 +47,26 @@ export const LegalButton = () => {
   });
 
   return (
-    <>
-      <Animated.View style={[styles.circle, buttonStyle]}>
-        <TouchableOpacity
-          style={styles.touchable}
-          onPress={handlePress}
-          activeOpacity={0.8}
-        >
-          <MaterialIcons 
-            name="gavel" 
-            size={22} 
-            color={isDark ? '#708090' : '#708090'} 
-          />
-          <Animated.View 
-            style={[
-              styles.ripple, 
-              { backgroundColor: isDark ? '#708090' : '#708090' },
-              rippleStyle
-            ]} 
-          />
-        </TouchableOpacity>
-      </Animated.View>
-      <LegalModal 
-        isVisible={modalVisible} 
-        onClose={() => setModalVisible(false)} 
-      />
-    </>
+    <Animated.View style={[styles.circle, buttonStyle]}>
+      <TouchableOpacity
+        style={styles.touchable}
+        onPress={handlePress}
+        activeOpacity={0.8}
+      >
+        <MaterialIcons 
+          name="history" 
+          size={22} 
+          color={isDark ? '#708090' : '#708090'} 
+        />
+        <Animated.View 
+          style={[
+            styles.ripple, 
+            { backgroundColor: isDark ? '#708090' : '#708090' },
+            rippleStyle
+          ]} 
+        />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 

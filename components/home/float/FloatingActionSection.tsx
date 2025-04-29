@@ -1,5 +1,5 @@
-import React from 'react';
-import { Platform, Dimensions } from 'react-native';
+import React, { useRef } from 'react';
+import { Platform, View, Text } from 'react-native';
 import { isWeb } from 'tamagui';
 import * as Haptics from 'expo-haptics';
 import { FloatingAction } from "react-native-floating-action";
@@ -7,7 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
 import { ActionButton } from './ActionButton';
-
+import { ActionButtonTitle } from './ActionButtonTitle';
 interface FloatingActionSectionProps {
   onActionPress: (name: string) => void;
   isDark: boolean;
@@ -31,21 +31,47 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   const textColor = isDark ? "#ffffff" : "#ffffff";
   const darkerPrimary = darkenColor(primaryColor, 0.7);
   const [isOpen, setIsOpen] = React.useState(false);
+  const actionRef = useRef<any>(null); 
 
+  const closeFab = () => {
+    const fabRef = actionRef.current;
+    if (fabRef) {
+      setTimeout(() => {
+        fabRef.animateButton(); 
+      }, 1000);
+    }
+  };
 
   const handleActionPress = (name: string) => {
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     onActionPress(name);
+    closeFab();
   };
 
   const actions = [
     {
+      text: "Whats New?",
+      icon: <MaterialIcons name="info" size={isIpad() ? 26 : 20} color={textColor} />,
+      name: "bt_title",
+      position: 1,
+      render: () => (
+        <ActionButtonTitle
+          key="title-action"
+          onPress={() => {}}
+          isDark={isDark}
+          icon=""
+          primaryColor={primaryColor}
+          text="Whats New?"
+        />
+      )
+    },
+    {
       text: "Password",
       icon: <MaterialIcons name="lock" size={isIpad() ? 26 : 20} color={textColor} />,
       name: "bt_password",
-      position: 1,
+      position: 2,
       render: () => (
         <ActionButton
           key="password-action"
@@ -61,7 +87,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "Habit",
       icon: <MaterialIcons name="repeat" size={isIpad() ? 26 : 20} color={textColor} />,
       name: "bt_habit",
-      position: 2,
+      position: 3,
       render: () => (
         <ActionButton
           key="habit-action"
@@ -77,7 +103,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "Note",
       icon: <MaterialIcons name="sticky-note-2" size={isIpad() ? 26 : 20} color={textColor} />,
       name: "bt_note",
-      position: 3,
+      position: 4,
       render: () => (
         <ActionButton
           key="note-action"
@@ -93,7 +119,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "Bill",
       icon: <MaterialIcons name="currency-exchange" size={isIpad() ? 26 : 20} color={textColor} />,
       name: "bt_bill",
-      position: 4,
+      position: 5,
       render: () => (
         <ActionButton
           key="bill-action"
@@ -109,7 +135,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "Event",
       icon: <MaterialIcons name="calendar-month" size={isIpad() ? 26 : 20} color={textColor} />,
       name: "bt_event",
-      position: 5,
+      position: 6,
       render: () => (
         <ActionButton
           key="event-action"
@@ -125,7 +151,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "ToDo",
       icon: <MaterialIcons name="check-box" size={isIpad() ? 26 : 20} color={textColor} />,
       name: "bt_todo",
-      position: 6,
+      position: 7,
       render: () => (
         <ActionButton
           key="todo-action"
@@ -142,6 +168,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   return (
     <>
       <FloatingAction
+        ref={actionRef} 
         actions={actions}
         onPressItem={(name?: string) => name && handleActionPress(name)}
         color={isOpen ? darkerPrimary : primaryColor}
@@ -152,8 +179,8 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}
-        overlayColor={isDark ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.8)'}
-        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 10}
+        overlayColor={isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.8)'}
+        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 14}
         shadow={{
           shadowOpacity: 0.4,
           shadowOffset: { width: 0, height: 4 },
@@ -167,4 +194,4 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       />
     </>
   );
-} 
+}

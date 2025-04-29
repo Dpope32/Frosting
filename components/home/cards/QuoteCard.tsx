@@ -24,7 +24,7 @@ export function QuoteCard({ isHome, isDark }: QuoteCardProps) {
   return (
     <>
     <Stack
-      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.5)"}
+      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.3)"}
       br={isIpad() ? 18 : 12}
       padding="$3"  
       borderWidth={isHome ? 0 : 1}

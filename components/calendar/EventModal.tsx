@@ -160,7 +160,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               showsVerticalScrollIndicator={!isWeb}
             >
                 {selectedEvents
-                  .slice()
+                  ?.slice()
                   .sort((a, b) => {
                     if (!a.time && !b.time) return 0;
                     if (!a.time) return 1; 

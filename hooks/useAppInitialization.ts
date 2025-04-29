@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { useNBAStore } from '@/store/NBAStore';
-import { useSportsAPI } from './useSportsAPI';
+//import { useSportsAPI } from './useSportsAPI';
 import { useColorScheme as useRNColorScheme } from 'react-native';
 import { useWallpaperStore } from '@/store/WallpaperStore';
 import { preloadTheme } from '@/utils/preloadTheme';
@@ -12,7 +12,7 @@ export function useAppInitialization() {
   const systemColorScheme = useRNColorScheme();
   // Initialize NFL and NBA schedules
   // TODO: add NFL schedule with NBA szn coming to an end
-  useSportsAPI();
+  //useSportsAPI();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -43,8 +43,8 @@ export function useAppInitialization() {
         setTimeout(() => {
           Promise.allSettled([
             useWallpaperStore.getState().checkAndRedownloadWallpapers(),
-            useNBAStore.getState().syncNBAGames(),
-            useNBAStore.getState().syncGameTasks(),
+          //  useNBAStore.getState().syncNBAGames(),
+          //  useNBAStore.getState().syncGameTasks(),
             useCalendarStore.getState().syncBirthdays(),
           ]).catch(error => {
             Sentry.captureException(error, {

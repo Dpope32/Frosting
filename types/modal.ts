@@ -5,7 +5,7 @@ export interface EventModalProps {
     isEventModalVisible: boolean
     isViewEventModalVisible: boolean
     selectedDate: Date | null
-    selectedEvents: CalendarEvent[]
+    selectedEvents?: CalendarEvent[]
     newEventTitle: string
     setNewEventTitle: (title: string) => void
     newEventTime: string

@@ -82,7 +82,7 @@ export default function HabitsScreen() {
                 height: '100%',
               }}
             >
-              <View style={{ position: 'relative', zIndex: 1 }}>
+              <View style={{ position: 'relative', zIndex: 1}}>
                 {habits.map((habit) => {
                   const today = format(new Date(), 'yyyy-MM-dd');
                   const doneToday = habit.completionHistory[today] || false;

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { Platform } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
@@ -31,7 +31,6 @@ import { isIpad } from '@/utils/deviceUtils';
 import { CalendarEvent } from '@/store/CalendarStore'
 
 export function LandingPage() {
-  // Store hooks
   const userHydrated = useUserStore(s => s.hydrated)
   const projectHydrated = useStoreHydrated()
   const todaysTasks = useProjectStore(s => s.todaysTasks)
@@ -40,14 +39,10 @@ export function LandingPage() {
   const isEditModalOpen = useEditTaskStore(s => s.isOpen)
   const closeEditModal = useEditTaskStore(s => s.closeModal)
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
-
-  // Theme and router hooks
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
-  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.99)" : "rgba(255, 255, 255, 0.1)"
-
-  // State hooks
+  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)"
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
@@ -61,7 +56,6 @@ export function LandingPage() {
   const [billModalOpen, setBillModalOpen] = useState(false)
   const [eventModalOpen, setEventModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [selectedEvents, setSelectedEvents] = useState<any[]>([])
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventTime, setNewEventTime] = useState('')
   const [selectedType, setSelectedType] = useState<CalendarEvent['type']>('personal')
@@ -79,7 +73,7 @@ export function LandingPage() {
     return () => clearTimeout(timer)
   }, [])
   
-  if (!userHydrated || !projectHydrated) {
+  if (!userHydrated) {
     return (
       <Stack flex={1} backgroundColor="black" alignItems="center" justifyContent="center">
         <Text color="white">Loading...</Text>
@@ -171,13 +165,19 @@ export function LandingPage() {
                   shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35,  shadowRadius: 12  }
             }
           >
-            <TaskSection 
-              todaysTasks={todaysTasks} 
-              toggleTaskCompletion={toggleTaskCompletion} 
-              deleteTask={deleteTask} 
-              onAddTaskPress={handleNewTaskPress} 
-              onTaskListPress={() => setTaskListModalOpen(true)} 
-            />
+            {projectHydrated ? (
+              <TaskSection 
+                todaysTasks={todaysTasks} 
+                toggleTaskCompletion={toggleTaskCompletion} 
+                deleteTask={deleteTask} 
+                onAddTaskPress={handleNewTaskPress} 
+                onTaskListPress={() => setTaskListModalOpen(true)} 
+              />
+            ) : (
+              <Stack alignItems="center" justifyContent="center" height={120}>
+                <Text color="white">Loading tasks...</Text>
+              </Stack>
+            )}
           </Stack>
          
           {Platform.OS === 'web' ? (
@@ -236,7 +236,6 @@ export function LandingPage() {
             isEventModalVisible={eventModalOpen}
             isViewEventModalVisible={false}
             selectedDate={selectedDate}
-            selectedEvents={selectedEvents}
             newEventTitle={newEventTitle}
             setNewEventTitle={setNewEventTitle}
             newEventTime={newEventTime}
