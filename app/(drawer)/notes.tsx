@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as Haptics from 'expo-haptics';
 import { isWeb } from 'tamagui';
-import { View } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { YStack, XStack } from 'tamagui';
@@ -90,7 +90,7 @@ export default function NotesScreen() {
   const ghostNoteStyle = getGhostNoteStyle();
 
   return (
-    <YStack flex={1} backgroundColor={isDark ? '#000000' : '$backgroundLight'} style={isWeb ? noteStyles.webContainer : undefined} onTouchMove={localHandleDragging} >
+    <YStack f={1} mt={isWeb ? 80 : 90} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={localHandleDragging}>
       <XStack
         paddingTop={isIpad() ? insets.top + 70 : insets.top + 20}
         paddingBottom={16}
@@ -102,34 +102,52 @@ export default function NotesScreen() {
       </XStack>
 
       {isWeb ? (
-        notes.length === 0 ? (
-          <NotesEmpty isDark={isDark} primaryColor={preferences.primaryColor} isWeb={isWeb} />
-        ) : (
-          <WebDragDrop
-            notes={notes}
-            onMoveNote={(dragIndex, hoverIndex) => {handleMoveNote({ dragIndex, hoverIndex, notes, noteStore});}}
-            onSelectNote={(note) => handleSelectNote({
-              note,
-              setSelectedNote,
-              setEditTitle,
-              setEditContent,
-              setEditTags,
-              setEditAttachments,
-              setIsModalOpen
-            })}
-            onEditNote={(note) => handleSelectNote({
-              note,
-              setSelectedNote,
-              setEditTitle,
-              setEditContent,
-              setEditTags,
-              setEditAttachments,
-              setIsModalOpen
-            })}
-            numColumns={numColumns}
-            bottomPadding={insets.bottom + 20}
-          />
-        )
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            padding: 8,
+            paddingBottom: 100,
+            paddingHorizontal: 0,
+            paddingTop: 0,
+            paddingLeft: 12,
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start',
+            gap: 32,
+            maxWidth: 1800,
+            marginHorizontal: 'auto',
+          }}
+        >
+          {notes.length === 0 ? (
+            <NotesEmpty isDark={isDark} primaryColor={preferences.primaryColor} isWeb={isWeb} />
+          ) : (
+            <WebDragDrop
+              notes={notes}
+              onMoveNote={(dragIndex, hoverIndex) => {handleMoveNote({ dragIndex, hoverIndex, notes, noteStore});}}
+              onSelectNote={(note) => handleSelectNote({
+                note,
+                setSelectedNote,
+                setEditTitle,
+                setEditContent,
+                setEditTags,
+                setEditAttachments,
+                setIsModalOpen
+              })}
+              onEditNote={(note) => handleSelectNote({
+                note,
+                setSelectedNote,
+                setEditTitle,
+                setEditContent,
+                setEditTags,
+                setEditAttachments,
+                setIsModalOpen
+              })}
+              numColumns={numColumns}
+              bottomPadding={insets.bottom + 20}
+            />
+          )}
+        </ScrollView>
       ) : (
         <GestureHandlerRootView style={{ flex: 1 }}>
           <View style={{ flex: 1 }} onTouchMove={localHandleDragging}>
