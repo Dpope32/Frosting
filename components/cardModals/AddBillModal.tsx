@@ -172,8 +172,8 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(200).duration(500)}>
-              <XStack gap="$5" alignItems="center" justifyContent="center"  paddingHorizontal="$2">
-                <XStack alignItems="center" width="30%">
+              <XStack gap="$5" alignItems="flex-start" justifyContent="flex-start"  paddingHorizontal="$1">
+                <XStack alignItems="flex-start" width="30%">
                   <Input
                     ref={amountInputRef}
                     placeholder="Amount"

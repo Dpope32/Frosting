@@ -137,7 +137,7 @@ export function LandingPage() {
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} marginBottom="$3"  showsVerticalScrollIndicator={false} >
+      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom="$1" showsVerticalScrollIndicator={false} >
         <YStack pt={isIpad() ? isDark ? 75 : 85 : 85} gap="$3" >
           {!isWeb && (
             <Stack 
