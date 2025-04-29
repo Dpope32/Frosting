@@ -102,31 +102,34 @@ export default function NotesScreen() {
       </XStack>
 
       {isWeb ? (
-        <WebDragDrop
-        notes={notes}
-        onMoveNote={(dragIndex, hoverIndex) => {handleMoveNote({ dragIndex, hoverIndex, notes, noteStore});
-        }}
-        onSelectNote={(note) => handleSelectNote({
-          note,
-          setSelectedNote,
-          setEditTitle,
-          setEditContent,
-          setEditTags,
-          setEditAttachments,
-          setIsModalOpen
-        })}
-        onEditNote={(note) => handleSelectNote({
-          note,
-          setSelectedNote,
-          setEditTitle,
-          setEditContent,
-          setEditTags,
-          setEditAttachments,
-          setIsModalOpen
-        })}
-        numColumns={numColumns}
-        bottomPadding={insets.bottom + 20}
-        />
+        notes.length === 0 ? (
+          <NotesEmpty isDark={isDark} primaryColor={preferences.primaryColor} isWeb={isWeb} />
+        ) : (
+          <WebDragDrop
+            notes={notes}
+            onMoveNote={(dragIndex, hoverIndex) => {handleMoveNote({ dragIndex, hoverIndex, notes, noteStore});}}
+            onSelectNote={(note) => handleSelectNote({
+              note,
+              setSelectedNote,
+              setEditTitle,
+              setEditContent,
+              setEditTags,
+              setEditAttachments,
+              setIsModalOpen
+            })}
+            onEditNote={(note) => handleSelectNote({
+              note,
+              setSelectedNote,
+              setEditTitle,
+              setEditContent,
+              setEditTags,
+              setEditAttachments,
+              setIsModalOpen
+            })}
+            numColumns={numColumns}
+            bottomPadding={insets.bottom + 20}
+          />
+        )
       ) : (
         <GestureHandlerRootView style={{ flex: 1 }}>
           <View style={{ flex: 1 }} onTouchMove={localHandleDragging}>

@@ -314,7 +314,7 @@ export default function Onboarding() {
                   opacity={1}
                   disabled={!canProceed()}
                   onPress={handleNext}>
-                  <Text fontFamily="$body" color={getButtonTextColor()} fontSize={isWeb ? 20 : isIpad() ? 18 : 16} fontWeight="bold">
+                  <Text fontFamily="$body" color={getButtonTextColor()} fontSize={isWeb ? 18 : isIpad() ? 18 : 16}>
                     {step === 5 ? 'Complete' : 'Continue'}
                   </Text>
                 </Button>

@@ -38,7 +38,7 @@ export function CardSection({
   
   return (
     <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$0"} alignSelf={isWeb? "flex-start" : isIpad() ? "center" : "center"} justifyContent={isWeb? "flex-start" : isIpad() ? "center" : "flex-start"} alignItems="center">
-      {!isIpad() ? (
+      {!isIpad() ? !isWeb && (
         <GreetingSection username={username} />
       ) : (
         <Text
