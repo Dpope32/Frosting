@@ -420,7 +420,7 @@ export const useProjectStore = create<ProjectStore>()(
         }
         
         if (Platform.OS !== 'web') {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
         }
       },
       updateTask: (taskId, updatedData) => {

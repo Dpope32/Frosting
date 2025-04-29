@@ -37,7 +37,7 @@ export function CardSection({
   const [settingsOpen, setSettingsOpen] = useState(false);
   
   return (
-    <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$0"} alignSelf={isIpad() ? "center" : "center"} justifyContent={isIpad() ? "center" : "flex-start"} alignItems="center">
+    <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$0"} alignSelf={isWeb? "flex-start" : isIpad() ? "center" : "center"} justifyContent={isWeb? "flex-start" : isIpad() ? "center" : "flex-start"} alignItems="center">
       {!isIpad() ? (
         <GreetingSection username={username} />
       ) : (

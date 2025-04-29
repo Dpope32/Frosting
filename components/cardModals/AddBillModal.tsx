@@ -220,44 +220,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                     flex={1}
                   />
                 </XStack>
-                
-                <XStack alignItems="center" flex={1}>
-                  <Slider
-                    value={[sliderValue]}
-                    onValueChange={handleAmountChange}
-                    step={1}
-                    min={0}
-                    flex={1}
-                    max={MAX_AMOUNT}
-                    defaultValue={[0]}
-                    minStepsBetweenThumbs={1}
-                    orientation="horizontal"
-                  >
-                    <Slider.Track 
-                      backgroundColor={isDark ? "$gray5" : "$gray3"}
-                      height={isWeb ? 6 : 8}
-                      borderRadius={8}
-                    >
-                      <Slider.TrackActive 
-                        backgroundColor={primaryColor}
-                        height={isWeb ? 6 : 8}
-                        borderRadius={8}
-                      />
-                    </Slider.Track>
-                    <Slider.Thumb 
-                      index={0} 
-                      width={isWeb ? 16 : 8}
-                      height={isWeb ? 16 : 8}
-                      backgroundColor={primaryColor}
-                      br={isWeb ? 8 : 4}
-                      shadowColor="black"
-                      shadowOffset={{ width: 0, height: 1 }}
-                      shadowOpacity={0.15}
-                      shadowRadius={1}
-                      elevation={1}
-                    />
-                  </Slider>
-                </XStack>
               </XStack>
             </Animated.View>
 
@@ -347,6 +309,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   fontFamily="$body"
                   fontSize={isWeb ? "$5" : "$4"}
                   paddingHorizontal="$4"
+                  color={isDark ? "$white" : "$white"}
                 >
                   Save
                 </Button>

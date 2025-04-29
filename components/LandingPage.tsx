@@ -137,8 +137,8 @@ export function LandingPage() {
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} showsVerticalScrollIndicator={false} >
-        <YStack pt={isIpad() ? isDark ? 75 : 75 : 100}gap="$3">
+      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} marginBottom="$3"  showsVerticalScrollIndicator={false} >
+        <YStack pt={isIpad() ? isDark ? 75 : 85 : 85} gap="$3" >
           {!isWeb && (
             <Stack 
               borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
@@ -158,7 +158,8 @@ export function LandingPage() {
             borderRadius={16} 
             padding="$3" 
             borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
-            borderWidth={1} 
+            borderWidth={1}
+            marginBottom="$4" 
             style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
                   boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
               : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 

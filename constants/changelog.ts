@@ -1,4 +1,14 @@
 export const CHANGELOG = [
+  {
+    version: '1.1.89',
+    notes: 'Finished Habit Screen',
+    bullets: [
+      'Reoccuring Notification reminders for Habits not yet completed',
+      'Habit Card analytics',
+      'Fixed bug with Habit notifications all sending at once',
+      'Fixed small styling adjustment preventing homescreen from showing bottom of Task Section'
+    ],
+  },
     {
       version: '1.1.88',
       notes: 'Added changelog screen',
