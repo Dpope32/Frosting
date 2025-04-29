@@ -164,8 +164,8 @@ export default function DrawerLayout() {
     }
       options.drawerOpeningAnimation = {
         type: 'spring',
-        stiffness: 650,
-        damping: 60,
+        stiffness: 750,
+        damping: 70,
         mass: 1,
         overshootClamping: false,
         restDisplacementThreshold: 0.01,
