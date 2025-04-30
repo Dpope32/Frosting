@@ -76,7 +76,7 @@ export default function BillsScreen() {
   };
 
   return (
-    <YStack f={1} mt={isWeb ? 65 : 95} py={"$2"} bg={isDark ? "#010101" : "#fffbf7fff"}>
+    <YStack f={1} mt={isWeb ? 65 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "#fffbf7fff"} px={isIpad() ? "$3" : "$0"}>
       <BillSummary 
         monthlyIncome={monthlyIncome}
         totalMonthlyAmount={totalMonthlyAmount}
@@ -125,8 +125,8 @@ export default function BillsScreen() {
           padding: isWeb ? 12 : isIpad() ? 8 : 6,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 0 : isIpad() ? 12 : 12,
-          paddingLeft: isWeb ? 40 : isIpad() ? 60 : 20,
-          paddingRight: isWeb ? 20 : isIpad() ? 60 : 20, 
+          paddingLeft: isWeb ? 40 : isIpad() ? 40 : 20,
+          paddingRight: isWeb ? 20 : isIpad() ? 40 : 20, 
           display: isWeb ? 'flex' : isIpad() ? 'flex' :  undefined,
           flexDirection: isWeb ? 'row' : isIpad() ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : isIpad() ? 'wrap' : undefined,

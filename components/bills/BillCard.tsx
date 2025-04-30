@@ -45,7 +45,8 @@ export const BillCard = ({
   return (
     <LongPressDelete onDelete={handleDelete}>
       <XStack
-       style={{ width: isWeb ? 320 : isIpad() ? 320 : '100%' }}  
+       style={{ width: isWeb ? 320 : isIpad() ? 300 : '100%' }}  
+        jc="center"
         minHeight={isWeb ? 100 : isIpad() ? 100 : 70}
         height={isWeb ? 100 : isIpad() ? 100 : 75}
         flexShrink={0}
@@ -56,9 +57,8 @@ export const BillCard = ({
         ai="center"
         borderWidth={1}
         borderColor={isToday ? primaryColor : isDark ? '#222' : '#e0e0e0'}
-        width={isWeb ? 320 : isIpad() ? 320 : '100%'}
-        maxWidth={isWeb ? 320 : isIpad() ? 320 : '100%'}
-        minWidth={isWeb ? 320 : isIpad() ? 320 : '100%'}
+        width={isWeb ? 320 : isIpad() ? '90%' : '100%'}
+        maxWidth={isWeb ? 320 : isIpad() ? '90%' : '100%'}
         position="relative"
         opacity={isPast ? 0.8 : 1}
         overflow="hidden"
@@ -97,7 +97,7 @@ export const BillCard = ({
           </YStack>
         )}
 
-        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0 }}>
+        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : 4 }}>
           <XStack jc="space-between" ai="center" style={{ minWidth: 0 }}>
             <Text
               color={isDark ? '#f9f9f9' : '#222'}

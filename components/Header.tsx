@@ -173,7 +173,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
             justifyContent="space-between"
             px="$4"
             height={isWeb ? 80 : isIpad() ? 80 : 90}
-            paddingTop={isWeb ? 0 : isIpad() ? 10 : 40}
+            paddingTop={isWeb ? 0 : isIpad() ? 30 : 40}
           >
             <XStack alignItems="center" gap="$1" style={{ marginLeft: isPermanentDrawer ? 10 : 0 }}>
               {!isWeb && !isIpad() && (

@@ -309,7 +309,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   fontFamily="$body"
                   fontSize={isWeb ? "$5" : "$4"}
                   paddingHorizontal="$4"
-                  color={isDark ? "$white" : "$white"}
+                  color={isDark ? "$white" : "#fff"}
                 >
                   Save
                 </Button>

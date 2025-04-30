@@ -107,6 +107,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
             fontFamily="$body"
             fontSize={isWeb ? "$5" : "$4"}
             paddingHorizontal="$4"
+            color={isDark ? "$white" : "#fff"}
           >
             Save
           </Button>

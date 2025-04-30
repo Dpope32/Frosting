@@ -20,6 +20,7 @@ export const useDrawerStyles = () => {
       flex: 1,
       backfaceVisibility: 'hidden',
       transform: [{ perspective: 1000 }],
+      marginTop: isIpad() ? -12 : 0,
     },
     header: {
       paddingTop: isWeb ? isIpad() ? 20 : 50 : 50,
@@ -33,6 +34,8 @@ export const useDrawerStyles = () => {
       width: isWeb ? 40 : 40,
       height: isWeb ? 40 : 40,
       borderRadius: isWeb ?  20 : 20,
+      borderWidth: 1,
+      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.5)",
       marginRight: 12
     },
     username: {

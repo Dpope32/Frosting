@@ -4,6 +4,7 @@ import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Edit3 } from '@tamagui/lucide-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface BillSummaryProps {
   monthlyIncome: number;
@@ -73,7 +74,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
           </XStack>
           
           <XStack gap="$4" ai="center" flex={1} jc="flex-start">
-            <XStack width={180} ai="center" py="$3" px="$3" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+            <XStack width={isIpad() ? 180 : 150} ai="center" py="$3" px="$3" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
                 <XStack ai="center" gap="$2">
@@ -125,7 +126,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     <Animated.View 
       entering={FadeIn.duration(600)}
       style={{
-        width: '90%',
+        width: isIpad() ? '90%' : '90%',
         marginHorizontal: 'auto',
         borderRadius: 12,
         marginBottom: 16,
@@ -143,7 +144,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 12, borderWidth: 1, borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.5)" }}
       />
       <YStack gap="$3" position="relative">
         <XStack 
