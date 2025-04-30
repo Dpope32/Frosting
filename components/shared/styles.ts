@@ -22,7 +22,7 @@ export const useDrawerStyles = () => {
       transform: [{ perspective: 1000 }],
     },
     header: {
-      paddingTop: isWeb ? isIpad() ? 32 : 50 : 50,
+      paddingTop: isWeb ? isIpad() ? 20 : 50 : 50,
       paddingBottom: isWeb ? isIpad() ? 10 : 15 : 15,
       paddingHorizontal: isWeb ? isIpad() ? 20 : 18 : 24,
       flexDirection: 'row',

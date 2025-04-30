@@ -153,3 +153,54 @@ export const testNotification = async () => {
     Alert.alert('Error', String(error));
   }
 };
+
+// Cancel a scheduled notification by its identifier
+export const cancelEventNotification = async (identifier: string) => {
+  if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return;
+  try {
+    await Notifications.cancelScheduledNotificationAsync(identifier);
+    return true;
+  } catch (error) {
+    console.error('Error cancelling notification:', error);
+    return false;
+  }
+};
+
+// Schedule a daily repeating notification for a habit
+export const scheduleDailyHabitNotification = async (
+  hour: number,
+  minute: number,
+  title: string,
+  body: string,
+  identifier?: string,
+  deepLinkUrl?: string
+) => {
+  if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return 'web-not-supported';
+  try {
+    const hasPermission = await requestNotificationPermissions();
+    if (!hasPermission) return 'permission-denied';
+
+    const notifId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        sound: true,
+        priority: AndroidNotificationPriority.MAX,
+        vibrate: [0, 250, 250, 250],
+        autoDismiss: true,
+        data: deepLinkUrl ? { url: deepLinkUrl } : undefined,
+      },
+      trigger: {
+        type: SchedulableTriggerInputTypes.DAILY,
+        hour,
+        minute,
+        channelId: Platform.OS === 'android' ? 'events' : undefined,
+      },
+      identifier,
+    });
+    return notifId;
+  } catch (error) {
+    console.error('Error scheduling daily notification:', error);
+    return 'error';
+  }
+};

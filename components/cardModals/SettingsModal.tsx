@@ -223,10 +223,10 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       hideHandle={true}
       showCloseButton={!isSigningOut}
     >
-      <YStack flex={1} gap="$2" paddingBottom="$1" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$2'}>
+      <YStack flex={1} gap="$2" paddingVertical="$3" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$2'}>
         <XStack gap="$3" flexWrap="wrap">
-          <YStack width={isWeb ? 100 : isIpad() ? 80 : 60} gap="$2" alignItems="center">
-            <Circle size={isWeb ? 80 : isIpad() ? 60 : 60} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
+          <YStack width={isWeb ? 100 : isIpad() ? 80 : 60} gap="$2" alignItems="center" justifyContent="center">
+            <Circle size={isWeb ? 80 : isIpad() ? 60 : 55} mt={isWeb ? 0 : 5} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
               {settings.profilePicture ? (
                   <Image source={buildImageSource(settings.profilePicture)} style={{ width: 60, height: 60, borderRadius: 30 }} />
                 ) : (
@@ -239,7 +239,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             <YStack gap="$3" flex={1}>
               <XStack gap="$2" flexWrap="wrap">
                 <YStack width={110} gap="$1">
-                  <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
+                  <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
                     Username
                   </Text>
                   <DebouncedInput
@@ -248,13 +248,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     value={settings.username}
                     onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, username: text }))}
                     backgroundColor={isDark ? '#222' : '#f5f5f5'}
-                    color={isDark ? '#fff' : '#000'}
+                    color={isDark ? '#f3f3f3' : '#000'}
                     borderWidth={isDark ? 0 : 1}
                     borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
                   />
                 </YStack>
                 <YStack width={110} gap="$1">
-                  <Text fontSize={14} color={isDark ? '#fff' : '#000'} fontFamily="$body">
+                  <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
                     Zip Code
                   </Text>
                   <DebouncedInput
@@ -263,11 +263,17 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     value={settings.zipCode}
                     onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, zipCode: text }))}
                     backgroundColor={isDark ? '#222' : '#f5f5f5'}
-                    color={isDark ? '#fff' : '#000'}
+                    color={isDark ? '#f3f3f3' : '#000'}
                     borderWidth={isDark ? 0 : 1}
                     borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
                   />
                 </YStack>
+                {!isWeb && !isIpad() && (
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Theme</Text>
+                  <Circle size={30} backgroundColor={settings.primaryColor} pressStyle={{ scale: 0.97 }} onPress={() => setColorPickerOpen(true)} />
+                </YStack>
+                )}
               </XStack>
             </YStack>
           </XStack>
@@ -301,6 +307,32 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
               </XStack>
             </YStack>
           )}
+          {!isWeb && !isIpad() && (
+            <YStack mt="$2" px="$2">
+              <XStack gap="$1" justifyContent="center">
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Quote</Text>
+                  <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Stocks</Text>
+                  <Switch value={settings.portfolioEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, portfolioEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Weather</Text>
+                  <Switch value={settings.temperatureEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, temperatureEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">WiFi</Text>
+                  <Switch value={settings.wifiEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, wifiEnabled: val }))} />
+                </YStack>
+                <YStack alignItems="center" gap={4} flex={1}>
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Notifs</Text>
+                  <Switch value={settings.notificationsEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, notificationsEnabled: val }))} />
+                </YStack>
+              </XStack>
+            </YStack>
+          )}
           <YStack gap="$2" px={isWeb ? '$4' : '$3'} py={isWeb ? '$4' : '$3'}>
             <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
               Wallpaper
@@ -308,7 +340,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             <YStack>
               {Array.from({ length: Math.ceil((filteredBackgroundStyles.length + 1) / 3) }).map((_, rowIndex) => {
                 const itemsForRow = filteredBackgroundStyles.slice(rowIndex * 3, rowIndex * 3 + 3);
-                // Add custom wallpaper button to the last row if there's space, or create a new row
                 if (rowIndex === Math.ceil((filteredBackgroundStyles.length + 1) / 3) - 1) {
                   while (itemsForRow.length < 3) {
                     if (itemsForRow.length === 0 || (rowIndex * 3 + itemsForRow.length) === filteredBackgroundStyles.length) {

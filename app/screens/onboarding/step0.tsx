@@ -143,7 +143,7 @@ export default function Step0({
         placeholderTextColor="$onboardingPlaceholder"
         fontFamily="$body"
         textAlign="center"
-        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 150 : 100, height: isWeb ? 55 : isIpad() ? 50 : 43}}
+        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 43}}
       />
     </YStack>
   )

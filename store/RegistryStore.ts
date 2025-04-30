@@ -34,25 +34,26 @@ interface RegistryState {
   stocksLastUpdated: number;
   
   // Store instances
-  habitStore: ReturnType<typeof useHabitStore>;
-  weatherStore: ReturnType<typeof useWeatherStore>;
-  billStore: ReturnType<typeof useBillStore>;
-  calendarStore: ReturnType<typeof useCalendarStore>;
-  todoStore: ReturnType<typeof useProjectStore>;
-  toastStore: ReturnType<typeof useToastStore>;
-  noteStore: ReturnType<typeof useNoteStore>;
-  wallpaperStore: ReturnType<typeof useWallpaperStore>;
-  userStore: ReturnType<typeof useUserStore>;
-  editStockStore: ReturnType<typeof useEditStockStore>;
-  editTaskStore: ReturnType<typeof useEditTaskStore>;
-  networkStore: ReturnType<typeof useNetworkStore>;
-  vaultStore: ReturnType<typeof useVaultStore>;
-  calendarViewStore: ReturnType<typeof useCalendarViewStore>;
-  nbaStore: ReturnType<typeof useNBAStore>;
-  crmStore: ReturnType<typeof useCRMStore>;
-  recommendationStore: ReturnType<typeof useRecommendationStore>;
-  portfolioStore: ReturnType<typeof usePortfolioStore>;
-  peopleStore: ReturnType<typeof usePeopleStore>;
+  // Using Record<string, any> to avoid deep type instantiation issues
+  habitStore: Record<string, any>;
+  weatherStore: Record<string, any>;
+  billStore: Record<string, any>;
+  calendarStore: Record<string, any>;
+  todoStore: Record<string, any>;
+  toastStore: Record<string, any>;
+  noteStore: Record<string, any>;
+  wallpaperStore: Record<string, any>;
+  userStore: Record<string, any>;
+  editStockStore: Record<string, any>;
+  editTaskStore: Record<string, any>;
+  networkStore: Record<string, any>;
+  vaultStore: Record<string, any>;
+  calendarViewStore: Record<string, any>;
+  nbaStore: Record<string, any>;
+  crmStore: Record<string, any>;
+  recommendationStore: Record<string, any>;
+  portfolioStore: Record<string, any>;
+  peopleStore: Record<string, any>;
   
   // Actions
   setHasCompletedOnboarding: (value: boolean) => void;

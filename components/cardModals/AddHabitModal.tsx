@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
-import { TextInput, View, StyleSheet, Platform, Pressable, ScrollView } from 'react-native';
-import { XStack, YStack, Text, Button, Sheet, ListItem } from 'tamagui';
+import { TextInput, StyleSheet, Platform, Pressable, ScrollView } from 'react-native';
+import { XStack, YStack, Text, Button } from 'tamagui';
 import { BaseCardAnimated } from './BaseCardAnimated';
-import { scheduleEventNotification } from '@/services/notificationServices';
+import {  scheduleDailyHabitNotification } from '@/services/notificationServices';
 import { CategorySelector } from '@/components/shared/debouncedInput';
 import { TaskCategory } from '@/types/task';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from 'react-native';
-import { NotificationTimeLabel } from '@/store/HabitStore';
 import { useToastStore } from '@/store/ToastStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
-import { DebouncedTextInput } from '@/components/recModals/BillRecommendationModal';
+import { DebouncedInput } from '@/components/shared/debouncedInput';
 
 interface AddHabitModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onSave: (name: string, category: TaskCategory, notificationTimeLabel: NotificationTimeLabel, notificationTimeValue: string) => void;
+  onSave: (name: string, category: TaskCategory, notificationTimeValue: string, customMessage: string) => void;
 }
 
 export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps) {
@@ -63,70 +62,23 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
 
   const handleSave = async () => {
     if (!name.trim()) return;
-
-    if (notificationTime) {
-      const notificationDate = new Date();
-      notificationDate.setHours(notificationTime.getHours(), notificationTime.getMinutes(), 0, 0);
-      
-      if (notificationDate <= new Date()) {
-        notificationDate.setDate(notificationDate.getDate() + 1);
-      }
-
-      console.log('📅 Scheduling habit notification:', {
-        habitName: name,
-        notificationTime: format(notificationTime, 'h:mm a'),
-        customMessage: customMessage.trim() || 'Using default message',
-        scheduledFor: format(notificationDate, 'MMM d, yyyy h:mm a'),
-        identifier: `${name}-${format(notificationTime, 'HH:mm')}`
-      });
-
-      const result = await scheduleEventNotification(
-        notificationDate,
-        `${name} Reminder`,
-        customMessage.trim() || `Don't forget to complete "${name}" today`,
-        `${name}-${format(notificationTime, 'HH:mm')}`,
-        'kaiba-nexus://habits'
-      );
-
-      if (result === 'habit-completed') {
-        console.log('⚠️ Notification not scheduled: Habit already completed today');
-        showToast('Habit already completed today, notification not scheduled', 'info', { duration: 3000 });
-      } else if (result === 'error') {
-        console.error('❌ Failed to schedule notification:', result);
-        showToast('Failed to schedule notification', 'error', { duration: 3000 });
-      } else {
-        console.log('✅ Notification scheduled successfully with ID:', result);
-      }
-    }
-
-    let notificationTimeLabel: NotificationTimeLabel = 'none';
     let notificationTimeValue = '';
     if (notificationTime) {
-      const hours = notificationTime.getHours();
       notificationTimeValue = format(notificationTime, 'HH:mm');
-      if (hours >= 5 && hours < 12) {
-        notificationTimeLabel = 'morning';
-      } else if (hours >= 12 && hours < 17) {
-        notificationTimeLabel = 'afternoon';
-      } else if (hours >= 17 && hours < 21) {
-        notificationTimeLabel = 'evening';
-      } else {
-        notificationTimeLabel = 'night';
-      }
+      await scheduleDailyHabitNotification(
+        notificationTime.getHours(),
+        notificationTime.getMinutes(),
+        `${name} Reminder`,
+        customMessage.trim() || `Don't forget to complete "${name}" today`,
+        `${name}-${notificationTimeValue}`,
+        'kaiba-nexus://habits'
+      );
     }
-
-    console.log('💾 Saving habit:', {
-      name: name.trim(),
-      category,
-      notificationTime: notificationTimeValue,
-      hasCustomMessage: !!customMessage.trim()
-    });
-
-    onSave(name.trim(), category, notificationTimeLabel, notificationTimeValue);
+    onSave(name.trim(), category, notificationTimeValue, customMessage.trim());
     resetForm();
     onClose();
     setTimeout(() => {
-      showToast('Habit added successfully!', 'success', { duration: 3000 });
+      showToast('Habit added successfully!', 'success', { duration: 2000 });
     }, 200);
   };
 
@@ -140,9 +92,9 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
         <ScrollView 
           showsVerticalScrollIndicator={false}
           style={{ maxHeight: 600, minHeight: 200 }}
-          contentContainerStyle={{ paddingVertical: 2, paddingHorizontal: 0 }}
+          contentContainerStyle={{ paddingVertical: 2, paddingHorizontal: 0, paddingBottom: 20 }}
         >
-          <DebouncedTextInput
+          <DebouncedInput
             style={[styles.input, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
             placeholder="Habit Name"
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}

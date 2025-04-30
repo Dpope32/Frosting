@@ -255,6 +255,7 @@ export function BillRecommendationModal({
                               keyboardType="decimal-pad"
                               value={amounts[index] || ''}
                               onDebouncedChange={(value) => handleAmountChange(index, value)}
+                              placeholder="0.00"
                               style={{
                                 backgroundColor: 'transparent',
                                 color: isDark ? '#fff' : '#000',
@@ -284,6 +285,7 @@ export function BillRecommendationModal({
                               keyboardType="number-pad"
                               value={dueDates[index] || ''}
                               onDebouncedChange={(value) => handleDueDateChange(index, value)}
+                              placeholder="1"
                               style={{
                                 backgroundColor: 'transparent',
                                 color: isDark ? '#fff' : '#000',

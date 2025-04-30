@@ -1,10 +1,11 @@
 // In your sync service
-import 'react-native-get-random-values';
+import { getRandomValues } from './randomValues';
 import { v4 as uuidv4 } from 'uuid';
 import Peer from 'peerjs';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRegistryStore } from '../store/RegistryStore';
+import * as Sentry from '@sentry/react-native';
 
 // Define types for sync messages
 type SyncMessage = {
@@ -37,6 +38,7 @@ class SyncDeviceService {
       console.log(`Device initialized with ID: ${this.deviceId}`);
     } catch (error) {
       console.error('Failed to initialize device ID:', error);
+      Sentry.captureException(error);
       this.deviceId = uuidv4(); // Fallback to temporary ID
     }
   }
@@ -59,9 +61,11 @@ class SyncDeviceService {
       
       this.peer.on('error', (err) => {
         console.error('PeerJS error:', err);
+        Sentry.captureException(err);
       });
     } catch (error) {
       console.error('Failed to initialize PeerJS:', error);
+      Sentry.captureException(error);
     }
   }
   
@@ -93,36 +97,44 @@ class SyncDeviceService {
   }
 
   // Connect to another device
-  public async connectToDevice(peerId: string) {
-    if (!this.peer || this.connections[peerId]) return;
-    
-    try {
-      const conn = this.peer.connect(peerId);
-      
-      conn.on('open', () => {
-        this.connections[peerId] = conn;
-        console.log(`Connected to device: ${peerId}`);
-        
-        // Initial sync request
-        this.sendSyncRequest(peerId);
-      });
-      
-      conn.on('data', (data: unknown) => {
-        // Type check/cast the data before using it
-        if (this.isSyncMessage(data)) {
-          this.handleSyncMessage(data, peerId);
-        } else {
-          console.warn('Received invalid message format', data);
-        }
-      });
-      
-      conn.on('close', () => {
-        delete this.connections[peerId];
-        console.log(`Connection closed with device: ${peerId}`);
-      });
-    } catch (error) {
-      console.error(`Failed to connect to device ${peerId}:`, error);
-    }
+  public async connectToDevice(peerId: string): Promise<void> {
+    if (!this.peer || this.connections[peerId]) return Promise.reject(new Error('Peer not initialized or already connected'));
+
+    return new Promise((resolve, reject) => {
+      try {
+        const conn = this.peer!.connect(peerId);
+
+        conn.on('open', () => {
+          this.connections[peerId] = conn;
+          console.log(`Connected to device: ${peerId}`);
+          this.sendSyncRequest(peerId);
+          resolve();
+        });
+
+        conn.on('error', (err: any) => {
+          console.error(`PeerJS connection error with device ${peerId}:`, err);
+          Sentry.captureException(err);
+          reject(err);
+        });
+
+        conn.on('data', (data: unknown) => {
+          if (this.isSyncMessage(data)) {
+            this.handleSyncMessage(data, peerId);
+          } else {
+            console.warn('Received invalid message format', data);
+          }
+        });
+
+        conn.on('close', () => {
+          delete this.connections[peerId];
+          console.log(`Connection closed with device: ${peerId}`);
+        });
+      } catch (error) {
+        console.error(`Failed to connect to device ${peerId}:`, error);
+        Sentry.captureException(error);
+        reject(error);
+      }
+    });
   }
   
   // Send sync request to peer

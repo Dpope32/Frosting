@@ -2,8 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory } from '@/types/task';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export type NotificationTimeLabel = 'morning' | 'afternoon' | 'evening' | 'night' | 'none';
+import { cancelEventNotification } from '@/services/notificationServices';
 
 export interface Habit {
   id: string;
@@ -11,14 +10,14 @@ export interface Habit {
   category: TaskCategory;
   createdAt: string; // ISO date string
   completionHistory: Record<string, boolean>; // date string -> completed
-  notificationTimeLabel: NotificationTimeLabel;
   notificationTimeValue: string; // 'HH:mm' or ''
+  customMessage: string;
 }
 
 interface HabitStore {
   habits: Record<string, Habit>;
   hydrated: boolean;
-  addHabit: (title: string, category: TaskCategory, notificationTimeLabel: NotificationTimeLabel, notificationTimeValue: string) => void;
+  addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string) => void;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
   editHabit: (habitId: string, updates: Partial<Habit>) => void;
@@ -30,7 +29,7 @@ export const useHabitStore = create<HabitStore>()(
       habits: {},
       hydrated: false,
       
-      addHabit: (title: string, category: TaskCategory, notificationTimeLabel: NotificationTimeLabel, notificationTimeValue: string) => set((state) => {
+      addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string) => set((state) => {
         const id = Math.random().toString(36).substring(2, 9);
         const today = new Date().toISOString().split('T')[0];
         
@@ -43,8 +42,8 @@ export const useHabitStore = create<HabitStore>()(
               category,
               createdAt: today,
               completionHistory: {},
-              notificationTimeLabel,
-              notificationTimeValue
+              notificationTimeValue,
+              customMessage
             }
           }
         };
@@ -69,6 +68,12 @@ export const useHabitStore = create<HabitStore>()(
       }),
 
       deleteHabit: (habitId: string) => set((state) => {
+        const habit = state.habits[habitId];
+        if (habit) {
+          // Cancel the scheduled notification for this habit
+          const identifier = `${habit.title}-${habit.notificationTimeValue}`;
+          cancelEventNotification(identifier);
+        }
         const { [habitId]: _, ...rest } = state.habits;
         return { habits: rest };
       }),
