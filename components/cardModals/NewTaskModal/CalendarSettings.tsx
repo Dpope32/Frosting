@@ -30,7 +30,7 @@ export function CalendarSettings({
   const isDark = colorScheme === 'dark'
 
   return (
-    <XStack alignItems="center" gap="$3">
+    <XStack alignItems="center" gap="$3" pb={isWeb ? 16 : 12} pl={isWeb ? 8 : 6} pt={isWeb ? 8 : 6}>
       <Button
         onPress={onTimePickerToggle}
         theme={isDark ? "dark" : "light"}
@@ -38,6 +38,8 @@ export function CalendarSettings({
         br={12}
         px={"$3"}
         py={isWeb ? "$4" : isIpad() ? "$2" : "$1"}
+        borderWidth={1}
+        borderColor={isDark ? "#333" : "#e0e0e0"}
         pressStyle={{ opacity: 0.8 }}
         width="auto"
         alignSelf="flex-start"
@@ -65,11 +67,11 @@ export function CalendarSettings({
           }}
         >
           <YStack
-            height={Platform.OS === 'web' ? 60 : 75}
+            height={Platform.OS === 'web' ? 60 : 80}
             justifyContent="center"
-            alignItems="center"
-            w={isIpad() ? 220 : 150}
-            padding={isWeb ? 16 : isIpad() ? 0 : "$2"}
+            alignItems="flex-start"
+            w={isIpad() ? 220 : 160}
+            padding={isWeb ? 16 : isIpad() ? 0 : "$1"}
             borderRadius={12}
           >
             {Platform.OS === 'web' ? (
@@ -120,10 +122,9 @@ export function CalendarSettings({
                 themeVariant={isDark ? "dark" : "light"}
                 style={{
                   height: isIpad() ? 200 : 100,
-                  width: isIpad() ? 230 : 132,
+                  width: isIpad() ? 230 : 140,
                   minWidth: 0,
                   maxWidth: 320,
-                  backgroundColor: isDark ? "#111" : "#fff",
                 }}
               />
             )}

@@ -59,14 +59,12 @@ export default function NotesScreen() {
   const originalIndexRef = useRef<number | null>(null);
   const preventReorder = useRef(false);
   const lastDragPosition = useRef({ x: 0, y: 0 });
+  const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
+  const ghostNoteStyle = getGhostNoteStyle();
 
   useEffect(() => {return setupColumnCalculation(isWeb, setNumColumns)}, [isWeb]);
 
-  const { 
-    handleTagsChange, 
-    handleAddAttachment, 
-    handleRemoveAttachment, 
-    handleSelectionChange 
+  const {  handleTagsChange, handleAddAttachment,  handleRemoveAttachment, handleSelectionChange 
   } = createNoteHandlers(setEditTags, setEditAttachments, setSelection);
 
   const localHandleBold = createFormattingHandler(formatBold, selection, setEditContent);
@@ -86,21 +84,14 @@ export default function NotesScreen() {
     }
   });
 
-  const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
-  const ghostNoteStyle = getGhostNoteStyle();
-
   return (
     <YStack f={1} mt={isWeb ? 80 : 90} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={localHandleDragging}>
       <XStack
-        paddingTop={isIpad() ? insets.top + 70 : 0}
-        paddingBottom={16}
-        paddingHorizontal={16}
+        paddingTop={isIpad() ? insets.top + 70 : 0} pb={16} px={16}
         backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
-        justifyContent="space-between"
-        alignItems="center"
+        justifyContent="space-between" alignItems="center"
       >
       </XStack>
-
       {isWeb ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -208,15 +199,10 @@ export default function NotesScreen() {
           )}
 
           <Animated.View style={[noteStyles.trashOverlay, trashAnimatedStyle]}>
-            <TrashcanArea
-              isVisible={true}
-              isHovering={isHoveringTrash || isPendingDelete}
-              height={isIpad() ? 120 : 80}
-            />
+            <TrashcanArea isVisible={true} isHovering={isHoveringTrash || isPendingDelete} height={isIpad() ? 120 : 100}/>
           </Animated.View>
         </GestureHandlerRootView>
       )}
-
       <AddNoteButton
         insets={insets}
         preferences={preferences}

@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal } from 'react-native';
 import { XStack, YStack, Text, Button } from 'tamagui';
-import { Pencil } from '@tamagui/lucide-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { getHabitColor, getCategoryColor } from '@/utils/styleUtils';
+import { getCategoryColor } from '@/utils/styleUtils';
 import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/store/HabitStore';
 import { useToastStore } from '@/store/ToastStore';
@@ -316,17 +315,6 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                   justifyContent="center"
                   opacity={day.date === today ? 1 : 0.8}
                 >
-                  {day.date === today && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        width: 4,
-                        height: 4,
-                        borderRadius: 2,
-                        backgroundColor: "#FFD600",
-                      }}
-                    />
-                  )}
                 </YStack>
               ))
             ) : (

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { FlatList, View, Dimensions, Alert, Platform, Linking } from "react-native";
-import { H4, Separator, YStack, Text, Button, isWeb, XStack } from "tamagui";
+import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
+import { H4, Separator, YStack, Button, isWeb } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import * as Contacts from 'expo-contacts';
 import { usePeopleStore } from "@/store/People";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
 import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
@@ -13,7 +12,7 @@ import type { Person } from "@/types/people";
 import { generateTestContacts } from "@/components/crm/testContacts";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
-import { importContacts, handleDebugPress, handleImportContacts } from "@/services/peopleService";
+import { handleDebugPress, handleImportContacts } from "@/services/peopleService";
 
 const { width } = Dimensions.get("window");
 const PADDING = Platform.OS === 'web' ? 16 : 12;

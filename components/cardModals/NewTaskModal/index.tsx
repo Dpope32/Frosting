@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Platform, Keyboard, KeyboardEvent, Pressable, View, useColorScheme } from 'react-native'
-import { Form, ScrollView, XStack, Text } from 'tamagui'
+import { Form, ScrollView, XStack, Text, isWeb } from 'tamagui'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
