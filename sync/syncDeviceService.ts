@@ -28,24 +28,54 @@ class SyncDeviceService {
   }
   
   // Initialize with a device ID (create or retrieve existing)
+  // Generate a fallback device ID when UUID fails
+  private generateFallbackDeviceId(): string {
+    // Generate a simpler ID using Math.random and timestamp
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 10);
+    return `device-${timestamp}-${randomStr}`;
+  }
+  
   private async initializeDeviceId() {
     if (this.deviceIdInitialized) return this.deviceId;
     
     try {
+      // First try to get from storage
       const storedId = await AsyncStorage.getItem('device_id');
       if (storedId) {
         this.deviceId = storedId;
-      } else {
-        this.deviceId = uuidv4();
-        await AsyncStorage.setItem('device_id', this.deviceId);
+        this.deviceIdInitialized = true;
+        console.log(`Device initialized with stored ID: ${this.deviceId}`);
+        return this.deviceId;
       }
+      
+      // If not in storage, try to generate one
+      try {
+        // Try to use UUID first (which uses crypto.getRandomValues)
+        this.deviceId = uuidv4();
+      } catch (uuidError) {
+        console.warn('UUID generation failed, using fallback ID method', uuidError);
+        // If UUID fails (because crypto.getRandomValues isn't available), use fallback
+        this.deviceId = this.generateFallbackDeviceId();
+      }
+      
+      // Store the new ID
+      try {
+        await AsyncStorage.setItem('device_id', this.deviceId);
+      } catch (storageError) {
+        console.warn('Failed to store device ID', storageError);
+        // Continue anyway - we still have the ID in memory
+      }
+      
       this.deviceIdInitialized = true;
-      console.log(`Device initialized with ID: ${this.deviceId}`);
+      console.log(`Device initialized with new ID: ${this.deviceId}`);
       return this.deviceId;
     } catch (error) {
       console.error('Failed to initialize device ID:', error);
       Sentry.captureException(error);
-      this.deviceId = uuidv4(); // Fallback to temporary ID
+      
+      // Ultimate fallback
+      this.deviceId = this.generateFallbackDeviceId();
       this.deviceIdInitialized = true;
       return this.deviceId;
     }

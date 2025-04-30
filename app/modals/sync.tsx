@@ -29,9 +29,7 @@ export default function SyncScreen() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
 
-  useEffect(() => {
-    initializeSyncService();
-  }, []);
+  // No automatic initialization on component mount - only initialize when user explicitly requests
 
   const initializeSyncService = async () => {
     try {
@@ -160,18 +158,7 @@ export default function SyncScreen() {
     }
   };
 
-  if (!isInitialized) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <YStack alignItems="center" justifyContent="center" flex={1}>
-          <ActivityIndicator size="large" color={primaryColor} />
-          <Text marginTop="$2" color={isDark ? "#aaa" : "#666"}>
-            Initializing sync service...
-          </Text>
-        </YStack>
-      </View>
-    );
-  }
+  // Removed loading screen that appeared before initialization was requested
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -276,11 +263,8 @@ export default function SyncScreen() {
         right={24}
         onPress={() => {
           setShowAddDevice(true);
-          if (deviceId) {
-            setModalStep('showCode');
-          } else {
-            setModalStep('choose');
-          }
+          // Always start at choose step since we don't auto-initialize
+          setModalStep('choose');
         }}
         backgroundColor={primaryColor}
         pressStyle={{ scale: 0.95 }}
