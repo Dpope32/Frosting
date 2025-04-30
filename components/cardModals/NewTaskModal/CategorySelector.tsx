@@ -46,7 +46,13 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   fontSize={14}
                   fontWeight="600"
                   fontFamily="$body"
-                  color={selectedCategory === cat ? color : isDark ? "$gray12" : "$gray11"}
+                  color={
+                    selectedCategory === cat
+                      ? color
+                      : isDark
+                        ? "$gray11"
+                        : "$gray11"
+                  }
                 >
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </Text>

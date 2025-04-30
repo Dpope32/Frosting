@@ -17,7 +17,7 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
       minWidth={70}
       height={60}    
       br={16}
-      bg={isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.3)"}
+      bg={isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.0)"}
     >
       <Pressable
         onPress={() => {

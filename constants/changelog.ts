@@ -1,5 +1,14 @@
 export const CHANGELOG = [
   {
+    version: '1.1.93',
+    notes: 'Began testing sync feature',
+    bullets: [
+      'Patched minor bug in greeting with extra commas',
+      'Fixed lots of styles on Web',
+      'Fixed time picker on Web ',
+    ],
+  },
+  {
     version: '1.1.89',
     notes: 'Finished Habit Screen',
     bullets: [
@@ -10,7 +19,7 @@ export const CHANGELOG = [
     ],
   },
     {
-      version: '1.1.88',
+      version: '1.1.87',
       notes: 'Added changelog screen',
       bullets: [
         'Began implementing new sync feature',
@@ -21,7 +30,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.87',
+      version: '1.1.82',
       notes: 'Added Floating Action Button to the Home screen',
       bullets: [
         'Patched notification bug',
@@ -31,7 +40,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.86',
+      version: '1.1.81',
       notes: 'Refactored New Todo Modal',
       bullets: [
         'Patched time picker bug on mobile',
@@ -41,7 +50,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.85',
+      version: '1.1.77',
       notes: 'Optimized App initialization',
       bullets: [
         'Cut app startup time by 25-30% by lazy loading Home screen',
@@ -49,7 +58,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.84',
+      version: '1.1.70',
       notes: 'Added drag and drop delete for Notes!',
       bullets: [
         'Security audit completed',
@@ -58,7 +67,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.83',
+      version: '1.1.69',
       notes: 'Initial release of Android',
       bullets: [
         'Created closed testing track for Android',
@@ -66,7 +75,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.82',
+      version: '1.1.64',
       notes: 'Improved onboarding and welcome experience',
       bullets: [
         'Added web-specific welcome screen for onboarding',
@@ -76,7 +85,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.81',
+      version: '1.1.63',
       notes: 'Enhanced calendar and event features',
       bullets: [
         'Responsive calendar sizing for different layouts',
@@ -86,7 +95,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.80',
+      version: '1.1.60',
       notes: 'Performance and dependency optimizations',
       bullets: [
         'Reduced bundle size by removing unused packages',
@@ -96,7 +105,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.79',
+      version: '1.1.59',
       notes: 'Refactored modals and improved CRM',
       bullets: [
         'Created BaseCardWithRecommendationsModal for consistent modals',
@@ -106,7 +115,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.78',
+      version: '1.1.58',
       notes: 'Notes drag & drop and bug fixes',
       bullets: [
         'Implemented cross-platform drag and drop for notes',
@@ -116,7 +125,7 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.77',
+      version: '1.1.55',
       notes: 'General improvements and code cleanup',
       bullets: [
         'Optimized state management with Zustand',

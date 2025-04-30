@@ -106,8 +106,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     else if (isVaultScreen) iconName = "key-outline";
     else if (isCrmScreen) iconName = "people-outline";
 
-    // Don't show settings icon on iPad
-    if (isIpad() && !isSportsScreen && !isBillsScreen && !isVaultScreen && !isCrmScreen) {
+    // Don't show settings icon on iPad or Web
+    if ((isIpad() || isWeb) && !isSportsScreen && !isBillsScreen && !isVaultScreen && !isCrmScreen) {
       return null;
     }
 

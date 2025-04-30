@@ -75,8 +75,6 @@ export const getGreeting = (username: string, temp?: number): string => {
         "Welcome to the new year, let's make it great!"
       ],
       "Martin Luther King Jr. Day": [
-        "Honoring Dr. King today.",
-        "Happy Martin Luther King Jr. Day!",
         "Remembering the dream."
       ],
       "Presidents' Day": [
@@ -190,10 +188,9 @@ export const getGreeting = (username: string, temp?: number): string => {
     `${username}. ${username}, ${username}`,
     `${username} returns!`,
     `Look who it is! ${username}!`,
-    `Guess who's back? It's ${username}!`,
+    `Guess who's back? Back again? ${username} is back, tell a friend`,
     `The legend, ${username}, has arrived.`,
     `All hail ${username}!`,
-    `Welcome to the matrix, ${username}.`,
     `Ready to conquer ${dayOfWeek}?`,
     `It's a beautiful ${dayOfWeek}`,
     `Alert: ${username} detected.`,

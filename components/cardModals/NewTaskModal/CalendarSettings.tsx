@@ -19,8 +19,6 @@ interface CalendarSettingsProps {
 }
 
 export function CalendarSettings({
-  showInCalendar,
-  onShowInCalendarChange,
   time,
   showTimePicker,
   onTimePickerToggle,
@@ -39,7 +37,7 @@ export function CalendarSettings({
         backgroundColor={time ? "transparent" : "transparent"}
         br={12}
         px={"$3"}
-        py={isIpad() ? "$2" : "$1"}
+        py={isWeb ? "$4" : isIpad() ? "$2" : "$1"}
         pressStyle={{ opacity: 0.8 }}
         width="auto"
         alignSelf="flex-start"
@@ -58,23 +56,20 @@ export function CalendarSettings({
       {showTimePicker && (
         <View
           style={{
-            zIndex: 10,
-            width: isIpad() ? 220 : 140,
-            maxWidth: isIpad() ? 220 : 190,
+            zIndex: 100,
+            width: isWeb ? 260 : isIpad() ? 220 : 140,
+            maxWidth: isWeb ? 260 : isIpad() ? 220 : 190,
             borderRadius: 12,
             borderWidth: 1,
             borderColor: isDark ? '#2c2c2e' : '#e5e5ea',
-            maxHeight: isIpad() ? 260 : 160,
-            height: isIpad() ? 260 : 80,
-            overflow: 'scroll',
           }}
         >
           <YStack
-            height={Platform.OS === 'web' ? 180 : 75}
+            height={Platform.OS === 'web' ? 60 : 75}
             justifyContent="center"
             alignItems="center"
             w={isIpad() ? 220 : 150}
-            padding={isIpad() ? 0 : "$2"}
+            padding={isWeb ? 16 : isIpad() ? 0 : "$2"}
             borderRadius={12}
           >
             {Platform.OS === 'web' ? (
@@ -95,12 +90,14 @@ export function CalendarSettings({
                   }}
                   style={{
                     padding: 8,
-                    fontSize: 14,
+                    fontSize: 18,
                     borderRadius: 8,
                     backgroundColor: isDark ? '#222' : '#fff',
                     color: isDark ? '#fff' : '#000',
                     width: '100%',
-                    marginRight: 0
+                    marginRight: 0,
+                    border: 'none',
+                    outline: 'none',
                   }}
                 />
                 <Button

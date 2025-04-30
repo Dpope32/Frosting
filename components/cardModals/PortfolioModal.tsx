@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { useColorScheme, StyleSheet, Platform } from 'react-native'
-import { YStack, Text, XStack, Input, isWeb } from 'tamagui'
+import { YStack, isWeb } from 'tamagui'
 import { BaseCardModal } from './BaseCardModal'
 import { usePortfolioStore, updatePrincipal } from '@/store/PortfolioStore'
 import { useEditStockStore } from '@/store/EditStockStore'
-import { getValueColor } from '@/constants/valueHelper'
-import Animated, { FadeIn } from 'react-native-reanimated'
 import { HoldingsCards } from '@/components/modals/HoldingsCards'
-import { isIpad } from '@/utils/deviceUtils'
 import { StockCard } from '@/components/modals/StockCard'
 
 interface PortfolioModalProps {
@@ -62,6 +58,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       <YStack
         gap={isWeb ? '$2' : '$1'}
         pb={isWeb ? '$5' : '$3'}
+        pt={isWeb ? '$3' : '$1'}
       >
         <StockCard
           currentTotalValue={currentTotalValue}

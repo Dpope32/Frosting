@@ -9,6 +9,9 @@ import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
+import { TextInput } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import syncService from '@/sync/syncDeviceService';
 
 const devices: any[] = [
   {
@@ -25,6 +28,7 @@ const devices: any[] = [
   }
 ]
 export default function SyncScreen() {
+  // Keep your existing state variables
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -33,36 +37,87 @@ export default function SyncScreen() {
   const [showAddDevice, setShowAddDevice] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
+  const [deviceId, setDeviceId] = useState('');
+  const [peerCode, setPeerCode] = useState('');
+  const [devices, setDevices] = useState<any[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    loadCurrentSpace();
+    initializeSyncService();
   }, []);
 
-  const loadCurrentSpace = async () => {
+  const initializeSyncService = async () => {
     try {
-
+      setIsLoading(true);
+      await syncService.initialize();
+      const myDeviceId = syncService.getConnectionCode();
+      setDeviceId(myDeviceId);
+      
+      // Add current device to the list
+      setDevices([
+        {
+          id: myDeviceId,
+          name: 'This Device',
+          status: 'Connected',
+          isCurrentDevice: true,
+          lastActive: Date.now()
+        }
+      ]);
+      
       setIsInitialized(true);
     } catch (error) {
-      console.error('Error loading sync space:', error);
-      useToastStore.getState().showToast('Failed to load sync space', 'error');
+      console.error('Error initializing sync service:', error);
+      useToastStore.getState().showToast('Failed to initialize sync', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleCreateSpace = async () => {
-    setIsLoading(true);
-    try {
-      await loadCurrentSpace();
-    } catch (error) {
-      console.error('Error creating sync space:', error);
-      useToastStore.getState().showToast('Failed to create sync space', 'error');
-    } finally {
-      setIsLoading(false);
-      setShowAddDevice(false);
-    }
+    // Creating a space is just initializing your device ID as the "space host"
+    // Your device ID is already created and initialized
+    useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
+    setShowAddDevice(false);
   };
 
+  const handleJoinSpace = () => {
+    // Show an input dialog for the peer device ID
+    setShowAddDevice(false);
+    // Display input field for peer code instead
+    setShowJoinDialog(true);
+  };
+
+  // Add this new state and handler
+  const [showJoinDialog, setShowJoinDialog] = useState(false);
   
+  const connectToPeer = async () => {
+    if (!peerCode.trim()) {
+      useToastStore.getState().showToast('Please enter a valid device code', 'error');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      await syncService.connectToDevice(peerCode.trim());
+      
+      // Add the peer device to our list
+      setDevices(prev => [...prev, {
+        id: peerCode.trim(),
+        name: 'Connected Device',
+        status: 'Connected',
+        isCurrentDevice: false,
+        lastActive: Date.now()
+      }]);
+      
+      useToastStore.getState().showToast('Successfully connected to device', 'success');
+      setShowJoinDialog(false);
+    } catch (error) {
+      console.error('Failed to connect:', error);
+      useToastStore.getState().showToast('Failed to connect to device', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   if (!isInitialized) {
@@ -192,6 +247,33 @@ export default function SyncScreen() {
             <Text color={isDark ? "#aaa" : "#666"} fontSize={16}>
               Choose how to add a new device:
             </Text>
+            <YStack 
+              backgroundColor={isDark ? "#222" : "#f5f5f5"} 
+              padding="$3" 
+              borderRadius={8}
+              marginBottom="$4"
+            >
+              <Text fontSize={14} color={isDark ? "#aaa" : "#666"}>
+                Your Device Code:
+              </Text>
+              <XStack justifyContent="space-between" alignItems="center" marginTop="$2">
+                <Text fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"}>
+                  {deviceId}
+                </Text>
+                <Button 
+                  size="$3" 
+                  onPress={async () => {
+                    await Clipboard.setStringAsync(deviceId);
+                    useToastStore.getState().showToast('Device code copied', 'success');
+                  }}
+                >
+                  Copy
+                </Button>
+              </XStack>
+              <Text fontSize={12} color={isDark ? "#aaa" : "#666"} marginTop="$2">
+                Share this code with your other devices to connect them.
+              </Text>
+            </YStack>
             <Button
               onPress={handleCreateSpace}
               backgroundColor={isDark ? `${primaryColor}40` : `${primaryColor}20`}
@@ -206,14 +288,11 @@ export default function SyncScreen() {
                 fontSize={16}
                 fontWeight="600"
               >
-                Create New Sync Space
+                Initialize This Device
               </Text>
             </Button>
             <Button
-              onPress={() => {
-                // TODO: Implement QR code scanner or input field for space ID
-                setShowAddDevice(false);
-              }}
+              onPress={handleJoinSpace}
               backgroundColor={isDark ? "#222" : "#f5f5f5"}
               borderColor={isDark ? "#444" : "#ddd"}
               borderWidth={2}
@@ -226,7 +305,48 @@ export default function SyncScreen() {
                 fontSize={16}
                 fontWeight="600"
               >
-                Join Existing Sync Space
+                Connect to Another Device
+              </Text>
+            </Button>
+          </YStack>
+        </BaseCardAnimated>
+      )}
+
+      {showJoinDialog && (
+        <BaseCardAnimated
+          title="Join Device"
+          onClose={() => setShowJoinDialog(false)}
+        >
+          <YStack gap="$4" padding="$4">
+            <Text color={isDark ? "#aaa" : "#666"} fontSize={16}>
+              Enter the device code from your other device:
+            </Text>
+            <TextInput
+              style={{
+                backgroundColor: isDark ? '#333' : '#f0f0f0',
+                padding: 12,
+                borderRadius: 8,
+                color: isDark ? '#fff' : '#000',
+                fontSize: 16,
+              }}
+              value={peerCode}
+              onChangeText={setPeerCode}
+              placeholder="Enter device code"
+              placeholderTextColor={isDark ? '#888' : '#aaa'}
+            />
+            <Button
+              onPress={connectToPeer}
+              backgroundColor={primaryColor}
+              height={50}
+              pressStyle={{ scale: 0.97 }}
+              animation="quick"
+            >
+              <Text
+                color="#fff"
+                fontSize={16}
+                fontWeight="600"
+              >
+                Connect
               </Text>
             </Button>
           </YStack>

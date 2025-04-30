@@ -38,9 +38,9 @@ export function CardSection({
   
   return (
     <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$0"} alignSelf={isWeb? "flex-start" : isIpad() ? "center" : "center"} justifyContent={isWeb? "flex-start" : isIpad() ? "center" : "flex-start"} alignItems="center">
-      {!isIpad() ? (
+      {!isIpad() && !isWeb ? (
         <GreetingSection username={username} />
-      ) : (
+      ) : isIpad() ? (
         <Text
           fontFamily="$body"
           color={isDark ? "#dbd0c6" : "#dbd0c6"}
@@ -50,30 +50,70 @@ export function CardSection({
         >
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </Text>
-      )}
+      ) : null}
       <XStack
-        gap="$2"
+        gap={isWeb ? "$7" : "$2"}
         marginTop="$2"
         flexWrap={'nowrap'}
         justifyContent={isWeb ? 'flex-start' : isIpad() ? 'center' : 'center'}
+        alignItems="center"
       >
+        {isWeb && (
+          <GreetingSection username={username} />
+        )}
         {portfolioEnabled && (
-          <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})} onPress={onPortfolioPress}>
+          <Pressable
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+              ...(isWeb ? { marginRight: temperatureEnabled || wifiEnabled || quoteEnabled ? 32 : 0 } : {})
+            })}
+            onPress={onPortfolioPress}
+          >
             <PortfolioCard isHome={isHome} isDark={isDark} />
           </Pressable>
         )}
         {temperatureEnabled && (
-          <Pressable onPress={onTemperaturePress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
+          <Pressable
+            onPress={onTemperaturePress}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+              ...(isWeb ? { marginRight: wifiEnabled || quoteEnabled ? 32 : 0 } : {})
+            })}
+          >
             <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
           </Pressable>
         )}
+        {isWeb && (
+          <XStack>
+            <SettingsCard
+              isHome={isHome}
+              isDark={isDark}
+              onPress={() => setSettingsOpen(true)}
+            />
+            <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+            {(wifiEnabled || quoteEnabled) && (
+              <YStack width={32} />
+            )}
+          </XStack>
+        )}
         {wifiEnabled && (
-          <Pressable onPress={onWifiPress} style={({ pressed }) => ({opacity: pressed ? 0.7 : 1})}>
+          <Pressable
+            onPress={onWifiPress}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+              ...(isWeb ? { marginRight: quoteEnabled ? 32 : 0 } : {})
+            })}
+          >
             <WifiCard isHome={isHome} />
           </Pressable>
         )}
         {quoteEnabled && (
-          <Pressable onPress={onQuotePress} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1})}>
+          <Pressable
+            onPress={onQuotePress}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1
+            })}
+          >
             <QuoteCard isHome={isHome} />
           </Pressable>
         )}

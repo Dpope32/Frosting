@@ -36,7 +36,7 @@ export default function Step4({
 
 
   return (
-    <YStack flex={1} justifyContent="center" alignItems="center" marginBottom={isWeb ? "$3" : 100}>
+    <YStack flex={1} justifyContent="center" alignItems="center" marginBottom={isWeb ? 75 : 100}>
 
       <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$3" : "$2"}>
         <Label
@@ -50,7 +50,7 @@ export default function Step4({
         </Label>
         <Text
           fontFamily="$body"
-          fontSize="$3"
+          fontSize={isWeb ? 18 : "$3"}
           textAlign="center"
           color="$onboardingSubText" 
           mt={-12}

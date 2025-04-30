@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { YStack, XStack, H1, H2, H3, Text, Image, isWeb, ScrollView, Card, View, styled, createStyledContext, useTheme } from 'tamagui';
+import { YStack, XStack, H1, H2, H3, Text, Image, isWeb, ScrollView, Card, View, styled  } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native';
 
 // Component to inject keyframes CSS
 const MarqueeStyles = () => {
@@ -13,8 +12,9 @@ const MarqueeStyles = () => {
         100% { transform: translateX(-50%); }
       }
       .marquee-content {
-        animation: marquee 40s linear infinite;
+        animation: marquee 80s linear infinite;
         will-change: transform;
+        animation-play-state: running;
       }
     `}} />
   );
@@ -93,9 +93,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
   }, []);
 
   const iconStyle = {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     transform: isWeb ? [{ rotate: `${rotation}deg` }] : [],
   };
 
@@ -106,7 +106,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       items: [
         "Your data stays safe and private",
         "Stored directly on your device",
-        "No server data collection"
+        "No server data collection",
+        "End-to-end encryption",
+        "Control your own information"
       ],
       titleColor: "#C080FF",
       icon: "shield-checkmark-outline" as any,
@@ -118,7 +120,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       items: [
         "Track recurring tasks",
         "Manage one-time todos",
-        "Stay organized"
+        "Stay organized",
+        "Prioritize your work",
+        "Set reminders easily"
       ],
       titleColor: "#6495ED",
       icon: "list-outline" as any,
@@ -130,7 +134,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       items: [
         "Track birthdays & events",
         "NBA schedules",
-        "Bill reminders"
+        "Bill reminders",
+        "Sync with external calendars",
+        "Custom event notifications"
       ],
       titleColor: "#4ADECD",
       icon: "calendar-outline" as any,
@@ -142,7 +148,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       items: [
         "Monitor portfolio",
         "Real-time stock updates",
-        "Financial insights"
+        "Financial insights",
+        "Expense categorization",
+        "Budget planning tools"
       ],
       titleColor: "#FF9D5C",
       icon: "stats-chart-outline" as any,
@@ -154,7 +162,9 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       items: [
         "Manage contacts with custom attributes",
         "Track payment methods and addresses",
-        "Organize your professional network"
+        "Organize your professional network",
+        "Add notes to contacts",
+        "Follow up reminders"
       ],
       titleColor: "#4CAF50",
       icon: "people-outline" as any,
@@ -166,19 +176,35 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
       items: [
         "Securely store passwords locally",
         "Private encrypted storage",
-        "Quick access to credentials"
+        "Quick access to credentials",
+        "Generate strong passwords",
+        "Autofill login details"
       ],
       titleColor: "#FFD700",
       icon: "lock-closed-outline" as any,
       iconColor: "#FFD700"
-    }
+    },
+    {
+      id: 7,
+      title: "Habit Tracking",
+      items: [
+        "Track your habits",
+        "Set goals and achieve them",
+        "Stay motivated",
+        "Visualize your progress",
+        "Daily streaks"
+      ],
+      titleColor: "#74BDCB",
+      icon: "checkmark-circle-outline" as any,
+      iconColor: "#74BDCB"
+    },
   ];
 
   const [gradientPos, setGradientPos] = useState(0);
 
   useEffect(() => {
     if (!isWeb) return;
-
+"Quick access to credentials"
     const interval = setInterval(() => {
       setGradientPos(prev => (prev + 0.5) % 100);
     }, 50);
@@ -228,41 +254,39 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
 
   return (
     <ScrollView contentContainerStyle={combinedContentContainerStyle}>
-      {/* Inject the keyframes CSS */}
       {isWeb && <MarqueeStyles />}
       <YStack
         flex={1}
         paddingHorizontal="$4"
-        paddingTop="$4"
+        paddingTop="$8"
         gap="$2"
         width="100%"
         position="relative"
-        zi={1} // Ensure content is above the ScrollView background but potentially below other absolute elements if needed
+        zi={1} 
         minHeight="100vh"
         justifyContent="space-between"
-        // Apply spotlight style directly to this container
         style={spotlightStyle}
       >
         <YStack alignItems="center" gap="$4" marginVertical="$6" maxWidth={1200} marginHorizontal="auto">
           <XStack position="relative" alignItems="center">
             {isWeb && (
-            <Image
+              <Image
                 source={require('@/assets/images/icon.png')}
-                style={[iconStyle, {
+                style={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: 60,
                   position: 'absolute',
-                  left: -125,
+                  left: -200,
                   top: -20,
-                  transform: [
-                    { rotate: `${rotation}deg` },
-                    { translateY: Math.sin(Date.now() / 600) * 10 }
-                  ]
-                }]}
+                  // No transform/rotation animation
+                }}
               />
             )}
             <H1
               color="$onboardingLabel"
               fontFamily="$heading"
-              fontSize={isWeb ? (isMobileBrowser ? "$10" : "$12") : "$9"}
+              fontSize={isWeb ? (isMobileBrowser ? "$10" : "$13") : "$9"}
               letterSpacing={1}
             >
               Kaiba Nexus
@@ -281,25 +305,33 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
           </H2>
         </YStack>
 
-        {isWeb && (
-          <YStack alignItems="center" paddingVertical="$-2" flexGrow={1} justifyContent="center">
-            <Image
-              source={require('@/assets/screenshots/web/web1.png')}
-              width={800}
-              height={400}
-              objectFit="contain"
-              alt="App Screenshot"
-              borderRadius="$4"
-              borderWidth={1}
-              borderColor="$borderColor"
-            />
-          </YStack>
-        )}
-
         {isWeb ? (
-          <YStack width="100%" mb="$16">
-             <MarqueeContainer>
-               <MarqueeContent>
+          <YStack
+            width="100%"
+            mb="$1"
+            alignItems="center"
+            justifyContent="flex-start"
+            flex={1}
+            minHeight="100vh"
+            pt={isWeb ? 80 : 0}
+          >
+             <MarqueeContainer
+               height={400}
+               alignItems="center"
+               justifyContent="center"
+               style={{
+                 display: 'flex',
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 minHeight: 400,
+               }}
+             >
+               <MarqueeContent
+                 style={{
+                   height: 360,
+                   alignItems: 'center',
+                 }}
+               >
               {[...features, ...features].map((feature, index) => {
                 const bgColor = feature.titleColor + "20";
                 const isCRM = feature.title === "CRM";
@@ -307,47 +339,36 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
                 return (
                   <YStack
                     key={uniqueKey}
-                    minWidth={320}
-                    maxWidth={360}
-                    height={isMobileBrowser ? (isCRM ? 180 : 160) : 180}
+                    minWidth={520}
+                    maxWidth={600}
+                    height={isMobileBrowser ? (isCRM ? 320 : 340) : 340}
                     bc={bgColor}
-                    br="$8"
+                    br="$10"
                     overflow="hidden"
                     position="relative"
-                    // Add animation prop for smooth transitions on hover
                     animation="bouncy"
-                    // Simplified hoverStyle: removed scale, adjusted shadow
-                    hoverStyle={{
-                      // scale: 1.05, // Removed scale to prevent potential glitches/clipping
-                      elevation: '$6',
-                      shadowColor: feature.titleColor,
-                      shadowOpacity: 0.3, // Reduced opacity
-                      shadowRadius: 8,   // Reduced radius
-                      shadowOffset: { width: 0, height: 2 }, // Reduced offset
-                      // transform: [{ perspective: 1000 }, { rotateY: '3deg' }], // Keep commented out
-                    }}
-                    // No marginBottom needed here as gap is handled by MarqueeContent
+                    justifyContent="flex-start"
                   >
-                    <XStack flex={1} padding="$4" justifyContent="space-between" alignItems="center">
-                      <YStack flex={1} justifyContent="center" pr="$3"> {/* Added padding right */}
-                        <H3
-                          fontFamily="$heading"
-                          fontWeight="700"
-                          fontSize={isMobileBrowser ? "$5" : "$6"} // Slightly smaller font for smaller cards
-                          color={feature.titleColor}
-                          marginBottom="$2"
-                          numberOfLines={1} // Prevent title wrapping issues
-                          ellipsizeMode="tail"
-                        >
-                          {feature.title}
-                        </H3>
-                        <YStack gap="$1.5" marginBottom="$3">
+                    <H3
+                      fontFamily="$heading"
+                      fontWeight="800"
+                      fontSize={isMobileBrowser ? "$8" : "$10"}
+                      color={feature.titleColor}
+                      marginBottom="$-4"
+                      marginTop="$5"
+                      textAlign="center"
+                    >
+                      {feature.title}
+                    </H3>
+                    <XStack flex={1} padding="$6" justifyContent="space-between" alignItems="center">
+                      <YStack flex={1} justifyContent="center" pr="$5">
+                        <YStack gap="$3" marginBottom="$4">
                           {feature.items.map((item, i) => (
-                            <XStack key={i} alignItems="flex-start" gap="$2" flexShrink={1}>
-                              <Text fontFamily="$body" color={feature.iconColor} mt={1} fontSize="$5">•</Text>
+                            <XStack key={i} alignItems="flex-start" gap="$3" flexShrink={1}>
+                              <Text fontFamily="$body" color={feature.iconColor} mt={2} fontSize="$7">•</Text>
                               <Text
                                 fontFamily="$body"
-                                fontSize={isMobileBrowser ? "$3" : "$4"}
+                                fontSize={isMobileBrowser ? "$5" : "$6"}
                                 color="$onboardingLabel"
                                 flex={1}
                                 whiteSpace="normal"
@@ -357,14 +378,14 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
                         </YStack>
                       </YStack>
                       <View
-                        width={45}
-                        height={45}
+                        width={70}
+                        height={70}
                         backgroundColor="rgba(0,0,0,0.2)"
-                        br={22.5}
+                        br={35}
                         justifyContent="center"
                         alignItems="center"
                       >
-                        <Ionicons name={feature.icon} size={24} color={feature.iconColor} />
+                        <Ionicons name={feature.icon} size={40} color={feature.iconColor} />
                       </View>
                     </XStack>
                   </YStack>
@@ -406,8 +427,6 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
             ))}
           </XStack>
         )}
-        {/* End Feature Cards Section */}
-
       </YStack>
     </ScrollView>
   );

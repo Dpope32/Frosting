@@ -139,7 +139,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                         </YStack>
                       </XStack>
                       <XStack alignItems="center" gap="$2">
-                        <Text color={getStockValueColor(currentPrice, isDark)} fontSize={15} fontWeight="900" fontFamily="$heading">
+                        <Text color={getStockValueColor(currentPrice, isDark)} fontSize={15} fontWeight="500" fontFamily="$heading">
                           ${currentPrice.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
@@ -165,7 +165,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
                       justifyContent="flex-start"
                       br={8}
                       alignItems="flex-start"
-                      height={isWeb ? undefined : 20}
+                      height={isWeb ? 35 : 20}
                       paddingLeft="$1"
                     >
                       <XStack alignItems="center" flex={1} gap="$2">

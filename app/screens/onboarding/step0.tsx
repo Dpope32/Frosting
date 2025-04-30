@@ -34,62 +34,97 @@ export default function Step0({
       {
         translateX: translateX.interpolate({
           inputRange: [0, 1],
-          outputRange: [-100, 100], // adjust as needed
+          outputRange: [-100, 100],
         }),
       },
     ],
   }
 
   return (
-    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$6" : "$10"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
-      <MaskedView
-        style={{ height: isWeb ? 200 : isIpad() ? 150 : 90, width: '100%'}}
-        maskElement={
-          <View
+    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$15" : "$10"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
+      {isWeb ? (
+        <div
+          style={{
+            width: '100%',
+            height: 120,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 8,
+            borderRadius: 12,
+            overflow: 'hidden',
+          }}
+        >
+          <span
             style={{
-              backgroundColor: 'transparent',
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
+              fontSize: 120,
+              fontWeight: 'bold',
+              fontFamily: 'var(--font-heading, sans-serif)',
+              letterSpacing: 2,
+              textAlign: 'center',
+              width: '100%',
+              background: 'linear-gradient(90deg, #b2d7fe, #aad3fe, #c2e0fe, #dbecff, #9acbfe, #d3e8ff, #92c7fe, #cbe4fe, #badcfe, #a2cffe, #00f0ff)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent',
+              textShadow: '0 2px 8px rgba(0,0,0,0.10)',
+              userSelect: 'none',
             }}
           >
-            <Text
+            Kaiba
+          </span>
+        </div>
+      ) : (
+        <MaskedView
+          style={{ height: isIpad() ? 150 : 90, width: '100%'}}
+          maskElement={
+            <View
               style={{
-                fontSize: isWeb ? 120 : isIpad() ? 100 : 60,
-                textAlign: 'center',
-                alignSelf: 'center',
-                width: '100%',
-                color: 'black',
-                fontWeight: 'bold',
-                fontFamily: '$heading',
-                letterSpacing: 2,
+                backgroundColor: 'transparent',
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
-              Kaiba
-            </Text>
-          </View>
-        }
-      >
-        <AnimatedLinearGradient
-          colors={[
-            '#b2d7fe',
-            '#aad3fe',
-            '#c2e0fe',
-            '#dbecff',
-            '#9acbfe',
-            '#d3e8ff',
-            '#92c7fe',
-            '#cbe4fe',
-            '#badcfe',
-            '#a2cffe',
-            '#00f0ff'
-          ]}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={[{ flex: 1 }, animatedStyle]}
-        />
-      </MaskedView>
-      <Label paddingBottom={isWeb ? 14 : isIpad() ? 12 : 8} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">
+              <Text
+                style={{
+                  fontSize: isIpad() ? 100 : 60,
+                  textAlign: 'center',
+                  alignSelf: 'center',
+                  width: '100%',
+                  color: 'black',
+                  fontWeight: 'bold',
+                  fontFamily: '$heading',
+                  letterSpacing: 2,
+                }}
+              >
+                Kaiba
+              </Text>
+            </View>
+          }
+        >
+          <AnimatedLinearGradient
+            colors={[
+              '#b2d7fe',
+              '#aad3fe',
+              '#c2e0fe',
+              '#dbecff',
+              '#9acbfe',
+              '#d3e8ff',
+              '#92c7fe',
+              '#cbe4fe',
+              '#badcfe',
+              '#a2cffe',
+              '#00f0ff'
+            ]}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={[{ flex: 1 }, animatedStyle]}
+          />
+        </MaskedView>
+      )}
+      <Label paddingBottom={isWeb ? 20 : isIpad() ? 12 : 8} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">
         What should we call you?
       </Label>
       <Input
@@ -108,7 +143,7 @@ export default function Step0({
         placeholderTextColor="$onboardingPlaceholder"
         fontFamily="$body"
         textAlign="center"
-        style={{  textAlign: 'center', alignSelf: 'center', width: '100%', maxWidth: isWeb ? 350 : isIpad() ? 300 : 250}}
+        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 150 : 100, height: isWeb ? 55 : isIpad() ? 50 : 43}}
       />
     </YStack>
   )

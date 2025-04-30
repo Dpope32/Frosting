@@ -113,14 +113,14 @@ export const TaskSection = ({
           />
         </Pressable>
         
-        <XStack flex={1} justifyContent="center">
+        <XStack flex={1} justifyContent={isWeb ? "flex-start" : "center"}>
           {isIpad() ? (
             <GreetingSection username={username} />
           ) : (
             <Text
               fontFamily="$body"
               color={isDark ? "#dbd0c6" : "#dbd0c6"}
-              fontSize={20}
+              fontSize={isWeb ? 22 : 20}
               fontWeight="bold"
               marginRight={isWeb ? 20 : 10}
               marginLeft={isWeb ? 20 : -30}

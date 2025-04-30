@@ -48,7 +48,13 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
                     fontSize={14}
                     fontWeight="600"
                     fontFamily="$body"
-                    color={selectedPattern === pattern.value ? recurrenceColor : isDark ? "$gray12" : "$gray11"}
+                    color={
+                      selectedPattern === pattern.value
+                        ? recurrenceColor
+                        : isDark
+                          ? "$gray11"
+                          : "$gray11"
+                    }
                   >
                     {pattern.label}
                   </Text>

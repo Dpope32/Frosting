@@ -36,9 +36,13 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   const closeFab = () => {
     const fabRef = actionRef.current;
     if (fabRef) {
-      setTimeout(() => {
-        fabRef.animateButton(); 
-      }, 1000);
+      if (isWeb) {
+        setIsOpen(false);
+      } else {
+        setTimeout(() => {
+          fabRef.animateButton();
+        }, 1000);
+      }
     }
   };
 
@@ -174,8 +178,8 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         color={isOpen ? darkerPrimary : primaryColor}
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
-        position="center"
-        distanceToEdge={{vertical: 65, horizontal: 0}}
+        position={isWeb ? "right" : "center"}
+        distanceToEdge={{vertical: 65, horizontal: isWeb ? 30 : 0}}
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}

@@ -288,7 +288,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   contentContainer: {
-    flex: 1
+    flex: 1,
+    paddingLeft: isWeb ? 12 : 0
   },
   titleRow: {
     flexDirection: 'row',

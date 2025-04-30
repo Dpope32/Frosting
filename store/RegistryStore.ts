@@ -115,25 +115,38 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
   // Get all store states for syncing
   getAllStoreStates: () => {
     const state = get();
+    const now = Date.now();
+    
+    // Helper to safely get store state
+    const getStoreState = (store: any) => {
+      try {
+        return typeof store === 'object' && store !== null 
+          ? { ...store } 
+          : {};
+      } catch {
+        return {};
+      }
+    };
+
     return {
-      habits: state.habitStore,
-      weather: state.weatherStore,
-      bills: state.billStore,
-      calendar: state.calendarStore,
-      tasks: state.todoStore,
-      notes: state.noteStore,
-      wallpapers: state.wallpaperStore,
-      user: state.userStore,
-      stocks: state.editStockStore,
-      tasksEdit: state.editTaskStore,
-      network: state.networkStore,
-      vault: state.vaultStore,
-      calendarView: state.calendarViewStore,
-      nba: state.nbaStore,
-      crm: state.crmStore,
-      recommendations: state.recommendationStore,
-      portfolio: state.portfolioStore,
-      people: state.peopleStore
+      habits: { ...getStoreState(state.habitStore), lastUpdated: now },
+      weather: { ...getStoreState(state.weatherStore), lastUpdated: now },
+      bills: { ...getStoreState(state.billStore), lastUpdated: now },
+      calendar: { ...getStoreState(state.calendarStore), lastUpdated: now },
+      tasks: { ...getStoreState(state.todoStore), lastUpdated: now },
+      notes: { ...getStoreState(state.noteStore), lastUpdated: now },
+      wallpapers: { ...getStoreState(state.wallpaperStore), lastUpdated: now },
+      user: { ...getStoreState(state.userStore), lastUpdated: now },
+      stocks: { ...getStoreState(state.editStockStore), lastUpdated: now },
+      tasksEdit: { ...getStoreState(state.editTaskStore), lastUpdated: now },
+      network: { ...getStoreState(state.networkStore), lastUpdated: now },
+      vault: { ...getStoreState(state.vaultStore), lastUpdated: now },
+      calendarView: { ...getStoreState(state.calendarViewStore), lastUpdated: now },
+      nba: { ...getStoreState(state.nbaStore), lastUpdated: now },
+      crm: { ...getStoreState(state.crmStore), lastUpdated: now },
+      recommendations: { ...getStoreState(state.recommendationStore), lastUpdated: now },
+      portfolio: { ...getStoreState(state.portfolioStore), lastUpdated: now },
+      people: { ...getStoreState(state.peopleStore), lastUpdated: now }
     };
   },
 

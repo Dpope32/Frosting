@@ -138,7 +138,7 @@ const config = createTamagui({
       ...themes.dark,
       onboardingLabel: baseTokens.color.gray12Dark.val,
       onboardingSubText: baseTokens.color.gray9Dark.val,
-      onboardingInputBackground: baseTokens.color.gray4Dark.val,
+      onboardingInputBackground: baseTokens.color.gray5Dark.val,
       onboardingInputBorder: baseTokens.color.gray8Dark.val,
       onboardingInputText: baseTokens.color.gray12Dark.val,
       onboardingPlaceholder: baseTokens.color.gray8Dark.val,
