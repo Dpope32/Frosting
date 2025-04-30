@@ -70,5 +70,13 @@ export const getIconForBill = (billName: string) => {
   };
 
   export const getAmountColor = (amount: number) => {
-    return '#ff0000';
+    if (amount >= 100) {
+      return '#ff0000';
+    } else if (amount >= 50) {
+      return '#FFD93D';
+    } else if (amount === 0) {
+      return '#5edd11';
+    } else {
+      return '#5EEE11';
+    }
   };

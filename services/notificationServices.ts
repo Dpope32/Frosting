@@ -180,6 +180,25 @@ export const scheduleDailyHabitNotification = async (
     const hasPermission = await requestNotificationPermissions();
     if (!hasPermission) return 'permission-denied';
 
+    // Check if this is a habit notification that's already completed for today
+    if (identifier && identifier.includes('-')) {
+      const [habitName] = identifier.split('-');
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const habits = useHabitStore.getState().habits;
+      
+      // Find the habit by name
+      const habit = Object.values(habits).find(h => h.title === habitName);
+      if (habit && habit.completionHistory[today]) {
+        // Habit already completed today, don't send notification
+        return 'habit-completed';
+      }
+      
+      // Use default message if provided body is empty
+      if (body === '') {
+        body = `Don't forget to complete "${habitName}" today`;
+      }
+    }
+    
     const notifId = await Notifications.scheduleNotificationAsync({
       content: {
         title,
