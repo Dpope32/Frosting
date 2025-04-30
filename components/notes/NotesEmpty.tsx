@@ -15,7 +15,8 @@ export const NotesEmpty = ({
 }: NotesEmptyProps) => {
   return (
     <XStack 
-      p={isWeb ? "$6" : "$5"} 
+      p={isWeb ? "$6" : "$3"} 
+      px={isWeb ? "$6" : "$4"}
       br="$4" 
       ai="flex-start" 
       jc="center"
@@ -23,7 +24,7 @@ export const NotesEmpty = ({
       borderColor={isDark ? "#333" : "#e0e0e0"} 
       width="100%" 
       overflow="hidden" 
-      marginTop={isWeb ? 10 : 16}
+      marginTop={isWeb ? 10 : 0}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}

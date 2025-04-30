@@ -61,7 +61,7 @@ export function Base({
       shadowRadius: 3.84,
       elevation: 5,
       paddingBottom: isWeb? 30 : 16,
-      paddingTop: isWeb? 24 : 4,
+      paddingTop: isWeb? 24 : 12,
       zIndex: 1,
       maxHeight: screenHeight * 0.8,
     },
