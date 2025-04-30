@@ -36,24 +36,42 @@ export default function SyncScreen() {
   const initializeSyncService = async () => {
     try {
       setIsLoading(true);
-      await syncService.initialize();
-      const myDeviceId = syncService.getConnectionCode();
+      
+      // First get device ID - this will work even if WebRTC isn't supported
+      const myDeviceId = await syncService.getConnectionCode();
       setDeviceId(myDeviceId);
       
-      // Add current device to the list
+      // Try to initialize PeerJS
+      const initialized = await syncService.initialize()
+        .catch(error => {
+          console.error('Error initializing sync service:', error);
+          return false;
+        });
+      
+      // Add current device to the list regardless of initialization status
       setDevices([
         {
           id: myDeviceId,
           name: 'This Device',
-          status: 'Ready',
+          status: initialized ? 'Ready' : 'Limited Support',
           isCurrentDevice: true,
           lastActive: Date.now()
         }
       ]);
       
       setIsInitialized(true);
-      setModalStep('showCode');
-      useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
+      
+      if (initialized) {
+        setModalStep('showCode');
+        useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
+      } else {
+        setModalStep('choose');
+        if (!syncService.isWebRTCSupported()) {
+          useToastStore.getState().showToast('WebRTC not supported in this browser. Device sync will be limited.', 'warning');
+        } else {
+          useToastStore.getState().showToast('Could not initialize sync service', 'error');
+        }
+      }
     } catch (error) {
       console.error('Error initializing sync service:', error);
       useToastStore.getState().showToast('Failed to initialize sync', 'error');
@@ -67,21 +85,42 @@ export default function SyncScreen() {
     setModalStep('creating');
     try {
       setIsLoading(true);
-      await syncService.initialize();
-      const myDeviceId = syncService.getConnectionCode();
+      
+      // Try to initialize PeerJS if not already initialized
+      const initialized = await syncService.initialize()
+        .catch(error => {
+          console.error('Error initializing sync service:', error);
+          return false;
+        });
+      
+      // Get device ID (will be available regardless of initialization success)
+      const myDeviceId = await syncService.getConnectionCode();
       setDeviceId(myDeviceId);
+      
+      // Update device list
       setDevices([
         {
           id: myDeviceId,
           name: 'This Device',
-          status: 'Ready',
+          status: initialized ? 'Ready' : 'Limited Support',
           isCurrentDevice: true,
           lastActive: Date.now()
         }
       ]);
+      
       setIsInitialized(true);
-      setModalStep('showCode');
-      useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
+      
+      if (initialized) {
+        setModalStep('showCode');
+        useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
+      } else {
+        setModalStep('choose');
+        if (!syncService.isWebRTCSupported()) {
+          useToastStore.getState().showToast('WebRTC not supported in this browser. Device sync will be limited.', 'warning');
+        } else {
+          useToastStore.getState().showToast('Could not initialize sync service', 'error');
+        }
+      }
     } catch (error) {
       console.error('Error initializing sync service:', error);
       useToastStore.getState().showToast('Failed to initialize sync', 'error');
@@ -455,4 +494,4 @@ const styles = StyleSheet.create({
     padding: 8,
     zIndex: 1,
   },
-}); 
+});

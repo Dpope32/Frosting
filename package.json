@@ -126,7 +126,8 @@
       },
       "reactNativeDirectoryCheck": {
         "exclude": [
-          "tamagui"
+          "tamagui",
+          "react-native-webrtc"
         ],
         "listUnknownPackages": false
       }

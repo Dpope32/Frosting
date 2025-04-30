@@ -20,13 +20,17 @@ class SyncDeviceService {
   private connections: Record<string, any> = {};
   private deviceId: string = '';
   private isInitialized: boolean = false;
+  private deviceIdInitialized: boolean = false;
+  private browserSupportsWebRTC: boolean = true;
   
   constructor() {
-    this.initializeDeviceId();
+    // Don't auto-initialize - we'll do this explicitly when needed
   }
   
   // Initialize with a device ID (create or retrieve existing)
   private async initializeDeviceId() {
+    if (this.deviceIdInitialized) return this.deviceId;
+    
     try {
       const storedId = await AsyncStorage.getItem('device_id');
       if (storedId) {
@@ -35,37 +39,98 @@ class SyncDeviceService {
         this.deviceId = uuidv4();
         await AsyncStorage.setItem('device_id', this.deviceId);
       }
+      this.deviceIdInitialized = true;
       console.log(`Device initialized with ID: ${this.deviceId}`);
+      return this.deviceId;
     } catch (error) {
       console.error('Failed to initialize device ID:', error);
       Sentry.captureException(error);
       this.deviceId = uuidv4(); // Fallback to temporary ID
+      this.deviceIdInitialized = true;
+      return this.deviceId;
     }
   }
   
+  // Check if WebRTC is supported in the current environment
+  private checkWebRTCSupport(): boolean {
+    try {
+      // Check for required WebRTC APIs
+      const hasRTCPeerConnection = typeof window !== 'undefined' && 
+        ('RTCPeerConnection' in window || 
+         'webkitRTCPeerConnection' in window || 
+         'mozRTCPeerConnection' in window);
+         
+      const hasUserMedia = typeof navigator !== 'undefined' && 
+        ('getUserMedia' in navigator || 
+         'webkitGetUserMedia' in navigator || 
+         'mozGetUserMedia' in navigator ||
+         'mediaDevices' in navigator);
+         
+      return hasRTCPeerConnection && hasUserMedia;
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Initialize PeerJS connection
-  public async initialize() {
-    if (this.isInitialized) return;
+  public async initialize(): Promise<boolean> {
+    // Return early if already initialized
+    if (this.isInitialized) return true;
     
     try {
-      this.peer = new Peer(this.deviceId);
+      // First ensure we have a device ID
+      const deviceId = await this.initializeDeviceId();
       
-      this.peer.on('open', (id) => {
-        console.log('PeerJS connection established with ID:', id);
-        this.isInitialized = true;
-      });
+      // Check WebRTC support
+      this.browserSupportsWebRTC = this.checkWebRTCSupport();
+      if (!this.browserSupportsWebRTC) {
+        console.warn('WebRTC is not supported in this browser/environment');
+        return false;
+      }
       
-      this.peer.on('connection', (conn) => {
-        this.handleIncomingConnection(conn);
-      });
-      
-      this.peer.on('error', (err) => {
-        console.error('PeerJS error:', err);
-        Sentry.captureException(err);
+      return new Promise<boolean>((resolve, reject) => {
+        try {
+          // Only create Peer instance after device ID is ready
+          this.peer = new Peer(deviceId);
+          
+          // Set timeout to handle initialization that never completes
+          const timeout = setTimeout(() => {
+            if (!this.isInitialized) {
+              console.error('PeerJS initialization timed out');
+              Sentry.captureMessage('PeerJS initialization timed out');
+              reject(new Error('Connection timed out'));
+            }
+          }, 10000); // 10 second timeout
+          
+          this.peer.on('open', (id) => {
+            console.log('PeerJS connection established with ID:', id);
+            this.isInitialized = true;
+            clearTimeout(timeout);
+            resolve(true);
+          });
+          
+          this.peer.on('connection', (conn) => {
+            this.handleIncomingConnection(conn);
+          });
+          
+          this.peer.on('error', (err) => {
+            console.error('PeerJS error:', err);
+            Sentry.captureException(err);
+            if (!this.isInitialized) {
+              clearTimeout(timeout);
+              reject(err);
+            }
+          });
+        } catch (error) {
+          console.error('Failed to initialize PeerJS:', error);
+          Sentry.captureException(error);
+          reject(error);
+        }
       });
     } catch (error) {
-      console.error('Failed to initialize PeerJS:', error);
+      console.error('Failed during sync initialization:', error);
       Sentry.captureException(error);
+      return false;
     }
   }
   
@@ -98,13 +163,37 @@ class SyncDeviceService {
 
   // Connect to another device
   public async connectToDevice(peerId: string): Promise<void> {
-    if (!this.peer || this.connections[peerId]) return Promise.reject(new Error('Peer not initialized or already connected'));
+    // Check for initialization first
+    if (!this.isInitialized) {
+      try {
+        const success = await this.initialize();
+        if (!success) {
+          return Promise.reject(new Error('Failed to initialize before connecting'));
+        }
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    }
+
+    if (!this.peer) {
+      return Promise.reject(new Error('Peer not initialized'));
+    }
+    
+    if (this.connections[peerId]) {
+      return Promise.resolve(); // Already connected
+    }
 
     return new Promise((resolve, reject) => {
       try {
         const conn = this.peer!.connect(peerId);
+        
+        // Set timeout for connection
+        const timeout = setTimeout(() => {
+          reject(new Error('Connection timed out'));
+        }, 15000); // 15 second timeout
 
         conn.on('open', () => {
+          clearTimeout(timeout);
           this.connections[peerId] = conn;
           console.log(`Connected to device: ${peerId}`);
           this.sendSyncRequest(peerId);
@@ -112,6 +201,7 @@ class SyncDeviceService {
         });
 
         conn.on('error', (err: any) => {
+          clearTimeout(timeout);
           console.error(`PeerJS connection error with device ${peerId}:`, err);
           Sentry.captureException(err);
           reject(err);
@@ -230,8 +320,17 @@ class SyncDeviceService {
   }
   
   // Generate connection code for display/sharing
-  public getConnectionCode(): string {
+  public async getConnectionCode(): Promise<string> {
+    // Ensure device ID is initialized
+    if (!this.deviceIdInitialized) {
+      await this.initializeDeviceId();
+    }
     return this.deviceId;
+  }
+  
+  // Check if WebRTC is supported
+  public isWebRTCSupported(): boolean {
+    return this.browserSupportsWebRTC;
   }
   
   // Clean up connections
