@@ -128,12 +128,25 @@ export function LandingPage() {
     }
   };
 
+  // Calculate YStack padding top in a readable way
+  let ptop: number;
+  if (isIpad()) {
+    // ipad
+    ptop = isDark ? 30 : 30;
+  } else if (isWeb) {
+    // web
+    ptop = 100;
+  } else {
+    // mobile
+    ptop = 90;
+  }
+
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom="$3" showsVerticalScrollIndicator={false} >
-        <YStack pt={isIpad() ? isDark ? 40 : 85 : 100} gap="$3" >
+        <YStack pt={ptop} gap="$3" >
           {!isWeb && (
             <Stack 
               borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 

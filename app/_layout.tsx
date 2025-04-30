@@ -30,6 +30,9 @@ import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
+  tracesSampleRate: 1.0,
+  sendDefaultPii: true,
+  profilesSampleRate: 1.0,
 });
 
 const queryClient = new QueryClient({

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Platform, View, Text } from 'react-native';
+import { Platform, Dimensions } from 'react-native';
 import { isWeb } from 'tamagui';
 import * as Haptics from 'expo-haptics';
 import { FloatingAction } from "react-native-floating-action";
@@ -8,6 +8,10 @@ import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
 import { ActionButton } from './ActionButton';
 import { ActionButtonTitle } from './ActionButtonTitle';
+
+const { width } = Dimensions.get('window');
+const dteWidth = width * 0.31;
+
 interface FloatingActionSectionProps {
   onActionPress: (name: string) => void;
   isDark: boolean;
@@ -169,6 +173,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
     },
   ];
 
+
   return (
     <>
       <FloatingAction
@@ -179,7 +184,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
         position={isWeb ? "right" : isIpad() ? "right" : "center"}
-        distanceToEdge={{vertical: 65, horizontal: isWeb ? 30 : isIpad() ? 350 : 0}}
+        distanceToEdge={{vertical: 65, horizontal: isWeb ? 30 : isIpad() ? dteWidth : 0}}
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}

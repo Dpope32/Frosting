@@ -67,7 +67,7 @@ export function WifiCard({ isHome, isDark }: WifiCardProps) {
       br={isIpad() ? 18 : 12}
       padding="$2" 
       borderWidth={isHome ? 0 : 1}
-      borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
+      borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.3)"}
       minWidth={isIpad() ? 75 : 60}
       height={isWeb ? 60 : isIpad() ? 60 : 48}   
       alignItems="center"

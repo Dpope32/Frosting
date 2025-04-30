@@ -124,7 +124,7 @@ export const TaskSection = ({
               fontSize={isWeb ? 22 : 20}
               fontWeight="bold"
               marginRight={isWeb ? 20 : 10}
-              marginLeft={isWeb ? 20 : -30}
+              marginLeft={isWeb ? 20 : isIpad() ? -30 : -16}
             >
               {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </Text>
@@ -137,7 +137,7 @@ export const TaskSection = ({
         position="relative"
         justifyContent={Platform.OS === 'web' ? 'flex-start' : isIpad() ? 'flex-start' : 'center'}
         px={Platform.OS === 'web' ? "$3" : "$1"}
-        py={Platform.OS === 'web' ? "$2" : "$1"}
+        py={Platform.OS === 'web' ? "$2" : "$0"}
       >
         {Platform.OS === 'web' ? (
           todaysTasks.length === 0 ? (
@@ -228,7 +228,7 @@ export const TaskSection = ({
               >
                 <YStack width="100%">
                   <XStack
-                    justifyContent="space-evenly"
+                    justifyContent="center"
                     gap="$2"
                     px="$2"
                     flexWrap="wrap"

@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { Platform, useColorScheme } from 'react-native';
-import { YStack, Text, Stack } from 'tamagui';
+import { YStack, Text, Stack, isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
+import { isIpad } from '@/utils/deviceUtils';
 
 export function YearCompleteSection() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const { percentage, currentDay, totalDays, currentYear } = useMemo(() => {
+  const { percentage, currentYear } = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const diff = Number(now) - Number(start);
@@ -33,7 +34,10 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width="100%"
+      width={isWeb ? "100%" :isIpad() ? "90%" : "90%"}
+      alignSelf="center"
+      alignItems="center"
+      justifyContent="center"
       br={16}
       px="$3"
       py="$1"

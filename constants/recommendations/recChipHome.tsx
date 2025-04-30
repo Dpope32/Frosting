@@ -67,7 +67,7 @@ export const RecommendationChipHome: React.FC<RecommendationChipProps> = ({ cate
         scale={1}
         minWidth={0}
         flex={isWeb ? 1 : 0}
-        width={width || (isWeb ? 150 : isIpad() ? 150 : 130)}
+        width={width || (isWeb ? 150 : isIpad() ? 105 : 130)}
         marginBottom={isWeb ? 0 : '$1'}
       >
         <XStack gap={isWeb ? '$2' : '$1'} alignItems="center" justifyContent="center" >
