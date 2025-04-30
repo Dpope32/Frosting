@@ -162,6 +162,7 @@ export default function SyncScreen() {
             fontSize={isWeb ? 24 : isIpad() ? 22 : 20} 
             fontWeight="700" 
             color={isDark ? "#fff" : "#000"}
+            fontFamily="$body"
             style={{ textAlign: 'center', flex: 1 }}
           >
             Sync Devices
@@ -182,22 +183,22 @@ export default function SyncScreen() {
           justifyContent="space-between"
           width="98%"
         >
-          <Text fontSize={14} color={isDark ? "#aaa" : "#666"}>
+          <Text fontSize={14} color={isDark ? "#aaa" : "#666"} fontFamily="$body">
             Sync Status
           </Text>
-          <Text fontSize={14} color={isDark ? currentSpaceId ? "$green10" : "#aaa" : currentSpaceId ? "$green10" : "#666"}>
+          <Text fontSize={14} color={isDark ? currentSpaceId ? "$green10" : "#aaa" : currentSpaceId ? "$green10" : "#666"} fontFamily="$body">
             {currentSpaceId ? 'Connected' : 'Not Connected'}
           </Text>
         </XStack>
         
-        <Text fontSize={16} color={isDark ? "#aaa" : "#666"} marginBottom="$4">
+        <Text fontSize={16} color={isDark ? "#aaa" : "#666"} marginBottom="$4" fontFamily="$body">
           Connect and synchronize your data across multiple devices. Create a new sync space to start fresh, or join an existing one to share data with your other devices. All changes will be automatically synchronized in real-time.
         </Text>
         
         {isLoading ? (
           <YStack alignItems="center" justifyContent="center" padding="$4">
             <ActivityIndicator size="large" color={primaryColor} />
-            <Text marginTop="$2" color={isDark ? "#aaa" : "#666"}>
+            <Text marginTop="$2" color={isDark ? "#aaa" : "#666"} fontFamily="$body">
               {currentSpaceId ? 'Connecting to sync space...' : 'Creating sync space...'}
             </Text>
           </YStack>
@@ -214,10 +215,10 @@ export default function SyncScreen() {
                 width="98%"
               >
                 <YStack>
-                  <Text fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"}>
+                  <Text fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"} fontFamily="$body">
                     {device.name}
                   </Text>
-                  <Text fontSize={12} color={isDark ? "#aaa" : "#666"}>
+                  <Text fontSize={12} color={isDark ? "#aaa" : "#666"} fontFamily="$body">
                     {device.status} • {device.isCurrentDevice ? 'This device' : 'Last active: ' + new Date(device.lastActive).toLocaleDateString()}
                   </Text>
                 </YStack>
@@ -257,17 +258,16 @@ export default function SyncScreen() {
           showCloseButton={true}
         >
           <YStack gap="$4" padding={isWeb ? "$4" : "$3"}>
-            <Text color={isDark ? "#aaa" : "#666"} fontSize={16}>
+            <Text color={isDark ? "#aaa" : "#666"} fontSize={16} fontFamily="$body">
               Choose how to add a new device:
             </Text>
-            {/* Only show device code container after initialization */}
             {isInitialized && (
               <YStack 
                 padding="$3" 
                 borderRadius={8}
                 marginBottom="$4"
               >
-                <Text fontSize={14} color={isDark ? "#aaa" : "#666"}>
+                <Text fontSize={14} color={isDark ? "#aaa" : "#666"} fontFamily="$body">
                   Your Device Code:
                 </Text>
                 <View
@@ -304,12 +304,11 @@ export default function SyncScreen() {
                     Copy
                   </Button>
                 </View>
-                <Text fontSize={12} color={isDark ? "#aaa" : "#666"} marginTop="$2">
+                <Text fontSize={12} color={isDark ? "#aaa" : "#666"} marginTop="$2" fontFamily="$body">
                   Share this code with your other devices to connect them.
                 </Text>
               </YStack>
             )}
-            {/* Only show the initialize button if not initialized */}
             {!isInitialized && (
               <Button
                 onPress={handleCreateSpace}
@@ -324,6 +323,7 @@ export default function SyncScreen() {
                   color={isDark ? "#fff" : primaryColor}
                   fontSize={16}
                   fontWeight="600"
+                  fontFamily="$body"
                 >
                   Initialize This Device
                 </Text>
@@ -342,6 +342,7 @@ export default function SyncScreen() {
                 color={isDark ? "#fff" : "#000"}
                 fontSize={16}
                 fontWeight="600"
+                fontFamily="$body"
               >
                 Connect to Another Device
               </Text>
@@ -356,7 +357,7 @@ export default function SyncScreen() {
           onClose={() => setShowJoinDialog(false)}
         >
           <YStack gap="$4" padding="$4">
-            <Text color={isDark ? "#aaa" : "#666"} fontSize={16}>
+            <Text color={isDark ? "#aaa" : "#666"} fontSize={16} fontFamily="$body">
               Enter the device code from your other device:
             </Text>
             <TextInput
@@ -383,6 +384,7 @@ export default function SyncScreen() {
                 color="#fff"
                 fontSize={16}
                 fontWeight="600"
+                fontFamily="$body"
               >
                 Connect
               </Text>
