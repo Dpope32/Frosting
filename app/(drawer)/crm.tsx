@@ -72,7 +72,7 @@ export default function CRM() {
   };
 
   return (
-    <YStack flex={1} paddingTop={isWeb ? 80 : 85}>
+    <YStack flex={1} paddingTop={isWeb ? 90 : 95}>
       {__DEV__ && (
         <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
           <Button
@@ -128,14 +128,6 @@ export default function CRM() {
             icon={<MaterialIcons name="clear-all" size={24} color="white" />}
           />
         </View>
-      )}
-      {!isWeb && allContacts.length > 0 && (
-        <>
-          <H4 fontFamily="$heading" fontSize="$7" fontWeight="bold" mt={12} textAlign="center" marginBottom={8}>
-            All Contacts ({allContacts.length})
-          </H4>
-          <Separator borderColor="$gray8" borderWidth={1} marginBottom={2} />
-        </>
       )}
       <FlatList
         key={JSON.stringify(allContacts)}
