@@ -40,12 +40,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
         br="$4"
         position="relative"
       >
-        <LinearGradient
-          colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-        />
         <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
           <XStack 
             width={20}
