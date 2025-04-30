@@ -138,7 +138,7 @@ export function LandingPage() {
     ptop = 100;
   } else {
     // mobile
-    ptop = 90;
+    ptop = 100;
   }
 
   return (

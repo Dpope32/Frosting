@@ -223,7 +223,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       hideHandle={true}
       showCloseButton={!isSigningOut}
     >
-      <YStack flex={1} gap="$2" paddingVertical="$3" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$2'}>
+      <YStack flex={1} gap="$2" paddingVertical="$3" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$1.5'}>
         <XStack gap="$3" flexWrap="wrap">
           <YStack width={isWeb ? 100 : isIpad() ? 80 : 60} gap="$2" alignItems="center" justifyContent="center">
             <Circle size={isWeb ? 80 : isIpad() ? 60 : 55} mt={isWeb ? 0 : 5} borderWidth={1} borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} borderStyle="dashed" backgroundColor={isDark ? '#555' : '#f5f5f5'} onPress={pickImage} overflow="hidden">
@@ -308,8 +308,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           )}
           {!isWeb && !isIpad() && (
-            <YStack mt="$2" px="$2">
-              <XStack gap="$1" justifyContent="center">
+            <YStack mt="$2" px="$1">
+              <XStack gap="$0.5" justifyContent="center">
                 <YStack alignItems="center" gap={4} flex={1}>
                   <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Quote</Text>
                   <Switch value={settings.quoteEnabled} onValueChange={(val) => setSettings((prev) => ({ ...prev, quoteEnabled: val }))} />
@@ -389,7 +389,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         </YStack>
       <XStack 
         justifyContent="space-between"
-        paddingHorizontal={isWeb ? '$7' : '$6'}
+        paddingHorizontal={isWeb ? '$7' : '$4'}
         paddingVertical={isWeb ? '$4' : '$3'}
         paddingTop={isWeb ? '$15' : '$3'}
         marginTop={isWeb ? 0 : 12}
