@@ -25,14 +25,13 @@ export function QuoteCard({ isHome, isDark }: QuoteCardProps) {
     <>
     <Stack
       backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.3)"}
-      br={isIpad() ? 18 : 12}
-      padding="$3"  
+      br={isIpad() ? 18 : 12} p="$3"  
       borderWidth={isHome ? 0 : 1}
       borderColor={isHome ? 'transparent' : "rgba(255, 255, 255, 0.1)"}
       minWidth={isIpad() ? 70 : 60}
       height={isWeb ? 60 : isIpad() ? 60 : 48}    
       alignItems="center"
-      justifyContent="center"
+      jc="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
     >
         {isLoading ? (

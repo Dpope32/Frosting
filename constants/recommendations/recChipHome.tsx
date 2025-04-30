@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons'
 import { isIpad } from '@/utils/deviceUtils'
 import { RecommendationChipProps } from './TaskRecommendations'
 
-
 export const RecommendationChipHome: React.FC<RecommendationChipProps> = ({ category, onPress, isDark = false, width }) => {
     const getChipStyle = () => {
       switch (category) {
@@ -68,7 +67,7 @@ export const RecommendationChipHome: React.FC<RecommendationChipProps> = ({ cate
         scale={1}
         minWidth={0}
         flex={isWeb ? 1 : 0}
-        width={width || (isWeb ? 150 : isIpad() ? 140 : 130)}
+        width={width || (isWeb ? 150 : isIpad() ? 150 : 130)}
         marginBottom={isWeb ? 0 : '$1'}
       >
         <XStack gap={isWeb ? '$2' : '$1'} alignItems="center" justifyContent="center" >

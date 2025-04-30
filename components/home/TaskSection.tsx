@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Pressable, Platform, useColorScheme, Animated } from 'react-native'
+import { Pressable, Platform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
@@ -108,7 +108,8 @@ export const TaskSection = ({
             style={{
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
               textShadowOffset: { width: 0, height: 0 },
-              textShadowRadius: 4
+              textShadowRadius: 4,
+              marginRight: isIpad() ? -20 : 0
             }}
           />
         </Pressable>

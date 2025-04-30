@@ -68,6 +68,7 @@ export function LandingPage() {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsMounted(true)
+      setBillModalOpen(false)
     }, 500)
     
     return () => clearTimeout(timer)
@@ -81,12 +82,6 @@ export function LandingPage() {
     )
   }
   
-  // Reset bill modal state when component mounts
-  React.useEffect(() => {
-    if (isMounted) {
-      setBillModalOpen(false)
-    }
-  }, [isMounted])
 
   const handleNewTaskPress = () => { 
     setSheetOpen(true) 
@@ -138,7 +133,7 @@ export function LandingPage() {
       <BackgroundSection />
       <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom="$3" showsVerticalScrollIndicator={false} >
-        <YStack pt={isIpad() ? isDark ? 75 : 85 : 100} gap="$3" >
+        <YStack pt={isIpad() ? isDark ? 40 : 85 : 100} gap="$3" >
           {!isWeb && (
             <Stack 
               borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
@@ -181,7 +176,7 @@ export function LandingPage() {
             )}
           </Stack>
          
-          {Platform.OS === 'web' ? (
+          {Platform.OS === 'web' ?  (
             <Stack 
               backgroundColor={backgroundColor} 
               borderRadius={16} 

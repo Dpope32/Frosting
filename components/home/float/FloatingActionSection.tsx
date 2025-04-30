@@ -178,8 +178,8 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         color={isOpen ? darkerPrimary : primaryColor}
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
-        position={isWeb ? "right" : "center"}
-        distanceToEdge={{vertical: 65, horizontal: isWeb ? 30 : 0}}
+        position={isWeb ? "right" : isIpad() ? "right" : "center"}
+        distanceToEdge={{vertical: 65, horizontal: isWeb ? 30 : isIpad() ? 350 : 0}}
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}

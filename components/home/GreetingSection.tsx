@@ -15,20 +15,19 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
   return (
     <XStack 
       alignItems={isIpad() ? "flex-start" : "center"} 
-      justifyContent={isIpad() ? "center" : "flex-start"}
+      justifyContent={isIpad() ? "center" : "flex-start"} 
       br={16}
       pl={isWeb ? "$2" : "$0"}
+      ml={isIpad() ? -40 : 0}
       py={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
-      width="100%"
     >
-      <XStack alignItems="center"  paddingRight={isWeb ? "$7" : "$0"} flex={isIpad() ? 2 : undefined} justifyContent="center">
+
+      <XStack alignItems="center" paddingRight={isWeb ? "$7" : isIpad() ? "$0" : "$0"} justifyContent="center"> 
         <Text
           fontFamily="$heading"
           fontSize={isWeb ? 23 : isIpad() ? 23 : 19}
           color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
           fontWeight="bold"
-          numberOfLines={1}
-          ellipsizeMode="tail"
           style={{ textShadowColor: 'rgba(0, 0, 0, 0.5)', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 3 }}
         >
           {fullGreeting}

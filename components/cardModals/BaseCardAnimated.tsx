@@ -85,7 +85,7 @@ export function BaseCardAnimated({
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={8} px="$2" alignItems="center">
+                <XStack justifyContent="space-between" py="$2" marginTop={isIpad() ? -8 : -8} marginBottom={isIpad() ? 8 : 8} px="$2" alignItems="center">
                   <Text
                     fontSize={24}
                     fontWeight="700"

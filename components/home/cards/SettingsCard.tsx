@@ -4,6 +4,7 @@ import { Stack, YStack, Text } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { Platform } from 'react-native'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface SettingsCardProps {
   isHome?: boolean
@@ -17,7 +18,9 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
       minWidth={70}
       height={60}    
       br={16}
-      bg={isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.0)"}
+      backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.3)"}
+      borderWidth={1}
+      borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
     >
       <Pressable
         onPress={() => {
