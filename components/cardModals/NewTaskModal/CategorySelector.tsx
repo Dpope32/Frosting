@@ -1,9 +1,11 @@
 import React from 'react'
-import { useColorScheme } from 'react-native'
+import { useColorScheme, Alert, Platform } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { TaskCategory } from '@/types/task'
-import { getCategoryColor, withOpacity } from '@/utils/styleUtils'
+import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon } from '@/utils/styleUtils'
 import { isIpad } from '@/utils/deviceUtils'
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
+import { useUserStore } from '@/store/UserStore'
 
 interface CategorySelectorProps {
   selectedCategory: TaskCategory
@@ -13,21 +15,56 @@ interface CategorySelectorProps {
 export function CategorySelector({ selectedCategory, onCategorySelect }: CategorySelectorProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const customCategories = useCustomCategoryStore((s) => s.categories)
+  const addCategory = useCustomCategoryStore((s) => s.addCategory)
+  const userColor = useUserStore((s) => s.preferences.primaryColor)
+
+  // Helper for prompt (MVP: use window.prompt on web, Alert.prompt on iOS, fallback to Alert on Android)
+  const handleAddCustomCategory = () => {
+    const promptForName = (cb: (name: string) => void) => {
+      if (Platform.OS === 'web') {
+        const name = window.prompt('Enter new category name:')
+        if (name) cb(name)
+      } else if (Platform.OS === 'ios') {
+        // @ts-ignore
+        Alert.prompt('New Category', 'Enter a name for your category:', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'OK', onPress: (name) => name && cb(name) },
+        ])
+      } else {
+        // Android: fallback to Alert and then use a default name
+        Alert.alert('New Category', 'Feature coming soon! (MVP: use web or iOS for now)')
+      }
+    }
+    promptForName((name) => {
+      // Check for duplicates
+      if ([...customCategories, 'work', 'health', 'personal', 'family', 'wealth', 'bills', 'task'].some(cat => typeof cat === 'string' ? cat.toLowerCase() === name.toLowerCase() : cat.name.toLowerCase() === name.toLowerCase())) {
+        Alert.alert('Category exists', 'A category with that name already exists.')
+        return
+      }
+      const icon = getRandomCustomCategoryIcon()
+      const newCat = addCategory(name)
+      // Overwrite icon (MVP: store icon in custom category store in future)
+      newCat.icon = icon
+      onCategorySelect(name)
+    })
+  }
 
   return (
     <YStack px="$1.5" gap="$1">
       {isWeb && isIpad() && <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
         <XStack gap="$2">
-          {['work','health','personal','family','wealth'].map(cat => {
-            const color = getCategoryColor(cat as TaskCategory)
-            
+          {['work', 'health', 'personal', 'family', 'wealth', ...customCategories.map(cat => cat.name)].map(cat => {
+            const isCustom = customCategories.some(c => c.name === cat);
+            const color = isCustom ? userColor : getCategoryColor(cat as TaskCategory);
+            const isSelected = selectedCategory === cat;
             return (
               <Button
                 key={cat}
                 onPress={(e) => onCategorySelect(cat as TaskCategory, e)}
                 backgroundColor={
-                  selectedCategory === cat
+                  isSelected
                     ? withOpacity(color, 0.15)
                     : isDark ? "$gray2" : "white"
                 }
@@ -37,7 +74,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                 py="$2.5"
                 borderWidth={1}
                 borderColor={
-                  selectedCategory === cat
+                  isSelected
                     ? 'transparent'
                     : isDark ? "$gray7" : "$gray4"
                 }
@@ -47,8 +84,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   fontWeight="600"
                   fontFamily="$body"
                   color={
-                    selectedCategory === cat
-                      ? color
+                    isSelected
+                      ? (isCustom ? (isDark ? 'white' : '$gray12') : color)
                       : isDark
                         ? "$gray11"
                         : "$gray11"
@@ -59,6 +96,27 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
               </Button>
             )
           })}
+          <Button
+            onPress={handleAddCustomCategory}
+            backgroundColor={isDark ? "$gray2" : "white"}
+            pressStyle={{ opacity: 0.8, scale: 0.98 }}
+            br={20}
+            px="$3"
+            py="$2.5"
+            borderWidth={1}
+            borderColor={isDark ? "$gray7" : "$gray4"}
+            style={{ justifyContent: 'center', alignItems: 'center' }}
+          >
+            <Text
+              fontSize={18}
+              fontWeight="600"
+              fontFamily="$body"
+              color={isDark ? "$gray11" : "$gray11"}
+              style={{ textAlign: 'center', width: 18 }}
+            >
+              +
+            </Text>
+          </Button>
         </XStack>
       </ScrollView>
     </YStack>

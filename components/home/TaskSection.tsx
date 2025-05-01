@@ -42,7 +42,7 @@ export const TaskSection = ({
   const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
   const username = useUserStore(s => s.preferences.username);
   const [easterEggVisible, setEasterEggVisible] = useState(false);
-  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
+  const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     if (DEBUG) {
@@ -248,8 +248,8 @@ export const TaskSection = ({
             ) : (
               <XStack
                 flexWrap="wrap"
-                gap="$0"
-                width="95%"
+                gap="$0.5"
+                px={isIpad() ? "$5" : "$3"}
                 paddingLeft="$4"
                 paddingVertical="$1.5"
                 justifyContent={isIpad() ? "space-between" : "flex-start"}
@@ -281,18 +281,27 @@ export const TaskSection = ({
             {!isWeb ? (
               <>
                 <Pressable
-                  onPressIn={() => {
-                    console.log('[EasterEgg] Long press started at', new Date().toISOString());
-                    longPressTimeout.current = setTimeout(() => {
-                      console.log('[EasterEgg] 5s long press triggered at', new Date().toISOString());
+                  delayLongPress={2000}
+                  hitSlop={{ top: 24, bottom: 24, left: 24, right: 24 }}
+                  android_disableSound={true}
+                  onLongPress={() => {
+                    if (!isWeb) {
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                      console.log('Haptic feedback attempted on non-web platform after 2000ms.');
+                    }
+                    setEasterEggVisible(false);
+                    if (easterEggTimeout.current) {
+                      clearTimeout(easterEggTimeout.current);
+                      easterEggTimeout.current = null;
+                    }
+                    easterEggTimeout.current = setTimeout(() => {
                       setEasterEggVisible(true);
-                    }, 5000);
+                    }, 500); // 500ms after haptic
                   }}
                   onPressOut={() => {
-                    if (longPressTimeout.current) {
-                      clearTimeout(longPressTimeout.current);
-                      longPressTimeout.current = null;
-                      console.log('[EasterEgg] Long press cancelled at', new Date().toISOString());
+                    if (easterEggTimeout.current) {
+                      clearTimeout(easterEggTimeout.current);
+                      easterEggTimeout.current = null;
                     }
                   }}
                   style={{ width: '100%' }}

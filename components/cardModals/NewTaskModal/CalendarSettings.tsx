@@ -1,11 +1,10 @@
 import React from 'react'
 import { useColorScheme, Platform, View } from 'react-native'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
-import { Switch } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import { isIpad } from '@/utils/deviceUtils'
-import { Pencil, ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
+import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
 
 interface CalendarSettingsProps {
   showInCalendar: boolean
@@ -34,7 +33,7 @@ export function CalendarSettings({
       <Button
         onPress={onTimePickerToggle}
         theme={isDark ? "dark" : "light"}
-        backgroundColor={time ? "transparent" : isDark? "rgba(238, 238, 238, 0.8)" : "rgba(238, 238, 238, 0.8)"}
+        backgroundColor={time ? "transparent" : isDark? "rgba(238, 238, 238, 0.0)" : "rgba(238, 238, 238, 0.8)"}
         br={12}
         px={"$3"}
         py={isWeb ? "$4" : isIpad() ? "$2" : "$1"}

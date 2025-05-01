@@ -23,6 +23,7 @@ import { useCRMStore } from './CRMStore';
 import { useRecommendationStore } from './RecommendationStore';
 import { usePortfolioStore } from './PortfolioStore';
 import { usePeopleStore } from './People';
+import { useCustomCategoryStore } from './CustomCategoryStore';
 
 interface RegistryState {
   // Basic flags
@@ -54,6 +55,7 @@ interface RegistryState {
   recommendationStore: Record<string, any>;
   portfolioStore: Record<string, any>;
   peopleStore: Record<string, any>;
+  customCategoryStore: Record<string, any>;
   
   // Actions
   setHasCompletedOnboarding: (value: boolean) => void;
@@ -95,6 +97,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
   recommendationStore: useRecommendationStore.getState(),
   portfolioStore: usePortfolioStore.getState(),
   peopleStore: usePeopleStore.getState(),
+  customCategoryStore: useCustomCategoryStore.getState(),
 
   // Actions
   setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
@@ -147,7 +150,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
       crm: { ...getStoreState(state.crmStore), lastUpdated: now },
       recommendations: { ...getStoreState(state.recommendationStore), lastUpdated: now },
       portfolio: { ...getStoreState(state.portfolioStore), lastUpdated: now },
-      people: { ...getStoreState(state.peopleStore), lastUpdated: now }
+      people: { ...getStoreState(state.peopleStore), lastUpdated: now },
+      customCategory: { ...getStoreState(state.customCategoryStore), lastUpdated: now }
     };
   },
 

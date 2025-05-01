@@ -198,3 +198,31 @@ export const getStockValueColor = (value: number, isDark: boolean): string => {
   }
   return color
 }
+
+// Bank of 20 icons for custom categories (Ionicons names for example)
+export const customCategoryIcons = [
+  'star', 'planet', 'leaf', 'flame', 'bulb', 'rocket', 'paw', 'bicycle', 'cafe', 'camera',
+  'car', 'cloud', 'gift', 'golf', 'ice-cream', 'musical-notes', 'pizza', 'rose', 'tennisball', 'wine'
+];
+
+export const getRandomCustomCategoryIcon = (): string => {
+  const idx = Math.floor(Math.random() * customCategoryIcons.length);
+  return customCategoryIcons[idx];
+};
+
+export const getCategoryIcon = (category?: TaskCategory): string => {
+  if (!category) return 'pricetag-outline';
+  const icons: Record<string, string> = {
+    work: 'briefcase',
+    health: 'heart',
+    personal: 'person',
+    family: 'people',
+    wealth: 'cash',
+    bills: 'card',
+    task: 'checkmark-done',
+  };
+  // If it's a known category, return its icon
+  if (icons[category]) return icons[category];
+  // Otherwise, treat as custom: return a random icon (or you could store the icon in the custom category object)
+  return getRandomCustomCategoryIcon();
+};

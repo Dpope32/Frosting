@@ -1,6 +1,6 @@
 // components/tasklist/TaskListModal.tsx
 import React from 'react'
-import { XStack, isWeb, YStack } from 'tamagui' 
+import { XStack, isWeb, YStack, Button, Text } from 'tamagui' 
 import { useColorScheme, Platform, Alert } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'
@@ -13,8 +13,13 @@ import { useRecommendationStore } from '@/store/RecommendationStore'
 import { useEditTaskStore } from '@/store/EditTaskStore'
 import { useToastStore } from '@/store/ToastStore'
 import { useUserStore } from '@/store/UserStore'
-import { Task } from '@/types/task'
+import { RecurrencePattern, Task } from '@/types/task'
 import { RecommendationCategory, RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
+import { ScrollView as RNScrollView } from 'react-native'
+import { withOpacity, getCategoryColor, getRecurrenceColor } from '@/utils/styleUtils'
+import { Sheet } from 'tamagui'
+import { isIpad } from '@/utils/deviceUtils'
 
 interface TaskListModalProps {
   open: boolean
@@ -33,6 +38,9 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
   const [filter, setFilter] = React.useState<string | null>(null)
   const [dialogTask, setDialogTask] = React.useState<Task | null>(null)
   const [dialogOpen, setDialogOpen] = React.useState(false)
+  const customCategories = useCustomCategoryStore((s) => s.categories)
+  const userColor = useUserStore(s => s.preferences.primaryColor)
+  const [categoryFilter, setCategoryFilter] = React.useState<string | null>(null)
 
   const tasksByRec = React.useMemo(() => {
     const groups: Record<string, Task[]> = { 'one-time':[], tomorrow:[], everyday:[], weekly:[], biweekly:[], monthly:[], yearly:[] }
@@ -71,37 +79,6 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
     })
     return groups
   }, [tasks, bills, preferences.showNBAGameTasks])
-
-  const keys = React.useMemo(() => Object.keys(tasksByRec).filter(k => tasksByRec[k].length > 0), [tasksByRec]);
-  const filterChipCount = keys.length;
-
-  const entries = React.useMemo(() => (
-    filter ? Object.entries(tasksByRec).filter(([k]) => k===filter)
-           : Object.entries(tasksByRec)
-  ), [tasksByRec, filter])
-
-  const header = React.useMemo(() => {
-    if (filterChipCount < 2) return null
-    return (
-      <XStack mb="$2" px="$2" flexWrap="wrap" gap="$1">
-        <FilterChip
-          key="all"
-          label="All"
-          isSelected={filter === null}
-          onPress={() => setFilter(null)}
-          pattern="all"
-        />
-        {keys.map(k => (
-          <FilterChip
-            key={k}
-            label={k}
-            isSelected={filter===k}
-            onPress={() => setFilter(filter===k ? null : k)}
-          />
-        ))}
-      </XStack>
-    )
-  }, [tasksByRec, filter, keys, filterChipCount])
 
   const taskRecommendationCategories: RecommendationCategory[] = ['Cleaning', 'Wealth', 'Gym', 'Self-Care'];
   const taskRecommendations = React.useMemo(() => (
@@ -170,23 +147,126 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
     }
   }
 
+  // Combine recurrence and category filters into one row
+  const allCategories = ['work','health','personal','family','wealth', ...customCategories.map(cat => cat.name)];
+  const allRecurrencePatterns = ['one-time', 'tomorrow', 'everyday', 'weekly', 'biweekly', 'monthly', 'yearly'];
+
+  // Get all tasks as an array
+  const allTasksArr = Object.values(tasks);
+
+  // For categories
+  const categoriesWithTasks = allCategories.filter(cat =>
+    allTasksArr.some(t => t.category === cat)
+  );
+
+  // For recurrences
+  const recurrencesWithTasks = allRecurrencePatterns.filter(pattern =>
+    allTasksArr.some(t => (t.recurrencePattern || 'one-time') === pattern)
+  );
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BaseCardWithRecommendationsModal
         open={open}
         onOpenChange={o => { if(!o) setFilter(null); onOpenChange(o) }}
         title="All Tasks"
-        recommendationChips={filterChipCount < 2 ? taskRecommendations : header}
+        recommendationChips={Object.keys(tasksByRec).length < 2 ? taskRecommendations : null}
       >
-        {entries.map(([_, arr]) => arr.map(t => (
-          <YStack mt={1} key={t.id} >
-            <TaskItem
-              task={t}
-              onLongPress={onLongPress}
-              onPressEdit={t => { onOpenChange(false); openEditModal(t) }}
-            />
-          </YStack>
-        )))}
+        <YStack px={isIpad() ? "$2" : "$1.5 "} gap="$1.5" pb={isIpad() ? "$2" : "$1.5"}>
+          {Platform.OS === 'web' ? (
+            <RNScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingVertical: 4 }}>
+              <XStack gap="$1" flexWrap="nowrap">
+                <FilterChip
+                  key="all"
+                  label="All"
+                  isSelected={categoryFilter === null && filter === null}
+                  onPress={() => { setCategoryFilter(null); setFilter(null); }}
+                  pattern="all"
+                />
+                {categoriesWithTasks.map(cat => {
+                  const isCustom = customCategories.some(c => c.name === cat);
+                  const color = isCustom ? userColor : getCategoryColor(cat);
+                  const isSelected = categoryFilter === cat;
+                  return (
+                    <FilterChip
+                      key={cat}
+                      label={cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      isSelected={isSelected}
+                      onPress={() => { setCategoryFilter(cat); setFilter(null); }}
+                      color={color}
+                    />
+                  );
+                })}
+                {recurrencesWithTasks.length > 1 && recurrencesWithTasks.map(pattern => {
+                  const isSelected = filter === pattern;
+                  return (
+                    <FilterChip
+                      key={pattern}
+                      label={pattern.charAt(0).toUpperCase() + pattern.slice(1)}
+                      isSelected={isSelected}
+                      onPress={() => { setFilter(pattern); setCategoryFilter(null); }}
+                      pattern={pattern as RecurrencePattern}
+                    />
+                  );
+                })}
+              </XStack>
+            </RNScrollView>
+          ) : (
+            <Sheet.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingVertical: 4 }}>
+              <XStack gap="$1" flexWrap="nowrap">
+                <FilterChip
+                  key="all"
+                  label="All"
+                  isSelected={categoryFilter === null && filter === null}
+                  onPress={() => { setCategoryFilter(null); setFilter(null); }}
+                  pattern="all"
+                />
+                {categoriesWithTasks.map(cat => {
+                  const isCustom = customCategories.some(c => c.name === cat);
+                  const color = isCustom ? userColor : getCategoryColor(cat);
+                  const isSelected = categoryFilter === cat;
+                  return (
+                    <FilterChip
+                      key={cat}
+                      label={cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      isSelected={isSelected}
+                      onPress={() => { setCategoryFilter(cat); setFilter(null); }}
+                      color={color}
+                    />
+                  );
+                })}
+                {recurrencesWithTasks.length > 1 && recurrencesWithTasks.map(pattern => {
+                  const isSelected = filter === pattern;
+                  return (
+                    <FilterChip
+                      key={pattern}
+                      label={pattern.charAt(0).toUpperCase() + pattern.slice(1)}
+                      isSelected={isSelected}
+                      onPress={() => { setFilter(pattern); setCategoryFilter(null); }}
+                      pattern={pattern as RecurrencePattern}
+                    />
+                  );
+                })}
+              </XStack>
+            </Sheet.ScrollView>
+          )}
+        </YStack>
+        {Object.entries(tasksByRec).map(([rec, arr]) =>
+          arr
+            .filter(t =>
+              (categoryFilter ? t.category === categoryFilter : true) &&
+              (filter ? t.recurrencePattern === filter : true)
+            )
+            .map(t => (
+              <YStack mt={1} key={t.id} >
+                <TaskItem
+                  task={t}
+                  onLongPress={onLongPress}
+                  onPressEdit={t => { onOpenChange(false); openEditModal(t) }}
+                />
+              </YStack>
+            ))
+        )}
       </BaseCardWithRecommendationsModal>
       {Platform.OS === 'web' && (
         <DeleteTaskDialog

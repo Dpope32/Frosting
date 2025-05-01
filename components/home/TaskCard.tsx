@@ -13,6 +13,8 @@ import { isIpad } from '@/utils/deviceUtils';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { variants } from '@/constants/variants';
 import { TaskChips } from './TaskChips';
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
+import { useUserStore } from '@/store/UserStore';
 
 interface TaskCardProps {
   title: string;
@@ -36,7 +38,16 @@ export function TaskCard({
   onCheck,
   onDelete
 }: TaskCardProps) {
-  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#2196F3';
+  // Subscribe to primaryColor for reactivity
+  const userColor = useUserStore(s => s.preferences.primaryColor);
+  const customCategories = useCustomCategoryStore((s) => s.categories);
+  let calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#2196F3';
+  if (category) {
+    const customCat = customCategories.find(catObj => catObj.name === category);
+    if (customCat) {
+      calculatedCategoryColor = userColor;
+    }
+  }
   const showToast = useToastStore(s => s.showToast);
   const isDark = useColorScheme() === 'dark';
 
@@ -62,7 +73,7 @@ export function TaskCard({
   
   // Dark mode
   if (isDark && category) {
-    const categoryColor = getCategoryColor(category as TaskCategory);
+    let categoryColor = calculatedCategoryColor;
     gradientColors = [
       withOpacity(categoryColor, baseOpacity * 0.7),  // Top - darker
       withOpacity(categoryColor, baseOpacity),        // Middle
@@ -84,7 +95,7 @@ export function TaskCard({
   } 
   // Light mode
     else if (!isDark && category) {
-    const categoryColor = getCategoryColor(category as TaskCategory);
+    let categoryColor = calculatedCategoryColor;
      gradientColors = [
       withOpacity(categoryColor, baseOpacity * 0.9),  // Top - darker
       withOpacity(categoryColor, baseOpacity),        // Middle

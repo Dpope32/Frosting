@@ -10,23 +10,26 @@ interface FilterChipProps {
   onPress: () => void
   isSelected: boolean
   pattern?: RecurrencePattern | 'all'
+  color?: string // optional color for category chips
 }
 
-export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelected, pattern }) => {
+export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelected, pattern, color }) => {
   const isDark = useColorScheme() === 'dark'
   const recurrenceColor = pattern && pattern !== 'all' ? getRecurrenceColor(pattern) : null
+  // Use color prop if provided (for category), else recurrenceColor, else default
+  const chipColor = color || recurrenceColor
   const bgColor = isSelected
-    ? recurrenceColor
-      ? withOpacity(recurrenceColor, isDark ? 0.4 : 0.8)
+    ? chipColor
+      ? withOpacity(chipColor, isDark ? 0.4 : 0.8)
       : isDark ? '$blue7' : '$blue8'
     : isDark ? '$gray4' : '$gray6'
   const borderColor = isSelected
-    ? recurrenceColor
-      ? withOpacity(recurrenceColor, isDark ? 0.6 : 1.0)
+    ? chipColor
+      ? withOpacity(chipColor, isDark ? 0.6 : 1.0)
       : isDark ? '$blue8' : '$blue9'
     : isDark ? '$gray5' : '$gray7'
   const textColor = isSelected
-    ? recurrenceColor
+    ? chipColor
       ? isDark ? '#FFFFFF' : '#000000'
       : isDark ? '$blue12' : '$blue1'
     : isDark ? '$gray12' : '$gray1'
@@ -45,7 +48,6 @@ export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelect
       height="$3"
       unstyled
       marginRight="$2"
-      marginBottom="$1"
       justifyContent="center"
       alignItems="center"
     >

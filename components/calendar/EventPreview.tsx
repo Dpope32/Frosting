@@ -3,6 +3,8 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { CalendarEvent } from '@/store/CalendarStore'
 import { Ionicons } from '@expo/vector-icons'
 import { TaskPriority } from '@/types/task'
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
+import { useUserStore } from '@/store/UserStore'
 
 export const EventPreview: React.FC<{
   event: CalendarEvent
@@ -16,7 +18,11 @@ export const EventPreview: React.FC<{
   const isNBAEvent = event.type === 'nba'
   
   // Get category color based on type
+  const customCategories = useCustomCategoryStore((s) => s.categories)
+  const userColor = useUserStore(s => s.preferences.primaryColor)
+  const isCustom = event.type && customCategories.some(catObj => catObj.name === event.type)
   const getCategoryColor = (type: string): string => {
+    if (isCustom) return userColor
     const colors: Record<string, string> = {
       personal: '#9C27B0', // Purple
       work: '#2196F3',     // Blue
@@ -26,9 +32,9 @@ export const EventPreview: React.FC<{
       wealth: '#607D8B',   // Blue Gray
       bill: '#795548',     // Brown
       nba: '#FF6B00'       // NBA Orange
-    };
-    return colors[type] || primaryColor;
-  };
+    }
+    return colors[type] || primaryColor
+  }
   
   // Get priority color function
   const getPriorityColor = (priority?: TaskPriority): string => {
@@ -243,17 +249,19 @@ export const EventPreview: React.FC<{
           {event.type && !isBirthday && (
             <View style={[
               dynamicStyles.typeChip, 
-              { backgroundColor: `${getCategoryColor(event.type)}15` }
+              { backgroundColor: isCustom ? `${userColor}15` : `${getCategoryColor(event.type)}15` }
             ]}>
-              <Ionicons 
-                name="bookmark" 
-                size={10} 
-                color={getCategoryColor(event.type)} 
-                style={{ marginTop: 1 }}
-              />
+              {!isCustom && (
+                <Ionicons 
+                  name="bookmark" 
+                  size={10} 
+                  color={getCategoryColor(event.type)} 
+                  style={{ marginTop: 1 }}
+                />
+              )}
               <Text style={[
                 dynamicStyles.typeChipText, 
-                { color: getCategoryColor(event.type) }
+                { color: isCustom ? '#a1a1aa' : getCategoryColor(event.type) }
               ]}>
                 {event.type.toLowerCase()}
               </Text>

@@ -301,7 +301,9 @@ const createTaskFilter = () => {
       if (b.time) return 1;
       
       const priorityOrder = { high: 0, medium: 1, low: 2 };
-      return priorityOrder[a.priority] - priorityOrder[b.priority];
+      const aPriority = priorityOrder[a.priority] ?? 99;
+      const bPriority = priorityOrder[b.priority] ?? 99;
+      return aPriority - bPriority;
     });
     
     if (DEBUG) {

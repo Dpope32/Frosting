@@ -155,16 +155,33 @@ export default function ChangeLog() {
                           </View>
                         )}
                       </XStack>
-                      <Text style={{
-                        ...markdownStyles.body as TextStyle,
-                        color: isDark ? '#b8b3ba' : '#708090',
-                        marginBottom: 2,
-                        paddingLeft: 4,
-                        paddingTop: 2,
-                        fontSize: 15,
-                      } as TextStyle}>
-                        {entry.notes}
-                      </Text>
+                      <XStack alignItems="flex-start" justifyContent="space-between" style={{ width: '100%' }}>
+                        <Text style={{
+                          ...markdownStyles.body as TextStyle,
+                          color: isDark ? '#b8b3ba' : '#708090',
+                          marginBottom: 2,
+                          paddingLeft: 4,
+                          paddingTop: 2,
+                          fontSize: 15,
+                          flex: 1,
+                        } as TextStyle}>
+                          {entry.notes}
+                        </Text>
+                        {/* Date in same row as notes, right-aligned, only when not expanded */}
+                        {!isExpanded && entry.date && (
+                          <Text style={{
+                            ...markdownStyles.body as TextStyle,
+                            color: isDark ? '#b8b3ba' : '#708090',
+                            fontSize: 13,
+                            opacity: 0.7,
+                            paddingLeft: 12,
+                            paddingTop: isWeb ? 0 : 6,
+                            flexShrink: 0,
+                          }}>
+                            {new Date(entry.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </Text>
+                        )}
+                      </XStack>
                       {hasBullets && (
                         <Animated.View style={{
                           overflow: 'hidden',

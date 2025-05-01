@@ -4,7 +4,9 @@ import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon } from '@/utils/styleUtils';
+import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, getCategoryIcon } from '@/utils/styleUtils';
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
+import { useUserStore } from '@/store/UserStore';
 
 interface TaskChipsProps {
   category?: string;
@@ -37,7 +39,17 @@ const mapStatusToRecurrencePattern = (status: string): RecurrencePattern | undef
 };
 
 export function TaskChips({ category, priority, status, time, checked = false }: TaskChipsProps) {
-  const calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
+  const customCategories = useCustomCategoryStore((s) => s.categories);
+  const userColor = useUserStore(s => s.preferences.primaryColor);
+  let calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
+  let categoryIcon = getCategoryIcon(category as TaskCategory);
+  if (category) {
+    const customCat = customCategories.find(catObj => catObj.name === category);
+    if (customCat) {
+      categoryIcon = customCat.icon || getCategoryIcon(category as TaskCategory);
+    }
+  }
+  const isCustom = category && customCategories.some(catObj => catObj.name === category);
   const recurrencePattern = mapStatusToRecurrencePattern(status);
   const recurrenceColor = getRecurrenceColor(recurrencePattern);
   const recurrenceIcon = getRecurrenceIcon(recurrencePattern);
@@ -47,7 +59,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
       {category && (
         <XStack
           alignItems="center"
-          backgroundColor={`${calculatedCategoryColor}15`}
+          backgroundColor={isCustom ? `${userColor}15` : `${calculatedCategoryColor}15`}
           px="$0.5"
           py="$0.5"
           br={12}
@@ -55,15 +67,17 @@ export function TaskChips({ category, priority, status, time, checked = false }:
           marginRight={6}
           marginBottom={4}
         >
-          <Ionicons
-            name="bookmark"
-            size={10}
-            color={calculatedCategoryColor} 
-            style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
-          />
+          {!isCustom && (
+            <Ionicons
+              name={categoryIcon as any}
+              size={10}
+              color={calculatedCategoryColor}
+              style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
+            />
+          )}
           <Text
             fontFamily="$body"
-            color={calculatedCategoryColor}
+            color={isCustom ? "$gray11" : calculatedCategoryColor}
             fontSize={11}
             fontWeight="500"
           >

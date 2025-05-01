@@ -1,5 +1,13 @@
 export type TaskPriority = 'high' | 'medium' | 'low'
-export type TaskCategory = 'work' | 'health' | 'personal' | 'family' | 'wealth' | 'bills' | 'task'
+export type TaskCategory =
+  | 'work'
+  | 'health'
+  | 'personal'
+  | 'family'
+  | 'wealth'
+  | 'bills'
+  | 'task'
+  | (string & {});
 export type RecurrencePattern = 'one-time' | 'tomorrow' | 'everyday' | 'weekly' | 'biweekly' | 'monthly' | 'yearly'
 export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 

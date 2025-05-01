@@ -1,16 +1,38 @@
 export const CHANGELOG = [
   {
     version: '1.1.102',
-    notes: 'Easter Egg',
+    date: '2025-05-01',
+    notes: 'Custom Categories!',
+    bullets: [
+      'Added custom categories to Tasks',
+      'Improved task list sheet by adding categories to filter',
+      'Patched bug with the recommendation modals not having a background color on light mode',
+    ],
+  },
+  {
+    version: '1.1.100',
+    notes: 'Added Floating Action Button to the Home screen',
+    bullets: [
+      'Patched notification bug',
+      'New FAB includes CRUD operations for 7 features',
+      'Removed NBA screen with upcoming season ending',
+      'Improved light mode styles on iPad',
+    ],
+  },
+  {
+    version: '1.1.97',
+    date: '2025-04-20',
+    notes: 'Easter Egg ;) (happy easter!)',
     bullets: [
       'Enhanced UI responsiveness and consistency across devices',
-      'Long hold year progress barfor 5 seconds to trigger easter egg :)s',
+      '(Long hold year progress bar)',
       'Refined background colors, padding, and font sizes in drawer layout, notes screen, and modals',
       'Removed obsolete ghost note style from noteStyles utility for cleaner code',
     ],
   },
   {
     version: '1.1.93',
+    date: '2025-04-19',
     notes: 'Began testing sync feature',
     bullets: [
       'Patched minor bug in greeting with extra commas',
@@ -20,6 +42,7 @@ export const CHANGELOG = [
   },
   {
     version: '1.1.89',
+    date: '2025-04-13',
     notes: 'Finished Habit Screen',
     bullets: [
       'Reoccuring Notification reminders for Habits not yet completed',
@@ -31,6 +54,7 @@ export const CHANGELOG = [
     {
       version: '1.1.87',
       notes: 'Added changelog screen',
+      date: '2025-04-10',
       bullets: [
         'Began implementing new sync feature',
         'Enhanced drawer layout',
@@ -40,17 +64,8 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.82',
-      notes: 'Added Floating Action Button to the Home screen',
-      bullets: [
-        'Patched notification bug',
-        'New FAB includes CRUD operations for 7 features',
-        'Removed NBA screen with upcoming season ending',
-        'Improved light mode styles on iPad',
-      ],
-    },
-    {
       version: '1.1.81',
+      date: '2025-03-20',
       notes: 'Refactored New Todo Modal',
       bullets: [
         'Patched time picker bug on mobile',
@@ -70,6 +85,7 @@ export const CHANGELOG = [
     {
       version: '1.1.70',
       notes: 'Added drag and drop delete for Notes!',
+      date: '2025-2-20',
       bullets: [
         'Security audit completed',
         'Moved greeting to header on iPad', 
@@ -79,6 +95,7 @@ export const CHANGELOG = [
     {
       version: '1.1.69',
       notes: 'Initial release of Android',
+      date: '2025-02-02',
       bullets: [
         'Created closed testing track for Android',
         'Beta testers welcome!',
@@ -107,6 +124,7 @@ export const CHANGELOG = [
     {
       version: '1.1.60',
       notes: 'Performance and dependency optimizations',
+      date: '2025-3-20',
       bullets: [
         'Reduced bundle size by removing unused packages',
         'Optimized wallpaper caching and loading',
@@ -136,6 +154,7 @@ export const CHANGELOG = [
     },
     {
       version: '1.1.55',
+      date: '2025-01-10',
       notes: 'General improvements and code cleanup',
       bullets: [
         'Optimized state management with Zustand',

@@ -61,13 +61,14 @@ export function BaseCardWithRecommendationsModal({
         />
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$0"}
-          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
+          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3.5"}
           backgroundColor={isDark ? "rgb(20, 20, 20)" : "rgb(224, 224, 224)"}
           borderTopLeftRadius={20}
+          paddingBottom={32}
           borderTopRightRadius={20}
           borderWidth={1}
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap={Platform.OS === 'web' ? "$1" : "$1"}
+          gap={Platform.OS === 'web' ? "$1" : "$0"}
           {...(Platform.OS === 'web' ?
             {
               maxWidth: 1000,
@@ -106,7 +107,7 @@ export function BaseCardWithRecommendationsModal({
             </Animated.View>
 
             {(recommendationChips || filterChips) && (
-              <YStack padding="$1" mt="$1">
+              <YStack p="$1">
                 {recommendationChips && (
                   <RNScrollView
                     horizontal
@@ -124,7 +125,7 @@ export function BaseCardWithRecommendationsModal({
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ paddingHorizontal: 4 }}
                   >
-                    <XStack gap={Platform.OS === 'web' ? "$2" : "$3"}>
+                    <XStack gap={Platform.OS === 'web' ? "$2" : "$2"}>
                       {React.Children.toArray(filterChips).map((chip, idx) => {
                         if (!chip || typeof chip !== 'object' || !('props' in chip)) return null;
                         if (!React.isValidElement(chip)) return null;
@@ -148,10 +149,10 @@ export function BaseCardWithRecommendationsModal({
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="interactive"
-              contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 40 } : {}}
+              contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 80 } : {}}
             >
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <YStack f={1} p="$2" gap="$4">
+                <YStack f={1} p="$2" gap={isIpad() ? "$4" : "$2"}>
                   {children}
                 </YStack>
               </GestureHandlerRootView>

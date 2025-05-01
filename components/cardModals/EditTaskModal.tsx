@@ -16,6 +16,7 @@ import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity, da
 
 import { UserPreferences } from '@/store/UserStore'; // Import UserPreferences type
 import { Base } from './NewTaskModal/Base'
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
 
 interface EditTaskModalProps {
   open: boolean;
@@ -554,8 +555,11 @@ function EditTaskModalContent({
           <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
             <XStack gap="$2">
-              {['work','health','personal','family','wealth'].map(cat => {
-                const color = getCategoryColor(cat as TaskCategory);
+              {['work','health','personal','family','wealth', ...useCustomCategoryStore().categories.map(cat => cat.name)].map(cat => {
+                const customCategories = useCustomCategoryStore().categories;
+                const userColor = useUserStore().preferences.primaryColor;
+                const isCustom = customCategories.some(c => c.name === cat);
+                const color = isCustom ? userColor : getCategoryColor(cat as TaskCategory);
                 return (
                   <Button
                     key={cat}
@@ -580,7 +584,13 @@ function EditTaskModalContent({
                       fontSize={14}
                       fontWeight="600"
                       fontFamily="$body"
-                      color={editedTask.category === cat ? color : isDark ? "$gray12" : "$gray11"}
+                      color={
+                        editedTask.category === cat
+                          ? (isCustom ? (isDark ? 'white' : '$gray12') : color)
+                          : isDark
+                            ? "$gray11"
+                            : "$gray11"
+                      }
                     >
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
                     </Text>

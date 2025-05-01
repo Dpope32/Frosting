@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Dimensions, Image, StyleSheet } from 'react-native';
+import { isWeb } from 'tamagui';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,8 +9,10 @@ import Animated, {
   withDelay,
   runOnJS,
 } from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const OFFSCREEN_Y = -SCREEN_HEIGHT - 500;
 
 interface EasterEggProps {
   visible: boolean;
@@ -17,28 +20,28 @@ interface EasterEggProps {
 }
 
 const IMAGE_SIZE = 110; // Smaller size
-const ANIMATION_DURATION = 600; // ms
+const ANIMATION_DURATION = 700; // ms
 const SCALE_DURATION = 300;
-const FLIP_DURATION = 400;
+const SPIN_DURATION = 900;
 const DELAY_BEFORE_EXIT = 700;
 
 export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd }) => {
-  // 30% down from the top
-  const targetY = SCREEN_HEIGHT * 0.05;
-  const translateY = useSharedValue(-IMAGE_SIZE); // Start above the screen
+  // 1% down from the top
+  const targetY = SCREEN_HEIGHT * 0.01;
+  const translateY = useSharedValue(OFFSCREEN_Y); // Start far above the screen
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0);
-  const rotateY = useSharedValue(0);
+  const rotateZ = useSharedValue(0);
 
   useEffect(() => {
     if (visible) {
-      // Sequence: fade in + slide down, pulse, flip, wait, then slide up and fade out
-      opacity.value = withTiming(1, { duration: 200 });
+      // Sequence: fade in + slide down, pulse, wait, then spin+slide up and fade out
+      opacity.value = withTiming(1, { duration: 300 });
       translateY.value = withSequence(
         withTiming(targetY, { duration: ANIMATION_DURATION }), // Slide down to center
         withDelay(
-          DELAY_BEFORE_EXIT + FLIP_DURATION + SCALE_DURATION * 2,
-          withTiming(-IMAGE_SIZE, { duration: ANIMATION_DURATION }, (finished) => {
+          DELAY_BEFORE_EXIT + SCALE_DURATION * 2,
+          withTiming(OFFSCREEN_Y, { duration: ANIMATION_DURATION }, (finished) => {
             if (finished && onAnimationEnd) runOnJS(onAnimationEnd)();
           })
         )
@@ -50,19 +53,22 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
         ),
         withTiming(1, { duration: SCALE_DURATION })
       );
-      rotateY.value = withSequence(
+      rotateZ.value = withSequence(
         withDelay(
-          ANIMATION_DURATION + SCALE_DURATION * 2,
-          withTiming(360, { duration: FLIP_DURATION })
+          ANIMATION_DURATION + SCALE_DURATION * 2 + DELAY_BEFORE_EXIT / 2,
+          withTiming(720, { duration: SPIN_DURATION })
         ),
-        withDelay(DELAY_BEFORE_EXIT, withTiming(0, { duration: 0 })) // Reset for next time
+        withTiming(0, { duration: 0 }) // Reset for next time
       );
     } else {
       // Reset
-      translateY.value = -IMAGE_SIZE;
+      translateY.value = OFFSCREEN_Y;
       scale.value = 1;
       opacity.value = 0;
-      rotateY.value = 0;
+      rotateZ.value = 0;
+      if (!isWeb) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      }
     }
   }, [visible]);
 
@@ -70,7 +76,7 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
     transform: [
       { translateY: translateY.value },
       { scale: scale.value },
-      { rotateY: `${rotateY.value}deg` },
+      { rotateZ: `${rotateZ.value}deg` },
     ],
     opacity: opacity.value,
     backfaceVisibility: 'hidden',

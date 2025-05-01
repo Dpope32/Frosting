@@ -17,7 +17,9 @@ import * as Haptics from 'expo-haptics'
 import { useColorScheme, Platform } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, getPriorityColor, getPriorityIonIcon } from '@/utils/styleUtils'
-
+import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
+import { useUserStore } from '@/store/UserStore'
+import { isIpad } from '@/utils/deviceUtils'
 interface TaskCardItemProps {
   task: Task
   onLongPress: (task: Task, onComplete: (deleted: boolean) => void) => void
@@ -31,6 +33,10 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const isDeleting = useSharedValue(false)
   const screen = Platform.OS
   const LONG_PRESS_DURATION = 1000 // 1 second
+
+  const customCategories = useCustomCategoryStore((s) => s.categories)
+  const userColor = useUserStore(s => s.preferences.primaryColor)
+  const isCustom = task.category && customCategories.some(catObj => catObj.name === task.category)
 
   const handleHapticFeedback = () => {
     if (screen !== 'web') {
@@ -148,7 +154,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     <XStack
       bg={isDark ? '#1e1e1e' : '$gray1'}
       br={8}
-      p={isWeb ? "$4" : "$3"}
+      p={isWeb ? "$4" : isIpad() ? "$3" : "$2"}
       py={isWeb ? "$4" : "$3"}
       px={isWeb ? "$4" : "$3"}
       alignItems="center"
@@ -162,9 +168,11 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
         <Text fontSize={isWeb ? 15 : 16} fontWeight="500" fontFamily="$body" color={isDark ? '$gray12' : '$gray11'}>{task.name}</Text>
         <XStack flexWrap="wrap" py={isWeb ? "$2" : "$1.5"} mt="$1">
           {task.category && task.category !== 'bills' && (
-            <XStack ai="center" bg={`${getCategoryColor(task.category)}1A`} px={isWeb ? "$2" : "$2"} py="$1" br={12} mr="$2">
-              <Ionicons name="bookmark" size={isWeb ? 11 : 12} color={getCategoryColor(task.category)} />
-              <Text ml="$1" fontFamily="$body" fontSize={isWeb ? 11 : 12} color={getCategoryColor(task.category)}>{task.category}</Text>
+            <XStack ai="center" bg={isCustom ? `${userColor}15` : `${getCategoryColor(task.category)}1A`} px={isWeb ? "$2" : "$2"} py="$1" br={12} mr="$2">
+              {!isCustom && (
+                <Ionicons name="bookmark" size={isWeb ? 11 : 12} color={getCategoryColor(task.category)} />
+              )}
+              <Text ml="$1" fontFamily="$body" fontSize={isWeb ? 11 : 12} color={isCustom ? "$gray11" : getCategoryColor(task.category)}>{task.category}</Text>
             </XStack>
           )}
           {task.priority && (
