@@ -37,14 +37,14 @@ export function CardSection({
   const [settingsOpen, setSettingsOpen] = useState(false);
   
   return (
-    <YStack gap="$1" mt="$1" ml={isIpad() ? 0: "$0"} alignSelf={isWeb? "flex-start" : isIpad() ? "center" : "center"} justifyContent={isWeb? "flex-start" : isIpad() ? "center" : "flex-start"} alignItems="center">
+    <YStack gap="$1" my={isIpad() ? "$3" : "$1"} ml={isIpad() ? 0: "$0"} alignSelf={isWeb? "flex-start" : isIpad() ? "center" : "center"} justifyContent={isWeb? "flex-start" : isIpad() ? "center" : "flex-start"} alignItems="center">
       {!isIpad() ? !isWeb && (
         <GreetingSection username={username} />
       ) : isIpad() ? (
         <Text
           fontFamily="$body"
           color={isDark ? "#dbd0c6" : "#dbd0c6"}
-          fontSize={isWeb ? 23 : isIpad() ? 22 : 18}
+          fontSize={isWeb ? 23 : isIpad() ? 20 : 18}
           fontWeight="bold"
           textAlign="center"
         >

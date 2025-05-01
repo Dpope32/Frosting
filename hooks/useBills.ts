@@ -93,7 +93,7 @@ export function useBills() {
       
       // 5. Delete all tasks in a single operation
       const billTasks = Object.values(projectStore.tasks).filter(task => 
-        task.category === 'bills' && task.name.includes(`Pay ${billName}`)
+        task.category === 'bills' && task.name.includes(`${billName} Bill`)
       );
       
       if (billTasks.length > 0) {
@@ -231,7 +231,7 @@ export function useBills() {
         // Conditionally collect task for this month
         if (shouldCreateTask) {
           tasksToAdd.push({
-            name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
+            name: `${billData.name} Bill ($${billData.amount.toFixed(0)})`,
             schedule: [weekDay], // Note: schedule might need adjustment based on task system logic
             priority: 'high',
             category: 'bills',

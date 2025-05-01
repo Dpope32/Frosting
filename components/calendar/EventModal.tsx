@@ -8,6 +8,7 @@ import { format, parse } from 'date-fns'
 import { getCategoryColor } from '@/utils/styleUtils';
 import { TaskCategory } from '@/types/task';
 import { Ionicons } from '@expo/vector-icons'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore'
 import { useToastStore } from '@/store/ToastStore'
@@ -64,6 +65,8 @@ export const EventModal: React.FC<EventModalProps> = ({
   const modalWidth = isWeb ? Math.min(screenWidth * 0.8, 600) : Math.min(screenWidth * 0.85, 400)
   const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 700) : Math.min(screenWidth * 0.85, 400)}
   const noScrollbar = isWeb ? { overflow: 'hidden' as const } : {}
+  const eventTitleInputRef = React.useRef<any>(null);
+  useAutoFocus(eventTitleInputRef, 1000, isEventModalVisible);
 
   const handleAddEventWithNotifications = async () => {
     try {
@@ -217,6 +220,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           <View style={{...noScrollbar }}>
             <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>
               <TextInput
+                ref={eventTitleInputRef}
                 style={[
                   styles.input,
                   {

@@ -1,6 +1,7 @@
 import React, { forwardRef, useState, useEffect } from 'react';
 import { TextInput, Platform, StyleSheet, NativeSyntheticEvent, TextInputSelectionChangeEventData, View, Keyboard } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface ContentInputProps {
   value: string;
@@ -16,7 +17,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
   onChangeText,
   placeholder = "Start typing...",
   onSelectionChange,
-  minHeight = 300
+  minHeight = isIpad() ? 500 : 300
 }, ref) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -137,7 +138,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         onBlur={handleBlur}
         autoCorrect={true}
         keyboardType="default"
-        placeholderTextColor={isDark ? '#555555' : '#888888'}
+        placeholderTextColor={isDark ? '#555555' : '#ccc'}
         textAlignVertical="top"
         {...(isWeb
           ? { returnKeyType: 'none', submitBehavior: 'submit' }
@@ -161,6 +162,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
             fontSize: isWeb ? 16 : 16,
             lineHeight: isWeb ? 24 : 22,
             fontFamily: "$body",
+            marginVertical: 8,
           }
         ]}
         {...(isIOS ? {
@@ -170,7 +172,10 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
           disableFullscreenUI: true,
           maxLength: 100000,
           textContentType: 'none',
-          autoComplete: 'off',
+          caratDisabled: false,
+          caretColor: isDark ? '#4a8fff' : '#2271b1',
+          selectionColor: isDark ? '#4a8fff' : '#2271b1',
+          selectionHandleColor: isDark ? '#4a8fff' : '#2271b1',
         } : {})}
         {...(!isIOS ? {
           textBreakStrategy: 'simple',
@@ -196,9 +201,9 @@ const styles = StyleSheet.create({
       android: 'Roboto',
       default: 'System'
     }),
-    padding: 16,
+    padding: 8,
     borderRadius: 8,
-    marginVertical: 8,
+    marginVertical: 0,
     lineHeight: 22,
   }
 });

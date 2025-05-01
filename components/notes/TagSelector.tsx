@@ -5,6 +5,7 @@ import { Plus, X, Check } from '@tamagui/lucide-icons';
 import type { Tag } from '@/types/notes';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DebouncedInput } from '../shared/debouncedInput';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface TagSelectorProps {
   tags: Tag[];
@@ -94,64 +95,71 @@ export function TagSelector({
   return (
     <YStack 
       gap="$1" 
-      paddingTop={keyboardVisible ? "$1" : "$2"}
-      backgroundColor={'$background'} 
+      backgroundColor="transparent"
       borderRadius={8} 
-      padding={keyboardVisible ? "$2" : "$3"}
-      marginVertical="$1"
-      style={{
-        marginBottom: keyboardVisible ? keyboardHeight * 0.3 : 0,
-      }}
+      padding={0}
+      marginVertical={0}
+      paddingHorizontal={8}
     >
-      <XStack alignItems="center" justifyContent="space-between">
-        <XStack alignItems="center" justifyContent='center' gap="$2">
-          <Text fontSize="$4" mb={isWeb ? 12 : 4} fontFamily="$body" fontWeight="600" color={isDark ? '#e0e0e0' : '#333333'}>Tags:</Text>
-          {tags.length > 0 && (
-            <XStack flexWrap="wrap" gap="$2" paddingLeft="$1">
-              {tags.map(tag => (
-                <XStack
-                  key={tag.id}
-                  backgroundColor={`${tag.color}30`}
-                  borderRadius="$4"
-                  paddingVertical="$1"
-                  paddingHorizontal="$2"
-                  alignItems="center"
-                  gap="$1"
-                  borderWidth={1}
-                  borderColor={tag.color}
-                >
-                  <Text 
-                    fontSize="$3" 
-                    color={darkenColor(tag.color)}
-                    fontWeight="700"
-                    fontFamily="$body"
-                  >
-                    {tag.name}
-                  </Text>
-                  <Button
-                    size="$1"
-                    circular
-                    icon={<X size={12} color={isDark ? "white" : tag.color} />}
-                    onPress={() => handleRemoveTag(tag.id)}
-                    backgroundColor="transparent"
-                    padding="$0"
-                  />
-                </XStack>
-              ))}
+      <XStack alignItems="center" justifyContent="flex-start" gap={8}>
+        <Text fontSize="$4" mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="600" color={isDark ? '#555555' : '#ccc'}>Tags:</Text>
+        <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
+          {tags.map(tag => (
+            <XStack
+              key={tag.id}
+              backgroundColor={`${tag.color}30`}
+              borderRadius="$4"
+              paddingVertical="$1"
+              paddingHorizontal="$2"
+              alignItems="center"
+              gap="$1"
+              borderWidth={1}
+              borderColor={tag.color}
+            >
+              <Text 
+                fontSize="$3" 
+                color={darkenColor(tag.color)}
+                fontWeight="700"
+                fontFamily="$body"
+              >
+                {tag.name}
+              </Text>
+              <Button
+                size="$1"
+                circular
+                icon={<X size={12} color={isDark ? "white" : tag.color} />}
+                onPress={() => handleRemoveTag(tag.id)}
+                backgroundColor="transparent"
+                padding="$0"
+              />
             </XStack>
+          ))}
+          {!isAdding && (
+            keyboardVisible ? (
+              <Button
+                size="$2"
+                circular
+                icon={<Check size={isWeb ? 16 : 14} color={isDark ? "#e0e0e0" : "#333333"} />}
+                onPress={handleAddTag}
+                backgroundColor="transparent"
+                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+                pressStyle={{ opacity: 0.7 }}
+                marginLeft={tags.length ? 4 : 0}
+              />
+            ) : (
+              <Button
+                size="$2"
+                circular
+                icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "#e0e0e0" : "#333333"} />}
+                onPress={() => setIsAdding(true)}
+                backgroundColor="transparent"
+                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+                pressStyle={{ opacity: 0.7 }}
+                marginLeft={tags.length ? 4 : 0}
+              />
+            )
           )}
         </XStack>
-        {!isAdding && (
-          <Button
-            size="$2"
-            circular
-            icon={<Plus size={isWeb ? 16 : 18} color={isDark ? "#e0e0e0" : "#333333"} />}
-            onPress={() => setIsAdding(true)}
-            backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
-            hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
-            pressStyle={{ opacity: 0.7 }}
-          />
-        )}
       </XStack>
 
       {isAdding && (

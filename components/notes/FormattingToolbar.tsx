@@ -1,7 +1,7 @@
 import React from 'react';
 import { XStack, Button, Text, isWeb } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface FormattingToolbarProps {
   onBold: () => void;
@@ -20,11 +20,10 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onCode,
   onAttachImage,
 }) => {
-  const colorScheme = useColorScheme();
   const iconColor = "#bbb";
 
   return (
-    <XStack gap="$2" marginBottom={isWeb ? 0 : -16} flexWrap="wrap" >
+    <XStack gap={isIpad() ? "$10" : "$2"} marginBottom={isWeb ? 0 : -16} flexWrap="nowrap" >
       <Button
         size="$4"
         circular

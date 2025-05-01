@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView } from 'react-native';
-import { YStack, Button, XStack, Sheet, H3, Text, ScrollView, isWeb } from 'tamagui';
-import { X } from '@tamagui/lucide-icons';
-import { DebouncedInput } from '@/components/shared/debouncedInput';
+import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView, Dimensions } from 'react-native';
+import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
+import { X, Pencil } from '@tamagui/lucide-icons';
+import { useAutoFocus } from '@/hooks/useAutoFocus'; // Import the hook
+import { DebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from './FormattingToolbar';
 import { ContentInput } from './ContentInput'; 
@@ -63,28 +64,40 @@ export function AddNoteSheet({
   const contentInputRef = useRef<TextInput>(null);
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollViewRef = useRef<RNScrollView>(null);
-  
+  const titleInputRef = useRef<DebouncedInputHandle>(null);
+  const isIpadDevice = isIpad();
+  const [isEditingTitle, setIsEditingTitle] = useState(true);
+
+  useAutoFocus(titleInputRef, 300, isModalOpen && isEditingTitle); // Reduced delay
+
   useEffect(() => {
     if (Platform.OS === 'web') return;
-    
+
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
-      () => {
+      (event) => {
         setKeyboardVisible(true);
+        setKeyboardHeight(event.endCoordinates.height);
       },
     );
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
-      () => setKeyboardVisible(false),
+      () => {
+        setKeyboardVisible(false);
+        setKeyboardHeight(0);
+        // Removed setIsEditingTitle(false) here
+      }
     );
 
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, []);
+  }, []); // Removed isEditingTitle dependency
 
+  // Removed the old useEffect for autofocus
 
   const handleSelectionChange = (event: any) => {
     const newSelection = event.nativeEvent.selection;
@@ -152,7 +165,8 @@ export function AddNoteSheet({
     );
   };
 
-  const contentPadding = isWeb ? 20 : isIpad() ? 20 : keyboardVisible ? 20 : 20;
+  const contentPadding = isWeb ? 20 : isIpadDevice ? 16 : keyboardVisible ? 20 : 20;
+  const bottomPadding = isIpadDevice && keyboardVisible ? 70 : 0;
 
   return (
     <Sheet
@@ -169,116 +183,193 @@ export function AddNoteSheet({
         opacity={0.5}
       />
       <Sheet.Frame
-        paddingHorizontal="$5"
+        paddingHorizontal={isIpad() ? "$4" : "$2"}
         paddingBottom="$8"
-        paddingTop={isWeb ? "$1" : 0}
-        backgroundColor="$background"
-        maxWidth={isWeb ? 600 : "100%"}
-        width={isWeb ? 600 : "100%"} 
+        paddingTop={Platform.OS === 'web' ? "$2" : isIpad() ? 16 : 14} 
+        backgroundColor={isDark ? "rgb(10, 10, 10)" : "#f1f1f1"}
+        maxWidth={Platform.OS === 'web' ? 600 : "100%"} 
+        width={Platform.OS === 'web' ? 600 : "100%"} 
         alignSelf="center"
       >
-        <Sheet.Handle />
-        
+
         <XStack
           justifyContent="space-between"
           alignItems="center"
-          marginBottom="$3"
-          paddingTop="$2"
+          marginBottom={0}
+          paddingTop="$1"
         >
-          <H3>{selectedNote ? 'Edit Note' : 'Add Note'}</H3>
+          {isEditingTitle ? (
+            <DebouncedInput
+              ref={titleInputRef}
+              placeholder="Title"
+              autoCapitalize="words" 
+              value={editTitle}
+              onDebouncedChange={setEditTitle}
+              onBlur={() => setIsEditingTitle(false)} 
+              returnKeyType="done" 
+              backgroundColor="transparent"
+              borderWidth={0}
+              fontSize={24}
+              autoComplete="off"
+              autoFocus={true}
+              style={{ flex: 1, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
+              placeholderTextColor="#aaa"
+            />
+          ) : (
+            <XStack alignItems="center" gap="$2" minHeight={44}>
+              <Text
+                fontSize="$5"
+                fontWeight="600"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={{ flex: 1, paddingHorizontal: 8, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
+              >
+                {editTitle || 'Untitled'}
+              </Text>
+              <Button
+                size={Platform.OS === 'web' ? "$1.5" : "$2"} 
+                circular
+                icon={<Pencil size={Platform.OS === 'web' ? 16 : 18} />} 
+                onPress={() => setIsEditingTitle(true)}
+                backgroundColor="transparent"
+                pressStyle={{ opacity: 0.7 }}
+                aria-label="Edit title"
+              />
+            </XStack>
+          )}
           <Button
-            size={isWeb ? "$2" : "$2"}
+            size={Platform.OS === 'web' ? "$2" : "$2"} 
             circular
-            icon={<X size={isWeb ? 18 : 22} />}
+            icon={<X size={Platform.OS === 'web' ? 18 : 22} />}
             onPress={handleCloseModal}
+            backgroundColor="transparent"
             pressStyle={{ opacity: 0.7 }}
           />
         </XStack>
         
-        <KeyboardAvoidingView 
-          enabled={Platform.OS === 'ios'}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1, justifyContent: 'flex-end' }}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? -124 : 0}
-          
-        >
-          <YStack flex={1}>
-            <RNScrollView
-              ref={scrollViewRef}
-              style={{ flex: 1, maxHeight: keyboardVisible ? isIpad() ? '35%' : '55%' : '100%' }}
-              contentContainerStyle={{ 
-                paddingBottom: keyboardVisible ? 0 : contentPadding
-              }}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
-              keyboardDismissMode="none"
-            >
-              <YStack gap={isWeb ? "$3" : "$0.5"} paddingTop="$1">
-                <DebouncedInput
-                  placeholder="Title"
-                  autoCapitalize='words'
-                  value={editTitle}
-                  onDebouncedChange={setEditTitle}
-                  returnKeyType="none"
-                  fontSize="$5"
-                />
-                
-                <FormattingToolbar
-                  onBold={handleBold}
-                  onItalic={handleItalic}
-                  onUnderline={handleUnderline}
-                  onBullet={handleBullet}
-                  onCode={handleCode}
-                  onAttachImage={handleImagePick}
-                />
-                
-                <ContentInput
-                  ref={contentInputRef}
-                  value={editContent}
-                  onChangeText={setEditContent}
-                  onSelectionChange={handleSelectionChange}
-                  numberOfLines={keyboardVisible ? 5 : 12}
-                  minHeight={keyboardVisible ? 300 : 450}
-                />
-                {renderAttachments()}
-              </YStack>
-            </RNScrollView>
-            <YStack 
-              style={{ 
-                marginBottom: keyboardVisible ? Platform.OS === 'ios' ? 60 : 0 : 0
-              }}
-            >
-              <TagSelector tags={editTags} onTagsChange={handleTagsChange}/>
-              <XStack 
-                gap="$2" 
-                justifyContent="space-between" 
-                marginTop={8}
-                paddingBottom={0}
-                marginBottom={0}
-                borderTopWidth={1}
-                borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+        <View style={{flex: 1}}>
+          <View style={{ height: 1, marginVertical: 12, marginHorizontal: -10 }} />
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? -124 : 0} 
+          >
+            <YStack flex={1} paddingHorizontal={isIpad() ? "$2.5" : "$2.5"}>
+              <RNScrollView
+                ref={scrollViewRef}
+                style={{ 
+                  flex: 1, 
+                  maxHeight: keyboardVisible
+                    ? isIpadDevice
+                      ? Dimensions.get('window').height * 0.495 
+                      : '48%'
+                    : '100%'
+                }}
+                contentContainerStyle={{ 
+                  paddingBottom: keyboardVisible ? bottomPadding : contentPadding
+                }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                keyboardDismissMode="none" // Keep keyboard open
               >
-                {selectedNote ? (
-                  <>
-                    <Button
-                      backgroundColor={isDark ? "rgba(255, 0, 0, 0.2)" : "rgba(255, 0, 0, 0.1)"}
-                      pressStyle={{ opacity: 0.7 }}
-                      onPress={handleDeleteNote}
-                      br={12}
-                      py={isWeb ? "$1" : "$1.5"}
-                      flex={1}
-                    >
-                      <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
-                        Delete Note
-                      </Text>
-                    </Button>
-                    
-                    <Button
-                      backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
-                      br={12}
-                      py={isWeb ? "$1" : "$1.5"}
-                      onPress={handleSaveNote}
-                      pressStyle={{ opacity: 0.7 }}
+                <YStack gap={0} paddingTop={0}>
+                  <YStack>
+                    <TagSelector tags={editTags} onTagsChange={handleTagsChange} />
+                  </YStack>
+                  <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', marginVertical: 12, marginHorizontal: -10 }} />
+                  <YStack>
+                    <ContentInput
+                      ref={contentInputRef}
+                      value={editContent}
+                      onChangeText={setEditContent}
+                      onSelectionChange={handleSelectionChange}
+                      numberOfLines={keyboardVisible ? 5 : 12}
+                      minHeight={keyboardVisible ? 300 : isIpadDevice ? 400 : 450}
+                    />
+                  </YStack>
+                  {renderAttachments()}
+                </YStack>
+              </RNScrollView>
+
+              {keyboardVisible && (
+                <YStack 
+                  paddingHorizontal="$2"
+                  paddingVertical="$1.5"
+                  borderTopWidth={1}
+                  borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+                  alignSelf="center"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <FormattingToolbar
+                    onBold={handleBold}
+                    onItalic={handleItalic}
+                    onUnderline={handleUnderline}
+                    onBullet={handleBullet}
+                    onCode={handleCode}
+                    onAttachImage={handleImagePick}
+                  />
+                </YStack>
+              )}
+              
+              <YStack 
+                style={{
+                  paddingTop: Platform.OS === 'web' ? 12 : 4, // Use Platform.OS
+                  paddingBottom: Platform.OS === 'web' ? 0 : 4, // Use Platform.OS
+                }}
+              >
+                {!keyboardVisible && // Only show buttons when keyboard is hidden
+                <XStack 
+                  gap="$2" 
+                  justifyContent="space-between" 
+                  marginTop={8}
+                  paddingBottom={0}
+                  marginBottom={0}
+                  borderTopWidth={1}
+                  borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
+                >
+                  {selectedNote ? (
+                    <>
+                      <Button
+                        backgroundColor={isDark ? "rgba(255, 0, 0, 0.2)" : "rgba(255, 0, 0, 0.1)"}
+                        pressStyle={{ opacity: 0.7 }}
+                        onPress={handleDeleteNote}
+                        br={12}
+                        py={Platform.OS === 'web' ? "$1" : "$1.5"} // Use Platform.OS
+                        flex={1}
+                      >
+                        <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
+                          Delete Note
+                        </Text>
+                      </Button>
+                      
+                      <Button
+                        backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
+                        br={12}
+                        py={Platform.OS === 'web' ? "$1" : "$1.5"} // Use Platform.OS
+                        onPress={handleSaveNote}
+                        pressStyle={{ opacity: 0.7 }}
+                        borderWidth={2}
+                        borderColor={preferences.primaryColor}
+                        flex={1}
+                      >
+                        <Text
+                          color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
+                          fontFamily="$body"
+                          fontSize={13}
+                          fontWeight="600"
+                        >
+                          Save Changes
+                        </Text>
+                      </Button>
+                    </>
+                  ) : (
+                      <Button
+                        backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
+                        br={12}
+                        py={Platform.OS === 'web' ? "$1" : "$1.5"} // Use Platform.OS
+                        onPress={handleSaveNote}
+                        pressStyle={{ opacity: 0.7 }}
                       borderWidth={2}
                       borderColor={preferences.primaryColor}
                       flex={1}
@@ -286,38 +377,19 @@ export function AddNoteSheet({
                       <Text
                         color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
                         fontFamily="$body"
-                        fontSize={13}
+                        fontSize={14}
                         fontWeight="600"
                       >
-                        Save Changes
+                        Save Note
                       </Text>
                     </Button>
-                  </>
-                ) : (
-                  <Button
-                    backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
-                    br={12}
-                    py={isWeb ? "$1" : "$1.5"}
-                    onPress={handleSaveNote}
-                    pressStyle={{ opacity: 0.7 }}
-                    borderWidth={2}
-                    borderColor={preferences.primaryColor}
-                    flex={1}
-                  >
-                    <Text
-                      color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
-                      fontFamily="$body"
-                      fontSize={14}
-                      fontWeight="600"
-                    >
-                      Save Note
-                    </Text>
-                  </Button>
-                )}
-              </XStack>
+                  )}
+                </XStack>
+                }
+              </YStack>
             </YStack>
-          </YStack>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </View>
       </Sheet.Frame>
     </Sheet>
   );

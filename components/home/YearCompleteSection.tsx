@@ -34,7 +34,7 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width={isWeb ? "100%" :isIpad() ? "90%" : "95%"}
+      width={isWeb ? "100%" :isIpad() ? "100%" : "95%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"
@@ -45,11 +45,11 @@ export function YearCompleteSection() {
     >
       <Stack
         width="100%"
-        height={40}
+        height={36}
         br={16}
         overflow="hidden"
         borderWidth={1}
-        borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"}
+        borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.1)"}
         position="relative"
       >
         <LinearGradient 

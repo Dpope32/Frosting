@@ -1,9 +1,8 @@
 // In your sync service
-import { getRandomValues } from './randomValues';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRegistryStore } from '../store/RegistryStore';
 import * as Sentry from '@sentry/react-native';
-import { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate } from 'react-native-webrtc';
+import { getRandomValues } from 'expo-crypto';
 
 // Define types for sync messages
 type SyncMessage = {
@@ -36,14 +35,6 @@ class SyncDeviceService {
     return code;
   }
 
-  // Initialize with a device ID (create or retrieve existing)
-  // Generate a fallback device ID when UUID fails
-  private generateFallbackDeviceId(): string {
-    // Generate a simpler ID using Math.random and timestamp
-    const timestamp = Date.now().toString(36);
-    const randomStr = Math.random().toString(36).substring(2, 10);
-    return `device-${timestamp}-${randomStr}`;
-  }
   
   private async initializeDeviceId() {
     if (this.deviceIdInitialized) return this.deviceId;
@@ -74,6 +65,14 @@ class SyncDeviceService {
       this.deviceId = this.generateRandomCode(8); // Fallback to temporary ID
       return this.deviceId;
     }
+  }
+
+  public connectToDevice(deviceId: string) {
+    if (this.deviceId === deviceId) {
+      return;
+    }
+    this.deviceId = deviceId;
+    this.deviceIdInitialized = true;
   }
   
   public getConnectionCode(): string {

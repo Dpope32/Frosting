@@ -5,6 +5,9 @@ import { BaseCardAnimated } from './BaseCardAnimated'
 import {  Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { isIpad } from '@/utils/deviceUtils'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
+import { DebouncedInput } from '@/components/shared/debouncedInput'
+
 interface AddVaultEntryModalProps {
   isVisible: boolean
   onClose: () => void
@@ -18,6 +21,8 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
+  const nameInputRef = React.useRef<any>(null);
+  useAutoFocus(nameInputRef, 1000, isVisible);
 
   const resetForm = () => {
     setName('')
@@ -54,10 +59,11 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
       visible={isVisible}
     >
       <YStack gap={isIpad() ? "$4" : "$2"} py={isIpad() ? "$4" : "$2"} px={isIpad() ? "$4" : "$3"}>
-        <Input
+        <DebouncedInput
+          ref={nameInputRef}
           placeholder="Name"
           value={name}
-          onChangeText={setName}
+          onDebouncedChange={setName}
           autoCapitalize="none"
           backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
           borderColor="transparent"

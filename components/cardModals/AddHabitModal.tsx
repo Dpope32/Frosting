@@ -11,6 +11,7 @@ import { useToastStore } from '@/store/ToastStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
+import { useAutoFocus } from '@/hooks/useAutoFocus';
 
 interface AddHabitModalProps {
   isVisible: boolean;
@@ -28,6 +29,8 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { showToast } = useToastStore();
+  const nameInputRef = React.useRef<any>(null);
+  useAutoFocus(nameInputRef, 750);
 
   const resetForm = () => {
     setName('');
@@ -95,6 +98,7 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
           contentContainerStyle={{ paddingVertical: 2, paddingHorizontal: 0, paddingBottom: 20 }}
         >
           <DebouncedInput
+            ref={nameInputRef}
             style={[styles.input, { backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
             placeholder="Habit Name"
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}

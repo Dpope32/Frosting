@@ -20,7 +20,7 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
   } else if (isIpad()) {
     bg = "rgba(0, 0, 0, 0.3)";
   } else {
-    bg = "rgba(0, 0, 0, 0.3)";
+    bg = "rgba(0, 0, 0, 0.0)";
   }
 
   return (
@@ -52,11 +52,6 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
             name="settings-outline"
             size={24}
             color="#dbd0c6"
-            style={{
-              textShadowColor: 'rgba(219, 208, 198, 0.15)',
-              textShadowOffset: { width: 0, height: 0 },
-              textShadowRadius: 4
-            }}
           />
         </YStack>
       </Pressable>

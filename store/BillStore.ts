@@ -86,7 +86,7 @@ export const useBillStore = create<BillStore>()(
                 Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
                   if (task?.category === 'bills' && 
                       (task?.name === billToDelete.name || 
-                       task?.name === `Pay ${billToDelete.name} ($${billToDelete.amount.toFixed(2)})`)) {
+                       task?.name === `${billToDelete.name} Bill ($${billToDelete.amount.toFixed(0)})`)) {
                     deleteTask(taskId);
                   }
                 });

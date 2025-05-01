@@ -35,35 +35,37 @@ export const useMarkdownStyles = () => {
     body: { 
       color: colors.text, 
       fontFamily: '$body', 
-      marginBottom: 8,
-      fontSize: isTablet ? 18 : 16
+      marginBottom: 0,
+      fontSize: isTablet ? 19 : 16
     } as TextStyle,
     heading1: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 24 : 24, 
-      marginBottom: 12, 
+      fontSize: isTablet ? 21 : 19, 
+      fontWeight: '900',
+      marginBottom:4, 
       marginTop: 16 
     } as TextStyle,
     heading2: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 24 : 20, 
-      marginBottom: 10, 
+      fontSize: isTablet ? 21 : 19, 
+      marginBottom: 2, 
+      fontWeight: '700',
       marginTop: 14 
     } as TextStyle,
     heading3: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 22 : 18, 
-      marginBottom: 8, 
+      fontSize: isTablet ? 19 : 18, 
+      marginBottom: 4, 
       marginTop: 12 
     } as TextStyle,
     heading4: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 20 : 16, 
-      marginBottom: 8, 
+      fontSize: isTablet ? 19 : 16, 
+      marginBottom: 0, 
       marginTop: 10 
     } as TextStyle,
     link: { 
@@ -75,7 +77,8 @@ export const useMarkdownStyles = () => {
       borderRadius: 4, 
       borderLeftWidth: 0, 
       borderLeftColor: colors.blockquoteBorder,
-      marginVertical: 12
+      marginVertical: 12,
+      marginHorizontal: 10,
     } as ViewStyle,
     code_inline: { 
       backgroundColor: colors.codeBg, 
@@ -84,6 +87,7 @@ export const useMarkdownStyles = () => {
       borderRadius: 4, 
       fontFamily: 'monospace',
       marginVertical: 2,
+      marginHorizontal: 10,
       fontSize: isTablet ? 16 : 14
     } as TextStyle,
     code_block: { 
@@ -92,14 +96,16 @@ export const useMarkdownStyles = () => {
       paddingHorizontal: 10,
       borderRadius: 4, 
       fontFamily: 'monospace',
-      marginVertical: 12,
+      marginVertical: 10,
+      marginHorizontal: 10,
       fontSize: isTablet ? 16 : 14
     } as TextStyle,
     list_item: { 
       color: colors.text, 
       marginBottom: 6,
-      marginTop: 4,
-      fontSize: isTablet ? 18 : 16
+      marginTop: 2,
+      fontSize: isTablet ? 18 : 16,
+      marginLeft: 10,
     } as TextStyle,
     bullet_list: { 
       color: colors.text,
@@ -130,7 +136,7 @@ export const useMarkdownStyles = () => {
       fontSize: isTablet ? 18 : 16
     } as TextStyle,
     td: { 
-      padding: 4, 
+      padding: 5, 
       borderWidth: 1, 
       borderColor: colors.tableBorder, 
       color: colors.text,

@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
 import { getOrdinalSuffix } from '@/store/BillStore'
 import { BaseCardAnimated } from './BaseCardAnimated'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 interface AddBillModalProps {
   isVisible: boolean
@@ -27,6 +28,8 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
   const isDark = colorScheme === 'dark'
   const amountInputRef = useRef<any>(null)
   const scrollViewRef = useRef<ScrollView>(null)
+  const nameInputRef = useRef<any>(null)
+  useAutoFocus(nameInputRef, 1000, isVisible)
 
   // Max slider value - you can adjust this as needed
   const MAX_AMOUNT = 1000
@@ -151,6 +154,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             <Animated.View entering={FadeInDown.delay(100).duration(500)}>
               <XStack gap="$4" alignItems="center">
                 <Input
+                  ref={nameInputRef}
                   placeholder="Bill Name"
                   value={name}
                   onChangeText={setName}

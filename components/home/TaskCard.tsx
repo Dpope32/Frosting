@@ -213,12 +213,13 @@ export function TaskCard({
               <Text 
                 fontFamily="$body"
                 color="rgb(232, 230, 227)" 
-                fontSize={isIpad() ? 16 : 14}
+                fontSize={isIpad() ? 15 : 14}
                 fontWeight="500"
                 opacity={checked ? 0.6 : 1}
                 style={{
                   flex: 1,
-                  marginTop: -2,
+                  marginVertical: -2,
+                  marginLeft: isIpad() ? 2 : 0,
                   textDecorationLine: checked ? 'line-through' : 'none',
                   textShadowColor: 'rgba(0, 0, 0, 0.5)',
                   textShadowOffset: { width: 0.5, height: 0.5 },
@@ -260,7 +261,6 @@ export function TaskCard({
                 </View>
               </Pressable>
             </View>
-
             <TaskChips
               category={category}
               priority={priority}
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingLeft: isWeb ? 12 : 0
+    paddingLeft: isWeb ? 12 : isIpad() ? 4 : 0
   },
   titleRow: {
     flexDirection: 'row',

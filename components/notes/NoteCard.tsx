@@ -60,8 +60,8 @@ export const NoteCard = ({
     noteStore.updateNote(note.id, { isExpanded: newExpandedState });
   };
 
-  const horizontalPadding = isWeb ? 20 : 12;
-  const verticalPadding = isWeb ? 16 : 10;
+  const horizontalPadding = isWeb ? 20 : isIpad() ? 12 : 12;
+  const verticalPadding = isWeb ? 16 : isIpad() ? 8 : 10;
 
   const cardSpecificStyle = useMemo(() => ({
     backgroundColor: colors.background,
