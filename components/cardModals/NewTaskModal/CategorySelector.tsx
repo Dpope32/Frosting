@@ -37,16 +37,48 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
       }
     }
     promptForName((name) => {
-      // Check for duplicates
-      if ([...customCategories, 'work', 'health', 'personal', 'family', 'wealth', 'bills', 'task'].some(cat => typeof cat === 'string' ? cat.toLowerCase() === name.toLowerCase() : cat.name.toLowerCase() === name.toLowerCase())) {
-        Alert.alert('Category exists', 'A category with that name already exists.')
-        return
+      try {
+        // Check for empty name
+        if (!name || name.trim() === '') {
+          Alert.alert('Invalid name', 'Please enter a valid category name.')
+          return
+        }
+
+        // Check for duplicates
+        if ([...customCategories, 'work', 'health', 'personal', 'family', 'wealth', 'bills', 'task'].some(cat => 
+          typeof cat === 'string' 
+            ? cat.toLowerCase() === name.toLowerCase() 
+            : cat.name.toLowerCase() === name.toLowerCase()
+        )) {
+          Alert.alert('Category exists', 'A category with that name already exists.')
+          return
+        }
+        
+        // Get random icon
+        const icon = getRandomCustomCategoryIcon()
+        
+        // Add the category to store
+        try {
+          const newCat = addCategory(name)
+          
+          if (!newCat || !newCat.name) {
+            Alert.alert('Error', 'Failed to create category. Please try again.')
+            return
+          }
+          
+          // Overwrite icon (MVP: store icon in custom category store in future)
+          newCat.icon = icon
+          
+          // Select the category using its name (which is what the parent component expects)
+          onCategorySelect(newCat.name)
+        } catch (error) {
+          console.error('Error creating category:', error)
+          Alert.alert('Error', 'An unexpected error occurred. Please try again.')
+        }
+      } catch (error) {
+        console.error('Category creation error:', error)
+        Alert.alert('Error', 'An unexpected error occurred.')
       }
-      const icon = getRandomCustomCategoryIcon()
-      const newCat = addCategory(name)
-      // Overwrite icon (MVP: store icon in custom category store in future)
-      newCat.icon = icon
-      onCategorySelect(name)
     })
   }
 
@@ -121,4 +153,4 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
       </ScrollView>
     </YStack>
   )
-} 
+}

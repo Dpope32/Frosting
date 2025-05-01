@@ -13,7 +13,7 @@ export const getActiveBarColor = (signalStrength: number): string => {
 
 export const getCategoryColor = (category?: TaskCategory): string => {
   if (!category) return '#607d8b';
-  const colors: Record<TaskCategory, string> = {
+  const colors: Record<string, string> = {
     work: '#2196F3',    // Blue
     health: '#F44336',  // Red
     personal: '#9C27B0', // Purple
@@ -22,7 +22,7 @@ export const getCategoryColor = (category?: TaskCategory): string => {
     bills: '#4CAF50',    // Same green as wealth for bills
     task: '#FF9800', // Brown
   };
-  return colors[category];
+  return colors[category as string] || '#607d8b'; // Fallback color for custom categories
 };
 
 // Priority colors and icons

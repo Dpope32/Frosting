@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { nanoid } from 'nanoid';
 import { useUserStore } from './UserStore';
 import { createPersistStorage } from './AsyncStorage';
 
@@ -22,15 +21,25 @@ export const useCustomCategoryStore = create<CustomCategoryState>()(
     (set, get) => ({
       categories: [],
       addCategory: (name: string) => {
-        // We'll get a random icon from styleUtils in the UI, so just use a placeholder here
-        const icon = 'custom';
+        // Generate a unique id for the category (similar to ToDo.ts approach)
+        const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
         const newCategory: CustomCategory = {
-          id: nanoid(),
+          id,
           name,
-          icon,
+          icon: 'custom', // This will be overridden by the component
         };
-        set((state) => ({ categories: [...state.categories, newCategory] }));
-        return newCategory;
+        
+        try {
+          // Update the store
+          set((state) => ({ 
+            categories: [...state.categories, newCategory] 
+          }));
+          return newCategory;
+        } catch (error) {
+          console.error('Error adding category:', error);
+          // Return a safely constructed object in case of error
+          return newCategory;
+        }
       },
       removeCategory: (id: string) => {
         set((state) => ({ categories: state.categories.filter((cat) => cat.id !== id) }));
@@ -44,4 +53,4 @@ export const useCustomCategoryStore = create<CustomCategoryState>()(
       storage: createPersistStorage<CustomCategoryState>(),
     }
   )
-); 
+);
