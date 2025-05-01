@@ -1,5 +1,15 @@
 export const CHANGELOG = [
   {
+    version: '1.1.102',
+    notes: 'Easter Egg',
+    bullets: [
+      'Enhanced UI responsiveness and consistency across devices',
+      'Long hold year progress barfor 5 seconds to trigger easter egg :)s',
+      'Refined background colors, padding, and font sizes in drawer layout, notes screen, and modals',
+      'Removed obsolete ghost note style from noteStyles utility for cleaner code',
+    ],
+  },
+  {
     version: '1.1.93',
     notes: 'Began testing sync feature',
     bullets: [

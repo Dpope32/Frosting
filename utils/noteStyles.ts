@@ -12,16 +12,6 @@ export const createTrashAnimatedStyle = (isTrashVisible: SharedValue<boolean>) =
   });
 };
 
-export const getGhostNoteStyle = (): ViewStyle => {
-  return {
-    position: 'absolute' as const,
-    top: Dimensions.get('window').height - 160,
-    left: 20,
-    right: 20,
-    zIndex: 9999,
-    opacity: 0.9
-  };
-};
 
 export const noteStyles = StyleSheet.create({
   itemContainer: {

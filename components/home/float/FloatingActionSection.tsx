@@ -77,7 +77,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
     },
     {
       text: "Password",
-      icon: <MaterialIcons name="lock" size={isIpad() ? 26 : 20} color={textColor} />,
+      icon: <MaterialIcons name="lock" size={isIpad() ? 26 : 19} color={textColor} />,
       name: "bt_password",
       position: 2,
       render: () => (
@@ -93,7 +93,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
     },
     {
       text: "Habit",
-      icon: <MaterialIcons name="repeat" size={isIpad() ? 26 : 20} color={textColor} />,
+      icon: <MaterialIcons name="repeat" size={isIpad() ? 26 : 19} color={textColor} />,
       name: "bt_habit",
       position: 3,
       render: () => (
@@ -109,7 +109,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
     },
     {
       text: "Note",
-      icon: <MaterialIcons name="sticky-note-2" size={isIpad() ? 26 : 20} color={textColor} />,
+      icon: <MaterialIcons name="sticky-note-2" size={isIpad() ? 26 : 19} color={textColor} />,
       name: "bt_note",
       position: 4,
       render: () => (
@@ -141,7 +141,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
     },
     {
       text: "Event",
-      icon: <MaterialIcons name="calendar-month" size={isIpad() ? 26 : 20} color={textColor} />,
+      icon: <MaterialIcons name="calendar-month" size={isIpad() ? 26 : 19} color={textColor} />,
       name: "bt_event",
       position: 6,
       render: () => (
@@ -157,7 +157,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
     },
     {
       text: "ToDo",
-      icon: <MaterialIcons name="check-box" size={isIpad() ? 26 : 20} color={textColor} />,
+      icon: <MaterialIcons name="check-box" size={isIpad() ? 26 : 19} color={textColor} />,
       name: "bt_todo",
       position: 7,
       render: () => (
@@ -184,10 +184,10 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
         position={isWeb ? "right" : isIpad() ? "right" : "center"}
-        distanceToEdge={{vertical: 65, horizontal: isWeb ? 30 : isIpad() ? dteWidth : 0}}
+        distanceToEdge={{vertical: isWeb ? 65 : isIpad() ? 65 : 55, horizontal: isWeb ? 30 : isIpad() ? dteWidth : 0}}
         buttonSize={isIpad() ? 64 : 56}
-        iconWidth={isWeb ? 20 : isIpad() ? 17 : 17}
-        iconHeight={isWeb ? 20 : isIpad() ? 17 : 17}
+        iconWidth={isWeb ? 20 : isIpad() ? 17 : 16}
+        iconHeight={isWeb ? 20 : isIpad() ? 17 : 16}
         overlayColor={isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.8)'}
         actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 14}
         shadow={{

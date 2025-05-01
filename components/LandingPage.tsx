@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState } from 'react'
 import { Platform } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
@@ -138,14 +138,14 @@ export function LandingPage() {
     ptop = 100;
   } else {
     // mobile
-    ptop = 100;
+    ptop = isDark ? 100 : 90;
   }
 
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation /> 
-      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom="$3" showsVerticalScrollIndicator={false} >
+      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom={120} showsVerticalScrollIndicator={false} >
         <YStack pt={ptop} gap="$3" >
           {!isWeb && (
             <Stack 
@@ -220,6 +220,7 @@ export function LandingPage() {
             </Stack>
           )}
         </YStack>
+        <Stack height={180} />
       </ScrollView>
       {isMounted && (
         <>

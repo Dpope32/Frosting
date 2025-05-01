@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Platform, Keyboard, KeyboardEvent, Pressable, View, useColorScheme } from 'react-native'
+import { Platform, Keyboard, KeyboardEvent, Pressable, View } from 'react-native'
 import { Form, ScrollView, XStack, Text, isWeb } from 'tamagui'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
@@ -40,7 +40,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [keyboardOffset, setKeyboardOffset] = useState(0)
-  const colorScheme = useColorScheme();
 
   useEffect(() => {
     if (!open) {

@@ -34,7 +34,7 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width={isWeb ? "100%" :isIpad() ? "90%" : "90%"}
+      width={isWeb ? "100%" :isIpad() ? "90%" : "95%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"
@@ -46,14 +46,14 @@ export function YearCompleteSection() {
       <Stack
         width="100%"
         height={40}
-        br={24}
+        br={16}
         overflow="hidden"
         borderWidth={1}
         borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"}
         position="relative"
       >
         <LinearGradient 
-          colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#e53935', '#8e2de2']}
+          colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#c53935', '#2193b0',]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%" }}
@@ -64,7 +64,7 @@ export function YearCompleteSection() {
           top={0}
           width={`${100 - percentage}%`}
           height="100%"
-          backgroundColor={isDark ? "#010101" : "#555555"}
+          backgroundColor={isDark ? "rgba(0, 0, 0, 0.9)" : "rgba(0, 0, 0, 0.9)"}
           zIndex={1}
         />
         <Stack

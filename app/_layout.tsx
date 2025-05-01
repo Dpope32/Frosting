@@ -51,7 +51,6 @@ export default Sentry.wrap(function RootLayout() {
   const [loaded] = useFonts({});
 
   if (Platform.OS !== 'web') {
-    useNotifications();
     useCalendarSync();
   } else {
     inject();

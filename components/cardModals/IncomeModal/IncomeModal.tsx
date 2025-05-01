@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Platform, useColorScheme } from 'react-native';
 import { Button, Input, Text, YStack, XStack } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
-import { BaseCardAnimated } from './BaseCardAnimated';
+import { BaseCardAnimated } from '../BaseCardAnimated';
 
 interface IncomeModalProps {
   onClose: () => void;

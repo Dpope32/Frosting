@@ -218,7 +218,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         }
       }}
       title="Settings"
-      snapPoints={isWeb ? [90] : isIpad() ? [60] : [75]}
+      snapPoints={isWeb ? [90] : isIpad() ? [70] : [77]}
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
@@ -239,7 +239,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             <YStack gap="$3" flex={1}>
               <XStack gap="$2" flexWrap="wrap">
                 <YStack width={110} gap="$1">
-                  <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
                     Username
                   </Text>
                   <DebouncedInput
@@ -253,8 +253,8 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
                   />
                 </YStack>
-                <YStack width={110} gap="$1">
-                  <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
+                <YStack width={80} gap="$1">
+                  <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
                     Zip Code
                   </Text>
                   <DebouncedInput
@@ -389,7 +389,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         </YStack>
       <XStack 
         justifyContent="space-between"
-        paddingHorizontal={isWeb ? '$7' : '$4'}
+        paddingHorizontal={isWeb ? '$7' : '$5'}
         paddingVertical={isWeb ? '$4' : '$3'}
         paddingTop={isWeb ? '$15' : '$3'}
         marginTop={isWeb ? 0 : 12}
@@ -415,17 +415,13 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
           
             if (shouldReset) {
               setIsSigningOut(true);
-              
               try {
                 useBillStore.getState().clearBills();
                 useProjectStore.getState().clearTasks();
                 usePeopleStore.getState().clearContacts();
                 useUserStore.getState().clearPreferences();
                 useNoteStore.getState().clearNotes();
-
                 await StorageUtils.clear();
-
-                
                 setTimeout(() => {
                   if (isWeb) {
                     window.location.href = '/screens/onboarding';

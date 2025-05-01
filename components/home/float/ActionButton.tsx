@@ -97,7 +97,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
         <Text 
           color={style.textColor} 
           fontFamily="$body" 
-          fontSize={isWeb ? 13 : 12}  
+          fontSize={isWeb ? isIpad() ? 15 : 14 : 13}  
           fontWeight="500" 
           numberOfLines={1}
         > 

@@ -60,7 +60,7 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
       height={isIpad() ? 50 : 45}
       fontSize={isIpad() ? 17 : 15}
       fontWeight="400"
-      backgroundColor={isDark ? "#121212" : "#fff"}
+      backgroundColor={isDark ? "#121212" : "rgba(240, 240, 240, 0.9)"}
     />
   )
 } 

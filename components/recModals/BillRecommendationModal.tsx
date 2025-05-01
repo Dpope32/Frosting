@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useColorScheme, TextInput } from 'react-native'
-import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
+import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb, Card, Input, Paragraph } from 'tamagui' // Added Card, Input, Paragraph
 import { BaseCardModal } from '../cardModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { BillRecommendationCategory, getRecommendedBills} from '@/constants/recommendations/BillRecommendations'
 import { useUserStore } from '@/store/UserStore'
+import { isIpad } from '@/utils/deviceUtils'
 
 type DebouncedTextInputProps = {
   value: string
@@ -65,23 +66,32 @@ export function BillRecommendationModal({
   const [selectedBills, setSelectedBills] = useState<Record<number, boolean>>({})
   const [amounts, setAmounts] = useState<Record<number, string>>({})
   const [dueDates, setDueDates] = useState<Record<number, string>>({})
+  const [createTaskFlags, setCreateTaskFlags] = useState<Record<number, boolean>>({})
   const [validationErrors, setValidationErrors] = useState<Record<number, string>>({})
   const [isSaving, setIsSaving] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
   const [showScrollToTop, setShowScrollToTop] = useState(false)
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
-  // Reset state when modal is closed
+
   useEffect(() => {
     if (!open) {
       setSelectedBills({});
       setAmounts({});
       setDueDates({});
+      setCreateTaskFlags({});
       setValidationErrors({});
     }
   }, [open]);
 
   const handleToggleBill = (index: number) => {
     setSelectedBills(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }))
+  }
+
+  const handleToggleCreateTask = (index: number) => {
+    setCreateTaskFlags(prev => ({
       ...prev,
       [index]: !prev[index]
     }))
@@ -131,10 +141,13 @@ export function BillRecommendationModal({
       billsToAdd.push({
         name: recommendedBills[index].name,
         amount: amount,
-        dueDate: dueDate
+        dueDate: dueDate,
+        createTask: createTaskFlags[index] || false // Add the createTask flag
       })
       billsAdded++
     }
+    
+    // Note: Need to update Bill type and addBills function in useBills.ts later
     
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors)
@@ -196,118 +209,135 @@ export function BillRecommendationModal({
           scrollEventThrottle={16}
         >
           <YStack gap="$3">
-            {recommendedBills.map((bill, index) => (
-              <XStack
-                key={index}
-                backgroundColor={isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"}
-                br={12}
-                padding="$3"
-                borderWidth={1}
-                borderColor={validationErrors[index] ? (isDark ? "#ff4444" : "#ff0000") : (isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)")}
-                alignItems="center"
-              >
-                <Checkbox
-                  checked={selectedBills[index] || false}
-                  onCheckedChange={() => handleToggleBill(index)}
-                  backgroundColor={selectedBills[index] ? "#000" : "#F5F5DC"}
-                  borderColor={selectedBills[index] ? "#000" : "#D3D3D3"}
-                  marginRight="$2.5"
+            {recommendedBills.map((bill, index) => {
+              const isSelected = selectedBills[index] || false
+              const hasError = !!validationErrors[index]
+              
+              return (
+                <Card
+                  key={index}
+                  elevate={isSelected}
+                  bordered={!isSelected}
+                  scale={isSelected ? 0.98 : 1}
+                  opacity={isSelected ? 1 : 0.8}
+                  backgroundColor={isSelected ? '$backgroundFocus' : '$background'}
+                  borderColor={hasError ? '$red10' : (isSelected ? '$borderColorFocus' : '$borderColor')}
+                  padding="$3"
+                  gap="$3"
                 >
-                  {selectedBills[index] && (
-                    <Checkbox.Indicator>
-                      <Ionicons name="checkmark" size={16} color="#00C851" />
-                    </Checkbox.Indicator>
-                  )}
-                </Checkbox>
+                  <XStack alignItems="center" gap="$3">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => handleToggleBill(index)}
+                      size="$5"
+                      backgroundColor={isSelected ? isDark ? 'rgba(0, 0, 0, 0.1)' : 'rgba(113, 113, 113, 0.5)' : '$gray5'}
+                      borderColor={isSelected ? primaryColor : '$borderColor'}
+                    >
+                      <Checkbox.Indicator>
+                        <Ionicons name="checkmark" size={isIpad() ? 20 : 18} color="rgb(77, 255, 0)" />
+                      </Checkbox.Indicator>
+                    </Checkbox>
+                    <Text flex={1} fontSize={isIpad() ? 18 : 15} fontWeight="500" fontFamily="$body" color="$color">
+                      {bill.name}
+                    </Text>
+                  </XStack>
 
-                <YStack flex={1} gap="$2" opacity={selectedBills[index] ? 0.6 : 1}>
-                  <Text
-                    color={isDark ? "#fff" : "#000"}
-                    fontSize={15}
-                    fontWeight="500"
-                    fontFamily={"$body"}
-                  >
-                    {bill.name}
-                  </Text>
-
-                  {selectedBills[index] && (
-                    <YStack gap="$2" flex={1}>
-                      <XStack gap="$2" flexWrap="wrap">
-                        <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
-                          <Ionicons name="cash-outline" size={16} color={isDark ? "#999" : "#666"} />
-                          <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
-                            Amount:
-                          </Text>
+                  {isSelected && (
+                    <YStack gap="$3" pl="$6">
+                      <XStack gap="$3" alignItems="flex-start"> 
+                        <YStack flex={1} gap="$1" minWidth={90}> 
+                          <XStack alignItems="center" gap="$1.5">
+                            <Ionicons name="cash-outline" size={isIpad() ? 15 : 14} color="$colorFocus" />
+                            <Text fontSize={isIpad() ? 14 : 13} fontWeight="500" fontFamily="$body" color="$colorPress">Amount</Text>
+                          </XStack>
                           <XStack
-                            backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
-                            px="$2"
-                            py="$1"
-                            br={4}
-                            flex={1}
+                            borderWidth={1}
+                            borderColor={hasError && (!amounts[index] || parseFloat(amounts[index]) <= 0) ? '$red10' : '$borderColor'}
+                            borderRadius="$3"
+                            paddingHorizontal="$2"
+                            paddingVertical="$1"
                             alignItems="center"
-                            borderColor={validationErrors[index] ? (isDark ? "#ff4444" : "#ff0000") : "transparent"}
-                            borderWidth={validationErrors[index] ? 1 : 0}
+                            backgroundColor="$background"
+                            gap="$1"
                           >
-                            <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
-                              $
-                            </Text>
-                            <DebouncedTextInput
+                            <Text color="$colorPress" fontSize={12}>$</Text>
+                            <Input
+                              unstyled
+                              flex={1}
                               keyboardType="decimal-pad"
                               value={amounts[index] || ''}
-                              onDebouncedChange={(value) => handleAmountChange(index, value)}
+                              onChangeText={(value) => handleAmountChange(index, value)}
                               placeholder="0.00"
-                              style={{
-                                backgroundColor: 'transparent',
-                                color: isDark ? '#fff' : '#000',
-                                fontSize: 12,
-                                padding: 0,
-                                flex: 1,
-                                height: 20
-                              }}
+                              placeholderTextColor="$colorPress"
+                              color="$color"
+                              fontSize={14}
+                              paddingVertical={0}
+                              height={30} 
                             />
                           </XStack>
-                        </XStack>
+                        </YStack>
 
-                        <XStack alignItems="center" gap="$1" flex={1} minWidth={120}>
-                          <Ionicons name="calendar-outline" size={16} color={isDark ? "#999" : "#666"} />
-                          <Text fontFamily={"$body"} color={isDark ? "#999" : "#666"} fontSize={12} marginRight="$1">
-                            Due Date:
-                          </Text>
+                        <YStack flex={1} gap="$1" minWidth={80}>
+                           <XStack alignItems="center" gap="$1.5">
+                            <Ionicons name="calendar-outline" size={14} color="$colorFocus" />
+                            <Text fontSize={isIpad() ? 14 : 13} fontWeight="500" fontFamily="$body" color="$colorPress">Due Day</Text>
+                          </XStack>
                           <XStack
-                            backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"}
-                            px="$2"
-                            py="$1"
-                            br={4}
-                            flex={1}
+                            borderWidth={1}
+                            borderColor={hasError && (!dueDates[index] || parseInt(dueDates[index]) < 1 || parseInt(dueDates[index]) > 31) ? '$red10' : '$borderColor'}
+                            borderRadius="$3"
+                            paddingHorizontal="$2"
+                            paddingVertical="$1"
                             alignItems="center"
+                            backgroundColor="$background"
                           >
-                            <DebouncedTextInput
+                            <Input
+                              unstyled
+                              flex={1}
                               keyboardType="number-pad"
                               value={dueDates[index] || ''}
-                              onDebouncedChange={(value) => handleDueDateChange(index, value)}
-                              placeholder="1"
-                              style={{
-                                backgroundColor: 'transparent',
-                                color: isDark ? '#fff' : '#000',
-                                fontSize: 12,
-                                padding: 0,
-                                flex: 1,
-                                height: 20
-                              }}
+                              onChangeText={(value) => handleDueDateChange(index, value)}
+                              placeholder="1-31"
+                              placeholderTextColor="$colorPress"
+                              color="$color"
+                              fontSize={14}
+                              maxLength={2}
+                              paddingVertical={0}
+                              height={30}
                             />
                           </XStack>
-                        </XStack>
+                        </YStack>
+
+                        <YStack flex={1} gap="$1" minWidth={90} justifyContent="center"  alignItems="center">
+                          <XStack alignItems="center" gap="$1.5">
+                          {!isIpad() && <Text fontSize={isIpad() ? 14 : 13} fontWeight="500" fontFamily="$body" color="$colorPress">Create Task </Text>}
+                           {isIpad() &&  <Text fontSize={isIpad() ? 14 : 13} fontWeight="500" fontFamily="$body" color="$colorPress">See Task on Due Date?</Text>}
+                          </XStack>
+                          <Checkbox
+                            checked={createTaskFlags[index] || false}
+                            onCheckedChange={() => handleToggleCreateTask(index)}
+                            size={isIpad() ? "$7" : "$7"}
+                            backgroundColor={createTaskFlags[index] ? isDark ? 'rgba(46, 46, 46, 0.7)' : 'rgba(73, 73, 73, 0.5)': '$background'}
+                            borderColor={createTaskFlags[index] ? primaryColor : '$borderColor'}
+                            mt={isIpad() ? "$1.5" : "$1"}
+                          >
+                            <Checkbox.Indicator>
+                              <Ionicons name="checkmark" size={isIpad() ? 18 : 16} color="rgba(38, 255, 0, 1)" />
+                            </Checkbox.Indicator>
+                          </Checkbox>
+                        </YStack>
                       </XStack>
-                      {validationErrors[index] && (
-                        <Text color={isDark ? "#ff4444" : "#ff0000"} fontSize={12}>
+                      
+                      {hasError && (
+                        <Paragraph color="$red10" fontSize={12} pl="$1" mt="$1">
                           {validationErrors[index]}
-                        </Text>
+                        </Paragraph>
                       )}
                     </YStack>
                   )}
-                </YStack>
-              </XStack>
-            ))}
+                </Card>
+              )
+            })}
           </YStack>
         </ScrollView>
         
@@ -323,7 +353,7 @@ export function BillRecommendationModal({
           opacity={!hasValidSelections || isSaving ? 0.5 : 1}
         >
           <Text
-            color={isDark ? "#dbd0c6" : "#000"}
+            color={isDark ? "#dbd0c6" : "#ffffff"}
             fontSize={16}
             fontWeight="600"
             fontFamily={"$body"}

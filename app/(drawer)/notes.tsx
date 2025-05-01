@@ -26,7 +26,7 @@ import { NoteListItem } from '@/components/notes/NoteListItem';
 import { AddNoteButton } from '@/components/notes/AddNoteButton';
 import { DevToolsButton } from '@/components/notes/DevToolsButton';
 
-import { createTrashAnimatedStyle, getGhostNoteStyle, noteStyles } from '@/utils/noteStyles';
+import { createTrashAnimatedStyle, noteStyles } from '@/utils/noteStyles';
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/noteService';
 import { setupColumnCalculation, createFormattingHandler, handleDragging, handleDragEnd, handleMoveNote, handleSelectNote } from '@/services/noteService2';
 import { createNoteHandlers } from '@/services/noteHandlers';
@@ -60,7 +60,6 @@ export default function NotesScreen() {
   const preventReorder = useRef(false);
   const lastDragPosition = useRef({ x: 0, y: 0 });
   const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
-  const ghostNoteStyle = getGhostNoteStyle();
 
   useEffect(() => {return setupColumnCalculation(isWeb, setNumColumns)}, [isWeb]);
 
@@ -85,9 +84,9 @@ export default function NotesScreen() {
   });
 
   return (
-    <YStack f={1} mt={isWeb ? 80 : 90} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={localHandleDragging}>
+    <YStack f={1} mt={isWeb ? 80 : isIpad() ? 55 : 60} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={localHandleDragging}>
       <XStack
-        paddingTop={isIpad() ? insets.top + 70 : 0} pb={16} px={16}
+        pb={16} px={16}
         backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
         justifyContent="space-between" alignItems="center"
       >
@@ -187,7 +186,7 @@ export default function NotesScreen() {
           </View>
 
           {isPendingDelete && pendingDeleteNote && (
-            <View style={ghostNoteStyle}>
+            <View>
               <NoteCard
                 note={pendingDeleteNote}
                 onPress={() => {}}

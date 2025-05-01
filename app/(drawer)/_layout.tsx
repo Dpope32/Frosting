@@ -78,13 +78,13 @@ export default function DrawerLayout() {
   const colorScheme = useColorScheme();
   const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : 'rgb(200, 200, 200)';
+  const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : 'rgb(225, 225, 225)';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const inactiveColor = isDark  ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
-  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 220  : 220;
+  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 220  : 200;
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 

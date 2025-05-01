@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-
+import { isIpad } from '@/utils/deviceUtils';
 interface BaseCardWithRecommendationsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -57,12 +57,12 @@ export function BaseCardWithRecommendationsModal({
           animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
-          backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(255, 255, 255, 0.15)"}
+          backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(26, 26, 26, 0.32)"}
         />
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$0"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
-          backgroundColor={isDark ? "rgb(20, 20, 20)" : "rgba(224, 224, 224)"}
+          backgroundColor={isDark ? "rgb(20, 20, 20)" : "rgb(224, 224, 224)"}
           borderTopLeftRadius={20}
           borderTopRightRadius={20}
           borderWidth={1}
@@ -77,12 +77,12 @@ export function BaseCardWithRecommendationsModal({
             } : {}
           )}
         >
-          {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$2" />}
+          {!hideHandle && <Sheet.Handle marginBottom="$2" />}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1, paddingTop: Math.max(topInset - 45, 0) }}
+            style={{ flex: 1, paddingTop: Math.max(topInset - 45, 0)  }}
           >
-            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 8 : -10, paddingHorizontal: 6 }}>
+            <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 8 : isIpad() ? 0 : -10, paddingHorizontal: 6 }}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
                   fontSize={22}

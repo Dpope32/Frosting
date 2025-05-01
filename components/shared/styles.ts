@@ -6,7 +6,7 @@ import { isIpad } from '@/utils/deviceUtils';
 export const useDrawerStyles = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : 'rgb(200, 200, 200)';
+  const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : 'rgb(225, 225, 225)';
   const textColor = isDark ? '#fff' : '#070707';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
   const isWeb = Platform.OS === 'web';

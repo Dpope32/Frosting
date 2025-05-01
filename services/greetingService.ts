@@ -9,7 +9,7 @@ const GREETING_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
 const getTimeBasedGreeting = (hour: number): string => {
   switch (Math.floor(hour / 2)) {
     case 0: return "Hello";
-    case 1: return 'Still up are we';
+    case 1: return 'Still up are we?';
     case 2: return 'Early bird';
     case 3: return 'Rise and shine';
     case 4: return 'Morning';
@@ -169,17 +169,17 @@ export const getGreeting = (username: string, temp?: number): string => {
   // --- Temperature-based Greetings (12 new, only if temp is provided) ---
   const tempGreetings = temp !== undefined && temp !== null ? [
     temp >= 95 ? `It's a scorcher at ${temp}°F, ${username}!` : null,
-    temp >= 85 && temp < 95 ? `Stay cool, it's ${temp}°F today, ${username}!` : null,
-    temp >= 75 && temp < 85 ? `Perfect weather at ${temp}°F, ${username}!` : null,
-    temp >= 65 && temp < 75 ? `Mild and comfy: ${temp}°F, ${username}.` : null,
-    temp >= 55 && temp < 65 ? `A crisp ${temp}°F out there, ${username}.` : null,
+    temp >= 85 && temp < 95 ? `Stay cool, it's ${temp}°F today` : null,
+    temp >= 75 && temp < 85 ? `Perfect weather at ${temp}°F!` : null,
+    temp >= 65 && temp < 75 ? `Mild and comfy: ${temp}°F.` : null,
+    temp >= 55 && temp < 65 ? `A crisp ${temp}°F ${username}.` : null,
     temp >= 45 && temp < 55 ? `Sweater weather: ${temp}°F, ${username}!` : null,
     temp >= 35 && temp < 45 ? `Chilly ${temp}°F today, ${username}.` : null,
-    temp >= 25 && temp < 35 ? `Bundle up, it's ${temp}°F, ${username}!` : null,
+    temp >= 25 && temp < 35 ? `Bundle up, it's ${temp}°F!` : null,
     temp < 25 ? `Brrr! Only ${temp}°F, ${username}!` : null,
-    temp >= 100 ? `Heatwave alert: ${temp}°F, ${username}!` : null,
+    temp >= 100 ? `Heatwave alert: ${username}!` : null,
     temp <= 10 ? `Arctic vibes: ${temp}°F, ${username}!` : null,
-    temp >= 60 && temp < 70 ? `Nice and pleasant: ${temp}°F, ${username}.` : null,
+    temp >= 60 && temp < 70 ? `Nice and pleasant outside innit?` : null,
   ].filter(Boolean) as string[] : [];
 
   // --- Changeup Greetings (expanded and more varied) ---
@@ -234,7 +234,6 @@ export const getGreeting = (username: string, temp?: number): string => {
     `What's up, ${username}?`,
     `${timeBasedGreeting}! Ready for action, ${username}?`,
     `Greetings, ${username}`,
-    timeBasedGreeting, 
     `Hope you're having a great ${dayOfWeek}`,
     `How's your ${dayOfWeek} going?`,
     `Let's make the most of ${dayOfWeek}!`,
@@ -287,7 +286,7 @@ export const getGreeting = (username: string, temp?: number): string => {
     // --- Post-processing for regular greetings (similar logic as before) ---
     // Ensure username is appended if it's just the time-based greeting
     if (selectedGreeting === timeBasedGreeting) {
-        selectedGreeting = `${timeBasedGreeting}, ${username}`;
+        selectedGreeting = `${timeBasedGreeting}`;
     }
     // Basic check to avoid double username in simple cases
     else if (!selectedGreeting.includes(username)) {

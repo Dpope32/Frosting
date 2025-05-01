@@ -10,6 +10,7 @@ import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 import type { TextStyle } from 'react-native';
 import { CHANGELOG } from '@/constants/changelog';
 import { useUserStore } from '@/store/UserStore';
+import { isIpad } from '@/utils/deviceUtils';
 
 export default function ChangeLog() {
   const insets = useSafeAreaInsets();
@@ -55,7 +56,7 @@ export default function ChangeLog() {
     <View style={[
       styles.container,
       {
-        paddingTop: (insets.top - 8),
+        paddingTop: (isIpad() ? 20 : insets.top - 14),
         backgroundColor: isDark ? '#111' : '#fff',
       },
     ]}>
@@ -65,12 +66,13 @@ export default function ChangeLog() {
           style={{
             position: 'absolute',
             left: isWeb ? 24 : 16,
+            top: isIpad() ? 12 : 10,
             zIndex: 2,
             padding: 8,
           }}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <ChevronLeft size={isWeb ? 28 : 22} color={isDark ? '#b8b3ba' : '#708090'} />
+          <ChevronLeft size={isWeb ? 28 : isIpad() ? 26 : 22} color={isDark ? '#b8b3ba' : '#708090'} />
         </TouchableOpacity>
         <Text
           style={{

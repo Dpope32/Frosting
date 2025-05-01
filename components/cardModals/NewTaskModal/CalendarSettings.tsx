@@ -34,7 +34,7 @@ export function CalendarSettings({
       <Button
         onPress={onTimePickerToggle}
         theme={isDark ? "dark" : "light"}
-        backgroundColor={time ? "transparent" : "transparent"}
+        backgroundColor={time ? "transparent" : isDark? "rgba(238, 238, 238, 0.8)" : "rgba(238, 238, 238, 0.8)"}
         br={12}
         px={"$3"}
         py={isWeb ? "$4" : isIpad() ? "$2" : "$1"}

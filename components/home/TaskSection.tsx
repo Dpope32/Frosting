@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { Pressable, Platform, useColorScheme } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react'
+import { Pressable, Platform as RNPlatform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
@@ -12,6 +12,7 @@ import { format } from 'date-fns'
 import { isIpad } from '@/utils/deviceUtils'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { useUserStore } from '@/store/UserStore'
+import { EasterEgg } from '../shared/EasterEgg'
 // Enable debugging
 const DEBUG = false;
 
@@ -40,6 +41,8 @@ export const TaskSection = ({
   const isDark = colorScheme === 'dark'
   const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
   const username = useUserStore(s => s.preferences.username);
+  const [easterEggVisible, setEasterEggVisible] = useState(false);
+  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
   
   useEffect(() => {
     if (DEBUG) {
@@ -80,12 +83,12 @@ export const TaskSection = ({
         width="100%" 
         marginBottom="$2" 
         gap={isWeb ? "$2" : "$0"}
-        px={Platform.OS === 'web' ? "$3" : "$0"}
-        justifyContent={isWeb ? "flex-start" : isIpad() ? "space-between" : "space-between" }
+        px={RNPlatform.OS === 'web' ? "$3" : "$0"}
+        justifyContent={RNPlatform.OS === 'web' ? "flex-start" : isIpad() ? "space-between" : "space-between" }
       >
         <Pressable
           onPress={() => {
-            if (Platform.OS !== 'web') {
+            if (RNPlatform.OS !== 'web') {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
             }
             onTaskListPress()
@@ -98,7 +101,7 @@ export const TaskSection = ({
             justifyContent: 'center',
             alignItems: 'center',
             marginRight: isWeb ? 20 : 0,
-            marginLeft: isWeb ? 0 : 16
+            marginLeft: isWeb ? 0 : 2
           })}
         >
           <Ionicons
@@ -109,22 +112,22 @@ export const TaskSection = ({
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
               textShadowOffset: { width: 0, height: 0 },
               textShadowRadius: 4,
-              marginRight: isIpad() ? -20 : 0
+              marginRight: isIpad() ? -20 : -16
             }}
           />
         </Pressable>
         
-        <XStack flex={1} justifyContent={isWeb ? "flex-start" : "center"}>
+        <XStack flex={1} justifyContent={RNPlatform.OS === 'web' ? "flex-start" : "center"}>
           {isIpad() ? (
             <GreetingSection username={username} />
           ) : (
             <Text
               fontFamily="$body"
               color={isDark ? "#dbd0c6" : "#dbd0c6"}
-              fontSize={isWeb ? 22 : 20}
+              fontSize={RNPlatform.OS === 'web' ? 22 : isIpad() ? 20 : 18}
               fontWeight="bold"
-              marginRight={isWeb ? 20 : 10}
-              marginLeft={isWeb ? 20 : isIpad() ? -30 : -16}
+              marginRight={RNPlatform.OS === 'web' ? 20 : 10}
+              marginLeft={RNPlatform.OS === 'web' ? 20 : isIpad() ? -30 : -24}
             >
               {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </Text>
@@ -135,11 +138,11 @@ export const TaskSection = ({
       <Stack
         flex={1}
         position="relative"
-        justifyContent={Platform.OS === 'web' ? 'flex-start' : isIpad() ? 'flex-start' : 'center'}
-        px={Platform.OS === 'web' ? "$3" : "$1"}
-        py={Platform.OS === 'web' ? "$2" : "$0"}
+        justifyContent={RNPlatform.OS === 'web' ? 'flex-start' : isIpad() ? 'flex-start' : 'center'}
+        px={RNPlatform.OS === 'web' ? "$3" : "$1"}
+        py={RNPlatform.OS === 'web' ? "$2" : "$0"}
       >
-        {Platform.OS === 'web' ? (
+        {RNPlatform.OS === 'web' ? (
           todaysTasks.length === 0 ? (
             <Stack 
               p="$2"
@@ -275,7 +278,33 @@ export const TaskSection = ({
                 })}
               </XStack>
             )}
-            <YearCompleteSection />
+            {!isWeb ? (
+              <>
+                <Pressable
+                  onPressIn={() => {
+                    console.log('[EasterEgg] Long press started at', new Date().toISOString());
+                    longPressTimeout.current = setTimeout(() => {
+                      console.log('[EasterEgg] 5s long press triggered at', new Date().toISOString());
+                      setEasterEggVisible(true);
+                    }, 5000);
+                  }}
+                  onPressOut={() => {
+                    if (longPressTimeout.current) {
+                      clearTimeout(longPressTimeout.current);
+                      longPressTimeout.current = null;
+                      console.log('[EasterEgg] Long press cancelled at', new Date().toISOString());
+                    }
+                  }}
+                  style={{ width: '100%' }}
+                >
+                  <YearCompleteSection />
+                </Pressable>
+                <EasterEgg
+                  visible={easterEggVisible}
+                  onAnimationEnd={() => setEasterEggVisible(false)}
+                />
+              </>
+            ) : <YearCompleteSection />}
           </>
         )}
       </Stack>

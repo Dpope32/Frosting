@@ -8,7 +8,7 @@ import { Plus } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
-import { IncomeModal } from '@/components/cardModals/IncomeModal';
+import { IncomeModal } from '@/components/cardModals/IncomeModal/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { isIpad } from '@/utils/deviceUtils';
 

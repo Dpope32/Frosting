@@ -44,7 +44,7 @@ export function CardSection({
         <Text
           fontFamily="$body"
           color={isDark ? "#dbd0c6" : "#dbd0c6"}
-          fontSize={22}
+          fontSize={isWeb ? 23 : isIpad() ? 22 : 18}
           fontWeight="bold"
           textAlign="center"
         >

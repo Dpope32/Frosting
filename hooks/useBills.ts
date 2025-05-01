@@ -160,7 +160,7 @@ export function useBills() {
       
       // Collect task for this month
       tasksToAdd.push({
-        name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
+        name: `${billData.name} ($${billData.amount.toFixed(1)})`,
         schedule: [weekDay],
         priority: 'high',
         category: 'bills',
@@ -190,8 +190,8 @@ export function useBills() {
     queryClient.refetchQueries({ queryKey: ['bills'] });
   };
   
-  // Add a new function for batch operations
-  const addBills = (billsData: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>[], options: {
+  // Add a new function for batch operations, now accepting the full Bill type (including optional createTask)
+  const addBills = (billsData: (Omit<Bill, 'id' | 'createdAt' | 'updatedAt'> & { createTask?: boolean })[], options: {
     showToastNotification?: boolean,
     batchCategory?: string
   } = {}) => {
@@ -204,12 +204,15 @@ export function useBills() {
     
     // Collect all events and tasks to add
     const eventsToAdd: EventToAdd[] = [];
-    const tasksToAdd: TaskToAdd[] = [];
-    // For each bill, generate events and tasks
+    const tasksToAdd: TaskToAdd[] = []; // Initialize tasksToAdd array
+
+    // For each bill, generate events and conditionally generate tasks
     billsData.forEach(billData => {
-      // Generate events for the next 5 years
+      const shouldCreateTask = billData.createTask || false; // Check the flag
+
+      // Generate events for the next 10 years (always)
       const start = new Date();
-      const end = new Date(start.getFullYear() + 10, 11, 31); // End of December 5 years from now
+      const end = new Date(start.getFullYear() + 10, 11, 31); 
       
       // Create an event for each month from start to end
       let currentDate = new Date(start.getFullYear(), start.getMonth(), billData.dueDate);
@@ -224,23 +227,30 @@ export function useBills() {
           description: `$${billData.amount.toFixed(2)} due`,
           type: 'bill'
         });
-        
-        // Collect task for this month
-        tasksToAdd.push({
-          name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
-          schedule: [weekDay],
-          priority: 'high',
-          category: 'bills',
-          scheduledDate: formattedDate,
-          dueDate: billData.dueDate,
-          recurrencePattern: 'monthly'
-        });
+
+        // Conditionally collect task for this month
+        if (shouldCreateTask) {
+          tasksToAdd.push({
+            name: `Pay ${billData.name} ($${billData.amount.toFixed(2)})`,
+            schedule: [weekDay], // Note: schedule might need adjustment based on task system logic
+            priority: 'high',
+            category: 'bills',
+            scheduledDate: formattedDate, // Task scheduled for the due date
+            dueDate: billData.dueDate, // Store original due day if needed
+            recurrencePattern: 'monthly' // Assuming monthly recurrence matches bill cycle
+          });
+        }
         
         // Move to next month
         currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, billData.dueDate);
       }
     });
-    addTasks(tasksToAdd);
+
+    // Add collected events and tasks to their respective stores
+    addEvents(eventsToAdd); // Add all generated calendar events
+    if (tasksToAdd.length > 0) {
+      addTasks(tasksToAdd); // Add tasks only if any were generated
+    }
     
     // Show success toast
     if (showToastNotification) {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { isIpad } from '@/utils/deviceUtils';
 interface NotesEmptyProps {
   isDark: boolean
   primaryColor: string
@@ -24,7 +24,7 @@ export const NotesEmpty = ({
       borderColor={isDark ? "#333" : "#e0e0e0"} 
       width="100%" 
       overflow="hidden" 
-      marginTop={isWeb ? 10 : 0}
+      marginTop={isWeb ? 10 : isIpad() ? 0 : 12}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
