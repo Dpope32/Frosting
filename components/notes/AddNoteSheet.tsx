@@ -70,7 +70,14 @@ export function AddNoteSheet({
   const isIpadDevice = isIpad();
   const [isEditingTitle, setIsEditingTitle] = useState(true);
 
-  useAutoFocus(titleInputRef, 300, isModalOpen && isEditingTitle); // Reduced delay
+  useEffect(() => {
+    if (isModalOpen && isEditingTitle) {
+      const timer = setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen, isEditingTitle]);
 
   useEffect(() => {
     if (Platform.OS === 'web') return;
@@ -211,7 +218,6 @@ export function AddNoteSheet({
               borderWidth={0}
               fontSize={24}
               autoComplete="off"
-              autoFocus={true}
               style={{ flex: 1, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
               placeholderTextColor="#aaa"
             />

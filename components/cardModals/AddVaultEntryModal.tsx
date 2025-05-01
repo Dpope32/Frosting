@@ -58,7 +58,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
       title="Add New Vault Entry"
       visible={isVisible}
     >
-      <YStack gap={isIpad() ? "$4" : "$2"} py={isIpad() ? "$4" : "$2"} px={isIpad() ? "$4" : "$3"}>
+      <YStack gap={isIpad() ? "$4" : "$2"} py={isIpad() ? "$4" : "$0"} px={isIpad() ? "$4" : "$2"}>
         <DebouncedInput
           ref={nameInputRef}
           placeholder="Name"
@@ -94,7 +94,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
         />
 
-        <XStack gap="$3" justifyContent="space-between" marginTop="$2">
+        <XStack gap="$3" justifyContent="space-between" marginTop="$3">
           <Button
             onPress={handleClose}
             backgroundColor="rgba(255, 4, 4, 0.1)"

@@ -130,7 +130,7 @@ export function BaseCardAnimated({
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingBottom: screenHeight * 0.09,
+            paddingBottom: screenHeight * 0.185,
           }}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
@@ -142,7 +142,7 @@ export function BaseCardAnimated({
                 {
                   backgroundColor: isDark ? '#141415' : '#fff',
                   marginTop: insets.top + 20, 
-                  marginBottom: insets.bottom + 10,
+                  marginBottom: insets.bottom + 20,
                   width: actualWidth,
                   maxHeight: screenHeight,
                 }
