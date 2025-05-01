@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, useColorScheme, Platform } from 'react-native';
+import { ScrollView, useColorScheme, Platform, FlatList } from 'react-native';
 import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
@@ -76,7 +76,7 @@ export default function BillsScreen() {
   };
 
   return (
-    <YStack f={1} mt={isWeb ? 65 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "#fffbf7fff"} px={isIpad() ? "$3" : "$0"}>
+    <YStack f={1} mt={isWeb ? 65 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "#fffbf7fff"} px={isIpad() ? "$1" : "$0"}>
       <BillSummary 
         monthlyIncome={monthlyIncome}
         totalMonthlyAmount={totalMonthlyAmount}
@@ -119,63 +119,97 @@ export default function BillsScreen() {
         </YStack>
       )}
       
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ 
-          padding: isWeb ? 12 : isIpad() ? 8 : 6,
-          paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : isIpad() ? 12 : 12,
-          paddingLeft: isWeb ? 40 : isIpad() ? 40 : 20,
-          paddingRight: isWeb ? 20 : isIpad() ? 40 : 20, 
-          display: isWeb ? 'flex' : isIpad() ? 'flex' :  undefined,
-          flexDirection: isWeb ? 'row' : isIpad() ? 'row' : undefined,
-          flexWrap: isWeb ? 'wrap' : isIpad() ? 'wrap' : undefined,
-          justifyContent: isWeb ? 'flex-start' : isIpad() ? 'flex-start' : undefined,
-          gap: isWeb ? 20 : isIpad() ? 12 : 6, 
-          maxWidth: isWeb ? 1780 : undefined, 
-        }}
-      >
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, index) => (
-            <XStack 
-              key={`skeleton-${index}`} 
-              bg={isDark ? "#111" : "#f5f5f5"}
-              p={isWeb ? "$3" : "$4"} 
-              mb="$2"
-              br="$4" 
-              ai="center" 
-              animation="quick"
-              borderWidth={1}
-              borderColor={isDark ? "#222" : "#e0e0e0"}
-              width={isWeb ? columnWidth : "100%"}
-              height={isWeb ? 120 : undefined}
-            >
-              <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} br="$4" />
-              <YStack ml="$3" flex={1} gap="$1">
-                <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
-                <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
-              </YStack>
-            </XStack>
-          ))
-        ) : bills?.length === 0 ? (
-          <BillEmpty
-            setHousingModalOpen={setHousingModalOpen}
-            setTransportationModalOpen={setTransportationModalOpen}
-            setSubscriptionsModalOpen={setSubscriptionsModalOpen}
-            setInsuranceModalOpen={setInsuranceModalOpen}
-          />
-        ) : bills ? (
-          bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => (
+      {isIpad() ? (
+        <FlatList
+          data={bills?.sort((a, b) => a.dueDate - b.dueDate) || []}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          renderItem={({ item }) => (
             <BillCard
-              key={bill.id}
-              bill={bill}
+              bill={item}
               currentDay={currentDay}
               primaryColor={primaryColor}
               onDelete={handleDeleteBill}
             />
-          ))
-        ) : null}
-      </ScrollView>
+          )}
+          contentContainerStyle={{
+            padding: 8,
+            paddingBottom: 100,
+            paddingHorizontal: 12,
+            paddingLeft: 32,
+            paddingRight: 32,
+            gap: 10,
+          }}
+          columnWrapperStyle={{ gap: 10 }}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <BillEmpty
+              setHousingModalOpen={setHousingModalOpen}
+              setTransportationModalOpen={setTransportationModalOpen}
+              setSubscriptionsModalOpen={setSubscriptionsModalOpen}
+              setInsuranceModalOpen={setInsuranceModalOpen}
+            />
+          }
+        />
+      ) : (
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ 
+            padding: isWeb ? 12 : 6,
+            paddingBottom: 100,
+            paddingHorizontal: isWeb ? 0 : 12,
+            paddingLeft: isWeb ? 40 : 20,
+            paddingRight: isWeb ? 20 : 20, 
+            display: isWeb ? 'flex' : undefined,
+            flexDirection: isWeb ? 'row' : undefined,
+            flexWrap: isWeb ? 'wrap' : undefined,
+            justifyContent: isWeb ? 'flex-start' : undefined,
+            gap: isWeb ? 20 : 6, 
+            maxWidth: isWeb ? 1780 : undefined, 
+          }}
+        >
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <XStack 
+                key={`skeleton-${index}`} 
+                bg={isDark ? "#111" : "#f5f5f5"}
+                p={isWeb ? "$3" : "$4"} 
+                mb="$2"
+                br="$4" 
+                ai="center" 
+                animation="quick"
+                borderWidth={1}
+                borderColor={isDark ? "#222" : "#e0e0e0"}
+                width={isWeb ? columnWidth : "100%"}
+                height={isWeb ? 120 : undefined}
+              >
+                <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} br="$4" />
+                <YStack ml="$3" flex={1} gap="$1">
+                  <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
+                  <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
+                </YStack>
+              </XStack>
+            ))
+          ) : bills?.length === 0 ? (
+            <BillEmpty
+              setHousingModalOpen={setHousingModalOpen}
+              setTransportationModalOpen={setTransportationModalOpen}
+              setSubscriptionsModalOpen={setSubscriptionsModalOpen}
+              setInsuranceModalOpen={setInsuranceModalOpen}
+            />
+          ) : bills ? (
+            bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => (
+              <BillCard
+                key={bill.id}
+                bill={bill}
+                currentDay={currentDay}
+                primaryColor={primaryColor}
+                onDelete={handleDeleteBill}
+              />
+            ))
+          ) : null}
+        </ScrollView>
+      )}
       
       {isModalVisible && (
         <AddBillModal 
