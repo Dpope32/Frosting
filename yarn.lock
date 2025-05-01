@@ -2399,11 +2399,6 @@
   resolved "https://registry.yarnpkg.com/@react-native/normalize-colors/-/normalize-colors-0.76.9.tgz#1c45ce49871ccea7d6fa9332cb14724adf326d6a"
   integrity sha512-TUdMG2JGk72M9d8DYbubdOlrzTYjw+YMe/xOnLU4viDgWRHsCbtRS9x0IAxRjs3amj/7zmK3Atm8jUPvdAc8qw==
 
-"@react-native/normalize-colors@0.79.1":
-  version "0.79.1"
-  resolved "https://registry.yarnpkg.com/@react-native/normalize-colors/-/normalize-colors-0.79.1.tgz#5d8214f850dd5d8c95f76ba8a7a2e1c0d2f344bc"
-  integrity sha512-Fj12xKyihZhrFH45ruqECd2JVx9lyYe+dyxO7MYgkqY6UENsSS3JKcfzjSNBZLW7NXts6JkbaqLQPwaHmPF7QA==
-
 "@react-native/normalize-colors@^0.74.1":
   version "0.74.89"
   resolved "https://registry.npmjs.org/@react-native/normalize-colors/-/normalize-colors-0.74.89.tgz"
@@ -7015,15 +7010,13 @@ expo-modules-core@2.2.3:
   dependencies:
     invariant "^2.2.4"
 
-expo-navigation-bar@^4.2.3:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/expo-navigation-bar/-/expo-navigation-bar-4.2.3.tgz#d7d494f0aac81904dd05c046e3962a0b848ddf78"
-  integrity sha512-z8fi5YPX7DEks9TRxBJR/okY9cBymEplfQoCvKR3suRjz7AFZs1Gmp8/ifkr76F000kHqADnxCDl23hQpqBFHA==
+expo-navigation-bar@4.0.9:
+  version "4.0.9"
+  resolved "https://registry.yarnpkg.com/expo-navigation-bar/-/expo-navigation-bar-4.0.9.tgz#e0409c2db8f6384d12c87f45c2674effc9fae1b6"
+  integrity sha512-dCJ04yPixFOUixJaWlmCZafGeQ1L1g6vWn+oX8rqPnYN9kYCMUz2aRNnhRRoK5MBGFTK/nue2D49TE/AwwWt9w==
   dependencies:
-    "@react-native/normalize-colors" "0.79.1"
+    "@react-native/normalize-colors" "0.76.8"
     debug "^4.3.2"
-    react-native-edge-to-edge "1.6.0"
-    react-native-is-edge-to-edge "^1.1.6"
 
 expo-notifications@~0.29.14:
   version "0.29.14"
@@ -10889,11 +10882,6 @@ react-native-drawer-layout@^4.1.2:
   integrity sha512-vAUxIX8OIZ7Xg/HObq2uL6vpYqJDwMsUj4a2vApAlCEB0IYVXLTAXB76F0FJ9vPFgj0VONkEWqG+8bbBp7FSfA==
   dependencies:
     use-latest-callback "^0.2.1"
-
-react-native-edge-to-edge@1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/react-native-edge-to-edge/-/react-native-edge-to-edge-1.6.0.tgz#2ba63b941704a7f713e298185c26cde4d9e4b973"
-  integrity sha512-2WCNdE3Qd6Fwg9+4BpbATUxCLcouF6YRY7K+J36KJ4l3y+tWN6XCqAC4DuoGblAAbb2sLkhEDp4FOlbOIot2Og==
 
 react-native-elevation@^1.0.0:
   version "1.0.0"
