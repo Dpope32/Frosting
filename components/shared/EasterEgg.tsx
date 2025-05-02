@@ -19,7 +19,7 @@ interface EasterEggProps {
   onAnimationEnd?: () => void;
 }
 
-const IMAGE_SIZE = 110; // Smaller size
+const IMAGE_SIZE = 200; // Smaller size
 const ANIMATION_DURATION = 700; // ms
 const SCALE_DURATION = 300;
 const SPIN_DURATION = 900;
