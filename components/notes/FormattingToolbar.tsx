@@ -23,7 +23,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   const iconColor = "#bbb";
 
   return (
-    <XStack gap={isIpad() ? "$10" : "$2"} marginBottom={isWeb ? 0 : -16} flexWrap="nowrap" >
+    <XStack gap={isIpad() ? "$10" : "$4"} marginBottom={isWeb ? 0 : 16} flexWrap="nowrap" >
       <Button
         size="$4"
         circular

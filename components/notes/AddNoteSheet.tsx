@@ -1,9 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView, Dimensions } from 'react-native';
-import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
-import { X, Pencil } from '@tamagui/lucide-icons';
-import { useAutoFocus } from '@/hooks/useAutoFocus'; // Import the hook
-import { DebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput';
+import { YStack, Button, XStack, Sheet, H3, Text, ScrollView, Input } from 'tamagui';
+import { X, Pencil, Check } from '@tamagui/lucide-icons';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from './FormattingToolbar';
 import { ContentInput } from './ContentInput'; 
@@ -66,19 +64,55 @@ export function AddNoteSheet({
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollViewRef = useRef<RNScrollView>(null);
-  const titleInputRef = useRef<DebouncedInputHandle>(null);
+  const titleInputRef = useRef<TextInput>(null);
   const isIpadDevice = isIpad();
   const [isEditingTitle, setIsEditingTitle] = useState(true);
+  const editingStartTimeRef = useRef<number>(0);
+  
+  // IMPORTANT: Keep a local copy of the title to edit
+  const [localTitle, setLocalTitle] = useState(editTitle || '');
+  
+  // Debug current state
+  useEffect(() => {
+    console.log("======== CURRENT STATE ========");
+    console.log("LOCAL TITLE: '" + localTitle + "'");
+    console.log("PARENT TITLE: '" + editTitle + "'");
+    console.log("IS EDITING: " + isEditingTitle);
+    console.log("=============================");
+  }, [localTitle, editTitle, isEditingTitle]);
+  
+  // When the parent's editTitle changes, update our local copy
+  useEffect(() => {
+    console.log("PARENT TITLE CHANGED TO: '" + editTitle + "', UPDATING LOCAL");
+    setLocalTitle(editTitle || '');
+  }, [editTitle]);
 
+  // Initialize editing timestamp when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      // Set the initial editing timestamp when modal opens
+      editingStartTimeRef.current = Date.now();
+      console.log("MODAL OPENED - SETTING EDIT START TIME: " + editingStartTimeRef.current);
+    }
+  }, [isModalOpen]);
+
+  // Focus the title input when the modal opens or when entering edit mode
   useEffect(() => {
     if (isModalOpen && isEditingTitle) {
       const timer = setTimeout(() => {
-        titleInputRef.current?.focus();
+        // Make sure we update the edit start time if we're auto-focusing
+        editingStartTimeRef.current = Date.now();
+        console.log("AUTO-FOCUSING TITLE - RESETTING EDIT START TIME: " + editingStartTimeRef.current);
+        
+        if (titleInputRef.current) {
+          titleInputRef.current.focus();
+        }
       }, 300);
       return () => clearTimeout(timer);
     }
   }, [isModalOpen, isEditingTitle]);
 
+  // Setup keyboard listeners
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
@@ -89,12 +123,17 @@ export function AddNoteSheet({
         setKeyboardHeight(event.endCoordinates.height);
       },
     );
+    
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
       () => {
         setKeyboardVisible(false);
         setKeyboardHeight(0);
-        // Removed setIsEditingTitle(false) here
+        
+        // When keyboard hides while editing title, save the title
+        if (isEditingTitle) {
+          commitTitleChange();
+        }
       }
     );
 
@@ -102,9 +141,7 @@ export function AddNoteSheet({
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, []); // Removed isEditingTitle dependency
-
-  // Removed the old useEffect for autofocus
+  }, [isEditingTitle]);
 
   const handleSelectionChange = (event: any) => {
     const newSelection = event.nativeEvent.selection;
@@ -175,12 +212,45 @@ export function AddNoteSheet({
   const contentPadding = isWeb ? 20 : isIpadDevice ? 16 : keyboardVisible ? 20 : 20;
   const bottomPadding = isIpadDevice && keyboardVisible ? 70 : 0;
 
+  // Function to commit title changes to parent state
+  const commitTitleChange = () => {
+    console.log("COMMIT TITLE CALLED");
+    console.log("TYPED TITLE: '" + localTitle + "'");
+    
+    // Calculate time since editing started
+    const timeNow = Date.now();
+    const editingStartTime = editingStartTimeRef.current;
+    const timeSinceEditingStarted = timeNow - editingStartTime;
+    
+    console.log("TIME SINCE EDITING STARTED: " + timeSinceEditingStarted + "ms");
+    
+    // If we just started editing (within the last 500ms), don't exit editing mode yet
+    if (isEditingTitle && timeSinceEditingStarted < 500) {
+      console.log("IGNORING COMMIT - TOO SOON AFTER EDITING STARTED");
+      return;
+    }
+    
+    // Always update the parent state, but display will use local state anyway
+    if (localTitle.trim()) {
+      setEditTitle(localTitle.trim());
+    }
+    
+    // Exit editing mode
+    setIsEditingTitle(false);
+  };
+
+  // When the title input changes - ONLY update local state
+  const handleTitleChange = (text: string) => {
+    console.log("TITLE CHANGE HANDLER CALLED WITH: '" + text + "'");
+    setLocalTitle(text);
+  };
+
   return (
     <Sheet
       modal
       open={isModalOpen}
       onOpenChange={handleCloseModal}
-      snapPoints={isWeb ? [85] : [90]}
+      snapPoints={isWeb ? [85] : [88]}
       dismissOnSnapToBottom
     >
       <Sheet.Overlay
@@ -190,7 +260,7 @@ export function AddNoteSheet({
         opacity={0.5}
       />
       <Sheet.Frame
-        paddingHorizontal={isIpad() ? "$4" : "$2"}
+        paddingHorizontal={isIpad() ? "$4" : "$3"}
         paddingBottom="$8"
         paddingTop={Platform.OS === 'web' ? "$2" : isIpad() ? 16 : 14} 
         backgroundColor={isDark ? "rgb(10, 10, 10)" : "#f1f1f1"}
@@ -206,39 +276,61 @@ export function AddNoteSheet({
           paddingTop="$1"
         >
           {isEditingTitle ? (
-            <DebouncedInput
-              ref={titleInputRef}
-              placeholder="Title"
-              autoCapitalize="words" 
-              value={editTitle}
-              onDebouncedChange={setEditTitle}
-              onBlur={() => setIsEditingTitle(false)} 
-              returnKeyType="done" 
-              backgroundColor="transparent"
-              borderWidth={0}
-              fontSize={24}
-              autoComplete="off"
-              style={{ flex: 1, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
-              placeholderTextColor="#aaa"
-            />
+            <XStack alignItems="center" flex={1} gap="$2" paddingHorizontal={12}>
+              <TextInput
+                ref={titleInputRef}
+                placeholder="Enter title"
+                autoCapitalize="words" 
+                value={localTitle}
+                onChangeText={handleTitleChange}
+                returnKeyType="done" 
+                onSubmitEditing={commitTitleChange}
+                style={{ 
+                  flex: 1, 
+                  paddingVertical: isIpad() ? 8 : 8,
+                  fontSize: isIpad() ? 24 : 20,
+                  fontWeight: '600',
+                  backgroundColor: 'transparent',
+                  borderWidth: 0,
+                  fontFamily: 'System',
+                  color: isDark ? '#fff' : '#000',
+                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 180 
+                }} 
+                placeholderTextColor={isDark ? "#888" : "#999"}
+              />
+              <Button
+                size={Platform.OS === 'web' ? "$1.5" : "$2"} 
+                circular
+                icon={<Check size={Platform.OS === 'web' ? 16 : 18} color={preferences.primaryColor} />} 
+                onPress={commitTitleChange}
+                backgroundColor="transparent"
+                pressStyle={{ opacity: 0.7 }}
+                aria-label="Save title"
+              />
+            </XStack>
           ) : (
-            <XStack alignItems="center" gap="$2" minHeight={44}>
+            <XStack alignItems="center" px="$2" gap={0} minHeight={44}>
               <Text
-                fontSize="$5"
+                fontSize={isIpad() ? "$5" : 20}
                 fontWeight="600"
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{ flex: 1, paddingHorizontal: 8, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
+                style={{ flex: 1, paddingHorizontal: 0, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
               >
-                {editTitle || 'Untitled'}
+                {localTitle || editTitle || 'Untitled'}
               </Text>
               <Button
                 size={Platform.OS === 'web' ? "$1.5" : "$2"} 
                 circular
                 icon={<Pencil size={Platform.OS === 'web' ? 16 : 18} />} 
-                onPress={() => setIsEditingTitle(true)}
+                onPress={() => {
+                  editingStartTimeRef.current = Date.now();
+                  console.log("EDIT TITLE BUTTON PRESSED - ENTERING EDIT MODE AT " + editingStartTimeRef.current);
+                  setIsEditingTitle(true);
+                }}
                 backgroundColor="transparent"
                 pressStyle={{ opacity: 0.7 }}
+                color={isDark ? "#555555" : "#ccc"}
                 aria-label="Edit title"
               />
             </XStack>
@@ -260,7 +352,7 @@ export function AddNoteSheet({
             style={{ flex: 1 }}
             keyboardVerticalOffset={Platform.OS === 'ios' ? -124 : 0} 
           >
-            <YStack flex={1} paddingHorizontal={isIpad() ? "$2.5" : "$2.5"}>
+            <YStack flex={1} paddingHorizontal={isIpad() ? "$2.5" : "$1.5"}>
               <RNScrollView
                 ref={scrollViewRef}
                 style={{ 
@@ -268,7 +360,7 @@ export function AddNoteSheet({
                   maxHeight: keyboardVisible
                     ? isIpadDevice
                       ? Dimensions.get('window').height * 0.495 
-                      : '48%'
+                      : '47%'
                     : '100%'
                 }}
                 contentContainerStyle={{ 
@@ -276,7 +368,7 @@ export function AddNoteSheet({
                 }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
-                keyboardDismissMode="none" // Keep keyboard open
+                keyboardDismissMode="none"
               >
                 <YStack gap={0} paddingTop={0}>
                   <YStack>
@@ -320,11 +412,11 @@ export function AddNoteSheet({
               
               <YStack 
                 style={{
-                  paddingTop: Platform.OS === 'web' ? 12 : 4, // Use Platform.OS
-                  paddingBottom: Platform.OS === 'web' ? 0 : 4, // Use Platform.OS
+                  paddingTop: Platform.OS === 'web' ? 12 : 4,
+                  paddingBottom: Platform.OS === 'web' ? 0 : 4,
                 }}
               >
-                {!keyboardVisible && // Only show buttons when keyboard is hidden
+                {!keyboardVisible &&
                 <XStack 
                   gap="$2" 
                   justifyContent="space-between" 
@@ -341,7 +433,7 @@ export function AddNoteSheet({
                         pressStyle={{ opacity: 0.7 }}
                         onPress={handleDeleteNote}
                         br={12}
-                        py={Platform.OS === 'web' ? "$1" : "$1.5"} // Use Platform.OS
+                        py={Platform.OS === 'web' ? "$1" : "$1.5"}
                         flex={1}
                       >
                         <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
@@ -352,8 +444,14 @@ export function AddNoteSheet({
                       <Button
                         backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
                         br={12}
-                        py={Platform.OS === 'web' ? "$1" : "$1.5"} // Use Platform.OS
-                        onPress={handleSaveNote}
+                        py={Platform.OS === 'web' ? "$1" : "$1.5"}
+                        onPress={() => {
+                // Make sure the title is saved before saving the entire note
+                if (localTitle.trim()) {
+                  setEditTitle(localTitle.trim());
+                }
+                handleSaveNote();
+              }}
                         pressStyle={{ opacity: 0.7 }}
                         borderWidth={2}
                         borderColor={preferences.primaryColor}
@@ -373,10 +471,16 @@ export function AddNoteSheet({
                       <Button
                         backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
                         br={12}
-                        py={Platform.OS === 'web' ? "$1" : "$1.5"} // Use Platform.OS
-                        onPress={handleSaveNote}
+                        py={Platform.OS === 'web' ? "$1" : "$1.5"}
+                        onPress={() => {
+                           // Make sure the title is saved before saving the entire note
+                           if (localTitle.trim()) {
+                             setEditTitle(localTitle.trim());
+                           }
+                           handleSaveNote();
+                         }}
                         pressStyle={{ opacity: 0.7 }}
-                      borderWidth={2}
+                        borderWidth={2}
                       borderColor={preferences.primaryColor}
                       flex={1}
                     >

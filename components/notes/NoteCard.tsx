@@ -119,7 +119,7 @@ export const NoteCard = ({
             >
               <Text
                 flex={1}
-                fontSize={isWeb ? "$5" : isIpad() ? 24 : 19}
+                fontSize={isWeb ? "$5" : isIpad() ? 22 : 19}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"
@@ -180,7 +180,7 @@ export const NoteCard = ({
                 </XStack>
                 <XStack alignItems="center" gap="$2">
                   <Text
-                    fontSize={isWeb ? 13 : isIpad() ? 14 : 10}
+                    fontSize={isWeb ? 13 : isIpad() ? 14 : 12}
                     color={colors.textSecondary}
                     fontFamily="$body"
                     flexShrink={0}
@@ -208,6 +208,7 @@ export const NoteCard = ({
                     paddingVertical="$2"
                     color={colors.text}
                     className={isWeb ? "note-text" : undefined}
+                    fontSize={isWeb ? 16 : isIpad() ? 15 : 14}
                   >
                     {displayContent || ''}
                   </Paragraph>

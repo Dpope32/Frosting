@@ -29,6 +29,7 @@ import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
 import { isIpad } from '@/utils/deviceUtils';
 import { CalendarEvent } from '@/store/CalendarStore'
+import type { Tag, Attachment } from '@/types/notes';
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
@@ -63,6 +64,10 @@ export function LandingPage() {
   const [notifyBefore, setNotifyBefore] = useState(false)
   const [notifyBeforeTime, setNotifyBeforeTime] = useState('1h')
   const [editingEvent, setEditingEvent] = useState<any>(null)
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteContent, setNoteContent] = useState('');
+  const [noteTags, setNoteTags] = useState<Tag[]>([]);
+  const [noteAttachments, setNoteAttachments] = useState<Attachment[]>([]);
 
   // Effect hooks
   React.useEffect(() => {
@@ -233,10 +238,46 @@ export function LandingPage() {
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
           <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
           <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={(name, category, notificationTimeLabel, notificationTimeValue) => { setHabitModalOpen(false)}}/>
-          <AddNoteSheet  isModalOpen={noteModalOpen} selectedNote={null}  editTitle="" editContent="" editTags={[]}
-            editAttachments={[]} handleCloseModal={() => setNoteModalOpen(false)} setEditTitle={() => {}} setEditContent={() => {}} handleTagsChange={() => {}}
-            handleSaveNote={() => setNoteModalOpen(false)} handleDeleteNote={() => {}} handleRemoveAttachment={() => {}} handleBold={() => {}} handleItalic={() => {}}
-            handleUnderline={() => {}} handleBullet={() => {}} handleCode={() => {}} handleImagePick={() => {}}
+          <AddNoteSheet 
+            isModalOpen={noteModalOpen} 
+            selectedNote={null}  
+            editTitle={noteTitle} 
+            editContent={noteContent} 
+            editTags={noteTags}
+            editAttachments={noteAttachments} 
+            handleCloseModal={() => { setNoteModalOpen(false); setNoteTitle(''); setNoteContent(''); setNoteTags([]); setNoteAttachments([]); }} 
+            setEditTitle={setNoteTitle}
+            setEditContent={setNoteContent} 
+            handleTagsChange={setNoteTags}
+            handleSaveNote={() => {
+              const noteStore = require('@/store/NoteStore').useNoteStore.getState();
+              const { showToast } = require('@/store/ToastStore').useToastStore.getState();
+              // Only save if title or content is not empty
+              if (noteTitle.trim() || noteContent.trim()) {
+                noteStore.addNote({
+                  title: noteTitle.trim() || 'Untitled',
+                  content: noteContent,
+                  tags: noteTags,
+                  attachments: noteAttachments
+                });
+                showToast('Note created successfully', 'success');
+              } else {
+                showToast('Cannot save an empty note', 'error');
+              }
+              setNoteModalOpen(false);
+              setNoteTitle('');
+              setNoteContent('');
+              setNoteTags([]);
+              setNoteAttachments([]);
+            }} 
+            handleDeleteNote={() => {}} 
+            handleRemoveAttachment={() => {}} 
+            handleBold={() => {}} 
+            handleItalic={() => {}}
+            handleUnderline={() => {}} 
+            handleBullet={() => {}} 
+            handleCode={() => {}} 
+            handleImagePick={() => {}}
           />
           <AddBillModal 
             isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}
