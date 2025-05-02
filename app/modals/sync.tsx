@@ -29,9 +29,6 @@ export default function SyncScreen() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
 
-  useEffect(() => {
-    initializeSyncService();
-  }, []);
 
   const initializeSyncService = async () => {
     try {
@@ -79,6 +76,7 @@ export default function SyncScreen() {
           lastActive: Date.now()
         }
       ]);
+      initializeSyncService();
       setIsInitialized(true);
       setModalStep('showCode');
       useToastStore.getState().showToast('Your device is ready to connect with others', 'success');

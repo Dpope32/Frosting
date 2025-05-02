@@ -94,7 +94,7 @@ export default function ChangeLog() {
             const isExpanded = expandedBullets[entry.version] || false;
             const CardTouchable = hasBullets ? TouchableOpacity : View;
             const accentColor = primaryColor || (isDark ? '#00f0ff' : '#1e4fa3');
-            const cardBg = isDark ? '#181a20' : '#f7faff';
+            const cardBg = 'transparent';
             const scaleAnim = React.useRef(new Animated.Value(1)).current;
             const handlePressIn = () => {
               Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();
@@ -114,10 +114,10 @@ export default function ChangeLog() {
             };
             const cardTouchableStyle: any = {
               flexDirection: 'row',
-              alignItems: 'stretch',
+              alignItems: 'flex-start',
               backgroundColor: cardBg,
-              borderRadius: 16,
-              overflow: 'hidden',
+              borderRadius: 0,
+              overflow: 'visible',
               minHeight: 64,
             };
             return (
@@ -130,8 +130,37 @@ export default function ChangeLog() {
                     onPressOut={hasBullets ? handlePressOut : undefined}
                     style={{ ...cardTouchableStyle } as any}
                   >
-                    <View style={{ width: 6, backgroundColor: accentColor, borderTopLeftRadius: 16, borderBottomLeftRadius: 16 }} />
-                    <YStack flex={1} padding={16}>
+                    {/* Timeline indicator (dot + vertical connector) */}
+                    <YStack
+                      width={34}
+                      alignItems="center"
+                      paddingTop={12}
+                      backgroundColor="transparent"
+                    >
+                      {/* Dot representing this version */}
+                      <View
+                        style={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: 6,
+                          backgroundColor: accentColor,
+                          borderWidth: 2,
+                          borderColor: isDark ? '#000' : '#fff',
+                        }}
+                      />
+                      {/* Vertical line connecting to next version (hidden on last item) */}
+                      {idx < CHANGELOG.length - 1 && (
+                        <View
+                          style={{
+                            width: 2,
+                            flex: 1,
+                            backgroundColor: isDark ? '#2f2f2f' : '#d0d7e2',
+                            marginTop: 2,
+                          }}
+                        />
+                      )}
+                    </YStack>
+                    <YStack flex={1} paddingVertical={12} paddingRight={16} marginLeft={4}>
                       <XStack alignItems="center" justifyContent="space-between">
                         <Text style={{
                           ...markdownStyles.heading3 as TextStyle,
@@ -195,7 +224,7 @@ export default function ChangeLog() {
                             paddingLeft={10}
                             paddingBottom={0}
                             borderRadius={8}
-                            backgroundColor={isDark ? '#222' : '#e5edff'}
+                            backgroundColor={isDark ? '#1c1c1c' : '#f0f5ff'}
                           >
                             {entry.bullets.map((bullet, idx2) => (
                               <XStack key={idx2} alignItems="flex-start" marginBottom={idx2 === entry.bullets.length - 1 ? 0 : 4}>

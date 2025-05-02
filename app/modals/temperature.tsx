@@ -80,48 +80,108 @@ function getWeatherIcon(shortForecast: string): string {
   return "🌡";
 }
 
-function getCardBackground(shortForecast: string, isDark: boolean, precipitation = 0): string {
+// Utility: lighten or darken a hex colour by a percentage
+function adjustColor(hex: string, percent: number): string {
+  // Clamp percent between -1 and 1
+  const p = Math.max(-1, Math.min(1, percent));
+  // Remove # if present
+  const cleanHex = hex.replace('#', '');
+  // Parse r g b
+  const num = parseInt(cleanHex.length === 3 ? cleanHex.split('').map(c => c + c).join('') : cleanHex, 16);
+  let r = (num >> 16) & 0xff;
+  let g = (num >> 8) & 0xff;
+  let b = num & 0xff;
+
+  // Apply adjustment
+  r = Math.round(r + (p < 0 ? r * p : (255 - r) * p));
+  g = Math.round(g + (p < 0 ? g * p : (255 - g) * p));
+  b = Math.round(b + (p < 0 ? b * p : (255 - b) * p));
+
+  const toHex = (v: number) => v.toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+// Blend two hex colours by a factor (0 -> color1, 1 -> color2)
+function mixColors(hex1: string, hex2: string, factor: number): string {
+  const clamp = (n: number) => Math.min(255, Math.max(0, n));
+  const parseHex = (h: string) => {
+    const clean = h.replace('#','');
+    const num = parseInt(clean.length === 3 ? clean.split('').map(c=>c+c).join('') : clean, 16);
+    return { r: (num>>16)&0xff, g:(num>>8)&0xff, b:num&0xff };
+  };
+  const c1 = parseHex(hex1);
+  const c2 = parseHex(hex2);
+  const r = clamp(Math.round(c1.r + (c2.r - c1.r) * factor));
+  const g = clamp(Math.round(c1.g + (c2.g - c1.g) * factor));
+  const b = clamp(Math.round(c1.b + (c2.b - c1.b) * factor));
+  const toHex = (v: number) => v.toString(16).padStart(2,'0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+type TempParam = number | null | undefined;
+
+function getCardBackground(
+  shortForecast: string,
+  isDark: boolean,
+  precipitation = 0,
+  temperature: TempParam = undefined
+): string {
   const forecast = shortForecast.toLowerCase();
-  
+
+  // Helper to pick a base then tweak depending on precipitation (rain/snow) or theme
+  const tune = (baseLight: string, baseDark: string, factor = 0) =>
+    isDark ? adjustColor(baseDark, factor) : adjustColor(baseLight, factor);
+
+  // Util to map temperature 45F-100F -> 0-1
+  const tempFactor = typeof temperature === 'number' ? Math.min(1, Math.max(0, (temperature - 45) / 55)) : 0;
+
+  // Thunderstorm – deep indigo / electric purple
   if (forecast.includes('thunderstorm')) {
-    return isDark ? '#0C1836' : '#1E3A8A';
+    // Slightly brighten as precipitation climbs (more lightning means brighter)
+    const pct = precipitation / 100;
+    return tune('#4F46E5', '#312E81', pct * 0.25);
   }
-  
+
+  // Rain / Showers – steel blue range, darker with higher precipitation
   if (forecast.includes('rain') || forecast.includes('shower')) {
-    const intensity = Math.min(1, (precipitation / 100) * 0.7 + 0.3);
-    
-    if (isDark) {
-      const base = 30;
-      const r = Math.floor(base * intensity * 0.7);
-      const g = Math.floor(base * intensity * 0.8);
-      const b = Math.floor(60 * intensity);
-      return `rgb(${r},${g},${b})`;
-    } else {
-      const base = 180;
-      const r = Math.floor(base - (base * intensity * 0.3));
-      const g = Math.floor(base - (base * intensity * 0.2));
-      const b = Math.floor(base - (base * intensity * 0.1));
-      return `rgb(${r},${g},${b})`;
-    }
+    const pct = precipitation / 100;
+    // For dark mode darken, for light mode darken a touch as well
+    return tune('#93C5FD', '#1E3A8A', -pct * 0.35);
   }
-  
+
+  // Wind – teal / sky
   if (forecast.includes('wind')) {
-    return isDark ? '#193548' : '#BAE6FD';
+    return tune('#A5F3FC', '#164E63');
   }
-  
-  if (forecast.includes('sun') || forecast.includes('clear')) {
-    return isDark ? '#1E40AF' : '#60A5FA';
-  }
-  
+
+  // Snow – icy light blue / slate
   if (forecast.includes('snow')) {
-    return isDark ? '#1E293B' : '#E0F2FE';
+    const pct = precipitation / 100;
+    return tune('#E0F2FE', '#1E293B', -pct * 0.2);
   }
-  
+
+  // Clouds – warm grey palette
   if (forecast.includes('cloud')) {
-    return isDark ? '#374151' : '#F3F4F6';
+    return tune('#E5E7EB', '#374151');
   }
-  
-  return isDark ? 'rgba(30,41,59,0.9)' : 'rgba(243,244,246,0.9)';
+
+  // Use sky blue palette for sunny variants — background stays blue; sun is indicated by overlay/icon
+  const baseSky = tune('#93C5FD', '#1E3A8A');
+
+  if (forecast.includes('mostly sunny')) {
+    return adjustColor(baseSky, -0.05); // slightly deeper blue
+  }
+
+  if (forecast.includes('partly sunny')) {
+    return adjustColor(baseSky, 0.06); // slightly lighter blue
+  }
+
+  if (forecast.includes('sun') || forecast.includes('clear')) {
+    return baseSky;
+  }
+
+  // Default – subtle slate
+  return isDark ? '#1E293B' : '#F3F4F6';
 }
 
 function getTextColorForBackground(backgroundColor: string): string {
@@ -234,7 +294,12 @@ export default function TemperatureScreen() {
   }
 
   const todayPrecipitation = todayForecast.probabilityOfPrecipitation?.value ?? 0;
-  const todayCardBg = getCardBackground(todayForecast.shortForecast, isDark, todayPrecipitation);
+  const todayCardBg = getCardBackground(
+    todayForecast.shortForecast,
+    isDark,
+    todayPrecipitation,
+    todayForecast.temperature ?? undefined
+  );
   const todayTextColor = getTextColorForBackground(todayCardBg);
   const todayForecastLower = todayForecast.shortForecast.toLowerCase();
   const todayIsCloudy = todayForecastLower.includes('cloudy');
@@ -376,7 +441,12 @@ export default function TemperatureScreen() {
               if (idx === 0) return null;
               const dayPeriod = daily.dayPeriod;
               const precipitationValue = dayPeriod.probabilityOfPrecipitation?.value ?? 0;
-              const cardBg = getCardBackground(dayPeriod.shortForecast, isDark, precipitationValue);
+              const cardBg = getCardBackground(
+                dayPeriod.shortForecast,
+                isDark,
+                precipitationValue,
+                daily.highTemp
+              );
               const textColor = getTextColorForBackground(cardBg);
               const forecastLower = dayPeriod.shortForecast.toLowerCase();
               const isCloudy = forecastLower.includes('cloudy');

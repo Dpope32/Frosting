@@ -13,8 +13,7 @@ export function YearCompleteSection() {
     const diff = Number(now) - Number(start);
     const oneDay = 1000 * 60 * 60 * 24;
     const day = Math.floor(diff / oneDay);
-    const isLeapYear = now.getFullYear() % 4 === 0 && 
-      (now.getFullYear() % 100 !== 0 || now.getFullYear() % 400 === 0);
+    const isLeapYear = now.getFullYear() % 4 === 0 && (now.getFullYear() % 100 !== 0 || now.getFullYear() % 400 === 0);
     const daysInYear = isLeapYear ? 366 : 365;
     const percent = Math.round((day / daysInYear) * 100);
     const currentYear = now.getFullYear();
@@ -25,7 +24,6 @@ export function YearCompleteSection() {
       currentYear,
     };
   }, []);
-
 
   if (Platform.OS === 'web') {
     return null;
