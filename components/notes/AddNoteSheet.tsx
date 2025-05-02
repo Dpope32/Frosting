@@ -71,15 +71,7 @@ export function AddNoteSheet({
   
   // IMPORTANT: Keep a local copy of the title to edit
   const [localTitle, setLocalTitle] = useState(editTitle || '');
-  
-  // Debug current state
-  useEffect(() => {
-    console.log("======== CURRENT STATE ========");
-    console.log("LOCAL TITLE: '" + localTitle + "'");
-    console.log("PARENT TITLE: '" + editTitle + "'");
-    console.log("IS EDITING: " + isEditingTitle);
-    console.log("=============================");
-  }, [localTitle, editTitle, isEditingTitle]);
+
   
   // When the parent's editTitle changes, update our local copy
   useEffect(() => {
@@ -360,7 +352,7 @@ export function AddNoteSheet({
                   maxHeight: keyboardVisible
                     ? isIpadDevice
                       ? Dimensions.get('window').height * 0.495 
-                      : '47%'
+                      : '50%'
                     : '100%'
                 }}
                 contentContainerStyle={{ 

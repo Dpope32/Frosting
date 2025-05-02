@@ -172,7 +172,6 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
           disableFullscreenUI: true,
           maxLength: 100000,
           textContentType: 'none',
-          caratDisabled: false,
           caretColor: isDark ? '#4a8fff' : '#2271b1',
           selectionColor: isDark ? '#4a8fff' : '#2271b1',
           selectionHandleColor: isDark ? '#4a8fff' : '#2271b1',
