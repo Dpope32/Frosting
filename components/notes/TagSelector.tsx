@@ -6,6 +6,7 @@ import type { Tag } from '@/types/notes';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DebouncedInput } from '../shared/debouncedInput';
 import { isIpad } from '@/utils/deviceUtils';
+import { useTagStore } from '@/store/TagStore';
 
 interface TagSelectorProps {
   tags: Tag[];
@@ -47,6 +48,16 @@ export function TagSelector({
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isWeb = Platform.OS === 'web';
+  const tagStoreTags = useTagStore((state) => state.tags);
+  const addTagToStore = useTagStore((state) => state.addTag);
+
+  const NEUTRAL_BORDER = isDark ? '#555555' : '#ccc';
+  const NEUTRAL_TEXT = isDark ? '#e0e0e0' : '#333';
+
+  // Suggested tags are those in the store but not already on this note
+  const suggestedTags = tagStoreTags.filter(
+    (storeTag) => !tags.some((t) => t.name === storeTag.name)
+  );
 
   // Handle keyboard visibility
   useEffect(() => {
@@ -76,14 +87,12 @@ export function TagSelector({
 
   const handleAddTag = () => {
     if (newTagName.trim() === '') return;
-    
-    const newTag: Tag = {
-      id: Date.now().toString(),
-      name: newTagName.trim(),
-      color: selectedColor
-    };
-    
-    onTagsChange([...tags, newTag]);
+    // Check if tag already exists in store
+    let tag = tagStoreTags.find((t) => t.name === newTagName.trim());
+    if (!tag) {
+      tag = addTagToStore(newTagName.trim(), selectedColor);
+    }
+    onTagsChange([...tags, tag]);
     setNewTagName('');
     setIsAdding(false);
   };
@@ -102,23 +111,24 @@ export function TagSelector({
       paddingHorizontal={8}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        <Text fontSize="$4" mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="600" color={isDark ? '#555555' : '#ccc'}>Tags:</Text>
+        {!isAdding && <Text fontSize="$4" mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="600" color={isDark ? '#555555' : '#ccc'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
           {tags.map(tag => (
             <XStack
               key={tag.id}
-              backgroundColor={`${tag.color}30`}
-              borderRadius="$4"
-              paddingVertical="$1"
-              paddingHorizontal="$2"
+              backgroundColor={isDark ? '#222' : '#f5f5f5'}
+              borderRadius={16}
+              paddingVertical={4}
+              paddingHorizontal={2}
+              paddingLeft={10}
               alignItems="center"
               gap="$1"
               borderWidth={1}
-              borderColor={tag.color}
+              borderColor={tag.color || NEUTRAL_BORDER}
             >
               <Text 
                 fontSize="$3" 
-                color={darkenColor(tag.color)}
+                color={tag.color || NEUTRAL_TEXT}
                 fontWeight="700"
                 fontFamily="$body"
               >
@@ -127,12 +137,30 @@ export function TagSelector({
               <Button
                 size="$1"
                 circular
-                icon={<X size={12} color={isDark ? "white" : tag.color} />}
+                icon={<X size={12} color={tag.color || NEUTRAL_BORDER} />}
                 onPress={() => handleRemoveTag(tag.id)}
                 backgroundColor="transparent"
                 padding="$0"
               />
             </XStack>
+          ))}
+          {/* Suggested tags from store */}
+          {!isAdding && suggestedTags.map(tag => (
+            <Button
+              key={tag.id}
+              size="$2"
+              backgroundColor={isDark ? '#222' : '#f5f5f5'}
+              borderColor={NEUTRAL_BORDER}
+              borderWidth={1}
+              borderRadius={16}
+              marginLeft={4}
+              onPress={() => onTagsChange([...tags, tag])}
+              pressStyle={{ opacity: 0.7 }}
+              paddingHorizontal={10}
+              paddingVertical={2}
+            >
+              <Text color={NEUTRAL_TEXT} fontWeight="700" fontSize="$3">{tag.name}</Text>
+            </Button>
           ))}
           {!isAdding && (
             keyboardVisible ? (
@@ -165,19 +193,19 @@ export function TagSelector({
       {isAdding && (
         <YStack gap={isWeb ? "$4" : "$3"}>
           <XStack alignItems="center" gap={isWeb ? "$3" : "$2"}>
-            <XStack position="relative" width={150}>
+            <XStack position="relative" width={125}>
               <DebouncedInput
                 width="100%"
-                placeholder="Tag name"
+                placeholder="Tag Name"
                 value={newTagName}
-                mt={isWeb ? 0 : 6}
+                mt={isWeb ? 0 : 0}
                 onChangeText={setNewTagName}
                 autoFocus
                 fontSize="$3"
                 onSubmitEditing={handleAddTag}
                 onDebouncedChange={setNewTagName}
                 paddingRight="$4"
-                backgroundColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}
+                backgroundColor={isDark ? "rgba(255,255,255,0.0)" : "rgba(0,0,0,0.00)"}
                 borderWidth={1}
                 borderColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}
                 borderRadius={4}

@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.1.107',
+    date: '2025-05-01',
+    notes: 'Smarter Tags & Smoother Inputs',
+    bullets: [
+      'Tags are now saved and persist across sessions',
+      'Most input fields now auto-focus for faster entry',
+      'Fixed a bug where new notes with titles would default to "Untitled"',
+      'Updated toast notifications with a fresh color',
+    ],
+  },
+  {
     version: '1.1.102',
     date: '2025-05-01',
     notes: 'Custom Categories!',
@@ -11,7 +22,7 @@ export const CHANGELOG = [
   },
   {
     version: '1.1.100',
-    notes: 'Added Floating Action Button to the Home screen',
+    notes: 'A New Way to Navigate: Floating Action Button',
     bullets: [
       'Patched notification bug',
       'New FAB includes CRUD operations for 7 features',
@@ -66,7 +77,7 @@ export const CHANGELOG = [
     {
       version: '1.1.81',
       date: '2025-03-20',
-      notes: 'Refactored New Todo Modal',
+      notes: 'Todo Creation, Now Smoother Than Ever',
       bullets: [
         'Patched time picker bug on mobile',
         'Easier to add/remove devices',
@@ -76,7 +87,7 @@ export const CHANGELOG = [
     },
     {
       version: '1.1.77',
-      notes: 'Optimized App initialization',
+      notes: 'Faster Launch, Better Reliability',
       bullets: [
         'Cut app startup time by 25-30% by lazy loading Home screen',
         'Improved error reporting (sentry)',
@@ -122,17 +133,6 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.60',
-      notes: 'Performance and dependency optimizations',
-      date: '2025-3-20',
-      bullets: [
-        'Reduced bundle size by removing unused packages',
-        'Optimized wallpaper caching and loading',
-        'Improved app startup speed',
-        'Fixed slow wallpaper switching during onboarding',
-      ],
-    },
-    {
       version: '1.1.59',
       notes: 'Refactored modals and improved CRM',
       bullets: [
@@ -143,19 +143,9 @@ export const CHANGELOG = [
       ],
     },
     {
-      version: '1.1.58',
-      notes: 'Notes drag & drop and bug fixes',
-      bullets: [
-        'Implemented cross-platform drag and drop for notes',
-        'Improved note reordering UX',
-        'Fixed settings modal wallpaper bug',
-        'Resolved Sentry error for invalid wallpaper path',
-      ],
-    },
-    {
       version: '1.1.55',
       date: '2025-01-10',
-      notes: 'General improvements and code cleanup',
+      notes: 'Under the Hood: Stability & Cleanup',
       bullets: [
         'Optimized state management with Zustand',
         'Improved error handling in global ErrorBoundary',

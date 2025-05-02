@@ -30,6 +30,8 @@ import { AssetSection } from '@/components/home/AssetSection'
 import { isIpad } from '@/utils/deviceUtils';
 import { CalendarEvent } from '@/store/CalendarStore'
 import type { Tag, Attachment } from '@/types/notes';
+import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services/noteService';
+import { createFormattingHandler } from '@/services/noteService2';
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
@@ -68,6 +70,12 @@ export function LandingPage() {
   const [noteContent, setNoteContent] = useState('');
   const [noteTags, setNoteTags] = useState<Tag[]>([]);
   const [noteAttachments, setNoteAttachments] = useState<Attachment[]>([]);
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const handleBold = createFormattingHandler(formatBold, selection, setNoteContent);
+  const handleItalic = createFormattingHandler(formatItalic, selection, setNoteContent);
+  const handleUnderline = createFormattingHandler(formatUnderline, selection, setNoteContent);
+  const handleCode = createFormattingHandler(formatCode, selection, setNoteContent);
+  const handleBullet = createFormattingHandler(formatBullet, selection, setNoteContent);
 
   // Effect hooks
   React.useEffect(() => {
@@ -255,7 +263,7 @@ export function LandingPage() {
               // Only save if title or content is not empty
               if (noteTitle.trim() || noteContent.trim()) {
                 noteStore.addNote({
-                  title: noteTitle.trim() || 'Untitled',
+                  title: noteTitle,
                   content: noteContent,
                   tags: noteTags,
                   attachments: noteAttachments
@@ -272,12 +280,13 @@ export function LandingPage() {
             }} 
             handleDeleteNote={() => {}} 
             handleRemoveAttachment={() => {}} 
-            handleBold={() => {}} 
-            handleItalic={() => {}}
-            handleUnderline={() => {}} 
-            handleBullet={() => {}} 
-            handleCode={() => {}} 
+            handleBold={handleBold}
+            handleItalic={handleItalic}
+            handleUnderline={handleUnderline}
+            handleBullet={handleBullet}
+            handleCode={handleCode}
             handleImagePick={() => {}}
+            onSelectionChange={e => setSelection(e.nativeEvent.selection)}
           />
           <AddBillModal 
             isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}

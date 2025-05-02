@@ -84,7 +84,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
 
   const backgroundMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(34, 197, 94, 0.07)' : 'rgba(34, 197, 94, 0.15)',
+    success: isDark ? 'rgba(34, 197, 94, 0.7)' : 'rgba(34, 197, 94, 0.35)',
     error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
@@ -98,7 +98,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
    
   const borderColorMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(34,197,94,0.07)' : 'rgba(34,197,94,0.15)',
+    success: isDark ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)',
     error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
@@ -127,7 +127,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
       }}
     >
       <BlurView
-        intensity={isDark ? 70 : 20}
+        intensity={isDark ? 40 : 20}
         tint={isDark ? 'dark' : 'light'}
         style={{
           flexDirection: 'row',

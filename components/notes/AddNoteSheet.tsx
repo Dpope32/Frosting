@@ -68,38 +68,23 @@ export function AddNoteSheet({
   const isIpadDevice = isIpad();
   const [isEditingTitle, setIsEditingTitle] = useState(true);
   const editingStartTimeRef = useRef<number>(0);
+  const autoCommitTimer = useRef<NodeJS.Timeout | null>(null);
   
   // IMPORTANT: Keep a local copy of the title to edit
   const [localTitle, setLocalTitle] = useState(editTitle || '');
 
-  
-  // When the parent's editTitle changes, update our local copy
   useEffect(() => {
-    console.log("PARENT TITLE CHANGED TO: '" + editTitle + "', UPDATING LOCAL");
     setLocalTitle(editTitle || '');
   }, [editTitle]);
 
-  // Initialize editing timestamp when modal opens
-  useEffect(() => {
-    if (isModalOpen) {
-      // Set the initial editing timestamp when modal opens
-      editingStartTimeRef.current = Date.now();
-      console.log("MODAL OPENED - SETTING EDIT START TIME: " + editingStartTimeRef.current);
-    }
-  }, [isModalOpen]);
-
-  // Focus the title input when the modal opens or when entering edit mode
+  // Focus the title input when the modal opens or when entering edit mode (after 500ms)
   useEffect(() => {
     if (isModalOpen && isEditingTitle) {
       const timer = setTimeout(() => {
-        // Make sure we update the edit start time if we're auto-focusing
-        editingStartTimeRef.current = Date.now();
-        console.log("AUTO-FOCUSING TITLE - RESETTING EDIT START TIME: " + editingStartTimeRef.current);
-        
         if (titleInputRef.current) {
           titleInputRef.current.focus();
         }
-      }, 300);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [isModalOpen, isEditingTitle]);
@@ -121,10 +106,12 @@ export function AddNoteSheet({
       () => {
         setKeyboardVisible(false);
         setKeyboardHeight(0);
-        
-        // When keyboard hides while editing title, save the title
-        if (isEditingTitle) {
-          commitTitleChange();
+        // When keyboard hides while editing title, auto-commit after 1s
+        if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
+          if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
+          autoCommitTimer.current = setTimeout(() => {
+            if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) commitTitleChange();
+          }, 1000);
         }
       }
     );
@@ -132,6 +119,7 @@ export function AddNoteSheet({
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
+      if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
     };
   }, [isEditingTitle]);
 
@@ -155,7 +143,6 @@ export function AddNoteSheet({
 
   const renderAttachments = () => {
     if (editAttachments.length === 0) return null;
-    
     return (
       <YStack gap="$2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -206,36 +193,60 @@ export function AddNoteSheet({
 
   // Function to commit title changes to parent state
   const commitTitleChange = () => {
-    console.log("COMMIT TITLE CALLED");
-    console.log("TYPED TITLE: '" + localTitle + "'");
     
     // Calculate time since editing started
     const timeNow = Date.now();
     const editingStartTime = editingStartTimeRef.current;
     const timeSinceEditingStarted = timeNow - editingStartTime;
     
-    console.log("TIME SINCE EDITING STARTED: " + timeSinceEditingStarted + "ms");
-    
     // If we just started editing (within the last 500ms), don't exit editing mode yet
     if (isEditingTitle && timeSinceEditingStarted < 500) {
-      console.log("IGNORING COMMIT - TOO SOON AFTER EDITING STARTED");
       return;
     }
-    
-    // Always update the parent state, but display will use local state anyway
-    if (localTitle.trim()) {
+    // Only commit if the title is not empty and has changed
+    if (localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
       setEditTitle(localTitle.trim());
+      setIsEditingTitle(false);
+    } else if (!localTitle.trim()) {
+      // If title is empty, do not exit editing mode
+      return;
+    } else {
+      // If title hasn't changed, just exit editing mode
+      setIsEditingTitle(false);
     }
-    
-    // Exit editing mode
-    setIsEditingTitle(false);
   };
 
   // When the title input changes - ONLY update local state
   const handleTitleChange = (text: string) => {
-    console.log("TITLE CHANGE HANDLER CALLED WITH: '" + text + "'");
     setLocalTitle(text);
   };
+
+  // Add onBlur to title input to auto-commit after 1s
+  const handleTitleBlur = () => {
+    // Only auto-commit if the title is not empty and has changed
+    if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
+      if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
+      autoCommitTimer.current = setTimeout(() => {
+        if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) commitTitleChange();
+      }, 1000);
+    }
+  };
+
+  // Clear timer if editing resumes
+  useEffect(() => {
+    if (isEditingTitle && autoCommitTimer.current) {
+      clearTimeout(autoCommitTimer.current);
+      autoCommitTimer.current = null;
+    }
+  }, [isEditingTitle]);
+
+  // Reset local title and editing state when modal is opened
+  useEffect(() => {
+    if (isModalOpen) {
+      setLocalTitle(editTitle || '');
+      setIsEditingTitle(true);
+    }
+  }, [isModalOpen]);
 
   return (
     <Sheet
@@ -250,11 +261,12 @@ export function AddNoteSheet({
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
         opacity={0.5}
+        backgroundColor={isDark ? "rgba(0,0,0,0.9)" : "rgba(0,0,0,0.5)"}
       />
       <Sheet.Frame
-        paddingHorizontal={isIpad() ? "$4" : "$3"}
+        paddingHorizontal={isIpad() ? "$4" : "$3.5"}
         paddingBottom="$8"
-        paddingTop={Platform.OS === 'web' ? "$2" : isIpad() ? 16 : 14} 
+        paddingTop={Platform.OS === 'web' ? "$2" : isIpad() ? 20 : 18} 
         backgroundColor={isDark ? "rgb(10, 10, 10)" : "#f1f1f1"}
         maxWidth={Platform.OS === 'web' ? 600 : "100%"} 
         width={Platform.OS === 'web' ? 600 : "100%"} 
@@ -277,6 +289,7 @@ export function AddNoteSheet({
                 onChangeText={handleTitleChange}
                 returnKeyType="done" 
                 onSubmitEditing={commitTitleChange}
+                onBlur={handleTitleBlur}
                 style={{ 
                   flex: 1, 
                   paddingVertical: isIpad() ? 8 : 8,
@@ -286,7 +299,9 @@ export function AddNoteSheet({
                   borderWidth: 0,
                   fontFamily: 'System',
                   color: isDark ? '#fff' : '#000',
-                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 180 
+                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 150,
+                  borderBottomWidth: 1,
+                  borderBottomColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
                 }} 
                 placeholderTextColor={isDark ? "#888" : "#999"}
               />
@@ -307,19 +322,15 @@ export function AddNoteSheet({
                 fontWeight="600"
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{ flex: 1, paddingHorizontal: 0, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 220 }} 
+                style={{ flex: 1, paddingHorizontal: 6, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 150 }} 
               >
                 {localTitle || editTitle || 'Untitled'}
               </Text>
               <Button
-                size={Platform.OS === 'web' ? "$1.5" : "$2"} 
+                size={Platform.OS === 'web' ? "$1.5" : "$1"} 
                 circular
                 icon={<Pencil size={Platform.OS === 'web' ? 16 : 18} />} 
-                onPress={() => {
-                  editingStartTimeRef.current = Date.now();
-                  console.log("EDIT TITLE BUTTON PRESSED - ENTERING EDIT MODE AT " + editingStartTimeRef.current);
-                  setIsEditingTitle(true);
-                }}
+                onPress={() => { setIsEditingTitle(true) }}
                 backgroundColor="transparent"
                 pressStyle={{ opacity: 0.7 }}
                 color={isDark ? "#555555" : "#ccc"}
@@ -338,7 +349,7 @@ export function AddNoteSheet({
         </XStack>
         
         <View style={{flex: 1}}>
-          <View style={{ height: 1, marginVertical: 12, marginHorizontal: -10 }} />
+          <View style={{ height: 1, marginVertical: isIpad() ? 10 : 6, marginHorizontal: -10 }} />
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
@@ -363,9 +374,7 @@ export function AddNoteSheet({
                 keyboardDismissMode="none"
               >
                 <YStack gap={0} paddingTop={0}>
-                  <YStack>
                     <TagSelector tags={editTags} onTagsChange={handleTagsChange} />
-                  </YStack>
                   <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', marginVertical: 12, marginHorizontal: -10 }} />
                   <YStack>
                     <ContentInput
@@ -438,12 +447,11 @@ export function AddNoteSheet({
                         br={12}
                         py={Platform.OS === 'web' ? "$1" : "$1.5"}
                         onPress={() => {
-                // Make sure the title is saved before saving the entire note
-                if (localTitle.trim()) {
-                  setEditTitle(localTitle.trim());
-                }
-                handleSaveNote();
-              }}
+                        if (localTitle.trim()) {
+                          setEditTitle(localTitle.trim());
+                        }
+                        handleSaveNote();
+                      }}
                         pressStyle={{ opacity: 0.7 }}
                         borderWidth={2}
                         borderColor={preferences.primaryColor}
