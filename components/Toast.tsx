@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { useToastStore } from '@/store/ToastStore'
 import { isIpad } from '@/utils/deviceUtils'
+import { useColorScheme } from '@/hooks/useColorScheme'
 const { height, width } = Dimensions.get('window')
 
 const toastStyle = {
@@ -21,11 +22,13 @@ const toastStyle = {
 
 export function Toast() {
   const { toasts, removeToast } = useToastStore()
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
 
   return (
     <YStack {...toastStyle} gap="$2">
       {toasts.map((toast) => (
-        <ToastItem key={toast.id} {...toast} onRemove={removeToast} />
+        <ToastItem key={toast.id} {...toast} onRemove={removeToast} isDark={isDark} />
       ))}
     </YStack>
   )
@@ -84,10 +87,10 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
 
   const backgroundMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(34, 197, 94, 0.7)' : 'rgba(34, 197, 94, 0.35)',
-    error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
-    info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
-    warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
+    success: isDark ? 'rgba(10, 55, 32, 0.95)' : 'rgba(16, 91, 44, 0.35)',
+    error: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(239,68,68,0.15)',
+    info: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(59,130,246,0.15)',
+    warning: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(245,158,11,0.15)',
   }
 
   const iconMap: Record<ToastType, any> = {
@@ -127,14 +130,14 @@ const ToastItem: React.FC<ToastItemProps> = ({
       }}
     >
       <BlurView
-        intensity={isDark ? 40 : 20}
+        intensity={isDark ? 50 : 20}
         tint={isDark ? 'dark' : 'light'}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           paddingHorizontal: isLarge ? 14 : 12,
           paddingVertical: isLarge ? 14 : 12,  
-          backgroundColor,
+          backgroundColor: backgroundColor,
           borderRadius: 8,
           borderBlockColor: borderColorMap[type],
           borderWidth: 3,

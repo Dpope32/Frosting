@@ -147,8 +147,8 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       >
         <View
           borderRadius={12}
-          padding={ isWeb ? "$4" : "$2"}
-          marginVertical="$2"
+          paddingHorizontal={ isWeb ? "$4" : "$3"}
+          paddingVertical={ isWeb ? "$4" : "$1"}
         >
           <YStack gap="$4">
             <Animated.View entering={FadeInDown.delay(100).duration(500)}>
@@ -167,7 +167,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   width="75%"
                   fontSize={isWeb ? "$5" : "$4"}
                 />
-                <XStack alignItems="center" flex={1} justifyContent="flex-end" paddingHorizontal="$1">
+                <XStack alignItems="center" flex={1} justifyContent="flex-end" paddingLeft="$1" paddingRight="$2">
                   <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$6" : "$4"} fontWeight="500">
                     ${formattedAmount}
                   </Text>
@@ -177,7 +177,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
 
             <Animated.View entering={FadeInDown.delay(200).duration(500)}>
               <XStack gap="$5" alignItems="flex-start" justifyContent="flex-start"  paddingHorizontal="$1">
-                <XStack alignItems="flex-start" width="30%">
+                <XStack alignItems="flex-start" width="40%">
                   <Input
                     ref={amountInputRef}
                     placeholder="Amount"

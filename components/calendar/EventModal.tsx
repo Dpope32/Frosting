@@ -17,7 +17,7 @@ import { BaseCardAnimated } from '../cardModals/BaseCardAnimated'
 import { styles } from './EventStyles'
 import { EventModalProps } from '../../types/modal'
 import { NOTIFICATION_TIME_OPTIONS } from '@/constants/notifications'
-
+import { isIpad } from '@/utils/deviceUtils'
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,
   isViewEventModalVisible,
@@ -224,7 +224,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 style={[
                   styles.input,
                   {
-                    backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                    backgroundColor: isDark ? '#222222' : '#f5f5f5',
                     color: textColor,
                     borderColor: isDark ? '#444444' : '#dddddd'
                   }
@@ -239,14 +239,14 @@ export const EventModal: React.FC<EventModalProps> = ({
                 style={[
                   {
                     backgroundColor: 'transparent',
-                    borderBottomWidth: 1,
-                    borderBottomColor: isDark ? '#555555' : '#cccccc',
+                    borderWidth: 1,
+                    borderColor: isDark ? '#555555' : '#cccccc',
+                    borderRadius: 8,
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    paddingVertical: 10,
-                    paddingHorizontal: 5,
-                    marginBottom: 20,
+                    paddingVertical: 8,
+                    paddingHorizontal: 10,
                   }
                 ]}
                 onPress={() => setShowTimePicker(true)}
@@ -256,13 +256,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </Text>
                 <Ionicons name="time-outline" size={20} color={primaryColor} />
               </TouchableOpacity>
-
-              <Text style={[styles.sectionTitle, { color: textColor }]}></Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
-                <XStack gap="$2">
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingTop: 16 }}>
+                <XStack gap={isIpad() ? "$2" : "$1"}>
                   {['personal', 'work', 'family', 'task', 'health'].map((type) => {
                     const color = getCategoryColor(type as TaskCategory);
-                    
                     return (
                       <TouchableOpacity
                         key={type}
@@ -279,7 +276,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                               : isDark ? '#444444' : '#dddddd',
                             borderRadius: 20,
                             paddingHorizontal: 12,
-                            paddingVertical: 8
+                            paddingVertical: 12
                           }
                         ]}
                         onPress={() => setSelectedType(type as CalendarEvent['type'])}
@@ -306,7 +303,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 style={[
                   styles.notificationContainer,
                   {
-                    backgroundColor: isDark ? '#333333' : '#f5f5f5',
+                    backgroundColor: isDark ? 'transparent' : '#f5f5f5',
                     borderColor: isDark ? '#444444' : '#dddddd'
                   }
                 ]}

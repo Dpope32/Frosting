@@ -149,7 +149,7 @@ export function BaseCardAnimated({
               ]}
               onTouchEnd={(e) => e.stopPropagation()}
             >
-              <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={2} px="$2" alignItems="center">
+              <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={2} pl={isIpad() ? "$2" : "$3"} pr={isIpad() ? "$2" : "$2"} alignItems="center">
                 <Text
                   fontSize={20}
                   fontWeight="700"
@@ -165,7 +165,7 @@ export function BaseCardAnimated({
                     onPress={onClose} 
                     padding={8}
                     pressStyle={{ opacity: 0.7 }}
-                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#c9c9c9" : "#000"}/>}
                   />
                 )}
               </XStack>

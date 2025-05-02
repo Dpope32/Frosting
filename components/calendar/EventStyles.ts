@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+import { isIpad } from '@/utils/deviceUtils'
 
 export const styles = StyleSheet.create({
   modalOverlay: {
@@ -17,11 +18,11 @@ export const styles = StyleSheet.create({
     elevation: 5
   },
   headerContainer: {
-    padding: 16,
+    padding: isIpad() ? 16 : 8,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
-    marginTop: 12,
-    marginBottom: -12
+    marginTop: isIpad() ? 12 : 8,
+    marginBottom: isIpad() ? -12 : -8
   },
   headerText: {
     fontSize: 18,
@@ -29,7 +30,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center'
   },
   formContainer: {
-    padding: 8,
+    padding: 2,
   },
   input: {
     borderWidth: 1,
@@ -62,8 +63,9 @@ export const styles = StyleSheet.create({
   notificationContainer: {
     borderWidth: 1,
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    marginBottom: 12
   },
   switchRow: {
     flexDirection: 'row',
@@ -80,7 +82,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0)',
+    backgroundColor: 'rgba(255, 255, 255, 0.0)',
     marginTop: 6,
     borderWidth: 1
   },
@@ -97,13 +99,13 @@ export const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 8,
-    paddingTop: 16,
+    padding: 2,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.1)'
   },
   button: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 12,
     borderRadius: 8,
     minWidth: 100,
