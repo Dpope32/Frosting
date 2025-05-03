@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { ScrollView, useColorScheme, Platform } from 'react-native'
-import { YStack, Button, isWeb } from 'tamagui'
+import { YStack, Button, isWeb, XStack } from 'tamagui'
 import { useVault } from '@/hooks/useVault'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal'
-import { Plus } from '@tamagui/lucide-icons'
+import { Plus, Database, Trash } from '@tamagui/lucide-icons'
 import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal'
 import { VaultCard } from '@/components/vault/VaultCard'
 import { VaultEmpty } from '@/components/vault/VaultEmpty'
+import { isIpad } from '@/utils/deviceUtils'
+import { useOrientationStore } from '@/store/OrientationStore'
 
 interface VaultEntry {
   id: string
@@ -30,6 +32,7 @@ export default function VaultScreen() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  const { isPortrait, init } = useOrientationStore()
 
   const [visiblePasswords, setVisiblePasswords] = useState<{ [id: string]: boolean }>({})
   const togglePasswordVisibility = (id: string) => { setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))}
@@ -46,6 +49,10 @@ export default function VaultScreen() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    init()
+  }, [])
+
   const getColumnCount = () => {
     if (windowWidth < 768) return 1
     if (windowWidth < 1024) return 2
@@ -57,8 +64,35 @@ export default function VaultScreen() {
   const columnCount = getColumnCount()
   const columnWidthWeb = `calc(${100 / columnCount}% - ${(columnCount - 100) / columnCount}px)`
 
+  // Dev functions to load and clear vault entries
+  const loadDevVaultEntries = () => {
+    const sampleEntries = [
+      { name: 'Google', username: 'user@gmail.com', password: 'password123' },
+      { name: 'GitHub', username: 'devuser', password: 'ghpass' },
+      { name: 'Twitter', username: 'tweetuser', password: 'twpass' },
+    ];
+    sampleEntries.forEach((entry, index) => {
+      setTimeout(() => {
+        addVaultEntry(entry);
+      }, index * 200);
+    });
+  };
+
+  const deleteAllVaultEntries = () => {
+    data?.items.forEach((item, index) => {
+      setTimeout(() => {
+        deleteVaultEntry(item.id);
+      }, index * 200);
+    });
+  };
+
+  // Split items into two columns for iPad landscape
+  const items = data?.items || []
+  const leftColumnItems = items.filter((_, idx) => idx % 2 === 0)
+  const rightColumnItems = items.filter((_, idx) => idx % 2 === 1)
+
   return (
-    <YStack f={1} mt={isWeb ? 80 : 90} bg={isDark ? '#010101' : '#f6f6f6'} marginLeft={isWeb? 24 : 0}>
+    <YStack f={1} pt={isWeb ? 80 : isIpad() ? 80 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
       <ScrollView
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -99,6 +133,35 @@ export default function VaultScreen() {
               columnWidthWeb={columnWidthWeb}
             />
           ))
+        ) : isIpad() && !isPortrait ? (
+          <XStack width="100%" gap="$3">
+            <YStack flex={1} gap="$3">
+              {leftColumnItems.map((cred: VaultEntry) => (
+                <VaultCard
+                  key={cred.id}
+                  cred={cred}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  visiblePasswords={visiblePasswords}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isWeb={isWeb}
+                />
+              ))}
+            </YStack>
+            <YStack flex={1} gap="$3">
+              {rightColumnItems.map((cred: VaultEntry) => (
+                <VaultCard
+                  key={cred.id}
+                  cred={cred}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  visiblePasswords={visiblePasswords}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isWeb={isWeb}
+                />
+              ))}
+            </YStack>
+          </XStack>
         ) : (
           <YStack gap="$3" width="100%">
             {data?.items.map((cred: VaultEntry) => (
@@ -131,6 +194,31 @@ export default function VaultScreen() {
       >
         <Plus color="white" size={24} />
       </Button>
+
+      {__DEV__ && (
+        <XStack position='absolute' bottom={32} left={24} gap='$2' zIndex={1000}>
+          <Button
+            size='$4'
+            circular
+            bg='#00AAFF'
+            pressStyle={{ scale: 0.95 }}
+            animation='quick'
+            elevation={4}
+            onPress={loadDevVaultEntries}
+            icon={<Database color='#FFF' size={20} />}
+          />
+          <Button
+            size='$4'
+            circular
+            bg='#FF5555'
+            pressStyle={{ scale: 0.95 }}
+            animation='quick'
+            elevation={4}
+            onPress={deleteAllVaultEntries}
+            icon={<Trash color='#FFF' size={20} />}
+          />
+        </XStack>
+      )}
 
       <AddVaultEntryModal
         isVisible={isModalVisible}

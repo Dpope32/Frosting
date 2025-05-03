@@ -53,7 +53,7 @@ export function CardSection({
       ) : null}
       <XStack
         gap={isWeb ? "$7" : "$2"}
-        marginTop="$2"
+        marginTop={isIpad() ? "$4" : "$2"}
         flexWrap={'nowrap'}
         justifyContent={isWeb ? 'flex-start' : isIpad() ? 'center' : 'center'}
         alignItems="center"

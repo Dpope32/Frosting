@@ -4,13 +4,14 @@ import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { BillSummary } from '@/components/bills/BillSummary';
-import { Plus } from '@tamagui/lucide-icons';
+import { Plus, Database, Trash } from '@tamagui/lucide-icons';
 import { useUserStore } from '@/store/UserStore';
 import { useBills } from '@/hooks/useBills';
 import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { isIpad } from '@/utils/deviceUtils';
+import { useOrientationStore } from '@/store/OrientationStore';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -37,6 +38,8 @@ export default function BillsScreen() {
   const isDark = colorScheme === 'dark';
   const currentDay = new Date().getDate();
   const isWeb = Platform.OS === 'web';
+  const { isPortrait, init } = useOrientationStore();
+  useEffect(() => { init(); }, []);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
   useEffect(() => {
@@ -73,6 +76,24 @@ export default function BillsScreen() {
         }
       });
     }, 0);
+  };
+
+  // Dev functions to load and clear sample bills
+  const loadDevBills = () => {
+    const sampleBills = [
+      { name: 'Rent', amount: 1200, dueDate: 1 },
+      { name: 'Internet', amount: 60, dueDate: 15 },
+      { name: 'Electricity', amount: 90, dueDate: 20 },
+    ];
+    sampleBills.forEach((bill, index) => {
+      setTimeout(() => addBill(bill), index * 300);
+    });
+  };
+
+  const deleteAllBills = () => {
+    bills?.forEach((bill, index) => {
+      setTimeout(() => deleteBill(bill.id), index * 200);
+    });
   };
 
   return (
@@ -121,9 +142,10 @@ export default function BillsScreen() {
       
       {isIpad() ? (
         <FlatList
+          key={`bills-${isPortrait ? 2 : 3}`}
           data={bills?.sort((a, b) => a.dueDate - b.dueDate) || []}
           keyExtractor={(item) => item.id}
-          numColumns={2}
+          numColumns={isPortrait ? 2 : 3}
           renderItem={({ item }) => (
             <BillCard
               bill={item}
@@ -135,10 +157,10 @@ export default function BillsScreen() {
           contentContainerStyle={{
             padding: 8,
             paddingBottom: 100,
-            paddingHorizontal: 12,
-            paddingLeft: 32,
+            paddingHorizontal: isPortrait ? 12 : 30,
+            paddingLeft: isPortrait ? 32 : 48,
             paddingRight: 32,
-            gap: 10,
+            gap: 12,
           }}
           columnWrapperStyle={{ gap: 10 }}
           showsVerticalScrollIndicator={false}
@@ -242,6 +264,31 @@ export default function BillsScreen() {
       >
         <Plus color="white" size={24} />
       </Button>
+      
+      {__DEV__ && (
+        <XStack position="absolute" bottom={40} left={24} gap="$2" zIndex={1000}>
+          <Button
+            size="$4"
+            circular
+            bg="#00AAFF"
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={loadDevBills}
+            icon={<Database color="#FFF" size={20} />}
+          />
+          <Button
+            size="$4"
+            circular
+            bg="#FF5555"
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            elevation={4}
+            onPress={deleteAllBills}
+            icon={<Trash color="#FFF" size={20} />}
+          />
+        </XStack>
+      )}
       
       <BillRecommendationModal 
         open={housingModalOpen} 

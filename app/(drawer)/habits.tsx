@@ -37,7 +37,7 @@ export default function HabitsScreen() {
         <YStack gap="$2" mb="$1">
           {habits.length > 0 && (
             <>
-              <XStack alignItems="center" gap="$2">
+              <XStack alignItems="center" gap={isIpad() ? "$3" : "$2"}>
                 <Text
                   fontFamily="$body"
                   color={isDark ? "#dbd0c6" : "#111"}
@@ -82,7 +82,7 @@ export default function HabitsScreen() {
                 height: '100%',
               }}
             >
-              <View style={{ position: 'relative', zIndex: 1}}>
+              <View style={{ position: 'relative', zIndex: 1, gap: isIpad() ? 8 : 4}}>
                 {habits.map((habit) => {
                   const today = format(new Date(), 'yyyy-MM-dd');
                   const doneToday = habit.completionHistory[today] || false;

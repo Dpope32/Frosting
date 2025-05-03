@@ -296,7 +296,7 @@ export const TaskSection = ({
                     }
                     easterEggTimeout.current = setTimeout(() => {
                       setEasterEggVisible(true);
-                    }, 500); // 500ms after haptic
+                    }, 500); 
                   }}
                   onPressOut={() => {
                     if (easterEggTimeout.current) {

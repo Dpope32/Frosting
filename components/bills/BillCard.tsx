@@ -7,6 +7,8 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { LongPressDelete } from '../common/LongPressDelete'
 import { Alert, Platform } from 'react-native'
 import { isIpad } from '@/utils/deviceUtils'
+import { useOrientationStore } from '@/store/OrientationStore'
+
 interface BillCardProps {
   bill: Bill
   currentDay: number
@@ -25,7 +27,7 @@ export const BillCard = ({
   const amountColor = getAmountColor(bill.amount)
   const isPast = bill.dueDate < currentDay
   const isToday = bill.dueDate === currentDay
-
+  const { isPortrait } = useOrientationStore();
   const confirmDelete = () => onDelete(bill.id)
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
     if (Platform.OS === 'web') {
@@ -56,8 +58,8 @@ export const BillCard = ({
         ai="center"
         borderWidth={1}
         borderColor={isToday ? primaryColor : isDark ? '#222' : '#e0e0e0'}
-        width={isWeb ? 320 : isIpad() ? 260 : '100%'}
-        maxWidth={isWeb ? 320 : isIpad() ? 260 : '100%'}
+        width={isWeb ? 320 : isIpad() ? isPortrait ? 260 : 280 : '100%'}
+        maxWidth={isWeb ? 320 : isIpad() ? isPortrait ? 260 : 280 : '100%'}
         position="relative"
         opacity={isPast ? 0.8 : 1}
         overflow="hidden"

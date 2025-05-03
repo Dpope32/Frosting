@@ -6,6 +6,7 @@ import { BackgroundStyleOption } from '@/types/background'
 import { BackgroundStyle } from '@/constants/Backgrounds'
 import { useWallpaperStore } from '@/store/WallpaperStore'
 import { useCustomWallpaper } from '@/hooks/useCustomWallpaper'
+import { useOrientationStore } from '@/store/OrientationStore'
 import { isIpad } from '@/utils/deviceUtils';
 let LinearGradient: any = null;
 let BlurView: any = null;
@@ -43,6 +44,7 @@ export default function Step3({
   const colorScheme = useColorScheme(); 
   const isDark = colorScheme === 'dark'; 
   const { width: screenWidth, height: screenHeight } = useWindowDimensions()
+  const { isPortrait } = useOrientationStore();
   const [starsKey, setStarsKey] = React.useState(0);
   const translateX = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const translateY = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
@@ -445,7 +447,7 @@ useEffect(() => {
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$5">
         <YStack 
           position="absolute" 
-          top={isWeb ? "20%" : isIpad() ? "32%" : "29%"} 
+          top={isWeb ? "20%" : isIpad() ?  isPortrait ? "32%" : "25%" : "29%"} 
           left={0} 
           right={0} 
           alignItems="center"
@@ -467,7 +469,7 @@ useEffect(() => {
             textAlign="center" 
             color="$onboardingLabel"
           >
-            Want a wallpaper {formData.username}?
+            Which wallpaper {formData.username}?
           </Label>
           </XStack>
         </YStack>

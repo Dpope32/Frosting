@@ -4,6 +4,7 @@ import { FormData } from '@/types/onboarding'
 import { Alert, Platform } from 'react-native'
 import { useState, useEffect } from 'react'
 import { validateZipCode, FALLBACK_ZIP_CODES } from '@/utils/zipCodeValidator'
+import { isIpad } from '@/utils/deviceUtils'
 
 export default function Step4({
   formData,
@@ -36,7 +37,7 @@ export default function Step4({
 
 
   return (
-    <YStack flex={1} justifyContent="center" alignItems="center" marginBottom={isWeb ? 75 : 100}>
+    <YStack flex={1} backgroundColor={formData.backgroundStyle} justifyContent="center" alignItems="center" marginBottom={isWeb ? 75 : 100}>
 
       <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$3" : "$2"}>
         <Label
@@ -46,7 +47,7 @@ export default function Step4({
           textAlign="center"
           color="$onboardingLabel" 
         >
-          What's your zip?
+          Do you want to see weather?
         </Label>
         <Text
           fontFamily="$body"
@@ -58,7 +59,7 @@ export default function Step4({
           fontWeight="400"
           fontStyle="italic"
         >
-          (If you want to see a 5 day forecast)
+          (Enter your zip code to see a 5 day forecast)
         </Text>
       </YStack>
 
@@ -76,10 +77,10 @@ export default function Step4({
           keyboardType="numeric"
           maxLength={5}
           autoFocus
-          backgroundColor="$onboardingInputBackground"
+          backgroundColor="transparent"
           borderColor={zipError ? "$onboardingError" : "$onboardingInputBorder"} 
           color="$onboardingInputText"
-          placeholderTextColor="$onboardingPlaceholder"
+          placeholderTextColor={"$onboardingInputBorder"}
           textAlign="center"
           letterSpacing={1}
           borderWidth={1.25}
@@ -91,7 +92,7 @@ export default function Step4({
             borderColor: zipError ? "$onboardingError" : "$onboardingInputBorder", 
             scale: 1.02,
           }}
-          width={isWeb ? 300 : "90%"}
+          width={isWeb ? 300 : isIpad() ? 300 : "70%"}
           maxWidth={500}
         />
         

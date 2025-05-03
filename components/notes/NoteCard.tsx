@@ -119,7 +119,7 @@ export const NoteCard = ({
             >
               <Text
                 flex={1}
-                fontSize={isWeb ? "$5" : isIpad() ? 22 : 19}
+                fontSize={isWeb ? "$5" : isIpad() ? 20 : 19}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"
@@ -144,7 +144,7 @@ export const NoteCard = ({
               backgroundColor: colors.cardBorder,
               marginHorizontal: horizontalPadding,
               marginTop: 4,
-              marginBottom: 8,
+              marginBottom: 2,
               borderRadius: 2,
             }}
           />
@@ -204,11 +204,11 @@ export const NoteCard = ({
                   <Paragraph
                     size={paragraphSize}
                     fontFamily="$body"
-                    paddingHorizontal={horizontalPadding}
+                    paddingHorizontal={horizontalPadding + 4}
                     paddingVertical="$2"
                     color={colors.text}
                     className={isWeb ? "note-text" : undefined}
-                    fontSize={isWeb ? 16 : isIpad() ? 15 : 14}
+                    fontSize={isWeb ? 16 : isIpad() ? 15 : 15}
                   >
                     {displayContent || ''}
                   </Paragraph>

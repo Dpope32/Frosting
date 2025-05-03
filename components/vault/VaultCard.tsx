@@ -2,6 +2,7 @@ import React from 'react'
 import { XStack, YStack, Text, Button } from 'tamagui'
 import { Eye, EyeOff } from '@tamagui/lucide-icons'
 import { isIpad } from '@/utils/deviceUtils'
+import { useOrientationStore } from '@/store/OrientationStore'
 
 interface VaultCardProps {
   cred: {
@@ -27,6 +28,7 @@ export const VaultCard = ({
   isWeb,
   columnWidthWeb
 }: VaultCardProps) => {
+  const { isPortrait } = useOrientationStore();
   return isWeb ? (
     <XStack
       bg={isDark ? '#111' : '#f5f5f5'}
@@ -56,7 +58,7 @@ export const VaultCard = ({
           </Text>
         </XStack>
 
-        <XStack ai="center" gap="$2" mb="$2">
+        <XStack ai="center" gap={ "$2"} mb="$2">
           <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
             Username:
           </Text>
@@ -65,7 +67,7 @@ export const VaultCard = ({
           </Text>
         </XStack>
 
-        <XStack ai="center" gap="$2">
+        <XStack ai="center" gap={"$2"}>
           <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
             Password:
           </Text>
@@ -93,37 +95,38 @@ export const VaultCard = ({
     </XStack>
   ) : (
     <XStack
-      bg={isDark ? '#121212' : '#f5f5f5'}
-      p="$1.5"
+      bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.8)'}
+      p={isIpad() ? "$2" : "$1.5"}
       px={isWeb ? "$4" : isIpad() ? "$4" : "$0"}
       pl="$4"
       br="$4"
       borderWidth={1}
+      w={isIpad() ? isPortrait ? "100%" : 400 : "100%"}
       borderColor={isDark ? '#777' : '#e0e0e0'}
       ai="center"
       animation="quick"
     >
       <YStack flex={1}>
-        <XStack jc="space-between" ai="center" pt="$2" pb="$2">
+        <XStack jc="space-between" ai="center" pt={isIpad() ? "$3" : "$2"} pb={isIpad() ? "$1.5" : "$1"}>
           <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
             {cred.name}
           </Text>
         </XStack>
 
-        <XStack ai="center" gap="$1" mt="$1" ml="$3">
-          <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} mt="$1" ml="$3" mb={isIpad() ? "$2" : 0}>
+          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : "$3"} w={isIpad() ? 80 : 70} fontFamily="$body">
             Username:
           </Text>
-          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
+          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 18 : "$3"} flex={1} fontFamily="$body">
             {cred.username}
           </Text>
         </XStack>
 
-        <XStack ai="center" mt="$-1.5" gap="$1" ml="$3">
-          <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} mt={isIpad() ? "$-2.5" : "$-1.5"} ml="$3">
+          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : "$3"} w={isIpad() ? 80 : 70} fontFamily="$body">
             Password:
           </Text>
-          <Text color={isDark ? '#fff' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+          <Text color={isDark ? '#fff' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
             {visiblePasswords[cred.id] ? cred.password : '••••••••'}
           </Text>
           <Button

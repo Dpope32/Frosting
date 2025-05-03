@@ -1,0 +1,29 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# App Styling Guidelines
+
+This rule outlines the key styling patterns that repeat across the code-base so the AI can quickly locate or replicate styles that fit the existing design language.
+
+## Primary Style Sources
+
+* Global helpers & colour utilities – [utils/styleUtils.ts](mdc:utils/styleUtils.ts)
+* Markdown and text colours – [hooks/useMarkdownStyles.ts](mdc:hooks/useMarkdownStyles.ts)
+* Reusable note list helpers – [utils/noteStyles.ts](mdc:utils/noteStyles.ts)
+* Drawer look & feel – [components/shared/styles.ts](mdc:components/shared/styles.ts)
+* Calendar views – [components/calendar/CalendarStyles.ts](mdc:components/calendar/CalendarStyles.ts)
+* CRM card example – [components/crm/PersonCard/styles.ts](mdc:components/crm/PersonCard/styles.ts)
+
+## Core Conventions
+
+1. **Theme awareness** – every screen checks `useColorScheme()`; branch colours & shadows off `isDark`.
+2. **Platform branching** – `Platform.OS === 'web'` & `isIpad()` gates tweak paddings, font sizes and grid column counts.
+3. **Tamagui first** – layout with `YStack`, `XStack`, `Button`, `Text`; StyleSheet objects used for lower-level tweaks / animations.
+4. **Rounded cards** – most cards use 4–12 dp radius, subtle border, and drop shadow (`shadow* + elevation` native / `boxShadow` web).
+5. **Dynamic accent colour** – components pull `primaryColor` from the `UserStore`; helpers like `withOpacity()` add transparency.
+6. **Responsive grids on web** – column count is computed from window width; cards get `width: columnWidth` inline.
+7. **Animation** – simple Reanimated `withTiming`/`withSpring` for scale (0.9 on press), fade, translate; ripple effects on certain buttons.
+8. **Empty states** – gradient background card with primary-colour bullet points and explanatory copy.
+9. **Floating action button** – bottom-right `$4` Tamagui `Button`, circular, coloured `primaryColor`, with quick scale-down press style.

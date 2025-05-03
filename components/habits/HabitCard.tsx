@@ -8,6 +8,7 @@ import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/store/HabitStore';
 import { useToastStore } from '@/store/ToastStore';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface HabitCardProps {
   habit: Habit;
@@ -135,7 +136,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
         p={isMobile ? 8 : 10}
         px={isMobile ? 12 : 16}
         borderRadius={12}
-        backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#1a1a1a' : '#fff')} 
+        backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#111' : '#fff')} 
         borderWidth={1}
         borderColor={isDark ? '#333' : '#E0E0E0'}
         position="relative"
@@ -176,9 +177,9 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             </Pressable>
             <Text
               fontFamily="$body"
-              fontSize={isMobile ? 15 : 16}
+              fontSize={isIpad() ? 19 : 16}
               fontWeight="600"
-              color={isDark ? '#fff' : '#000'}
+              color={isDark ? '#f9f9f9' : '#000'}
               opacity={doneToday ? 0.6 : 1}
               style={{
                 textDecorationLine: doneToday ? 'line-through' : 'none',
@@ -198,7 +199,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
               <Text
                 fontFamily="$body"
                 color={getCategoryColor(habit.category)}
-                fontSize={isMobile ? 14 : 16}
+                fontSize={isIpad() ? 15 : 14}
                 fontWeight="500"
                 style={{ textTransform: 'capitalize' }}
               >

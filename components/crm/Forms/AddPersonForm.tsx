@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { View } from 'react-native'
-import { Button } from 'tamagui'
 import { format, parse, isValid } from 'date-fns'
-import { Plus } from '@tamagui/lucide-icons'
-
+import { XStack, Button, Text } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
 import { useCalendarStore } from '@/store/CalendarStore'
@@ -12,9 +9,15 @@ import { useImagePicker } from '@/hooks/useImagePicker'
 import type { Person } from '@/types/people'
 import { initialFormData } from './types'
 import { FormContent } from './FormContent'
-import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated'
+import { BaseCardModal } from '@/components/cardModals/BaseCardModal'
+import { useColorScheme } from '@/hooks/useColorScheme'
 
 type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
+
+interface AddPersonFormProps {
+  isVisible: boolean;
+  onClose: () => void;
+}
 
 const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, '');
@@ -25,18 +28,17 @@ const formatPhoneNumber = (phone: string): string => {
   return phone;
 };
 
-
-export function AddPersonForm(): JSX.Element {
+export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.Element {
   const addPersonMutation = useAddPerson()
   const primaryColor: string = useUserStore( (state) => state.preferences.primaryColor)
   const showToast = useToastStore((state) => state.showToast)
+
   useEffect(() => {
     if (addPersonMutation.isSuccess) {
       useCalendarStore.getState().syncBirthdays()
     }
   }, [addPersonMutation.isSuccess])
   
-  const [open, setOpen] = useState<boolean>(false)
   const [formData, setFormData] = useState<FormData>({ ...initialFormData })
   const [inputResetKey, setInputResetKey] = useState<number>(0)
   const [paymentMethod, setPaymentMethod] = useState<string>('')
@@ -76,10 +78,6 @@ export function AddPersonForm(): JSX.Element {
     setPaymentUsername(text)
   }, [])
 
-  const handleClose = useCallback(() => {
-    setOpen(false);
-  }, []);
-
   const handleSubmit = useCallback((): void => {
     if (addPersonMutation.isPending) return;
     if (!formData.name?.trim() || !formData.birthday?.trim()) return;
@@ -110,8 +108,10 @@ export function AddPersonForm(): JSX.Element {
     setPaymentMethod('');
     setPaymentUsername('');
     setInputResetKey((prev) => prev + 1);
-    handleClose();
-  }, [formData, paymentMethod, paymentUsername, addPersonMutation, handleClose]);
+    onClose(); 
+  }, [formData, paymentMethod, paymentUsername, addPersonMutation, onClose]); 
+
+  const isDark = useColorScheme() === 'dark'
 
   const updateFormField = useCallback(
     (field: keyof FormData, value: any): void => {
@@ -122,40 +122,51 @@ export function AddPersonForm(): JSX.Element {
 
   return (
     <>
-      <View style={{ position: 'absolute', bottom: 32, right: 24, zIndex: 1000 }}>
-        <Button
-          size="$4"
-          circular
-          bg={primaryColor}
-          pressStyle={{ scale: 0.95 }}
-          animation="quick"
-          elevation={4}
-          onPress={() => setOpen(true)}
-        >
-          <Plus color="white" size={24} />
-        </Button>
-      </View>
-
-      {open && (
-        <BaseCardAnimated 
+      {isVisible && (
+        <BaseCardModal
           title="Add New Person"
-          onClose={handleClose}
+          open={isVisible}
+          onOpenChange={onClose}
+          showCloseButton={true}
+          hideHandle={true}
+          footer={
+            <XStack width="100%" px="$4" py="$2" justifyContent="space-between">
+              <Button
+                theme={isDark ? "dark" : "light"}
+                onPress={() => onClose()}
+                backgroundColor={isDark ? "$gray5" : "#E0E0E0"}
+              >
+                Cancel
+              </Button>
+              <Button
+                onPress={handleSubmit}
+                backgroundColor="#3B82F6"
+                borderColor="#3B82F6"
+                borderWidth={2}
+              >
+                <Text color="white" fontWeight="600" fontFamily="$body">
+                  Save Contact
+                </Text>
+              </Button>
+            </XStack>
+          }
         >
           <FormContent
-              formData={formData}
-              inputResetKey={inputResetKey}
-              updateFormField={updateFormField}
-              handleSubmit={handleSubmit}
-              handleBirthdayChange={handleBirthdayChange}
-              pickImage={pickImage}
-              primaryColor={primaryColor}
-              setOpen={setOpen}
-              paymentMethod={paymentMethod}
-              setPaymentMethod={setPaymentMethod}
-              paymentUsername={paymentUsername}
-              updatePaymentUsername={updatePaymentUsername}
-            />
-        </BaseCardAnimated>
+            isVisible={isVisible}
+            formData={formData}
+            inputResetKey={inputResetKey}
+            updateFormField={updateFormField}
+            handleSubmit={handleSubmit}
+            handleBirthdayChange={handleBirthdayChange}
+            pickImage={pickImage}
+            primaryColor={primaryColor}
+            setOpen={onClose}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            paymentUsername={paymentUsername}
+            updatePaymentUsername={updatePaymentUsername}
+          />
+        </BaseCardModal>
       )}
     </>
   )

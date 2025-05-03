@@ -55,7 +55,7 @@ export const ChangeLogButton = () => {
       >
         <MaterialIcons 
           name="history" 
-          size={22} 
+          size={24} 
           color={isDark ? '#708090' : '#708090'} 
         />
         <Animated.View 

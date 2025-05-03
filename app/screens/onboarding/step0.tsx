@@ -5,7 +5,7 @@ import { FormData } from '@/types/onboarding'
 import MaskedView from '@react-native-masked-view/masked-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils/deviceUtils'
-
+import { useOrientationStore } from '@/store/OrientationStore'
 const AnimatedLinearGradient: any = Animated.createAnimatedComponent(LinearGradient as any)
 
 export default function Step0({
@@ -16,7 +16,7 @@ export default function Step0({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }) {
   const translateX = useRef(new Animated.Value(0)).current
-
+  const { isPortrait } = useOrientationStore();
   useEffect(() => {
     Animated.loop(
       Animated.timing(translateX, {
@@ -77,7 +77,7 @@ export default function Step0({
         </div>
       ) : (
         <MaskedView
-          style={{ height: isIpad() ? 150 : 90, width: '100%'}}
+          style={{ height: isIpad() ? isPortrait ? 130 : 120 : 90, width: '100%'}}
           maskElement={
             <View
               style={{
@@ -134,16 +134,17 @@ export default function Step0({
         onChangeText={(text) =>setFormData((prev) => ({ ...prev, username: text }))}
         autoFocus={Platform.OS === 'ios' || Platform.OS === 'android'}
         autoCapitalize="words"
-        backgroundColor="$onboardingInputBackground"
+        backgroundColor="transparent"
         borderColor="$onboardingInputBorder"
         autoComplete="off"
+        borderWidth={2}
         autoCorrect={false}
         color="$onboardingInputText"
         fontWeight="700"
         placeholderTextColor="$onboardingPlaceholder"
         fontFamily="$body"
         textAlign="center"
-        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 43}}
+        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 48}}
       />
     </YStack>
   )

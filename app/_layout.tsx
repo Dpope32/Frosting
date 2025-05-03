@@ -16,11 +16,10 @@ import * as Updates from 'expo-updates';
 import { Alert } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { NotificationResponse } from 'expo-notifications';
-
+import { useOrientationStore } from '@/store/OrientationStore';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
-import { useNotifications } from '@/hooks/useNotifications';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/EditStockModal';
@@ -57,6 +56,9 @@ export default Sentry.wrap(function RootLayout() {
     injectSpeedInsights();
   }
 
+  useEffect(() => {
+    useOrientationStore.getState().init();
+  }, []);
   // Hide splash screen after critical initializations complete
   useEffect(() => {
     const hideSplash = async () => {

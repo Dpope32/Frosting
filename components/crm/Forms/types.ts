@@ -34,6 +34,8 @@ export const initialFormData: FormData = {
   ]
 
  export type FormContentProps = {
+    /** Whether the form content is visible, used to trigger autofocus */
+    isVisible: boolean;
     formData: FormData;
     inputResetKey: number;
     updateFormField: (field: keyof FormData, value: any) => void;

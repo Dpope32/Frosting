@@ -63,7 +63,18 @@ const AnimatedCloud = ({
     };
   });
 
-  const cloudColor = "#FFFFFF";
+  const cloudColor = isDark ? '#E5E7EB' : '#FFFFFF';
+  const shadowStyle = isDark ? {
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 1.5,
+  } : {
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 1.5,
+  };
 
   // Create cloud parts as a unified component with consistent colors
   const styles = StyleSheet.create({
@@ -72,6 +83,7 @@ const AnimatedCloud = ({
       width: baseSize * 3.5,
       height: baseSize * 1.8, 
       opacity: cloudOpacity,
+      ...shadowStyle,
     },
     cloudPart1: {
       position: 'absolute',

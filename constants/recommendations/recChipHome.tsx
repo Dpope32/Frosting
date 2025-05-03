@@ -4,8 +4,10 @@ import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { isIpad } from '@/utils/deviceUtils'
 import { RecommendationChipProps } from './TaskRecommendations'
+import { useOrientationStore } from '@/store/OrientationStore'
 
 export const RecommendationChipHome: React.FC<RecommendationChipProps> = ({ category, onPress, isDark = false, width }) => {
+    const { isPortrait } = useOrientationStore();
     const getChipStyle = () => {
       switch (category) {
         case 'Cleaning':
@@ -67,7 +69,7 @@ export const RecommendationChipHome: React.FC<RecommendationChipProps> = ({ cate
         scale={1}
         minWidth={0}
         flex={isWeb ? 1 : 0}
-        width={width || (isWeb ? 150 : isIpad() ? 105 : 130)}
+        width={width || (isWeb ? 150 : isIpad() ? isPortrait ? 105 : 180 : 140)}
         marginBottom={isWeb ? 0 : '$1'}
       >
         <XStack gap={isWeb ? '$2' : isIpad() ? '$1' : '$1.5'} alignItems="center" justifyContent="center" >

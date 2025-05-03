@@ -3,18 +3,19 @@ import { Platform, useColorScheme } from 'react-native';
 import { YStack, Text, Stack, isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { isIpad } from '@/utils/deviceUtils';
+import { useOrientationStore } from '@/store/OrientationStore';
 
 export function YearCompleteSection() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { isPortrait } = useOrientationStore();
   const { percentage, currentYear } = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
     const diff = Number(now) - Number(start);
     const oneDay = 1000 * 60 * 60 * 24;
     const day = Math.floor(diff / oneDay);
-    const isLeapYear = now.getFullYear() % 4 === 0 && 
-      (now.getFullYear() % 100 !== 0 || now.getFullYear() % 400 === 0);
+    const isLeapYear = now.getFullYear() % 4 === 0 && (now.getFullYear() % 100 !== 0 || now.getFullYear() % 400 === 0);
     const daysInYear = isLeapYear ? 366 : 365;
     const percent = Math.round((day / daysInYear) * 100);
     const currentYear = now.getFullYear();
@@ -26,7 +27,6 @@ export function YearCompleteSection() {
     };
   }, []);
 
-
   if (Platform.OS === 'web') {
     return null;
   }
@@ -34,7 +34,7 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width={isWeb ? "100%" :isIpad() ? "100%" : "95%"}
+      width={isWeb ? "100%" :isIpad() ? isPortrait ? "90%" : "95%" : "95%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"

@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.1.111',
+    date: '2025-05-03',
+    notes: 'Device Orientation',
+    bullets: [
+      'Added device orientation',
+      'Export app registry store on mount',
+      'Changed UI in Changelog',
+      'Added missing person form in fab',
+    ],
+  },
+  {
     version: '1.1.107',
     date: '2025-05-01',
     notes: 'Smarter Tags & Smoother Inputs',

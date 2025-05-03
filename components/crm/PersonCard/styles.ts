@@ -1,5 +1,5 @@
 import { StyleSheet, Platform, ViewStyle } from "react-native";
-
+import { isIpad } from "@/utils/deviceUtils";
 // Web-specific styles as a separate object
 const webSpecificStyles = Platform.OS === 'web' ? {
   card: {
@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
     }),
   },
   cardContent: {
-    minHeight: Platform.OS === 'web' ? 60 : 50,
+    minHeight: Platform.OS === 'web' ? 60 : isIpad() ? 60 : 50,
     ...(Platform.OS === 'web' ? {
       flexDirection: 'row',
       alignItems: 'center',
@@ -127,8 +127,8 @@ export const styles = StyleSheet.create({
       width: 60, // Increased from 40 to 60 on web to match webStyles
       height: 60, // Increased from 40 to 60 on web to match webStyles
     } : {
-      width: 33,
-      height: 33
+      width: isIpad() ? 40 : 33,
+      height: isIpad() ? 40 : 33
     }),
   },
   starIndicator: {
