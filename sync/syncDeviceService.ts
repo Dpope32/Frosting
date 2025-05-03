@@ -1,6 +1,5 @@
 // In your sync service
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRegistryStore } from '../store/RegistryStore';
 import * as Sentry from '@sentry/react-native';
 import { getRandomValues } from 'expo-crypto';
 

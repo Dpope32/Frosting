@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useUserStore } from '@/store/UserStore';
 import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
-import { useRegistryStore } from '@/store/RegistryStore';
 import { useProjectStore } from '@/store/ToDo';
 import { useHabitStore } from '@/store/HabitStore';
 import { useBillStore } from '@/store/BillStore';
