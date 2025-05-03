@@ -63,7 +63,6 @@ export default function SyncScreen() {
     setModalStep('creating');
     try {
       setIsLoading(true);
-      await syncService.initialize();
       const myDeviceId = syncService.getConnectionCode();
       setDeviceId(myDeviceId);
       setDevices([
@@ -75,7 +74,6 @@ export default function SyncScreen() {
           lastActive: Date.now()
         }
       ]);
-      initializeSyncService();
       setIsInitialized(true);
       setModalStep('showCode');
       useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
