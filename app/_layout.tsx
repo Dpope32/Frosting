@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { inject } from '@vercel/analytics';

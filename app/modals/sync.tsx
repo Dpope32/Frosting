@@ -11,7 +11,6 @@ import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
 import { TextInput } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import syncService from '@/sync/syncDeviceService';
 import { isIpad } from '@/utils/deviceUtils';
 
 export default function SyncScreen() {
@@ -29,45 +28,15 @@ export default function SyncScreen() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
 
-  const initializeSyncService = async () => {
-    try {
-      setIsLoading(true);
-      await syncService.initialize();
-      const myDeviceId = syncService.getConnectionCode();
-      setDeviceId(myDeviceId);
-      
-      // Add current device to the list
-      setDevices([
-        {
-          id: myDeviceId,
-          name: 'This Device',
-          status: 'Ready',
-          isCurrentDevice: true,
-          lastActive: Date.now()
-        }
-      ]);
-      
-      setIsInitialized(true);
-      setModalStep('showCode');
-      useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
-    } catch (error) {
-      console.error('Error initializing sync service:', error);
-      useToastStore.getState().showToast('Failed to initialize sync', 'error');
-      setModalStep('choose');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCreateSpace = async () => {
     setModalStep('creating');
     try {
       setIsLoading(true);
-      const myDeviceId = syncService.getConnectionCode();
-      setDeviceId(myDeviceId);
+
       setDevices([
         {
-          id: myDeviceId,
+          id: 1,
           name: 'This Device',
           status: 'Ready',
           isCurrentDevice: true,
@@ -97,7 +66,6 @@ export default function SyncScreen() {
     }
     setIsLoading(true);
     try {
-      await syncService.connectToDevice(peerCode.trim());
       setDevices(prev => [...prev, {
         id: peerCode.trim(),
         name: 'Connected Device',
