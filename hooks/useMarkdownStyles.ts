@@ -82,7 +82,7 @@ export const useMarkdownStyles = () => {
     } as ViewStyle,
     code_inline: { 
       backgroundColor: colors.codeBg, 
-      paddingVertical: 2,
+      paddingVertical: 4,
       paddingHorizontal: 6,
       borderRadius: 4, 
       fontFamily: 'monospace',
@@ -92,7 +92,7 @@ export const useMarkdownStyles = () => {
     } as TextStyle,
     code_block: { 
       backgroundColor: colors.codeBg, 
-      paddingVertical: 6,
+      paddingVertical: 8,
       paddingHorizontal: 10,
       borderRadius: 4, 
       fontFamily: 'monospace',

@@ -46,18 +46,12 @@ export const getRecommendedVaultEntries = (category: VaultRecommendationCategory
       return [
         { name: 'Amazon' },
         { name: 'eBay' },
-        { name: 'Walmart' },
         { name: 'Target' },
         { name: 'Best Buy' },
-        { name: 'Etsy' },
         { name: 'PayPal' },
         { name: 'Venmo' },
         { name: 'Cash App' },
-        { name: 'Shopify' },
         { name: 'Wayfair' },
-        { name: 'Apple Store' },
-        { name: 'Google Play Store' },
-        { name: 'Costco' },
         { name: 'Shein' }
       ]
     case 'Work':

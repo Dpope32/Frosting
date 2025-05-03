@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Button, YStack, XStack, isWeb } from 'tamagui';
@@ -28,7 +28,6 @@ export default function SyncScreen() {
   const [devices, setDevices] = useState<any[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
-
 
   const initializeSyncService = async () => {
     try {
@@ -118,19 +117,6 @@ export default function SyncScreen() {
       setIsLoading(false);
     }
   };
-
-  if (!isInitialized) {
-    return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
-        <YStack alignItems="center" justifyContent="center" flex={1}>
-          <ActivityIndicator size="large" color={primaryColor} />
-          <Text marginTop="$2" color={isDark ? "#aaa" : "#666"}>
-            Initializing sync service...
-          </Text>
-        </YStack>
-      </View>
-    );
-  }
 
   return (
     <View style={[styles.container, { paddingTop: isIpad() ? 30 : insets.top }]}>

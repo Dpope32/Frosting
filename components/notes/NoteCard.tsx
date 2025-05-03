@@ -119,7 +119,7 @@ export const NoteCard = ({
             >
               <Text
                 flex={1}
-                fontSize={isWeb ? "$5" : isIpad() ? 22 : 19}
+                fontSize={isWeb ? "$5" : isIpad() ? 20 : 19}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"

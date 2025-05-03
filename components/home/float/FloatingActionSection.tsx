@@ -8,6 +8,7 @@ import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
 import { ActionButton } from './ActionButton';
 import { ActionButtonTitle } from './ActionButtonTitle';
+import { useOrientationStore } from '@/store/OrientationStore';
 
 const { width } = Dimensions.get('window');
 const dteWidth = width * 0.31;
@@ -35,6 +36,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   const textColor = isDark ? "#ffffff" : "#ffffff";
   const darkerPrimary = darkenColor(primaryColor, 0.7);
   const [isOpen, setIsOpen] = React.useState(false);
+  const { isPortrait } = useOrientationStore();
   const actionRef = useRef<any>(null); 
 
   const closeFab = () => {
@@ -72,6 +74,22 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
           icon=""
           primaryColor={primaryColor}
           text="Whats New?"
+        />
+      )
+    },
+    {
+      text: "Contact",
+      icon: <MaterialIcons name="contact-page" size={isIpad() ? 26 : 19} color={textColor} />,
+      name: "bt_contact",
+      position: 2,
+      render: () => (
+        <ActionButton
+          key="contact-action"
+          onPress={() => handleActionPress("bt_contact")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="contact-page"
+          text="Contact"
         />
       )
     },
@@ -184,12 +202,12 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
         position={isWeb ? "right" : isIpad() ? "right" : "center"}
-        distanceToEdge={{vertical: isWeb ? 65 : isIpad() ? 65 : 55, horizontal: isWeb ? 30 : isIpad() ? dteWidth : 0}}
+        distanceToEdge={{vertical: isWeb ? 65 : isIpad() ? 65 : 55, horizontal: isWeb ? 30 : isIpad() ? dteWidth : isPortrait ? 0 : 30}}
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 16}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 16}
         overlayColor={isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.8)'}
-        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 14}
+        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 10}
         shadow={{
           shadowOpacity: 0.4,
           shadowOffset: { width: 0, height: 4 },

@@ -9,6 +9,7 @@ import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AnimatedCloud from '@/components/weather/AnimatedCloud';
 import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
+import { isIpad } from "@/utils/deviceUtils";
 
 if (Platform.OS === 'web') {
   const styleId = 'weather-animations-style';
@@ -311,7 +312,7 @@ export default function TemperatureScreen() {
       <ScrollView 
         contentContainerStyle={{ 
           paddingBottom: insets.bottom + 20,
-          paddingTop: insets.top 
+          paddingTop: isIpad() ? insets.top + 30: insets.top
         }}
         showsVerticalScrollIndicator={false}
       >

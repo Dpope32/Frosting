@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import * as FileSystem from 'expo-file-system';
 
 // Import all stores
 import { useHabitStore } from './HabitStore';
@@ -8,56 +8,41 @@ import { useWeatherStore } from './WeatherStore';
 import { useBillStore } from './BillStore';
 import { useCalendarStore } from './CalendarStore';
 import { useProjectStore } from './ToDo';
-import { useToastStore } from './ToastStore';
 import { useNoteStore } from './NoteStore';
 import { useWallpaperStore } from './WallpaperStore';
 import { useUserStore } from './UserStore';
-import { useEditStockStore } from './EditStockStore';
-import { useEditTaskStore } from './EditTaskStore';
 import { useNetworkStore } from './NetworkStore';
 import { useVaultStore } from './VaultStore';
-import { useCalendarViewStore } from './CalendarViewStore';
-import { useNBAStore } from './NBAStore';
 import { storage } from './AsyncStorage';
 import { useCRMStore } from './CRMStore';
-import { useRecommendationStore } from './RecommendationStore';
 import { usePortfolioStore } from './PortfolioStore';
 import { usePeopleStore } from './People';
 import { useCustomCategoryStore } from './CustomCategoryStore';
+import { useTagStore } from './TagStore';
+
 
 interface RegistryState {
-  // Basic flags
   hasCompletedOnboarding: boolean;
   isFirstLaunch: boolean;
   lastSyncAttempt: number;
   syncStatus: 'idle' | 'syncing' | 'error';
   notificationStatus: 'granted' | 'denied' | 'unavailable';
   stocksLastUpdated: number;
-  
-  // Store instances
-  // Using Record<string, any> to avoid deep type instantiation issues
   habitStore: Record<string, any>;
   weatherStore: Record<string, any>;
   billStore: Record<string, any>;
   calendarStore: Record<string, any>;
   todoStore: Record<string, any>;
-  toastStore: Record<string, any>;
   noteStore: Record<string, any>;
   wallpaperStore: Record<string, any>;
   userStore: Record<string, any>;
-  editStockStore: Record<string, any>;
-  editTaskStore: Record<string, any>;
   networkStore: Record<string, any>;
   vaultStore: Record<string, any>;
-  calendarViewStore: Record<string, any>;
-  nbaStore: Record<string, any>;
   crmStore: Record<string, any>;
-  recommendationStore: Record<string, any>;
   portfolioStore: Record<string, any>;
   peopleStore: Record<string, any>;
   customCategoryStore: Record<string, any>;
-  
-  // Actions
+  tagStore: Record<string, any>;
   setHasCompletedOnboarding: (value: boolean) => void;
   setIsFirstLaunch: (value: boolean) => void;
   setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
@@ -66,6 +51,7 @@ interface RegistryState {
   checkNotificationStatus: () => Promise<void>;
   getAllStoreStates: () => Record<string, any>;
   logSyncStatus: () => void;
+  exportStateToFile: () => Promise<string>;
 }
 
 export const useRegistryStore = create<RegistryState>((set, get) => ({
@@ -80,21 +66,16 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
   // Store instances
   habitStore: useHabitStore.getState(),
   weatherStore: useWeatherStore.getState(),
+  tagStore: useTagStore.getState(),
   billStore: useBillStore.getState(),
-  calendarStore: useCalendarStore.getState(),
   todoStore: useProjectStore.getState(),
-  toastStore: useToastStore.getState(),
+  calendarStore: useCalendarStore.getState(),
   noteStore: useNoteStore.getState(),
   wallpaperStore: useWallpaperStore.getState(),
   userStore: useUserStore.getState(),
-  editStockStore: useEditStockStore.getState(),
-  editTaskStore: useEditTaskStore.getState(),
   networkStore: useNetworkStore.getState(),
   vaultStore: useVaultStore.getState(),
-  calendarViewStore: useCalendarViewStore.getState(),
-  nbaStore: useNBAStore.getState(),
   crmStore: useCRMStore.getState(),
-  recommendationStore: useRecommendationStore.getState(),
   portfolioStore: usePortfolioStore.getState(),
   peopleStore: usePeopleStore.getState(),
   customCategoryStore: useCustomCategoryStore.getState(),
@@ -118,7 +99,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
 
   // Get all store states for syncing
   getAllStoreStates: () => {
-    const state = get();
     const now = Date.now();
     
     // Helper to safely get store state
@@ -133,25 +113,21 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
     };
 
     return {
-      habits: { ...getStoreState(state.habitStore), lastUpdated: now },
-      weather: { ...getStoreState(state.weatherStore), lastUpdated: now },
-      bills: { ...getStoreState(state.billStore), lastUpdated: now },
-      calendar: { ...getStoreState(state.calendarStore), lastUpdated: now },
-      tasks: { ...getStoreState(state.todoStore), lastUpdated: now },
-      notes: { ...getStoreState(state.noteStore), lastUpdated: now },
-      wallpapers: { ...getStoreState(state.wallpaperStore), lastUpdated: now },
-      user: { ...getStoreState(state.userStore), lastUpdated: now },
-      stocks: { ...getStoreState(state.editStockStore), lastUpdated: now },
-      tasksEdit: { ...getStoreState(state.editTaskStore), lastUpdated: now },
-      network: { ...getStoreState(state.networkStore), lastUpdated: now },
-      vault: { ...getStoreState(state.vaultStore), lastUpdated: now },
-      calendarView: { ...getStoreState(state.calendarViewStore), lastUpdated: now },
-      nba: { ...getStoreState(state.nbaStore), lastUpdated: now },
-      crm: { ...getStoreState(state.crmStore), lastUpdated: now },
-      recommendations: { ...getStoreState(state.recommendationStore), lastUpdated: now },
-      portfolio: { ...getStoreState(state.portfolioStore), lastUpdated: now },
-      people: { ...getStoreState(state.peopleStore), lastUpdated: now },
-      customCategory: { ...getStoreState(state.customCategoryStore), lastUpdated: now }
+      habits: { ...getStoreState(useHabitStore.getState()), lastUpdated: now },
+      weather: { ...getStoreState(useWeatherStore.getState()), lastUpdated: now },
+      bills: { ...getStoreState(useBillStore.getState()), lastUpdated: now },
+      calendar: { ...getStoreState(useCalendarStore.getState()), lastUpdated: now },
+      tasks: { ...getStoreState(useProjectStore.getState()), lastUpdated: now },
+      notes: { ...getStoreState(useNoteStore.getState()), lastUpdated: now },
+      wallpapers: { ...getStoreState(useWallpaperStore.getState()), lastUpdated: now },
+      user: { ...getStoreState(useUserStore.getState()), lastUpdated: now },
+      network: { ...getStoreState(useNetworkStore.getState()), lastUpdated: now },
+      vault: { ...getStoreState(useVaultStore.getState()), lastUpdated: now },
+      crm: { ...getStoreState(useCRMStore.getState()), lastUpdated: now },
+      portfolio: { ...getStoreState(usePortfolioStore.getState()), lastUpdated: now },
+      people: { ...getStoreState(usePeopleStore.getState()), lastUpdated: now },
+      customCategory: { ...getStoreState(useCustomCategoryStore.getState()), lastUpdated: now },
+      tags: { ...getStoreState(useTagStore.getState()), lastUpdated: now }
     };
   },
 
@@ -173,6 +149,25 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
     💾 Storage Status:
     • AsyncStorage: ${storage ? '✅ Available' : '❌ Not Available'}
     `);
+  },
+
+  // NEW ACTION: export full registry state to a JSON file
+  exportStateToFile: async () => {
+    try {
+      const state = get();
+      const allStores = state.getAllStoreStates();
+      const fileUri = `${FileSystem.documentDirectory}stateSnapshot.json`;
+      await FileSystem.writeAsStringAsync(
+        fileUri,
+        JSON.stringify(allStores, null, 2),
+        { encoding: FileSystem.EncodingType.UTF8 }
+      );
+      console.log('✅ Exported state to', fileUri);
+      return fileUri;
+    } catch (error) {
+      console.error('❌ Failed to export state:', error);
+      throw error;
+    }
   }
 }));
 

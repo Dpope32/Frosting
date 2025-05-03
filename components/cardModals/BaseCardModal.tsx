@@ -10,6 +10,7 @@ interface BaseCardModalProps {
   onOpenChange: (open: boolean) => void
   title: string
   children: React.ReactNode
+  footer?: React.ReactNode
   snapPoints?: number[]
   position?: number
   dismissOnSnapToBottom?: boolean
@@ -23,6 +24,7 @@ export function BaseCardModal({
   onOpenChange,
   title,
   children,
+  footer,
   snapPoints = isWeb ? [95] : [82],
   position = 0,
   dismissOnSnapToBottom = true,
@@ -75,7 +77,7 @@ export function BaseCardModal({
           {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>}
           <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1, paddingTop: Math.max(topInset - 80, 0) }}
+            style={{ flex: 1, paddingTop: Math.max(topInset - 80, 6) }}
           >
             <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 0, paddingHorizontal: 6}}>
               <XStack justifyContent="space-between" alignItems="center">
@@ -108,6 +110,11 @@ export function BaseCardModal({
             >
               {children}
             </Sheet.ScrollView>
+            {footer && (
+              <XStack justifyContent="space-between" px="$4" py="$2" borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} style={{ paddingBottom: insets.bottom }}>
+                {footer}
+              </XStack>
+            )}
           </KeyboardAvoidingView>
         </Sheet.Frame>
       </Sheet>

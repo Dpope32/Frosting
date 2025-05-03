@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, forwardRef } from 'react'
 import { YStack, XStack, ScrollView, Text, Button, isWeb } from 'tamagui'
 import { TextInput, useColorScheme } from 'react-native'
 import { useMedia } from 'tamagui'
@@ -6,9 +6,11 @@ import { DebouncedInput, DateDebouncedInput, DebouncedInputHandle } from '@/comp
 import { ProfileSection } from './ProfileSection'
 import { PaymentMethodSection } from './PaymentMethodSection'
 import type { FormContentProps } from './types'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
-export const FormContent = React.memo((props: FormContentProps) => {
+export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((props, ref) => { // Use forwardRef
   const {
+    isVisible,
     formData,
     inputResetKey,
     updateFormField,
@@ -20,12 +22,13 @@ export const FormContent = React.memo((props: FormContentProps) => {
     paymentMethod,
     setPaymentMethod,
     paymentUsername,
-    updatePaymentUsername
+    updatePaymentUsername,
   } = props;
 
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const nameRef = useRef<DebouncedInputHandle>(null)
+  useAutoFocus(nameRef, 1000, isVisible)
   const birthdayRef = useRef<TextInput>(null)
   const phoneRef = useRef<DebouncedInputHandle>(null)
   const emailRef = useRef<DebouncedInputHandle>(null)
@@ -35,6 +38,7 @@ export const FormContent = React.memo((props: FormContentProps) => {
 
   return (
     <ScrollView
+      ref={ref} 
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
@@ -168,27 +172,7 @@ export const FormContent = React.memo((props: FormContentProps) => {
             inputResetKey={inputResetKey}
           />
         </YStack>
-        
-        <XStack gap="$3" justifyContent="flex-end" mt="$2">
-          <Button
-            theme={isDark ? "dark" : "light"}
-            onPress={() => setOpen(false)}
-            backgroundColor={isDark ? "$gray5" : "#E0E0E0"}
-          >
-            Cancel
-          </Button>
-          <Button
-            onPress={handleSubmit}
-            backgroundColor="#3B82F6"
-            borderColor="#3B82F6"
-            borderWidth={2}
-          >
-            <Text color="white" fontWeight="600" fontFamily="$body">
-              Save Contact
-            </Text>
-          </Button>
-        </XStack>
       </YStack>
     </ScrollView>
   )
-})
+}))

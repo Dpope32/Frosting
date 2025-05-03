@@ -57,7 +57,7 @@ export default function ChangeLog() {
       styles.container,
       {
         paddingTop: (isIpad() ? 20 : insets.top - 14),
-        backgroundColor: isDark ? '#111' : '#fff',
+        backgroundColor: isDark ? '#121212' : '#fff',
       },
     ]}>
       <XStack alignItems="center" justifyContent="center" position="relative">
@@ -196,7 +196,6 @@ export default function ChangeLog() {
                         } as TextStyle}>
                           {entry.notes}
                         </Text>
-                        {/* Date in same row as notes, right-aligned, only when not expanded */}
                         {!isExpanded && entry.date && (
                           <Text style={{
                             ...markdownStyles.body as TextStyle,
@@ -221,8 +220,8 @@ export default function ChangeLog() {
                             marginTop={4}
                             paddingTop={10}
                             paddingRight={10}
-                            paddingLeft={10}
-                            paddingBottom={0}
+                            paddingLeft={12}
+                            paddingBottom={10}
                             borderRadius={8}
                             backgroundColor={isDark ? '#1c1c1c' : '#f0f5ff'}
                           >

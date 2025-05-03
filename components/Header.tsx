@@ -205,7 +205,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                 </Pressable>
               )}
                 <Text
-                  fontSize={isWeb ? 18 : isIpad() ? 22 : 18}
+                  fontSize={isWeb ? 18 : isIpad() ? 20 : 18}
                   color={textColor}
                   style={{ marginLeft: isIpad() ? 24 : 0 }}
                   numberOfLines={1}

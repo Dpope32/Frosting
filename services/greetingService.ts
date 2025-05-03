@@ -245,7 +245,6 @@ export const getGreeting = (username: string, temp?: number): string => {
     `Onward and upward, ${username}!`,
     `The day is yours, ${username}!`,
     `Seize the day, ${username}!`,
-    `Hope ur day is as awesome as you r! :)`
   ];
 
   const edgyGreetingsThatShouldBeUsedRarely = [

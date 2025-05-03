@@ -3,10 +3,12 @@ import { Platform, useColorScheme } from 'react-native';
 import { YStack, Text, Stack, isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { isIpad } from '@/utils/deviceUtils';
+import { useOrientationStore } from '@/store/OrientationStore';
 
 export function YearCompleteSection() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { isPortrait } = useOrientationStore();
   const { percentage, currentYear } = useMemo(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 0);
@@ -32,7 +34,7 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width={isWeb ? "100%" :isIpad() ? "100%" : "95%"}
+      width={isWeb ? "100%" :isIpad() ? isPortrait ? "90%" : "95%" : "95%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"

@@ -17,6 +17,7 @@ import { AddVaultEntryModal } from './cardModals/AddVaultEntryModal'
 import { AddHabitModal } from './cardModals/AddHabitModal'
 import { AddNoteSheet } from './notes/AddNoteSheet'
 import { AddBillModal } from './cardModals/AddBillModal'
+import { AddPersonForm } from './crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
 
 import { useUserStore } from '@/store/UserStore'
@@ -56,6 +57,7 @@ export function LandingPage() {
   const [vaultModalOpen, setVaultModalOpen] = useState(false)
   const [habitModalOpen, setHabitModalOpen] = useState(false)
   const [noteModalOpen, setNoteModalOpen] = useState(false)
+  const [contactModalOpen, setContactModalOpen] = useState(false)
   const [billModalOpen, setBillModalOpen] = useState(false)
   const [eventModalOpen, setEventModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -137,6 +139,9 @@ export function LandingPage() {
         break;
       case 'bt_todo':
         setSheetOpen(true);
+        break;
+      case 'bt_contact':
+        setContactModalOpen(true);
         break;
     }
   };
@@ -260,7 +265,6 @@ export function LandingPage() {
             handleSaveNote={() => {
               const noteStore = require('@/store/NoteStore').useNoteStore.getState();
               const { showToast } = require('@/store/ToastStore').useToastStore.getState();
-              // Only save if title or content is not empty
               if (noteTitle.trim() || noteContent.trim()) {
                 noteStore.addNote({
                   title: noteTitle,
@@ -288,6 +292,7 @@ export function LandingPage() {
             handleImagePick={() => {}}
             onSelectionChange={e => setSelection(e.nativeEvent.selection)}
           />
+          {contactModalOpen && <AddPersonForm isVisible={contactModalOpen} onClose={() => setContactModalOpen(false)} />}
           <AddBillModal 
             isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}
             onSubmit={(entry: { name: string; amount: number; dueDate: number }) => { setBillModalOpen(false) }}

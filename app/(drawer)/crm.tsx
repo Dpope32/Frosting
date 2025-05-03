@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
 import { H4, Separator, YStack, Button, isWeb } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
@@ -13,13 +13,10 @@ import { generateTestContacts } from "@/components/crm/testContacts";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
 import { handleDebugPress, handleImportContacts } from "@/services/peopleService";
-
+import { isIpad } from "@/utils/deviceUtils";
+import { useOrientationStore } from "@/store/OrientationStore";
 const { width } = Dimensions.get("window");
-const PADDING = Platform.OS === 'web' ? 16 : 12;
-const GAP = Platform.OS === 'web' ? 24 : 12; 
-const NUM_COLUMNS = Platform.OS === 'web' ? 4 : 2;
-const CARD_WIDTH = (width - (24 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-const CARD_WIDTH_MOBILE = (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+
 
 export default function CRM() {
   const { contacts, updatePerson } = usePeopleStore();
@@ -30,7 +27,14 @@ export default function CRM() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
-
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const { isPortrait, init } = useOrientationStore();
+  useEffect(() => { init(); }, []);
+  const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 12;
+  const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 12; 
+  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? isPortrait ? 2 : 3 : 2;
+  const CARD_WIDTH = isIpad() ? 300 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+  const CARD_WIDTH_MOBILE = isIpad() ?  isPortrait ? 250 : 280 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
     setEditModalVisible(true);
@@ -58,7 +62,7 @@ export default function CRM() {
           marginLeft: isFirstInRow ? PADDING : GAP / 1,
           paddingLeft: isWeb ? 24 : 0,
           marginRight: isLastInRow ? PADDING : GAP / 2,
-          marginBottom: GAP / 2
+          marginBottom: GAP / 2,
         }}
       >
         <PersonCard
@@ -130,7 +134,7 @@ export default function CRM() {
         </View>
       )}
       <FlatList
-        key={JSON.stringify(allContacts)}
+        key={`crm-${NUM_COLUMNS}`}
         data={allContacts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -138,7 +142,7 @@ export default function CRM() {
         contentContainerStyle={{
           paddingTop: 8,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 8 : 0
+          paddingHorizontal: isWeb ? 8 : isIpad() ? 8 : 0
         }}
         ListEmptyComponent={
           <PersonEmpty 
@@ -149,7 +153,7 @@ export default function CRM() {
           />
         }
       />
-      <AddPersonForm />
+      <AddPersonForm isVisible={contactModalOpen} onClose={() => setContactModalOpen(false)} />
       {selectedPerson && (
         <EditPersonForm
           person={selectedPerson}

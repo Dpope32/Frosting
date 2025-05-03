@@ -15,16 +15,17 @@ export const NotesEmpty = ({
 }: NotesEmptyProps) => {
   return (
     <XStack 
-      p={isWeb ? "$6" : "$3"} 
+      p={isWeb ? "$6" : isIpad() ? "$4" : "$4"} 
       px={isWeb ? "$6" : isIpad() ? "$5" : "$4"}
       br="$4" 
       ai="flex-start" 
       jc="center"
       borderWidth={1} 
       borderColor={isDark ? "#333" : "#e0e0e0"} 
-      width="100%" 
+      width="90%" 
       overflow="hidden" 
       marginTop={isWeb ? 10 : isIpad() ? 24 : 18}
+      marginLeft={isWeb ? 0 : isIpad() ? 24 : 0}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
