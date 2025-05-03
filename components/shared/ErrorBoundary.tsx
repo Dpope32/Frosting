@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<Props, State> {
             An unexpected error occurred. We apologize for the inconvenience.
             Please try reloading the application.
           </Text>
-          {__DEV__ && this.state.error && (
+          {this.state.error && (
             <Text style={styles.errorDetails} selectable>
               Dev Info: {this.state.error.toString()}
             </Text>
