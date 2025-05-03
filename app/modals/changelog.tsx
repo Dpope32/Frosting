@@ -130,14 +130,12 @@ export default function ChangeLog() {
                     onPressOut={hasBullets ? handlePressOut : undefined}
                     style={{ ...cardTouchableStyle } as any}
                   >
-                    {/* Timeline indicator (dot + vertical connector) */}
                     <YStack
                       width={34}
                       alignItems="center"
                       paddingTop={12}
                       backgroundColor="transparent"
                     >
-                      {/* Dot representing this version */}
                       <View
                         style={{
                           width: 12,
@@ -148,7 +146,6 @@ export default function ChangeLog() {
                           borderColor: isDark ? '#000' : '#fff',
                         }}
                       />
-                      {/* Vertical line connecting to next version (hidden on last item) */}
                       {idx < CHANGELOG.length - 1 && (
                         <View
                           style={{

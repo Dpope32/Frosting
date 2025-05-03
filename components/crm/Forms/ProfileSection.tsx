@@ -4,11 +4,13 @@ import { Circle, Text, XStack, YStack } from 'tamagui'
 
 type ProfileSectionProps = {
   profilePicture?: string
-  registered: boolean
+  registered?: boolean
   priority: boolean
+  favorite?: boolean
   onPickImage: () => void
-  onToggleRegistered: (val: boolean) => void
-  onTogglePriority: (val: boolean) => void
+  onToggleRegistered?: (val: boolean) => void
+  onToggleFavorite?: (val: boolean) => void
+  onTogglePriority?: (val: boolean) => void
   primaryColor: string
   isDark: boolean
 }
@@ -17,8 +19,9 @@ export function ProfileSection({
   profilePicture,
   registered,
   priority,
+  favorite,
   onPickImage,
-  onToggleRegistered,
+  onToggleFavorite,
   onTogglePriority,
   primaryColor,
   isDark
@@ -45,10 +48,10 @@ export function ProfileSection({
       
       <YStack width="100%" gap="$2" alignItems="center">
         <XStack alignItems="center" gap="$2" justifyContent="space-between" width="100%">
-          <Text color={isDark ? "#888888" : "#666666"} fontSize={13} fontFamily="$body">Registered</Text>
+          <Text color={isDark ? "#888888" : "#666666"} fontSize={13} fontFamily="$body">Favorite</Text>
           <Switch
-            value={registered}
-            onValueChange={onToggleRegistered}
+            value={favorite}
+            onValueChange={onToggleFavorite}
             trackColor={{ 
               false: isDark ? '#383838' : '#E0E0E0', 
               true: primaryColor 

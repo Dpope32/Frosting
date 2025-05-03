@@ -25,6 +25,7 @@ export const handleSharedContact = (contactData: {
               profilePicture: '', // Required field with empty default
               registered: false, // Required field with default
               priority: false, // Required field with default
+              favorite: false, // Required field with default
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               address: undefined,

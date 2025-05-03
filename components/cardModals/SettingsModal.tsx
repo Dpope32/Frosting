@@ -222,6 +222,69 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
+      footer={
+        <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
+        <Button
+          backgroundColor="transparent" borderColor={'$red10'} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
+          disabled={isSigningOut}
+          onPress={async () => {
+            const message = "Are you sure you want to reset all your data? This cannot be undone..."
+            const shouldReset = isWeb
+              ? window.confirm(message)
+              : await new Promise(resolve => {
+                Alert.alert(
+                  "Confirm Reset",
+                  message,
+                  [
+                    { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+                    { text: "Reset", style: "destructive", onPress: () => resolve(true) },
+                  ],
+                  { cancelable: false }
+                )
+              });
+          
+            if (shouldReset) {
+              setIsSigningOut(true);
+              try {
+                useBillStore.getState().clearBills();
+                useProjectStore.getState().clearTasks();
+                usePeopleStore.getState().clearContacts();
+                useUserStore.getState().clearPreferences();
+                useNoteStore.getState().clearNotes();
+                await StorageUtils.clear();
+                setTimeout(() => {
+                  if (isWeb) {
+                    window.location.href = '/screens/onboarding';
+                  } else {
+                    router.replace('/screens/onboarding');
+                  }
+                }, 300);
+              } catch (error) {
+                console.error("[SignOut] Error during sign out:", error);
+                Alert.alert("Error", "Failed to sign out. Please try again.");
+                setIsSigningOut(false);
+              }
+            }
+          }}
+          >
+            <Text color="$red10" fontWeight="bold" fontFamily="$body" fontSize={14}>
+              Sign Out
+            </Text>
+          </Button>
+          <Button
+            backgroundColor={settings.primaryColor}
+            height={40}
+            paddingHorizontal={20}
+            pressStyle={{ opacity: 0.8 }}
+            onPress={handleSave}
+            disabled={isSigningOut}
+          >
+            <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
+              Save
+            </Text>
+          </Button>
+        </XStack>
+      }
     >
       <YStack flex={1} gap="$2" paddingVertical="$3" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$1.5'}>
         <XStack gap="$3" flexWrap="wrap">
@@ -387,73 +450,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
             </YStack>
           </YStack>
         </YStack>
-      <XStack 
-        justifyContent="space-between"
-        paddingHorizontal={isWeb ? '$7' : '$5'}
-        paddingVertical={isWeb ? '$4' : '$3'}
-        paddingTop={isWeb ? '$15' : '$3'}
-        marginTop={isWeb ? 0 : 12}
-      >
-        <Button
-          backgroundColor="transparent" borderColor={'$red10'} height={40} paddingHorizontal={20} pressStyle={{ opacity: 0.8 }}
-          disabled={isSigningOut}
-          onPress={async () => {
-            const message = "Are you sure you want to reset all your data? This cannot be undone..."
-            const shouldReset = isWeb
-              ? window.confirm(message)
-              : await new Promise(resolve => {
-                Alert.alert(
-                  "Confirm Reset",
-                  message,
-                  [
-                    { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
-                    { text: "Reset", style: "destructive", onPress: () => resolve(true) },
-                  ],
-                  { cancelable: false }
-                )
-              });
-          
-            if (shouldReset) {
-              setIsSigningOut(true);
-              try {
-                useBillStore.getState().clearBills();
-                useProjectStore.getState().clearTasks();
-                usePeopleStore.getState().clearContacts();
-                useUserStore.getState().clearPreferences();
-                useNoteStore.getState().clearNotes();
-                await StorageUtils.clear();
-                setTimeout(() => {
-                  if (isWeb) {
-                    window.location.href = '/screens/onboarding';
-                  } else {
-                    router.replace('/screens/onboarding');
-                  }
-                }, 300);
-              } catch (error) {
-                console.error("[SignOut] Error during sign out:", error);
-                Alert.alert("Error", "Failed to sign out. Please try again.");
-                setIsSigningOut(false);
-              }
-            }
-          }}
-          >
-            <Text color="$red10" fontWeight="bold" fontFamily="$body" fontSize={14}>
-              Sign Out
-            </Text>
-          </Button>
-          <Button
-            backgroundColor={settings.primaryColor}
-            height={40}
-            paddingHorizontal={20}
-            pressStyle={{ opacity: 0.8 }}
-            onPress={handleSave}
-            disabled={isSigningOut}
-          >
-            <Text color="#fff" fontWeight="500" fontSize={14} fontFamily="$body">
-              Save
-            </Text>
-          </Button>
-        </XStack>
       </BaseCardModal>
     <ColorPickerModal
       open={colorPickerOpen}

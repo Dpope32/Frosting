@@ -87,7 +87,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
       {isWeb && isIpad() && <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
         <XStack gap="$2">
-          {['work', 'health', 'personal', 'family', 'wealth', ...customCategories.map(cat => cat.name)].map(cat => {
+          {[...customCategories.map(cat => cat.name), 'work', 'health', 'personal', 'family', 'wealth'].map(cat => {
             const isCustom = customCategories.some(c => c.name === cat);
             const color = isCustom ? userColor : getCategoryColor(cat as TaskCategory);
             const isSelected = selectedCategory === cat;
@@ -117,7 +117,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   fontFamily="$body"
                   color={
                     isSelected
-                      ? (isCustom ? (isDark ? 'white' : '$gray12') : color)
+                      ? (isCustom ? (isDark ? userColor : '$gray12') : color)
                       : isDark
                         ? "$gray11"
                         : "$gray11"

@@ -92,9 +92,9 @@ export default function VaultScreen() {
         contentContainerStyle={{
           padding: isWeb ? 8 : 6,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : 20,
+          paddingHorizontal: isWeb ? 0 : 16,
           paddingTop: isWeb ? 0 : 20,
-          paddingLeft: isWeb ? 12 : 20,
+          paddingLeft: isWeb ? isIpad() ? 12 : 12 : 16,
           display: isWeb ? 'flex' : undefined,
           flexDirection: isWeb ? 'row' : undefined,
           flexWrap: isWeb ? 'wrap' : undefined,

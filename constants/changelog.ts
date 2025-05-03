@@ -1,7 +1,19 @@
 export const CHANGELOG = [
   {
+    version: '1.1.124',
+    date: '2025-05-04',
+    notes: 'Polishing the Experience: UI Refinements',
+    bullets: [
+      'Fixed edit person form adding missing save button',
+      'Centered notes empty state on mobile',
+      'Turned down BlurView intensity in landing page',
+      'Added tags to CRM screen',
+      'Removed React Native masked view dependency',
+    ],
+  },
+  {
     version: '1.1.111',
-    date: '2025-05-03',
+    date: '2025-05-02',
     notes: 'Small UI updates to iPad',
     bullets: [
       'Export app registry store on mount',

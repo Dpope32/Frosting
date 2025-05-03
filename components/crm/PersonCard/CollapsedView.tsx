@@ -3,7 +3,6 @@ import { Card, Image, Paragraph, XStack, isWeb } from 'tamagui';
 import { TouchableOpacity, View, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './styles';
-import { webStyles } from './webStyles';
 import type { Person } from '@/types/people';
 import { isIpad } from '@/utils/deviceUtils';
 import { adjustColor, getDarkerHslColor } from './utils';
@@ -60,9 +59,9 @@ export default function CollapsedView({
           </View>
           <View style={styles.textContainer as any}>
             <XStack alignItems="center" gap="$1">
-              {person.registered && (
+              {person.favorite && (
                 <Ionicons
-                  name="checkmark-circle"
+                  name="heart"
                   size={14}
                   color="#4CAF50"
                   style={styles.checkmark as any}

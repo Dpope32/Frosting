@@ -5,7 +5,9 @@ import { useMedia } from 'tamagui'
 import { DebouncedInput, DateDebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput'
 import { ProfileSection } from './ProfileSection'
 import { PaymentMethodSection } from './PaymentMethodSection'
+import { TagSelector } from '@/components/notes/TagSelector'
 import type { FormContentProps } from './types'
+import type { Tag } from '@/types/notes'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((props, ref) => { // Use forwardRef
@@ -50,17 +52,17 @@ export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((
       <YStack 
         gap="$4" 
         p="$4"
-        pt="$2"
+        pt="$3"
         width={isWeb ? (isSmallScreen ? '100%' : '600px') : '100%'}
       >
         <XStack gap="$6" alignItems="flex-start">
           <YStack width={100} alignItems="center">
             <ProfileSection
               profilePicture={formData.profilePicture}
-              registered={formData.registered || false}
+              favorite={formData.favorite || false}
               priority={formData.priority || false}
               onPickImage={pickImage}
-              onToggleRegistered={(val: boolean) => updateFormField('registered', val)}
+              onToggleFavorite={(val: boolean) => updateFormField('favorite', val)}
               onTogglePriority={(val: boolean) => updateFormField('priority', val)}
               primaryColor={primaryColor}
               isDark={isDark}
@@ -168,8 +170,12 @@ export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((
             paymentUsername={paymentUsername}
             updatePaymentUsername={updatePaymentUsername}
             primaryColor={primaryColor}
-            isDark={isDark} // Pass actual theme
+            isDark={isDark} 
             inputResetKey={inputResetKey}
+          />
+          <TagSelector
+            tags={formData.tags || []}
+            onTagsChange={(newTags: Tag[]) => updateFormField('tags', newTags)}
           />
         </YStack>
       </YStack>

@@ -114,7 +114,7 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
     ...(Platform.OS === 'web' ? webSpecificStyles.avatarWrapper : {
       borderColor: "#fff",
-      marginRight: -8,
+      marginHorizontal: -4,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
@@ -143,7 +143,14 @@ export const styles = StyleSheet.create({
   },
   checkmark: {
     marginRight: 0, // Restored from 0 to -4 as requested
-    marginLeft: -8
+    marginLeft: -20,
+    backgroundColor: 'rgba(111, 255, 44, 0.1)',
+    borderRadius: 12,
+    shadowColor: 'rgba(111, 255, 44, 0.1)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   overlay: {
     backgroundColor: "rgba(0,0,0,0.3)"

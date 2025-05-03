@@ -130,7 +130,7 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
           showCloseButton={true}
           hideHandle={true}
           footer={
-            <XStack width="100%" px="$4" py="$2" justifyContent="space-between">
+            <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
               <Button
                 theme={isDark ? "dark" : "light"}
                 onPress={() => onClose()}

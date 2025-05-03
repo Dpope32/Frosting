@@ -12,6 +12,7 @@ export const initialFormData: FormData = {
     occupation: '',
     address: undefined,
     registered: false,
+    favorite: false,
     notes: '',
     tags: [],
     lastContactDate: '',

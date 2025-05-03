@@ -165,6 +165,7 @@ export function TagSelector({
           {!isAdding && (
             keyboardVisible ? (
               <Button
+                key="confirm-new-tag"
                 size="$2"
                 circular
                 icon={<Check size={isWeb ? 16 : 14} color={isDark ? "#e0e0e0" : "#333333"} />}
@@ -176,6 +177,7 @@ export function TagSelector({
               />
             ) : (
               <Button
+                key="start-add-tag"
                 size="$2"
                 circular
                 icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "#e0e0e0" : "#333333"} />}

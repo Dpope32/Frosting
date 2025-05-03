@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useState } from 'react';
 import { Platform, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';

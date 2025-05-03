@@ -46,8 +46,8 @@ export const BillCard = ({
     <LongPressDelete onDelete={handleDelete}>
       <XStack
         jc="center"
-        minHeight={isWeb ? 100 : isIpad() ? 100 : 70}
-        height={isWeb ? 100 : isIpad() ? 100 : 75}
+        minHeight={isWeb ? 100 : isIpad() ? 100 : 75}
+        height={isWeb ? 100 : isIpad() ? 100 : 80}
         flexShrink={0}
         bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.8)'}
         p="$3"
@@ -96,8 +96,8 @@ export const BillCard = ({
           </YStack>
         )}
 
-        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : 4 }}>
-          <XStack jc="space-between" ai="center" style={{ minWidth: 0 }}>
+        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : 4, marginTop: isIpad() ? 4 : 4 }}>
+          <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? 4 : 4 }}>
             <Text
               color={isDark ? '#f9f9f9' : '#222'}
               fontSize="$4"
@@ -110,9 +110,9 @@ export const BillCard = ({
             </Text>
           </XStack>
 
-          <XStack mt={isIpad() ? "$2" : "$1"} ai="center" gap="$1" style={{ minWidth: 0 }}>
+          <XStack mt={isIpad() ? "$2" : "$1.5"} ai="center" gap="$1" style={{ minWidth: 0 }}>
             <YStack width={42} height={28} br="$6" ai="center" jc="center">
-              <Icon size={26} color={isDark ? 'white' : '#666'} />
+              <Icon size={isIpad() ? 26 : 22} color={isDark ? 'white' : '#666'} />
             </YStack>
             <XStack flex={1} pl="$2" jc="space-between" style={{ minWidth: 0 }}>
               <Paragraph color={amountColor} fontSize="$5" fontWeight={900} fontFamily="$body">

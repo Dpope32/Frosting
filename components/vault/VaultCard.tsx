@@ -34,7 +34,7 @@ export const VaultCard = ({
       px="$4"
       br="$4"
       borderWidth={1}
-      borderColor={isDark ? '#222' : '#e0e0e0'}
+      borderColor={isDark ? '#121212' : '#e0e0e0'}
       ai="center"
       animation="quick"
       width={columnWidthWeb}
@@ -96,40 +96,23 @@ export const VaultCard = ({
     <XStack
       bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.8)'}
       p={isIpad() ? "$2" : "$1.5"}
-      px={isWeb ? "$4" : isIpad() ? "$4" : "$0"}
-      pl="$4"
+      px={isWeb ? "$4" : isIpad() ? "$2.5" : "$4"}
+      pl={isWeb ? "$4" : isIpad() ? "$2.5" : "$4"}
       br="$4"
       borderWidth={1}
-      w={isIpad() ? "100%" : 400}
+      w={isIpad() ? "100%" : "100%"}
       borderColor={isDark ? '#777' : '#e0e0e0'}
       ai="center"
       animation="quick"
+      py={isIpad() ? "$3" : "$2.5"}
     >
       <YStack flex={1}>
-        <XStack jc="space-between" ai="center" pt={isIpad() ? "$3" : "$2"} pb={isIpad() ? "$1.5" : "$1"}>
+        <XStack jc="space-between" px={isIpad() ? "$2" : "$1"} mb={isIpad() ? "$1" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
           <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
             {cred.name}
           </Text>
-        </XStack>
-
-        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} mt="$1" ml="$3" mb={isIpad() ? "$2" : 0}>
-          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : "$3"} w={isIpad() ? 80 : 70} fontFamily="$body">
-            Username:
-          </Text>
-          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 18 : "$3"} flex={1} fontFamily="$body">
-            {cred.username}
-          </Text>
-        </XStack>
-
-        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} mt={isIpad() ? "$-2.5" : "$-1.5"} ml="$3">
-          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : "$3"} w={isIpad() ? 80 : 70} fontFamily="$body">
-            Password:
-          </Text>
-          <Text color={isDark ? '#fff' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
-            {visiblePasswords[cred.id] ? cred.password : '••••••••'}
-          </Text>
           <Button
-            size="$3"
+            size="$2"
             bg="transparent"
             pressStyle={{ scale: 0.9 }}
             onPress={() => togglePasswordVisibility(cred.id)}
@@ -141,6 +124,25 @@ export const VaultCard = ({
               )
             }
           />
+        </XStack>
+
+        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$2" : 6}>
+          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
+            Username:
+          </Text>
+          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+            {cred.username}
+          </Text>
+        </XStack>
+
+        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3">
+          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
+            Password:
+          </Text>
+          <Text color={isDark ? '#fff' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+            {visiblePasswords[cred.id] ? cred.password : '••••••••'}
+          </Text>
+
         </XStack>
       </YStack>
     </XStack>

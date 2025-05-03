@@ -1,12 +1,14 @@
 import React, { useState, useCallback } from "react";
+import { Button, Text } from "tamagui";
 import { useUserStore } from "@/store/UserStore";
 import { useImagePicker } from "@/hooks/useImagePicker";
-import { BaseCardAnimated } from "@/components/cardModals/BaseCardAnimated";
+import { BaseCardModal } from "@/components/cardModals/BaseCardModal";
 import { Platform, useColorScheme } from "react-native";
 import type { Person } from "@/types/people";
 import { format } from "date-fns";
 import { FormContent } from "./FormContent";
 import { useToastStore } from "@/store/ToastStore";
+import { XStack } from "tamagui";
 
 type FormData = Omit<Person, "id" | "createdAt" | "updatedAt">;
 
@@ -30,7 +32,7 @@ export function EditPersonForm({
   const { showToast } = useToastStore();
   const { pickImage: pickImageFromLibrary } = useImagePicker();
   const updateFormField = (field: keyof FormData, value: any): void => { setFormData((prev) => ({ ...prev, [field]: value }))};
-
+  const isDark = useColorScheme() === "dark";
 
   const pickImage = async () => {
     const imageUri = await pickImageFromLibrary();
@@ -70,9 +72,33 @@ export function EditPersonForm({
   if (!visible) return null;
 
   return (
-    <BaseCardAnimated 
+    <BaseCardModal 
       title="Edit Person"
-      onClose={handleClose}
+      onOpenChange={onClose}
+      open={visible}
+      showCloseButton={true}
+      hideHandle={true}
+        footer={
+          <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
+            <Button
+              theme={isDark ? "dark" : "light"}
+              onPress={() => onClose()}
+              backgroundColor={isDark ? "$gray5" : "#E0E0E0"}
+            >
+              Cancel
+            </Button>
+            <Button
+              onPress={handleSubmit}
+              backgroundColor="#3B82F6"
+              borderColor="#3B82F6"
+              borderWidth={2}
+            >
+              <Text color="white" fontWeight="600" fontFamily="$body">
+                Save Contact
+              </Text>
+            </Button>
+          </XStack>
+      }
     >
       <FormContent
         formData={formData}
@@ -85,9 +111,10 @@ export function EditPersonForm({
         setOpen={onClose}
         paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
+        isVisible={visible}
         paymentUsername={paymentUsername}
         updatePaymentUsername={updatePaymentUsername}
       />
-    </BaseCardAnimated>
+    </BaseCardModal>
   );
 }

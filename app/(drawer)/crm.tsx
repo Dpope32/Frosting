@@ -27,11 +27,11 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 12;
-  const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 12; 
-  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? 2 : 3;
+  const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 8;
+  const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 6; 
+  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? 2 : 2;
   const CARD_WIDTH = isIpad() ? 300 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-  const CARD_WIDTH_MOBILE = isIpad() ? 250 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+  const CARD_WIDTH_MOBILE = isIpad() ? 250 : "47%";
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
     setEditModalVisible(true);

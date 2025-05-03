@@ -18,6 +18,8 @@ export type Address = {
   country: string
 }
 
+import type { Tag } from '@/types/notes'
+
 export type Person = {
   id: string
   familyId?: string
@@ -27,10 +29,11 @@ export type Person = {
   address?: Address
   birthday: string
   registered?: boolean
+  favorite?: boolean
   phoneNumber?: string
   email?: string
   notes?: string
-  tags?: string[]
+  tags?: Tag[]
   lastContactDate?: string
   importantDates?: ImportantDate[]
   socialMedia?: SocialLink[]
