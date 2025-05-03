@@ -38,8 +38,7 @@ export default function BillsScreen() {
   const isDark = colorScheme === 'dark';
   const currentDay = new Date().getDate();
   const isWeb = Platform.OS === 'web';
-  const { isPortrait, init } = useOrientationStore();
-  useEffect(() => { init(); }, []);
+  const { isPortrait } = useOrientationStore();
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
   useEffect(() => {

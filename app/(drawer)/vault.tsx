@@ -32,7 +32,7 @@ export default function VaultScreen() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
-  const { isPortrait, init } = useOrientationStore()
+  const { isPortrait } = useOrientationStore()
 
   const [visiblePasswords, setVisiblePasswords] = useState<{ [id: string]: boolean }>({})
   const togglePasswordVisibility = (id: string) => { setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))}
@@ -47,10 +47,6 @@ export default function VaultScreen() {
     const handleResize = () => setWindowWidth(window.innerWidth)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  useEffect(() => {
-    init()
   }, [])
 
   const getColumnCount = () => {

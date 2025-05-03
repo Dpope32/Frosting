@@ -18,7 +18,6 @@ export default function Index() {
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
   
   // Grab sync and export actions
-  const { logSyncStatus, exportStateToFile } = useRegistryStore();
   
   // Call app initialization hook at the top level (per React rules)
   useAppInitialization();
@@ -29,31 +28,33 @@ export default function Index() {
     const timer = setTimeout(() => setShowIntro(false), 500);
     return () => clearTimeout(timer);
   }, []);
-  
+
+  // commenting out sync to see if this was the migration losing data issue
+ //const { logSyncStatus, exportStateToFile } = useRegistryStore();
   // Sync and export after all persisted stores finish rehydrating
-  useEffect(() => {
-    (async () => {
-      try {
-        await Promise.all([
-          useUserStore.persist.hasHydrated(),
-          useProjectStore.persist.hasHydrated(),
-          useHabitStore.persist.hasHydrated(),
-          useBillStore.persist.hasHydrated(),
-          useCalendarStore.persist.hasHydrated(),
-          useWallpaperStore.persist.hasHydrated(),
-          useVaultStore.persist.hasHydrated(),
-          useCustomCategoryStore.persist.hasHydrated(),
-          useTagStore.persist.hasHydrated(),
-        ]);
+ // useEffect(() => {
+   // (async () => {
+   //   try {
+  //      await Promise.all([
+ //         useUserStore.persist.hasHydrated(),
+ //         useProjectStore.persist.hasHydrated(),
+ //         useHabitStore.persist.hasHydrated(),
+ //         useBillStore.persist.hasHydrated(),
+ //         useCalendarStore.persist.hasHydrated(),
+ //         useWallpaperStore.persist.hasHydrated(),
+ //         useVaultStore.persist.hasHydrated(),
+ //         useCustomCategoryStore.persist.hasHydrated(),
+ //         useTagStore.persist.hasHydrated(),
+ //       ]);
         // Manually load NoteStore
-        await useNoteStore.getState().loadNotes();
-        logSyncStatus();
-        await exportStateToFile();
-      } catch (error) {
-        console.error('Sync/export failed:', error);
-      }
-    })();
-  }, []);
+ //       await useNoteStore.getState().loadNotes();
+ //       logSyncStatus();
+ //       await exportStateToFile();
+ //     } catch (error) {
+ //       console.error('Sync/export failed:', error);
+ //     }
+ //   })();
+ // }, []);
   
   
   // If onboarding is not completed, go to onboarding

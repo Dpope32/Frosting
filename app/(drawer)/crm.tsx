@@ -28,8 +28,7 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const { isPortrait, init } = useOrientationStore();
-  useEffect(() => { init(); }, []);
+  const { isPortrait } = useOrientationStore();
   const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 12;
   const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 12; 
   const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? isPortrait ? 2 : 3 : 2;
