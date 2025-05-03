@@ -4,8 +4,10 @@ import { Platform, View, Text, Animated, Easing } from 'react-native'
 import { FormData } from '@/types/onboarding'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils/deviceUtils'
+import Svg, { Defs, ClipPath, Rect, Text as SvgText, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg'
 
 const AnimatedLinearGradient: any = Animated.createAnimatedComponent(LinearGradient as any)
+const AnimatedRect = Animated.createAnimatedComponent(Rect)
 
 export default function Step0({
   formData,
@@ -27,17 +29,25 @@ export default function Step0({
     ).start()
   }, [])
 
-  // Interpolate translateX to a pixel value (e.g., -100 to 100)
-  const animatedStyle = {
-    transform: [
-      {
-        translateX: translateX.interpolate({
-          inputRange: [0, 1],
-          outputRange: [-100, 100],
-        }),
-      },
-    ],
-  }
+  // Interpolate translateX to a pixel value for the gradient shift
+  const translateGradient = translateX.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-100', '100'] 
+  })
+
+  const gradientColors = [
+    '#b2d7fe',
+    '#aad3fe',
+    '#c2e0fe',
+    '#dbecff',
+    '#9acbfe',
+    '#d3e8ff',
+    '#92c7fe',
+    '#cbe4fe',
+    '#badcfe',
+    '#a2cffe',
+    '#00f0ff'
+  ]
 
   return (
     <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$15" : "$10"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
@@ -75,58 +85,61 @@ export default function Step0({
           </span>
         </div>
       ) : (
-        <View style={{ height: isIpad() ? 130 : 90, width: '100%', position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
-          {/* Background gradient */}
-          <AnimatedLinearGradient
-            colors={[
-              '#b2d7fe',
-              '#aad3fe',
-              '#c2e0fe',
-              '#dbecff',
-              '#9acbfe',
-              '#d3e8ff',
-              '#92c7fe',
-              '#cbe4fe',
-              '#badcfe',
-              '#a2cffe',
-              '#00f0ff'
-            ]}
-            start={{ x: 1, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={[
-              {
-                position: 'absolute',
-                height: isIpad() ? 130 : 90,
-                width: '100%',
-              },
-              animatedStyle
-            ]}
-          />
+        <View style={{ height: isIpad() ? 130 : 90, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+          <Svg 
+            height="100%" 
+            width="100%"
+            style={{ position: 'absolute' }}
+          >
+            <Defs>
+              <ClipPath id="textClip">
+                <SvgText
+                  fontSize={isIpad() ? 100 : 60}
+                  fontWeight="bold"
+                  x="50%"
+                  y={isIpad() ? 90 : 60}
+                  textAnchor="middle"
+                  fill="white"
+                >
+                  Kaiba
+                </SvgText>
+              </ClipPath>
+              
+              <SvgLinearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                {gradientColors.map((color, index) => (
+                  <Stop 
+                    key={index} 
+                    offset={`${index * (100 / (gradientColors.length - 1))}%`} 
+                    stopColor={color} 
+                  />
+                ))}
+              </SvgLinearGradient>
+            </Defs>
+            
+            <AnimatedRect
+              x={translateGradient}
+              y="0"
+              width="300%"
+              height="100%"
+              fill="url(#gradient)"
+              clipPath="url(#textClip)"
+            />
+          </Svg>
           
-          <View style={{ 
-            position: 'absolute',
-            height: '100%',
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden'
-          }}>
-            <Text
-              style={{
-                fontSize: isIpad() ? 100 : 60,
-                color: 'white',
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontFamily: '$heading',
-                letterSpacing: 2,
-                textShadowColor: 'rgba(0,0,0,0.1)',
-                textShadowOffset: {width: 1, height: 1},
-                textShadowRadius: 3
-              }}
-            >
-              Kaiba
-            </Text>
-          </View>
+          <Text
+            style={{
+              fontSize: isIpad() ? 100 : 60,
+              fontWeight: 'bold',
+              fontFamily: '$heading',
+              color: '$white',
+              letterSpacing: 2,
+              textAlign: 'center',
+              opacity: 0,
+              width: '100%',
+            }}
+          >
+            Kaiba
+          </Text>
         </View>
       )}
       <Label paddingBottom={isWeb ? 20 : isIpad() ? 12 : 8} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">

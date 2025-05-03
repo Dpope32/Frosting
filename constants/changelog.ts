@@ -2,9 +2,8 @@ export const CHANGELOG = [
   {
     version: '1.1.111',
     date: '2025-05-03',
-    notes: 'Device Orientation',
+    notes: 'Small UI updates to iPad',
     bullets: [
-      'Added device orientation',
       'Export app registry store on mount',
       'Changed UI in Changelog',
       'Added missing person form in fab',
