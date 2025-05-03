@@ -134,7 +134,7 @@ export const VaultCard = ({
               Username:
             </Text>
           )}
-          <Text color={isDark ? isIpad() ? '#ccc' : '#000' :  isIpad() ? '#333' : '#f6f6f6'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+          <Text color={isDark ? isIpad() ? '#f3f3f3' : '#000' :  isIpad() ? '#333' : '#f6f6f6'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
             {cred.username}
           </Text>
         </XStack>
@@ -143,7 +143,7 @@ export const VaultCard = ({
           <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
             Password:
           </Text>
-          <Text color={isDark ? '#fff' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+          <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
             {visiblePasswords[cred.id] ? cred.password : '••••••••'}
           </Text>
 
