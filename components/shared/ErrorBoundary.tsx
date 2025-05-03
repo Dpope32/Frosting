@@ -50,7 +50,38 @@ class ErrorBoundary extends Component<Props, State> {
 
   private handleReload = async () => {
     try {
-      await Updates.reloadAsync();
+      // Check if we're in an emergency launch situation
+      const isEmergencyLaunch = Updates.isEmergencyLaunch;
+      
+      if (isEmergencyLaunch) {
+        // In emergency launch, we should be more careful about reloading
+        // as we're already in a fallback state
+        Alert.alert(
+          "Emergency Recovery Mode",
+          "The app is currently running in emergency recovery mode. Would you still like to attempt to reload?",
+          [
+            { text: "Cancel", style: "cancel" },
+            { 
+              text: "Reload Anyway", 
+              onPress: async () => {
+                try {
+                  await Updates.reloadAsync();
+                } catch (reloadErr) {
+                  console.error("Failed to reload in emergency mode:", reloadErr);
+                  Alert.alert(
+                    "Reload Failed",
+                    "Could not reload the app. Please close and restart the application manually."
+                  );
+                }
+              },
+              style: "destructive"
+            }
+          ]
+        );
+      } else {
+        // Normal reload process
+        await Updates.reloadAsync();
+      }
     } catch (err) {
       console.error("Failed to reload app via Updates:", err);
       
@@ -67,10 +98,17 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private getErrorDetails = (): string => {
+    // Check for emergency launch situation
+    const isEmergencyLaunch = Updates.isEmergencyLaunch;
+    let emergencyInfo = '';
+    
+    if (isEmergencyLaunch) {
+      emergencyInfo = '[EMERGENCY LAUNCH MODE: App is running from embedded update] ';
+    }
     try {
       const { error, errorInfo } = this.state;
       
-      if (!error) return "Unknown error occurred";
+      if (!error) return `${emergencyInfo}Unknown error occurred`;
       
       let details = '';
       
@@ -79,7 +117,7 @@ class ErrorBoundary extends Component<Props, State> {
                           (error.toString && typeof error.toString === 'function') ? 
                           error.toString() : 'Error object could not be converted to string';
       
-      details += errorMessage;
+      details += emergencyInfo + errorMessage;
       
       // Add stack trace if available
       if (error.stack && typeof error.stack === 'string') {

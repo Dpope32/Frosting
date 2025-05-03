@@ -81,7 +81,6 @@ export const CHANGELOG = [
         'Began implementing new sync feature',
         'Enhanced drawer layout',
         'Integrated LongPressDelete for HabitCards',
-        'Added React Native Masked View for the Onboarding Screen',
         'Added Whats New? FAB to the Home screen',
       ],
     },

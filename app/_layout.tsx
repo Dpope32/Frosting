@@ -98,6 +98,25 @@ export default Sentry.wrap(function RootLayout() {
 
     const checkAndApplyUpdate = async () => {
       try {
+        // Check if we're in emergency launch mode
+        const isEmergencyLaunch = Updates.isEmergencyLaunch;
+        
+        if (isEmergencyLaunch) {
+          console.log('App is running in emergency launch mode');
+          // Show a notification about emergency mode
+          if (Platform.OS !== 'web') {
+            Alert.alert(
+              'Running in Emergency Mode',
+              'The app is currently running in emergency recovery mode due to an issue with the latest update. Some features may be limited.',
+              [{ text: 'OK' }]
+            );
+          }
+          // In emergency mode, we might want to be more cautious with updates
+          // or implement special handling for backwards compatibility
+          return; // Skip normal update checking in emergency mode
+        }
+        
+        // Normal update flow
         const update = await Updates.checkForUpdateAsync();
         
         if (update.isAvailable) {

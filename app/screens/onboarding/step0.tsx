@@ -2,7 +2,6 @@ import React, { useRef, useEffect } from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
 import { Platform, View, Text, Animated, Easing } from 'react-native'
 import { FormData } from '@/types/onboarding'
-import MaskedView from '@react-native-masked-view/masked-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils/deviceUtils'
 
@@ -76,34 +75,8 @@ export default function Step0({
           </span>
         </div>
       ) : (
-        <MaskedView
-          style={{ height: isIpad() ? 130 : 90, width: '100%'}}
-          maskElement={
-            <View
-              style={{
-                backgroundColor: 'transparent',
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: isIpad() ? 100 : 60,
-                  textAlign: 'center',
-                  alignSelf: 'center',
-                  width: '100%',
-                  color: 'black',
-                  fontWeight: 'bold',
-                  fontFamily: '$heading',
-                  letterSpacing: 2,
-                }}
-              >
-                Kaiba
-              </Text>
-            </View>
-          }
-        >
+        <View style={{ height: isIpad() ? 130 : 90, width: '100%', position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
+          {/* Background gradient */}
           <AnimatedLinearGradient
             colors={[
               '#b2d7fe',
@@ -120,9 +93,41 @@ export default function Step0({
             ]}
             start={{ x: 1, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={[{ flex: 1 }, animatedStyle]}
+            style={[
+              {
+                position: 'absolute',
+                height: isIpad() ? 130 : 90,
+                width: '100%',
+              },
+              animatedStyle
+            ]}
           />
-        </MaskedView>
+          
+          <View style={{ 
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            overflow: 'hidden'
+          }}>
+            <Text
+              style={{
+                fontSize: isIpad() ? 100 : 60,
+                color: 'white',
+                textAlign: 'center',
+                fontWeight: 'bold',
+                fontFamily: '$heading',
+                letterSpacing: 2,
+                textShadowColor: 'rgba(0,0,0,0.1)',
+                textShadowOffset: {width: 1, height: 1},
+                textShadowRadius: 3
+              }}
+            >
+              Kaiba
+            </Text>
+          </View>
+        </View>
       )}
       <Label paddingBottom={isWeb ? 20 : isIpad() ? 12 : 8} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">
         What should we call you?
