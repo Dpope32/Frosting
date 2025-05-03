@@ -177,7 +177,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             </Pressable>
             <Text
               fontFamily="$body"
-              fontSize={isIpad() ? 19 : 16}
+              fontSize={isIpad() ? 18 : 16}
               fontWeight="600"
               color={isDark ? '#f9f9f9' : '#000'}
               opacity={doneToday ? 0.6 : 1}

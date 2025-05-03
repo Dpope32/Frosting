@@ -61,7 +61,7 @@ export default function VaultScreen() {
   // Dev functions to load and clear vault entries
   const loadDevVaultEntries = () => {
     const sampleEntries = [
-      { name: 'Google', username: 'user@gmail.com', password: 'password123' },
+      { name: 'Google', username: 'user.userlastname@gmail.com', password: 'password123' },
       { name: 'GitHub', username: 'devuser', password: 'ghpass' },
       { name: 'Twitter', username: 'tweetuser', password: 'twpass' },
     ];
@@ -86,7 +86,7 @@ export default function VaultScreen() {
   const rightColumnItems = items.filter((_, idx) => idx % 2 === 1)
 
   return (
-    <YStack f={1} pt={isWeb ? 80 : isIpad() ? 80 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
+    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
       <ScrollView
       showsVerticalScrollIndicator={false}
         contentContainerStyle={{

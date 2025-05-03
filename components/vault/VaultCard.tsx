@@ -58,15 +58,17 @@ export const VaultCard = ({
         </XStack>
 
         <XStack ai="center" gap={ "$2"} mb="$2">
-          <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
-            Username:
-          </Text>
+          {!isIpad() && (
+            <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+              Username:
+            </Text>
+          )}
           <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
             {cred.username}
           </Text>
         </XStack>
 
-        <XStack ai="center" gap={"$2"}>
+        <XStack ai="center" gap={"$2"} mb="$2">
           <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
             Password:
           </Text>
@@ -99,7 +101,7 @@ export const VaultCard = ({
       px={isWeb ? "$4" : isIpad() ? "$2.5" : "$4"}
       pl={isWeb ? "$4" : isIpad() ? "$2.5" : "$4"}
       br="$4"
-      borderWidth={1}
+      borderWidth={0.5}
       w={isIpad() ? "100%" : "100%"}
       borderColor={isDark ? '#777' : '#e0e0e0'}
       ai="center"
@@ -127,15 +129,17 @@ export const VaultCard = ({
         </XStack>
 
         <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$2" : 6}>
-          <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
-            Username:
-          </Text>
-          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+          {!isIpad() && (
+            <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
+              Username:
+            </Text>
+          )}
+          <Text color={isDark ? isIpad() ? '#ccc' : '#000' :  isIpad() ? '#333' : '#f6f6f6'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
             {cred.username}
           </Text>
         </XStack>
 
-        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3">
+        <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$1" : 4}>
           <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
             Password:
           </Text>
