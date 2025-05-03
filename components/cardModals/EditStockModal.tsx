@@ -14,6 +14,7 @@ import { StockData } from '@/constants/stocks'
 import { getIconForStock } from '../../constants/popularStocks'
 import { DebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput'
 import { MaterialIcons } from '@expo/vector-icons'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 export function EditStockModal() {
   const isOpen = useEditStockStore(s => s.isOpen)
@@ -58,6 +59,7 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
   const showToast = useToastStore((state) => state.showToast)
   const tickerInputRef = useRef<DebouncedInputHandle>(null)
   const quantityInputRef = useRef<TextInput>(null)
+  useAutoFocus(quantityInputRef, 750, open && isQuantityEditMode)
 
   // Initialize stocks data when modal opens
   useEffect(() => {

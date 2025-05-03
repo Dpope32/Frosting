@@ -53,6 +53,21 @@ export const useHabitStore = create<HabitStore>()(
         const habit = state.habits[habitId];
         if (!habit) return state;
 
+        const newCompletionStatus = !habit.completionHistory[date];
+        const today = new Date().toISOString().split('T')[0];
+
+        // Only handle notifications if it's for today and the habit has notification time set
+        if (date === today && habit.notificationTimeValue) {
+          const identifier = `${habit.title}-${habit.notificationTimeValue}`;
+          
+          // Cancel notification when habit is completed
+          if (newCompletionStatus) {
+            cancelEventNotification(identifier);
+          }
+          // We don't need to reschedule here since the notification would be for today
+          // and the notification services already checks completionHistory before sending
+        }
+
         return {
           habits: {
             ...state.habits,
@@ -60,7 +75,7 @@ export const useHabitStore = create<HabitStore>()(
               ...habit,
               completionHistory: {
                 ...habit.completionHistory,
-                [date]: !habit.completionHistory[date]
+                [date]: newCompletionStatus
               }
             }
           }
@@ -104,4 +119,4 @@ export const useHabitStore = create<HabitStore>()(
       partialize: (state) => ({ habits: state.habits }),
     }
   )
-); 
+);

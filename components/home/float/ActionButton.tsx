@@ -14,12 +14,26 @@ interface ActionButtonProps {
 
 const getActionStyle = (actionType: string, isDark: boolean) => {
   switch (actionType) {
+    case 'Contact':
+      return {
+        backgroundColor: isDark ? "rgba(251,146,60,0.10)" : "rgba(251,146,60,0.9)",
+        borderColor: "rgba(251,146,60,0.5)",
+        iconColor: isDark ? "#fb923c" : "#fff",
+        textColor: isDark ? "#fb923c" : "#fff"
+      }
     case 'Password':
       return {
-        backgroundColor: isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.9)",
-        borderColor: "rgba(16, 185, 129, 0.5)",
-        iconColor: isDark ? "#4ade80" : "#fff",
-        textColor: isDark ? "#4ade80" : "#fff"
+        backgroundColor: isDark ? "rgba(236,72,153,0.10)" : "rgba(236,72,153,0.9)",
+        borderColor: "rgba(236,72,153,0.5)",
+        iconColor: isDark ? "#ec4899" : "#fff",
+        textColor: isDark ? "#ec4899" : "#fff"
+      }
+    case 'Stock':
+      return {
+        backgroundColor: isDark ? "rgba(34,197,94,0.10)" : "rgba(34,197,94,0.9)",
+        borderColor: "rgba(34,197,94,0.5)",
+        iconColor: isDark ? "#22c55e" : "#fff",
+        textColor: isDark ? "#22c55e" : "#fff"
       }
     case 'Habit':
       return {

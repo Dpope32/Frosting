@@ -80,7 +80,10 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
 
   const handleSubmit = useCallback((): void => {
     if (addPersonMutation.isPending) return;
-    if (!formData.name?.trim() || !formData.birthday?.trim()) return;
+    if (!formData.name?.trim()) {
+      showToast('Name is required', 'error', { duration: 2000 });
+      return;
+    }
     
     let updatedFormData = { ...formData };
     if (paymentMethod && paymentUsername) {

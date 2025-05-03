@@ -33,6 +33,8 @@ import { CalendarEvent } from '@/store/CalendarStore'
 import type { Tag, Attachment } from '@/types/notes';
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services/noteService';
 import { createFormattingHandler } from '@/services/noteService2';
+import { useEditStockStore } from '@/store/EditStockStore'
+import { EditStockModal } from './cardModals/EditStockModal'
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
@@ -78,6 +80,8 @@ export function LandingPage() {
   const handleUnderline = createFormattingHandler(formatUnderline, selection, setNoteContent);
   const handleCode = createFormattingHandler(formatCode, selection, setNoteContent);
   const handleBullet = createFormattingHandler(formatBullet, selection, setNoteContent);
+  const isStockModalOpen = useEditStockStore(s => s.isOpen)
+  const openStockModal = useEditStockStore(s => s.openModal)
 
   // Effect hooks
   React.useEffect(() => {
@@ -143,6 +147,9 @@ export function LandingPage() {
       case 'bt_contact':
         setContactModalOpen(true);
         break;
+      case 'bt_stock':
+        openStockModal()
+        break
     }
   };
 
@@ -249,6 +256,7 @@ export function LandingPage() {
           {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} isDark={isDark} />}
           {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
+          {isStockModalOpen && <EditStockModal />}
           <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
           <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={(name, category, notificationTimeLabel, notificationTimeValue) => { setHabitModalOpen(false)}}/>
           <AddNoteSheet 

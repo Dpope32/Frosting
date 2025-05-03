@@ -72,7 +72,7 @@ export function StockCardAnimated({
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
                     marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom +20,
+                    marginBottom: insets.bottom + 60,
                     width: actualWidth,
                     maxHeight: screenHeight,
                   }

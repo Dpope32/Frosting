@@ -12,8 +12,19 @@ export const CHANGELOG = [
     ],
   },
   {
+    version: '1.1.117',
+    date: '2025-05-03',
+    notes: 'Stock Screen',
+    bullets: [
+      'Added missing Stock to Floating Action Button',
+      'Added missing autofocus to stock modal',
+      'Fixed bug with Notifications still sending for completed Habits',
+
+    ],
+  },
+  {
     version: '1.1.111',
-    date: '2025-05-02',
+    date: '2025-05-01',
     notes: 'Small UI updates to iPad',
     bullets: [
       'Export app registry store on mount',
@@ -23,7 +34,7 @@ export const CHANGELOG = [
   },
   {
     version: '1.1.107',
-    date: '2025-05-01',
+    date: '2025-04-30',
     notes: 'Smarter Tags & Smoother Inputs',
     bullets: [
       'Tags are now saved and persist across sessions',
@@ -34,7 +45,7 @@ export const CHANGELOG = [
   },
   {
     version: '1.1.102',
-    date: '2025-05-01',
+    date: '2025-04-24',
     notes: 'Custom Categories!',
     bullets: [
       'Added custom categories to Tasks',
