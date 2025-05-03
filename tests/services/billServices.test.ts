@@ -237,19 +237,19 @@ describe('billServices', () => {
     });
 
     it('should return yellow for amounts >= 50 and < 100', () => {
-      expect(getAmountColor(50)).toBe('#FFD93D');
-      expect(getAmountColor(75)).toBe('#FFD93D');
-      expect(getAmountColor(99)).toBe('#FFD93D');
+      expect(getAmountColor(50)).toBe('#FFC300');
+      expect(getAmountColor(75)).toBe('#FFC300');
+      expect(getAmountColor(99)).toBe('#FFC300');
     });
 
     it('should return bright green for amount == 0', () => {
-      expect(getAmountColor(0)).toBe('#5edd11');
+      expect(getAmountColor(0)).toBe('#2ECC40');
     });
 
     it('should return normal green for amounts > 0 and < 50', () => {
-      expect(getAmountColor(1)).toBe('#5EEE11');
-      expect(getAmountColor(25)).toBe('#5EEE11');
-      expect(getAmountColor(49)).toBe('#5EEE11');
+      expect(getAmountColor(1)).toBe('#2ECC40');
+      expect(getAmountColor(25)).toBe('#2ECC40');
+      expect(getAmountColor(49)).toBe('#2ECC40');
     });
   });
 });

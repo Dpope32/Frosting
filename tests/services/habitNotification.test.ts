@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { scheduleDailyHabitNotification } from '../../services/notificationServices';
-import { useHabitStore } from '../../store/HabitStore';
+import { scheduleDailyHabitNotification } from '@/services/notificationServices';
+import { useHabitStore } from '@/store/HabitStore';
 
 // Mock Notifications module before importing
 jest.mock('expo-notifications', () => ({
