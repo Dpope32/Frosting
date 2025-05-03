@@ -62,7 +62,6 @@
     "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.8",
     "expo-contacts": "~14.0.5",
-    "expo-crypto": "^14.0.2",
     "expo-doctor": "^1.12.7",
     "expo-file-system": "^18.0.12",
     "expo-font": "~13.0.4",

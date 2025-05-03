@@ -1,5 +1,4 @@
 # Exclude common development files and directories
-node_modules/
 .git/
 .github/
 __tests__/
