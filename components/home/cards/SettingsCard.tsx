@@ -30,7 +30,7 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
       br={16}
       backgroundColor={bg}
       borderWidth={2}
-      borderColor={isDark ? "rgba(255, 255, 255, 0.175)" : "rgba(200, 200, 200, 0.3)"}
+      borderColor={isWeb ? "transparent" : isDark ? "rgba(255, 255, 255, 0.175)" : "rgba(200, 200, 200, 0.3)"}
     >
       <Pressable
         onPress={() => {
