@@ -66,7 +66,7 @@ export default Sentry.wrap(function RootLayout() {
       
       // Create a promise that resolves after a timeout
       const timeoutPromise = new Promise(resolve => {
-        setTimeout(resolve, 2000); // Maximum 3 seconds wait
+        setTimeout(resolve, 2500); // Maximum 3 seconds wait
       });
       
       // Wait for either fonts and user store hydration OR timeout
@@ -130,10 +130,10 @@ export default Sentry.wrap(function RootLayout() {
     };
     
     // Initial check with a delay to not block app startup
-    setTimeout(checkAndApplyUpdate, 2000);
+    setTimeout(checkAndApplyUpdate, 2500);
     
     // Periodic checks
-    const updateInterval = setInterval(checkAndApplyUpdate, 60000);
+    const updateInterval = setInterval(checkAndApplyUpdate, 30000);
     
     return () => clearInterval(updateInterval);
   }, [loaded]);
