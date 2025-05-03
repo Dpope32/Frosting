@@ -134,7 +134,7 @@ export const VaultCard = ({
               Username:
             </Text>
           )}
-          <Text color={isDark ? isIpad() ? '#f3f3f3' : '#000' :  isIpad() ? '#333' : '#f6f6f6'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+          <Text color={isDark ? isIpad() ? '#ccc' : '#f3f3f3' :  isIpad() ? '#333' : '#f6f6f6'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
             {cred.username}
           </Text>
         </XStack>
