@@ -4,7 +4,7 @@ import { Image, useWindowDimensions, useColorScheme } from 'react-native'
 import { FormData } from '@/types/onboarding'
 import { nbaTeams } from '@/constants/nba'
 import { isIpad } from '@/utils/deviceUtils';
-import { useOrientationStore } from '@/store/OrientationStore';
+
 export default function Step5({
   formData,
   setFormData,
@@ -17,7 +17,6 @@ export default function Step5({
   const colorScheme = useColorScheme(); 
   const isDark = colorScheme === 'dark'; 
   const { width } = useWindowDimensions()
-  const { isPortrait } = useOrientationStore();
   const [showAllTeams, setShowAllTeams] = useState(isWeb)
   const selectedTeam = formData.favoriteNBATeam || ''
   const [showNBAGamesInCalendar, setShowNBAGamesInCalendar] = useState(true)
@@ -108,7 +107,7 @@ export default function Step5({
         my={isWeb ? "$2" : 0}
       >
         <Label 
-          paddingBottom={isWeb ? 20 : isIpad() ? isPortrait ? 40 : 20 : 40}
+          paddingBottom={isWeb ? 20 : isIpad() ? 40 : 40}
           fontFamily="$heading" 
           fontWeight={isWeb ? "500" : "800"} 
           fontSize={isWeb ? "$9" : "$7"} 

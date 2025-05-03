@@ -2,7 +2,6 @@ import React from 'react'
 import { XStack, YStack, Text, Button } from 'tamagui'
 import { Eye, EyeOff } from '@tamagui/lucide-icons'
 import { isIpad } from '@/utils/deviceUtils'
-import { useOrientationStore } from '@/store/OrientationStore'
 
 interface VaultCardProps {
   cred: {
@@ -28,7 +27,7 @@ export const VaultCard = ({
   isWeb,
   columnWidthWeb
 }: VaultCardProps) => {
-  const { isPortrait } = useOrientationStore();
+
   return isWeb ? (
     <XStack
       bg={isDark ? '#111' : '#f5f5f5'}
@@ -101,7 +100,7 @@ export const VaultCard = ({
       pl="$4"
       br="$4"
       borderWidth={1}
-      w={isIpad() ? isPortrait ? "100%" : 400 : "100%"}
+      w={isIpad() ? "100%" : 400}
       borderColor={isDark ? '#777' : '#e0e0e0'}
       ai="center"
       animation="quick"

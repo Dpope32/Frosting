@@ -14,7 +14,6 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
 import { handleDebugPress, handleImportContacts } from "@/services/peopleService";
 import { isIpad } from "@/utils/deviceUtils";
-import { useOrientationStore } from "@/store/OrientationStore";
 const { width } = Dimensions.get("window");
 
 
@@ -28,12 +27,11 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const { isPortrait } = useOrientationStore();
   const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 12;
   const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 12; 
-  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? isPortrait ? 2 : 3 : 2;
+  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? 2 : 3;
   const CARD_WIDTH = isIpad() ? 300 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-  const CARD_WIDTH_MOBILE = isIpad() ?  isPortrait ? 250 : 280 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+  const CARD_WIDTH_MOBILE = isIpad() ? 250 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
     setEditModalVisible(true);

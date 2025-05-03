@@ -11,7 +11,7 @@ import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { isIpad } from '@/utils/deviceUtils';
-import { useOrientationStore } from '@/store/OrientationStore';
+
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -38,7 +38,7 @@ export default function BillsScreen() {
   const isDark = colorScheme === 'dark';
   const currentDay = new Date().getDate();
   const isWeb = Platform.OS === 'web';
-  const { isPortrait } = useOrientationStore();
+
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
   useEffect(() => {
@@ -141,10 +141,9 @@ export default function BillsScreen() {
       
       {isIpad() ? (
         <FlatList
-          key={`bills-${isPortrait ? 2 : 3}`}
           data={bills?.sort((a, b) => a.dueDate - b.dueDate) || []}
           keyExtractor={(item) => item.id}
-          numColumns={isPortrait ? 2 : 3}
+          numColumns={2}
           renderItem={({ item }) => (
             <BillCard
               bill={item}
@@ -156,8 +155,8 @@ export default function BillsScreen() {
           contentContainerStyle={{
             padding: 8,
             paddingBottom: 100,
-            paddingHorizontal: isPortrait ? 12 : 30,
-            paddingLeft: isPortrait ? 32 : 48,
+            paddingHorizontal: 12,
+            paddingLeft: 32,
             paddingRight: 32,
             gap: 12,
           }}

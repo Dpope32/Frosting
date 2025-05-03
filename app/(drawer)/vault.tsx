@@ -11,7 +11,6 @@ import { VaultRecommendationModal } from '@/components/recModals/VaultRecommenda
 import { VaultCard } from '@/components/vault/VaultCard'
 import { VaultEmpty } from '@/components/vault/VaultEmpty'
 import { isIpad } from '@/utils/deviceUtils'
-import { useOrientationStore } from '@/store/OrientationStore'
 
 interface VaultEntry {
   id: string
@@ -32,7 +31,6 @@ export default function VaultScreen() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
-  const { isPortrait } = useOrientationStore()
 
   const [visiblePasswords, setVisiblePasswords] = useState<{ [id: string]: boolean }>({})
   const togglePasswordVisibility = (id: string) => { setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))}
@@ -129,7 +127,7 @@ export default function VaultScreen() {
               columnWidthWeb={columnWidthWeb}
             />
           ))
-        ) : isIpad() && !isPortrait ? (
+        ) : isIpad() ? (
           <XStack width="100%" gap="$3">
             <YStack flex={1} gap="$3">
               {leftColumnItems.map((cred: VaultEntry) => (

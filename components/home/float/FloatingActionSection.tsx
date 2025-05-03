@@ -8,7 +8,6 @@ import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
 import { ActionButton } from './ActionButton';
 import { ActionButtonTitle } from './ActionButtonTitle';
-import { useOrientationStore } from '@/store/OrientationStore';
 
 const { width } = Dimensions.get('window');
 const dteWidth = width * 0.31;
@@ -36,7 +35,6 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   const textColor = isDark ? "#ffffff" : "#ffffff";
   const darkerPrimary = darkenColor(primaryColor, 0.7);
   const [isOpen, setIsOpen] = React.useState(false);
-  const { isPortrait } = useOrientationStore();
   const actionRef = useRef<any>(null); 
 
   const closeFab = () => {
@@ -202,7 +200,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         onOpen={() => setIsOpen(true)}
         onClose={() => setIsOpen(false)}
         position={isWeb ? "right" : isIpad() ? "right" : "center"}
-        distanceToEdge={{vertical: isWeb ? 65 : isIpad() ? 65 : 55, horizontal: isWeb ? 30 : isIpad() ? dteWidth : isPortrait ? 0 : 30}}
+        distanceToEdge={{vertical: isWeb ? 65 : isIpad() ? 65 : 55, horizontal: isWeb ? 30 : isIpad() ? dteWidth : 30}}
         buttonSize={isIpad() ? 64 : 56}
         iconWidth={isWeb ? 20 : isIpad() ? 17 : 16}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 16}

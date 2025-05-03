@@ -5,7 +5,7 @@ import { FormData } from '@/types/onboarding'
 import MaskedView from '@react-native-masked-view/masked-view'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils/deviceUtils'
-import { useOrientationStore } from '@/store/OrientationStore'
+
 const AnimatedLinearGradient: any = Animated.createAnimatedComponent(LinearGradient as any)
 
 export default function Step0({
@@ -16,7 +16,7 @@ export default function Step0({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }) {
   const translateX = useRef(new Animated.Value(0)).current
-  const { isPortrait } = useOrientationStore();
+
   useEffect(() => {
     Animated.loop(
       Animated.timing(translateX, {
@@ -77,7 +77,7 @@ export default function Step0({
         </div>
       ) : (
         <MaskedView
-          style={{ height: isIpad() ? isPortrait ? 130 : 120 : 90, width: '100%'}}
+          style={{ height: isIpad() ? 130 : 90, width: '100%'}}
           maskElement={
             <View
               style={{
