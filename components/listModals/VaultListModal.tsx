@@ -168,7 +168,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
       >
         <>
             {data?.items && data.items.length > 0 ? (
-              <YStack gap="$1"> 
+              <YStack gap="$1" mt="$2"> 
                 <XStack flexWrap="wrap" justifyContent="space-between" gap="$2">
                   {data.items.map((entry: VaultEntry) => (
                     <YStack
@@ -177,7 +177,8 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
                       backgroundColor={isDark ? '$gray3' : '$gray3'}
                       br={8}
                       padding="$3"
-                      marginBottom="$2"
+                      mt="$1"
+                      mb="$2"
                     >
                       <XStack
                         justifyContent="space-between"

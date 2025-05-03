@@ -150,6 +150,21 @@ export default function CRM() {
           />
         }
       />
+      <Button
+        onPress={() => setContactModalOpen(true)}
+        position="absolute"
+        bottom={40}
+        right={24}
+        zIndex={1000}
+        size="$4"
+        circular
+        bg={primaryColor}
+        pressStyle={{ scale: 0.95 }}
+        animation="quick"
+        elevation={4}
+      >
+        <MaterialIcons name="add" size={24} color="white" />
+      </Button>
       <AddPersonForm isVisible={contactModalOpen} onClose={() => setContactModalOpen(false)} />
       {selectedPerson && (
         <EditPersonForm

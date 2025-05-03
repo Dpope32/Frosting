@@ -30,7 +30,7 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
   const isDark = colorScheme === 'dark';
   const { showToast } = useToastStore();
   const nameInputRef = React.useRef<any>(null);
-  useAutoFocus(nameInputRef, 750);
+  useAutoFocus(nameInputRef, 750, isVisible);
 
   const resetForm = () => {
     setName('');
