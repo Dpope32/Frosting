@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardProps) { // Destructure doneToday prop
+export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isMobile = Platform.OS !== 'web';
@@ -54,7 +54,19 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   const [statsButtonLayout, setStatsButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
   const today = new Date().toISOString().split('T')[0];
-  // Removed internal calculation of doneToday
+  const notificationTime = habit.notificationTimeValue;
+  const notificationTimeDate = notificationTime ? notificationTime : 'none';
+  
+  // Convert military time to standard 12-hour format with AM/PM
+  const formatTimeToStandard = (time: string): string => {
+    if (!time || time === 'none') return 'No time set';
+    
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const standardHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+    
+    return `${standardHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
   const history = getRecentHistory(habit);
 
   // compute streaks and stats
@@ -162,7 +174,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           </View>
         )}
         
-        <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 10 : 12}>
+        <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 0 : 0}>
           <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
             <Pressable 
               ref={statsButtonRef}
@@ -206,6 +218,31 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                 {habit.category}
               </Text>
             </XStack>
+            {notificationTimeDate !== 'none' && (
+              <XStack
+                alignItems="center"
+                backgroundColor={isDark ? 'rgba(100, 148, 237, 0.07)' : 'rgba(100, 149, 237, 0.1)'}
+                px={isMobile ? 10 : 8}
+                py={isMobile ? 0 : 0}
+                br={10}
+                opacity={doneToday ? 0.6 : 0.9}
+              >
+                <Ionicons 
+                  name="time-outline" 
+                  size={isMobile ? 12 : 14} 
+                  color={isDark ? '#6495ED' : '#4682B4'} 
+                  style={{ marginRight: 4 }}
+                />
+                <Text 
+                  fontFamily="$body" 
+                  fontSize={isIpad() ? 14 : 12} 
+                  color={isDark ? '#6495ED' : '#4682B4'} 
+                  fontWeight="500"
+                >
+                  {formatTimeToStandard(notificationTimeDate)}
+                </Text>
+              </XStack>
+            )}
           </XStack>
 
           <XStack gap="$3" alignItems="center" style={{ zIndex: 2 }}>
@@ -240,6 +277,49 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             </Pressable>
           </XStack>
         </XStack>
+
+        {habit.customMessage && (
+          <XStack 
+            width="100%" 
+            my={isMobile ? 4 : 5} 
+            px={isMobile ? 4 : 6}
+            py={isMobile ? 3 : 4}
+            borderRadius={10}
+            alignItems="center"
+            opacity={doneToday ? 0.6 : 0.7}
+          >
+            <Ionicons 
+              name="notifications-outline" 
+              size={isMobile ? 14 : 16} 
+              color={isDark ? '#B19CD9' : '#9370DB'} 
+              style={{ marginRight: 8 }}
+            />
+            <Text 
+              fontFamily="$body" 
+              fontSize={isIpad() ? 15 : 13} 
+              color={isDark ? '#B19CD9' : '#9370DB'} 
+              fontWeight="500"
+            >
+              {habit.customMessage}
+            </Text>
+          </XStack>
+        )}
+
+        {/* Description if present */}
+        {habit.description && (
+          <XStack 
+            width="100%" 
+            mb={isMobile ? 4 : 5}
+          >
+            <Text 
+              fontFamily="$body" 
+              fontSize={isIpad() ? 14 : 12} 
+              color={isDark ? '#ccc' : '#666'}
+            >
+              {habit.description}
+            </Text>
+          </XStack>
+        )}
 
         <Modal
           visible={showStats}

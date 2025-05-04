@@ -14,6 +14,7 @@ import { useWeatherQuery } from "@/store/WeatherStore";
 import { useUserStore } from "@/store/UserStore";
 import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon } from "@/components/weather/styleUtils";
 import HourlyCarousel from '@/components/weather/HourlyCarousel';
+import LowHighBar from '@/components/weather/LowHighBar';
 
 if (Platform.OS === 'web') {
   const styleId = 'weather-animations-style';
@@ -199,9 +200,9 @@ export default function TemperatureScreen() {
                 shadowOpacity={isDark ? 0.4 : 0.15}
                 shadowRadius={3}
                 elevation={4}
-                height={220}
+                height={isIpad() ? 190 : 180}
                 justifyContent="space-between"
-                gap="$2"
+                gap={isIpad() ? "$0" : "$2"}
               >
                 <View style={StyleSheet.absoluteFill} pointerEvents="none">
                   <WeatherCardAnimations shortForecast={todayForecast.shortForecast} precipitation={todayPrecipitation} windValue={todayWindValue} isDark={isDark} />
@@ -209,8 +210,8 @@ export default function TemperatureScreen() {
                     <AnimatedCloud key={`today-cloud-${i}`} isDark={isDark} index={i} sizeMultiplier={todayIsSunny ? 0.7 : 1.1} opacityMultiplier={todayIsSunny ? 0.7 : 1} />
                   ))}
                 </View>
-                <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)' }]} />
-                <XStack padding="$4" alignItems="center" gap="$2">
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.3)' }]} />
+                <XStack px="$4" pt="$3" alignItems="center" gap="$2">
                   <Text fontSize={36}>{getWeatherIcon(todayForecast.shortForecast)}</Text>
                   <YStack flex={1}>
                     <Text color={todayTextColor} fontSize={isWeb ? 22 : 18} fontWeight="600">Today</Text>
@@ -218,11 +219,7 @@ export default function TemperatureScreen() {
                   </YStack>
                 </XStack>
 
-                <XStack height={60} overflow="hidden">
-                  <HourlyCarousel />
-                </XStack>
-
-                <XStack paddingHorizontal="$4" paddingBottom="$2" justifyContent="space-between" backgroundColor={isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.5)'}  alignItems="center">
+                <XStack paddingHorizontal="$4" pt="$2" justifyContent="space-between"  alignItems="center">
                   <XStack alignItems="center" justifyContent="center"  gap="$3">
                     <Text fontSize={16}>💨 {todayForecast.windSpeed}</Text>
                     <Text fontSize={16}>💧 {todayPrecipitation}%</Text>
@@ -234,11 +231,14 @@ export default function TemperatureScreen() {
                     </Text>
                   </XStack>
                 </XStack>
+                <XStack height={isIpad() ? 90 : 60} mb={10} overflow="hidden" backgroundColor={isDark ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.3)'}>
+                  <HourlyCarousel />
+                </XStack>
               </YStack>
             </Animated.View>
           )}
 
-          <YStack mt="$4" gap="$3" paddingHorizontal="$4">
+          <YStack mt="$3" gap="$3" paddingHorizontal="$4">
             {dailyForecasts.map((daily: DailyForecast, idx) => {
               const periodDateString = new Date(daily.dayPeriod.startTime).toDateString();
               if (periodDateString === todayDateString) {
@@ -340,30 +340,37 @@ export default function TemperatureScreen() {
                           borderRadius={8}
                           backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"}
                           gap="$3"
+                          alignItems="flex-end"
                         >
+                          {/* Low Temp */}
                           {lowTemp !== undefined && (
                             <YStack alignItems="center">
                               <Text fontFamily="$body" fontSize={12} color={textColor}>
                                 Low
                               </Text>
-                              <Text 
-                                fontFamily="$body" 
-                                fontSize={16} 
-                                fontWeight="700" 
+                              <Text
+                                fontFamily="$body"
+                                fontSize={16}
+                                fontWeight="700"
                                 color={getTemperatureColor(lowTemp, isDark)}
                               >
                                 {`${lowTemp}°`}
                               </Text>
                             </YStack>
                           )}
+                          {/* Gradient Bar between Low and High */}
+                          {lowTemp !== undefined && (
+                            <LowHighBar low={lowTemp} high={highTemp} isDark={isDark} />
+                          )}
+                          {/* High Temp */}
                           <YStack alignItems="center">
                             <Text fontFamily="$body" fontSize={12} color={textColor}>
                               High
                             </Text>
-                            <Text 
-                              fontFamily="$body" 
-                              fontSize={16} 
-                              fontWeight="700" 
+                            <Text
+                              fontFamily="$body"
+                              fontSize={16}
+                              fontWeight="700"
                               color={getTemperatureColor(highTemp, isDark)}
                             >
                               {`${highTemp}°`}

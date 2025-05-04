@@ -114,14 +114,11 @@ async function fetchForecastWithCoordinates(location: { latitude: number; longit
       const hourlyUrl = pointsData.properties.forecastHourly;
       const hourlyResponse = await fetch(hourlyUrl);
       const hourlyData = await hourlyResponse.json();
-      console.log('[WeatherStore] Hourly forecast data:', hourlyData);
+
       
       // Store hourly periods in state
       if (hourlyData.properties && Array.isArray(hourlyData.properties.periods)) {
-        console.log(
-          '[WeatherStore] Sample hourly periods (first 5):',
-          JSON.stringify(hourlyData.properties.periods.slice(0, 5), null, 2)
-        );
+
         // Save all hourly periods
         useWeatherStore.setState({ hourlyForecast: hourlyData.properties.periods });
       }

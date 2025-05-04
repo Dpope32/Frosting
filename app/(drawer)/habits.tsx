@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Platform, ScrollView, View } from 'react-native';
 import { YStack, Text, Button, XStack } from 'tamagui';
 import { Plus, Database, Trash } from '@tamagui/lucide-icons';
@@ -8,7 +8,7 @@ import { AddHabitModal } from '@/components/cardModals/AddHabitModal';
 import { HabitCard } from '@/components/habits/HabitCard';
 import { useHabits } from '@/hooks/useHabits';
 import { useUserStore } from '@/store/UserStore';
-import { generateTestHabits, clearAllHabits } from '@/services/habitService';
+import { generateTestHabits } from '@/services/habitService';
 import { isIpad } from '@/utils/deviceUtils';
 import { useHabitStore } from '@/store/HabitStore';
 import { format } from 'date-fns';
@@ -21,6 +21,13 @@ export default function HabitsScreen() {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const hydrated = useHabitStore((state) => state.hydrated);
   const { habits, addHabit, toggleHabit, deleteHabit, completedToday, progressPercentage } = useHabits();
+
+  // Dev helper: clear all habits by deleting each via the hook
+  const deleteAllDevHabits = useCallback(() => {
+    habits.forEach((habit, index) => {
+      setTimeout(() => deleteHabit(habit.id), index * 200);
+    });
+  }, [habits, deleteHabit]);
 
   if (!hydrated) {
     return null;
@@ -136,7 +143,7 @@ export default function HabitsScreen() {
               pressStyle={{ scale: 0.95 }}
               animation="quick"
               elevation={4}
-              onPress={clearAllHabits}
+              onPress={deleteAllDevHabits}
               icon={<Trash color="#FFF" size={20} />}
             />
           </XStack>

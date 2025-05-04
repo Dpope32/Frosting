@@ -97,7 +97,7 @@ export const BillCard = ({
         )}
 
         <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : 4, marginTop: isIpad() ? 4 : 4 }}>
-          <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? 4 : 4 }}>
+          <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? -4 : 4 }}>
             <Text
               color={isDark ? '#f9f9f9' : '#222'}
               fontSize="$4"

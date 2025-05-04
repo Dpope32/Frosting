@@ -4,15 +4,16 @@ import { TaskCategory } from '@/types/task';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cancelEventNotification } from '@/services/notificationServices';
 
-export interface Habit {
-  id: string;
-  title: string;
-  category: TaskCategory;
-  createdAt: string; // ISO date string
-  completionHistory: Record<string, boolean>; // date string -> completed
-  notificationTimeValue: string; // 'HH:mm' or ''
-  customMessage: string;
-}
+  export interface Habit {
+    id: string;
+    title: string;
+    category: TaskCategory;
+    createdAt: string; // ISO date string
+    completionHistory: Record<string, boolean>; // date string -> completed
+    notificationTimeValue: string; // 'HH:mm' or ''
+    customMessage: string;
+    description?: string;
+  }
 
 interface HabitStore {
   habits: Record<string, Habit>;
@@ -64,8 +65,6 @@ export const useHabitStore = create<HabitStore>()(
           if (newCompletionStatus) {
             cancelEventNotification(identifier);
           }
-          // We don't need to reschedule here since the notification would be for today
-          // and the notification services already checks completionHistory before sending
         }
 
         return {
