@@ -189,104 +189,51 @@ export default function TemperatureScreen() {
           </XStack>
           {todayForecast && (
             <Animated.View entering={FadeIn.duration(500)}>
-              <YStack>
-                <XStack
-                  marginHorizontal="$4"
-                  padding="$4"
-                  borderRadius="$6"
-                  backgroundColor={todayCardBg}
-                  overflow="hidden"
-                  position="relative"
-                  shadowColor={isDark ? "#000" : "#555"}
-                  shadowOffset={{ width: 0, height: 2 }}
-                  shadowOpacity={isDark ? 0.4 : 0.15}
-                  shadowRadius={3}
-                  elevation={4}
-                >
-                  <View style={StyleSheet.absoluteFill} pointerEvents="none">
-                    <WeatherCardAnimations
-                      shortForecast={todayForecast.shortForecast}
-                      precipitation={todayPrecipitation}
-                      windValue={todayWindValue}
-                      isDark={isDark}
-                    />
-                    {[...Array(todayIsCloudy ? 5 : (todayIsSunny ? 2 : 3))].map((_, i) => (
-                      <AnimatedCloud
-                        key={`today-cloud-${i}`}
-                        isDark={isDark}
-                        index={i}
-                        sizeMultiplier={todayIsSunny ? 0.7 : 1.1}
-                        opacityMultiplier={todayIsSunny ? 0.7 : 1}
-                      />
-                    ))}
-                  </View>
-                  <View 
-                    style={[
-                      StyleSheet.absoluteFill, 
-                      { 
-                        backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)',
-                        pointerEvents: 'none'
-                      }
-                    ]} 
-                  />
-
-                  <YStack flex={1} justifyContent="space-between" gap="$1" zIndex={1}>
-                    <XStack alignItems="center" gap="$2">
-                      <Text fontSize={36} fontFamily="$body">
-                        {getWeatherIcon(todayForecast.shortForecast)}
-                      </Text>
-                      <YStack flex={1} alignItems="flex-start">
-                        <Text fontFamily="$body" color={todayTextColor} fontSize={isWeb ? 22 : 18} fontWeight="600">
-                          Today
-                        </Text>
-                        <Text color={todayTextColor} fontSize={isWeb ? 18 : 16} numberOfLines={1} fontFamily="$body" ellipsizeMode="tail">
-                          {todayForecast.shortForecast}
-                        </Text>
-                      </YStack>
-                    </XStack>
-                    <XStack justifyContent="space-between" alignItems="flex-end">
-                      <YStack gap="$1">
-                        <XStack alignItems="center" gap="$2">
-                          <Text fontFamily="$body" fontSize={16}>💨</Text>
-                          <Text fontFamily="$body" color={todayTextColor} fontSize={15}>
-                            {todayForecast.windSpeed} {todayForecast.windDirection}
-                          </Text>
-                        </XStack>
-                        <XStack alignItems="center" gap="$2">
-                          <Text fontFamily="$body" fontSize={16}>💧</Text>
-                          <Text fontFamily="$body" color={todayTextColor} fontSize={15}>
-                            {todayPrecipitation}%
-                          </Text>
-                        </XStack>
-                      </YStack>
-                      <XStack
-                        paddingVertical="$2"
-                        paddingHorizontal="$3"
-                        borderRadius={10}
-                        backgroundColor={isDark ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.5)"}
-                        gap="$3"
-                      >
-                        <YStack alignItems="center">
-                          <Text fontFamily="$body" fontSize={13} color={todayTextColor}>
-                            Now
-                          </Text>
-                          <Text 
-                            fontFamily="$body" 
-                            fontSize={20} 
-                            fontWeight="700" 
-                            color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)}
-                          >
-                            {todayForecast.temperature !== null ? `${todayForecast.temperature}°` : 'N/A'}
-                          </Text>
-                        </YStack>
-                      </XStack>
-                    </XStack>
+              <YStack
+                marginHorizontal="$4"
+                borderRadius="$6"
+                backgroundColor={todayCardBg}
+                overflow="hidden"
+                shadowColor={isDark ? "#000" : "#555"}
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={isDark ? 0.4 : 0.15}
+                shadowRadius={3}
+                elevation={4}
+                height={220}
+                justifyContent="space-between"
+                gap="$2"
+              >
+                <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                  <WeatherCardAnimations shortForecast={todayForecast.shortForecast} precipitation={todayPrecipitation} windValue={todayWindValue} isDark={isDark} />
+                  {[...Array(todayIsCloudy ? 5 : (todayIsSunny ? 2 : 3))].map((_, i) => (
+                    <AnimatedCloud key={`today-cloud-${i}`} isDark={isDark} index={i} sizeMultiplier={todayIsSunny ? 0.7 : 1.1} opacityMultiplier={todayIsSunny ? 0.7 : 1} />
+                  ))}
+                </View>
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.3)' }]} />
+                <XStack padding="$4" alignItems="center" gap="$2">
+                  <Text fontSize={36}>{getWeatherIcon(todayForecast.shortForecast)}</Text>
+                  <YStack flex={1}>
+                    <Text color={todayTextColor} fontSize={isWeb ? 22 : 18} fontWeight="600">Today</Text>
+                    <Text color={todayTextColor} fontSize={isWeb ? 18 : 16} numberOfLines={1} ellipsizeMode="tail">{todayForecast.shortForecast}</Text>
                   </YStack>
                 </XStack>
-                {/* Hourly breakdown carousel for today */}
-                <YStack marginHorizontal="$4" marginTop="$3">
+
+                <XStack height={60} overflow="hidden">
                   <HourlyCarousel />
-                </YStack>
+                </XStack>
+
+                <XStack paddingHorizontal="$4" paddingBottom="$2" justifyContent="space-between" backgroundColor={isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.5)'}  alignItems="center">
+                  <XStack alignItems="center" justifyContent="center"  gap="$3">
+                    <Text fontSize={16}>💨 {todayForecast.windSpeed}</Text>
+                    <Text fontSize={16}>💧 {todayPrecipitation}%</Text>
+                  </XStack>
+                  <XStack alignItems="center" gap="$2" padding="$2" borderRadius={10} >
+                    <Text fontSize={13} color={todayTextColor}>Now</Text>
+                    <Text fontSize={20} fontWeight="700" color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)}>
+                      {todayForecast.temperature !== null ? `${todayForecast.temperature}°` : 'N/A'}
+                    </Text>
+                  </XStack>
+                </XStack>
               </YStack>
             </Animated.View>
           )}

@@ -17,7 +17,6 @@ export default function ProjectsScreen() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
-  // Fallback to empty array
   const items = projects || []
 
   return (
@@ -30,13 +29,13 @@ export default function ProjectsScreen() {
           paddingHorizontal: isWeb ? 0 : 16,
           paddingTop: isWeb ? 0 : 20,
           paddingLeft: isWeb ? 12 : 16,
-          display: isWeb ? 'flex' : undefined,
-          flexDirection: isWeb ? 'row' : undefined,
-          flexWrap: isWeb ? 'wrap' : undefined,
-          justifyContent: isWeb ? 'flex-start' : undefined,
-          gap: isWeb ? 32 : undefined,
-          maxWidth: isWeb ? 1800 : undefined,
-          marginHorizontal: isWeb ? 'auto' : undefined,
+          display: isWeb ? 'flex' : 'flex',
+          flexDirection: isWeb ? 'row' : 'column',
+          flexWrap: isWeb ? 'wrap' : 'wrap',
+          justifyContent: isWeb ? 'flex-start' : 'flex-start',
+          gap: isWeb ? 32 : 16,
+          maxWidth: isWeb ? 1800 : "100%",
+          marginHorizontal: isWeb ? 'auto' : 'auto',
         }}
       >
         {items.length === 0 ? (
@@ -44,9 +43,9 @@ export default function ProjectsScreen() {
             isDark={isDark}
             primaryColor={primaryColor}
           />
-        ) : 
+        ) : (
           items.map((project: Project) => (
-            <YStack key={project.id} width={isWeb ? 'calc(33% - 16px)' : '100%'}>
+            <YStack key={project.id} width={isWeb ? 'calc(33% - 16px)' : '100%'} mb={isWeb ? 0 : '$3'}>
               <ProjectCard
                 project={project}
                 isDark={isDark}
@@ -54,7 +53,7 @@ export default function ProjectsScreen() {
               />
             </YStack>
           ))
-        }
+        )}
       </ScrollView>
 
       <Button

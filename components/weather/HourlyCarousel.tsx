@@ -11,12 +11,15 @@ const HourlyCarousel: React.FC = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   
-  // Filter only today's hourly periods
-  const todayIso = new Date().toISOString().split('T')[0];
-  const todaysHours = hourly.filter(p => p.startTime.startsWith(todayIso));
-
-  // Limit to next 8 hours
-  const items = todaysHours.slice(0, 8);
+  // Include the period that started at the top of the current hour or later
+  const now = new Date();
+  const startOfHour = new Date(now);
+  startOfHour.setMinutes(0, 0, 0);
+  const upcoming = hourly
+    .map(p => ({ ...p, date: new Date(p.startTime) }))
+    .filter(p => p.date >= startOfHour)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+  const items = upcoming.slice(0, 23);
 
   // Render each hour
   return (

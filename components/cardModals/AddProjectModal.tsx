@@ -10,8 +10,8 @@ import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { isIpad } from '@/utils/deviceUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
+import { useToastStore } from '@/store/ToastStore';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
-
 interface AddProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -26,9 +26,10 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [priority, setPriority] = useState<Project['priority']>('medium');
   const [tags, setTags] = useState<Tag[]>([]);
+  const showToast = useToastStore((state) => state.showToast)
   const projectTitleInputRef = React.useRef<any>(null);
   useAutoFocus(projectTitleInputRef, 1000, open);
-
+  
   useEffect(() => {
     if (!open) {
       setName('');
@@ -63,6 +64,13 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
     };
     addProject(newProject);
     onOpenChange(false);
+    setName('');
+    setDescription('');
+    setDeadline('');
+    setPriority('medium');
+    setTags([]);
+    setShowDatePicker(false);
+    showToast("Project created successfully", "success");
   }, [name, description, deadline, priority, tags, addProject, onOpenChange]);
 
   const handleCancel = useCallback(() => {
@@ -70,7 +78,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   }, [onOpenChange]);
 
   const handleDateChange = (event: any, date?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
+    setShowDatePicker(false); 
     if (date) {
       setDeadline(date.toISOString().split('T')[0]);
     }
@@ -133,38 +141,48 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                 outline: 'none'
               }}
             />
-          ) : (
-            <>
-              <Button
-                onPress={() => setShowDatePicker(true)}
-                borderWidth={1}
-                borderColor="#3B82F6"
-                borderRadius="$2"
-                backgroundColor={isDark ? '$gray3' : '$white'}
-                px="$3"
-                py="$2"
-              >
-                <Text color={deadline ? '#3B82F6' : '$gray8'}>{deadline || 'Select date'}</Text>
-              </Button>
-              {showDatePicker && deadline === '' && (
+          ) : ( 
+            <YStack gap="$2"> 
+              {!deadline && (
+                <Button
+                  onPress={() => setShowDatePicker(true)}
+                  borderWidth={1}
+                  borderColor="#3B82F6"
+                  borderRadius="$2"
+                  backgroundColor={isDark ? '$gray3' : '$white'}
+                  px="$3"
+                  py="$2"
+                >
+                  <Text color="#3B82F6">Select Deadline</Text>
+                </Button>
+              )}
+              {deadline ? (
+                <XStack pl="$2" gap="$1" ai="center" py="$1"> 
+                  <Text color={isDark ? '#6c6c6c' : '#222'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">Deadline:</Text>
+                  <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
+                    {new Date(deadline).toLocaleDateString('en-US', { 
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                </XStack>
+              ) : <Text opacity={0}>No deadline set</Text>}
+              {showDatePicker && (
                 <YStack gap="$1">
-                <DateTimePicker
-                  value={deadline ? new Date(deadline) : new Date()}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                  onChange={handleDateChange}
-                  style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
-                />
+                  <DateTimePicker
+                    value={deadline ? new Date(deadline) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                    onChange={handleDateChange}
+                    style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
+                  />
                 </YStack>
               )}
-              {showDatePicker && deadline !== '' && (
-                <YStack gap="$1" alignItems="center">
-                  <Text color={isDark ? '$gray1' : '$gray8'} fontSize={16} fontWeight="600" fontFamily="$body">{deadline}</Text>
-                </YStack>
-              )}
-            </>
+            </YStack>
           )}
-        </YStack> 
+        </YStack>
+        <TagSelector tags={tags} onTagsChange={setTags} />
         <YStack gap="$1">
           <DebouncedInput
             value={description}
@@ -174,8 +192,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             numberOfLines={5}
           />
         </YStack>
-        <TagSelector tags={tags} onTagsChange={setTags} />
       </YStack>
     </BaseCardModal>
   );
-} 
+}
