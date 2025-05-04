@@ -354,6 +354,10 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               </YStack>
             </View>
           )}
+          <RecurrenceSelector
+            selectedPattern={newTask.recurrencePattern} 
+            onPatternSelect={handleRecurrenceSelect} />
+
           {(newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly') && (
             <DaySelector
               selectedDays={newTask.schedule}
@@ -369,7 +373,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               preferences={preferences}
             />
           )}
-          <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
           <Form.Trigger asChild>
             <SubmitButton 
