@@ -257,12 +257,9 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                   justifyContent: 'space-between',
                   paddingHorizontal: 16,
                   backgroundColor: newTask.time ? 'transparent' : (isDark ? 'transparent' : 'rgba(238,238,238,0.8)'),
-                  borderWidth: newTask.time ? 0 : 1,
-                  borderColor: newTask.time ? 'transparent' : (isDark ? '#444' : '#e0e0e0'),
                   shadowOpacity: 0,
                   marginTop: 0,
                   marginBottom: 0,
-                  cursor: 'pointer',
                 }}
               >
                 <Text
@@ -296,9 +293,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.1,
                 shadowRadius: 8,
-                borderWidth: 1,
-                borderColor: isDark ? '#2c2c2e' : '#e5e5ea',
-                marginTop: 8,
+                marginTop: 4,
               }}
             >
               <YStack
@@ -374,6 +369,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               preferences={preferences}
             />
           )}
+          <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
           <Form.Trigger asChild>
             <SubmitButton 
