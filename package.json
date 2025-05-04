@@ -31,6 +31,7 @@
   "dependencies": {
     "@expo/config-plugins": "~9.0.0",
     "@expo/vector-icons": "^14.0.4",
+    "@legendapp/state": "^2.1.15",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/datetimepicker": "8.2.0",
     "@react-native-community/netinfo": "^11.4.1",

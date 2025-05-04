@@ -10,6 +10,7 @@ import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { isIpad } from '@/utils/deviceUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
+import { useAutoFocus } from '@/hooks/useAutoFocus';
 
 interface AddProjectModalProps {
   open: boolean;
@@ -25,6 +26,8 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [priority, setPriority] = useState<Project['priority']>('medium');
   const [tags, setTags] = useState<Tag[]>([]);
+  const projectTitleInputRef = React.useRef<any>(null);
+  useAutoFocus(projectTitleInputRef, 1000, open);
 
   useEffect(() => {
     if (!open) {
@@ -79,7 +82,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       onOpenChange={onOpenChange}
       title="New Project"
       showCloseButton={true}
-      snapPoints={isWeb ? [90] : isIpad() ? [70] : [77]}
+      snapPoints={isWeb ? [90] : isIpad() ? [70] : [85]}
       hideHandle={true}
       footer={
         <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
@@ -109,6 +112,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             value={name}
             placeholder="Project name"
             onDebouncedChange={setName}
+            ref={projectTitleInputRef}
           />
         </YStack>
         <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
@@ -142,7 +146,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               >
                 <Text color={deadline ? '#3B82F6' : '$gray8'}>{deadline || 'Select date'}</Text>
               </Button>
-              {showDatePicker && (
+              {showDatePicker && deadline === '' && (
                 <YStack gap="$1">
                 <DateTimePicker
                   value={deadline ? new Date(deadline) : new Date()}
@@ -151,6 +155,11 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                   onChange={handleDateChange}
                   style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
                 />
+                </YStack>
+              )}
+              {showDatePicker && deadline !== '' && (
+                <YStack gap="$1" alignItems="center">
+                  <Text color={isDark ? '$gray1' : '$gray8'} fontSize={16} fontWeight="600" fontFamily="$body">{deadline}</Text>
                 </YStack>
               )}
             </>
