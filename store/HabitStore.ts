@@ -55,18 +55,7 @@ export const useHabitStore = create<HabitStore>()(
         if (!habit) return state;
 
         const newCompletionStatus = !habit.completionHistory[date];
-        const today = new Date().toISOString().split('T')[0];
-
-        // Only handle notifications if it's for today and the habit has notification time set
-        if (date === today && habit.notificationTimeValue) {
-          const identifier = `${habit.title}-${habit.notificationTimeValue}`;
-          
-          // Cancel notification when habit is completed
-          if (newCompletionStatus) {
-            cancelEventNotification(identifier);
-          }
-        }
-
+        // Only update completionHistory, do not cancel notification here
         return {
           habits: {
             ...state.habits,

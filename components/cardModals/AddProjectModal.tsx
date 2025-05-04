@@ -121,6 +121,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             placeholder="Project name"
             onDebouncedChange={setName}
             ref={projectTitleInputRef}
+            autoCapitalize="words"
           />
         </YStack>
         <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
@@ -158,7 +159,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               )}
               {deadline ? (
                 <XStack pl="$2" gap="$1" ai="center" py="$1"> 
-                  <Text color={isDark ? '#6c6c6c' : '#222'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">Deadline:</Text>
+                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">Deadline:</Text>
                   <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
                     {new Date(deadline).toLocaleDateString('en-US', { 
                       month: 'long',

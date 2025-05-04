@@ -110,7 +110,7 @@ export function TagSelector({
       paddingHorizontal={8}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && <Text fontSize={isIpad() ? 16 : 15} mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#777777' : '#ccc'}>Tags:</Text>}
+        {!isAdding && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
           {tags.map(tag => (
             <XStack

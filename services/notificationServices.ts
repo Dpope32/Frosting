@@ -11,11 +11,30 @@ export const configureNotifications = async () => {
   try {
     // Set notification handler
     Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-      }),
+      handleNotification: async (notification) => {
+        // Suppress habit notifications if already completed for today
+        const identifier = notification?.request?.identifier;
+        if (identifier && identifier.includes('-')) {
+          const [habitName, time] = identifier.split('-');
+          const today = format(new Date(), 'yyyy-MM-dd');
+          const habits = useHabitStore.getState().habits;
+          const habit = Object.values(habits).find(h => h.title === habitName);
+          if (habit && habit.completionHistory[today]) {
+            // Suppress notification
+            return {
+              shouldShowAlert: false,
+              shouldPlaySound: false,
+              shouldSetBadge: false,
+            };
+          }
+        }
+        // Default: show notification
+        return {
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+        };
+      },
     });
 
     // Set up channels for Android

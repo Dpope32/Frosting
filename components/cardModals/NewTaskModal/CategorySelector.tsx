@@ -2,7 +2,7 @@ import React from 'react'
 import { useColorScheme, Alert, Platform } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { TaskCategory } from '@/types/task'
-import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon } from '@/utils/styleUtils'
+import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon, getDarkerColor } from '@/utils/styleUtils'
 import { isIpad } from '@/utils/deviceUtils'
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
 import { useUserStore } from '@/store/UserStore'
@@ -117,7 +117,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   fontFamily="$body"
                   color={
                     isSelected
-                      ? (isCustom ? (isDark ? userColor : '$gray12') : color)
+                      ? (isCustom ? getDarkerColor(color, 0.5) : (isDark ? userColor : '$gray12'))
                       : isDark
                         ? "$gray11"
                         : "$gray11"

@@ -4,7 +4,7 @@ import { YStack, XStack, Text, Button } from 'tamagui'
 import { TaskPriority } from '@/types/task'
 import { getPriorityColor, withOpacity } from '@/utils/styleUtils'
 import { ArrowUp, ArrowRight, ArrowDown } from '@tamagui/lucide-icons'
-
+import { isIpad } from '@/utils/deviceUtils'
 interface PrioritySelectorProps {
   selectedPriority: TaskPriority
   onPrioritySelect: (priority: TaskPriority, e?: any) => void
@@ -22,7 +22,7 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
 
   return (
     <XStack py="$1" px="$2.5" gap="$1.5" alignItems="center" justifyContent="flex-start">
-      <Text color={isDark ? "$gray9" : "$gray11"} fontFamily="$body" fontWeight="500">Priority?</Text>
+      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority?</Text>
       <XStack gap="$2" ml="$3">
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)

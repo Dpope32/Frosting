@@ -22,8 +22,37 @@ export const getCategoryColor = (category?: TaskCategory): string => {
     bills: '#4CAF50',    // Same green as wealth for bills
     task: '#FF9800', // Brown
   };
-  return colors[category as string] || '#607d8b'; // Fallback color for custom categories
+  return colors[category as string] || getCustomCategoryColor(category as string); // Use custom colors for custom categories
 };
+
+// Custom category colors
+export const customCategoryColors = [
+  '#1abc9c', // Turquoise
+  '#3498db', // Peter River
+  '#9b59b6', // Amethyst
+  '#e67e22', // Carrot
+  '#e74c3c', // Alizarin
+];
+
+// Function to get a custom category color based on the category name (for consistent color assignment)
+export const getCustomCategoryColor = (categoryName: string): string => {
+  // Simple hash function to get an index based on the category name
+  let hash = 0;
+  for (let i = 0; i < categoryName.length; i++) {
+    const char = categoryName.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  const index = Math.abs(hash) % customCategoryColors.length;
+  return customCategoryColors[index];
+};
+
+// Function to get a darker version of a color
+export const getDarkerColor = (color: string, percent: number): string => {
+  let f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent, R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
+  return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
+};
+
 
 // Priority colors and icons
 export const getPriorityColor = (priority?: TaskPriority): string => {

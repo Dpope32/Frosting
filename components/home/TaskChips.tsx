@@ -60,7 +60,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
         <XStack
           alignItems="center"
           backgroundColor={isCustom ? `${userColor}15` : `${calculatedCategoryColor}15`}
-          px="$0.5"
+          px="$1"
           py="$0.5"
           br={12}
           opacity={checked ? 0.6 : 0.9}
@@ -90,7 +90,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
         <XStack 
           alignItems="center" 
           backgroundColor={`${getPriorityColor(priority)}15`}
-          py="$0.5"
+          py="$1"
           px="$1"
           br={12}
           opacity={checked ? 0.6 : 0.9}
@@ -117,7 +117,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
       <XStack 
         alignItems="center" 
         backgroundColor={`${recurrenceColor}15`}
-        px="$1"
+        px="$1.5"
         py="$0.5"
         br={12}
         opacity={checked ? 0.6 : 0.9}
@@ -144,7 +144,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
         <XStack 
           alignItems="center" 
           backgroundColor="rgba(255, 255, 255, 0.05)"
-          px="$1"
+          px="$1.5"
           py="$0.5"
           br={12}
           borderWidth={1}
@@ -152,12 +152,6 @@ export function TaskChips({ category, priority, status, time, checked = false }:
           opacity={checked ? 0.6 : 0.9}
           marginBottom={4}
         >
-          <Ionicons 
-            name="time-outline" 
-            size={10} 
-            color="rgb(157, 157, 157)" 
-            style={{ marginRight: 4, marginTop: 1 }}
-          />
           <Text
             fontFamily="$body"
             color="rgb(157, 157, 157)"
@@ -177,6 +171,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'nowrap',
     marginTop: 2,
-    marginLeft: isWeb ? -10 : -2
+    marginLeft: isWeb ? -10 : -5
   }
 }); 

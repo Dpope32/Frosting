@@ -77,7 +77,7 @@ export const TaskSection = ({
   };
 
   return (
-    <Stack br={16} px="$0" py="$2" paddingBottom={isIpad() ? "$3" : "$2"}>
+    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={isIpad() ? "$3" : "$2"}>
       <XStack
         alignItems="center"
         width="100%" 
@@ -248,9 +248,9 @@ export const TaskSection = ({
             ) : (
               <XStack
                 flexWrap="wrap"
-                gap="$0.5"
+                gap={isIpad() ? "$0.5" : "$0.5"}
                 px={isIpad() ? "$3" : "$3"}
-                paddingLeft={isIpad() ? "$3" : "$4"}
+                paddingLeft={isIpad() ? "$2.5" : "$4"}
                 paddingVertical="$1.5"
                 justifyContent={isIpad() ? "space-between" : "flex-start"}
               >
