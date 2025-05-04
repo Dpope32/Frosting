@@ -3,10 +3,10 @@
 // It is used to handle the logic for the notes screen and the note list.
 // It is also used to handle the logic for the note list item.
 
-import { Dimensions, ViewStyle, Platform } from 'react-native';
+import { Dimensions, ViewStyle } from 'react-native';
 import { SharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
-import type { Note, Tag, Attachment } from '@/types/notes';
+import type { Note, Attachment } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import type { NoteStore } from '@/store/NoteStore';
 import { triggerHaptic, setupEditNote, isPointInTrashArea } from './noteService';
 import { GestureResponderEvent } from 'react-native';

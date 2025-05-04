@@ -5,16 +5,14 @@ import { Task, TaskPriority, TaskCategory, RecurrencePattern } from '@/types/tas
 import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
-import { useEditTaskStore } from '@/store/EditTaskStore' // Import the new store
+import { useEditTaskStore } from '@/store/EditTaskStore'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format, parse } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
-import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated'
 import { getDefaultTask, WEEKDAYS, RECURRENCE_PATTERNS, MONTHS } from '../../services/taskService'
 import { DebouncedInput } from '../shared/debouncedInput'
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity, dayColors } from '@/utils/styleUtils';
-
-import { UserPreferences } from '@/store/UserStore'; // Import UserPreferences type
+import { UserPreferences } from '@/store/UserStore'; 
 import { Base } from './NewTaskModal/Base'
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
 

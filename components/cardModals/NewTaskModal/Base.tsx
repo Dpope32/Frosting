@@ -1,4 +1,3 @@
-// BaseCardAnimated.tsx
 import React from 'react'
 import { StyleSheet, TouchableWithoutFeedback, View, Dimensions } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -11,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils/deviceUtils'
+
 interface BaseProps {
   onClose: () => void 
   title: string

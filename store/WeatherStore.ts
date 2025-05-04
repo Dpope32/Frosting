@@ -25,12 +25,14 @@ export interface WeatherPeriod {
 interface WeatherState {
   currentTemp: number | null;
   forecast: WeatherPeriod[];
+  hourlyForecast?: WeatherPeriod[];
   lastFetchTime: number | null;
 }
 
 export const useWeatherStore = create<WeatherState>(() => ({
   currentTemp: null,
   forecast: [],
+  hourlyForecast: [],
   lastFetchTime: null,
 }));
 
@@ -105,6 +107,28 @@ async function fetchForecastWithCoordinates(location: { latitude: number; longit
   const pointsUrl = `https://api.weather.gov/points/${latitude.toFixed(4)},${longitude.toFixed(4)}`;
   const pointsResponse = await fetch(pointsUrl);
   const pointsData = await pointsResponse.json();
+
+  // Fetch and log hourly forecast data for inspection
+  if (pointsData.properties && pointsData.properties.forecastHourly) {
+    try {
+      const hourlyUrl = pointsData.properties.forecastHourly;
+      const hourlyResponse = await fetch(hourlyUrl);
+      const hourlyData = await hourlyResponse.json();
+      console.log('[WeatherStore] Hourly forecast data:', hourlyData);
+      
+      // Store hourly periods in state
+      if (hourlyData.properties && Array.isArray(hourlyData.properties.periods)) {
+        console.log(
+          '[WeatherStore] Sample hourly periods (first 5):',
+          JSON.stringify(hourlyData.properties.periods.slice(0, 5), null, 2)
+        );
+        // Save all hourly periods
+        useWeatherStore.setState({ hourlyForecast: hourlyData.properties.periods });
+      }
+    } catch (error) {
+      console.error('[WeatherStore] Error fetching hourly forecast:', error);
+    }
+  }
 
   // Step 3: Get forecast
   if (!pointsData.properties || !pointsData.properties.forecast) {

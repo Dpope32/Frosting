@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextInput, StyleSheet, Platform, Pressable, ScrollView } from 'react-native';
 import { XStack, YStack, Text, Button } from 'tamagui';
-import { BaseCardAnimated } from './BaseCardAnimated';
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated';
 import {  scheduleDailyHabitNotification } from '@/services/notificationServices';
 import { CategorySelector } from '@/components/shared/debouncedInput';
 import { TaskCategory } from '@/types/task';

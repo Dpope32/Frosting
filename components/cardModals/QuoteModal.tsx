@@ -1,7 +1,7 @@
 import React, { useEffect  } from 'react'
 import { useColorScheme } from 'react-native'
 import { YStack, Text, Spinner } from 'tamagui'
-import { BaseCardAnimated } from './BaseCardAnimated'
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { useStoicQuote, useRefreshStoicQuote } from '@/hooks/useStoicQuote'
 import { Ionicons } from '@expo/vector-icons'
 import { Pressable } from 'react-native'

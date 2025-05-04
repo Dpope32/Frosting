@@ -35,7 +35,7 @@ export default function Index() {
   }, []);
   
   // Sync and export after all persisted stores finish rehydrating
- {/* useEffect(() => {
+ useEffect(() => {
     (async () => {
       try {
         await Promise.all([
@@ -58,7 +58,7 @@ export default function Index() {
       }
     })();
   }, []);
- **/}
+
   
   // If onboarding is not completed, go to onboarding
   if (!hasCompletedOnboarding) {

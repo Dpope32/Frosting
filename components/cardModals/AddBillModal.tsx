@@ -6,7 +6,7 @@ import { Platform, TouchableOpacity, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
 import { getOrdinalSuffix } from '@/store/BillStore'
-import { BaseCardAnimated } from './BaseCardAnimated'
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 interface AddBillModalProps {

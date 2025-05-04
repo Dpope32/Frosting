@@ -30,7 +30,8 @@ import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
 import { isIpad } from '@/utils/deviceUtils';
 import { CalendarEvent } from '@/store/CalendarStore'
-import type { Tag, Attachment } from '@/types/notes';
+import type { Attachment } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services/noteService';
 import { createFormattingHandler } from '@/services/noteService2';
 import { useEditStockStore } from '@/store/EditStockStore'

@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
 import { Bill } from '@/types/bills';
-import { Task } from '@/types/task';
+
 export { getOrdinalSuffix };
 
 const getOrdinalSuffix = (day: number): string => {

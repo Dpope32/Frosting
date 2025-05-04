@@ -3,7 +3,8 @@ import { Dimensions, Platform, Alert } from "react-native";
 import { type NoteStore } from "@/store/NoteStore";
 import { ToastStore, } from "@/store/ToastStore"; 
 import * as Haptics from "expo-haptics";
-import type { Note, Tag, Attachment } from '@/types/notes';
+import type { Note, Attachment } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import type { SharedValue } from "react-native-reanimated"; 
 
 export const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) => {

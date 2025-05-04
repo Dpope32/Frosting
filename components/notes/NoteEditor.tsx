@@ -1,7 +1,8 @@
 import React from 'react';
 import { AddNoteSheet } from './AddNoteSheet';
 import { saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick } from '@/services/noteService';
-import type { Note, Tag, Attachment } from '@/types/notes';
+import type { Note, Attachment } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import type { NoteStore } from '@/store/NoteStore';
 import type { SharedValue } from 'react-native-reanimated';
 import type { ToastType, ToastOptions } from '@/store/ToastStore';

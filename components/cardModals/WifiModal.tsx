@@ -1,66 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useColorScheme, Platform } from 'react-native'
-import { YStack, Text, Spinner, XStack } from 'tamagui'
-import Animated, { SlideInDown, SlideOutUp } from 'react-native-reanimated'
-import { BaseCardAnimated } from './BaseCardAnimated'
+import { YStack, Text, Spinner } from 'tamagui'
+import Animated, { SlideInDown } from 'react-native-reanimated'
+
 import { useNetworkStore } from '@/store/NetworkStore'
 import { getWifiDetails } from '@/services/wifiServices'
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed'
-
-const getStrengthColor = (
-  strength: string | number | undefined | null,
-  isDark: boolean
-): string => {
-  if (strength === null || strength === undefined || strength === '...' || strength === 'Offline') {
-    return isDark ? '#a1a1aa' : '#18181b'
-  }
-  if (typeof strength === 'string' && strength.includes('ms')) {
-    const value = parseInt(strength)
-    if (isNaN(value)) return isDark ? '#a1a1aa' : '#18181b'
-    if (isDark) {
-      if (value <= 50) return '#15803d'
-      if (value <= 100) return '#22c55e'
-      if (value <= 200) return '#eab308'
-      if (value <= 300) return '#f97316'
-      return '#ef4444'
-    } else {
-      if (value <= 50) return '#15803d'
-      if (value <= 100) return '#16a34a'
-      if (value <= 200) return '#ca8a04'
-      if (value <= 300) return '#ea580c'
-      return '#dc2626'
-    }
-  }
-  if (typeof strength === 'string' && strength.includes('Mbps')) {
-    const value = parseInt(strength)
-    if (isNaN(value)) return isDark ? '#a1a1aa' : '#18181b'
-    if (isDark) {
-      if (value >= 1000) return '#15803d'
-      if (value >= 300) return '#22c55e'
-      if (value >= 100) return '#eab308'
-      return '#f97316'
-    } else {
-      if (value >= 1000) return '#15803d'
-      if (value >= 300) return '#16a34a'
-      if (value >= 100) return '#ca8a04'
-      return '#ea580c'
-    }
-  }
-  const value = typeof strength === 'string' ? parseInt(strength.replace('%', '')) : (strength as number)
-  if (isDark) {
-    if (value <= 20) return '#ef4444'
-    if (value <= 40) return '#f97316'
-    if (value <= 60) return '#eab308'
-    if (value <= 80) return '#22c55e'
-    return '#15803d'
-  } else {
-    if (value <= 20) return '#dc2626'
-    if (value <= 40) return '#ea580c'
-    if (value <= 60) return '#ca8a04'
-    if (value <= 80) return '#16a34a'
-    return '#15803d'
-  }
-}
+import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
+import { getStrengthColor } from '@/utils/styleUtils'
 
 interface WifiModalProps {
   open: boolean

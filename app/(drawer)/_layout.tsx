@@ -1,9 +1,11 @@
+// @ts-nocheck
 import React from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isWeb } from 'tamagui';
 import { Header } from '@/components/Header';
-import { View, Image, Text, Platform, TouchableOpacity } from 'react-native'; 
+import { View, Image, Text, Platform, TouchableOpacity, Pressable } from 'react-native'; 
+
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store/UserStore';
@@ -15,7 +17,8 @@ import { isIpad } from '@/utils/deviceUtils';
 import { DRAWER_ICONS } from '@/constants/drawerIcons';
 import { useRouter } from 'expo-router';
 import { XStack } from 'tamagui';
-
+import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
@@ -27,7 +30,9 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
   isWeb: boolean;
 }) => {
   const router = useRouter();
-  
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#000000';
   const imageSource = (() => {
     if (!profilePicture) {
       return require('@/assets/images/adaptive-icon.png');
@@ -56,6 +61,31 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
           <Text style={styles.username}>
             {username || 'User'}
           </Text>
+          {!isWeb && !isIpad() && (
+                <Pressable
+                  onPress={() => {
+                    if (Platform.OS !== 'web') {
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    }
+                    props.navigation.closeDrawer();
+                  }}
+                  style={{  
+                    padding: isIpad() ? 8 : 8,
+                    marginLeft: 16,
+                    ...(isWeb ? {
+                      cursor: 'pointer',
+                      borderRadius: 8,
+                      transition: 'all 0.2s ease',
+                    } as any : {})
+                  }}
+                >
+                  <Ionicons
+                    name="caret-back"
+                    size={isWeb ? 24 : 20}
+                    color={isDark ? '#fff' : '#000'}
+                  />
+                </Pressable>
+              )}
         </View>
         <View style={styles.content}>
           <DrawerContentScrollView 
@@ -133,7 +163,7 @@ export default function DrawerLayout() {
         paddingVertical: 0,
         paddingLeft: 0,
         marginBottom: 10,
-        borderRadius: 4,
+        borderRadius: 30,
       },
       drawerLabelStyle: {
         fontSize: isIpadDevice ? 18 : 16,
@@ -141,13 +171,15 @@ export default function DrawerLayout() {
         marginLeft: -8,
       },
       drawerContentStyle: { backgroundColor },
-      drawerType: isPermanentDrawer ? 'permanent' as const : 'front' as const,
-      overlayColor: isPermanentDrawer ? 'transparent' : 'rgba(0,0,0,0.5)',
+      drawerType: isPermanentDrawer ? 'permanent' as const : 'back' as const,
+      defaultStatus: 'open',
+      overlayColor: isPermanentDrawer ? 'transparent' : isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
       swipeEnabled: !isPermanentDrawer,
       swipeEdgeWidth: 150,
       drawerStatusBarAnimation: 'fade',
       drawerHideStatusBarOnOpen: true,
       keyboardDismissMode: 'on-drag',
+      freezeOnBlur: isWeb ? true : false,
     };
     if (!isPermanentDrawer) {
       options.gestureHandlerProps = {
@@ -163,7 +195,7 @@ export default function DrawerLayout() {
       options.minSwipeDistance = 5;
     }
       options.drawerOpeningAnimation = {
-        type: 'spring',
+        type: '',
         stiffness: 750,
         damping: 70,
         mass: 1,
@@ -183,7 +215,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Home',
             drawerLabel: 'Home',
-            drawerIcon: (props) => renderIcon({ ...props, route: '(tabs)/index' })
+            drawerIcon: (props: any) => renderIcon({ ...props, route: '(tabs)/index' })
           }}
         />
         <Drawer.Screen
@@ -191,7 +223,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Calendar',
             drawerLabel: 'Calendar',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'calendar' })
+            drawerIcon: (props: any) => renderIcon({ ...props, route: 'calendar' })
           }}
         />
         <Drawer.Screen
@@ -199,7 +231,7 @@ export default function DrawerLayout() {
           options={{
             title: 'CRM',
             drawerLabel: 'CRM',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'crm' })
+            drawerIcon: (props: any) => renderIcon({ ...props, route: 'crm' })
           }}
         />
         <Drawer.Screen
@@ -207,7 +239,7 @@ export default function DrawerLayout() {
           options={{
             title: 'Vault',
             drawerLabel: 'Vault',
-            drawerIcon: (props) => renderIcon({ ...props, route: 'vault' })
+            drawerIcon: (props: any) => renderIcon({ ...props, route: 'vault' })
           }}
         />
         <Drawer.Screen
@@ -215,23 +247,31 @@ export default function DrawerLayout() {
           options={{
             title: 'Bills',
             drawerLabel: 'Bills',
-          drawerIcon: (props) => renderIcon({ ...props, route: 'bills' })
-        }}
-      />
+            drawerIcon: (props: any) => renderIcon({ ...props, route: 'bills' })
+          }}
+        />
         <Drawer.Screen
           name="notes"
           options={{
             title: 'Notes',
             drawerLabel: 'Notes',
-          drawerIcon: (props) => renderIcon({ ...props, route: 'notes' })
-        }}
-      />
+            drawerIcon: (props: any) => renderIcon({ ...props, route: 'notes' })
+          }}
+        />
       <Drawer.Screen
         name="habits"
         options={{
           title: 'Habits',
           drawerLabel: 'Habits',
-          drawerIcon: props => renderIcon({ ...props, route: 'habits' }),
+          drawerIcon: (props: any) => renderIcon({ ...props, route: 'habits' }),
+        }}
+      />
+      <Drawer.Screen
+        name="projects"
+        options={{
+          title: 'Projects',
+          drawerLabel: 'Projects',
+          drawerIcon: (props: any) => renderIcon({ ...props, route: 'projects' })
         }}
       />
       </Drawer>

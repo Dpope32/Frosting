@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Platform, Keyboard, View, KeyboardEvent } from 'react-native';
 import { XStack, YStack, Text, Button, Input } from 'tamagui';
 import { Plus, X, Check } from '@tamagui/lucide-icons';
-import type { Tag } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DebouncedInput } from '../shared/debouncedInput';
-import { isIpad } from '@/utils/deviceUtils';
 import { useTagStore } from '@/store/TagStore';
-
+import { isIpad } from '@/utils/deviceUtils';
 interface TagSelectorProps {
   tags: Tag[];
   onTagsChange: (tags: Tag[]) => void;
@@ -111,7 +110,7 @@ export function TagSelector({
       paddingHorizontal={8}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && <Text fontSize="$4" mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="600" color={isDark ? '#555555' : '#ccc'}>Tags:</Text>}
+        {!isAdding && <Text fontSize={isIpad() ? 16 : 15} mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#777777' : '#ccc'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
           {tags.map(tag => (
             <XStack
@@ -144,7 +143,6 @@ export function TagSelector({
               />
             </XStack>
           ))}
-          {/* Suggested tags from store */}
           {!isAdding && suggestedTags.map(tag => (
             <Button
               key={tag.id}

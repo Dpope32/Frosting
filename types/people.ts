@@ -1,4 +1,6 @@
 // types/people.ts
+import type { Tag } from '@/types/tag'
+
 export type SocialLink = {
   platform: string
   username: string
@@ -17,8 +19,6 @@ export type Address = {
   zipCode: string
   country: string
 }
-
-import type { Tag } from '@/types/notes'
 
 export type Person = {
   id: string

@@ -222,16 +222,6 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   // Determine number of raindrops based on precipitation
   const numRaindrops = Math.min(28, Math.max(8, Math.floor(precipitation / 3.5)));
 
-  // Create web-specific rain styles
-  const webRainStyles = StyleSheet.create({
-    rainDrop: {
-      position: 'absolute',
-      top: -10,
-      backgroundColor: isDark ? 'rgba(173, 216, 230, 0.7)' : 'rgba(70, 130, 180, 0.7)',
-      borderRadius: 1,
-      opacity: 0.7,
-    }
-  });
 
   // Render rain differently for web vs native
   const renderRain = () => {
@@ -268,24 +258,36 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   };
 
   // -------------------------------------------------------------
-  // Sun overlay (soft radial glow)
+  // Sun overlay (enhanced radial glow)
   // -------------------------------------------------------------
   const renderSunGlow = () => {
     if (!isSunny) return null;
-    // Use LinearGradient to create a subtle radial glow
-    const size = 240; // px
-    const offset = -80; // shift up-left
+    
+    // Get temperature to determine sun brightness
+    // Using raw props passed to the component to decide glow intensity
+    const tempAbove50 = typeof shortForecast === 'string' && shortForecast.includes('50');
+    
+    // Enhanced size for better visibility
+    const size = 320; // px
+    const offset = -120; // shift up-left
+    
+    // Use temperature to determine glow intensity
+    // More vibrant colors for temperatures above 50°F
+    const primaryColor = tempAbove50 ? 
+      (isDark ? 'rgba(253, 224, 71, 0.6)' : 'rgba(253, 230, 138, 0.7)') : 
+      (isDark ? 'rgba(253, 224, 71, 0.35)' : 'rgba(253, 230, 138, 0.5)');
+    
     return (
       <LinearGradient
         key="sun-glow"
-        colors={[isDark ? 'rgba(253, 224, 71,0.35)' : 'rgba(253, 230, 138,0.55)', 'transparent']}
+        colors={[primaryColor, 'transparent']}
         style={{
           position: 'absolute',
           width: size,
           height: size,
           borderRadius: size / 2,
           top: offset,
-          right: offset,
+          left: offset, // Changed from right to left to position in top-left
           zIndex: 0,
         }}
         start={{ x: 0.5, y: 0.5 }}

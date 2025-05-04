@@ -8,7 +8,8 @@ import { YStack, XStack } from 'tamagui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 
-import type { Note, Tag, Attachment } from '@/types/notes';
+import type { Note, Attachment } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore, ToastType } from '@/store/ToastStore';
 import { useNoteStore } from '@/store/NoteStore';

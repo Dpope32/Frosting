@@ -15,4 +15,5 @@ export const DRAWER_ICONS: Record<string, IconConfig> = {
   bills: { name: 'attach-money' as MaterialIconName, type: 'material' },
   notes: { name: 'note' as MaterialIconName, type: 'material' },
   habits: { name: 'playlist-check' as MaterialCommunityIconName, type: 'community' },
+  projects: { name: 'folder' as MaterialCommunityIconName, type: 'community' },
 };

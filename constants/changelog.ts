@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.1.130',
+    date: '2025-05-04',
+    notes: 'The last piece of Exodia, Projects!',
+    bullets: [
+      'Create and manage projects',
+      'Attach contacts, tasks, and notes to projects',
+      'Set Deadlines, Status, and more',
+      'Added legendstate for Json Export to Read from in Sync'
+    ],
+  },
+  {
     version: '1.1.124',
     date: '2025-05-04',
     notes: 'Polishing the Experience: UI Refinements',

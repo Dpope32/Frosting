@@ -5,7 +5,7 @@ import { Text, Button, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Plus } from '@tamagui/lucide-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { BaseCardAnimated } from '@/components/cardModals/BaseCardAnimated';
+import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';

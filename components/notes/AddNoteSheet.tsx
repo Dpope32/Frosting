@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView, Dimensions } from 'react-native';
-import { YStack, Button, XStack, Sheet, H3, Text, ScrollView, Input } from 'tamagui';
+import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
 import { X, Pencil, Check } from '@tamagui/lucide-icons';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from './FormattingToolbar';
 import { ContentInput } from './ContentInput'; 
-import type { Note, Attachment, Tag } from '@/types/notes';
+import type { Note, Attachment } from '@/types/notes';
+import type { Tag } from '@/types/tag';
 import { useUserStore } from '@/store/UserStore';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isIpad } from '@/utils/deviceUtils';

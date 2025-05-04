@@ -4,7 +4,6 @@ import React, { useEffect, useRef } from 'react';
 import { useUserStore } from '@/store/UserStore';
 import { useWeatherQuery, useWeatherStore } from '@/store/WeatherStore';
 import { getValueColor } from '@/constants/valueHelper';
-import { Pressable } from 'react-native';
 import { isIpad } from '@/utils/deviceUtils';
 
 const ONE_HOUR = 1000 * 60 * 60;
