@@ -256,7 +256,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   paddingHorizontal: 16,
-                  backgroundColor: newTask.time ? 'transparent' : (isDark ? 'transparent' : 'rgba(238,238,238,0.8)'),
+                  backgroundColor: newTask.time ? 'transparent' : (isDark ? 'transparent' : 'rgba(238,238,238,0.4)'),
                   shadowOpacity: 0,
                   marginTop: 0,
                   marginBottom: 0,

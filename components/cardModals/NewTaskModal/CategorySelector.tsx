@@ -117,7 +117,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   fontFamily="$body"
                   color={
                     isSelected
-                      ? (isCustom ? getDarkerColor(color, 0.5) : (isDark ? getCategoryColor : '$gray12'))
+                      ? (isCustom ? getDarkerColor(color, 0.5) : (isDark ? getCategoryColor(cat as TaskCategory) : '$gray12'))
                       : isDark
                         ? "$gray11"
                         : "$gray11"
