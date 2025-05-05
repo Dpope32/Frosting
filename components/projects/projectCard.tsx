@@ -245,14 +245,16 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
           />
           <XStack
             p={isIpad() ? "$3" : "$2"} 
-            px={isWeb ? "$4" : isIpad() ? "$3" : "$4"} 
-            pl={isWeb ? "$4" : isIpad() ? "$3" : "$4"} 
+            px={isWeb ? "$4" : isIpad() ? "$3" : "$3"} 
+            pl={isWeb ? "$4" : isIpad() ? "$3" : "$2.5"} 
             br="$4"
             w={isIpad() ? "100%" : "100%"}
             ai="center"
             animation="quick"
             py={isIpad() ? "$3" : "$2.5"}
-            pt={isIpad() ? "$3" : "$3"}
+            pt={isIpad() ? "$3" : "$2.5"}
+            borderWidth={2}
+            borderColor={isDark ? '#444' : '#ddd'}
           >
             <YStack flex={1} gap="$2"> 
               <XStack jc="space-between" px={isIpad() ? "$2" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
@@ -328,7 +330,7 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                   )}
               </XStack>
               
-              <YStack ml={isIpad() ? 16 : 0} gap="$1"> 
+              <YStack ml={isIpad() ? 16 : 0} gap="$1"  px={"$2"} pb={"$2"} mt={"$2"} br={"$2"} backgroundColor={isDark? 'rgba(255, 255, 255, 0.1)' : 'rgba(28, 27, 27, 0.1)'}> 
               <XStack ai="flex-start"  gap="$2" my="$2" px={isIpad() ? "$2" : "$2"}>
                 <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
                   Description:

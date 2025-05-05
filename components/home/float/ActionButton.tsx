@@ -51,10 +51,10 @@ const getActionStyle = (actionType: string, isDark: boolean) => {
       }
     case 'Project':
       return {
-        backgroundColor: isDark ? "rgba(35, 35, 35, 0.1)" : "rgba(46, 46, 46, 0.9)",
+        backgroundColor: isDark ? "rgba(35, 35, 35, 0.1)" : "rgba(137, 135, 135, 0.9)",
         borderColor: "rgba(182, 181, 181, 0.5)",
-        iconColor: isDark ? "#f3f3f3" : "#000",
-        textColor: isDark ? "#f3f3f3" : "#000"
+        iconColor: isDark ? "#c8c8c8" : "#fff",
+        textColor: isDark ? "#f3f3f3" : "#fff"
       }
     case 'Bill':
       return {
