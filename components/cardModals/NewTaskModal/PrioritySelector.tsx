@@ -21,9 +21,9 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   }
 
   return (
-    <XStack py="$1" px="$2.5" gap="$1.5" alignItems="center" justifyContent="flex-start">
+    <XStack px={isIpad() ? "$2.5" : "$2.5"} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority?</Text>
-      <XStack gap="$2" ml="$3">
+      <XStack gap={isIpad() ? "$2" : "$1"} ml={isIpad() ? "$2.5" : "$2.5"}>
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)
           const Icon = priorityIcons[priority as keyof typeof priorityIcons]
@@ -38,9 +38,9 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
                   : isDark ? "$gray2" : "white"
               }
               pressStyle={{ opacity: 0.8, scale: 0.98 }}
-              br={20}
-              px="$2.5"
-              py="$2.5"
+              br={isIpad() ? 20 : 20}
+              px={isIpad() ? "$2.5" : 12}
+              py={isIpad() ? "$2.5" : 12}
               borderWidth={1}
               borderColor={
                 selectedPriority === priority
@@ -49,7 +49,7 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
               }
             >
               <Icon
-                size={20}
+                size={isIpad() ? 20 : 16}
                 color={selectedPriority === priority ? color : isDark ? "$gray12" : "$gray11"}
               />
             </Button>

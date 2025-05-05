@@ -19,6 +19,7 @@ import { AddNoteSheet } from './notes/AddNoteSheet'
 import { AddBillModal } from './cardModals/AddBillModal'
 import { AddPersonForm } from './crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
+import { AddProjectModal } from './cardModals/AddProjectModal'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
@@ -36,6 +37,7 @@ import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } f
 import { createFormattingHandler } from '@/services/noteService2';
 import { useEditStockStore } from '@/store/EditStockStore'
 import { EditStockModal } from './cardModals/EditStockModal'
+import { useHabits } from '@/hooks/useHabits';
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
@@ -63,6 +65,7 @@ export function LandingPage() {
   const [contactModalOpen, setContactModalOpen] = useState(false)
   const [billModalOpen, setBillModalOpen] = useState(false)
   const [eventModalOpen, setEventModalOpen] = useState(false)
+  const [projectModalOpen, setProjectModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventTime, setNewEventTime] = useState('')
@@ -83,6 +86,7 @@ export function LandingPage() {
   const handleBullet = createFormattingHandler(formatBullet, selection, setNoteContent);
   const isStockModalOpen = useEditStockStore(s => s.isOpen)
   const openStockModal = useEditStockStore(s => s.openModal)
+  const { addHabit } = useHabits();
 
   // Effect hooks
   React.useEffect(() => {
@@ -151,6 +155,9 @@ export function LandingPage() {
       case 'bt_stock':
         openStockModal()
         break
+      case 'bt_project':
+        setProjectModalOpen(true);
+        break;
     }
   };
 
@@ -259,7 +266,7 @@ export function LandingPage() {
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
           {isStockModalOpen && <EditStockModal />}
           <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
-          <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={(name, category, notificationTimeLabel, notificationTimeValue) => { setHabitModalOpen(false)}}/>
+          <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={addHabit}/>
           <AddNoteSheet 
             isModalOpen={noteModalOpen} 
             selectedNote={null}  
@@ -306,6 +313,7 @@ export function LandingPage() {
             isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}
             onSubmit={(entry: { name: string; amount: number; dueDate: number }) => { setBillModalOpen(false) }}
           />
+          <AddProjectModal open={projectModalOpen} onOpenChange={setProjectModalOpen} isDark={isDark} />
           <EventModal 
             isEventModalVisible={eventModalOpen}
             isViewEventModalVisible={false}

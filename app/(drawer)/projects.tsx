@@ -10,19 +10,25 @@ import { ProjectEmpty } from '@/components/projects/ProjectEmpty'
 import { Project } from '@/types/project'
 import { ProjectCard } from '@/components/projects/projectCard'
 import { AddProjectModal } from '@/components/cardModals/AddProjectModal'
+import { AddTaskToProjectModal } from '@/components/cardModals/AddTaskToProjectModal'
+import { TaskPriority, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ProjectStore'
+import { useToastStore } from '@/store/ToastStore'
 
 export default function ProjectsScreen() {
   const { projects, isModalOpen, handleAddProject, handleCloseModal } = useProjects()
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const [addTaskModalOpen, setAddTaskModalOpen] = React.useState(false)
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string | null>(null)
+  const addProject = useProjectStore((state) => state.addProject)
+  const clearProjects = useProjectStore((state) => state.clearProjects)
+  const getProjectById = useProjectStore((state) => state.getProjectById)
+  const updateProject = useProjectStore((state) => state.updateProject)
+  const showToast = useToastStore((state) => state.showToast)
 
   const items = projects || []
-
-  // Dev helpers: load sample projects and clear all projects
-  const addProject = useProjectStore(state => state.addProject)
-  const clearProjects = useProjectStore(state => state.clearProjects)
 
   const loadDevProjects = () => {
     // define sample projects with explicit Project type to satisfy TypeScript
@@ -89,6 +95,47 @@ export default function ProjectsScreen() {
   const deleteAllProjects = () => {
     clearProjects()
   }
+
+  const handleOpenAddTaskModal = (projectId: string) => {
+    setSelectedProjectId(projectId)
+    setAddTaskModalOpen(true)
+  }
+
+  const handleSaveTask = (task: { name: string; completed: boolean; priority: TaskPriority }) => {
+    if (!selectedProjectId) return
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2, 9)
+    const now = new Date()
+    const newTask = {
+      id,
+      name: task.name,
+      completed: task.completed,
+      priority: task.priority as TaskPriority,
+      schedule: [],
+      category: 'task',
+      completionHistory: {},
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      recurrencePattern: 'one-time' as RecurrencePattern,
+    }
+    const project = getProjectById(selectedProjectId)
+    if (project) {
+      updateProject(selectedProjectId, { tasks: [...(project.tasks || []), newTask] })
+      showToast('Task added to project!', 'success')
+    }
+    setAddTaskModalOpen(false)
+    setSelectedProjectId(null)
+  }
+
+  const handleToggleTaskCompleted = (projectId: string, taskId: string, completed: boolean) => {
+    const project = getProjectById(projectId)
+    if (project) {
+      const updatedTasks = (project.tasks || []).map((t: any) => t.id === taskId ? { ...t, completed } : t)
+      updateProject(projectId, { tasks: updatedTasks })
+    }
+  }
+
   return (
     <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 0 : 0}>
       <ScrollView
@@ -120,6 +167,8 @@ export default function ProjectsScreen() {
                 project={project}
                 isDark={isDark}
                 primaryColor={primaryColor}
+                onOpenAddTaskModal={handleOpenAddTaskModal}
+                onToggleTaskCompleted={(taskId, completed) => handleToggleTaskCompleted(project.id, taskId, completed)}
               />
             </YStack>
           ))
@@ -143,6 +192,15 @@ export default function ProjectsScreen() {
       </Button>
 
       <AddProjectModal open={isModalOpen} isDark={isDark} onOpenChange={handleCloseModal} />
+
+      <AddTaskToProjectModal
+        open={addTaskModalOpen}
+        onOpenChange={(open) => {
+          setAddTaskModalOpen(open)
+          if (!open) setSelectedProjectId(null)
+        }}
+        onSave={handleSaveTask}
+      />
 
       {__DEV__ && (
         <XStack position="absolute" bottom={40} left={24} gap="$2" zIndex={1000}>

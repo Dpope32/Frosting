@@ -3,8 +3,8 @@ import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types/project'
 import { isIpad } from '@/utils/deviceUtils'
+import { getPriorityColor } from '@/utils/styleUtils'
 import { Plus } from '@tamagui/lucide-icons'
-import { useTagStore } from '@/store/TagStore'
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tagColors } from '@/utils/styleUtils';
@@ -13,43 +13,24 @@ interface ProjectCardProps {
   project: Project
   isDark: boolean
   primaryColor: string
+  onOpenAddTaskModal?: (projectId: string) => void;
+  onToggleTaskCompleted?: (taskId: string, completed: boolean) => void;
 }
 
 const columnWidthWeb = isWeb ? 300 : isIpad() ? 200 : 100
 
-// Helper to get priority color
-const getPriorityColor = (priority: Project['priority']) => {
-  switch (priority) {
-    case 'high':
-      return 'red';
-    case 'medium':
-      return 'orange';
-    case 'low':
-      return 'green';
-    default:
-      return 'gray';
-  }
-};
-
-// Helper to calculate days until deadline
 const getDaysUntilDeadline = (deadline?: Date): number | null => {
   if (!deadline || typeof deadline.getTime !== 'function') return null;
-  
   const today = new Date();
-  // Reset time to compare just dates
   today.setHours(0, 0, 0, 0);
-  
   const deadlineDate = new Date(deadline);
   deadlineDate.setHours(0, 0, 0, 0);
-  
   const diffTime = deadlineDate.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
   return diffDays;
 };
 
-export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps) => {
-    const tags = useTagStore((state) => state.tags)
+export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal, onToggleTaskCompleted }: ProjectCardProps) => {
     const priorityColor = getPriorityColor(project.priority);
 
     return isWeb ? (
@@ -62,7 +43,7 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
           width={columnWidthWeb}
           minWidth={288}
           maxWidth={400}
-          height={120}
+          minHeight={120}
           hoverStyle={{
             transform: [{ scale: 1.02 }],
             borderColor: primaryColor,
@@ -90,22 +71,29 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
                     borderColor={isDark ? '#444' : '#ddd'}
                     ai="center"
                   >
-                    <Text color={isDark ? '#f6f6f6' : '#333'} fontSize="$2" fontFamily="$body">
+                    <Text color={project.status === 'pending' ? '$blue10' : project.status === 'in_progress' ? '$yellow10' : '$green10'} fontSize="$2" fontFamily="$body">
                       {project.status}
                     </Text>
                   </XStack>
                 )}
 
-                {project?.deadline && typeof project.deadline.toLocaleDateString === 'function' && (
-                  <XStack ai="center" gap="$1">
-                    <MaterialIcons name="event" size={12} color={isDark ? '#999' : '#666'} />
-                    <Text color={isDark ? '#ccc' : '#666'} fontSize="$2" fontFamily="$body">
-                      {project.deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </Text>
-                  </XStack>
-                )}
+                {project?.deadline && (() => {
+                  let deadlineDate = project.deadline;
+                  if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
+                  if (deadlineDate instanceof Date && !isNaN(deadlineDate.getTime())) {
+                    return (
+                      <XStack ai="center" gap="$1">
+                        <MaterialIcons name="event" size={12} color={isDark ? '#999' : '#666'} />
+                        <Text color={isDark ? '#ccc' : '#666'} fontSize="$2" fontFamily="$body">
+                          {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </Text>
+                      </XStack>
+                    );
+                  }
+                  return null;
+                })()}
               </XStack>
-              <Button size="$2" circular>
+              <Button size="$2" circular onPress={() => onOpenAddTaskModal && onOpenAddTaskModal(project.id)}>
                 <Plus size={16} />
               </Button>
             </XStack>
@@ -130,14 +118,93 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
                 )}
                 <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
                   {(() => {
-                    const daysLeft = getDaysUntilDeadline(project?.deadline);
-                    if (daysLeft === null) return 'Not set';
+                    let deadlineDate = project?.deadline;
+                    if (!deadlineDate) return '-';
+                    if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
+                    if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-';
+                    const daysLeft = getDaysUntilDeadline(deadlineDate);
+                    if (daysLeft === null) return '-';
                     if (daysLeft < 0) return `${Math.abs(daysLeft)} days overdue`;
                     if (daysLeft === 0) return 'Due today';
-                    return `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} remaining`;
+                    return `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}`;
                   })()}
                 </Text>
               </XStack>
+            )}
+
+            {project.tasks && project.tasks.length > 0 && (
+              <>
+                <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} mt={8} />
+                <YStack pl={isWeb ? '$4' : '$3'}>
+                  <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} />
+                  {project.tasks.length > 1 && (
+                    <Text fontSize={12} color={isDark ? '#aaa' : '#444'} mb={2} fontFamily="$body">
+                      {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
+                    </Text>
+                  )}
+                  <XStack gap={12} flexWrap="wrap">
+                    {project.tasks.map((task, idx) => {
+                      return (
+                        <XStack
+                          key={task.id}
+                          ai="center"
+                          px={8}
+                          py={4}
+                          br={10}
+                          bg={isDark ? '#111' : '#999'}
+                          borderWidth={1}
+                          borderColor={isDark ? '#444' : '#ddd'}
+                          style={{
+                            opacity: task.completed ? 0.6 : 1,
+                            position: 'relative',
+                            marginBottom: 0,
+                            width: '48%',
+                            minWidth: 120,
+                            maxWidth: 300,
+                            flexBasis: '48%',
+                          }}
+                        >
+                          <Button
+                            size="$1"
+                            circular
+                            bg={task.completed ? '$green8' : '$gray4'}
+                            onPress={() => onToggleTaskCompleted && onToggleTaskCompleted(task.id, !task.completed)}
+                            mr={8}
+                            ai="center"
+                            jc="center"
+                            style={{ width: 24, height: 24 }}
+                          >
+                            {task.completed ? '✓' : ''}
+                          </Button>
+                          <Text
+                            fontSize={13}
+                            color={isDark ? '#f6f6f6' : '#222'}
+                            fontFamily="$body"
+                            style={{ flex: 1, marginLeft: 2, textDecorationLine: task.completed ? 'line-through' : 'none', whiteSpace: 'normal' }}
+                          >
+                            {task.name}
+                          </Text>
+                          <XStack ml={10} ai="center">
+                            <Text style={{ fontSize: 22, color: getPriorityColor(task.priority), lineHeight: 22 }}>•</Text>
+                          </XStack>
+                          {task.completed && (
+                            <XStack
+                              position="absolute"
+                              top={0}
+                              left={0}
+                              right={0}
+                              bottom={0}
+                              bg={isDark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)'}
+                              zIndex={1}
+                              br={10}
+                            />
+                          )}
+                        </XStack>
+                      );
+                    })}
+                  </XStack>
+                </YStack>
+              </>
             )}
 
           </YStack>
@@ -156,7 +223,6 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
             shadowRadius: 8,
             elevation: 10,
             overflow: 'hidden',
-            padding: 16,
             position: 'relative',
             borderLeftWidth: 3, 
             borderLeftColor: priorityColor,
@@ -172,7 +238,7 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
           }}
         >
           <LinearGradient
-            colors={isDark ? ['rgba(34, 34, 34, 0.7)', 'rgba(0, 0, 0, 0.7)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} // Adjusted opacity
+            colors={isDark ? ['rgba(91, 91, 91, 0.7)',  'rgba(0, 0, 0, 0.7)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} // Adjusted opacity
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}}
@@ -196,22 +262,29 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
                   </Text>
                   <MaterialIcons name="circle" size={12} color={priorityColor} />
 
-                  {project?.deadline && typeof project.deadline.toLocaleDateString === 'function' && (
-                    <XStack ai="center" gap="$1">
-                      <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#666'} />
-                      <Text color={isDark ? '#ccc' : '#444'} fontSize={isIpad() ? 15 : 13} paddingHorizontal={4} fontFamily="$body">
-                        {project.deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </Text>
-                    </XStack>
-                  )}
+                  {project?.deadline && (() => {
+                    let deadlineDate = project.deadline;
+                    if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
+                    if (deadlineDate instanceof Date && !isNaN(deadlineDate.getTime())) {
+                      return (
+                        <XStack ai="center" gap="$1">
+                          <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#666'} />
+                          <Text color={isDark ? '#ccc' : '#444'} fontSize={isIpad() ? 15 : 13} paddingHorizontal={4} fontFamily="$body">
+                            {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </Text>
+                        </XStack>
+                      );
+                    }
+                    return null;
+                  })()}
                 </XStack>
 
-                <Button size="$2" circular onPress={() => console.log('Add task clicked for', project.name)}>
+                <Button size="$2" circular onPress={() => onOpenAddTaskModal && onOpenAddTaskModal(project.id)}>
                   <Plus size={16} />
                 </Button>
 
               </XStack>
-              <XStack ai="center" gap="$1" flexWrap="wrap" px={isIpad() ? "$2" : "$1"}> 
+              <XStack ai="center" gap="$1" flexWrap="wrap" px={isIpad() ? "$2" : "$1"} my={-6}> 
                 {project?.status && (
                       <XStack
                         bg={isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'} 
@@ -257,7 +330,7 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
               
               <YStack ml={isIpad() ? 16 : 0} gap="$1"> 
               <XStack ai="flex-start"  gap="$2" my="$2" px={isIpad() ? "$2" : "$2"}>
-                <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 80} fontFamily="$body">
+                <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
                   Description:
                 </Text>
                 <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
@@ -266,19 +339,26 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
               </XStack>
 
               <XStack ai="center" gap={"$2"} mb="$2" px={isIpad() ? "$2" : "$2"}>
-                <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 80} fontFamily="$body">
+                <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
                   Created:
                 </Text>
                 <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
-                  {project?.createdAt && typeof project.createdAt.toLocaleDateString === 'function'
-                    ? project.createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-                    : 'Not set'}
+                  {(() => {
+                    let dateObj = project?.createdAt;
+                    if (dateObj && typeof dateObj === 'string') {
+                      dateObj = new Date(dateObj);
+                    }
+                    if (dateObj && dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+                      return dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    }
+                    return '-';
+                  })()}
                 </Text>
               </XStack>
 
-              <XStack ai="center" gap={"$2"} mb="$2" px={isIpad() ? "$2" : "$2"}>
-                <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 90} fontFamily="$body">
-                 Days remaining:
+              <XStack ai="center" gap={"$2"} px={isIpad() ? "$2" : "$2"}>
+                <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
+                  Days remaining:
                 </Text>
                 <Text
                   color={isDark ? '#f6f6f6' : '#111'}
@@ -287,17 +367,94 @@ export const ProjectCard = ({ project, isDark, primaryColor }: ProjectCardProps)
                   fontFamily="$body"
                 >
                   {(() => {
-                    const daysLeft = getDaysUntilDeadline(project?.deadline);
-                    if (daysLeft === null) return 'Not set';
+                    let deadlineDate = project?.deadline;
+                    if (!deadlineDate) return '-';
+                    if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
+                    if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-';
+                    const daysLeft = getDaysUntilDeadline(deadlineDate);
+                    if (daysLeft === null) return '-';
                     if (daysLeft < 0) return `${Math.abs(daysLeft)} days overdue`;
                     if (daysLeft === 0) return 'Due today';
                     return `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}`;
                   })()}
                 </Text>
+                
               </XStack>
               </YStack>
             </YStack>
           </XStack>
+
+          {project.tasks && project.tasks.length > 0 && (
+            <>
+              <YStack pl={isWeb ? '$4' : '$3'} pb={12}>
+                <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.5} mb={8} />
+                  {project.tasks.length > 1 && (
+                    <Text fontSize={12} color={isDark ? '#aaa' : '#444'} ml={12} mb={2} fontFamily="$body">
+                      {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
+                    </Text>
+                  )}
+                <XStack gap={2} flexWrap="wrap">
+                  {project.tasks.map((task, idx) => {
+                    return (
+                      <XStack
+                        key={task.id}
+                        ai="center"
+                        px={8}
+                        py={4}
+                        br={10}
+                        bg={isDark ? '#151515' : '#999'}
+                        style={{
+                          opacity: task.completed ? 0.6 : 1,
+                          position: 'relative',
+                          marginBottom: 0,
+                          width: '48%',
+                          flexBasis: '48%',
+                        }}
+                      >
+                        <Button
+                          size="$1"
+                          circular
+                          bg={task.completed ? '$green8' : '$gray4'}
+                          onPress={() => onToggleTaskCompleted && onToggleTaskCompleted(task.id, !task.completed)}
+                          mr={8}
+                          ai="center"
+                          jc="center"
+                          style={{ width: 24, height: 24 }}
+                        >
+                          {task.completed ? '✓' : ''}
+                        </Button>
+                        <Text
+                          fontSize={13}
+                          color={isDark ? '#f6f6f6' : '#222'}
+                          fontFamily="$body"
+                          style={{ flex: 1, marginLeft: 2, textDecorationLine: task.completed ? 'line-through' : 'none', whiteSpace: 'normal' }}
+                        >
+                          {task.name}
+                        </Text>
+                        {/* Priority dot */}
+                        <XStack ml={10} ai="center">
+                          <Text style={{ fontSize: 22, color: getPriorityColor(task.priority), lineHeight: 22 }}>•</Text>
+                        </XStack>
+                        {/* Overlay if completed */}
+                        {task.completed && (
+                          <XStack
+                            position="absolute"
+                            top={0}
+                            left={0}
+                            right={0}
+                            bottom={0}
+                            bg={isDark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)'}
+                            zIndex={1}
+                            br={10}
+                          />
+                        )}
+                      </XStack>
+                    );
+                  })}
+                </XStack>
+              </YStack>
+            </>
+          )}
         </Animated.View>
       )
 }

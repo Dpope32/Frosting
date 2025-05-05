@@ -20,6 +20,7 @@ import { DaySelector } from './DaySelector'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { CategorySelector } from './CategorySelector'
 import { PrioritySelector } from './PrioritySelector'
+import { TimePicker } from '@/components/shared/TimePicker'
 import { SubmitButton } from './SubmitButton'
 import { isIpad } from '@/utils/deviceUtils'
 import { DateSelector } from './DateSelector'
@@ -45,14 +46,24 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [keyboardOffset, setKeyboardOffset] = useState(0)
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      // Reset state when modal opens for a new task
+      setShowTimePicker(false);
+      setNewTask(getDefaultTask());
+      setIsSubmitting(false);
+      setKeyboardOffset(0);
+      setSelectedDate(new Date()); // Reset selected date for time picker
+    } else {
+      // Optional: Add a slight delay for closing animation
       setTimeout(() => {
-        setShowTimePicker(false)
-        setNewTask(getDefaultTask())
-        setIsSubmitting(false)
-      }, 200)
+        setShowTimePicker(false);
+        setNewTask(getDefaultTask());
+        setIsSubmitting(false);
+        setKeyboardOffset(0);
+        setSelectedDate(new Date());
+      }, 200);
     }
-  }, [open])
+  }, [open]);
 
   useEffect(() => {
     const onKeyboardShow = (e: KeyboardEvent) => setKeyboardOffset(e.endCoordinates.height)
@@ -72,16 +83,13 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }
   }, [])
 
-  const handleTextChange = useCallback((text: string) => {
-    setNewTask(prev => ({ ...prev, name: text }))
-  }, [])
+  const handleTextChange = useCallback((text: string) => {setNewTask(prev => ({ ...prev, name: text }))}, [])
 
   const toggleDay = useCallback((day: keyof typeof WEEKDAYS, e?: any) => {
     if (e) {
       e.preventDefault()
       e.stopPropagation()
     }
-    
     const fullDay = WEEKDAYS[day] as WeekDay
     setNewTask(prev => ({
       ...prev,
@@ -105,9 +113,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     setSelectedDate(date)
   }, [])
 
-  const handleTimePickerToggle = useCallback(() => {
-    setShowTimePicker(!showTimePicker)
-  }, [showTimePicker])
 
   const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern, e?: any) => {
     if (e) {
@@ -201,7 +206,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4} py={isIpad() ? 4 : 2} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$3"} px={isIpad() ? 6 : 4} py={isIpad() ? 4 : 2} pb={12}>
           <TaskNameInput
             value={newTask.name}
             onChange={handleTextChange}
@@ -244,116 +249,19 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                 </View>
               </Pressable>
             </XStack>
-            <YStack flex={1} alignItems='flex-end'>
-              <Pressable
-                onPress={handleTimePickerToggle}
-                style={{
-                  width: '100%',
-                  height: 50,
-                  borderRadius: 12,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 16,
-                  backgroundColor: newTask.time ? 'transparent' : (isDark ? 'transparent' : 'rgba(238,238,238,0.4)'),
-                  shadowOpacity: 0,
-                  marginTop: 0,
-                  marginBottom: 0,
-                }}
-              >
-                <Text
-                  fontFamily="$body"
-                  color={newTask.time ? (isDark ? '#f3f3f3' : '#333') : (isDark ? "$gray12" : "$gray11")}
-                  fontSize={14}
-                  style={{ flex: 1 }}
-                >
-                  {newTask.time || "Select time"}
-                </Text>
-                {newTask.time ? (
-                  <Pencil size={18} color={isDark ? '#000' : '#f3f3f3'} />
-                ) : (
-                  <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
-                    {showTimePicker ? '▲' : '▼'}
-                  </Text>
-                )}
-              </Pressable>
-            </YStack>
+            <TimePicker
+              showTimePicker={showTimePicker}
+              setShowTimePicker={setShowTimePicker}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              onTimeChange={handleTimeChange}
+              onWebTimeChange={handleWebTimeChange}
+              time={newTask.time}
+              isDark={isDark}
+              primaryColor={preferences.primaryColor}
+            />
           </XStack>
 
-          {showTimePicker && (
-            <View
-              style={{
-                zIndex: 10,
-                width: '100%',
-                backgroundColor: isDark ? '#1c1c1e' : 'white',
-                borderRadius: 12,
-                elevation: 10,
-                shadowColor: 'black',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                marginTop: 4,
-              }}
-            >
-              <YStack
-                height={Platform.OS === 'web' ? 100 : 200}
-                justifyContent="center"
-                alignItems="center"
-                padding="$4"
-                backgroundColor={isDark ? "$gray1" : "white"}
-                borderRadius={12}
-              >
-                {Platform.OS === 'web' ? (
-                  <XStack width="100%" alignItems="center" justifyContent="space-between">
-                    <input
-                      type="time"
-                      value={format(selectedDate, 'HH:mm')}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                      onChange={e => {
-                        const [hrs, mins] = e.target.value.split(':').map(Number)
-                        const newDate = new Date(selectedDate)
-                        newDate.setHours(hrs)
-                        newDate.setMinutes(mins)
-                        handleWebTimeChange(newDate)
-                      }}
-                      style={{
-                        padding: 12,
-                        fontSize: 16,
-                        borderRadius: 8,
-                        border: `1px solid ${isDark ? '#444' : '#ddd'}`,
-                        backgroundColor: isDark ? '#222' : '#fff',
-                        color: isDark ? '#fff' : '#000',
-                        width: '100%',
-                        marginRight: 10
-                      }}
-                    />
-                    <Button
-                      onPress={() => setShowTimePicker(false)}
-                      backgroundColor={preferences.primaryColor}
-                      px="$3"
-                      py="$2"
-                      br={12}
-                    >
-                      <Text color="white" fontFamily="$body" fontWeight="600">Done</Text>
-                    </Button>
-                  </XStack>
-                ) : (
-                  <DateTimePicker
-                    value={selectedDate}
-                    mode="time"
-                    is24Hour={false}
-                    onChange={handleTimeChange}
-                    display="spinner"
-                    themeVariant={isDark ? "dark" : "light"}
-                  />
-                )}
-              </YStack>
-            </View>
-          )}
           <RecurrenceSelector
             selectedPattern={newTask.recurrencePattern} 
             onPatternSelect={handleRecurrenceSelect} />
@@ -385,4 +293,4 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       </ScrollView>
     </Base>
   )
-} 
+}

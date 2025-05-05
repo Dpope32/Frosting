@@ -43,9 +43,10 @@ export function useHabits() {
     title: string, 
     category: TaskCategory, 
     notificationTimeValue: string,
-    customMessage: string
+    customMessage: string,
+    description: string
   ) => {
-    addHabit(title, category, notificationTimeValue, customMessage);
+    addHabit(title, category, notificationTimeValue, customMessage, description);
   };
 
   const handleToggleHabit = (habitId: string) => {
@@ -58,7 +59,13 @@ export function useHabits() {
 
   return {
     habits: habitsList,
-    addHabit: handleAddHabit,
+    addHabit: handleAddHabit as (
+      title: string,
+      category: TaskCategory,
+      notificationTimeValue: string,
+      customMessage: string,
+      description: string
+    ) => void,
     toggleHabit: handleToggleHabit,
     deleteHabit,
     editHabit,

@@ -243,6 +243,7 @@ export function TaskCard({
                   }
                 }}
                 style={styles.checkboxContainer}
+                hitSlop={{ top: 4, bottom: 4, left: 4, right: 12 }}
               >
                 <View style={[
                   styles.checkbox,

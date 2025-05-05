@@ -92,7 +92,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
     return { currentStreak: curr, longestStreak: max, totalCompletions: total, percentComplete: percent };
   }, [history]);
 
-  const squareSize = isMobile ? 14 : 16;
+  const squareSize = 20;
   const gap = isMobile ? 3 : 4;
 
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
@@ -148,7 +148,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
         p={isMobile ? 8 : 10}
         px={isMobile ? 12 : 16}
         borderRadius={12}
-        backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#111' : '#fff')} 
+        backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#151515' : '#fff')} 
         borderWidth={1}
         borderColor={isDark ? '#333' : '#E0E0E0'}
         position="relative"
@@ -218,13 +218,50 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                 {habit.category}
               </Text>
             </XStack>
-            {notificationTimeDate !== 'none' && (
+          </XStack>
+
+          <XStack gap="$3" alignItems="center"  pb={2} style={{ zIndex: 2 }}>
+            <Pressable
+              onPress={onToggle}
+              style={styles.checkboxContainer}
+              hitSlop={8}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  {
+                    borderColor: doneToday ? '#00C851' : isDark ? '#333' : 'rgb(52, 54, 55)',
+                    backgroundColor: doneToday
+                      ? 'rgba(0, 200, 81, 0.1)'
+                      : isDark
+                      ? 'rgba(110, 110, 110, 0.65)'
+                      : 'rgba(255,255,255,0.65)',
+                    width: isMobile ? 20 : 24,
+                    height: isMobile ? 20 : 24,
+                  },
+                ]}
+              >
+                {doneToday && (
+                  <Ionicons 
+                    name="checkmark-sharp" 
+                    size={isMobile ? 14 : 16} 
+                    color="#00C851" 
+                  />
+                )}
+              </View>
+            </Pressable>
+          </XStack>
+        </XStack>
+        {(notificationTimeDate !== 'none' || habit.customMessage || habit.description) && (
+          <XStack mt={2} pb={12} gap={4} >
+              {notificationTimeDate !== 'none' && (
               <XStack
                 alignItems="center"
                 backgroundColor={isDark ? 'rgba(100, 148, 237, 0.07)' : 'rgba(100, 149, 237, 0.1)'}
                 px={isMobile ? 10 : 8}
-                py={isMobile ? 0 : 0}
+                py={1.5}
                 br={10}
+                alignSelf="flex-start"
                 opacity={doneToday ? 0.6 : 0.9}
               >
                 <Ionicons 
@@ -243,83 +280,115 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                 </Text>
               </XStack>
             )}
-          </XStack>
-
-          <XStack gap="$3" alignItems="center" style={{ zIndex: 2 }}>
-            <Pressable
-              onPress={onToggle}
-              style={styles.checkboxContainer}
-              hitSlop={8}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  {
-                    borderColor: doneToday ? '#00C851' : isDark ? '#333' : 'rgb(52, 54, 55)',
-                    backgroundColor: doneToday
-                      ? 'rgba(0, 200, 81, 0.1)'
-                      : isDark
-                      ? '#181818'
-                      : 'rgba(255,255,255,0.65)',
-                    width: isMobile ? 20 : 24,
-                    height: isMobile ? 20 : 24,
-                  },
-                ]}
+            {habit.customMessage && (
+              <XStack 
+                alignItems="center"
+                backgroundColor={isDark ? 'rgba(177, 156, 217, 0.07)' : 'rgba(147, 112, 219, 0.08)'}
+                px={isMobile ? 4 : 2}
+                py={isMobile ? 2 : 1}
+                borderRadius={10}
+                alignSelf="flex-start"
+                opacity={doneToday ? 0.6 : 0.7}
               >
-                {doneToday && (
-                  <Ionicons 
-                    name="checkmark-sharp" 
-                    size={isMobile ? 14 : 16} 
-                    color="#00C851" 
-                  />
-                )}
-              </View>
-            </Pressable>
+                <Ionicons 
+                  name="notifications-outline" 
+                  size={isMobile ? 14 : 10} 
+                  color={isDark ? '#B19CD9' : '#9370DB'} 
+                  style={{ paddingRight: 2 }}
+                />
+                <Text 
+                  fontFamily="$body" 
+                  fontSize={isIpad() ? 15 : 12} 
+                  color={isDark ? '#B19CD9' : '#9370DB'} 
+                  fontWeight="500"
+                >
+                  {habit.customMessage}
+                </Text>
+              </XStack>
+            )}
+            {habit.description && (
+              <XStack
+                alignItems="center"
+                alignSelf="flex-start"
+                opacity={doneToday ? 0.6 : 0.9}
+              >
+                <Text
+                  fontFamily="$body"
+                  fontSize={isIpad() ? 15 : 13}
+                  color={isDark ? '#ccc' : '#666'}
+                  style={{ marginLeft: 2 }}
+                >
+                  {habit.description}
+                </Text>
+              </XStack>
+            )}
           </XStack>
+        )}
+
+        <XStack alignItems="center" style={{ zIndex: 2 }}>
+          <YStack
+            borderRadius={6}
+            padding={8}
+            backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)'}
+            mb={history.length === 1 ? 4 : 0}
+            gap={6}
+          >
+            <XStack gap={gap}>
+              {Array.from({ length: 15 }).map((_, idx) => {
+                const day = history[history.length - 1 - idx];
+                return (
+                  <YStack
+                    key={day ? day.date : idx}
+                    width={squareSize}
+                    height={squareSize}
+                    borderRadius={3}
+                    backgroundColor={day
+                      ? day.completed
+                        ? '#00C851'
+                        : isDark
+                          ? '#333'
+                          : '#E0E0E0'
+                      : isDark
+                        ? '#333'
+                        : '#E0E0E0'}
+                    alignItems="center"
+                    justifyContent="center"
+                    opacity={day && day.date === today ? 1 : 0.8}
+                  >
+                  </YStack>
+                );
+              })}
+            </XStack>
+            {(history.length > 15) && (
+              <XStack gap={gap} mt={4}>
+                {Array.from({ length: 15 }).map((_, idx) => {
+                  const day = history[history.length - 16 - idx];
+                  return (
+                    <YStack
+                      key={day ? day.date : `r2-${idx}`}
+                      width={squareSize}
+                      height={squareSize}
+                      borderRadius={3}
+                      backgroundColor={day
+                        ? day.completed
+                          ? '#00C851'
+                          : isDark
+                            ? '#333'
+                            : '#E0E0E0'
+                        : isDark
+                          ? '#333'
+                          : '#E0E0E0'}
+                      alignItems="center"
+                      justifyContent="center"
+                      opacity={day && day.date === today ? 1 : 0.8}
+                    >
+                    </YStack>
+                  );
+                })}
+              </XStack>
+            )}
+          </YStack>
         </XStack>
-
-        {habit.customMessage && (
-          <XStack 
-            width="100%" 
-            my={isMobile ? 4 : 5} 
-            px={isMobile ? 4 : 6}
-            py={isMobile ? 3 : 4}
-            borderRadius={10}
-            alignItems="center"
-            opacity={doneToday ? 0.6 : 0.7}
-          >
-            <Ionicons 
-              name="notifications-outline" 
-              size={isMobile ? 14 : 16} 
-              color={isDark ? '#B19CD9' : '#9370DB'} 
-              style={{ marginRight: 8 }}
-            />
-            <Text 
-              fontFamily="$body" 
-              fontSize={isIpad() ? 15 : 13} 
-              color={isDark ? '#B19CD9' : '#9370DB'} 
-              fontWeight="500"
-            >
-              {habit.customMessage}
-            </Text>
-          </XStack>
-        )}
-
-        {/* Description if present */}
-        {habit.description && (
-          <XStack 
-            width="100%" 
-            mb={isMobile ? 4 : 5}
-          >
-            <Text 
-              fontFamily="$body" 
-              fontSize={isIpad() ? 14 : 12} 
-              color={isDark ? '#ccc' : '#666'}
-            >
-              {habit.description}
-            </Text>
-          </XStack>
-        )}
 
         <Modal
           visible={showStats}
@@ -374,37 +443,6 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             </View>
           </Pressable>
         </Modal>
-
-        <XStack alignItems="center" style={{ zIndex: 2 }}>
-          <XStack
-            flexWrap="wrap"
-            gap={gap}
-            borderRadius={6}
-            padding={6}
-            backgroundColor={isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}
-            mb={history.length === 1 ? 4 : 0}
-          >
-            {history.length > 0 ? (
-              history.map((day, idx) => (
-                <YStack
-                  key={day.date}
-                  width={squareSize}
-                  height={squareSize}
-                  borderRadius={3}
-                  backgroundColor={day.completed ? '#00C851' : isDark ? '#333' : '#E0E0E0'}
-                  alignItems="center"
-                  justifyContent="center"
-                  opacity={day.date === today ? 1 : 0.8}
-                >
-                </YStack>
-              ))
-            ) : (
-              <Text fontFamily="$body" fontSize={12} color={isDark ? '#777' : '#999'}>
-                No history yet
-              </Text>
-            )}
-          </XStack>
-        </XStack>
       </YStack>
     </LongPressDelete>
   );

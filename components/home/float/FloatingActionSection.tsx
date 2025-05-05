@@ -157,10 +157,26 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       )
     },
     {
+      text: "Project",
+      icon: <MaterialIcons name="folder" size={iconSize} color={isDark ? "#f3f3f3" : "#000"} />,
+      name: "bt_project",
+      position: 7,
+      render: () => (
+        <ActionButton
+          key="project-action"
+          onPress={() => handleActionPress("bt_project")}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          icon="folder"
+          text="Project"
+        />
+      )
+    },
+    {
       text: "Bill",
       icon: <MaterialIcons name="currency-exchange" size={iconSize} color={textColor} />,
       name: "bt_bill",
-      position: 7,
+      position: 8,
       render: () => (
         <ActionButton
           key="bill-action"
@@ -176,7 +192,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "Event",
       icon: <MaterialIcons name="calendar-month" size={iconSize} color={textColor} />,
       name: "bt_event",
-      position: 8,
+      position: 9,
       render: () => (
         <ActionButton
           key="event-action"
@@ -192,7 +208,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       text: "ToDo",
       icon: <MaterialIcons name="check-box" size={iconSize} color={textColor} />,
       name: "bt_todo",
-      position: 9,
+      position: 10,
       render: () => (
         <ActionButton
           key="todo-action"

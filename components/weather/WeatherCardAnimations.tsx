@@ -39,31 +39,22 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   // Rain Animation (refined palette & thinner drops)
   // =============================================================
   const RainDrop = ({ index }: { index: number }) => {
-    const initialY = useSharedValue(-18); // Slightly higher starting point for smoother entry
+    const initialY = useSharedValue(-18);
     const dropHeight = 8 + Math.random() * 8;
     const dropWidth = 0.8 + Math.random() * 0.8;
-    
-    // Instead of percentage string, use calculated numeric position
     const leftPosition = (Math.random() * screenWidth);
-    
-    // Calculate rain duration based on precipitation percentage
-    // Lower precipitation = slower rain (longer duration)
-    // Higher precipitation = faster rain (shorter duration)
-    const baseDuration = 1800 - (precipitation * 10); // Range: 1800ms (0%) to 800ms (100%)
+    const baseDuration = 1800 - (precipitation * 10);
     const duration = baseDuration + Math.random() * 300;
-    
-    const delay = Math.random() * 1000 * (index % 5); // Stagger drops
+    const delay = Math.random() * 1000 * (index % 5);
 
     useEffect(() => {
-      // Use setTimeout to introduce the delay
       const timer = setTimeout(() => {
         initialY.value = withRepeat(
           withTiming(120, { duration, easing: Easing.linear }),
-          -1, // Repeat indefinitely
-          false // Don't reverse
+          -1,
+          false
         );
       }, delay);
-      
       return () => clearTimeout(timer);
     }, []);
 
@@ -74,9 +65,9 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         left: leftPosition,
         height: dropHeight,
         width: dropWidth,
-        backgroundColor: isDark ? 'rgba(147, 197, 253, 0.75)' : 'rgba(59, 130, 246, 0.7)', // Blue-500 / Blue-300
+        backgroundColor: rainColor,
         borderRadius: dropWidth / 2,
-        opacity: 0.6,
+        opacity: rainOpacity,
       };
     });
 
@@ -219,9 +210,12 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
     }
   }, [precipitation]);
 
-  // Determine number of raindrops based on precipitation
-  const numRaindrops = Math.min(28, Math.max(8, Math.floor(precipitation / 3.5)));
-
+  // Determine number of raindrops and opacity based on precipitation
+  const numRaindrops = Math.min(32, Math.max(4, Math.floor(precipitation / 2.5) + (precipitation > 70 ? 8 : 0)));
+  const rainOpacity = 0.25 + Math.min(0.75, precipitation / 100);
+  const rainColor = isDark
+    ? `rgba(147, 197, 253, ${0.5 + precipitation / 200})`
+    : `rgba(59, 130, 246, ${0.35 + precipitation / 150})`;
 
   // Render rain differently for web vs native
   const renderRain = () => {
@@ -240,9 +234,9 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
               left: randomLeft,
               height: 10 + Math.random() * 10,
               width: 1 + Math.random() * 1,
-              backgroundColor: isDark ? 'rgba(173, 216, 230, 0.7)' : 'rgba(70, 130, 180, 0.7)',
+              backgroundColor: rainColor,
               borderRadius: 1,
-              opacity: 0.7,
+              opacity: rainOpacity,
               animation: `rain ${(2.5 - (precipitation / 100) * 1.5).toFixed(1)}s linear infinite`,
               animationDelay: randomDelay
             }}

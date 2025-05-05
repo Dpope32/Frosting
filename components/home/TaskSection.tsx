@@ -4,8 +4,10 @@ import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
+import { Button } from 'tamagui' // Import Button
 import { Task } from '@/types/task'
 import { RecommendationChipHome } from '@/constants/recommendations/recChipHome'
+import { addDevTasks } from '@/services/devServices'
 import { useRecommendationStore } from '@/store/RecommendationStore'
 import { YearCompleteSection } from '@/components/home/YearCompleteSection'
 import { format } from 'date-fns'
@@ -131,6 +133,23 @@ export const TaskSection = ({
             >
               {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </Text>
+          )}
+          {__DEV__ && (
+            <Button
+              size="$2"
+              circular
+              bg="#00AAFF"
+              pressStyle={{ scale: 0.95 }}
+              animation="quick"
+              elevation={4}
+              onPress={() => addDevTasks()} 
+              position="absolute" 
+              right="$3" 
+              top="-10%" 
+              y="0%" 
+            >
+              <Text color="white" fontSize={16}>+</Text>
+            </Button>
           )}
         </XStack>
       </XStack>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Text, Platform, Image, Dimensions } from 'react-native';
-import { useNBAStore } from '@/store/NBAStore';
-import { useUserStore } from '@/store/UserStore';
-import { nbaTeams } from '@/constants/nba';
+import { View, StyleSheet, Text, Platform  } from 'react-native';
+//import { useNBAStore } from '@/store/NBAStore';
+//import { useUserStore } from '@/store/UserStore';
+//import { nbaTeams } from '@/constants/nba';
 import { isIpad } from '@/utils/deviceUtils';
 
 interface LegendProps { 
@@ -16,9 +16,9 @@ interface LegendItem {
 }
 
 export const Legend: React.FC<LegendProps> = ({ isDark }) => {
-  const { teamCode } = useNBAStore();
-  const team = nbaTeams.find(t => t.code === teamCode);
-  const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
+ // const { teamCode } = useNBAStore();
+ // const team = nbaTeams.find(t => t.code === teamCode);
+ // const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
   
   const baseItems: LegendItem[] = [
     { color: '#4CAF50', label: 'Personal' },
@@ -28,7 +28,7 @@ export const Legend: React.FC<LegendProps> = ({ isDark }) => {
     { color: '#FF9800', label: 'Tasks' },
   ];
   
-  const items: LegendItem[] = showNBAGamesInCalendar  ? [...baseItems, { color: '#FF5722', label: 'NBA', isNBA: true }] : baseItems;
+  const items: LegendItem[] = baseItems;
   const isWebOrIpad = Platform.OS === 'web' || isIpad();
   
   return (
@@ -36,19 +36,11 @@ export const Legend: React.FC<LegendProps> = ({ isDark }) => {
       <View style={[styles.row, isWebOrIpad && styles.rowWebIpad]}>
         {items.map((item, index) => (
           <View key={index} style={[styles.item, isWebOrIpad && styles.itemWebIpad]}>
-            {item.isNBA && team ? (
-              <Image
-                source={{ uri: team.logo }}
-                style={isWebOrIpad ? styles.nbaLogoWebIpad : styles.nbaLogo}
-                resizeMode="contain"
-              />
-            ) : (
-              <View style={[
-                styles.dot, 
-                { backgroundColor: item.color },
-                isWebOrIpad && styles.dotWebIpad
-              ]} />
-            )}
+            <View style={[
+              styles.dot, 
+              { backgroundColor: item.color },
+              isWebOrIpad && styles.dotWebIpad
+            ]} />
             <Text style={[
               styles.label, 
               { color: isDark ? '#999999' : '#666666' },
@@ -91,9 +83,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   dotWebIpad: {
     width: 10,

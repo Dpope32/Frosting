@@ -57,80 +57,18 @@ export function getWeatherIcon(shortForecast: string): string {
     temperature: TempParam = undefined
   ): string {
     const forecast = shortForecast.toLowerCase();
-  
-    // Helper to pick a base then tweak depending on precipitation (rain/snow) or theme
-    const tune = (baseLight: string, baseDark: string, factor = 0) =>
-      isDark ? adjustColor(baseDark, factor) : adjustColor(baseLight, factor);
-  
-    // Util to map temperature 45F-100F -> 0-1
-    const tempFactor = typeof temperature === 'number' ? Math.min(1, Math.max(0, (temperature - 45) / 55)) : 0;
-  
-    // Thunderstorm – deep indigo / electric purple
-    if (forecast.includes('thunderstorm')) {
-      // Slightly brighten as precipitation climbs (more lightning means brighter)
-      const pct = precipitation / 100;
-      return tune('#4F46E5', '#312E81', pct * 0.25);
-    }
-  
-    // Rain / Showers – steel blue range, darker with higher precipitation
-    if (forecast.includes('rain') || forecast.includes('shower')) {
-      const pct = precipitation / 100;
-      // For dark mode darken, for light mode darken a touch as well
-      return tune('#93C5FD', '#1E3A8A', -pct * 0.35);
-    }
-  
-    // Wind – teal / sky
-    if (forecast.includes('wind')) {
-      return tune('#A5F3FC', '#164E63');
-    }
-  
-    // Snow – icy light blue / slate
+    const pct = precipitation / 100;
+    // For snow, use icy blue
     if (forecast.includes('snow')) {
-      const pct = precipitation / 100;
-      return tune('#E0F2FE', '#1E293B', -pct * 0.2);
+      return mixColors('#e0f7fa', '#90caf9', pct * 0.5); // 0=icy, 1=blue
     }
-  
-    // Clouds – warm grey palette
-    if (forecast.includes('cloud')) {
-      return tune('#E5E7EB', '#374151');
+    // For thunderstorms and rain/showers, use a much darker blue
+    if (forecast.includes('thunderstorm') || forecast.includes('shower') || forecast.includes('rain')) {
+      // Deep storm blue for high precipitation, medium blue for low
+      return mixColors('#3b4a6b', '#101c2c', pct * 0.85); // 0=medium, 1=deep
     }
-  
-    // Use sky blue palette for sunny variants - enhanced with temperature-based brightness
-    // For temps above 50 in dark mode, make it brighter and more vibrant
-    const getBaseSkyColor = () => {
-      const isHighTemp = typeof temperature === 'number' && temperature >= 50;
-      
-      // For dark mode and high temps, use a much brighter blue
-      if (isDark && isHighTemp) {
-        return '#2563EB'; // A brighter, more vibrant blue for dark mode
-      }
-      
-      // Standard colors for other cases
-      return isDark ? '#1E3A8A' : '#93C5FD';
-    };
-    
-    const baseSky = getBaseSkyColor();
-  
-    if (forecast.includes('mostly sunny')) {
-      return isDark && typeof temperature === 'number' && temperature >= 50
-        ? adjustColor(baseSky, 0.1) // brighter for high temps in dark mode
-        : adjustColor(baseSky, -0.05); // standard adjustment otherwise
-    }
-  
-    if (forecast.includes('partly sunny')) {
-      return isDark && typeof temperature === 'number' && temperature >= 50
-        ? adjustColor(baseSky, 0.15) // brighter for high temps in dark mode
-        : adjustColor(baseSky, 0.06); // standard adjustment otherwise
-    }
-  
-    if (forecast.includes('sun') || forecast.includes('clear')) {
-      return isDark && typeof temperature === 'number' && temperature >= 50
-        ? mixColors(baseSky, '#4F46E5', 0.3) // blend with indigo for a richer high-temp sky
-        : baseSky;
-    }
-  
-    // Default – subtle slate
-    return isDark ? '#1E293B' : '#F3F4F6';
+    // For all other weather, use blue scaling with precipitation
+    return mixColors('#b6e0fe', '#2563eb', pct * 0.85);
   }
   
   export function getTextColorForBackground(backgroundColor: string): string {

@@ -54,7 +54,7 @@ export function BaseCardModal({
           animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
-          backgroundColor={isDark ? "rgba(14, 14, 14, 0.3)" : "rgba(255, 255, 255, 0.3)"}
+          backgroundColor={isDark ? "rgba(14, 14, 14, 0.6)" : "rgba(0, 0, 0, 0.6)"}
         />
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$0"}

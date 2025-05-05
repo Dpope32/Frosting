@@ -7,6 +7,14 @@ import { getTemperatureColor } from '@/services/weatherServices';
 import { useColorScheme } from 'react-native';
 import { isIpad } from '@/utils/deviceUtils';
 
+// Helper functions for sun/moon icon variation
+const sunIcons = ['☀️', '🌤️', '🌞'];
+const moonIcons = ['🌙', '🌚', '🌜'];
+function getRandomIcon(arr: string[], seed: number): string {
+  // Use hour as seed for deterministic variation
+  return arr[seed % arr.length];
+}
+
 const HourlyCarousel: React.FC = () => {
   const hourly = useWeatherStore(s => s.hourlyForecast) || [];
   const colorScheme = useColorScheme();
@@ -24,24 +32,33 @@ const HourlyCarousel: React.FC = () => {
 
   // Render each hour
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, paddingVertical: 10 }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, paddingVertical: 10, paddingBottom: 12 }}>
       {items.map(period => {
         const date = new Date(period.startTime);
         const hour = date.getHours();
         const label = `${hour % 12 || 12}${hour < 12 ? 'AM' : 'PM'}`;
-        const icon = getWeatherIcon(period.shortForecast);
+        const isNightHour = hour >= 20 || hour < 4;
+        let icon;
+        if (isNightHour) {
+          icon = getRandomIcon(moonIcons, hour);
+        } else if (hour >= 6 && hour < 18) {
+          icon = getRandomIcon(sunIcons, hour);
+        } else {
+          icon = getWeatherIcon(period.shortForecast);
+        }
         const temp = period.temperature;
         const tempColor = getTemperatureColor(temp, isDark);
+        const iconColor = isNightHour ? (isDark ? '#FFD700' : '#8B5CF6') : undefined;
 
         return (
-          <YStack key={period.startTime} alignItems="center" p="$2" mt={-6}> 
+          <YStack key={period.startTime} alignItems="center" p="$2"> 
             <Text color={isDark ? '$white' : '$black'} mb={1} fontSize={isIpad() ? 14 : 12}>
               {label}
             </Text>
-            <Text mb={1} fontSize={isIpad() ? 23 : 20}>
+            <Text mb={1} fontSize={isIpad() ? 23 : 20} style={iconColor ? { color: iconColor } : {}}>
               {icon}
             </Text>
-            <Text mt={1} color={tempColor} fontSize={isIpad() ? 15 : 14} fontWeight="600">
+            <Text mt={1} color={tempColor} fontSize={isIpad() ? 15 : 14} fontWeight="600" style={{ marginBottom: 4 }}>
               {`${temp}°`}
             </Text>
           </YStack>

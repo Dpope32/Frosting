@@ -49,6 +49,13 @@ const getActionStyle = (actionType: string, isDark: boolean) => {
         iconColor: isDark ? "#facc15" : "#fff",
         textColor: isDark ? "#facc15" : "#fff"
       }
+    case 'Project':
+      return {
+        backgroundColor: isDark ? "rgba(35, 35, 35, 0.1)" : "rgba(46, 46, 46, 0.9)",
+        borderColor: "rgba(182, 181, 181, 0.5)",
+        iconColor: isDark ? "#f3f3f3" : "#000",
+        textColor: isDark ? "#f3f3f3" : "#000"
+      }
     case 'Bill':
       return {
         backgroundColor: isDark ? "rgba(239, 68, 68, 0.10)" : "rgba(153, 27, 27, 0.9)",
@@ -120,4 +127,4 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       </XStack>
     </Button>
   )
-} 
+}

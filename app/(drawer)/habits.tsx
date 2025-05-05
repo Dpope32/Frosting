@@ -22,7 +22,6 @@ export default function HabitsScreen() {
   const hydrated = useHabitStore((state) => state.hydrated);
   const { habits, addHabit, toggleHabit, deleteHabit, completedToday, progressPercentage } = useHabits();
 
-  // Dev helper: clear all habits by deleting each via the hook
   const deleteAllDevHabits = useCallback(() => {
     habits.forEach((habit, index) => {
       setTimeout(() => deleteHabit(habit.id), index * 200);

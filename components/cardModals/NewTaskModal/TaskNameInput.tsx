@@ -19,7 +19,7 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
     // Auto-focus after a short delay to allow animations to complete
     const timer = setTimeout(() => {
       inputRef.current?.focus()
-    }, 750)
+    }, 1000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -52,15 +52,17 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
       autoCorrect={true}
       spellCheck={true}
       multiline={false}
-      width={'98%'}
+      width={'99%'}
       maxLength={100}
       br={12}
       fontFamily="$body"
       px="$2.5"
-      height={isIpad() ? 50 : 45}
+      height={isIpad() ? 50 : 42}
       fontSize={isIpad() ? 17 : 15}
-      fontWeight="400"
-      backgroundColor={isDark ? "#121212" : "rgba(240, 240, 240, 0.9)"}
+      fontWeight="500"
+      borderColor={isDark ? "#090909" : "rgba(240, 240, 240, 0.9)"}
+      borderRadius={12}
+      backgroundColor={isDark ? "#090909" : "rgba(240, 240, 240, 0.9)"}
     />
   )
 } 

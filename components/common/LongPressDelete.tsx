@@ -66,6 +66,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   
   const longPressGesture = Gesture.LongPress()
     .minDuration(50)
+    .maxDistance(10)
     .hitSlop({ left: 0, right: -32, top: 0, bottom: 0 })
     .onBegin(() => {
       'worklet';

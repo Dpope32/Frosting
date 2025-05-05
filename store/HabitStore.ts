@@ -18,7 +18,7 @@ import { cancelEventNotification } from '@/services/notificationServices';
 interface HabitStore {
   habits: Record<string, Habit>;
   hydrated: boolean;
-  addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string) => void;
+  addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string, description: string) => void;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
   editHabit: (habitId: string, updates: Partial<Habit>) => void;
@@ -30,7 +30,7 @@ export const useHabitStore = create<HabitStore>()(
       habits: {},
       hydrated: false,
       
-      addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string) => set((state) => {
+      addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string, description: string) => set((state) => {
         const id = Math.random().toString(36).substring(2, 9);
         const today = new Date().toISOString().split('T')[0];
         
@@ -44,7 +44,8 @@ export const useHabitStore = create<HabitStore>()(
               createdAt: today,
               completionHistory: {},
               notificationTimeValue,
-              customMessage
+              customMessage,
+              description
             }
           }
         };
