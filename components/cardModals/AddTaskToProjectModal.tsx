@@ -40,7 +40,7 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave }: AddTaskToP
       open={open}
       onOpenChange={onOpenChange}
       title="Add Task to Project"
-      snapPoints={[35]}
+      snapPoints={[60]}
       showCloseButton
       hideHandle
       footer={

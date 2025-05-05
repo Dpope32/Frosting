@@ -241,7 +241,7 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
             colors={isDark ? ['rgba(91, 91, 91, 0.7)',  'rgba(0, 0, 0, 0.7)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} // Adjusted opacity
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 1, borderColor: isDark ? '#444' : '#ddd'}}
           />
           <XStack
             p={isIpad() ? "$3" : "$2"} 
@@ -253,8 +253,6 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
             animation="quick"
             py={isIpad() ? "$3" : "$2.5"}
             pt={isIpad() ? "$3" : "$2.5"}
-            borderWidth={2}
-            borderColor={isDark ? '#444' : '#ddd'}
           >
             <YStack flex={1} gap="$2"> 
               <XStack jc="space-between" px={isIpad() ? "$2" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
@@ -330,7 +328,7 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                   )}
               </XStack>
               
-              <YStack ml={isIpad() ? 16 : 0} gap="$1"  px={"$2"} pb={"$2"} mt={"$2"} br={"$2"} backgroundColor={isDark? 'rgba(255, 255, 255, 0.1)' : 'rgba(28, 27, 27, 0.1)'}> 
+              <YStack ml={isIpad() ? 16 : 0} gap="$1"  px={"$2"} pb={"$2"} mt={"$2"} br={"$2"} backgroundColor={isDark? 'rgba(255, 255, 255, 0.0)' : 'rgba(28, 27, 27, 0.1)'}> 
               <XStack ai="flex-start"  gap="$2" my="$2" px={isIpad() ? "$2" : "$2"}>
                 <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
                   Description:

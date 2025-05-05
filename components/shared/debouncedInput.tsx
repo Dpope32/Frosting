@@ -122,7 +122,6 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
         backgroundColor={isDark ? "$gray2" : "white"}
         borderColor={isDark ? "$gray7" : "$gray4"}
         fontFamily="$body"
-        color={isDark ? "#fff" : "#000"}
         spellCheck={false}
         maxFontSizeMultiplier={1.4}
         {...(Platform.OS === 'ios' ? {
