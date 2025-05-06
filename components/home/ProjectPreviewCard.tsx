@@ -35,18 +35,20 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         overflow="hidden"
         mb={isIpad() ? 8 : 4}
         style={{
-          backgroundColor: isDark ? 'rgb(60, 59, 59)' : 'rgba(255,255,255,0.7)',
+          backgroundColor: isDark ? 'rgb(60, 59, 59)' : 'rgba(27, 27, 27, 0.94)',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.4,
           shadowRadius: 6,
           elevation: 6,
+          borderColor: isDark ? 'rgba(255, 255, 255, 0.27)' : 'rgba(255, 255, 255, 0.2)',
+          borderWidth:  1,
         }}
       >
         <LinearGradient
-          colors={isDark ? ['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.3)'] : ['rgba(255,255,255,0.7)', 'rgba(238,238,238,0.5)']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0.5 }}
+          colors={isDark ? ['rgba(0,0,0,0.9)','rgba(8, 8, 8, 0.9)','rgba(12, 11, 11, 0.72)', 'rgba(0, 0, 0, 0.7)'] : ['rgba(40, 40, 40, 0.7)', 'rgba(18, 18, 18, 0.5)']}
+          start={{ x: 1, y: 0.5 }}
+          end={{ x: 0, y: 0.5 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <XStack
@@ -60,7 +62,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               <Text
                 fontFamily="$body"
                 fontWeight="bold"
-                color={isDark ? '#f6f6f6' : '#111'}
+                color={isDark ? "#dbd0c6" : "#dbd0c6"}
                 fontSize={isIpad() ? 17 : 15}
                 maxWidth={'70%'}
                 numberOfLines={1}
@@ -74,8 +76,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 if (d && !isNaN(d.getTime())) {
                   return (
                     <XStack alignItems="center" gap="$1">
-                      <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#666'} />
-                      <Text fontSize={12} color={isDark ? '#ccc' : '#444'}>
+                      <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#999'} />
+                      <Text fontSize={12} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
                         {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </Text>
                     </XStack>
