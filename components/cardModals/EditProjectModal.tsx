@@ -2,20 +2,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { BaseCardModal } from './BaseCardModal';
 import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import { PrioritySelector } from './NewTaskModal/PrioritySelector';
 import { StatusSelector } from './NewTaskModal/StatusSelector';
+import { PeopleSelector } from './NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useProjectStore } from '@/store/ProjectStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useTagStore } from '@/store/TagStore';
+import { usePeopleStore } from '@/store/People';
 import { MaterialIcons } from '@expo/vector-icons';
-import { AddTaskToProjectModal } from './AddTaskToProjectModal';
 import type { Project } from '@/types/project';
 import type { Tag } from '@/types/tag';
-import type { TaskPriority, RecurrencePattern } from '@/types/task';
+import type { Person } from '@/types/people';
 import { isIpad } from '@/utils/deviceUtils';
 
 interface EditProjectModalProps {
@@ -30,11 +31,14 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
   const updateProject = useProjectStore((s) => s.updateProject);
   const showToast = useToastStore((s) => s.showToast);
   const addTagToStore = useTagStore((s) => s.addTag);
-
+  const { contacts } = usePeopleStore();
+  
+  const peopleArray = Object.values(contacts || {});
   const project = getProjectById(projectId);
 
   const [name, setName] = useState(project?.name || '');
   const [description, setDescription] = useState(project?.description || '');
+  const [selectedPeople, setSelectedPeople] = useState<Person[]>(project?.people || []);
   const [deadline, setDeadline] = useState(
     project?.deadline
       ? typeof project.deadline === 'string'
@@ -67,6 +71,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       setTags(project.tags || []);
       setTasks(project.tasks || []);
       setStatus(project.status);
+      setSelectedPeople(project.people || []);
     }
   }, [open, project]);
 
@@ -80,14 +85,41 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       tags,
       status,
       tasks,
+      people: selectedPeople,
     });
     onOpenChange(false);
     showToast('Project updated successfully', 'success');
-  }, [projectId, name, description, deadline, priority, tags, tasks, status]);
+  }, [projectId, name, description, deadline, priority, tags, tasks, status, selectedPeople]);
 
-  const handleCancel = useCallback(() => {
-    onOpenChange(false);
-  }, [onOpenChange]);
+  const handleDelete = useCallback(() => {
+    const deleteProject = () => {
+      if (!projectId) return;
+      
+      // Delete the project
+      useProjectStore.getState().deleteProject(projectId);
+      
+      // Close the modal
+      onOpenChange(false);
+      
+      // Show success toast
+      showToast('Project deleted successfully', 'success');
+    };
+    
+    if (isWeb) {
+      if (window.confirm('Are you sure you want to delete this project?')) {
+        deleteProject();
+      }
+    } else {
+      Alert.alert(
+        'Delete Project',
+        'Are you sure you want to delete this project?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Delete', style: 'destructive', onPress: deleteProject }
+        ]
+      );
+    }
+  }, [projectId, onOpenChange, showToast]);
 
   const handleDateChange = (_e: any, date?: Date) => {
     setShowDatePicker(false);
@@ -95,36 +127,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       setDeadline(date.toISOString().split('T')[0]);
     }
   };
-
-  const handleDeleteTask = useCallback((taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
-  }, []);
-
-  const handleAddTask = useCallback(
-    (task: { name: string; completed: boolean; priority: TaskPriority }) => {
-      const id =
-        typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : Math.random().toString(36).substring(2, 9);
-      const now = new Date().toISOString();
-      setTasks((prev) => [
-        ...prev,
-        {
-          id,
-          name: task.name,
-          completed: task.completed,
-          priority: task.priority,
-          schedule: [],
-          category: 'task',
-          completionHistory: {},
-          createdAt: now,
-          updatedAt: now,
-          recurrencePattern: 'one-time' as RecurrencePattern,
-        },
-      ]);
-    },
-    []
-  );
 
   return (
     <BaseCardModal
@@ -135,9 +137,16 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       snapPoints={isWeb ? [90] : isIpad() ? [70] : [85]}
       hideHandle
       footer={
-        <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
-          <Button theme={isDark ? 'dark' : 'light'} onPress={handleCancel} backgroundColor={isDark ? '$gray5' : '#E0E0E0'}>
-            Cancel
+        <XStack width="100%" mx={-4} py="$2" justifyContent="space-between">
+          <Button 
+            onPress={handleDelete} 
+            backgroundColor={isDark ? 'rgba(220,38,38,0.3)' : 'rgba(220,38,38,0.3)'} 
+            borderWidth={0}
+            pressStyle={{ opacity: 0.8 }}
+          >
+            <Text color="#DC2626" fontWeight="600" fontFamily="$body">
+              Delete
+            </Text>
           </Button>
           <Button onPress={handleSave} backgroundColor="#3B82F6" borderColor="#3B82F6" borderWidth={2}>
             <Text color="white" fontWeight="600" fontFamily="$body">
@@ -147,7 +156,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         </XStack>
       }
     >
-      <YStack gap="$4" px={isIpad() ? '$4' : '$1.5'} pt={10}>
+      <YStack gap="$4" px={isIpad() ? '$4' : '$2.5'} pt={10}>
         <DebouncedInput
           ref={inputRef}
           value={name}
@@ -163,8 +172,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
           borderRadius={4}
         />
-        <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
-        <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
         <YStack gap="$1" px={isIpad() ? '$2' : '$2'}>
           {isWeb ? (
             <input
@@ -234,7 +241,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           placeholder="Description (optional)"
           onDebouncedChange={setDescription}
           multiline={true}
-          numberOfLines={10}
+          numberOfLines={5}
           fontSize={isIpad() ? 17 : 15}
           fontFamily="$body"
           fontWeight="bold"
@@ -244,35 +251,30 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
           borderRadius={4}
         />
-         <YStack gap="$1" mt={10} mx={-4}>
+        <YStack gap="$1" mt={10} mx={0}>
+        {peopleArray.length > 0 && (
+          <PeopleSelector
+            people={peopleArray}
+            selectedPeople={selectedPeople}
+            onPersonSelect={(person) => {
+              const isSelected = selectedPeople.some(p => p.id === person.id);
+              if (isSelected) {
+                setSelectedPeople(selectedPeople.filter(p => p.id !== person.id));
+              } else {
+                setSelectedPeople([...selectedPeople, person]);
+              }
+            }}
+          />
+        )}
+        </YStack>
+         <YStack gap="$1" mt={10} mx={0}>
           <TagSelector tags={tags} onTagsChange={setTags} />
         </YStack>
-        {status === 'completed' && (
-          <YStack gap="$3" mt="$4">
-            <Text fontSize={16} fontWeight="bold" color={isDark ? '#f6f6f6' : '#111'}>
-              Tasks
-            </Text>
-            {tasks.map((task) => (
-              <XStack key={task.id} ai="center" justifyContent="space-between" px="$2" py="$2" br={4} backgroundColor={isDark ? '#222' : '#f0f0f0'}>
-                <Text color={isDark ? '#f6f6f6' : '#111'}>{task.name}</Text>
-                <Button size="$2" circular onPress={() => handleDeleteTask(task.id)}>
-                  <MaterialIcons name="delete" size={16} color={isDark ? '#f6f6f6' : '#333'} />
-                </Button>
-              </XStack>
-            ))}
-            <Button onPress={() => setAddTaskModalOpen(true)} backgroundColor="#3B82F6">
-              <Text color="white">Add Task</Text>
-            </Button>
-            <AddTaskToProjectModal
-              open={addTaskModalOpen}
-              onOpenChange={setAddTaskModalOpen}
-              onSave={(t) => { handleAddTask(t); setAddTaskModalOpen(false); }}
-            />
-          </YStack>
-        )}
+        <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
+        <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
       </YStack>
     </BaseCardModal>
   );
 }
 
-export default EditProjectModal; 
+export default EditProjectModal;

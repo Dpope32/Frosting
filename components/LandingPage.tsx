@@ -20,9 +20,11 @@ import { AddBillModal } from './cardModals/AddBillModal'
 import { AddPersonForm } from './crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
 import { AddProjectModal } from './cardModals/AddProjectModal'
+import { ProjectSection } from '@/components/home/ProjectSection'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
+import { useProjectStore as useProjectsStore } from '@/store/ProjectStore'
 import { useEditTaskStore } from '@/store/EditTaskStore'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
@@ -87,6 +89,7 @@ export function LandingPage() {
   const isStockModalOpen = useEditStockStore(s => s.isOpen)
   const openStockModal = useEditStockStore(s => s.openModal)
   const { addHabit } = useHabits();
+  const projects = useProjectsStore(s => s.projects);
 
   // Effect hooks
   React.useEffect(() => {
@@ -173,6 +176,7 @@ export function LandingPage() {
     // mobile
     ptop = isDark ? 100 : 90;
   }
+  const filteredProjects = projects.filter((project) => project.status !== 'completed')
 
   return (
     <Stack flex={1} backgroundColor="black">
@@ -200,7 +204,7 @@ export function LandingPage() {
             padding="$3" 
             borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
             borderWidth={1}
-            marginBottom="$4" 
+            marginBottom="$2" 
             style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
                   boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
               : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
@@ -250,6 +254,24 @@ export function LandingPage() {
           ) : (
             <Stack position="absolute" bottom={0} left={0} right={0} padding="$4"  >
               <Text color="#dbd0c6" fontSize={12} fontFamily="$body" marginTop="$2" textAlign="center" opacity={0}>Version 1.1.70</Text>
+            </Stack>
+          )}
+          {Platform.OS !== 'web' && filteredProjects?.length > 0 && (
+            <Stack 
+              backgroundColor={backgroundColor} 
+              borderRadius={16} 
+              padding="$3" 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
+              borderWidth={1}
+              marginBottom="$4"
+              style={ {
+                shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+                shadowOffset: { width: 0, height: 4 }, 
+                shadowOpacity: 0.35,  
+                shadowRadius: 12  
+              }}
+            >
+              <ProjectSection />
             </Stack>
           )}
         </YStack>

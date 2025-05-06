@@ -103,10 +103,10 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
           {project.people.map((person) => (
             <XStack
               key={person.id}
-              br={isIpad() ? 16 : 14}
+              br={isIpad() ? 16 : 11}
               overflow="hidden"
-              width={isIpad() ? 32 : 28}
-              height={isIpad() ? 32 : 28}
+              width={isIpad() ? 32 : 22}
+              height={isIpad() ? 32 : 22}
             >
               {person.profilePicture ? (
                 <Image
@@ -131,7 +131,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
     <XStack
       ml={isIpad() ? 16 : 0}
       mt="$2"
-      mb="$4"
+      mb={project.tasks.length > 0 ? "$2" : "$4"}
       gap="$2"
       ai="flex-start"
     >
@@ -144,6 +144,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
         backgroundColor={isDark ? 'rgba(30,30,30,0.6)' : 'rgba(255,255,255,0.8)'}
         minWidth={isIpad() ? 420 : 280}
         px={"$1"}
+        ml={isIpad() ? 16 : 12}
       >
         {rows}
       </YStack>

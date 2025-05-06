@@ -15,7 +15,6 @@ const statuses: { key: ProjectStatus; label: string; color: string }[] = [
   { key: 'pending', label: 'Pending', color: '#FBBF24' },
   { key: 'in_progress', label: 'In Progress', color: '#3B82F6' },
   { key: 'completed', label: 'Completed', color: '#10B981' },
-  { key: 'past_deadline', label: 'Past Deadline', color: '#EF4444' },
 ];
 
 export function StatusSelector({ selectedStatus, onStatusSelect }: StatusSelectorProps) {
@@ -23,7 +22,7 @@ export function StatusSelector({ selectedStatus, onStatusSelect }: StatusSelecto
   const isDark = colorScheme === 'dark';
 
   return (
-    <XStack px={isIpad() ? '$2.5' : '$2'} gap={isIpad() ? '$2' : '$2.5'} alignItems="center">
+    <XStack px={isIpad() ? '$2.5' : '$1.5'} gap={isIpad() ? '$2' : '$2.5'} alignItems="center">
       <XStack gap={isIpad() ? '$2' : '$2'}>
         {statuses.map(({ key, label, color }) => (
           <Button
@@ -47,4 +46,4 @@ export function StatusSelector({ selectedStatus, onStatusSelect }: StatusSelecto
   );
 }
 
-export default StatusSelector; 
+export default StatusSelector;

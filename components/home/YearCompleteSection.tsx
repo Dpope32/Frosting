@@ -32,7 +32,7 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width={isWeb ? "100%" :isIpad() ? "100%" : "97%"}
+      width={isWeb ? "100%" :isIpad() ? "100%" : "96%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"

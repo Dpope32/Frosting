@@ -1,5 +1,6 @@
 import React from 'react'
 import { XStack, YStack, Text } from 'tamagui'
+import { Check } from '@tamagui/lucide-icons'
 import { Project } from '@/types/project'
 import { ProjectCardHeader } from './ProjectCardHeader'
 import { TaskListItem } from './TaskListItem'
@@ -33,6 +34,7 @@ export const ProjectCardWebView = ({
       minWidth={288}
       maxWidth={400}
       minHeight={120}
+      position="relative"
       hoverStyle={{
         transform: [{ scale: 1.02 }],
         borderColor: primaryColor,
@@ -42,6 +44,33 @@ export const ProjectCardWebView = ({
         shadowRadius: 8,
       }}
     >
+      {/* Overlay for completed projects */}
+      {project.status === 'completed' && (
+        <XStack
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bg={isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.5)'}
+          zIndex={20}
+          ai="center"
+          jc="center"
+          br="$4"
+        >
+          <XStack
+            bg="$green9"
+            width={50}
+            height={50}
+            br={25}
+            ai="center"
+            jc="center"
+            opacity={0.9}
+          >
+            <Check size={30} color="white" />
+          </XStack>
+        </XStack>
+      )}
       <YStack flex={1}>
         <ProjectCardHeader 
           project={project}

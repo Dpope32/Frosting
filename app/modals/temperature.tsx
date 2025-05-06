@@ -4,15 +4,10 @@ import { ScrollView, Platform, View, StyleSheet, useColorScheme } from "react-na
 import { YStack, Text, XStack, Stack, Button, isWeb } from "tamagui";
 import Animated, { FadeIn} from "react-native-reanimated";
 import { useWeatherStore } from "@/store/WeatherStore";
-import { getTemperatureColor } from "@/services/weatherServices";
 import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AnimatedCloud from '@/components/weather/AnimatedCloud';
-import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
 import { isIpad } from "@/utils/deviceUtils";
-import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon } from "@/components/weather/styleUtils";
 import TodayForecast from '@/components/weather/todayForecast';
-import LowHighBar from '@/components/weather/LowHighBar';
 import DailyForecasts from '@/components/weather/dailyForecasts';
 if (Platform.OS === 'web') {
   const styleId = 'weather-animations-style';
@@ -92,7 +87,6 @@ export default function TemperatureScreen() {
   }
 
   const todayPrecipitation = todayForecast.probabilityOfPrecipitation?.value ?? 0;
-  const todayDateString = new Date().toDateString();
 
   return (
     <Stack flex={1} backgroundColor={isDark ? "$gray950" : "$gray100"}>

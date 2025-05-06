@@ -10,9 +10,10 @@ interface AddTaskToProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (task: { name: string; completed: boolean; priority: TaskPriority }) => void;
+  projectName: string;
 }
 
-export function AddTaskToProjectModal({ open, onOpenChange, onSave }: AddTaskToProjectModalProps) {
+export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName }: AddTaskToProjectModalProps) {
   const [name, setName] = useState('');
   const [completed, setCompleted] = useState(false);
   const [priority, setPriority] = useState<TaskPriority>('medium');
@@ -39,7 +40,7 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave }: AddTaskToP
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Add Task to Project"
+      title={`New Task - ${projectName}`}
       snapPoints={[60]}
       showCloseButton
       hideHandle

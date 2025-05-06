@@ -15,7 +15,6 @@ const statuses: { key: ProjectStatus; label: string; color: string }[] = [
   { key: 'pending', label: 'Pending', color: '#FBBF24' },
   { key: 'in_progress', label: 'In Progress', color: '#3B82F6' },
   { key: 'completed', label: 'Completed', color: '#10B981' },
-  { key: 'past_deadline', label: 'Past Deadline', color: '#EF4444' },
 ];
 
 export function StatusSelector({ selectedStatus, onStatusSelect }: StatusSelectorProps) {

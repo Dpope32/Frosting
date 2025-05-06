@@ -1,6 +1,7 @@
 import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
+import { Check } from '@tamagui/lucide-icons'
 import { Project } from '@/types/project'
 import { isIpad } from '@/utils/deviceUtils'
 import { getPriorityColor } from '@/utils/styleUtils'
@@ -38,8 +39,8 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             elevation: 10,
             overflow: 'hidden',
             position: 'relative',
-            borderLeftWidth: 3, 
-            borderLeftColor: priorityColor,
+            borderLeftWidth: project.status === 'completed' ? 0 : 3, 
+            borderLeftColor: project.status === 'completed' ?  'transparent' : priorityColor,
             backgroundColor: isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(255, 255, 255, 0.7)", 
             ...(isWeb ? {} : {
               shadowColor: '#000',
@@ -48,14 +49,56 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
               shadowRadius: 8,
               elevation: 10,
             })
-
           }}
         >
+          {project.status === 'completed' && (
+            <XStack
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              bg={isDark ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)'}
+              zIndex={20}
+              ai="center"
+              jc="center"
+              br={12}
+            >
+              <XStack
+                bg="transparent"
+                borderWidth={1}
+                borderColor={isDark ? '#00ff00' : '#00ff00'}
+                width={50}
+                height={50}
+                br={25}
+                ai="center"
+                jc="center"
+                opacity={0.9}
+              >
+                <Check size={30} color="#00ff00" />
+              </XStack>
+            </XStack>
+          )}
+          {onOpenAddTaskModal && (
+            <Button
+              size="$2"
+              circular
+              backgroundColor="transparent"
+              onPress={() => onOpenAddTaskModal(project.id)}
+              position="absolute"
+              top={isIpad() ? 14 : 12}
+              right={isIpad() ? 16 : 14}
+              zIndex={10}
+            >
+              <Plus size={16} color={isDark ? '#f6f6f6' : '#111'} />
+            </Button>
+          )}
+
           <LinearGradient
             colors={isDark ? ['rgb(0, 0, 0)',  'rgb(11, 11, 11)', 'rgb(20, 19, 19)', 'rgb(30, 30, 30)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0.5 }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 2, borderRadius: 12, borderColor: project.tasks.length > 0 ? isDark ? '#222' : 'transparent' : 'transparent'}}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 2, borderRadius: 12, borderColor: project.tasks && project.tasks.length > 0 ? isDark ? '#222' : 'transparent' : 'transparent'}}
           />
           <XStack
             p={isIpad() ? "$3" : "$2"} 
@@ -67,12 +110,10 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             animation="quick"
             py={isIpad() ? "$3" : "$2.5"}
             pt={isIpad() ? "$3" : "$2.5"}
-            borderBottomWidth={project.tasks.length > 0 ? 1 : 0}
-            borderBottomColor={isDark ? '#444' : '#ddd'}
           >
             <YStack flex={1} gap="$2"> 
-              <XStack jc="space-between" px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$1.5" : "$1"} mt={isIpad() ? "$-1" : 0} ml={6}>
-                <XStack ai="center" gap="$2" f={1} flexWrap="wrap">
+              <XStack px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$1.5" : "$1"} mt={isIpad() ? "$-1" : 6} ml={6}>
+                <XStack ai="center" gap="$2" flexWrap="wrap" f={1}>
                   <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 18 : 16}  fontWeight="bold" fontFamily="$body">
                     {project.name}
                   </Text>
@@ -133,12 +174,8 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                     })()}
                 </XStack>
 
-                <Button size="$2" circular backgroundColor="transparent" onPress={() => onOpenAddTaskModal && onOpenAddTaskModal(project.id)}>
-                  <Plus size={16} color={isDark ? '#f6f6f6' : '#111'} />
-                </Button>
-
               </XStack>
-              <XStack ai="center" gap="$1" flexWrap="wrap" px={isIpad() ? "$2" : "$1"} my={-6}> 
+              <XStack ai="center" gap="$1" flexWrap="wrap" px={isIpad() ? "$2" : "$3"} my={-4}> 
                 {project?.tags && Array.isArray(project.tags) && project.tags.length > 0 && (
                     <XStack flex={1} flexWrap="wrap" gap="$1">
                       {project.tags.map((tag, index) => (
@@ -171,14 +208,14 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
 
           {project.tasks && project.tasks.length > 0 && (
             <>
-              <YStack pl={isWeb ? '$4' : '$3'} pb={12}>
+              <YStack px={isWeb ? '$4' : '$4'} pb={12}>
                 <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.0} mb={6} />
                   {project.tasks.length > 1 && (
                     <Text fontSize={12} color={isDark ? 'rgba(255, 255, 255, 0.84)' : 'rgba(0, 0, 0, 0.5)'} ml={4} mb={6} fontFamily="$body">
                       {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
                     </Text>
                   )}
-                <XStack gap={2} flexWrap="wrap">
+                <XStack gap={8} flexWrap="wrap">
                   {project.tasks.map((task, idx) => {
                     return (
                       <XStack
@@ -199,14 +236,14 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                         <Button
                           size="$1"
                           circular
-                          bg={task.completed ? '$green8' : '$gray4'}
+                          bg={task.completed ? 'transparent' : 'transparent'}
                           onPress={() => onToggleTaskCompleted && onToggleTaskCompleted(task.id, !task.completed)}
                           mr={8}
                           ai="center"
                           jc="center"
                           style={{ width: 24, height: 24 }}
                         >
-                          {task.completed ? '✓' : ''}
+                          {task.completed ? <Check size={16} color={isDark ? '#00ff00' : '#00ff00'} /> : ''}
                         </Button>
                         <Text
                           fontSize={13}

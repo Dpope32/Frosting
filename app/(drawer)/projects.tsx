@@ -30,7 +30,11 @@ export default function ProjectsScreen() {
   const getProjectById = useProjectStore((state) => state.getProjectById)
   const updateProject = useProjectStore((state) => state.updateProject)
   const showToast = useToastStore((state) => state.showToast)
-  const items = projects || []
+  // Filter out any non-project items (must be objects with an id) and filter out deleted projects
+  const validProjects = (projects || []).filter(project => 
+    project && typeof project === 'object' && !Array.isArray(project) && project.id && !project.isDeleted
+  )
+  const items = validProjects
   const [editModalOpen, setEditModalOpen] = React.useState(false)
   const [selectedEditProjectId, setSelectedEditProjectId] = React.useState<string | null>(null)
 
@@ -112,8 +116,8 @@ export default function ProjectsScreen() {
             primaryColor={primaryColor}
           />
         ) : (
-          items.map((project: Project) => (
-            <YStack key={project.id} width={isWeb ? 'calc(33% - 16px)' : '100%'} mb={isWeb ? 0 : '$1'}>
+          items.map((project: Project, index) => (
+            <YStack key={project.id || `project-${index}`} width={isWeb ? 'calc(33% - 16px)' : '100%'} mb={isWeb ? 0 : '$1'}>
               <ProjectCard
                 project={project}
                 isDark={isDark}
@@ -150,6 +154,7 @@ export default function ProjectsScreen() {
 
       <AddTaskToProjectModal
         open={addTaskModalOpen}
+        projectName={selectedProjectId ? getProjectById(selectedProjectId)?.name || '' : ''}
         onOpenChange={(open) => {
           setAddTaskModalOpen(open)
           if (!open) setSelectedProjectId(null)
