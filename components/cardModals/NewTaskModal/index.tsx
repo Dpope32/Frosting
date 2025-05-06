@@ -215,7 +215,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} alignItems="flex-start" px={isIpad() ? 6 : 8} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4} pb={12}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
@@ -224,7 +224,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             value={newTask.name}
             fontSize={isIpad() ? 17 : 15}
             fontFamily={isIpad() ? '$body' : '$body'}
-            width={isIpad() ? '100%' : '95%'}
+            width={isIpad() ? '100%' : '98%'}
             onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
@@ -259,10 +259,11 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
           )}
           {!showTimePicker && (
-          <YStack pt={6}>
+          <YStack py={6} pl={3}>
           <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
           </YStack>
           )}
+          <YStack pl={6}>
           <TimePicker
               showTimePicker={showTimePicker}
               setShowTimePicker={setShowTimePicker}
@@ -274,7 +275,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               isDark={isDark}
               primaryColor={preferences.primaryColor}
             />
-
+      </YStack>
           <Form.Trigger asChild>
             <SubmitButton 
               isSubmitting={isSubmitting} 

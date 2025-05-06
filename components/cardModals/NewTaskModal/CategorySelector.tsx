@@ -84,7 +84,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   }
 
   return (
-    <XStack pl="$2" gap="$2" alignItems="center">
+    <XStack pl={8} gap="$2" alignItems="center">
       {isAddingCategory ? (
         <XStack gap="$2" alignItems="center" py="$1">
           <XStack position="relative" width={isIpad() ? 180 : 140}>

@@ -26,7 +26,7 @@ export function Base({
   title,
   children,
   onClose, 
-  modalWidth = isWeb ? 700 : isIpad() ? 500 : 360,
+  modalWidth = isWeb ? 700 : isIpad() ? 500 : 350,
   modalMaxWidth = isWeb ? 700 : isIpad() ? 500 : 500,
   showCloseButton = true,
   keyboardOffset = 0,
@@ -53,11 +53,13 @@ export function Base({
       justifyContent: 'flex-start',
       backgroundColor: isDark ? '#000000' : '#fff',
       borderRadius: 16,
-      paddingLeft: isWeb? 32 : 16,
+      padding: 12,
+      paddingHorizontal: isWeb? 32 : 16,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
+      elevation: 5,
       paddingBottom: isWeb? 30 : 16,
       paddingTop: isWeb? 24 : 12,
       zIndex: 1,
@@ -99,7 +101,7 @@ export function Base({
                 style={[
                   styles.modalContainer,
                   {
-                    backgroundColor: isDark ? '#222' : '#fff',
+                    backgroundColor: isDark ? '#2c2c2c' : '#fff',
                     marginTop: insets.top + 20, 
                     marginBottom: insets.bottom + 20,
                     width: actualWidth,
@@ -156,16 +158,16 @@ export function Base({
               style={[
                 styles.modalContainer,
                 {
-                  backgroundColor: isDark ? 'rgba(17, 17, 17, 0.9)' : '#fff',
+                  backgroundColor: isDark ? 'rgb(15, 15, 15)' : '#fff',
                   marginTop: insets.top, 
-                  marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.3 : 80),
+                  marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.35 : 80),
                   width: actualWidth,
                   maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
                 }
               ]}
               onTouchEnd={(e) => e.stopPropagation()}
             >
-              <XStack justifyContent="space-between" py="$2" marginTop={-5} px="$2" alignItems="center">
+              <XStack justifyContent="space-between" py="$2" marginTop={-5} marginBottom={2} px="$2" alignItems="center">
                 <Text
                   fontSize={20}
                   fontWeight="700"
@@ -179,9 +181,9 @@ export function Base({
                   <Button
                     backgroundColor="transparent"
                     onPress={onClose} 
-                    paddingHorizontal={16}
+                    padding={0}
                     pressStyle={{ opacity: 0.7 }}
-                    icon={<MaterialIcons name="close" size={isIpad() ? 24 : 20} color={isDark ? "#f9f9f9" : "#000"}/>}
+                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
                   />
                 )}
               </XStack>

@@ -43,7 +43,7 @@ export function TimePicker({
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: isIpad() ? 16 : 16,
+          paddingHorizontal: isIpad() ? 16 : 12,
           justifyContent: 'space-between',
           backgroundColor: time ? 'transparent' : (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)'),
           shadowOpacity: 0,
