@@ -46,24 +46,24 @@ export const TaskSection = ({
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
   
-  useEffect(() => {
-    if (DEBUG) {
-      log(`todaysTasks updated - count: ${todaysTasks.length}`);
+ // useEffect(() => {
+ //   if (DEBUG) {
+ //     log(`todaysTasks updated - count: ${todaysTasks.length}`);
       
-      if (todaysTasks.length > 0) {
-        log('First 3 tasks:');
-        todaysTasks.slice(0, 3).forEach(task => {
-          const isCompletedToday = task.completionHistory[todayLocalStr] || false;
-          log(`- ${task.name} (${task.id}): ${task.recurrencePattern}, completed: ${isCompletedToday}`);
-        });
-        const completedTasks = todaysTasks.filter(task => task.completionHistory[todayLocalStr]);
-        log(`Completed tasks: ${completedTasks.length}`);
-        completedTasks.forEach(task => {
-          log(`- ${task.name} (${task.id}): ${task.recurrencePattern}`);
-        });
-      }
-    }
-  }, [todaysTasks, todayLocalStr]);
+ //     if (todaysTasks.length > 0) {
+ //       log('First 3 tasks:');
+ //       todaysTasks.slice(0, 3).forEach(task => {
+ //         const isCompletedToday = task.completionHistory[todayLocalStr] || false;
+ //         log(`- ${task.name} (${task.id}): ${task.recurrencePattern}, completed: ${isCompletedToday}`);
+ //       });
+ //       const completedTasks = todaysTasks.filter(task => task.completionHistory[todayLocalStr]);
+ //       log(`Completed tasks: ${completedTasks.length}`);
+ //       completedTasks.forEach(task => {
+ //         log(`- ${task.name} (${task.id}): ${task.recurrencePattern}`);
+ //       });
+ //     }
+ //   }
+//  }, [todaysTasks, todayLocalStr]);
 
   const handleToggleTask = (id: string) => {
     if (DEBUG) {
@@ -272,14 +272,14 @@ export const TaskSection = ({
                 px={isIpad() ? "$3" : "$3"}
                 paddingLeft={isIpad() ? "$2.5" : "$4"}
                 paddingVertical="$1.5"
-                justifyContent={isIpad() ? "space-between" : "flex-start"}
+                justifyContent={isIpad() ? "center" : "flex-start"}
               >
                 {todaysTasks.map((task: Task) => {
                   const isCompleted = task.completionHistory[todayLocalStr] || false;
                   return (
                     <Stack 
                       key={task.id} 
-                      width={isIpad() ? "49%" : "99%"}
+                      width={isIpad() ? "80%" : "99%"}
                       marginBottom="$2"
                       animation="quick"
                     >

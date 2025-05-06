@@ -23,11 +23,10 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   return (
     <XStack px={isIpad() ? "$2.5" : "$2.5"} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority?</Text>
-      <XStack gap={isIpad() ? "$2" : "$1"} ml={isIpad() ? "$2.5" : "$2.5"}>
+      <XStack gap={isIpad() ? "$2" : "$2"} ml={isIpad() ? "$2.5" : "$2.5"}>
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)
           const Icon = priorityIcons[priority as keyof typeof priorityIcons]
-          
           return (
             <Button
               key={priority}

@@ -2,6 +2,7 @@
 import { create } from 'zustand'
 import { StorageUtils } from '@/store/AsyncStorage'
 import type { Person } from '@/types/people'
+import { useCalendarStore } from './CalendarStore'
 
 const STORAGE_KEY = 'contacts-store'
 
@@ -48,7 +49,7 @@ export const usePeopleStore = create<PeopleStore>((set, get) => {
       // Import the store function only when needed
       if (personWithId.birthday) {
         const { syncBirthdays } = require('./CalendarStore').useCalendarStore.getState()
-        syncBirthdays(personWithId.id)
+        setTimeout(() => syncBirthdays(personWithId.id), 100)
       }
     },
     

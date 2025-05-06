@@ -17,6 +17,7 @@ import { useToastStore } from '@/store/ToastStore';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useTagStore } from '@/store/TagStore';
 import { MaterialIcons } from '@expo/vector-icons';
+
 interface AddProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -76,9 +77,6 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
     };
     addProject(newProject);
     onOpenChange(false);
-    newProject.tags?.forEach((tag) => {
-      addTagToStore(tag.name);
-    });
     setName('');
     setDescription('');
     setDeadline('');
@@ -166,7 +164,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               }}
             />
           ) : ( 
-            <YStack gap="$2" px={isIpad() ? "$2" : "$1"}>
+            <YStack px={isIpad() ? "$1" : "$1"}>
               {!deadline && (
                 <Button
                   onPress={() => setShowDatePicker(true)}
@@ -180,14 +178,13 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                   jc="space-between"
                 >
                   <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">Select Deadline (optional)</Text>
-                   
                    <MaterialIcons  name="event" size={24} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
                 </Button>
               )}
               {deadline ? (
-                <XStack pl="$1" gap="$1" ai="center" > 
+                <XStack pl={isIpad() ? "$0" : "$1"} gap="$1" pb={16} pt={4} ai="center" > 
                   <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">Deadline:</Text>
-                  <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
+                  <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 19 : 17} fontFamily="$body">
                     {new Date(deadline).toLocaleDateString('en-US', { 
                       month: 'long',
                       day: 'numeric',
@@ -203,7 +200,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                     mode="date"
                     display={Platform.OS === 'ios' ? 'inline' : 'default'}
                     onChange={handleDateChange}
-                    style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
+                    style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF', alignSelf: 'center', padding: 10, marginBottom: 10, marginTop: -60 }}
                   />
                 </YStack>
               )}

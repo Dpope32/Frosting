@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import { usePeopleStore } from "@/store/People";
+import { Tag } from '@/types/tag';
 
 const getRandomProfilePicture = () => {
   const gender = Math.random() > 0.5 ? "men" : "women";
@@ -121,7 +122,7 @@ export const generateTestContacts = () => {
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      tags: ["test"],
+      tags: ['test' as unknown as Tag],
       priority: Math.random() > 0.5,
       profilePicture: getRandomProfilePicture()
     });
@@ -141,7 +142,7 @@ export const generateTestContacts = () => {
           id: Math.random().toString(36).substr(2, 9),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          tags: ["test"],
+          tags: ['test' as unknown as Tag],
           priority: Math.random() > 0.5,
           profilePicture: getRandomProfilePicture()
         });

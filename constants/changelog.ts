@@ -1,5 +1,15 @@
 export const CHANGELOG = [
   {
+    version: '1.1.145',
+    date: '2025-05-06',
+    notes: 'Optimized App Loading',
+    bullets: [
+      'App initializion now loaded 2x faster',
+      'Added People to Projects',
+      'Patched bug with Birthday Tasks not showing up'
+    ],
+  },
+  {
     version: '1.1.139',
     date: '2025-05-06',
     notes: 'Edit Bills & Passwords, Delete Bills & Passwords',

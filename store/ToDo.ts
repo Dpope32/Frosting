@@ -5,7 +5,6 @@ import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
 import { Task, WeekDay } from '@/types/task'
 import { format } from 'date-fns'
-import { useUserStore } from './UserStore' 
 
 // Enable debugging
 const DEBUG = false;
@@ -21,7 +20,6 @@ interface ProjectStore {
   hydrated: boolean
   todaysTasks: Task[]
   addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
-  addTasks: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>[]) => void
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
@@ -39,7 +37,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
   const currentDateStrLocal = format(date, 'yyyy-MM-dd')
   const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt)
-  const showNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks; // Get preference
 
   // Debug specific tasks
   const shouldDebug = DEBUG && (task.name.includes("Thunder") || task.name.includes("Journal"))
@@ -67,37 +64,69 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     }
     
     // Special handling for games
-    if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
+    //if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
       // Check user preference first
-      if (!showNBAGameTasks) {
-        if (shouldDebug) log("- NBA game task, but showNBAGameTasks is false, hiding it");
-        return false;
-      }
 
-      const gameDate = new Date(task.scheduledDate)
-      const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
-      const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
+     // const gameDate = new Date(task.scheduledDate)
+     // const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
+    //  const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
       
       // Only show game if it's scheduled for today
-      const isGameDay = localGameDateStr === currentDateStrLocal;
+      //const isGameDay = localGameDateStr === currentDateStrLocal;
       
-      if (shouldDebug) {
-        log("- game check:");
-        log("  - localGameDateStr:", localGameDateStr);
-        log("  - currentDateStrLocal:", currentDateStrLocal);
-        log("  - isGameDay:", isGameDay);
-      }
+      //if (shouldDebug) {
+      //  log("- game check:");
+      //  log("  - localGameDateStr:", localGameDateStr);
+      //  log("  - currentDateStrLocal:", currentDateStrLocal);
+      //  log("  - isGameDay:", isGameDay);
+      //}
       
-      return isGameDay;
-    }
+      //return isGameDay;
+    //}
     
     // Special handling for birthdays
     if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
-      const bdayDateLocal = new Date(task.scheduledDate)
-      const bdayStrLocal = format(bdayDateLocal, 'yyyy-MM-dd')
+      // Enable debug for all birthday tasks to troubleshoot issues
+      const birthdayDebug = DEBUG && task.name.includes('birthday');
+      
+      if (birthdayDebug) {
+        log("- birthday task detected:", task.name);
+        log("- scheduledDate:", task.scheduledDate);
+      }
+      
+      // First check: compare formatted dates (most reliable)
+      const bdayDateLocal = new Date(task.scheduledDate);
+      const bdayStrLocal = format(bdayDateLocal, 'yyyy-MM-dd');
       const isBirthdayToday = bdayStrLocal === currentDateStrLocal;
-      if (shouldDebug) log("- birthday check, isBirthdayToday:", isBirthdayToday);
-      return isBirthdayToday;
+      
+      if (birthdayDebug) {
+        log("- bdayStrLocal:", bdayStrLocal);
+        log("- currentDateStrLocal:", currentDateStrLocal);
+        log("- isBirthdayToday (by date string):", isBirthdayToday);
+      }
+      
+      // Second check: compare month and day directly (backup method)
+      const todayMonthDay = `${date.getMonth()+1}-${date.getDate()}`;
+      const bdayMonthDay = `${bdayDateLocal.getMonth()+1}-${bdayDateLocal.getDate()}`;
+      const isBirthdayTodayAlt = todayMonthDay === bdayMonthDay;
+      
+      if (birthdayDebug) {
+        log("- todayMonthDay:", todayMonthDay);
+        log("- bdayMonthDay:", bdayMonthDay);
+        log("- isBirthdayToday (by month-day):", isBirthdayTodayAlt);
+        
+        // Check day of week match as an additional data point
+        const taskDay = task.schedule && task.schedule.length > 0 ? task.schedule[0] : null;
+        log("- task.schedule day:", taskDay);
+        log("- today's day:", today);
+        log("- day match:", taskDay === today);
+      }
+      
+      // Use either method - if either one says it's today, show the task
+      const shouldShowBirthday = isBirthdayToday || isBirthdayTodayAlt;
+      if (birthdayDebug) log("- final birthday check result:", shouldShowBirthday);
+      
+      return shouldShowBirthday;
     }
     
     // For regular one-time tasks, show if not completed
@@ -240,20 +269,20 @@ const createTaskFilter = () => {
     const currentDate = new Date();
     const dateStr = currentDate.toISOString().split('T')[0];
     const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd');
-    const currentShowNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks; // Get current preference
+    //const currentShowNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks;
 
     if (DEBUG) {
       log("========== RUNNING TASK FILTER ==========");
       log("- currentDateStrLocal:", currentDateStrLocal);
       log("- total tasks:", Object.keys(tasks).length);
-      log("- currentShowNBAGameTasks:", currentShowNBAGameTasks); // Log preference state
+     // log("- currentShowNBAGameTasks:", currentShowNBAGameTasks); // Log preference state
     }
 
     // Check cache, including the preference state
     if (
       lastToday === dateStr &&
       lastTasks === tasks &&
-      lastShowNBAGameTasks === currentShowNBAGameTasks && // Check preference cache
+      //lastShowNBAGameTasks === currentShowNBAGameTasks && // Check preference cache
       lastResult !== null
     ) {
       if (DEBUG) log("- returning cached result:", lastResult.length, "tasks");
@@ -262,7 +291,7 @@ const createTaskFilter = () => {
 
     lastToday = dateStr;
     lastTasks = tasks;
-    lastShowNBAGameTasks = currentShowNBAGameTasks; // Update preference cache
+   // lastShowNBAGameTasks = currentShowNBAGameTasks; // Update preference cache
 
     // Update completion status for recurring tasks based on local date
     Object.values(tasks).forEach(task => {
@@ -278,6 +307,9 @@ const createTaskFilter = () => {
     // Filter tasks that are due today
     const filtered = Object.values(tasks).filter(task => {
       const isDue = isTaskDue(task, currentDate);
+      if (DEBUG && (task.name.includes("birthday") || task.name.includes("🎂") || task.name.includes("🎁"))) {
+        log(`Final filter result for task ${task.name} (${task.id}): ${isDue} - ${task.recurrencePattern} - ${task.schedule} - ${task.dueDate}`);
+      }
       if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
         log(`Final filter result for task ${task.name} (${task.id}): ${isDue}`);
       }
@@ -368,27 +400,6 @@ export const useProjectStore = create<ProjectStore>()(
         }
         tasks[id] = newTask
         set({ tasks, todaysTasks: taskFilter(tasks) })
-      },
-      addTasks: (dataArray) => {
-        const tasks = { ...get().tasks }
-        const newTasks: Record<string, Task> = {}
-        
-        dataArray.forEach(data => {
-          const id = Date.now().toString() + Math.random().toString(36).substr(2, 5)
-          newTasks[id] = {
-            ...data,
-            id,
-            completed: false,
-            completionHistory: {},
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          }
-        })
-        
-        set({ 
-          tasks: { ...tasks, ...newTasks }, 
-          todaysTasks: taskFilter({ ...tasks, ...newTasks }) 
-        })
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }

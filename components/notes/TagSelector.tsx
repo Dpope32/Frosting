@@ -79,7 +79,12 @@ export function TagSelector({
     if (!tag) {
       tag = addTagToStore(newTagName.trim(), selectedColor);
     }
-    onTagsChange([...tags, tag]);
+    
+    // Check if this tag is already in the selected tags (by id)
+    if (!tags.some(t => t.id === tag.id)) {
+      onTagsChange([...tags, tag]);
+    }
+    
     setNewTagName('');
     setIsAdding(false);
   };
@@ -127,7 +132,9 @@ export function TagSelector({
                   if (isSelected) {
                     handleRemoveTag(tag.id);
                   } else {
-                    onTagsChange([...tags, tag]);
+                    if (!tags.some(t => t.id === tag.id)) {
+                      onTagsChange([...tags, tag]);
+                    }
                   }
                 }}
               >

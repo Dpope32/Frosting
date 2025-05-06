@@ -45,8 +45,8 @@ export function useBills() {
     monthlyIncome,
     setMonthlyIncome
   } = useBillStore();
-  const { addEvent, deleteEvent, events, addEvents } = useCalendarStore();
-  const { addTask, addTasks } = useProjectStore();
+  const {  addEvents } = useCalendarStore();
+  const { addTask,  } = useProjectStore();
   const { showToast } = useToastStore();
   
   const { data: bills, isLoading } = useQuery({
@@ -174,7 +174,7 @@ export function useBills() {
       count++;
     }
     addEvents(eventsToAdd);
-    addTasks(tasksToAdd);
+    tasksToAdd.map(task => addTask(task));
     
     // Show success toast based on the options
     if (showToastNotification) {
@@ -249,7 +249,7 @@ export function useBills() {
     // Add collected events and tasks to their respective stores
     addEvents(eventsToAdd); // Add all generated calendar events
     if (tasksToAdd.length > 0) {
-      addTasks(tasksToAdd); // Add tasks only if any were generated
+      tasksToAdd.map(task => addTask(task)); // Add tasks only if any were generated
     }
     
     // Show success toast

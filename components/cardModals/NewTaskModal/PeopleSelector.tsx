@@ -24,7 +24,7 @@ export function PeopleSelector({ people, selectedPeople, onPersonSelect }: Peopl
 
 
   return (
-    <XStack px={isIpad() ? "$2.5" : "$2.5"} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
+    <XStack mt={-16} px={isIpad() ? "$2.5" : "$2.5"} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
         People?
       </Text>

@@ -35,7 +35,7 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
 
   useEffect(() => {
     if (addPersonMutation.isSuccess) {
-      useCalendarStore.getState().syncBirthdays()
+      setTimeout(() => useCalendarStore.getState().syncBirthdays(), 100)
     }
   }, [addPersonMutation.isSuccess])
   

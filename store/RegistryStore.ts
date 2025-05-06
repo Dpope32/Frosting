@@ -19,7 +19,7 @@ import { usePortfolioStore } from './PortfolioStore';
 import { usePeopleStore } from './People';
 import { useCustomCategoryStore } from './CustomCategoryStore';
 import { useTagStore } from './TagStore';
-
+import { useProjectStore as useProjectsStore } from './ProjectStore';
 
 interface RegistryState {
   hasCompletedOnboarding: boolean;
@@ -43,6 +43,7 @@ interface RegistryState {
   peopleStore: Record<string, any>;
   customCategoryStore: Record<string, any>;
   tagStore: Record<string, any>;
+  projectsStore: Record<string, any>;
   setHasCompletedOnboarding: (value: boolean) => void;
   setIsFirstLaunch: (value: boolean) => void;
   setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
@@ -79,6 +80,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
   portfolioStore: usePortfolioStore.getState(),
   peopleStore: usePeopleStore.getState(),
   customCategoryStore: useCustomCategoryStore.getState(),
+  projectsStore: useProjectsStore.getState(),
 
   // Actions
   setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
@@ -127,7 +129,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
       portfolio: { ...getStoreState(usePortfolioStore.getState()), lastUpdated: now },
       people: { ...getStoreState(usePeopleStore.getState()), lastUpdated: now },
       customCategory: { ...getStoreState(useCustomCategoryStore.getState()), lastUpdated: now },
-      tags: { ...getStoreState(useTagStore.getState()), lastUpdated: now }
+      tags: { ...getStoreState(useTagStore.getState()), lastUpdated: now },
+      projects: { ...getStoreState(useProjectsStore.getState()), lastUpdated: now }
     };
   },
 

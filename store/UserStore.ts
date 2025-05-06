@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { BackgroundStyle } from '../constants/Backgrounds'
-import { useProjectStore } from './ToDo' // Import ProjectStore to trigger recalculation
 
 export interface UserPreferences {
   username: string;
@@ -19,7 +18,7 @@ export interface UserPreferences {
   wifiEnabled: boolean;
   favoriteNBATeam?: string;
   showNBAGamesInCalendar: boolean;
-  showNBAGameTasks: boolean; // Added preference for showing NBA tasks
+  showNBAGameTasks: boolean;
   permissionsExplained: boolean;
 }
 
@@ -40,8 +39,8 @@ const defaultPreferences: UserPreferences = {
   portfolioEnabled: true,
   temperatureEnabled: true,
   wifiEnabled: true,
-  showNBAGamesInCalendar: true,
-  showNBAGameTasks: true, // Default to true for existing users
+  showNBAGamesInCalendar: false,
+  showNBAGameTasks: false, 
   permissionsExplained: false,
 };
 
@@ -51,23 +50,12 @@ export const useUserStore = create<UserStore>()(
       preferences: defaultPreferences,
       hydrated: false,
       setPreferences: (newPrefs) => {
-        const oldPrefs = useUserStore.getState().preferences; // Get current state before update
         set((state) => ({
           preferences: {
             ...state.preferences,
             ...newPrefs,
           },
         }));
-        // Check if relevant preferences changed and trigger recalculation
-        if (
-          ('showNBAGameTasks' in newPrefs && newPrefs.showNBAGameTasks !== oldPrefs.showNBAGameTasks) ||
-          ('showNBAGamesInCalendar' in newPrefs && newPrefs.showNBAGamesInCalendar !== oldPrefs.showNBAGamesInCalendar)
-        ) {
-          // Use setTimeout to ensure the state update completes before recalculating
-          setTimeout(() => {
-             useProjectStore.getState().recalculateTodaysTasks();
-          }, 0);
-        }
       },
       clearPreferences: () =>
         set({

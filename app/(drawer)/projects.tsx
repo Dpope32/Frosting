@@ -19,7 +19,6 @@ import { useProjectStore } from '@/store/ProjectStore'
 import { useToastStore } from '@/store/ToastStore'
 import EditProjectModal from '@/components/cardModals/EditProjectModal'
 
-
 export default function ProjectsScreen() {
   const { projects, isModalOpen, handleAddProject, handleCloseModal } = useProjects()
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)

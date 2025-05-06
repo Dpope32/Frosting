@@ -14,16 +14,27 @@ export const useTagStore = create<TagStoreState>()(
   persist(
     (set, get) => ({
       tags: [],
-      addTag: (name: string, color?: string) => {
-        const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-        const newTag: Tag = {
-          id,
-          name,
-          color,
-        };
-        set((state) => ({ tags: [...state.tags, newTag] }));
-        return newTag;
-      },
+  addTag: (name: string, color?: string) => {
+    // Check if a tag with this name already exists
+    const existingTag = get().getTagByName(name);
+    if (existingTag) {
+      return existingTag;
+    }
+    
+    // Create new tag if it doesn't exist
+    const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+    const newTag: Tag = {
+      id,
+      name,
+      color,
+    };
+    set((state) => {
+      // Filter out any duplicates by name before adding new tag
+      const uniqueTags = state.tags.filter(tag => tag.name !== name);
+      return { tags: [...uniqueTags, newTag] };
+    });
+    return newTag;
+  },
       removeTag: (id: string) => {
         set((state) => ({ tags: state.tags.filter((tag) => tag.id !== id) }));
       },
@@ -36,4 +47,4 @@ export const useTagStore = create<TagStoreState>()(
       storage: createPersistStorage<TagStoreState>(),
     }
   )
-); 
+);

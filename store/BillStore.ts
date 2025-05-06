@@ -21,12 +21,6 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
-// Function to get task store dynamically to avoid circular dependency
-const getTaskStore = () => {
-  // Using require instead of import to avoid circular dependency
-  const { useProjectStore } = require('./ToDo');
-  return useProjectStore.getState();
-};
 
 interface BillStore {
   bills: Record<string, Bill>;
@@ -52,6 +46,7 @@ export const useBillStore = create<BillStore>()(
         const newBill: Bill = {
           ...billData,
           id,
+          dueDate: dueDate,
           name: billData.name,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),

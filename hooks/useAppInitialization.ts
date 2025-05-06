@@ -45,7 +45,7 @@ export function useAppInitialization() {
             useWallpaperStore.getState().checkAndRedownloadWallpapers(),
           //  useNBAStore.getState().syncNBAGames(),
           //  useNBAStore.getState().syncGameTasks(),
-            useCalendarStore.getState().syncBirthdays(),
+          () => setTimeout(() => useCalendarStore.getState().syncBirthdays(), 100),
           ]).catch(error => {
             Sentry.captureException(error, {
               extra: {
