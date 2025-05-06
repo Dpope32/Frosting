@@ -30,14 +30,14 @@ export function TimePicker({
   primaryColor,
 }: TimePickerProps) {
   return (
-    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 2} mr={6}>
+    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 2} marginRight={14}>
       {!showTimePicker && (
       <Pressable
         onPress={() => setShowTimePicker(!showTimePicker)}
         style={{
-          width: '98%',
-          height: 45,
-          borderRadius: 8,
+          width: '100%',
+          height: 48,
+          borderRadius: 10,
           borderWidth: 1,
           borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
           display: 'flex',
@@ -53,9 +53,10 @@ export function TimePicker({
       >
         <Text
           fontFamily="$body"
-          color={time ? (isDark ? '#f3f3f3' : '#333') : (isDark ? "#777" : "#999")}
-          fontSize={isIpad() ? 17 : 15}
+          color={time ? (isDark ? '#f3f3f3' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
+          fontSize={isIpad() ? 17 : 16}
           style={{ flex: 1 }}
+          fontWeight="500"
         >
           {time || "Select time"}
         </Text>

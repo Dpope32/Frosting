@@ -84,9 +84,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   }
 
   return (
-    <XStack px="$2.5" gap="$2" alignItems="center">
-      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'}fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Category: </Text>
-      
+    <XStack pl="$2" gap="$2" alignItems="center">
       {isAddingCategory ? (
         <XStack gap="$2" alignItems="center" py="$1">
           <XStack position="relative" width={isIpad() ? 180 : 140}>

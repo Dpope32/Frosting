@@ -16,8 +16,7 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
   const isDark = colorScheme === 'dark'
 
   return (
-      <XStack px="$2.5" gap="$2.5" alignItems="center">
-        <Text color={isDark ? '#6c6c6c' : '#9c9c9c'}fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Recurrence: </Text>
+      <XStack pl="$2" gap="$2.5" alignItems="center">
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <XStack gap="$2" py="$1">
           {RECURRENCE_PATTERNS.map(pattern => {

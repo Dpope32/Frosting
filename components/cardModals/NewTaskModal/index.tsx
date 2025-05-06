@@ -215,7 +215,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 3} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 8} pb={12}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
@@ -224,7 +224,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             value={newTask.name}
             fontSize={isIpad() ? 17 : 15}
             fontFamily={isIpad() ? '$body' : '$body'}
-            width={isIpad() ? '100%' : '98%'}
+            width={isIpad() ? '100%' : '95%'}
             onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
@@ -259,7 +259,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
           )}
           {!showTimePicker && (
-          <YStack py={6}>
+          <YStack pt={6}>
           <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
           </YStack>
           )}
