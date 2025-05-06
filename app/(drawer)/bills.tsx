@@ -105,6 +105,28 @@ export default function BillsScreen() {
     setEditBillModalOpen(true);
   };
 
+  const handleUpdateBill = (updatedBill: { id: string; name: string; amount: number; dueDate: number }) => {
+    // First delete the old bill
+    deleteBill(updatedBill.id, {
+      onSuccess: () => {
+        // Then add a new bill with the updated info but keeping the same ID
+        addBill({
+          name: updatedBill.name,
+          amount: updatedBill.amount,
+          dueDate: updatedBill.dueDate,
+        });
+        setEditBillModalOpen(false);
+        setSelectedBill(null);
+      },
+      onError: () => {
+        // Handle error
+        console.error("Failed to update bill");
+        setEditBillModalOpen(false);
+        setSelectedBill(null);
+      }
+    });
+  };
+
   return (
     <>
       <BillsListModal
@@ -116,7 +138,7 @@ export default function BillsScreen() {
         isVisible={editBillModalOpen}
         onClose={() => { setEditBillModalOpen(false); setSelectedBill(null); }}
         bill={selectedBill}
-        onSubmit={() => { setEditBillModalOpen(false); setSelectedBill(null); }}
+        onSubmit={handleUpdateBill}
       />
       <YStack f={1} mt={isWeb ? 65 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "#fffbf7fff"} px={isIpad() ? "$1" : "$0"}>
         <BillSummary 

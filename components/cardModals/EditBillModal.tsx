@@ -17,7 +17,7 @@ interface EditBillModalProps {
   onSubmit: (entry: { id: string; name: string; amount: number; dueDate: number }) => void
 }
 
-export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillModalProps) {
+export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillModalProps): JSX.Element {
   const [name, setName] = useState('')
   const [amount, setAmount] = useState(0)
   const [amountInputValue, setAmountInputValue] = useState('')
@@ -136,4 +136,4 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
       </Animated.View>
     </BaseCardModal>
   )
-} 
+}

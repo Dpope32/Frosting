@@ -103,9 +103,6 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
     };
     addPersonMutation.mutate(newPerson);
     
-    setTimeout(() => {
-      showToast('Successfully added contact', 'success', { duration: 2000 });
-    }, 1000);
     
     setFormData({ ...initialFormData });
     setPaymentMethod('');

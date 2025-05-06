@@ -173,10 +173,12 @@ export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((
             isDark={isDark} 
             inputResetKey={inputResetKey}
           />
+          <YStack pt={"$2"} gap="$1" mx={-12}>
           <TagSelector
             tags={formData.tags || []}
             onTagsChange={(newTags: Tag[]) => updateFormField('tags', newTags)}
           />
+          </YStack>
         </YStack>
       </YStack>
     </ScrollView>

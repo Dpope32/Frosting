@@ -119,7 +119,7 @@ export function PaymentMethodSection({
           key={`payment-username-${inputResetKey}`}
           value={paymentUsername}
           onDebouncedChange={updatePaymentUsername}
-          placeholder="Username (e.g. @username)"
+          placeholder="Username"
           returnKeyType="next"
           autoCapitalize="none"
           flex={1}

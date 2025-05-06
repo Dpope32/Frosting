@@ -2,9 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { BaseCardModal } from './BaseCardModal';
 import { YStack, XStack, Text, Button, Input, isWeb } from 'tamagui';
 import { PrioritySelector } from './NewTaskModal/PrioritySelector';
+import { PeopleSelector } from './NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { useProjectStore } from '@/store/ProjectStore';
+import { usePeopleStore } from '@/store/People';
 import type { Project } from '@/types/project';
+import type { Person } from '@/types/people';
 import type { Tag } from '@/types/tag';
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { isIpad } from '@/utils/deviceUtils';
@@ -27,12 +30,16 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   const [deadline, setDeadline] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [priority, setPriority] = useState<Project['priority']>('medium');
+  const [selectedPeople, setSelectedPeople] = useState<Person[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const tagStoreTags = useTagStore((state) => state.tags);
   const addTagToStore = useTagStore((state) => state.addTag);
   const showToast = useToastStore((state) => state.showToast)
+  const contacts = usePeopleStore((state) => state.contacts);
   const projectTitleInputRef = React.useRef<any>(null);
   useAutoFocus(projectTitleInputRef, 1000, open);
+  
+  const peopleList = Object.values(contacts);
   
   useEffect(() => {
     if (!open) {
@@ -40,6 +47,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       setDescription('');
       setDeadline('');
       setPriority('medium');
+      setSelectedPeople([]);
       setTags([]);
     }
   }, [open]);
@@ -62,7 +70,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       isArchived: false,
       isDeleted: false,
       tasks: [],
-      people: [],
+      people: selectedPeople,
       notes: [],
       attachments: [],
     };
@@ -97,7 +105,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       onOpenChange={onOpenChange}
       title="New Project"
       showCloseButton={true}
-      snapPoints={isWeb ? [90] : isIpad() ? [70] : [85]}
+      snapPoints={isWeb ? [90] : isIpad() ? [70] : [90]}
       hideHandle={true}
       footer={
         <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
@@ -121,7 +129,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
         </XStack>
       }
     >
-      <YStack gap="$4" px={isIpad() ? "$4" : "$1.5"}>
+      <YStack gap={isIpad() ? "$4" : "$3"} px={isIpad() ? "$4" : "$1.5"}>
         <YStack gap="$1" pt={isIpad() ? "$3" : "$2"} px={isIpad() ? "$2" : "$2"} > 
           <DebouncedInput
             value={name}
@@ -162,12 +170,12 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               {!deadline && (
                 <Button
                   onPress={() => setShowDatePicker(true)}
-                  borderWidth={1}
+                  borderBottomWidth={1}
                   borderRadius="$2"
                   backgroundColor={isDark ? '$gray0' : '$white'}
                   px="$3"
                   width="100%"
-                  borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+                  borderBottomColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
                   ai="center"
                   jc="space-between"
                 >
@@ -202,6 +210,19 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             </YStack>
           )}
         </YStack>
+        {peopleList.length > 0 && (
+          <PeopleSelector 
+            people={peopleList} 
+            selectedPeople={selectedPeople} 
+            onPersonSelect={(person) => {
+              setSelectedPeople(prev => 
+                prev.some(p => p.id === person.id)
+                  ? prev.filter(p => p.id !== person.id)
+                  : [...prev, person]
+              );
+            }} 
+          />
+        )}
         <YStack gap="$1" px={isIpad() ? "$2" : "$2"}>
           <DebouncedInput
             value={description}

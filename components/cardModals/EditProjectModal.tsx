@@ -192,12 +192,13 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
                   backgroundColor={isDark ? '$gray0' : '$white'}
                   px="$3"
                   width="100%"
-                  borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+                  borderBottomWidth={1}
+                  borderBottomColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
                   ai="center"
                   jc="space-between"
                 >
                   <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">
-                    Select Deadline (optional)
+                    Set Deadline (optional)
                   </Text>
                   <MaterialIcons name="event" size={24} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
                 </Button>
