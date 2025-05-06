@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, 
 import { isWeb, XStack } from 'tamagui'
 import { withOpacity } from '@/utils/styleUtils'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { format, parse } from 'date-fns'
 import { getCategoryColor } from '@/utils/styleUtils';
 import { TaskCategory } from '@/types/task';
@@ -177,6 +177,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                     <Animated.View
                       key={event.id}
                       entering={FadeIn.duration(300).delay(100)}
+                      exiting={FadeOut.duration(300).delay(100)}
+                      style={{ marginBottom: 10 }}
                     >
                       <EventPreview
                         event={event}

@@ -12,6 +12,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
+import { useTagStore } from '@/store/TagStore';
+import { MaterialIcons } from '@expo/vector-icons';
 interface AddProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -26,6 +28,8 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [priority, setPriority] = useState<Project['priority']>('medium');
   const [tags, setTags] = useState<Tag[]>([]);
+  const tagStoreTags = useTagStore((state) => state.tags);
+  const addTagToStore = useTagStore((state) => state.addTag);
   const showToast = useToastStore((state) => state.showToast)
   const projectTitleInputRef = React.useRef<any>(null);
   useAutoFocus(projectTitleInputRef, 1000, open);
@@ -64,6 +68,9 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
     };
     addProject(newProject);
     onOpenChange(false);
+    newProject.tags?.forEach((tag) => {
+      addTagToStore(tag.name);
+    });
     setName('');
     setDescription('');
     setDeadline('');
@@ -71,7 +78,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
     setTags([]);
     setShowDatePicker(false);
     showToast("Project created successfully", "success");
-  }, [name, description, deadline, priority, tags, addProject, onOpenChange]);
+  }, [name, description, deadline, priority, tags, addProject, onOpenChange, addTagToStore]);
 
   const handleCancel = useCallback(() => {
     onOpenChange(false);
@@ -114,18 +121,26 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
         </XStack>
       }
     >
-      <YStack gap="$4" px="$4">
-        <YStack gap="$1" pt="$3">
+      <YStack gap="$4" px={isIpad() ? "$4" : "$1.5"}>
+        <YStack gap="$1" pt={isIpad() ? "$3" : "$2"} px={isIpad() ? "$2" : "$2"} > 
           <DebouncedInput
             value={name}
-            placeholder="Project name"
+            placeholder="What's the name of this project?"
             onDebouncedChange={setName}
             ref={projectTitleInputRef}
             autoCapitalize="words"
+            fontSize={isIpad() ? 17 : 15}
+            fontFamily="$body"
+            fontWeight="bold"
+            color={isDark ? '#f6f6f6' : '#111'}
+            backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+            borderWidth={1}
+            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+            borderRadius={4}
           />
         </YStack>
         <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
-        <YStack gap="$1">
+        <YStack gap="$1" px={isIpad() ? "$2" : "$2"}>
           {isWeb ? (
             <input
               type="date"
@@ -143,22 +158,26 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               }}
             />
           ) : ( 
-            <YStack gap="$2"> 
+            <YStack gap="$2" px={isIpad() ? "$2" : "$1"}>
               {!deadline && (
                 <Button
                   onPress={() => setShowDatePicker(true)}
                   borderWidth={1}
-                  borderColor="#3B82F6"
                   borderRadius="$2"
-                  backgroundColor={isDark ? '$gray3' : '$white'}
+                  backgroundColor={isDark ? '$gray0' : '$white'}
                   px="$3"
-                  py="$2"
+                  width="100%"
+                  borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+                  ai="center"
+                  jc="space-between"
                 >
-                  <Text color="#3B82F6">Select Deadline</Text>
+                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">Select Deadline (optional)</Text>
+                   
+                   <MaterialIcons  name="event" size={24} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
                 </Button>
               )}
               {deadline ? (
-                <XStack pl="$2" gap="$1" ai="center" py="$1"> 
+                <XStack pl="$1" gap="$1" ai="center" > 
                   <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">Deadline:</Text>
                   <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
                     {new Date(deadline).toLocaleDateString('en-US', { 
@@ -183,16 +202,26 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             </YStack>
           )}
         </YStack>
-        <TagSelector tags={tags} onTagsChange={setTags} />
-        <YStack gap="$1">
+        <YStack gap="$1" px={isIpad() ? "$2" : "$2"}>
           <DebouncedInput
             value={description}
             placeholder="Description (optional)"
             onDebouncedChange={setDescription}
             multiline={true}
-            numberOfLines={5}
+            numberOfLines={8}
+            fontSize={isIpad() ? 17 : 15}
+            fontFamily="$body"
+            fontWeight="bold"
+            color={isDark ? '#f6f6f6' : '#111'}
+            backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+            borderWidth={1}
+            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+            borderRadius={4}
           />
         </YStack>
+        <YStack gap="$1" mt={12} mx={-4} >
+          <TagSelector tags={tags} onTagsChange={setTags} />
+          </YStack>
       </YStack>
     </BaseCardModal>
   );

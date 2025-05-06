@@ -9,7 +9,7 @@ export type Project = {
     description: string;
     createdAt: Date;
     deadline?: Date;
-    status: 'pending' | 'in_progress' | 'completed';
+    status: 'pending' | 'in_progress' | 'completed' | 'past_deadline';
     priority: 'low' | 'medium' | 'high';
     tags: Tag[];
     isArchived: boolean;

@@ -128,6 +128,32 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       yesterday.setDate(yesterday.getDate() - 1)
       const yesterdayStr = yesterday.toISOString().split('T')[0]
       const result = createdDateStr === yesterdayStr;
+      
+      if (result === true) {
+        // If the task is due today (creation date was yesterday),
+        // convert it to a one-time task
+        if (shouldDebug) log(`- tomorrow task ${task.id} due today, converting to one-time`);
+        
+        // We need to modify the task in the store, not just the local copy
+        // This needs to be done asynchronously to avoid mutating during filtering
+        setTimeout(() => {
+          const storeUpdate = useProjectStore.getState();
+          const tasks = { ...storeUpdate.tasks };
+          
+          if (tasks[task.id] && tasks[task.id].recurrencePattern === 'tomorrow') {
+            tasks[task.id] = {
+              ...tasks[task.id],
+              recurrencePattern: 'one-time',
+              updatedAt: new Date().toISOString()
+            };
+            
+            if (DEBUG) log(`- converted tomorrow task ${task.id} to one-time`);
+            storeUpdate.tasks = tasks;
+            useProjectStore.setState({ tasks });
+          }
+        }, 0);
+      }
+      
       if (shouldDebug) log("- tomorrow check, result:", result);
       return result;
     }
@@ -394,10 +420,10 @@ export const useProjectStore = create<ProjectStore>()(
           const newCompletionStatus = !currentStatus;
           tasks[id] = {
             ...tasks[id],
-            completed: newCompletionStatus, // This reflects completion for the local day
+            completed: newCompletionStatus, 
             completionHistory: {
               ...cleanedHistory,
-              [todayLocalStr]: newCompletionStatus // Store completion status with local date string key
+              [todayLocalStr]: newCompletionStatus 
             },
             updatedAt: new Date().toISOString()
           }
@@ -407,7 +433,6 @@ export const useProjectStore = create<ProjectStore>()(
             log(`New completionHistory:`, tasks[id].completionHistory);
           }
           
-          // Apply task filter to get updated list
           const updatedTodaysTasks = taskFilter(tasks);
           
           if (DEBUG) {
@@ -435,8 +460,6 @@ export const useProjectStore = create<ProjectStore>()(
             log(`Original task data:`, task);
             log(`Update data received:`, updatedData);
           }
-
-          // Ensure schedule is handled correctly based on recurrence pattern
           let finalSchedule = updatedData.schedule ?? task.schedule;
           if (updatedData.recurrencePattern === 'one-time') {
             finalSchedule = []; // One-time tasks should have an empty schedule array

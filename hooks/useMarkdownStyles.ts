@@ -102,18 +102,20 @@ export const useMarkdownStyles = () => {
     } as TextStyle,
     list_item: { 
       color: colors.text, 
-      marginBottom: 6,
-      marginTop: 2,
+      marginBottom: 3,
+      marginTop: 1,
       fontSize: isTablet ? 18 : 16,
       marginLeft: 10,
     } as TextStyle,
     bullet_list: { 
       color: colors.text,
-      marginVertical: 8
+      marginTop: 1,
+      marginBottom: 4
     } as TextStyle,
     ordered_list: { 
       color: colors.text,
-      marginVertical: 8
+      marginTop: 1,
+      marginBottom: 4
     } as TextStyle,
     hr: { 
       backgroundColor: colors.hr, 
@@ -161,7 +163,7 @@ export const useMarkdownStyles = () => {
       borderRadius: 4 
     } as ImageStyle,
     paragraph: { 
-      marginBottom: 10,
+      marginBottom: 6,
       marginTop: 6,
       fontSize: isTablet ? 18 : 16
     } as TextStyle

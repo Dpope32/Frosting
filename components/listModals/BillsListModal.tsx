@@ -7,14 +7,17 @@ import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/bil
 import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
+import { Bill } from '@/types/bills';
+import { getChipStyle } from '@/utils/recChipStyles';
 
 interface BillsListModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onEditBill: (bill: Bill) => void
 }
 
-export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
-  const { bills, deleteBill } = useBills()
+export function BillsListModal({ open, onOpenChange, onEditBill }: BillsListModalProps) {
+  const { bills, deleteBill, addBill } = useBills()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const isWeb = Platform.OS === 'web';
@@ -85,40 +88,6 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
     );
   };
 
-  const getChipStyle = (category: BillRecommendationCategory) => {
-    switch (category) {
-      case 'Housing':
-        return {
-          backgroundColor: "rgba(16, 185, 129, 0.15)", 
-          borderColor: "rgba(16, 185, 129, 0.3)",
-          textColor: "#10b981"
-        }
-      case 'Transportation':
-        return {
-          backgroundColor: "rgba(59, 130, 246, 0.15)", 
-          borderColor: "rgba(59, 130, 246, 0.3)",
-          textColor: "#3b82f6"
-        }
-      case 'Subscriptions':
-        return {
-          backgroundColor: "rgba(139, 92, 246, 0.15)", 
-          borderColor: "rgba(139, 92, 246, 0.3)",
-          textColor: "#8b5cf6"
-        }
-      case 'Insurance':
-        return {
-          backgroundColor: "rgba(239, 68, 68, 0.15)", 
-          borderColor: "rgba(239, 68, 68, 0.3)",
-          textColor: "#ef4444"
-        }
-      default:
-        return {
-          backgroundColor: "rgba(107, 114, 128, 0.15)", 
-          borderColor: "rgba(107, 114, 128, 0.3)",
-          textColor: "#6b7280",
-        };
-    }
-  };
 
   const billRecommendations = (
     <>
@@ -127,7 +96,6 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
       ))}
     </>
   );
-
 
   return (
     <>
@@ -158,7 +126,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                   padding="$3"
                   alignItems="center"
                   justifyContent="space-between"
-                  marginBottom="$2"
+                  marginBottom={0}
                   {...(isDueToday ? {
                     borderWidth: 1,
                     borderColor: isDark ? "$red9" : "$red10"
@@ -167,7 +135,7 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                   <XStack flex={1} alignItems="center" gap="$3">
                     <YStack 
                       width={44} 
-                      height={44} 
+                      height={48} 
                       br="$4" 
                       ai="center" 
                       jc="center" 
@@ -223,36 +191,27 @@ export function BillsListModal({ open, onOpenChange }: BillsListModalProps) {
                       </XStack>
                     </YStack>
                   </XStack>
-                  
-                  <Pressable
-                    onPress={() => {
-                      if (Platform.OS === 'web') {
-                        if (window.confirm("Are you sure you want to delete this bill?")) {
-                          deleteBill(bill.id);
-                        }
-                      } else {
-                        Alert.alert(
-                          "Delete Bill",
-                          "Are you sure you want to delete this bill?",
-                          [
-                            { text: "Cancel" },
-                            { text: "Delete", onPress: () => deleteBill(bill.id) }
-                          ]
-                        );
-                      }
-                    }}
-                    style={({ pressed }) => ({
-                      opacity: pressed ? 0.7 : 1,
-                      padding: 8
-                    })}
-                  >
-                    <Ionicons
-                      name="close"
-                      size={24}
-                      color="#ff4444"
-                      style={{ fontWeight: 200 }}
-                    />
-                  </Pressable>
+                  <XStack>
+                    <Pressable
+                      onPress={() => {
+                        onOpenChange(false);
+                        setTimeout(() => {
+                          onEditBill(bill);
+                        }, 100);
+                      }}
+                      style={({ pressed }) => ({
+                        opacity: pressed ? 0.7 : 1,
+                        padding: 8
+                      })}
+                    >
+                      <Ionicons
+                        name="pencil"
+                        size={22}
+                        color="#888"
+                        style={{ fontWeight: 200 }}
+                      />
+                    </Pressable>
+                  </XStack>
                 </XStack>
               )
             })}

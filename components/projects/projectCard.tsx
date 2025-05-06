@@ -8,6 +8,7 @@ import { Plus } from '@tamagui/lucide-icons'
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tagColors } from '@/utils/styleUtils';
+import { TaskPriority } from '@/types/task';
 
 interface ProjectCardProps {
   project: Project
@@ -15,6 +16,7 @@ interface ProjectCardProps {
   primaryColor: string
   onOpenAddTaskModal?: (projectId: string) => void;
   onToggleTaskCompleted?: (taskId: string, completed: boolean) => void;
+  onEdit?: (projectId: string) => void;
 }
 
 const columnWidthWeb = isWeb ? 300 : isIpad() ? 200 : 100
@@ -30,8 +32,24 @@ const getDaysUntilDeadline = (deadline?: Date): number | null => {
   return diffDays;
 };
 
-export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal, onToggleTaskCompleted }: ProjectCardProps) => {
+export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal, onToggleTaskCompleted, onEdit }: ProjectCardProps) => {
     const priorityColor = getPriorityColor(project.priority);
+    const getTaskBackgroundColor = (taskPriority: TaskPriority, isCompleted: boolean) => {
+      if (isCompleted) {
+        return isDark ? '#000' : '#777';
+      }
+      if (taskPriority === 'high') {
+        return isDark ? 'rgba(255, 0, 0, 0.05)' : 'rgba(255, 0, 0, 0.05)';
+      }
+      if (taskPriority === 'medium') {
+        return isDark ? 'rgba(255, 255, 0, 0.03)' : 'rgba(255, 255, 0, 0.05)';
+      }
+      if (taskPriority === 'low') {
+        return isDark ? 'rgba(251, 255, 0, 0.03)' : 'rgba(0, 255, 0, 0.05)';
+      }
+      
+      return isDark ? '#151515' : '#999';
+    };
 
     return isWeb ? (
         <XStack
@@ -63,16 +81,38 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
 
                 {project?.status && (
                   <XStack
-                    bg={isDark ? '#222' : '#eee'}
+                    bg={
+                      project.status === 'completed'
+                        ? 'rgba(0, 128, 0, 0.1)'
+                        : project.status === 'in_progress'
+                        ? 'rgba(0, 0, 255, 0.1)'
+                        : project.status === 'pending'
+                        ? 'rgba(255, 255, 0, 0.1)'
+                        : project.status === 'past_deadline'
+                        ? 'rgba(255, 0, 0, 0.1)'
+                        : (isDark ? '#222' : '#eee')
+                    }
                     px="$1.5"
                     py="$0.5"
                     br="$4"
-                    borderWidth={0.5}
-                    borderColor={isDark ? '#444' : '#ddd'}
                     ai="center"
                   >
-                    <Text color={project.status === 'pending' ? '$blue10' : project.status === 'in_progress' ? '$yellow10' : '$green10'} fontSize="$2" fontFamily="$body">
-                      {project.status}
+                    <Text
+                      color={
+                        project.status === 'completed'
+                          ? '$green10'
+                          : project.status === 'in_progress'
+                          ? '$blue10'
+                          : project.status === 'pending'
+                          ? '$yellow10'
+                          : project.status === 'past_deadline'
+                          ? '$red10'
+                          : '$gray10'
+                      }
+                      fontSize="$2"
+                      fontFamily="$body"
+                    >
+                      {project.status.replace('_', ' ')}
                     </Text>
                   </XStack>
                 )}
@@ -136,13 +176,13 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
               <>
                 <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} mt={8} />
                 <YStack pl={isWeb ? '$4' : '$3'}>
-                  <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} />
+                  <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={10} />
                   {project.tasks.length > 1 && (
                     <Text fontSize={12} color={isDark ? '#aaa' : '#444'} mb={2} fontFamily="$body">
                       {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
                     </Text>
                   )}
-                  <XStack gap={12} flexWrap="wrap">
+                  <XStack gap={12} flexWrap="wrap" mb={10} >
                     {project.tasks.map((task, idx) => {
                       return (
                         <XStack
@@ -151,9 +191,7 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                           px={8}
                           py={4}
                           br={10}
-                          bg={isDark ? '#111' : '#999'}
-                          borderWidth={1}
-                          borderColor={isDark ? '#444' : '#ddd'}
+                          bg={getTaskBackgroundColor(task.priority as TaskPriority, task.completed)} 
                           style={{
                             opacity: task.completed ? 0.6 : 1,
                             position: 'relative',
@@ -238,10 +276,10 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
           }}
         >
           <LinearGradient
-            colors={isDark ? ['rgba(91, 91, 91, 0.7)',  'rgba(0, 0, 0, 0.7)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} // Adjusted opacity
+            colors={isDark ? ['rgb(52, 52, 52)',  'rgb(30, 30, 30)', 'rgb(14, 14, 14)', 'rgb(0, 0, 0)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} 
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 1, borderColor: isDark ? '#444' : '#ddd'}}
+            end={{ x: 1, y: 0.5 }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 2, borderRadius: 12, borderColor: project.tasks.length > 0 ? isDark ? '#222' : 'transparent' : 'transparent'}}
           />
           <XStack
             p={isIpad() ? "$3" : "$2"} 
@@ -253,54 +291,78 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
             animation="quick"
             py={isIpad() ? "$3" : "$2.5"}
             pt={isIpad() ? "$3" : "$2.5"}
+            borderBottomWidth={project.tasks.length > 0 ? 1 : 0}
+            borderBottomColor={isDark ? '#444' : '#ddd'}
           >
             <YStack flex={1} gap="$2"> 
               <XStack jc="space-between" px={isIpad() ? "$2" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
-                <XStack ai="center" gap="$3" f={1} flexWrap="wrap">
-                  <Text color={isDark ? '#f6f6f6' : '#111'} fontSize="$4" fontWeight="bold" fontFamily="$body">
+                <XStack ai="center" gap="$2" f={1} flexWrap="wrap">
+                  <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 18 : 16}  fontWeight="bold" fontFamily="$body">
                     {project.name}
                   </Text>
                   <MaterialIcons name="circle" size={12} color={priorityColor} />
-
+                   {project?.status && (
+                      <XStack
+                        bg={
+                          project.status === 'completed'
+                            ? 'rgba(0, 128, 0, 0.1)'
+                            : project.status === 'in_progress'
+                            ? 'rgba(0, 0, 255, 0.1)'
+                            : project.status === 'pending'
+                            ? 'rgba(255, 255, 0, 0.1)'
+                            : project.status === 'past_deadline'
+                            ? 'rgba(255, 0, 0, 0.1)'
+                            : (isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')
+                        }
+                        py="$0.5"
+                        br={12}
+                        opacity={0.8}
+                        ai="center"
+                      >
+                        <Text
+                          paddingHorizontal={"$1.5"}
+                          paddingVertical={"$0.5"}
+                          color={
+                            project.status === 'completed'
+                              ? '$green10'
+                              : project.status === 'in_progress'
+                              ? '$blue10'
+                              : project.status === 'pending'
+                              ? '$yellow10'
+                              : project.status === 'past_deadline'
+                              ? '$red10'
+                              : (isDark ? '$blue10' : '#333')
+                          }
+                          fontSize={isIpad() ? 15 : 13}
+                          fontFamily="$body"
+                        >
+                          {project.status.replace('_', ' ')}
+                        </Text>
+                      </XStack>
+                    )}
                   {project?.deadline && (() => {
-                    let deadlineDate = project.deadline;
-                    if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
-                    if (deadlineDate instanceof Date && !isNaN(deadlineDate.getTime())) {
-                      return (
-                        <XStack ai="center" gap="$1">
-                          <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#666'} />
-                          <Text color={isDark ? '#ccc' : '#444'} fontSize={isIpad() ? 15 : 13} paddingHorizontal={4} fontFamily="$body">
-                            {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </Text>
-                        </XStack>
-                      );
-                    }
-                    return null;
-                  })()}
+                      let deadlineDate = project.deadline;
+                      if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
+                      if (deadlineDate instanceof Date && !isNaN(deadlineDate.getTime())) {
+                        return (
+                          <XStack ai="center" gap="$1">
+                            <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#666'} />
+                            <Text color={isDark ? '#ccc' : '#444'} fontSize={isIpad() ? 15 : 13} paddingHorizontal={4} fontFamily="$body">
+                              {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </Text>
+                          </XStack>
+                        );
+                      }
+                      return null;
+                    })()}
                 </XStack>
 
-                <Button size="$2" circular onPress={() => onOpenAddTaskModal && onOpenAddTaskModal(project.id)}>
-                  <Plus size={16} />
+                <Button size="$2" circular backgroundColor="transparent" onPress={() => onOpenAddTaskModal && onOpenAddTaskModal(project.id)}>
+                  <Plus size={16} color={isDark ? '#f6f6f6' : '#111'} />
                 </Button>
 
               </XStack>
               <XStack ai="center" gap="$1" flexWrap="wrap" px={isIpad() ? "$2" : "$1"} my={-6}> 
-                {project?.status && (
-                      <XStack
-                        bg={isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'} 
-                        px="$1" 
-                        py="$0.5" 
-                        br={12} 
-                        borderWidth={0.5}
-                        borderColor={isDark ? '#444' : '#ddd'}
-                        opacity={0.8}
-                        ai="center"
-                      >
-                        <Text paddingHorizontal={4} color={isDark ? '$blue10' : '#333'} fontSize={isIpad() ? 15 : 13} fontFamily="$body"> 
-                          {project.status}
-                        </Text>
-                      </XStack>
-                    )}
                 {project?.tags && Array.isArray(project.tags) && project.tags.length > 0 && (
                     <XStack flex={1} flexWrap="wrap" gap="$1">
                       {project.tags.map((tag, index) => (
@@ -326,19 +388,26 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                       ))}
                     </XStack>
                   )}
-              </XStack>
-              
-              <YStack ml={isIpad() ? 16 : 0} gap="$1"  px={"$2"} pb={"$2"} mt={"$2"} br={"$2"} backgroundColor={isDark? 'rgba(255, 255, 255, 0.0)' : 'rgba(28, 27, 27, 0.1)'}> 
-              <XStack ai="flex-start"  gap="$2" my="$2" px={isIpad() ? "$2" : "$2"}>
-                <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
-                  Description:
-                </Text>
-                <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
-                  {project?.description || 'No description'}
-                </Text>
-              </XStack>
+                </XStack>
 
-              <XStack ai="center" gap={"$2"} mb="$2" px={isIpad() ? "$2" : "$2"}>
+              <YStack ml={isIpad() ? 16 : 0} gap="$1"  
+               px={"$2"} pb={"$2"} mt={"$2"} br={"$2"}
+               backgroundColor={isDark? 'rgba(255, 255, 255, 0.0)' : 'rgba(28, 27, 27, 0.1)'}
+               borderTopColor={isDark ? '#444' : '#ddd'}
+               borderTopWidth={1}
+               >
+              {project?.description && (
+                <XStack ai="flex-start"  gap="$2" my="$2" px={isIpad() ? "$2" : "$2"}>
+                  <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
+                    Description:
+                  </Text>
+                <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? "$4" : "$3"} flex={1} fontFamily="$body">
+                    {project?.description || 'No description'}
+                  </Text>
+                </XStack>
+              )}
+
+              <XStack ai="center" gap={"$2"} mb="$2" mt={project.description ? 0 : 10} px={isIpad() ? "$2" : "$2"} style={{ position: 'relative' }}>
                 <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
                   Created:
                 </Text>
@@ -354,12 +423,18 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                     return '-';
                   })()}
                 </Text>
+                {onEdit && (
+                  <Button size="$2" circular backgroundColor="transparent" onPress={() => onEdit(project.id)} style={{ position: 'absolute', right: -6, bottom: 0 }}>
+                    <MaterialIcons name="edit" size={16} color={isDark ? '#3c3c3c' : '#6c6c6c'} />
+                  </Button>
+                )}
               </XStack>
 
-              <XStack ai="center" gap={"$2"} px={isIpad() ? "$2" : "$2"}>
-                <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
-                  Days remaining:
-                </Text>
+              {project?.deadline && (
+                <XStack ai="center" gap={"$2"} px={isIpad() ? "$2" : "$2"}>
+                  <Text color={isDark ? '#999' : '#666'} fontSize={isIpad() ? "$4" : "$3"} w={isIpad() ? 150 : 110} fontFamily="$body">
+                    Days remaining:
+                  </Text>
                 <Text
                   color={isDark ? '#f6f6f6' : '#111'}
                   fontSize={isIpad() ? "$4" : "$3"}
@@ -378,8 +453,8 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                     return `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}`;
                   })()}
                 </Text>
-                
-              </XStack>
+                </XStack>
+              )}
               </YStack>
             </YStack>
           </XStack>
@@ -387,9 +462,9 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
           {project.tasks && project.tasks.length > 0 && (
             <>
               <YStack pl={isWeb ? '$4' : '$3'} pb={12}>
-                <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.5} mb={8} />
+                <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.0} mb={6} />
                   {project.tasks.length > 1 && (
-                    <Text fontSize={12} color={isDark ? '#aaa' : '#444'} ml={12} mb={2} fontFamily="$body">
+                    <Text fontSize={12} color={isDark ? 'rgba(255, 255, 255, 0.84)' : 'rgba(0, 0, 0, 0.5)'} ml={4} mb={6} fontFamily="$body">
                       {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
                     </Text>
                   )}
@@ -402,7 +477,7 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                         px={8}
                         py={4}
                         br={10}
-                        bg={isDark ? '#151515' : '#999'}
+                        bg={getTaskBackgroundColor(task.priority as TaskPriority, task.completed)}
                         style={{
                           opacity: task.completed ? 0.6 : 1,
                           position: 'relative',
@@ -431,11 +506,9 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                         >
                           {task.name}
                         </Text>
-                        {/* Priority dot */}
                         <XStack ml={10} ai="center">
-                          <Text style={{ fontSize: 22, color: getPriorityColor(task.priority), lineHeight: 22 }}>•</Text>
+                          <Text style={{ fontSize: isWeb ? 22 : 28, color: getPriorityColor(task.priority), lineHeight: isWeb ? 22 : 28 }}>•</Text>
                         </XStack>
-                        {/* Overlay if completed */}
                         {task.completed && (
                           <XStack
                             position="absolute"
@@ -446,6 +519,7 @@ export const ProjectCard = ({ project, isDark, primaryColor, onOpenAddTaskModal,
                             bg={isDark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)'}
                             zIndex={1}
                             br={10}
+                            pointerEvents="none"
                           />
                         )}
                       </XStack>

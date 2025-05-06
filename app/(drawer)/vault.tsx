@@ -11,6 +11,8 @@ import { VaultRecommendationModal } from '@/components/recModals/VaultRecommenda
 import { VaultCard } from '@/components/vault/VaultCard'
 import { VaultEmpty } from '@/components/vault/VaultEmpty'
 import { isIpad } from '@/utils/deviceUtils'
+import { EditVaultModal } from '@/components/cardModals/EditVaultModal'
+import { VaultListModal } from '@/components/listModals/VaultListModal'
 
 interface VaultEntry {
   id: string
@@ -85,80 +87,58 @@ export default function VaultScreen() {
   const leftColumnItems = items.filter((_, idx) => idx % 2 === 0)
   const rightColumnItems = items.filter((_, idx) => idx % 2 === 1)
 
+  const [editVaultModalOpen, setEditVaultModalOpen] = useState(false)
+  const [selectedVaultEntry, setSelectedVaultEntry] = useState<VaultEntry | null>(null)
+  const [vaultListModalOpen, setVaultListModalOpen] = useState(false)
+
+  const handleEditVault = (entry: VaultEntry) => {
+    setSelectedVaultEntry(entry)
+    setEditVaultModalOpen(true)
+  }
+
   return (
-    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
-      <ScrollView
-      showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: isWeb ? 8 : 6,
-          paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : 16,
-          paddingTop: isWeb ? 0 : 20,
-          paddingLeft: isWeb ? isIpad() ? 12 : 12 : 16,
-          display: isWeb ? 'flex' : undefined,
-          flexDirection: isWeb ? 'row' : undefined,
-          flexWrap: isWeb ? 'wrap' : undefined,
-          justifyContent: isWeb ? 'flex-start' : undefined,
-          gap: isWeb ? 32 : undefined,
-          maxWidth: isWeb ? 1800 : undefined,
-          marginHorizontal: isWeb ? 'auto' : undefined,
-        }}
-      >
-        {data?.items.length === 0 ? (
-          <VaultEmpty
-            isDark={isDark}
-            primaryColor={primaryColor}
-            isWeb={isWeb}
-            setSocialMediaModalOpen={setSocialMediaModalOpen}
-            setEmailCloudModalOpen={setEmailCloudModalOpen}
-            setShoppingModalOpen={setShoppingModalOpen}
-            setWorkModalOpen={setWorkModalOpen}
-          />
-        ) : Platform.OS === 'web' ? (
-          data?.items.map((cred: VaultEntry) => (
-            <VaultCard
-              key={cred.id}
-              cred={cred}
+    <>
+      <VaultListModal
+        open={vaultListModalOpen}
+        onOpenChange={setVaultListModalOpen}
+        onEditVault={handleEditVault}
+      />
+      <EditVaultModal
+        isVisible={editVaultModalOpen}
+        onClose={() => { setEditVaultModalOpen(false); setSelectedVaultEntry(null) }}
+        vaultEntry={selectedVaultEntry}
+        onSubmit={() => { setEditVaultModalOpen(false); setSelectedVaultEntry(null) }}
+      />
+      <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
+        <ScrollView
+        showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            padding: isWeb ? 8 : 6,
+            paddingBottom: 100,
+            paddingHorizontal: isWeb ? 0 : 16,
+            paddingTop: isWeb ? 0 : 20,
+            paddingLeft: isWeb ? isIpad() ? 12 : 12 : 16,
+            display: isWeb ? 'flex' : undefined,
+            flexDirection: isWeb ? 'row' : undefined,
+            flexWrap: isWeb ? 'wrap' : undefined,
+            justifyContent: isWeb ? 'flex-start' : undefined,
+            gap: isWeb ? 32 : undefined,
+            maxWidth: isWeb ? 1800 : undefined,
+            marginHorizontal: isWeb ? 'auto' : undefined,
+          }}
+        >
+          {data?.items.length === 0 ? (
+            <VaultEmpty
               isDark={isDark}
               primaryColor={primaryColor}
-              visiblePasswords={visiblePasswords}
-              togglePasswordVisibility={togglePasswordVisibility}
               isWeb={isWeb}
-              columnWidthWeb={columnWidthWeb}
+              setSocialMediaModalOpen={setSocialMediaModalOpen}
+              setEmailCloudModalOpen={setEmailCloudModalOpen}
+              setShoppingModalOpen={setShoppingModalOpen}
+              setWorkModalOpen={setWorkModalOpen}
             />
-          ))
-        ) : isIpad() ? (
-          <XStack width="100%" gap="$3">
-            <YStack flex={1} gap="$3">
-              {leftColumnItems.map((cred: VaultEntry) => (
-                <VaultCard
-                  key={cred.id}
-                  cred={cred}
-                  isDark={isDark}
-                  primaryColor={primaryColor}
-                  visiblePasswords={visiblePasswords}
-                  togglePasswordVisibility={togglePasswordVisibility}
-                  isWeb={isWeb}
-                />
-              ))}
-            </YStack>
-            <YStack flex={1} gap="$3">
-              {rightColumnItems.map((cred: VaultEntry) => (
-                <VaultCard
-                  key={cred.id}
-                  cred={cred}
-                  isDark={isDark}
-                  primaryColor={primaryColor}
-                  visiblePasswords={visiblePasswords}
-                  togglePasswordVisibility={togglePasswordVisibility}
-                  isWeb={isWeb}
-                />
-              ))}
-            </YStack>
-          </XStack>
-        ) : (
-          <YStack gap="$3" width="100%">
-            {data?.items.map((cred: VaultEntry) => (
+          ) : Platform.OS === 'web' ? (
+            data?.items.map((cred: VaultEntry) => (
               <VaultCard
                 key={cred.id}
                 cred={cred}
@@ -167,95 +147,139 @@ export default function VaultScreen() {
                 visiblePasswords={visiblePasswords}
                 togglePasswordVisibility={togglePasswordVisibility}
                 isWeb={isWeb}
+                columnWidthWeb={columnWidthWeb}
               />
-            ))}
-          </YStack>
+            ))
+          ) : isIpad() ? (
+            <XStack width="100%" gap="$3">
+              <YStack flex={1} gap="$3">
+                {leftColumnItems.map((cred: VaultEntry) => (
+                  <VaultCard
+                    key={cred.id}
+                    cred={cred}
+                    isDark={isDark}
+                    primaryColor={primaryColor}
+                    visiblePasswords={visiblePasswords}
+                    togglePasswordVisibility={togglePasswordVisibility}
+                    isWeb={isWeb}
+                  />
+                ))}
+              </YStack>
+              <YStack flex={1} gap="$3">
+                {rightColumnItems.map((cred: VaultEntry) => (
+                  <VaultCard
+                    key={cred.id}
+                    cred={cred}
+                    isDark={isDark}
+                    primaryColor={primaryColor}
+                    visiblePasswords={visiblePasswords}
+                    togglePasswordVisibility={togglePasswordVisibility}
+                    isWeb={isWeb}
+                  />
+                ))}
+              </YStack>
+            </XStack>
+          ) : (
+            <YStack gap="$3" width="100%">
+              {data?.items.map((cred: VaultEntry) => (
+                <VaultCard
+                  key={cred.id}
+                  cred={cred}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  visiblePasswords={visiblePasswords}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isWeb={isWeb}
+                />
+              ))}
+            </YStack>
+          )}
+        </ScrollView>
+
+        <Button
+          onPress={() => setIsModalVisible(true)}
+          position="absolute"
+          bottom={32}
+          right={24}
+          zIndex={1000}
+          size="$4"
+          circular
+          bg={primaryColor}
+          pressStyle={{ scale: 0.95 }}
+          animation="quick"
+          elevation={4}
+        >
+          <Plus color="white" size={24} />
+        </Button>
+
+        {__DEV__ && (
+          <XStack position='absolute' bottom={32} left={24} gap='$2' zIndex={1000}>
+            <Button
+              size='$4'
+              circular
+              bg='#00AAFF'
+              pressStyle={{ scale: 0.95 }}
+              animation='quick'
+              elevation={4}
+              onPress={loadDevVaultEntries}
+              icon={<Database color='#FFF' size={20} />}
+            />
+            <Button
+              size='$4'
+              circular
+              bg='#FF5555'
+              pressStyle={{ scale: 0.95 }}
+              animation='quick'
+              elevation={4}
+              onPress={deleteAllVaultEntries}
+              icon={<Trash color='#FFF' size={20} />}
+            />
+          </XStack>
         )}
-      </ScrollView>
 
-      <Button
-        onPress={() => setIsModalVisible(true)}
-        position="absolute"
-        bottom={32}
-        right={24}
-        zIndex={1000}
-        size="$4"
-        circular
-        bg={primaryColor}
-        pressStyle={{ scale: 0.95 }}
-        animation="quick"
-        elevation={4}
-      >
-        <Plus color="white" size={24} />
-      </Button>
+        <AddVaultEntryModal
+          isVisible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          onSubmit={handleAddEntry}
+        />
+        
+        <VaultRecommendationModal 
+          open={socialMediaModalOpen} 
+          onOpenChange={setSocialMediaModalOpen} 
+          category="Social Media" 
+        />
+        
+        <VaultRecommendationModal 
+          open={emailCloudModalOpen} 
+          onOpenChange={setEmailCloudModalOpen} 
+          category="Misc" 
+        />
+        
+        <VaultRecommendationModal 
+          open={shoppingModalOpen} 
+          onOpenChange={setShoppingModalOpen} 
+          category="Shopping" 
+        />
+        
+        <VaultRecommendationModal 
+          open={workModalOpen} 
+          onOpenChange={setWorkModalOpen} 
+          category="Work" 
+        />
 
-      {__DEV__ && (
-        <XStack position='absolute' bottom={32} left={24} gap='$2' zIndex={1000}>
-          <Button
-            size='$4'
-            circular
-            bg='#00AAFF'
-            pressStyle={{ scale: 0.95 }}
-            animation='quick'
-            elevation={4}
-            onPress={loadDevVaultEntries}
-            icon={<Database color='#FFF' size={20} />}
-          />
-          <Button
-            size='$4'
-            circular
-            bg='#FF5555'
-            pressStyle={{ scale: 0.95 }}
-            animation='quick'
-            elevation={4}
-            onPress={deleteAllVaultEntries}
-            icon={<Trash color='#FFF' size={20} />}
-          />
-        </XStack>
-      )}
-
-      <AddVaultEntryModal
-        isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onSubmit={handleAddEntry}
-      />
-      
-      <VaultRecommendationModal 
-        open={socialMediaModalOpen} 
-        onOpenChange={setSocialMediaModalOpen} 
-        category="Social Media" 
-      />
-      
-      <VaultRecommendationModal 
-        open={emailCloudModalOpen} 
-        onOpenChange={setEmailCloudModalOpen} 
-        category="Misc" 
-      />
-      
-      <VaultRecommendationModal 
-        open={shoppingModalOpen} 
-        onOpenChange={setShoppingModalOpen} 
-        category="Shopping" 
-      />
-      
-      <VaultRecommendationModal 
-        open={workModalOpen} 
-        onOpenChange={setWorkModalOpen} 
-        category="Work" 
-      />
-
-      <BlurView
-        intensity={20}
-        tint={isDark ? 'dark' : 'light'}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-        }}
-      />
-    </YStack>
+        <BlurView
+          intensity={20}
+          tint={isDark ? 'dark' : 'light'}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: -1,
+          }}
+        />
+      </YStack>
+    </>
   )
 }

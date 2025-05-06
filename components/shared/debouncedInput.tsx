@@ -1,11 +1,8 @@
 import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef } from 'react'
-import { TextInput, Platform, ScrollView, Pressable, View } from 'react-native'
-import { Input, XStack, YStack, Text } from 'tamagui'
+import { TextInput, Platform } from 'react-native'
+import { Input} from 'tamagui'
 import { DebouncedInputProps } from '@/types/debounce'
 import { useColorScheme } from '@/hooks/useColorScheme'
-import { TaskCategory } from '@/types/task'
-import { getCategoryColor, withOpacity } from '@/utils/styleUtils'
-import { Ionicons } from '@expo/vector-icons'
 
 // Define the handle type
 export interface DebouncedInputHandle {
@@ -15,71 +12,7 @@ export interface DebouncedInputHandle {
   clear: () => void;
 }
 
-// Category selector props
-export interface CategorySelectorProps {
-  value: string;
-  onChange: (category: string) => void;
-  categories?: string[];
-}
 
-// Category selector component
-export const CategorySelector = ({ value, onChange, categories = ['health', 'personal', 'work', 'wealth', 'family', 'bills', 'task'] }: CategorySelectorProps) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  
-  return (
-    <YStack gap="$2" py={8}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 8 }}
-      >
-        <XStack gap="$2">
-          {categories.map((category) => {
-            const isSelected = value === category;
-            const categoryColor = getCategoryColor(category as TaskCategory);
-            
-            return (
-              <Pressable
-                key={category}
-                onPress={() => onChange(category)}
-                style={{
-                  marginRight: 4,
-                }}
-              >
-                <XStack
-                  alignItems="center"
-                  backgroundColor={isSelected ? withOpacity(categoryColor, 0.15) : isDark ? '#333' : '#f0f0f0'}
-                  borderWidth={1}
-                  borderColor={isSelected ? categoryColor : isDark ? '#444' : '#ddd'}
-                  px={12}
-                  py={10}
-                  borderRadius={20}
-                >
-                  <Ionicons
-                    name="bookmark"
-                    size={14}
-                    color={categoryColor}
-                    style={{ marginRight: 6 }}
-                  />
-                  <Text
-                    fontFamily="$body"
-                    color={isSelected ? categoryColor : isDark ? '#ccc' : '#666'}
-                    fontSize={14}
-                    fontWeight={isSelected ? "600" : "400"}
-                    style={{ textTransform: 'capitalize' }}
-                  >
-                    {category}
-                  </Text>
-                </XStack>
-              </Pressable>
-            );
-          })}
-        </XStack>
-      </ScrollView>
-    </YStack>
-  );
-};
 
 export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedInputProps>(
   ({ value, onDebouncedChange, ...props }, ref) => {

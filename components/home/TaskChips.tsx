@@ -7,12 +7,15 @@ import { isWeb } from 'tamagui';
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, getCategoryIcon } from '@/utils/styleUtils';
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
 import { useUserStore } from '@/store/UserStore';
+import { Tag } from '@/types/tag';
 
 interface TaskChipsProps {
   category?: string;
   priority?: TaskPriority;
   status: string;
   time?: string;
+  recurrencePattern?: RecurrencePattern;
+  tags?: Tag[];
   checked?: boolean;
 }
 
@@ -38,7 +41,7 @@ const mapStatusToRecurrencePattern = (status: string): RecurrencePattern | undef
   return undefined;
 };
 
-export function TaskChips({ category, priority, status, time, checked = false }: TaskChipsProps) {
+export function TaskChips({ category, priority, status, time, checked = false, tags = [] }: TaskChipsProps) {
   const customCategories = useCustomCategoryStore((s) => s.categories);
   const userColor = useUserStore(s => s.preferences.primaryColor);
   let calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#17A589';
@@ -114,9 +117,11 @@ export function TaskChips({ category, priority, status, time, checked = false }:
         </XStack>
       )}
       
-      <XStack 
-        alignItems="center" 
-        backgroundColor={`${recurrenceColor}15`}
+
+      {recurrencePattern && (
+        <XStack 
+          alignItems="center" 
+          backgroundColor={`${recurrenceColor}15`}
         px="$1.5"
         py="$0.5"
         br={12}
@@ -139,7 +144,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
           {status.toLowerCase()}
         </Text>
       </XStack>
-
+      )}
       {time && (
         <XStack 
           alignItems="center" 
@@ -150,6 +155,7 @@ export function TaskChips({ category, priority, status, time, checked = false }:
           borderWidth={1}
           borderColor="rgb(52, 54, 55)"
           opacity={checked ? 0.6 : 0.9}
+          marginRight={6}
           marginBottom={4}
         >
           <Text
@@ -162,6 +168,35 @@ export function TaskChips({ category, priority, status, time, checked = false }:
           </Text>
         </XStack>
       )}
+      
+      {tags && tags.length > 0 && tags.map(tag => (
+        <XStack
+          key={tag.id}
+          alignItems="center"
+          backgroundColor={tag.color ? `${tag.color}15` : "rgba(255, 255, 255, 0.1)"}
+          px="$1.5"
+          py="$0.5"
+          br={12}
+          opacity={checked ? 0.6 : 0.9}
+          marginRight={6}
+          marginBottom={4}
+        >
+          <Ionicons
+            name="pricetag-outline"
+            size={10}
+            color={tag.color || "rgb(157, 157, 157)"}
+            style={{ marginRight: 3, marginTop: 1 }}
+          />
+          <Text
+            fontFamily="$body"
+            color={tag.color || "rgb(157, 157, 157)"}
+            fontSize={11}
+            fontWeight="500"
+          >
+            {tag.name}
+          </Text>
+        </XStack>
+      ))}
     </View>
   );
 }
@@ -169,8 +204,8 @@ export function TaskChips({ category, priority, status, time, checked = false }:
 const styles = StyleSheet.create({
   tagsRow: {
     flexDirection: 'row',
-    flexWrap: 'nowrap',
+    flexWrap: 'wrap',
     marginTop: 2,
-    marginLeft: isWeb ? -10 : -5
+    marginLeft: isWeb ? -10 : 0
   }
-}); 
+});

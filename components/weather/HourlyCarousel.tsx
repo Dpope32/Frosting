@@ -32,7 +32,7 @@ const HourlyCarousel: React.FC = () => {
 
   // Render each hour
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, paddingVertical: 10, paddingBottom: 12 }}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, paddingVertical: 10, paddingBottom: 12 }} contentContainerStyle={{ paddingLeft: isIpad() ? 18 : 10, paddingRight: isIpad() ? 18 : 10 }}>
       {items.map(period => {
         const date = new Date(period.startTime);
         const hour = date.getHours();
@@ -51,14 +51,25 @@ const HourlyCarousel: React.FC = () => {
         const iconColor = isNightHour ? (isDark ? '#FFD700' : '#8B5CF6') : undefined;
 
         return (
-          <YStack key={period.startTime} alignItems="center" p="$2"> 
-            <Text color={isDark ? '$white' : '$black'} mb={1} fontSize={isIpad() ? 14 : 12}>
+          <YStack
+            key={period.startTime}
+            alignItems="center"
+            justifyContent="center"
+            px={isIpad() ? 10 : 7}
+            py={isIpad() ? 8 : 4}
+            mx={isIpad() ? 4 : 2}
+            borderRadius={14}
+            backgroundColor={isDark ? 'rgba(40,40,60,0.55)' : 'rgba(255,255,255,0.75)'}
+            minWidth={isIpad() ? 54 : 44}
+            style={{ shadowColor: isDark ? '#000' : '#bbb', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.13, shadowRadius: 3, elevation: 2 }}
+          >
+            <Text color={isDark ? '#e0e6f7' : '#23243a'} my={1} fontSize={isIpad() ? 15 : 13} fontWeight="600">
               {label}
             </Text>
-            <Text mb={1} fontSize={isIpad() ? 23 : 20} style={iconColor ? { color: iconColor } : {}}>
+            <Text mb={1} fontSize={isIpad() ? 28 : 22} style={iconColor ? { color: iconColor } : {}}>
               {icon}
             </Text>
-            <Text mt={1} color={tempColor} fontSize={isIpad() ? 15 : 14} fontWeight="600" style={{ marginBottom: 4 }}>
+            <Text mt={1} color={tempColor} fontSize={isIpad() ? 19 : 16} fontWeight="800" style={{ marginBottom: 2, letterSpacing: -0.5 }}>
               {`${temp}°`}
             </Text>
           </YStack>

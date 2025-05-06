@@ -5,6 +5,9 @@ import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useProjects } from '@/hooks/useProjects'
 import { Plus, Database, Trash } from '@tamagui/lucide-icons'
+import * as Haptics from 'expo-haptics'
+
+import { addDevProjects } from '@/services/devServices'
 import { isIpad } from '@/utils/deviceUtils'
 import { ProjectEmpty } from '@/components/projects/ProjectEmpty'
 import { Project } from '@/types/project'
@@ -14,6 +17,8 @@ import { AddTaskToProjectModal } from '@/components/cardModals/AddTaskToProjectM
 import { TaskPriority, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useToastStore } from '@/store/ToastStore'
+import EditProjectModal from '@/components/cardModals/EditProjectModal'
+
 
 export default function ProjectsScreen() {
   const { projects, isModalOpen, handleAddProject, handleCloseModal } = useProjects()
@@ -22,75 +27,13 @@ export default function ProjectsScreen() {
   const isDark = colorScheme === 'dark'
   const [addTaskModalOpen, setAddTaskModalOpen] = React.useState(false)
   const [selectedProjectId, setSelectedProjectId] = React.useState<string | null>(null)
-  const addProject = useProjectStore((state) => state.addProject)
   const clearProjects = useProjectStore((state) => state.clearProjects)
   const getProjectById = useProjectStore((state) => state.getProjectById)
   const updateProject = useProjectStore((state) => state.updateProject)
   const showToast = useToastStore((state) => state.showToast)
-
   const items = projects || []
-
-  const loadDevProjects = () => {
-    // define sample projects with explicit Project type to satisfy TypeScript
-    const sampleProjects: Project[] = [
-      ({
-        id: typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : Math.random().toString(36).substring(2, 9),
-        name: 'Sample Project 1',
-        description: 'This is a sample project',
-        createdAt: new Date(),
-        deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        tags: [
-          {
-            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
-            name: 'Feature',
-            color: 'blue',
-          },
-          {
-            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
-            name: 'Urgent',
-            color: 'red',
-          },
-        ],
-        status: 'pending',
-        priority: 'medium',
-        isArchived: false,
-        isDeleted: false,
-        tasks: [],
-        people: [],
-        notes: [],
-        attachments: [],
-      } as Project),
-      ({
-        id: typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : Math.random().toString(36).substring(2, 9),
-        name: 'Sample Project 2',
-        description: 'Another sample project',
-        createdAt: new Date(),
-        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        tags: [
-          {
-            id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
-            name: 'Backend',
-            color: 'green',
-          },
-        ],
-        status: 'in_progress',
-        priority: 'high',
-        isArchived: false,
-        isDeleted: false,
-        tasks: [],
-        people: [],
-        notes: [],
-        attachments: [],
-      } as Project),
-    ]
-    sampleProjects.forEach((project, index) => {
-      setTimeout(() => addProject(project), index * 300)
-    })
-  }
+  const [editModalOpen, setEditModalOpen] = React.useState(false)
+  const [selectedEditProjectId, setSelectedEditProjectId] = React.useState<string | null>(null)
 
   const deleteAllProjects = () => {
     clearProjects()
@@ -131,9 +74,18 @@ export default function ProjectsScreen() {
   const handleToggleTaskCompleted = (projectId: string, taskId: string, completed: boolean) => {
     const project = getProjectById(projectId)
     if (project) {
+        if (!isWeb) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }
       const updatedTasks = (project.tasks || []).map((t: any) => t.id === taskId ? { ...t, completed } : t)
       updateProject(projectId, { tasks: updatedTasks })
+      showToast(completed ? 'Task completed!' : 'Task marked as incomplete!', 'success')
     }
+  }
+
+  const handleAddDevProjects = () => {
+    addDevProjects()
+    showToast('Dev projects added!', 'success')
   }
 
   return (
@@ -169,6 +121,10 @@ export default function ProjectsScreen() {
                 primaryColor={primaryColor}
                 onOpenAddTaskModal={handleOpenAddTaskModal}
                 onToggleTaskCompleted={(taskId, completed) => handleToggleTaskCompleted(project.id, taskId, completed)}
+                onEdit={(id) => {
+                  setSelectedEditProjectId(id)
+                  setEditModalOpen(true)
+                }}
               />
             </YStack>
           ))
@@ -202,6 +158,18 @@ export default function ProjectsScreen() {
         onSave={handleSaveTask}
       />
 
+      {selectedEditProjectId && (
+        <EditProjectModal
+          open={editModalOpen}
+          onOpenChange={(o) => {
+            setEditModalOpen(o)
+            if (!o) setSelectedEditProjectId(null)
+          }}
+          projectId={selectedEditProjectId}
+          isDark={isDark}
+        />
+      )}
+
       {__DEV__ && (
         <XStack position="absolute" bottom={40} left={24} gap="$2" zIndex={1000}>
           <Button
@@ -211,7 +179,7 @@ export default function ProjectsScreen() {
             pressStyle={{ scale: 0.95 }}
             animation="quick"
             elevation={4}
-            onPress={loadDevProjects}
+            onPress={handleAddDevProjects}
             icon={<Database color="#FFF" size={20} />}
           />
           <Button

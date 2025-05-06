@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { YStack, XStack, Text, isWeb } from 'tamagui'; 
 import { Pressable, Platform, useColorScheme, Alert } from 'react-native'; 
 import { Ionicons } from '@expo/vector-icons';
+import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { useVault } from '@/hooks/useVault';
 import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
 import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal';
 import { useToastStore } from '@/store/ToastStore';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
-
+import { getChipStyle } from '@/utils/recChipStyles';
+import { isIpad } from '@/utils/deviceUtils';
 interface VaultListModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -20,8 +22,8 @@ interface VaultEntry {
   password: string
 }
 
-export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
-  const { data, deleteVaultEntry } = useVault()
+export function VaultListModal({ open, onOpenChange, onEditVault }: VaultListModalProps & { onEditVault: (entry: VaultEntry) => void }) {
+  const { data, deleteVaultEntry, addVaultEntry } = useVault()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark';
   const [socialMediaModalOpen, setSocialMediaModalOpen] = useState(false);
@@ -41,45 +43,6 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
     }
   };
 
-  const getChipStyle = (category: VaultRecommendationCategory) => {
-    switch (category) {
-      case 'Social Media':
-        return {
-          backgroundColor: 'rgba(59, 130, 246, 0.15)',
-          borderColor: 'rgba(59, 130, 246, 0.3)',
-          textColor: '#3b82f6',
-          fontFamily: '$body'
-        }
-      case 'Misc':
-        return {
-          backgroundColor: 'rgba(139, 92, 246, 0.15)',
-          borderColor: 'rgba(139, 92, 246, 0.3)',
-          textColor: '#8b5cf6',
-          fontFamily: '$body'
-        }
-      case 'Shopping':
-        return {
-          backgroundColor: 'rgba(16, 185, 129, 0.15)',
-          borderColor: 'rgba(16, 185, 129, 0.3)',
-          textColor: '#10b981',
-          fontFamily: '$body'
-        }
-      case 'Work':
-        return {
-          backgroundColor: 'rgba(239, 68, 68, 0.15)',
-          borderColor: 'rgba(239, 68, 68, 0.3)',
-          textColor: '#ef4444',
-          fontFamily: '$body'
-        }
-      default:
-        return {
-          backgroundColor: 'rgba(107, 114, 128, 0.15)',
-          borderColor: 'rgba(107, 114, 128, 0.3)',
-          textColor: '#6b7280',
-          fontFamily: '$body',
-        };
-    }
-  };
 
   const ModifiedChip = ({ category }: { category: VaultRecommendationCategory }) => {
     const style = getChipStyle(category);
@@ -116,34 +79,44 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
 
   const { showToast } = useToastStore();
   const handleDelete = (id: string) => {
-    if (Platform.OS === 'web') {
-      if (confirm('Are you sure you want to delete this password entry?')) {
-        deleteVaultEntry(id);
-        onOpenChange(false); 
-        setTimeout(() => {
-          showToast('Vault Entry Successfully removed', 'success');
-        }, 300);
-      }
-    } else {
-      Alert.alert(
-        'Confirm Deletion',
-        'Are you sure you want to delete this password entry?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Yes',
-            style: 'destructive',
-            onPress: () => {
-              deleteVaultEntry(id);
-              onOpenChange(false); 
-              setTimeout(() => {
-                showToast('Vault Entry Successfully removed', 'success');
-              }, 300);
+    return (onComplete: (deleted: boolean) => void) => {
+      if (Platform.OS === 'web') {
+        if (confirm('Are you sure you want to delete this password entry?')) {
+          deleteVaultEntry(id);
+          onOpenChange(false); 
+          setTimeout(() => {
+            showToast('Vault Entry Successfully removed', 'success');
+          }, 300);
+          onComplete(true);
+        } else {
+          onComplete(false);
+        }
+      } else {
+        Alert.alert(
+          'Confirm Deletion',
+          'Are you sure you want to delete this password entry?',
+          [
+            { 
+              text: 'Cancel', 
+              style: 'cancel',
+              onPress: () => onComplete(false)
             },
-          },
-        ]
-      );
-    }
+            {
+              text: 'Yes',
+              style: 'destructive',
+              onPress: () => {
+                deleteVaultEntry(id);
+                onOpenChange(false); 
+                setTimeout(() => {
+                  showToast('Vault Entry Successfully removed', 'success');
+                }, 300);
+                onComplete(true);
+              },
+            },
+          ]
+        );
+      }
+    };
   };
 
   const vaultRecommendations = (
@@ -160,7 +133,7 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         open={open}
         onOpenChange={onOpenChange} 
         title="Vault Entries"
-        snapPoints={isWeb ? [90] : [75]}
+        snapPoints={isWeb ? [90] : [85]}
         zIndex={100000}
         showCloseButton={true} 
         hideHandle={true}
@@ -169,56 +142,62 @@ export function VaultListModal({ open, onOpenChange }: VaultListModalProps) {
         <>
             {data?.items && data.items.length > 0 ? (
               <YStack gap="$1" mt="$2"> 
-                <XStack flexWrap="wrap" justifyContent="space-between" gap="$2">
+                <XStack flexWrap="wrap" justifyContent="space-between" gap={isIpad() ? "$2" : "$1"}>
                   {data.items.map((entry: VaultEntry) => (
-                    <YStack
-                      key={entry.id}
-                      width="100%"
-                      backgroundColor={isDark ? '$gray3' : '$gray3'}
-                      br={8}
-                      padding="$3"
-                      mt="$1"
-                      mb="$2"
-                    >
-                      <XStack
-                        justifyContent="space-between"
-                        alignItems="center"
-                        marginTop="$-2"
-                        paddingLeft="$2"
+                    <LongPressDelete key={entry.id} onDelete={handleDelete(entry.id)}>
+                      <YStack
                         width="100%"
+                        backgroundColor={isDark ? '$gray3' : '$gray3'}
+                        br={8}
+                        padding="$3"
+                        mt="$1"
+                        mb="$2"
                       >
+                        <XStack
+                          justifyContent="space-between"
+                          alignItems="center"
+                          marginTop="$-2"
+                          paddingLeft="$2"
+                          width="100%"
+                        >
+                          <Text
+                            fontFamily="$body"
+                            color={isDark ? '$gray12' : '$gray11'}
+                            fontSize={16}
+                            fontWeight="600"
+                          >
+                            {entry.name}
+                          </Text>
+                          <Pressable
+                            onPress={() => {
+                              onOpenChange(false);
+                              setTimeout(() => {
+                                onEditVault(entry);
+                              }, 100);
+                            }}
+                            style={({ pressed }) => ({
+                              opacity: pressed ? 0.7 : 1,
+                              padding: 6
+                            })}
+                          >
+                            <Ionicons
+                              name="pencil"
+                              size={18}
+                              color="#888"
+                              style={{ fontWeight: 200 }}
+                            />
+                          </Pressable>
+                        </XStack>
                         <Text
                           fontFamily="$body"
-                          color={isDark ? '$gray12' : '$gray11'}
-                          fontSize={16}
-                          fontWeight="600"
+                          color={isDark ? '$gray11' : '$gray10'}
+                          fontSize={13}
+                          paddingLeft="$2"
                         >
-                          {entry.name}
+                          {entry.username}
                         </Text>
-                        <Pressable
-                          onPress={() => handleDelete(entry.id)}
-                          style={({ pressed }) => ({
-                            opacity: pressed ? 0.7 : 1,
-                            padding: 6
-                          })}
-                        >
-                          <Ionicons
-                            name="close"
-                            size={18}
-                            color="#ff4444"
-                            style={{ fontWeight: 200 }}
-                          />
-                        </Pressable>
-                      </XStack>
-                      <Text
-                        fontFamily="$body"
-                        color={isDark ? '$gray11' : '$gray10'}
-                        fontSize={13}
-                        paddingLeft="$2"
-                      >
-                        {entry.username}
-                      </Text>
-                    </YStack>
+                      </YStack>
+                    </LongPressDelete>
                   ))}
                 </XStack>
               </YStack>

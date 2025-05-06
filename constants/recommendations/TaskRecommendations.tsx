@@ -14,7 +14,7 @@ export interface RecommendedTask {
   schedule: WeekDay[]
 }
 
-export type RecommendationCategory = 'Cleaning' | 'Wealth' | 'Gym' | 'Self-Care'
+export type RecommendationCategory = 'Cleaning' | 'Wealth' | 'Gym' | 'Self-Care' 
 
 export interface RecommendationChipProps {
   category: RecommendationCategory

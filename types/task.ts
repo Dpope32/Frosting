@@ -1,3 +1,5 @@
+import { Tag } from '@/types/tag'
+
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory =
   | 'work'
@@ -27,5 +29,6 @@ export interface Task {
   recurrenceDate?: string
   showInCalendar?: boolean
   dueDate?: number
+  tags?: Tag[]
   gameId?: number 
 }

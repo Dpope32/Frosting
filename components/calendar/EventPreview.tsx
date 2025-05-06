@@ -5,6 +5,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { TaskPriority } from '@/types/task'
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
 import { useUserStore } from '@/store/UserStore'
+import { getCategoryColor, getPriorityColor } from '@/utils/styleUtils'
+import { formatNBATitle, isNBATask } from './utils'
+import { LongPressDelete } from '../common/LongPressDelete'
+import { isIpad } from '@/utils/deviceUtils'
 
 export const EventPreview: React.FC<{
   event: CalendarEvent
@@ -15,37 +19,10 @@ export const EventPreview: React.FC<{
   isDeviceEvent?: boolean
 }> = ({ event, onEdit, onDelete, isDark, primaryColor, isDeviceEvent = false }) => {
   const isBirthday = event.type === 'birthday'
-  const isNBAEvent = event.type === 'nba'
-  
-  // Get category color based on type
   const customCategories = useCustomCategoryStore((s) => s.categories)
   const userColor = useUserStore(s => s.preferences.primaryColor)
   const isCustom = event.type && customCategories.some(catObj => catObj.name === event.type)
-  const getCategoryColor = (type: string): string => {
-    if (isCustom) return userColor
-    const colors: Record<string, string> = {
-      personal: '#9C27B0', // Purple
-      work: '#2196F3',     // Blue
-      family: '#FF9800',   // Orange
-      task: '#4CAF50',     // Green
-      health: '#f1c40f',   // Yellow
-      wealth: '#607D8B',   // Blue Gray
-      bill: '#795548',     // Brown
-      nba: '#FF6B00'       // NBA Orange
-    }
-    return colors[type] || primaryColor
-  }
-  
-  // Get priority color function
-  const getPriorityColor = (priority?: TaskPriority): string => {
-    if (!priority) return '#607d8b';
-    const colors: Record<TaskPriority, string> = {
-      high: '#F44336', // Red
-      medium: '#FF9800', // Orange
-      low: '#4CAF50', // Green
-    };
-    return colors[priority];
-  };
+
 
   // Get priority icon function
   const getPriorityIcon = (priority?: TaskPriority) => {
@@ -71,51 +48,6 @@ export const EventPreview: React.FC<{
     }
   }
 
-  // Format NBA team names to be shorter
-  const formatNBATitle = (title: string): string => {
-    if (!isNBAEvent) return title;
-    
-    // Replace full team names with shorter versions
-    const replacements: Record<string, string> = {
-      'Oklahoma City Thunder': 'Thunder',
-      'Los Angeles Lakers': 'Lakers',
-      'Los Angeles Clippers': 'Clippers',
-      'Golden State Warriors': 'Warriors',
-      'Phoenix Suns': 'Suns',
-      'Sacramento Kings': 'Kings',
-      'Portland Trail Blazers': 'Blazers',
-      'Denver Nuggets': 'Nuggets',
-      'Minnesota Timberwolves': 'Timberwolves',
-      'Utah Jazz': 'Jazz',
-      'San Antonio Spurs': 'Spurs',
-      'Houston Rockets': 'Rockets',
-      'Dallas Mavericks': 'Mavericks',
-      'Memphis Grizzlies': 'Grizzlies',
-      'New Orleans Pelicans': 'Pelicans',
-      'Miami Heat': 'Heat',
-      'Orlando Magic': 'Magic',
-      'Atlanta Hawks': 'Hawks',
-      'Washington Wizards': 'Wizards',
-      'Charlotte Hornets': 'Hornets',
-      'Detroit Pistons': 'Pistons',
-      'Indiana Pacers': 'Pacers',
-      'Cleveland Cavaliers': 'Cavaliers',
-      'Chicago Bulls': 'Bulls',
-      'Milwaukee Bucks': 'Bucks',
-      'Toronto Raptors': 'Raptors',
-      'Boston Celtics': 'Celtics',
-      'New York Knicks': 'Knicks',
-      'Philadelphia 76ers': '76ers',
-      'Brooklyn Nets': 'Nets'
-    };
-    
-    let formattedTitle = title;
-    Object.entries(replacements).forEach(([fullName, shortName]) => {
-      formattedTitle = formattedTitle.replace(fullName, shortName);
-    });
-    
-    return formattedTitle;
-  };
 
   const dynamicStyles = StyleSheet.create({
     container: {
@@ -126,7 +58,9 @@ export const EventPreview: React.FC<{
       marginRight: 8,
       marginLeft: 6,
       position: 'relative',
-      padding: 12,
+      paddingHorizontal: isIpad() ? 12 : 12,
+      paddingVertical: isIpad() ? 12 : 4,
+      paddingTop: isIpad() ? 12 : 12,
       ...(isBirthday && { borderColor: primaryColor })
     },
     title: {
@@ -189,10 +123,10 @@ export const EventPreview: React.FC<{
     },
     description: {
       color: isDark ? '#cccccc' : '#555555',
-      fontSize: 15,
-      lineHeight: 20,
+      fontSize: isIpad() ? 15 : 13,
+      lineHeight: isIpad() ? 20 : 18,
       marginLeft: 4,
-      marginTop: 8,
+      marginTop: isIpad() ? 8 : 4,
     },
     notificationIcon: {
       marginRight: 6,
@@ -218,16 +152,30 @@ export const EventPreview: React.FC<{
   })
 
   return (
-    <View style={dynamicStyles.container}>
-      <Text style={dynamicStyles.title}>{formatNBATitle(event.title)}</Text>
-      {!isBirthday && (
-        <TouchableOpacity onPress={onDelete} style={styles.deleteIconButton}>
-          <Ionicons name="close" size={20} style={dynamicStyles.closeIcon} />
-        </TouchableOpacity>
-      )}
+    <LongPressDelete 
+      onDelete={onDelete}
+    >
+      <View style={dynamicStyles.container}>
+        <Text style={dynamicStyles.title}>{(event.title)}</Text>
+       {!isBirthday && !isDeviceEvent && event.type !== 'bill' && (
+          <TouchableOpacity 
+            onPress={() => {
+              console.log('Edit icon clicked for event:', {
+                id: event.id,
+                title: event.title,
+                type: event.type,
+                isDeviceEvent,
+              });
+              onEdit();
+            }} 
+            style={styles.editIconButton}
+          >
+            <Ionicons name="pencil" size={17} color={isDark ? '#f9f9f9' : '#010101'} style={dynamicStyles.icon} />
+          </TouchableOpacity>
+        )}
        {event.description && (
           <Text numberOfLines={2} style={dynamicStyles.description}>
-            {formatNBATitle(event.description)}
+            {(event.description)}
           </Text>
         )}
       <View style={styles.detailsRow}>
@@ -298,40 +246,18 @@ export const EventPreview: React.FC<{
           )}
         </View>
       </View>
-      
-      {!isBirthday && !isDeviceEvent && !isNBAEvent && event.type !== 'bill' && (
-        <TouchableOpacity 
-          onPress={() => {
-            console.log('Edit icon clicked for event:', {
-              id: event.id,
-              title: event.title,
-              type: event.type,
-              isDeviceEvent,
-              isNBAEvent
-            });
-            onEdit();
-          }} 
-          style={styles.editIconButton}
-        >
-          <Ionicons name="pencil" size={17} style={dynamicStyles.icon} />
-        </TouchableOpacity>
-      )}
     </View>
+    </LongPressDelete>
   )
 }
 
 const styles = StyleSheet.create({
-  deleteIconButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    padding: 6
-  },
   editIconButton: {
     position: 'absolute',
-    bottom: 8,
-    right: 8,
-    padding: 6
+    top: 8,
+    right: isIpad() ? 16 : 12,
+    padding: 6,
+    color: '#333333'
   },
   detailsRow: {
     marginTop: 8

@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useToastStore } from '@/store/ToastStore';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
+import { Tag } from '@/types/tag';
 import { isWeb } from 'tamagui';
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -24,6 +25,7 @@ interface TaskCardProps {
   priority?: TaskPriority;
   checked?: boolean;
   oneTime?: boolean;
+  tags?: Tag[];
   onCheck?: (checked: boolean) => void;
   onDelete?: () => void;
 }
@@ -35,6 +37,7 @@ export function TaskCard({
   status,
   priority,
   checked = false,
+  tags = [],
   onCheck,
   onDelete
 }: TaskCardProps) {
@@ -262,13 +265,15 @@ export function TaskCard({
                 </View>
               </Pressable>
             </View>
-            <TaskChips
-              category={category}
-              priority={priority}
-              status={status}
-              time={time}
-              checked={checked}
-            />
+          <TaskChips
+            category={category}
+            priority={priority}
+            recurrencePattern={recurrencePattern}
+            status={status}
+            time={time}
+            checked={checked}
+            tags={tags}
+          />
           </View>
         </View>
       </Stack>

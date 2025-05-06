@@ -305,19 +305,9 @@ export const getGreeting = (username: string, temp?: number): string => {
             selectedGreeting = selectedGreeting.slice(0, insertPos) + ',' + selectedGreeting.slice(insertPos);
          }
     }
-    // Ensure the final regular greeting ends with some punctuation if username is present
-    else if (selectedGreeting.includes(username) && !/[.,!?]$/.test(selectedGreeting)) {
-        selectedGreeting += '.';
-    }
     // --- End Post-processing ---
 
       finalGreeting = selectedGreeting;
-  }
-
-  // Ensure greeting fits UI constraints (max 48 chars)
-  const MAX_GREETING_LENGTH = 48;
-  if (finalGreeting.length > MAX_GREETING_LENGTH) {
-    finalGreeting = finalGreeting.slice(0, MAX_GREETING_LENGTH - 1) + "…";
   }
 
   // --- Update Cache ---

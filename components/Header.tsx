@@ -18,6 +18,8 @@ import { NBATeamModal } from './sports/NBATeamModal';
 import { BillsListModal } from './listModals/BillsListModal';
 import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
+import { EditBillModal } from './cardModals/EditBillModal';
+import { EditVaultModal } from './cardModals/EditVaultModal';
 import { useCalendarViewStore } from '@/store/CalendarViewStore';
 import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
@@ -43,6 +45,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const [showBillsListModal, setShowBillsListModal] = useState(false);
   const [showVaultListModal, setShowVaultListModal] = useState(false);
   const [showPeopleListModal, setShowPeopleListModal] = useState(false);
+  const [selectedBill, setSelectedBill] = useState(null);
+  const [editBillModalOpen, setEditBillModalOpen] = useState(false);
+  const [selectedVaultEntry, setSelectedVaultEntry] = useState(null);
+  const [editVaultModalOpen, setEditVaultModalOpen] = useState(false);
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
   const username = useUserStore(s => s.preferences.username);
 
@@ -125,8 +131,12 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const handleIconPress = () => {
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
     if (isSportsScreen) setShowNBATeamModal(true);
-    else if (isBillsScreen) setShowBillsListModal(true);
-    else if (isVaultScreen) setShowVaultListModal(true);
+    else if (isBillsScreen) {
+      setShowBillsListModal(true);
+    }
+    else if (isVaultScreen) {
+      setShowVaultListModal(true);
+    }
     else if (isCrmScreen) setShowPeopleListModal(true);
     else setShowSettings(true);
   };
@@ -233,8 +243,54 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       </YStack>
       <SettingsModal open={showSettings} onOpenChange={setShowSettings} />
       {isSportsScreen && <NBATeamModal open={showNBATeamModal} onOpenChange={setShowNBATeamModal} />}
-      {isBillsScreen && <BillsListModal open={showBillsListModal} onOpenChange={setShowBillsListModal} />}
-      {isVaultScreen && <VaultListModal open={showVaultListModal} onOpenChange={setShowVaultListModal} />}
+      {isBillsScreen && (
+        <>
+          <BillsListModal
+            open={showBillsListModal}
+            onOpenChange={setShowBillsListModal}
+            onEditBill={(bill) => {
+              setSelectedBill(bill);
+              setEditBillModalOpen(true);
+            }}
+          />
+          <EditBillModal
+            isVisible={editBillModalOpen}
+            onClose={() => {
+              setEditBillModalOpen(false);
+              setSelectedBill(null);
+            }}
+            bill={selectedBill}
+            onSubmit={() => {
+              setEditBillModalOpen(false);
+              setSelectedBill(null);
+            }}
+          />
+        </>
+      )}
+      {isVaultScreen && (
+        <>
+          <VaultListModal
+            open={showVaultListModal}
+            onOpenChange={setShowVaultListModal}
+            onEditVault={(entry) => {
+              setSelectedVaultEntry(entry);
+              setEditVaultModalOpen(true);
+            }}
+          />
+          <EditVaultModal
+            isVisible={editVaultModalOpen}
+            onClose={() => {
+              setEditVaultModalOpen(false);
+              setSelectedVaultEntry(null);
+            }}
+            vaultEntry={selectedVaultEntry}
+            onSubmit={() => {
+              setEditVaultModalOpen(false);
+              setSelectedVaultEntry(null);
+            }}
+          />
+        </>
+      )}
       {isCrmScreen && <PeopleListModal open={showPeopleListModal} onOpenChange={setShowPeopleListModal} />}
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />

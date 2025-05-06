@@ -1,29 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Platform, Keyboard, KeyboardEvent, Pressable, View } from 'react-native'
-import { Form, ScrollView, XStack, Text, isWeb, Button, YStack } from 'tamagui'
+import { Form, ScrollView, XStack   } from 'tamagui'
+import { format } from 'date-fns'
+import * as Haptics from 'expo-haptics'
+
+import { TagSelector } from '@/components/notes/TagSelector'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
+import { Tag } from '@/types/tag'
 import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
-import * as Haptics from 'expo-haptics'
-import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
 import { Base } from './Base'
 import { getDefaultTask, WEEKDAYS } from '@/services/taskService'
-import { Ionicons } from '@expo/vector-icons'
-import { Pencil } from '@tamagui/lucide-icons'
-
 import { TaskNameInput } from './TaskNameInput'
-import { CalendarSettings } from './CalendarSettings'
 import { RecurrenceSelector } from './RecurrenceSelector'
 import { DaySelector } from './DaySelector'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { CategorySelector } from './CategorySelector'
 import { PrioritySelector } from './PrioritySelector'
 import { TimePicker } from '@/components/shared/TimePicker'
 import { SubmitButton } from './SubmitButton'
 import { isIpad } from '@/utils/deviceUtils'
 import { DateSelector } from './DateSelector'
+import { ShowInCalendar } from './showInCalendar'
 
 interface NewTaskModalProps {
   open: boolean
@@ -35,7 +34,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   if (!open) {
     return null
   }
-
+ 
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
@@ -47,14 +46,12 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
 
   useEffect(() => {
     if (open) {
-      // Reset state when modal opens for a new task
       setShowTimePicker(false);
       setNewTask(getDefaultTask());
       setIsSubmitting(false);
       setKeyboardOffset(0);
-      setSelectedDate(new Date()); // Reset selected date for time picker
+      setSelectedDate(new Date()); 
     } else {
-      // Optional: Add a slight delay for closing animation
       setTimeout(() => {
         setShowTimePicker(false);
         setNewTask(getDefaultTask());
@@ -99,7 +96,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }))
   }, [])
 
-  const handleTimeChange = useCallback((event: any, pickedDate?: Date) => {
+  const handleTimeChange = useCallback((pickedDate?: Date) => {
     if (pickedDate) {
       setSelectedDate(pickedDate)
       const timeString = format(pickedDate, 'h:mm a')
@@ -112,7 +109,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     setNewTask(prev => ({ ...prev, time: timeString }))
     setSelectedDate(date)
   }, [])
-
 
   const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern, e?: any) => {
     if (e) {
@@ -143,6 +139,10 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }
     
     setNewTask(prev => ({ ...prev, category: value }))
+  }, [])
+
+  const handleShowInCalendarChange = useCallback((showInCalendar: boolean) => {
+    setNewTask(prev => ({ ...prev, showInCalendar }))
   }, [])
 
   const handleAddTask = useCallback(async () => {
@@ -192,6 +192,10 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }
   }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
 
+  const handleTagChange = useCallback((tags: Tag[]) => {
+    setNewTask(prev => ({ ...prev, tags }))
+  }, [])
+
   return (
     <Base
       onClose={() => {
@@ -206,61 +210,12 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$3"} px={isIpad() ? 6 : 4} py={isIpad() ? 4 : 2} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4}pb={12}>
           <TaskNameInput
             value={newTask.name}
             onChange={handleTextChange}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
-          <XStack alignItems="center" justifyContent="space-between" px="$3" gap="$3">
-            <XStack alignItems="center" gap="$2">
-              <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'}fontSize={isIpad() ? 17 : 15} flexWrap= "nowrap">
-                Show in Calendar
-              </Text>
-              <Pressable
-                onPress={() => setNewTask(prev => ({ ...prev, showInCalendar: !prev.showInCalendar }))}
-                style={{ 
-                  paddingHorizontal: 2, 
-                  paddingVertical: 2, 
-                  marginLeft: 2,
-                  backgroundColor: newTask.showInCalendar ? (isDark ? '#1a1a1a' : '#f0f0f0') : 'transparent',
-                  borderRadius: 8,
-                }}
-              >
-                <View style={{
-                  width: 22,
-                  height: 22,
-                  borderWidth: 1.5,
-                  borderRadius: 6,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderColor: newTask.showInCalendar ? '#00C851' : '#bbb',
-                  backgroundColor: newTask.showInCalendar 
-                    ? (isDark ? '#181f1b' : '#b6f2d3') 
-                    : (isDark ? '#232323' : '#f7f7f7'),
-                  shadowColor: '#000',
-                  shadowOpacity: 0.08,
-                  shadowRadius: 2,
-                  shadowOffset: { width: 0, height: 1 },
-                }}>
-                  {newTask.showInCalendar && (
-                    <Ionicons name="checkmark-sharp" size={15} color="#00C851" />
-                  )}
-                </View>
-              </Pressable>
-            </XStack>
-            <TimePicker
-              showTimePicker={showTimePicker}
-              setShowTimePicker={setShowTimePicker}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              onTimeChange={handleTimeChange}
-              onWebTimeChange={handleWebTimeChange}
-              time={newTask.time}
-              isDark={isDark}
-              primaryColor={preferences.primaryColor}
-            />
-          </XStack>
 
           <RecurrenceSelector
             selectedPattern={newTask.recurrencePattern} 
@@ -281,10 +236,27 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               preferences={preferences}
             />
           )}
+         <ShowInCalendar
+            showInCalendar={newTask.showInCalendar ?? false}
+            onShowInCalendarChange={handleShowInCalendarChange}
+            isDark={isDark}
+           />
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
-          <Form.Trigger asChild>
-            <SubmitButton 
-              isSubmitting={isSubmitting} 
+          <TimePicker
+              showTimePicker={showTimePicker}
+              setShowTimePicker={setShowTimePicker}
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              onTimeChange={handleTimeChange}
+              onWebTimeChange={handleWebTimeChange}
+              time={newTask.time}
+              isDark={isDark}
+              primaryColor={preferences.primaryColor}
+            />
+            <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
+              <Form.Trigger asChild>
+                <SubmitButton 
+                  isSubmitting={isSubmitting} 
               preferences={preferences}
               onPress={handleAddTask}
             />

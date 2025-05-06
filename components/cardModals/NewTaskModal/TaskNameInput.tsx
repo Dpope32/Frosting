@@ -62,7 +62,12 @@ export function TaskNameInput({ value, onChange }: TaskNameInputProps) {
       fontWeight="500"
       borderColor={isDark ? "#090909" : "rgba(240, 240, 240, 0.9)"}
       borderRadius={12}
-      backgroundColor={isDark ? "#090909" : "rgba(240, 240, 240, 0.9)"}
+      shadowColor={isDark ? "#090909" : "rgba(240, 240, 240, 0.9)"}
+      shadowOffset={{ width: 0, height: 1 }}
+      shadowOpacity={0.1}
+      shadowRadius={2}
+      elevation={2}
+      backgroundColor={isDark ? "#121212" : "rgba(240, 240, 240, 0.9)"}
     />
   )
 } 

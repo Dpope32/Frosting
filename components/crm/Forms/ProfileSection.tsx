@@ -62,7 +62,7 @@ export function ProfileSection({
         </XStack>
         
         <XStack alignItems="center" gap="$2" justifyContent="space-between" width="100%">
-          <Text color={isDark ? "#888888" : "#666666"} fontSize={13} fontFamily="$body">Priority?</Text>
+          <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={13} fontFamily="$body">Priority?</Text>
           <Switch
             value={priority}
             onValueChange={onTogglePriority}

@@ -1,5 +1,17 @@
 export const CHANGELOG = [
   {
+    version: '1.1.139',
+    date: '2025-05-06',
+    notes: 'Edit Bills & Passwords, Delete Bills & Passwords',
+    bullets: [
+      'Enabled EditBillModal in BillsScreen and EditVaultModal in VaultScreen for seamless editing',
+      'Added longpressdelete to Bills and Vault List Modals',
+      'Added custom tag colors for personalized organization',
+      'Patched bug causing oversized event modal when too many events were displayed',
+      'Improved weather screen appearance in dark mode for clearer visuals',
+    ],
+  },
+  {
     version: '1.1.130',
     date: '2025-05-04',
     notes: 'The last piece of Exodia, Projects!',

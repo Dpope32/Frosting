@@ -230,6 +230,7 @@ export const TaskSection = ({
                       priority={task.priority}
                       status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                       checked={isCompleted}
+                      tags={task.tags}
                       onCheck={() => handleToggleTask(task.id)}
                       onDelete={() => deleteTask(task.id)}
                     />
@@ -289,6 +290,7 @@ export const TaskSection = ({
                         priority={task.priority}
                         status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
                         checked={isCompleted}
+                        tags={task.tags}
                         onCheck={() => handleToggleTask(task.id)}
                         onDelete={() => deleteTask(task.id)}
                       />

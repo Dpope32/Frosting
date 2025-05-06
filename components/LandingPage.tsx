@@ -263,7 +263,7 @@ export function LandingPage() {
           <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
           {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} isDark={isDark} />}
           {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
-          {isEditModalOpen && <EditTaskModal open={isEditModalOpen} onOpenChange={closeEditModal} />}
+          {isEditModalOpen && <EditTaskModal open={isEditModalOpen} isDark={isDark} onOpenChange={closeEditModal} />}
           {isStockModalOpen && <EditStockModal />}
           <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
           <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={addHabit}/>

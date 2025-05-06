@@ -4,9 +4,11 @@ import { XStack, YStack, Text, Button, Input } from 'tamagui';
 import { Plus, X, Check } from '@tamagui/lucide-icons';
 import type { Tag } from '@/types/tag';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { DebouncedInput } from '../shared/debouncedInput';
+import { DebouncedTagInput } from '../shared/debouncedTagInput';
 import { useTagStore } from '@/store/TagStore';
 import { isIpad } from '@/utils/deviceUtils';
+import { withOpacity, getDarkerColor } from '@/utils/styleUtils';
+
 interface TagSelectorProps {
   tags: Tag[];
   onTagsChange: (tags: Tag[]) => void;
@@ -18,7 +20,6 @@ interface TagSelectorProps {
   onAttachImage?: () => void;
 }
 
-// Predefined tag colors
 const TAG_COLORS = [
   '#3B82F6', // Blue
   '#22C55E', // Green
@@ -26,17 +27,9 @@ const TAG_COLORS = [
   '#EF4444', // Red
 ];
 
-const darkenColor = (color: string | undefined) => {
-  if (!color) return '#000000';
-  const r = parseInt(color.slice(1, 3), 16);
-  const g = parseInt(color.slice(3, 5), 16);
-  const b = parseInt(color.slice(5, 7), 16);
-  
-  return `rgb(${Math.floor(r * 0.7)}, ${Math.floor(g * 0.7)}, ${Math.floor(b * 0.7)})`;
-};
 
-export function TagSelector({ 
-  tags, 
+export function TagSelector({
+  tags,
   onTagsChange,
 }: TagSelectorProps) {
   const [isAdding, setIsAdding] = useState(false);
@@ -50,18 +43,13 @@ export function TagSelector({
   const tagStoreTags = useTagStore((state) => state.tags);
   const addTagToStore = useTagStore((state) => state.addTag);
 
-  const NEUTRAL_BORDER = isDark ? '#555555' : '#ccc';
-  const NEUTRAL_TEXT = isDark ? '#e0e0e0' : '#333';
-
-  // Suggested tags are those in the store but not already on this note
-  const suggestedTags = tagStoreTags.filter(
-    (storeTag) => !tags.some((t) => t.name === storeTag.name)
-  );
+  const NEUTRAL_BORDER = isDark ? '$gray7' : '$gray4'; // Use Tamagui tokens for consistency
+  const NEUTRAL_TEXT = isDark ? '$gray11' : '$gray11'; // Use Tamagui tokens for consistency
 
   // Handle keyboard visibility
   useEffect(() => {
     if (Platform.OS === 'web') return;
-    
+
     const keyboardWillShowListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (event: KeyboardEvent) => {
@@ -69,7 +57,7 @@ export function TagSelector({
         setKeyboardHeight(event.endCoordinates.height);
       }
     );
-    
+
     const keyboardWillHideListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
@@ -101,100 +89,95 @@ export function TagSelector({
   };
 
   return (
-    <YStack 
-      gap="$1" 
+    <YStack
+      gap="$1"
       backgroundColor="transparent"
-      borderRadius={8} 
+      borderRadius={8}
       padding={0}
       marginVertical={0}
-      paddingHorizontal={8}
+      paddingHorizontal={isIpad() ? 8 : 10}
+      mt={isWeb ? 4 : -8} 
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
+        {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2}fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
-          {tags.map(tag => (
-            <XStack
-              key={tag.id}
-              backgroundColor={isDark ? '#222' : '#f5f5f5'}
-              borderRadius={16}
-              paddingVertical={4}
-              paddingHorizontal={2}
-              paddingLeft={10}
-              alignItems="center"
-              gap="$1"
-              borderWidth={1}
-              borderColor={tag.color || NEUTRAL_BORDER}
-            >
-              <Text 
-                fontSize="$3" 
-                color={tag.color || NEUTRAL_TEXT}
-                fontWeight="700"
-                fontFamily="$body"
-              >
-                {tag.name}
-              </Text>
+          {tagStoreTags.map(tag => {
+            const tagColor = tag.color || NEUTRAL_BORDER;
+            const isSelected = tags.some(t => t.id === tag.id);
+
+            return (
               <Button
-                size="$1"
-                circular
-                icon={<X size={12} color={tag.color || NEUTRAL_BORDER} />}
-                onPress={() => handleRemoveTag(tag.id)}
-                backgroundColor="transparent"
-                padding="$0"
-              />
-            </XStack>
-          ))}
-          {!isAdding && suggestedTags.map(tag => (
-            <Button
-              key={tag.id}
-              size="$2"
-              backgroundColor={isDark ? '#222' : '#f5f5f5'}
-              borderColor={NEUTRAL_BORDER}
-              borderWidth={1}
-              borderRadius={16}
-              marginLeft={4}
-              onPress={() => onTagsChange([...tags, tag])}
-              pressStyle={{ opacity: 0.7 }}
-              paddingHorizontal={10}
-              paddingVertical={2}
-            >
-              <Text color={NEUTRAL_TEXT} fontWeight="700" fontSize="$3">{tag.name}</Text>
-            </Button>
-          ))}
+                key={tag.id}
+                backgroundColor={
+                  isSelected
+                    ? withOpacity(tagColor, 0.15)
+                    : isDark ? "$gray2" : "white"
+                }
+                pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                br={20}
+                px={isIpad() ? 12 : 8}
+                py={isIpad() ? 12 : 8}
+                borderWidth={1}
+                borderColor={
+                  isSelected
+                    ? 'transparent'
+                    : NEUTRAL_BORDER
+                }
+                onPress={() => {
+                  if (isSelected) {
+                    handleRemoveTag(tag.id);
+                  } else {
+                    onTagsChange([...tags, tag]);
+                  }
+                }}
+              >
+                <Text
+                  fontSize={14}
+                  fontWeight="600"
+                  fontFamily="$body"
+                  color={
+                    isSelected
+                      ? getDarkerColor(tagColor, 0.5)
+                      : NEUTRAL_TEXT
+                  }
+                >
+                  {tag.name}
+                </Text>
+              </Button>
+            )
+          })}
           {!isAdding && (
             keyboardVisible ? (
               <Button
                 key="confirm-new-tag"
                 size="$2"
                 circular
-                icon={<Check size={isWeb ? 16 : 14} color={isDark ? "#e0e0e0" : "#333333"} />}
+                icon={<Check size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 onPress={handleAddTag}
                 backgroundColor="transparent"
                 hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
                 pressStyle={{ opacity: 0.7 }}
-                marginLeft={tags.length ? 4 : 0}
+                marginLeft={tagStoreTags.length ? 4 : 0}
               />
             ) : (
               <Button
                 key="start-add-tag"
                 size="$2"
                 circular
-                icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "#e0e0e0" : "#333333"} />}
+                icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 onPress={() => setIsAdding(true)}
                 backgroundColor="transparent"
                 hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
                 pressStyle={{ opacity: 0.7 }}
-                marginLeft={tags.length ? 4 : 0}
+                marginLeft={tagStoreTags.length ? 4 : 0}
               />
             )
           )}
         </XStack>
-      </XStack>
-
-      {isAdding && (
-        <YStack gap={isWeb ? "$4" : "$3"}>
-          <XStack alignItems="center" gap={isWeb ? "$3" : "$2"}>
-            <XStack position="relative" width={125}>
-              <DebouncedInput
+          {isAdding && (
+            <YStack gap={isWeb ? "$3" : "$1"} marginLeft={8} width="100%">
+            <XStack position="relative" width="100%" maxWidth={isIpad() ? 200 : 170}>
+              <DebouncedTagInput
                 width="100%"
                 placeholder="Tag Name"
                 value={newTagName}
@@ -216,16 +199,16 @@ export function TagSelector({
               <Button
                 size="$2"
                 circular
-                icon={<X size={isWeb ? 14 : 16} />}
-                onPress={() => setIsAdding(false)}
+                icon={<Check size={isWeb ? 14 : 16} color={selectedColor} />}
+                onPress={handleAddTag}
                 backgroundColor="transparent"
-                color={isDark ? "white" : "black"}
                 position="absolute"
                 right="$2"
                 top={isWeb ? 0 : 6}
               />
             </XStack>
-            <XStack flexWrap="wrap" gap={isWeb ? "$3" : "$2"} alignItems="center">
+            
+            <XStack gap={isWeb ? "$3" : "$2"} alignItems="center" mt="$2" ml={16}>
               {TAG_COLORS.map(color => (
                 <Button
                   key={color}
@@ -237,18 +220,20 @@ export function TagSelector({
                   borderColor={selectedColor === color ? 'white' : 'transparent'}
                 />
               ))}
+              
+              <Button
+                size="$2"
+                circular
+                icon={<Check size={isWeb ? 24 : 18} />}
+                onPress={handleAddTag}
+                backgroundColor="transparent"
+                color="#1E40AF"
+                ml="auto"
+              />
             </XStack>
-            <Button
-              size="$2"
-              circular
-              icon={<Check size={isWeb ? 24 : 18} />}
-              onPress={handleAddTag}
-              backgroundColor="transparent"
-              color="#1E40AF"
-            />
-          </XStack>
-        </YStack>
-      )}
+          </YStack>
+        )}
+      </XStack>
     </YStack>
   );
 }

@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, TextInput } from 'react-native';
 import { YStack, Text, Button } from 'tamagui';
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated';
 import {  scheduleDailyHabitNotification } from '@/services/notificationServices';
-import { CategorySelector } from '@/components/shared/debouncedInput';
+import { CategorySelector } from '../cardModals/NewTaskModal/CategorySelector';
 import { TaskCategory } from '@/types/task';
 import { useColorScheme } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';
@@ -87,13 +87,12 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
             value={name}
             onDebouncedChange={(value) => setName(value)}
           />
-
+          <YStack py={8} width="100%" >
           <CategorySelector 
-            value={category} 
-            onChange={(cat) => setCategory(cat as TaskCategory)}
-            categories={['health', 'personal', 'work', 'wealth', 'family']}
+            selectedCategory={category} 
+            onCategorySelect={(cat) => setCategory(cat as TaskCategory)}
           />
-
+        </YStack>
           <YStack mb={12} width="100%" >
             <TextInput
               style={[

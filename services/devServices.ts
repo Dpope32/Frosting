@@ -1,6 +1,9 @@
-import { useProjectStore } from '@/store/ToDo';
+import { useProjectStore } from '@/store/ProjectStore'
 import { getRecommendedTasks, RecommendationCategory, RecommendedTask } from '@/constants/recommendations/TaskRecommendations';
 import { Task } from '@/types/task'; 
+import { Project } from '@/types/project';
+
+const addProject = useProjectStore((state) => state.addProject)
 
 export const addDevTasks = () => {
   const categories: RecommendationCategory[] = ['Cleaning', 'Wealth', 'Gym', 'Self-Care'];
@@ -32,6 +35,68 @@ export const addDevTasks = () => {
     tasksToAdd[i].schedule = []; 
   }
 
-  useProjectStore.getState().addTasks(tasksToAdd);
+  useProjectStore.getState().addProject(tasksToAdd as any);
   console.log(`Added ${tasksToAdd.length} dev tasks.`);
 };
+
+export const addDevProjects = () => {
+
+  const sampleProjects: Project[] = [
+    ({
+      id: typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 9),
+      name: 'Sample Project 1',
+      description: 'This is a sample project',
+      createdAt: new Date(),
+      deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      tags: [
+        {
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
+          name: 'Feature',
+          color: 'blue',
+        },
+        {
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
+          name: 'Urgent',
+          color: 'red',
+        },
+      ],
+      status: 'pending',
+      priority: 'medium',
+      isArchived: false,
+      isDeleted: false,
+      tasks: [],
+      people: [],
+      notes: [],
+      attachments: [],
+    } as Project),
+    ({
+      id: typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 9),
+      name: 'Sample Project 2',
+      description: 'Another sample project',
+      createdAt: new Date(),
+      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      tags: [
+        {
+          id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
+          name: 'Backend',
+          color: 'green',
+        },
+      ],
+      status: 'in_progress',
+      priority: 'high',
+      isArchived: false,
+      isDeleted: false,
+      tasks: [],
+      people: [],
+      notes: [],
+      attachments: [],
+    } as Project),
+  ]
+  sampleProjects.forEach((project, index) => {
+    setTimeout(() => addProject(project), index * 300)
+  })
+}
