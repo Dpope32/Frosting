@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Platform, Keyboard, KeyboardEvent, Pressable, View } from 'react-native'
 import { Form, ScrollView, XStack   } from 'tamagui'
 import { format } from 'date-fns'
@@ -13,9 +13,9 @@ import { useToastStore } from '@/store/ToastStore'
 import { syncTasksToCalendar } from '@/services'
 import { Base } from './Base'
 import { getDefaultTask, WEEKDAYS } from '@/services/taskService'
-import { TaskNameInput } from './TaskNameInput'
 import { RecurrenceSelector } from './RecurrenceSelector'
 import { DaySelector } from './DaySelector'
+import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { CategorySelector } from './CategorySelector'
 import { PrioritySelector } from './PrioritySelector'
 import { TimePicker } from '@/components/shared/TimePicker'
@@ -23,6 +23,8 @@ import { SubmitButton } from './SubmitButton'
 import { isIpad } from '@/utils/deviceUtils'
 import { DateSelector } from './DateSelector'
 import { ShowInCalendar } from './showInCalendar'
+import { DebouncedInput } from '@/components/shared/debouncedInput'
+import { styles } from '@/components/styles'
 
 interface NewTaskModalProps {
   open: boolean
@@ -43,6 +45,10 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [keyboardOffset, setKeyboardOffset] = useState(0)
+  const nameInputRef =  React.useRef<any>(null);
+  const username = useUserStore((state) => state.preferences.username)
+
+  useAutoFocus(nameInputRef, 750, open);
 
   useEffect(() => {
     if (open) {
@@ -80,7 +86,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }
   }, [])
 
-  const handleTextChange = useCallback((text: string) => {setNewTask(prev => ({ ...prev, name: text }))}, [])
 
   const toggleDay = useCallback((day: keyof typeof WEEKDAYS, e?: any) => {
     if (e) {
@@ -211,9 +216,14 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
         <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4}pb={12}>
-          <TaskNameInput
+        <DebouncedInput
+            ref={nameInputRef}
+            style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
+            placeholder={`What do you need to do ${username}?`} 
+            placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
             value={newTask.name}
-            onChange={handleTextChange}
+            fontSize={isIpad() ? 17 : 15}
+            onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
 
@@ -236,13 +246,19 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               preferences={preferences}
             />
           )}
+          {!showTimePicker && (
          <ShowInCalendar
             showInCalendar={newTask.showInCalendar ?? false}
             onShowInCalendarChange={handleShowInCalendarChange}
             isDark={isDark}
            />
+          )}
+          {!showTimePicker && (
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
+          )}
+          {!showTimePicker && (
           <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
+          )}
           <TimePicker
               showTimePicker={showTimePicker}
               setShowTimePicker={setShowTimePicker}
@@ -254,9 +270,10 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               isDark={isDark}
               primaryColor={preferences.primaryColor}
             />
-              <Form.Trigger asChild>
-                <SubmitButton 
-                  isSubmitting={isSubmitting} 
+
+          <Form.Trigger asChild>
+            <SubmitButton 
+              isSubmitting={isSubmitting} 
               preferences={preferences}
               onPress={handleAddTask}
             />

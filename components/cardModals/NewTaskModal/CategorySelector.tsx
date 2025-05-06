@@ -84,8 +84,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   }
 
   return (
-    <YStack px="$1.5" gap="$1" pb="$2">
-      {isWeb && isIpad() && <Text color={isDark ? "$gray8" : "$gray9"} fontFamily="$body" fontWeight="500">Category</Text>}
+    <XStack px="$2.5" gap="$2" alignItems="center">
+      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'}fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Category: </Text>
       
       {isAddingCategory ? (
         <XStack gap="$2" alignItems="center" py="$1">
@@ -209,6 +209,6 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
           </XStack>
         </ScrollView>
       )}
-    </YStack>
+    </XStack>
   )
 }

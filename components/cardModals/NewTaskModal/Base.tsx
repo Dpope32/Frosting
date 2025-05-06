@@ -43,7 +43,7 @@ export function Base({
   const styles = StyleSheet.create({
     overlay: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: isDark ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+      backgroundColor: isDark ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.85)',
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 1000, 
@@ -51,7 +51,7 @@ export function Base({
     modalContainer: {
       alignSelf: 'center',
       justifyContent: 'flex-start',
-      backgroundColor: isDark ? '#11818' : '#fff',
+      backgroundColor: isDark ? '#000000' : '#fff',
       borderRadius: 16,
       padding: 12,
       paddingHorizontal: isWeb? 32 : 16,
@@ -158,7 +158,7 @@ export function Base({
               style={[
                 styles.modalContainer,
                 {
-                  backgroundColor: isDark ? '#141415' : '#fff',
+                  backgroundColor: isDark ? 'rgba(17, 17, 17, 0.9)' : '#fff',
                   marginTop: insets.top, 
                   marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.72 : 80),
                   width: actualWidth,

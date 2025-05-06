@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
-
+import { isIpad } from '@/utils/deviceUtils';
 const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
@@ -24,12 +24,18 @@ export const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 48,
+    height: 45,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.1)',
+    fontFamily: '$body',
+    shadowColor: 'rgba(0, 0, 0, 0.1)',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
     borderRadius: 8,
     paddingHorizontal: 16,
-    fontSize: 16,
+    fontSize: isIpad() ? 17 : 15,
   },
   imagePickerButton: {
     width: width * 0.4,

@@ -16,7 +16,7 @@ export function ShowInCalendar({ showInCalendar, onShowInCalendarChange, isDark 
   return (
     <XStack alignItems="center" justifyContent="flex-start" gap="$2" paddingLeft="$2.5">
       <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'}fontSize={isIpad() ? 17 : 15} flexWrap= "nowrap">
-        Display in Calendar as an Event?
+        Add an Event to Calendar?
     </Text>
         <Pressable onPress={() => onShowInCalendarChange(!showInCalendar)}
         style={{ 

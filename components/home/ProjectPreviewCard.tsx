@@ -53,6 +53,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         />
         <XStack
           padding={isIpad() ? '$4' : '$3'}
+          paddingBottom={isIpad() ? '$4' : '$3.5'}
+          paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
           borderRadius={12}
@@ -64,7 +66,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 fontFamily="$body"
                 fontWeight="bold"
                 color={isDark ? "#dbd0c6" : "#dbd0c6"}
-                fontSize={isIpad() ? 17 : 15}
+                fontSize={isIpad() ? 16 : 14}
                 maxWidth={'70%'}
                 numberOfLines={1}
               >
@@ -77,8 +79,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 if (d && !isNaN(d.getTime())) {
                   return (
                     <XStack alignItems="center" gap="$1">
-                      <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#999'} />
-                      <Text fontSize={12} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
+                      <MaterialIcons name="event" size={isIpad() ? 18 : 16} color={isDark ? '#999' : '#999'} />
+                      <Text fontSize={isIpad() ? 14 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
                         {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </Text>
                     </XStack>
@@ -88,7 +90,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               })()}
             </XStack>
 
-            <XStack jc="flex-start" gap="$3" ai="center">
+            <XStack jc="flex-start" gap="$2.5" ai="center">
             {project.status && (
                 <XStack
                   bg={
@@ -112,7 +114,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 >
                   <Text
                     fontFamily="$body"
-                    fontSize={12}
+                    fontSize={isIpad() ? 12 : 11}
                     py="$0.5"
                     px="$1"
                     color={

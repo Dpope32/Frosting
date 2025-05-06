@@ -3,7 +3,7 @@ import { TextInput, Platform } from 'react-native'
 import { Input} from 'tamagui'
 import { DebouncedInputProps } from '@/types/debounce'
 import { useColorScheme } from '@/hooks/useColorScheme'
-
+import { isIpad } from '@/utils/deviceUtils'
 // Define the handle type
 export interface DebouncedInputHandle {
   setValue: (newValue: string) => void;
@@ -52,11 +52,13 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
         value={text}
         onChangeText={setText}
         theme={isDark ? "dark" : "light"}
-        backgroundColor={isDark ? "$gray2" : "white"}
+        backgroundColor={isDark ? "$gray0" : "white"}
         borderColor={isDark ? "$gray7" : "$gray4"}
         fontFamily="$body"
-        spellCheck={false}
+        spellCheck={true}
+        fontSize={isIpad() ? 17 : 15}
         maxFontSizeMultiplier={1.4}
+        placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
         {...(Platform.OS === 'ios' ? {
           scrollEnabled: false,
           selection: undefined,
@@ -69,7 +71,7 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
           autoComplete: 'off'
         })}
         {...props}
-        autoCapitalize={props.autoCapitalize || 'none'}
+        autoCapitalize={props.autoCapitalize || 'sentences'}
       />
     )
   }

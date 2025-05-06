@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Form, ScrollView} from 'tamagui'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { Button, Form, YStack, XStack, Text, ScrollView} from 'tamagui'
 import { Platform, Keyboard, KeyboardEvent } from 'react-native'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
@@ -19,11 +19,11 @@ import { TagSelector } from '@/components/notes/TagSelector'
 import { Tag } from '@/types/tag'
 import { useTagStore } from '@/store/TagStore'
 import { ShowInCalendar } from './NewTaskModal/showInCalendar'
-import { TaskNameInput } from './NewTaskModal/TaskNameInput'
 import { PrioritySelector } from './NewTaskModal/PrioritySelector'
 import { SubmitButton } from './NewTaskModal/SubmitButton'
 import { isIpad } from '@/utils/deviceUtils'
-
+import { DebouncedInput } from '@/components/shared/debouncedInput'
+import { styles } from '@/components/styles'
 interface EditTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,6 +43,9 @@ export function EditTaskModal({ open, onOpenChange, isDark }: EditTaskModalProps
   const [tags, setTags] = useState<Tag[]>([]);
   const tagStoreTags = useTagStore((state) => state.tags);
   const addTagToStore = useTagStore((state) => state.addTag);
+
+  const nameInputRef = useRef<React.ElementRef<typeof DebouncedInput>>(null)
+  const username = useUserStore((state) => state.preferences.username)
 
   useEffect(() => {
     if (open && taskToEdit) {
@@ -233,9 +236,13 @@ export function EditTaskModal({ open, onOpenChange, isDark }: EditTaskModalProps
     >
       <ScrollView contentContainerStyle={{}} keyboardShouldPersistTaps="handled">
         <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4} py={isIpad() ? 4 : 2} pb={12}>
-          <TaskNameInput
+          <DebouncedInput
+            ref={nameInputRef}
+            style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
+            placeholder={`What do you need to do ${username}?`} 
+            placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
             value={editedTask.name}
-            onChange={handleTextChange}
+            onDebouncedChange={(value) => setEditedTask(prev => ({ ...prev, name: value }))}
           />
           <PrioritySelector selectedPriority={editedTask.priority} onPrioritySelect={handlePrioritySelect}/>
 
