@@ -158,7 +158,7 @@ export function Base({
               style={[
                 styles.modalContainer,
                 {
-                  backgroundColor: isDark ? 'rgb(15, 15, 15)' : '#fff',
+                  backgroundColor: isDark ? 'rgb(18, 17, 17)' : '#fff',
                   marginTop: insets.top, 
                   marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.35 : 80),
                   width: actualWidth,

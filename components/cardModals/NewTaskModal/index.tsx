@@ -259,7 +259,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
           )}
           {!showTimePicker && (
-          <YStack py={6} pl={3}>
+          <YStack py={7} >
           <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
           </YStack>
           )}

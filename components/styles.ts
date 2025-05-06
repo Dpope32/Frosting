@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   input: {
-    width: '95%',
+    width: '93%',
     marginRight: 8,
     height: 45,
     borderWidth: 1,
