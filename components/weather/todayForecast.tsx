@@ -44,7 +44,6 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   const todayCardBg = isDark
     ? 'linear-gradient(135deg, #23243a 60%, #2d2e4a 100%)'
     : 'rgba(255,255,255,0.85)';
-  const todayBorderColor = isDark ? 'rgba(80,80,120,0.7)' : 'rgba(200,200,220,0.7)';
   const todayTextColor = isDark ? '#f5f6fa' : '#23243a';
   const todayShadow = isDark ? '#000' : '#b0b0b0';
   const todayForecastLower = todayForecast.shortForecast.toLowerCase();
@@ -59,8 +58,6 @@ return (
       borderRadius={22}
       backgroundColor={todayCardBg}
       overflow="hidden"
-      borderWidth={1.5}
-      borderColor={todayBorderColor}
       shadowColor={todayShadow}
       shadowOffset={{ width: 0, height: 6 }}
       shadowOpacity={isDark ? 0.45 : 0.18}

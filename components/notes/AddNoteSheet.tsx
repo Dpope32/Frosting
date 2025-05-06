@@ -374,7 +374,7 @@ export function AddNoteSheet({
                 showsVerticalScrollIndicator={false}
                 keyboardDismissMode="none"
               >
-                <YStack gap={0} paddingTop={0}>
+                <YStack gap={0} paddingTop={20}>
                     <TagSelector tags={editTags} onTagsChange={handleTagsChange} />
                   <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', marginVertical: 12, marginHorizontal: -10 }} />
                   <YStack>

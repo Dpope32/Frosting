@@ -11,7 +11,7 @@ interface TimePickerProps {
   setShowTimePicker: (show: boolean) => void;
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
-  onTimeChange: (event: any, pickedDate?: Date) => void;
+  onTimeChange: (event: any, selectedTime?: Date) => void;
   onWebTimeChange: (date: Date) => void;
   time: string | undefined | null;
   isDark: boolean;
@@ -75,7 +75,7 @@ export function TimePicker({
             backgroundColor: isDark ? 'transparent' : 'white',
             borderRadius: 12,
             elevation: 5,
-            marginTop: -10,
+            marginTop: -60,
             shadowColor: 'black',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.1,
@@ -128,7 +128,7 @@ export function TimePicker({
               </XStack>
             ) : (
               <DateTimePicker
-                value={selectedDate}
+                value={new Date(selectedDate)} // Ensure we always pass a Date object
                 style={{ width: '100%' , height: 200}}
                 mode="time"
                 is24Hour={false}

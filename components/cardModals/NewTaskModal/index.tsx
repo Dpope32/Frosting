@@ -96,7 +96,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }))
   }, [])
 
-  const handleTimeChange = useCallback((pickedDate?: Date) => {
+  const handleTimeChange = useCallback((event: any, pickedDate?: Date) => {
     if (pickedDate) {
       setSelectedDate(pickedDate)
       const timeString = format(pickedDate, 'h:mm a')
@@ -242,6 +242,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             isDark={isDark}
            />
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
+          <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
           <TimePicker
               showTimePicker={showTimePicker}
               setShowTimePicker={setShowTimePicker}
@@ -253,7 +254,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               isDark={isDark}
               primaryColor={preferences.primaryColor}
             />
-            <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
               <Form.Trigger asChild>
                 <SubmitButton 
                   isSubmitting={isSubmitting} 

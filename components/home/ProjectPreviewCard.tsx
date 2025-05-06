@@ -35,7 +35,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         overflow="hidden"
         mb={isIpad() ? 8 : 4}
         style={{
-          backgroundColor: isDark ? 'rgb(60, 59, 59)' : 'rgba(27, 27, 27, 0.94)',
+          backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(27, 27, 27, 0.94)',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.4,
@@ -46,9 +46,9 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         }}
       >
         <LinearGradient
-          colors={isDark ? ['rgba(0,0,0,0.9)','rgba(8, 8, 8, 0.9)','rgba(12, 11, 11, 0.72)', 'rgba(0, 0, 0, 0.7)'] : ['rgba(40, 40, 40, 0.7)', 'rgba(18, 18, 18, 0.5)']}
-          start={{ x: 1, y: 0.5 }}
-          end={{ x: 0, y: 0.5 }}
+          colors={isDark ? [ 'rgba(0, 0, 0, 0.9)','rgba(5, 5, 5, 0.9)','rgba(15, 14, 14, 0.8)','rgba(19, 19, 19, 0.7)', 'rgba(26, 26, 26, 0.6)'] : ['rgba(40, 40, 40, 0.7)', 'rgba(18, 18, 18, 0.5)']}
+          start={{ x: 0, y: 1 }}
+          end={{ x: 1, y: 0 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <XStack

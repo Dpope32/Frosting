@@ -34,7 +34,15 @@ export default function ProjectsScreen() {
   const validProjects = (projects || []).filter(project => 
     project && typeof project === 'object' && !Array.isArray(project) && project.id && !project.isDeleted
   )
-  const items = validProjects
+  // Sort projects so completed ones appear at the bottom
+  const items = [...validProjects].sort((a, b) => {
+    // If a is completed and b is not, a should come after b
+    if (a.status === 'completed' && b.status !== 'completed') return 1
+    // If b is completed and a is not, b should come after a
+    if (b.status === 'completed' && a.status !== 'completed') return -1
+    // If both have the same completion status, maintain their original order
+    return 0
+  })
   const [editModalOpen, setEditModalOpen] = React.useState(false)
   const [selectedEditProjectId, setSelectedEditProjectId] = React.useState<string | null>(null)
 

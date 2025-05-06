@@ -10,7 +10,6 @@ import { TagSelector } from '@/components/notes/TagSelector';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useProjectStore } from '@/store/ProjectStore';
 import { useToastStore } from '@/store/ToastStore';
-import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useTagStore } from '@/store/TagStore';
 import { usePeopleStore } from '@/store/People';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -54,7 +53,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
   const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
   const inputRef = React.useRef<any>(null);
 
-  useAutoFocus(inputRef, 500, open);
 
   useEffect(() => {
     if (open && project) {
@@ -212,7 +210,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
               )}
               {deadline ? (
                 <XStack ai="center" gap="$1">
-                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">
+                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pl={isIpad() ? 0 : 2} pr={isIpad() ? 0 : 16} fontFamily="$body" fontWeight="bold">
                     Deadline:
                   </Text>
                   <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
@@ -236,22 +234,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
             </>
           )}
         </YStack>
-        <DebouncedInput
-          value={description}
-          placeholder="Description (optional)"
-          onDebouncedChange={setDescription}
-          multiline={true}
-          numberOfLines={5}
-          fontSize={isIpad() ? 17 : 15}
-          fontFamily="$body"
-          fontWeight="bold"
-          color={isDark ? '#f6f6f6' : '#111'}
-          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
-          borderWidth={1}
-          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-          borderRadius={4}
-        />
-        <YStack gap="$1" mt={10} mx={0}>
+        <YStack gap="$1" mt={20} mb={6} mx={0}>
         {peopleArray.length > 0 && (
           <PeopleSelector
             people={peopleArray}
@@ -272,6 +255,21 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         </YStack>
         <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
         <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
+        <DebouncedInput
+          value={description}
+          placeholder="Description (optional)"
+          onDebouncedChange={setDescription}
+          multiline={true}
+          numberOfLines={7}
+          fontSize={isIpad() ? 17 : 15}
+          fontFamily="$body"
+          fontWeight="bold"
+          color={isDark ? '#f6f6f6' : '#111'}
+          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+          borderWidth={1}
+          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+          borderRadius={4}
+        />
       </YStack>
     </BaseCardModal>
   );

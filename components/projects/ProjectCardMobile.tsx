@@ -95,7 +95,7 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
           )}
 
           <LinearGradient
-            colors={isDark ? ['rgb(0, 0, 0)',  'rgb(11, 11, 11)', 'rgb(20, 19, 19)', 'rgb(30, 30, 30)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} 
+            colors={isDark ? ['rgb(0, 0, 0)',  'rgb(11, 11, 11)', 'rgb(110, 110, 110)', 'rgb(30, 30, 30)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0.5 }}
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 2, borderRadius: 12, borderColor: project.tasks && project.tasks.length > 0 ? isDark ? '#222' : 'transparent' : 'transparent'}}
