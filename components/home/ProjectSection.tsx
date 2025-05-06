@@ -25,7 +25,7 @@ export function ProjectSection() {
   // First filter out any non-project items (must be objects with an id) and then filter out completed projects
   const validProjects = projects.filter(project => project && typeof project === 'object' && !Array.isArray(project) && project.id);
   const filteredProjects = validProjects.filter(project => project.status !== 'completed' && !project.isDeleted);
-  console.log('filteredProjects', filteredProjects);
+ 
   return (
     <YStack w="100%" gap={isIpad() ? '$2' : '$2'} py={isIpad() ? '$3.5' : '$2.5'}  >
       <YStack gap={isIpad() ? '$2.5' : '$2'} px={isIpad() ? '$1' : '$0'}>

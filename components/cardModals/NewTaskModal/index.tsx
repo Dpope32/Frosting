@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Platform, Keyboard, KeyboardEvent, Pressable, View } from 'react-native'
-import { Form, ScrollView, XStack   } from 'tamagui'
+import { Form, ScrollView, XStack, YStack   } from 'tamagui'
 import { format } from 'date-fns'
 import * as Haptics from 'expo-haptics'
 
@@ -215,7 +215,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4}pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 3} pb={12}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
@@ -223,6 +223,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
             value={newTask.name}
             fontSize={isIpad() ? 17 : 15}
+            fontFamily={isIpad() ? '$body' : '$body'}
+            width={isIpad() ? '100%' : '98%'}
             onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
@@ -257,7 +259,9 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
           <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
           )}
           {!showTimePicker && (
+          <YStack py={6}>
           <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
+          </YStack>
           )}
           <TimePicker
               showTimePicker={showTimePicker}
