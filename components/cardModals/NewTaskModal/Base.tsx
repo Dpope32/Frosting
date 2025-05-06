@@ -26,7 +26,7 @@ export function Base({
   title,
   children,
   onClose, 
-  modalWidth = isWeb ? 700 : isIpad() ? 500 : 350,
+  modalWidth = isWeb ? 700 : isIpad() ? 500 : 360,
   modalMaxWidth = isWeb ? 700 : isIpad() ? 500 : 500,
   showCloseButton = true,
   keyboardOffset = 0,

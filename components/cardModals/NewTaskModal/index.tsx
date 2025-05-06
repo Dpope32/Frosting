@@ -215,7 +215,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 8} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} alignItems="flex-start" px={isIpad() ? 6 : 8} pb={12}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
