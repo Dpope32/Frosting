@@ -1,4 +1,5 @@
 import { useProjectStore } from '@/store/ProjectStore'
+import { useProjectStore as useTaskStore } from '@/store/ToDo'
 import { getRecommendedTasks, RecommendationCategory, RecommendedTask } from '@/constants/recommendations/TaskRecommendations';
 import { Task } from '@/types/task'; 
 import { Project } from '@/types/project';
@@ -35,7 +36,12 @@ export const addDevTasks = () => {
     tasksToAdd[i].schedule = []; 
   }
 
-  useProjectStore.getState().addProject(tasksToAdd as any);
+  // Add each task individually to the task store
+  const taskStore = useTaskStore.getState();
+  tasksToAdd.forEach(task => {
+    taskStore.addTask(task);
+  });
+  
   console.log(`Added ${tasksToAdd.length} dev tasks.`);
 };
 

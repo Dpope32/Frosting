@@ -28,7 +28,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         }
         onPress()
       }}
-      style={{ width: '100%', justifyContent: isIpad() ? 'center' : 'center', paddingHorizontal: isIpad() ? 0 : 10 }}
+      style={{ width: '100%', justifyContent: isIpad() ? 'center' : 'center', paddingHorizontal: isIpad() ? 24 : 18 }}
     >
       <YStack
         borderRadius={12}
@@ -41,7 +41,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           shadowOpacity: 0.4,
           shadowRadius: 6,
           elevation: 6,
-          borderColor: isDark ? 'rgba(255, 255, 255, 0.27)' : 'rgba(255, 255, 255, 0.2)',
+          borderColor: isDark ? 'rgba(39, 39, 39, 0.8)' : 'rgba(255, 255, 255, 0.2)',
           borderWidth:  1,
         }}
       >
@@ -55,6 +55,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           padding={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
+          borderRadius={12}
           gap={isIpad() ? '$3' : '$2'}
         >
           <YStack flex={1} gap="$1">

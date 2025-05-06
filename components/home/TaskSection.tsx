@@ -272,7 +272,10 @@ export const TaskSection = ({
                 px={isIpad() ? "$3" : "$3"}
                 paddingLeft={isIpad() ? "$2.5" : "$4"}
                 paddingVertical="$1.5"
+                paddingBottom={isIpad() ? "$5" : "$4"}
                 justifyContent={isIpad() ? "center" : "flex-start"}
+                borderBottomWidth={1}
+                borderColor={isDark ? "rgba(29, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.1)"}
               >
                 {todaysTasks.map((task: Task) => {
                   const isCompleted = task.completionHistory[todayLocalStr] || false;
@@ -325,7 +328,7 @@ export const TaskSection = ({
                       easterEggTimeout.current = null;
                     }
                   }}
-                  style={{ width: '100%' }}
+                  style={{ width: '100%', paddingTop: 8 }}
                 >
                   <YearCompleteSection />
                 </Pressable>

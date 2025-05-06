@@ -32,18 +32,18 @@ export function YearCompleteSection() {
   return (
     <YStack 
       padding="$1" 
-      width={isWeb ? "100%" :isIpad() ? "100%" : "96%"}
+      width={isWeb ? "100%" :isIpad() ? "100%" : "98%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"
       br={16}
       px="$3"
       py="$1"
-      pt="$4"
+      pt={isIpad() ? "$4" : "$3"}
     >
       <Stack
         width="100%"
-        height={isIpad() ? 30 : 26}
+        height={isIpad() ? 30 : 32}
         br={16}
         overflow="hidden"
         borderWidth={1}
@@ -62,7 +62,7 @@ export function YearCompleteSection() {
           top={0}
           width={`${100 - percentage}%`}
           height="100%"
-          backgroundColor={isDark ? "rgba(0, 0, 0, 0.9)" : "rgba(0, 0, 0, 0.9)"}
+          backgroundColor={isDark ? "#121212" : "rgba(0, 0, 0, 0.9)"}
           zIndex={1}
         />
         <Stack
