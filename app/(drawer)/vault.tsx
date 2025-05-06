@@ -13,13 +13,8 @@ import { VaultEmpty } from '@/components/vault/VaultEmpty'
 import { isIpad } from '@/utils/deviceUtils'
 import { EditVaultModal } from '@/components/cardModals/EditVaultModal'
 import { VaultListModal } from '@/components/listModals/VaultListModal'
+import { VaultEntry } from '@/types/vault'
 
-interface VaultEntry {
-  id: string
-  name: string
-  username: string
-  password: string
-}
 
 export default function VaultScreen() {
   const { data, addVaultEntry, deleteVaultEntry } = useVault()

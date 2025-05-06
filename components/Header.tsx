@@ -23,7 +23,8 @@ import { EditVaultModal } from './cardModals/EditVaultModal';
 import { useCalendarViewStore } from '@/store/CalendarViewStore';
 import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
-
+import { Bill } from '@/types/bills';
+import type { VaultEntry } from '@/types/vault';
 interface HeaderProps {
   title: string;
   rightElement?: React.ReactNode;
@@ -248,12 +249,12 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
           <BillsListModal
             open={showBillsListModal}
             onOpenChange={setShowBillsListModal}
-            onEditBill={(bill) => {
-              setSelectedBill(bill);
+            onEditBill={(bill: Bill) => {
+              setSelectedBill(bill as any);
               setEditBillModalOpen(true);
             }}
           />
-          <EditBillModal
+          <EditBillModal  
             isVisible={editBillModalOpen}
             onClose={() => {
               setEditBillModalOpen(false);
@@ -272,8 +273,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
           <VaultListModal
             open={showVaultListModal}
             onOpenChange={setShowVaultListModal}
-            onEditVault={(entry) => {
-              setSelectedVaultEntry(entry);
+            onEditVault={(entry: VaultEntry) => {
+              setSelectedVaultEntry(entry as any);
               setEditVaultModalOpen(true);
             }}
           />

@@ -3,7 +3,7 @@ import { getRecommendedTasks, RecommendationCategory, RecommendedTask } from '@/
 import { Task } from '@/types/task'; 
 import { Project } from '@/types/project';
 
-const addProject = useProjectStore((state) => state.addProject)
+// Don't use hooks at module level, use getState() instead
 
 export const addDevTasks = () => {
   const categories: RecommendationCategory[] = ['Cleaning', 'Wealth', 'Gym', 'Self-Care'];
@@ -97,6 +97,6 @@ export const addDevProjects = () => {
     } as Project),
   ]
   sampleProjects.forEach((project, index) => {
-    setTimeout(() => addProject(project), index * 300)
+    setTimeout(() => useProjectStore.getState().addProject(project), index * 300)
   })
 }
