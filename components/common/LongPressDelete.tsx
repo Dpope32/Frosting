@@ -129,7 +129,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     bottom: 0,
     opacity: interpolate(progress.value, [0, 1], [0, 0.1]),
     borderRadius: 8,
-    zIndex: 100,
+    zIndex: 1,
     margin: 0,
     padding: 0,
   }));
@@ -138,11 +138,11 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 24,
+    bottom: 8,
     opacity: progress.value,
-    zIndex: 100,
+    zIndex: 2,
     margin: 0,
-    padding: 6,
+    padding: 0,
   }));
 
   const dimOverlayStyle = useAnimatedStyle(() => ({
@@ -153,7 +153,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     opacity: interpolate(progress.value, [0, 1], [0, 0.5]),
-    zIndex: 995,
+    zIndex: 1,
     margin: 0,
     padding: 0,
   }));

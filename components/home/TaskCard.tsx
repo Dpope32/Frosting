@@ -246,12 +246,16 @@ export function TaskCard({
                   }
                 }}
                 style={styles.checkboxContainer}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 16 }}
+                accessibilityRole="button"
+                accessibilityLabel={checked ? "Mark task as incomplete" : "Mark task as complete"}
               >
                 <View style={[
                   styles.checkbox,
                   { 
                     borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
-                    backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)'
+                    backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
+                    zIndex: 10
                   }
                 ]}>
                   {checked && (
@@ -286,22 +290,26 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 8,
+    position: 'relative',
+    zIndex: 2
   },
   checkboxContainer: {
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
     paddingTop: 6,
     paddingBottom: 2,
     marginRight: 2,
-    alignSelf: 'flex-start'
+    alignSelf: 'flex-start',
+    zIndex: 10
   },
   checkbox: {
-    width: 21,
-    height: 21,
-    borderWidth: 1,
+    width: 20,
+    height: 20,
+    borderWidth: 1.5,
     marginLeft: -4,
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 10
   },
   contentContainer: {
     flex: 1,
