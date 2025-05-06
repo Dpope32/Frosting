@@ -246,7 +246,6 @@ export function TaskCard({
                   }
                 }}
                 style={styles.checkboxContainer}
-                hitSlop={{ top: 4, bottom: 4, left: 4, right: 12 }}
               >
                 <View style={[
                   styles.checkbox,
@@ -296,8 +295,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start'
   },
   checkbox: {
-    width: 18,
-    height: 18,
+    width: 21,
+    height: 21,
     borderWidth: 1,
     marginLeft: -4,
     borderRadius: 5,
