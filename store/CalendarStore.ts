@@ -199,29 +199,51 @@ export const useCalendarStore = create<CalendarState>()(
         }
       },
 
-      syncBirthdays: (newContactId) =>
-        set((state) => {
-          const contacts = usePeopleStore.getState().contacts as Record<string, Person>
-          const currentYear = new Date().getFullYear()
-          const addTask = useProjectStore.getState().addTask
-          const scheduleNotification = get().scheduleNotification
+      syncBirthdays: (newContactId) => {
+        console.log('🔍 [CalendarStore] syncBirthdays start:', new Date().toISOString());
+        console.log(`🔍 [CalendarStore] syncBirthdays for ${newContactId ? 'single contact' : 'all contacts'}`);
+        const startTime = performance.now();
+        
+        return set((state) => {
+          try {
+            console.log(`🔍 [CalendarStore] getting contacts from store`);
+            const getContactsStart = performance.now();
+            const contacts = usePeopleStore.getState().contacts as Record<string, Person>;
+            console.log(`🔍 [CalendarStore] got ${Object.keys(contacts).length} contacts (${performance.now() - getContactsStart}ms)`);
+            
+            const currentYear = new Date().getFullYear();
+            const addTask = useProjectStore.getState().addTask;
+            const scheduleNotification = get().scheduleNotification;
+  
+            const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts;
+            console.log(`🔍 [CalendarStore] syncing ${Object.keys(contactsToSync).length} contacts`);
+  
+            const existingEvents = state.events;
+            console.log(`🔍 [CalendarStore] filtering ${existingEvents.length} existing events`);
+            const filterStart = performance.now();
+            const nonBirthdayEvents = existingEvents.filter(
+              (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
+            );
+            console.log(`🔍 [CalendarStore] filtered to ${nonBirthdayEvents.length} non-birthday events (${performance.now() - filterStart}ms)`);
 
-          const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
-
-          const existingEvents = state.events
-          const nonBirthdayEvents = existingEvents.filter(
-            (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
-          )
-
+            console.log('🔍 [CalendarStore] generating birthday events for next 10 years');
+            const generateStart = performance.now();
             const years = Array.from({ length: 10 }, (_, i) => currentYear + i);
-          const birthdayEvents = Object.values(contactsToSync)
-            .filter((person: Person) => person.birthday)
-            .flatMap((person: Person) => {
-              return years.map((year) => {
-                const [birthYear, month, day] = person.birthday.split('-')
-                const eventDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)))
-                eventDate.setUTCHours(14, 0, 0, 0) // Set 14:00 UTC first!
-                const age = year - parseInt(birthYear)
+            
+            console.log('🔍 [CalendarStore] finding contacts with birthdays');
+            const contactsWithBirthdays = Object.values(contactsToSync).filter((person: Person) => person.birthday);
+            console.log(`🔍 [CalendarStore] found ${contactsWithBirthdays.length} contacts with birthdays`);
+            
+            const birthdayEvents: CalendarEvent[] = [];
+            let notificationsCreated = 0;
+            let tasksCreated = 0;
+            
+            contactsWithBirthdays.forEach((person: Person) => {
+              years.forEach((year) => {
+                const [birthYear, month, day] = person.birthday.split('-');
+                const eventDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)));
+                eventDate.setUTCHours(14, 0, 0, 0); // Set 14:00 UTC first!
+                const age = year - parseInt(birthYear);
                 const birthdayEvent: CalendarEvent = {
                   id: `birthday-${person.id}-${year}`,
                   type: 'birthday',
@@ -232,28 +254,35 @@ export const useCalendarStore = create<CalendarState>()(
                   notifyOnDay: true, // Always notify on birthdays
                   createdAt: new Date().toISOString(),
                   updatedAt: new Date().toISOString(),
-                }
-                const now = new Date()
-                const birthdayDate = new Date(eventDate) // This will already be 14:00 UTC
-                const twoWeeksBefore = new Date(birthdayDate)
-                twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14)
+                };
+                
+                birthdayEvents.push(birthdayEvent);
+                
+                const now = new Date();
+                const birthdayDate = new Date(eventDate); // This will already be 14:00 UTC
+                const twoWeeksBefore = new Date(birthdayDate);
+                twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14);
+                
                 if (birthdayDate > now) {
                   scheduleNotification(
                     birthdayDate,
                     `🎂 ${person.name}'s Birthday Today!`,
                     `Don't forget to wish ${person.name} a happy ${age}th birthday!`,
                     `birthday-${person.id}-${year}-day`
-                  )
-                } else {
+                  );
+                  notificationsCreated++;
                 }
+                
                 if (person.priority && twoWeeksBefore > now) {
                   scheduleNotification(
                     twoWeeksBefore,
                     `🎁 ${person.name}'s Birthday in 2 Weeks`,
                     `Time to get a birthday present for ${person.name}!`,
                     `birthday-${person.id}-${year}-reminder`
-                  )
-                  const reminderDay = twoWeeksBefore.getDay()
+                  );
+                  notificationsCreated++;
+                  
+                  const reminderDay = twoWeeksBefore.getDay();
                   const weekDays: WeekDay[] = [
                     'sunday',
                     'monday',
@@ -262,8 +291,8 @@ export const useCalendarStore = create<CalendarState>()(
                     'thursday',
                     'friday',
                     'saturday',
-                  ]
-                  const taskName = `Get ${person.name}'s birthday present (birthday in 2 weeks)`
+                  ];
+                  const taskName = `Get ${person.name}'s birthday present (birthday in 2 weeks)`;
                   addTask({
                     name: taskName,
                     schedule: [weekDays[reminderDay]],
@@ -271,10 +300,12 @@ export const useCalendarStore = create<CalendarState>()(
                     category: 'personal',
                     scheduledDate: twoWeeksBefore.toISOString(),
                     recurrencePattern: 'one-time'
-                  })
+                  });
+                  tasksCreated++;
                 }
+                
                 if (birthdayDate >= now) {
-                  const birthdayDay = birthdayDate.getDay()
+                  const birthdayDay = birthdayDate.getDay();
                   const weekDays: WeekDay[] = [
                     'sunday',
                     'monday',
@@ -283,8 +314,8 @@ export const useCalendarStore = create<CalendarState>()(
                     'thursday',
                     'friday',
                     'saturday',
-                  ]
-                  const taskName = `Wish ${person.name} a happy birthday! 🎂`
+                  ];
+                  const taskName = `Wish ${person.name} a happy birthday! 🎂`;
                   addTask({
                     name: taskName,
                     schedule: [weekDays[birthdayDay]],
@@ -292,13 +323,23 @@ export const useCalendarStore = create<CalendarState>()(
                     category: 'personal',
                     scheduledDate: birthdayDate.toISOString(),
                     recurrencePattern: 'one-time'
-                  })
+                  });
+                  tasksCreated++;
                 }
-                return birthdayEvent
-              })
-            })
-          return { events: [...nonBirthdayEvents, ...birthdayEvents] }
-        }),
+              });
+            });
+            
+            console.log(`🔍 [CalendarStore] created ${birthdayEvents.length} events, ${notificationsCreated} notifications, ${tasksCreated} tasks (${performance.now() - generateStart}ms)`);
+            
+            console.log(`✅ [CalendarStore] syncBirthdays complete (${performance.now() - startTime}ms)`);
+            return { events: [...nonBirthdayEvents, ...birthdayEvents] };
+          } catch (error) {
+            console.error('🔴 [CalendarStore] Error in syncBirthdays:', error);
+            // Return current state if there's an error
+            return state;
+          }
+        });
+      },
     }),
     {
       name: 'calendar-storage',

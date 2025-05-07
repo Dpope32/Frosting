@@ -47,12 +47,12 @@ export const DeadlineInputter = ({ deadline, setDeadline, isDark }: DeadlineInpu
                 <Button
                     onPress={() => setShowDatePicker(true)}
                     borderWidth={1}
-                    borderRadius="$2"
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'}
+                    borderRadius={12}
+                    backgroundColor={"transparent"}
                     px="$3"
                     py="$2"
                     width="100%"
-                    borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+                    borderColor={isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)'}
                     ai="center"
                     jc="space-between"
                     pressStyle={{ opacity: 0.8 }}
@@ -89,11 +89,11 @@ export const DeadlineInputter = ({ deadline, setDeadline, isDark }: DeadlineInpu
                 {showDatePicker && (
                 <YStack gap="$1">
                     <DateTimePicker
-                    value={deadline ? new Date(deadline) : new Date()}
-                    mode="date"
-                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                    onChange={handleDateChange}
-                    style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
+                        value={deadline ? new Date(deadline) : new Date()}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                        onChange={handleDateChange}
+                        style={{ width: '100%', backgroundColor: isDark ? '#121212' : '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)', paddingHorizontal: 16}}
                     />
                 </YStack>
                 )}

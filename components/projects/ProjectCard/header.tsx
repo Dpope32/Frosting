@@ -76,11 +76,11 @@ const renderStatusBadge = (project: Project, isDark: boolean) => {
           ? 'rgba(255, 0, 0, 0.1)'
           : (isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')
       }
+      px="$1"
       py="$0.5"
       br={12}
-      opacity={0.8}
-      ai="center"
-      ml={0}
+      opacity={0.9}
+      mr={4}
     >
       <Text
         paddingHorizontal={"$1.5"}
@@ -96,7 +96,7 @@ const renderStatusBadge = (project: Project, isDark: boolean) => {
             ? '$red10'
             : (isDark ? '$blue10' : '#333')
         }
-        fontSize={isIpad() ? 13 : 12}
+        fontSize={isIpad() ? 15 : 14}
         fontFamily="$body"
       >
         {project.status.replace('_', ' ')}

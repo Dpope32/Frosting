@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Sheet, Text, Theme, isWeb, Button, XStack } from 'tamagui'
 import { KeyboardAvoidingView, Platform, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -32,6 +32,8 @@ export function BaseCardModal({
   showCloseButton = false,
   hideHandle = false
 }: BaseCardModalProps) {
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
+  const [keyboardHeight, setKeyboardHeight] = useState(0)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
@@ -56,29 +58,29 @@ export function BaseCardModal({
           exitStyle={{ opacity: 0 }}
           backgroundColor={isDark ? "rgba(14, 14, 14, 0.6)" : "rgba(0, 0, 0, 0.6)"}
         />
-        <Sheet.Frame
-          py={Platform.OS === 'web' ? "$2" : "$0"}
-          paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
-          backgroundColor={isDark ? "rgb(16, 16, 16)" : "rgb(230, 230, 230)"}
-          borderTopLeftRadius={20}
-          borderTopRightRadius={20}
-          borderWidth={1}
-          borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
-          gap={Platform.OS === 'web' ? "$1" : "$1"}
-          {...(Platform.OS === 'web' ?
-            {
-              maxWidth: 1000,
-              marginHorizontal: 'auto',
-              minHeight: 500,
-              maxHeight: 'calc(100vh)',
-            } : {}
-          )}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
         >
-          {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>}
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1, paddingTop: Math.max(topInset - 80, 6) }}
+          <Sheet.Frame
+            py={Platform.OS === 'web' ? "$2" : "$0"}
+            paddingHorizontal={Platform.OS === 'web' ? "$6" : "$4"}
+            backgroundColor={isDark ? "rgb(16, 16, 16)" : "rgb(230, 230, 230)"}
+            borderTopLeftRadius={20}
+            borderTopRightRadius={20}
+            borderWidth={1}
+            borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
+            gap={Platform.OS === 'web' ? "$1" : "$1"}
+            {...(Platform.OS === 'web' ?
+              {
+                maxWidth: 1000,
+                marginHorizontal: 'auto',
+                minHeight: 500,
+                maxHeight: 'calc(100vh)',
+              } : {}
+            )}
           >
+            {!hideHandle && <Sheet.Handle backgroundColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.08)"} marginBottom="$4"/>}
             <Animated.View entering={FadeIn.duration(400)} style={{ marginTop: hideHandle ? 12 : 0, paddingHorizontal: 6}}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text
@@ -111,12 +113,12 @@ export function BaseCardModal({
               {children}
             </Sheet.ScrollView>
             {footer && (
-              <XStack justifyContent="space-between" px="$4" py="$2" borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} style={{ paddingBottom: insets.bottom }}>
+              <XStack justifyContent="space-between" px="$4" py="$2" borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} style={{ paddingBottom: keyboardVisible ? insets.bottom + 25 : insets.bottom }}>
                 {footer}
               </XStack>
             )}
-          </KeyboardAvoidingView>
-        </Sheet.Frame>
+          </Sheet.Frame>
+        </KeyboardAvoidingView>
       </Sheet>
     </Theme>
   )

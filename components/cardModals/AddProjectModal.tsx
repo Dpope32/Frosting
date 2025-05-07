@@ -52,6 +52,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       setTags([]);
     }
   }, [open]);
+  
 
   const handleSave = useCallback(() => {
     if (!name.trim()) return;
@@ -65,7 +66,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       description: description.trim(),
       createdAt: new Date(),
       deadline: deadline ? new Date(deadline) : undefined,
-      status: 'pending',
+      status: 'in_progress',
       priority,
       tags,
       isArchived: false,

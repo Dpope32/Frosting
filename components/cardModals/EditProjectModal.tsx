@@ -10,20 +10,15 @@ import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useProjectStore } from '@/store/ProjectStore';
 import { useToastStore } from '@/store/ToastStore';
 import { usePeopleStore } from '@/store/People';
-import { MaterialIcons } from '@expo/vector-icons';
 import { AttachmentSelector } from '@/components/projects/ProjectCard/modal/attachmentSelector';
-import { useImagePicker } from '@/hooks/useImagePicker';
 import { ImageViewerModal } from '@/components/notes/ImageViewerModal';
 import { Attachment } from '@/types/notes';
 import type { Project } from '@/types/project';
 import type { Tag } from '@/types/tag';
 import type { Person } from '@/types/people';
-import type { TaskPriority } from '@/types/task';
-import { getPriorityColor } from '@/utils/styleUtils';
 import { isIpad } from '@/utils/deviceUtils';
 import { DeadlineInputter } from '@/components/projects/ProjectCard/modal/deadlineInputter'; 
 import { TasksInModal } from '@/components/projects/ProjectCard/modal/tasksInModal';
-import { getTaskBackgroundColor } from '@/components/projects/ProjectCard/projectCardUtils';
 
 interface EditProjectModalProps {
   open: boolean;
@@ -49,7 +44,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         : new Date(project.deadline).toISOString().split('T')[0]
       : ''
   );
-  const [priority, setPriority] = useState<Project['priority']>(project?.priority || 'medium');
   const [tags, setTags] = useState<Tag[]>(project?.tags || []);
   const [tasks, setTasks] = useState<any[]>(project?.tasks || []);
   const [status, setStatus] = useState<Project['status']>(project?.status || 'pending');
@@ -69,7 +63,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
             : new Date(project.deadline).toISOString().split('T')[0]
           : ''
       );
-      setPriority(project.priority);
       setTags(project.tags || []);
       setTasks(project.tasks || []);
       setStatus(project.status);
@@ -97,7 +90,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       name: name.trim(),
       description: description.trim(),
       deadline: deadline ? new Date(deadline) : undefined,
-      priority,
       tags,
       status,
       tasks,
@@ -106,7 +98,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
     });
     onOpenChange(false);
     showToast('Project updated successfully', 'success');
-  }, [projectId, name, description, deadline, priority, tags, tasks, status, selectedPeople, attachments]);
+  }, [projectId, name, description, deadline, tags, tasks, status, selectedPeople, attachments]);
 
   const handleDelete = useCallback(() => {
     const deleteProject = () => {
@@ -155,7 +147,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         >
           <Button 
             onPress={handleDelete} 
-            backgroundColor={isDark ? 'rgba(218, 37, 37, 0.14)' : 'rgba(220,38,38,0.3)'} 
+            backgroundColor={isDark ? 'rgba(230, 98, 98, 0.06)' : 'rgba(220,38,38,0.3)'} 
             pressStyle={{ opacity: 0.8 }}
             br={12}
             borderColor={isDark ? 'rgba(218, 37, 37, 0.14)' : 'rgba(220,38,38,0.3)'}
@@ -166,7 +158,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
             </Text>
           </Button>
           <Button onPress={handleSave} 
-          backgroundColor={ 'rgba(61, 132, 255, 0.24)'} 
+          backgroundColor={ 'rgba(61, 132, 255, 0.07)'} 
           borderColor={'rgba(9, 132, 255, 0.44)'} 
           borderWidth={2}
           br={12}
@@ -198,23 +190,9 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
           borderRadius={12}
         />
-        <DebouncedInput
-          value={description}
-          placeholder="Description (optional)"
-          onDebouncedChange={setDescription}
-          multiline={true}
-          numberOfLines={4}
-          fontSize={isIpad() ? 17 : 15}
-          fontFamily="$body"
-          fontWeight="bold"
-          color={isDark ? '#f6f6f6' : '#111'}
-          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
-          borderWidth={1}
-          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-          borderRadius={12}
-        />
         <DeadlineInputter deadline={deadline} setDeadline={setDeadline} isDark={isDark} />
-        <YStack gap="$2" mt="$3" mb="$0" mx={0}>
+        <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
+        <YStack gap="$2" mt="$2" mb="$0" mx={0}>
           {peopleArray.length > 0 && (
             <PeopleSelector
               people={peopleArray}
@@ -230,12 +208,25 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
             />
           )}
         </YStack>
-        <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
-        <XStack gap="$2" mt="$1.5" mx={10}>
-        <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Tags?</Text>
+        <XStack ai="center" alignItems="center" gap="$2" mt="$1.5" mx={10}>
+        <Text mb={6} color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Tags?</Text>
           <TagSelector tags={tags} onTagsChange={setTags} />
         </XStack>
-        <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
+        <DebouncedInput
+          value={description}
+          placeholder="Description (optional)"
+          onDebouncedChange={setDescription}
+          multiline={true}
+          numberOfLines={4}
+          fontSize={isIpad() ? 17 : 15}
+          fontFamily="$body"
+          fontWeight="bold"
+          color={isDark ? '#f6f6f6' : '#111'}
+          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+          borderWidth={1}
+          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+          borderRadius={12}
+        />
         <AttachmentSelector isDark={isDark} attachments={attachments} setAttachments={setAttachments} />
         <TasksInModal tasks={tasks} isDark={isDark} onTaskDelete={handleTaskDelete} />
         <ImageViewerModal

@@ -32,13 +32,6 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
   const addPersonMutation = useAddPerson()
   const primaryColor: string = useUserStore( (state) => state.preferences.primaryColor)
   const showToast = useToastStore((state) => state.showToast)
-
-  useEffect(() => {
-    if (addPersonMutation.isSuccess) {
-      setTimeout(() => useCalendarStore.getState().syncBirthdays(), 100)
-    }
-  }, [addPersonMutation.isSuccess])
-  
   const [formData, setFormData] = useState<FormData>({ ...initialFormData })
   const [inputResetKey, setInputResetKey] = useState<number>(0)
   const [paymentMethod, setPaymentMethod] = useState<string>('')
@@ -79,37 +72,64 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
   }, [])
 
   const handleSubmit = useCallback((): void => {
-    if (addPersonMutation.isPending) return;
-    if (!formData.name?.trim()) {
-      showToast('Name is required', 'error', { duration: 2000 });
-      return;
+    console.log('🔍 [AddPersonForm] handleSubmit start:', new Date().toISOString())
+    const startTime = performance.now()
+    
+    if (addPersonMutation.isPending) {
+      console.log('🔍 [AddPersonForm] mutation already pending, not submitting')
+      return
     }
     
-    let updatedFormData = { ...formData };
+    if (!formData.name?.trim()) {
+      console.log('🔍 [AddPersonForm] validation failed: name required')
+      showToast('Name is required', 'error', { duration: 2000 })
+      return
+    }
+    
+    console.log(`🔍 [AddPersonForm] validation passed (${performance.now() - startTime}ms)`)
+    
+    let updatedFormData = { ...formData }
     if (paymentMethod && paymentUsername) {
       updatedFormData.socialMedia = [
         { platform: paymentMethod, username: paymentUsername }
-      ];
+      ]
     }
+    
     const processedFormData = {
       ...updatedFormData,
       phoneNumber: updatedFormData.phoneNumber ? formatPhoneNumber(updatedFormData.phoneNumber) : undefined
-    };
+    }
+    
     const newPerson = {
       ...processedFormData,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
-    addPersonMutation.mutate(newPerson);
+    }
     
+    console.log(`🔍 [AddPersonForm] prepared data (${performance.now() - startTime}ms)`)
+    console.log('🔍 [AddPersonForm] calling mutation.mutate()')
     
-    setFormData({ ...initialFormData });
-    setPaymentMethod('');
-    setPaymentUsername('');
-    setInputResetKey((prev) => prev + 1);
-    onClose(); 
-  }, [formData, paymentMethod, paymentUsername, addPersonMutation, onClose]); 
+    // Start the mutation
+    addPersonMutation.mutate(newPerson)
+    
+    console.log(`🔍 [AddPersonForm] mutation initiated (${performance.now() - startTime}ms)`)
+    
+    // Reset the form
+    setFormData({ ...initialFormData })
+    setPaymentMethod('')
+    setPaymentUsername('')
+    setInputResetKey((prev) => prev + 1)
+    
+    console.log(`🔍 [AddPersonForm] form reset (${performance.now() - startTime}ms)`)
+    console.log('🔍 [AddPersonForm] closing modal')
+    
+    // Track when the modal actually closes
+    const closeStart = performance.now()
+    onClose()
+    console.log(`🔍 [AddPersonForm] onClose called (${performance.now() - closeStart}ms)`)
+
+  }, [formData, paymentMethod, paymentUsername, addPersonMutation, onClose, showToast])
 
   const isDark = useColorScheme() === 'dark'
 

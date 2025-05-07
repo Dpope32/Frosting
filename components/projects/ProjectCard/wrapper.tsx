@@ -160,7 +160,7 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
           position="absolute"
           top={isIpad() ? 14 : 12}
           right={isIpad() ? 16 : 14}
-          zIndex={10}
+          zIndex={30}
         >
           <MaterialIcons name="edit" size={18} color={isDark ? '#696969' : '#667766'} />
         </Button>

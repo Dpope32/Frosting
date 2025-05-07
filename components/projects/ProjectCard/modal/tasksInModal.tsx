@@ -26,14 +26,14 @@ export function TasksInModal({ tasks, isDark, onTaskDelete }: TasksInModalProps)
   }
 
   return (
-    <YStack gap="$2" pb="$4" mx={10} mr={10}>
+    <YStack gap="$2" pb="$4" mx={0} mr={0}>
       <XStack gap={0} flexWrap="wrap" alignItems='center' alignContent="center">
         {tasks.map((task) => (
           <XStack
             key={task.id}
             ai="center"
-            px={isIpad() ? 8 : 6}
-            py={isIpad() ? 6 : 5}
+            px={isIpad() ? 12 : 12}
+            py={isIpad() ? 10 : 8}
             alignContent='center'
             alignItems='center'
             br={10}
@@ -43,12 +43,12 @@ export function TasksInModal({ tasks, isDark, onTaskDelete }: TasksInModalProps)
             style={{
               opacity: task.completed ? 0.6 : 1,
               marginBottom: 4,
-              width: '95%',
-              flexBasis: '97%',
+              width: '100%',
+              flexBasis: '100%',
             }}
           >
             <Text
-              fontSize={isIpad() ? 14 : 13}
+              fontSize={isIpad() ? 15 : 14}
               color={isDark ? '#f6f6f6' : '#222'}
               fontFamily="$body"
               style={{ 
@@ -64,7 +64,7 @@ export function TasksInModal({ tasks, isDark, onTaskDelete }: TasksInModalProps)
               <Button
                 size="$1"
                 circular
-                backgroundColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}
+                backgroundColor={isDark ? 'rgba(255, 255, 255, 0)' : 'rgba(0, 0, 0, 0)'}
                 onPress={() => onTaskDelete(task.id)}
                 mr={2}
                 ai="center"
@@ -72,7 +72,7 @@ export function TasksInModal({ tasks, isDark, onTaskDelete }: TasksInModalProps)
                 style={{ width: isIpad() ? 26 : 22, height: isIpad() ? 26 : 22 }}
                 pressStyle={{ opacity: 0.7 }}
               >
-                <MaterialIcons name="close" size={isIpad() ? 16 : 14} color={isDark ? '#f6f6f6' : '#333'} />
+                <MaterialIcons name="close" size={isIpad() ? 16 : 14} color={isDark ? 'rgb(255, 0, 0)' : 'rgb(255, 6, 6)'} />
               </Button>
             </XStack>
             {task.completed && (

@@ -99,21 +99,23 @@ export const ProjectCardMobile = ({
                 )}
 
                 {onOpenAddTaskModal && (
-                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "space-between" : "flex-end"} px={0} mt={isIpad() ? 18 : 12} mb={0} ai="center">
+                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "space-between" : "flex-end"} px={0} mt={project.attachments?.length > 0 ? -30 : 10} mb={0} ai="center">
                     {(!project.tasks || project.tasks.length === 0) && (
                       <Text color={isDark ? '#f6f6f6' : '#666'} fontSize={isIpad() ? 15 : 13} fontFamily="$body" ml={12} opacity={0.8}>
                         Add your first task to get started
                       </Text>
                     )}
                     <Button
-                      size="$2"
+                      size={isIpad() ? "$2" : 24}
                       circular
                       backgroundColor="transparent"
                       onPress={() => onOpenAddTaskModal(project.id)}
                       ai="center"
+                      borderColor={isDark ? '#222' : '#9f9f9f'}
+                      borderWidth={1}
                       jc="center"
                     >
-                      <Plus size={20} color={isDark ? '#f6f6f6' : '#111'} />
+                      <Plus size={isIpad() ? 20 : 16} color={isDark ? '#c9c9c9' : '#555'} />
                     </Button>
                   </XStack>
                 )}

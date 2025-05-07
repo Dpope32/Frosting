@@ -254,7 +254,7 @@ export function AddNoteSheet({
       modal
       open={isModalOpen}
       onOpenChange={handleCloseModal}
-      snapPoints={isWeb ? [85] : [88]}
+      snapPoints={isWeb ? [85] : isIpadDevice ? [75] : [90]}
       dismissOnSnapToBottom
     >
       <Sheet.Overlay
@@ -262,13 +262,13 @@ export function AddNoteSheet({
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
         opacity={0.5}
-        backgroundColor={isDark ? "rgba(0,0,0,0.9)" : "rgba(0,0,0,0.5)"}
+        backgroundColor={isDark ? "rgba(0,0,0,0.95)" : "rgba(0,0,0,0.5)"}
       />
       <Sheet.Frame
         paddingHorizontal={isIpad() ? "$4" : "$3.5"}
         paddingBottom="$8"
         paddingTop={Platform.OS === 'web' ? "$2" : isIpad() ? 20 : 18} 
-        backgroundColor={isDark ? "rgb(10, 10, 10)" : "#f1f1f1"}
+        backgroundColor={isDark ? "rgb(15, 14, 14)" : "#f1f1f1"}
         maxWidth={Platform.OS === 'web' ? 600 : "100%"} 
         width={Platform.OS === 'web' ? 600 : "100%"} 
         alignSelf="center"
@@ -400,6 +400,7 @@ export function AddNoteSheet({
                   alignSelf="center"
                   justifyContent="space-between"
                   alignItems="center"
+                  style={{ marginBottom: keyboardHeight - 75}}
                 >
                   <FormattingToolbar
                     onBold={handleBold}

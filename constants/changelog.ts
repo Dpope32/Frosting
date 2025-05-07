@@ -1,5 +1,17 @@
 export const CHANGELOG = [
   {
+    version: '1.1.161',
+    date: '2025-05-07',
+    notes: 'Updated Projects',
+    bullets: [
+      'Projects now display on the home screen',
+      'Upload images to Projects',
+      'Archive, Delete, and complete projects in the edit screen',
+      'See archived modals in the header on the projects screen',
+      'Patched bug with CRM not adding people within a reasonable amount of time',
+    ],
+  },
+  {
     version: '1.1.145',
     date: '2025-05-06',
     notes: 'Optimized App Loading',
