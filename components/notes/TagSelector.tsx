@@ -100,7 +100,7 @@ export function TagSelector({
       borderRadius={8}
       padding={0}
       marginVertical={0}
-      paddingHorizontal={isIpad() ? 8 : 10}
+      paddingHorizontal={isIpad() ? 8 : 6}
       mt={isWeb ? 4 : -8} 
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>

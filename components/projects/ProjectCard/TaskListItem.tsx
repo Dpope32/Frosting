@@ -19,7 +19,7 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
     <XStack
       ai="center"
       px={8}
-      py={4}
+      py={3}
       br={10}
       bg={
         task.completed 
@@ -35,7 +35,7 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
         position: 'relative',
         marginBottom: 0,
         width: '48%',
-        minWidth: 120,
+        minWidth: 130,
         maxWidth: 300,
         flexBasis: '48%',
       }}
@@ -45,7 +45,6 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
         circular
         bg={task.completed ? '$green8' : '$gray4'}
         onPress={() => onToggleTaskCompleted?.(task.id, !task.completed)}
-        mr={8}
         ai="center"
         jc="center"
         style={{ width: 24, height: 24 }}

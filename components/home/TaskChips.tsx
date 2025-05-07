@@ -56,7 +56,7 @@ export function TaskChips({ category, priority, status, time, checked = false, t
   const recurrencePattern = mapStatusToRecurrencePattern(status);
   const recurrenceColor = getRecurrenceColor(recurrencePattern);
   const recurrenceIcon = getRecurrenceIcon(recurrencePattern);
-
+  
   return (
     <View style={styles.tagsRow}>
       {category && (
@@ -94,10 +94,10 @@ export function TaskChips({ category, priority, status, time, checked = false, t
           alignItems="center" 
           backgroundColor={`${getPriorityColor(priority)}15`}
           py="$1"
-          px="$1"
+          px="$1.5"
           br={12}
           opacity={checked ? 0.6 : 0.9}
-          marginRight={6}
+          marginRight={2}
           marginBottom={4}
         >
           <Ionicons 
@@ -109,7 +109,7 @@ export function TaskChips({ category, priority, status, time, checked = false, t
           <Text
             fontFamily="$body"
             color={getPriorityColor(priority)}
-            fontSize={11}
+            fontSize={10}
             fontWeight="500"
           >
             {priority}

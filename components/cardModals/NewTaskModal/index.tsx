@@ -143,7 +143,11 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       e.stopPropagation()
     }
     
-    setNewTask(prev => ({ ...prev, category: value }))
+    setNewTask(prev => ({
+      ...prev,
+      // If the user clicks the same category that's already selected, unselect it
+      category: prev.category === value ? '' : value
+    }))
   }, [])
 
   const handleShowInCalendarChange = useCallback((showInCalendar: boolean) => {

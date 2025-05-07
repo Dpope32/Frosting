@@ -30,7 +30,7 @@ export function TimePicker({
   primaryColor,
 }: TimePickerProps) {
   return (
-    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 2} marginRight={14}>
+    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 0} marginRight={0}>
       {!showTimePicker && (
       <Pressable
         onPress={() => setShowTimePicker(!showTimePicker)}

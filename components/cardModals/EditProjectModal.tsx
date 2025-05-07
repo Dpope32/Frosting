@@ -29,7 +29,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
   const getProjectById = useProjectStore((s) => s.getProjectById);
   const updateProject = useProjectStore((s) => s.updateProject);
   const showToast = useToastStore((s) => s.showToast);
-  const addTagToStore = useTagStore((s) => s.addTag);
   const { contacts } = usePeopleStore();
   
   const peopleArray = Object.values(contacts || {});
@@ -215,7 +214,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
               )}
               {deadline ? (
                 <XStack ai="center" jc="space-between" width="100%">
-                  <XStack ai="center" gap="$2">
+                  <XStack ai="center" gap="$2" px={8}>
                     <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">
                       Deadline:
                     </Text>
@@ -266,10 +265,11 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
             />
           )}
         </YStack>
-        <YStack gap="$2" mt="$3" mx={0}>
-          <TagSelector tags={tags} onTagsChange={setTags} />
-        </YStack>
         <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
+        <XStack gap="$2" mt="$2" mx={10}>
+        <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Tags?</Text>
+          <TagSelector tags={tags} onTagsChange={setTags} />
+        </XStack>
         <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
         <DebouncedInput
           value={description}

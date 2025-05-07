@@ -1,7 +1,6 @@
 import React from 'react'
-import { XStack, YStack, Text, Button } from 'tamagui'
+import { XStack, YStack, Text } from 'tamagui'
 import { Image } from 'react-native'
-import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types/project'
 import { isIpad } from '@/utils/deviceUtils'
 import { getDaysUntilDeadline } from './projectCardUtils';
@@ -110,6 +109,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
     </TableRow>,
   )
 
+  // People row
   if (project.people && project.people.length > 0) {
     rows.push(
       <TableRow key="people" label="People:" rowIndex={rows.length}>
@@ -117,10 +117,10 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
           {project.people.map((person) => (
             <XStack
               key={person.id}
-              br={isIpad() ? 15 : 10}
+              br={isIpad() ? 15 : 8}
               overflow="hidden"
-              width={isIpad() ? 28 : 18}
-              height={isIpad() ? 28 : 18}
+              width={isIpad() ? 28 : 16}
+              height={isIpad() ? 28 : 16}
             >
               {person.profilePicture ? (
                 <Image

@@ -23,13 +23,13 @@ export const getTaskBackgroundColor = (taskPriority: TaskPriority, isCompleted: 
       return isDark ? '#000' : '#777';
     }
     if (taskPriority === 'high') {
-      return isDark ? 'rgba(255, 0, 0, 0.05)' : 'rgba(255, 0, 0, 0.05)';
+      return isDark ? 'rgba(255, 0, 0, 0.08)' : 'rgba(255, 0, 0, 0.05)';
     }
     if (taskPriority === 'medium') {
-      return isDark ? 'rgba(255, 255, 0, 0.03)' : 'rgba(255, 255, 0, 0.05)';
+      return isDark ? 'rgba(255, 255, 0, 0.06)' : 'rgba(255, 255, 0, 0.06)';
     }
     if (taskPriority === 'low') {
-      return isDark ? 'rgba(251, 255, 0, 0.03)' : 'rgba(0, 255, 0, 0.05)';
+      return isDark ? 'rgba(0, 255, 0, 0.04)' : 'rgba(0, 255, 0, 0.05)';
     }
     
     return isDark ? '#151515' : '#999';
