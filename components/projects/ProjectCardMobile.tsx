@@ -22,6 +22,13 @@ interface ProjectCardMobileProps {
   onEdit?: (projectId: string) => void;
 }
 
+const borderColor = (project: Project, isDark: boolean) => {
+  if (project.tasks && project.tasks.length == 0) {
+    return isDark ? '#222' : '#ccc';
+  }
+  return 'transparent';
+}
+
 export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTaskModal, onToggleTaskCompleted, onEdit }: ProjectCardMobileProps) => {
     const priorityColor = getPriorityColor(project.priority);
     return (
@@ -39,7 +46,13 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             elevation: 10,
             overflow: 'hidden',
             position: 'relative',
+            borderTopWidth: 2,
+            borderRightWidth: 2,
+            borderBottomWidth: 2,
             borderLeftWidth: project.status === 'completed' ? 0 : 3, 
+            borderTopColor: isDark ? '#333' : '#e0e0e0',
+            borderRightColor: isDark ? '#333' : '#e0e0e0',
+            borderBottomColor: isDark ? '#333' : '#e0e0e0',
             borderLeftColor: project.status === 'completed' ?  'transparent' : priorityColor,
             backgroundColor: isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(255, 255, 255, 0.7)", 
             ...(isWeb ? {} : {
@@ -79,18 +92,18 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
               </XStack>
             </XStack>
           )}
-          {onOpenAddTaskModal && (
+          {onEdit && (
             <Button
               size="$2"
               circular
               backgroundColor="transparent"
-              onPress={() => onOpenAddTaskModal(project.id)}
+              onPress={() => onEdit(project.id)}
               position="absolute"
               top={isIpad() ? 14 : 12}
               right={isIpad() ? 16 : 14}
               zIndex={10}
             >
-              <Plus size={16} color={isDark ? '#f6f6f6' : '#111'} />
+              <MaterialIcons name="edit" size={18} color={isDark ? '#f6f6f6' : '#667766'} />
             </Button>
           )}
 
@@ -98,7 +111,13 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             colors={isDark ? ['rgb(0, 0, 0)',  'rgb(6, 6, 6)', 'rgb(12, 12, 12)', 'rgb(18, 18, 18)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']} 
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0.5 }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderWidth: 2, borderRadius: 12, borderColor: project.tasks && project.tasks.length > 0 ? isDark ? '#222' : 'transparent' : 'transparent'}}
+            style={{ position: 'absolute', 
+              top: 0, left: 0, right: 0, bottom: 0, 
+              borderWidth: 2, borderRadius: 12, 
+                borderRightColor: borderColor(project, isDark),
+                borderTopColor: borderColor(project, isDark),
+                borderBottomColor: borderColor(project, isDark),
+              }}
           />
           <XStack
             p={isIpad() ? "$3" : "$2"} 
@@ -109,7 +128,7 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             ai="center"
             animation="quick"
             py={isIpad() ? "$3" : "$2.5"}
-            pt={isIpad() ? "$3" : "$2.5"}
+            pt={isIpad() ? "$2" : "$1"}
           >
             <YStack flex={1} gap="$2"> 
               <XStack px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$1.5" : "$1"} mt={isIpad() ? "$-1" : 6} ml={6}>
@@ -118,66 +137,12 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                     {project.name}
                   </Text>
                   <MaterialIcons name="circle" size={12} color={priorityColor} />
-                   {project?.status && (
-                      <XStack
-                        bg={
-                          project.status === 'completed'
-                            ? 'rgba(0, 128, 0, 0.1)'
-                            : project.status === 'in_progress'
-                            ? 'rgba(0, 0, 255, 0.1)'
-                            : project.status === 'pending'
-                            ? 'rgba(255, 255, 0, 0.1)'
-                            : project.status === 'past_deadline'
-                            ? 'rgba(255, 0, 0, 0.1)'
-                            : (isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')
-                        }
-                        py="$0.5"
-                        br={12}
-                        opacity={0.8}
-                        ai="center"
-                      >
-                        <Text
-                          paddingHorizontal={"$1.5"}
-                          paddingVertical={"$0.5"}
-                          color={
-                            project.status === 'completed'
-                              ? '$green10'
-                              : project.status === 'in_progress'
-                              ? '$blue10'
-                              : project.status === 'pending'
-                              ? '$yellow10'
-                              : project.status === 'past_deadline'
-                              ? '$red10'
-                              : (isDark ? '$blue10' : '#333')
-                          }
-                          fontSize={isIpad() ? 15 : 13}
-                          fontFamily="$body"
-                        >
-                          {project.status.replace('_', ' ')}
-                        </Text>
-                      </XStack>
-                    )}
-                  {project?.deadline && (() => {
-                      let deadlineDate = project.deadline;
-                      if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate);
-                      if (deadlineDate instanceof Date && !isNaN(deadlineDate.getTime())) {
-                        return (
-                          <XStack ai="center" gap="$1">
-                            <MaterialIcons name="event" size={16} color={isDark ? '#999' : '#666'} />
-                            <Text color={isDark ? '#ccc' : '#444'} fontSize={isIpad() ? 15 : 13} paddingHorizontal={4} fontFamily="$body">
-                              {deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </Text>
-                          </XStack>
-                        );
-                      }
-                      return null;
-                    })()}
                 </XStack>
-
               </XStack>
-              <XStack ai="center" gap="$1" flexWrap="wrap" px={isIpad() ? "$2" : "$3"} my={-4}> 
-                {project?.tags && Array.isArray(project.tags) && project.tags.length > 0 && (
-                    <XStack flex={1} flexWrap="wrap" gap="$1">
+              <XStack ai="center" px={isIpad() ? "$3" : "$3"} my={-4}> 
+                {project?.tags && Array.isArray(project.tags) && project.tags.length > 0 ? (
+                  <>
+                    <XStack ai="center">
                       {project.tags.map((tag, index) => (
                         <XStack
                           key={tag.id}
@@ -187,6 +152,7 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                           py="$0.5"
                           br={12}
                           opacity={0.9}
+                          mr={4}
                         >
                           <Text
                             fontFamily="$body"
@@ -199,83 +165,190 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                           </Text>
                         </XStack>
                       ))}
+                      {project?.status && (
+                        <XStack
+                          bg={
+                            project.status === 'completed'
+                              ? 'rgba(0, 128, 0, 0.1)'
+                              : project.status === 'in_progress'
+                              ? 'rgba(0, 0, 255, 0.1)'
+                              : project.status === 'pending'
+                              ? 'rgba(255, 255, 0, 0.1)'
+                              : project.status === 'past_deadline'
+                              ? 'rgba(255, 0, 0, 0.1)'
+                              : (isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')
+                          }
+                          py="$0.5"
+                          br={12}
+                          opacity={0.8}
+                          ai="center"
+                          ml={0}
+                        >
+                          <Text
+                            paddingHorizontal={"$1.5"}
+                            paddingVertical={"$0.5"}
+                            color={
+                              project.status === 'completed'
+                                ? '$green10'
+                                : project.status === 'in_progress'
+                                ? '$blue10'
+                                : project.status === 'pending'
+                                ? '$yellow10'
+                                : project.status === 'past_deadline'
+                                ? '$red10'
+                                : (isDark ? '$blue10' : '#333')
+                            }
+                            fontSize={isIpad() ? 13 : 11}
+                            fontFamily="$body"
+                          >
+                            {project.status.replace('_', ' ')}
+                          </Text>
+                        </XStack>
+                      )}
                     </XStack>
-                  )}
-                </XStack>
-                 <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
+                  </>
+                ) : (
+                  project?.status && (
+                    <XStack
+                      bg={
+                        project.status === 'completed'
+                          ? 'rgba(0, 128, 0, 0.1)'
+                          : project.status === 'in_progress'
+                          ? 'rgba(0, 0, 255, 0.1)'
+                          : project.status === 'pending'
+                          ? 'rgba(255, 255, 0, 0.1)'
+                          : project.status === 'past_deadline'
+                          ? 'rgba(255, 0, 0, 0.1)'
+                          : (isDark ? 'rgba(113, 148, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)')
+                      }
+                      py="$0.5"
+                      br={12}
+                      opacity={0.8}
+                      ai="center"
+                      ml={0}
+                    >
+                      <Text
+                        paddingHorizontal={"$1.5"}
+                        paddingVertical={"$0.5"}
+                        color={
+                          project.status === 'completed'
+                            ? '$green10'
+                            : project.status === 'in_progress'
+                            ? '$blue10'
+                            : project.status === 'pending'
+                            ? '$yellow10'
+                            : project.status === 'past_deadline'
+                            ? '$red10'
+                            : (isDark ? '$blue10' : '#333')
+                        }
+                        fontSize={isIpad() ? 13 : 11}
+                        fontFamily="$body"
+                      >
+                        {project.status.replace('_', ' ')}
+                      </Text>
+                    </XStack>
+                  )
+                )}
+              </XStack>
+                 <YStack
+                   minWidth={isIpad() ? 380 : 240}
+                   p={isIpad() ? '$4' : '$3'}
+                   pt={isIpad() ? '$2' : '$1'}
+                   ml={0}
+                   mr={0}
+                 >
+                   <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
+                   {project.tasks && project.tasks.length > 0 && (
+                     <>
+                       <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.18} my={isIpad() ? 18 : 12} />
+                       {project.tasks.length > 1 && (
+                         <Text fontSize={12} color={isDark ? 'rgba(255, 255, 255, 0.84)' : 'rgba(0, 0, 0, 0.5)'} ml={0} mb={6} fontFamily="$body">
+                           {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
+                         </Text>
+                       )}
+                       <XStack gap={8} flexWrap="wrap" ai="center" ml={0}>
+                         {project.tasks.map((task, idx) => {
+                           return (
+                             <XStack
+                               key={task.id}
+                               ai="center"
+                               px={8}
+                               py={isIpad() ? 6 : 10}
+                               br={10}
+                               bg={getTaskBackgroundColor(task.priority as TaskPriority, task.completed, isDark)}
+                               borderWidth={1}
+                               borderColor={isDark ? '#333' : '#ddd'}
+                               style={{
+                                 opacity: task.completed ? 0.6 : 1,
+                                 position: 'relative',
+                                 marginBottom: 0,
+                                 width: '100%',
+                                 flexBasis: '100%',
+                               }}
+                             >
+                               <Button
+                                 size="$1"
+                                 circular
+                                 bg={task.completed
+                                   ? (isDark ? 'transparent' : '#e0e0e0')
+                                   : (isDark ? '#222' : '#f5f5f5')}
+                                 borderWidth={1}
+                                 borderColor={isDark ? 'transparent' : '#bbb'}
+                                 onPress={() => onToggleTaskCompleted && onToggleTaskCompleted(task.id, !task.completed)}
+                                 mr={8}
+                                 ai="center"
+                                 jc="center"
+                                 style={{ width: 24, height: 24 }}
+                               >
+                                 {task.completed ? <Check size={16} color={isDark ? '#00ff00' : '#00ff00'} /> : ''}
+                               </Button>
+                               <Text
+                                 fontSize={13}
+                                 color={isDark ? '#f6f6f6' : '#222'}
+                                 fontFamily="$body"
+                                 style={{ flex: 1, marginLeft: 2, textDecorationLine: task.completed ? 'line-through' : 'none', whiteSpace: 'normal' }}
+                               >
+                                 {task.name}
+                               </Text>
+                               <XStack ml={10} ai="center">
+                                 <Text style={{ fontSize: isWeb ? 22 : 28, color: getPriorityColor(task.priority), lineHeight: isWeb ? 22 : 28 }}>•</Text>
+                               </XStack>
+                               {task.completed && (
+                                 <XStack
+                                   position="absolute"
+                                   top={0}
+                                   left={0}
+                                   right={0}
+                                   bottom={0}
+                                   bg={isDark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)'}
+                                   zIndex={1}
+                                   br={10}
+                                   pointerEvents="none"
+                                 />
+                               )}
+                             </XStack>
+                           );
+                         })}
+                       </XStack>
+                     </>
+                   )}
+                   {onOpenAddTaskModal && (
+                     <XStack w="100%" flexBasis="100%" jc="flex-end" px={0} mt={isIpad() ? 18 : 12} mb={0}>
+                       <Button
+                         size="$2"
+                         circular
+                         backgroundColor="transparent"
+                         onPress={() => onOpenAddTaskModal(project.id)}
+                         ai="center"
+                         jc="center"
+                       >
+                         <Plus size={20} color={isDark ? '#f6f6f6' : '#111'} />
+                       </Button>
+                     </XStack>
+                   )}
+                 </YStack>
             </YStack>
           </XStack>
-
-          {project.tasks && project.tasks.length > 0 && (
-            <>
-              <YStack px={isWeb ? '$4' : '$4'} pb={12}>
-                <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.0} mb={6} />
-                  {project.tasks.length > 1 && (
-                    <Text fontSize={12} color={isDark ? 'rgba(255, 255, 255, 0.84)' : 'rgba(0, 0, 0, 0.5)'} ml={4} mb={6} fontFamily="$body">
-                      {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
-                    </Text>
-                  )}
-                <XStack gap={8} flexWrap="wrap">
-                  {project.tasks.map((task, idx) => {
-                    return (
-                      <XStack
-                        key={task.id}
-                        ai="center"
-                        px={8}
-                        py={4}
-                        br={10}
-                        bg={getTaskBackgroundColor(task.priority as TaskPriority, task.completed, isDark)}
-                        style={{
-                          opacity: task.completed ? 0.6 : 1,
-                          position: 'relative',
-                          marginBottom: 0,
-                          width: '48%',
-                          flexBasis: '48%',
-                        }}
-                      >
-                        <Button
-                          size="$1"
-                          circular
-                          bg={task.completed ? 'transparent' : 'transparent'}
-                          onPress={() => onToggleTaskCompleted && onToggleTaskCompleted(task.id, !task.completed)}
-                          mr={8}
-                          ai="center"
-                          jc="center"
-                          style={{ width: 24, height: 24 }}
-                        >
-                          {task.completed ? <Check size={16} color={isDark ? '#00ff00' : '#00ff00'} /> : ''}
-                        </Button>
-                        <Text
-                          fontSize={13}
-                          color={isDark ? '#f6f6f6' : '#222'}
-                          fontFamily="$body"
-                          style={{ flex: 1, marginLeft: 2, textDecorationLine: task.completed ? 'line-through' : 'none', whiteSpace: 'normal' }}
-                        >
-                          {task.name}
-                        </Text>
-                        <XStack ml={10} ai="center">
-                          <Text style={{ fontSize: isWeb ? 22 : 28, color: getPriorityColor(task.priority), lineHeight: isWeb ? 22 : 28 }}>•</Text>
-                        </XStack>
-                        {task.completed && (
-                          <XStack
-                            position="absolute"
-                            top={0}
-                            left={0}
-                            right={0}
-                            bottom={0}
-                            bg={isDark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.18)'}
-                            zIndex={1}
-                            br={10}
-                            pointerEvents="none"
-                          />
-                        )}
-                      </XStack>
-                    );
-                  })}
-                </XStack>
-              </YStack>
-            </>
-          )}
         </Animated.View>
     )
 }

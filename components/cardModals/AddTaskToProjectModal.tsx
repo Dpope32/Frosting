@@ -1,10 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { XStack, YStack, Text, Button, Stack } from 'tamagui';
 import { BaseCardModal } from './BaseCardModal';
 import { PrioritySelector } from './NewTaskModal/PrioritySelector';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { DebouncedInput } from '../shared/debouncedInput';
 import { TaskPriority } from '@/types/task';
+import { Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface AddTaskToProjectModalProps {
   open: boolean;
@@ -17,8 +20,27 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
   const [name, setName] = useState('');
   const [completed, setCompleted] = useState(false);
   const [priority, setPriority] = useState<TaskPriority>('medium');
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const inputRef = useRef<any>(null);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  
   useAutoFocus(inputRef, 500, open);
+  
+  // Handle keyboard appearance
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardOpen(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardOpen(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleSave = () => {
     if (name.trim()) {
@@ -29,6 +51,7 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
       onOpenChange(false);
     }
   };
+  
   const handleCancel = () => {
     setName('');
     setCompleted(false);
@@ -48,13 +71,13 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
         <XStack width="100%" px="$0" py="$2" justifyContent="space-between">
           <Button
             backgroundColor="transparent"
-            borderColor={'$red10'}
+            borderColor={isDark ? 'rgba(220,38,38,0.4)' : '$red10'}
             height={40}
             paddingHorizontal={20}
             pressStyle={{ opacity: 0.8 }}
             onPress={handleCancel}
           >
-            <Text color="$red10" fontWeight="bold" fontFamily="$body" fontSize={14}>
+            <Text color={isDark ? '#ff6b6b' : '$red10'} fontWeight="bold" fontFamily="$body" fontSize={14}>
               Cancel
             </Text>
           </Button>
@@ -73,25 +96,43 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
         </XStack>
       }
     >
-      <YStack gap="$4" px="$2" py="$2">
-        <DebouncedInput
-          ref={inputRef}
-          value={name}
-          onDebouncedChange={setName}
-          placeholder="Task name"
-          maxLength={40}
-          autoCapitalize="words"
-          autoCorrect
-          spellCheck
-          fontSize={16}
-          fontFamily="$body"
-          px="$2.5"
-          height={40}
-        />
-        <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
-      </YStack>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+      >
+        <YStack 
+          gap="$4" 
+          px="$2.5" 
+          py={keyboardOpen ? '$2' : '$4'}
+          animation="quick"
+          translateY={keyboardOpen ? -10 : 0}
+        >
+          <DebouncedInput
+            ref={inputRef}
+            value={name}
+            onDebouncedChange={setName}
+            placeholder="Task name"
+            maxLength={40}
+            autoCapitalize="words"
+            autoCorrect
+            spellCheck
+            fontSize={isIpad() ? 17 : 15}
+            fontFamily="$body"
+            fontWeight="bold"
+            color={isDark ? '#f6f6f6' : '#111'}
+            backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+            borderWidth={1}
+            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+            borderRadius={4}
+            px="$2.5"
+            height={45}
+          />
+          <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
+        </YStack>
+      </KeyboardAvoidingView>
     </BaseCardModal>
   );
 }
 
-export default AddTaskToProjectModal; 
+export default AddTaskToProjectModal;

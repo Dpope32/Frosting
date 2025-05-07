@@ -25,18 +25,18 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
   const TableRow = ({ label, children, rowIndex }: RowProps) => (
     <XStack
       ai="center"
-      py={"$2"}
-      px={"$2"}
+      py={isIpad() ? "$2" : "$1"}
+      px={isIpad() ? "$1.5" : "$1"}
       jc="flex-start"
-      gap="$2"
+      gap={isIpad() ? "$1.5" : "$1"}
       borderBottomWidth={1}
       borderColor={TABLE_BORDER}
       backgroundColor={rowIndex % 2 === 0 ? 'transparent' : ROW_ALT_BG}
     >
       <Text
-        color={isDark ? '#dbd0c6' : '#444'}
-        fontSize={isIpad() ? '$4' : '$3'}
-        w={isIpad() ? 150 : 110}
+        color={isDark ? '#dbd0c6' : '#777'}
+        fontSize={isIpad() ? 16 : "$3"}
+        w={isIpad() ? 130 : 95}
         fontWeight="600"
         fontFamily="$body"
       >
@@ -48,10 +48,39 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
 
   const rows: React.ReactNode[] = []
 
+  if (project?.deadline) {
+    rows.push(
+      <TableRow key="deadline-date" label="Deadline:" rowIndex={rows.length}>
+        <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
+          {(() => {
+            let deadlineDate = project?.deadline
+            if (!deadlineDate) return '-'
+            if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate)
+            if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-'
+            return deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          })()}
+        </Text>
+      </TableRow>,
+    )
+    rows.push(
+      <TableRow key="days-remaining" label="Days remaining:" rowIndex={rows.length}>
+        <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
+          {(() => {
+            let deadlineDate = project?.deadline
+            if (!deadlineDate) return '-'
+            if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate)
+            if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-'
+            return getDaysUntilDeadline(deadlineDate)
+          })()}
+        </Text>
+      </TableRow>,
+    )
+  }
+
   if (project?.description) {
     rows.push(
       <TableRow key="description" label="Description:" rowIndex={rows.length}>
-        <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? '$4' : '$3'} fontFamily="$body">
+        <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
           {project.description}
         </Text>
       </TableRow>,
@@ -61,7 +90,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
   // Created row
   rows.push(
     <TableRow key="created" label="Created:" rowIndex={rows.length}>
-      <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? '$4' : '$3'} fontFamily="$body">
+      <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
         {(() => {
           let dateObj = project?.createdAt
           if (dateObj && typeof dateObj === 'string') {
@@ -80,33 +109,17 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
     </TableRow>,
   )
 
-  if (project?.deadline) {
-    rows.push(
-      <TableRow key="deadline" label="Days remaining:" rowIndex={rows.length}>
-        <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? '$4' : '$3'} fontFamily="$body">
-          {(() => {
-            let deadlineDate = project?.deadline
-            if (!deadlineDate) return '-'
-            if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate)
-            if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-'
-            return getDaysUntilDeadline(deadlineDate)
-          })()}
-        </Text>
-      </TableRow>,
-    )
-  }
-
   if (project.people && project.people.length > 0) {
     rows.push(
       <TableRow key="people" label="People:" rowIndex={rows.length}>
-        <XStack ai="center" gap="$2" flexWrap="wrap">
+        <XStack ai="center" gap={isIpad() ? "$1.5" : "$1"} flexWrap="wrap">
           {project.people.map((person) => (
             <XStack
               key={person.id}
-              br={isIpad() ? 16 : 11}
+              br={isIpad() ? 15 : 10}
               overflow="hidden"
-              width={isIpad() ? 32 : 22}
-              height={isIpad() ? 32 : 22}
+              width={isIpad() ? 28 : 18}
+              height={isIpad() ? 28 : 18}
             >
               {person.profilePicture ? (
                 <Image
@@ -115,7 +128,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
                 />
               ) : (
                 <YStack flex={1} ai="center" jc="center" backgroundColor={isDark ? '$gray3' : '$gray6'}>
-                  <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 15 : 13}>
+                  <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 13 : 11}>
                     {person.name.charAt(0).toUpperCase()}
                   </Text>
                 </YStack>
@@ -142,27 +155,13 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
         borderWidth={1}
         borderColor={TABLE_BORDER}
         backgroundColor={isDark ? 'rgba(30,30,30,0.6)' : 'rgba(255,255,255,0.8)'}
-        minWidth={isIpad() ? 420 : 280}
+        minWidth={isIpad() ? 380 : 240}
         px={"$1"}
         ml={isIpad() ? 16 : 12}
+        mr={isIpad() ? 24 : 12}
       >
         {rows}
       </YStack>
-      {onEdit && (
-        <Button
-          size="$2"
-          circular
-          backgroundColor="transparent"
-          onPress={() => onEdit(project.id)}
-          mt="$2"
-        >
-          <MaterialIcons
-            name="edit"
-            size={16}
-            color={isDark ? '#3c3c3c' : '#6c6c6c'}
-          />
-        </Button>
-      )}
     </XStack>
   )
 }

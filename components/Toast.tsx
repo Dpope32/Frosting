@@ -87,7 +87,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
 
   const backgroundMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(10, 55, 32, 0.95)' : 'rgba(16, 91, 44, 0.35)',
+    success: isDark ? 'rgba(10, 55, 32, 0.95)' : 'rgba(200, 254, 220, 0.88)',
     error: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(245,158,11,0.15)',

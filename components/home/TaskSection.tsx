@@ -15,6 +15,7 @@ import { isIpad } from '@/utils/deviceUtils'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { useUserStore } from '@/store/UserStore'
 import { EasterEgg } from '../shared/EasterEgg'
+import { ProjectSection } from '@/components/home/ProjectSection'
 // Enable debugging
 const DEBUG = false;
 
@@ -266,41 +267,44 @@ export const TaskSection = ({
                 </YStack>
               </Stack>
             ) : (
-              <XStack
-                flexWrap="wrap"
-                gap={isIpad() ? "$0.5" : "$0.5"}
-                px={isIpad() ? "$3" : "$3"}
-                paddingLeft={isIpad() ? "$2.5" : "$4"}
-                paddingVertical="$1.5"
-                paddingBottom={isIpad() ? "$5" : "$4"}
-                justifyContent={isIpad() ? "center" : "flex-start"}
-                borderBottomWidth={1}
-                borderColor={isDark ? "rgba(29, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.1)"}
-              >
-                {todaysTasks.map((task: Task) => {
-                  const isCompleted = task.completionHistory[todayLocalStr] || false;
-                  return (
-                    <Stack 
-                      key={task.id} 
-                      width={isIpad() ? "80%" : "99%"}
-                      marginBottom="$2"
-                      animation="quick"
-                    >
-                      <TaskCard
-                        title={task.name}
-                        time={task.time}
-                        category={task.category}
-                        priority={task.priority}
-                        status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
-                        checked={isCompleted}
-                        tags={task.tags}
-                        onCheck={() => handleToggleTask(task.id)}
-                        onDelete={() => deleteTask(task.id)}
-                      />
-                    </Stack>
-                  );
-                })}
-              </XStack>
+              <>
+                <XStack
+                  flexWrap="wrap"
+                  gap={isIpad() ? "$0.5" : "$0.5"}
+                  px={isIpad() ? "$3" : "$3"}
+                  paddingLeft={isIpad() ? "$2.5" : "$4"}
+                  paddingVertical="$1.5"
+                  paddingBottom={isIpad() ? "$4" : "$3"}
+                  justifyContent={isIpad() ? "center" : "flex-start"}
+                  borderBottomWidth={1}
+                  borderColor={isDark ? "rgba(29, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.1)"}
+                >
+                  {todaysTasks.map((task: Task) => {
+                    const isCompleted = task.completionHistory[todayLocalStr] || false;
+                    return (
+                      <Stack 
+                        key={task.id} 
+                        width={isIpad() ? "80%" : "99%"}
+                        marginBottom="$2"
+                        animation="quick"
+                      >
+                        <TaskCard
+                          title={task.name}
+                          time={task.time}
+                          category={task.category}
+                          priority={task.priority}
+                          status={task.recurrencePattern === 'one-time' ? 'One-time' : task.recurrencePattern.charAt(0).toUpperCase() + task.recurrencePattern.slice(1)}
+                          checked={isCompleted}
+                          tags={task.tags}
+                          onCheck={() => handleToggleTask(task.id)}
+                          onDelete={() => deleteTask(task.id)}
+                        />
+                      </Stack>
+                    );
+                  })}
+                </XStack>
+                {!isWeb && <ProjectSection />}
+              </>
             )}
             {!isWeb ? (
               <>

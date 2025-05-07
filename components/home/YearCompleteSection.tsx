@@ -31,15 +31,14 @@ export function YearCompleteSection() {
 
   return (
     <YStack 
-      padding="$1" 
       width={isWeb ? "100%" :isIpad() ? "100%" : "98%"}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"
       br={16}
       px="$3"
-      py="$1"
-      pt={isIpad() ? "$4" : "$3"}
+      pb="$2"
+      pt={isIpad() ? "$3.5" : "$3"}
     >
       <Stack
         width="100%"

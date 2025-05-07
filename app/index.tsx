@@ -19,7 +19,6 @@ export default function Index() {
   
   // Grab sync and export actions
   const { logSyncStatus, exportStateToFile } = useRegistryStore();
-  
   // Call app initialization hook at the top level (per React rules)
   useAppInitialization();
   useEffect(() => {

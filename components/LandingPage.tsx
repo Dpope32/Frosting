@@ -256,24 +256,6 @@ export function LandingPage() {
               <Text color="#dbd0c6" fontSize={12} fontFamily="$body" marginTop="$2" textAlign="center" opacity={0}>Version 1.1.70</Text>
             </Stack>
           )}
-          {Platform.OS !== 'web' && filteredProjects?.length > 0 && (
-            <Stack 
-              backgroundColor={backgroundColor} 
-              borderRadius={16} 
-              padding="$3" 
-              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
-              borderWidth={1}
-              marginBottom="$4"
-              style={ {
-                shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
-                shadowOffset: { width: 0, height: 4 }, 
-                shadowOpacity: 0.35,  
-                shadowRadius: 12  
-              }}
-            >
-              <ProjectSection />
-            </Stack>
-          )}
         </YStack>
         <Stack height={180} />
       </ScrollView>

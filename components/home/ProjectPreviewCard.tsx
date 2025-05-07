@@ -1,6 +1,6 @@
 // Lightweight project preview card used on the LandingPage mobile view
 import React from 'react'
-import { Pressable, Platform, useColorScheme } from 'react-native'
+import { Pressable, Platform, useColorScheme, ViewStyle, DimensionValue } from 'react-native'
 import { XStack, YStack, Text, Image } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -28,14 +28,19 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         }
         onPress()
       }}
-      style={{ width: '100%', justifyContent: isIpad() ? 'center' : 'center', paddingHorizontal: isIpad() ? 24 : 18 }}
+      style={{
+        width: isIpad() ? 455 : '100%',
+        justifyContent: 'center',
+        alignSelf: 'center',
+        paddingHorizontal: isIpad() ? 24 : 18,
+      }}
     >
       <YStack
         borderRadius={12}
         overflow="hidden"
         mb={isIpad() ? 8 : 4}
         style={{
-          backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(27, 27, 27, 0.94)',
+          backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(74, 72, 72, 0.94)',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.4,
@@ -46,14 +51,27 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         }}
       >
         <LinearGradient
-          colors={isDark ? [ 'rgba(0, 0, 0, 0.9)','rgba(5, 5, 5, 0.9)','rgba(15, 14, 14, 0.8)','rgba(19, 19, 19, 0.7)', 'rgba(26, 26, 26, 0.6)'] : ['rgba(40, 40, 40, 0.7)', 'rgba(18, 18, 18, 0.5)']}
+          colors={isDark ? 
+            [ 
+             'rgba(0, 0, 0, 0.9)',
+             'rgba(5, 5, 5, 0.9)',
+             'rgba(15, 14, 14, 0.8)',
+             'rgba(19, 19, 19, 0.7)', 
+             'rgba(30, 30, 30, 0.6)'
+            ] : [
+               'rgba(0, 0, 0, 0.53)',
+               'rgba(82, 82, 82, 0.34)',
+               'rgba(73, 72, 72, 0.18)',
+               'rgba(14, 13, 13, 0.16)',
+               'rgba(0, 0, 0, 0.62)',
+            ]}
           start={{ x: 0, y: 1 }}
           end={{ x: 1, y: 0 }}
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <XStack
-          padding={isIpad() ? '$4' : '$3'}
-          paddingBottom={isIpad() ? '$4' : '$3.5'}
+          padding={isIpad() ? '$2.5' : '$2.5'}
+          paddingBottom={isIpad() ? '$4' : '$3'}
           paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
@@ -63,11 +81,17 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           <YStack flex={1} gap="$1">
             <XStack py={"$1.5"} jc="space-between" ai="center">
               <Text
-                fontFamily="$body"
-                fontWeight="bold"
+                fontFamily="$heading"
+                fontWeight="900"
                 color={isDark ? "#dbd0c6" : "#dbd0c6"}
-                fontSize={isIpad() ? 16 : 14}
+                fontSize={isIpad() ? 15 : 14}
                 maxWidth={'70%'}
+                elevation={2}
+                shadowColor="#000"
+                shadowOffset={{ width: 0, height: 2 }}
+                shadowOpacity={0.2}
+                shadowRadius={2}
+                ellipse
                 numberOfLines={1}
               >
                 {project.name}
@@ -79,8 +103,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 if (d && !isNaN(d.getTime())) {
                   return (
                     <XStack alignItems="center" gap="$1">
-                      <MaterialIcons name="event" size={isIpad() ? 18 : 16} color={isDark ? '#999' : '#999'} />
-                      <Text fontSize={isIpad() ? 14 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
+                      <MaterialIcons name="event" size={isIpad() ? 14 : 13} color={isDark ? '#999' : '#999'} />
+                      <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
                         {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </Text>
                     </XStack>
