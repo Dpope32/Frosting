@@ -103,7 +103,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       onOpenChange={onOpenChange}
       title="New Project"
       showCloseButton={true}
-      snapPoints={isWeb ? [90] : isIpad() ? [70] : [90]}
+      snapPoints={isWeb ? [90] : isIpad() ? [70] : [92]}
       hideHandle={true}
       footer={
         <XStack width="100%" px="$0" py="$2" justifyContent="space-between">

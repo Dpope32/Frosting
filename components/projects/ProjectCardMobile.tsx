@@ -46,12 +46,12 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             elevation: 10,
             overflow: 'hidden',
             position: 'relative',
-            borderTopWidth: 2,
-            borderRightWidth: 2,
-            borderBottomWidth: 2,
+            borderTopWidth: project.status === 'completed' ? 0 : 2,
+            borderRightWidth: project.status === 'completed' ? 0 : 2,
+            borderBottomWidth: project.status === 'completed' ? 0 : 2,
             borderLeftWidth: project.status === 'completed' ? 0 : 3, 
             borderTopColor: isDark ? '#333' : '#e0e0e0',
-            borderRightColor: isDark ? '#333' : '#e0e0e0',
+            borderRightColor: isDark ? '#333' : '#e0e0e0' ,
             borderBottomColor: isDark ? '#333' : '#e0e0e0',
             borderLeftColor: project.status === 'completed' ?  'transparent' : priorityColor,
             backgroundColor: isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(255, 255, 255, 0.7)", 
@@ -71,7 +71,7 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
               left={0}
               right={0}
               bottom={0}
-              bg={isDark ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.7)'}
+              bg={isDark ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.7)'}
               zIndex={20}
               ai="center"
               jc="center"
@@ -131,9 +131,9 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
             pt={isIpad() ? "$2" : "$1"}
           >
             <YStack flex={1} gap="$2"> 
-              <XStack px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$1.5" : "$1"} mt={isIpad() ? "$-1" : 6} ml={6}>
+              <XStack px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$2.5" : "$2"} mt={isIpad() ? "$-1" : 6} ml={6}>
                 <XStack ai="center" gap="$2" flexWrap="wrap" f={1}>
-                  <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 18 : 16}  fontWeight="bold" fontFamily="$body">
+                  <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 19 : 17}  fontWeight="bold" fontFamily="$body">
                     {project.name}
                   </Text>
                   <MaterialIcons name="circle" size={12} color={priorityColor} />
@@ -252,7 +252,7 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
               </XStack>
                  <YStack
                    minWidth={isIpad() ? 380 : 240}
-                   p={isIpad() ? '$4' : '$3'}
+                   p={isIpad() ? '$4' : '$1.5'}
                    pt={isIpad() ? '$2' : '$1'}
                    ml={0}
                    mr={0}
@@ -266,7 +266,7 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                            {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
                          </Text>
                        )}
-                       <XStack gap={8} flexWrap="wrap" ai="center" ml={0}>
+                       <XStack gap={8} flexWrap="wrap" alignItems='center' alignContent="center" ml={12}>
                          {project.tasks.map((task, idx) => {
                            return (
                              <XStack
@@ -274,16 +274,17 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                                ai="center"
                                px={8}
                                py={isIpad() ? 6 : 10}
+                               alignContent='center'
+                               alignItems='center'
                                br={10}
                                bg={getTaskBackgroundColor(task.priority as TaskPriority, task.completed, isDark)}
                                borderWidth={1}
                                borderColor={isDark ? '#333' : '#ddd'}
                                style={{
                                  opacity: task.completed ? 0.6 : 1,
-                                 position: 'relative',
                                  marginBottom: 0,
-                                 width: '100%',
-                                 flexBasis: '100%',
+                                 width: '90%',
+                                 flexBasis: '90%',
                                }}
                              >
                                <Button

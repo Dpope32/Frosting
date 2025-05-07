@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { BaseCardModal } from './BaseCardModal';
 import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Platform, Alert, Keyboard, KeyboardAvoidingView } from 'react-native';
+import { Platform, Alert, Keyboard } from 'react-native';
 import { PrioritySelector } from './NewTaskModal/PrioritySelector';
 import { StatusSelector } from './NewTaskModal/StatusSelector';
 import { PeopleSelector } from './NewTaskModal/PeopleSelector';
@@ -51,24 +51,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
   const [status, setStatus] = useState<Project['status']>(project?.status || 'pending');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const inputRef = React.useRef<any>(null);
-  
-  // Handle keyboard appearance
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardOpen(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardOpen(false);
-    });
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
-
 
   useEffect(() => {
     if (open && project) {
@@ -148,7 +131,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       onOpenChange={onOpenChange}
       title="Edit Project"
       showCloseButton
-      snapPoints={isWeb ? [90] : isIpad() ? [70] : [85]}
+      snapPoints={isWeb ? [90] : isIpad() ? [70] : [93]}
       hideHandle
       footer={
         <XStack width="100%" mx={-4} py="$2" justifyContent="space-between">
@@ -170,148 +153,140 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         </XStack>
       }
     >
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+      <YStack 
+        gap="$4" 
+        px={isIpad() ? '$4' : '$2.5'} 
+        pt={10}
       >
-        <YStack 
-          gap="$4" 
-          px={isIpad() ? '$4' : '$2.5'} 
-          pt={keyboardOpen ? 4 : 10}
-          animation="quick"
-          translateY={keyboardOpen ? -10 : 0}
-        >
-          <DebouncedInput
-            ref={inputRef}
-            value={name}
-            placeholder="Project Name"
-            onDebouncedChange={setName}
-            autoCapitalize="words"
-            fontSize={isIpad() ? 17 : 15}
-            fontFamily="$body"
-            fontWeight="bold"
-            color={isDark ? '#f6f6f6' : '#111'}
-            backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
-            borderWidth={1}
-            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-            borderRadius={4}
-          />
-          <YStack gap="$2" px={isIpad() ? '$2' : '$1'}>
-            {isWeb ? (
-              <input
-                type="date"
-                value={deadline}
-                onChange={(e) => setDeadline(e.currentTarget.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}`,
-                  borderRadius: 4,
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
-                  color: isDark ? '#f6f6f6' : '#111',
-                  fontSize: isIpad() ? 17 : 15,
-                  fontFamily: 'inherit',
-                  outline: 'none',
-                }}
-              />
-            ) : (
-              <>
-                {!deadline && (
-                  <Button
-                    onPress={() => setShowDatePicker(true)}
-                    borderWidth={1}
-                    borderRadius="$2"
-                    backgroundColor={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'}
-                    px="$3"
-                    py="$2"
-                    width="100%"
-                    borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-                    ai="center"
-                    jc="space-between"
-                    pressStyle={{ opacity: 0.8 }}
-                  >
+        <DebouncedInput
+          ref={inputRef}
+          value={name}
+          placeholder="Project Name"
+          onDebouncedChange={setName}
+          autoCapitalize="words"
+          fontSize={isIpad() ? 17 : 15}
+          fontFamily="$body"
+          fontWeight="bold"
+          color={isDark ? '#f6f6f6' : '#111'}
+          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+          borderWidth={1}
+          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+          borderRadius={4}
+        />
+        <YStack gap="$2" px={isIpad() ? '$2' : '$1'}>
+          {isWeb ? (
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.currentTarget.value)}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}`,
+                borderRadius: 4,
+                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+                color: isDark ? '#f6f6f6' : '#111',
+                fontSize: isIpad() ? 17 : 15,
+                fontFamily: 'inherit',
+                outline: 'none',
+              }}
+            />
+          ) : (
+            <>
+              {!deadline && (
+                <Button
+                  onPress={() => setShowDatePicker(true)}
+                  borderWidth={1}
+                  borderRadius="$2"
+                  backgroundColor={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)'}
+                  px="$3"
+                  py="$2"
+                  width="100%"
+                  borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+                  ai="center"
+                  jc="space-between"
+                  pressStyle={{ opacity: 0.8 }}
+                >
+                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">
+                    Set Deadline (optional)
+                  </Text>
+                  <MaterialIcons name="event" size={24} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
+                </Button>
+              )}
+              {deadline ? (
+                <XStack ai="center" jc="space-between" width="100%">
+                  <XStack ai="center" gap="$2">
                     <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">
-                      Set Deadline (optional)
+                      Deadline:
                     </Text>
-                    <MaterialIcons name="event" size={24} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
-                  </Button>
-                )}
-                {deadline ? (
-                  <XStack ai="center" jc="space-between" width="100%">
-                    <XStack ai="center" gap="$2">
-                      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="bold">
-                        Deadline:
-                      </Text>
-                      <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
-                        {new Date(deadline).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })}
-                      </Text>
-                    </XStack>
-                    <Button
-                      size="$2"
-                      circular
-                      backgroundColor="transparent"
-                      onPress={() => setShowDatePicker(true)}
-                      pressStyle={{ opacity: 0.7 }}
-                    >
-                      <MaterialIcons name="edit" size={20} color={isDark ? '#f6f6f6' : '#666'} />
-                    </Button>
+                    <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
+                      {new Date(deadline).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })}
+                    </Text>
                   </XStack>
-                ) : (
-                  <Text opacity={0}>No deadline set</Text>
-                )}
-                {showDatePicker && (
-                  <YStack gap="$1">
-                    <DateTimePicker
-                      value={deadline ? new Date(deadline) : new Date()}
-                      mode="date"
-                      display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                      onChange={handleDateChange}
-                      style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
-                    />
-                  </YStack>
-                )}
-              </>
-            )}
-          </YStack>
-          <YStack gap="$2" mt="$4" mb="$2" mx={0}>
-            {peopleArray.length > 0 && (
-              <PeopleSelector
-                people={peopleArray}
-                selectedPeople={selectedPeople}
-                onPersonSelect={(person) => {
-                  const isSelected = selectedPeople.some(p => p.id === person.id);
-                  if (isSelected) {
-                    setSelectedPeople(selectedPeople.filter(p => p.id !== person.id));
-                  } else {
-                    setSelectedPeople([...selectedPeople, person]);
-                  }
-                }}
-              />
-            )}
-          </YStack>
-          <YStack gap="$2" mt="$3" mx={0}>
-            <TagSelector tags={tags} onTagsChange={setTags} />
-          </YStack>
-          <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
-          <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
-          <DebouncedInput
-            value={description}
-            placeholder="Description (optional)"
-            onDebouncedChange={setDescription}
-            multiline={true}
-            numberOfLines={7}
-            fontSize={isIpad() ? 17 : 15}
-            fontFamily="$body"
-            fontWeight="bold"
-            color={isDark ? '#f6f6f6' : '#111'}
-            backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
-            borderWidth={1}
-            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-            borderRadius={4}
-          />
+                  <Button
+                    size="$2"
+                    circular
+                    backgroundColor="transparent"
+                    onPress={() => setShowDatePicker(true)}
+                    pressStyle={{ opacity: 0.7 }}
+                  >
+                    <MaterialIcons name="edit" size={20} color={isDark ? '#f6f6f6' : '#666'} />
+                  </Button>
+                </XStack>
+              ) : (
+                <Text opacity={0}>No deadline set</Text>
+              )}
+              {showDatePicker && (
+                <YStack gap="$1">
+                  <DateTimePicker
+                    value={deadline ? new Date(deadline) : new Date()}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                    onChange={handleDateChange}
+                    style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF' }}
+                  />
+                </YStack>
+              )}
+            </>
+          )}
         </YStack>
-      </KeyboardAvoidingView>
+        <YStack gap="$2" mt="$4" mb="$2" mx={0}>
+          {peopleArray.length > 0 && (
+            <PeopleSelector
+              people={peopleArray}
+              selectedPeople={selectedPeople}
+              onPersonSelect={(person) => {
+                const isSelected = selectedPeople.some(p => p.id === person.id);
+                if (isSelected) {
+                  setSelectedPeople(selectedPeople.filter(p => p.id !== person.id));
+                } else {
+                  setSelectedPeople([...selectedPeople, person]);
+                }
+              }}
+            />
+          )}
+        </YStack>
+        <YStack gap="$2" mt="$3" mx={0}>
+          <TagSelector tags={tags} onTagsChange={setTags} />
+        </YStack>
+        <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
+        <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
+        <DebouncedInput
+          value={description}
+          placeholder="Description (optional)"
+          onDebouncedChange={setDescription}
+          multiline={true}
+          numberOfLines={7}
+          fontSize={isIpad() ? 17 : 15}
+          fontFamily="$body"
+          fontWeight="bold"
+          color={isDark ? '#f6f6f6' : '#111'}
+          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
+          borderWidth={1}
+          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+          borderRadius={4}
+        />
+      </YStack>
     </BaseCardModal>
   );
 }

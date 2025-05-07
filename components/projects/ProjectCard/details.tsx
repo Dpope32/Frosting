@@ -25,8 +25,9 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
   const TableRow = ({ label, children, rowIndex }: RowProps) => (
     <XStack
       ai="center"
-      py={isIpad() ? "$2" : "$1"}
+      py={isIpad() ? "$2" : "$1.5"}
       px={isIpad() ? "$1.5" : "$1"}
+      pl={isIpad() ? "$2" : "$1.5"}
       jc="flex-start"
       gap={isIpad() ? "$1.5" : "$1"}
       borderBottomWidth={1}
@@ -63,7 +64,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
       </TableRow>,
     )
     rows.push(
-      <TableRow key="days-remaining" label="Days remaining:" rowIndex={rows.length}>
+      <TableRow key="days-remaining" label="Remaining:" rowIndex={rows.length}>
         <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
           {(() => {
             let deadlineDate = project?.deadline
