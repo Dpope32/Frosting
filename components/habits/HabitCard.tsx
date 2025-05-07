@@ -60,11 +60,18 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   // Convert military time to standard 12-hour format with AM/PM
   const formatTimeToStandard = (time: string): string => {
     if (!time || time === 'none') return 'No time set';
-    
-    const [hours, minutes] = time.split(':').map(Number);
+
+    const [hoursStr, minutesStr] = time.split(':');
+    const hours = Number(hoursStr);
+    const minutes = Number(minutesStr);
+
+    if (isNaN(hours) || isNaN(minutes)) {
+      return 'No time set';
+    }
+
     const period = hours >= 12 ? 'PM' : 'AM';
     const standardHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-    
+
     return `${standardHours}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
   const history = getRecentHistory(habit);

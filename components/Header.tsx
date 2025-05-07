@@ -14,6 +14,7 @@ import { SettingsModal } from './cardModals/SettingsModal';
 import { PortfolioModal } from './cardModals/PortfolioModal'; 
 import { QuoteModal } from './cardModals/QuoteModal'; 
 import { WifiModal } from './cardModals/WifiModal';
+import { ArchivedProjectsModal } from './cardModals/ArchivedProjectsModal';
 import { NBATeamModal } from './sports/NBATeamModal';
 import { BillsListModal } from './listModals/BillsListModal';
 import { VaultListModal } from './listModals/VaultListModal';
@@ -50,6 +51,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const [editBillModalOpen, setEditBillModalOpen] = useState(false);
   const [selectedVaultEntry, setSelectedVaultEntry] = useState(null);
   const [editVaultModalOpen, setEditVaultModalOpen] = useState(false);
+  const [showArchivedProjectsModal, setShowArchivedProjectsModal] = useState(false);
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
   const username = useUserStore(s => s.preferences.username);
 
@@ -61,6 +63,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isCrmScreen = route.name === 'crm';
   const isCalendarScreen = route.name === 'calendar';
   const isHabitsScreen = route.name === 'habits';
+  const isProjectsScreen = route.name === 'projects';
   const textColor = isHome ? colorScheme === 'dark' ? '#FCF5E5' : '#fcf5e5' : colorScheme === 'dark' ? '#FCF5E5' : '#000000';
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
   const scale = useSharedValue(1);
@@ -113,9 +116,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     else if (isBillsScreen) iconName = "receipt-outline";
     else if (isVaultScreen) iconName = "key-outline";
     else if (isCrmScreen) iconName = "people-outline";
+    else if (isProjectsScreen) iconName = "archive-outline";
 
     // Don't show settings icon on iPad or Web
-    if ((isIpad() || isWeb) && !isSportsScreen && !isBillsScreen && !isVaultScreen && !isCrmScreen) {
+    if ((isIpad() || isWeb) && !isSportsScreen && !isBillsScreen && !isVaultScreen && !isCrmScreen && !isProjectsScreen) {
       return null;
     }
 
@@ -139,6 +143,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       setShowVaultListModal(true);
     }
     else if (isCrmScreen) setShowPeopleListModal(true);
+    else if (isProjectsScreen) setShowArchivedProjectsModal(true);
     else setShowSettings(true);
   };
 
@@ -296,6 +301,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
       <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
+      <ArchivedProjectsModal open={showArchivedProjectsModal} onOpenChange={setShowArchivedProjectsModal} />
     </>
   );
 }

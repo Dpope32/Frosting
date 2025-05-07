@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { XStack, YStack, Text } from 'tamagui'
 import { Check } from '@tamagui/lucide-icons'
 import { Project } from '@/types/project'
+import { ProjectAttachments } from './ProjectAttachments'
 import { ProjectCardHeader } from './ProjectCardHeader'
 import { TaskListItem } from './TaskListItem'
 import { getDaysUntilDeadline } from './projectCardUtils'
+import { Pressable } from 'react-native'
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 
 interface ProjectCardWebViewProps {
   project: Project
@@ -13,6 +16,9 @@ interface ProjectCardWebViewProps {
   onOpenAddTaskModal?: (projectId: string) => void
   onToggleTaskCompleted?: (taskId: string, completed: boolean) => void
   onEdit?: (projectId: string) => void
+  onArchive?: (projectId: string) => void
+  onImagePress?: (url: string) => void
+  hideCompletedOverlay?: boolean
 }
 
 export const ProjectCardWebView = ({
@@ -21,8 +27,31 @@ export const ProjectCardWebView = ({
   primaryColor,
   onOpenAddTaskModal,
   onToggleTaskCompleted,
-  onEdit
+  onEdit,
+  onArchive,
+  onImagePress,
+  hideCompletedOverlay = false
 }: ProjectCardWebViewProps) => {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handleLongPress = () => {
+    if (project.status === 'completed') {
+      setIsPressed(true);
+      const confirmed = window.confirm('Do you want to archive this completed project?');
+      if (confirmed && onArchive) {
+        onArchive(project.id);
+      }
+      setIsPressed(false);
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scale: withTiming(isPressed ? 1.05 : 1, { duration: 200 }) }
+      ]
+    };
+  });
   return (
     <XStack
       bg={isDark ? '#111' : '#f5f5f5'}
@@ -44,32 +73,48 @@ export const ProjectCardWebView = ({
         shadowRadius: 8,
       }}
     >
-      {/* Overlay for completed projects */}
-      {project.status === 'completed' && (
-        <XStack
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg={isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.5)'}
-          zIndex={20}
-          ai="center"
-          jc="center"
-          br="$4"
+      {project.status === 'completed' && !hideCompletedOverlay && (
+        <Pressable
+          onLongPress={handleLongPress}
+          delayLongPress={600}
+          style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 20
+          }}
         >
-          <XStack
-            bg="$green9"
-            width={50}
-            height={50}
-            br={25}
-            ai="center"
-            jc="center"
-            opacity={0.9}
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.5)',
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center'
+              },
+              animatedStyle
+            ]}
           >
-            <Check size={30} color="white" />
-          </XStack>
-        </XStack>
+            <XStack
+              bg="$green9"
+              width={50}
+              height={50}
+              br={25}
+              ai="center"
+              jc="center"
+              opacity={0.9}
+            >
+              <Check size={30} color="white" />
+            </XStack>
+          </Animated.View>
+        </Pressable>
       )}
       <YStack flex={1}>
         <ProjectCardHeader 
@@ -120,6 +165,13 @@ export const ProjectCardWebView = ({
                 ))}
               </XStack>
             </YStack>
+          </>
+        )}
+
+        {project.attachments?.length > 0 && (
+          <>
+            <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} mt={8} />
+            <ProjectAttachments attachments={project.attachments} isDark={isDark} onImagePress={onImagePress} />
           </>
         )}
       </YStack>

@@ -23,7 +23,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
 
   const TableRow = ({ label, children, rowIndex }: RowProps) => (
     <XStack
-      ai="center"
+      ai="flex-start"
       py={isIpad() ? "$2" : "$1.5"}
       px={isIpad() ? "$1.5" : "$1"}
       pl={isIpad() ? "$2" : "$1.5"}
@@ -39,6 +39,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
         w={isIpad() ? 130 : 95}
         fontWeight="600"
         fontFamily="$body"
+        pt="$0.5"
       >
         {label}
       </Text>

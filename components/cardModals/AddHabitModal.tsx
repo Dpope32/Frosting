@@ -86,6 +86,7 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
             value={name}
             onDebouncedChange={(value) => setName(value)}
+            borderRadius={12}
           />
           <YStack py={8} width="100%" >
           <CategorySelector 

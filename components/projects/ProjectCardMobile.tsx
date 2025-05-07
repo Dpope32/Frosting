@@ -1,8 +1,10 @@
 import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { Project } from '@/types/project'
+import { ProjectAttachments } from './ProjectCard/ProjectAttachments'
 import { isIpad } from '@/utils/deviceUtils'
 import { getPriorityColor } from '@/utils/styleUtils'
+import { useToastStore } from '@/store/ToastStore'
 import { Plus } from '@tamagui/lucide-icons'
 import { ProjectCardDetails } from './ProjectCard/details'
 import { ProjectCardWrapper } from './ProjectCard/wrapper'
@@ -12,20 +14,36 @@ import { TaskList } from './ProjectCard/taskList'
 interface ProjectCardMobileProps {
   project: Project
   isDark: boolean
-  primaryColor: string
+  onImagePress?: (url: string) => void;
   onOpenAddTaskModal?: (projectId: string) => void;
   onToggleTaskCompleted?: (taskId: string, completed: boolean) => void;
   onEdit?: (projectId: string) => void;
+  onArchive?: (projectId: string) => void;
+  hideCompletedOverlay?: boolean;
 }
 
-export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTaskModal, onToggleTaskCompleted, onEdit }: ProjectCardMobileProps) => {
+export const ProjectCardMobile = ({ 
+  project, 
+  isDark, 
+  onImagePress,
+  onOpenAddTaskModal, 
+  onToggleTaskCompleted, 
+  onEdit,
+  onArchive,
+  hideCompletedOverlay = false
+}: ProjectCardMobileProps) => {
     const priorityColor = getPriorityColor(project.priority);
+    const showToast = useToastStore((state) => state.showToast);
+    
+
     return (
         <ProjectCardWrapper 
           project={project} 
           isDark={isDark} 
           priorityColor={priorityColor} 
           onEdit={onEdit}
+          onArchive={onArchive}
+          hideCompletedOverlay={hideCompletedOverlay}
         >
           <XStack
             p={isIpad() ? "$3" : "$2"} 
@@ -62,6 +80,23 @@ export const ProjectCardMobile = ({ project, isDark, primaryColor, onOpenAddTask
                     onToggleTaskCompleted={onToggleTaskCompleted} 
                   />
                 </YStack>
+
+                {project.attachments?.length > 0 && (
+                  <YStack w="100%" my={isIpad() ? 10 : 6} mx={isIpad() ? 10 : 6}>
+                    <ProjectAttachments 
+                      attachments={project.attachments} 
+                      isDark={isDark} 
+                      onImagePress={(url) => {
+                        if (onImagePress) {
+                          showToast(`Mobile card handling image`, "info");
+                          onImagePress(url);
+                        } else {
+                          showToast('Error: Image handler missing', "error");
+                        }
+                      }}
+                    />
+                  </YStack>
+                )}
 
                 {onOpenAddTaskModal && (
                   <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "space-between" : "flex-end"} px={0} mt={isIpad() ? 18 : 12} mb={0} ai="center">

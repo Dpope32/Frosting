@@ -47,7 +47,7 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
       open={open}
       onOpenChange={onOpenChange}
       title={`New Task - ${projectName}`}
-      snapPoints={[60]}
+      snapPoints={[63]}
       showCloseButton
       hideHandle
       footer={
@@ -100,9 +100,9 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
           backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
           borderWidth={1}
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-          borderRadius={4}
           px="$2.5"
           height={45}
+          borderRadius={12}
         />
         <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
       </YStack>

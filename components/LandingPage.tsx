@@ -20,7 +20,6 @@ import { AddBillModal } from './cardModals/AddBillModal'
 import { AddPersonForm } from './crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
 import { AddProjectModal } from './cardModals/AddProjectModal'
-import { ProjectSection } from '@/components/home/ProjectSection'
 
 import { useUserStore } from '@/store/UserStore'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'

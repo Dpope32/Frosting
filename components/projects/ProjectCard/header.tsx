@@ -16,13 +16,13 @@ export const ProjectHeader = ({ project, isDark, priorityColor }: ProjectHeaderP
     <>
       <XStack px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$2.5" : "$2"} mt={isIpad() ? "$-1" : 6} ml={6}>
         <XStack ai="center" gap="$2" flexWrap="wrap" f={1}>
-          <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 19 : 17} fontWeight="bold" fontFamily="$body">
+          <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 19 : 18} fontWeight="bold" fontFamily="$body">
             {project.name}
           </Text>
           <MaterialIcons name="circle" size={12} color={priorityColor} />
         </XStack>
       </XStack>
-      <XStack ai="center" px={isIpad() ? "$3" : "$3"} my={-4}> 
+      <XStack ai="center" px={isIpad() ? "$3" : "$3"} mt={-8}> 
         {project?.tags && Array.isArray(project.tags) && project.tags.length > 0 ? (
           <>
             <XStack ai="center">
@@ -40,7 +40,7 @@ export const ProjectHeader = ({ project, isDark, priorityColor }: ProjectHeaderP
                   <Text
                     fontFamily="$body"
                     color={tagColors[index % tagColors.length]}
-                    fontSize={isIpad() ? 15 : 13} 
+                    fontSize={isIpad() ? 15 : 14} 
                     fontWeight="500"
                     paddingHorizontal={4}
                   >

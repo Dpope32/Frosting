@@ -67,6 +67,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           autoCapitalize="none"
           backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
           borderColor="transparent"
+          borderRadius={12}
           color={isDark ? '#fff' : '#000'}
           placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
         />

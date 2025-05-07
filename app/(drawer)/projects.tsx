@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ScrollView, useColorScheme } from 'react-native'
 import { YStack, Button, XStack, isWeb } from 'tamagui'
 import { BlurView } from 'expo-blur'
@@ -18,6 +18,7 @@ import { TaskPriority, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useToastStore } from '@/store/ToastStore'
 import EditProjectModal from '@/components/cardModals/EditProjectModal'
+import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer'
 
 export default function ProjectsScreen() {
   const { projects, isModalOpen, handleAddProject, handleCloseModal } = useProjects()
@@ -30,9 +31,11 @@ export default function ProjectsScreen() {
   const getProjectById = useProjectStore((state) => state.getProjectById)
   const updateProject = useProjectStore((state) => state.updateProject)
   const showToast = useToastStore((state) => state.showToast)
-  // Filter out any non-project items (must be objects with an id) and filter out deleted projects
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  // Filter out any non-project items (must be objects with an id) and filter out deleted or archived projects
   const validProjects = (projects || []).filter(project => 
-    project && typeof project === 'object' && !Array.isArray(project) && project.id && !project.isDeleted
+    project && typeof project === 'object' && !Array.isArray(project) && 
+    project.id && !project.isDeleted && !project.isArchived
   )
   // Sort projects so completed ones appear at the bottom
   const items = [...validProjects].sort((a, b) => {
@@ -94,6 +97,14 @@ export default function ProjectsScreen() {
     }
   }
 
+  const handleArchiveProject = (projectId: string) => {
+    if (!isWeb) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+    }
+    updateProject(projectId, { isArchived: true })
+    showToast('Project archived successfully!', 'success')
+  }
+
   const handleAddDevProjects = () => {
     addDevProjects()
     showToast('Dev projects added!', 'success')
@@ -136,6 +147,8 @@ export default function ProjectsScreen() {
                   setSelectedEditProjectId(id)
                   setEditModalOpen(true)
                 }}
+                onArchive={handleArchiveProject}
+                onImagePress={setSelectedImageUrl}
               />
             </YStack>
           ))
@@ -219,6 +232,13 @@ export default function ProjectsScreen() {
           zIndex: -1,
         }}
       />
+
+      {selectedImageUrl && (
+        <SimpleImageViewer
+          imageUrl={selectedImageUrl}
+          onClose={() => setSelectedImageUrl(null)}
+        />
+      )}
     </YStack>
   )
 }

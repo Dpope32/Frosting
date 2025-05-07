@@ -1,12 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { XStack, Button } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Check } from '@tamagui/lucide-icons'
 import { Project } from '@/types/project'
 import { isIpad } from '@/utils/deviceUtils'
-import Animated, { FadeIn } from 'react-native-reanimated'
+import Animated, { FadeIn, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isWeb } from 'tamagui'
+import { Alert, Platform, Pressable } from 'react-native'
+import * as Haptics from 'expo-haptics'
 
 interface ProjectCardWrapperProps {
   project: Project
@@ -14,6 +16,8 @@ interface ProjectCardWrapperProps {
   priorityColor: string
   onEdit?: (projectId: string) => void
   children: React.ReactNode
+  onArchive?: (projectId: string) => void
+  hideCompletedOverlay?: boolean
 }
 
 // Helper function for border color
@@ -24,7 +28,57 @@ const borderColor = (project: Project, isDark: boolean) => {
   return 'transparent'
 }
 
-export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, children }: ProjectCardWrapperProps) => {
+export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, children, onArchive, hideCompletedOverlay = false }: ProjectCardWrapperProps) => {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const handleLongPress = () => {
+    if (project.status === 'completed') {
+      // Trigger haptic feedback on mobile devices
+      if (!isWeb) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+      
+      setIsPressed(true);
+      
+      // Platform-specific confirmation dialog
+      if (Platform.OS === 'web') {
+        const confirmed = window.confirm('Do you want to archive this completed project?');
+        if (confirmed && onArchive) {
+          onArchive(project.id);
+        }
+        setIsPressed(false);
+      } else {
+        Alert.alert(
+          'Archive Project',
+          'Do you want to archive this completed project?',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => setIsPressed(false)
+            },
+            { 
+              text: 'Yes', 
+              onPress: () => {
+                if (onArchive) {
+                  onArchive(project.id);
+                }
+                setIsPressed(false);
+              }
+            }
+          ]
+        );
+      }
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scale: withTiming(isPressed ? 1.05 : 1, { duration: 200 }) }
+      ]
+    };
+  });
   return (
     <Animated.View
       entering={FadeIn.duration(600)}
@@ -58,33 +112,43 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
         })
       }}
     >
-      {project.status === 'completed' && (
-        <XStack
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          bg={isDark ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.7)'}
-          zIndex={20}
-          ai="center"
-          jc="center"
-          br={12}
+      {project.status === 'completed' && !hideCompletedOverlay && (
+        <Pressable
+          onLongPress={handleLongPress}
+          delayLongPress={600}
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 20 }}
         >
-          <XStack
-            bg="transparent"
-            borderWidth={1}
-            borderColor={isDark ? '#00ff00' : '#00ff00'}
-            width={50}
-            height={50}
-            br={25}
-            ai="center"
-            jc="center"
-            opacity={0.9}
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: isDark ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.7)',
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+              animatedStyle
+            ]}
           >
-            <Check size={30} color="#00ff00" />
-          </XStack>
-        </XStack>
+            <XStack
+              bg="transparent"
+              borderWidth={1}
+              borderColor={isDark ? '#00ff00' : '#00ff00'}
+              width={50}
+              height={50}
+              br={25}
+              ai="center"
+              jc="center"
+              opacity={0.9}
+            >
+              <Check size={30} color="#00ff00" />
+            </XStack>
+          </Animated.View>
+        </Pressable>
       )}
       
       {onEdit && (
@@ -103,9 +167,9 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
       )}
 
       <LinearGradient
-        colors={isDark ? ['rgb(0, 0, 0)', 'rgb(6, 6, 6)', 'rgb(12, 12, 12)', 'rgb(18, 18, 18)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0.5 }}
+        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 1 }}
         style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,

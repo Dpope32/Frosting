@@ -35,7 +35,7 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
               key={task.id}
               ai="center"
               px={isIpad() ? 8 : 6}
-              py={isIpad() ? 6 : 3}
+              py={isIpad() ? 6 : 5}
               alignContent='center'
               alignItems='center'
               br={10}
@@ -61,20 +61,20 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
                 mr={8}
                 ai="center"
                 jc="center"
-                style={{ width: isIpad() ? 24 : 20, height: isIpad() ? 24 : 24 }}
+                style={{ width: isIpad() ? 24 : 20, height: isIpad() ? 24 : 20 }}
               >
                 {task.completed ? <Check size={isIpad() ? 16 : 14} color={isDark ? '#00ff00' : '#00ff00'} /> : ''}
               </Button>
               <Text
-                fontSize={isIpad() ? 13 : 12}
+                fontSize={isIpad() ? 14 : 13}
                 color={isDark ? '#f6f6f6' : '#222'}
                 fontFamily="$body"
-                style={{ flex: 1, marginLeft: 2, textDecorationLine: task.completed ? 'line-through' : 'none', whiteSpace: 'normal' }}
+                style={{ flex: 1, textDecorationLine: task.completed ? 'line-through' : 'none', whiteSpace: 'normal' }}
               >
                 {task.name}
               </Text>
               <XStack ml={isIpad() ? 10 : 6} ai="center">
-                <Text style={{ fontSize: isIpad() ? 22 : 18, color: getPriorityColor(task.priority), lineHeight: isIpad() ? 22 : 18 }}>•</Text>
+                <Text style={{ fontSize: isIpad() ? 22 : 18, color: getPriorityColor(task.priority), lineHeight: isIpad() ? 22 : 20 }}>•</Text>
               </XStack>
               {task.completed && (
                 <XStack
