@@ -38,7 +38,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
       <YStack
         borderRadius={12}
         overflow="hidden"
-        mb={isIpad() ? 8 : 4}
+        mb={isIpad() ? 6 : 8}
         style={{
           backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(74, 72, 72, 0.94)',
           shadowColor: '#000',
@@ -70,8 +70,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <XStack
-          padding={isIpad() ? '$2.5' : '$2.5'}
-          paddingBottom={isIpad() ? '$4' : '$3'}
+          padding={isIpad() ? '$2.5' : 10}
+          paddingBottom={isIpad() ? '$4' : '$3.5'}
           paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
@@ -198,4 +198,4 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
   )
 }
 
-export default ProjectPreviewCard; 
+export default ProjectPreviewCard;

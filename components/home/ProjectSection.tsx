@@ -27,8 +27,8 @@ export function ProjectSection() {
   const filteredProjects = validProjects.filter(project => project.status !== 'completed' && !project.isDeleted);
  
   return (
-    <YStack w="100%" gap={isIpad() ? '$2' : '$2'} py={'$0.5'} pt={isIpad() ? '$4' : '$3'} ai="center">
-      <YStack px={isIpad() ? '$1' : '$0'} ai="center">
+    <YStack w="100%" gap={isIpad() ? '$2' : '$2'} py={'$0.5'} pt={isIpad() ? '$4' : '$3'}>
+      <YStack px={isIpad() ? '$1' : '$0'} width="100%">
         {filteredProjects.map((project, index) => (
           <ProjectPreviewCard
             key={project.id || `project-${index}`}
