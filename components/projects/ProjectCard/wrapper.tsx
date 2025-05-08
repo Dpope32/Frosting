@@ -83,12 +83,12 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
     <Animated.View
       entering={FadeIn.duration(600)}
       style={{
-        width: isIpad() ? '95%' : '100%',
+        width: '100%',
         borderRadius: 12,
         marginBottom: 4,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        marginHorizontal: isIpad() ? 16 : 0,
+        marginHorizontal: 0,
         shadowOpacity: 0.5,
         shadowRadius: 8,
         elevation: 10,

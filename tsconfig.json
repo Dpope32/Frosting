@@ -16,7 +16,7 @@
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
   ],
   "extends": "expo/tsconfig.base"
 }

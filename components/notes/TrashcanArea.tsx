@@ -18,7 +18,7 @@ export const TrashcanArea: React.FC<TrashcanAreaProps> = ({
   isHovering = false,
   height
 }) => {
-  const containerHeight = height || (isIpad() ? 160 : 120);
+  const containerHeight = height || (isIpad() ? 250 : 120);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    minHeight: 120,
+    minHeight: isIpad() ? 200 : 120,
   }
 });

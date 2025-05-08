@@ -309,13 +309,13 @@ export const TaskSection = ({
             {!isWeb ? (
               <>
                 <Pressable
-                  delayLongPress={2000}
-                  hitSlop={{ top: 24, bottom: 24, left: 24, right: 24 }}
+                  delayLongPress={1000} // Reduced from 2000ms to 1000ms for easier triggering
+                  hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} // Increased hit area
                   android_disableSound={true}
                   onLongPress={() => {
                     if (!isWeb) {
                       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                      console.log('Haptic feedback attempted on non-web platform after 2000ms.');
+                      console.log('Haptic feedback attempted on non-web platform after 1000ms.');
                     }
                     setEasterEggVisible(false);
                     if (easterEggTimeout.current) {
@@ -324,7 +324,13 @@ export const TaskSection = ({
                     }
                     easterEggTimeout.current = setTimeout(() => {
                       setEasterEggVisible(true);
-                    }, 500);
+                    }, 100); // Faster display
+                  }}
+                  onPressIn={() => {
+                    // Optional: Add visual feedback here if desired
+                    if (DEBUG) {
+                      log('Press started on YearCompleteSection');
+                    }
                   }}
                   onPressOut={() => {
                     if (easterEggTimeout.current) {
@@ -332,7 +338,15 @@ export const TaskSection = ({
                       easterEggTimeout.current = null;
                     }
                   }}
-                  style={{ width: '100%', paddingTop: 8 }}
+                  style={{ 
+                    width: '100%', 
+                    paddingTop: 8, 
+                    paddingBottom: 8, // Added bottom padding for larger touch area
+                    zIndex: 20, // Increased z-index to ensure it's above everything
+                    position: 'relative',
+                    marginTop: 4, // Added space between this and previous component
+                    marginBottom: 4 // Added space after component
+                  }}
                 >
                   <YearCompleteSection />
                 </Pressable>

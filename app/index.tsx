@@ -4,6 +4,7 @@ import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { useRegistryStore } from '@/store/RegistryStore';
 import { useProjectStore } from '@/store/ToDo';
+import { useProjectStore as useProjectsStore } from '@/store/ProjectStore';
 import { useHabitStore } from '@/store/HabitStore';
 import { useBillStore } from '@/store/BillStore';
 import { useCalendarStore } from '@/store/CalendarStore';
@@ -22,9 +23,11 @@ export default function Index() {
   // Call app initialization hook at the top level (per React rules)
   useAppInitialization();
   useEffect(() => {
-    logSyncStatus();
-    exportStateToFile();
-  }, []);
+    if (hasCompletedOnboarding) {
+      logSyncStatus();
+      exportStateToFile();
+    }
+  }, [hasCompletedOnboarding]);
   
   // Initial intro timer
   useEffect(() => {
@@ -40,6 +43,7 @@ export default function Index() {
         await Promise.all([
           useUserStore.persist.hasHydrated(),
           useProjectStore.persist.hasHydrated(),
+          useProjectsStore.persist.hasHydrated(),
           useHabitStore.persist.hasHydrated(),
           useBillStore.persist.hasHydrated(),
           useCalendarStore.persist.hasHydrated(),
@@ -50,13 +54,17 @@ export default function Index() {
         ]);
         // Manually load NoteStore
         await useNoteStore.getState().loadNotes();
-        logSyncStatus();
-        await exportStateToFile();
+        
+        // Only log sync status and export if onboarding is completed
+        if (hasCompletedOnboarding) {
+          logSyncStatus();
+          await exportStateToFile();
+        }
       } catch (error) {
         console.error('Sync/export failed:', error);
       }
     })();
-  }, []);
+  }, [hasCompletedOnboarding]);
 
   
   // If onboarding is not completed, go to onboarding

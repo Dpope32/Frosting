@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import * as Notifications from 'expo-notifications';
 import * as FileSystem from 'expo-file-system';
+import { exportEncryptedState } from '@/sync/registrySyncManager';
+import { debounce } from 'lodash';
 
 // Import all stores
 import { useHabitStore } from './HabitStore';
@@ -28,151 +30,314 @@ interface RegistryState {
   syncStatus: 'idle' | 'syncing' | 'error';
   notificationStatus: 'granted' | 'denied' | 'unavailable';
   stocksLastUpdated: number;
-  habitStore: Record<string, any>;
-  weatherStore: Record<string, any>;
-  billStore: Record<string, any>;
-  calendarStore: Record<string, any>;
-  todoStore: Record<string, any>;
-  noteStore: Record<string, any>;
-  wallpaperStore: Record<string, any>;
-  userStore: Record<string, any>;
-  networkStore: Record<string, any>;
-  vaultStore: Record<string, any>;
-  crmStore: Record<string, any>;
-  portfolioStore: Record<string, any>;
-  peopleStore: Record<string, any>;
-  customCategoryStore: Record<string, any>;
-  tagStore: Record<string, any>;
-  projectsStore: Record<string, any>;
+
   setHasCompletedOnboarding: (value: boolean) => void;
   setIsFirstLaunch: (value: boolean) => void;
   setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
   setNotificationStatus: (status: 'granted' | 'denied' | 'unavailable') => void;
   setStocksLastUpdated: (timestamp: number) => void;
-  checkNotificationStatus: () => Promise<void>;
+  checkNotificationStatus: () => void; // Changed to void to match debounced function
   getAllStoreStates: () => Record<string, any>;
   logSyncStatus: () => void;
-  exportStateToFile: () => Promise<string>;
+  exportStateToFile: () => Promise<string | null>;
+  hydrateAll: (data: Record<string, any>) => void;
+  syncOnboardingWithUser: () => void;
 }
 
-export const useRegistryStore = create<RegistryState>((set, get) => ({
-  // Initial state
-  hasCompletedOnboarding: false,
-  isFirstLaunch: true,
-  lastSyncAttempt: Date.now(),
-  syncStatus: 'idle',
-  notificationStatus: 'unavailable',
-  stocksLastUpdated: 0,
-
-  // Store instances
-  habitStore: useHabitStore.getState(),
-  weatherStore: useWeatherStore.getState(),
-  tagStore: useTagStore.getState(),
-  billStore: useBillStore.getState(),
-  todoStore: useProjectStore.getState(),
-  calendarStore: useCalendarStore.getState(),
-  noteStore: useNoteStore.getState(),
-  wallpaperStore: useWallpaperStore.getState(),
-  userStore: useUserStore.getState(),
-  networkStore: useNetworkStore.getState(),
-  vaultStore: useVaultStore.getState(),
-  crmStore: useCRMStore.getState(),
-  portfolioStore: usePortfolioStore.getState(),
-  peopleStore: usePeopleStore.getState(),
-  customCategoryStore: useCustomCategoryStore.getState(),
-  projectsStore: useProjectsStore.getState(),
-
-  // Actions
-  setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
-  setIsFirstLaunch: (value) => set({ isFirstLaunch: value }),
-  setSyncStatus: (status) => set({ syncStatus: status }),
-  setNotificationStatus: (status) => set({ notificationStatus: status }),
-  setStocksLastUpdated: (timestamp) => set({ stocksLastUpdated: timestamp }),
+// Schema validation helpers
+const validateSchema = (data: any, requiredKeys: string[], storeName: string): boolean => {
+  if (!data || typeof data !== 'object') {
+    console.error(`❌ Invalid data format for ${storeName}`);
+    return false;
+  }
   
-  checkNotificationStatus: async () => {
+  // Check for minimal required structure based on store type
+  const missingKeys = requiredKeys.filter(key => !(key in data));
+  if (missingKeys.length > 0) {
+    console.error(`❌ Missing required keys in ${storeName}: ${missingKeys.join(', ')}`);
+    return false;
+  }
+  
+  return true;
+};
+
+// Store-specific validators
+const validators: Record<string, (data: any) => boolean> = {
+  habits: (data) => validateSchema(data, ['habits', 'lastUpdated'], 'habits'),
+  notes: (data) => validateSchema(data, ['notes', 'lastUpdated'], 'notes'),
+  user: (data) => validateSchema(data, ['preferences', 'hydrated'], 'user'),
+  // Add more store validators as needed
+};
+
+// Helper function to safely apply data to a store
+const applyToStore = (data: any, setter: any): void => {
+  try {
+    setter(data);
+  } catch (error) {
+    console.error('Error setting store data:', error);
+  }
+};
+
+export const useRegistryStore = create<RegistryState>((set, get) => {
+  // Create the debounced notification check function outside the store properties
+  const debouncedCheck = debounce(async () => {
     try {
       const { status } = await Notifications.getPermissionsAsync();
       set({ notificationStatus: status === 'granted' ? 'granted' : 'denied' });
-    } catch (error) {
-      console.error('Error checking notification status:', error);
+    } catch {
       set({ notificationStatus: 'unavailable' });
     }
-  },
-
-  // Get all store states for syncing
-  getAllStoreStates: () => {
-    const now = Date.now();
+  }, 1000);
+  
+  return {
+    hasCompletedOnboarding: false,
+    isFirstLaunch: true,
+    lastSyncAttempt: Date.now(),
+    syncStatus: 'idle',
+    notificationStatus: 'unavailable',
+    stocksLastUpdated: 0,
     
-    // Helper to safely get store state
-    const getStoreState = (store: any) => {
-      try {
-        return typeof store === 'object' && store !== null 
-          ? { ...store } 
-          : {};
-      } catch {
-        return {};
+    // Synchronize with UserStore when setting onboarding flag
+    setHasCompletedOnboarding: (value) => {
+      set({ hasCompletedOnboarding: value });
+      // Sync with UserStore when this changes
+      useUserStore.setState(state => ({
+        preferences: {
+          ...state.preferences,
+          hasCompletedOnboarding: value
+        }
+      }));
+    },
+    
+    setIsFirstLaunch: (value) => set({ isFirstLaunch: value }),
+    setSyncStatus: (status) => set({ syncStatus: status }),
+    setNotificationStatus: (status) => set({ notificationStatus: status }),
+    setStocksLastUpdated: (timestamp) => set({ stocksLastUpdated: timestamp }),
+
+    // Fixed debounced notification check
+    checkNotificationStatus: () => {
+      debouncedCheck();
+    },
+
+    // Always get fresh states from all stores
+    getAllStoreStates: () => {
+      const now = Date.now();
+      const grab = (store: any) =>
+        typeof store === 'object' && store ? { ...store, lastUpdated: now } : { lastUpdated: now };
+        
+      return {
+        habits: grab(useHabitStore.getState()),
+        weather: grab(useWeatherStore.getState()),
+        bills: grab(useBillStore.getState()),
+        calendar: grab(useCalendarStore.getState()),
+        tasks: grab(useProjectStore.getState()),
+        notes: grab(useNoteStore.getState()),
+        wallpapers: grab(useWallpaperStore.getState()),
+        user: grab(useUserStore.getState()),
+        network: grab(useNetworkStore.getState()),
+        vault: grab(useVaultStore.getState()),
+        crm: grab(useCRMStore.getState()),
+        portfolio: grab(usePortfolioStore.getState()),
+        people: grab(usePeopleStore.getState()),
+        customCategory: grab(useCustomCategoryStore.getState()),
+        tags: grab(useTagStore.getState()),
+        projects: grab(useProjectsStore.getState()),
+      };
+    },
+
+    logSyncStatus: () => {
+      // Check if onboarding is completed before logging
+      const hasCompletedOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
+      
+      if (!hasCompletedOnboarding) {
+        console.log('⏸️ Skipping sync status logging - onboarding not completed');
+        return;
       }
-    };
+      
+      const s = get();
+      const states = s.getAllStoreStates();
+      console.log(`
+      🌟 Registry Sync Status 🌟
+      🕒 Last Sync: ${new Date(s.lastSyncAttempt).toLocaleString()}
+      📊 Sync Status: ${s.syncStatus}
+      🔔 Notifications: ${s.notificationStatus}
+      📈 Stocks Last Updated: ${new Date(s.stocksLastUpdated).toLocaleString()}
+      📦 Stores Synced:
+  ${Object.entries(states)
+    .map(([k, v]) => `    • ${k}: ${Object.keys(v).length} items`)
+    .join('\n')}
+      💾 Storage Status:
+      • AsyncStorage: ${storage ? '✅ Available' : '❌ Not Available'}
+      `);
+    },
 
-    return {
-      habits: { ...getStoreState(useHabitStore.getState()), lastUpdated: now },
-      weather: { ...getStoreState(useWeatherStore.getState()), lastUpdated: now },
-      bills: { ...getStoreState(useBillStore.getState()), lastUpdated: now },
-      calendar: { ...getStoreState(useCalendarStore.getState()), lastUpdated: now },
-      tasks: { ...getStoreState(useProjectStore.getState()), lastUpdated: now },
-      notes: { ...getStoreState(useNoteStore.getState()), lastUpdated: now },
-      wallpapers: { ...getStoreState(useWallpaperStore.getState()), lastUpdated: now },
-      user: { ...getStoreState(useUserStore.getState()), lastUpdated: now },
-      network: { ...getStoreState(useNetworkStore.getState()), lastUpdated: now },
-      vault: { ...getStoreState(useVaultStore.getState()), lastUpdated: now },
-      crm: { ...getStoreState(useCRMStore.getState()), lastUpdated: now },
-      portfolio: { ...getStoreState(usePortfolioStore.getState()), lastUpdated: now },
-      people: { ...getStoreState(usePeopleStore.getState()), lastUpdated: now },
-      customCategory: { ...getStoreState(useCustomCategoryStore.getState()), lastUpdated: now },
-      tags: { ...getStoreState(useTagStore.getState()), lastUpdated: now },
-      projects: { ...getStoreState(useProjectsStore.getState()), lastUpdated: now }
-    };
-  },
-
-  // Pretty log for sync status
-  logSyncStatus: () => {
-    const state = get();
-    const storeStates = state.getAllStoreStates();
+    exportStateToFile: async () => {
+      // Use the simpler onboarding check
+      const hasCompletedOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
+      
+      // Keep registry store in sync with user store
+      if (get().hasCompletedOnboarding !== hasCompletedOnboarding) {
+        set({ hasCompletedOnboarding: hasCompletedOnboarding });
+      }
+      
+      if (!hasCompletedOnboarding) {
+        console.log('⏸️ Skipping sync/export - onboarding not completed');
+        return null;
+      }
+      
+      // Prevent duplicate exports in quick succession
+      const now = Date.now();
+      const lastSync = get().lastSyncAttempt;
+      const MIN_SYNC_INTERVAL = 2000; // 2 seconds
+      
+      if (now - lastSync < MIN_SYNC_INTERVAL) {
+        console.log('⏸️ Skipping duplicate export - too soon since last export');
+        return null;
+      }
+      
+      set({ syncStatus: 'syncing' });
+      try {
+        const states = get().getAllStoreStates();
+        const uri = await exportEncryptedState(states);
+        set({ syncStatus: 'idle', lastSyncAttempt: now });
+        console.log('✅ Encrypted export at', uri);
+        return uri;
+      } catch (e) {
+        set({ syncStatus: 'error' });
+        console.error('❌ Sync failed', e);
+        return null;
+      }
+    },
     
-    console.log(`
-    🌟 Registry Sync Status 🌟
-    🕒 Last Sync: ${new Date(state.lastSyncAttempt).toLocaleString()}
-    📊 Sync Status: ${state.syncStatus}
-    🔔 Notifications: ${state.notificationStatus}
-    📈 Stocks Last Updated: ${new Date(state.stocksLastUpdated).toLocaleString()}
-    📦 Stores Synced:
-    ${Object.entries(storeStates)
-      .map(([name, store]) => `    • ${name}: ${Object.keys(store).length} items`)
-      .join('\n')}
-    💾 Storage Status:
-    • AsyncStorage: ${storage ? '✅ Available' : '❌ Not Available'}
-    `);
-  },
+    syncOnboardingWithUser: () => {
+      // Keep registry and user store onboarding flags in sync
+      const userOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
+      set({ hasCompletedOnboarding: userOnboarding });
+    },
+    
+    hydrateAll: (data: Record<string, any>) => {
+      console.log('🔄 Hydrating all stores from import data...');
+      try {
+        // Ensure we have data to work with
+        if (!data || typeof data !== 'object') {
+          console.error('❌ Invalid data for hydration');
+          return;
+        }
 
-  // NEW ACTION: export full registry state to a JSON file
-  exportStateToFile: async () => {
-    try {
-      const state = get();
-      const allStores = state.getAllStoreStates();
-      const fileUri = `${FileSystem.documentDirectory}stateSnapshot.json`;
-      await FileSystem.writeAsStringAsync(
-        fileUri,
-        JSON.stringify(allStores, null, 2),
-        { encoding: FileSystem.EncodingType.UTF8 }
-      );
-      console.log('✅ Exported state to', fileUri);
-      return fileUri;
-    } catch (error) {
-      console.error('❌ Failed to export state:', error);
-      throw error;
-    }
-  }
-}));
+        // Store data to validate and apply
+        const storeMap: Array<{key: string; data: any; validate?: boolean}> = [
+          { key: 'habits', data: data.habits, validate: true },
+          { key: 'weather', data: data.weather },
+          { key: 'bills', data: data.bills },
+          { key: 'calendar', data: data.calendar },
+          { key: 'tasks', data: data.tasks },
+          { key: 'notes', data: data.notes, validate: true },
+          { key: 'wallpapers', data: data.wallpapers },
+          { key: 'user', data: data.user, validate: true },
+          { key: 'network', data: data.network },
+          { key: 'vault', data: data.vault },
+          { key: 'crm', data: data.crm },
+          { key: 'portfolio', data: data.portfolio },
+          { key: 'people', data: data.people },
+          { key: 'customCategory', data: data.customCategory },
+          { key: 'tags', data: data.tags },
+          { key: 'projects', data: data.projects }
+        ];
 
-// Log when store is created
-console.log('🎉 Registry store successfully created!');
+        // Apply each store's data if it exists and passes validation
+        storeMap.forEach(({ key, data, validate }) => {
+          if (!data) return;
+          
+          // Skip validation for stores without validators
+          if (validate && key in validators) {
+            const validator = validators[key as keyof typeof validators];
+            if (!validator(data)) {
+              console.warn(`⚠️ Skipping invalid ${key} data`);
+              return;
+            }
+          }
+          
+          // Apply data to the appropriate store
+          switch(key) {
+            case 'habits':
+              useHabitStore.setState(data);
+              break;
+            case 'weather':
+              useWeatherStore.setState(data);
+              break;
+            case 'bills':
+              useBillStore.setState(data);
+              break;
+            case 'calendar':
+              useCalendarStore.setState(data);
+              break;
+            case 'tasks':
+              useProjectStore.setState(data);
+              break;
+            case 'notes':
+              useNoteStore.setState(data);
+              break;
+            case 'wallpapers':
+              useWallpaperStore.setState(data);
+              break;
+            case 'user':
+              useUserStore.setState(data);
+              break;
+            case 'network':
+              useNetworkStore.setState(data);
+              break;
+            case 'vault':
+              useVaultStore.setState(data);
+              break;
+            case 'crm':
+              useCRMStore.setState(data);
+              break;
+            case 'portfolio':
+              usePortfolioStore.setState(data);
+              break;
+            case 'people':
+              usePeopleStore.setState(data);
+              break;
+            case 'customCategory':
+              useCustomCategoryStore.setState(data);
+              break;
+            case 'tags':
+              useTagStore.setState(data);
+              break;
+            case 'projects':
+              useProjectsStore.setState(data);
+              break;
+          }
+          
+          console.log(`✓ Applied ${key} data`);
+        });
+        
+        // Update registry metadata and sync onboarding status
+        const timestamp = Date.now();
+        set({
+          lastSyncAttempt: timestamp,
+          syncStatus: 'idle',
+        });
+        
+        // Make sure onboarding status is in sync
+        get().syncOnboardingWithUser();
+        
+        console.log('✅ All stores hydrated successfully from external data');
+      } catch (error) {
+        console.error('❌ Error hydrating stores:', error);
+        set({ syncStatus: 'error' });
+      }
+    },
+  };
+});
+
+// Initialize and sync onboarding status
+const userOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
+useRegistryStore.getState().setHasCompletedOnboarding(userOnboarding);
+
+// Contextual initialization message
+if (userOnboarding) {
+  console.log('🎉 Registry store successfully created and ready for sync!');
+} else {
+  console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
+}

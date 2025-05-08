@@ -111,16 +111,16 @@ export default function ProjectsScreen() {
   }
 
   return (
-    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 0 : 0}>
+    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : 0}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           padding: isWeb ? 8 : 6,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : 12,
+          paddingHorizontal: isWeb ? 0 : isIpad() ? 20 : 12,
           paddingTop: isWeb ? 0 : 20,
-          paddingLeft: isWeb ? 12 : 16,
+          paddingLeft: isWeb ? 12 : isIpad() ? 20 : 16,
           display: isWeb ? 'flex' : 'flex',
           flexDirection: isWeb ? 'row' : 'column',
           flexWrap: isWeb ? 'wrap' : 'wrap',
@@ -137,7 +137,7 @@ export default function ProjectsScreen() {
           />
         ) : (
           items.map((project: Project, index) => (
-            <YStack key={project.id || `project-${index}`} width={isWeb ? 'calc(33% - 16px)' : '100%'} mb={isWeb ? 0 : '$1'}>
+            <YStack key={project.id || `project-${index}`} width={isWeb ? 'calc(33% - 16px)' : isIpad() ? '100%' : '100%'} mb={isWeb ? 0 : isIpad() ? 24 : '$1'}>
               <ProjectCard
                 project={project}
                 isDark={isDark}

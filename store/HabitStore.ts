@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory } from '@/types/task';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { cancelEventNotification } from '@/services/notificationServices';
+import { cancelHabitNotification } from '@/services/habitNotificationServices';
 
   export interface Habit {
     id: string;
@@ -75,8 +75,13 @@ export const useHabitStore = create<HabitStore>()(
         const habit = state.habits[habitId];
         if (habit) {
           // Cancel the scheduled notification for this habit
+          // Use both identifier formats just to be safe
           const identifier = `${habit.title}-${habit.notificationTimeValue}`;
-          cancelEventNotification(identifier);
+          cancelHabitNotification(identifier);
+          
+          // Also try canceling by just the habit title as a fallback
+          // This helps clean up any stray notifications
+          cancelHabitNotification(habit.title);
         }
         const { [habitId]: _, ...rest } = state.habits;
         return { habits: rest };

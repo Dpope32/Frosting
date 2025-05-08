@@ -1,7 +1,7 @@
 import { Alert, Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import { SchedulableTriggerInputTypes, AndroidNotificationPriority } from 'expo-notifications'
-import { useHabitStore } from '@/store/HabitStore'
+import { isHabitCompletedForToday } from './habitNotificationHelper'
 import { format } from 'date-fns'
 
 // Configure notifications to work properly even when the app is in the background
@@ -16,10 +16,9 @@ export const configureNotifications = async () => {
         const identifier = notification?.request?.identifier;
         if (identifier && identifier.includes('-')) {
           const [habitName, time] = identifier.split('-');
-          const today = format(new Date(), 'yyyy-MM-dd');
-          const habits = useHabitStore.getState().habits;
-          const habit = Object.values(habits).find(h => h.title === habitName);
-          if (habit && habit.completionHistory[today]) {
+          // Get habit completion status from the notification data
+          const habits = notification?.request?.content?.data?.habits || {};
+          if (isHabitCompletedForToday(undefined, habitName, habits)) {
             // Suppress notification
             return {
               shouldShowAlert: false,
@@ -95,7 +94,7 @@ export const scheduleEventNotification = async (
   title: string, 
   body: string, 
   identifier?: string,
-  deepLinkUrl?: string
+  deepLinkUrl?: any // Using any for now as it can contain habits data
 ) => {
   if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return 'web-not-supported';
   
@@ -106,12 +105,9 @@ export const scheduleEventNotification = async (
     // Check if this is a habit notification
     if (identifier && identifier.includes('-')) {
       const [habitName, time] = identifier.split('-');
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const habits = useHabitStore.getState().habits;
+      const habits = deepLinkUrl?.habits || {};
       
-      // Find the habit by name
-      const habit = Object.values(habits).find(h => h.title === habitName);
-      if (habit && habit.completionHistory[today]) {
+      if (isHabitCompletedForToday(undefined, habitName, habits)) {
         // Habit already completed today, don't send notification
         return 'habit-completed';
       }
@@ -177,7 +173,33 @@ export const testNotification = async () => {
 export const cancelEventNotification = async (identifier: string) => {
   if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return;
   try {
-    await Notifications.cancelScheduledNotificationAsync(identifier);
+    // For recurring notifications (like habits), we need to check for both daily triggers
+    // and one-time triggers that might have been scheduled
+    const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
+    const matchingNotifications = scheduledNotifications.filter(
+      notification => notification.identifier === identifier
+    );
+    
+    if (matchingNotifications.length > 0) {
+      await Notifications.cancelScheduledNotificationAsync(identifier);
+    } else {
+      // If no exact match found, try to find notifications that might be for this habit
+      // This handles cases where the identifiers might have been generated differently
+      const habitIdentifier = identifier.split('-')[0]; // Extract habit name
+      if (habitIdentifier) {
+        const possibleMatches = scheduledNotifications.filter(
+          notification => notification.identifier && notification.identifier.startsWith(habitIdentifier)
+        );
+        
+        // Cancel all possible matching notifications
+        for (const notification of possibleMatches) {
+          if (notification.identifier) {
+            await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+          }
+        }
+      }
+    }
+    
     return true;
   } catch (error) {
     console.error('Error cancelling notification:', error);
@@ -192,7 +214,7 @@ export const scheduleDailyHabitNotification = async (
   title: string,
   body: string,
   identifier?: string,
-  deepLinkUrl?: string
+  deepLinkUrl?: any // Using any for now as it can contain habits data
 ) => {
   if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return 'web-not-supported';
   try {
@@ -202,12 +224,9 @@ export const scheduleDailyHabitNotification = async (
     // Check if this is a habit notification that's already completed for today
     if (identifier && identifier.includes('-')) {
       const [habitName] = identifier.split('-');
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const habits = useHabitStore.getState().habits;
+      const habits = deepLinkUrl?.habits || {};
       
-      // Find the habit by name
-      const habit = Object.values(habits).find(h => h.title === habitName);
-      if (habit && habit.completionHistory[today]) {
+      if (isHabitCompletedForToday(undefined, habitName, habits)) {
         // Habit already completed today, don't send notification
         return 'habit-completed';
       }
