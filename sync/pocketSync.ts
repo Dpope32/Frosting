@@ -5,25 +5,11 @@ import { decryptSnapshot } from '@/lib/encryption';
 import { useRegistryStore } from '@/store/RegistryStore';
 import { useUserStore } from '@/store/UserStore';
 
-// Set your PocketBase server URL here
-const PB_URL = 'http://YOUR_SERVER_IP:8090';
-
+const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL || 'http://192.168.1.32:8090';
 // We'll use type-only imports to help TypeScript understand the PocketBase types
 // without actually importing the module at compile time
 type PocketBaseType = any; // We'll use 'any' for now since we're dynamically importing
 
-// Get a PocketBase instance using dynamic import
-const getPocketBase = async (): Promise<PocketBaseType> => {
-  try {
-    // Dynamic import of PocketBase
-    const PocketBaseModule = await import('pocketbase');
-    const PocketBase = PocketBaseModule.default;
-    return new PocketBase(PB_URL);
-  } catch (error) {
-    console.error('Failed to load PocketBase:', error);
-    throw error;
-  }
-};
 
 /**
  * Check if the application has network connectivity.
@@ -63,44 +49,94 @@ const getOnboardingStatus = (): boolean => {
   
   return userOnboarding;
 };
+// Replace your existing getPocketBase function with this:
+const getPocketBase = async (): Promise<PocketBaseType> => {
+  try {
+    // First check if the PocketBase server is reachable
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 500);
+      
+      const response = await fetch(`${PB_URL}/api/health`, { 
+        method: 'HEAD',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        // Silently skip syncing if server isn't available
+        throw new Error('SKIP_SYNC_SILENTLY');
+      }
+    } catch (error) {
+      // Any fetch error means server is unreachable
+      throw new Error('SKIP_SYNC_SILENTLY');
+    }
+    
+    // If we get here, server is reachable, proceed normally
+    const PocketBaseModule = await import('pocketbase');
+    const PocketBase = PocketBaseModule.default;
+    return new PocketBase(PB_URL);
+  } catch (error: unknown) {
+    // Type-safe error handling
+    if (error instanceof Error && error.message === 'SKIP_SYNC_SILENTLY') {
+      throw error; // Re-throw our special error
+    }
+    console.error('Failed to load PocketBase:', error);
+    throw error;
+  }
+};
 
-/**  
- * Push the latest encrypted snapshot up to PocketBase.  
- */
+// Modify your pushSnapshot function to handle the silent skip:
 export const pushSnapshot = async (): Promise<void> => {
   try {
-    // Check if onboarding is completed before proceeding
+    // Your existing checks remain unchanged
     const hasCompletedOnboarding = getOnboardingStatus();
     if (!hasCompletedOnboarding) {
       console.log('⏸️ Skipping PocketBase push - onboarding not completed');
       return;
     }
     
-    // Simple network check
+    // Your existing network check
     const isConnected = await checkNetworkConnectivity();
     if (!isConnected) {
       console.log('⏸️ Skipping PocketBase push - no network connection');
       return;
     }
     
-    const pb = await getPocketBase();
-    const deviceId = await generateSyncKey();
-    const cipher = await FileSystem.readAsStringAsync(
-      `${FileSystem.documentDirectory}stateSnapshot.enc`
-    );
+    // Now try to get PocketBase instance
+    try {
+      const pb = await getPocketBase();
+      
+      // Continue with your existing code
+      const deviceId = await generateSyncKey();
+      const cipher = await FileSystem.readAsStringAsync(
+        `${FileSystem.documentDirectory}stateSnapshot.enc`
+      );
 
-    await pb.collection('registry_snapshots').create({
-      device_id: deviceId,
-      snapshot_blob: cipher,
-      timestamp: new Date().toISOString(),
-    });
-    
-    console.log('✅ Successfully pushed data to PocketBase');
-  } catch (error) {
+      await pb.collection('registry_snapshots').create({
+        device_id: deviceId,
+        snapshot_blob: cipher,
+        timestamp: new Date().toISOString(),
+      });
+      
+      console.log('✅ Successfully pushed data to PocketBase');
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === 'SKIP_SYNC_SILENTLY') {
+        // Just log but don't set error state
+        console.log('⏸️ Skipping PocketBase push - server not available');
+        return;
+      }
+      // Re-throw for the outer catch block
+      throw error;
+    }
+  } catch (error: unknown) {
     console.error('❌ Error pushing to PocketBase:', error);
     useRegistryStore.getState().setSyncStatus('error');
   }
 };
+
+
 
 /**  
  * Pull the most recent snapshot for this device, decrypt it, and hydrate your stores.  

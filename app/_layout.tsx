@@ -32,6 +32,7 @@ Sentry.init({
   tracesSampleRate: 1.0,
   sendDefaultPii: true,
   profilesSampleRate: 1.0,
+  environment: 'production',
 });
 
 const queryClient = new QueryClient({
