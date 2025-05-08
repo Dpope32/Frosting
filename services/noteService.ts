@@ -6,6 +6,7 @@ import * as Haptics from "expo-haptics";
 import type { Note, Attachment } from '@/types/notes';
 import type { Tag } from '@/types/tag';
 import type { SharedValue } from "react-native-reanimated"; 
+import { isIpad } from '@/utils/deviceUtils';
 
 export const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) => {
   if (Platform.OS !== 'web') {
@@ -333,13 +334,10 @@ export const isPointInTrashArea = (y: number): boolean => {
     // The y-coordinate from the drag event is relative to the top of the screen
     // We need to check if it's in the bottom portion of the screen
     const { height } = Dimensions.get('window');
-    
-    // Make the trash area more precise to avoid interfering with normal dragging
-    // This will make the bottom 15% of the screen count as the trash area
-    const trashAreaThreshold = height * 0.85; // Increased from 0.6 to 0.85 to make it more precise
-    
-    // For debugging  
-    // Check if the y-coordinate is in the trash area
+    // Make the trash area much larger on iPad (bottom 50% of the screen)
+    // and keep it at 15% for other devices
+    const trashAreaPercent = isIpad() ? 0.75 : 0.85; // 0.5 = bottom 50% for iPad, 0.85 = bottom 15% for others
+    const trashAreaThreshold = height * trashAreaPercent;
     return y > trashAreaThreshold;
 };
 
