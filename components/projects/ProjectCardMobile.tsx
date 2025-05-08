@@ -54,7 +54,7 @@ export const ProjectCardMobile = ({
             ai="center"
             animation="quick"
             py={isIpad() ? "$3" : "$2.5"}
-            pt={isIpad() ? "$2" : "$1"}
+            pt={isIpad() ? "$2.5" : "$1"}
           >
             <YStack flex={1} gap="$2"> 
               <ProjectHeader project={project} isDark={isDark} priorityColor={priorityColor} />
@@ -82,7 +82,7 @@ export const ProjectCardMobile = ({
                 </YStack>
 
                 {project.attachments?.length > 0 && (
-                  <YStack w="100%" my={isIpad() ? 10 : 6} mx={isIpad() ? 10 : 6}>
+                  <YStack w="100%" mb={project.tasks?.length > 0 ? isIpad() ? 10 : 6 : 24} mx={isIpad() ? 10 : 6}>
                     <ProjectAttachments 
                       attachments={project.attachments} 
                       isDark={isDark} 

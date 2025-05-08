@@ -3,6 +3,7 @@ import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal } f
 import { XStack, YStack, Text, Button } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { LinearGradient } from 'expo-linear-gradient';
 import { getCategoryColor } from '@/utils/styleUtils';
 import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/store/HabitStore';
@@ -155,12 +156,32 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
         p={isMobile ? 8 : 10}
         px={isMobile ? 12 : 16}
         borderRadius={12}
-        backgroundColor={doneToday ? (isDark ? '#000' : '#eee') : (isDark ? '#151515' : '#fff')} 
+        backgroundColor={isDark ? (doneToday ? '#000' : '#151515') : 'rgba(255, 255, 255, 0.7)'}
         borderWidth={1}
-        borderColor={isDark ? '#333' : '#E0E0E0'}
+        borderColor={isDark ? '#333' : '#e0e0e0'}
         position="relative"
         overflow="hidden"
+        style={{
+          backgroundColor: isDark ? (doneToday ? '#000' : '#151515') : 'rgba(255, 255, 255, 0.7)',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 4,
+          elevation: 3,
+        }}
       >
+        <LinearGradient
+          colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            borderRadius: 11,
+            borderWidth: isDark ? 2 : 1,
+            borderColor: isDark ? undefined : '#9c9c9c',
+          }}
+        />
         {doneToday && (
           <View
             style={{
@@ -181,7 +202,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           </View>
         )}
         
-        <XStack justifyContent="space-between" alignItems="center" mb={isMobile ? 0 : 0}>
+        <XStack justifyContent="space-between" alignItems="center" mt={isIpad() ? 8 : 0}>
           <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
             <Pressable 
               ref={statsButtonRef}
@@ -260,7 +281,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           </XStack>
         </XStack>
         {(notificationTimeDate !== 'none' || habit.customMessage || habit.description) && (
-          <XStack mt={2} pb={12} gap={4} >
+          <XStack mt={2} pb={isIpad() ? 4 : 3} gap={4} >
               {notificationTimeDate !== 'none' && (
               <XStack
                 alignItems="center"
@@ -336,7 +357,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           <YStack
             borderRadius={6}
             padding={8}
-            backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)'}
+            backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'transparent'}
             mb={history.length === 1 ? 4 : 0}
             gap={6}
           >

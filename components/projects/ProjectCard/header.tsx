@@ -62,7 +62,7 @@ export const ProjectHeader = ({ project, isDark, priorityColor }: ProjectHeaderP
 // Helper function to render status badge
 const renderStatusBadge = (project: Project, isDark: boolean) => {
   if (!project?.status) return null;
-  
+
   return (
     <XStack
       bg={
@@ -81,10 +81,12 @@ const renderStatusBadge = (project: Project, isDark: boolean) => {
       br={12}
       opacity={0.9}
       mr={4}
+      alignItems="center"
+      justifyContent="center"
     >
       <Text
-        paddingHorizontal={"$1.5"}
-        paddingVertical={"$0.5"}
+        paddingHorizontal={4}
+        my={-2}
         color={
           project.status === 'completed'
             ? '$green10'

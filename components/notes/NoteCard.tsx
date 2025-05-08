@@ -72,7 +72,7 @@ export const NoteCard = ({
     elevation: isDragging ? 8 : 2,
     padding: verticalPadding,
     borderWidth: isDragging ? 1 : 0,
-    borderColor: isDragging ? colors.cardBorderDragging : 'transparent',
+    borderColor: isDragging ? colors.cardBorderDragging : '#1c1c1c',
     overflow: 'hidden' as 'hidden',
   }), [isDragging, colors]);
 
@@ -92,6 +92,8 @@ export const NoteCard = ({
         borderRadius={10}
         style={cardSpecificStyle}
         minWidth={isWeb ? 300 : undefined}
+        borderWidth={1}
+        borderColor={isDragging ? colors.cardBorderDragging : '#9c9c9c'}
       >
         <YStack gap="$0">
           <TouchableOpacity

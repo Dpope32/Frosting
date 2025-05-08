@@ -189,9 +189,13 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           borderWidth={1}
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
           borderRadius={12}
-        />
+        />        
+        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$0" mx={0}>
         <DeadlineInputter deadline={deadline} setDeadline={setDeadline} isDark={isDark} />
+        </YStack>
+        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$0" mx={0}>
         <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
+        </YStack>
         <YStack gap="$2" mt="$2" mb="$0" mx={0}>
           {peopleArray.length > 0 && (
             <PeopleSelector

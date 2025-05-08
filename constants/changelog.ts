@@ -1,5 +1,17 @@
 export const CHANGELOG = [
   {
+    version: '1.1.162',
+    date: '2025-05-08',
+    notes: 'Updated Light Mode Stylings & Bug Fixes',
+    bullets: [
+      'Updated light mode stylings for all cards',
+      'Fixed bug with extra comma in greeting',
+      'Patched bug with Easter Egg not being clickable',
+      'Fixed bug on iPad with notes not being draggable to the trashcan',
+      '',
+    ],
+  },
+  {
     version: '1.1.161',
     date: '2025-05-07',
     notes: 'Updated Projects',

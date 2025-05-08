@@ -43,7 +43,7 @@ export const AttachmentSelector = ({ isDark, attachments, setAttachments }: Atta
           disabled={isLoading}
           pressStyle={{ opacity: 0.8 }}
         >
-          <MaterialCommunityIcons name="paperclip" size={20} backgroundColor={isDark ? 'rgba(0,0,0,0.0)' : 'rgba(0,0,0,0.05)'} color={isDark ? '#999' : '#666'} />
+          <MaterialCommunityIcons name="paperclip" size={20} backgroundColor={isDark ? 'rgba(0,0,0,0.0)' : 'rgba(0,0,0,0.0)'} color={isDark ? '#999' : '#666'} />
         </Button>
       </XStack>
       

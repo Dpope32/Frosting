@@ -303,9 +303,9 @@ export const TaskSection = ({
                     );
                   })}
                 </XStack>
-                {!isWeb && <ProjectSection />}
               </>
             )}
+            {!isWeb && <ProjectSection />}
             {!isWeb ? (
               <>
                 <Pressable
@@ -324,7 +324,7 @@ export const TaskSection = ({
                     }
                     easterEggTimeout.current = setTimeout(() => {
                       setEasterEggVisible(true);
-                    }, 500); 
+                    }, 500);
                   }}
                   onPressOut={() => {
                     if (easterEggTimeout.current) {
