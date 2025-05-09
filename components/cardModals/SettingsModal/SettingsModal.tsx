@@ -4,19 +4,19 @@ import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { YStack, Text, Spinner, isWeb } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
 import { useWallpaperStore } from '@/store/WallpaperStore';
-import { colorOptions } from '../../constants/Colors';
-import { backgroundStyles, wallpapers, BackgroundStyle } from '../../constants/Backgrounds'; 
-import { ColorPickerModal } from '../cardModals/shared/ColorPickerModal'
+import { colorOptions } from '../../../constants/Colors';
+import { backgroundStyles, wallpapers, BackgroundStyle } from '../../../constants/Backgrounds'; 
+import { ColorPickerModal } from '../shared/ColorPickerModal'
 import { BlurView } from 'expo-blur'
 import * as Sentry from '@sentry/react-native';
 import { useCustomWallpaper } from '@/hooks/useCustomWallpaper';
 import { isIpad } from '@/utils/deviceUtils';
-import { TopSection } from './SettingsModal/topSection';
-import { Switches } from './SettingsModal/switches';
-import { MobileSwitches } from './SettingsModal/mobileSwitches';
-import { SettingsWallpaper } from './SettingsModal/settingsWallpaper';
-import { SettingsModalFooter } from './SettingsModal/footer';
-import { buildImageSource,  pickImage,  handleSelectBackground, getWallpaperImageSource, initImagePicker, WallpaperSource } from './SettingsModal/utils';
+import { TopSection } from './topSection';
+import { Switches } from './switches';
+import { MobileSwitches } from './mobileSwitches';
+import { SettingsWallpaper } from './settingsWallpaper';
+import { SettingsModalFooter } from './footer';
+import { buildImageSource,  pickImage,  handleSelectBackground, getWallpaperImageSource, initImagePicker, WallpaperSource } from './utils';
 
 const ImagePicker = initImagePicker();
 
@@ -156,7 +156,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
       hideHandle={true}
       showCloseButton={!isSigningOut}
       footer={
-        <SettingsModalFooter />
+        <SettingsModalFooter onOpenChange={onOpenChange} settings={settings} />
       }
     >
       <YStack flex={1} gap="$2" paddingVertical="$3" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$1.5'}>

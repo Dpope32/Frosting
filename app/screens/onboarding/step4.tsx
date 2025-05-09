@@ -1,7 +1,7 @@
 import React from 'react'
 import { YStack, Input, Label, Text, Button } from 'tamagui'
 import { FormData } from '@/types/onboarding'
-import { Alert, Platform } from 'react-native'
+import {  Platform } from 'react-native'
 import { useState, useEffect } from 'react'
 import { validateZipCode, FALLBACK_ZIP_CODES } from '@/utils/zipCodeValidator'
 import { isIpad } from '@/utils/deviceUtils'
@@ -115,32 +115,10 @@ export default function Step4({
         <Button
           chromeless
           onPress={() => {
-            if (Platform.OS === 'web') {
-              if (confirm("Weather data won't be accurate for your location. Continue anyway?")) {
-                setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }))
-                setPreferences({ ...formData, weatherEnabled: false })
-                handleNext()
-              }
-            } else {
-              Alert.alert(
-                "Skip Zip Code?",
-                "Weather data won't be accurate for your location. Continue anyway?",
-                [
-                  {
-                    text: "No",
-                    style: "cancel"
-                  },
-                  {
-                    text: "Yes",
-                    onPress: () => {
-                      setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }))
-                      setPreferences({ ...formData, weatherEnabled: false })
-                      handleNext()
-                    }
-                  }
-                ]
-              )
-            }
+            // set fallback zip and disable temperature card
+            setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }));
+            setPreferences({ zipCode: FALLBACK_ZIP_CODES.DEFAULT, temperatureEnabled: false });
+            handleNext();
           }}
           color="$onboardingButtonPrimary"
         >

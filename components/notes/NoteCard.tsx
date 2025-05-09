@@ -112,61 +112,65 @@ export const NoteCard = ({
           }}
         />
         <YStack gap="$0">
-          <TouchableOpacity
-            onPress={(e) => {
-              e.stopPropagation();
-              handlePress();
-            }}
-            onLongPress={(e) => {
-              if (drag && !note.isExpanded) {
+          {!isExpanded ? (
+            <TouchableOpacity
+              onPress={(e) => {
                 e.stopPropagation();
-                drag();
-              }
-            }}
-            delayLongPress={300}
-            activeOpacity={0.7}
-            style={{ width: '100%' }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <XStack
-              paddingHorizontal={horizontalPadding}
-              paddingTop={isWeb ? "$3" : "$2"}
-              paddingBottom={isExpanded ? "$2" : (note.tags?.length ? "$3" : "$2")} 
-              justifyContent="space-between"
-              alignItems="flex-start"
+                handlePress();
+              }}
+              onLongPress={(e) => {
+                if (drag && !note.isExpanded) {
+                  e.stopPropagation();
+                  drag();
+                }
+              }}
+              delayLongPress={300}
+              activeOpacity={0.7}
+              style={{ width: '100%' }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Text
-                flex={1}
-                fontSize={isWeb ? "$5" : isIpad() ? 20 : 19}
-                fontWeight="bold"
-                numberOfLines={1}
-                fontFamily="$heading"
-                color={colors.text}
-                mr="$2"
-                className={isWeb ? "note-text" : undefined}
+              <XStack
+                paddingHorizontal={horizontalPadding}
+                paddingTop={isWeb ? "$3" : "$2"}
+                paddingBottom={note.tags?.length ? "$3" : "$2"} 
+                justifyContent="space-between"
+                alignItems="flex-start"
               >
-                {note.title || 'Untitled Note'}
-              </Text>
-              {isExpanded ? (
-                <ChevronUp size={isWeb ? 24 : 20} color={colors.textSecondary} />
-              ) : (
+                <Text
+                  flex={1}
+                  fontSize={isWeb ? "$5" : isIpad() ? 20 : 19}
+                  fontWeight="bold"
+                  numberOfLines={1}
+                  fontFamily="$heading"
+                  color={colors.text}
+                  mr="$2"
+                  className={isWeb ? "note-text" : undefined}
+                >
+                  {note.title || 'Untitled Note'}
+                </Text>
                 <ChevronDown size={isWeb ? 24 : 20} color={colors.textSecondary} />
-              )}
-            </XStack>
-          </TouchableOpacity>
-
-          {isExpanded && (
-          <View
-            style={{
-              height: 2,
-              backgroundColor: colors.cardBorder,
-              marginHorizontal: horizontalPadding,
-              marginTop: 4,
-              marginBottom: 2,
-              borderRadius: 2,
-            }}
-          />
-        )}
+              </XStack>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={(e) => {
+                e.stopPropagation();
+                handlePress();
+              }}
+              onLongPress={(e) => {
+                if (drag && !note.isExpanded) {
+                  e.stopPropagation();
+                  drag();
+                }
+              }}
+              delayLongPress={300}
+              activeOpacity={0.7}
+              style={{ width: '100%' }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <View style={{ height: 0 }} />
+            </TouchableOpacity>
+          )}
 
           {!isExpanded ? (
             <TouchableOpacity
@@ -212,8 +216,20 @@ export const NoteCard = ({
           ) : (
             <YStack>
               <View style={{ flex: 1 }}>
+                <XStack paddingHorizontal={horizontalPadding} paddingTop="$2" justifyContent="flex-end">
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handlePress();
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <ChevronUp size={isWeb ? 24 : 20} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                </XStack>
+                
                 {hasMarkdown ? (
-                  <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2">
+                  <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2" marginTop={isIpad() ? -30 : 0}>
                     <Markdown style={markdownStyles}>
                       {displayContent || ''}
                     </Markdown>

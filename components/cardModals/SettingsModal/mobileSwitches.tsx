@@ -1,26 +1,13 @@
 import React from 'react';
 import { Switch } from "react-native";
 import { YStack, XStack, Text } from "tamagui";
-
-interface Settings {
-  username: string;
-  primaryColor: string;
-  profilePicture: string | undefined;
-  zipCode: string;
-  backgroundStyle: "gradient" | `wallpaper-${string}`;
-  notificationsEnabled: boolean;
-  quoteEnabled: boolean;
-  portfolioEnabled: boolean;
-  temperatureEnabled: boolean;
-  wifiEnabled: boolean;
-}
+import type { Settings } from './utils'
 
 interface SwitchesProps {
   settings: Settings;
   setSettings: React.Dispatch<React.SetStateAction<Settings>>;
   isDark?: boolean;
 }
-
 
 export const MobileSwitches = ({ settings, setSettings, isDark }: SwitchesProps) => {
 

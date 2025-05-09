@@ -9,7 +9,7 @@ import { SettingsCard } from '@/components/home/cards/SettingsCard'
 import { useUserStore } from '@/store/UserStore'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { isIpad } from '@/utils/deviceUtils'
-import { SettingsModal } from '@/components/cardModals/SettingsModal'
+import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal'
 
 interface CardSectionProps {
   onPortfolioPress?: () => void

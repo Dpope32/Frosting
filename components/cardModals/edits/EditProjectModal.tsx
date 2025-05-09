@@ -18,6 +18,7 @@ import type { Person } from '@/types/people';
 import { isIpad } from '@/utils/deviceUtils';
 import { DeadlineInputter } from '@/components/projects/ProjectCard/modal/deadlineInputter'; 
 import { TasksInModal } from '@/components/projects/ProjectCard/modal/tasksInModal';
+import { MaterialIcons } from '@expo/vector-icons';
 
 interface EditProjectModalProps {
   open: boolean;
@@ -50,6 +51,8 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const inputRef = React.useRef<any>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const titleInputRef = React.useRef<any>(null);
 
   useEffect(() => {
     if (open && project) {
@@ -82,6 +85,12 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       keyboardDidHideListener.remove();
     };
   }, [open, project]);
+
+  useEffect(() => {
+    if (isEditingTitle) {
+      titleInputRef.current?.focus();
+    }
+  }, [isEditingTitle]);
 
   const handleSave = useCallback(() => {
     if (!project) return;
@@ -132,7 +141,47 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
     <BaseCardModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Edit Project"
+      title={
+        <XStack ai="center" space="$2">
+          <Button
+            size="$2"
+            backgroundColor="transparent"
+            onPress={() => setIsEditingTitle(true)}
+            pressStyle={{ opacity: 0.7 }}
+          >
+            <MaterialIcons
+              name="edit"
+              size={20}
+              color={isDark ? '#5c5c5c' : '#666'}
+            />
+          </Button>
+          {isEditingTitle ? (
+            <DebouncedInput
+              ref={titleInputRef}
+              value={name}
+              onDebouncedChange={setName}
+              autoCapitalize="words"
+              fontSize={22}
+              fontFamily="$body"
+              fontWeight="700"
+              color={isDark ? '#fff' : '#000'}
+              backgroundColor="transparent"
+              borderWidth={0}
+              onBlur={() => setIsEditingTitle(false)}
+            />
+          ) : (
+            <Text
+              fontSize={22}
+              fontFamily="$body"
+              fontWeight="700"
+              color={isDark ? '#fff' : '#000'}
+              opacity={isDark ? 1 : 0.9}
+            >
+              {name}
+            </Text>
+          )}
+        </XStack>
+      }
       showCloseButton
       snapPoints={isWeb ? [90] : isIpad() ? [70] : [93]}
       hideHandle
@@ -174,29 +223,17 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         px={isIpad() ? '$4' : '$2.5'} 
         pt={6}
       >
-        <DebouncedInput
-          ref={inputRef}
-          value={name}
-          placeholder="Project Name"
-          onDebouncedChange={setName}
-          autoCapitalize="words"
-          fontSize={isIpad() ? 17 : 15}
-          fontFamily="$body"
-          fontWeight="bold"
-          color={isDark ? '#f6f6f6' : '#111'}
-          backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
-          borderWidth={1}
-          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
-          borderRadius={12}
-        />        
-        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$0" mx={0}>
+        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$2.5" mx={0}>
         <DeadlineInputter deadline={deadline} setDeadline={setDeadline} isDark={isDark} />
         </YStack>
+        <XStack ai="center" alignItems="center" mb="$2.5" gap="$2" mx={4}>
+          <TagSelector tags={tags} onTagsChange={setTags} />
+        </XStack>
         <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$0" mx={0}>
         <StatusSelector selectedStatus={status} onStatusSelect={setStatus} />
         </YStack>
+        {peopleArray.length > 0 && (
         <YStack gap="$2" mt="$2" mb="$0" mx={0}>
-          {peopleArray.length > 0 && (
             <PeopleSelector
               people={peopleArray}
               selectedPeople={selectedPeople}
@@ -209,12 +246,8 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
                 }
               }}
             />
-          )}
         </YStack>
-        <XStack ai="center" alignItems="center" gap="$2" mt="$1.5" mx={10}>
-        <Text mb={6} color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Tags?</Text>
-          <TagSelector tags={tags} onTagsChange={setTags} />
-        </XStack>
+        )}
         <DebouncedInput
           value={description}
           placeholder="Description (optional)"

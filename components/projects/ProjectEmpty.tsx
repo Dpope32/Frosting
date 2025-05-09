@@ -76,18 +76,7 @@ export const ProjectEmpty = ({
                 Supercharge Your Workflow
               </Text>
               <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Bring all your tasks, notes, people, and resources together in one powerful hub.
-              </Text>
-            </YStack>
-          </XStack>
-          <XStack gap="$2" ai="flex-start">
-            <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
-            <YStack>
-              <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Complete Integration
-              </Text>
-              <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Seamlessly connect contacts, tasks, documents, and notes for a unified workspace.
+                Bring all your tasks, images, contacts, and resources together in one powerful hub.
               </Text>
             </YStack>
           </XStack>
@@ -140,7 +129,7 @@ export const ProjectEmpty = ({
         </YStack>
 
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-          Or click the + icon below to create your own project
+          Or click the + icon below to create your own!
         </Text>
       </YStack>
     </XStack>

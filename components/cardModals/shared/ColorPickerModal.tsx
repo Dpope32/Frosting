@@ -3,6 +3,7 @@ import { View, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Sheet, Button, Text, Circle, XStack, YStack } from 'tamagui';
 import { useToastStore } from '@/store/ToastStore';
 import { X } from '@tamagui/lucide-icons'; // Import X icon
+import { useUserStore } from '@/store/UserStore';
 
 // Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;
@@ -32,6 +33,8 @@ export function ColorPickerModal({
   isDark = false,
 }: ColorPickerModalProps) {
   const showToast = useToastStore((state) => state.showToast);
+  const preferences = useUserStore(state => state.preferences);
+  const setPreferences = useUserStore(state => state.setPreferences);
   // Removed isPickerInteracting state
   const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)';
   const textColor = isDark ? '#fff' : '#000';
@@ -49,7 +52,7 @@ export function ColorPickerModal({
       open={open}
       onOpenChange={onOpenChange}
       snapPoints={[60]}
-      zIndex={100000}
+      zIndex={100001}
       disableDrag={true} 
     >
       <Sheet.Overlay
@@ -117,7 +120,8 @@ export function ColorPickerModal({
             pressStyle={{ opacity: 0.8 }}
             onPress={() => {
               onOpenChange(false);
-              showToast('Primary color updated!', 'success'); 
+              setPreferences({ ...preferences, primaryColor: selectedColor });
+              showToast('Primary color updated!', 'success');
             }}
             alignSelf="flex-end"
           >

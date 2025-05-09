@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Alert } from 'react-native' 
 import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router';
@@ -8,26 +8,26 @@ import { useBillStore } from '@/store/BillStore';
 import { useProjectStore } from '@/store/ToDo'; 
 import { usePeopleStore } from '@/store/People'; 
 import { useNoteStore } from '@/store/NoteStore';
+import { useToastStore } from '@/store/ToastStore';
+import type { Settings } from './utils'
 
-export const SettingsModalFooter = () => {
-    const { preferences, setPreferences } = useUserStore()
-    const [isSigningOut, setIsSigningOut] = useState(false)
-    const [settings, setSettings] = useState({
-      username: preferences.username,
-      primaryColor: preferences.primaryColor,
-      profilePicture: preferences.profilePicture || undefined,
-      zipCode: preferences.zipCode,
-      backgroundStyle: preferences.backgroundStyle || 'gradient',
-      notificationsEnabled: preferences.notificationsEnabled,
-      quoteEnabled: preferences.quoteEnabled ?? true,
-      portfolioEnabled: preferences.portfolioEnabled ?? true,
-      temperatureEnabled: preferences.temperatureEnabled ?? true,
-      wifiEnabled: preferences.wifiEnabled ?? true,
-    })
+export const SettingsModalFooter = ({
+  onOpenChange,
+  settings,
+}: {
+  onOpenChange: (open: boolean) => void;
+  settings: Settings;
+}) => {
     
-    const handleSave = () => {
-        console.log('Save button pressed');
-    };
+    const setPreferences = useUserStore(state => state.setPreferences);
+    const { showToast } = useToastStore();
+    const [isSigningOut, setIsSigningOut] = useState(false);
+    
+    const handleSave = useCallback(() => {
+        setPreferences({ ...settings });
+        onOpenChange(false);
+        showToast("Settings saved successfully", "success");
+      }, [settings, setPreferences, onOpenChange, showToast])
   
   return (
     <XStack width="100%" px="$0" py="$2" justifyContent="space-between">

@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { CardSection } from '@/components/home/CardSection';
-import { SettingsModal } from '@/components/cardModals/SettingsModal';
+import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
 import { PortfolioModal } from '@/components/home/PortfolioModal'; 
 import { QuoteModal } from '@/components/home/QuoteModal'; 
 import { WifiModal } from '@/components/home/WifiModal';

@@ -128,8 +128,8 @@ export default function ProjectsScreen() {
         addVacationProject();
         break;
       default:
-        // Fallback to add all projects (for backward compatibility)
-        addDevProjects();
+        // Only add a single default project if somehow we got here
+        addWebsiteRedesignProject();
         break;
     }
     showToast(`Added ${projectType} example project!`, 'success');
