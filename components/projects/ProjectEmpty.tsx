@@ -1,6 +1,7 @@
 import React from 'react'
-import { XStack, YStack, Text, isWeb } from 'tamagui'
+import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
+import { FontAwesome5 } from '@expo/vector-icons'
 
 interface ProjectEmptyProps {
   isDark: boolean
@@ -13,17 +14,17 @@ export const ProjectEmpty = ({
 }: ProjectEmptyProps) => {
   return (
     <XStack 
-      p={ isWeb ? "$6" : "$4"} 
+      p={isWeb ? "$6" : "$4"} 
       br="$4" 
-      ai="flex-start" 
+      ai="flex-start"
       jc="center"
       borderWidth={1} 
       borderColor={isDark ? "#333" : "#e0e0e0"} 
-      width={isWeb ? "80%" : "90%"} 
-      maxWidth={isWeb ? 800 : "100%"} 
-      mx="auto" 
-      my="$4" 
-      overflow="hidden" 
+      width={isWeb ? "50%" : "90%"} 
+      maxWidth={isWeb ? 600 : "100%"} 
+      mx={isWeb ? "auto" : "$2"}
+      marginTop={isWeb ? 10 : 16}
+      overflow="hidden"
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
@@ -81,7 +82,7 @@ export const ProjectEmpty = ({
         <XStack justifyContent="center">
         </XStack>
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-          {isWeb ? "Click the + icon below to add your first project!" : "Or click the + button below to add a project manually"}
+          {"Click the + icon below to add your first project!"}
         </Text>
       </YStack>
     </XStack>

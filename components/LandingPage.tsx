@@ -16,7 +16,7 @@ import { FloatingActionSection } from './home/float/FloatingActionSection'
 import { AddVaultEntryModal } from './cardModals/AddVaultEntryModal'
 import { AddHabitModal } from './cardModals/AddHabitModal'
 import { AddNoteSheet } from './notes/AddNoteSheet'
-import { AddBillModal } from './cardModals/AddBillModal'
+import { AddBillModal } from './cardModals/creates/AddBillModal'
 import { AddPersonForm } from './crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
 import { AddProjectModal } from './cardModals/AddProjectModal'

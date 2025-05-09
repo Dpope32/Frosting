@@ -6,7 +6,7 @@ export const calendarStyles = StyleSheet.create({
     flex: 1,
     paddingTop: 100,
     ...(Platform.OS === 'web' ? {
-      paddingTop: 30,
+      paddingTop: 100,
       maxWidth: 1800,
       marginLeft: 'auto',
       marginRight: 'auto',

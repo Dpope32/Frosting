@@ -36,7 +36,7 @@ export default function HabitsScreen() {
     <View style={{ flex: 1, position: 'relative' }}>
       <YStack 
         f={1} 
-        pt={isWeb ? 60 : isIpad() ? 100 : 100} 
+        pt={isWeb ? 80 : isIpad() ? 100 : 100} 
         px={isWeb ? 24 : 16} 
         bg={isDark ? '#000' : '#F6F6F6'}
       >

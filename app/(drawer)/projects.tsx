@@ -31,12 +31,16 @@ export default function ProjectsScreen() {
   const getProjectById = useProjectStore((state) => state.getProjectById)
   const updateProject = useProjectStore((state) => state.updateProject)
   const showToast = useToastStore((state) => state.showToast)
+  const [editModalOpen, setEditModalOpen] = React.useState(false)
+  const [selectedEditProjectId, setSelectedEditProjectId] = React.useState<string | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+
   // Filter out any non-project items (must be objects with an id) and filter out deleted or archived projects
   const validProjects = (projects || []).filter(project => 
     project && typeof project === 'object' && !Array.isArray(project) && 
     project.id && !project.isDeleted && !project.isArchived
   )
+
   // Sort projects so completed ones appear at the bottom
   const items = [...validProjects].sort((a, b) => {
     // If a is completed and b is not, a should come after b
@@ -46,8 +50,6 @@ export default function ProjectsScreen() {
     // If both have the same completion status, maintain their original order
     return 0
   })
-  const [editModalOpen, setEditModalOpen] = React.useState(false)
-  const [selectedEditProjectId, setSelectedEditProjectId] = React.useState<string | null>(null)
 
   const deleteAllProjects = () => {
     clearProjects()
@@ -111,7 +113,7 @@ export default function ProjectsScreen() {
   }
 
   return (
-    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : 0}>
+    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} px={isWeb? 24 : 0}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
@@ -119,22 +121,24 @@ export default function ProjectsScreen() {
           padding: isWeb ? 8 : 6,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 0 : isIpad() ? 20 : 12,
-          paddingTop: isWeb ? 0 : 20,
-          paddingLeft: isWeb ? 12 : isIpad() ? 20 : 16,
-          display: isWeb ? 'flex' : 'flex',
+          paddingTop: isWeb ? 12 : 20,
+          paddingLeft: isWeb ? 0 : isIpad() ? 20 : 16,
+          display: 'flex',
           flexDirection: isWeb ? 'row' : 'column',
-          flexWrap: isWeb ? 'wrap' : 'wrap',
-          justifyContent: isWeb ? 'flex-start' : 'flex-start',
+          alignItems: items.length === 0 ? 'center' : undefined,
+          justifyContent: items.length === 0 ? 'flex-start' : undefined,
+          flexWrap: isWeb && items.length > 0 ? 'wrap' : undefined,
+          alignSelf: isWeb ? 'center' : 'flex-start',
           gap: isWeb ? 32 : isIpad() ? 16 : 16,
-          maxWidth: isWeb ? 1800 : "100%",
-          marginHorizontal: isWeb ? 'auto' : 'auto',
+          minWidth: isWeb ? 1200 : "100%",
+          maxWidth: isWeb ? 1200 : "100%",
         }}
       >
         {items.length === 0 ? (
-          <ProjectEmpty
-            isDark={isDark}
-            primaryColor={primaryColor}
-          />
+            <ProjectEmpty
+              isDark={isDark}
+              primaryColor={primaryColor}
+            />
         ) : (
           items.map((project: Project, index) => (
             <YStack key={project.id || `project-${index}`} width={isWeb ? 'calc(33% - 16px)' : isIpad() ? '100%' : '100%'} mb={isWeb ? 0 : isIpad() ? 24 : '$1'}>

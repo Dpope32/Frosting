@@ -112,7 +112,7 @@ export default function VaultScreen() {
         vaultEntry={selectedVaultEntry}
         onSubmit={() => { setEditVaultModalOpen(false); setSelectedVaultEntry(null) }}
       />
-      <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
+      <YStack f={1} pt={isWeb ? 90 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
         <ScrollView
         showsVerticalScrollIndicator={false}
           contentContainerStyle={{
