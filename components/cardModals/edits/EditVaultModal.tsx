@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Input, YStack, XStack, isWeb } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { isIpad } from '@/utils/deviceUtils'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../BaseCardModal'
 
 interface VaultEntry {
   id: string

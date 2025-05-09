@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BaseCardModal } from './BaseCardModal';
+import { BaseCardModal } from '../BaseCardModal';
 import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
 import { Platform, Alert, Keyboard, StyleSheet } from 'react-native';
-import { PrioritySelector } from './NewTaskModal/PrioritySelector';
-import { StatusSelector } from './NewTaskModal/StatusSelector';
-import { PeopleSelector } from './NewTaskModal/PeopleSelector';
+import { StatusSelector } from '../NewTaskModal/StatusSelector';
+import { PeopleSelector } from '../NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useProjectStore } from '@/store/ProjectStore';
@@ -147,7 +146,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         >
           <Button 
             onPress={handleDelete} 
-            backgroundColor={isDark ? 'rgba(230, 98, 98, 0.06)' : 'rgba(220,38,38,0.3)'} 
+            backgroundColor={isDark ? 'rgba(230, 98, 98, 0.06)' : 'rgba(203, 33, 33, 0.07)'} 
             pressStyle={{ opacity: 0.8 }}
             br={12}
             borderColor={isDark ? 'rgba(218, 37, 37, 0.14)' : 'rgba(220,38,38,0.3)'}

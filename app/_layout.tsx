@@ -22,7 +22,7 @@ import { useUserStore } from '@/store/UserStore';
 import { Toast } from '@/components/Toast';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
-import { EditStockModal } from '@/components/cardModals/EditStockModal';
+import { EditStockModal } from '@/components/cardModals/edits/EditStockModal';
 import { handleSharedContact } from '../services/shareService';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 

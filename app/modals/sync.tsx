@@ -1,20 +1,38 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Button, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Plus } from '@tamagui/lucide-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
-import { TextInput } from 'react-native';
-import * as Clipboard from 'expo-clipboard';
 import { isIpad } from '@/utils/deviceUtils';
-import * as Updates from 'expo-updates';
-import { generateSyncKey } from '@/sync/registrySyncManager';
-import { pullLatestSnapshot } from '@/sync/pocketSync';
+import AddDeviceModal from '@/components/cardModals/AddDeviceModal';
+
+const baseSpacing = 8;
+const fontSizes = {
+  xs: 12,
+  sm: 14,
+  md: 16,
+  lg: 18,
+  xl: 22,
+  xxl: 28,
+};
+const cardRadius = 12;
+const buttonRadius = 20;
+const getColors = (isDark: boolean, primaryColor: string) => ({
+  bg: isDark ? '#181A20' : '#fff',
+  card: isDark ? '#23262F' : '#F7F8FA',
+  border: isDark ? '#333' : '#E3E5E8',
+  text: isDark ? '#fff' : '#181A20',
+  subtext: isDark ? '#fff' : '#666',
+  accent: primaryColor,
+  accentBg: isDark ? `${primaryColor}33` : `${primaryColor}30`,
+  error: isDark ? '#E74C3C' : '#E74C3C',
+  success: isDark ? '#27AE60' : '#27AE60',
+  disabled: isDark ? '#333' : '#eee',
+});
 
 export default function SyncScreen() {
   const insets = useSafeAreaInsets();
@@ -26,87 +44,17 @@ export default function SyncScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState('');
-  const [peerCode, setPeerCode] = useState('');
   const [devices, setDevices] = useState<any[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
   const premium = useUserStore((state) => state.preferences.premium === true);
   const setPreferences = useUserStore((state) => state.setPreferences);
-
-  const handleCreateSpace = async () => {
-    setModalStep('creating');
-    try {
-      setIsLoading(true);
-
-      setDevices([
-        {
-          id: 1,
-          name: 'This Device',
-          status: 'Ready',
-          isCurrentDevice: true,
-          lastActive: Date.now()
-        }
-      ]);
-      setIsInitialized(true);
-      setModalStep('showCode');
-      useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
-    } catch (error) {
-      console.error('Error initializing sync service:', error);
-      useToastStore.getState().showToast('Failed to initialize sync', 'error');
-      setModalStep('choose');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleJoinSpace = () => {
-    setModalStep('joining');
-  };
-
-  const connectToPeer = async () => {
-    if (!peerCode.trim()) {
-      useToastStore.getState().showToast('Please enter a valid device code', 'error');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      setDevices(prev => [...prev, {
-        id: peerCode.trim(),
-        name: 'Connected Device',
-        status: 'Connected',
-        isCurrentDevice: false,
-        lastActive: Date.now()
-      }]);
-      useToastStore.getState().showToast('Successfully connected to device', 'success');
-      setModalStep('connected');
-    } catch (error) {
-      console.error('Failed to connect:', error);
-      useToastStore.getState().showToast('Failed to connect to device', 'error');
-      // Do not add device or advance modal step
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleRestore = async () => {
-    setIsLoading(true);
-    try {
-      // Use the current device's sync key
-      await pullLatestSnapshot();
-      useToastStore.getState().showToast('Restore complete! Restarting app...', 'success');
-      setTimeout(() => {
-        Updates.reloadAsync();
-      }, 1000);
-    } catch (error) {
-      useToastStore.getState().showToast('Restore failed', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { width } = useWindowDimensions();
+  const colors = getColors(isDark, primaryColor);
+  const contentWidth = Math.min(width - baseSpacing * 2, 420);
 
   return (
-    <View style={[styles.container, { paddingTop: isIpad() ? 30 : insets.top }]}>
-      <YStack gap="$4" padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$5"}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top }]}>
+      <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$5"}>
         <XStack alignItems="center" justifyContent="center" position="relative">
           <TouchableOpacity
             onPress={() => router.back()}
@@ -128,85 +76,76 @@ export default function SyncScreen() {
             Sync Devices
           </Text>
         </XStack>
-        <XStack alignItems="center" justifyContent="center" gap="$2" marginVertical={8}>
-          <Text fontSize={15} color={isDark ? '#fff' : '#000'} fontWeight="600">
-            Premium Sync:
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={premium ? '$green10' : '$red10'}
-            onPress={() => setPreferences({ premium: !premium })}
-            borderRadius={20}
-            paddingHorizontal={16}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color={premium ? '#fff' : '#fff'} fontWeight="700">
-              {premium ? 'Enabled' : 'Disabled'}
+
+        <View style={{
+          backgroundColor: colors.card,
+          borderRadius: cardRadius,
+          padding: baseSpacing * 2,
+          borderWidth: 1,
+          borderColor: colors.border,
+          width: contentWidth,
+          alignSelf: 'center',
+          marginBottom: baseSpacing * 63,
+          marginTop: baseSpacing * 2,
+        }}>
+          <XStack alignItems="center" justifyContent="space-between">
+            <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
+              Premium Sync
             </Text>
-          </Button>
-        </XStack>
-        {!premium && (
-          <YStack alignItems="center" justifyContent="center" padding="$4">
-            <Text fontSize={16} color={isDark ? '#aaa' : '#666'} textAlign="center">
-              Sync is a premium feature. Enable premium to use device sync and backup.
+            <Button
+              size="$2"
+              backgroundColor={premium ? colors.success : colors.error}
+              onPress={() => setPreferences({ premium: !premium })}
+              borderRadius={buttonRadius}
+              paddingHorizontal={baseSpacing * 3}
+              pressStyle={{ scale: 0.97 }}
+              animation="quick"
+            >
+              <Text color="#fff" fontWeight="700">
+                {premium ? 'Enabled' : 'Disabled'}
+              </Text>
+            </Button>
+          </XStack>
+          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 2 }} />
+          <XStack alignItems="center" justifyContent="space-between">
+            <Text fontSize={fontSizes.md} color={colors.subtext}>
+              Sync Status
             </Text>
-          </YStack>
-        )}
+            <Text fontSize={fontSizes.sm} color={currentSpaceId ? colors.success : colors.subtext}>
+              {currentSpaceId ? 'Connected' : 'Not Connected'}
+            </Text>
+          </XStack>
+        </View>
+
         {premium && (
           <>
-            <View 
-              style={{ 
-                height: 1, 
-                backgroundColor: isDark ? '#333' : '#eee',
-                marginHorizontal: -16,
-                marginBottom: 0
-              }} 
-            />
-            <XStack 
-              backgroundColor={isDark ? "#222" : "#f5f5f5"} 
-              padding="$3" 
-              borderRadius={8}
-              alignItems="center"
-              justifyContent="space-between"
-              width="98%"
-            >
-              <Text fontSize={14} color={isDark ? "#aaa" : "#666"}>
-                Sync Status
-              </Text>
-              <Text fontSize={14} color={isDark ? currentSpaceId ? "$green10" : "#aaa" : currentSpaceId ? "$green10" : "#666"}>
-                {currentSpaceId ? 'Connected' : 'Not Connected'}
-              </Text>
-            </XStack>
-            
-            <Text fontSize={16} color={isDark ? "#aaa" : "#666"} marginBottom="$4">
-              Connect and synchronize your data across multiple devices. Create a new sync space to start fresh, or join an existing one to share data with your other devices. All changes will be automatically synchronized in real-time.
-            </Text>
-            
             {isLoading ? (
-              <YStack alignItems="center" justifyContent="center" padding="$4">
-                <ActivityIndicator size="large" color={primaryColor} />
-                <Text marginTop="$2" color={isDark ? "#aaa" : "#666"}>
+              <YStack alignItems="center" justifyContent="center" padding={baseSpacing * 2}>
+                <ActivityIndicator size="large" color={colors.accent} />
+                <Text marginTop={baseSpacing} color={colors.subtext}>
                   {currentSpaceId ? 'Connecting to sync space...' : 'Creating sync space...'}
                 </Text>
               </YStack>
             ) : (
-              <YStack gap="$2">
+              <YStack gap={baseSpacing}>
                 {devices.map((device: any) => (
                   <XStack
                     key={device.id}
-                    padding="$3"
-                    backgroundColor={isDark ? "#222" : "#f5f5f5"}
-                    borderRadius={8}
+                    padding={baseSpacing * 2}
+                    backgroundColor={colors.card}
+                    borderRadius={cardRadius}
+                    borderWidth={1}
+                    borderColor={colors.border}
                     justifyContent="space-between"
                     alignItems="center"
-                    width="98%"
+                    width={contentWidth}
+                    alignSelf="center"
                   >
                     <YStack>
-                      <Text fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"}>
+                      <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
                         {device.name}
                       </Text>
-                      <Text fontSize={12} color={isDark ? "#aaa" : "#666"}>
+                      <Text fontSize={fontSizes.sm} color={colors.subtext}>
                         {device.isCurrentDevice
                           ? (devices.length > 1 ? 'Connected' : 'Waiting for other devices')
                           : device.status + ' • Last active: ' + new Date(device.lastActive).toLocaleDateString()}
@@ -217,7 +156,7 @@ export default function SyncScreen() {
                         <MaterialIcons 
                           name="more-vert" 
                           size={24} 
-                          color={isDark ? "#fff" : "#000"} 
+                          color={colors.text} 
                         />
                       </TouchableOpacity>
                     )}
@@ -229,262 +168,49 @@ export default function SyncScreen() {
         )}
       </YStack>
 
-      <Button
-        size={isWeb ? '$6' : '$7'}
-        circular
+      <YStack
         position="absolute"
-        bottom={insets.bottom + 40}
-        right={32}
-        backgroundColor={premium ? primaryColor : '$red10'}
-        pressStyle={{ scale: 0.93 }}
-        animation="bouncy"
-        elevation={8}
-        style={{
-          width: premium ? 64 : 80,
-          height: premium ? 64 : 80,
-          borderRadius: 40,
-          justifyContent: 'center',
-          alignItems: 'center',
-          shadowColor: premium ? primaryColor : '#ff4d4f',
-          shadowOpacity: 0.3,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 8 },
-        }}
-        onPress={() => {
-          if (!premium) {
-            setPreferences({ premium: true });
-            useToastStore.getState().showToast('Premium sync enabled!', 'success');
-          } else {
-            setShowAddDevice(true);
-            if (deviceId) {
-              setModalStep('showCode');
-            } else {
-              setModalStep('choose');
-            }
-          }
-        }}
-        icon={
-          premium ? <Plus size={32} color={isDark ? '#fff' : '#000'} /> : <MaterialIcons name="sync" size={40} color="#fff" />
-        }
+        left={0}
+        right={0}
+        alignItems="center"
+        style={{ bottom: isIpad() ? 50 : 30 }}
+        pointerEvents="box-none"
       >
-        {!premium && (
-          <Text color="#fff" fontWeight="700" fontSize={20} marginTop={8}>
-            Enable Sync
-          </Text>
-        )}
-      </Button>
-
-      {premium && (
         <Button
-          size={isWeb ? '$5' : '$6'}
-          backgroundColor={'$green10'}
-          borderRadius={16}
-          marginVertical={24}
-          alignSelf="center"
-          paddingHorizontal={32}
-          paddingVertical={18}
+          width={contentWidth}
+          backgroundColor={premium ? colors.accentBg : colors.accentBg}
+          borderRadius={buttonRadius}
+          minHeight={isIpad() ? 50 : 48}
+          height={isIpad() ? 50 : 48}
+          alignItems="center"
+          justifyContent="center"
           pressStyle={{ scale: 0.97 }}
+          borderWidth={2}
+          borderColor={colors.accent}
           animation="bouncy"
-          elevation={6}
-          onPress={handleRestore}
-          icon={<MaterialIcons name="sync" size={28} color="#fff" style={{ marginRight: 8 }} />}
+          elevation={0}
+          onPress={() => {
+            if (!premium) {
+              setPreferences({ premium: true });
+              useToastStore.getState().showToast('Premium sync enabled!', 'success');
+            } else {
+              setShowAddDevice(true);
+              if (deviceId) {
+                setModalStep('showCode');
+              } else {
+                setModalStep('choose');
+              }
+            }
+          }}
         >
-          <Text color="#fff" fontWeight="700" fontSize={18}>
-            Sync Now
+          <Text style={{color: premium ? colors.accentBg : colors.subtext, fontSize: fontSizes.lg, textAlign: 'center', width: '100%', fontWeight: '500', fontFamily: '$body', letterSpacing: 1 }} numberOfLines={1} ellipsizeMode="tail">
+            {premium ? 'Add Device' : 'Enable Sync'}
           </Text>
         </Button>
-      )}
+      </YStack>
 
       {showAddDevice && (
-        <BaseCardAnimated
-          title={modalStep === 'connected' ? 'Connected Devices' : 'Add New Device'}
-          onClose={() => { setShowAddDevice(false); setModalStep(deviceId ? 'showCode' : 'choose'); }}
-        >
-          <YStack gap="$4" padding="$2">
-            {modalStep === 'choose' && (
-              <>
-                <Text color={isDark ? "#aaa" : "#666"} fontSize={16}>
-                  How would you like to sync this device?
-                </Text>
-                <Button
-                  onPress={handleCreateSpace}
-                  backgroundColor={isDark ? `${primaryColor}40` : `${primaryColor}20`}
-                  borderColor={primaryColor}
-                  borderWidth={2}
-                  size="$3"
-                  height={38}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color={isDark ? "#fff" : primaryColor} fontSize={15} fontWeight="600">
-                    Create New Sync Space
-                  </Text>
-                </Button>
-                <Button
-                  onPress={handleJoinSpace}
-                  backgroundColor={isDark ? "#222" : "#f5f5f5"}
-                  borderColor={isDark ? "#444" : "#ddd"}
-                  borderWidth={2}
-                  size="$3"
-                  height={38}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color={isDark ? "#fff" : "#000"} fontSize={15} fontWeight="600">
-                    Join Existing Sync Space
-                  </Text>
-                </Button>
-              </>
-            )}
-            {modalStep === 'creating' && (
-              <YStack alignItems="center" justifyContent="center" padding="$4">
-                <ActivityIndicator size="large" color={primaryColor} />
-                <Text marginTop="$2" color={isDark ? "#aaa" : "#666"}>
-                  Initializing your device...
-                </Text>
-              </YStack>
-            )}
-            {modalStep === 'showCode' && (
-              <YStack backgroundColor={isDark ? "#222" : "#f5f5f5"} padding="$5" borderRadius={8} marginBottom="$4">
-                <Text fontSize={14} color={isDark ? "#aaa" : "#666"}>
-                  Your Device Code:
-                </Text>
-                <XStack justifyContent="space-between" alignItems="center" marginTop="$2">
-                  <Text fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"}>
-                    {deviceId ? deviceId : "Device code unavailable. Please try again or contact support."}
-                  </Text>
-                  <Button 
-                    size="$3" 
-                    onPress={async () => {
-                      if (!deviceId) {
-                        useToastStore.getState().showToast('No device code to copy', 'error');
-                        return;
-                      }
-                      await Clipboard.setStringAsync(deviceId);
-                      useToastStore.getState().showToast('Device code copied', 'success');
-                    }}
-                  >
-                    Copy
-                  </Button>
-                </XStack>
-                <Text fontSize={12} color={isDark ? "#aaa" : "#666"} marginTop="$2">
-                  Share this code with your other devices to connect them.
-                </Text>
-                <Button
-                  onPress={() => setModalStep('connected')}
-                  backgroundColor={isDark ? `${primaryColor}40` : `${primaryColor}20`}
-                  borderColor={primaryColor}
-                  borderWidth={2}
-                  size="$3"
-                  height={38}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                  marginTop={16}
-                >
-                  <Text color={isDark ? "#fff" : primaryColor} fontSize={15} fontWeight="600">
-                    Done
-                  </Text>
-                </Button>
-              </YStack>
-            )}
-            {modalStep === 'joining' && (
-              <YStack gap="$4" padding="$2">
-                <Text color={isDark ? "#aaa" : "#666"} fontSize={16}>
-                  Enter the device code from your other device:
-                </Text>
-                <TextInput
-                  style={{
-                    backgroundColor: isDark ? '#333' : '#f0f0f0',
-                    padding: 12,
-                    borderRadius: 8,
-                    color: isDark ? '#fff' : '#000',
-                    fontSize: 16,
-                  }}
-                  value={peerCode}
-                  onChangeText={setPeerCode}
-                  placeholder="Enter device code"
-                  placeholderTextColor={isDark ? '#888' : '#aaa'}
-                />
-                <Button
-                  onPress={connectToPeer}
-                  backgroundColor={primaryColor}
-                  height={50}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontSize={16} fontWeight="600">
-                    Connect
-                  </Text>
-                </Button>
-              </YStack>
-            )}
-            {modalStep === 'connected' && (
-              <YStack gap="$2">
-                {devices.map((device: any) => (
-                  <XStack
-                    key={device.id}
-                    padding="$3"
-                    backgroundColor={isDark ? "#222" : "#f5f5f5"}
-                    borderRadius={8}
-                    justifyContent="space-between"
-                    alignItems="center"
-                    width="98%"
-                  >
-                    <YStack>
-                      <Text fontSize={16} fontWeight="600" color={isDark ? "#fff" : "#000"}>
-                        {device.name}
-                      </Text>
-                      <Text fontSize={12} color={isDark ? "#aaa" : "#666"}>
-                        {device.isCurrentDevice
-                          ? (devices.length > 1 ? 'Connected' : 'Waiting for other devices')
-                          : device.status + ' • Last active: ' + new Date(device.lastActive).toLocaleDateString()}
-                      </Text>
-                    </YStack>
-                    {!device.isCurrentDevice && (
-                      <TouchableOpacity>
-                        <MaterialIcons 
-                          name="more-vert" 
-                          size={24} 
-                          color={isDark ? "#fff" : "#000"} 
-                        />
-                      </TouchableOpacity>
-                    )}
-                  </XStack>
-                ))}
-                <Button
-                  onPress={() => setModalStep('choose')}
-                  backgroundColor={isDark ? primaryColor : `${primaryColor}10`}
-                  borderColor={primaryColor}
-                  borderWidth={2}
-                  size="$3"
-                  height={38}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                  marginTop={16}
-                >
-                  <Text color={isDark ? "#fff" : primaryColor} fontSize={15} fontWeight="600">
-                    Add Another Device
-                  </Text>
-                </Button>
-                <Button
-                  onPress={() => { setShowAddDevice(false); setModalStep(deviceId ? 'showCode' : 'choose'); }}
-                  backgroundColor={isDark ? "#222" : "#f5f5f5"}
-                  borderColor={isDark ? "#444" : "#ddd"}
-                  borderWidth={2}
-                  size="$3"
-                  height={38}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                  marginTop={8}
-                >
-                  <Text color={isDark ? "#fff" : "#000"} fontSize={15} fontWeight="600">
-                    Close
-                  </Text>
-                </Button>
-              </YStack>
-            )}
-          </YStack>
-        </BaseCardAnimated>
+        <AddDeviceModal onClose={() => setShowAddDevice(false)} />
       )}
     </View>
   );
@@ -500,4 +226,4 @@ const styles = StyleSheet.create({
     padding: 8,
     zIndex: 1,
   },
-}); 
+});

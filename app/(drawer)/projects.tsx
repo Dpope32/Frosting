@@ -17,7 +17,7 @@ import { AddTaskToProjectModal } from '@/components/cardModals/AddTaskToProjectM
 import { TaskPriority, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useToastStore } from '@/store/ToastStore'
-import EditProjectModal from '@/components/cardModals/EditProjectModal'
+import EditProjectModal from '@/components/cardModals/edits/EditProjectModal'
 import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer'
 
 export default function ProjectsScreen() {

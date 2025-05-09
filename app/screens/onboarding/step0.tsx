@@ -156,6 +156,7 @@ export default function Step0({
         borderColor="$onboardingInputBorder"
         autoComplete="off"
         borderWidth={2}
+        borderRadius={12}
         autoCorrect={false}
         color="$onboardingInputText"
         fontWeight="700"

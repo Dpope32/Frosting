@@ -11,7 +11,7 @@ import { TaskListModal } from './taskList/TaskListModal'
 import { WatchlistModal } from './cardModals/WatchlistModal'
 import { QuoteModal } from './cardModals/QuoteModal'
 import { WifiModal } from './cardModals/WifiModal'
-import { EditTaskModal } from './cardModals/EditTaskModal'
+import { EditTaskModal } from './cardModals/edits/EditTaskModal'
 import { FloatingActionSection } from './home/float/FloatingActionSection'
 import { AddVaultEntryModal } from './cardModals/AddVaultEntryModal'
 import { AddHabitModal } from './cardModals/AddHabitModal'
@@ -37,7 +37,7 @@ import type { Tag } from '@/types/tag';
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services/noteService';
 import { createFormattingHandler } from '@/services/noteService2';
 import { useEditStockStore } from '@/store/EditStockStore'
-import { EditStockModal } from './cardModals/EditStockModal'
+import { EditStockModal } from './cardModals/edits/EditStockModal'
 import { useHabits } from '@/hooks/useHabits';
 
 export function LandingPage() {

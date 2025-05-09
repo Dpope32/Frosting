@@ -11,7 +11,7 @@ import { AddBillModal } from '@/components/cardModals/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/IncomeModal/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { isIpad } from '@/utils/deviceUtils';
-import { EditBillModal } from '@/components/cardModals/EditBillModal';
+import { EditBillModal } from '@/components/cardModals/edits/EditBillModal';
 import { Bill } from '@/types/bills';
 import { BillsListModal } from '@/components/listModals/BillsListModal';
 

@@ -11,7 +11,7 @@ import { VaultRecommendationModal } from '@/components/recModals/VaultRecommenda
 import { VaultCard } from '@/components/vault/VaultCard'
 import { VaultEmpty } from '@/components/vault/VaultEmpty'
 import { isIpad } from '@/utils/deviceUtils'
-import { EditVaultModal } from '@/components/cardModals/EditVaultModal'
+import { EditVaultModal } from '@/components/cardModals/edits/EditVaultModal'
 import { VaultListModal } from '@/components/listModals/VaultListModal'
 import { VaultEntry } from '@/types/vault'
 import { LongPressDelete } from '@/components/common/LongPressDelete'

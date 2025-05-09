@@ -8,7 +8,7 @@ import { useColorScheme } from 'react-native'
 import { getOrdinalSuffix } from '@/store/BillStore'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { Bill } from '@/types/bills'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '../BaseCardModal'
 
 interface EditBillModalProps {
   isVisible: boolean
