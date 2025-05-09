@@ -6,7 +6,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCategoryColor } from '@/utils/styleUtils';
 import { useHabits } from '@/hooks/useHabits';
-import type { Habit } from '@/store/HabitStore';
+import type { Habit } from '@/types/habits';
 import { useToastStore } from '@/store/ToastStore';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { isIpad } from '@/utils/deviceUtils';

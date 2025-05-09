@@ -3,6 +3,7 @@ import * as Notifications from 'expo-notifications';
 import * as FileSystem from 'expo-file-system';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { debounce } from 'lodash';
+import * as Sentry from '@sentry/react-native';
 
 // Import all stores
 import { useHabitStore } from './HabitStore';
@@ -146,6 +147,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     },
 
     logSyncStatus: () => {
+      const isPremium = useUserStore.getState().preferences.premium === true;
+      if (!isPremium) return;
       // Check if onboarding is completed before logging
       const hasCompletedOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
       
@@ -172,38 +175,69 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     },
 
     exportStateToFile: async () => {
+      const isPremium = useUserStore.getState().preferences.premium === true;
+      if (!isPremium) return null;
+      Sentry.addBreadcrumb({
+        category: 'registry',
+        message: 'exportStateToFile called',
+        level: 'info',
+      });
       // Use the simpler onboarding check
       const hasCompletedOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
-      
       // Keep registry store in sync with user store
       if (get().hasCompletedOnboarding !== hasCompletedOnboarding) {
         set({ hasCompletedOnboarding: hasCompletedOnboarding });
       }
-      
       if (!hasCompletedOnboarding) {
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'Skipping export - onboarding not completed',
+          level: 'warning',
+        });
         console.log('⏸️ Skipping sync/export - onboarding not completed');
         return null;
       }
-      
       // Prevent duplicate exports in quick succession
       const now = Date.now();
       const lastSync = get().lastSyncAttempt;
       const MIN_SYNC_INTERVAL = 2000; // 2 seconds
-      
       if (now - lastSync < MIN_SYNC_INTERVAL) {
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'Skipping duplicate export - too soon since last export',
+          level: 'warning',
+        });
         console.log('⏸️ Skipping duplicate export - too soon since last export');
         return null;
       }
-      
       set({ syncStatus: 'syncing' });
       try {
         const states = get().getAllStoreStates();
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'Calling exportEncryptedState',
+          data: { statesKeys: Object.keys(states) },
+          level: 'info',
+        });
         const uri = await exportEncryptedState(states);
         set({ syncStatus: 'idle', lastSyncAttempt: now });
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'Encrypted export complete',
+          data: { uri },
+          level: 'info',
+        });
         console.log('✅ Encrypted export at', uri);
         return uri;
       } catch (e) {
         set({ syncStatus: 'error' });
+        Sentry.captureException(e);
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'Error during exportStateToFile',
+          data: { error: e },
+          level: 'error',
+        });
         console.error('❌ Sync failed', e);
         return null;
       }
@@ -216,14 +250,26 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     },
     
     hydrateAll: (data: Record<string, any>) => {
+      const isPremium = useUserStore.getState().preferences.premium === true;
+      if (!isPremium) return;
+      Sentry.addBreadcrumb({
+        category: 'registry',
+        message: 'hydrateAll called',
+        data: { keys: data ? Object.keys(data) : [] },
+        level: 'info',
+      });
       console.log('🔄 Hydrating all stores from import data...');
       try {
         // Ensure we have data to work with
         if (!data || typeof data !== 'object') {
+          Sentry.addBreadcrumb({
+            category: 'registry',
+            message: 'Invalid data for hydration',
+            level: 'error',
+          });
           console.error('❌ Invalid data for hydration');
           return;
         }
-
         // Store data to validate and apply
         const storeMap: Array<{key: string; data: any; validate?: boolean}> = [
           { key: 'habits', data: data.habits, validate: true },
@@ -243,87 +289,113 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           { key: 'tags', data: data.tags },
           { key: 'projects', data: data.projects }
         ];
-
         // Apply each store's data if it exists and passes validation
         storeMap.forEach(({ key, data, validate }) => {
           if (!data) return;
-          
           // Skip validation for stores without validators
           if (validate && key in validators) {
             const validator = validators[key as keyof typeof validators];
             if (!validator(data)) {
+              Sentry.addBreadcrumb({
+                category: 'registry',
+                message: `Skipping invalid ${key} data`,
+                level: 'warning',
+              });
               console.warn(`⚠️ Skipping invalid ${key} data`);
               return;
             }
           }
-          
           // Apply data to the appropriate store
-          switch(key) {
-            case 'habits':
-              useHabitStore.setState(data);
-              break;
-            case 'weather':
-              useWeatherStore.setState(data);
-              break;
-            case 'bills':
-              useBillStore.setState(data);
-              break;
-            case 'calendar':
-              useCalendarStore.setState(data);
-              break;
-            case 'tasks':
-              useProjectStore.setState(data);
-              break;
-            case 'notes':
-              useNoteStore.setState(data);
-              break;
-            case 'wallpapers':
-              useWallpaperStore.setState(data);
-              break;
-            case 'user':
-              useUserStore.setState(data);
-              break;
-            case 'network':
-              useNetworkStore.setState(data);
-              break;
-            case 'vault':
-              useVaultStore.setState(data);
-              break;
-            case 'crm':
-              useCRMStore.setState(data);
-              break;
-            case 'portfolio':
-              usePortfolioStore.setState(data);
-              break;
-            case 'people':
-              usePeopleStore.setState(data);
-              break;
-            case 'customCategory':
-              useCustomCategoryStore.setState(data);
-              break;
-            case 'tags':
-              useTagStore.setState(data);
-              break;
-            case 'projects':
-              useProjectsStore.setState(data);
-              break;
+          try {
+            switch(key) {
+              case 'habits':
+                useHabitStore.setState(data);
+                break;
+              case 'weather':
+                useWeatherStore.setState(data);
+                break;
+              case 'bills':
+                useBillStore.setState(data);
+                break;
+              case 'calendar':
+                useCalendarStore.setState(data);
+                break;
+              case 'tasks':
+                useProjectStore.setState(data);
+                break;
+              case 'notes':
+                useNoteStore.setState(data);
+                break;
+              case 'wallpapers':
+                useWallpaperStore.setState(data);
+                break;
+              case 'user':
+                useUserStore.setState(data);
+                break;
+              case 'network':
+                useNetworkStore.setState(data);
+                break;
+              case 'vault':
+                useVaultStore.setState(data);
+                break;
+              case 'crm':
+                useCRMStore.setState(data);
+                break;
+              case 'portfolio':
+                usePortfolioStore.setState(data);
+                break;
+              case 'people':
+                usePeopleStore.setState(data);
+                break;
+              case 'customCategory':
+                useCustomCategoryStore.setState(data);
+                break;
+              case 'tags':
+                useTagStore.setState(data);
+                break;
+              case 'projects':
+                useProjectsStore.setState(data);
+                break;
+            }
+            Sentry.addBreadcrumb({
+              category: 'registry',
+              message: `Applied ${key} data`,
+              level: 'info',
+            });
+            console.log(`✓ Applied ${key} data`);
+          } catch (err) {
+            Sentry.captureException(err);
+            Sentry.addBreadcrumb({
+              category: 'registry',
+              message: `Error applying ${key} data`,
+              data: { error: err },
+              level: 'error',
+            });
+            console.error(`❌ Error applying ${key} data:`, err);
           }
-          
-          console.log(`✓ Applied ${key} data`);
         });
-        
         // Update registry metadata and sync onboarding status
         const timestamp = Date.now();
         set({
           lastSyncAttempt: timestamp,
           syncStatus: 'idle',
         });
-        
         // Make sure onboarding status is in sync
         get().syncOnboardingWithUser();
-        
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'All stores hydrated successfully from external data',
+          level: 'info',
+        });
         console.log('✅ All stores hydrated successfully from external data');
       } catch (error) {
+        Sentry.captureException(error);
+        Sentry.addBreadcrumb({
+          category: 'registry',
+          message: 'Error hydrating stores',
+          data: { error },
+          level: 'error',
+        });
         console.error('❌ Error hydrating stores:', error);
         set({ syncStatus: 'error' });
       }

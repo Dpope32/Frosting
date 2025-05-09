@@ -3,17 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory } from '@/types/task';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cancelHabitNotification } from '@/services/habitNotificationServices';
-
-  export interface Habit {
-    id: string;
-    title: string;
-    category: TaskCategory;
-    createdAt: string; // ISO date string
-    completionHistory: Record<string, boolean>; // date string -> completed
-    notificationTimeValue: string; // 'HH:mm' or ''
-    customMessage: string;
-    description?: string;
-  }
+import { Habit } from '@/types/habits';
 
 interface HabitStore {
   habits: Record<string, Habit>;

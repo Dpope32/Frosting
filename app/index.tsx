@@ -17,17 +17,18 @@ import { useNoteStore } from '@/store/NoteStore';
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
+  const isPremium = useUserStore((state) => state.preferences.premium === true);
   
   // Grab sync and export actions
   const { logSyncStatus, exportStateToFile } = useRegistryStore();
   // Call app initialization hook at the top level (per React rules)
   useAppInitialization();
   useEffect(() => {
-    if (hasCompletedOnboarding) {
+    if (hasCompletedOnboarding && isPremium) {
       logSyncStatus();
       exportStateToFile();
     }
-  }, [hasCompletedOnboarding]);
+  }, [hasCompletedOnboarding, isPremium]);
   
   // Initial intro timer
   useEffect(() => {
@@ -55,16 +56,18 @@ export default function Index() {
         // Manually load NoteStore
         await useNoteStore.getState().loadNotes();
         
-        // Only log sync status and export if onboarding is completed
-        if (hasCompletedOnboarding) {
+        // Only log sync status and export if onboarding is completed and user is premium
+        if (hasCompletedOnboarding && isPremium) {
           logSyncStatus();
           await exportStateToFile();
         }
       } catch (error) {
-        console.error('Sync/export failed:', error);
+        if (isPremium) {
+          console.error('Sync/export failed:', error);
+        }
       }
     })();
-  }, [hasCompletedOnboarding]);
+  }, [hasCompletedOnboarding, isPremium]);
 
   
   // If onboarding is not completed, go to onboarding

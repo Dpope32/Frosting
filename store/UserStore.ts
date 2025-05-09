@@ -1,26 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
-import { BackgroundStyle } from '../constants/Backgrounds'
-
-export interface UserPreferences {
-  username: string;
-  profilePicture?: string;
-  primaryColor: string;
-  customBackground?: string;
-  zipCode: string;
-  backgroundStyle?: BackgroundStyle;
-  hasCompletedOnboarding: boolean;
-  notificationsEnabled: boolean;
-  quoteEnabled: boolean;
-  portfolioEnabled: boolean;
-  temperatureEnabled: boolean;
-  wifiEnabled: boolean;
-  favoriteNBATeam?: string;
-  showNBAGamesInCalendar: boolean;
-  showNBAGameTasks: boolean;
-  permissionsExplained: boolean;
-}
+import { UserPreferences } from '@/types/user';
 
 interface UserStore {
   preferences: UserPreferences;
@@ -42,6 +23,7 @@ const defaultPreferences: UserPreferences = {
   showNBAGamesInCalendar: false,
   showNBAGameTasks: false, 
   permissionsExplained: false,
+  premium: false,
 };
 
 export const useUserStore = create<UserStore>()(

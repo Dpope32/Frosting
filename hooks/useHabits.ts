@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { useHabitStore, Habit } from '@/store/HabitStore';
+import { useHabitStore } from '@/store/HabitStore';
 import { TaskCategory } from '@/types/task';
 import { isWeb } from 'tamagui';
 import { differenceInDays, subDays, format } from 'date-fns';
 import { triggerHaptic } from '@/services/noteService';
 import { ImpactFeedbackStyle } from 'expo-haptics';
-
+import { Habit } from '@/types/habits';
 export function useHabits() {
   const { habits, addHabit, toggleHabitCompletion, deleteHabit, editHabit } = useHabitStore();
   const habitsList = useMemo(() => Object.values(habits), [habits]);
