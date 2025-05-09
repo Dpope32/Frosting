@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { format, parse, isValid } from 'date-fns'
 import { XStack, Button, Text } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
 import { useAddPerson } from '@/hooks/usePeople'
-import { useCalendarStore } from '@/store/CalendarStore'
 import { useToastStore } from '@/store/ToastStore'
 import { useImagePicker } from '@/hooks/useImagePicker'
 import type { Person } from '@/types/people'
 import { initialFormData } from './types'
 import { FormContent } from './FormContent'
-import { BaseCardModal } from '@/components/cardModals/BaseCardModal'
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
 type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>

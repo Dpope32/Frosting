@@ -106,13 +106,13 @@ export function PortfolioTable({
             {activeTab === 'portfolio' && (
               <Text width="10%" color={isDark ? "#4caf50" : "#2e7d32"} fontSize={14} fontFamily="$body">{typeof totalValue === 'number' && !isNaN(totalValue) ? `$${totalValue.toFixed(2)}` : 'N/A'}</Text>
             )}
-            <Text width="8%" color={getValueColor('portfolio', todayChangePercent, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{renderReturn(todayChangePercent)}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['ytd'] || 0, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['ytd']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['1w'] || 0, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1w']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['1m'] || 0, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1m']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['3m'] || 0, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['3m']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['6m'] || 0, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['6m']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['1y'] || 0, '')} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1y']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', todayChangePercent, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{renderReturn(todayChangePercent)}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['ytd'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['ytd']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['1w'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1w']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['1m'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1m']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['3m'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['3m']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['6m'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['6m']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['1y'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1y']) : 'N/A'}</Text>
             <XStack width="8%" alignItems="center" justifyContent="flex-start">
               {buyScore !== null ? (
                 <Tooltip placement="top" delay={300}>
@@ -168,7 +168,7 @@ export function PortfolioTable({
           <Text width="5%"justifyContent="flex-start" fontSize={14} fontFamily="$body">
             Total
             </Text>
-          <Text width="23%" textAlign="right" fontSize={15} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '')}> 
+          <Text width="23%" textAlign="right" fontSize={15} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '', isDark)}> 
             ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </Text>
         </XStack>

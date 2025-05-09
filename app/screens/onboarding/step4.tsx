@@ -10,10 +10,12 @@ export default function Step4({
   formData,
   setFormData,
   handleNext,
+  setPreferences,
 }: {
   formData: FormData
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   handleNext: () => void
+  setPreferences: (data: any) => void
 }) {
   const isWeb = Platform.OS === 'web';
   const [zipError, setZipError] = useState<string | null>(null);
@@ -116,6 +118,7 @@ export default function Step4({
             if (Platform.OS === 'web') {
               if (confirm("Weather data won't be accurate for your location. Continue anyway?")) {
                 setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }))
+                setPreferences({ ...formData, weatherEnabled: false })
                 handleNext()
               }
             } else {
@@ -131,6 +134,7 @@ export default function Step4({
                     text: "Yes",
                     onPress: () => {
                       setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }))
+                      setPreferences({ ...formData, weatherEnabled: false })
                       handleNext()
                     }
                   }

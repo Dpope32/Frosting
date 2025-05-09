@@ -7,13 +7,13 @@ import { useProjects } from '@/hooks/useProjects'
 import { Plus, Database, Trash } from '@tamagui/lucide-icons'
 import * as Haptics from 'expo-haptics'
 
-import { addDevProjects } from '@/services/devServices'
+import { addDevProjects, addWebsiteRedesignProject, addMobileAppProject, addHomeRenovationProject, addVacationProject } from '@/services/devServices'
 import { isIpad } from '@/utils/deviceUtils'
 import { ProjectEmpty } from '@/components/projects/ProjectEmpty'
 import { Project } from '@/types/project'
 import { ProjectCard } from '@/components/projects/projectCard'
-import { AddProjectModal } from '@/components/cardModals/AddProjectModal'
-import { AddTaskToProjectModal } from '@/components/cardModals/AddTaskToProjectModal'
+import { AddProjectModal } from '@/components/cardModals/creates/AddProjectModal'
+import { AddTaskToProjectModal } from '@/components/cardModals/creates/AddTaskToProjectModal'
 import { TaskPriority, RecurrencePattern } from '@/types/task'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useToastStore } from '@/store/ToastStore'
@@ -107,9 +107,39 @@ export default function ProjectsScreen() {
     showToast('Project archived successfully!', 'success')
   }
 
-  const handleAddDevProjects = () => {
-    addDevProjects()
-    showToast('Dev projects added!', 'success')
+  const handleAddExampleProject = (projectTypeOrProject: string | Project) => {
+    // Get the project type
+    const projectType = typeof projectTypeOrProject === 'string' 
+      ? projectTypeOrProject 
+      : 'Default';
+      
+    // Call the appropriate function based on project type
+    switch(projectType) {
+      case 'Website Redesign':
+        addWebsiteRedesignProject();
+        break;
+      case 'Mobile App Dev':
+        addMobileAppProject();
+        break;
+      case 'Kitchen Renovation':
+        addHomeRenovationProject();
+        break;
+      case 'Summer Vacation':
+        addVacationProject();
+        break;
+      default:
+        // Fallback to add all projects (for backward compatibility)
+        addDevProjects();
+        break;
+    }
+    showToast(`Added ${projectType} example project!`, 'success');
+  }
+
+  // Handler specifically for the dev button
+  const handleDevButtonClick = () => {
+    // Only add projects once
+    addDevProjects();
+    showToast('All example projects added!', 'success');
   }
 
   return (
@@ -138,6 +168,7 @@ export default function ProjectsScreen() {
             <ProjectEmpty
               isDark={isDark}
               primaryColor={primaryColor}
+              onAddExampleProject={handleAddExampleProject}
             />
         ) : (
           items.map((project: Project, index) => (
@@ -209,7 +240,7 @@ export default function ProjectsScreen() {
             pressStyle={{ scale: 0.95 }}
             animation="quick"
             elevation={4}
-            onPress={handleAddDevProjects}
+            onPress={handleDevButtonClick}
             icon={<Database color="#FFF" size={20} />}
           />
           <Button

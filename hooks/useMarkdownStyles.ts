@@ -163,8 +163,9 @@ export const useMarkdownStyles = () => {
       borderRadius: 4 
     } as ImageStyle,
     paragraph: { 
-      marginBottom: 6,
-      marginTop: 6,
+      marginBottom: 4,
+      marginTop: 4,
+      marginHorizontal: 8,
       fontSize: isTablet ? 18 : 16
     } as TextStyle
   };

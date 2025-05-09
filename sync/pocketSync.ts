@@ -53,20 +53,7 @@ const checkNetworkConnectivity = async (): Promise<boolean> => {
   }
 };
 
-/**
- * Ensures that onboarding status is consistent between stores
- */
-const getOnboardingStatus = (): boolean => {
-  const userOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
-  const registryOnboarding = useRegistryStore.getState().hasCompletedOnboarding;
-  
-  // Ensure registry store is in sync with user store
-  if (registryOnboarding !== userOnboarding) {
-    useRegistryStore.getState().setHasCompletedOnboarding(userOnboarding);
-  }
-  
-  return userOnboarding;
-};
+
 // Replace your existing getPocketBase function with this:
 const getPocketBase = async (): Promise<PocketBaseType> => {
   Sentry.addBreadcrumb({
@@ -155,7 +142,7 @@ export const pushSnapshot = async (): Promise<void> => {
   });
   try {
     // Your existing checks remain unchanged
-    const hasCompletedOnboarding = getOnboardingStatus();
+    const hasCompletedOnboarding = (useUserStore.getState().preferences.hasCompletedOnboarding);
     if (!hasCompletedOnboarding) {
       Sentry.addBreadcrumb({
         category: 'pocketSync',
@@ -233,7 +220,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
   });
   try {
     // Check if onboarding is completed before proceeding
-    const hasCompletedOnboarding = getOnboardingStatus();
+    const hasCompletedOnboarding = (useUserStore.getState().preferences.hasCompletedOnboarding);
     if (!hasCompletedOnboarding) {
       Sentry.addBreadcrumb({
         category: 'pocketSync',

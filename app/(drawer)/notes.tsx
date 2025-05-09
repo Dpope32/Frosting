@@ -22,7 +22,7 @@ import { TrashcanArea } from '@/components/notes/TrashcanArea';
 import WebDragDrop from '@/components/notes/WebDragDrop';
 import { NoteCard } from '@/components/notes/NoteCard';
 import { NotesEmpty } from '@/components/notes/NotesEmpty';
-import { AddNoteSheet } from '@/components/notes/AddNoteSheet';
+import { AddNoteSheet } from '@/components/cardModals/creates/AddNoteSheet';
 import { NoteListItem } from '@/components/notes/NoteListItem';
 import { AddNoteButton } from '@/components/notes/AddNoteButton';
 import { DevToolsButton } from '@/components/notes/DevToolsButton';
@@ -84,6 +84,20 @@ export default function NotesScreen() {
     }
   });
 
+  const handleAddExampleNote = (note: Note) => {
+    // Create a new note with a unique ID but keep the content from the example note
+    const newNote = {
+      ...note,
+      id: Math.random().toString(36).substring(2, 15),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    // Add the note to the store
+    noteStore.addNote(newNote);
+    showToast(`Added example note: ${newNote.title}`, 'success');
+  };
+
   return (
     <YStack f={1} mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={localHandleDragging}>
       <XStack
@@ -111,7 +125,12 @@ export default function NotesScreen() {
           }}
         >
           {notes.length === 0 ? (
-            <NotesEmpty isDark={isDark} primaryColor={preferences.primaryColor} isWeb={isWeb} />
+            <NotesEmpty 
+              isDark={isDark} 
+              primaryColor={preferences.primaryColor} 
+              isWeb={isWeb} 
+              onAddExampleNote={handleAddExampleNote}
+            />
           ) : (
             <WebDragDrop
               notes={notes}
@@ -179,7 +198,14 @@ export default function NotesScreen() {
                 }
               }}
               contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 500, paddingTop: 8}}
-              ListEmptyComponent={ <NotesEmpty isDark={isDark} primaryColor={preferences.primaryColor} isWeb={isWeb} /> }
+              ListEmptyComponent={ 
+                <NotesEmpty 
+                  isDark={isDark} 
+                  primaryColor={preferences.primaryColor} 
+                  isWeb={isWeb} 
+                  onAddExampleNote={handleAddExampleNote}
+                /> 
+              }
               dragItemOverflow={true}
               dragHitSlop={{ top: -20, bottom: -20, left: 0, right: 0 }}
               activationDistance={10}

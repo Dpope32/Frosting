@@ -104,21 +104,13 @@ You can add [links](https://example.com) to your notes.
   notes.push({
     id: generateId(),
     title: 'Note with Multiple Images',
-    content: `This note contains multiple images.
+    content: `### Multi-Image Example
 
-Here's the first image:
 
-![First Image](https://picsum.photos/400/300)
-
-And here's the second image:
-
-![Second Image](https://picsum.photos/400/300)
-
-And a third image:
-
-![Third Image](https://picsum.photos/400/300)
-
-These images demonstrate how the app handles multiple image attachments.`,
+>This note demonstrates how the app handles multiple image attachments.
+>Each image appears in the gallery view while keeping the description
+>text contained in this code block.
+`,
     tags: [generateRandomTag(5)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
@@ -167,4 +159,4 @@ This demonstrates how the app handles a note with just one image attachment.`,
   });
   
   return notes;
-}; 
+};

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Image, Platform, useColorScheme, useWindowDimensions } from 'react-native'
-import { Button, YStack, XStack, Text, ScrollView, Switch } from 'tamagui'; // Added Switch
+import { Button, YStack, XStack, Text, ScrollView, Switch, isWeb } from 'tamagui'; 
 import { nbaTeams } from '@/constants/nba';
 import { useNBAStore } from '@/store/NBAStore';
 import { useUserStore } from '@/store/UserStore';
-import { useToastStore } from '@/store/ToastStore'; // Import ToastStore
-import { BaseCardModal } from '../cardModals/BaseCardModal';
+import { useToastStore } from '@/store/ToastStore';
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 
 interface NBATeamModalProps {
   open: boolean;
@@ -15,12 +15,9 @@ interface NBATeamModalProps {
 export function NBATeamModal({ open, onOpenChange }: NBATeamModalProps) {
   const { teamCode, setTeamInfo } = useNBAStore();
   const { preferences, setPreferences } = useUserStore();
-  const showToast = useToastStore((s) => s.showToast); // Get toast function
+  const showToast = useToastStore((s) => s.showToast); 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web'
-  
-  // State to track the selected team (initially set to current team)
   const [selectedTeam, setSelectedTeam] = useState(teamCode)
   
   // Get window dimensions for responsive layout

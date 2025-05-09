@@ -14,7 +14,7 @@ interface ProjectHeaderProps {
 export const ProjectHeader = ({ project, isDark, priorityColor }: ProjectHeaderProps) => {
   return (
     <>
-      <XStack px={isIpad() ? "$2" : "$1"} ai="center" py={isIpad() ? "$2.5" : "$2"} mt={isIpad() ? "$-1" : 6} ml={6}>
+      <XStack px={isIpad() ? "$2.5" : "$1"} ai="center" py={isIpad() ? "$2.5" : "$2"} mt={isIpad() ? "$-1" : 6} ml={6}>
         <XStack ai="center" gap="$2" flexWrap="wrap" f={1}>
           <Text color={isDark ? '#f6f6f6' : '#111'} fontSize={isIpad() ? 19 : 18} fontWeight="bold" fontFamily="$body">
             {project.name}

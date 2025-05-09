@@ -10,7 +10,7 @@ interface UserStore {
   hydrated: boolean;
 }
 
-const defaultPreferences: UserPreferences = {
+export const defaultPreferences: UserPreferences = {
   username: '',
   primaryColor: '#007AFF',
   zipCode: '',

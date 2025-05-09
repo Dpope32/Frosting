@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, TextInput } from 'react-native';
 import { YStack, Text, Button } from 'tamagui';
-import { BaseCardAnimated } from '../baseModals/BaseCardAnimated';
+import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 import {  scheduleDailyHabitNotification } from '@/services/notificationServices';
-import { CategorySelector } from '../cardModals/NewTaskModal/CategorySelector';
+import { CategorySelector } from '@/components/cardModals/NewTaskModal/CategorySelector';
 import { TaskCategory } from '@/types/task';
 import { useColorScheme } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';

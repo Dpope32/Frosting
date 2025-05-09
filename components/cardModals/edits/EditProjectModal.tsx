@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BaseCardModal } from '../BaseCardModal';
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
-import { Platform, Alert, Keyboard, StyleSheet } from 'react-native';
+import { Platform, Alert, Keyboard } from 'react-native';
 import { StatusSelector } from '../NewTaskModal/StatusSelector';
 import { PeopleSelector } from '../NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';

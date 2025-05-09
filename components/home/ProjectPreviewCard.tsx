@@ -40,7 +40,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         overflow="hidden"
         mb={isIpad() ? 6 : 8}
         style={{
-          backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(74, 72, 72, 0.94)',
+          backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(253, 253, 253, 0.17)',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.4,
@@ -59,11 +59,11 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
              'rgba(19, 19, 19, 0.7)', 
              'rgba(30, 30, 30, 0.6)'
             ] : [
-               'rgba(0, 0, 0, 0.53)',
-               'rgba(82, 82, 82, 0.34)',
-               'rgba(73, 72, 72, 0.18)',
-               'rgba(14, 13, 13, 0.16)',
-               'rgba(0, 0, 0, 0.62)',
+               'rgba(42, 42, 42, 0.57)',
+               'rgba(23, 23, 23, 0.66)',
+               'rgba(53, 50, 50, 0.79)',
+               'rgba(40, 38, 38, 0.57)',
+               'rgba(0, 0, 0, 0.75)',
             ]}
           start={{ x: 0, y: 1 }}
           end={{ x: 1, y: 0 }}
@@ -152,7 +152,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                         ? '$red10'
                         : isDark
                         ? '$blue10'
-                        : '#333'
+                        : '#777777'
                     }
                   >
                     {project.status.replace('_', ' ')}
@@ -160,7 +160,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 </XStack>
               )}
               {project.tasks && project.tasks.length > 0 && (
-                <Text fontSize={12} color={isDark ? '#ccc' : '#444'} fontFamily="$body">
+                <Text fontSize={12} color={isDark ? '#ccc' : '#9c9c9c'} fontFamily="$body">
                   {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
                 </Text>
               )}
@@ -171,13 +171,14 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                     key={person.id}
                     br={isIpad() ? 14 : 10}
                     overflow="hidden"
-                    width={isIpad() ? 28 : 20}
-                    height={isIpad() ? 28 : 20}
+                    width={isIpad() ? 24 : 20}
+                    height={isIpad() ? 24 : 20}
+                    marginBottom={isIpad() ? -6 : 0}
                   >
                     {person.profilePicture ? (
                       <Image
                         source={{ uri: person.profilePicture }}
-                        style={{ width: '100%', height: '100%' }}
+                        style={{ width: '100%', height: '100%'}}
                       />
                     ) : (
                       <YStack flex={1} ai="center" jc="center" backgroundColor={isDark ? '$gray3' : '$gray6'}>

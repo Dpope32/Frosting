@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button, Input, YStack, XStack, isWeb } from 'tamagui'
 import { useUserStore } from '@/store/UserStore'
-import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
+import { BaseCardAnimated } from '../../baseModals/BaseCardAnimated'
 import {  Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { isIpad } from '@/utils/deviceUtils'

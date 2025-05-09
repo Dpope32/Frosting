@@ -186,6 +186,7 @@ export default function Onboarding() {
             formData={formData}
             setFormData={setFormData}
             handleNext={handleNext}
+            setPreferences={setPreferences}
           />
         )
       case 5:

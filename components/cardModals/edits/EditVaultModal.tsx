@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics'
 import { isIpad } from '@/utils/deviceUtils'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
-import { BaseCardModal } from '../BaseCardModal'
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 
 interface VaultEntry {
   id: string

@@ -1,14 +1,27 @@
 export const CHANGELOG = [
   {
+    version: '1.1.166',
+    date: '2025-05-09',
+    notes: 'Major Updates',
+    bullets: [
+      'Calendar now switches 1 column and 2 columns by clikcing the header icon on iPad',
+      'Patched bug with Easter Egg not being clickable',
+      'Added gradient backgrounds to VaultCards and NoteCards',
+      'Fixed bug when user skips Zip Code in Onboarding it now disables the Weather Screen',
+      'Added 10 Random Projects for user to see in ProjectEmpty component',
+      'Patched bug with completed tasks not showing up on iPad',
+      'added 4 Example notes to Notes screen to demonstrate how to use Markdown and image notes',
+    ],
+  },
+  {
     version: '1.1.162',
     date: '2025-05-08',
     notes: 'Updated Light Mode Stylings & Bug Fixes',
     bullets: [
       'Updated light mode stylings for all cards',
       'Fixed bug with extra comma in greeting',
-      'Patched bug with Easter Egg not being clickable',
+      'Minor adjustments for Web responsiveness',
       'Fixed bug on iPad with notes not being draggable to the trashcan',
-      '',
     ],
   },
   {

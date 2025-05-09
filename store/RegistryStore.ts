@@ -97,19 +97,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     syncStatus: 'idle',
     notificationStatus: 'unavailable',
     stocksLastUpdated: 0,
-    
-    // Synchronize with UserStore when setting onboarding flag
-    setHasCompletedOnboarding: (value) => {
-      set({ hasCompletedOnboarding: value });
-      // Sync with UserStore when this changes
-      useUserStore.setState(state => ({
-        preferences: {
-          ...state.preferences,
-          hasCompletedOnboarding: value
-        }
-      }));
-    },
-    
+    setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
     setIsFirstLaunch: (value) => set({ isFirstLaunch: value }),
     setSyncStatus: (status) => set({ syncStatus: status }),
     setNotificationStatus: (status) => set({ notificationStatus: status }),
@@ -182,21 +170,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         message: 'exportStateToFile called',
         level: 'info',
       });
-      // Use the simpler onboarding check
-      const hasCompletedOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
-      // Keep registry store in sync with user store
-      if (get().hasCompletedOnboarding !== hasCompletedOnboarding) {
-        set({ hasCompletedOnboarding: hasCompletedOnboarding });
-      }
-      if (!hasCompletedOnboarding) {
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'Skipping export - onboarding not completed',
-          level: 'warning',
-        });
-        console.log('⏸️ Skipping sync/export - onboarding not completed');
-        return null;
-      }
       // Prevent duplicate exports in quick succession
       const now = Date.now();
       const lastSync = get().lastSyncAttempt;
@@ -411,5 +384,10 @@ useRegistryStore.getState().setHasCompletedOnboarding(userOnboarding);
 if (userOnboarding) {
   console.log('🎉 Registry store successfully created and ready for sync!');
 } else {
-  console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
+  // if we get here, either the user has not completed onboarding or the user is not premium so we need to seperate the logic
+  if (useUserStore.getState().preferences.premium) {
+    console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
+  } else {
+    console.log('⚙️ Registry store initialized (sync disabled because user is not premium)');
+  }
 }

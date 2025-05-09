@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Sheet, Text, YStack, XStack, Theme, Button, isWeb } from 'tamagui';
+import { Sheet, Text, YStack, XStack, isWeb } from 'tamagui';
 import appJson from '../../app.json';
 import { Tabs } from '@tamagui/tabs';
-import { KeyboardAvoidingView, Platform, useColorScheme, ScrollView, Pressable, Linking } from 'react-native';
+import { Platform, useColorScheme, ScrollView, Pressable, Linking } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn, SlideInRight, SlideInLeft } from 'react-native-reanimated';
+import Animated, {  SlideInRight, SlideInLeft } from 'react-native-reanimated';
 import { useUserStore } from '@/store/UserStore';
 import { MaterialIcons } from '@expo/vector-icons';
-import { BaseCardModal } from '../cardModals/BaseCardModal';
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 
 interface LegalModalProps {
   isVisible: boolean;

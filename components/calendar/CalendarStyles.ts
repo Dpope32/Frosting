@@ -18,6 +18,21 @@ export const calendarStyles = StyleSheet.create({
       paddingLeft: 14,
     } as any : {}),
   },
+  layoutToggle: {
+    position: 'absolute',
+    top: 55,
+    right: 20,
+    zIndex: 100,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    ...(Platform.OS === 'web' ? {
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+    } : {})
+  },
   webMonthsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

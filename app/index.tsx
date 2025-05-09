@@ -55,12 +55,6 @@ export default function Index() {
         ]);
         // Manually load NoteStore
         await useNoteStore.getState().loadNotes();
-        
-        // Only log sync status and export if onboarding is completed and user is premium
-        if (hasCompletedOnboarding && isPremium) {
-          logSyncStatus();
-          await exportStateToFile();
-        }
       } catch (error) {
         if (isPremium) {
           console.error('Sync/export failed:', error);

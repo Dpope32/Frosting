@@ -111,7 +111,7 @@ export default function CalendarScreen() {
   const isIpadDevice = isIpad();
 
   useEffect(() => {
-    if (isWeb) {
+    if (isWeb || isIpadDevice) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }
   }, [webColumnCount]);
@@ -119,6 +119,7 @@ export default function CalendarScreen() {
   return (
     <View style={calendarStyles.container}>
       <Legend isDark={isDark} />
+      
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
         {isWeb || isIpadDevice ? (
           <View style={[
@@ -133,6 +134,10 @@ export default function CalendarScreen() {
                   isWeb && { 
                     width: webColumnCount === 3 ? '33%' : 
                            webColumnCount === 2 ? '45%' : '80%' 
+                  },
+                  isIpadDevice && {
+                    width: webColumnCount === 2 ? '49%' : '94%',
+                    margin: webColumnCount === 2 ? '0.5%' : '3%'
                   }
                 ]}
               >

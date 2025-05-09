@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { Button, Text } from "tamagui";
 import { useUserStore } from "@/store/UserStore";
 import { useImagePicker } from "@/hooks/useImagePicker";
-import { BaseCardModal } from "@/components/cardModals/BaseCardModal";
+import { BaseCardModal } from "@/components/baseModals/BaseCardModal";
 import { Platform, useColorScheme } from "react-native";
 import type { Person } from "@/types/people";
 import { format } from "date-fns";

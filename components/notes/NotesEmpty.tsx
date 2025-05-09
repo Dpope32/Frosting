@@ -2,17 +2,31 @@ import React from 'react'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { isIpad } from '@/utils/deviceUtils';
+import { NoteExampleChip } from './NoteExampleChip';
+import { useExampleNotes, getExampleNoteTitle } from './ExampleNotesManager';
+import { Note } from '@/types/notes';
+
 interface NotesEmptyProps {
   isDark: boolean
   primaryColor: string
   isWeb: boolean
+  onAddExampleNote?: (note: Note) => void
 }
 
 export const NotesEmpty = ({
   isDark,
   primaryColor,
-  isWeb
+  isWeb,
+  onAddExampleNote
 }: NotesEmptyProps) => {
+  const { exampleNotes } = useExampleNotes();
+
+  const handleExampleNotePress = (index: number) => {
+    if (onAddExampleNote && exampleNotes[index]) {
+      onAddExampleNote(exampleNotes[index]);
+    }
+  };
+
   return (
     <XStack 
       p={isWeb ? "$6" : isIpad() ? "$4" : "$4"} 
@@ -70,9 +84,46 @@ export const NotesEmpty = ({
               </Text>
             </YStack>
           </XStack>
+          <XStack gap="$2" ai="flex-start">
+            <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+            <YStack>
+              <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
+                 Just Drag and Drop
+              </Text>
+              <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
+                Drag and drop notes to the trashcan to delete them.
+                You can also drag and drop notes to other notes to rearrange them
+              </Text>
+            </YStack>
+          </XStack>
         </YStack>
+
+        <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$2">
+          Try out example notes:
+        </Text>
+        <YStack width="100%">
+          <XStack 
+            justifyContent={isWeb ? "space-between" : "flex-start"}
+            px="$2"
+            gap="$2"
+            flexWrap="wrap"
+            width="100%"
+            flexDirection="row"
+          >
+            {exampleNotes.map((_, index) => (
+              <NoteExampleChip 
+                key={index}
+                title={getExampleNoteTitle(index)} 
+                onPress={() => handleExampleNotePress(index)} 
+                isDark={isDark}
+                index={index}
+              />
+            ))}
+          </XStack>
+        </YStack>
+        
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-          Click the + button below to create your first note
+          Or click the + button below to create your own note
         </Text>
       </YStack>
     </XStack>

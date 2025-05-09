@@ -10,12 +10,12 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { CardSection } from '@/components/home/CardSection';
-import { SettingsModal } from './cardModals/SettingsModal';
-import { PortfolioModal } from './cardModals/PortfolioModal'; 
-import { QuoteModal } from './cardModals/QuoteModal'; 
-import { WifiModal } from './cardModals/WifiModal';
-import { ArchivedProjectsModal } from './cardModals/ArchivedProjectsModal';
-import { NBATeamModal } from './sports/NBATeamModal';
+import { SettingsModal } from '@/components/cardModals/SettingsModal';
+import { PortfolioModal } from '@/components/home/PortfolioModal'; 
+import { QuoteModal } from '@/components/home/QuoteModal'; 
+import { WifiModal } from '@/components/home/WifiModal';
+import { ArchivedProjectsModal } from '@/components/listModals/ArchivedProjectsModal';
+import { NBATeamModal } from '@/components/sports/NBATeamModal';
 import { BillsListModal } from './listModals/BillsListModal';
 import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
@@ -92,6 +92,11 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
 
   const getRightHeaderElement = () => {
     if (isWeb && isCalendarScreen) {
+      // Get appropriate layout icon based on column count
+      const layoutIcon = 
+        webColumnCount === 1 ? "apps-outline" : 
+        webColumnCount === 2 ? "grid-outline" : "grid";
+        
       return (
         <Pressable
           onPress={() => {
@@ -103,10 +108,25 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
           style={{ padding: 6, marginRight: -8, marginTop: 0, marginLeft: -40 }}
         >
           <Animated.View style={animatedStyle}>
-            <Text fontWeight="bold" fontSize={20} color={textColor}>
-              {webColumnCount}
-            </Text>
+            <Ionicons name={layoutIcon} size={24} color={textColor} />
           </Animated.View>
+        </Pressable>
+      );
+    } else if (isIpad() && isCalendarScreen) {
+      // Get appropriate layout icon for iPad (only 1 or 2 columns)
+      const layoutIcon = webColumnCount === 1 ? "apps-outline" : "grid-outline";
+      
+      return (
+        <Pressable
+          onPress={() => {
+            Haptics.selectionAsync();
+            // Direct approach that worked before
+            const newCount = webColumnCount === 1 ? 2 : 1;
+            useCalendarViewStore.setState({ webColumnCount: newCount });
+          }}
+          style={{ padding: 6, marginRight: -8, marginTop: 0, marginLeft: -40 }}
+        >
+          <Ionicons name={layoutIcon} size={24} color={textColor} />
         </Pressable>
       );
     }

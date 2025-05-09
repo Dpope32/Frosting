@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
 import { isIpad } from '@/utils/deviceUtils';
-import AddDeviceModal from '@/components/cardModals/AddDeviceModal';
+import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal';
 
 const baseSpacing = 8;
 const fontSizes = {

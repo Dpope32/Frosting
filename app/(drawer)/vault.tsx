@@ -5,7 +5,7 @@ import { useVault } from '@/hooks/useVault'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
-import { AddVaultEntryModal } from '@/components/cardModals/AddVaultEntryModal'
+import { AddVaultEntryModal } from '@/components/cardModals/creates/AddVaultEntryModal'
 import { Plus, Database, Trash } from '@tamagui/lucide-icons'
 import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal'
 import { VaultCard } from '@/components/vault/VaultCard'
@@ -112,7 +112,7 @@ export default function VaultScreen() {
         vaultEntry={selectedVaultEntry}
         onSubmit={() => { setEditVaultModalOpen(false); setSelectedVaultEntry(null) }}
       />
-      <YStack f={1} pt={isWeb ? 90 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 24 : 0}>
+      <YStack f={1} pt={isWeb ? 90 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} paddingLeft={isWeb? 24 : isIpad() ? 4 : 0}>
         <ScrollView
         showsVerticalScrollIndicator={false}
           contentContainerStyle={{
@@ -120,7 +120,7 @@ export default function VaultScreen() {
             paddingBottom: 100,
             paddingHorizontal: isWeb ? 0 : 16,
             paddingTop: isWeb ? 0 : 20,
-            paddingLeft: isWeb ? isIpad() ? 12 : 12 : 16,
+            paddingLeft: isWeb ? isIpad() ? 12 : 0 : 16,
             display: isWeb ? 'flex' : undefined,
             flexDirection: isWeb ? 'row' : undefined,
             flexWrap: isWeb ? 'wrap' : undefined,

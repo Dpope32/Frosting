@@ -5,7 +5,7 @@ import { Platform } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { BaseCardModal } from './BaseCardModal'
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { ProjectCard } from '@/components/projects/projectCard'
 import { useProjectStore } from '@/store/ProjectStore'
 import { useUserStore } from '@/store/UserStore'

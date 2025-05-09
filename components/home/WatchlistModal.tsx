@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { YStack, Text, Input, Button, XStack, ScrollView, isWeb, useTheme } from 'tamagui';
 import { useColorScheme } from 'react-native';
-import { BaseCardModal } from './BaseCardModal';
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 import { useUserStore } from '@/store/UserStore';
 import { addToWatchlist, usePortfolioStore } from '@/store/PortfolioStore';
 import { useQueryClient } from '@tanstack/react-query';

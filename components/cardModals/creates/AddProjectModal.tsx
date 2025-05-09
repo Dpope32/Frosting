@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BaseCardModal } from './BaseCardModal';
-import { YStack, XStack, Text, Button, Input, isWeb } from 'tamagui';
-import { PrioritySelector } from './NewTaskModal/PrioritySelector';
-import { PeopleSelector } from './NewTaskModal/PeopleSelector';
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
+import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
+import { PrioritySelector } from '@/components/cardModals/NewTaskModal/PrioritySelector';
+import { PeopleSelector } from '@/components/cardModals/NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { useProjectStore } from '@/store/ProjectStore';
 import { usePeopleStore } from '@/store/People';
@@ -171,7 +171,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                   onPress={() => setShowDatePicker(true)}
                   borderBottomWidth={1}
                   borderRadius="$2"
-                  backgroundColor={isDark ? '$gray0' : '$white'}
+                  backgroundColor={isDark ? '$gray0' : '$gray0'}
                   px="$3"
                   width="100%"
                   borderBottomColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}

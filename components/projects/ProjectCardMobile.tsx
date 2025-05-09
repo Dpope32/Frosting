@@ -47,8 +47,8 @@ export const ProjectCardMobile = ({
         >
           <XStack
             p={isIpad() ? "$3" : "$2"} 
-            px={isWeb ? "$4" : isIpad() ? "$3" : "$3"} 
-            pl={isWeb ? "$4" : isIpad() ? "$3" : "$2.5"} 
+            px={isWeb ? "$4" : isIpad() ? "$4" : "$3"} 
+            pl={isWeb ? "$4" : isIpad() ? "$2" : "$2.5"} 
             br="$4"
             w={isIpad() ? "100%" : "100%"}
             ai="center"
@@ -59,17 +59,15 @@ export const ProjectCardMobile = ({
             <YStack flex={1} gap="$2"> 
               <ProjectHeader project={project} isDark={isDark} priorityColor={priorityColor} />
               <YStack
-                minWidth={isIpad() ? 380 : 240}
-                p={isIpad() ? '$4' : '$1.5'}
-                pt={isIpad() ? '$2' : '$1'}
-                ml={0}
+                minWidth={isIpad() ? 420 : 240}
+                pt={isIpad() ? '$1.5' : '$1'}
                 mr={0}
               >
                 <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
                 <YStack
-                  minWidth={isIpad() ? 380 : 240}
+                  minWidth={isIpad() ? 400 : 240}
                   px={"$1"}
-                  ml={isIpad() ? 16 : 12}
+                  ml={isIpad() ? 24 : 12}
                   mr={isIpad() ? 24 : 12}
                 >
                   <TaskList 
@@ -82,7 +80,7 @@ export const ProjectCardMobile = ({
                 </YStack>
 
                 {project.attachments?.length > 0 && (
-                  <YStack w="100%" mb={project.tasks?.length > 0 ? isIpad() ? 10 : 6 : 24} mx={isIpad() ? 10 : 6}>
+                  <YStack w="100%" mb={project.tasks?.length > 0 ? isIpad() ? 10 : 6 : 24} mx={isIpad() ? 10 : 6} mt={isIpad() ? 10 : 6}>
                     <ProjectAttachments 
                       attachments={project.attachments} 
                       isDark={isDark} 
@@ -99,9 +97,9 @@ export const ProjectCardMobile = ({
                 )}
 
                 {onOpenAddTaskModal && (
-                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "space-between" : "flex-end"} px={0} mt={project.attachments?.length > 0 ? -30 : 10} mb={0} ai="center">
+                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} px={0} mt={project.attachments?.length > 0 ? -30 : 10} mb={0} ai="center">
                     {(!project.tasks || project.tasks.length === 0) && (
-                      <Text color={isDark ? '#f6f6f6' : '#666'} fontSize={isIpad() ? 15 : 13} fontFamily="$body" ml={12} opacity={0.8}>
+                      <Text color={isDark ? '#f6f6f6' : '#666'} fontSize={isIpad() ? 15 : 13} fontFamily="$body" ml={12} mr={project.tasks?.length > 0 ? 0 : 20} opacity={0.6}>
                         Add your first task to get started
                       </Text>
                     )}

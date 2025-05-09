@@ -149,7 +149,6 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         onSelectionChange={onSelectionChange}
         onContentSizeChange={handleContentSizeChange}
         onKeyPress={handleKeyPress}
-        className={isWeb ? "content-input" : undefined}
         style={[
           styles.input,
           {

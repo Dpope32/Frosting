@@ -4,7 +4,7 @@ import { YStack, Text, Button, XStack } from 'tamagui';
 import { Plus, Database, Trash } from '@tamagui/lucide-icons';
 import { HabitEmpty } from '@/components/habits/HabitEmpty';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { AddHabitModal } from '@/components/cardModals/AddHabitModal';
+import { AddHabitModal } from '@/components/cardModals/creates/AddHabitModal';
 import { HabitCard } from '@/components/habits/HabitCard';
 import { useHabits } from '@/hooks/useHabits';
 import { useUserStore } from '@/store/UserStore';

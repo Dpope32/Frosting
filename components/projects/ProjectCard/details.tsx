@@ -28,7 +28,7 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
       px={isIpad() ? "$1.5" : "$1"}
       pl={isIpad() ? "$2" : "$1.5"}
       jc="flex-start"
-      gap={isIpad() ? "$1.5" : "$1"}
+      gap={isIpad() ? "$0" : "$1"}
       borderBottomWidth={1}
       borderColor={TABLE_BORDER}
       backgroundColor={rowIndex % 2 === 0 ? 'transparent' : ROW_ALT_BG}
@@ -144,9 +144,9 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
 
   return (
     <XStack
-      ml={isIpad() ? 16 : 0}
+      ml={isIpad() ? 10 : 0}
       mt="$2"
-      mb={project.tasks.length > 0 ? "$2" : "$4"}
+      mb={project.tasks.length > 0 ? "$0" : "$4"}
       gap="$2"
       ai="flex-start"
     >

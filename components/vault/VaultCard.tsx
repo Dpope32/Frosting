@@ -2,6 +2,7 @@ import React from 'react'
 import { XStack, YStack, Text, Button } from 'tamagui'
 import { Eye, EyeOff } from '@tamagui/lucide-icons'
 import { isIpad } from '@/utils/deviceUtils'
+import { LinearGradient } from 'expo-linear-gradient'
 
 interface VaultCardProps {
   cred: {
@@ -30,17 +31,16 @@ export const VaultCard = ({
 
   return isWeb ? (
     <XStack
-      bg={isDark ? '#111' : '#f5f5f5'}
       px="$4"
       br="$4"
-      borderWidth={1}
-      borderColor={isDark ? '#121212' : '#e0e0e0'}
       ai="center"
       animation="quick"
       width={columnWidthWeb}
       minWidth={288}
       maxWidth={400}
       height={120}
+      position="relative"
+      overflow="hidden"
       hoverStyle={{
         transform: [{ scale: 1.02 }],
         borderColor: primaryColor,
@@ -50,6 +50,15 @@ export const VaultCard = ({
         shadowRadius: 8,
       }}
     >
+      <LinearGradient
+        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+        }}
+      />
       <YStack flex={1}>
         <XStack jc="space-between" ai="center" mt="$1" mb="$2">
           <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
@@ -96,20 +105,30 @@ export const VaultCard = ({
     </XStack>
   ) : (
     <XStack
-      bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.8)'}
       p={isIpad() ? "$2" : "$1.5"}
-      px={isWeb ? "$4" : isIpad() ? "$2.5" : "$4"}
-      pl={isWeb ? "$4" : isIpad() ? "$2.5" : "$4"}
+      px={isWeb ? "$3.5" : isIpad() ? "$1" : "$4"}
+      pl={isWeb ? "$3" : isIpad() ? "$2.5" : "$4"}
       br="$4"
       borderWidth={1}
-      w={isIpad() ? "100%" : "100%"}
+      w={isIpad() ? "99%" : "100%"}
       borderColor={isDark ? '#777' : '#9c9c9c'}
       ai="center"
       animation="quick"
-      py={isIpad() ? "$3" : "$2.5"}
+      py={isIpad() ? "$3.5" : "$2.5"}
+      position="relative"
+      overflow="hidden"
     >
+      <LinearGradient
+        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+        start={{ x: 0, y: 0.5 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+        }}
+      />
       <YStack flex={1}>
-        <XStack jc="space-between" px={isIpad() ? "$2" : "$1"} mb={isIpad() ? "$1" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
+        <XStack jc="space-between" px={isIpad() ? "$2.5" : "$1"} mb={isIpad() ? "$1.5" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
           <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
             {cred.name}
           </Text>

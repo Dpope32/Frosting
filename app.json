@@ -103,7 +103,9 @@
         {
           "url": "https://sentry.io/",
           "project": "kaiba-nexus",
-          "organization": "pope-brothers-ltd-2021"
+          "organization": "pope-brothers-ltd-2021",
+          "enableNative": true,
+          "tracesSampleRate": 1.0
         }
       ]
     ],

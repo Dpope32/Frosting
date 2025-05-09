@@ -2,16 +2,51 @@ import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons'
+import { ProjectExampleChip } from './ProjectExampleChip';
+import { Project } from '@/types/project';
+import { 
+  addWebsiteRedesignProject, 
+  addMobileAppProject,
+  addHomeRenovationProject,
+  addVacationProject
+} from '@/services/devServices';
+import { useToastStore } from '@/store/ToastStore';
 
 interface ProjectEmptyProps {
   isDark: boolean
   primaryColor: string
+  onAddExampleProject?: (project: Project) => void
 }
 
 export const ProjectEmpty = ({
   isDark,
   primaryColor,
+  onAddExampleProject
 }: ProjectEmptyProps) => {
+  const showToast = useToastStore(state => state.showToast);
+  
+  const exampleProjects = [
+    { title: "Website Redesign", addFn: addWebsiteRedesignProject },
+    { title: "Mobile App Dev", addFn: addMobileAppProject },
+    { title: "Kitchen Renovation", addFn: addHomeRenovationProject },
+    { title: "Summer Vacation", addFn: addVacationProject }
+  ];
+
+  const handleExampleProjectPress = (index: number) => {
+    // Get the project title
+    const projectTitle = exampleProjects[index].title;
+    
+    // Call the parent callback with the project title if provided
+    if (onAddExampleProject) {
+      onAddExampleProject(projectTitle as unknown as Project);
+    }
+    
+    // Don't call the function directly here, let the parent handle it
+    // exampleProjects[index].addFn();
+    
+    // Toast will be shown by the parent component
+  };
+
   return (
     <XStack 
       p={isWeb ? "$6" : "$4"} 
@@ -38,10 +73,10 @@ export const ProjectEmpty = ({
               <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Projects
+                Supercharge Your Workflow
               </Text>
               <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Create and manage your projects.
+                Bring all your tasks, notes, people, and resources together in one powerful hub.
               </Text>
             </YStack>
           </XStack>
@@ -49,10 +84,10 @@ export const ProjectEmpty = ({
             <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Fully Integrated
+                Complete Integration
               </Text>
               <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Attach contacts, tasks, and notes to projects.
+                Seamlessly connect contacts, tasks, documents, and notes for a unified workspace.
               </Text>
             </YStack>
           </XStack>
@@ -60,10 +95,10 @@ export const ProjectEmpty = ({
             <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Deadlines
+                Smart Deadlines
               </Text>
               <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Set deadlines for your projects.
+                Never miss a milestone with intuitive deadline tracking and progress visualization.
               </Text>
             </YStack>
           </XStack>
@@ -71,18 +106,41 @@ export const ProjectEmpty = ({
             <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Status
+                Visual Project Management
               </Text>
               <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                Set status, group tasks, archive, and more.
+                Track status, priorities, attachments, and team members with beautiful visual organization.
               </Text>
             </YStack>
           </XStack>
         </YStack>
-        <XStack justifyContent="center">
-        </XStack>
+
+        <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$2">
+          Try out these example projects:
+        </Text>
+        <YStack width="100%">
+          <XStack 
+            justifyContent={isWeb ? "space-between" : "center"}
+            px="$2"
+            gap="$2"
+            flexWrap="wrap"
+            width="100%"
+            flexDirection={isWeb ? "row" : "row"}
+          >
+            {exampleProjects.map((project, index) => (
+              <ProjectExampleChip 
+                key={index}
+                title={project.title} 
+                onPress={() => handleExampleProjectPress(index)} 
+                isDark={isDark}
+                index={index}
+              />
+            ))}
+          </XStack>
+        </YStack>
+
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-          {"Click the + icon below to add your first project!"}
+          Or click the + icon below to create your own project
         </Text>
       </YStack>
     </XStack>

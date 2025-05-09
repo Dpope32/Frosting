@@ -6,7 +6,7 @@ import { usePortfolioStore, usePortfolioQuery, removeFromWatchlist } from '@/sto
 import { portfolioData } from '@/utils/Portfolio';
 import { PortfolioQueryData } from '@/types/stocks';
 import { useEditStockStore } from '@/store/EditStockStore';
-import { PortfolioTable } from '@/components/PortfolioTable';
+import { PortfolioTable } from '@/components/home/PortfolioTable';
 import { calculateBuyIndicator, calculateReturns } from '@/services/calculationService';
 
 export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => void }) {
@@ -14,6 +14,7 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
   const stockData = data as PortfolioQueryData | undefined;
   const { watchlist } = usePortfolioStore();
   const colorScheme = useColorScheme();
+  const {totalValue }  = usePortfolioStore()
   const isDark = colorScheme === 'dark';
   const [activeTab, setActiveTab] = useState<'portfolio' | 'watchlist'>('portfolio');
   
@@ -104,6 +105,7 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
           watchlist={watchlist}
           onRemoveFromWatchlist={handleRemoveFromWatchlist}
           calculateReturns={calculateReturnsForSymbol}
+          totalPortfolioValue={totalValue ?? 0}
           calculateBuyIndicator={calculateBuyIndicatorForSymbol}
         />
       )}

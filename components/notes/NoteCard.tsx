@@ -1,11 +1,13 @@
 import React, { forwardRef, useMemo, useState, useEffect } from 'react';
 import { Card, YStack, Text, Paragraph, XStack, ScrollView, isWeb } from 'tamagui';
 import { TouchableOpacity, Platform, StyleSheet, View, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { Note } from '@/types/notes';
 import Markdown from 'react-native-markdown-display';
 import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
 import { useNoteStore } from '@/store/NoteStore';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { ImageViewerModal } from './ImageViewerModal'; 
 import { TagChip } from './TagChip';
 import { isIpad } from '@/utils/deviceUtils';
@@ -29,6 +31,8 @@ export const NoteCard = ({
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null); 
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { colors, markdownStyles } = useMarkdownStyles();
   const noTagSpacerHeight = isWeb ? 40 : 6;
 
@@ -64,7 +68,6 @@ export const NoteCard = ({
   const verticalPadding = isWeb ? 16 : isIpad() ? 8 : 10;
 
   const cardSpecificStyle = useMemo(() => ({
-    backgroundColor: colors.background,
     shadowColor: isDragging ? colors.accent : colors.shadow,
     shadowOffset: { width: 0, height: isDragging ? 4 : 2 },
     shadowOpacity: isDragging ? 0.3 : 0.1,
@@ -74,6 +77,7 @@ export const NoteCard = ({
     borderWidth: isDragging ? 1 : 0,
     borderColor: isDragging ? colors.cardBorderDragging : '#1c1c1c',
     overflow: 'hidden' as 'hidden',
+    position: 'relative' as 'relative',
   }), [isDragging, colors]);
 
 
@@ -95,6 +99,18 @@ export const NoteCard = ({
         borderWidth={1}
         borderColor={isDragging ? colors.cardBorderDragging : '#9c9c9c'}
       >
+        <LinearGradient
+          colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            borderRadius: 9,
+            borderWidth: isDark ? 2 : 1,
+            borderColor: isDark ? undefined : '#9c9c9c',
+          }}
+        />
         <YStack gap="$0">
           <TouchableOpacity
             onPress={(e) => {

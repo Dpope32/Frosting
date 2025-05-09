@@ -3,8 +3,8 @@ import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as R
 import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
 import { X, Pencil, Check } from '@tamagui/lucide-icons';
 import { TagSelector } from '@/components/notes/TagSelector';
-import { FormattingToolbar } from './FormattingToolbar';
-import { ContentInput } from './ContentInput'; 
+import { FormattingToolbar } from '@/components/notes/FormattingToolbar';
+import { ContentInput } from '@/components/notes/ContentInput'; 
 import type { Note, Attachment } from '@/types/notes';
 import type { Tag } from '@/types/tag';
 import { useUserStore } from '@/store/UserStore';

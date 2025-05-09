@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react'
 import { useColorScheme } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
-import { BaseCardModal } from '../cardModals/BaseCardModal'
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useProjectStore, useStoreTasks } from '@/store/ToDo'
 import { useRecommendationStore } from '@/store/RecommendationStore'

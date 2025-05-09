@@ -1,9 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { XStack, YStack, Text, Button, Stack } from 'tamagui';
-import { BaseCardModal } from './BaseCardModal';
-import { PrioritySelector } from './NewTaskModal/PrioritySelector';
+import React, { useRef, useState } from 'react';
+import { XStack, YStack, Text, Button } from 'tamagui';
+import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
+import { PrioritySelector } from '@/components/cardModals/NewTaskModal/PrioritySelector';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
-import { DebouncedInput } from '../shared/debouncedInput';
+import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { TaskPriority } from '@/types/task';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isIpad } from '@/utils/deviceUtils';
