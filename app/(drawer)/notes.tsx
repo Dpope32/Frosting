@@ -40,9 +40,29 @@ export default function NotesScreen() {
   // Compute static threshold: window height minus trash area height and safe area bottom inset
   useEffect(() => {
     const windowHeight = Dimensions.get('window').height;
+    if (windowHeight <= 0) {
+      console.error("Invalid window height detected:", windowHeight);
+      return;
+    }
+    
     const containerHeight = isIpad() ? 120 : 100;
-    trashThresholdRef.current = windowHeight - containerHeight - insets.bottom;
-    console.log('Computed static trash threshold Y:', trashThresholdRef.current);
+    const bottomInset = insets.bottom || 0;
+    const calculatedThreshold = windowHeight - containerHeight - bottomInset;
+    
+    // Validate threshold to ensure it's a positive number
+    if (calculatedThreshold <= 0) {
+      console.error("Calculated invalid trash threshold:", { 
+        windowHeight, containerHeight, bottomInset, calculatedThreshold 
+      });
+      // Fallback to a safe minimum value
+      trashThresholdRef.current = Math.max(windowHeight * 0.7, 400);  
+    } else {
+      trashThresholdRef.current = calculatedThreshold;
+    }
+    
+    console.log('Computed static trash threshold Y:', trashThresholdRef.current, {
+      windowHeight, containerHeight, bottomInset
+    });
   }, [insets.bottom]);
   const colorScheme = useColorScheme();
   const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();

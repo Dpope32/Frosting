@@ -227,9 +227,25 @@ export const attemptDeleteNote = async ({
     isTrashVisibleValue
 }: AttemptDeleteArgs) => {
     
+    // Immediate state updates to prevent UI freezing
+    // Set these flags right away to prevent further interaction
+    preventReorderRef.current = true;
+    
+    // Find the note to delete
     const noteToDelete = notes.find(n => n.id === noteId);
     if (!noteToDelete) {
       console.warn("Attempted to delete a note that wasn't found:", noteId);
+      // Clean up even if note not found
+      setTimeout(() => {
+        setIsPendingDelete(false);
+        setPendingDeleteNote(null);
+        setDraggingNoteId(null);
+        if (isTrashVisibleValue) isTrashVisibleValue.value = false;
+        setIsHoveringTrash(false);
+        if (noteToDeleteRef) noteToDeleteRef.current = null;
+        preventReorderRef.current = false;
+        if (originalIndexRef) originalIndexRef.current = null;
+      }, 100);
       return;
     }
     
@@ -237,6 +253,7 @@ export const attemptDeleteNote = async ({
     triggerHaptic(Haptics.ImpactFeedbackStyle.Heavy);
     
     // Use a timeout to ensure the UI has time to update before showing the confirmation dialog
+    // Increased timeout for iPad which may need more time to render large note cards
     setTimeout(async () => {
       try {
         const confirmDelete = Platform.OS === 'web'
@@ -246,10 +263,24 @@ export const attemptDeleteNote = async ({
                   'Delete Note',
                   `Are you sure you want to delete "${noteToDelete.title || 'Untitled Note'}"?`,
                   [
-                    { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-                    { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
+                    { 
+                      text: 'Cancel', 
+                      style: 'cancel', 
+                      onPress: () => {
+                        console.log('Delete cancelled');
+                        resolve(false);
+                      } 
+                    },
+                    { 
+                      text: 'Delete', 
+                      style: 'destructive', 
+                      onPress: () => {
+                        console.log('Delete confirmed');
+                        resolve(true);
+                      } 
+                    },
                   ],
-                  { cancelable: true }
+                  { cancelable: true, onDismiss: () => resolve(false) }
                 );
               });
 
@@ -262,6 +293,7 @@ export const attemptDeleteNote = async ({
             }
             showToast('Note deleted', 'success');
         } else {
+            // If user cancels deletion, restore the note to its original position
             if (originalIndexRef.current !== null) {
                 const updatedNotes = [...notes];
                 const noteIndex = updatedNotes.findIndex(n => n.id === noteId);
@@ -279,18 +311,20 @@ export const attemptDeleteNote = async ({
         }
       } catch (error) {
         console.error("Error in delete confirmation:", error);
+        showToast('Failed to delete note', 'error');
       } finally {
         // Clean up state regardless of the outcome
+        console.log('Cleanup after delete attempt');
         setIsPendingDelete(false);
         setPendingDeleteNote(null);
         setDraggingNoteId(null);
-        isTrashVisibleValue.value = false;
+        if (isTrashVisibleValue) isTrashVisibleValue.value = false;
         setIsHoveringTrash(false);
-        noteToDeleteRef.current = null;
+        if (noteToDeleteRef) noteToDeleteRef.current = null;
         preventReorderRef.current = false;
-        originalIndexRef.current = null;
+        if (originalIndexRef) originalIndexRef.current = null;
       }
-    }, 100);
+    }, isIpad() ? 200 : 100); // Longer timeout for iPad
 };
 
 
@@ -331,12 +365,35 @@ export const handleImagePick = async ({
 
 
 export const isPointInTrashArea = (y: number): boolean => {
+    // Safety check for invalid y values
+    if (y <= 0) {
+        console.warn('Invalid y coordinate for trash area check:', y);
+        return false;
+    }
+
     const { height } = Dimensions.get('window');
-    const trashAreaPercent = isIpad() ? 0.75 : 0.85;
+    
+    // Safety check for window dimensions
+    if (!height || height <= 0) {
+        console.warn('Invalid window height for trash area check:', height);
+        return false;
+    }
+    
+    // Make threshold calculation more forgiving on iPad
+    // to accommodate bottom screen drag issues
+    const trashAreaPercent = isIpad() ? 0.70 : 0.85;
     const trashAreaThreshold = height * trashAreaPercent;
+    
+    // Add some debug logging
     const isInArea = y > trashAreaThreshold;
-    console.log('isPointInTrashArea:', { y, trashAreaThreshold, isInArea });
+    console.log('isPointInTrashArea:', { 
+        y, 
+        windowHeight: height, 
+        trashAreaPercent, 
+        trashAreaThreshold, 
+        isInArea, 
+        isIpad: isIpad() 
+    });
+    
     return isInArea;
 };
-
-

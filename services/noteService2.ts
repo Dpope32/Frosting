@@ -72,9 +72,10 @@ export const handleDragging = ({
   thresholdRef,
 }: HandleDraggingArgs) => (event: GestureResponderEvent) => {
   // Only proceed if a note is currently being dragged
-  if (!draggingNoteId) return;
+  if (!draggingNoteId || isPendingDelete) return;
   const { pageY } = event.nativeEvent;
 
+  // Ensure we capture the position even if we don't trigger other effects
   lastDragPosition.current = {
     x: event.nativeEvent.pageX,
     y: pageY
@@ -83,18 +84,30 @@ export const handleDragging = ({
   // Calculate buffer threshold so card bottom touching counts as in-trash
   const containerHeight = isIpad() ? 120 : 100;
   const threshold = thresholdRef.current;
-  const fudgeThreshold = threshold - containerHeight;
+  // Ensure we have a valid threshold before proceeding
+  if (!threshold || threshold <= 0) {
+    console.warn('Invalid threshold value:', threshold);
+    return;
+  }
+
+  const fudgeThreshold = Math.max(0, threshold - containerHeight);
   console.log('handleDragging fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, pageY });
+  
+  // Safety check - handle extreme bottom edge cases
   const isInTrashArea = pageY > fudgeThreshold;
   
   // Only trigger haptic feedback when crossing the trash area boundary
   if (isInTrashArea !== isHoveringTrash) {
-    triggerHaptic();
-    setIsHoveringTrash(isInTrashArea);
-    if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
-      isTrashVisible.value = isInTrashArea;
-    } else {
-      console.warn("isTrashVisible is undefined or doesn't have a value property");
+    try {
+      triggerHaptic();
+      setIsHoveringTrash(isInTrashArea);
+      if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
+        isTrashVisible.value = isInTrashArea;
+      } else {
+        console.warn("isTrashVisible is undefined or doesn't have a value property");
+      }
+    } catch (error) {
+      console.error("Error updating trash hover state:", error);
     }
   }
 };
@@ -148,61 +161,103 @@ export const handleDragEnd = ({
   thresholdRef,
   showToast
 }: HandleDragEndArgs) => ({ data, from, to }: { data: Note[]; from: number; to: number }) => {
+  // Safety check - ensure we aren't already processing a delete
+  if (preventReorder.current === true || !draggingNoteId) {
+    setDraggingNoteId(null);
+    isTrashVisible.value = false;
+    setIsHoveringTrash(false);
+    return;
+  }
   
-  // Buffer threshold strike: bottom of card touching area counts
-  const containerHeight = isIpad() ? 120 : 100;
-  const threshold = thresholdRef.current;
-  const fudgeThreshold = threshold - containerHeight;
-  const lastY = lastDragPosition.current.y;
-  const isOverTrash = lastY > fudgeThreshold;
-  console.log('handleDragEnd fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
-  
-  // If the note is in the trash area or was hovering over it, attempt to delete it
-  if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
-    preventReorder.current = true;
-    const noteToDelete = notes.find(note => note.id === draggingNoteId);
-    if (noteToDelete) {
-      setIsPendingDelete(true);
-      setPendingDeleteNote(noteToDelete);
-      setPendingDeletePosition({
-        x: lastDragPosition.current.x,
-        y: lastDragPosition.current.y
-      });
-      
-      // Store the note ID to delete in the ref to ensure it's available during the delete process
-      noteToDeleteRef.current = draggingNoteId;
-      
-      // Call attemptDeleteNote with the correct parameters
-      attemptDeleteNote({
-        noteId: draggingNoteId,
-        notes,
-        noteStore,
-        showToast,
-        selectedNote,
-        setIsModalOpen,
-        setSelectedNote,
-        setIsPendingDelete,
-        setPendingDeleteNote,
-        setDraggingNoteId,
-        setIsHoveringTrash,
-        noteToDeleteRef,
-        preventReorderRef,
-        originalIndexRef,
-        isTrashVisibleValue
-      });
-    } else {
-      console.log("Note not found:", draggingNoteId);
+  try {
+    // Buffer threshold strike: bottom of card touching area counts
+    const containerHeight = isIpad() ? 120 : 100;
+    const threshold = thresholdRef.current;
+    // Make sure we have a valid threshold
+    if (!threshold || threshold <= 0) {
+      console.warn('Invalid threshold value in drag end:', threshold);
+      noteStore.updateNoteOrder(data);
+      setDraggingNoteId(null);
+      isTrashVisible.value = false;
+      setIsHoveringTrash(false);
+      return;
     }
-  } else if (!preventReorder.current) {
-    // If not in trash area, update the note order
-    noteStore.updateNoteOrder(data);
+    
+    const fudgeThreshold = Math.max(0, threshold - containerHeight);
+    const lastY = lastDragPosition.current.y;
+    const isOverTrash = lastY > fudgeThreshold;
+    console.log('handleDragEnd fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
+    
+    // If the note is in the trash area or was hovering over it, attempt to delete it
+    if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
+      preventReorder.current = true;
+      const noteToDelete = notes.find(note => note.id === draggingNoteId);
+      if (noteToDelete) {
+        setIsPendingDelete(true);
+        setPendingDeleteNote(noteToDelete);
+        setPendingDeletePosition({
+          x: lastDragPosition.current.x,
+          y: lastDragPosition.current.y
+        });
+        
+        // Store the note ID to delete in the ref to ensure it's available during the delete process
+        noteToDeleteRef.current = draggingNoteId;
+        
+        // Call attemptDeleteNote with the correct parameters
+        attemptDeleteNote({
+          noteId: draggingNoteId,
+          notes,
+          noteStore,
+          showToast,
+          selectedNote,
+          setIsModalOpen,
+          setSelectedNote,
+          setIsPendingDelete,
+          setPendingDeleteNote,
+          setDraggingNoteId,
+          setIsHoveringTrash,
+          noteToDeleteRef,
+          preventReorderRef,
+          originalIndexRef,
+          isTrashVisibleValue
+        }).catch(error => {
+          console.error("Error attempting to delete note:", error);
+          // Reset states on error
+          setIsPendingDelete(false);
+          setPendingDeleteNote(null);
+          setDraggingNoteId(null);
+          isTrashVisible.value = false;
+          setIsHoveringTrash(false);
+        });
+      } else {
+        console.log("Note not found:", draggingNoteId);
+        setIsPendingDelete(false);
+        setDraggingNoteId(null);
+        isTrashVisible.value = false;
+        setIsHoveringTrash(false);
+      }
+    } else if (!preventReorder.current) {
+      // If not in trash area, update the note order
+      noteStore.updateNoteOrder(data);
+    }
+  } catch (error) {
+    console.error("Error in handleDragEnd:", error);
+    // Ensure states are reset even on error
+    setIsPendingDelete(false);
+    setDraggingNoteId(null);
+    isTrashVisible.value = false;
+    setIsHoveringTrash(false);
   }
 
-  // Always clean up these states
-  setDraggingNoteId(null);
-  isTrashVisible.value = false;
-  setIsHoveringTrash(false);
-  triggerHaptic();
+  // Always clean up these states, wrapped in try/catch for safety
+  try {
+    setDraggingNoteId(null);
+    isTrashVisible.value = false;
+    setIsHoveringTrash(false);
+    triggerHaptic();
+  } catch (error) {
+    console.error("Error cleaning up drag end states:", error);
+  }
 };
 
 
@@ -304,4 +359,4 @@ export const handleSelectNote = ({
     setEditAttachments,
     setIsModalOpen
   });
-}; 
+};

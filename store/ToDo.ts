@@ -5,6 +5,7 @@ import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
 import { Task, WeekDay } from '@/types/task'
 import { format } from 'date-fns'
+import { generateUniqueId } from '@/utils/deviceUtils';
 
 // Enable debugging
 const DEBUG = false;
@@ -36,7 +37,9 @@ const dayNames: WeekDay[] = [
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
   const currentDateStrLocal = format(date, 'yyyy-MM-dd')
-  const fallbackRecDate = task.recurrenceDate ? new Date(task.recurrenceDate) : new Date(task.createdAt)
+  const fallbackRecDate = task.recurrenceDate
+    ? (() => { const [year, month, day] = task.recurrenceDate.split('-').map(Number); return new Date(year, month - 1, day); })()
+    : new Date(task.createdAt)
 
   // Debug specific tasks
   const shouldDebug = DEBUG && (task.name.includes("Thunder") || task.name.includes("Journal"))
@@ -94,61 +97,55 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         log("- scheduledDate:", task.scheduledDate);
       }
       
-      // First check: compare formatted dates (most reliable)
-      const bdayDateLocal = new Date(task.scheduledDate);
-      const bdayStrLocal = format(bdayDateLocal, 'yyyy-MM-dd');
-      const isBirthdayToday = bdayStrLocal === currentDateStrLocal;
-      
-      if (birthdayDebug) {
-        log("- bdayStrLocal:", bdayStrLocal);
-        log("- currentDateStrLocal:", currentDateStrLocal);
-        log("- isBirthdayToday (by date string):", isBirthdayToday);
-      }
-      
-      // Second check: compare month and day directly (backup method)
-      const todayMonthDay = `${date.getMonth()+1}-${date.getDate()}`;
-      const bdayMonthDay = `${bdayDateLocal.getMonth()+1}-${bdayDateLocal.getDate()}`;
-      const isBirthdayTodayAlt = todayMonthDay === bdayMonthDay;
-      
-      if (birthdayDebug) {
-        log("- todayMonthDay:", todayMonthDay);
-        log("- bdayMonthDay:", bdayMonthDay);
-        log("- isBirthdayToday (by month-day):", isBirthdayTodayAlt);
-        
-        // Check day of week match as an additional data point
-        const taskDay = task.schedule && task.schedule.length > 0 ? task.schedule[0] : null;
-        log("- task.schedule day:", taskDay);
-        log("- today's day:", today);
-        log("- day match:", taskDay === today);
-      }
-      
-      // Use either method - if either one says it's today, show the task
+      // Compare year, month, and day for birthdays
+      const [bYear, bMonth, bDay] = task.scheduledDate.split('-').map(Number);
+      const bdayDate = new Date(bYear, bMonth - 1, bDay);
+      const isBirthdayToday = 
+        date.getDate() === bdayDate.getDate() &&
+        date.getMonth() === bdayDate.getMonth() &&
+        date.getFullYear() === bdayDate.getFullYear();
+
+      // Fallback: compare month and day only
+      const isBirthdayTodayAlt = 
+        date.getDate() === bdayDate.getDate() &&
+        date.getMonth() === bdayDate.getMonth();
+
       const shouldShowBirthday = isBirthdayToday || isBirthdayTodayAlt;
-      if (birthdayDebug) log("- final birthday check result:", shouldShowBirthday);
-      
+
+      if (birthdayDebug) {
+        log("- birthday check:");
+        log("  - task scheduledDate:", task.scheduledDate);
+        log("  - bdayDate:", bdayDate);
+        log("  - currentDate:", date);
+        log("  - isBirthdayToday (Y/M/D):", isBirthdayToday);
+        log("  - isBirthdayTodayAlt (M/D):", isBirthdayTodayAlt);
+        log("  - final result:", shouldShowBirthday);
+      }
+
       return shouldShowBirthday;
     }
-    
+
     // For regular one-time tasks, show if not completed
     if (shouldDebug) log("- one-time regular task, not completed, showing it");
     return true;
   }
-  
+
   // RECURRING TASKS
   // If completed today, always show recurring tasks (so user can untoggle if needed)
   if (task.completionHistory[currentDateStrLocal] === true) {
     if (shouldDebug) log("- recurring task completed today, showing it");
     return true;
   }
-  
+
   // STEP 3: Special handling for bills
   if (task.category === 'bills' && task.dueDate) {
     const isDueDate = date.getDate() === task.dueDate;
     if (shouldDebug) log("- bills check, isDueDate:", isDueDate);
     // Only show bills that are due today and not completed
+    if (shouldDebug) log(`- bills check result for ${task.name}: ${isDueDate}`);
     return isDueDate;
   }
-  
+
   // STEP 4: Handle different recurrence patterns
   switch (task.recurrencePattern) {
     case 'tomorrow': {
@@ -157,42 +154,42 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       yesterday.setDate(yesterday.getDate() - 1)
       const yesterdayStr = yesterday.toISOString().split('T')[0]
       const result = createdDateStr === yesterdayStr;
-      
+
       if (result === true) {
         // If the task is due today (creation date was yesterday),
         // convert it to a one-time task
         if (shouldDebug) log(`- tomorrow task ${task.id} due today, converting to one-time`);
-        
+
         // We need to modify the task in the store, not just the local copy
         // This needs to be done asynchronously to avoid mutating during filtering
         setTimeout(() => {
           const storeUpdate = useProjectStore.getState();
           const tasks = { ...storeUpdate.tasks };
-          
+
           if (tasks[task.id] && tasks[task.id].recurrencePattern === 'tomorrow') {
             tasks[task.id] = {
               ...tasks[task.id],
               recurrencePattern: 'one-time',
               updatedAt: new Date().toISOString()
             };
-            
+
             if (DEBUG) log(`- converted tomorrow task ${task.id} to one-time`);
             storeUpdate.tasks = tasks;
             useProjectStore.setState({ tasks });
           }
         }, 0);
       }
-      
+
       if (shouldDebug) log("- tomorrow check, result:", result);
       return result;
     }
-    
+
     case 'everyday': {
       // For everyday tasks, always show
       if (shouldDebug) log("- everyday task, showing it");
       return true;
     }
-    
+
     case 'weekly': {
       // Only show weekly tasks on their scheduled days
       const isDueToday = task.schedule.includes(today);
@@ -202,36 +199,40 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         log("  - today:", today);
         log("  - isDueToday:", isDueToday);
       }
+      if (shouldDebug) log(`- weekly check result for ${task.name}: ${isDueToday}`);
       return isDueToday;
     }
-    
+
     case 'biweekly': {
       const startDate = fallbackRecDate
       const weekDiff = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
       const isDueToday = task.schedule.includes(today) && (weekDiff % 2 === 0);
       if (shouldDebug) log("- biweekly check, isDueToday:", isDueToday);
+      if (shouldDebug) log(`- biweekly check result for ${task.name}: ${isDueToday}`);
       return isDueToday;
     }
-    
+
     case 'monthly': {
       if (task.category === 'bills') {
         if (shouldDebug) log("- monthly bills, skipping");
         return false;
       }
-      const recDay = fallbackRecDate.getDate()
+      // Compare day of the month
+      const recDay = fallbackRecDate.getDate();
       const isDueToday = date.getDate() === recDay;
-      if (shouldDebug) log("- monthly check, isDueToday:", isDueToday);
+      if (shouldDebug) log(`- monthly check result for ${task.name}: ${isDueToday} (today: ${date.getDate()}, recDay: ${recDay})`);
       return isDueToday;
     }
-    
+
     case 'yearly': {
-      const recMonth = fallbackRecDate.getMonth()
-      const recDay = fallbackRecDate.getDate()
+      // Compare month and day
+      const recMonth = fallbackRecDate.getMonth();
+      const recDay = fallbackRecDate.getDate();
       const isDueToday = date.getMonth() === recMonth && date.getDate() === recDay;
-      if (shouldDebug) log("- yearly check, isDueToday:", isDueToday);
+      if (shouldDebug) log(`- yearly check result for ${task.name}: ${isDueToday} (today: ${date.getMonth()+1}/${date.getDate()}, recDate: ${recMonth+1}/${recDay})`);
       return isDueToday;
     }
-    
+
     default:
       if (shouldDebug) log("- no matching recurrence pattern, returning false");
       return false;
@@ -318,29 +319,10 @@ const createTaskFilter = () => {
     
     debugTaskFilter('After initial filtering', filtered);
     
-    // Map to track tasks we've already included
-    const includedTaskMap: Record<string, boolean> = {}
-    
-    // More aggressive deduplication for monthly bills (using local date context if needed)
-    const uniqueFiltered = filtered.filter(task => {
-      // Create a unique key for each task based on identifying properties
-      const taskKey = `${task.name}-${task.recurrencePattern}-${task.category}`;
-      
-      // If we've already seen this task, skip it
-      if (includedTaskMap[taskKey]) {
-        if (DEBUG) log(`- Removing duplicate: ${task.name} (${task.id})`);
-        return false;
-      }
-      
-      // Mark this task as included
-      includedTaskMap[taskKey] = true;
-      return true;
-    });
-    
-    debugTaskFilter('After deduplication', uniqueFiltered);
-    
+    debugTaskFilter('After initial filtering', filtered);
+
     // Sort tasks - completed tasks go to the bottom
-    const sorted = [...uniqueFiltered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       // First sort by completion status
       const aCompletedToday = a.completionHistory[currentDateStrLocal] || false;
       const bCompletedToday = b.completionHistory[currentDateStrLocal] || false;
@@ -387,7 +369,7 @@ export const useProjectStore = create<ProjectStore>()(
       todaysTasks: [],
       addTask: (data) => {
         const tasks = { ...get().tasks }
-        const id = Date.now().toString()
+        const id = generateUniqueId(); // Use the new utility function
         const newTask: Task = {
           ...data,
           id,

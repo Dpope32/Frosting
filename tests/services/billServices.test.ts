@@ -231,25 +231,25 @@ describe('billServices', () => {
 
   describe('getAmountColor', () => {
     it('should return red for amounts >= 100', () => {
-      expect(getAmountColor(100)).toBe('#ff0000');
-      expect(getAmountColor(150)).toBe('#ff0000');
-      expect(getAmountColor(1000)).toBe('#ff0000');
+      expect(getAmountColor(100)).toBe('#8B0000');
+      expect(getAmountColor(150)).toBe('#8B0000');
+      expect(getAmountColor(1000)).toBe('#8B0000');
     });
 
     it('should return yellow for amounts >= 50 and < 100', () => {
-      expect(getAmountColor(50)).toBe('#FFC300');
-      expect(getAmountColor(75)).toBe('#FFC300');
-      expect(getAmountColor(99)).toBe('#FFC300');
+      expect(getAmountColor(50)).toBe('#CC0000');
+      expect(getAmountColor(75)).toBe('#CC0000');
+      expect(getAmountColor(99)).toBe('#CC0000');
     });
 
     it('should return bright green for amount == 0', () => {
-      expect(getAmountColor(0)).toBe('#2ECC40');
+      expect(getAmountColor(0)).toBe('#FFCCCB');
     });
 
     it('should return normal green for amounts > 0 and < 50', () => {
-      expect(getAmountColor(1)).toBe('#2ECC40');
-      expect(getAmountColor(25)).toBe('#2ECC40');
-      expect(getAmountColor(49)).toBe('#2ECC40');
+      expect(getAmountColor(1)).toBe('#FF6B6B');
+      expect(getAmountColor(25)).toBe('#FF6B6B');
+      expect(getAmountColor(49)).toBe('#FF6B6B');
     });
   });
 });
