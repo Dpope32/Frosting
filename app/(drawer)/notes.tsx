@@ -109,7 +109,7 @@ export default function NotesScreen() {
   };
 
   return (
-    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={isWeb ? localHandleDragging : undefined}>
+    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0}>
       <XStack
         pb={16} px={isIpad() ? 16 : 16}
         backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
@@ -169,12 +169,8 @@ export default function NotesScreen() {
           )}
         </ScrollView>
       ) : (
-        <GestureHandlerRootView
-          style={{ flex: 1 }}
-          onMoveShouldSetResponderCapture={() => true}
-          onResponderMove={localHandleDragging}
-        >
-          <View style={{ flex: 1, overflow: 'visible' }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={{ flex: 1, overflow: 'visible' }} onTouchMove={draggingNoteId ? localHandleDragging : undefined}>
             <DraggableFlatList
               style={{ overflow: 'visible' }}
               dragItemOverflow={true}

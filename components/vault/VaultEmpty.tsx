@@ -2,6 +2,7 @@ import React from 'react'
 import { XStack, YStack, Text } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { VaultRecommendationChip } from '@/constants/recommendations/VaultRecommendations'
+import { isIpad } from '@/utils/deviceUtils';
 
 interface VaultEmptyProps {
   isDark: boolean
@@ -24,7 +25,7 @@ export const VaultEmpty = ({
 }: VaultEmptyProps) => {
   return (
     <XStack
-      p={isWeb? "$6": "$5"} 
+      p={isWeb? "$6": isIpad() ? "$6" : "$5"} 
       br="$4" 
       ai="flex-start"
       jc="center"
@@ -32,7 +33,7 @@ export const VaultEmpty = ({
       borderColor={isDark ? '#222' : '#e0e0e0'} 
       width="100%" 
       overflow="hidden" 
-      marginTop={isWeb ? 10 : 16}
+      marginTop={isWeb ? 10 : isIpad() ? 6 : 16}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}

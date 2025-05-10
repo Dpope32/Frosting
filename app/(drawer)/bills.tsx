@@ -140,7 +140,7 @@ export default function BillsScreen() {
         bill={selectedBill}
         onSubmit={handleUpdateBill}
       />
-      <YStack f={1} mt={isWeb ? 65 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "#fffbf7fff"} px={isIpad() ? "$1" : "$0"}>
+      <YStack f={1} mt={isWeb ? 65 : isIpad() ? isDark ? 90 : 80 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "$backgroundLight"} px={isIpad() ? "$1" : "$0"}>
         <BillSummary 
           monthlyIncome={monthlyIncome}
           totalMonthlyAmount={totalMonthlyAmount}

@@ -71,6 +71,8 @@ export const handleDragging = ({
   isPendingDelete,
   thresholdRef,
 }: HandleDraggingArgs) => (event: GestureResponderEvent) => {
+  // Only proceed if a note is currently being dragged
+  if (!draggingNoteId) return;
   const { pageY } = event.nativeEvent;
 
   lastDragPosition.current = {

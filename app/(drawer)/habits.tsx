@@ -38,7 +38,7 @@ export default function HabitsScreen() {
         f={1} 
         pt={isWeb ? 80 : isIpad() ? 100 : 100} 
         px={isWeb ? 24 : 16} 
-        bg={isDark ? '#000' : '#F6F6F6'}
+        bg={isDark ? '#000' : '$backgroundLight'}
       >
         <YStack gap="$2" mb="$1">
           {habits.length > 0 && (

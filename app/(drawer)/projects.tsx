@@ -143,7 +143,7 @@ export default function ProjectsScreen() {
   }
 
   return (
-    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '#f6f6f6'} px={isWeb? 24 : 0}>
+    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '$backgroundLight'} px={isWeb? 24 : 0}>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}

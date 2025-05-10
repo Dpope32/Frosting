@@ -14,6 +14,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
 import { handleDebugPress, handleImportContacts } from "@/services/peopleService";
 import { isIpad } from "@/utils/deviceUtils";
+import { DevButtons } from "@/components/crm/devButtons";
 const { width } = Dimensions.get("window");
 
 
@@ -75,60 +76,7 @@ export default function CRM() {
   return (
     <YStack flex={1} paddingTop={isWeb ? 90 : isIpad() ? 85 : 95}>
       {__DEV__ && (
-        <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
-          <Button
-            size="$4"
-            circular
-            backgroundColor="#666666"
-            pressStyle={{ scale: 0.95 }}
-            animation="quick"
-            elevation={4}
-            onPress={handleDebugPress}
-            icon={<MaterialIcons name="bug-report" size={24} color="white" />}
-          />
-          <Button
-            size="$4"
-            circular
-            backgroundColor="#ff6b6b"
-            pressStyle={{ scale: 0.95 }}
-            animation="quick"
-            elevation={4}
-            onPress={generateTestContacts}
-            icon={<FontAwesome5 name="database" size={20} color="white" />}
-          />
-          <Button
-            size="$4"
-            circular
-            backgroundColor="#e74c3c"
-            pressStyle={{ scale: 0.95 }}
-            animation="quick"
-            elevation={4}
-            onPress={() => {
-              if (Platform.OS === 'web') {
-                if (window.confirm('Are you sure you want to clear all contacts? This cannot be undone.')) {
-                  usePeopleStore.getState().clearContacts();
-                }
-              } else {
-                Alert.alert(
-                  'Clear All Contacts',
-                  'Are you sure you want to clear all contacts? This cannot be undone.',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                      text: 'Clear All',
-                      style: 'destructive',
-                      onPress: () => {
-                        usePeopleStore.getState().clearContacts();
-                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                      }
-                    }
-                  ]
-                );
-              }
-            }}
-            icon={<MaterialIcons name="clear-all" size={24} color="white" />}
-          />
-        </View>
+         <DevButtons />
       )}
       <FlatList
         key={`crm-${NUM_COLUMNS}`}
