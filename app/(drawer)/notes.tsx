@@ -99,7 +99,7 @@ export default function NotesScreen() {
   };
 
   return (
-    <YStack f={1} mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={localHandleDragging}>
+    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0} onTouchMove={isWeb ? localHandleDragging : undefined}>
       <XStack
         pb={16} px={isIpad() ? 16 : 16}
         backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
@@ -159,9 +159,15 @@ export default function NotesScreen() {
           )}
         </ScrollView>
       ) : (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <View style={{ flex: 1 }} onTouchMove={localHandleDragging}>
+        <GestureHandlerRootView
+          style={{ flex: 1 }}
+          onMoveShouldSetResponderCapture={() => true}
+          onResponderMove={localHandleDragging}
+        >
+          <View style={{ flex: 1, overflow: 'visible' }}>
             <DraggableFlatList
+              style={{ overflow: 'visible' }}
+              dragItemOverflow={true}
               data={notes}
               keyExtractor={(item) => item.id}
               renderItem={({ item, drag, isActive }) => (
@@ -206,7 +212,6 @@ export default function NotesScreen() {
                   onAddExampleNote={handleAddExampleNote}
                 /> 
               }
-              dragItemOverflow={true}
               dragHitSlop={{ top: -20, bottom: -20, left: 0, right: 0 }}
               activationDistance={10}
             />
@@ -224,7 +229,7 @@ export default function NotesScreen() {
             </View>
           )}
 
-          <Animated.View style={[noteStyles.trashOverlay, trashAnimatedStyle]}>
+          <Animated.View style={[noteStyles.trashOverlay, trashAnimatedStyle, { borderWidth: 2, borderColor: 'cyan', overflow: 'visible' }]}>
             <TrashcanArea isVisible={true} isHovering={isHoveringTrash || isPendingDelete} height={isIpad() ? 120 : 100}/>
           </Animated.View>
         </GestureHandlerRootView>

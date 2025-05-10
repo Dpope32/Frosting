@@ -14,7 +14,6 @@ import { isIpad } from '@/utils/deviceUtils'
 import { EditVaultModal } from '@/components/cardModals/edits/EditVaultModal'
 import { VaultListModal } from '@/components/listModals/VaultListModal'
 import { VaultEntry } from '@/types/vault'
-import { LongPressDelete } from '@/components/common/LongPressDelete'
 
 
 export default function VaultScreen() {
@@ -92,13 +91,6 @@ export default function VaultScreen() {
     setEditVaultModalOpen(true)
   }
 
-  // Add this handler for LongPressDelete
-  const handleDeleteEntry = (id: string) => (onComplete: (deleted: boolean) => void) => {
-    deleteVaultEntry(id)
-    showToast('Entry deleted', 'success')
-    onComplete(true)
-  }
-
   return (
     <>
       <VaultListModal
@@ -142,78 +134,74 @@ export default function VaultScreen() {
             />
           ) : Platform.OS === 'web' ? (
             data?.items.map((cred: VaultEntry) => (
-              <LongPressDelete
+              <VaultCard
                 key={cred.id}
-                onDelete={handleDeleteEntry(cred.id)}
-                progressBarStyle={{ paddingHorizontal: 8 }}
-              >
-                <VaultCard
-                  cred={cred}
-                  isDark={isDark}
-                  primaryColor={primaryColor}
-                  visiblePasswords={visiblePasswords}
-                  togglePasswordVisibility={togglePasswordVisibility}
-                  isWeb={isWeb}
-                  columnWidthWeb={columnWidthWeb}
-                />
-              </LongPressDelete>
+                cred={cred}
+                isDark={isDark}
+                primaryColor={primaryColor}
+                visiblePasswords={visiblePasswords}
+                togglePasswordVisibility={togglePasswordVisibility}
+                isWeb={isWeb}
+                columnWidthWeb={columnWidthWeb}
+                onDelete={() => {
+                  deleteVaultEntry(cred.id)
+                  showToast('Entry deleted', 'success')
+                }}
+              />
             ))
           ) : isIpad() ? (
             <XStack width="100%" gap="$3">
               <YStack flex={1} gap="$3">
                 {leftColumnItems.map((cred: VaultEntry) => (
-                  <LongPressDelete
-                    key={cred.id}
-                    onDelete={handleDeleteEntry(cred.id)}
-                    progressBarStyle={{ paddingHorizontal: 8 }}
-                  >
-                    <VaultCard
-                      cred={cred}
-                      isDark={isDark}
-                      primaryColor={primaryColor}
-                      visiblePasswords={visiblePasswords}
-                      togglePasswordVisibility={togglePasswordVisibility}
-                      isWeb={isWeb}
-                    />
-                  </LongPressDelete>
-                ))}
-              </YStack>
-              <YStack flex={1} gap="$3">
-                {rightColumnItems.map((cred: VaultEntry) => (
-                  <LongPressDelete
-                    key={cred.id}
-                    onDelete={handleDeleteEntry(cred.id)}
-                    progressBarStyle={{ paddingHorizontal: 8 }}
-                  >
-                    <VaultCard
-                      cred={cred}
-                      isDark={isDark}
-                      primaryColor={primaryColor}
-                      visiblePasswords={visiblePasswords}
-                      togglePasswordVisibility={togglePasswordVisibility}
-                      isWeb={isWeb}
-                    />
-                  </LongPressDelete>
-                ))}
-              </YStack>
-            </XStack>
-          ) : (
-            <YStack gap="$3" width="100%">
-              {data?.items.map((cred: VaultEntry) => (
-                <LongPressDelete
-                  key={cred.id}
-                  onDelete={handleDeleteEntry(cred.id)}
-                  progressBarStyle={{ paddingHorizontal: 8 }}
-                >
                   <VaultCard
+                    key={cred.id}
                     cred={cred}
                     isDark={isDark}
                     primaryColor={primaryColor}
                     visiblePasswords={visiblePasswords}
                     togglePasswordVisibility={togglePasswordVisibility}
                     isWeb={isWeb}
+                    onDelete={() => {
+                      deleteVaultEntry(cred.id)
+                      showToast('Entry deleted', 'success')
+                    }}
                   />
-                </LongPressDelete>
+                ))}
+              </YStack>
+              <YStack flex={1} gap="$3">
+                {rightColumnItems.map((cred: VaultEntry) => (
+                  <VaultCard
+                    key={cred.id}
+                    cred={cred}
+                    isDark={isDark}
+                    primaryColor={primaryColor}
+                    visiblePasswords={visiblePasswords}
+                    togglePasswordVisibility={togglePasswordVisibility}
+                    isWeb={isWeb}
+                    onDelete={() => {
+                      deleteVaultEntry(cred.id)
+                      showToast('Entry deleted', 'success')
+                    }}
+                  />
+                ))}
+              </YStack>
+            </XStack>
+          ) : (
+            <YStack gap="$3" width="100%">
+              {data?.items.map((cred: VaultEntry) => (
+                <VaultCard
+                  key={cred.id}
+                  cred={cred}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  visiblePasswords={visiblePasswords}
+                  togglePasswordVisibility={togglePasswordVisibility}
+                  isWeb={isWeb}
+                  onDelete={() => {
+                    deleteVaultEntry(cred.id)
+                    showToast('Entry deleted', 'success')
+                  }}
+                />
               ))}
             </YStack>
           )}
