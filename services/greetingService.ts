@@ -248,9 +248,8 @@ export const getGreeting = (username: string, temp?: number): string => {
   ];
 
   const edgyGreetingsThatShouldBeUsedRarely = [
-    'IF YOU DONT START CHECKING OFF YOUR TODO LIST, I WILL BE VERY DISAPPOINTED IN YOU',
-    'I think you are doing great, ${username}',
-    'A wise man once said, ${username}',
+    `I think you are doing great, ${username}`,
+    `A wise man once said, ${username}`,
     'A wise man once said nothing at all',
   ];
 
@@ -272,10 +271,6 @@ export const getGreeting = (username: string, temp?: number): string => {
     // Check if its a curveball day, if so, add a random emoji to the greeting
     if (dayOfYear % 5 === 0) {
       finalGreeting += ' ' + getRandomEmoji();
-    }
-    // Random check to remind user to text a friend or family member and check in on them
-    if (Math.random() < 0.1) {
-      finalGreeting += ' Text a friend or family member and check in on them today!';
     }
   } else {
     // Select a random greeting from the regular list

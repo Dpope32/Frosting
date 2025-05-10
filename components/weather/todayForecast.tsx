@@ -50,7 +50,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   const todayIsCloudy = todayForecastLower.includes('cloudy');
   const todayIsSunny = todayForecastLower.includes('sunny') || todayForecastLower.includes('clear');
   const todayWindValue = parseWindSpeed(todayForecast.windSpeed);
-
+  
 return (
   <Animated.View entering={FadeIn.duration(500)}>
     <YStack
@@ -63,9 +63,9 @@ return (
       shadowOpacity={isDark ? 0.45 : 0.18}
       shadowRadius={12}
       elevation={6}
-      maxWidth={isIpad() ? 540 : 400}
+      maxWidth={isIpad() ? 800 : 400}
       paddingHorizontal={isIpad() ? 28 : 0}
-      minWidth={isIpad() ? 420 : 0}
+      minWidth={isIpad() ? 600 : 0}
       alignSelf="center"
       pt={isIpad() ? 22 : 0}
       pb={isIpad() ? 16 : 4}

@@ -72,12 +72,12 @@ export const getIconForBill = (billName: string) => {
   
   export const getAmountColor = (amount: number) => {
     if (amount >= 100) {
-      return '#ff0000';
+      return '#8B0000'; // Dark red for highest bills
     } else if (amount >= 50) {
-      return '#FFC300';
+      return '#CC0000'; // Medium red for middle-range bills
     } else if (amount === 0) {
-      return '#2ECC40';
+      return '#FFCCCB'; // Very light red for zero-amount bills
     } else {
-      return '#2ECC40';
+      return '#FF6B6B'; // Light red for lower bills
     }
   };

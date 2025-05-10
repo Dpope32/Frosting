@@ -6,7 +6,7 @@ import { useWeatherStore, WeatherPeriod } from "@/store/WeatherStore";
 import { getTemperatureColor } from "@/services/weatherServices";
 import AnimatedCloud from '@/components/weather/AnimatedCloud';
 import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
-import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon } from "@/components/weather/styleUtils";
+import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon, getCloudCount, getSunIntensity, getPrecipitationColor } from "@/components/weather/styleUtils";
 import LowHighBar from '@/components/weather/LowHighBar';
 
 interface DailyForecast {
@@ -79,15 +79,34 @@ return (
         daily.highTemp
         );
         const textColor = getTextColorForBackground(cardBg);
+        // More refined weather condition detection
         const forecastLower = dayPeriod.shortForecast.toLowerCase();
-        const isCloudy = forecastLower.includes('cloudy');
-        const isSunny = forecastLower.includes('sunny') || forecastLower.includes('clear');
+        
+        // Parse weather conditions more precisely
+        const isRainy = forecastLower.includes('rain') || forecastLower.includes('showers');
+        const isStorm = forecastLower.includes('thunderstorm');
         const isFoggy = forecastLower.includes('fog');
         const windValue = parseWindSpeed(dayPeriod.windSpeed);
+        
+        // Get temperature values
         const highTemp = daily.highTemp;
         const lowTemp = daily.lowTemp;
 
-        // Overlay for text readability
+        // Get cloud conditions based on forecast description
+        const cloudCount = getCloudCount(dayPeriod.shortForecast);
+        const sunIntensity = getSunIntensity(dayPeriod.shortForecast, highTemp);
+        
+        // Determine cloud type based on precip and storm conditions
+        let cloudType: 'light' | 'medium' | 'dark' | 'storm' = 'medium';
+        if (isStorm) {
+          cloudType = 'storm';
+        } else if (precipitationValue > 60 || isRainy) {
+          cloudType = 'dark';
+        } else if (cloudCount <= 2) {
+          cloudType = 'light';
+        }
+        
+        const useDarkerClouds = precipitationValue > 40 || isRainy || isStorm;
         const isTextLight = textColor === '#f9fafb' || textColor === '#FFFFFF' || textColor.toLowerCase() === 'white';
         const overlayColor = isTextLight
           ? 'rgba(0,0,0,0.38)'
@@ -118,13 +137,23 @@ return (
                 windValue={windValue}
                 isDark={isDark}
                 />
-                {[...Array(isCloudy ? 4 : (isSunny ? 2 : 3))].map((_, i) => (
+                {[...Array(cloudCount)].map((_, i) => (
                 <AnimatedCloud
                     key={`forecast-cloud-${idx}-${i}`}
                     isDark={isDark}
                     index={i}
-                    sizeMultiplier={isSunny ? 0.7 : 1.1}
-                    opacityMultiplier={isSunny ? 0.7 : 1}
+                    cloudType={cloudType}
+                    sizeMultiplier={
+                      isStorm ? 1.2 : 
+                      (cloudCount <= 2 ? 0.7 : 
+                      (cloudCount <= 4 ? 0.9 : 1.1))
+                    }
+                    opacityMultiplier={
+                      isStorm ? 1.1 : 
+                      (cloudCount <= 2 ? 0.6 : 
+                      (cloudCount <= 4 ? 0.8 : 1))
+                    }
+                    useDarkerShade={useDarkerClouds}
                 />
                 ))}
             </View>
@@ -162,8 +191,13 @@ return (
                     </XStack>
                     <XStack alignItems="center" gap="$1.5">
                     <Text fontFamily="$body" fontSize={14}>💧</Text>
-                    <Text fontFamily="$body" color={textColor} fontSize={14}>
-                        {precipitationValue}%
+                    <Text 
+                      fontFamily="$body" 
+                      fontSize={14}
+                      color={precipitationValue > 0 ? getPrecipitationColor(precipitationValue, isDark) : textColor}
+                      fontWeight={precipitationValue > 30 ? '600' : '400'}
+                    >
+                      {precipitationValue}%
                     </Text>
                     </XStack>
                 </YStack>
@@ -175,12 +209,8 @@ return (
                     gap="$3"
                     alignItems="flex-end"
                 >
-                    {/* Low Temp */}
                     {lowTemp !== undefined && (
                     <YStack alignItems="center">
-                        <Text fontFamily="$body" fontSize={12} color={textColor}>
-                        Low
-                        </Text>
                         <Text
                         fontFamily="$body"
                         fontSize={16}
@@ -195,9 +225,6 @@ return (
                     <LowHighBar low={lowTemp} high={highTemp} isDark={isDark} />
                     )}
                     <YStack alignItems="center">
-                    <Text fontFamily="$body" fontSize={12} color={textColor}>
-                        High
-                    </Text>
                     <Text
                         fontFamily="$body"
                         fontSize={16}

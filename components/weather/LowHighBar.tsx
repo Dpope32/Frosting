@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getTemperatureColor } from '@/services/weatherServices';
 import { isIpad } from '@/utils/deviceUtils';
@@ -13,7 +14,7 @@ interface LowHighBarProps {
 const LowHighBar: React.FC<LowHighBarProps> = ({ low, high, isDark }) => {
   const lowColor = getTemperatureColor(low, isDark);
   const highColor = getTemperatureColor(high, isDark);
-  const large = isIpad();
+  const large = isWeb ? true : isIpad();
   const diff = high - low;
   const maxDiff = 40;
   const ratio = Math.min(Math.max(diff, 0), maxDiff) / maxDiff;
@@ -24,7 +25,7 @@ const LowHighBar: React.FC<LowHighBarProps> = ({ low, high, isDark }) => {
   const borderRadius = height / 2;
 
   // Determine track (background) and bar widths
-  const trackWidth = large ? 160 : 80;
+  const trackWidth = large ? 400 : 80;
   const barWidth = ratio * trackWidth;
   // Choose a neutral track color
   const trackColor = isDark ? 'rgba(255,255,255,0.3)' : '#e5e7eb';

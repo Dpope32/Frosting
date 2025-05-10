@@ -25,12 +25,29 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   isDark,
 }) => {
   const forecastLower = shortForecast.toLowerCase();
-  const isRaining = precipitation > 30 || forecastLower.includes("rain") || forecastLower.includes("showers") || forecastLower.includes("thunderstorm");
-  const isStorm = forecastLower.includes("thunderstorm");
-  const isCloudy = forecastLower.includes("cloudy") || forecastLower.includes("partly cloudy") || forecastLower.includes("mostly cloudy");
-  const isSunny = forecastLower.includes("sunny") || forecastLower.includes("clear") || forecastLower.includes("mostly sunny");
+  
+  // Weather condition detection - more granular
+  const isRaining = precipitation > 30 || forecastLower.includes("rain") || forecastLower.includes("showers");
+  const isStorm = forecastLower.includes("thunderstorm") && precipitation >= 40; // Only show storm effects for 40%+ chance
+  
+  // Cloud conditions - differentiate levels
+  const isMostlyCloudy = forecastLower.includes("mostly cloudy");
+  const isPartlyCloudy = forecastLower.includes("partly cloudy");
+  const isCloudy = isMostlyCloudy || isPartlyCloudy || forecastLower.includes("cloudy");
+  
+  // Sun conditions - differentiate levels
+  const isFullSunny = forecastLower.includes("sunny") && !forecastLower.includes("partly") && !forecastLower.includes("mostly");
+  const isMostlySunny = forecastLower.includes("mostly sunny");
+  const isPartlySunny = forecastLower.includes("partly sunny");
+  const isClear = forecastLower.includes("clear");
+  const isSunny = isFullSunny || isMostlySunny || isPartlySunny || isClear;
+  
+  // Wind conditions
   const hasHighWind = windValue > 12;
   const hasVeryHighWind = windValue > 22;
+  
+  // Fog conditions
+  const isFoggy = forecastLower.includes("fog");
 
   // Get screen width for percentage calculations
   const screenWidth = Dimensions.get('window').width;
@@ -255,26 +272,58 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   // Sun overlay (enhanced radial glow)
   // -------------------------------------------------------------
   const renderSunGlow = () => {
-    if (!isSunny) return null;
+    if (!isSunny && !isPartlyCloudy) return null;
     
-    // Get temperature to determine sun brightness
-    // Using raw props passed to the component to decide glow intensity
-    const tempAbove50 = typeof shortForecast === 'string' && shortForecast.includes('50');
+    // Base size that can be adjusted based on weather type
+    let size = 320; // px
+    let offset = -120; // shift up-left
+    let intensity = 0.6; // Base intensity
     
-    // Enhanced size for better visibility
-    const size = 320; // px
-    const offset = -120; // shift up-left
+    // Adjust intensity based on weather type - full sunny should be brightest
+    if (isFullSunny) {
+      intensity = 0.95; // Full sun is brightest
+    } else if (isClear) {
+      intensity = 0.9; // Clear is very bright
+    } else if (isMostlySunny) {
+      intensity = 0.8; // Mostly sunny is still bright
+      size = 300; // Slightly smaller
+    } else if (isPartlySunny) {
+      intensity = 0.65; // Partly sunny is dimmer
+      size = 280; // Smaller
+    } else if (isPartlyCloudy) {
+      intensity = 0.3; // Even dimmer for partly cloudy
+      size = 260; // Even smaller
+    }
     
-    // Use temperature to determine glow intensity
-    // More vibrant colors for temperatures above 50°F
-    const primaryColor = tempAbove50 ? 
-      (isDark ? 'rgba(253, 224, 71, 0.6)' : 'rgba(253, 230, 138, 0.7)') : 
-      (isDark ? 'rgba(253, 224, 71, 0.35)' : 'rgba(253, 230, 138, 0.5)');
+    // Adjust for temperature
+    const tempFactor = typeof shortForecast === 'string' && shortForecast.match(/\b(\d+)\b/);
+    const temp = tempFactor ? parseInt(tempFactor[1], 10) : 50;
+    
+    // Increase intensity for high temperatures
+    if (temp > 90) intensity *= 1.15;
+    else if (temp > 80) intensity *= 1.1;
+    else if (temp > 70) intensity *= 1.05;
+    else if (temp < 40) intensity *= 0.9;
+    
+    // Yellow is more intense for warmer temps, white-yellow for cooler
+    const yellowFactor = temp > 80 ? 0.9 : (temp > 70 ? 0.8 : 0.7);
+    
+    // Adjusting colors based on time of day and temperature
+    let primaryColor, secondaryColor;
+    if (isDark) {
+      // Dark mode has more vibrant sun colors
+      primaryColor = `rgba(253, ${224 + Math.min(31, Math.max(0, temp - 70))}, ${71 + Math.min(30, Math.max(0, temp - 80))}, ${intensity})`;
+      secondaryColor = 'transparent';
+    } else {
+      // Light mode has softer colors
+      primaryColor = `rgba(253, ${230 + Math.min(25, Math.max(0, temp - 70))}, ${138 + Math.min(30, Math.max(0, temp - 80))}, ${intensity})`;
+      secondaryColor = 'transparent';
+    }
     
     return (
       <LinearGradient
         key="sun-glow"
-        colors={[primaryColor, 'transparent']}
+        colors={[primaryColor, secondaryColor]}
         style={{
           position: 'absolute',
           width: size,
