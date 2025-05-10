@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as Haptics from 'expo-haptics';
 import { isWeb } from 'tamagui';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, Dimensions } from 'react-native';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { YStack, XStack } from 'tamagui';
@@ -34,8 +34,16 @@ import { createNoteHandlers } from '@/services/noteHandlers';
 import { isIpad } from '@/utils/deviceUtils';
 
 export default function NotesScreen() {
+  // Ref to store computed static trash area threshold
   const trashThresholdRef = useRef<number>(0);
   const insets = useSafeAreaInsets();
+  // Compute static threshold: window height minus trash area height and safe area bottom inset
+  useEffect(() => {
+    const windowHeight = Dimensions.get('window').height;
+    const containerHeight = isIpad() ? 120 : 100;
+    trashThresholdRef.current = windowHeight - containerHeight - insets.bottom;
+    console.log('Computed static trash threshold Y:', trashThresholdRef.current);
+  }, [insets.bottom]);
   const colorScheme = useColorScheme();
   const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();
   const showToast = useToastStore(state => state.showToast);
@@ -231,13 +239,7 @@ export default function NotesScreen() {
             </View>
           )}
 
-          <Animated.View 
-            style={[noteStyles.trashOverlay, trashAnimatedStyle]}
-            onLayout={(e) => {
-              trashThresholdRef.current = e.nativeEvent.layout.y;
-              console.log('Measured trash threshold Y:', trashThresholdRef.current);
-            }}
-          >
+          <Animated.View style={[noteStyles.trashOverlay, trashAnimatedStyle]}> 
             <TrashcanArea isVisible={true} isHovering={isHoveringTrash || isPendingDelete} height={isIpad() ? 120 : 100}/>
           </Animated.View>
         </GestureHandlerRootView>

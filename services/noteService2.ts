@@ -9,6 +9,7 @@ import type { Note, Attachment } from '@/types/notes';
 import type { Tag } from '@/types/tag';
 import type { NoteStore } from '@/store/NoteStore';
 import { triggerHaptic, setupEditNote } from './noteService';
+import { isIpad } from '@/utils/deviceUtils';
 import { GestureResponderEvent } from 'react-native';
 import React from 'react';
 
@@ -77,10 +78,12 @@ export const handleDragging = ({
     y: pageY
   };
   
-  // Check if we're in the trash area using dynamic layout threshold
+  // Calculate buffer threshold so card bottom touching counts as in-trash
+  const containerHeight = isIpad() ? 120 : 100;
   const threshold = thresholdRef.current;
-  console.log('handleDragging dynamic threshold:', threshold, 'pageY:', pageY);
-  const isInTrashArea = pageY > threshold;
+  const fudgeThreshold = threshold - containerHeight;
+  console.log('handleDragging fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, pageY });
+  const isInTrashArea = pageY > fudgeThreshold;
   
   // Only trigger haptic feedback when crossing the trash area boundary
   if (isInTrashArea !== isHoveringTrash) {
@@ -144,11 +147,13 @@ export const handleDragEnd = ({
   showToast
 }: HandleDragEndArgs) => ({ data, from, to }: { data: Note[]; from: number; to: number }) => {
   
-  // Check if the note is in the trash area using dynamic threshold
+  // Buffer threshold strike: bottom of card touching area counts
+  const containerHeight = isIpad() ? 120 : 100;
   const threshold = thresholdRef.current;
+  const fudgeThreshold = threshold - containerHeight;
   const lastY = lastDragPosition.current.y;
-  const isOverTrash = lastY > threshold;
-  console.log('handleDragEnd dynamic threshold:', { threshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
+  const isOverTrash = lastY > fudgeThreshold;
+  console.log('handleDragEnd fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
   
   // If the note is in the trash area or was hovering over it, attempt to delete it
   if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
