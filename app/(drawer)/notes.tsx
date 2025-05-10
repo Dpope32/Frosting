@@ -34,6 +34,7 @@ import { createNoteHandlers } from '@/services/noteHandlers';
 import { isIpad } from '@/utils/deviceUtils';
 
 export default function NotesScreen() {
+  const trashThresholdRef = useRef<number>(0);
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();
@@ -72,14 +73,15 @@ export default function NotesScreen() {
   const localHandleUnderline = createFormattingHandler(formatUnderline, selection, setEditContent);
   const localHandleCode = createFormattingHandler(formatCode, selection, setEditContent);
   const localHandleBullet = createFormattingHandler(formatBullet, selection, setEditContent);
-  const localHandleDragging = handleDragging({ draggingNoteId, isPendingDelete, lastDragPosition, isHoveringTrash, setIsHoveringTrash, isTrashVisible});
+  const localHandleDragging = handleDragging({ draggingNoteId, isPendingDelete, lastDragPosition, isHoveringTrash, setIsHoveringTrash, isTrashVisible, thresholdRef: trashThresholdRef });
   const localHandleDragEnd = handleDragEnd({
     isHoveringTrash, draggingNoteId, preventReorder, notes, lastDragPosition,
     setIsPendingDelete, setPendingDeleteNote, setPendingDeletePosition,
     noteStore, setDraggingNoteId, isTrashVisible, setIsHoveringTrash,
     attemptDeleteNote, selectedNote, setIsModalOpen, setSelectedNote,
     noteToDeleteRef, preventReorderRef: preventReorder, originalIndexRef,
-    isTrashVisibleValue: isTrashVisible, showToast: (message: string, type: string) => {
+    isTrashVisibleValue: isTrashVisible, thresholdRef: trashThresholdRef,
+    showToast: (message: string, type: string) => {
       showToast(message, type as ToastType);
     }
   });
@@ -229,7 +231,13 @@ export default function NotesScreen() {
             </View>
           )}
 
-          <Animated.View style={[noteStyles.trashOverlay, trashAnimatedStyle, { borderWidth: 2, borderColor: 'cyan', overflow: 'visible' }]}>
+          <Animated.View 
+            style={[noteStyles.trashOverlay, trashAnimatedStyle]}
+            onLayout={(e) => {
+              trashThresholdRef.current = e.nativeEvent.layout.y;
+              console.log('Measured trash threshold Y:', trashThresholdRef.current);
+            }}
+          >
             <TrashcanArea isVisible={true} isHovering={isHoveringTrash || isPendingDelete} height={isIpad() ? 120 : 100}/>
           </Animated.View>
         </GestureHandlerRootView>

@@ -331,14 +331,12 @@ export const handleImagePick = async ({
 
 
 export const isPointInTrashArea = (y: number): boolean => {
-    // The y-coordinate from the drag event is relative to the top of the screen
-    // We need to check if it's in the bottom portion of the screen
     const { height } = Dimensions.get('window');
-    // Make the trash area much larger on iPad (bottom 50% of the screen)
-    // and keep it at 15% for other devices
-    const trashAreaPercent = isIpad() ? 0.75 : 0.85; // 0.5 = bottom 50% for iPad, 0.85 = bottom 15% for others
+    const trashAreaPercent = isIpad() ? 0.75 : 0.85;
     const trashAreaThreshold = height * trashAreaPercent;
-    return y > trashAreaThreshold;
+    const isInArea = y > trashAreaThreshold;
+    console.log('isPointInTrashArea:', { y, trashAreaThreshold, isInArea });
+    return isInArea;
 };
 
 

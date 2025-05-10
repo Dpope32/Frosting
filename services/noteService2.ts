@@ -8,8 +8,9 @@ import { SharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimat
 import type { Note, Attachment } from '@/types/notes';
 import type { Tag } from '@/types/tag';
 import type { NoteStore } from '@/store/NoteStore';
-import { triggerHaptic, setupEditNote, isPointInTrashArea } from './noteService';
+import { triggerHaptic, setupEditNote } from './noteService';
 import { GestureResponderEvent } from 'react-native';
+import React from 'react';
 
 export const calculateColumns = (screenWidth: number): number => {
   if (screenWidth > 1200) {
@@ -57,6 +58,7 @@ interface HandleDraggingArgs {
   isTrashVisible: SharedValue<boolean>;
   draggingNoteId: string | null;
   isPendingDelete: boolean;
+  thresholdRef: React.MutableRefObject<number>;
 }
 
 export const handleDragging = ({
@@ -65,7 +67,8 @@ export const handleDragging = ({
   setIsHoveringTrash,
   isTrashVisible,
   draggingNoteId,
-  isPendingDelete
+  isPendingDelete,
+  thresholdRef,
 }: HandleDraggingArgs) => (event: GestureResponderEvent) => {
   const { pageY } = event.nativeEvent;
 
@@ -74,9 +77,10 @@ export const handleDragging = ({
     y: pageY
   };
   
-  
-  // Check if we're in the trash area
-  const isInTrashArea = isPointInTrashArea(pageY);
+  // Check if we're in the trash area using dynamic layout threshold
+  const threshold = thresholdRef.current;
+  console.log('handleDragging dynamic threshold:', threshold, 'pageY:', pageY);
+  const isInTrashArea = pageY > threshold;
   
   // Only trigger haptic feedback when crossing the trash area boundary
   if (isInTrashArea !== isHoveringTrash) {
@@ -111,6 +115,7 @@ interface HandleDragEndArgs {
   preventReorderRef: React.MutableRefObject<boolean>;
   originalIndexRef: React.MutableRefObject<number | null>;
   isTrashVisibleValue: SharedValue<boolean>;
+  thresholdRef: React.MutableRefObject<number>;
   showToast: (message: string, type: string) => void;
 }
 
@@ -135,11 +140,15 @@ export const handleDragEnd = ({
   preventReorderRef,
   originalIndexRef,
   isTrashVisibleValue,
+  thresholdRef,
   showToast
 }: HandleDragEndArgs) => ({ data, from, to }: { data: Note[]; from: number; to: number }) => {
   
-  // Check if the note is in the trash area using the last known position
-  const isOverTrash = isPointInTrashArea(lastDragPosition.current.y);
+  // Check if the note is in the trash area using dynamic threshold
+  const threshold = thresholdRef.current;
+  const lastY = lastDragPosition.current.y;
+  const isOverTrash = lastY > threshold;
+  console.log('handleDragEnd dynamic threshold:', { threshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
   
   // If the note is in the trash area or was hovering over it, attempt to delete it
   if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
