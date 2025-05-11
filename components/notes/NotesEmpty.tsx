@@ -101,9 +101,9 @@ export const NotesEmpty = ({
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$2">
           Try out example notes:
         </Text>
-        <YStack width="100%">
+        <YStack width="100%" alignItems="center" justifyContent="center" ai="center">
           <XStack 
-            justifyContent={isWeb ? "space-between" : "flex-start"}
+            jc="center"
             px="$2"
             gap="$2"
             flexWrap="wrap"

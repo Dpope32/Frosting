@@ -89,21 +89,17 @@ export const handleDragging = ({
     return;
   }
 
-  // Use a fixed buffer instead of containerHeight for fudgeThreshold
-  const fixedBuffer = isIpad() ? 180 : 150; // Adjusted buffer for iPad and mobile
-  const fudgeThreshold = Math.max(0, threshold - fixedBuffer);
-  console.log('handleDragging fudgeThreshold:', { threshold, fixedBuffer, fudgeThreshold, pageY });
-  
-  // Safety check - handle extreme bottom edge cases
-  const isInTrashArea = pageY > fudgeThreshold;
+  // Determine if the touch point is within the trash area
+  const touchInTrashArea = pageY > threshold;
+  console.log('handleDragging threshold check:', { threshold, pageY, touchInTrashArea });
   
   // Only trigger haptic feedback when crossing the trash area boundary
-  if (isInTrashArea !== isHoveringTrash) {
+  if (touchInTrashArea !== isHoveringTrash) {
     try {
       triggerHaptic();
-      setIsHoveringTrash(isInTrashArea);
+      setIsHoveringTrash(touchInTrashArea);
       if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
-        isTrashVisible.value = isInTrashArea;
+        isTrashVisible.value = touchInTrashArea;
       } else {
         console.warn("isTrashVisible is undefined or doesn't have a value property");
       }
@@ -183,12 +179,10 @@ export const handleDragEnd = ({
     return;
   }
   
-  // Use a fixed buffer instead of containerHeight for fudgeThreshold
-  const fixedBuffer = isIpad() ? 180 : 150; // Adjusted buffer for iPad and mobile
-  const fudgeThreshold = Math.max(0, threshold - fixedBuffer);
+  // Determine if the last drag position is within the trash area
   const lastY = lastDragPosition.current.y;
-  const isOverTrash = lastY > fudgeThreshold;
-  console.log('handleDragEnd fudgeThreshold:', { threshold, fixedBuffer, fudgeThreshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
+  const isOverTrash = lastY > threshold;
+  console.log('handleDragEnd threshold check:', { threshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
     
     // If the note is in the trash area or was hovering over it, attempt to delete it
     if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
