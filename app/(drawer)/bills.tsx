@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, useColorScheme, Platform, FlatList } from 'react-native';
+import { ScrollView, useColorScheme, Platform, FlatList, Dimensions } from 'react-native';
 import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
@@ -26,17 +26,8 @@ export default function BillsScreen() {
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [billsListModalOpen, setBillsListModalOpen] = useState(false);
   
-  const { 
-    bills, 
-    addBill, 
-    deleteBill, 
-    isLoading, 
-    monthlyIncome, 
-    setMonthlyIncome, 
-    totalMonthlyAmount, 
-    monthlyBalance
-  } = useBills();
-
+  const { bills, addBill, addBills, deleteBill, isLoading, monthlyIncome, setMonthlyIncome, totalMonthlyAmount, monthlyBalance } = useBills();
+  const screenWidth = Dimensions.get('window').width;
   const [isDeletingBill, setIsDeletingBill] = useState(false);
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
@@ -89,9 +80,11 @@ export default function BillsScreen() {
       { name: 'Internet', amount: 60, dueDate: 15 },
       { name: 'Electricity', amount: 90, dueDate: 20 },
     ];
-    sampleBills.forEach((bill, index) => {
-      setTimeout(() => addBill(bill), index * 300);
-    });
+    // Batch-add bills without generating tasks to avoid performance bottleneck
+    addBills(
+      sampleBills.map((bill) => ({ ...bill, createTask: false })),
+      { batchCategory: 'dev' }
+    );
   };
 
   const deleteAllBills = () => {
@@ -140,7 +133,7 @@ export default function BillsScreen() {
         bill={selectedBill}
         onSubmit={handleUpdateBill}
       />
-      <YStack f={1} mt={isWeb ? 65 : isIpad() ? isDark ? 90 : 80 : 95} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "$backgroundLight"} px={isIpad() ? "$1" : "$0"}>
+      <YStack f={1} mt={isWeb ? 65 : isIpad() ? isDark ? 90 : 80 : 100} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "$backgroundLight"} px={isIpad() ? "$1" : "$0"}>
         <BillSummary 
           monthlyIncome={monthlyIncome}
           totalMonthlyAmount={totalMonthlyAmount}
@@ -155,11 +148,10 @@ export default function BillsScreen() {
             top={0}
             left={0}
             right={0}
-            bottom={0}
+            bottom={screenWidth * 0.5}
             zIndex={1000}
             alignItems={isWeb ? "flex-start" : isIpad() ? "flex-start" : "center"}
             justifyContent={isWeb ? "flex-start" : isIpad() ? "flex-start" : "center"}
-            pt={isWeb ? 100 : isIpad() ? 100 : 150}
             backgroundColor={isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)"}
           >
             <XStack
@@ -228,7 +220,7 @@ export default function BillsScreen() {
               flexDirection: isWeb ? 'row' : undefined,
               flexWrap: isWeb ? 'wrap' : undefined,
               justifyContent: isWeb ? 'flex-start' : undefined,
-              gap: isWeb ? 20 : 6, 
+              gap: isWeb ? 20 : 7, 
               maxWidth: isWeb ? 1780 : undefined, 
             }}
           >

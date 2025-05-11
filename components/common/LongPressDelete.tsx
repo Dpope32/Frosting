@@ -24,13 +24,15 @@ interface LongPressDeleteProps {
     paddingHorizontal?: number
   }
   longPressDuration?: number
+  isDark?: boolean
 }
 
 export const LongPressDelete: React.FC<LongPressDeleteProps> = ({ 
   onDelete, 
   children,
   progressBarStyle,
-  longPressDuration = 800
+  longPressDuration = 650,
+  isDark = false
 }) => {
   const scale = useSharedValue(1)
   const progress = useSharedValue(0)
@@ -111,11 +113,11 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   const progressStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     bottom: 0,
-    left: progressBarStyle?.paddingHorizontal || 0,
+    left: 6,
     right: progressBarStyle?.paddingHorizontal || 0,
     height: 2,
-    width: `${progress.value * 95}%`,
-    borderRadius: 2,
+    width: `${progress.value * 97}%`,
+    borderRadius: 16,
     zIndex: 999,
     margin: 0,
     padding: 0,
@@ -128,9 +130,9 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     right: 0,
     bottom: 0,
     opacity: interpolate(progress.value, [0, 1], [0, 0.1]),
-    borderRadius: 8,
+    borderRadius: 16,
     zIndex: 1,
-    margin: 0,
+    marginTop: 0,
     padding: 0,
   }));
   
@@ -151,7 +153,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)',
     opacity: interpolate(progress.value, [0, 1], [0, 0.5]),
     zIndex: 1,
     margin: 0,
@@ -192,7 +194,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
           colors={['#ffffff', '#ff3b30']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0 }]}
+          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0, borderRadius: 16 }]}
         />
       </Animated.View>
       <Animated.View style={dimOverlayStyle} />
@@ -208,7 +210,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
           colors={['#CC0000', '#FF6666', '#FFCCCC']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0 }]}
+          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0, borderRadius: 16 }]}
         />
       </Animated.View>
     </>

@@ -43,15 +43,15 @@ export const BillCard = ({
   };
 
   return (
-    <LongPressDelete onDelete={handleDelete}>
+    <LongPressDelete onDelete={handleDelete} progressBarStyle={{ paddingHorizontal: isIpad() ? 10 : 3}} isDark={isDark}>
       <XStack
         jc="center"
         minHeight={isWeb ? 100 : isIpad() ? 100 : 75}
         height={isWeb ? 100 : isIpad() ? 100 : 80}
         flexShrink={0}
-        bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.8)'}
+        bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.75)'}
         p="$3"
-        mb="$1.5"
+        mb="$1"
         br="$4"
         ai="center"
         borderWidth={1}

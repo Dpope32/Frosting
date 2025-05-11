@@ -82,7 +82,6 @@ export const handleDragging = ({
   };
   
   // Calculate buffer threshold so card bottom touching counts as in-trash
-  const containerHeight = isIpad() ? 120 : 100;
   const threshold = thresholdRef.current;
   // Ensure we have a valid threshold before proceeding
   if (!threshold || threshold <= 0) {
@@ -90,8 +89,10 @@ export const handleDragging = ({
     return;
   }
 
-  const fudgeThreshold = Math.max(0, threshold - containerHeight);
-  console.log('handleDragging fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, pageY });
+  // Use a fixed buffer instead of containerHeight for fudgeThreshold
+  const fixedBuffer = isIpad() ? 180 : 150; // Adjusted buffer for iPad and mobile
+  const fudgeThreshold = Math.max(0, threshold - fixedBuffer);
+  console.log('handleDragging fudgeThreshold:', { threshold, fixedBuffer, fudgeThreshold, pageY });
   
   // Safety check - handle extreme bottom edge cases
   const isInTrashArea = pageY > fudgeThreshold;
@@ -170,23 +171,24 @@ export const handleDragEnd = ({
   }
   
   try {
-    // Buffer threshold strike: bottom of card touching area counts
-    const containerHeight = isIpad() ? 120 : 100;
-    const threshold = thresholdRef.current;
-    // Make sure we have a valid threshold
-    if (!threshold || threshold <= 0) {
-      console.warn('Invalid threshold value in drag end:', threshold);
-      noteStore.updateNoteOrder(data);
-      setDraggingNoteId(null);
-      isTrashVisible.value = false;
-      setIsHoveringTrash(false);
-      return;
-    }
-    
-    const fudgeThreshold = Math.max(0, threshold - containerHeight);
-    const lastY = lastDragPosition.current.y;
-    const isOverTrash = lastY > fudgeThreshold;
-    console.log('handleDragEnd fudgeThreshold:', { threshold, containerHeight, fudgeThreshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
+  // Buffer threshold strike: bottom of card touching area counts
+  const threshold = thresholdRef.current;
+  // Make sure we have a valid threshold
+  if (!threshold || threshold <= 0) {
+    console.warn('Invalid threshold value in drag end:', threshold);
+    noteStore.updateNoteOrder(data);
+    setDraggingNoteId(null);
+    isTrashVisible.value = false;
+    setIsHoveringTrash(false);
+    return;
+  }
+  
+  // Use a fixed buffer instead of containerHeight for fudgeThreshold
+  const fixedBuffer = isIpad() ? 180 : 150; // Adjusted buffer for iPad and mobile
+  const fudgeThreshold = Math.max(0, threshold - fixedBuffer);
+  const lastY = lastDragPosition.current.y;
+  const isOverTrash = lastY > fudgeThreshold;
+  console.log('handleDragEnd fudgeThreshold:', { threshold, fixedBuffer, fudgeThreshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
     
     // If the note is in the trash area or was hovering over it, attempt to delete it
     if ((isHoveringTrash || isOverTrash) && draggingNoteId) {

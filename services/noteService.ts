@@ -379,9 +379,9 @@ export const isPointInTrashArea = (y: number): boolean => {
         return false;
     }
     
-    // Make threshold calculation more forgiving on iPad
-    // to accommodate bottom screen drag issues
-    const trashAreaPercent = isIpad() ? 0.70 : 0.85;
+    // Adjust threshold calculation for both iPad and mobile
+    // Make it slightly more sensitive on mobile
+    const trashAreaPercent = isIpad() ? 0.70 : 0.80; // Adjusted from 0.85 to 0.80 for mobile
     const trashAreaThreshold = height * trashAreaPercent;
     
     // Add some debug logging
