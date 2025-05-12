@@ -97,8 +97,8 @@ export default function TemperatureScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <YStack gap="$2" paddingVertical="$2">
-          <XStack paddingHorizontal="$4" alignItems="center" justifyContent="center" position="relative">
+        <YStack gap="$2" paddingVertical="$1">
+          <XStack paddingHorizontal="$4" alignItems="center" justifyContent="center" position="relative" marginBottom="$3">
             <Button
               icon={ChevronLeft}
               onPress={() => {
@@ -116,7 +116,7 @@ export default function TemperatureScreen() {
               position="absolute"
               left="$4"
             />
-            <Text fontSize={isWeb ? 24 : 20} pb="$4" fontFamily="$body" fontWeight="600" color={isDark ? "$gray100" : "$gray900"}>
+            <Text fontSize={isWeb ? 24 : 20} pb="$1" fontFamily="$body" fontWeight="600" color={isDark ? "$gray100" : "$gray900"}>
               Weather Forecast
             </Text>
           </XStack>

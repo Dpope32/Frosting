@@ -35,7 +35,6 @@ export const styles = StyleSheet.create({
     }),
   },
   statusPill: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -47,7 +46,6 @@ export const styles = StyleSheet.create({
     maxWidth: Platform.OS === 'web' ? 200 : 160, // Limit width on mobile
   },
   reminderPill: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   card: {
     borderWidth: 2,
@@ -233,19 +231,20 @@ export const styles = StyleSheet.create({
   },
   modalHeaderIcons: {
     position: 'absolute',
-    top: Platform.OS === 'web' ? -12 : 0,
+    top: Platform.OS === 'web' ? 10 : 10,
     left: 10,
     right: 10,
     zIndex: 2,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingHorizontal: Platform.OS === 'web' ? 10 : 5,
+    paddingTop: Platform.OS === 'web' ? 0 : 5,
   },
   shareIcon: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 20
   },
   closeIcon: {
@@ -253,13 +252,15 @@ export const styles = StyleSheet.create({
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 20
+    borderRadius: 20,
+    marginTop: Platform.OS === 'web' ? 10 : 0,
+    marginRight: Platform.OS === 'web' ? 10 : 0,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: Platform.OS === 'web' ? 20 : 0,
+    marginTop: Platform.OS === 'web' ? 20 : 10,
+    marginBottom: 15,
   },
   modalAvatarContainer: {
     position: 'relative',
@@ -296,7 +297,7 @@ export const styles = StyleSheet.create({
   },
   infoSection: {
     marginTop: 16,
-    gap: 12,
+    gap: 15,
   },
   actionBar: {
     position: "absolute",
@@ -330,7 +331,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
-    marginBottom: 8,
+    marginBottom: 15,
     justifyContent: 'space-between', // Ensure pills are spaced evenly
     flexWrap: 'nowrap', // Prevent wrapping to ensure horizontal layout
     gap: 6
@@ -353,5 +354,14 @@ export const styles = StyleSheet.create({
   modalTagText: {
     fontSize: 13,
     fontWeight: '500',
+  },
+  infoRow: {
+    alignItems: 'center',
+  },
+  infoIcon: {
+    marginTop: 2,
+  },
+  infoText: {
+    flex: 1,
   },
 });

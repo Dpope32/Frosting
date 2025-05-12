@@ -1,7 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import { usePeopleStore } from "@/store/People";
-import { Tag } from '@/types/tag';
+import type { Tag } from '@/types/tag';
+import { generateId } from '@/constants/devNotes';
 
 const getRandomProfilePicture = () => {
   const gender = Math.random() > 0.5 ? "men" : "women";
@@ -18,6 +19,13 @@ export const generateTestContacts = () => {
   
   isGeneratingContacts = true;
   
+  // Create a standard Tag object for test contacts
+  const testTag: Tag = {
+    id: generateId(),
+    name: 'Test Contact',
+    color: '#888888'
+  };
+
   const testContacts = [
     {
       name: "John Smith",
@@ -119,10 +127,10 @@ export const generateTestContacts = () => {
     
     usePeopleStore.getState().addPerson({
       ...randomContact,
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      tags: ['test' as unknown as Tag],
+      tags: [testTag],
       priority: Math.random() > 0.5,
       profilePicture: getRandomProfilePicture()
     });
@@ -139,10 +147,10 @@ export const generateTestContacts = () => {
         
         usePeopleStore.getState().addPerson({
           ...contact,
-          id: Math.random().toString(36).substr(2, 9),
+          id: generateId(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          tags: ['test' as unknown as Tag],
+          tags: [testTag],
           priority: Math.random() > 0.5,
           profilePicture: getRandomProfilePicture()
         });

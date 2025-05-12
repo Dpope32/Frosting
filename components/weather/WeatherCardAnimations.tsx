@@ -346,17 +346,24 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
 
   useEffect(() => {
     if (isStorm) {
+      // Adjust pause duration based on precipitation chance
+      const pauseDuration = precipitation < 21 ? 8000 : precipitation < 41 ? 5000 : precipitation < 70 ? 1600 : precipitation < 90 ? 1200 : 800; // Pause durations by precipitation intensity
+
       flashOpacity.value = withRepeat(
         withSequence(
-          withTiming(1, { duration: 80 }),
-          withTiming(0, { duration: 260 }),
-          withTiming(0, { duration: 800 }) // pause between flashes
+          withTiming(1, { duration: 80 }), // Flash on
+          withTiming(0, { duration: 260 }), // Flash off
+          withTiming(0, { duration: pauseDuration }) // Pause between flashes
         ),
         -1,
         false
       );
+    } else {
+      // Ensure opacity resets if isStorm becomes false
+      flashOpacity.value = withTiming(0, { duration: 100 });
     }
-  }, [isStorm]);
+    // Add precipitation to dependency array
+  }, [isStorm, precipitation, flashOpacity]);
 
   const lightningStyle = useAnimatedStyle(() => ({
     opacity: flashOpacity.value,

@@ -8,7 +8,8 @@ import AnimatedCloud from '@/components/weather/AnimatedCloud';
 import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
 import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon, getCloudCount, getSunIntensity, getPrecipitationColor } from "@/components/weather/styleUtils";
 import LowHighBar from '@/components/weather/LowHighBar';
-
+import { CloudType } from "@/components/weather/AnimatedCloud";
+import { isIpad } from "@/utils/deviceUtils";
 interface DailyForecast {
     dayName: string;
     dayPeriod: WeatherPeriod;
@@ -92,9 +93,6 @@ return (
         const highTemp = daily.highTemp;
         const lowTemp = daily.lowTemp;
 
-        // --- FEELS LIKE calculation ---
-        // Log the period for future extension
-        console.log('WeatherPeriod for', daily.dayName, dayPeriod);
         // Parse wind speed (mph)
         let windMph = 0;
         const windMatch = dayPeriod.windSpeed.match(/(\d+)/);
@@ -102,25 +100,33 @@ return (
         // Wind Chill formula only applies if temp <= 50°F and wind >= 3 mph
         let feelsLike = highTemp;
         if (highTemp <= 50 && windMph >= 3) {
-          // Wind Chill (°F) = 35.74 + 0.6215T - 35.75(V^0.16) + 0.4275T(V^0.16)
           feelsLike = Math.round(35.74 + 0.6215 * highTemp - 35.75 * Math.pow(windMph, 0.16) + 0.4275 * highTemp * Math.pow(windMph, 0.16));
         }
-        // --- END FEELS LIKE ---
 
         // Get cloud conditions based on forecast description
         const cloudCount = getCloudCount(dayPeriod.shortForecast);
         const sunIntensity = getSunIntensity(dayPeriod.shortForecast, highTemp);
         
         // Determine cloud type based on precip and storm conditions
-        let cloudType: 'light' | 'medium' | 'dark' | 'storm' = 'medium';
+        let cloudType: CloudType = 'medium';
+        const bright = sunIntensity > 0.67;
+        const semiBright = sunIntensity > 0.33;
+        const dim = sunIntensity > 0;
         if (isStorm) {
           cloudType = 'storm';
         } else if (precipitationValue > 60 || isRainy) {
           cloudType = 'dark';
-        } else if (cloudCount <= 2) {
-          cloudType = 'light';
+        } else if (bright) {
+          cloudType = 'bright';
+        } else if (semiBright) {
+          cloudType = 'semiBright';
+        } else if (dim) {
+          cloudType = 'dim';
+        } else {
+          cloudType = 'medium';
         }
-        
+        const useTransparentClouds = bright || semiBright || dim;
+        const transparentCloudOpacity = useTransparentClouds===bright ? 0.5 : useTransparentClouds===semiBright ? 0.7 : 1;
         const useDarkerClouds = precipitationValue > 40 || isRainy || isStorm;
         const isTextLight = textColor === '#f9fafb' || textColor === '#FFFFFF' || textColor.toLowerCase() === 'white';
         const overlayColor = isTextLight
@@ -133,7 +139,7 @@ return (
             entering={FadeIn.duration(500).delay(100 * idx)}
         >
             <XStack
-            padding="$3"
+            padding={isIpad() ? "$4" :"$3"}
             borderRadius="$5"
             backgroundColor={cardBg}
             overflow="hidden"
@@ -195,6 +201,9 @@ return (
                     {dayPeriod.shortForecast}
                     </Text>
                 </YStack>
+                <Text fontFamily="$body" fontSize={13} color={textColor} alignSelf="flex-end">
+                  🌡️ Feels like {feelsLike}°
+                </Text>
                 </XStack>
                 <XStack justifyContent="space-between" alignItems="flex-end" mt="$2">
                 <YStack gap="$2">
@@ -247,10 +256,6 @@ return (
                         color={getTemperatureColor(highTemp, isDark)}
                     >
                         {`${highTemp}°`}
-                    </Text>
-                    {/* Feels like display */}
-                    <Text fontFamily="$body" fontSize={13} color={textColor}>
-                      🌡️ Feels like {feelsLike}°
                     </Text>
                     </YStack>
                 </XStack>

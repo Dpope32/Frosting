@@ -51,6 +51,7 @@ export function PersonCard({ person, onEdit, containerStyle }: PersonCardProps) 
     <Theme name="dark">
       <View style={[styles.container, containerStyle]}>
         <CollapsedView
+          key={`collapsed-${person.id}`}
           person={person}
           onPress={handlePress}
           isDark={isDark}
@@ -58,6 +59,7 @@ export function PersonCard({ person, onEdit, containerStyle }: PersonCardProps) 
           applyWebStyle={applyWebStyle}
         />
         <ExpandedView
+          key={`expanded-${person.id}`}
           isExpanded={isExpanded}
           person={person}
           isDark={isDark}

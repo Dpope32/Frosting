@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { View, StyleSheet, Dimensions } from 'react-native';
 
-type CloudType = 'light' | 'medium' | 'dark' | 'storm';
+export type CloudType = 'light' | 'medium' | 'dark' | 'storm' | 'bright' | 'semiBright' | 'dim';
 
 const AnimatedCloud = ({
   isDark,

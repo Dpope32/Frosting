@@ -136,37 +136,44 @@ export default function CollapsedView({
                 </XStack>
               )}
               
-              {hasTags && person.tags!.map(tag => (
-                <View 
-                  key={tag.id} 
-                  style={[
-                    styles.tagContainer as any,
-                    {
-                      backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
-                      marginBottom: 2,
-                    }
-                  ]}
-                >
-                  <Ionicons
-                    name="pricetag-outline"
-                    size={10}
-                    color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
-                    style={{ marginRight: 3 }}
-                  />
-                  <Text
-                    style={[
-                      styles.tagText as any,
-                      {
-                        color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
-                      }
-                    ]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {tag.name}
-                  </Text>
-                </View>
-              ))}
+              {hasTags && (
+                <React.Fragment key="tags-list">
+                  {person.tags!.map(tag => {
+                    console.log(`Mapping tag: ${JSON.stringify(tag)}, ID for key: ${tag.id}`);
+                    return (
+                      <View 
+                        key={tag.id} 
+                        style={[
+                          styles.tagContainer as any,
+                          {
+                            backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+                            marginBottom: 2,
+                          }
+                        ]}
+                      >
+                        <Ionicons
+                          name="pricetag-outline"
+                          size={10}
+                          color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
+                          style={{ marginRight: 3 }}
+                        />
+                        <Text
+                          style={[
+                            styles.tagText as any,
+                            {
+                              color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
+                            }
+                          ]}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {tag.name}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </React.Fragment>
+              )}
               
               {!hasTags && lastContacted && (
                 <Text 

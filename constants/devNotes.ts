@@ -1,7 +1,7 @@
 import { Note } from '@/types/notes';
 
 // Function to generate a random ID
-const generateId = () => Math.random().toString(36).substring(2, 15);
+export const generateId = () => Math.random().toString(36).substring(2, 15);
 
 // Function to generate a random date within the last 30 days
 const generateRandomDate = () => {
