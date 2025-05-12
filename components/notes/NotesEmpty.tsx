@@ -29,18 +29,18 @@ export const NotesEmpty = ({
 
   return (
     <XStack 
-      p={isWeb ? "$6" : isIpad() ? "$4" : "$4"} 
-      px={isWeb ? "$6" : isIpad() ? "$5" : "$3"}
-      pr={isWeb ? "$6" : isIpad() ? "$5" : "$6"}
+      p={isWeb ? "$6" : "$4"} 
       br="$4" 
-      ai="flex-start" 
+      ai="flex-start"
       jc="center"
       borderWidth={1} 
       borderColor={isDark ? "#333" : "#e0e0e0"} 
-      width="90%" 
-      overflow="hidden" 
-      marginTop={isWeb ? 10 : isIpad() ? 24 : 18}
-      marginLeft={isWeb ? 0 : isIpad() ? 24 : 20}
+      width={isWeb ? "50%" : "95%"} 
+      maxWidth={isWeb ? 600 : "95%"} 
+      ml={isWeb ? "auto" : "$2"}
+      py={isWeb ? "$6" : "$5"}
+      marginTop={isWeb ? 10 : 16}
+      overflow="hidden"
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
@@ -48,10 +48,10 @@ export const NotesEmpty = ({
         end={{ x: 1, y: 1 }}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
       />
-      <YStack gap="$4" width="100%" paddingTop={16} position="relative"> 
+      <YStack gap="$2" width="100%" position="relative"> 
         <YStack gap="$3" px="$2">
           <XStack gap="$2" ai="flex-start">
-            <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
+              <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
               <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
                 Capture Your Thoughts
@@ -61,17 +61,7 @@ export const NotesEmpty = ({
               </Text>
             </YStack>
           </XStack>
-          <XStack gap="$2" ai="flex-start">
-            <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
-            <YStack>
-              <Text color={isDark ? "#fff" : "#333"} fontSize="$4" fontWeight="bold" fontFamily="$body">
-                Quick Access
-              </Text>
-              <Text color={isDark ? "#aaa" : "#666"} fontSize="$3" fontFamily="$body">
-                All your notes in one place, easily searchable and organized.
-              </Text>
-            </YStack>
-          </XStack>
+
           <XStack gap="$2" ai="flex-start">
             <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
@@ -84,6 +74,7 @@ export const NotesEmpty = ({
               </Text>
             </YStack>
           </XStack>
+          
           <XStack gap="$2" ai="flex-start">
             <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>
             <YStack>
@@ -123,7 +114,7 @@ export const NotesEmpty = ({
         </YStack>
         
         <Text color={isDark ? "#666" : "#999"} fontSize="$3" textAlign="center" fontFamily="$body" mt="$4">
-          Or click the + button below to create your own note
+          Or click the + button below to create your own
         </Text>
       </YStack>
     </XStack>

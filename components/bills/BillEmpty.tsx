@@ -25,7 +25,7 @@ export const BillEmpty = ({
 
   return (
     <XStack 
-      p={isWeb ? "$6" : "$5"} 
+      p={isWeb ? "$6" : "$4"} 
       br="$4" 
       px={isWeb ? "$6" : isIpad() ? "$5" : "$4"} 
       ai="flex-start" 
@@ -34,6 +34,7 @@ export const BillEmpty = ({
       borderColor={isDark ? "#333" : "#e0e0e0"} 
       width={isWeb ? "100%" : "100%"} 
       overflow="hidden" 
+      py={isWeb ? "$6" : "$4"}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
@@ -41,7 +42,7 @@ export const BillEmpty = ({
         end={{ x: 1, y: 1 }}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
       />
-      <YStack gap="$4" width="100%" paddingTop={isWeb ? 32 : 16} position="relative"> 
+      <YStack gap="$3" width="100%" paddingTop={isWeb ? 32 : 12} position="relative"> 
         <YStack gap="$3" px={isWeb ? "$4" : "$4"}>
           <XStack gap="$2" ai="flex-start">
               <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>

@@ -23,28 +23,19 @@ export const ProjectEmpty = ({
   primaryColor,
   onAddExampleProject
 }: ProjectEmptyProps) => {
-  const showToast = useToastStore(state => state.showToast);
   
   const exampleProjects = [
-    { title: "Website Redesign", addFn: addWebsiteRedesignProject },
-    { title: "Mobile App Dev", addFn: addMobileAppProject },
-    { title: "Kitchen Renovation", addFn: addHomeRenovationProject },
-    { title: "Summer Vacation", addFn: addVacationProject }
+    { title: "Website", addFn: addWebsiteRedesignProject },
+    { title: "Mobile App", addFn: addMobileAppProject },
+    { title: "Home Reno", addFn: addHomeRenovationProject },
+    { title: "Vacation", addFn: addVacationProject }
   ];
 
   const handleExampleProjectPress = (index: number) => {
-    // Get the project title
     const projectTitle = exampleProjects[index].title;
-    
-    // Call the parent callback with the project title if provided
     if (onAddExampleProject) {
       onAddExampleProject(projectTitle as unknown as Project);
     }
-    
-    // Don't call the function directly here, let the parent handle it
-    // exampleProjects[index].addFn();
-    
-    // Toast will be shown by the parent component
   };
 
   return (
@@ -58,7 +49,7 @@ export const ProjectEmpty = ({
       width={isWeb ? "50%" : "90%"} 
       maxWidth={isWeb ? 600 : "100%"} 
       mx={isWeb ? "auto" : "$2"}
-      marginTop={isWeb ? 10 : 16}
+      marginTop={isWeb ? 10 : 10}
       overflow="hidden"
     >
       <LinearGradient
@@ -67,7 +58,7 @@ export const ProjectEmpty = ({
         end={{ x: 1, y: 1 }}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
       />
-      <YStack gap="$4" width="100%" paddingTop={16} position="relative"> 
+      <YStack gap="$3" width="100%" paddingTop={12} position="relative"> 
         <YStack gap="$3" px="$2">
           <XStack gap="$2" ai="flex-start">
               <Text color={primaryColor} fontSize="$4" fontWeight="bold" fontFamily="$body">•</Text>

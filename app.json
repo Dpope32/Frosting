@@ -3,7 +3,7 @@
     "name": "Kaiba",
     "slug": "frosting",
     "scheme": "kaiba-nexus",
-    "version": "1.1.175",
+    "version": "1.1.176",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",

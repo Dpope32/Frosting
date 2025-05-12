@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sheet, Image, Paragraph, XStack, YStack } from 'tamagui';
-import { TouchableOpacity, View, Platform, Linking, Alert } from 'react-native';
+import { TouchableOpacity, View, Platform, Linking, Alert, Text, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
 import type { Person } from '@/types/people';
@@ -52,7 +52,7 @@ export default function ExpandedView({
         ] as any}
       >
         <Sheet.Handle />
-        <View style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
+        <ScrollView style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
           <View style={styles.modalHeaderIcons as any}>
             <TouchableOpacity
               style={[
@@ -94,6 +94,11 @@ export default function ExpandedView({
                 style={[styles.modalAvatar, applyWebStyle('modalAvatar')] as any}
                 objectFit="cover"
               />
+              {person.priority && (
+                <View style={styles.modalStarIndicator as any}>
+                  <Ionicons name="star" size={16} color="#FFD700" />
+                </View>
+              )}
             </View>
             <View style={styles.nameColumn as any}>
               <Paragraph
@@ -108,7 +113,7 @@ export default function ExpandedView({
                 <Paragraph fontSize={15} color={isDark ? '#999' : '#666'} numberOfLines={1}>
                   {person.occupation}
                 </Paragraph>
-                {person.priority && (<Ionicons name="star" size={15} color="#FFD700" />)}
+                {person.favorite && (<Ionicons name="heart" size={15} color="#4CAF50" />)}
               </XStack>
             </View>
           </View>
@@ -152,6 +157,43 @@ export default function ExpandedView({
                 </Paragraph>
               </XStack>
             )}
+            
+            {person.tags && person.tags.length > 0 && (
+              <XStack gap="$3" alignItems="flex-start">
+                <Ionicons name="pricetag-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
+                <View style={styles.modalTagsContainer as any}>
+                  {person.tags.map(tag => (
+                    <View
+                      key={tag.id}
+                      style={[
+                        styles.modalTag as any,
+                        {
+                          backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+                        }
+                      ]}
+                    >
+                      <Ionicons
+                        name="pricetag-outline"
+                        size={12}
+                        color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
+                        style={{ marginRight: 4 }}
+                      />
+                      <Text
+                        style={[
+                          styles.modalTagText as any,
+                          {
+                            color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
+                          }
+                        ]}
+                      >
+                        {tag.name}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </XStack>
+            )}
+
             {person.occupation && (
               <XStack gap="$3" alignItems="center">
                 <Ionicons name="briefcase-outline" size={22} color={isDark ? '#fff' : '#555'} />
@@ -192,29 +234,12 @@ export default function ExpandedView({
                 </Paragraph>
               </XStack>
             )}
-            {person.additionalInfo && (
-              <XStack gap="$3" alignItems="center">
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {person.additionalInfo}
-                </Paragraph>
-              </XStack>
-            )}
             {person.notes && (
               <XStack gap="$3" alignItems="center">
                 <Ionicons name="document-text-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'} style={{ flex: 1 }}>
                   {person.notes}
                 </Paragraph>
-              </XStack>
-            )}
-            {person.tags && person.tags.length > 0 && (
-              <XStack gap="$3" alignItems="flex-start">
-                <Ionicons name="pricetag-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
-                <YStack>
-                  <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                    {person.tags.join(', ')}
-                  </Paragraph>
-                </YStack>
               </XStack>
             )}
             {person.lastContactDate && (
@@ -258,7 +283,7 @@ export default function ExpandedView({
               </XStack>
             )}
           </YStack>
-        </View>
+        </ScrollView>
 
         <View
           style={[
@@ -271,70 +296,33 @@ export default function ExpandedView({
           ] as any}
           pointerEvents="box-none"
         >
-          {person.phoneNumber && (
-            <>
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL(`sms:${person.phoneNumber}`).catch(err => {
-                    console.error('Could not open SMS app', err);
-                    Alert.alert('Error', 'Could not open SMS app');
-                  });
-                }}
-                style={styles.actionButton as any}
-                activeOpacity={0.6}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons name="chatbubble-outline" size={24} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Text</Paragraph>
-              </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => Clipboard.setStringAsync(person.name).then(() => Alert.alert('Success', 'Name copied to clipboard!'))}
+            style={styles.actionButton as any}
+            activeOpacity={0.6}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="copy-outline" size={24} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Copy</Paragraph>
+          </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => {
-                  Linking.openURL(`tel:${person.phoneNumber}`).catch(err => {
-                    console.error('Could not open phone app', err);
-                    Alert.alert('Error', 'Could not open phone app');
-                  });
-                }}
-                style={styles.actionButton as any}
-                activeOpacity={0.6}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons name="call-outline"size={24}color={isDark? '#fff':'#555'} />
-                <Paragraph fontFamily="$body"style={[styles.actionText, { color: isDark? '#fff':'#555'}] as any}>Call</Paragraph>
-              </TouchableOpacity>
-            </>
-          )}
-          {person.email && (
+          {person.phoneNumber && (
             <TouchableOpacity
               onPress={() => {
-                Linking.openURL(`mailto:${person.email}`).catch(err => {
-                  console.error('Could not open email app', err);
-                  Alert.alert('Error', 'Could not open email app');
+                Linking.openURL(`tel:${person.phoneNumber}`).catch(err => {
+                  console.error('Could not open phone app', err);
+                  Alert.alert('Error', 'Could not open phone app');
                 });
               }}
               style={styles.actionButton as any}
               activeOpacity={0.6}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="mail-outline" size={24} color={isDark ? '#fff' : '#555'} />
-              <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>eMail</Paragraph>
+              <Ionicons name="call-outline" size={24} color={isDark ? '#fff' : '#555'} />
+              <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Call</Paragraph>
             </TouchableOpacity>
           )}
-          {fullAddress && (
-            <TouchableOpacity
-              onPress={() => {
-                Clipboard.setStringAsync(fullAddress)
-                  .then(() => Alert.alert('Success', 'Address copied to clipboard!'))
-                  .catch(err => console.error('Could not copy address', err));
-              }}
-              style={styles.actionButton as any}
-              activeOpacity={0.6}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="copy-outline" size={24} color={isDark ? '#fff' : '#555'} />
-              <Paragraph fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Copy</Paragraph>
-            </TouchableOpacity>
-          )}
+          
           <TouchableOpacity
             onPress={e => {
               if (typeof e.preventDefault === 'function') e.preventDefault();

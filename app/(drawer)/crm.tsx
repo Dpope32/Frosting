@@ -28,11 +28,11 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 8;
-  const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 6; 
-  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? 2 : 2;
+  const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 16;
+  const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 12;
+  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? 2 : 1;
   const CARD_WIDTH = isIpad() ? 300 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-  const CARD_WIDTH_MOBILE = isIpad() ? 250 : "45%";
+  const CARD_WIDTH_MOBILE = isIpad() ? 250 : "92%";
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
     setEditModalVisible(true);
@@ -51,16 +51,17 @@ export default function CRM() {
 
   const renderItem = ({ item, index }: { item: Person; index: number }) => {
     const isFirstInRow = index % NUM_COLUMNS === 0;
-    const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS;
+    const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS - 1;
     
     return (
       <View
         style={{
           width: isWeb ? CARD_WIDTH : CARD_WIDTH_MOBILE,
-          marginLeft: isFirstInRow ? PADDING : GAP / 1,
+          marginLeft: isFirstInRow ? PADDING : GAP / 2,
           paddingLeft: isWeb ? 24 : 0,
           marginRight: isLastInRow ? PADDING : GAP / 2,
-          marginBottom: GAP / 2,
+          marginBottom: GAP,
+          alignSelf: NUM_COLUMNS === 1 ? "center" : "flex-start",
         }}
       >
         <PersonCard
@@ -88,7 +89,7 @@ export default function CRM() {
           paddingTop: 8,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? 8 : isIpad() ? 8 : 8,
-          paddingLeft: isWeb ? 8 : isIpad() ? 8 : 12,
+          paddingLeft: isWeb ? 8 : isIpad() ? 8 : 4,
         }}
         ListEmptyComponent={
           <PersonEmpty 

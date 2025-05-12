@@ -15,9 +15,10 @@ const LowHighBar: React.FC<LowHighBarProps> = ({ low, high, isDark }) => {
   const lowColor = getTemperatureColor(low, isDark);
   const highColor = getTemperatureColor(high, isDark);
   const large = isWeb ? true : isIpad();
-  const diff = high - low;
-  const maxDiff = 40;
-  const ratio = Math.min(Math.max(diff, 0), maxDiff) / maxDiff;
+  // Instead, use high temperature as a percentage of 100°F
+  const minTemp = 0;
+  const maxTemp = 100;
+  const ratio = Math.min(Math.max(high, minTemp), maxTemp) / maxTemp;
   const minWidth = large ? 60 : 30;
   const maxWidth = large ? 160 : 80;
   const width = minWidth + ratio * (maxWidth - minWidth);

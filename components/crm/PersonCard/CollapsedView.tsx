@@ -1,11 +1,12 @@
 import React from 'react';
 import { Card, Image, Paragraph, XStack, isWeb } from 'tamagui';
-import { TouchableOpacity, View, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity, View, Platform, Text } from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { styles } from './styles';
 import type { Person } from '@/types/people';
 import { isIpad } from '@/utils/deviceUtils';
 import { adjustColor, getDarkerHslColor } from './utils';
+import { formatDistanceToNow, format } from 'date-fns';
 
 type CollapsedViewProps = {
   person: Person;
@@ -22,6 +23,31 @@ export default function CollapsedView({
   nicknameColor,
   applyWebStyle
 }: CollapsedViewProps) {
+  // Format last contacted date if available
+  const getLastContactedText = () => {
+    if (!person.lastContactDate) return null;
+    try {
+      return formatDistanceToNow(new Date(person.lastContactDate), { addSuffix: true });
+    } catch (e) {
+      return null;
+    }
+  };
+
+  // Format birthday in a readable way
+  const formatBirthday = () => {
+    if (!person.birthday) return null;
+    try {
+      // Just format the month and day (not the year) to keep it compact
+      return format(new Date(person.birthday), 'MMM d');
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const birthdayText = formatBirthday();
+  const lastContacted = getLastContactedText();
+  const hasTags = person.tags && person.tags.length > 0;
+
   return (
     <Card
       elevate
@@ -58,7 +84,7 @@ export default function CollapsedView({
             )}
           </View>
           <View style={styles.textContainer as any}>
-            <XStack alignItems="center" gap="$1">
+            <XStack key="name-row" alignItems="center" gap="$1">
               {person.favorite && (
                 <Ionicons
                   name="heart"
@@ -88,6 +114,72 @@ export default function CollapsedView({
                 {person.occupation}
               </Paragraph>
             )}
+            
+            <View style={styles.additionalInfoRow as any}>
+              {birthdayText && (
+                <XStack key="birthday-row" alignItems="center" gap="$1" marginRight={6} marginBottom={2}>
+                  <MaterialIcons 
+                    name="cake" 
+                    size={10} 
+                    color={isDark ? "#777" : "#555"} 
+                  />
+                  <Text 
+                    style={[
+                      styles.contactInfo as any, 
+                      {color: isDark ? "#888" : "#555"}
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {birthdayText}
+                  </Text>
+                </XStack>
+              )}
+              
+              {hasTags && person.tags!.map(tag => (
+                <View 
+                  key={tag.id} 
+                  style={[
+                    styles.tagContainer as any,
+                    {
+                      backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+                      marginBottom: 2,
+                    }
+                  ]}
+                >
+                  <Ionicons
+                    name="pricetag-outline"
+                    size={10}
+                    color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
+                    style={{ marginRight: 3 }}
+                  />
+                  <Text
+                    style={[
+                      styles.tagText as any,
+                      {
+                        color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
+                      }
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {tag.name}
+                  </Text>
+                </View>
+              ))}
+              
+              {!hasTags && lastContacted && (
+                <Text 
+                  key="last-contacted"
+                  style={[
+                    styles.lastContactText as any, 
+                    {color: isDark ? "#777" : "#555"}
+                  ]}
+                >
+                  {lastContacted}
+                </Text>
+              )}
+            </View>
           </View>
         </XStack>
       </TouchableOpacity>

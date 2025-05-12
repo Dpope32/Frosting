@@ -92,6 +92,21 @@ return (
         const highTemp = daily.highTemp;
         const lowTemp = daily.lowTemp;
 
+        // --- FEELS LIKE calculation ---
+        // Log the period for future extension
+        console.log('WeatherPeriod for', daily.dayName, dayPeriod);
+        // Parse wind speed (mph)
+        let windMph = 0;
+        const windMatch = dayPeriod.windSpeed.match(/(\d+)/);
+        if (windMatch) windMph = parseInt(windMatch[1], 10);
+        // Wind Chill formula only applies if temp <= 50°F and wind >= 3 mph
+        let feelsLike = highTemp;
+        if (highTemp <= 50 && windMph >= 3) {
+          // Wind Chill (°F) = 35.74 + 0.6215T - 35.75(V^0.16) + 0.4275T(V^0.16)
+          feelsLike = Math.round(35.74 + 0.6215 * highTemp - 35.75 * Math.pow(windMph, 0.16) + 0.4275 * highTemp * Math.pow(windMph, 0.16));
+        }
+        // --- END FEELS LIKE ---
+
         // Get cloud conditions based on forecast description
         const cloudCount = getCloudCount(dayPeriod.shortForecast);
         const sunIntensity = getSunIntensity(dayPeriod.shortForecast, highTemp);
@@ -232,6 +247,10 @@ return (
                         color={getTemperatureColor(highTemp, isDark)}
                     >
                         {`${highTemp}°`}
+                    </Text>
+                    {/* Feels like display */}
+                    <Text fontFamily="$body" fontSize={13} color={textColor}>
+                      🌡️ Feels like {feelsLike}°
                     </Text>
                     </YStack>
                 </XStack>

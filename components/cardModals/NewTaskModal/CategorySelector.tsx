@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useColorScheme, Alert, Platform } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { TaskCategory } from '@/types/task'
@@ -32,6 +32,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   // Add state for creating a new category
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
+  const lastTapRef = useRef<number>(0);
 
 
   const handleCreateNewCategory = () => {
@@ -143,6 +144,26 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   // Filter out deleted default categories
   const visibleDefaultCategories = DEFAULT_CATEGORIES.filter(cat => !isDefaultCategoryDeleted(cat));
 
+  const handleCategoryButtonPress = (cat: string, isSelected: boolean, e: any) => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Double tap detected, ignore
+      lastTapRef.current = now;
+      return;
+    }
+    lastTapRef.current = now;
+    onCategorySelect(cat as TaskCategory, e);
+  };
+
+  const handleCategoryLongPress = (cat: string) => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Ignore long press if it was a double tap
+      return;
+    }
+    confirmDeleteCategory(cat);
+  };
+
   return (
     <XStack pl={8} gap="$2" alignItems="center">
       {isAddingCategory ? (
@@ -210,8 +231,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
               return (
                 <Button
                   key={cat}
-                  onPress={(e) => onCategorySelect(categoryType, e)}
-                  onLongPress={() => confirmDeleteCategory(cat)}
+                  onPress={(e) => handleCategoryButtonPress(cat, isSelected, e)}
+                  onLongPress={() => handleCategoryLongPress(cat)}
                   backgroundColor={
                     isSelected
                       ? withOpacity(color, 0.15)

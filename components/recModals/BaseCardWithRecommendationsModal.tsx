@@ -11,8 +11,8 @@ interface BaseCardWithRecommendationsModalProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   children: React.ReactNode;
-  recommendationChips?: React.ReactNode;
-  filterChips?: React.ReactNode;
+  recommendationChips?: React.ReactNode | null;
+  filterChips?: React.ReactNode | null; 
   snapPoints?: number[];
   position?: number;
   dismissOnSnapToBottom?: boolean;

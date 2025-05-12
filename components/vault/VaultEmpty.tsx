@@ -24,16 +24,20 @@ export const VaultEmpty = ({
   setWorkModalOpen
 }: VaultEmptyProps) => {
   return (
-    <XStack
-      p={isWeb? "$6": isIpad() ? "$6" : "$5"} 
+    <XStack 
+      p={isWeb ? "$6" : "$4"} 
       br="$4" 
       ai="flex-start"
       jc="center"
       borderWidth={1} 
-      borderColor={isDark ? '#222' : '#e0e0e0'} 
-      width="100%" 
-      overflow="hidden" 
-      marginTop={isWeb ? 10 : isIpad() ? 6 : 16}
+      borderColor={isDark ? "#333" : "#e0e0e0"} 
+      width={isWeb ? "50%" : "95%"} 
+      maxWidth={isWeb ? 600 : "100%"} 
+      mx={isWeb ? "auto" : "$2"}
+      marginTop={isWeb ? 10 : 10}
+      overflow="hidden"
+      py={isWeb ? "$6" : "$4"}
+      pt={isWeb ? "$6" : "$5"}
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
@@ -41,7 +45,7 @@ export const VaultEmpty = ({
         end={{ x: 1, y: 1 }}
         style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
       />
-      <YStack gap="$3" width="100%" position="relative"> 
+      <YStack gap="$2" width="100%" position="relative"> 
         <YStack gap="$3" px="$2">
           <XStack gap="$2" ai="flex-start">
               <Text color={primaryColor} fontSize={isWeb ? "$4" : "$3"} fontWeight="bold" fontFamily="$body">•</Text>

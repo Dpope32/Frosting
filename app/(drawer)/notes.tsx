@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as Haptics from 'expo-haptics';
 import { isWeb } from 'tamagui';
-import { View, ScrollView, Dimensions } from 'react-native';
+import { View, ScrollView, Dimensions, findNodeHandle } from 'react-native';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { YStack, XStack } from 'tamagui';
@@ -18,7 +18,7 @@ import { useNotes } from '@/hooks/useNotes';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 
-import { TrashcanArea } from '@/components/notes/TrashcanArea';
+import TrashcanArea from '@/components/notes/TrashcanArea';
 import WebDragDrop from '@/components/notes/WebDragDrop';
 import { NoteCard } from '@/components/notes/NoteCard';
 import { NotesEmpty } from '@/components/notes/NotesEmpty';
@@ -33,9 +33,20 @@ import { setupColumnCalculation, createFormattingHandler, handleDragging, handle
 import { createNoteHandlers } from '@/services/noteHandlers';
 import { isIpad } from '@/utils/deviceUtils';
 
+export const draggedCardBottomYRef = { current: 0 };
+
 export default function NotesScreen() {
   // Ref to store computed static trash area threshold
   const trashThresholdRef = useRef<number>(0);
+  // Ref to store the actual trash area layout (y, height)
+  const trashLayoutRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
+  const trashAreaViewRef = useRef<View>(null);
+  // Ref to the currently dragged card's View
+  const draggedCardViewRef = useRef<any>(null);
+  // Callback to set the dragged card ref from NoteListItem
+  const setDraggedCardRef = useCallback((ref: any) => {
+    draggedCardViewRef.current = ref;
+  }, []);
   const insets = useSafeAreaInsets();
   // Compute static threshold: window height minus trash area height and safe area bottom inset
   useEffect(() => {
@@ -114,6 +125,139 @@ export default function NotesScreen() {
     }
   });
 
+  // Helper to update trash area position using measureInWindow
+  const updateTrashAreaPosition = () => {
+    if (trashAreaViewRef.current) {
+      trashAreaViewRef.current.measureInWindow((x, y, width, height) => {
+        trashLayoutRef.current = { y, height };
+      });
+    }
+  };
+
+  // Patch: Use measured trash area for hit testing
+  // Helper to check if a Y is inside the trash area
+  const isYInTrashArea = (fingerY: number) => {
+    const { y: trashTopY, height: trashHeight } = trashLayoutRef.current;
+
+    // If trash layout hasn't been measured yet, default to false.
+    if (!trashTopY || !trashHeight) {
+      console.warn('[isYInTrashArea] Trash layout not yet available.');
+      return false;
+    }
+
+    // Estimate the offset from the finger touch point to the bottom of the card being dragged.
+    // This might need tuning based on typical card size and grab point. Let's start with 70 pixels.
+    const estimatedCardBottomOffset = 100;
+    const estimatedCardBottomY = fingerY + estimatedCardBottomOffset;
+
+    // Define the effective top of the trash area for hit detection.
+    // Add a small negative buffer to trigger slightly *before* the card visually hits the absolute top edge, making it feel more responsive.
+    const buffer = 20;
+    const effectiveTrashTop = trashTopY - buffer;
+
+    // Check if the *estimated bottom* of the card has crossed into the trash zone.
+    const isInTrash = estimatedCardBottomY >= effectiveTrashTop;
+
+    // Debug log - Keep this temporarily for testing
+    console.log('[isYInTrashArea]', { fingerY, estimatedCardBottomY, trashTopY, effectiveTrashTop, isInTrash });
+
+    return isInTrash;
+  };
+
+  // Patch: Wrap the drag handlers to use the measured trash area
+  const patchedHandleDragging = (event: any) => {
+    if (!draggingNoteId || isPendingDelete) return;
+    const { pageY, pageX } = event.nativeEvent;
+    lastDragPosition.current = { x: pageX, y: pageY };
+    // Only use the finger's Y for trash detection
+    const inTrash = isYInTrashArea(pageY);
+    // Debug log for drag
+    const { y: trashY, height: trashHeight } = trashLayoutRef.current;
+    console.log('[DRAGGING] pageY:', pageY, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
+    if (inTrash !== isHoveringTrash) {
+      try {
+        triggerHaptic();
+        setIsHoveringTrash(inTrash);
+        if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
+          isTrashVisible.value = inTrash;
+        }
+      } catch (error) {
+        // ...
+      }
+    }
+  };
+
+  const patchedHandleDragEnd = (args: any) => {
+    // args: { data, from, to }
+    if (preventReorder.current === true || !draggingNoteId) {
+      setDraggingNoteId(null);
+      isTrashVisible.value = false;
+      setIsHoveringTrash(false);
+      return;
+    }
+    try {
+      const lastY = lastDragPosition.current.y;
+      const inTrash = isYInTrashArea(lastY);
+      // Debug log for drag end
+      const { y: trashY, height: trashHeight } = trashLayoutRef.current;
+      console.log('[DRAG END] lastY:', lastY, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash, 'isHoveringTrash:', isHoveringTrash);
+      if ((isHoveringTrash || inTrash) && draggingNoteId) {
+        preventReorder.current = true;
+        const noteToDelete = notes.find(note => note.id === draggingNoteId);
+        if (noteToDelete) {
+          setIsPendingDelete(true);
+          setPendingDeleteNote(noteToDelete);
+          setPendingDeletePosition({
+            x: lastDragPosition.current.x,
+            y: lastY
+          });
+          noteToDeleteRef.current = draggingNoteId;
+          attemptDeleteNote({
+            noteId: draggingNoteId,
+            notes,
+            noteStore,
+            showToast,
+            selectedNote,
+            setIsModalOpen,
+            setSelectedNote,
+            setIsPendingDelete,
+            setPendingDeleteNote,
+            setDraggingNoteId,
+            setIsHoveringTrash,
+            noteToDeleteRef,
+            preventReorderRef: preventReorder,
+            originalIndexRef,
+            isTrashVisibleValue: isTrashVisible
+          }).catch(error => {
+            setIsPendingDelete(false);
+            setPendingDeleteNote(null);
+            setDraggingNoteId(null);
+            isTrashVisible.value = false;
+            setIsHoveringTrash(false);
+          });
+        } else {
+          setIsPendingDelete(false);
+          setDraggingNoteId(null);
+          isTrashVisible.value = false;
+          setIsHoveringTrash(false);
+        }
+      } else if (!preventReorder.current) {
+        noteStore.updateNoteOrder(args.data);
+      }
+    } catch (error) {
+      setIsPendingDelete(false);
+      setDraggingNoteId(null);
+      isTrashVisible.value = false;
+      setIsHoveringTrash(false);
+    }
+    try {
+      setDraggingNoteId(null);
+      isTrashVisible.value = false;
+      setIsHoveringTrash(false);
+      triggerHaptic();
+    } catch (error) {}
+  };
+
   const handleAddExampleNote = (note: Note) => {
     // Create a new note with a unique ID but keep the content from the example note
     const newNote = {
@@ -190,7 +334,7 @@ export default function NotesScreen() {
         </ScrollView>
       ) : (
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <View style={{ flex: 1, overflow: 'visible' }} onTouchMove={draggingNoteId ? localHandleDragging : undefined}>
+          <View style={{ flex: 1, overflow: 'visible' }} onTouchMove={draggingNoteId ? patchedHandleDragging : undefined}>
             <DraggableFlatList
               style={{ overflow: 'visible' }}
               dragItemOverflow={true}
@@ -214,9 +358,10 @@ export default function NotesScreen() {
                   originalIndexRef={originalIndexRef}
                   preventReorder={preventReorder}
                   isTrashVisible={isTrashVisible}
+                  setCardRef={setDraggedCardRef}
                 />
               )}
-              onDragEnd={localHandleDragEnd}
+              onDragEnd={patchedHandleDragEnd}
               numColumns={1}
               onDragBegin={(index) => {
                 if (isPendingDelete) return;
@@ -256,7 +401,13 @@ export default function NotesScreen() {
           )}
 
           <Animated.View style={[noteStyles.trashOverlay, trashAnimatedStyle]}> 
-            <TrashcanArea isVisible={true} isHovering={isHoveringTrash || isPendingDelete} height={isIpad() ? 120 : 100}/>
+            <TrashcanArea
+              ref={trashAreaViewRef}
+              isVisible={true}
+              isHovering={isHoveringTrash || isPendingDelete}
+              height={isIpad() ? 120 : 100}
+              onLayout={updateTrashAreaPosition}
+            />
           </Animated.View>
         </GestureHandlerRootView>
       )}

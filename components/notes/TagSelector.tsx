@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Platform, Keyboard, View, KeyboardEvent, Alert } from 'react-native';
 import { XStack, YStack, Text, Button, Input } from 'tamagui';
 import { Plus, X, Check } from '@tamagui/lucide-icons';
@@ -45,6 +45,7 @@ export function TagSelector({
   const addTagToStore = useTagStore((state) => state.addTag);
   const removeTagFromStore = useTagStore((state) => state.removeTag);
   const showToast = useToastStore((s) => s.showToast);
+  const lastTapRef = useRef<number>(0);
 
   const NEUTRAL_BORDER = isDark ? '$gray7' : '$gray4'; // Use Tamagui tokens for consistency
   const NEUTRAL_TEXT = isDark ? '$gray11' : '$gray11'; // Use Tamagui tokens for consistency
@@ -132,6 +133,32 @@ export function TagSelector({
     }
   };
 
+  const handleTagButtonPress = (tag: Tag, isSelected: boolean) => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Double tap detected, ignore
+      lastTapRef.current = now;
+      return;
+    }
+    lastTapRef.current = now;
+    if (isSelected) {
+      handleRemoveTag(tag.id);
+    } else {
+      if (!tags.some(t => t.id === tag.id)) {
+        onTagsChange([...tags, tag]);
+      }
+    }
+  };
+
+  const handleTagLongPress = (tag: Tag) => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      // Ignore long press if it was a double tap
+      return;
+    }
+    confirmDeleteTag(tag);
+  };
+
   return (
     <YStack
       gap="$1"
@@ -158,7 +185,7 @@ export function TagSelector({
                     : isDark ? "$gray2" : "white"
                 }
                 pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                onLongPress={() => confirmDeleteTag(tag)}
+                onLongPress={() => handleTagLongPress(tag)}
                 br={20}
                 px={isIpad() ? 12 : 8}
                 py={isIpad() ? 12 : 8}
@@ -168,15 +195,7 @@ export function TagSelector({
                     ? 'transparent'
                     : NEUTRAL_BORDER
                 }
-                onPress={() => {
-                  if (isSelected) {
-                    handleRemoveTag(tag.id);
-                  } else {
-                    if (!tags.some(t => t.id === tag.id)) {
-                      onTagsChange([...tags, tag]);
-                    }
-                  }
-                }}
+                onPress={() => handleTagButtonPress(tag, isSelected)}
               >
                 <Text
                   fontSize={14}

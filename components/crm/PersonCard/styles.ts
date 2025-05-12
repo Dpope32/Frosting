@@ -30,7 +30,9 @@ export const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? { 
       maxWidth: '100%' as any, // Changed back to 100% since we're handling columns in the parent component
       minWidth: '220px' as any, // Increased from 200px to 220px to make cards wider
-    } : {}),
+    } : {
+      width: '100%', // Make mobile cards take full width in single column
+    }),
   },
   statusPill: {
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -49,9 +51,11 @@ export const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 2,
-    padding: Platform.OS === 'web' ? 12 : 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    padding: Platform.OS === 'web' ? 12 : 6, 
+    paddingHorizontal: Platform.OS === 'web' ? 12 : 16, 
+    paddingBottom: Platform.OS === 'web' ? 12 : 8, 
+    borderRadius: 12,
+    width: Platform.OS === 'web' ? 'auto' : '100%',
     ...(Platform.OS === 'web' ? webSpecificStyles.card : {
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
@@ -65,11 +69,14 @@ export const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? {
       flexDirection: 'row',
       alignItems: 'center',
-    } : {}),
+    } : {
+      flexDirection: 'row',
+      alignItems: 'center',
+    }),
   },
   textContainer: {
     flex: 1,
-    height: Platform.OS === 'web' ? 'auto' as any : 40,
+    height: Platform.OS === 'web' ? 'auto' as any : 'auto',
     justifyContent: 'center',
     marginLeft: Platform.OS === 'web' ? 12 : 2,
   },
@@ -81,21 +88,63 @@ export const styles = StyleSheet.create({
       fontWeight: '800',
       marginLeft: 0,
       mt: 0,
-      width: '100%', // Ensure text has full width of container
+      width: '100%',
     } : {
+      fontSize: 16,
+      fontWeight: '700',
       lineHeight: 20,
     }),
   },
   occupationText: {
     ...(Platform.OS === 'web' ? {
       fontSize: 13,
-      marginLeft: 4, // Added margin-left to align with name when checkmark is active
+      marginLeft: 4,
     } : {
-      lineHeight: 14,
-      marginLeft: 2, // Adjusted from -6 to align better with name when checkmark is active
-      flexShrink: 1, // Prevent text from expanding container
-      width: '100%', // Ensure text has full width of container
+      fontSize: 13,
+      lineHeight: 16,
+      marginLeft: 4,
+      flexShrink: 1,
+      width: '100%',
     }),
+  },
+  additionalInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 0,
+    flexWrap: 'wrap',
+    gap: 4,
+  },
+  contactInfo: {
+    fontSize: 12,
+    lineHeight: 14,
+    opacity: 0.8,
+    flexShrink: 1,
+  },
+  statusChip: {
+    fontSize: 11,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    overflow: 'hidden',
+    alignSelf: 'flex-start',
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 12,
+    marginRight: 4,
+    marginBottom: 2,
+  },
+  tagText: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  lastContactText: {
+    fontSize: 11,
+    opacity: 0.6,
   },
   touchable: {
     width: "100%"
@@ -106,15 +155,19 @@ export const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-    } : {}),
+    } : {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }),
   },
   avatarWrapper: {
     borderWidth: 2,
-    borderRadius: Platform.OS === 'web' ? 30 : 22, // Increased from 24 to 30 on web to match webStyles
+    borderRadius: Platform.OS === 'web' ? 30 : 25,
     overflow: "hidden",
     ...(Platform.OS === 'web' ? webSpecificStyles.avatarWrapper : {
       borderColor: "#fff",
-      marginHorizontal: -4,
+      marginHorizontal: 0,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
@@ -124,11 +177,11 @@ export const styles = StyleSheet.create({
   },
   avatarImage: {
     ...(Platform.OS === 'web' ? {
-      width: 60, // Increased from 40 to 60 on web to match webStyles
-      height: 60, // Increased from 40 to 60 on web to match webStyles
+      width: 60,
+      height: 60,
     } : {
-      width: isIpad() ? 40 : 33,
-      height: isIpad() ? 40 : 33
+      width: isIpad() ? 50 : 40,
+      height: isIpad() ? 50 : 40
     }),
   },
   starIndicator: {
@@ -243,7 +296,7 @@ export const styles = StyleSheet.create({
   },
   infoSection: {
     marginTop: 16,
-    gap: 12
+    gap: 12,
   },
   actionBar: {
     position: "absolute",
@@ -281,5 +334,24 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between', // Ensure pills are spaced evenly
     flexWrap: 'nowrap', // Prevent wrapping to ensure horizontal layout
     gap: 6
-  }
+  },
+  modalTagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  modalTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 4,
+    marginBottom: 4,
+  },
+  modalTagText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
 });

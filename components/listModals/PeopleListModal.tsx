@@ -44,14 +44,6 @@ export function PeopleListModal({ open, onOpenChange }: PeopleListModalProps) {
   const isDark = colorScheme === 'dark';
   const isWeb = Platform.OS === 'web';
 
-  const crmRecommendations = (
-    <>
-      <CrmRecommendationChip label="Recently Added" onPress={() => console.log('Filter: Recently Added')} />
-      <CrmRecommendationChip label="Favorites" onPress={() => console.log('Filter: Favorites')} />
-      <CrmRecommendationChip label="Birthdays" onPress={() => console.log('Filter: Birthdays')} />
-    </>
-  );
-
   const handleDelete = (id: string) => {
     if (Platform.OS === 'web') {
       if (window.confirm('Are you sure you want to delete this contact?')) {
@@ -84,7 +76,8 @@ export function PeopleListModal({ open, onOpenChange }: PeopleListModalProps) {
       snapPoints={isWeb ? [95] : [85]} 
       showCloseButton={true}
       hideHandle={true}
-      recommendationChips={crmRecommendations}
+      recommendationChips={null}
+      filterChips={null}
     >
       <>
         {allContacts.length > 0 ? (
