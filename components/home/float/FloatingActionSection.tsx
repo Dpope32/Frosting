@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo, useCallback } from 'react';
 import { Platform, Dimensions } from 'react-native';
 import { isWeb } from 'tamagui';
 import * as Haptics from 'expo-haptics';
@@ -38,7 +38,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
   const actionRef = useRef<any>(null); 
   const iconSize = isIpad() ? 26 : 17;
 
-  const closeFab = () => {
+  const closeFab = useCallback(() => {
     const fabRef = actionRef.current;
     if (fabRef) {
       if (isWeb) {
@@ -49,17 +49,17 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         }, 1000);
       }
     }
-  };
+  }, [actionRef, setIsOpen]);
 
-  const handleActionPress = (name: string) => {
+  const handleActionPress = useCallback((name: string) => {
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     onActionPress(name);
     closeFab();
-  };
+  }, [onActionPress, closeFab]);
 
-  const actions = [
+  const actions = useMemo(() => [
     {
       text: "Whats New?",
       icon: <MaterialIcons name="info" size={isIpad() ? 26 : 20} color={textColor} />,
@@ -220,8 +220,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         />
       )
     },
-  ];
-
+  ], [handleActionPress, iconSize, textColor, isDark, primaryColor]);
 
   return (
     <>

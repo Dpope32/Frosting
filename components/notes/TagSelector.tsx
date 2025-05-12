@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Platform, Keyboard, View, KeyboardEvent } from 'react-native';
+import { Platform, Keyboard, View, KeyboardEvent, Alert } from 'react-native';
 import { XStack, YStack, Text, Button, Input } from 'tamagui';
 import { Plus, X, Check } from '@tamagui/lucide-icons';
 import type { Tag } from '@/types/tag';
@@ -8,6 +8,7 @@ import { DebouncedTagInput } from '../shared/debouncedTagInput';
 import { useTagStore } from '@/store/TagStore';
 import { isIpad } from '@/utils/deviceUtils';
 import { withOpacity, getDarkerColor } from '@/utils/styleUtils';
+import { useToastStore } from '@/store/ToastStore';
 
 interface TagSelectorProps {
   tags: Tag[];
@@ -42,6 +43,8 @@ export function TagSelector({
   const isWeb = Platform.OS === 'web';
   const tagStoreTags = useTagStore((state) => state.tags);
   const addTagToStore = useTagStore((state) => state.addTag);
+  const removeTagFromStore = useTagStore((state) => state.removeTag);
+  const showToast = useToastStore((s) => s.showToast);
 
   const NEUTRAL_BORDER = isDark ? '$gray7' : '$gray4'; // Use Tamagui tokens for consistency
   const NEUTRAL_TEXT = isDark ? '$gray11' : '$gray11'; // Use Tamagui tokens for consistency
@@ -90,7 +93,43 @@ export function TagSelector({
   };
 
   const handleRemoveTag = (tagId: string) => {
+    // Remove from store
+    removeTagFromStore(tagId);
+    // Also remove from the currently selected tags in the parent component
+    const removedTag = tags.find(tag => tag.id === tagId);
     onTagsChange(tags.filter(tag => tag.id !== tagId));
+    if (removedTag) {
+      showToast(`Tag "${removedTag.name}" deleted`, 'success');
+    }
+  };
+
+  const confirmDeleteTag = (tag: Tag) => {
+    const message = `Are you sure you want to delete the tag "${tag.name}"? This action cannot be undone.`;
+
+    if (Platform.OS === 'web') {
+      // Use window.confirm on web
+      if (window.confirm(message)) {
+        handleRemoveTag(tag.id);
+      }
+    } else {
+      // Use Alert on mobile
+      Alert.alert(
+        'Confirm Deletion',
+        message,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete',
+            onPress: () => handleRemoveTag(tag.id),
+            style: 'destructive',
+          },
+        ],
+        { cancelable: true }
+      );
+    }
   };
 
   return (
@@ -119,6 +158,7 @@ export function TagSelector({
                     : isDark ? "$gray2" : "white"
                 }
                 pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                onLongPress={() => confirmDeleteTag(tag)}
                 br={20}
                 px={isIpad() ? 12 : 8}
                 py={isIpad() ? 12 : 8}

@@ -8,18 +8,26 @@ import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
 import { useUserStore } from '@/store/UserStore'
 import { DebouncedTagInput } from '@/components/shared/debouncedTagInput'
 import { Check } from '@tamagui/lucide-icons'
+import { useToastStore } from '@/store/ToastStore'
 
 interface CategorySelectorProps {
   selectedCategory: TaskCategory
   onCategorySelect: (category: TaskCategory, e?: any) => void
 }
 
+const DEFAULT_CATEGORIES = ['work', 'health', 'personal', 'family', 'wealth'];
+
 export function CategorySelector({ selectedCategory, onCategorySelect }: CategorySelectorProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const customCategories = useCustomCategoryStore((s) => s.categories)
   const addCategory = useCustomCategoryStore((s) => s.addCategory)
+  const removeCategoryFromStore = useCustomCategoryStore((s) => s.removeCategory)
+  const getCategoryByName = useCustomCategoryStore((s) => s.getCategoryByName)
+  const deleteDefaultCategory = useCustomCategoryStore((s) => s.deleteDefaultCategory)
+  const isDefaultCategoryDeleted = useCustomCategoryStore((s) => s.isDefaultCategoryDeleted)
   const userColor = useUserStore((s) => s.preferences.primaryColor)
+  const showToast = useToastStore((s) => s.showToast)
   
   // Add state for creating a new category
   const [isAddingCategory, setIsAddingCategory] = useState(false)
@@ -83,6 +91,58 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
     }
   }
 
+  const confirmDeleteCategory = (categoryName: string) => {
+    // Check if it's a custom or default category
+    const customCategory = customCategories.find(cat => cat.name === categoryName);
+    let categoryId: string | undefined;
+    if (customCategory) {
+      categoryId = customCategory.id;
+    } else {
+      // For default categories, use the name as the id
+      categoryId = categoryName;
+    }
+
+    const message = `Are you sure you want to delete the category "${categoryName}"? This action cannot be undone.`;
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(message)) {
+        handleRemoveCategory(categoryId, categoryName, !!customCategory);
+      }
+    } else {
+      Alert.alert(
+        'Confirm Deletion',
+        message,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete',
+            onPress: () => handleRemoveCategory(categoryId, categoryName, !!customCategory),
+            style: 'destructive',
+          },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
+
+  const handleRemoveCategory = (categoryId: string, categoryName: string, isCustom: boolean) => {
+    if (isCustom) {
+      removeCategoryFromStore(categoryId);
+    } else {
+      deleteDefaultCategory(categoryName);
+    }
+    showToast(`Category "${categoryName}" deleted`, 'success');
+    if (selectedCategory === categoryName) {
+      onCategorySelect('task');
+    }
+  };
+
+  // Filter out deleted default categories
+  const visibleDefaultCategories = DEFAULT_CATEGORIES.filter(cat => !isDefaultCategoryDeleted(cat));
+
   return (
     <XStack pl={8} gap="$2" alignItems="center">
       {isAddingCategory ? (
@@ -142,14 +202,16 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
       ) : (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
           <XStack gap="$2">
-            {[...customCategories.map(cat => cat.name), 'work', 'health', 'personal', 'family', 'wealth'].map(cat => {
+            {[...customCategories.map(cat => cat.name), ...visibleDefaultCategories].map(cat => {
               const isCustom = customCategories.some(c => c.name === cat);
               const color = isCustom ? userColor : getCategoryColor(cat as TaskCategory);
               const isSelected = selectedCategory === cat;
+              const categoryType = cat as TaskCategory;
               return (
                 <Button
                   key={cat}
-                  onPress={(e) => onCategorySelect(cat as TaskCategory, e)}
+                  onPress={(e) => onCategorySelect(categoryType, e)}
+                  onLongPress={() => confirmDeleteCategory(cat)}
                   backgroundColor={
                     isSelected
                       ? withOpacity(color, 0.15)
@@ -172,7 +234,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                     fontFamily="$body"
                     color={
                       isSelected
-                        ? (isCustom ? getDarkerColor(color, 0.5) : (isDark ? getCategoryColor(cat as TaskCategory) : '$gray12'))
+                        ? (isCustom ? getDarkerColor(color, 0.5) : (isDark ? getCategoryColor(categoryType) : '$gray12'))
                         : isDark
                           ? "$gray11"
                           : "$gray11"

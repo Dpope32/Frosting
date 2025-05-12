@@ -1,6 +1,5 @@
-// @ts-nocheck
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, YStack, XStack, Button, isWeb } from 'tamagui';
 import { ChevronLeft, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
@@ -11,6 +10,7 @@ import type { TextStyle } from 'react-native';
 import { CHANGELOG } from '@/constants/changelog';
 import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
+import Animated, { FadeIn, FadeInDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 export default function ChangeLog() {
   const insets = useSafeAreaInsets();
@@ -23,34 +23,28 @@ export default function ChangeLog() {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
 
   const [expandedBullets, setExpandedBullets] = React.useState<Record<string, boolean>>({});
-  const [animations, setAnimations] = React.useState<Record<string, Animated.Value>>({});
-
-  React.useEffect(() => {
-    // Initialize animations for all changelog versions on mount
-    const initialAnimations: Record<string, Animated.Value> = {};
-    CHANGELOG.forEach(entry => {
-      initialAnimations[entry.version] = new Animated.Value(0);
-    });
-    setAnimations(initialAnimations);
-  }, []);
 
   const toggleBullets = (version: string) => {
     setExpandedBullets((prev) => {
       const next = { ...prev, [version]: !prev[version] };
-      if (!animations[version]) {
-        setAnimations((a) => ({ ...a, [version]: new Animated.Value(prev[version] ? 1 : 0) }));
-      }
-      Animated.timing(
-        animations[version] || new Animated.Value(0),
-        {
-          toValue: !prev[version] ? 1 : 0,
-          duration: 200,
-          useNativeDriver: false,
-        }
-      ).start();
       return next;
     });
   };
+
+  // Card press-in/press-out scale animation with reanimated
+  function useCardScale() {
+    const scale = useSharedValue(1);
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ scale: scale.value }],
+    }), []);
+    const handlePressIn = () => {
+      scale.value = withSpring(0.97);
+    };
+    const handlePressOut = () => {
+      scale.value = withSpring(1);
+    };
+    return { animatedStyle, handlePressIn, handlePressOut };
+  }
 
   return (
     <View style={[
@@ -95,23 +89,8 @@ export default function ChangeLog() {
             const CardTouchable = hasBullets ? TouchableOpacity : View;
             const accentColor = primaryColor || (isDark ? '#00f0ff' : '#1e4fa3');
             const cardBg = 'transparent';
-            const scaleAnim = React.useRef(new Animated.Value(1)).current;
-            const handlePressIn = () => {
-              Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true }).start();
-            };
-            const handlePressOut = () => {
-              Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }).start();
-            };
-            const bulletAnim = animations[entry.version] || new Animated.Value(isExpanded ? 1 : 0);
-            const maxBulletHeight = 500; 
-            const bulletMaxHeight = bulletAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, maxBulletHeight],
-            });
-            const animatedCardStyle: any = {
-              transform: [{ scale: scaleAnim }],
-              marginBottom: 8,
-            };
+            // Use reanimated for scale
+            const { animatedStyle, handlePressIn, handlePressOut } = useCardScale();
             const cardTouchableStyle: any = {
               flexDirection: 'row',
               alignItems: 'flex-start',
@@ -122,7 +101,7 @@ export default function ChangeLog() {
             };
             return (
               <React.Fragment key={entry.version}>
-                <Animated.View style={{ ...animatedCardStyle } as any}>
+                <Animated.View style={animatedStyle}>
                   <CardTouchable
                     activeOpacity={0.92}
                     onPress={hasBullets ? () => toggleBullets(entry.version) : undefined}
@@ -207,23 +186,27 @@ export default function ChangeLog() {
                           </Text>
                         )}
                       </XStack>
-                      {hasBullets && (
-                        <Animated.View style={{
-                          overflow: 'hidden',
-                          maxHeight: bulletMaxHeight,
-                          opacity: bulletAnim,
-                        }}>
-                          <YStack
-                            marginTop={4}
-                            paddingTop={10}
-                            paddingRight={10}
-                            paddingLeft={12}
-                            paddingBottom={10}
-                            borderRadius={8}
-                            backgroundColor={isDark ? '#1c1c1c' : '#f0f5ff'}
-                          >
-                            {entry.bullets.map((bullet, idx2) => (
-                              <XStack key={idx2} alignItems="flex-start" marginBottom={idx2 === entry.bullets.length - 1 ? 0 : 4}>
+                      {hasBullets && isExpanded && (
+                        <Animated.View
+                          style={{
+                            overflow: 'hidden',
+                            marginTop: 4,
+                            paddingTop: 10,
+                            paddingRight: 10,
+                            paddingLeft: 12,
+                            paddingBottom: 10,
+                            borderRadius: 8,
+                            backgroundColor: isDark ? '#1c1c1c' : '#f0f5ff',
+                          }}
+                          entering={FadeIn.duration(250)}
+                        >
+                          {entry.bullets.map((bullet, idx2) => (
+                            <Animated.View
+                              key={idx2}
+                              entering={FadeInDown.delay(idx2 * 60).duration(350)}
+                              style={{ width: '100%' }}
+                            >
+                              <XStack alignItems="flex-start" marginBottom={idx2 === entry.bullets.length - 1 ? 0 : 4}>
                                 <Text style={{
                                   ...markdownStyles.body as TextStyle,
                                   marginRight: 8,
@@ -237,8 +220,8 @@ export default function ChangeLog() {
                                   fontSize: 15
                                 } as TextStyle}>{bullet}</Text>
                               </XStack>
-                            ))}
-                          </YStack>
+                            </Animated.View>
+                          ))}
                         </Animated.View>
                       )}
                     </YStack>

@@ -15,16 +15,16 @@ export interface DebouncedInputHandle {
 
 
 export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedInputProps>(
-  ({ value, onDebouncedChange, ...props }, ref) => {
+  ({ value, onDebouncedChange, delay = 500, ...props }, ref) => {
     const [text, setText] = useState(value || '')
     const colorScheme = useColorScheme();
     const inputRef = useRef<TextInput>(null);
     const isDark = colorScheme === 'dark';
     
     useEffect(() => {
-      const handler = setTimeout(() => onDebouncedChange(text), 500)
+      const handler = setTimeout(() => onDebouncedChange(text), delay)
       return () => clearTimeout(handler)
-    }, [text, onDebouncedChange])
+    }, [text, onDebouncedChange, delay])
     
     useEffect(() => {
       setText(value || '')

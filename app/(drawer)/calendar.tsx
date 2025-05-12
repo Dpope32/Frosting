@@ -16,6 +16,7 @@ import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { calendarStyles } from '@/components/calendar/CalendarStyles';
 import { getUSHolidays } from '@/services/holidayService';
 import { isIpad } from '@/utils/deviceUtils';
+import { BlurView } from 'expo-blur';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -34,6 +35,7 @@ export default function CalendarScreen() {
 
   const { events: storeEvents } = useCalendarStore();
   const [combinedEvents, setCombinedEvents] = useState(storeEvents);
+  const [activeEventTypes, setActiveEventTypes] = useState<string[]>([]);
   
   useEffect(() => {
     const currentYear = new Date().getFullYear();
@@ -42,7 +44,17 @@ export default function CalendarScreen() {
       ...getUSHolidays(currentYear + 1)
     ];
     
-    setCombinedEvents([...storeEvents, ...holidays]);
+    const allEvents = [...storeEvents, ...holidays];
+    setCombinedEvents(allEvents);
+    
+    // Extract unique event types from combined events
+    const types: string[] = [];
+    allEvents.forEach(event => {
+      if (event.type && !types.includes(event.type)) {
+        types.push(event.type);
+      }
+    });
+    setActiveEventTypes(types);
   }, [storeEvents]);
   
 
@@ -117,9 +129,18 @@ export default function CalendarScreen() {
   }, [webColumnCount]);
 
   return (
-    <View style={calendarStyles.container}>
-      <Legend isDark={isDark} />
-      
+    <View style={[
+      calendarStyles.container, 
+      isDark && { backgroundColor: '#121212' }
+    ]}>
+      {activeEventTypes.length > 0 && (
+        <BlurView 
+          intensity={isDark ? 15 : 30}
+          tint={isDark ? 'dark' : 'light'}
+        >
+          <Legend isDark={isDark} eventTypes={activeEventTypes} />
+        </BlurView>
+      )}
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
         {isWeb || isIpadDevice ? (
           <View style={[

@@ -230,6 +230,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             fontFamily={isIpad() ? '$body' : '$body'}
             width={isIpad() ? '100%' : '98%'}
             onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
+            delay={300}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
 

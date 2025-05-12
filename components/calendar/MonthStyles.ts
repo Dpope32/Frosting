@@ -1,52 +1,76 @@
 import { Platform, StyleSheet } from 'react-native';
 
-export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
+export const getMonthStyles = (webColumnCount: number, isDark: boolean) => StyleSheet.create({
   calendar: {
-    borderRadius: 20,
-    elevation: 4,
-    padding: 18,
-    margin: 12,
-    ...(Platform.OS === 'web' ? { boxShadow: '0 4px 12px rgba(0,0,0,0.15)' } : {})
+    borderRadius: 12,
+    elevation: 3,
+    padding: 0,
+    margin: 10,
+    backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+    overflow: 'hidden',
+    borderWidth: isDark ? 0 : 1,
+    borderColor: isDark ? 'transparent' : '#E0E0E0',
+    ...(Platform.OS === 'web' ? { 
+      boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.08)',
+      margin: 6 
+    } : {})
   },
   header: {
     alignItems: 'center',
-    marginBottom: 2,
-    height: 48
+    marginBottom: 0,
+    height: 48,
+    justifyContent: 'center',
+    backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: isDark ? '#333' : '#E8E8E8',
   },
   monthText: {
-    fontSize: 22,
-    fontWeight: 'bold'
+    fontSize: 18,
+    fontWeight: '600',
+    color: isDark ? '#FFF' : '#333'
   },
   weekDays: {
     flexDirection: 'row',
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
-    paddingBottom: 8
+    marginBottom: 0,
+    borderBottomWidth: 0,
+    paddingBottom: 4,
+    paddingTop: 8,
+    backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
   },
   weekDayContainer: {
     flex: 1,
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingVertical: 0,
   },
   weekDay: {
-    fontSize: webColumnCount === 1 ? 16 : 12,
-    fontWeight: '600'
+    fontSize: webColumnCount === 1 ? 14 : 12,
+    fontWeight: '500',
+    color: isDark ? '#AAA' : '#757575',
   },
   daysGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    marginTop: 0,
+    paddingTop: 0,
+    paddingBottom: 0
   },
   dayCell: {
     width: '14.28%',
     aspectRatio: 1,
-    padding: Platform.OS === 'web' ? 4 : 2
+    padding: Platform.OS === 'web' ? 3 : 1,
+    borderWidth: 0.5,
+    borderColor: isDark ? '#333' : '#E8E8E8',
+  },
+  weekendDayCell: {
+    backgroundColor: isDark ? '#252525' : '#F5F5F5',
+    borderRadius: 6,
   },
   currentDateCell: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#ddd'
+    borderBottomWidth: 0,
   },
   pastDateCell: {
-    borderBottomWidth: 0
+    borderBottomWidth: 0,
+    position: 'relative',
   },
   lastRowCell: {
     borderBottomWidth: 0
@@ -59,46 +83,66 @@ export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
     padding: 2
   },
   pastDateOverlay: {
-    opacity: 0.1,
-    filter: 'grayscale(50%)',
-    borderBottomWidth: 0
+    opacity: 0.7,
+    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)',
+  },
+  pastDateStrikethrough: {
+    position: 'absolute',
+    width: '143%',
+    height: 1,
+    backgroundColor: isDark ? '#777' : '#999',
+    top: '55%',
+    left: -6,
+    transform: [{ rotate: '135deg' }],
+    zIndex: 1000,
   },
   dayNumber: {
     position: 'absolute',
     top: Platform.OS === 'web' ? 4 : 2,
     right: Platform.OS === 'web' ? 4 : 2,
-    fontSize: webColumnCount === 1 ? 20 : (Platform.OS === 'web' ? 16 : 14),
-    fontWeight: '600'
+    fontSize: webColumnCount === 1 ? 16 : (Platform.OS === 'web' ? 14 : 13),
+    fontWeight: '500',
+    color: isDark ? '#FFFFFF' : '#333333'
   },
   today: {
-    borderRadius: 8
+    borderWidth: 2.5,
+    borderRadius: 6,
+    marginVertical: 0,
+    marginHorizontal: 0,
+    padding: 0,
+    zIndex: 5,
+    elevation: 1,
   },
   // Icon containers
   holidayIconContainer: {
     position: 'absolute',
-    top: 2,
-    left: 2
+    top: 6,
+    left: 16
   },
   holidayIconText: {
-    fontSize: webColumnCount === 1 ? 16 : 12
+    fontSize: webColumnCount === 1 ? 14 : 10
   },
   billIconContainer: {
     position: 'absolute',
-    bottom: 2,
-    left: 2
+    bottom: 24,
+    right: 4,
+    left: 4,
+    alignItems: 'center'
   },
   billIconText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#4CAF50'
+    fontSize: webColumnCount === 1 ? 12 : 8,
+    color: isDark ? '#FF8A80' : '#E57373',
+    textAlign: 'center',
+    maxWidth: '100%',
+    opacity: 0.9
   },
   birthdayIconContainer: {
     position: 'absolute',
-    bottom: 2,
-    right: 2
+    bottom: 0,
+    right: 0
   },
   birthdayIconText: {
-    fontSize: webColumnCount === 1 ? 16 : 12
+    fontSize: webColumnCount === 1 ? 14 : 10
   },
   // Dots
   indicatorContainer: {
@@ -111,9 +155,9 @@ export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
     justifyContent: 'center'
   },
   eventDot: {
-    width: Platform.OS === 'web' ? 8 : 4,
-    height: Platform.OS === 'web' ? 8 : 4,
-    borderRadius: Platform.OS === 'web' ? 4 : 2,
+    width: Platform.OS === 'web' ? 6 : 4,
+    height: Platform.OS === 'web' ? 6 : 4,
+    borderRadius: Platform.OS === 'web' ? 3 : 2,
     marginTop: Platform.OS === 'web' ? 4 : 2
   },
   // NBA
@@ -121,8 +165,8 @@ export const getMonthStyles = (webColumnCount: number) => StyleSheet.create({
     position: 'absolute',
     top: 2,
     left: 2,
-    width: webColumnCount === 1 ? 24 : (Platform.OS === 'web' ? 16 : 12),
-    height: webColumnCount === 1 ? 24 : (Platform.OS === 'web' ? 16 : 12),
+    width: webColumnCount === 1 ? 20 : (Platform.OS === 'web' ? 16 : 12),
+    height: webColumnCount === 1 ? 20 : (Platform.OS === 'web' ? 16 : 12),
     zIndex: 1
   },
   nbaLogo: {

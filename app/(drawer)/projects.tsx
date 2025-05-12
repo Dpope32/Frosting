@@ -90,9 +90,9 @@ export default function ProjectsScreen() {
   const handleToggleTaskCompleted = (projectId: string, taskId: string, completed: boolean) => {
     const project = getProjectById(projectId)
     if (project) {
-        if (!isWeb) {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-        }
+      if (!isWeb) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+      }
       const updatedTasks = (project.tasks || []).map((t: any) => t.id === taskId ? { ...t, completed } : t)
       updateProject(projectId, { tasks: updatedTasks })
       showToast(completed ? 'Task completed!' : 'Task marked as incomplete!', 'success')

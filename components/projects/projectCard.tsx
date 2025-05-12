@@ -28,15 +28,12 @@ export const ProjectCard = ({
   onImagePress,
   hideCompletedOverlay
 }: ProjectCardProps) => {
-  const showToast = useToastStore((state) => state.showToast);
   
   // Wrap the onImagePress callback to add logging
   const handleImagePress = (url: string) => {
     if (onImagePress) {
-      showToast(`ProjectCard handling image: ${isWeb ? 'web' : 'mobile'}`, "info");
       onImagePress(url);
     } else {
-      showToast('Error: Root image handler missing', "error");
     }
   };
   return isWeb ? (

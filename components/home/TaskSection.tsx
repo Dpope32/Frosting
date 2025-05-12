@@ -309,13 +309,12 @@ export const TaskSection = ({
             {!isWeb ? (
               <>
                 <Pressable
-                  delayLongPress={1000} // Reduced from 2000ms to 1000ms for easier triggering
-                  hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} // Increased hit area
+                  delayLongPress={1500} 
+                  hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} 
                   android_disableSound={true}
                   onLongPress={() => {
                     if (!isWeb) {
                       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                      console.log('Haptic feedback attempted on non-web platform after 1000ms.');
                     }
                     setEasterEggVisible(false);
                     if (easterEggTimeout.current) {
@@ -324,10 +323,9 @@ export const TaskSection = ({
                     }
                     easterEggTimeout.current = setTimeout(() => {
                       setEasterEggVisible(true);
-                    }, 100); // Faster display
+                    }, 100); 
                   }}
                   onPressIn={() => {
-                    // Optional: Add visual feedback here if desired
                     if (DEBUG) {
                       log('Press started on YearCompleteSection');
                     }
@@ -341,11 +339,11 @@ export const TaskSection = ({
                   style={{ 
                     width: '100%', 
                     paddingTop: 8, 
-                    paddingBottom: 8, // Added bottom padding for larger touch area
-                    zIndex: 20, // Increased z-index to ensure it's above everything
+                    paddingBottom: 8, 
+                    zIndex: 20, 
                     position: 'relative',
-                    marginTop: 4, // Added space between this and previous component
-                    marginBottom: 4 // Added space after component
+                    marginTop: 4, 
+                    marginBottom: 4 
                   }}
                 >
                   <YearCompleteSection />

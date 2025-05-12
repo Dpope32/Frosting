@@ -203,7 +203,7 @@ export default function SyncScreen() {
             }
           }}
         >
-          <Text style={{color: premium ? colors.accentBg : colors.subtext, fontSize: fontSizes.lg, textAlign: 'center', width: '100%', fontWeight: '500', fontFamily: '$body', letterSpacing: 1 }} numberOfLines={1} ellipsizeMode="tail">
+          <Text style={{color: 'white', fontSize: fontSizes.lg, textAlign: 'center', width: '100%', fontWeight: '500', fontFamily: '$body', letterSpacing: 1 }} numberOfLines={1} ellipsizeMode="tail">
             {premium ? 'Add Device' : 'Enable Sync'}
           </Text>
         </Button>

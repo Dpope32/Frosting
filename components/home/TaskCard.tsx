@@ -16,6 +16,7 @@ import { variants } from '@/constants/variants';
 import { TaskChips } from './TaskChips';
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
 import { useUserStore } from '@/store/UserStore';
+import { NotificationFeedbackType } from 'expo-haptics';
 
 interface TaskCardProps {
   title: string;
@@ -234,7 +235,7 @@ export function TaskCard({
               <Pressable 
                 onPress={() => {
                   if (Platform.OS !== 'web') {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                   }
                   const newValue = !checked;
                   onCheck?.(newValue);

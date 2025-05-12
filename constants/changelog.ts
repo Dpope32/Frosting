@@ -1,5 +1,26 @@
 export const CHANGELOG = [
   {
+    version: '1.1.175',
+    date: '2025-05-12',
+    notes: 'Improved Calendar UI',
+    bullets: [
+      'Fixed bug with debug toasts displaying when opening images inside projects',
+      'Fixed Legend in Calendar to only display relevant items',
+      'Added a way for users to delete tags and categories (long hold ofc)',
+      'Cool animations in the Changelog Accordion',
+    ],
+  },
+    {
+      version: '1.1.172',
+      date: '2025-05-12',
+      notes: 'Bug Fixes',
+      bullets: [
+        'Fixed bug with not letting users open images in projects',
+        'Optimized the Flaoting Button in homescreen top open faster',
+        'Removed double haptic in Task Checkbox',
+      ],
+    },
+  { 
     version: '1.1.166',
     date: '2025-05-09',
     notes: 'Major Updates',

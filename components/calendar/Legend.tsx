@@ -1,100 +1,134 @@
 import React from 'react';
-import { View, StyleSheet, Text, Platform  } from 'react-native';
+import { View, StyleSheet, Text, Platform, ScrollView } from 'react-native';
 //import { useNBAStore } from '@/store/NBAStore';
 //import { useUserStore } from '@/store/UserStore';
 //import { nbaTeams } from '@/constants/nba';
 import { isIpad } from '@/utils/deviceUtils';
 
 interface LegendProps { 
-  isDark: boolean 
+  isDark: boolean;
+  eventTypes?: string[];
 }
 
 interface LegendItem { 
   color: string; 
-  label: string; 
+  label: string;
+  type: string;
   isNBA?: boolean;
 }
 
-export const Legend: React.FC<LegendProps> = ({ isDark }) => {
+export const Legend: React.FC<LegendProps> = ({ isDark, eventTypes = [] }) => {
  // const { teamCode } = useNBAStore();
  // const team = nbaTeams.find(t => t.code === teamCode);
  // const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
   
   const baseItems: LegendItem[] = [
-    { color: '#4CAF50', label: 'Personal' },
-    { color: '#2196F3', label: 'Work' },
-    { color: '#9C27B0', label: 'Family' },
-    { color: '#FF69B4', label: 'Birthdays' },
-    { color: '#FF9800', label: 'Tasks' },
+    { color: '#4CAF50', label: 'Personal', type: 'personal' },
+    { color: '#2196F3', label: 'Work', type: 'work' },
+    { color: '#9C27B0', label: 'Family', type: 'family' },
+    { color: '#FF69B4', label: 'Birthdays', type: 'birthday' },
+    { color: '#FF9800', label: 'Tasks', type: 'task' },
+    { color: '#FFD700', label: 'Bills', type: 'bill' },
   ];
   
-  const items: LegendItem[] = baseItems;
+  // Filter items to only show types that exist in the calendar
+  const items: LegendItem[] = eventTypes.length > 0
+    ? baseItems.filter(item => eventTypes.includes(item.type))
+    : baseItems;
+
   const isWebOrIpad = Platform.OS === 'web' || isIpad();
   
+  // Don't render anything if there are no items to show
+  if (items.length === 0) {
+    return null;
+  }
+  
   return (
-    <View style={[styles.container, isWebOrIpad && styles.containerWebIpad]}>
-      <View style={[styles.row, isWebOrIpad && styles.rowWebIpad]}>
-        {items.map((item, index) => (
-          <View key={index} style={[styles.item, isWebOrIpad && styles.itemWebIpad]}>
-            <View style={[
-              styles.dot, 
-              { backgroundColor: item.color },
-              isWebOrIpad && styles.dotWebIpad
-            ]} />
-            <Text style={[
-              styles.label, 
-              { color: isDark ? '#999999' : '#666666' },
-              isWebOrIpad && styles.labelWebIpad
-            ]}>
-              {item.label}
-            </Text>
-          </View>
-        ))}
-      </View>
+    <View 
+      style={[
+        styles.container, 
+        isWebOrIpad && styles.containerWebIpad,
+        { 
+          paddingTop: 25,
+          paddingBottom: 15,
+          backgroundColor: 'transparent',
+          ...Platform.select({
+            web: {
+              marginHorizontal: 20,
+            },
+          }),
+        }
+      ]}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={[styles.row, isWebOrIpad && styles.rowWebIpad]}>
+          {items.map((item, index) => (
+            <View key={index} style={[styles.item, isWebOrIpad && styles.itemWebIpad]}>
+              <View style={[
+                styles.dot, 
+                { backgroundColor: item.color },
+                isWebOrIpad && styles.dotWebIpad
+              ]} />
+              <Text style={[
+                styles.label, 
+                { color: isDark ? '#BBBBBB' : '#555555' },
+                isWebOrIpad && styles.labelWebIpad
+              ]}>
+                {item.label}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 8,
-    paddingBottom: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   containerWebIpad: {
-    paddingBottom: 16,
-    marginBottom: 8,
+    paddingVertical: 10,
+  },
+  scrollContent: {
+    paddingHorizontal: 12,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     gap: 12,
   },
   rowWebIpad: {
-    gap: 20,
+    gap: 30,
   },
   item: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   itemWebIpad: {
     gap: 8,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  dotWebIpad: {
     width: 10,
     height: 10,
     borderRadius: 5,
   },
+  dotWebIpad: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
   label: {
-    fontSize: 11,
-    fontWeight: '400',
+    fontSize: 12,
+    fontWeight: '500',
   },
   labelWebIpad: {
     fontSize: 14,

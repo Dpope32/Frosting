@@ -14,6 +14,10 @@ interface CustomCategoryState {
   addCategory: (name: string) => CustomCategory;
   removeCategory: (id: string) => void;
   getCategoryByName: (name: string) => CustomCategory | undefined;
+  deletedDefaultCategories: string[];
+  deleteDefaultCategory: (name: string) => void;
+  restoreDefaultCategory: (name: string) => void;
+  isDefaultCategoryDeleted: (name: string) => boolean;
 }
 
 export const useCustomCategoryStore = create<CustomCategoryState>()(
@@ -46,6 +50,20 @@ export const useCustomCategoryStore = create<CustomCategoryState>()(
       },
       getCategoryByName: (name: string) => {
         return get().categories.find((cat) => cat.name === name);
+      },
+      deletedDefaultCategories: [],
+      deleteDefaultCategory: (name: string) => {
+        set((state) => ({
+          deletedDefaultCategories: [...state.deletedDefaultCategories, name],
+        }));
+      },
+      restoreDefaultCategory: (name: string) => {
+        set((state) => ({
+          deletedDefaultCategories: state.deletedDefaultCategories.filter((n) => n !== name),
+        }));
+      },
+      isDefaultCategoryDeleted: (name: string) => {
+        return get().deletedDefaultCategories.includes(name);
       },
     }),
     {

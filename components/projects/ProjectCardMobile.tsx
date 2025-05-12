@@ -86,10 +86,7 @@ export const ProjectCardMobile = ({
                       isDark={isDark} 
                       onImagePress={(url) => {
                         if (onImagePress) {
-                          showToast(`Mobile card handling image`, "info");
                           onImagePress(url);
-                        } else {
-                          showToast('Error: Image handler missing', "error");
                         }
                       }}
                     />

@@ -44,10 +44,8 @@ export const ProjectAttachments: React.FC<ProjectAttachmentsProps> = ({
             onPress={() => {
 
               if (onImagePress) {
-                showToast(`Opening image ${idx + 1}`, "info");
                 onImagePress(att.url);
               } else {
-                showToast('Error: Cannot open image', "error");
               }
             }}
             style={styles.attachmentContainer}

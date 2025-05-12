@@ -5,30 +5,32 @@ import { BackgroundStyleOption } from '@/types/background';
 
 const s3Wallpapers = getWallpapers();
 
-// Map to store wallpapers by their base name (without extension)
+// Map to store wallpapers by their full name (including 'wallpaper-' prefix)
 const wallpaperMap = new Map<string, { name: string; uri: string }>();
 
-// Group wallpapers by their base name to handle duplicates
+// Use the full name as the key, handling potential duplicates based on the full name
 s3Wallpapers.forEach(({ name, uri }) => {
-  const baseName = name.split('.')[0];
-  // Only keep the first occurrence of each wallpaper
-  if (!wallpaperMap.has(baseName)) {
-    wallpaperMap.set(baseName, { name, uri });
+  // Only keep the first occurrence of each wallpaper based on its full name
+  if (!wallpaperMap.has(name)) {
+    wallpaperMap.set(name, { name, uri });
   }
 });
 
-// Create and export wallpapers object for getWallpaperPath
+// Create and export wallpapers object for getWallpaperPath using the full name as the key
 export const wallpapers: Record<string, { uri: string; isLoaded?: boolean }> = {};
-wallpaperMap.forEach(({ name, uri }, baseName) => {
-  wallpapers[`wallpaper-${baseName}`] = { uri };
+wallpaperMap.forEach(({ name, uri }) => {
+  wallpapers[name] = { uri };
 });
 
 // Create friendly labels for wallpapers
 const getFriendlyLabel = (name: string): string => {
+  // Remove the 'wallpaper-' prefix before generating the friendly label
+  const baseName = name.replace('wallpaper-', '');
+  
   // Special case for Arc wallpapers
-  if (name === 'wallpapers') return 'Arc Sky';
-  if (name.startsWith('wallpapers-')) {
-    const num = name.split('-')[1];
+  if (baseName === 'wallpapers') return 'Arc Sky';
+  if (baseName.startsWith('wallpapers-')) {
+    const num = baseName.split('-')[1];
     switch (num) {
       case '1': return 'Arc Default';
       case '2': return 'Arc Bright';
@@ -38,21 +40,18 @@ const getFriendlyLabel = (name: string): string => {
     }
   }
   // For other wallpapers, capitalize each word
-  return name.split('-')
+  return baseName.split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
 
 export const backgroundStyles: BackgroundStyleOption[] = [
   { label: 'Gradient', value: 'gradient' },
-  ...Array.from(wallpaperMap.keys()).map(baseName => {
-    const value = baseName.startsWith('wallpaper-') 
-      ? baseName 
-      : `wallpaper-${baseName}`;
-      
+  // Use the full wallpaper name (including 'wallpaper-' prefix) as the value
+  ...Array.from(wallpaperMap.keys()).map(wallpaperName => {
     return {
-      label: getFriendlyLabel(baseName.replace('wallpaper-', '')),
-      value: value as BackgroundStyle
+      label: getFriendlyLabel(wallpaperName),
+      value: wallpaperName as BackgroundStyle
     };
   })
 ];

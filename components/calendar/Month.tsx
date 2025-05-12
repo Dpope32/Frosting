@@ -25,7 +25,7 @@ interface MonthProps {
 }
 
 export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, primaryColor, webColumnCount }) => {
-  const styles = getMonthStyles(webColumnCount);
+  const styles = getMonthStyles(webColumnCount, isDark);
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
 
   const getDaysInMonth = (d: Date) => {
@@ -61,6 +61,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             work: false,
             family: false,
             bill: false,
+            billName: '',
             task: false,
             nba: false,
             holiday: false,
@@ -72,7 +73,10 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         if (e.type === 'birthday') acc[e.date].birthday = true;
         else if (e.type === 'work') acc[e.date].work = true;
         else if (e.type === 'family') acc[e.date].family = true;
-        else if (e.type === 'bill') acc[e.date].bill = true;
+        else if (e.type === 'bill') {
+          acc[e.date].bill = true;
+          acc[e.date].billName = e.title || 'Bill';
+        }
         else if (e.type === 'nba') {
           acc[e.date].nba = true;
           acc[e.date].teamCode = e.teamCode || null;
@@ -92,6 +96,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         work: boolean;
         family: boolean;
         bill: boolean;
+        billName: string;
         task: boolean;
         nba: boolean;
         holiday: boolean;
@@ -102,9 +107,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   }, [date, events]);
 
   return (
-    <View style={[getMonthStyles(webColumnCount).calendar, { backgroundColor: isDark ? '#111111' : '#fff' }]}>
+    <View style={styles.calendar}>
       <View style={styles.header}>
-        <Text style={[styles.monthText, { color: isDark ? '#fff' : '#000' }]}>
+        <Text style={styles.monthText}>
           {monthName} {year}
         </Text>
       </View>
@@ -112,7 +117,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
       <View style={styles.weekDays}>
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
           <View key={day} style={styles.weekDayContainer}>
-            <Text style={[styles.weekDay, { color: isDark ? '#fff' : '#000' }]}>{day}</Text>
+            <Text style={styles.weekDay}>{day}</Text>
           </View>
         ))}
       </View>
@@ -129,7 +134,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
           const dateKey = currentDate.toISOString().split('T')[0];
           const dayEvents = eventsByDate[dateKey] || {
-            birthday: false, personal: false, work: false, family: false, bill: false,
+            birthday: false, personal: false, work: false, family: false, bill: false, billName: '',
             task: false, nba: false, holiday: false, holidayColor: '', holidayIcon: '', teamCode: null
           };
 
@@ -149,24 +154,21 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                 onPressIn={() => { if (Platform.OS !== 'web') Haptics.selectionAsync(); }}
                 style={[
                   styles.dayCell,
-                  {backgroundColor: isDark ? (isWeekend ? '#222222' : '#111111')  : (isWeekend ? '#f5f5f5' : '#fff')},
-                  isToday && [styles.today, { backgroundColor: primaryColor }],
+                  isWeekend && styles.weekendDayCell,
+                  isToday && [styles.today, { borderColor: primaryColor }],
                   dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
-                  !isPastDate && styles.currentDateCell,
                   isLastRow && styles.lastRowCell,
                   isPastDate && styles.pastDateCell,
-                  Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 4 }
+                  Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 6 }
                 ]}
               >
                 <View style={[
                   styles.dayCellContent, 
-                  isPastDate && !isToday && styles.pastDateOverlay,
-                  isPastDate && !isToday && { borderBottomWidth: 0 }
+                  isPastDate && !isToday && styles.pastDateOverlay
                 ]}>
                   <Text
                     style={[
                       styles.dayNumber,
-                      { color: isDark ? '#fff' : '#000' },
                       isToday && { color: todayTextColor },
                       dayEvents.holiday && !isToday && { color: dayEvents.holidayColor },
                       dayEvents.birthday && !isToday && { color: '#FF69B4' }
@@ -175,8 +177,13 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                     {day}
                   </Text>
             
+                  {/* Add strikethrough for past dates */}
+                  {isPastDate && !isToday && (
+                    <View style={styles.pastDateStrikethrough} />
+                  )}
+            
                   {dayEvents.holiday && (
-                    <View style={[styles.holidayIconContainer, { top: 1, right: 1 }]}>
+                    <View style={[styles.holidayIconContainer, { top: 4, right: 1 }]}>
                       <Text style={styles.holidayIconText}>{dayEvents.holidayIcon}</Text>
                     </View>
                   )}
@@ -189,7 +196,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             
                   {!dayEvents.holiday && !dayEvents.birthday && dayEvents.bill && (
                     <View style={styles.billIconContainer}>
-                      <Text style={styles.billIconText}>$</Text>
+                      <Text style={styles.billIconText} numberOfLines={1} ellipsizeMode="tail">
+                        {dayEvents.billName}
+                      </Text>
                     </View>
                   )}
             
@@ -199,6 +208,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                     {dayEvents.family && <View style={[styles.eventDot, { backgroundColor: '#9C27B0' }]} />}
                     {dayEvents.birthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
                     {dayEvents.task && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />}
+                    {dayEvents.bill && <View style={[styles.eventDot, { backgroundColor: '#FF5252' }]} />}
                   </View>
             
                   {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && nbaTeams.find(t => t.code === dayEvents.teamCode) && (

@@ -4,18 +4,22 @@ import { isIpad } from '@/utils/deviceUtils';
 export const calendarStyles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100,
+    paddingTop: 80,
+    backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
     ...(Platform.OS === 'web' ? {
-      paddingTop: 100,
+      paddingTop: 80,
       maxWidth: 1800,
       marginLeft: 'auto',
       marginRight: 'auto',
-      paddingHorizontal: 0,
+      paddingHorizontal: 20,
+      paddingBottom: 40,
+      backgroundColor: '#f0f2f5',
     } as any : {}),
     ...(isIpad() ? {
-      paddingTop: 100,
-      paddingHorizontal: 0,
-      paddingLeft: 14,
+      paddingTop: 80,
+      paddingHorizontal: 10,
+      paddingLeft: 16,
+      backgroundColor: '#f0f2f5',
     } as any : {}),
   },
   layoutToggle: {
@@ -29,8 +33,9 @@ export const calendarStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
+    backgroundColor: '#fff',
     ...(Platform.OS === 'web' ? {
-      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
     } : {})
   },
   webMonthsContainer: {
@@ -38,15 +43,16 @@ export const calendarStyles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
     width: '100%',
-    padding: 0,
+    padding: Platform.OS === 'web' ? 16 : 0,
     ...(isIpad() ? {
       justifyContent: 'center',
+      paddingTop: 8,
     } as any : {}),
   },
   webMonthWrapper: {
     width: '33%', 
     padding: 0,
-    margin: 1,
+    margin: 4,
     ...(isIpad() ? {
       width: '49%', 
       margin: '0.5%',
