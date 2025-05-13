@@ -1,5 +1,5 @@
 import React from 'react'
-import { XStack, Text } from 'tamagui'
+import { XStack, Text, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types/project'
 import { getPriorityColor } from '@/utils/styleUtils'
@@ -9,7 +9,7 @@ export const ProjectStatusBadge = ({ project, isDark }: { project: Project; isDa
   
   return (
     <>
-      <MaterialIcons name="circle" size={12} color={priorityColor} />
+      <MaterialIcons name="circle" size={isWeb? 20 : 12} color={priorityColor} />
       {project?.status && (
         <XStack
           bg={
@@ -23,8 +23,8 @@ export const ProjectStatusBadge = ({ project, isDark }: { project: Project; isDa
               ? 'rgba(255, 0, 0, 0.1)'
               : (isDark ? '#222' : '#eee')
           }
-          px="$1.5"
-          py="$0.5"
+          px={isWeb? "$2" : "$1.5"}
+          py={isWeb? "$1" : "$0.5"}
           br="$4"
           ai="center"
         >
@@ -40,7 +40,7 @@ export const ProjectStatusBadge = ({ project, isDark }: { project: Project; isDa
                 ? '$red10'
                 : '$gray10'
             }
-            fontSize="$2"
+            fontSize={isWeb? "$3" : "$2"}
             fontFamily="$body"
           >
             {project.status.replace('_', ' ')}

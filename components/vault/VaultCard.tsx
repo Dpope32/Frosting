@@ -56,12 +56,13 @@ export const VaultCard = ({
     <LongPressDelete onDelete={handleDelete}>
       {isWeb ? (
         <XStack
-          px="$4"
+          px="$5"
+          pt="$2"
           br="$4"
           ai="center"
           animation="quick"
           width={columnWidthWeb}
-          minWidth={288}
+          minWidth={300}
           maxWidth={400}
           height={120}
           position="relative"
@@ -91,7 +92,7 @@ export const VaultCard = ({
               </Text>
             </XStack>
 
-            <XStack ai="center" gap={ "$2"} mb="$2">
+            <XStack ai="center" gap={ "$2"} mb={isWeb ? 0 : "$2"}>
               {!isIpad() && (
                 <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                   Username:

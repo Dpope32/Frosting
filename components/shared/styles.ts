@@ -23,7 +23,7 @@ export const useDrawerStyles = () => {
       marginTop: isIpad() ? -12 : 0,
     },
     header: {
-      paddingTop: isWeb ? isIpad() ? 20 : 50 : 50,
+      paddingTop: isWeb ? isIpad() ? 20 : 24 : 50,
       paddingBottom: isWeb ? isIpad() ? 10 : 15 : 15,
       paddingHorizontal: isWeb ? isIpad() ? 20 : 18 : 24,
       flexDirection: 'row',

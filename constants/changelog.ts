@@ -5,7 +5,8 @@ export const CHANGELOG = [
     notes: 'Added Week View to Calendar Screen!',
     bullets: [
       'Switch on mobile between the Month view and Week view by tapping the icon in the header on the Calendar screen',
-      'Implemented caching for these images for faster loading in the Notes and Projects'
+      'Added loading Skeleton animations for images in Notes and Projects',
+      'Implemented caching for these images for 2x faster loading after initial load',
     ],
   },
   {

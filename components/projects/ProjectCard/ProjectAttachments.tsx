@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { YStack } from 'tamagui';
+import { isWeb, YStack } from 'tamagui';
 import { Attachment } from '@/types/notes';
 import { isIpad } from '@/utils/deviceUtils';
 import { useToastStore } from '@/store/ToastStore';
@@ -14,10 +14,8 @@ interface ProjectAttachmentsProps {
 
 export const ProjectAttachments: React.FC<ProjectAttachmentsProps> = ({ 
   attachments, 
-  isDark, 
   onImagePress 
 }) => {
-  const showToast = useToastStore((state) => state.showToast);
   if (!attachments || attachments.length === 0) {
     return null;
   }
@@ -35,8 +33,9 @@ export const ProjectAttachments: React.FC<ProjectAttachmentsProps> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           gap: 8, 
-          paddingHorizontal: isIpad() ? 12 : 8,
-          paddingVertical: 8
+          paddingHorizontal: isIpad() ? 12 : isWeb? 16 : 8,
+          paddingVertical: isWeb? 16 :8,
+          paddingBottom: isWeb? 30 : 8
         }}
       >
         {imageAttachments.map((att, idx) => (

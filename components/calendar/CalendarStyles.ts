@@ -1,18 +1,14 @@
 import { StyleSheet, Platform } from 'react-native';
 import { isIpad } from '@/utils/deviceUtils';
+import { isWeb } from 'tamagui';
 
-export const calendarStyles = StyleSheet.create({
+export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: isWeb ? 80 : 80,
     backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
     ...(Platform.OS === 'web' ? {
-      paddingTop: 80,
-      maxWidth: 1800,
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      paddingHorizontal: 20,
-      paddingBottom: 40,
+      maxWidth: 1850,
       backgroundColor: '#f0f2f5',
     } as any : {}),
     ...(isIpad() ? {
@@ -43,18 +39,18 @@ export const calendarStyles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
     width: '100%',
-    padding: Platform.OS === 'web' ? 16 : 0,
     ...(isIpad() ? {
       justifyContent: 'center',
       paddingTop: 8,
     } as any : {}),
   },
   webMonthWrapper: {
-    width: '33%', 
+    width: webColumnCount === 1 ? '100%' : (webColumnCount === 2 ? '49%' : '27%'),
     padding: 0,
-    margin: 4,
+    margin: webColumnCount === 1 ? 0 : (webColumnCount === 2 ? 4 : 0),
+    backgroundColor: '#0a0a0a',
     ...(isIpad() ? {
-      width: '49%', 
+      width: '49%',
       margin: '0.5%',
     } as any : {}),
   },

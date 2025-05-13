@@ -3,7 +3,6 @@ import { FlatList, View, Dimensions, Alert, Platform } from "react-native";
 import { H4, Separator, YStack, Button, isWeb } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { usePeopleStore } from "@/store/People";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
 import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
@@ -28,10 +27,10 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  const PADDING = Platform.OS === 'web' ? 16 : isIpad() ? 24 : 16;
-  const GAP = Platform.OS === 'web' ? 24 : isIpad() ? 12 : 12;
-  const NUM_COLUMNS = Platform.OS === 'web' ? 4 : isIpad() ? 2 : 1;
-  const CARD_WIDTH = isIpad() ? 300 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
+  const PADDING = isWeb? 30 : isIpad() ? 24 : 16;
+  const GAP = isWeb? 20 : isIpad() ? 12 : 12;
+  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 2 : 1;
+  const CARD_WIDTH = isIpad() ? 300 : isWeb ?  360 : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
   const CARD_WIDTH_MOBILE = isIpad() ? 250 : "92%";
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
@@ -58,7 +57,6 @@ export default function CRM() {
         style={{
           width: isWeb ? CARD_WIDTH : CARD_WIDTH_MOBILE,
           marginLeft: isFirstInRow ? PADDING : GAP / 2,
-          paddingLeft: isWeb ? 24 : 0,
           marginRight: isLastInRow ? PADDING : GAP / 2,
           marginBottom: GAP,
           alignSelf: NUM_COLUMNS === 1 ? "center" : "flex-start",
@@ -86,10 +84,10 @@ export default function CRM() {
         keyExtractor={(item) => item.id}
         numColumns={NUM_COLUMNS}
         contentContainerStyle={{
-          paddingTop: 8,
+          paddingTop: 4,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 8 : isIpad() ? 8 : 8,
-          paddingLeft: isWeb ? 8 : isIpad() ? 8 : 4,
+          paddingHorizontal: isWeb ? 0 : isIpad() ? 8 : 8,
+          paddingLeft: isWeb ? 0 : isIpad() ? 8 : 4,
         }}
         ListEmptyComponent={
           <PersonEmpty 

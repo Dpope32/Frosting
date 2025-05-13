@@ -1,31 +1,33 @@
 import { Platform, StyleSheet } from 'react-native';
+import { isWeb } from 'tamagui';
+
 
 export const getMonthStyles = (webColumnCount: number, isDark: boolean) => StyleSheet.create({
   calendar: {
-    borderRadius: 12,
-    elevation: 3,
+    borderRadius: isWeb? 0 : 12,
+    elevation: isWeb? 0 : 3,
     padding: 0,
-    margin: 10,
-    backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+    margin: 0,
+    backgroundColor: isDark ? '#121212' : '#FFFFFF',
     overflow: 'hidden',
     borderWidth: isDark ? 0 : 1,
     borderColor: isDark ? 'transparent' : '#E0E0E0',
     ...(Platform.OS === 'web' ? { 
       boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.08)',
-      margin: 6 
+      margin: 0
     } : {})
   },
   header: {
     alignItems: 'center',
     marginBottom: 0,
-    height: 48,
+    height: webColumnCount === 1 ? isWeb? 72 : 48 : (webColumnCount === 2 ? isWeb ? 60 : 48 : 48),
     justifyContent: 'center',
-    backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
+    backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: isDark ? '#333' : '#E8E8E8',
   },
   monthText: {
-    fontSize: 18,
+    fontSize: webColumnCount === 1 ? isWeb? 26 :22 : (webColumnCount === 2 ? isWeb? 24 : 20 : 16),
     fontWeight: '600',
     color: isDark ? '#FFF' : '#333'
   },
@@ -43,7 +45,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     paddingVertical: 0,
   },
   weekDay: {
-    fontSize: webColumnCount === 1 ? 14 : 12,
+    fontSize: webColumnCount === 1 ? isWeb? 18 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
     fontWeight: '500',
     color: isDark ? '#AAA' : '#757575',
   },
@@ -63,7 +65,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   weekendDayCell: {
     backgroundColor: isDark ? '#252525' : '#F5F5F5',
-    borderRadius: 6,
+    borderRadius:isWeb? 0: 6,
   },
   currentDateCell: {
     borderBottomWidth: 0,
@@ -84,15 +86,15 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   pastDateOverlay: {
     opacity: 0.7,
-    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: isDark ? 'rgba(0, 0, 0,1)' : 'rgba(0, 0, 0, 0.3)',
   },
   pastDateStrikethrough: {
     position: 'absolute',
-    width: '143%',
+    width: isWeb ? '145%' : '143%',
     height: 1,
     backgroundColor: isDark ? '#777' : '#999',
-    top: '55%',
-    left: -6,
+    top: isWeb ? '50%' : '55%',
+    left: webColumnCount === 1 ? isWeb ? -45 : -6 : webColumnCount === 2 ? isWeb ? -26 : -6 : webColumnCount === 3 ? isWeb ? -20 : -6 : -6,
     transform: [{ rotate: '135deg' }],
     zIndex: 1000,
   },
@@ -101,8 +103,10 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     top: Platform.OS === 'web' ? 4 : 2,
     right: Platform.OS === 'web' ? 4 : 2,
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 16 : 12) 
-      : (Platform.OS === 'web' ? 14 : 10),
+      ? (Platform.OS === 'web' ? 18 : 12) 
+      : (webColumnCount === 2 
+        ? (Platform.OS === 'web' ? 16 : 10)
+        : (Platform.OS === 'web' ? 12 : 8)),
     fontWeight: '500',
     color: isDark ? '#FFFFFF' : '#333333'
   },
@@ -123,8 +127,10 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   holidayIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 14 : 10) 
-      : (Platform.OS === 'web' ? 10 : 8)
+      ? (Platform.OS === 'web' ? 16 : 10) 
+      : (webColumnCount === 2 
+        ? (Platform.OS === 'web' ? 14 : 8) 
+        : (Platform.OS === 'web' ? 12 : 8))
   },
   billIconContainer: {
     position: 'absolute',
@@ -135,8 +141,10 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   billIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 12 : 9) 
-      : (Platform.OS === 'web' ? 8 : 6),
+      ? (Platform.OS === 'web' ? 14 : 9) 
+      : (webColumnCount === 2 
+        ? (Platform.OS === 'web' ? 12 : 6) 
+        : (Platform.OS === 'web' ? 10 : 6)),
     color: isDark ? '#FF8A80' : '#E57373',
     textAlign: 'center',
     maxWidth: '100%',
@@ -149,8 +157,10 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   birthdayIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 14 : 10) 
-      : (Platform.OS === 'web' ? 10 : 8)
+      ? (Platform.OS === 'web' ? 16 : 10) 
+      : (webColumnCount === 2 
+        ? (Platform.OS === 'web' ? 14 : 8) 
+        : (Platform.OS === 'web' ? 12 : 8))
   },
   // Dots
   indicatorContainer: {

@@ -96,8 +96,8 @@ export const BillCard = ({
           </YStack>
         )}
 
-        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : 4, marginTop: isIpad() ? 4 : 4 }}>
-          <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? -4 : 4 }}>
+        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb? 16 : 4, marginTop: isIpad() ? 4 : 4 }}>
+          <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? -4 : 4, paddingLeft: isWeb? 16 : 0}}>
             <Text
               color={isDark ? '#f9f9f9' : '#222'}
               fontSize="$4"
@@ -110,7 +110,7 @@ export const BillCard = ({
             </Text>
           </XStack>
 
-          <XStack mt={isIpad() ? "$2" : "$1.5"} ai="center" gap="$1" style={{ minWidth: 0 }}>
+          <XStack mt={isIpad() ? "$2" : "$1.5"} ai="center" gap="$1" style={{ minWidth: 0, paddingLeft: isWeb? 6 : 0, marginBottom: isWeb? 8 : 0 }}>
             <YStack width={42} height={28} br="$6" ai="center" jc="center">
               <Icon size={isIpad() ? 26 : 22} color={isDark ? 'white' : '#666'} />
             </YStack>

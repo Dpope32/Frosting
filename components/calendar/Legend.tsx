@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, Platform, ScrollView } from 'react-native';
+import { isWeb } from 'tamagui';
 //import { useNBAStore } from '@/store/NBAStore';
 //import { useUserStore } from '@/store/UserStore';
 //import { nbaTeams } from '@/constants/nba';
@@ -54,35 +55,59 @@ export const Legend: React.FC<LegendProps> = ({ isDark, eventTypes = [] }) => {
           backgroundColor: 'transparent',
           ...Platform.select({
             web: {
-              marginHorizontal: 20,
+              marginHorizontal: 0,
+              paddingHorizontal: 0,
             },
           }),
         }
       ]}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={[styles.row, isWebOrIpad && styles.rowWebIpad]}>
-          {items.map((item, index) => (
-            <View key={index} style={[styles.item, isWebOrIpad && styles.itemWebIpad]}>
-              <View style={[
-                styles.dot, 
-                { backgroundColor: item.color },
-                isWebOrIpad && styles.dotWebIpad
-              ]} />
-              <Text style={[
-                styles.label, 
-                { color: isDark ? '#BBBBBB' : '#555555' },
-                isWebOrIpad && styles.labelWebIpad
-              ]}>
-                {item.label}
-              </Text>
-            </View>
-          ))}
+      {isWeb ? (
+        <View style={styles.webContainer}>
+          <View style={styles.webContent}>
+            {items.map((item, index) => (
+              <View key={index} style={styles.webItem}>
+                <View style={[
+                  styles.dot, 
+                  { backgroundColor: item.color },
+                  styles.webDot
+                ]} />
+                <Text style={[
+                  styles.label, 
+                  { color: isDark ? '#BBBBBB' : '#555555' },
+                  styles.webLabel
+                ]}>
+                  {item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={[styles.row, isWebOrIpad && styles.rowWebIpad]}>
+            {items.map((item, index) => (
+              <View key={index} style={[styles.item, isWebOrIpad && styles.itemWebIpad]}>
+                <View style={[
+                  styles.dot, 
+                  { backgroundColor: item.color },
+                  isWebOrIpad && styles.dotWebIpad
+                ]} />
+                <Text style={[
+                  styles.label, 
+                  { color: isDark ? '#BBBBBB' : '#555555' },
+                  isWebOrIpad && styles.labelWebIpad
+                ]}>
+                  {item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -141,5 +166,30 @@ const styles = StyleSheet.create({
   nbaLogoWebIpad: {
     width: 16,
     height: 16,
+  },
+  webContainer: {
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  webContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 20,
+    justifyContent: 'flex-start',
+  },
+  webItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    minWidth: 100,
+  },
+  webDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  webLabel: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

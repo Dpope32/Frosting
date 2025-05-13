@@ -102,6 +102,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
 
   const squareSize = 20;
   const gap = isMobile ? 3 : 4;
+  const cellsToShow = isMobile ? 15 : 73;
 
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
     if (isMobile) {
@@ -360,9 +361,10 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'transparent'}
             mb={history.length === 1 ? 4 : 0}
             gap={6}
+            maxWidth="100%"
           >
-            <XStack gap={gap}>
-              {Array.from({ length: 15 }).map((_, idx) => {
+            <XStack gap={gap} minWidth={isMobile ? undefined : `${cellsToShow * (squareSize + gap)}px`}>
+              {Array.from({ length: cellsToShow }).map((_, idx) => {
                 const day = history[history.length - 1 - idx];
                 return (
                   <YStack
@@ -382,39 +384,10 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                     alignItems="center"
                     justifyContent="center"
                     opacity={day && day.date === today ? 1 : 0.8}
-                  >
-                  </YStack>
+                  />
                 );
               })}
             </XStack>
-            {(history.length > 15) && (
-              <XStack gap={gap} mt={4}>
-                {Array.from({ length: 15 }).map((_, idx) => {
-                  const day = history[history.length - 16 - idx];
-                  return (
-                    <YStack
-                      key={day ? day.date : `r2-${idx}`}
-                      width={squareSize}
-                      height={squareSize}
-                      borderRadius={3}
-                      backgroundColor={day
-                        ? day.completed
-                          ? '#00C851'
-                          : isDark
-                            ? '#333'
-                            : '#E0E0E0'
-                        : isDark
-                          ? '#333'
-                          : '#E0E0E0'}
-                      alignItems="center"
-                      justifyContent="center"
-                      opacity={day && day.date === today ? 1 : 0.8}
-                    >
-                    </YStack>
-                  );
-                })}
-              </XStack>
-            )}
           </YStack>
         </XStack>
 

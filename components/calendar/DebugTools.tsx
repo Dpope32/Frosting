@@ -7,14 +7,15 @@ import { useBillStore } from '@/store/BillStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useVaultStore } from '@/store/VaultStore';
 import { generateBillEvents, generateRandomDate, generateRandomTime } from '@/services/calendarService';
-import { calendarStyles } from './CalendarStyles';
+import { getCalendarStyles } from './CalendarStyles';
 
 interface DebugToolsProps {
   openDebugModal: (data: any) => void;
   isDev: boolean;
+  webColumnCount: number;
 }
 
-export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev }) => {
+export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev, webColumnCount }) => {
   const { showToast } = useToastStore();
   
   if (!isDev) return null;
@@ -262,22 +263,24 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev })
     }
   };
 
+  const styles = getCalendarStyles(webColumnCount);
+
   return (
     <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>
       <TouchableOpacity
-        style={[calendarStyles.debugButton, { backgroundColor: '#666666' }]}
+        style={styles.debugButton}
         onPress={handleShowDebugInfo}
       >
         <MaterialIcons name="bug-report" size={24} color="white" />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[calendarStyles.debugButton, { backgroundColor: '#ff6b6b' }]}
+        style={styles.debugButton}
         onPress={handleGenerateTestData}
       >
         <FontAwesome5 name="database" size={20} color="white" />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[calendarStyles.debugButton, { backgroundColor: '#e74c3c' }]}
+        style={styles.debugButton}
         onPress={handleClearAllData}
       >
         <MaterialIcons name="clear-all" size={24} color="white" />

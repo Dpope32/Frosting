@@ -59,10 +59,13 @@ export const ProjectCardWebView = ({
       br="$4"
       ai="center"
       animation="quick"
-      width={300}
-      minWidth={288}
-      maxWidth={400}
-      minHeight={120}
+      width={1300}
+      minWidth={1300}
+      marginTop={30}
+      maxWidth={1100}
+      borderWidth={4}
+      borderColor={project.status === 'completed' ? '$green10' : project.status === 'in_progress' ? '$yellow10' : project.status === 'pending' ? '$orange10' : project.status === 'past_deadline' ? '$red10' : '$gray10'}
+      minHeight={260}
       position="relative"
       hoverStyle={{
         transform: [{ scale: 1.02 }],
@@ -124,21 +127,21 @@ export const ProjectCardWebView = ({
           isWeb={true}
         />
 
-        <XStack ai="center" gap="$2" mb="$2">
-          <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+        <XStack ai="center" gap="$2" my="$2" ml={"$5"}>
+          <Text color={isDark ? '#ccc' : '#666'} fontSize="$4" w={120} fontFamily="$body">
             Description:
           </Text>
-          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$4" flex={1} fontFamily="$body">
             {project?.description || 'No description'}
           </Text>
         </XStack>
 
         {project?.deadline && (
-          <XStack ai="center" gap="$2" mb="$2">
-            <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+          <XStack ai="center" gap="$2" my="$2" ml="$5">
+            <Text color={isDark ? '#ccc' : '#666'} fontSize="$4" w={120} fontFamily="$body">
               Deadline:
             </Text>
-            <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+            <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$4" flex={1} fontFamily="$body">
               {getDaysUntilDeadline(project.deadline)}
             </Text>
           </XStack>
@@ -146,15 +149,14 @@ export const ProjectCardWebView = ({
 
         {project.tasks?.length > 0 && (
           <>
-            <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} mt={8} />
-            <YStack pl="$4">
+            <YStack p="$4">
               <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={10} />
               {project.tasks.length > 1 && (
-                <Text fontSize={12} color={isDark ? '#aaa' : '#444'} mb={2} fontFamily="$body">
+                <Text fontSize={16} color={isDark ? '#aaa' : '#444'} mb={2} fontFamily="$body">
                   {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
                 </Text>
               )}
-              <XStack gap={12} flexWrap="wrap" mb={10} >
+              <XStack gap={12} flexWrap="wrap" mb={10} px={"$2"}>
                 {project.tasks.map((task) => (
                   <TaskListItem
                     key={task.id}
@@ -170,7 +172,7 @@ export const ProjectCardWebView = ({
 
         {project.attachments?.length > 0 && (
           <>
-            <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} mt={8} />
+            <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} my={8} />
             <ProjectAttachments attachments={project.attachments} isDark={isDark} onImagePress={onImagePress} />
           </>
         )}

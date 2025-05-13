@@ -1,5 +1,5 @@
 import React from 'react'
-import { XStack, Text, Button } from 'tamagui'
+import { XStack, Text, Button, } from 'tamagui'
 import { Plus } from '@tamagui/lucide-icons'
 import { Project } from '@/types/project'
 import { ProjectStatusBadge } from './ProjectStatusBadge'
@@ -19,12 +19,12 @@ export const ProjectCardHeader = ({
   isWeb
 }: ProjectCardHeaderProps) => {
   return (
-    <XStack jc="space-between" ai="center" mt="$1" mb="$2">
-      <XStack ai="center" gap="$2" f={1} flexWrap="wrap">
+    <XStack jc="space-between" ai="center" mt={isWeb? "$5" : "$1"} ml={isWeb? 16 : 0} mb="$2">
+      <XStack ai="center" gap={isWeb? "$3" : "$2"} f={1} flexWrap="wrap">
         <Text 
           color={isDark ? '#f6f6f6' : '#222'} 
-          fontSize={isWeb ? "$4" : "$5"} 
-          fontWeight="bold" 
+          fontSize={isWeb ? "$5" : "$5"} 
+          fontWeight="bold"   
           fontFamily="$body"
         >
           {project.name}
@@ -37,8 +37,8 @@ export const ProjectCardHeader = ({
           if (!d || isNaN(d.getTime())) return null;
           return (
             <XStack ai="center" gap="$1">
-              <MaterialIcons name="event" size={isWeb ? 14 : 12} color={isDark ? '#999' : '#999'} />
-              <Text fontSize={isWeb ? '$3' : '$4'} color={isDark ? '#f6f6f6' : '#222'} fontFamily="$body">
+              <MaterialIcons name="event" size={isWeb ? 16 : 12} color={isDark ? '#999' : '#999'} />
+              <Text fontSize={isWeb ? 18 : '$4'} color={isDark ? '#f6f6f6' : '#222'} fontFamily="$body">
                 {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </Text>
             </XStack>

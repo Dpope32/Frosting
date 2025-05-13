@@ -14,7 +14,7 @@ import { CalendarAnalytics } from '@/components/calendar/CalendarAnalytics';
 import { DebugTools } from '@/components/calendar/DebugTools';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
-import { calendarStyles } from '@/components/calendar/CalendarStyles';
+import { getCalendarStyles } from "@/components/calendar/CalendarStyles";
 import { getUSHolidays } from '@/services/holidayService';
 import { isIpad } from '@/utils/deviceUtils';
 import { BlurView } from 'expo-blur';
@@ -142,14 +142,16 @@ export default function CalendarScreen() {
     }
   }, [webColumnCount, viewMode]);
 
+  const styles = getCalendarStyles(webColumnCount);
+
   return (
     <View style={[
-      calendarStyles.container, 
+      styles.container, 
       isDark? { backgroundColor: '#000' }: { backgroundColor: '#f9f9f9' }
     ]}>
       {activeEventTypes.length > 0 && (
         <BlurView 
-          intensity={isDark ? 15 : 30}
+          intensity={isWeb? 2 : isDark ? 15 : 30}
           tint={isDark ? 'dark' : 'light'}
         >
           <Legend isDark={isDark} eventTypes={activeEventTypes} />
@@ -158,14 +160,14 @@ export default function CalendarScreen() {
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
         {isWeb || isIpadDevice ? (
           <View style={[
-            calendarStyles.webMonthsContainer,
+            styles.webMonthsContainer,
             isWeb && webColumnCount === 2 && { justifyContent: 'center' }
           ]}>
             {months.map((date, index) => (
               <View
                 key={index}
                 style={[
-                  calendarStyles.webMonthWrapper,
+                  styles.webMonthWrapper,
                   isWeb && { 
                     width: webColumnCount === 3 ? '33%' : 
                            webColumnCount === 2 ? '45%' : '80%' 
@@ -246,7 +248,7 @@ export default function CalendarScreen() {
       />
 
       <CalendarAnalytics visible={debugModalVisible}  onClose={closeDebugModal} debugData={debugData} isDark={isDark}/>
-      <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} />
+      <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} webColumnCount={webColumnCount} />
     </View>
   );
 }

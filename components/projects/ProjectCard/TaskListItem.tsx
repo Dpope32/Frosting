@@ -1,5 +1,5 @@
 import React from 'react'
-import { XStack, Text, Button } from 'tamagui'
+import { XStack, Text, Button, isWeb } from 'tamagui'
 import { TaskPriority } from '@/types/task'
 import { getPriorityColor } from '@/utils/styleUtils'
 
@@ -18,8 +18,8 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
   return (
     <XStack
       ai="center"
-      px={8}
-      py={3}
+      px={isWeb? 16 : 4}
+      py={isWeb? 6 : 3}
       br={10}
       bg={
         task.completed 
@@ -34,10 +34,11 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
         opacity: task.completed ? 0.6 : 1,
         position: 'relative',
         marginBottom: 0,
-        width: '48%',
-        minWidth: 130,
-        maxWidth: 300,
-        flexBasis: '48%',
+        width: isWeb ? '100%' : '48%',
+        minWidth: isWeb ? 150 : 130,
+        maxWidth: isWeb ? 280 : 300,
+        flexBasis: isWeb ? '100%' : '48%',
+        marginTop: isWeb ? 8 : 4,
       }}
     >
       <Button
