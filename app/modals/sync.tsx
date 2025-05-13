@@ -10,7 +10,7 @@ import { useToastStore } from '@/store/ToastStore';
 import { useRegistryStore } from '@/store/RegistryStore';
 import { isIpad } from '@/utils/deviceUtils';
 import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal';
-import { pushSnapshot, pullLatestSnapshot } from '@/sync/pocketSync';
+import { pushSnapshot, pullLatestSnapshot, exportLogsToServer } from '@/sync/pocketSync';
 import { exportEncryptedState, generateSyncKey } from '@/sync/registrySyncManager';
 import SyncTable from '@/components/sync/syncTable';
 import { AUTHORIZED_USERS } from '@/constants/KEYS';
@@ -272,6 +272,25 @@ export default function SyncScreen() {
     handlePremiumToggle();
   };
 
+  // Add this function to handle log export
+  const exportLogs = async () => {
+    if (!premium) {
+      useToastStore.getState().showToast('Premium required for log export', 'error');
+      return;
+    }
+    
+    try {
+      addSyncLog('Exporting logs to server...', 'info');
+      await exportLogsToServer(syncLogs);
+      addSyncLog('Logs exported successfully', 'success');
+      useToastStore.getState().showToast('Logs exported successfully', 'success');
+    } catch (error) {
+      addSyncLog('Failed to export logs', 'error', 
+        error instanceof Error ? error.message : String(error));
+      useToastStore.getState().showToast('Failed to export logs', 'error');
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top, marginBottom: baseSpacing * 2 }]}>
       <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$3"}>
@@ -301,7 +320,20 @@ export default function SyncScreen() {
         </XStack>
 
         {premium && (
-            <PremiumLogs isLoading={isLoading} syncStatus={syncStatus} syncLogs={syncLogs} showDetails={showDetails} toggleDetails={toggleDetails} clearLogs={clearLogs} performSync={performSync} handleSyncButtonPress={handleSyncButtonPress} premium={premium} devices={devices} contentWidth={contentWidth} />
+            <PremiumLogs 
+              isLoading={isLoading} 
+              syncStatus={syncStatus} 
+              syncLogs={syncLogs} 
+              showDetails={showDetails} 
+              toggleDetails={toggleDetails} 
+              clearLogs={clearLogs} 
+              exportLogs={exportLogs}
+              performSync={performSync} 
+              handleSyncButtonPress={handleSyncButtonPress} 
+              premium={premium} 
+              devices={devices} 
+              contentWidth={contentWidth} 
+            />
         )}
       </YStack>
 

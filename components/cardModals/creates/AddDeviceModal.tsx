@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Button, YStack, XStack } from 'tamagui';
@@ -11,85 +11,115 @@ import { useToastStore } from '@/store/ToastStore';
 import { TextInput } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { generateSyncKey } from '@/sync/registrySyncManager';
+import { createOrJoinWorkspace, getCurrentWorkspaceId } from '@/sync/pocketSync';
+import { addSyncLog } from '@/components/sync/syncUtils';
 import { baseSpacing, fontSizes, cardRadius, buttonRadius, getColors } from '@/components/sync/sharedStyles';
 
-export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
+type AddDeviceModalProps = {
+  onClose: () => void;
+  currentWorkspaceId?: string | null;
+  onWorkspaceCreated?: (id: string, inviteCode: string) => void;
+  onWorkspaceJoined?: (id: string) => void;
+};
+
+export default function AddDeviceModal({ 
+  onClose, 
+  currentWorkspaceId, 
+  onWorkspaceCreated, 
+  onWorkspaceJoined 
+}: AddDeviceModalProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [isLoading, setIsLoading] = useState(false);
-  const [deviceId, setDeviceId] = useState('');
-  const [peerCode, setPeerCode] = useState('');
-  const [devices, setDevices] = useState<any[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(currentWorkspaceId || null);
+  const [inviteCode, setInviteCode] = useState<string>('');
+  const [inputInviteCode, setInputInviteCode] = useState<string>('');
+  const [inputWorkspaceId, setInputWorkspaceId] = useState<string>('');
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
 
-  const handleCreateSpace = async () => {
+  // Check if already in a workspace on mount
+  useEffect(() => {
+    const checkWorkspace = async () => {
+      const id = await getCurrentWorkspaceId();
+      if (id) {
+        setWorkspaceId(id);
+        if (modalStep === 'choose') {
+          setModalStep('connected');
+        }
+      }
+    };
+    
+    checkWorkspace();
+  }, []);
+
+  const handleCreateWorkspace = async () => {
     setModalStep('creating');
     try {
-      console.log('🔄 Creating sync space...');
       setIsLoading(true);
-
-      // Generate device ID using the sync key
-      const syncKey = await generateSyncKey();
-      console.log('📱 Device sync key generated:', syncKey ? '✅ Success' : '❌ Failed');
+      addSyncLog('Creating new sync workspace...', 'info');
       
-      if (!syncKey) {
-        throw new Error('Failed to generate device sync key');
+      // Create a new workspace
+      const result = await createOrJoinWorkspace();
+      
+      setWorkspaceId(result.id);
+      setInviteCode(result.inviteCode);
+      
+      if (onWorkspaceCreated) {
+        onWorkspaceCreated(result.id, result.inviteCode);
       }
       
-      setDeviceId(syncKey);
-      console.log('🔑 Device ID set to:', syncKey);
-      
-      setDevices([
-        {
-          id: syncKey,
-          name: 'This Device',
-          status: 'Ready',
-          isCurrentDevice: true,
-          lastActive: Date.now()
-        }
-      ]);
-      setIsInitialized(true);
+      addSyncLog(`Workspace created with ID: ${result.id.substring(0, 8)}`, 'success');
+      useToastStore.getState().showToast('Your workspace is ready!', 'success');
       setModalStep('showCode');
-      console.log('✅ Sync space created successfully');
-      useToastStore.getState().showToast('Your device is ready to connect with others', 'success');
     } catch (error) {
-      console.error('❌ Error initializing sync service:', error);
-      useToastStore.getState().showToast('Failed to initialize sync', 'error');
+      console.error('Error creating workspace:', error);
+      addSyncLog('Failed to create workspace', 'error', 
+        error instanceof Error ? error.message : String(error));
+      useToastStore.getState().showToast('Failed to create workspace', 'error');
       setModalStep('choose');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleJoinSpace = () => {
+  const handleJoinWorkspace = () => {
     setModalStep('joining');
   };
 
-  const connectToPeer = async () => {
-    if (!peerCode.trim()) {
-      useToastStore.getState().showToast('Please enter a valid device code', 'error');
+  const connectToWorkspace = async () => {
+    if (!inputWorkspaceId.trim() || !inputInviteCode.trim()) {
+      useToastStore.getState().showToast('Please enter both workspace ID and invite code', 'error');
       return;
     }
+    
     setIsLoading(true);
     try {
-      setDevices(prev => [...prev, {
-        id: peerCode.trim(),
-        name: 'Connected Device',
-        status: 'Connected',
-        isCurrentDevice: false,
-        lastActive: Date.now()
-      }]);
-      useToastStore.getState().showToast('Successfully connected to device', 'success');
+      addSyncLog('Joining existing workspace...', 'info');
+      
+      // Join an existing workspace
+      const result = await createOrJoinWorkspace(
+        inputWorkspaceId.trim(), 
+        inputInviteCode.trim()
+      );
+      
+      setWorkspaceId(result.id);
+      
+      if (onWorkspaceJoined) {
+        onWorkspaceJoined(result.id);
+      }
+      
+      addSyncLog(`Joined workspace: ${result.id.substring(0, 8)}`, 'success');
+      useToastStore.getState().showToast('Successfully joined workspace', 'success');
       setModalStep('connected');
     } catch (error) {
-      console.error('Failed to connect:', error);
-      useToastStore.getState().showToast('Failed to connect to device', 'error');
-      // Do not add device or advance modal step
+      console.error('Failed to join workspace:', error);
+      addSyncLog('Failed to join workspace', 'error',
+        error instanceof Error ? error.message : String(error));
+      useToastStore.getState().showToast('Failed to join workspace', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -97,17 +127,22 @@ export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
 
   return (
     <BaseCardAnimated
-      title={modalStep === 'connected' ? 'Connected Devices' : 'Add New Device'}
+      title={
+        modalStep === 'connected' ? 'Sync Workspace' : 
+        modalStep === 'showCode' ? 'Share Workspace' :
+        modalStep === 'joining' ? 'Join Workspace' :
+        'Sync Setup'
+      }
       onClose={onClose}
     >
       <YStack gap={baseSpacing * 2} padding={baseSpacing}>
         {modalStep === 'choose' && (
           <>
             <Text color={colors.subtext} fontSize={fontSizes.md}>
-              How would you like to sync this device?
+              How would you like to sync your data?
             </Text>
             <Button
-              onPress={handleCreateSpace}
+              onPress={handleCreateWorkspace}
               backgroundColor={colors.accentBg}
               borderColor={colors.accent}
               borderWidth={2}
@@ -118,11 +153,11 @@ export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
               style={{ borderRadius: buttonRadius }}
             >
               <Text color={colors.accent} fontSize={fontSizes.md} fontWeight="600">
-                Create New Sync Space
+                Create New Workspace
               </Text>
             </Button>
             <Button
-              onPress={handleJoinSpace}
+              onPress={handleJoinWorkspace}
               backgroundColor={colors.card}
               borderColor={colors.border}
               borderWidth={2}
@@ -133,46 +168,65 @@ export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
               style={{ borderRadius: buttonRadius }}
             >
               <Text color={colors.text} fontSize={fontSizes.md} fontWeight="600">
-                Join Existing Sync Space
+                Join Existing Workspace
               </Text>
             </Button>
           </>
         )}
+        
         {modalStep === 'creating' && (
           <YStack alignItems="center" justifyContent="center" padding={baseSpacing * 2}>
             <ActivityIndicator size="large" color={colors.accent} />
             <Text marginTop={baseSpacing} color={colors.subtext}>
-              Initializing your device...
+              Creating your sync workspace...
             </Text>
           </YStack>
         )}
-        {modalStep === 'showCode' && (
+        
+        {modalStep === 'showCode' && workspaceId && inviteCode && (
           <YStack backgroundColor={colors.card} padding={baseSpacing * 3} borderRadius={cardRadius} marginBottom={baseSpacing * 2}>
             <Text fontSize={fontSizes.sm} color={colors.subtext}>
-              Your Device Code:
+              Workspace ID:
             </Text>
             <XStack justifyContent="space-between" alignItems="center" marginTop={baseSpacing}>
               <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
-                {deviceId ? deviceId : "Device code unavailable. Please try again or contact support."}
+                {workspaceId}
               </Text>
               <Button 
-                size="$3" 
+                size="$2" 
                 onPress={async () => {
-                  if (!deviceId) {
-                    useToastStore.getState().showToast('No device code to copy', 'error');
-                    return;
-                  }
-                  await Clipboard.setStringAsync(deviceId);
-                  useToastStore.getState().showToast('Device code copied', 'success');
+                  await Clipboard.setStringAsync(workspaceId);
+                  useToastStore.getState().showToast('Workspace ID copied', 'success');
                 }}
                 style={{ borderRadius: buttonRadius }}
               >
                 Copy
               </Button>
             </XStack>
-            <Text fontSize={fontSizes.xs} color={colors.subtext} marginTop={baseSpacing}>
-              Share this code with your other devices to connect them.
+            
+            <Text fontSize={fontSizes.sm} color={colors.subtext} marginTop={baseSpacing * 2}>
+              Invite Code:
             </Text>
+            <XStack justifyContent="space-between" alignItems="center" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
+                {inviteCode}
+              </Text>
+              <Button 
+                size="$2" 
+                onPress={async () => {
+                  await Clipboard.setStringAsync(inviteCode);
+                  useToastStore.getState().showToast('Invite code copied', 'success');
+                }}
+                style={{ borderRadius: buttonRadius }}
+              >
+                Copy
+              </Button>
+            </XStack>
+            
+            <Text fontSize={fontSizes.xs} color={colors.subtext} marginTop={baseSpacing}>
+              Share both the Workspace ID and Invite Code with your other devices to connect them.
+            </Text>
+            
             <Button
               onPress={() => setModalStep('connected')}
               backgroundColor={colors.accentBg}
@@ -191,80 +245,118 @@ export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
             </Button>
           </YStack>
         )}
+        
         {modalStep === 'joining' && (
           <YStack gap={baseSpacing * 2} padding={baseSpacing}>
             <Text color={colors.subtext} fontSize={fontSizes.md}>
-              Enter the device code from your other device:
+              Enter the Workspace ID and Invite Code:
             </Text>
             <TextInput
               style={{
                 backgroundColor: colors.card,
-                padding: baseSpacing * 2,
+                padding: baseSpacing * 1.5,
                 borderRadius: cardRadius,
                 color: colors.text,
-                fontSize: fontSizes.lg,
+                fontSize: fontSizes.md,
                 borderWidth: 1,
                 borderColor: colors.border,
               }}
-              value={peerCode}
-              onChangeText={setPeerCode}
-              placeholder="Enter device code"
+              value={inputWorkspaceId}
+              onChangeText={setInputWorkspaceId}
+              placeholder="Workspace ID"
+              placeholderTextColor={colors.subtext}
+            />
+            <TextInput
+              style={{
+                backgroundColor: colors.card,
+                padding: baseSpacing * 1.5,
+                borderRadius: cardRadius,
+                color: colors.text,
+                fontSize: fontSizes.md,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+              value={inputInviteCode}
+              onChangeText={setInputInviteCode}
+              placeholder="Invite Code"
               placeholderTextColor={colors.subtext}
             />
             <Button
-              onPress={connectToPeer}
+              onPress={connectToWorkspace}
               backgroundColor={colors.accent}
               height={44}
               pressStyle={{ scale: 0.97 }}
               animation="quick"
               style={{ borderRadius: buttonRadius }}
+              disabled={isLoading}
             >
-              <Text color="#fff" fontSize={fontSizes.md} fontWeight="600">
-                Connect
-              </Text>
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text color="#fff" fontSize={fontSizes.md} fontWeight="600">
+                  Join Workspace
+                </Text>
+              )}
             </Button>
           </YStack>
         )}
+        
         {modalStep === 'connected' && (
           <YStack gap={baseSpacing}>
-            {devices.map((device: any) => (
+            {workspaceId ? (
+              <YStack>
+                <XStack 
+                  padding={baseSpacing * 2}
+                  backgroundColor={colors.accentBg}
+                  borderRadius={cardRadius}
+                  borderWidth={1}
+                  borderColor={colors.accent}
+                  justifyContent="space-between"
+                  alignItems="center"
+                  width={contentWidth}
+                  alignSelf="center"
+                >
+                  <YStack>
+                    <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.accent}>
+                      Connected to Workspace
+                    </Text>
+                    <Text fontSize={fontSizes.sm} color={colors.subtext} marginTop={4}>
+                      ID: {workspaceId}
+                    </Text>
+                  </YStack>
+                  <MaterialIcons 
+                    name="check-circle" 
+                    size={24} 
+                    color={colors.accent} 
+                  />
+                </XStack>
+                
+                <Text fontSize={fontSizes.sm} color={colors.subtext} marginTop={baseSpacing * 2} textAlign="center">
+                  Your data will automatically sync between all devices connected to this workspace.
+                </Text>
+              </YStack>
+            ) : (
               <XStack
-                key={device.id}
                 padding={baseSpacing * 2}
-                backgroundColor={colors.card}
+                backgroundColor={colors.accentBg}
                 borderRadius={cardRadius}
                 borderWidth={1}
-                borderColor={colors.border}
-                justifyContent="space-between"
+                borderColor={colors.error}
+                justifyContent="center"
                 alignItems="center"
                 width={contentWidth}
                 alignSelf="center"
               >
-                <YStack>
-                  <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
-                    {device.name}
-                  </Text>
-                  <Text fontSize={fontSizes.sm} color={colors.subtext}>
-                    {device.isCurrentDevice
-                      ? (devices.length > 1 ? 'Connected' : 'Waiting for other devices')
-                      : device.status + ' • Last active: ' + new Date(device.lastActive).toLocaleDateString()}
-                  </Text>
-                </YStack>
-                {!device.isCurrentDevice && (
-                  <TouchableOpacity>
-                    <MaterialIcons 
-                      name="more-vert" 
-                      size={24} 
-                      color={colors.text} 
-                    />
-                  </TouchableOpacity>
-                )}
+                <Text fontSize={fontSizes.md} color={colors.error} textAlign="center">
+                  No workspace connected. Create or join a workspace to enable sync.
+                </Text>
               </XStack>
-            ))}
+            )}
+            
             <Button
               onPress={() => setModalStep('choose')}
-              backgroundColor={colors.accentBg}
-              borderColor={colors.accent}
+              backgroundColor={workspaceId ? colors.card : colors.accentBg}
+              borderColor={workspaceId ? colors.border : colors.accent}
               borderWidth={2}
               size="$3"
               height={44}
@@ -273,10 +365,15 @@ export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
               marginTop={baseSpacing * 2}
               style={{ borderRadius: buttonRadius }}
             >
-              <Text color={colors.accent} fontSize={fontSizes.md} fontWeight="600">
-                Add Another Device
+              <Text 
+                color={workspaceId ? colors.text : colors.accent} 
+                fontSize={fontSizes.md} 
+                fontWeight="600"
+              >
+                {workspaceId ? 'Change Workspace' : 'Setup Workspace'}
               </Text>
             </Button>
+            
             <Button
               onPress={onClose}
               backgroundColor={colors.card}

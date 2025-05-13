@@ -19,6 +19,7 @@ interface PremiumLogsProps {
   showDetails: {[key: string]: boolean};
   toggleDetails: (logId: string) => void;
   clearLogs: () => void;
+  exportLogs: () => void;
   performSync: (syncType: 'push' | 'pull' | 'both') => Promise<void>;
   handleSyncButtonPress: () => void;
   premium: boolean;
@@ -33,6 +34,7 @@ export const PremiumLogs = ({
   showDetails,
   toggleDetails,
   clearLogs,
+  exportLogs,
   performSync,
   handleSyncButtonPress,
   premium,
@@ -73,13 +75,14 @@ export const PremiumLogs = ({
           <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
             Sync Progress Log
           </Text>
-          {syncLogs.length > 0 && (
-            <TouchableOpacity onPress={clearLogs}>
-              <Text fontSize={fontSizes.xs} color={colors.accent}>
-                Clear Logs
-              </Text>
+          <XStack gap={10}>
+            <TouchableOpacity onPress={exportLogs}>
+              <Text color={colors.accent} fontWeight="500" fontSize={14}>Export</Text>
             </TouchableOpacity>
-          )}
+            <TouchableOpacity onPress={clearLogs}>
+              <Text color={colors.accent} fontWeight="500" fontSize={14}>Clear</Text>
+            </TouchableOpacity>
+          </XStack>
         </XStack>
         <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
         
