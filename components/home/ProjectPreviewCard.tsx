@@ -38,15 +38,10 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
       <YStack
         borderRadius={12}
         overflow="hidden"
-        mb={isIpad() ? 6 : 8}
+        mb={isIpad() ? 6 : 2}
         style={{
           backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(253, 253, 253, 0.17)',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.4,
-          shadowRadius: 6,
-          elevation: 6,
-          borderColor: isDark ? 'rgba(39, 39, 39, 0.8)' : 'rgba(255, 255, 255, 0.2)',
+          borderColor: isDark ? 'rgba(39, 39, 39, 0.8)' : 'rgba(255, 255, 255, 0.1)',
           borderWidth:  1,
         }}
       >
@@ -70,8 +65,9 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <XStack
-          padding={isIpad() ? 10 : 10}
-          paddingBottom={isIpad() ? 14 : '$3'}
+          padding={isIpad() ? 10 : 3}
+          paddingBottom={isIpad() ? 14 : 8}
+          paddingTop={isIpad() ? 14 : 6}
           paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
@@ -84,7 +80,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 fontFamily="$heading"
                 fontWeight="900"
                 color={isDark ? "#dbd0c6" : "#dbd0c6"}
-                fontSize={isIpad() ? 15 : 14}
+                fontSize={isIpad() ? 15 : 13}
                 maxWidth={'70%'}
                 elevation={2}
                 shadowColor="#000"
@@ -103,7 +99,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 if (d && !isNaN(d.getTime())) {
                   return (
                     <XStack alignItems="center" gap="$1">
-                      <MaterialIcons name="event" size={isIpad() ? 14 : 13} color={isDark ? '#999' : '#999'} />
+                      <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
                       <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
                         {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </Text>

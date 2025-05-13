@@ -29,8 +29,14 @@ export function TimePicker({
   isDark,
   primaryColor,
 }: TimePickerProps) {
+  // Handle time selection completion
+  const handleTimeSelected = () => {
+    setShowTimePicker(false);
+    // We don't call any function to close advanced settings here
+  };
+
   return (
-    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 0} marginRight={0}>
+    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 0} marginRight={0} mt={0} mb={0}>
       {!showTimePicker && (
       <Pressable
         onPress={() => setShowTimePicker(!showTimePicker)}
@@ -84,19 +90,21 @@ export function TimePicker({
             shadowRadius: 8,
             overflow: 'visible',
             position: 'relative',
+            marginTop: 0,
+            marginBottom: 0,
           }}
         >
           <YStack
-            height={Platform.OS === 'web' ? 150 : 280}
+            height={Platform.OS === 'web' ? 130 : 220}
             justifyContent="space-between"
             alignItems="center"
             backgroundColor={isDark ? "#141415" : "white"}
             borderRadius={12}
-            padding="$2"
-            paddingBottom="$4"
+            padding={0}
+            paddingBottom={0}
           >
             {Platform.OS === 'web' ? (
-              <YStack width="100%" gap="$3">
+              <YStack width="100%" gap="$2" pt={10} pb={6}>
                 <input
                   type="time"
                   value={format(selectedDate, 'HH:mm')}
@@ -121,64 +129,68 @@ export function TimePicker({
                     width: '100%'
                   }}
                 />
-                <XStack width="100%" justifyContent="space-between" gap="$2">
+                <XStack width="100%" justifyContent="space-between" gap="$4" mt="$1">
                   <Button
                     onPress={() => setShowTimePicker(false)}
-                    backgroundColor={isDark ? "$gray3" : "$gray3"}
-                    px="$2.5"
-                    py="$2"
+                    backgroundColor={isDark ? "$gray3" : "transparent"}
+                    px="$2"
+                    py="$1"
+                    height={32}
                     br={12}
                     flex={1}
-                    width={isIpad() ? 100 : 60}
+                    borderWidth={1}
+                    borderColor={isDark ? "transparent" : "$gray4"}
                   >
                     <Text color={isDark ? "$gray11" : "$gray11"} fontFamily="$body" fontWeight="500">Cancel</Text>
                   </Button>
                   <Button
-                    onPress={() => setShowTimePicker(false)}
+                    onPress={handleTimeSelected}
                     backgroundColor={primaryColor}
-                    px="$2.5"
-                    py="$1.5"
+                    px="$2"
+                    py="$1"
+                    height={32}
                     br={24}
                     flex={1}
-                    width={isIpad() ? 100 : 60}
                   >
                     <Text color="white" fontFamily="$body" fontWeight="500">Done</Text>
                   </Button>
                 </XStack>
               </YStack>
             ) : (
-              <YStack width="100%" alignItems="center" gap="$3">
+              <YStack width="100%" alignItems="center" gap="$1" pt={6} pb={6}>
                 <DateTimePicker
                   value={new Date(selectedDate)} 
-                  style={{ width: '100%' , height: 200}}
+                  style={{ width: '100%', height: 150}}
                   mode="time"
                   is24Hour={false}
                   onChange={onTimeChange}
                   display="spinner"
                   themeVariant={isDark ? "dark" : "light"}
                 />
-                <XStack width="100%" justifyContent="space-between" gap="$2" px="$2">
+                <XStack width="100%" justifyContent="space-between" gap="$4" px="$2">
                   <Button
                     onPress={() => setShowTimePicker(false)}
-                    backgroundColor={isDark ? "$gray3" : "$gray3"}
-                    px="$4"
-                    py="$2"
+                    backgroundColor={isDark ? "$gray3" : "transparent"}
+                    px="$2"
+                    py="$1"
+                    height={32}
                     br={12}
                     flex={1}
+                    borderWidth={1}
+                    borderColor={isDark ? "transparent" : "$gray4"}
                   >
-                    <Text color={isDark ? "$gray11" : "$gray11"} fontFamily="$body" fontWeight="600">Cancel</Text>
+                    <Text color={isDark ? "$gray11" : "$gray11"} fontFamily="$body" fontWeight="500">Cancel</Text>
                   </Button>
                   <Button
-                    onPress={() => {
-                      setShowTimePicker(false);
-                    }}
+                    onPress={handleTimeSelected}
                     backgroundColor={primaryColor}
-                    px="$4"
-                    py="$2"
-                    br={12}
+                    px="$2"
+                    py="$1"
+                    height={32}
+                    br={24}
                     flex={1}
                   >
-                    <Text color="white" fontFamily="$body" fontWeight="600">Done</Text>
+                    <Text color="white" fontFamily="$body" fontWeight="500">Done</Text>
                   </Button>
                 </XStack>
               </YStack>

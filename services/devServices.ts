@@ -103,7 +103,7 @@ export const addWebsiteRedesignProject = () => {
   const websiteProject = {
     id: generateId(),
     name: 'Website Redesign',
-    description: 'Create a modern, responsive website redesign for our main product with updated branding, improved UX, and faster performance.',
+    description: 'Create a modern, responsive website with updated branding, improved UX, and faster performance.',
     createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     tags: [

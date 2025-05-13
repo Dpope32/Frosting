@@ -3,7 +3,6 @@ import { isWeb } from 'tamagui'
 import { Project } from '@/types/project'
 import { ProjectCardWebView } from './ProjectCard/ProjectCardWebView';
 import { ProjectCardMobile } from './ProjectCardMobile'
-import { useToastStore } from '@/store/ToastStore'
 
 interface ProjectCardProps {
   project: Project

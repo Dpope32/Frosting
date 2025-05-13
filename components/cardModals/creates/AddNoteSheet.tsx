@@ -285,7 +285,7 @@ export function AddNoteSheet({
               <TextInput
                 ref={titleInputRef}
                 placeholder="Enter title"
-                autoCapitalize="words" 
+                autoCapitalize="sentences" 
                 value={localTitle}
                 onChangeText={handleTitleChange}
                 returnKeyType="done" 
@@ -300,7 +300,7 @@ export function AddNoteSheet({
                   borderWidth: 0,
                   fontFamily: 'System',
                   color: isDark ? '#fff' : '#000',
-                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 150,
+                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 175,
                   borderBottomWidth: 1,
                   borderBottomColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
                 }} 
@@ -350,7 +350,7 @@ export function AddNoteSheet({
         </XStack>
         
         <View style={{flex: 1}}>
-          <View style={{ height: 1, marginVertical: isIpad() ? 10 : 6, marginHorizontal: -10 }} />
+          <View style={{ height: 1, marginVertical: isIpad() ? 10 : 6, marginHorizontal: -8 }} />
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
@@ -374,8 +374,10 @@ export function AddNoteSheet({
                 showsVerticalScrollIndicator={false}
                 keyboardDismissMode="none"
               >
-                <YStack gap={0} paddingTop={20}>
+                <YStack gap={0} paddingTop={16} marginLeft={-8}>
                     <TagSelector tags={editTags} onTagsChange={handleTagsChange} />
+                  </YStack>
+                  <YStack gap={0} paddingTop={8} >
                   <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', marginVertical: 12, marginHorizontal: -10 }} />
                   <YStack>
                     <ContentInput
@@ -421,13 +423,11 @@ export function AddNoteSheet({
               >
                 {!keyboardVisible &&
                 <XStack 
-                  gap="$2" 
+                  gap="$4" 
                   justifyContent="space-between" 
                   marginTop={8}
                   paddingBottom={0}
                   marginBottom={0}
-                  borderTopWidth={1}
-                  borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
                 >
                   {selectedNote ? (
                     <>
@@ -440,7 +440,7 @@ export function AddNoteSheet({
                         flex={1}
                       >
                         <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
-                          Delete Note
+                          Delete
                         </Text>
                       </Button>
                       
@@ -465,7 +465,7 @@ export function AddNoteSheet({
                           fontSize={13}
                           fontWeight="600"
                         >
-                          Save Changes
+                          Save
                         </Text>
                       </Button>
                     </>
@@ -475,7 +475,6 @@ export function AddNoteSheet({
                         br={12}
                         py={Platform.OS === 'web' ? "$1" : "$1.5"}
                         onPress={() => {
-                           // Make sure the title is saved before saving the entire note
                            if (localTitle.trim()) {
                              setEditTitle(localTitle.trim());
                            }

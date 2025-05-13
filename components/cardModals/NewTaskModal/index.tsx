@@ -25,6 +25,7 @@ import { DateSelector } from './DateSelector'
 import { ShowInCalendar } from './showInCalendar'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { styles } from '@/components/styles'
+import { AdvancedSettings } from './AdvancedSettings'
 
 interface NewTaskModalProps {
   open: boolean
@@ -45,6 +46,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [keyboardOffset, setKeyboardOffset] = useState(0)
+  const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false)
+  const [isDatePickerVisible, setIsDatePickerVisible] = useState(false)
   const nameInputRef =  React.useRef<any>(null);
   const username = useUserStore((state) => state.preferences.username)
 
@@ -57,6 +60,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setIsSubmitting(false);
       setKeyboardOffset(0);
       setSelectedDate(new Date()); 
+      setIsAdvancedSettingsOpen(false);
+      setIsDatePickerVisible(false);
     } else {
       setTimeout(() => {
         setShowTimePicker(false);
@@ -64,6 +69,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         setIsSubmitting(false);
         setKeyboardOffset(0);
         setSelectedDate(new Date());
+        setIsAdvancedSettingsOpen(false);
+        setIsDatePickerVisible(false);
       }, 200);
     }
   }, [open]);
@@ -85,7 +92,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       hideSub.remove()
     }
   }, [])
-
 
   const toggleDay = useCallback((day: keyof typeof WEEKDAYS, e?: any) => {
     if (e) {
@@ -154,6 +160,11 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     setNewTask(prev => ({ ...prev, showInCalendar }))
   }, [])
 
+  const handleDatePickerVisibilityChange = useCallback((visible: boolean) => {
+    setIsDatePickerVisible(visible);
+    // Don't close advanced settings when the date picker is shown
+  }, []);
+
   const handleAddTask = useCallback(async () => {
     if (isSubmitting) return
     try {
@@ -205,6 +216,9 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     setNewTask(prev => ({ ...prev, tags }))
   }, [])
 
+  // Determine if submit button should be hidden
+  const shouldHideSubmitButton = showTimePicker || isDatePickerVisible;
+
   return (
     <Base
       onClose={() => {
@@ -222,7 +236,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4} pb={12}>
         <DebouncedInput
             ref={nameInputRef}
-            style={[styles.input, { backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)', color: isDark ? '#fff' : '#000' }]}
+            style={[styles.input, { borderWidth: 1, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.02)', color: isDark ? '#fff' : '#000' }]}
             placeholder={`What do you need to do ${username}?`} 
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
             value={newTask.name}
@@ -251,43 +265,39 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               recurrenceDate={newTask.recurrenceDate || new Date().toISOString().split('T')[0]}
               onDateSelect={(date) => setNewTask(prev => ({ ...prev, recurrenceDate: date }))}
               preferences={preferences}
+              onDatePickerVisibilityChange={handleDatePickerVisibilityChange}
             />
           )}
-          {!showTimePicker && (
-         <ShowInCalendar
+          
+          <AdvancedSettings
+            category={newTask.category}
+            onCategorySelect={handleCategorySelect}
+            tags={newTask.tags || []}
+            onTagsChange={handleTagChange}
             showInCalendar={newTask.showInCalendar ?? false}
             onShowInCalendarChange={handleShowInCalendarChange}
+            showTimePicker={showTimePicker}
+            setShowTimePicker={setShowTimePicker}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            onTimeChange={handleTimeChange}
+            onWebTimeChange={handleWebTimeChange}
+            time={newTask.time}
             isDark={isDark}
-           />
+            primaryColor={preferences.primaryColor}
+            isOpen={isAdvancedSettingsOpen}
+            onOpenChange={setIsAdvancedSettingsOpen}
+          />
+
+          {!shouldHideSubmitButton && (
+            <Form.Trigger asChild>
+              <SubmitButton 
+                isSubmitting={isSubmitting} 
+                preferences={preferences}
+                onPress={handleAddTask}
+              />
+            </Form.Trigger>
           )}
-          {!showTimePicker && (
-          <CategorySelector selectedCategory={newTask.category} onCategorySelect={handleCategorySelect}/>
-          )}
-          {!showTimePicker && (
-          <YStack py={7} >
-          <TagSelector onTagsChange={handleTagChange} tags={newTask.tags || []}/>
-          </YStack>
-          )}
-          <YStack pl={6}>
-          <TimePicker
-              showTimePicker={showTimePicker}
-              setShowTimePicker={setShowTimePicker}
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              onTimeChange={handleTimeChange}
-              onWebTimeChange={handleWebTimeChange}
-              time={newTask.time}
-              isDark={isDark}
-              primaryColor={preferences.primaryColor}
-            />
-      </YStack>
-          <Form.Trigger asChild>
-            <SubmitButton 
-              isSubmitting={isSubmitting} 
-              preferences={preferences}
-              onPress={handleAddTask}
-            />
-          </Form.Trigger>
         </Form>
       </ScrollView>
     </Base>

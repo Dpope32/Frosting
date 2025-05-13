@@ -21,7 +21,7 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   }
 
   return (
-    <XStack px={isIpad() ? "$2.5" : "$2.5"} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
+    <XStack px={isIpad() ? "$2.5" : "$2.5"} ml={6} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority?</Text>
       <XStack gap={isIpad() ? "$2" : "$2"} ml={isIpad() ? "$2.5" : "$2.5"}>
         {['high', 'medium', 'low'].map(priority => {
@@ -44,7 +44,7 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
               borderColor={
                 selectedPriority === priority
                   ? 'transparent'
-                  : isDark ? "$gray7" : "$gray4"
+                  : isDark ? "$gray7" : "$gray8"
               }
             >
               <Icon

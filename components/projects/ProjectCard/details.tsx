@@ -88,28 +88,6 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
     )
   }
 
-  // Created row
-  rows.push(
-    <TableRow key="created" label="Created:" rowIndex={rows.length}>
-      <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
-        {(() => {
-          let dateObj = project?.createdAt
-          if (dateObj && typeof dateObj === 'string') {
-            dateObj = new Date(dateObj)
-          }
-          if (dateObj && dateObj instanceof Date && !isNaN(dateObj.getTime())) {
-            return dateObj.toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            })
-          }
-          return '-'
-        })()}
-      </Text>
-    </TableRow>,
-  )
-
   // People row
   if (project.people && project.people.length > 0) {
     rows.push(

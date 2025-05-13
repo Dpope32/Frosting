@@ -33,9 +33,7 @@ export const ProjectCardMobile = ({
   hideCompletedOverlay = false
 }: ProjectCardMobileProps) => {
     const priorityColor = getPriorityColor(project.priority);
-    const showToast = useToastStore((state) => state.showToast);
     
-
     return (
         <ProjectCardWrapper 
           project={project} 

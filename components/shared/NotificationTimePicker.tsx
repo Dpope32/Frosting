@@ -68,7 +68,7 @@ export const NotificationTimePicker: React.FC<NotificationTimePickerProps> = ({
           onPress={() => setShowTimePicker(true)}
           width="100%"
           backgroundColor={isDark ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.05)'}
-          borderColor="rgba(255, 255, 255, 0.1)"
+          borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"}
           borderWidth={1}
           borderRadius={8}
           height={44}
@@ -78,7 +78,7 @@ export const NotificationTimePicker: React.FC<NotificationTimePickerProps> = ({
           flexDirection="row"
           paddingHorizontal={12}
         >
-          <Text fontFamily="$body" color={isDark ? '#999999' : '#000'}>
+          <Text fontFamily="$body" color={isDark ? '#999999' : '#9c9c9c'}>
             Select notification time (optional)
           </Text>
           <Ionicons name="chevron-down" size={16} color={isDark ? '#555555' : '#000'} />

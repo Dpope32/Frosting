@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
-import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
+import { YStack, XStack, Text, Button, isWeb, Separator } from 'tamagui';
 import { Platform, Alert, Keyboard } from 'react-native';
 import { StatusSelector } from '../NewTaskModal/StatusSelector';
 import { PeopleSelector } from '../NewTaskModal/PeopleSelector';
@@ -223,6 +223,11 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         px={isIpad() ? '$4' : '$2.5'} 
         pt={6}
       >
+        <Separator 
+          marginBottom="$2" 
+          height={1}
+          borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} 
+        />
         <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$2.5" mx={0}>
         <DeadlineInputter deadline={deadline} setDeadline={setDeadline} isDark={isDark} />
         </YStack>
@@ -253,10 +258,12 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           placeholder="Description (optional)"
           onDebouncedChange={setDescription}
           multiline={true}
-          numberOfLines={4}
+          numberOfLines={5}
           fontSize={isIpad() ? 17 : 15}
           fontFamily="$body"
           fontWeight="bold"
+          w="97%"
+          ml={isIpad() ? 10 : 6}
           color={isDark ? '#f6f6f6' : '#111'}
           backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
           borderWidth={1}

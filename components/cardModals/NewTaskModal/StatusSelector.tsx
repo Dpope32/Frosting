@@ -22,7 +22,7 @@ export function StatusSelector({ selectedStatus, onStatusSelect }: StatusSelecto
   const isDark = colorScheme === 'dark';
 
   return (
-    <XStack px={isIpad() ? '$2.5' : '$1.5'} gap={isIpad() ? '$2' : '$2.5'} alignItems="center" mb="$2" mt="$-2">
+    <XStack px={isIpad() ? '$3.5' : '$3'} gap={isIpad() ? '$2' : '$2.5'} alignItems="center" mb="$2" mt="$-2">
       <XStack gap={isIpad() ? '$2' : '$2'}>
         {statuses.map(({ key, label, color }) => (
           <Button

@@ -98,10 +98,7 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
         borderRightWidth: project.status === 'completed' ? 0 : 2,
         borderBottomWidth: project.status === 'completed' ? 0 : 2,
         borderLeftWidth: project.status === 'completed' ? 0 : 3,
-        borderTopColor: isDark ? '#333' : '#e0e0e0',
-        borderRightColor: isDark ? '#333' : '#e0e0e0',
-        borderBottomColor: isDark ? '#333' : '#e0e0e0',
-        borderLeftColor: project.status === 'completed' ? 'transparent' : priorityColor,
+        borderColor: project.status === 'completed' ? 'transparent' : priorityColor,
         backgroundColor: isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(255, 255, 255, 0.7)",
         ...(isWeb ? {} : {
           shadowColor: '#000',
@@ -162,12 +159,13 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
           right={isIpad() ? 16 : 14}
           zIndex={30}
         >
-          <MaterialIcons name="edit" size={18} color={isDark ? '#696969' : '#667766'} />
+          <MaterialIcons name="edit" size={18} color={isDark ? '#696969' : '#9c9c9c'} />
         </Button>
       )}
 
       <LinearGradient
-        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : 
+          ['rgba(255, 255, 255, 0.27)', 'rgba(238, 238, 238, 0.27)', 'rgba(238, 238, 238, 0.57)', 'rgba(238, 238, 238, 0.77)']}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 1, y: 1 }}
         style={{

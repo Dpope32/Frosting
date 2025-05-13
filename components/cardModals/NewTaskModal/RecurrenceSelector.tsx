@@ -39,7 +39,7 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
                 borderColor={
                   selectedPattern === pattern.value
                     ? 'transparent'
-                    : isDark ? "$gray7" : "$gray4"
+                    : isDark ? "$gray7" : "$gray8"
                 }
               >
                 <XStack alignItems="center" gap="$1.5">

@@ -26,6 +26,7 @@ const TAG_COLORS = [
   '#22C55E', // Green
   '#F97316', // Orange
   '#EF4444', // Red
+  '#1E40AF', // Indigo
 ];
 
 
@@ -47,7 +48,7 @@ export function TagSelector({
   const showToast = useToastStore((s) => s.showToast);
   const lastTapRef = useRef<number>(0);
 
-  const NEUTRAL_BORDER = isDark ? '$gray7' : '$gray4'; // Use Tamagui tokens for consistency
+  const NEUTRAL_BORDER = isDark ? '$gray7' : '$gray8'; // Use Tamagui tokens for consistency
   const NEUTRAL_TEXT = isDark ? '$gray11' : '$gray11'; // Use Tamagui tokens for consistency
 
   // Handle keyboard visibility
@@ -168,6 +169,7 @@ export function TagSelector({
       marginVertical={0}
       paddingHorizontal={isIpad() ? 8 : 6}
       mt={isWeb ? 4 : -8} 
+      ml={1}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
         {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2}fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
@@ -187,8 +189,8 @@ export function TagSelector({
                 pressStyle={{ opacity: 0.8, scale: 0.98 }}
                 onLongPress={() => handleTagLongPress(tag)}
                 br={20}
-                px={isIpad() ? 12 : 8}
-                py={isIpad() ? 12 : 8}
+                px="$3"
+                py="$2.5"
                 borderWidth={1}
                 borderColor={
                   isSelected
@@ -220,7 +222,9 @@ export function TagSelector({
                 circular
                 icon={<Check size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 onPress={handleAddTag}
-                backgroundColor="transparent"
+                backgroundColor={isDark ? "$gray2" : "white"}
+                borderWidth={1}
+                borderColor={NEUTRAL_BORDER}
                 hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
                 pressStyle={{ opacity: 0.7 }}
                 marginLeft={tagStoreTags.length ? 4 : 0}
@@ -232,7 +236,9 @@ export function TagSelector({
                 circular
                 icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 onPress={() => setIsAdding(true)}
-                backgroundColor="transparent"
+                backgroundColor={isDark ? "$gray2" : "white"}
+                borderWidth={1}
+                borderColor={NEUTRAL_BORDER}
                 hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
                 pressStyle={{ opacity: 0.7 }}
                 marginLeft={tagStoreTags.length ? 4 : 0}

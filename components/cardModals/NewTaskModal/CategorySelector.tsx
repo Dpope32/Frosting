@@ -7,7 +7,7 @@ import { isIpad } from '@/utils/deviceUtils'
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
 import { useUserStore } from '@/store/UserStore'
 import { DebouncedTagInput } from '@/components/shared/debouncedTagInput'
-import { Check } from '@tamagui/lucide-icons'
+import { Check, Plus } from '@tamagui/lucide-icons'
 import { useToastStore } from '@/store/ToastStore'
 
 interface CategorySelectorProps {
@@ -246,7 +246,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   borderColor={
                     isSelected
                       ? 'transparent'
-                      : isDark ? "$gray7" : "$gray4"
+                      : isDark ? "$gray7" : "$gray8"
                   }
                 >
                   <Text
@@ -266,27 +266,20 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                 </Button>
               )
             })}
-            <Button
-              onPress={toggleAddCategory}
-              backgroundColor={isDark ? "$gray2" : "white"}
-              pressStyle={{ opacity: 0.8, scale: 0.98 }}
-              br={20}
-              px="$3"
-              py="$2.5"
-              borderWidth={1}
-              borderColor={isDark ? "$gray7" : "$gray4"}
-              style={{ justifyContent: 'center', alignItems: 'center' }}
-            >
-              <Text
-                fontSize={18}
-                fontWeight="600"
-                fontFamily="$body"
-                color={isDark ? "$gray11" : "$gray11"}
-                style={{ textAlign: 'center', width: 18 }}
-              >
-                +
-              </Text>
-            </Button>
+            <XStack alignItems="center">
+              <Button
+                onPress={toggleAddCategory}
+                key="start-add-category"
+                size="$2"
+                circular
+                icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                backgroundColor={isDark ? "$gray2" : "white"}
+                borderWidth={1}
+                borderColor={isDark ? "$gray7" : "$gray8"}
+                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+                pressStyle={{ opacity: 0.7 }}
+              />
+            </XStack>
           </XStack>
         </ScrollView>
       )}

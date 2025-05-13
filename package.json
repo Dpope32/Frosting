@@ -20,7 +20,8 @@
     "mac": "react-native run-macos",
     "electron": "electron electron-main.js",
     "build-web": "npx expo export --platform web",
-    "build-electron": "electron-builder build --win"
+    "build-electron": "electron-builder build --win",
+    "changelog": "node ./scripts/generate-changelog-smart.js"
   },
   "jest": {
     "preset": "jest-expo",

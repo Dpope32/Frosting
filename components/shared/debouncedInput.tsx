@@ -12,8 +12,6 @@ export interface DebouncedInputHandle {
   clear: () => void;
 }
 
-
-
 export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedInputProps>(
   ({ value, onDebouncedChange, delay = 500, ...props }, ref) => {
     const [text, setText] = useState(value || '')
@@ -53,7 +51,8 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
         onChangeText={setText}
         theme={isDark ? "dark" : "light"}
         backgroundColor={isDark ? "$gray0" : "white"}
-        borderColor={isDark ? "$gray7" : "$gray4"}
+        borderColor={isDark ? "$gray7" : "rgba(0, 0, 0, 0.15)"}
+        borderWidth={1}
         fontFamily="$body"
         spellCheck={true}
         fontSize={isIpad() ? 17 : 15}
@@ -121,6 +120,8 @@ export const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
         backgroundColor={isDark ? "$gray2" : "white"}
         borderColor={isDark ? "$gray7" : "$gray4"}
         fontFamily="$body"
+        fontSize={isIpad() ? 17 : 15}
+        borderWidth={1}
         textContentType="none"
         autoComplete="off"
         spellCheck={false}

@@ -142,7 +142,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             color={isDark ? '#f6f6f6' : '#111'}
             backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
             borderWidth={1}
-            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+            borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0, 0, 0, 0.1)'}
             borderRadius={4}
           />
         </YStack>
@@ -169,12 +169,12 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               {!deadline && (
                 <Button
                   onPress={() => setShowDatePicker(true)}
-                  borderBottomWidth={1}
-                  borderRadius="$2"
-                  backgroundColor={isDark ? '$gray0' : '$gray0'}
+                  borderWidth={1}
+                  borderRadius={12}
+                  backgroundColor={isDark ? '$gray0' : 'transparent'}
                   px="$3"
                   width="100%"
-                  borderBottomColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
+                  borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
                   ai="center"
                   jc="space-between"
                 >

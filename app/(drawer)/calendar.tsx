@@ -131,7 +131,7 @@ export default function CalendarScreen() {
   return (
     <View style={[
       calendarStyles.container, 
-      isDark && { backgroundColor: '#121212' }
+      isDark? { backgroundColor: '#000' }: { backgroundColor: '#f9f9f9' }
     ]}>
       {activeEventTypes.length > 0 && (
         <BlurView 
