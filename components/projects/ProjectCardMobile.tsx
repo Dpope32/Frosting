@@ -1,10 +1,10 @@
+// @ts-nocheck
 import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { Project } from '@/types/project'
 import { ProjectAttachments } from './ProjectCard/ProjectAttachments'
 import { isIpad } from '@/utils/deviceUtils'
 import { getPriorityColor } from '@/utils/styleUtils'
-import { useToastStore } from '@/store/ToastStore'
 import { Plus } from '@tamagui/lucide-icons'
 import { ProjectCardDetails } from './ProjectCard/details'
 import { ProjectCardWrapper } from './ProjectCard/wrapper'

@@ -118,13 +118,13 @@ export const OptimizedWallpaperButton = ({
             colors={gradientColors}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ flex: 1 }}
+            style={{ flex: 1, borderRadius: isIpad() ? 30 : 8 }}
           />
         ) : source ? (
           <View style={{ flex: 1 }}>
             <Image
               source={source}
-              style={{ width: '100%', height: '100%', position: 'absolute' }}
+              style={{ width: '100%', height: '100%', position: 'absolute', borderRadius: isIpad() ? 30 : 8 }}
               onError={(error) => {
                 Sentry.captureException(error, {
                   extra: {

@@ -2,14 +2,20 @@ import { create } from 'zustand';
 import { Platform } from 'react-native';
 import { isIpad } from '@/utils/deviceUtils';
 
+type ViewMode = 'month' | 'week';
+
 interface CalendarViewState {
   webColumnCount: 1 | 2 | 3;
+  viewMode: ViewMode;
   toggleWebColumnCount: () => void;
   setWebColumnCount: (count: 1 | 2 | 3) => void;
+  toggleViewMode: () => void;
+  setViewMode: (mode: ViewMode) => void;
 }
 
 export const useCalendarViewStore = create<CalendarViewState>((set) => ({
   webColumnCount: 3,
+  viewMode: 'month',
   toggleWebColumnCount: () =>
     set((state) => {
       // On iPad, only toggle between 1 and 2 columns
@@ -29,5 +35,13 @@ export const useCalendarViewStore = create<CalendarViewState>((set) => ({
   setWebColumnCount: (count: 1 | 2 | 3) =>
     set(() => ({
       webColumnCount: count,
+    })),
+  toggleViewMode: () =>
+    set((state) => ({
+      viewMode: state.viewMode === 'month' ? 'week' : 'month',
+    })),
+  setViewMode: (mode: ViewMode) =>
+    set(() => ({
+      viewMode: mode,
     })),
 }));

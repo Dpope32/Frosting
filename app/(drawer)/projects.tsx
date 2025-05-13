@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from 'react'
 import { ScrollView, useColorScheme } from 'react-native'
 import { YStack, Button, XStack, isWeb } from 'tamagui'

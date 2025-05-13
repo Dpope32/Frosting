@@ -20,6 +20,20 @@ export const ProjectHeader = ({ project, isDark, priorityColor }: ProjectHeaderP
             {project.name}
           </Text>
           <MaterialIcons name="circle" size={12} color={priorityColor} />
+          {project.deadline && (() => {
+            let d: Date | undefined;
+            if (typeof project.deadline === 'string') d = new Date(project.deadline);
+            else if (project.deadline instanceof Date) d = project.deadline;
+            if (!d || isNaN(d.getTime())) return null;
+            return (
+              <XStack ai="center" gap="$1">
+                <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
+                <Text fontSize={isIpad() ? 15 : 14} color={isDark ? '#dbd0c6' : '#dbd0c6'} fontFamily="$body">
+                  {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </Text>
+              </XStack>
+            );
+          })()}
         </XStack>
       </XStack>
       <XStack ai="center" px={isIpad() ? "$3" : "$3"} mt={-8}> 

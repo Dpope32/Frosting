@@ -114,26 +114,16 @@ You can add [links](https://example.com) to your notes.
     tags: [generateRandomTag(5)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
-    attachments: [
-      {
-        id: generateId(),
-        name: 'First Image',
-        url: 'https://picsum.photos/400/300',
-        type: 'image'
-      },
-      {
-        id: generateId(),
-        name: 'Second Image',
-        url: 'https://picsum.photos/400/300',
-        type: 'image'
-      },
-      {
-        id: generateId(),
-        name: 'Third Image',
-        url: 'https://picsum.photos/400/300',
-        type: 'image'
-      }
-    ]
+    attachments: (() => {
+      const ids = [generateId(), generateId(), generateId()];
+      const names = ['First Image', 'Second Image', 'Third Image'];
+      return ids.map((id, idx) => ({
+        id,
+        name: names[idx],
+        type: 'image',
+        url: `https://picsum.photos/seed/${id}/400/300`,
+      }));
+    })()
   });
   
   // Note 5: Note with a single image
@@ -148,14 +138,15 @@ This demonstrates how the app handles a note with just one image attachment.`,
     tags: [generateRandomTag(0), generateRandomTag(2)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
-    attachments: [
-      {
-        id: generateId(),
+    attachments: (() => {
+      const id = generateId();
+      return [{
+        id,
         name: 'Single Image',
-        url: 'https://picsum.photos/600/400',
-        type: 'image'
-      }
-    ]
+        type: 'image',
+        url: `https://picsum.photos/seed/${id}/600/400`,
+      }];
+    })()
   });
   
   return notes;

@@ -7,6 +7,7 @@ import { useCalendarViewStore } from '@/store/CalendarViewStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { Month } from '@/components/calendar/Month';
+import { Week } from '@/components/calendar/Week';
 import { Legend } from '@/components/calendar/Legend';
 import { EventModal } from '@/components/calendar/EventModal';
 import { CalendarAnalytics } from '@/components/calendar/CalendarAnalytics';
@@ -17,6 +18,7 @@ import { calendarStyles } from '@/components/calendar/CalendarStyles';
 import { getUSHolidays } from '@/services/holidayService';
 import { isIpad } from '@/utils/deviceUtils';
 import { BlurView } from 'expo-blur';
+import { startOfWeek, addWeeks } from 'date-fns';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -26,12 +28,13 @@ export default function CalendarScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const { webColumnCount } = useCalendarViewStore(); 
+  const { webColumnCount, viewMode } = useCalendarViewStore(); 
   const { events } = useCalendarStore();
   const { showToast } = useToastStore();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const [months, setMonths] = useState<Date[]>([]);
+  const [weeks, setWeeks] = useState<Date[]>([]);
 
   const { events: storeEvents } = useCalendarStore();
   const [combinedEvents, setCombinedEvents] = useState(storeEvents);
@@ -94,12 +97,22 @@ export default function CalendarScreen() {
   useEffect(() => {
     const today = new Date();
     today.setDate(1);
-    const arr = [];
+    
+    // Set up months
+    const monthArr = [];
     for (let i = 0; i < 12; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
-      arr.push(d);
+      monthArr.push(d);
     }
-    setMonths(arr);
+    setMonths(monthArr);
+    
+    // Set up weeks - starting from current week
+    const weekArr = [];
+    const currentWeekStart = startOfWeek(new Date());
+    for (let i = 0; i < 8; i++) { // Show current week + 7 future weeks
+      weekArr.push(addWeeks(currentWeekStart, i));
+    }
+    setWeeks(weekArr);
   }, []);
 
   const handleDayPress = (date: Date) => {
@@ -121,12 +134,13 @@ export default function CalendarScreen() {
   };
   
   const isIpadDevice = isIpad();
+  const isMobile = !isWeb && !isIpadDevice;
 
   useEffect(() => {
     if (isWeb || isIpadDevice) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }
-  }, [webColumnCount]);
+  }, [webColumnCount, viewMode]);
 
   return (
     <View style={[
@@ -174,17 +188,32 @@ export default function CalendarScreen() {
             ))}
           </View>
         ) : (
-          months.map((date, index) => (
-            <Month
-              key={index}
-              date={date}
-              events={combinedEvents} 
-              onDayPress={handleDayPress}
-              isDark={isDark}
-              primaryColor={primaryColor}
-              webColumnCount={webColumnCount}
-            />
-          ))
+          isMobile && viewMode === 'week' ? (
+            // Week view for mobile
+            weeks.map((weekStart, index) => (
+              <Week
+                key={index}
+                startDate={weekStart}
+                events={combinedEvents}
+                onDayPress={handleDayPress}
+                isDark={isDark}
+                primaryColor={primaryColor}
+              />
+            ))
+          ) : (
+            // Month view for mobile (default)
+            months.map((date, index) => (
+              <Month
+                key={index}
+                date={date}
+                events={combinedEvents} 
+                onDayPress={handleDayPress}
+                isDark={isDark}
+                primaryColor={primaryColor}
+                webColumnCount={1}
+              />
+            ))
+          )
         )}
       </ScrollView>
 

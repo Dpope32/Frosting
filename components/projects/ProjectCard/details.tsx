@@ -49,35 +49,6 @@ export const ProjectCardDetails = ({ project, isDark, onEdit }: ProjectCardDetai
 
   const rows: React.ReactNode[] = []
 
-  if (project?.deadline) {
-    rows.push(
-      <TableRow key="deadline-date" label="Deadline:" rowIndex={rows.length}>
-        <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
-          {(() => {
-            let deadlineDate = project?.deadline
-            if (!deadlineDate) return '-'
-            if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate)
-            if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-'
-            return deadlineDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-          })()}
-        </Text>
-      </TableRow>,
-    )
-    rows.push(
-      <TableRow key="days-remaining" label="Remaining:" rowIndex={rows.length}>
-        <Text color={isDark ? '#f6f6f6' : '#333'} fontSize={isIpad() ? 16 : "$3"} fontFamily="$body">
-          {(() => {
-            let deadlineDate = project?.deadline
-            if (!deadlineDate) return '-'
-            if (typeof deadlineDate === 'string') deadlineDate = new Date(deadlineDate)
-            if (!(deadlineDate instanceof Date) || isNaN(deadlineDate.getTime())) return '-'
-            return getDaysUntilDeadline(deadlineDate)
-          })()}
-        </Text>
-      </TableRow>,
-    )
-  }
-
   if (project?.description) {
     rows.push(
       <TableRow key="description" label="Description:" rowIndex={rows.length}>

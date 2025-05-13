@@ -151,7 +151,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         }
       }}
       title="Settings"
-      snapPoints={isWeb ? [90] : isIpad() ? [70] : [77]}
+      snapPoints={isWeb ? [90] : isIpad() ? [70] : [75]}
       zIndex={100000}
       hideHandle={true}
       showCloseButton={!isSigningOut}
@@ -159,7 +159,7 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
         <SettingsModalFooter onOpenChange={onOpenChange} settings={settings} />
       }
     >
-      <YStack flex={1} gap="$2" paddingVertical="$3" paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$1.5'}>
+      <YStack flex={1} gap="$2" paddingVertical={isWeb ? "$3" : "$2"} paddingHorizontal={isWeb ? '$5' : isIpad() ? '$3' : '$1.5'}>
         <TopSection
           settings={settings}
           setSettings={setSettings}

@@ -100,7 +100,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     position: 'absolute',
     top: Platform.OS === 'web' ? 4 : 2,
     right: Platform.OS === 'web' ? 4 : 2,
-    fontSize: webColumnCount === 1 ? 16 : (Platform.OS === 'web' ? 14 : 13),
+    fontSize: webColumnCount === 1 
+      ? (Platform.OS === 'web' ? 16 : 12) 
+      : (Platform.OS === 'web' ? 14 : 10),
     fontWeight: '500',
     color: isDark ? '#FFFFFF' : '#333333'
   },
@@ -120,7 +122,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     left: 16
   },
   holidayIconText: {
-    fontSize: webColumnCount === 1 ? 14 : 10
+    fontSize: webColumnCount === 1 
+      ? (Platform.OS === 'web' ? 14 : 10) 
+      : (Platform.OS === 'web' ? 10 : 8)
   },
   billIconContainer: {
     position: 'absolute',
@@ -130,7 +134,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     alignItems: 'center'
   },
   billIconText: {
-    fontSize: webColumnCount === 1 ? 12 : 8,
+    fontSize: webColumnCount === 1 
+      ? (Platform.OS === 'web' ? 12 : 9) 
+      : (Platform.OS === 'web' ? 8 : 6),
     color: isDark ? '#FF8A80' : '#E57373',
     textAlign: 'center',
     maxWidth: '100%',
@@ -142,7 +148,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     right: 0
   },
   birthdayIconText: {
-    fontSize: webColumnCount === 1 ? 14 : 10
+    fontSize: webColumnCount === 1 
+      ? (Platform.OS === 'web' ? 14 : 10) 
+      : (Platform.OS === 'web' ? 10 : 8)
   },
   // Dots
   indicatorContainer: {
@@ -155,9 +163,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     justifyContent: 'center'
   },
   eventDot: {
-    width: Platform.OS === 'web' ? 6 : 4,
-    height: Platform.OS === 'web' ? 6 : 4,
-    borderRadius: Platform.OS === 'web' ? 3 : 2,
+    width: Platform.OS === 'web' ? 8 : 6,
+    height: Platform.OS === 'web' ? 8 : 6,
+    borderRadius: Platform.OS === 'web' ? 4 : 3,
     marginTop: Platform.OS === 'web' ? 4 : 2
   },
   // NBA

@@ -36,11 +36,11 @@ export function TopSection({
   const isDark = colorScheme === 'dark';
 
   return (
-    <XStack gap="$3" flexWrap="wrap">
+    <XStack gap="$3" flexWrap="wrap" mb={isWeb ? 0 : 10}>
       <YStack width={isWeb ? 100 : isIpad() ? 80 : 60} gap="$2" alignItems="center" justifyContent="center">
         <Circle 
-          size={isWeb ? 80 : isIpad() ? 60 : 55} 
-          mt={isWeb ? 0 : 5} 
+          size={isWeb ? 80 : isIpad() ? 60 : 50} 
+          mt={isWeb ? 0 : 7} 
           borderWidth={1} 
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'} 
           borderStyle="dashed" 
@@ -73,11 +73,11 @@ export function TopSection({
               onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, username: text }))}
               backgroundColor={isDark ? '#222' : '#f5f5f5'}
               color={isDark ? '#f3f3f3' : '#000'}
-              borderWidth={isDark ? 0 : 1}
-              borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
+              borderWidth={1}
+              borderColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}
             />
           </YStack>
-          <YStack width={80} gap="$1">
+          <YStack width={90} gap="$1">
             <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
               Zip Code
             </Text>
@@ -88,13 +88,13 @@ export function TopSection({
               onDebouncedChange={(text) => setSettings((prev) => ({ ...prev, zipCode: text }))}
               backgroundColor={isDark ? '#222' : '#f5f5f5'}
               color={isDark ? '#f3f3f3' : '#000'}
-              borderWidth={isDark ? 0 : 1}
-              borderColor={isDark ? undefined : 'rgba(0,0,0,0.1)'}
+              borderWidth={1}
+              borderColor={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}
             />
           </YStack>
           
           {!isWeb && !isIpad() && (
-          <YStack alignItems="center" gap={4} flex={1}>
+          <YStack alignItems="center" gap={2} flex={1}>
             <Text fontSize={13} color={isDark ? '#ccc' : '#000'} fontFamily="$body">Theme</Text>
             <Circle 
               size={30} 

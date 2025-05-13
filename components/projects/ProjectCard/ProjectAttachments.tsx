@@ -1,9 +1,10 @@
 import React from 'react';
-import { ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { YStack } from 'tamagui';
 import { Attachment } from '@/types/notes';
 import { isIpad } from '@/utils/deviceUtils';
 import { useToastStore } from '@/store/ToastStore';
+import { CachedImage } from '@/components/common/CachedImage';
 
 interface ProjectAttachmentsProps {
   attachments?: Attachment[];
@@ -50,8 +51,8 @@ export const ProjectAttachments: React.FC<ProjectAttachmentsProps> = ({
             }}
             style={styles.attachmentContainer}
           >
-            <Image
-              source={{ uri: att.url }}
+            <CachedImage
+              uri={att.url}
               style={styles.attachmentImage}
             />
           </TouchableOpacity>

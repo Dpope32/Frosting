@@ -64,7 +64,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           placeholder="Name"
           value={name}
           onDebouncedChange={setName}
-          autoCapitalize="none"
+          autoCapitalize="words"
           backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
           borderColor="transparent"
           borderRadius={12}
@@ -76,7 +76,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           placeholder="Username"
           value={username}
           onChangeText={setUsername}
-          autoCapitalize="none"
+          autoCapitalize="words"
           backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
           borderColor="transparent"
           color={isDark ? '#fff' : '#000'}
@@ -87,7 +87,7 @@ export function AddVaultEntryModal({ isVisible, onClose, onSubmit }: AddVaultEnt
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          autoCapitalize="none"
+          autoCapitalize="words"
           secureTextEntry
           backgroundColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}
           borderColor="transparent"

@@ -1,8 +1,7 @@
 import React from 'react'
-import { Platform, useColorScheme } from 'react-native'
-import { YStack, Text } from 'tamagui'
+import { Platform } from 'react-native'
+import { YStack } from 'tamagui'
 import { useProjectStore } from '@/store/ProjectStore'
-import { useUserStore } from '@/store/UserStore'
 import { ProjectPreviewCard } from '@/components/home/ProjectPreviewCard'
 import { isIpad } from '@/utils/deviceUtils'
 import { useRouter } from 'expo-router'
@@ -12,10 +11,6 @@ import { useRouter } from 'expo-router'
 export function ProjectSection() {
   // Fetch projects from our dedicated ProjectStore (different from the task store!)
   const projects = useProjectStore((s) => s.projects)
-  // Color / theme helpers
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
-  const primaryColor = useUserStore((s) => s.preferences.primaryColor)
   const router = useRouter()
 
   // Guard clauses – only mobile & only when projects exist
@@ -27,8 +22,8 @@ export function ProjectSection() {
   const filteredProjects = validProjects.filter(project => project.status !== 'completed' && !project.isDeleted);
  
   return (
-    <YStack w="100%" gap={isIpad() ? '$2' : '$2'} py={'$0.5'} pt={isIpad() ? '$4' : '$3'}>
-      <YStack px={isIpad() ? '$1' : '$0'} width="100%">
+    <YStack w="100%" gap={isIpad() ? '$2' : '$2'} py={'$0.5'} pt={isIpad() ? '$4' : '$2.5'}>
+      <YStack px={isIpad() ? '$1' : '$0'} gap={'$1.5'} width="100%">
         {filteredProjects.map((project, index) => (
           <ProjectPreviewCard
             key={project.id || `project-${index}`}

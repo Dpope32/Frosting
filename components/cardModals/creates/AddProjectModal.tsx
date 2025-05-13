@@ -12,11 +12,12 @@ import type { Tag } from '@/types/tag';
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { isIpad } from '@/utils/deviceUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Platform } from 'react-native';
+import { Platform, Pressable } from 'react-native';
 import { useToastStore } from '@/store/ToastStore';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { useTagStore } from '@/store/TagStore';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useCalendarStore } from '@/store/CalendarStore';
 
 interface AddProjectModalProps {
   open: boolean;
@@ -77,6 +78,22 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       attachments: [],
     };
     addProject(newProject);
+    // Optimistically add a calendar event for the project deadline
+    if (newProject.deadline) {
+      const calendarStore = useCalendarStore.getState();
+      const dateStr = newProject.deadline.toISOString().split('T')[0];
+      calendarStore.addEvent({
+        date: dateStr,
+        title: `${newProject.name} Deadline`,
+        description: newProject.description,
+        notifyOnDay: true,
+        notifyBefore: false,
+      });
+      // Schedule notifications for the newly added event
+      const events = calendarStore.events;
+      const addedEvent = events[events.length - 1];
+      calendarStore.scheduleEventNotifications(addedEvent);
+    }
     onOpenChange(false);
     setName('');
     setDescription('');
@@ -135,7 +152,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             placeholder="What's the name of this project?"
             onDebouncedChange={setName}
             ref={projectTitleInputRef}
-            autoCapitalize="words"
+            autoCapitalize="sentences"
             fontSize={isIpad() ? 17 : 15}
             fontFamily="$body"
             fontWeight="bold"
@@ -183,10 +200,15 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                 </Button>
               )}
               {deadline ? (
-                <XStack pl={isIpad() ? "$0" : "$1"} gap="$1" pb={16} pt={4} ai="center" > 
-                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">Deadline:</Text>
+                <XStack pl={isIpad() ? "$0" : "$1"} gap="$1" pb={16} pt={4} ai="center">
+                  <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} pr="$2" fontFamily="$body" fontWeight="bold">
+                    Deadline:
+                  </Text>
+                  <Pressable onPress={() => setShowDatePicker(true)}>
+                    <MaterialIcons name="edit" size={isIpad() ? 18 : 16} color={isDark ? '#f6f6f6' : '#222'} />
+                  </Pressable>
                   <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 19 : 17} fontFamily="$body">
-                    {new Date(deadline).toLocaleDateString('en-US', { 
+                    {new Date(deadline).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric',

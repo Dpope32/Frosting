@@ -43,7 +43,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
 
   const monthName = date.toLocaleString('default', { month: 'long' });
   const year = date.getFullYear();
-  const todayTextColor = shouldUseDarkText(primaryColor) ? '#000' : '#fff';
+  const todayTextColor = primaryColor;
 
   const eventsByDate = React.useMemo(() => {
     const y = date.getFullYear();

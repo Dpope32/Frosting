@@ -144,13 +144,16 @@ export const useMarkdownStyles = () => {
       color: colors.text,
       fontSize: isTablet ? 18 : 16
     } as TextStyle,
-    em: { 
-      fontStyle: 'italic' as const,
-      fontFamily: '$body' 
-    } as TextStyle,
+  em: { 
+    fontStyle: 'italic' as const,
+    fontFamily: '$body',
+    fontWeight: 'normal',
+    face: 'italic'
+  } as TextStyle,
     strong: { 
       fontWeight: 'bold' as const,
-      fontFamily: '$body' 
+      fontFamily: '$body',
+      face: 'bold'
     } as TextStyle,
     del: { 
       textDecorationLine: 'line-through' as const

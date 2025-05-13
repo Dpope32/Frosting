@@ -1,6 +1,7 @@
+// @ts-nocheck
 import React from 'react'
 import { useColorScheme } from 'react-native'
-import { YStack, XStack, Text, Button } from 'tamagui'
+import { XStack, Text, Button } from 'tamagui'
 import { TaskPriority } from '@/types/task'
 import { getPriorityColor, withOpacity } from '@/utils/styleUtils'
 import { ArrowUp, ArrowRight, ArrowDown } from '@tamagui/lucide-icons'

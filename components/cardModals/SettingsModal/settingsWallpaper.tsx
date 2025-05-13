@@ -36,7 +36,7 @@ export function SettingsWallpaper({
   onOpenChange
 }: SettingsWallpaperProps) {
   return (
-    <YStack gap="$2" px={isWeb ? '$4' : '$3'} py={isWeb ? '$4' : '$3'}>
+    <YStack gap="$2" px={isWeb ? '$4' : '$2'} py={isWeb ? '$4' : '$3'}>
       <Text fontSize={14} color={isDark ? '#ccc' : '#000'} fontFamily="$body">
         Wallpaper
       </Text>
@@ -47,7 +47,7 @@ export function SettingsWallpaper({
             while (itemsForRow.length < 3) {
               if (itemsForRow.length === 0 || (rowIndex * 3 + itemsForRow.length) === filteredBackgroundStyles.length) {
                 itemsForRow.push({
-                  label: "Custom Wallpaper",
+                  label: "Custom",
                   value: "wallpaper-custom-upload" as BackgroundStyle
                 });
                 break;

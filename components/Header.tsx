@@ -129,6 +129,24 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
           <Ionicons name={layoutIcon} size={24} color={textColor} />
         </Pressable>
       );
+    } else if (!isWeb && !isIpad() && isCalendarScreen) {
+      // Mobile calendar toggle between month and week views
+      const { viewMode, toggleViewMode } = useCalendarViewStore();
+      const viewIcon = viewMode === 'month' ? "calendar" : "reorder-three";
+      
+      return (
+        <Pressable
+          onPress={() => {
+            if (Platform.OS !== 'web') {
+              Haptics.selectionAsync();
+            }
+            toggleViewMode();
+          }}
+          style={{ padding: 8, marginRight: -8 }}
+        >
+          <Ionicons name={viewIcon} size={22} color={textColor} />
+        </Pressable>
+      );
     }
 
     let iconName: keyof typeof Ionicons.glyphMap = "settings-outline";
