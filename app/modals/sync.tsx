@@ -379,7 +379,7 @@ export default function SyncScreen() {
             Sync Devices
           </Text>
         </XStack>
-        <XStack>
+        <XStack alignItems="center" justifyContent="center">
           <SyncTable isDark={isDark} primaryColor={primaryColor} syncStatus={syncStatus} currentSpaceId={currentSpaceId || ''} deviceId={deviceId} />
         </XStack>
 

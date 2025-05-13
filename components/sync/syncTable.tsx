@@ -45,13 +45,12 @@ return (
 <View style={{
     backgroundColor: colors.card,
     borderRadius: cardRadius,
-    padding: baseSpacing ,
+    padding: baseSpacing * 2,
     borderWidth: 1,
     borderColor: colors.border,
     width: contentWidth,
     alignSelf: 'center',
-    marginBottom: 0, 
-    marginTop: 0,
+    marginVertical: baseSpacing * 2,
   }}>
     <XStack alignItems="center" justifyContent="space-between">
       <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
