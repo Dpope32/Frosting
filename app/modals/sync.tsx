@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Animated, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Animated, ScrollView, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Button, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
@@ -14,6 +14,7 @@ import { pushSnapshot, pullLatestSnapshot } from '@/sync/pocketSync';
 import { exportEncryptedState, generateSyncKey } from '@/sync/registrySyncManager';
 import * as Sentry from '@sentry/react-native';
 import SyncTable from '@/components/sync/syncTable';
+import { AUTHORIZED_USERS } from '@/constants/KEYS';
 
 // Create a global log capture system that logs will be pushed to
 let globalLogQueue: Array<{id: string; message: string; timestamp: Date; status: 'info' | 'success' | 'error' | 'warning'; details?: string}> = [];
@@ -62,6 +63,9 @@ export const addSyncLog = (message: string, status: 'info' | 'success' | 'error'
 // Create a custom fetch to intercept and log all network requests
 const originalFetch = global.fetch;
 global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+  // Only log if user is premium
+  const isPremium = useUserStore.getState().preferences.premium === true;
+  
   // Fix the URL extraction to handle all input types correctly
   let url: string;
   if (typeof input === 'string') {
@@ -73,35 +77,42 @@ global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     url = input.url;
   }
   
-  // Log request
-  addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', 
-    init?.body ? `Body: ${JSON.stringify(init?.body)}` : undefined);
+  // Log request if premium
+  if (isPremium) {
+    addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', 
+      init?.body ? `Body: ${JSON.stringify(init?.body)}` : undefined);
+  }
   
   try {
     const response = await originalFetch(input, init);
     
-    // Clone the response to get its content
-    const clonedResponse = response.clone();
-    
-    try {
-      // Try to parse as JSON first
-      const jsonData = await clonedResponse.json();
-      addSyncLog(`📥 Response: ${response.status} from ${url}`, 
-        response.ok ? 'success' : 'error',
-        `Data: ${JSON.stringify(jsonData).substring(0, 500)}${JSON.stringify(jsonData).length > 500 ? '...' : ''}`);
-    } catch (e) {
-      // If not JSON, get text
-      const textData = await clonedResponse.clone().text();
-      addSyncLog(`📥 Response: ${response.status} from ${url}`, 
-        response.ok ? 'success' : 'error',
-        textData.length > 0 ? `${textData.substring(0, 500)}${textData.length > 500 ? '...' : ''}` : undefined);
+    // Only process response logging if premium
+    if (isPremium) {
+      // Clone the response to get its content
+      const clonedResponse = response.clone();
+      
+      try {
+        // Try to parse as JSON first
+        const jsonData = await clonedResponse.json();
+        addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+          response.ok ? 'success' : 'error',
+          `Data: ${JSON.stringify(jsonData).substring(0, 500)}${JSON.stringify(jsonData).length > 500 ? '...' : ''}`);
+      } catch (e) {
+        // If not JSON, get text
+        const textData = await clonedResponse.clone().text();
+        addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+          response.ok ? 'success' : 'error',
+          textData.length > 0 ? `${textData.substring(0, 500)}${textData.length > 500 ? '...' : ''}` : undefined);
+      }
     }
     
     return response;
   } catch (error) {
-    // Log network errors
-    addSyncLog(`❌ Network error with ${url}`, 'error', 
-      error instanceof Error ? error.message : String(error));
+    // Log network errors if premium
+    if (isPremium) {
+      addSyncLog(`❌ Network error with ${url}`, 'error', 
+        error instanceof Error ? error.message : String(error));
+    }
     throw error;
   }
 };
@@ -146,42 +157,98 @@ export default function SyncScreen() {
   const fadeAnims = useRef<{[key: string]: Animated.Value}>({});
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
   const premium = useUserStore((state) => state.preferences.premium === true);
+  const username = useUserStore((state) => state.preferences.username) || 'unknown';
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
   const syncStatus = useRegistryStore((state) => state.syncStatus);
   
+  // Check authorization on component mount and when premium/username changes
+  useEffect(() => {
+    // Verify if current user should have premium access
+    const trimmedUsername = username.trim();
+    const isAuthorized = AUTHORIZED_USERS.some(user => user === trimmedUsername);
+    
+    console.log('Authorization check:', {
+      username,
+      trimmedUsername,
+      premium,
+      isAuthorized
+    });
+    
+    // If premium is enabled but user is not authorized, disable premium
+    if (premium && !isAuthorized) {
+      console.log('REVOKING premium for unauthorized user:', username);
+      Alert.alert(
+        "Premium Access Removed",
+        "Your account is not authorized for premium sync. Contact the developer to request access.",
+        [{ 
+          text: "OK", 
+          onPress: () => setPreferences({ premium: false }) 
+        }]
+      );
+    }
+  }, [premium, username, setPreferences]);
+  
+  // Log username on mount for debugging
+  useEffect(() => {
+    console.log('Component mounted with username:', username);
+  }, []);
+  
   // Set up log subscription
   useEffect(() => {
-    // Set the callback to update our local state
-    logUpdateCallback = (logs) => {
-      setSyncLogs([...logs]);
-    };
+    // Log premium status on component mount
+    console.log('Premium status:', premium, 'Username:', username);
     
-    // Get device ID on mount
+    // Only set the callback if premium
+    logUpdateCallback = premium ? (logs) => {
+      setSyncLogs([...logs]);
+    } : null;
+    
+    // Get device ID on mount only if premium
     const fetchDeviceId = async () => {
+      // Skip entirely if not premium
+      if (!premium) {
+        console.log('Skipping device ID generation - user is not premium');
+        return;
+      }
+      
       try {
+        console.log('Generating device ID for premium user');
         const id = await generateSyncKey();
         setDeviceId(id);
-        addSyncLog(`Device ID generated: ${id.substring(0, 10)}...`, 'info');
+        // Log only if still premium (could have changed during async operation)
+        if (premium) {
+          addSyncLog(`Device ID generated: ${id.substring(0, 10)}...`, 'info');
+        }
       } catch (error) {
-        addSyncLog('Failed to generate device ID', 'error', 
-          error instanceof Error ? error.message : String(error));
+        if (premium) {
+          addSyncLog('Failed to generate device ID', 'error', 
+            error instanceof Error ? error.message : String(error));
+        }
       }
     };
     
+    // Only fetch deviceId if premium
     if (premium) {
       fetchDeviceId();
+    } else {
+      // Reset device ID if not premium
+      setDeviceId('');
+    }
+    
+    // Clear logs if not premium
+    if (!premium) {
+      globalLogQueue = [];
+      setSyncLogs([]);
     }
     
     // Clean up logging on unmount
     return () => {
       logUpdateCallback = null;
-      // Restore original console methods if needed
-      // global.fetch = originalFetch;
     };
-  }, [premium]);
+  }, [premium, username]);
   
   // Monitor sync status changes
   useEffect(() => {
@@ -249,9 +316,48 @@ export default function SyncScreen() {
     setSyncLogs([]);
   };
 
+  const handlePremiumToggle = () => {
+    // Debug log of current state
+    console.log('TOGGLE - Current premium:', premium, 'Username:', username);
+    
+    if (!premium) {
+      // Use the centralized list of authorized users
+      const trimmedUsername = username.trim();
+      const isAuthorized = AUTHORIZED_USERS.some(user => user === trimmedUsername);
+      
+      console.log('User attempting premium access:', {
+        username,
+        trimmedUsername,
+        authorizedUsers: AUTHORIZED_USERS,
+        isAuthorized
+      });
+      
+      if (isAuthorized) {
+        console.log('Access granted for:', username);
+        setPreferences({ premium: true });
+        useToastStore.getState().showToast('Premium sync enabled!', 'success');
+      } else {
+        console.log('Access denied for:', username);
+        Alert.alert(
+          "Premium Access Restricted",
+          "Contact the Developer to add your name to the sync list!",
+          [{ text: "OK", style: "default" }]
+        );
+      }
+    } else if (!isLoading) {
+      performSync('both');
+    }
+  };
+  
+  // This function handles the button press specifically
+  const handleSyncButtonPress = () => {
+    console.log('Sync button pressed - checking premium status');
+    handlePremiumToggle();
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top, marginBottom: baseSpacing * 2 }]}>
-      <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$5"}>
+      <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$3"}>
         <XStack alignItems="center" justifyContent="center" position="relative">
           <TouchableOpacity
             onPress={() => router.back()}
@@ -475,14 +581,7 @@ export default function SyncScreen() {
                 justifyContent="center"
                 pressStyle={{ opacity: 0.7 }}
                 scale={1}
-                onPress={() => {
-                  if (!premium) {
-                    setPreferences({ premium: true });
-                    useToastStore.getState().showToast('Premium sync enabled!', 'success');
-                  } else if (!isLoading) {
-                    performSync('both');
-                  }
-                }}
+                onPress={handleSyncButtonPress}
                 opacity={isLoading ? 0.5 : 1}
                 disabled={premium && isLoading}
               >
@@ -493,7 +592,11 @@ export default function SyncScreen() {
                     <Ionicons name="water-outline" size={14} color="#4ade80" />
                   )}
                   <Text color="#4ade80" fontSize={13} fontWeight="500" fontFamily="$body">
-                    {!premium ? 'Enable Sync' : isLoading ? 'Syncing...' : 'Sync Now (Push & Pull)'}
+                    {!premium 
+                      ? 'Request Sync Access' 
+                      : isLoading 
+                      ? 'Syncing...' 
+                      : 'Sync Now (Push & Pull)'}
                   </Text>
                 </XStack>
               </Button>
