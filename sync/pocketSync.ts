@@ -72,10 +72,11 @@ const getPocketBase = async (): Promise<PocketBaseType> => {
       });
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 500);
-      const response = await fetch(`${PB_URL}/api/health`, { 
-        method: 'HEAD',
+      const response = await fetch(`${PB_URL}/api/health`, {
+        method: 'GET',
         signal: controller.signal
       });
+      
       clearTimeout(timeoutId);
       if (!response.ok) {
         Sentry.addBreadcrumb({
