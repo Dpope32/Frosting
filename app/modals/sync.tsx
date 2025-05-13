@@ -1,14 +1,110 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Animated, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, Button, YStack, XStack, isWeb } from 'tamagui';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
+import { useRegistryStore } from '@/store/RegistryStore';
 import { isIpad } from '@/utils/deviceUtils';
 import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal';
+import { pushSnapshot, pullLatestSnapshot } from '@/sync/pocketSync';
+import { exportEncryptedState, generateSyncKey } from '@/sync/registrySyncManager';
+import * as Sentry from '@sentry/react-native';
+import SyncTable from '@/components/sync/syncTable';
+
+// Create a global log capture system that logs will be pushed to
+let globalLogQueue: Array<{id: string; message: string; timestamp: Date; status: 'info' | 'success' | 'error' | 'warning'; details?: string}> = [];
+let logUpdateCallback: ((logs: typeof globalLogQueue) => void) | null = null;
+
+// Override console methods to capture logs
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+// Custom function to add logs to our queue with context
+export const addSyncLog = (message: string, status: 'info' | 'success' | 'error' | 'warning', details?: string) => {
+  const log = {
+    id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+    message,
+    timestamp: new Date(),
+    status,
+    details
+  };
+  
+  globalLogQueue = [...globalLogQueue, log];
+  
+  // Call the callback if set
+  if (logUpdateCallback) {
+    logUpdateCallback(globalLogQueue);
+  }
+  
+  // Also log to original console
+  if (status === 'error') {
+    originalConsoleError(message, details || '');
+  } else if (status === 'warning') {
+    originalConsoleWarn(message, details || '');
+  } else {
+    originalConsoleLog(message, details || '');
+  }
+  
+  // Also send to Sentry for monitoring
+  Sentry.addBreadcrumb({
+    category: 'syncUI',
+    message,
+    data: details ? { details } : undefined,
+    level: status as any,
+  });
+};
+
+// Create a custom fetch to intercept and log all network requests
+const originalFetch = global.fetch;
+global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+  // Fix the URL extraction to handle all input types correctly
+  let url: string;
+  if (typeof input === 'string') {
+    url = input;
+  } else if (input instanceof URL) {
+    url = input.toString();
+  } else {
+    // Must be a Request object
+    url = input.url;
+  }
+  
+  // Log request
+  addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', 
+    init?.body ? `Body: ${JSON.stringify(init?.body)}` : undefined);
+  
+  try {
+    const response = await originalFetch(input, init);
+    
+    // Clone the response to get its content
+    const clonedResponse = response.clone();
+    
+    try {
+      // Try to parse as JSON first
+      const jsonData = await clonedResponse.json();
+      addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+        response.ok ? 'success' : 'error',
+        `Data: ${JSON.stringify(jsonData).substring(0, 500)}${JSON.stringify(jsonData).length > 500 ? '...' : ''}`);
+    } catch (e) {
+      // If not JSON, get text
+      const textData = await clonedResponse.clone().text();
+      addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+        response.ok ? 'success' : 'error',
+        textData.length > 0 ? `${textData.substring(0, 500)}${textData.length > 500 ? '...' : ''}` : undefined);
+    }
+    
+    return response;
+  } catch (error) {
+    // Log network errors
+    addSyncLog(`❌ Network error with ${url}`, 'error', 
+      error instanceof Error ? error.message : String(error));
+    throw error;
+  }
+};
 
 const baseSpacing = 8;
 const fontSizes = {
@@ -45,15 +141,116 @@ export default function SyncScreen() {
   const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState('');
   const [devices, setDevices] = useState<any[]>([]);
+  const [syncLogs, setSyncLogs] = useState<Array<{id: string; message: string; timestamp: Date; status: 'info' | 'success' | 'error' | 'warning'; details?: string}>>([]);
+  const [showDetails, setShowDetails] = useState<{[key: string]: boolean}>({});
+  const fadeAnims = useRef<{[key: string]: Animated.Value}>({});
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
   const premium = useUserStore((state) => state.preferences.premium === true);
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
+  const syncStatus = useRegistryStore((state) => state.syncStatus);
+  
+  // Set up log subscription
+  useEffect(() => {
+    // Set the callback to update our local state
+    logUpdateCallback = (logs) => {
+      setSyncLogs([...logs]);
+    };
+    
+    // Get device ID on mount
+    const fetchDeviceId = async () => {
+      try {
+        const id = await generateSyncKey();
+        setDeviceId(id);
+        addSyncLog(`Device ID generated: ${id.substring(0, 10)}...`, 'info');
+      } catch (error) {
+        addSyncLog('Failed to generate device ID', 'error', 
+          error instanceof Error ? error.message : String(error));
+      }
+    };
+    
+    if (premium) {
+      fetchDeviceId();
+    }
+    
+    // Clean up logging on unmount
+    return () => {
+      logUpdateCallback = null;
+      // Restore original console methods if needed
+      // global.fetch = originalFetch;
+    };
+  }, [premium]);
+  
+  // Monitor sync status changes
+  useEffect(() => {
+    if (syncStatus === 'error') {
+      addSyncLog('Sync error detected', 'error');
+    } else if (syncStatus === 'syncing') {
+      addSyncLog('Sync in progress...', 'info');
+    } else if (syncStatus === 'idle' && isLoading) {
+      addSyncLog('Sync completed successfully', 'success');
+      setIsLoading(false);
+    }
+  }, [syncStatus, isLoading]);
+
+  /**
+   * Perform a real sync using the actual pocketSync functions
+   */
+  const performSync = async (syncType: 'push' | 'pull' | 'both') => {
+    if (!premium) {
+      useToastStore.getState().showToast('Premium required for sync', 'error');
+      return;
+    }
+    
+    setIsLoading(true);
+    addSyncLog(`Starting ${syncType} sync process...`, 'info');
+    
+    try {
+      // First export the encrypted state (required for push)
+      if (syncType === 'push' || syncType === 'both') {
+        addSyncLog('Exporting and encrypting state...', 'info');
+        const allStates = useRegistryStore.getState().getAllStoreStates();
+        await exportEncryptedState(allStates);
+        
+        // Push to remote
+        addSyncLog('Pushing snapshot to server...', 'info');
+        await pushSnapshot();
+      }
+      
+      // Pull from remote if requested
+      if (syncType === 'pull' || syncType === 'both') {
+        addSyncLog('Pulling latest snapshot from server...', 'info');
+        await pullLatestSnapshot();
+      }
+      
+      // Finalize
+      addSyncLog(`${syncType.toUpperCase()} sync completed successfully`, 'success');
+    } catch (error) {
+      addSyncLog(`Sync failed`, 'error', 
+        error instanceof Error ? error.message : String(error));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Toggle log details visibility
+  const toggleDetails = (logId: string) => {
+    setShowDetails(prev => ({
+      ...prev,
+      [logId]: !prev[logId]
+    }));
+  };
+  
+  // Clear logs
+  const clearLogs = () => {
+    globalLogQueue = [];
+    setSyncLogs([]);
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top }]}>
+    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top, marginBottom: baseSpacing * 2 }]}>
       <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$5"}>
         <XStack alignItems="center" justifyContent="center" position="relative">
           <TouchableOpacity
@@ -76,58 +273,237 @@ export default function SyncScreen() {
             Sync Devices
           </Text>
         </XStack>
-
-        <View style={{
-          backgroundColor: colors.card,
-          borderRadius: cardRadius,
-          padding: baseSpacing * 2,
-          borderWidth: 1,
-          borderColor: colors.border,
-          width: contentWidth,
-          alignSelf: 'center',
-          marginBottom: baseSpacing * 63,
-          marginTop: baseSpacing * 2,
-        }}>
-          <XStack alignItems="center" justifyContent="space-between">
-            <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
-              Premium Sync
-            </Text>
-            <Button
-              size="$2"
-              backgroundColor={premium ? colors.success : colors.error}
-              onPress={() => setPreferences({ premium: !premium })}
-              borderRadius={buttonRadius}
-              paddingHorizontal={baseSpacing * 3}
-              pressStyle={{ scale: 0.97 }}
-              animation="quick"
-            >
-              <Text color="#fff" fontWeight="700">
-                {premium ? 'Enabled' : 'Disabled'}
-              </Text>
-            </Button>
-          </XStack>
-          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 2 }} />
-          <XStack alignItems="center" justifyContent="space-between">
-            <Text fontSize={fontSizes.md} color={colors.subtext}>
-              Sync Status
-            </Text>
-            <Text fontSize={fontSizes.sm} color={currentSpaceId ? colors.success : colors.subtext}>
-              {currentSpaceId ? 'Connected' : 'Not Connected'}
-            </Text>
-          </XStack>
-        </View>
+        <XStack>
+          <SyncTable isDark={isDark} primaryColor={primaryColor} syncStatus={syncStatus} currentSpaceId={currentSpaceId || ''} deviceId={deviceId} />
+        </XStack>
 
         {premium && (
-          <>
-            {isLoading ? (
-              <YStack alignItems="center" justifyContent="center" padding={baseSpacing * 2}>
-                <ActivityIndicator size="large" color={colors.accent} />
-                <Text marginTop={baseSpacing} color={colors.subtext}>
-                  {currentSpaceId ? 'Connecting to sync space...' : 'Creating sync space...'}
+          <YStack alignItems="center" justifyContent="center" padding={0} marginTop={baseSpacing}>
+            <XStack alignItems="center" gap={baseSpacing} marginBottom={0}>
+              {isLoading && <ActivityIndicator size="small" color={colors.accent} />}
+              {isLoading && (
+                <Text fontSize={fontSizes.xs} color={colors.subtext}>
+                  {syncStatus === 'syncing' ? 'Sync in progress...' : 'Preparing sync...'}
                 </Text>
-              </YStack>
-            ) : (
-              <YStack gap={baseSpacing}>
+              )}
+            </XStack>
+            
+            <View style={{
+              width: contentWidth,
+              marginTop: 0,
+              backgroundColor: colors.card,
+              borderRadius: cardRadius,
+              borderWidth: 1,
+              borderColor: colors.border,
+              padding: baseSpacing * 2,
+              maxHeight: 800,
+            }}>
+              <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
+                <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
+                  Sync Progress Log
+                </Text>
+                {syncLogs.length > 0 && (
+                  <TouchableOpacity onPress={clearLogs}>
+                    <Text fontSize={fontSizes.xs} color={colors.accent}>
+                      Clear Logs
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </XStack>
+              <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
+              
+              <ScrollView 
+                style={{ maxHeight: 400 }}
+                contentContainerStyle={{ paddingBottom: baseSpacing * 3 }}
+                showsVerticalScrollIndicator={true}
+              > 
+                <YStack gap={baseSpacing} alignItems="flex-start">
+                  {syncLogs.map((log) => {
+                  if (!fadeAnims.current[log.id]) {
+                    fadeAnims.current[log.id] = new Animated.Value(0);
+                    Animated.timing(fadeAnims.current[log.id], {
+                      toValue: 1,
+                      duration: 500,
+                      useNativeDriver: true,
+                    }).start();
+                  }
+                  let icon = '🔄';
+                  let textColor = colors.text;
+                  
+                  switch(log.status) {
+                    case 'success':
+                      icon = '✅';
+                      textColor = colors.success;
+                      break;
+                    case 'error':
+                      icon = '❌';
+                      textColor = colors.error;
+                      break;
+                    case 'warning':
+                      icon = '⚠️';
+                      textColor = isDark ? '#F39C12' : '#D35400';
+                      break;
+                    default:
+                      icon = '🔄';
+                      break;
+                  }
+                  
+                  return (
+                    <Animated.View 
+                      key={log.id} 
+                      style={{
+                        opacity: fadeAnims.current[log.id],
+                        width: '100%',
+                      }}
+                    >
+                      <TouchableOpacity 
+                        onPress={() => log.details && toggleDetails(log.id)}
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'flex-start',
+                        }}
+                      >
+                        <Text fontSize={fontSizes.md} marginRight={baseSpacing / 2}>
+                          {icon}
+                        </Text>
+                        <YStack flex={1}>
+                          <Text fontSize={fontSizes.sm} color={textColor} fontWeight="500">
+                            {log.message}
+                          </Text>
+                          <Text fontSize={fontSizes.xs} color={colors.subtext}>
+                            {log.timestamp.toLocaleTimeString()} · {Math.floor((Date.now() - log.timestamp.getTime()) / 1000)}s ago
+                            {log.details && ' · Tap for details'}
+                          </Text>
+                          
+                          {log.details && showDetails[log.id] && (
+                            <View style={{
+                              backgroundColor: isDark ? '#1E1E1E' : '#F0F0F0',
+                              padding: baseSpacing,
+                              borderRadius: 6,
+                              marginTop: baseSpacing / 2,
+                              marginBottom: baseSpacing / 2,
+                              maxHeight: 300, 
+                            }}>
+                              <ScrollView>
+                                <Text fontSize={fontSizes.xs} color={colors.subtext} fontFamily="$body">
+                                  {log.details}
+                                </Text>
+                              </ScrollView>
+                            </View>
+                          )}
+                        </YStack>
+                      </TouchableOpacity>
+                    </Animated.View>
+                  );
+                })}
+                
+                {syncLogs.length === 0 && (
+                  <Text fontSize={fontSizes.sm} color={colors.subtext} alignSelf="center" textAlign="center" padding={baseSpacing * 2}>
+                    {isLoading ? 'Waiting for sync to start...' : 'Click one of the sync buttons below to begin'}
+                  </Text>
+                )}
+                </YStack>
+              </ScrollView>
+            </View>
+          
+
+            <YStack 
+              alignItems="center"
+              marginTop={baseSpacing * 2}
+              marginBottom={baseSpacing * 2}
+              gap={baseSpacing}
+              width={contentWidth}
+            >
+              <XStack gap={baseSpacing} width="100%">
+                <Button
+                  flex={1}
+                  height={40}
+                  backgroundColor={isDark ? "rgba(59, 130, 246, 0.10)" : "rgba(30, 64, 175, 0.4)"}
+                  borderColor={"rgba(59, 130, 246, 0.5)"}
+                  fontFamily="$body"
+                  br={8}
+                  borderWidth={1}
+                  alignItems="center"
+                  justifyContent="center"
+                  pressStyle={{ opacity: 0.7 }}
+                  scale={1}
+                  opacity={isLoading ? 0.5 : 1}
+                  onPress={() => !isLoading && performSync('push')}
+                  disabled={isLoading}
+                >
+                  <XStack alignItems="center" gap={4} justifyContent="center">
+                    <MaterialIcons name="upload" size={14} color={isDark ? "#60a5fa" : "#60a5fa"} />
+                    <Text color={isDark ? "#60a5fa" : "#60a5fa"} fontSize={13} fontWeight="500" fontFamily="$body">
+                      Push
+                    </Text>
+                  </XStack>
+                </Button>
+                <Button
+                  flex={1}
+                  height={40}
+                  backgroundColor={isDark ? "rgba(139, 92, 246, 0.10)" : "rgba(91, 33, 182, 0.4)"}
+                  borderColor={"rgba(139, 92, 246, 0.5)"}
+                  fontFamily="$body"
+                  br={8}
+                  borderWidth={1}
+                  alignItems="center"
+                  justifyContent="center"
+                  pressStyle={{ opacity: 0.7 }}
+                  scale={1}
+                  opacity={isLoading ? 0.5 : 1}
+                  onPress={() => !isLoading && performSync('pull')}
+                  disabled={isLoading}
+                >
+                  <XStack alignItems="center" gap={4} justifyContent="center">
+                    <MaterialIcons name="download" size={14} color={isDark ? "#a78bfa" : "#a78bfa"} />
+                    <Text color={isDark ? "#a78bfa" : "#a78bfa"} fontSize={13} fontWeight="500" fontFamily="$body">
+                      Pull
+                    </Text>
+                  </XStack>
+                </Button>
+              </XStack>
+              
+              <Button
+                width="100%"
+                height={40}
+                backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.7)"}
+                borderColor={"rgba(16, 185, 129, 0.5)"}
+                fontFamily="$body"
+                br={8}
+                borderWidth={1}
+                alignItems="center"
+                justifyContent="center"
+                pressStyle={{ opacity: 0.7 }}
+                scale={1}
+                onPress={() => {
+                  if (!premium) {
+                    setPreferences({ premium: true });
+                    useToastStore.getState().showToast('Premium sync enabled!', 'success');
+                  } else if (!isLoading) {
+                    performSync('both');
+                  }
+                }}
+                opacity={isLoading ? 0.5 : 1}
+                disabled={premium && isLoading}
+              >
+                <XStack alignItems="center" gap={4} justifyContent="center">
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#4ade80" />
+                  ) : (
+                    <Ionicons name="water-outline" size={14} color="#4ade80" />
+                  )}
+                  <Text color="#4ade80" fontSize={13} fontWeight="500" fontFamily="$body">
+                    {!premium ? 'Enable Sync' : isLoading ? 'Syncing...' : 'Sync Now (Push & Pull)'}
+                  </Text>
+                </XStack>
+              </Button>
+            </YStack>
+
+            {devices.length > 0 && (
+              <YStack gap={baseSpacing} marginTop={baseSpacing * 4}>
+                <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600" marginBottom={baseSpacing}>
+                  Connected Devices
+                </Text>
                 {devices.map((device: any) => (
                   <XStack
                     key={device.id}
@@ -164,49 +540,8 @@ export default function SyncScreen() {
                 ))}
               </YStack>
             )}
-          </>
+          </YStack>
         )}
-      </YStack>
-
-      <YStack
-        position="absolute"
-        left={0}
-        right={0}
-        alignItems="center"
-        style={{ bottom: isIpad() ? 50 : 30 }}
-        pointerEvents="box-none"
-      >
-        <Button
-          width={contentWidth}
-          backgroundColor={premium ? colors.accentBg : colors.accentBg}
-          borderRadius={buttonRadius}
-          minHeight={isIpad() ? 50 : 48}
-          height={isIpad() ? 50 : 48}
-          alignItems="center"
-          justifyContent="center"
-          pressStyle={{ scale: 0.97 }}
-          borderWidth={2}
-          borderColor={colors.accent}
-          animation="bouncy"
-          elevation={0}
-          onPress={() => {
-            if (!premium) {
-              setPreferences({ premium: true });
-              useToastStore.getState().showToast('Premium sync enabled!', 'success');
-            } else {
-              setShowAddDevice(true);
-              if (deviceId) {
-                setModalStep('showCode');
-              } else {
-                setModalStep('choose');
-              }
-            }
-          }}
-        >
-          <Text style={{color: 'white', fontSize: fontSizes.lg, textAlign: 'center', width: '100%', fontWeight: '500', fontFamily: '$body', letterSpacing: 1 }} numberOfLines={1} ellipsizeMode="tail">
-            {premium ? 'Add Device' : 'Enable Sync'}
-          </Text>
-        </Button>
       </YStack>
 
       {showAddDevice && (
@@ -216,9 +551,11 @@ export default function SyncScreen() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginBottom: 100,
   },
   backButton: {
     position: 'absolute',

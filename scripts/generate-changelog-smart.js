@@ -158,6 +158,26 @@ function createPersonalizedTitle(commits, learningData) {
     .replace(/^\[.*?\]\s*/, '')
     .trim();
   
+  // Make sure to only take the first sentence or first part before a comma/semicolon
+  if (title.includes('.')) {
+    title = title.split('.')[0];
+  }
+  if (title.includes(',')) {
+    title = title.split(',')[0];
+  }
+  if (title.includes(';')) {
+    title = title.split(';')[0];
+  }
+  
+  // Hard limit to the first few words (up to 6 words or 40 chars, whichever is shorter)
+  const words = title.split(' ');
+  if (words.length > 6 || title.length > 40) {
+    title = words.slice(0, 6).join(' ');
+    if (title.length > 40) {
+      title = title.substring(0, 40).trim();
+    }
+  }
+  
   // Capitalize first letter
   title = title.charAt(0).toUpperCase() + title.slice(1);
   
@@ -183,15 +203,12 @@ function createPersonalizedTitle(commits, learningData) {
       // If the user tends to use past tense verbs
       if (notePatterns.startsWithVerb > 0.3) {
         title = `${starter} ${title.charAt(0).toLowerCase() + title.slice(1)}`;
+        
+        // Check length again after adding the verb
+        if (title.length > 40) {
+          title = title.substring(0, 40).trim() + (title.endsWith('!') ? '!' : '');
+        }
       }
-    }
-  }
-  
-  // If the user's notes are generally shorter, truncate if necessary
-  if (notePatterns.avgLength < 25 && title.length > 30) {
-    title = title.split(' ').slice(0, 4).join(' ');
-    if (!title.endsWith('!') && !title.endsWith('?') && !title.endsWith('.')) {
-      title += notePatterns.endsWithExclamation > 0.3 ? '!' : '';
     }
   }
   
@@ -221,6 +238,17 @@ function createPersonalizedBullets(commits, changedAreas, learningData) {
     // Skip very short or meaningless commits
     if (commit.length < 5 || /^merge|^update|^wip/i.test(commit)) continue;
     
+    // Keep only the first part of the commit message (before period, comma, semicolon)
+    if (commit.includes('.')) {
+      commit = commit.split('.')[0];
+    }
+    if (commit.includes(',')) {
+      commit = commit.split(',')[0];
+    }
+    if (commit.includes(';')) {
+      commit = commit.split(';')[0];
+    }
+    
     // Capitalize first letter
     commit = commit.charAt(0).toUpperCase() + commit.slice(1);
     
@@ -228,10 +256,8 @@ function createPersonalizedBullets(commits, changedAreas, learningData) {
     const alreadyHasVerb = verbsToUse.some(verb => commit.startsWith(verb));
     
     if (alreadyHasVerb) {
-      // If bullet points tend to be short, limit length
-      if (bulletPatterns.avgLength < 40) {
-        commit = commit.split(' ').slice(0, 5).join(' ');
-      }
+      // Limit to 5-7 words max
+      commit = commit.split(' ').slice(0, 5).join(' ');
       
       bulletPoints.push(commit);
     } else {
@@ -250,8 +276,8 @@ function createPersonalizedBullets(commits, changedAreas, learningData) {
         verb = 'Changed';
       }
       
-      // Truncate to make it more concise
-      const commitText = commit.split(' ').slice(0, 4).join(' ');
+      // Truncate to make it more concise - just 2-4 words
+      const commitText = commit.split(' ').slice(0, 3).join(' ');
       
       // Add the verb at the beginning
       bulletPoints.push(`${verb} ${commitText.charAt(0).toLowerCase() + commitText.slice(1)}`);
@@ -264,36 +290,37 @@ function createPersonalizedBullets(commits, changedAreas, learningData) {
       if (bulletPoints.length >= 5) return;
       
       const areaVerbs = {
-        'components': 'Enhanced',
-        'screens': 'Improved',
-        'services': 'Optimized',
-        'utils': 'Updated',
-        'assets': 'Refreshed',
-        'styles': 'Styled',
-        'tests': 'Tested'
+        'components': 'Enhanced UI',
+        'screens': 'Improved screens',
+        'services': 'Optimized services',
+        'utils': 'Updated utilities',
+        'assets': 'Refreshed assets',
+        'styles': 'Styled UI',
+        'tests': 'Added tests'
       };
       
-      const verb = areaVerbs[area] || 'Updated';
-      bulletPoints.push(`${verb} ${area} functionality`);
+      const bullet = areaVerbs[area] || `Updated ${area}`;
+      bulletPoints.push(bullet);
     });
   }
   
   // If we still need bullets, add generic ones
-  if (bulletPoints.length < 3) {
-    const genericBullets = [
-      'Fixed minor bugs',
-      'Improved performance',
-      'Updated dependencies',
-      'Enhanced user experience',
-      'Added small tweaks'
-    ];
-    
-    for (let i = 0; i < genericBullets.length && bulletPoints.length < 3; i++) {
-      bulletPoints.push(genericBullets[i]);
+  const genericBullets = [
+    'Fixed minor bugs',
+    'Improved performance',
+    'Updated dependencies',
+    'Enhanced UI',
+    'Added tweaks'
+  ];
+  
+  while (bulletPoints.length < 3) {
+    const randomBullet = genericBullets[Math.floor(Math.random() * genericBullets.length)];
+    if (!bulletPoints.includes(randomBullet)) {
+      bulletPoints.push(randomBullet);
     }
   }
   
-  // Return unique bullets (no duplicates)
+  // Return unique bullets (no duplicates), limit to 5
   return [...new Set(bulletPoints)].slice(0, 5);
 }
 
