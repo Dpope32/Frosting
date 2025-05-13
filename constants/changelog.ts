@@ -1,5 +1,14 @@
 export const CHANGELOG = [
   {
+    version: '1.1.183',
+    date: '2025-05-13',
+    notes: 'Added Week View to Calendar Screen!',
+    bullets: [
+      'Switch on mobile between the Month view and Week view by tapping the icon in the header on the Calendar screen',
+      'Implemented caching for these images for faster loading in the Notes and Projects'
+    ],
+  },
+  {
     version: '1.1.178',
     date: '2025-05-12',
     notes: 'Added Advanced Settings Accordian',
