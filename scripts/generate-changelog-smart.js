@@ -28,95 +28,273 @@ function getRecentCommits(count = 15) {
     const output = execSync(`git log -${count} --pretty=format:"%s" --no-merges`).toString();
     return output.split('\n').filter(msg => msg.trim() !== '');
   } catch (error) {
-    console.warn('Error getting git commits:', error.message);
-    return [];
+    console.warn('Warning: Unable to get git commits. Using default placeholders.');
+    return ['Update app features', 'Fix bugs', 'Improve performance'];
   }
 }
 
-// Function to get changed files since last version
+// Function to get changed files since last commit
 function getChangedFiles() {
   try {
-    // Find the last version tag or commit
-    let lastTag;
-    try {
-      lastTag = execSync('git describe --tags --abbrev=0').toString().trim();
-    } catch (e) {
-      // If no tags exist, use the last 20 commits
-      return execSync('git diff --name-only HEAD~20').toString().split('\n').filter(file => file.trim() !== '');
-    }
-    
-    // Get files changed since last tag
-    return execSync(`git diff --name-only ${lastTag}..HEAD`).toString()
+    // Try to get files changed in the last commit first
+    return execSync('git diff --name-only HEAD~1 HEAD').toString()
       .split('\n')
       .filter(file => file.trim() !== '');
   } catch (error) {
-    console.warn('Error getting changed files:', error.message);
-    return [];
+    try {
+      // If that fails, try to get unstaged changes
+      return execSync('git diff --name-only').toString()
+        .split('\n')
+        .filter(file => file.trim() !== '');
+    } catch (error2) {
+      console.warn('Warning: Unable to get changed files. Using empty list.');
+      return [];
+    }
   }
 }
 
-// Generate catchier titles based on changed areas
-function getCatchyTitle(changedAreas) {
-  const areaNames = Object.keys(changedAreas);
-  
-  // Special case titles based on what changed
-  if (changedAreas['components'] && changedAreas['styles']) {
-    return 'UI Refresh & Design Updates';
-  }
-  
-  if (changedAreas['components'] && changedAreas['services']) {
-    return 'Enhanced Features & Services';
-  }
-  
-  if (changedAreas['utils'] && changedAreas['services']) {
-    return 'Performance & Core Improvements';
-  }
-  
-  if (changedAreas['assets']) {
-    return 'Visual Refinements & Assets Update';
-  }
-  
-  if (changedAreas['api'] || changedAreas['services']) {
-    return 'Backend Improvements & API Updates';
-  }
-  
-  if (changedAreas['components'] && changedAreas['hooks']) {
-    return 'UI Enhancements & Code Refinements';
-  }
-  
-  if (changedAreas['hooks'] || changedAreas['utils']) {
-    return 'Under the Hood: Performance & Stability';
-  }
-  
-  if (changedAreas['tests']) {
-    return 'Reliability & Testing Improvements';
-  }
-  
-  // Generic titles based on number of changed areas
-  if (areaNames.length === 1) {
-    const area = areaNames[0];
-    const titles = {
-      'components': 'UI Components Upgrade',
-      'services': 'Service Layer Improvements',
-      'utils': 'Core Utilities Enhancement',
-      'screens': 'Screen Layouts Refresh',
-      'constants': 'Configuration Updates',
-      'hooks': 'React Hooks Optimization',
-      'store': 'State Management Updates',
-      'assets': 'Visual Assets Refresh',
-      'api': 'API Integration Updates',
-      'scripts': 'Developer Workflow Improvements'
+// Learn from existing changelog entries
+function learnFromExistingChangelog() {
+  try {
+    const changelogPath = path.join(__dirname, '..', 'constants', 'changelog.ts');
+    const changelogContent = fs.readFileSync(changelogPath, 'utf8');
+    
+    // Extract all note strings using a regex pattern
+    const notePattern = /notes:\s*['"](.+?)['"]/g;
+    const noteMatches = [...changelogContent.matchAll(notePattern)];
+    const notes = noteMatches.map(match => match[1]);
+    
+    // Extract all bullet points
+    const bulletPattern = /['"](.+?)['"]/g;
+    const bulletMatches = [...changelogContent.matchAll(/bullets:\s*\[([\s\S]+?)\]/g)];
+    
+    let allBullets = [];
+    if (bulletMatches.length > 0) {
+      for (const match of bulletMatches) {
+        const bulletSection = match[1];
+        const bulletItems = [...bulletSection.matchAll(bulletPattern)];
+        allBullets = allBullets.concat(bulletItems.map(b => b[1]));
+      }
+    }
+    
+    // Analyze patterns in notes
+    const notePatterns = {
+      endsWithExclamation: notes.filter(n => n.endsWith('!')).length / (notes.length || 1),
+      containsAnd: notes.filter(n => n.includes(' and ')).length / (notes.length || 1),
+      avgLength: notes.reduce((sum, n) => sum + n.length, 0) / (notes.length || 1),
+      startsWithVerb: notes.filter(n => /^[A-Z][a-z]+ed|^[A-Z][a-z]+ing/.test(n)).length / (notes.length || 1),
+      hasEmoji: notes.filter(n => /[\u{1F300}-\u{1F6FF}]/u.test(n)).length / (notes.length || 1),
+      isTechnical: notes.filter(n => /API|UI|UX|performance|system|core|engine/i.test(n)).length / (notes.length || 1),
+      isCasual: notes.filter(n => /cool|awesome|nice|sweet|fun|exciting/i.test(n)).length / (notes.length || 1),
     };
     
-    return titles[area] || `${area.charAt(0).toUpperCase() + area.slice(1)} Improvements`;
-  } 
+    // Analyze bullet point patterns
+    const bulletPatterns = {
+      avgLength: allBullets.reduce((sum, b) => sum + b.length, 0) / (allBullets.length || 1),
+      usesPast: allBullets.filter(b => /^[A-Z][a-z]+ed/.test(b)).length / (allBullets.length || 1),
+      usesImperative: allBullets.filter(b => /^[A-Z][a-z]+[ ,]/.test(b) && !/^[A-Z][a-z]+ed/.test(b)).length / (allBullets.length || 1),
+      hasEmoji: allBullets.filter(b => /[\u{1F300}-\u{1F6FF}]/u.test(b)).length / (allBullets.length || 1),
+    };
+    
+    // Common starting words in notes
+    const noteWords = notes.map(n => n.split(' ')[0]);
+    const commonNoteStarters = noteWords.reduce((acc, word) => {
+      acc[word] = (acc[word] || 0) + 1;
+      return acc;
+    }, {});
+    
+    // Common starting words in bullets
+    const bulletWords = allBullets.map(b => b.split(' ')[0]);
+    const commonBulletStarters = bulletWords.reduce((acc, word) => {
+      acc[word] = (acc[word] || 0) + 1;
+      return acc;
+    }, {});
+    
+    return {
+      notePatterns,
+      bulletPatterns,
+      commonNoteStarters,
+      commonBulletStarters,
+      exampleNotes: notes.slice(0, 5),
+      exampleBullets: allBullets.slice(0, 10)
+    };
+  } catch (error) {
+    console.warn('Warning: Unable to learn from existing changelog. Using defaults.');
+    return {
+      notePatterns: {},
+      bulletPatterns: {},
+      commonNoteStarters: {},
+      commonBulletStarters: {},
+      exampleNotes: [],
+      exampleBullets: []
+    };
+  }
+}
+
+// Apply learned patterns to create a title in the user's style
+function createPersonalizedTitle(commits, learningData) {
+  const { notePatterns, commonNoteStarters, exampleNotes } = learningData;
   
-  if (areaNames.length === 2) {
-    return `${areaNames[0].charAt(0).toUpperCase() + areaNames[0].slice(1)} & ${areaNames[1].charAt(0).toUpperCase() + areaNames[1].slice(1)} Updates`;
+  // If we have no commits, use a generic title
+  if (!commits.length) {
+    return "App Updates & Improvements";
   }
   
-  // More than 2 areas changed
-  return 'Cross-Platform Improvements';
+  // Get the most significant commit (usually the first one, or look for keywords)
+  let mainCommit = commits[0];
+  const importantCommits = commits.filter(c => 
+    c.toLowerCase().includes('feature') || 
+    c.toLowerCase().includes('major') || 
+    c.toLowerCase().includes('new')
+  );
+  
+  if (importantCommits.length) {
+    mainCommit = importantCommits[0];
+  }
+  
+  // Clean up the commit message
+  let title = mainCommit
+    .replace(/^(fix|chore|feat|feat\(.*\)|feature|doc|style|refactor|perf|test|build):\s*/i, '')
+    .replace(/^\[.*?\]\s*/, '')
+    .trim();
+  
+  // Capitalize first letter
+  title = title.charAt(0).toUpperCase() + title.slice(1);
+  
+  // If the commit ends with a period, remove it
+  if (title.endsWith('.')) {
+    title = title.slice(0, -1);
+  }
+  
+  // If the user likes exclamation marks, add one if there isn't one already
+  if (notePatterns.endsWithExclamation > 0.3 && !title.endsWith('!')) {
+    title += '!';
+  }
+  
+  // If the common starters exist and the title doesn't start with one, consider prepending a common starter
+  if (Object.keys(commonNoteStarters).length && exampleNotes.length) {
+    // Find the most common starter
+    const starter = Object.entries(commonNoteStarters)
+      .sort((a, b) => b[1] - a[1])
+      .map(entry => entry[0])[0];
+      
+    // If it's a verb and the title doesn't already start with it, consider prepending
+    if (starter && /^[A-Z][a-z]+ed$/.test(starter) && !title.startsWith(starter)) {
+      // If the user tends to use past tense verbs
+      if (notePatterns.startsWithVerb > 0.3) {
+        title = `${starter} ${title.charAt(0).toLowerCase() + title.slice(1)}`;
+      }
+    }
+  }
+  
+  // If the user's notes are generally shorter, truncate if necessary
+  if (notePatterns.avgLength < 25 && title.length > 30) {
+    title = title.split(' ').slice(0, 4).join(' ');
+    if (!title.endsWith('!') && !title.endsWith('?') && !title.endsWith('.')) {
+      title += notePatterns.endsWithExclamation > 0.3 ? '!' : '';
+    }
+  }
+  
+  return title;
+}
+
+// Create personalized bullet points
+function createPersonalizedBullets(commits, changedAreas, learningData) {
+  const { bulletPatterns, commonBulletStarters } = learningData;
+  const bulletPoints = [];
+  
+  // Extract verbs from common starters
+  const commonVerbs = Object.keys(commonBulletStarters)
+    .filter(word => /^[A-Z][a-z]+ed$/.test(word) || /^[A-Z][a-z]+$/.test(word));
+  
+  // If we have no common verbs, use these defaults
+  const defaultVerbs = ['Fixed', 'Added', 'Improved', 'Updated', 'Enhanced'];
+  const verbsToUse = commonVerbs.length ? commonVerbs : defaultVerbs;
+  
+  // Process commits to create bullets
+  for (let i = 0; i < Math.min(commits.length, 5); i++) {
+    let commit = commits[i]
+      .replace(/^(fix|chore|feat|feat\(.*\)|feature|doc|style|refactor|perf|test|build):\s*/i, '')
+      .replace(/^\[.*?\]\s*/, '')
+      .trim();
+    
+    // Skip very short or meaningless commits
+    if (commit.length < 5 || /^merge|^update|^wip/i.test(commit)) continue;
+    
+    // Capitalize first letter
+    commit = commit.charAt(0).toUpperCase() + commit.slice(1);
+    
+    // If it already starts with a common verb, use it as is (with length limit)
+    const alreadyHasVerb = verbsToUse.some(verb => commit.startsWith(verb));
+    
+    if (alreadyHasVerb) {
+      // If bullet points tend to be short, limit length
+      if (bulletPatterns.avgLength < 40) {
+        commit = commit.split(' ').slice(0, 5).join(' ');
+      }
+      
+      bulletPoints.push(commit);
+    } else {
+      // Determine appropriate verb based on commit content
+      let verb = 'Updated'; // default
+      
+      if (/fix|bug|issue|problem|error|crash/i.test(commit)) {
+        verb = 'Fixed';
+      } else if (/add|new|creat|introduc/i.test(commit)) {
+        verb = 'Added';
+      } else if (/improv|enhanc|better|optimiz|upgrad/i.test(commit)) {
+        verb = 'Improved';
+      } else if (/refactor|clean|restructur/i.test(commit)) {
+        verb = 'Refactored';
+      } else if (/chang|modif/i.test(commit)) {
+        verb = 'Changed';
+      }
+      
+      // Truncate to make it more concise
+      const commitText = commit.split(' ').slice(0, 4).join(' ');
+      
+      // Add the verb at the beginning
+      bulletPoints.push(`${verb} ${commitText.charAt(0).toLowerCase() + commitText.slice(1)}`);
+    }
+  }
+  
+  // Add area-specific bullets if we still need more
+  if (bulletPoints.length < 3) {
+    Object.keys(changedAreas).forEach(area => {
+      if (bulletPoints.length >= 5) return;
+      
+      const areaVerbs = {
+        'components': 'Enhanced',
+        'screens': 'Improved',
+        'services': 'Optimized',
+        'utils': 'Updated',
+        'assets': 'Refreshed',
+        'styles': 'Styled',
+        'tests': 'Tested'
+      };
+      
+      const verb = areaVerbs[area] || 'Updated';
+      bulletPoints.push(`${verb} ${area} functionality`);
+    });
+  }
+  
+  // If we still need bullets, add generic ones
+  if (bulletPoints.length < 3) {
+    const genericBullets = [
+      'Fixed minor bugs',
+      'Improved performance',
+      'Updated dependencies',
+      'Enhanced user experience',
+      'Added small tweaks'
+    ];
+    
+    for (let i = 0; i < genericBullets.length && bulletPoints.length < 3; i++) {
+      bulletPoints.push(genericBullets[i]);
+    }
+  }
+  
+  // Return unique bullets (no duplicates)
+  return [...new Set(bulletPoints)].slice(0, 5);
 }
 
 // Function to suggest notes and bullets based on commits and changed files
@@ -132,114 +310,16 @@ function suggestChangelog() {
     return areas;
   }, {});
   
-  // Generate catchier summary note
-  const suggestedNote = getCatchyTitle(changedAreas);
+  // Learn from existing changelog entries
+  const learningData = learnFromExistingChangelog();
   
-  // Generate shorter bullet points from commit messages
-  const bulletPoints = [];
+  // Generate personalized note and bullets
+  const suggestedNote = createPersonalizedTitle(commits, learningData);
+  const suggestedBullets = createPersonalizedBullets(commits, changedAreas, learningData);
   
-  // Look for bug fixes
-  const bugfixes = commits.filter(c => 
-    c.toLowerCase().includes('fix') || 
-    c.toLowerCase().includes('bug') || 
-    c.toLowerCase().includes('patch')
-  );
-  
-  if (bugfixes.length > 0) {
-    const sample = bugfixes[0].replace(/^fix(ed)?:?\s*/i, '');
-    // Shorten the bullet point
-    let fixBullet = sample.split(' ').slice(0, 4).join(' ');
-    fixBullet = `Fixed ${fixBullet}`;
-    bulletPoints.push(fixBullet);
-  }
-  
-  // Look for new features
-  const features = commits.filter(c => 
-    c.toLowerCase().includes('add') || 
-    c.toLowerCase().includes('new') || 
-    c.toLowerCase().includes('feat')
-  );
-  
-  if (features.length > 0) {
-    const sample = features[0].replace(/^(add(ed)?|feat(ure)?):?\s*/i, '');
-    // Keep it short and sweet
-    let addBullet = sample.split(' ').slice(0, 4).join(' ');
-    addBullet = `Added ${addBullet}`;
-    bulletPoints.push(addBullet);
-  }
-  
-  // Look for improvements
-  const improvements = commits.filter(c => 
-    c.toLowerCase().includes('improv') || 
-    c.toLowerCase().includes('enhanc') || 
-    c.toLowerCase().includes('updat') ||
-    c.toLowerCase().includes('optim')
-  );
-  
-  if (improvements.length > 0) {
-    const sample = improvements[0].replace(/^(improv(ed|ement)?|enhanc(ed|ement)?|updat(ed|e)?):?\s*/i, '');
-    // Keep it concise
-    let improveBullet = sample.split(' ').slice(0, 4).join(' ');
-    improveBullet = `Improved ${improveBullet}`;
-    bulletPoints.push(improveBullet);
-  }
-  
-  // Add a UI/UX bullet if relevant files changed
-  if (changedAreas['components'] || changedAreas['styles'] || changedAreas['assets']) {
-    bulletPoints.push('UI/UX refinements');
-  }
-  
-  // Add a performance bullet if performance-related terms are in commits
-  if (commits.some(c => 
-    c.toLowerCase().includes('performance') || 
-    c.toLowerCase().includes('speed') || 
-    c.toLowerCase().includes('optim')
-  )) {
-    bulletPoints.push('Better app performance');
-  }
-  
-  // Ensure we have 3-5 bullets
-  while (bulletPoints.length < 3) {
-    const otherCommits = commits.filter(c => 
-      !bugfixes.includes(c) && 
-      !features.includes(c) && 
-      !improvements.includes(c)
-    );
-    
-    if (otherCommits.length > 0) {
-      // Keep it short
-      const sample = otherCommits[0];
-      const shortBullet = sample.split(' ').slice(0, 5).join(' ');
-      bulletPoints.push(`${shortBullet}`);
-      commits.splice(commits.indexOf(otherCommits[0]), 1);
-    } else {
-      break;
-    }
-  }
-  
-  // Add some general statements if we're still short on bullets
-  if (bulletPoints.length < 3) {
-    const generalBullets = [
-      'Bug fixes and tweaks',
-      'Minor UI adjustments',
-      'Performance optimizations',
-      'Code quality improvements',
-      'Documentation updates'
-    ];
-    
-    for (const bullet of generalBullets) {
-      if (bulletPoints.length < 3) {
-        bulletPoints.push(bullet);
-      } else {
-        break;
-      }
-    }
-  }
-  
-  // Limit to 5 bullets
   return {
     suggestedNote,
-    suggestedBullets: [...new Set(bulletPoints)].slice(0, 5) // Remove duplicates
+    suggestedBullets
   };
 }
 
