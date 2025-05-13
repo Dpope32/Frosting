@@ -10,7 +10,7 @@ import { useProjectStore } from '@/store/ProjectStore';
 import { useToastStore } from '@/store/ToastStore';
 import { usePeopleStore } from '@/store/People';
 import { AttachmentSelector } from '@/components/projects/ProjectCard/modal/attachmentSelector';
-import { ImageViewerModal } from '@/components/notes/ImageViewerModal';
+import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer';
 import { Attachment } from '@/types/notes';
 import type { Project } from '@/types/project';
 import type { Tag } from '@/types/tag';
@@ -272,9 +272,10 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         />
         <AttachmentSelector isDark={isDark} attachments={attachments} setAttachments={setAttachments} />
         <TasksInModal tasks={tasks} isDark={isDark} onTaskDelete={handleTaskDelete} />
-        <ImageViewerModal
+        <SimpleImageViewer
           imageUrl={selectedImageUrl}
           onClose={() => setSelectedImageUrl(null)}
+          isDark={isDark}
         />
       </YStack>
     </BaseCardModal>

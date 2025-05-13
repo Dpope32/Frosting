@@ -301,13 +301,12 @@ export const usePortfolioQuery = () => {
         };
       }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
     retry: 2,
-    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000), 
-    refetchInterval: 1000 * 60 * 60, // 60 minutes
+    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000),
     refetchOnReconnect: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: false,
   });
 };
 

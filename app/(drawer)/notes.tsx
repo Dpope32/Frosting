@@ -267,6 +267,9 @@ export default function NotesScreen() {
       updatedAt: new Date().toISOString(),
     };
     
+    console.log('[handleAddExampleNote] Adding example note with ID:', newNote.id, 'and title:', newNote.title);
+    console.log('[handleAddExampleNote] New note object:', newNote);
+
     // Add the note to the store
     noteStore.addNote(newNote);
     showToast(`Added example note: ${newNote.title}`, 'success');

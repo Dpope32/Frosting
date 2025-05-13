@@ -1,49 +1,106 @@
 import React, { useEffect } from 'react';
-import { Image, Modal, StyleSheet, TouchableOpacity, View, Platform } from 'react-native';
+import { Modal, StyleSheet, TouchableOpacity, View, Platform, TouchableWithoutFeedback, useColorScheme, NativeSyntheticEvent, Image, ImageErrorEventData, ImageProps } from 'react-native'; // Import Image from react-native
 import { Text, XStack, YStack } from 'tamagui';
 import { X } from '@tamagui/lucide-icons';
 import { useToastStore } from '@/store/ToastStore';
+import { PanGestureHandler, PinchGestureHandler, State, PanGestureHandlerGestureEvent, PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler'; // Import gesture event types and components
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 interface SimpleImageViewerProps {
   imageUrl: string | null;
   onClose: () => void;
+  isDark: boolean; // Added isDark prop
 }
 
 /**
  * A simpler image viewer that uses React Native's Modal directly
  * instead of potentially problematic Tamagui Dialog/AnimatePresence
  */
-export const SimpleImageViewer: React.FC<SimpleImageViewerProps> = ({ imageUrl, onClose }) => {
+export const SimpleImageViewer: React.FC<SimpleImageViewerProps> = ({ imageUrl, onClose, isDark }) => {
   const showToast = useToastStore((state) => state.showToast);
   const isOpen = !!imageUrl;
+
+  const scale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  const onPanGestureEvent = (event: PanGestureHandlerGestureEvent) => {
+    translateX.value += event.nativeEvent.translationX;
+    translateY.value += event.nativeEvent.translationY;
+  };
+
+  const onPinchGestureEvent = (event: PinchGestureHandlerGestureEvent) => {
+    scale.value = event.nativeEvent.scale;
+  };
+
+  const onPanHandlerStateChange = (event: PanGestureHandlerGestureEvent) => {
+    if (event.nativeEvent.state === State.END) {
+      // Optional: Add inertia or bounds checking here
+    }
+  };
+
+  const onPinchHandlerStateChange = (event: PinchGestureHandlerGestureEvent) => {
+    if (event.nativeEvent.state === State.END) {
+      if (scale.value < 1) {
+        scale.value = withSpring(1);
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+      // Optional: Add max scale limit
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value },
+        { scale: scale.value },
+      ],
+    };
+  });
+
   if (!isOpen || !imageUrl) return null;
-  
+
+  const backgroundColor = isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.7)';
+
   return (
     <Modal
       visible={true}
       transparent={true}
       animationType="fade"
-      onRequestClose={() => {
-        onClose();
-      }}
+      onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <YStack style={styles.imageContainer}>
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.image}
-            onError={(e) => {
-              showToast("Error loading image", "error");
-            }}
-          />
-          
-          <TouchableOpacity style={styles.closeButton} onPress={() => {
-            onClose();
-          }}>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={[styles.modalContainer, { backgroundColor }]}>
+          <PinchGestureHandler onGestureEvent={onPinchGestureEvent} onHandlerStateChange={onPinchHandlerStateChange}>
+            <Animated.View style={styles.imageWrapper}>
+              <PanGestureHandler onGestureEvent={onPanGestureEvent} onHandlerStateChange={onPanHandlerStateChange}>
+                <Animated.View style={styles.imageContainer}>
+                  {/* Apply animatedStyle directly to Image */}
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={[styles.image, animatedStyle]}
+                    // Removed cachePolicy prop
+                    onError={(e: NativeSyntheticEvent<ImageErrorEventData>) => { // Corrected type for react-native Image
+                      console.error('Image loading error:', e.nativeEvent.error); // Access error from nativeEvent
+                      showToast("Error loading image", "error");
+                    }}
+                  />
+                </Animated.View>
+              </PanGestureHandler>
+            </Animated.View>
+          </PinchGestureHandler>
+
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <X color="white" size={24} />
           </TouchableOpacity>
-        </YStack>
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };
@@ -51,7 +108,12 @@ export const SimpleImageViewer: React.FC<SimpleImageViewerProps> = ({ imageUrl, 
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageWrapper: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -63,7 +125,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   image: {
-    width: '100%', 
+    width: '100%',
     height: '100%',
     resizeMode: 'contain',
   },

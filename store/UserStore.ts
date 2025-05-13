@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { UserPreferences } from '@/types/user';
+import * as Sentry from '@sentry/react-native';
 
 interface UserStore {
   preferences: UserPreferences;
@@ -50,6 +51,9 @@ export const useUserStore = create<UserStore>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hydrated = true;
+          if (!state.preferences.profilePicture) {
+            Sentry.captureException(new Error('User profile picture missing after store hydration'));
+          }
         }
       },
     }

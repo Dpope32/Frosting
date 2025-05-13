@@ -172,7 +172,7 @@ export function TagSelector({
       ml={1}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2}fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
+        {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={8} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
           {tagStoreTags.map(tag => {
             const tagColor = tag.color || NEUTRAL_BORDER;

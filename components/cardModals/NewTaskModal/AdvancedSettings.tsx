@@ -1,6 +1,6 @@
 import React from 'react'
-import { useColorScheme, Platform } from 'react-native'
-import { XStack, YStack, Text, Button, AnimatePresence, isWeb } from 'tamagui'
+import { useColorScheme } from 'react-native'
+import { XStack, YStack, Text, Button, AnimatePresence } from 'tamagui'
 import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
 import { isIpad } from '@/utils/deviceUtils'
 import { CategorySelector } from './CategorySelector'
@@ -55,7 +55,7 @@ export function AdvancedSettings({
     <YStack>
       <Button
         backgroundColor="transparent"
-        height={isIpad() ? 48 : 42}
+        height={isIpad() ? 48 : 34}
         onPress={() => {
           if (showTimePicker) {
             setShowTimePicker(false);
@@ -122,23 +122,23 @@ export function AdvancedSettings({
             gap="$2"
             pb="$2"
           >
-            <ShowInCalendar
-              showInCalendar={showInCalendar}
-              onShowInCalendarChange={onShowInCalendarChange}
-              isDark={isDark}
-            />
-            
-            <CategorySelector
-              selectedCategory={category}
-              onCategorySelect={onCategorySelect}
-            />
-            
-            <YStack py={7}>
+
+           <YStack>
               <TagSelector
                 onTagsChange={onTagsChange}
                 tags={tags}
               />
             </YStack>
+            <CategorySelector
+              selectedCategory={category}
+              onCategorySelect={onCategorySelect}
+            />
+
+            <ShowInCalendar
+              showInCalendar={showInCalendar}
+              onShowInCalendarChange={onShowInCalendarChange}
+              isDark={isDark}
+            />
             
             <YStack pl={6}>
               <TimePicker

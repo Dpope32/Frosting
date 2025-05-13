@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Platform, useColorScheme } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
+import { Keyboard } from 'react-native'
 
 interface BaseCardModalProps {
   open: boolean
@@ -39,6 +40,28 @@ export function BaseCardModal({
   const insets = useSafeAreaInsets()
   const topInset = Platform.OS === 'ios' ? insets.top : 0
   const handleClose = () => {onOpenChange(false)}
+
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      (e) => {
+        setKeyboardVisible(true);
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   return (
     <Theme name={isDark ? "dark" : "light"}>
@@ -113,7 +136,7 @@ export function BaseCardModal({
               {children}
             </Sheet.ScrollView>
             {footer && (
-              <XStack justifyContent="space-between" px="$4" py="$2" borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} style={{ paddingBottom: keyboardVisible ? insets.bottom + 25 : insets.bottom }}>
+              <XStack justifyContent="space-between" px="$4" py="$2" borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} style={{ paddingBottom: keyboardVisible ? insets.bottom + 40 : insets.bottom }}>
                 {footer}
               </XStack>
             )}

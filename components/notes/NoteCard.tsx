@@ -8,7 +8,7 @@ import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
 import { useNoteStore } from '@/store/NoteStore';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { ImageViewerModal } from './ImageViewerModal'; 
+import { SimpleImageViewer } from './SimpleImageViewer';
 import { TagChip } from './TagChip';
 import { isIpad } from '@/utils/deviceUtils';
 
@@ -318,9 +318,10 @@ export const NoteCard = ({
           )}
         </YStack>
       </Card>
-      <ImageViewerModal
+      <SimpleImageViewer
         imageUrl={selectedImageUrl}
         onClose={() => setSelectedImageUrl(null)}
+        isDark={isDark}
       />
     </View>
   );

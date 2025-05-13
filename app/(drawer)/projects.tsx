@@ -273,6 +273,7 @@ export default function ProjectsScreen() {
         <SimpleImageViewer
           imageUrl={selectedImageUrl}
           onClose={() => setSelectedImageUrl(null)}
+          isDark={isDark}
         />
       )}
     </YStack>
