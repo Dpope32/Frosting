@@ -11,38 +11,12 @@ import { useToastStore } from '@/store/ToastStore';
 import { TextInput } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { generateSyncKey } from '@/sync/registrySyncManager';
-// Style system
-const baseSpacing = 8;
-const fontSizes = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 22,
-  xxl: 28,
-};
-const cardRadius = 12;
-const buttonRadius = 20;
-const getColors = (isDark: boolean, primaryColor: string) => ({
-  bg: isDark ? '#181A20' : '#fff',
-  card: isDark ? '#23262F' : '#F7F8FA',
-  border: isDark ? '#333' : '#E3E5E8',
-  text: isDark ? '#fff' : '#181A20',
-  subtext: isDark ? '#aaa' : '#666',
-  accent: primaryColor,
-  accentBg: isDark ? `${primaryColor}33` : `${primaryColor}18`,
-  error: '#E74C3C',
-  success: '#27AE60',
-  disabled: isDark ? '#333' : '#eee',
-});
+import { baseSpacing, fontSizes, cardRadius, buttonRadius, getColors } from '@/components/sync/sharedStyles';
 
 export default function AddDeviceModal({ onClose }: { onClose: () => void }) {
-  const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const router = useRouter();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-  const [showAddDevice, setShowAddDevice] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deviceId, setDeviceId] = useState('');
   const [peerCode, setPeerCode] = useState('');
