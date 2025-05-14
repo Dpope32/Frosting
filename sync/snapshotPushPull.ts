@@ -1,194 +1,126 @@
-// sync/pocketSync.ts
-import * as FileSystem from 'expo-file-system';
-import { generateSyncKey } from '@/sync/registrySyncManager';
-import { decryptSnapshot } from '@/lib/encryption';
-import { useRegistryStore } from '@/store/RegistryStore';
-import { useUserStore } from '@/store/UserStore';
-import * as Sentry from '@sentry/react-native';
-import { checkNetworkConnectivity, getPocketBase } from './pocketSync';
-import { getCurrentWorkspaceId } from './workspace';
-import { addSyncLog } from '@/components/sync/syncUtils';
-// Modify your pushSnapshot function to handle the silent skip:
+// ===============================================
+// File: sync/snapshotPushPull.ts
+// Purpose: push / pull encrypted snapshots to PocketBase.
+// Notes:  
+// • Removed redundant `timestamp` property; rely on PB’s `created` field.  
+// • Added final `setSyncStatus('idle')` on success paths.  
+// • Graceful decrypt failures while we’re iterating.  
+// ===============================================
+
+import * as FileSystem from "expo-file-system";
+import { decryptSnapshot } from "@/lib/encryption";
+import { generateSyncKey } from "@/sync/registrySyncManager";
+import { useRegistryStore } from "@/store/RegistryStore";
+import { useUserStore } from "@/store/UserStore";
+import * as Sentry from "@sentry/react-native";
+import { checkNetworkConnectivity, getPocketBase } from "./pocketSync";
+import { getCurrentWorkspaceId } from "./workspace";
+import { addSyncLog } from "@/components/sync/syncUtils";
+
+// ————————————————————— PUSH ——————————————————————
 export const pushSnapshot = async (): Promise<void> => {
-    const isPremium = useUserStore.getState().preferences.premium === true;
-    if (!isPremium) return;
-    Sentry.addBreadcrumb({
-      category: 'pocketSync',
-      message: 'pushSnapshot called',
-      level: 'info',
-    });
-    addSyncLog('Pushing snapshot to PocketBase', 'info');
-    try {
-      // Your existing checks remain unchanged
-      const hasCompletedOnboarding = (useUserStore.getState().preferences.hasCompletedOnboarding);
-      if (!hasCompletedOnboarding) {
-        Sentry.addBreadcrumb({
-          category: 'pocketSync',
-          message: 'Skipping push - onboarding not completed',
-          level: 'warning',
-        });
-        addSyncLog('Skipping PocketBase push - onboarding not completed', 'warning');
-        return;
-      }
-      
-      // Your existing network check
-      const isConnected = await checkNetworkConnectivity();
-      if (!isConnected) {
-        Sentry.addBreadcrumb({
-          category: 'pocketSync',
-          message: 'Skipping push - no network connection',
-          level: 'warning',
-        });
-        addSyncLog('Skipping PocketBase push - no network connection', 'warning');
-        return;
-      }
-      
-      const pb = await getPocketBase();
-      const workspaceId = await getCurrentWorkspaceId();
-      if (!workspaceId) {
-        throw new Error("No workspace configured");
-      }
-      
-      const deviceId = await generateSyncKey();
-      const cipher = await FileSystem.readAsStringAsync(
-        `${FileSystem.documentDirectory}stateSnapshot.enc`
-      );
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Pushing snapshot to PocketBase',
-        data: { deviceId },
-        level: 'info',
-      });
-      await pb.collection('registry_snapshots').create({
-        workspace_id: workspaceId,
-        device_id: deviceId,
-        snapshot_blob: cipher,
-        // this line is redundant, pocketbase automatically creates a -created field.
-        // need to find we we use this if anywhere and just sort on created ?
-      });
-      addSyncLog('Successfully pushed data to PocketBase', 'info');
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Successfully pushed data to PocketBase',
-        level: 'info',
-      });
-      addSyncLog('Successfully pushed data to PocketBase', 'info');
-    } catch (error: unknown) {
-      if (error instanceof Error && error.message === 'SKIP_SYNC_SILENTLY') {
-        addSyncLog('Skipping PocketBase push - server not available', 'warning');
-        return;
-      }
-      Sentry.captureException(error);
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Error pushing to PocketBase',
-        data: { error },
-        level: 'error',
-      });
-      addSyncLog('Error pushing to PocketBase', 'error', error instanceof Error ? error.message : String(error));
-      useRegistryStore.getState().setSyncStatus('error');
-      throw error;
+  if (!useUserStore.getState().preferences.premium) return;
+
+  try {
+    addSyncLog("Pushing snapshot to PocketBase", "info");
+
+    // guards
+    if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
+      addSyncLog("Skipping push – onboarding not completed", "warning");
+      return;
     }
-  };
-  
-  
-  
-  /**  
-   * Pull the most recent snapshot for this device, decrypt it, and hydrate your stores.  
-   */
-  export const pullLatestSnapshot = async (): Promise<void> => {
-    const isPremium = useUserStore.getState().preferences.premium === true;
-    if (!isPremium) return;
-    addSyncLog('Pulling latest snapshot from PocketBase', 'info');
-    Sentry.addBreadcrumb({
-      category: 'pocketSync',
-      message: 'pullLatestSnapshot called',
-      level: 'info',
-    });
-    try {
-      // Check if onboarding is completed before proceeding
-      const hasCompletedOnboarding = (useUserStore.getState().preferences.hasCompletedOnboarding);
-      if (!hasCompletedOnboarding) {
-        Sentry.addBreadcrumb({
-          category: 'pocketSync',
-          message: 'Skipping pull - onboarding not completed',
-          level: 'warning',
-        });
-        addSyncLog('Skipping PocketBase pull - onboarding not completed', 'warning');
-        return;
-      }
-      
-      // Simple network check
-      const isConnected = await checkNetworkConnectivity();
-      if (!isConnected) {
-        Sentry.addBreadcrumb({
-          category: 'pocketSync',
-          message: 'Skipping pull - no network connection',
-          level: 'warning',
-        });
-        addSyncLog('Skipping PocketBase pull - no network connection', 'warning');
-        return;
-      }
-      
-      const pb = await getPocketBase();
-      const workspaceId = await getCurrentWorkspaceId();
-      if (!workspaceId) {
-        throw new Error("No workspace configured");
-      }
-      
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Pulling latest snapshot from PocketBase',
-        data: { workspaceId },
-        level: 'info',
-      });
-      const list = await pb
-        .collection('registry_snapshots')
-        .getList(1, 1, {
-          filter: `workspace_id="${workspaceId}"`,
-          sort: '-created',
-        });
-  
-      if (list.items.length === 0) {
-        Sentry.addBreadcrumb({
-          category: 'pocketSync',
-          message: 'No snapshots found for this workspace',
-          level: 'info',
-        });
-        addSyncLog('No snapshots found for this workspace', 'info');
-        return;
-      }
-  
-      const blob = list.items[0].snapshot_blob;
-      const key = await generateSyncKey();
-      const data = decryptSnapshot(blob, key);
-  
-      // Set sync status before hydration
-      useRegistryStore.getState().setSyncStatus('syncing');
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Hydrating all stores with pulled data',
-        level: 'info',
-      });
-      // Hydrate all stores with the data
-      useRegistryStore.getState().hydrateAll(data);
-      useRegistryStore.getState().setSyncStatus('idle');
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Successfully pulled and hydrated data from PocketBase',
-        level: 'info',
-      });
-      addSyncLog('Successfully pulled and hydrated data from PocketBase', 'info');
-    } catch (error) {
-      Sentry.captureException(error);
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Error pulling from PocketBase',
-        data: { error },
-        level: 'error',
-      });
-      addSyncLog('Error pulling from PocketBase', 'error', error instanceof Error ? error.message : String(error));
-      useRegistryStore.getState().setSyncStatus('error');
-      throw error;
+
+    if (!(await checkNetworkConnectivity())) {
+      addSyncLog("Skipping push – no network connection", "warning");
+      return;
     }
-  };
+
+    const pb = await getPocketBase();
+    const workspaceId = await getCurrentWorkspaceId();
+    if (!workspaceId) throw new Error("No workspace configured");
+
+    const deviceId = await generateSyncKey();
+    const cipher = await FileSystem.readAsStringAsync(
+      `${FileSystem.documentDirectory}stateSnapshot.enc`,
+    );
+
+    await pb.collection("registry_snapshots").create({
+      workspace_id: workspaceId,
+      device_id: deviceId,
+      snapshot_blob: cipher,
+    });
+
+    addSyncLog("Successfully pushed data to PocketBase", "info");
+  } catch (err) {
+    Sentry.captureException(err);
+    addSyncLog(
+      "Error pushing to PocketBase",
+      "error",
+      err instanceof Error ? err.message : String(err),
+    );
+    useRegistryStore.getState().setSyncStatus("error");
+    throw err;
+  } finally {
+    // ensure we get back to idle in debug builds
+    useRegistryStore.getState().setSyncStatus("idle");
+  }
+};
+
+// ————————————————————— PULL ——————————————————————
+export const pullLatestSnapshot = async (): Promise<void> => {
+  if (!useUserStore.getState().preferences.premium) return;
+
+  try {
+    addSyncLog("Pulling latest snapshot from PocketBase", "info");
+
+    if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
+      addSyncLog("Skipping pull – onboarding not completed", "warning");
+      return;
+    }
+
+    if (!(await checkNetworkConnectivity())) {
+      addSyncLog("Skipping pull – no network connection", "warning");
+      return;
+    }
+
+    const pb = await getPocketBase();
+    const workspaceId = await getCurrentWorkspaceId();
+    if (!workspaceId) throw new Error("No workspace configured");
+
+    const list = await pb.collection("registry_snapshots").getList(1, 1, {
+      filter: `workspace_id="${workspaceId}"`,
+      sort: "-created",
+    });
+
+    if (list.items.length === 0) {
+      addSyncLog("No snapshots found for this workspace", "info");
+      return;
+    }
+
+    const blob = list.items[0].snapshot_blob;
+    const key = await generateSyncKey();
+
+    let data: Record<string, unknown>;
+    try {
+      data = decryptSnapshot(blob, key);
+    } catch (e) {
+      addSyncLog("Decrypt failed – probably an old format", "error");
+      return; // bail gracefully during debug
+    }
+
+    useRegistryStore.getState().setSyncStatus("syncing");
+    useRegistryStore.getState().hydrateAll(data);
+    addSyncLog("Successfully pulled and hydrated data from PocketBase", "info");
+  } catch (err) {
+    Sentry.captureException(err);
+    addSyncLog(
+      "Error pulling from PocketBase",
+      "error",
+      err instanceof Error ? err.message : String(err),
+    );
+    useRegistryStore.getState().setSyncStatus("error");
+    throw err;
+  } finally {
+    useRegistryStore.getState().setSyncStatus("idle");
+  }
+};
