@@ -23,6 +23,7 @@ import {
   clearLogQueue,
   LogEntry,
 } from '@/components/sync/syncUtils';
+import { getCurrentWorkspaceId as getWsIdUtil } from '@/sync/workspace';
 
 // Create a custom fetch to intercept and log all network requests
 const originalFetch = global.fetch;
@@ -179,6 +180,35 @@ export default function SyncScreen() {
       setIsLoading(false);
     }
   }, [syncStatus, isLoading]);
+
+  useEffect(() => {
+    const fetchInitialWorkspaceId = async () => {
+      if (premium) { 
+        try {
+          // Uses the correctly imported and aliased function
+          const id = await getWsIdUtil(); 
+          if (id) {
+            setCurrentSpaceId(id);
+            addSyncLog(`🔗 SyncScreen: Initial workspace ID loaded: ${id.substring(0,8)}`, 'info');
+          } else {
+            setCurrentSpaceId(null); 
+            addSyncLog('🔩 SyncScreen: No initial workspace ID found for premium user.', 'verbose');
+          }
+        } catch (error) {
+          setCurrentSpaceId(null); 
+          addSyncLog(
+            '🔥 SyncScreen: Failed to fetch initial workspace ID', 
+            'error', 
+            error instanceof Error ? error.message : String(error)
+          );
+        }
+      } else {
+        setCurrentSpaceId(null); 
+        addSyncLog('🚫 SyncScreen: User not premium, skipping initial workspace ID fetch.', 'verbose');
+      }
+    };
+    fetchInitialWorkspaceId();
+  }, [premium]); // Re-run if premium status changes
 
   /**
    * Perform a real sync using the actual pocketSync functions
