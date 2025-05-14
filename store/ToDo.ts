@@ -213,11 +213,13 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     }
 
     case 'monthly': {
+      // Check if this is a bill (which was already handled above)
       if (task.category === 'bills') {
-        if (shouldDebug) log("- monthly bills, skipping");
+        if (shouldDebug) log("- monthly bills already handled earlier, skipping");
         return false;
       }
-      // Compare day of the month
+      
+      // Compare day of the month for non-bill monthly tasks
       const recDay = fallbackRecDate.getDate();
       const isDueToday = date.getDate() === recDay;
       if (shouldDebug) log(`- monthly check result for ${task.name}: ${isDueToday} (today: ${date.getDate()}, recDay: ${recDay})`);
