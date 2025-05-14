@@ -1,6 +1,13 @@
 import { CalendarEvent } from '@/store/CalendarStore';
 import Holidays from 'date-holidays';
 
+// List of holidays to exclude from display
+const EXCLUDED_HOLIDAYS = [
+  'Columbus Day',
+  'Juneteenth',
+  'Indigenous Peoples\' Day'
+];
+
 export const getUSHolidays = (year: number): CalendarEvent[] => {
   // Initialize the date-holidays library with US holidays
   const holidays = new Holidays('US');
@@ -37,7 +44,10 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
   
   const currentDate = new Date().toISOString();
   
-  const libraryHolidays = holidayData.map(h => {
+  // Filter out excluded holidays
+  const filteredHolidayData = holidayData.filter(h => !EXCLUDED_HOLIDAYS.includes(h.name));
+  
+  const libraryHolidays = filteredHolidayData.map(h => {
     const name = h.name;
     const attributes = holidayAttributes[name] || { color: '#757575', icon: '📅' };
     

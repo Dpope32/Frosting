@@ -6,6 +6,13 @@ import { nbaTeams } from '@/constants/nba';
 import { useUserStore } from '@/store/UserStore';
 import { getMonthStyles } from './MonthStyles';
 
+// List of holidays to exclude from display
+const EXCLUDED_HOLIDAYS = [
+  'Columbus Day',
+  'Juneteenth',
+  'Indigenous Peoples\' Day'
+];
+
 const shouldUseDarkText = (backgroundColor: string): boolean => {
   const hex = backgroundColor.replace('#', '');
   const r = parseInt(hex.substr(0, 2), 16);
@@ -53,10 +60,13 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
 
     return events
       .filter(e => e.date >= start && e.date <= end)
+      // Filter out excluded holidays
+      .filter(e => !(e.type === 'holiday' && EXCLUDED_HOLIDAYS.includes(e.title)))
       .reduce((acc, e) => {
         if (!acc[e.date]) {
           acc[e.date] = {
             birthday: false,
+            birthdayName: '',
             personal: false,
             work: false,
             family: false,
@@ -65,12 +75,16 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             task: false,
             nba: false,
             holiday: false,
+            holidayName: '',
             holidayColor: '',
             holidayIcon: '',
             teamCode: null
           };
         }
-        if (e.type === 'birthday') acc[e.date].birthday = true;
+        if (e.type === 'birthday') {
+          acc[e.date].birthday = true;
+          acc[e.date].birthdayName = e.title || 'Birthday';
+        }
         else if (e.type === 'work') acc[e.date].work = true;
         else if (e.type === 'family') acc[e.date].family = true;
         else if (e.type === 'bill') {
@@ -81,9 +95,13 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           acc[e.date].nba = true;
           acc[e.date].teamCode = e.teamCode || null;
         } else if (e.type === 'holiday') {
-          acc[e.date].holiday = true;
-          acc[e.date].holidayColor = e.holidayColor || '#E53935';
-          acc[e.date].holidayIcon = e.holidayIcon || '🎉';
+          // Double-check that this isn't an excluded holiday
+          if (!EXCLUDED_HOLIDAYS.includes(e.title)) {
+            acc[e.date].holiday = true;
+            acc[e.date].holidayName = e.title || 'Holiday';
+            acc[e.date].holidayColor = e.holidayColor || '#E53935';
+            acc[e.date].holidayIcon = e.holidayIcon || '🎉';
+          }
         } else if (e.type === 'task') {
           acc[e.date].task = true;
         } else {
@@ -92,6 +110,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         return acc;
       }, {} as Record<string, {
         birthday: boolean;
+        birthdayName: string;
         personal: boolean;
         work: boolean;
         family: boolean;
@@ -100,6 +119,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         task: boolean;
         nba: boolean;
         holiday: boolean;
+        holidayName: string;
         holidayColor: string;
         holidayIcon: string;
         teamCode: string | null;
@@ -134,8 +154,8 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
           const dateKey = currentDate.toISOString().split('T')[0];
           const dayEvents = eventsByDate[dateKey] || {
-            birthday: false, personal: false, work: false, family: false, bill: false, billName: '',
-            task: false, nba: false, holiday: false, holidayColor: '', holidayIcon: '', teamCode: null
+            birthday: false, birthdayName: '', personal: false, work: false, family: false, bill: false, billName: '',
+            task: false, nba: false, holiday: false, holidayName: '', holidayColor: '', holidayIcon: '', teamCode: null
           };
 
           const isToday = currentDate.toDateString() === new Date().toDateString();
@@ -181,16 +201,30 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   {isPastDate && !isToday && (
                     <View style={styles.pastDateStrikethrough} />
                   )}
+
+                  {dayEvents.task && (
+                    <View style={styles.taskIconContainer}>
+                      <Text style={styles.taskIconText}>🔔</Text>
+                    </View>
+                  )}
             
                   {dayEvents.holiday && (
-                    <View style={[styles.holidayIconContainer, { top: 4, right: 1 }]}>
-                      <Text style={styles.holidayIconText}>{dayEvents.holidayIcon}</Text>
+                    <View style={styles.holidayIconContainer}>
+                      <Text style={styles.holidayIconText} numberOfLines={1} ellipsizeMode="tail">
+                        {dayEvents.holidayName.length > 12 
+                          ? dayEvents.holidayName.substring(0, 10) + '...' 
+                          : dayEvents.holidayName}
+                      </Text>
                     </View>
                   )}
 
                   {!dayEvents.holiday && dayEvents.birthday && (
                     <View style={styles.birthdayIconContainer}>
-                      <Text style={styles.birthdayIconText}>🎉</Text>
+                      <Text style={styles.birthdayIconText} numberOfLines={1} ellipsizeMode="tail">
+                        {dayEvents.birthdayName.length > 12 
+                          ? dayEvents.birthdayName.substring(0, 10) + '...' 
+                          : dayEvents.birthdayName}
+                      </Text>
                     </View>
                   )}
             

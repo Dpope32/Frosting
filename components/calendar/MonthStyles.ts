@@ -77,6 +77,27 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   lastRowCell: {
     borderBottomWidth: 0
   },
+  holidayCell: {
+    backgroundColor: isDark ? '#252525' : '#F5F5F5',
+    borderRadius:isWeb? 0: 6,
+  },
+  holidayText: {
+    fontSize: webColumnCount === 1 ? isWeb? 18 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
+    fontWeight: '500',
+    color: isDark ? '#AAA' : '#757575',
+  },
+  taskIconContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },  
+  taskIconText: {
+    fontSize: webColumnCount === 1 ? isWeb? 18 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
+    fontWeight: '500',
+    color: isDark ? '#AAA' : '#757575',
+  },
   dayCellContent: {
     flex: 1,
     justifyContent: 'center',
@@ -121,23 +142,39 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   // Icon containers
   holidayIconContainer: {
-    position: 'absolute',
-    top: 6,
-    left: 16
+    zIndex: 9999,
+    bottom: 12,
+    left: 0,
+    right: 2,
+    alignItems: 'center',
+    backgroundColor: isDark ? 'rgba(0,50,0,0.7)' : 'rgba(200,255,200,0.9)',
+    borderRadius: 3,
+    paddingVertical: 2,
+    borderWidth: 0.5,
+    borderColor: 'rgba(168, 168, 168, 0.18)',
+    paddingHorizontal: 6,
+
   },
   holidayIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 16 : 10) 
+      ? (Platform.OS === 'web' ? 13 : 10) 
       : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 14 : 8) 
-        : (Platform.OS === 'web' ? 12 : 8))
+        ? (Platform.OS === 'web' ? 12 : 8) 
+        : (Platform.OS === 'web' ? 10 : 8)),
+    color: isDark ? '#FFFFFF' : '#006400',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    maxWidth: '100%'
   },
   billIconContainer: {
     position: 'absolute',
     bottom: 24,
     right: 4,
     left: 4,
-    alignItems: 'center'
+    alignItems: 'center',
+    borderColor: 'rgba(255,0,0,0.5)',
+    borderRadius: 3,
+    borderWidth: 0.5,
   },
   billIconText: {
     fontSize: webColumnCount === 1 
@@ -151,16 +188,29 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     opacity: 0.9
   },
   birthdayIconContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0
+    zIndex: 9999,
+    bottom: -10,
+    left: 2,
+    right: 2,
+    alignItems: 'center',
+    backgroundColor: isDark ? 'rgba(100,0,100,0.7)' : 'rgba(255,200,255,0.9)',
+    borderRadius: 3,
+    paddingVertical: 2,
+    ...(Platform.OS === 'web' ? {
+      borderWidth: 1,
+      borderColor: isDark ? '#E91E63' : '#880E4F',
+    } : {})
   },
   birthdayIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 16 : 10) 
+      ? (Platform.OS === 'web' ? 13 : 10) 
       : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 14 : 8) 
-        : (Platform.OS === 'web' ? 12 : 8))
+        ? (Platform.OS === 'web' ? 12 : 8) 
+        : (Platform.OS === 'web' ? 10 : 8)),
+    color: isDark ? '#FFFFFF' : '#880E4F',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    maxWidth: '100%'
   },
   // Dots
   indicatorContainer: {
