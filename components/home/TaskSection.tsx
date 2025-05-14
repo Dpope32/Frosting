@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { Pressable, Platform as RNPlatform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
@@ -47,7 +47,17 @@ export const TaskSection = ({
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
   
- // useEffect(() => {
+  // Filter out duplicate task titles
+  const uniqueTasks = useMemo(() => {
+    const seen = new Set<string>();
+    return todaysTasks.filter(task => {
+      if (seen.has(task.name)) return false;
+      seen.add(task.name);
+      return true;
+    });
+  }, [todaysTasks]);
+  
+  // useEffect(() => {
  //   if (DEBUG) {
  //     log(`todaysTasks updated - count: ${todaysTasks.length}`);
       
@@ -163,7 +173,7 @@ export const TaskSection = ({
         py={RNPlatform.OS === 'web' ? "$2" : "$0"}
       >
         {RNPlatform.OS === 'web' ? (
-          todaysTasks.length === 0 ? (
+          uniqueTasks.length === 0 ? (
             <Stack 
               p="$2"
               px="$2"
@@ -195,13 +205,13 @@ export const TaskSection = ({
               alignItems: 'flex-start',
               justifyItems: 'flex-start',
               width: '95%',
-              maxHeight: todaysTasks.length > 4 ? '200px' : 'auto',
-              overflowY: todaysTasks.length > 4 ? 'auto' : 'visible',
+              maxHeight: uniqueTasks.length > 4 ? '200px' : 'auto',
+              overflowY: uniqueTasks.length > 4 ? 'auto' : 'visible',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(219, 208, 198, 0.3) rgba(0, 0, 0, 0.1)',
               padding: '10px'
             }}>
-              {todaysTasks.map((task: Task) => {
+              {uniqueTasks.map((task: Task) => {
                 const isCompleted = task.completionHistory[todayLocalStr] || false;
                 
                 if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
@@ -242,7 +252,7 @@ export const TaskSection = ({
           )
         ) : (
           <>
-            {todaysTasks.length === 0 ? (
+            {uniqueTasks.length === 0 ? (
               <Stack 
                 p="$2"
                 px="$1"
@@ -279,7 +289,7 @@ export const TaskSection = ({
                   borderBottomWidth={1}
                   borderColor={isDark ? "rgba(29, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.1)"}
                 >
-                  {todaysTasks.map((task: Task) => {
+                  {uniqueTasks.map((task: Task) => {
                     const isCompleted = task.completionHistory[todayLocalStr] || false;
                     return (
                       <Stack 
