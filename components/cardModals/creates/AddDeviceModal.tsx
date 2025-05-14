@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Text, Button, YStack, XStack } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
-import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
 import { useToastStore } from '@/store/ToastStore';
 import { TextInput } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { generateSyncKey } from '@/sync/registrySyncManager';
-import { createOrJoinWorkspace, getCurrentWorkspaceId } from '@/sync/pocketSync';
+import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync/workspace';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { baseSpacing, fontSizes, cardRadius, buttonRadius, getColors } from '@/components/sync/sharedStyles';
 
@@ -41,22 +38,42 @@ export default function AddDeviceModal({
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
 
-  // Check if already in a workspace on mount
+  /* ------------------------------------------------------------------ */
+  /*                        LIFE-CYCLE & WATCHERS                       */
+  /* ------------------------------------------------------------------ */
+
+  // ➋  – component mount / un-mount
+  useEffect(() => {
+    addSyncLog('🛠️  AddDeviceModal mounted', 'verbose');
+    return () => addSyncLog('📤 AddDeviceModal un-mounted', 'verbose');
+  }, []);
+
+  // ➌  – watch modal step changes
+  useEffect(() => {
+    addSyncLog(`🔀 Modal step ➜ ${modalStep}`, 'verbose');
+  }, [modalStep]);
+
+  // ➍  – initial workspace lookup
   useEffect(() => {
     const checkWorkspace = async () => {
       const id = await getCurrentWorkspaceId();
       if (id) {
+        addSyncLog(`🔗 Existing workspace detected on device: ${id}`, 'info');
         setWorkspaceId(id);
-        if (modalStep === 'choose') {
-          setModalStep('connected');
-        }
+        if (modalStep === 'choose') setModalStep('connected');
+      } else {
+        addSyncLog('🔍 No workspace file on device (first-time setup)', 'verbose');
       }
     };
-    
     checkWorkspace();
   }, []);
 
+  /* ------------------------------------------------------------------ */
+  /*                          ACTION HANDLERS                           */
+  /* ------------------------------------------------------------------ */
+
   const handleCreateWorkspace = async () => {
+    addSyncLog('🪄 User chose "Create Workspace"', 'info');
     setModalStep('creating');
     try {
       setIsLoading(true);
@@ -87,16 +104,26 @@ export default function AddDeviceModal({
   };
 
   const handleJoinWorkspace = () => {
+    addSyncLog('🔑 User chose "Join Workspace"', 'info');
     setModalStep('joining');
   };
 
   const connectToWorkspace = async () => {
     if (!inputWorkspaceId.trim() || !inputInviteCode.trim()) {
-      useToastStore.getState().showToast('Please enter both workspace ID and invite code', 'error');
+      addSyncLog('⚠️  Join aborted – empty Workspace ID / Invite Code', 'warning');
+      useToastStore.getState().showToast(
+        'Please enter both workspace ID and invite code',
+        'error'
+      );
       return;
     }
     
     setIsLoading(true);
+    addSyncLog(
+      `🔌 Attempting to join workspace ${inputWorkspaceId.trim().slice(0, 8)}…`,
+      'info'
+    );
+
     try {
       addSyncLog('Joining existing workspace...', 'info');
       
@@ -112,7 +139,10 @@ export default function AddDeviceModal({
         onWorkspaceJoined(result.id);
       }
       
-      addSyncLog(`Joined workspace: ${result.id.substring(0, 8)}`, 'success');
+      addSyncLog(
+        `✅ Joined workspace ${result.id.slice(0, 8)} (invite OK)`,
+        'success'
+      );
       useToastStore.getState().showToast('Successfully joined workspace', 'success');
       setModalStep('connected');
     } catch (error) {
@@ -124,6 +154,10 @@ export default function AddDeviceModal({
       setIsLoading(false);
     }
   };
+
+  /* ------------------------------------------------------------------ */
+  /*                      CLIPBOARD COPY HELPERS                        */
+  /* ------------------------------------------------------------------ */
 
   return (
     <BaseCardAnimated
@@ -196,6 +230,7 @@ export default function AddDeviceModal({
                 size="$2" 
                 onPress={async () => {
                   await Clipboard.setStringAsync(workspaceId);
+                  addSyncLog('📋 Workspace ID copied to clipboard', 'verbose');
                   useToastStore.getState().showToast('Workspace ID copied', 'success');
                 }}
                 style={{ borderRadius: buttonRadius }}
@@ -215,6 +250,7 @@ export default function AddDeviceModal({
                 size="$2" 
                 onPress={async () => {
                   await Clipboard.setStringAsync(inviteCode);
+                  addSyncLog('📋 Invite code copied to clipboard', 'verbose');
                   useToastStore.getState().showToast('Invite code copied', 'success');
                 }}
                 style={{ borderRadius: buttonRadius }}

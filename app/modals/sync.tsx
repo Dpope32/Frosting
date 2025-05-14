@@ -10,7 +10,8 @@ import { useToastStore } from '@/store/ToastStore';
 import { useRegistryStore } from '@/store/RegistryStore';
 import { isIpad } from '@/utils/deviceUtils';
 import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal';
-import { pushSnapshot, pullLatestSnapshot, exportLogsToServer } from '@/sync/pocketSync';
+import { exportLogs } from '@/sync/exportLogs';
+import { pushSnapshot, pullLatestSnapshot } from '@/sync/snapshotPushPull';
 import { exportEncryptedState, generateSyncKey } from '@/sync/registrySyncManager';
 import SyncTable from '@/components/sync/syncTable';
 import { AUTHORIZED_USERS } from '@/constants/KEYS';
@@ -189,31 +190,37 @@ export default function SyncScreen() {
     }
     
     setIsLoading(true);
-    addSyncLog(`Starting ${syncType} sync process...`, 'info');
+    addSyncLog(`🚀 Starting ${syncType.toUpperCase()} sync`, 'info');
     
     try {
       // First export the encrypted state (required for push)
       if (syncType === 'push' || syncType === 'both') {
-        addSyncLog('Exporting and encrypting state...', 'info');
+        addSyncLog('🗄️  Exporting & encrypting state', 'info');
         const allStates = useRegistryStore.getState().getAllStoreStates();
         await exportEncryptedState(allStates);
+        addSyncLog('🔐 State encrypted & saved', 'success');
         
         // Push to remote
-        addSyncLog('Pushing snapshot to server...', 'info');
+        addSyncLog('📤 Pushing snapshot → server', 'info');
         await pushSnapshot();
+        addSyncLog('✅ Snapshot push success', 'success');
       }
       
       // Pull from remote if requested
       if (syncType === 'pull' || syncType === 'both') {
-        addSyncLog('Pulling latest snapshot from server...', 'info');
+        addSyncLog('📥 Pulling latest snapshot ← server', 'info');
         await pullLatestSnapshot();
+        addSyncLog('✅ Snapshot pull success', 'success');
       }
       
       // Finalize
-      addSyncLog(`${syncType.toUpperCase()} sync completed successfully`, 'success');
+      addSyncLog(`${syncType.toUpperCase()} sync finished OK`, 'success');
     } catch (error) {
-      addSyncLog(`Sync failed`, 'error', 
-        error instanceof Error ? error.message : String(error));
+      addSyncLog(
+        '🔥 performSync() aborted with error',
+        'error',
+        error instanceof Error ? error.message : String(error)
+      );
     } finally {
       setIsLoading(false);
     }
@@ -272,24 +279,54 @@ export default function SyncScreen() {
     handlePremiumToggle();
   };
 
-  // Add this function to handle log export
-  const exportLogs = async () => {
-    if (!premium) {
-      useToastStore.getState().showToast('Premium required for log export', 'error');
-      return;
-    }
-    
+  /**
+   * Zero-arg wrapper for exporting logs so it matches the
+   * `exportLogs: () => void` signature expected by <PremiumLogs/>.
+   */
+  const handleExportLogs = async () => {
     try {
-      addSyncLog('Exporting logs to server...', 'info');
-      await exportLogsToServer(syncLogs);
-      addSyncLog('Logs exported successfully', 'success');
-      useToastStore.getState().showToast('Logs exported successfully', 'success');
+      await exportLogs(syncLogs);
     } catch (error) {
-      addSyncLog('Failed to export logs', 'error', 
-        error instanceof Error ? error.message : String(error));
-      useToastStore.getState().showToast('Failed to export logs', 'error');
+      addSyncLog(
+        'Failed to export logs',
+        'error',
+        error instanceof Error ? error.message : String(error),
+      );
     }
   };
+
+  /* ------------------------------------------------------------------ */
+  /*                        LIFE-CYCLE LOGGING                          */
+  /* ------------------------------------------------------------------ */
+
+  // ➋  – screen mount / un-mount
+  useEffect(() => {
+    addSyncLog('📱 SyncScreen mounted', 'verbose');
+    return () => addSyncLog('👋 SyncScreen un-mounted', 'verbose');
+  }, []);
+
+  /* ------------------------------------------------------------------ */
+  /*                     SYNC STATUS CHANGE WATCHER                     */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
+    addSyncLog(`🔄 syncStatus ➜ ${syncStatus}`, 'verbose');
+
+    if (syncStatus === 'error') {
+      // cast to any so TS stops complaining
+      const lastErr: any = (useRegistryStore.getState() as any).lastError;
+      addSyncLog(
+        '❌ Sync error detected',
+        'error',
+        lastErr ? JSON.stringify(lastErr).slice(0, 500) : undefined
+      );
+    } else if (syncStatus === 'syncing') {
+      addSyncLog('🚚 Sync in progress…', 'info');
+    } else if (syncStatus === 'idle' && isLoading) {
+      addSyncLog('✅ Sync completed – status returned to idle', 'success');
+      setIsLoading(false);
+    }
+  }, [syncStatus, isLoading]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top, marginBottom: baseSpacing * 2 }]}>
@@ -327,7 +364,7 @@ export default function SyncScreen() {
               showDetails={showDetails} 
               toggleDetails={toggleDetails} 
               clearLogs={clearLogs} 
-              exportLogs={exportLogs}
+              exportLogs={handleExportLogs}
               performSync={performSync} 
               handleSyncButtonPress={handleSyncButtonPress} 
               premium={premium} 
