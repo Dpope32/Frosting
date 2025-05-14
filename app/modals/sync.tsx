@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRouter } from 'expo-router';
 import { useUserStore } from '@/store/UserStore';
@@ -358,6 +358,9 @@ export default function SyncScreen() {
     }
   }, [syncStatus, isLoading]);
 
+  // Check if user needs to create/join a workspace
+  const needsWorkspace = premium && !currentSpaceId;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top, marginBottom: baseSpacing * 2 }]}>
       <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$3"}>
@@ -382,9 +385,35 @@ export default function SyncScreen() {
             Sync Devices
           </Text>
         </XStack>
+        
         <XStack alignItems="center" justifyContent="center">
           <SyncTable isDark={isDark} primaryColor={primaryColor} syncStatus={syncStatus} currentSpaceId={currentSpaceId || ''} deviceId={deviceId} />
         </XStack>
+
+        {needsWorkspace && (
+          <YStack alignItems="center" justifyContent="center" marginVertical={baseSpacing}>
+            <View style={[styles.noWorkspaceContainer, { backgroundColor: colors.card }]}>
+              <Text 
+                fontSize={16} 
+                fontWeight="500" 
+                color={isDark ? "#fff" : "#000"}
+                textAlign="center"
+                marginBottom={10}
+              >
+                Your device is not connected to a workspace
+              </Text>
+              <TouchableOpacity 
+                style={[styles.addWorkspaceButton, { backgroundColor: primaryColor }]}
+                onPress={() => setShowAddDevice(true)}
+              >
+                <XStack alignItems="center" justifyContent="center" gap={8}>
+                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
+                  <Text color="#fff" fontWeight="600">Create or Join Workspace</Text>
+                </XStack>
+              </TouchableOpacity>
+            </View>
+          </YStack>
+        )}
 
         {premium && (
             <PremiumLogs 
@@ -411,7 +440,6 @@ export default function SyncScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -422,5 +450,21 @@ const styles = StyleSheet.create({
     left: 0,
     padding: 8,
     zIndex: 1,
+  },
+  // Add new styles for workspace button
+  noWorkspaceContainer: {
+    width: '100%',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  addWorkspaceButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
