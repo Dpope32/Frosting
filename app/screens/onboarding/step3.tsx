@@ -450,7 +450,7 @@ useEffect(() => {
           right={0} 
           alignItems="center"
           py={isWeb ? "$4" : "$0"}
-          my={isWeb ? "$10" : 0}
+          my={isWeb ? "$1" : 0}
         >
           <XStack alignItems="center" gap="$2" alignSelf="center" alignContent="center" justifyContent="center" >
           {formData.profilePicture && (

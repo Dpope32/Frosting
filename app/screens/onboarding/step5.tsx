@@ -146,7 +146,7 @@ export default function Step5({
               borderWidth={2}
               br={isWeb ? 16 : 8} 
               marginVertical="$2"
-              width={isWeb ? `${Math.floor(100 / columns) -2}%` : mobileButtonWidth}
+              width={isWeb ? `${Math.floor(100 / columns) -5}%` : mobileButtonWidth}
               height={isWeb ? 110 : mobileButtonHeight}
               hoverStyle={{
                 backgroundColor: selectedTeam === team.code 

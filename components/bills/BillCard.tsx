@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react'
 import { XStack, YStack, Text, Paragraph, isWeb } from 'tamagui'
 import { CheckCircle } from '@tamagui/lucide-icons'
@@ -99,7 +100,7 @@ export const BillCard = ({
         <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb? 16 : 4, marginTop: isIpad() ? 4 : 4 }}>
           <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? -4 : 4, paddingLeft: isWeb? 16 : 0}}>
             <Text
-              color={isDark ? '#f9f9f9' : '#222'}
+              color={isDark ? '#cccccc' : '#222'}
               fontSize="$4"
               fontWeight="bold"
               fontFamily="$body"
@@ -112,7 +113,7 @@ export const BillCard = ({
 
           <XStack mt={isIpad() ? "$2" : "$1.5"} ai="center" gap="$1" style={{ minWidth: 0, paddingLeft: isWeb? 6 : 0, marginBottom: isWeb? 8 : 0 }}>
             <YStack width={42} height={28} br="$6" ai="center" jc="center">
-              <Icon size={isIpad() ? 26 : 22} color={isDark ? 'white' : '#666'} />
+              <Icon size={isIpad() ? 26 : 22} color={isDark ? '#ccc' : '#666'} />
             </YStack>
             <XStack flex={1} pl="$2" jc="space-between" style={{ minWidth: 0 }}>
               <Paragraph color={amountColor} fontSize="$5" fontWeight={900} fontFamily="$body">

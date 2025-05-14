@@ -41,7 +41,6 @@ export const createOrJoinWorkspace = async (workspaceId?: string, inviteCode?: s
           owner_device_id: deviceId,
           device_ids: [deviceId],
           invite_code: newInviteCode,
-          created: new Date().toISOString()
         });
 
         addSyncLog(

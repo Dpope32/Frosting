@@ -63,7 +63,8 @@ export const pushSnapshot = async (): Promise<void> => {
         workspace_id: workspaceId,
         device_id: deviceId,
         snapshot_blob: cipher,
-        timestamp: new Date().toISOString(),
+        // this line is redundant, pocketbase automatically creates a -created field.
+        // need to find we we use this if anywhere and just sort on created ?
       });
       addSyncLog('Successfully pushed data to PocketBase', 'info');
       Sentry.addBreadcrumb({
@@ -191,4 +192,3 @@ export const pushSnapshot = async (): Promise<void> => {
       throw error;
     }
   };
-  

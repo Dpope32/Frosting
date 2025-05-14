@@ -95,7 +95,7 @@ export function PortfolioTable({
               <Text color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">{symbol}</Text>
               {activeTab === 'watchlist' && (
                 <Pressable onPress={() => onRemoveFromWatchlist(symbol)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
-                  <MaterialIcons name="close" size={16} color={isDark ? "#999" : "#666"} />
+                  <MaterialIcons name="close" size={14} color={isDark ? "#999" : "#666"} />
                 </Pressable>
               )}
             </XStack>
@@ -106,13 +106,13 @@ export function PortfolioTable({
             {activeTab === 'portfolio' && (
               <Text width="10%" color={isDark ? "#4caf50" : "#2e7d32"} fontSize={14} fontFamily="$body">{typeof totalValue === 'number' && !isNaN(totalValue) ? `$${totalValue.toFixed(2)}` : 'N/A'}</Text>
             )}
-            <Text width="8%" color={getValueColor('portfolio', todayChangePercent, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{renderReturn(todayChangePercent)}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['ytd'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['ytd']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['1w'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1w']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['1m'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1m']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['3m'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['3m']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['6m'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['6m']) : 'N/A'}</Text>
-            <Text width="8%" color={getValueColor('portfolio', returns?.['1y'] || 0, '', isDark)} fontSize={isWeb ? 16 : 14} fontFamily="$body">{returns ? renderReturn(returns['1y']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', todayChangePercent, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{renderReturn(todayChangePercent)}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['ytd'] || 0, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{returns ? renderReturn(returns['ytd']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['1w'] || 0, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{returns ? renderReturn(returns['1w']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['1m'] || 0, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{returns ? renderReturn(returns['1m']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['3m'] || 0, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{returns ? renderReturn(returns['3m']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['6m'] || 0, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{returns ? renderReturn(returns['6m']) : 'N/A'}</Text>
+            <Text width="8%" color={getValueColor('portfolio', returns?.['1y'] || 0, '', isDark)} fontSize={isWeb ? 14 : 14} fontFamily="$body">{returns ? renderReturn(returns['1y']) : 'N/A'}</Text>
             <XStack width="8%" alignItems="center" justifyContent="flex-start">
               {buyScore !== null ? (
                 <Tooltip placement="top" delay={300}>
@@ -126,25 +126,25 @@ export function PortfolioTable({
                   </Tooltip.Trigger>
                   <Tooltip.Content>
                     <YStack padding="$4" width={300} bc="rgba(30, 30, 30, 0.95)" br={12} borderWidth={1} borderColor="rgba(255, 255, 255, 0.15)">
-                      <Text fontSize={16} fontWeight="600" fontFamily="$body" color={getBuyScoreColor(buyScore)} marginBottom="$2">Buy Score: {Math.round(buyScore)}/100</Text>
-                      <YStack width="100%" paddingRight={16}>
+                      <Text fontSize={14} fontWeight="600" fontFamily="$body" color={getBuyScoreColor(buyScore)} marginBottom="$2">Buy Score: {Math.round(buyScore)}/100</Text>
+                      <YStack width="100%" paddingRight={14}>
                         <Text fontSize={13} fontFamily="$body" color="#dbd0c6" marginBottom="$3" fontWeight="500">Based on 52-week range, recent trends, and price momentum:</Text>
                         <YStack width="100%" gap="$3" marginBottom="$3">
                           <XStack width="100%" gap="$2" alignItems="flex-start">
                             <YStack width={8} height={8} bc="rgba(219, 208, 198, 0.5)" br={4} mt="$1" marginLeft="$1" />
-                            <YStack width="85%" paddingRight={16}>
+                            <YStack width="85%" paddingRight={14}>
                               <Text fontSize={12} fontFamily="$body" color="#dbd0c6">Current price position relative to 52-week High/Low (50%)</Text>
                             </YStack>
                           </XStack>
                           <XStack width="100%" gap="$2" alignItems="flex-start">
                             <YStack width={8} height={8} bc="rgba(219, 208, 198, 0.5)" br={4} mt="$1" marginLeft="$1" />
-                            <YStack width="85%" paddingRight={16}>
+                            <YStack width="85%" paddingRight={14}>
                               <Text fontSize={12} fontFamily="$body" color="#dbd0c6">Recent performance across multiple timeframes (40%)</Text>
                             </YStack>
                           </XStack>
                           <XStack width="100%" gap="$2" alignItems="flex-start">
                             <YStack width={8} height={8} bc="rgba(219, 208, 198, 0.5)" br={4} mt="$1" marginLeft="$1" />
-                            <YStack width="85%" paddingRight={16}>
+                            <YStack width="85%" paddingRight={14}>
                               <Text fontSize={12} fontFamily="$body" color="#dbd0c6">Momentum shifts that indicate potential reversals (10%)</Text>
                             </YStack>
                           </XStack>
@@ -165,12 +165,21 @@ export function PortfolioTable({
       })}
       {activeTab === 'portfolio' && (
         <XStack borderTopWidth={1} borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"} py="$2" px="$2" alignItems="center">
-          <Text width="5%"justifyContent="flex-start" fontSize={14} fontFamily="$body">
-            Total
-            </Text>
-          <Text width="23%" textAlign="right" fontSize={15} fontFamily="$body" color={getValueColor('portfolio', totalPortfolioValue, '', isDark)}> 
-            ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          <Text width="10%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontWeight="500" fontFamily="$body">Total</Text>
+          {activeTab === 'portfolio' && (
+            <Text width="5%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          )}
+          <Text width="10%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="10%" color={getValueColor('portfolio', totalPortfolioValue, '', isDark)} fontSize={14} fontWeight="500" fontFamily="$body">
+            ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
+          <Text width="8%" color={isDark ? "#e6e6e6" : "#000"} fontSize={14} fontFamily="$body"></Text>
         </XStack>
       )}
     </YStack>

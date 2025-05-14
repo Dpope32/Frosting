@@ -267,19 +267,73 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
         justifyContent="space-between"
         style={spotlightStyle}
       >
-        <YStack alignItems="center" gap="$4" marginVertical="$6" maxWidth={1200} marginHorizontal="auto">
-          <XStack position="relative" alignItems="center">
+        <YStack alignItems="center" gap="$4" marginVertical="$6" maxWidth={1200} marginHorizontal="auto" position="relative">
+          {isWeb && (
+            <View
+              position="absolute"
+              top={-60}
+              left={-80}
+              width={340}
+              height={340}
+              style={{
+                zIndex: 0,
+                pointerEvents: 'none',
+                background: 'radial-gradient(circle at 60% 40%, #C080FF33 0%, transparent 70%)',
+                filter: 'blur(24px)',
+              }}
+            />
+          )}
+          {isWeb && (
+            <View
+              position="absolute"
+              top={-60}
+              right={-100}
+              width={260}
+              height={260}
+              style={{
+                zIndex: 0,
+                pointerEvents: 'none',
+                background: 'radial-gradient(circle at 40% 60%, #4ADECD22 0%, transparent 70%)',
+                filter: 'blur(18px)',
+              }}
+            />
+          )}
+
+          {isWeb && (
+            <View position="absolute" top={40} left={-60} zIndex={2}>
+              <video
+                src="/assets/videos/hero-ambient-1.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ width: 120, height: 120, borderRadius: 24, opacity: 0.7, objectFit: 'cover', boxShadow: '0 4px 32px #C080FF33' }}
+              />
+            </View>
+          )}
+          {isWeb && (
+            <View position="absolute" top={100} right={-40} zIndex={2}>
+              <video
+                src="/assets/videos/hero-ambient-2.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ width: 80, height: 80, borderRadius: 18, opacity: 0.6, objectFit: 'cover', boxShadow: '0 2px 16px #4ADECD22' }}
+              />
+            </View>
+          )}
+          <XStack position="relative" alignItems="center" zIndex={1}>
             {isWeb && (
               <Image
                 source={require('@/assets/images/icon.png')}
                 style={{
-                  width: 120,
-                  height: 120,
-                  borderRadius: 60,
+                  width: 80,
+                  height: 80,
+                  borderRadius: 40,
                   position: 'absolute',
-                  left: -200,
-                  top: -20,
-                  // No transform/rotation animation
+                  left: -120,
+                  top: -10,
                 }}
               />
             )}
@@ -287,12 +341,17 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
               color="$onboardingLabel"
               fontFamily="$heading"
               fontSize={isWeb ? (isMobileBrowser ? "$10" : "$13") : "$9"}
-              letterSpacing={1}
+              style={{
+                padding: 12,
+                background: isWeb ? 'linear-gradient(90deg, #C080FF 30%, #4ADECD 70%)' : undefined,
+                WebkitBackgroundClip: isWeb ? 'text' : undefined,
+                WebkitTextFillColor: isWeb ? 'transparent' : undefined,
+                marginBottom: isWeb ? 30 : 8, 
+              }}
             >
               Kaiba Nexus
             </H1>
           </XStack>
-
           <H2
             color="$onboardingLabel"
             fontFamily="$heading"
@@ -300,6 +359,10 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
             fontWeight="500"
             opacity={0.8}
             pt={isWeb ? "$-1" : "$0"}
+            zIndex={1}
+            style={{
+              textShadow: isWeb ? '0 2px 24px #C080FF22' : undefined,
+            }}
           >
             Your world, all in one place
           </H2>
@@ -308,91 +371,104 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
         {isWeb ? (
           <YStack
             width="100%"
-            mb="$1"
+            mb={isMobileBrowser ? "$-2" : "$-4"} 
             alignItems="center"
             justifyContent="flex-start"
             flex={1}
             minHeight="100vh"
-            pt={isWeb ? 80 : 0}
+            pt={isWeb ? 40 : 0} 
           >
-             <MarqueeContainer
-               height={400}
-               alignItems="center"
-               justifyContent="center"
-               style={{
-                 display: 'flex',
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 minHeight: 400,
-               }}
-             >
-               <MarqueeContent
-                 style={{
-                   height: 360,
-                   alignItems: 'center',
-                 }}
-               >
-              {[...features, ...features].map((feature, index) => {
-                const bgColor = feature.titleColor + "20";
-                const isCRM = feature.title === "CRM";
-                const uniqueKey = `${feature.id}-${index}`;
-                return (
-                  <YStack
-                    key={uniqueKey}
-                    minWidth={520}
-                    maxWidth={600}
-                    height={isMobileBrowser ? (isCRM ? 320 : 340) : 340}
-                    bc={bgColor}
-                    br="$10"
-                    overflow="hidden"
-                    position="relative"
-                    animation="bouncy"
-                    justifyContent="flex-start"
-                  >
-                    <H3
-                      fontFamily="$heading"
-                      fontWeight="800"
-                      fontSize={isMobileBrowser ? "$8" : "$10"}
-                      color={feature.titleColor}
-                      marginBottom="$-4"
-                      marginTop="$5"
-                      textAlign="center"
+            <MarqueeContainer
+              height={isMobileBrowser ? 220 : 240} 
+              alignItems="center"
+              justifyContent="center"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: isMobileBrowser ? 220 : 240,
+              }}
+            >
+              <MarqueeContent
+                style={{
+                  height: isMobileBrowser ? 200 : 240,
+                  alignItems: 'center',
+                }}
+              >
+                {[...features, ...features].map((feature, index) => {
+                  const bgColor = feature.titleColor + "20";
+                  const isCRM = feature.title === "CRM";
+                  const uniqueKey = `${feature.id}-${index}`;
+                  return (
+                    <YStack
+                      key={uniqueKey}
+                      minWidth={isMobileBrowser ? 320 : 380}
+                      maxWidth={isMobileBrowser ? 340 : 400}
+                      height={isMobileBrowser ? 180 : 220} 
+                      bc={bgColor}
+                      br="$10"
+                      overflow="hidden"
+                      position="relative"
+                      animation="bouncy"
+                      justifyContent="flex-start"
+                      px="$4"
+                      py="$3"
+                      style={{ boxShadow: isWeb ? '0 2px 16px #0002' : undefined }}
                     >
-                      {feature.title}
-                    </H3>
-                    <XStack flex={1} padding="$6" justifyContent="space-between" alignItems="center">
-                      <YStack flex={1} justifyContent="center" pr="$5">
-                        <YStack gap="$3" marginBottom="$4">
-                          {feature.items.map((item, i) => (
-                            <XStack key={i} alignItems="flex-start" gap="$3" flexShrink={1}>
-                              <Text fontFamily="$body" color={feature.iconColor} mt={2} fontSize="$7">•</Text>
-                              <Text
-                                fontFamily="$body"
-                                fontSize={isMobileBrowser ? "$5" : "$6"}
-                                color="$onboardingLabel"
-                                flex={1}
-                                whiteSpace="normal"
-                              >{item}</Text>
-                            </XStack>
-                          ))}
+
+                      <XStack alignItems="center" justifyContent="center" gap="$3" mb="$2" mt="$2" position="relative">
+                        <View
+                          width={32}
+                          height={32}
+                          backgroundColor="rgba(0,0,0,0.10)"
+                          br={16}
+                          justifyContent="center"
+                          alignItems="center"
+                          style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}
+                        >
+                          <Ionicons name={feature.icon} size={20} color={feature.iconColor} />
+                        </View>
+                        <H3
+                          fontFamily="$heading"
+                          fontWeight="800"
+                          fontSize={isMobileBrowser ? "$6" : "$7"} // Smaller title
+                          color={feature.titleColor}
+                          marginBottom={0}
+                          marginTop={0}
+                          textAlign="center"
+                          width="100%"
+                          style={{
+                            marginLeft: 32, // Space for icon
+                          }}
+                        >
+                          {feature.title}
+                        </H3>
+                      </XStack>
+                      <XStack flex={1} padding={0} justifyContent="space-between" alignItems="flex-start">
+                        <YStack flex={1} justifyContent="center" pr="$2">
+                          <YStack gap="$2" marginBottom={0}>
+                            {feature.items.map((item, i) => (
+                              <XStack key={i} alignItems="flex-start" gap="$2" flexShrink={1}>
+                                <Text fontFamily="$body" color={feature.iconColor} mt={1} fontSize="$5">•</Text>
+                                <Text
+                                  fontFamily="$body"
+                                  fontSize={isMobileBrowser ? "$4" : "$5"}
+                                  color="$onboardingLabel"
+                                  flex={1}
+                                  whiteSpace="normal"
+                                >{item}</Text>
+                              </XStack>
+                            ))}
+                          </YStack>
+                          {/* Add a bit of padding below the bullet points */}
+                          <View height={12} />
                         </YStack>
-                      </YStack>
-                      <View
-                        width={70}
-                        height={70}
-                        backgroundColor="rgba(0,0,0,0.2)"
-                        br={35}
-                        justifyContent="center"
-                        alignItems="center"
-                      >
-                        <Ionicons name={feature.icon} size={40} color={feature.iconColor} />
-                      </View>
-                    </XStack>
-                  </YStack>
-                );
-              })}
-               </MarqueeContent>
-             </MarqueeContainer>
+                      </XStack>
+                    </YStack>
+                  );
+                })}
+              </MarqueeContent>
+            </MarqueeContainer>
           </YStack>
         ) : (
           <XStack flexWrap="wrap" justifyContent="center" gap="$4" marginBottom="$4" maxWidth={1200} marginHorizontal="auto">
