@@ -130,7 +130,7 @@ export function BaseCardAnimated({
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingBottom: screenHeight * 0.165,
+            paddingBottom: screenHeight * 0.15,
           }}
         >
           <Theme name={isDark ? 'dark' : 'light'}>

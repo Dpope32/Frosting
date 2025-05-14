@@ -404,6 +404,15 @@ export const useProjectStore = create<ProjectStore>()(
             log(`Recurrence pattern: ${tasks[id].recurrencePattern}`);
             log(`Current completion status: ${currentStatus}`);
             log(`Current completionHistory:`, tasks[id].completionHistory);
+            
+            // Check for duplicates with the same name
+            const duplicates = Object.values(tasks).filter(t => t.name === tasks[id].name);
+            if (duplicates.length > 1) {
+              log(`⚠️ FOUND ${duplicates.length} TASKS WITH THE SAME NAME: "${tasks[id].name}"`);
+              duplicates.forEach((dupe, i) => {
+                log(`Duplicate #${i+1}: ID=${dupe.id}, Completed=${dupe.completionHistory[todayLocalStr] || false}`);
+              });
+            }
           }
           
           const thirtyDaysAgo = new Date()

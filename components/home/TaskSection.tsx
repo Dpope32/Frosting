@@ -47,15 +47,30 @@ export const TaskSection = ({
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
   
-  // Filter out duplicate task titles
+  // Filter out duplicate task titles, but prioritize completed tasks or keep track of original IDs
   const uniqueTasks = useMemo(() => {
-    const seen = new Set<string>();
-    return todaysTasks.filter(task => {
-      if (seen.has(task.name)) return false;
-      seen.add(task.name);
-      return true;
+    const taskGroups: Record<string, Task[]> = {};
+    
+    // Group tasks by name
+    todaysTasks.forEach(task => {
+      if (!taskGroups[task.name]) {
+        taskGroups[task.name] = [];
+      }
+      taskGroups[task.name].push(task);
     });
-  }, [todaysTasks]);
+    
+    // For each group, select the best task to display
+    return Object.values(taskGroups).map(tasks => {
+      if (tasks.length === 1) return tasks[0];
+      
+      // If there are completed tasks, prioritize the first completed one
+      const completedTask = tasks.find(task => task.completionHistory[todayLocalStr]);
+      if (completedTask) return completedTask;
+      
+      // Otherwise return the first task
+      return tasks[0];
+    });
+  }, [todaysTasks, todayLocalStr]);
   
   // useEffect(() => {
  //   if (DEBUG) {
