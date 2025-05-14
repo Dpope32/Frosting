@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Text, Button, YStack, XStack } from 'tamagui';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -25,6 +25,7 @@ interface PremiumLogsProps {
   premium: boolean;
   devices: any[];
   contentWidth: number;
+  maxHeight?: number;
 }
 
 export const PremiumLogs = ({
@@ -39,18 +40,17 @@ export const PremiumLogs = ({
   handleSyncButtonPress,
   premium,
   devices,
-  contentWidth
+  contentWidth,
+  maxHeight
 }: PremiumLogsProps) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colors = getColors(isDark, primaryColor);
   const fadeAnims = useRef<{[key: string]: Animated.Value}>({});
-
   return (
-    <YStack alignItems="center" justifyContent="center" padding={0} marginTop={baseSpacing}>
-      {/* Loading indicator */}
-      <XStack alignItems="center" gap={baseSpacing} marginBottom={0}>
+    <YStack alignItems="center" justifyContent="center" padding={0} >
+      <XStack alignItems="center"  marginBottom={-20}>
         {isLoading && <ActivityIndicator size="small" color={colors.accent} />}
         {isLoading && (
           <Text fontSize={fontSizes.xs} color={colors.subtext}>
@@ -59,7 +59,6 @@ export const PremiumLogs = ({
         )}
       </XStack>
 
-      {/* Log container */}
       <View style={{
         width: contentWidth,
         marginTop: 0,
@@ -68,7 +67,8 @@ export const PremiumLogs = ({
         borderWidth: 1,
         borderColor: colors.border,
         padding: baseSpacing * 2,
-        maxHeight: 800,
+        maxHeight: maxHeight || 'auto',
+        overflow: 'scroll'
       }}>
         {/* Log header */}
         <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>

@@ -50,7 +50,7 @@ return (
     borderColor: colors.border,
     width: contentWidth,
     alignSelf: 'center',
-    marginVertical: baseSpacing * 2,
+    marginVertical: baseSpacing,
   }}>
     <XStack alignItems="center" justifyContent="space-between">
       <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
@@ -61,7 +61,7 @@ return (
         backgroundColor={premium ? colors.success : colors.error}
         onPress={() => setPreferences({ premium: !premium })}
         borderRadius={buttonRadius}
-        paddingHorizontal={baseSpacing * 3}
+        paddingHorizontal={baseSpacing * 2}
         pressStyle={{ scale: 0.97 }}
         animation="quick"
       >
@@ -71,7 +71,7 @@ return (
       </Button>
     </XStack>
     
-    <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 2 }} />
+    <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
     <XStack alignItems="center" justifyContent="space-between">
       <Text fontSize={fontSizes.md} color={colors.subtext}>
         Sync Status

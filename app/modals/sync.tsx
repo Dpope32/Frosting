@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
@@ -24,7 +24,7 @@ import {
   LogEntry,
 } from '@/components/sync/syncUtils';
 import { getCurrentWorkspaceId as getWsIdUtil } from '@/sync/workspace';
-
+import NeedsWorkspace from '@/components/sync/needsWorkspace';
 // Create a custom fetch to intercept and log all network requests
 const originalFetch = global.fetch;
 global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -100,7 +100,7 @@ export default function SyncScreen() {
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
-  const contentWidth = Math.min(width - baseSpacing * 2, 420);
+  const contentWidth = Math.min(width - baseSpacing * 2, 350);
   const syncStatus = useRegistryStore((state) => state.syncStatus);
   
   // Check authorization on component mount and when premium/username changes
@@ -362,8 +362,14 @@ export default function SyncScreen() {
   const needsWorkspace = premium && !currentSpaceId;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg, paddingTop: isIpad() ? 30 : insets.top, marginBottom: baseSpacing * 2 }]}>
-      <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$3"}>
+    <ScrollView 
+      style={[styles.container, { backgroundColor: colors.bg }]} 
+      contentContainerStyle={{ 
+        paddingTop: isIpad() ? 30 : insets.top,
+        paddingBottom: 100, 
+      }}
+    >
+      <YStack gap={baseSpacing * 2} padding={isWeb ? "$4" : "$2"} px={isWeb ? "$4" : "$3"} paddingBottom={baseSpacing * 6}>
         <XStack alignItems="center" justifyContent="center" position="relative">
           <TouchableOpacity
             onPress={() => router.back()}
@@ -391,59 +397,46 @@ export default function SyncScreen() {
         </XStack>
 
         {needsWorkspace && (
-          <YStack alignItems="center" justifyContent="center" marginVertical={baseSpacing}>
-            <View style={[styles.noWorkspaceContainer, { backgroundColor: colors.card }]}>
-              <Text 
-                fontSize={16} 
-                fontWeight="500" 
-                color={isDark ? "#fff" : "#000"}
-                textAlign="center"
-                marginBottom={10}
-              >
-                Your device is not connected to a workspace
-              </Text>
-              <TouchableOpacity 
-                style={[styles.addWorkspaceButton, { backgroundColor: primaryColor }]}
-                onPress={() => setShowAddDevice(true)}
-              >
-                <XStack alignItems="center" justifyContent="center" gap={8}>
-                  <Ionicons name="add-circle-outline" size={20} color="#fff" />
-                  <Text color="#fff" fontWeight="600">Create or Join Workspace</Text>
-                </XStack>
-              </TouchableOpacity>
+          <XStack alignItems="center" justifyContent="center">
+            <View style={{ width: contentWidth }}>
+              <NeedsWorkspace isDark={isDark} />
             </View>
-          </YStack>
+          </XStack>
         )}
 
         {premium && (
-            <PremiumLogs 
-              isLoading={isLoading} 
-              syncStatus={syncStatus} 
-              syncLogs={syncLogs} 
-              showDetails={showDetails} 
-              toggleDetails={toggleDetails} 
-              clearLogs={clearLogs} 
-              exportLogs={handleExportLogs}
-              performSync={performSync} 
-              handleSyncButtonPress={handleSyncButtonPress} 
-              premium={premium} 
-              devices={devices} 
-              contentWidth={contentWidth} 
-            />
+          <XStack alignItems="center" justifyContent="center">
+            <View style={{ width: contentWidth }}>
+              <PremiumLogs 
+                isLoading={isLoading} 
+                syncStatus={syncStatus} 
+                syncLogs={syncLogs} 
+                showDetails={showDetails} 
+                toggleDetails={toggleDetails} 
+                clearLogs={clearLogs} 
+                exportLogs={handleExportLogs}
+                performSync={performSync} 
+                handleSyncButtonPress={handleSyncButtonPress} 
+                premium={premium} 
+                devices={devices} 
+                contentWidth={contentWidth}
+                maxHeight={350} 
+              />
+            </View>
+          </XStack>
         )}
       </YStack>
 
       {showAddDevice && (
         <AddDeviceModal onClose={() => setShowAddDevice(false)} />
       )}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginBottom: 100,
   },
   backButton: {
     position: 'absolute',
