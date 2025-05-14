@@ -5,7 +5,7 @@ import { storage } from '@/store/AsyncStorage';
 import { encryptSnapshot } from '@/lib/encryption';
 import * as Sentry from '@sentry/react-native';
 import { useUserStore } from '@/store/UserStore';
-
+import { addSyncLog } from '@/components/sync/syncUtils';
 const SYNC_KEY = 'registry_sync_key';
 
 /**
@@ -68,6 +68,7 @@ export const generateSyncKey = async (): Promise<string> => {
 export const exportEncryptedState = async (allStates: Record<string, any>): Promise<string> => {
   const isPremium = useUserStore.getState().preferences.premium === true;
   if (!isPremium) return '';
+  addSyncLog('Exporting encrypted state', 'info');
   Sentry.addBreadcrumb({
     category: 'sync',
     message: 'exportEncryptedState called',
@@ -95,6 +96,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       data: { error: err },
       level: 'error',
     });
+    addSyncLog('Error in exportEncryptedState', 'error');
     throw err;
   }
 };

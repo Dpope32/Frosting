@@ -7,6 +7,7 @@ import { useUserStore } from '@/store/UserStore';
 import * as Sentry from '@sentry/react-native';
 import { checkNetworkConnectivity, getPocketBase } from './pocketSync';
 import { getCurrentWorkspaceId } from './workspace';
+import { addSyncLog } from '@/components/sync/syncUtils';
 // Modify your pushSnapshot function to handle the silent skip:
 export const pushSnapshot = async (): Promise<void> => {
     const isPremium = useUserStore.getState().preferences.premium === true;
@@ -16,6 +17,7 @@ export const pushSnapshot = async (): Promise<void> => {
       message: 'pushSnapshot called',
       level: 'info',
     });
+    addSyncLog('Pushing snapshot to PocketBase', 'info');
     try {
       // Your existing checks remain unchanged
       const hasCompletedOnboarding = (useUserStore.getState().preferences.hasCompletedOnboarding);
@@ -25,7 +27,7 @@ export const pushSnapshot = async (): Promise<void> => {
           message: 'Skipping push - onboarding not completed',
           level: 'warning',
         });
-        console.log('⏸️ Skipping PocketBase push - onboarding not completed');
+        addSyncLog('Skipping PocketBase push - onboarding not completed', 'warning');
         return;
       }
       
@@ -37,7 +39,7 @@ export const pushSnapshot = async (): Promise<void> => {
           message: 'Skipping push - no network connection',
           level: 'warning',
         });
-        console.log('⏸️ Skipping PocketBase push - no network connection');
+        addSyncLog('Skipping PocketBase push - no network connection', 'warning');
         return;
       }
       
@@ -63,16 +65,17 @@ export const pushSnapshot = async (): Promise<void> => {
         snapshot_blob: cipher,
         timestamp: new Date().toISOString(),
       });
+      addSyncLog('Successfully pushed data to PocketBase', 'info');
       Sentry.addBreadcrumb({
         category: 'pocketSync',
         message: 'Successfully pushed data to PocketBase',
         level: 'info',
       });
-      console.log('✅ Successfully pushed data to PocketBase');
+      addSyncLog('Successfully pushed data to PocketBase', 'info');
     } catch (error: unknown) {
       if (error instanceof Error && error.message === 'SKIP_SYNC_SILENTLY') {
         // Just log but don't set error state
-        console.log('⏸️ Skipping PocketBase push - server not available');
+        addSyncLog('Skipping PocketBase push - server not available', 'warning');
         return;
       }
       Sentry.captureException(error);
@@ -82,7 +85,7 @@ export const pushSnapshot = async (): Promise<void> => {
         data: { error },
         level: 'error',
       });
-      console.error('❌ Error pushing to PocketBase:', error);
+      addSyncLog('Error pushing to PocketBase', 'error');
       useRegistryStore.getState().setSyncStatus('error');
     }
   };
@@ -95,6 +98,7 @@ export const pushSnapshot = async (): Promise<void> => {
   export const pullLatestSnapshot = async (): Promise<void> => {
     const isPremium = useUserStore.getState().preferences.premium === true;
     if (!isPremium) return;
+    addSyncLog('Pulling latest snapshot from PocketBase', 'info');
     Sentry.addBreadcrumb({
       category: 'pocketSync',
       message: 'pullLatestSnapshot called',
@@ -109,7 +113,7 @@ export const pushSnapshot = async (): Promise<void> => {
           message: 'Skipping pull - onboarding not completed',
           level: 'warning',
         });
-        console.log('⏸️ Skipping PocketBase pull - onboarding not completed');
+        addSyncLog('Skipping PocketBase pull - onboarding not completed', 'warning');
         return;
       }
       
@@ -121,7 +125,7 @@ export const pushSnapshot = async (): Promise<void> => {
           message: 'Skipping pull - no network connection',
           level: 'warning',
         });
-        console.log('⏸️ Skipping PocketBase pull - no network connection');
+        addSyncLog('Skipping PocketBase pull - no network connection', 'warning');
         return;
       }
       
@@ -150,7 +154,7 @@ export const pushSnapshot = async (): Promise<void> => {
           message: 'No snapshots found for this workspace',
           level: 'info',
         });
-        console.log('ℹ️ No snapshots found for this workspace');
+        addSyncLog('No snapshots found for this workspace', 'info');
         return;
       }
   
@@ -173,7 +177,7 @@ export const pushSnapshot = async (): Promise<void> => {
         message: 'Successfully pulled and hydrated data from PocketBase',
         level: 'info',
       });
-      console.log('✅ Successfully pulled and hydrated data from PocketBase');
+      addSyncLog('Successfully pulled and hydrated data from PocketBase', 'info');
     } catch (error) {
       Sentry.captureException(error);
       Sentry.addBreadcrumb({
@@ -182,7 +186,7 @@ export const pushSnapshot = async (): Promise<void> => {
         data: { error },
         level: 'error',
       });
-      console.error('❌ Error pulling from PocketBase:', error);
+      addSyncLog('Error pulling from PocketBase', 'error');
       useRegistryStore.getState().setSyncStatus('error');
     }
   };

@@ -6,6 +6,7 @@ import { addSyncLog } from '@/components/sync/syncUtils';
 // New function to create or join a workspace
 export const createOrJoinWorkspace = async (workspaceId?: string, inviteCode?: string): Promise<{id: string, inviteCode: string}> => {
     try {
+      addSyncLog('Creating or joining workspace', 'info');
       const pb = await getPocketBase();
       const deviceId = await generateSyncKey();
       
@@ -13,7 +14,7 @@ export const createOrJoinWorkspace = async (workspaceId?: string, inviteCode?: s
       if (workspaceId && inviteCode) {
         // Verify invite code is valid for this workspace
         const workspace = await pb.collection('sync_workspaces').getOne(workspaceId);
-        
+        addSyncLog('Workspace found', 'info');
         if (workspace.invite_code === inviteCode) {
           // Add this device to the workspace's authorized devices
           await pb.collection('sync_workspaces').update(workspaceId, {
@@ -28,6 +29,7 @@ export const createOrJoinWorkspace = async (workspaceId?: string, inviteCode?: s
           
           return { id: workspaceId, inviteCode: workspace.invite_code };
         } else {
+          addSyncLog('Invalid invite code', 'error');
           throw new Error("Invalid invite code");
         }
       } else {

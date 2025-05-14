@@ -2,10 +2,10 @@ import { addSyncLog } from "@/components/sync/syncUtils";
 import { useToastStore } from "@/store/ToastStore";
 import { exportLogsToServer } from "./pocketSync";
 import { useUserStore } from "@/store/UserStore";
-
+    
   export const exportLogs = async (syncLogs: Array<{id: string; message: string; timestamp: Date; status: 'info' | 'success' | 'error' | 'verbose' |'warning'; details?: string}>) => {
     const premium = useUserStore.getState().preferences.premium === true;
-    if (!premium) {
+    if (!premium) { 
       useToastStore.getState().showToast('Premium required for log export', 'error');
       return;
     }

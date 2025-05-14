@@ -2,7 +2,8 @@
 import { generateSyncKey } from '@/sync/registrySyncManager';
 import { useUserStore } from '@/store/UserStore';
 import * as Sentry from '@sentry/react-native';
-import { LogEntry } from '@/components/sync/syncUtils';
+import { addSyncLog, LogEntry } from '@/components/sync/syncUtils';
+import { add } from 'lodash';
 
 const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL || 'http://192.168.1.32:8090';
 // We'll use type-only imports to help TypeScript understand the PocketBase types
@@ -88,6 +89,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
           data: { status: response.status },
           level: 'warning',
         });
+        addSyncLog('PocketBase server unreachable', 'error');
         throw new Error('SKIP_SYNC_SILENTLY');
       }
     } catch (error) {
@@ -97,7 +99,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
         data: { error },
         level: 'warning',
       });
-      // Any fetch error means server is unreachable
+      addSyncLog('PocketBase server unreachable (catch)', 'error');
       throw new Error('SKIP_SYNC_SILENTLY');
     }
     // If we get here, server is reachable, proceed normally
@@ -107,6 +109,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
       level: 'info',
     });
     const PocketBaseModule = await import('pocketbase');
+    addSyncLog('PocketBase module loaded', 'info');
     const PocketBase = PocketBaseModule.default;
     Sentry.addBreadcrumb({
       category: 'pocketSync',
@@ -121,6 +124,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
         message: 'Skipping sync silently due to unreachable server',
         level: 'warning',
       });
+      addSyncLog('Skipping sync silently due to unreachable server :(', 'warning');
       throw error; // Re-throw our special error
     }
     Sentry.captureException(error);
@@ -145,7 +149,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
 export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
   const isPremium = useUserStore.getState().preferences.premium === true;
   if (!isPremium) return;
-  
+  addSyncLog('Exporting logs to PocketBase', 'info');
   Sentry.addBreadcrumb({
     category: 'pocketSync',
     message: 'exportLogsToServer called',
@@ -162,10 +166,9 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
     // Get device identifier
     const deviceId = await generateSyncKey();
     const username = useUserStore.getState().preferences.username || 'unknown';
-    
     // Get PocketBase instance
     const pb = await getPocketBase();
-    
+    addSyncLog('PocketBase instance created', 'info');
     // Format the logs for storage
     const formattedLogs = {
       device_id: deviceId,
@@ -176,7 +179,7 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
     
     // Upload to a debug_logs collection
     await pb.collection('debug_logs').create(formattedLogs);
-    
+    addSyncLog('Logs created in PocketBase', 'info');
     Sentry.addBreadcrumb({
       category: 'pocketSync',
       message: 'Successfully exported logs to PocketBase',
