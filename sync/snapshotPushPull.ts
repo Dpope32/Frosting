@@ -74,7 +74,6 @@ export const pushSnapshot = async (): Promise<void> => {
       addSyncLog('Successfully pushed data to PocketBase', 'info');
     } catch (error: unknown) {
       if (error instanceof Error && error.message === 'SKIP_SYNC_SILENTLY') {
-        // Just log but don't set error state
         addSyncLog('Skipping PocketBase push - server not available', 'warning');
         return;
       }
@@ -85,8 +84,9 @@ export const pushSnapshot = async (): Promise<void> => {
         data: { error },
         level: 'error',
       });
-      addSyncLog('Error pushing to PocketBase', 'error');
+      addSyncLog('Error pushing to PocketBase', 'error', error instanceof Error ? error.message : String(error));
       useRegistryStore.getState().setSyncStatus('error');
+      throw error;
     }
   };
   
@@ -186,8 +186,9 @@ export const pushSnapshot = async (): Promise<void> => {
         data: { error },
         level: 'error',
       });
-      addSyncLog('Error pulling from PocketBase', 'error');
+      addSyncLog('Error pulling from PocketBase', 'error', error instanceof Error ? error.message : String(error));
       useRegistryStore.getState().setSyncStatus('error');
+      throw error;
     }
   };
   
