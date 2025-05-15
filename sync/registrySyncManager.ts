@@ -12,7 +12,7 @@ const SYNC_KEY = 'registry_sync_key';
  * Generates a pseudo-random 32-byte key using pure JavaScript.
  * This function completely avoids native crypto modules to ensure cross-platform compatibility.
  */
-const generateRandomKey = (): string => {
+export const generateRandomKey = (): string => {
   // Create a hex string directly without relying on WordArray.create which might use native crypto
   let hexString = '';
   const characters = '0123456789abcdef';
