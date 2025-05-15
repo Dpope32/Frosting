@@ -165,7 +165,11 @@ export default function SyncScreen() {
                 ok ? 'Left workspace' : 'Failed to leave',
                 ok ? 'success' : 'error'
               )
-            if (ok) setCurrentSpaceId(null)
+            if (ok) {
+              setCurrentSpaceId(null)
+              // Force a rerender by updating a dummy state
+              useRegistryStore.getState().setWorkspaceId(null)
+            }
             setIsLoading(false)
           },
         },
