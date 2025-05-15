@@ -8,25 +8,29 @@ const testHabits = [
     title: 'Morning Exercise', 
     category: 'health' as TaskCategory, 
     notificationTimeValue: '07:30', 
-    customMessage: 'Time to get moving! Your morning workout awaits.' 
+    customMessage: 'Time to get moving! Your morning workout awaits.',
+    description: 'This is a test description'
   },
   { 
     title: 'Read 30 Minutes', 
     category: 'personal' as TaskCategory, 
     notificationTimeValue: '20:00', 
-    customMessage: 'Reading time! Grab your book and relax.' 
+    customMessage: 'Reading time! Grab your book and relax.',
+    description: 'This is a test description'
   },
   { 
     title: 'Meditate', 
     category: 'health' as TaskCategory, 
     notificationTimeValue: '08:15', 
-    customMessage: 'Take a moment to clear your mind with meditation.' 
-  },
-  { 
+    customMessage: 'Take a moment to clear your mind with meditation.' ,
+    description: 'This is a test description'
+    },
+    { 
     title: 'Drink Water', 
     category: 'health' as TaskCategory, 
     notificationTimeValue: '', 
-    customMessage: '' 
+    customMessage: '' ,
+    description: 'This is a test description'
   },
   { 
     title: 'Call Family', 
@@ -41,7 +45,7 @@ export const generateTestHabits = async () => {
   
   for (const habit of testHabits) {
     await new Promise(resolve => setTimeout(resolve, 100)); // Add small delay to prevent render issues
-    store.addHabit(habit.title, habit.category, habit.notificationTimeValue, habit.customMessage);
+    store.addHabit(habit.title, habit.category, habit.notificationTimeValue, habit.customMessage, habit.description || '');
   }
   
   if (Platform.OS !== 'web') {

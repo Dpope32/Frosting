@@ -2,7 +2,6 @@
 import { create } from 'zustand'
 import { StorageUtils } from '@/store/AsyncStorage'
 import type { Person } from '@/types/people'
-import { useCalendarStore } from './CalendarStore'
 
 const STORAGE_KEY = 'contacts-store'
 

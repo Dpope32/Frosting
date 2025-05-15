@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
 import { useProjectStore } from './ToDo';
 import { useUserStore } from './UserStore';
-import { nbaTeams } from '../constants/nba';
+import { nbaTeams } from '@/constants/nba';
 import { useCalendarStore } from './CalendarStore';
 import { format } from 'date-fns';
 

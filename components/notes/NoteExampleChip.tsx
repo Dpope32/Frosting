@@ -5,14 +5,12 @@ import { XStack, Button, Text, isWeb } from 'tamagui'
 export interface NoteExampleChipProps {
   title: string
   onPress: () => void
-  isDark?: boolean
   index: number
 }
 
 export const NoteExampleChip: React.FC<NoteExampleChipProps> = ({ 
   title, 
   onPress, 
-  isDark = false,
   index
 }) => {
   const getChipStyle = () => {

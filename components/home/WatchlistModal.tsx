@@ -5,7 +5,7 @@ import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 import { useUserStore } from '@/store/UserStore';
 import { addToWatchlist, usePortfolioStore } from '@/store/PortfolioStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { initializeStocksData, searchStocks, getRecommendedStocks} from '@/services/stockSearchService';
+import { initializeStocksData, searchStocks, getRecommendedStocks} from '@/services';
 import { StockData } from '@/constants/stocks';
 import { getIconForStock } from '../../constants/popularStocks'
 import { debounce } from 'lodash';

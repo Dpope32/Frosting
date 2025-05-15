@@ -64,7 +64,7 @@ export const PremiumLogs = ({
       <XStack alignItems="center"  marginBottom={-20}>
         {isLoading && <ActivityIndicator size="small" color={colors.accent} />}
         {isLoading && (
-          <Text fontSize={fontSizes.xs} color={colors.subtext}>
+          <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext}>
             {syncStatus === 'syncing' ? 'Sync in progress...' : 'Preparing sync...'}
           </Text>
         )}
@@ -80,32 +80,27 @@ export const PremiumLogs = ({
         padding: baseSpacing * 2,
         maxHeight: maxHeight || 'auto',
       }}>
-        {/* Log header */}
         <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
-          <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
             Sync Progress Log
           </Text>
           <XStack gap={10}>
             <TouchableOpacity onPress={exportLogs}>
-              <Text color={colors.accent} fontWeight="500" fontSize={14}>Export</Text>
+              <Text color={colors.accent} fontFamily="$body" fontWeight="500" fontSize={14}>Export</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={clearLogs}>
-              <Text color={colors.accent} fontWeight="500" fontSize={14}>Clear</Text>
+              <Text color={colors.accent} fontFamily="$body" fontWeight="500" fontSize={14}>Clear</Text>
             </TouchableOpacity>
           </XStack>
         </XStack>
         <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
-        
-        {/* Log list - Fix scrolling for all platforms */}
         <ScrollView 
           style={{ 
             maxHeight: 400,
-            // Use height instead of maxHeight for more consistent behavior
             height: syncLogs.length > 0 ? 350 : 100,
           }}
           contentContainerStyle={{ paddingBottom: baseSpacing * 3 }}
           showsVerticalScrollIndicator={true}
-          // Add these props for better mobile scrolling
           nestedScrollEnabled={true}
           keyboardShouldPersistTaps="handled"
         > 
@@ -164,10 +159,10 @@ export const PremiumLogs = ({
                       {icon}
                     </Text>
                     <YStack flex={1}>
-                      <Text fontSize={fontSizes.sm} color={textColor} fontWeight="500">
+                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={textColor} fontWeight="500">
                         {log.message}
                       </Text>
-                      <Text fontSize={fontSizes.xs} color={colors.subtext}>
+                      <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext}>
                         {log.timestamp.toLocaleTimeString()} · {Math.floor((Date.now() - log.timestamp.getTime()) / 1000)}s ago
                         {log.details && ' · Tap for details'}
                       </Text>

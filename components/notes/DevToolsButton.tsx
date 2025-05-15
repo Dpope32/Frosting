@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { XStack } from 'tamagui';
 import { RefreshCw } from '@tamagui/lucide-icons';
-import { handleAddTestNotes } from '@/services/noteService';
+import { handleAddTestNotes } from '@/services/notes/noteService';
 import { useNoteStore } from '@/store/NoteStore';
 import { useToastStore } from '@/store/ToastStore';
 

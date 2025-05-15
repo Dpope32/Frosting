@@ -2,7 +2,6 @@ import React from 'react'
 import { XStack, YStack, Text } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { VaultRecommendationChip } from '@/constants/recommendations/VaultRecommendations'
-import { isIpad } from '@/utils/deviceUtils';
 
 interface VaultEmptyProps {
   isDark: boolean

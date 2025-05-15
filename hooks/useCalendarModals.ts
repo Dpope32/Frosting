@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getCurrentRoundedTime } from '@/services/calendarService';
+import { getCurrentRoundedTime } from '@/services';
 
 /**
  * Custom hook for managing calendar modals

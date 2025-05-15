@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Button, Form, YStack, XStack, Text, ScrollView} from 'tamagui'
+import { Form, ScrollView} from 'tamagui'
 import { Platform, Keyboard, KeyboardEvent } from 'react-native'
 import { Task, TaskPriority, TaskCategory, RecurrencePattern, WeekDay } from '@/types/task'
 import { useProjectStore } from '@/store/ToDo'
@@ -8,7 +8,7 @@ import { useToastStore } from '@/store/ToastStore'
 import { useEditTaskStore } from '@/store/EditTaskStore'
 import { format } from 'date-fns'
 import { syncTasksToCalendar } from '@/services'
-import { getDefaultTask, WEEKDAYS } from '../../../services/taskService'
+import { getDefaultTask, WEEKDAYS } from '@/services'
 import { Base } from '../NewTaskModal/Base'
 import { RecurrenceSelector } from '../NewTaskModal/RecurrenceSelector'
 import { CategorySelector } from '../NewTaskModal/CategorySelector'
@@ -24,6 +24,7 @@ import { SubmitButton } from '../NewTaskModal/SubmitButton'
 import { isIpad } from '@/utils/deviceUtils'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { styles } from '@/components/styles'
+
 interface EditTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,9 +42,6 @@ export function EditTaskModal({ open, onOpenChange, isDark }: EditTaskModalProps
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [tags, setTags] = useState<Tag[]>([]);
-  const tagStoreTags = useTagStore((state) => state.tags);
-  const addTagToStore = useTagStore((state) => state.addTag);
-
   const nameInputRef = useRef<React.ElementRef<typeof DebouncedInput>>(null)
   const username = useUserStore((state) => state.preferences.username)
 
@@ -114,19 +112,6 @@ export function EditTaskModal({ open, onOpenChange, isDark }: EditTaskModalProps
     }));
   }, []);
 
-  const handleTimeChange = useCallback((pickedDate?: Date) => {
-    if (pickedDate) {
-      setSelectedDate(pickedDate);
-      const timeString = format(pickedDate, 'h:mm a');
-      setEditedTask(prev => ({ ...prev, time: timeString }));
-    }
-  }, []);
-
-  const handleWebTimeChange = useCallback((date: Date) => {
-    const timeString = format(date, 'h:mm a');
-    setEditedTask(prev => ({ ...prev, time: timeString }));
-    setSelectedDate(date);
-  }, []);
 
   const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern, e?: any) => {
     if (e) {

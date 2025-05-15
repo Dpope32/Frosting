@@ -6,7 +6,6 @@ import { TaskPriority } from '@/types/task'
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
 import { useUserStore } from '@/store/UserStore'
 import { getCategoryColor, getPriorityColor } from '@/utils/styleUtils'
-import { formatNBATitle, isNBATask } from './utils'
 import { LongPressDelete } from '../common/LongPressDelete'
 import { isIpad } from '@/utils/deviceUtils'
 
@@ -23,8 +22,6 @@ export const EventPreview: React.FC<{
   const userColor = useUserStore(s => s.preferences.primaryColor)
   const isCustom = event.type && customCategories.some(catObj => catObj.name === event.type)
 
-
-  // Get priority icon function
   const getPriorityIcon = (priority?: TaskPriority) => {
     if (!priority) return 'flag-outline';
     const icons: Record<TaskPriority, any> = {

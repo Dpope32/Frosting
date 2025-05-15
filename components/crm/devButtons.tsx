@@ -5,7 +5,7 @@ import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { usePeopleStore } from "@/store/People";
 import { generateTestContacts } from "@/components/crm/testContacts";
-import { handleDebugPress } from "@/services/peopleService";
+import { handleDebugPress } from "@/services";
 
 export const DevButtons = () => {
   return (

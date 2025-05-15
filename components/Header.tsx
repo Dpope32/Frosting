@@ -28,7 +28,7 @@ import { Bill } from '@/types/bills';
 import type { VaultEntry } from '@/types/vault';
 import { Legend } from '@/components/calendar/Legend';
 import { useCalendarStore } from '@/store/CalendarStore';
-import { getUSHolidays } from '@/services/holidayService';
+import { getUSHolidays } from '@/services';
 
 interface HeaderProps {
   title: string;
@@ -60,7 +60,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const username = useUserStore(s => s.preferences.username);
   const { events } = useCalendarStore();
   
-  // Define isCalendarScreen before using it in useEffect
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';

@@ -29,7 +29,6 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
     'Good Friday': { color: '#795548', icon: '✝️' },
     'Easter Sunday': { color: '#FF9800', icon: '🐣' },
     'Memorial Day': { color: '#7E57C2', icon: '🎖️' },
-    'Juneteenth': { color: '#8D6E63', icon: '⛓️' },
     'Independence Day': { color: '#1976D2', icon: '🎆' },
     'Labor Day': { color: '#00ACC1', icon: '👷' },
     'Columbus Day': { color: '#FF5722', icon: '🧭' },
@@ -58,7 +57,7 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
     
     return {
       id: `holiday-${name.toLowerCase().replace(/\s/g, '-')}-${year}`,
-      date: formattedDate, // Use the properly formatted date
+      date: formattedDate,
       title: name,
       type: 'holiday' as any,
       time: '00:00',
@@ -77,7 +76,7 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
     
     return {
       id: `holiday-${h.name.toLowerCase().replace(/\s/g, '-')}-${year}`,
-      date: formattedDate, // Use the properly formatted date
+      date: formattedDate,
       title: h.name,
       type: 'holiday' as any,
       time: '00:00',

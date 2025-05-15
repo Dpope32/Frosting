@@ -4,7 +4,7 @@ import { YStack, Text, Spinner } from 'tamagui'
 import Animated, { SlideInDown } from 'react-native-reanimated'
 
 import { useNetworkStore } from '@/store/NetworkStore'
-import { getWifiDetails } from '@/services/wifiServices'
+import { getWifiDetails } from '@/services'
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { getStrengthColor } from '@/utils/styleUtils'

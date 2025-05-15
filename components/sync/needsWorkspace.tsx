@@ -23,6 +23,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
             fontSize={isWeb ? 16 : 14} 
             fontWeight="500" 
             color={isDark ? "#fff" : "#000"}
+            fontFamily="$body"
             textAlign="center"
         >
             Your device is not connected to a workspace
@@ -33,7 +34,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
               onPress={onPressCreate}
           >
               <XStack alignItems="center" justifyContent="center" gap={4}>
-                <Text color={primaryColor} fontWeight="600">Create Workspace</Text>
+                <Text color={primaryColor} fontWeight="600" fontFamily="$body">Create Workspace</Text>
               </XStack>
           </TouchableOpacity>
           
@@ -42,7 +43,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
               onPress={onPressJoin}
           >
               <XStack alignItems="center" justifyContent="center" gap={4}>
-                <Text color={primaryColor} fontWeight="600">Join Workspace</Text>
+                <Text color={primaryColor} fontWeight="600" fontFamily="$body">Join Workspace</Text>
               </XStack>
           </TouchableOpacity>
         </XStack>

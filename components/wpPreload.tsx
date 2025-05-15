@@ -1,4 +1,4 @@
-import { getWallpapers } from '@/services/s3Service';
+import { getWallpapers } from '@/services';
 import { useWallpaperStore } from '@/store/WallpaperStore';
 import * as Sentry from '@sentry/react-native';
 

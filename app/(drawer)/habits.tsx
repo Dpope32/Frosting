@@ -8,7 +8,7 @@ import { AddHabitModal } from '@/components/cardModals/creates/AddHabitModal';
 import { HabitCard } from '@/components/habits/HabitCard';
 import { useHabits } from '@/hooks/useHabits';
 import { useUserStore } from '@/store/UserStore';
-import { generateTestHabits } from '@/services/habitService';
+import { generateTestHabits } from '@/services';
 import { isIpad } from '@/utils/deviceUtils';
 import { useHabitStore } from '@/store/HabitStore';
 import { format } from 'date-fns';

@@ -15,7 +15,7 @@ import { DebugTools } from '@/components/calendar/DebugTools';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { getCalendarStyles } from "@/components/calendar/CalendarStyles";
-import { getUSHolidays } from '@/services/holidayService';
+import { getUSHolidays } from '@/services';
 import { isIpad } from '@/utils/deviceUtils';
 import { BlurView } from 'expo-blur';
 import { startOfWeek, addWeeks } from 'date-fns';
@@ -49,8 +49,6 @@ export default function CalendarScreen() {
     
     const allEvents = [...storeEvents, ...holidays];
     setCombinedEvents(allEvents);
-    
-    // Extract unique event types from combined events
     const types: string[] = [];
     allEvents.forEach(event => {
       if (event.type && !types.includes(event.type)) {
@@ -191,7 +189,6 @@ export default function CalendarScreen() {
           </View>
         ) : (
           isMobile && viewMode === 'week' ? (
-            // Week view for mobile
             weeks.map((weekStart, index) => (
               <Week
                 key={index}
@@ -203,7 +200,6 @@ export default function CalendarScreen() {
               />
             ))
           ) : (
-            // Month view for mobile (default)
             months.map((date, index) => (
               <Month
                 key={index}

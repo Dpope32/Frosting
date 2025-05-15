@@ -2,7 +2,7 @@
 import { create } from 'zustand'
 import { StorageUtils } from '@/store/AsyncStorage'
 import type { Note } from '@/types/notes'
-import { generateNoteId } from '../services/noteService'
+import { generateNoteId } from '@/services'
 
 const NOTES_STORAGE_KEY = 'notes-store-data'
 const ORDER_STORAGE_KEY = 'notes-store-order'

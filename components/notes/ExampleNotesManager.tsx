@@ -7,12 +7,8 @@ export interface ExampleNotesManagerProps {
 }
 
 export const useExampleNotes = () => {
-  // Get all notes from the dev notes file
   const allNotes = generateTestNotes();
-  
-  // Filter out the medium note (index 1)
   const exampleNotes = allNotes.filter((_, index) => index !== 1);
-  
   return {
     exampleNotes,
   };

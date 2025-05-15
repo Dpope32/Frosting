@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory } from '@/types/task';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { cancelHabitNotification } from '@/services/habitNotificationServices';
+import { cancelHabitNotification } from '@/services';
 import { Habit } from '@/types/habits';
 
 interface HabitStore {

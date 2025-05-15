@@ -3,7 +3,6 @@ import { Pressable, View } from 'react-native'
 import { XStack, Text  } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { isIpad } from '@/utils/deviceUtils'
-import { Task } from '@/types/task'
 
 interface ShowInCalendarProps {
   showInCalendar: boolean

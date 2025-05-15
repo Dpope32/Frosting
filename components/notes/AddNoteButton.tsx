@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'tamagui';
 import { Plus } from '@tamagui/lucide-icons';
-import { setupAddNote } from '@/services/noteService';
+import { setupAddNote } from '@/services';
 
 interface AddNoteButtonProps {
   insets: { bottom: number };

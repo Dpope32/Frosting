@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNetworkStore } from '@/store/NetworkStore';
-import { getWifiDetails } from '@/services/wifiServices';
+import { getWifiDetails } from '@/services';
 
 const CHECK_INTERVAL = 1000 * 60; 
 const CONNECTION_TEST_TIMEOUT = 5000; 

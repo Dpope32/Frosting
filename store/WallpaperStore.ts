@@ -4,7 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { createPersistStorage } from './AsyncStorage';
 import * as Sentry from '@sentry/react-native';
-import { getWallpapers } from '@/services/s3Service';
+import { getWallpapers } from '@/services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { WALLPAPER_CACHE_DIR, LAST_APP_VERSION_KEY } from '@/constants/KEYS';

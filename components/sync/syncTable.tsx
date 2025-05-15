@@ -65,7 +65,7 @@ return (
     marginVertical: baseSpacing,
   }}>
     <XStack alignItems="center" justifyContent="space-between">
-      <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600">
+      <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
         Premium Sync
       </Text>
       <Button
@@ -77,7 +77,7 @@ return (
         pressStyle={{ scale: 0.97 }}
         animation="quick"
       >
-        <Text color="#fff" fontWeight="700">
+        <Text color="#fff" fontWeight="700" fontFamily="$body">
           {premium ? 'Enabled' : 'Disabled'}
         </Text>
       </Button>
@@ -85,26 +85,26 @@ return (
     
     <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
     <XStack alignItems="center" justifyContent="space-between">
-      <Text fontSize={fontSizes.md} color={colors.subtext}>
+      <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
         Sync Status
       </Text>
-      <Text fontSize={fontSizes.sm} color={syncStatus === 'error' ? colors.error : syncStatus === 'syncing' ? colors.accent : currentSpaceId ? colors.success : colors.subtext}>
+      <Text fontSize={fontSizes.sm} fontFamily="$body" color={syncStatus === 'error' ? colors.error : syncStatus === 'syncing' ? colors.accent : currentSpaceId ? colors.success : colors.subtext}>
         {syncStatus === 'error' ? 'Error' : syncStatus === 'syncing' ? 'Syncing' : currentSpaceId ? 'Connected' : 'Not Connected'}
       </Text>
     </XStack>
     {deviceId && (
       <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-        <Text fontSize={fontSizes.md} color={colors.subtext}>
+        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
           Device ID
         </Text>
-        <Text fontSize={fontSizes.sm} color={colors.text}>
+        <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.text}>
           {deviceId.substring(0, 10)}...
         </Text>
       </XStack>
     )}
     {inviteCode && currentSpaceId && (
       <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-        <Text fontSize={fontSizes.md} color={colors.subtext}>
+        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
           Invite Code
         </Text>
         <TouchableOpacity 
@@ -118,7 +118,7 @@ return (
             borderRadius: buttonRadius / 2,
           }}
         >
-          <Text fontSize={fontSizes.sm} color={colors.accent} marginRight={baseSpacing / 2}>
+          <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2}>
             {inviteCode}
           </Text>
           <MaterialIcons name="content-copy" size={14} color={colors.accent} />

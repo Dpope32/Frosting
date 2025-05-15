@@ -31,4 +31,5 @@ export interface Task {
   dueDate?: number
   tags?: Tag[]
   gameId?: number 
+  description?: string
 }

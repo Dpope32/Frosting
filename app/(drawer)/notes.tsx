@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as Haptics from 'expo-haptics';
 import { isWeb } from 'tamagui';
-import { View, ScrollView, Dimensions, findNodeHandle } from 'react-native';
+import { View, ScrollView, Dimensions } from 'react-native';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { YStack, XStack } from 'tamagui';
@@ -28,9 +28,9 @@ import { AddNoteButton } from '@/components/notes/AddNoteButton';
 import { DevToolsButton } from '@/components/notes/DevToolsButton';
 
 import { createTrashAnimatedStyle, noteStyles } from '@/utils/noteStyles';
-import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/noteService';
-import { setupColumnCalculation, createFormattingHandler, handleDragging, handleDragEnd, handleMoveNote, handleSelectNote } from '@/services/noteService2';
-import { createNoteHandlers } from '@/services/noteHandlers';
+import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/notes/noteService';
+import { setupColumnCalculation, createFormattingHandler, handleDragging, handleDragEnd, handleMoveNote, handleSelectNote } from '@/services/notes/noteService2';
+import { createNoteHandlers } from '@/services';
 import { isIpad } from '@/utils/deviceUtils';
 
 export const draggedCardBottomYRef = { current: 0 };

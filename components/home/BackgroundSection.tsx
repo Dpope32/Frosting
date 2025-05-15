@@ -9,8 +9,6 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import * as Sentry from '@sentry/react-native'
 import { isIpad } from '@/utils/deviceUtils'
 
-
-
 export const BackgroundSection = () => {
   const preferences = useUserStore(s => s.preferences);
   const setPreferences = useUserStore(s => s.setPreferences);
@@ -23,8 +21,6 @@ export const BackgroundSection = () => {
 
   const [wallpaperSource, setWallpaperSource] = useState<ImageSourcePropType | null>(null);
   const [isLoading, setIsLoading] = useState(true); 
-
-  // Add a key to force re-render when primary color changes
   const gradientKey = useMemo(() => `gradient-${primaryColor}-${isDark}`, [primaryColor, isDark]);
 
   useEffect(() => {

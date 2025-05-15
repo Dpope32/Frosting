@@ -1,4 +1,4 @@
-import { generateNoteId } from '../../services/noteService';
+import { generateNoteId } from '../../services/notes/noteService';
 
 describe('noteService', () => {
   describe('generateNoteId', () => {

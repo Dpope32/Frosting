@@ -6,6 +6,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { isIpad } from '@/utils/deviceUtils';
+
 interface BaseCardWithRecommendationsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

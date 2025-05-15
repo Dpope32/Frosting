@@ -10,6 +10,7 @@ import { useToastStore } from '@/store/ToastStore';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
 import { getChipStyle } from '@/utils/recChipStyles';
 import { isIpad } from '@/utils/deviceUtils';
+
 interface VaultListModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void

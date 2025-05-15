@@ -1,6 +1,6 @@
 import React from 'react';
 import { AddNoteSheet } from '@/components/cardModals/creates/AddNoteSheet';
-import { saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick } from '@/services/noteService';
+import { saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick } from '@/services';
 import type { Note, Attachment } from '@/types/notes';
 import type { Tag } from '@/types/tag';
 import type { NoteStore } from '@/store/NoteStore';

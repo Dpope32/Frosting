@@ -9,7 +9,7 @@ import { format } from 'date-fns'
 import { Platform } from 'react-native'
 import { usePeopleStore } from './People'
 import type { Person } from '@/types/people'
-import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services/calendarService'
+import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services'
 
 export interface CalendarEvent {
   id: string

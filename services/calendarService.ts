@@ -127,12 +127,6 @@ export const generateBillEvents = (billName: string, dueDate: number): Omit<Cale
   return events;
 };
 
-export const generateRandomDate = (yearsAhead: number = 1): Date => {
-  const start = new Date();
-  const end = new Date(start.getFullYear() + yearsAhead, 11, 31);
-  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-};
-
 export const generateRandomTime = (): string => {
   const hours = Math.floor(Math.random() * 24);
   const minutes = Math.floor(Math.random() * 60);

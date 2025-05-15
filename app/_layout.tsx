@@ -24,11 +24,10 @@ import { Toast } from '@/components/Toast';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/edits/EditStockModal';
-import { handleSharedContact } from '../services/shareService';
+import { handleSharedContact } from '@/services';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 
 import { addSyncLog } from '@/components/sync/syncUtils';
-// Preload sync modules to avoid dynamic import issues on Android
 import * as syncModules from '@/sync/snapshotPushPull';
 import * as registryModules from '@/sync/registrySyncManager';
 

@@ -3,7 +3,7 @@ import { YStack, XStack, Text } from 'tamagui';
 import { Pressable, Platform, useColorScheme, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useBills } from '@/hooks/useBills';
-import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services/billServices';
+import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services';
 import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 

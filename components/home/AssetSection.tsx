@@ -7,7 +7,7 @@ import { portfolioData } from '@/utils/Portfolio';
 import { PortfolioQueryData } from '@/types/stocks';
 import { useEditStockStore } from '@/store/EditStockStore';
 import { PortfolioTable } from '@/components/home/PortfolioTable';
-import { calculateBuyIndicator, calculateReturns } from '@/services/calculationService';
+import { calculateBuyIndicator, calculateReturns } from '@/services';
 
 export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => void }) {
   const { data, isLoading, refetch } = usePortfolioQuery();

@@ -8,7 +8,7 @@ import { useProjects } from '@/hooks/useProjects'
 import { Plus, Database, Trash } from '@tamagui/lucide-icons'
 import * as Haptics from 'expo-haptics'
 
-import { addDevProjects, addWebsiteRedesignProject, addMobileAppProject, addHomeRenovationProject, addVacationProject } from '@/services/devServices'
+import { addDevProjects, addWebsiteRedesignProject, addMobileAppProject, addHomeRenovationProject, addVacationProject } from '@/services'
 import { isIpad } from '@/utils/deviceUtils'
 import { ProjectEmpty } from '@/components/projects/ProjectEmpty'
 import { Project } from '@/types/project'

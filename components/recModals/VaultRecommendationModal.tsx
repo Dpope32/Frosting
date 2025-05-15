@@ -7,6 +7,7 @@ import { useVault } from '@/hooks/useVault'
 import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
 import { useToastStore } from '@/store/ToastStore'
 import { useUserStore } from '@/store/UserStore'
+
 type DebouncedTextInputProps = {
   value: string
   onDebouncedChange: (value: string) => void

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Text } from 'tamagui'
 import { isIpad } from '@/utils/deviceUtils'
+
 interface SubmitButtonProps {
   isSubmitting: boolean
   preferences: any

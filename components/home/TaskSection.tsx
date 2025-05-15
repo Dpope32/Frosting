@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import { Pressable, Platform as RNPlatform, useColorScheme } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { TaskCard } from '@/components/home/TaskCard'
-import { Button } from 'tamagui' // Import Button
+import { Button } from 'tamagui' 
 import { Task } from '@/types/task'
 import { RecommendationChipHome } from '@/constants/recommendations/recChipHome'
 import { addDevTasks } from '@/services/devServices'
@@ -16,13 +16,11 @@ import { GreetingSection } from '@/components/home/GreetingSection'
 import { useUserStore } from '@/store/UserStore'
 import { EasterEgg } from '../shared/EasterEgg'
 import { ProjectSection } from '@/components/home/ProjectSection'
-// Enable debugging
+
 const DEBUG = false;
 
 function log(...args: any[]) {
-  if (DEBUG) {
-    console.log('[TaskSection]', ...args);
-  }
+  if (DEBUG) { console.log('[TaskSection]', ...args)}
 }
 
 interface TaskSectionProps {

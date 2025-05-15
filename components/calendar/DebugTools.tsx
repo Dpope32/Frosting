@@ -6,7 +6,7 @@ import { useCalendarStore, CalendarEvent } from '@/store/CalendarStore';
 import { useBillStore } from '@/store/BillStore';
 import { useToastStore } from '@/store/ToastStore';
 import { useVaultStore } from '@/store/VaultStore';
-import { generateBillEvents, generateRandomDate, generateRandomTime } from '@/services/calendarService';
+import { generateBillEvents, generateRandomTime } from '@/services';
 import { getCalendarStyles } from './CalendarStyles';
 
 interface DebugToolsProps {

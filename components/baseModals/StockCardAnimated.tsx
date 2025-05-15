@@ -1,14 +1,10 @@
 // StockCardAnimated.tsx
 import React from 'react'
-import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' // Removed Modal
+import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
-import Animated, {
-  ZoomIn,
-  FadeIn, 
-  FadeOut,
-} from 'react-native-reanimated'
+import Animated, { ZoomIn, FadeIn, FadeOut } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 
 interface StockCardAnimatedProps {

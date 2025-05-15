@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore';
 import { useToastStore } from '@/store/ToastStore';
-import { parseTimeString } from '@/services/calendarService';
+import { parseTimeString } from '@/services';
 
 /**
  * Custom hook for managing calendar events

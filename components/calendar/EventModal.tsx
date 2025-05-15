@@ -18,6 +18,7 @@ import { styles } from './EventStyles'
 import { EventModalProps } from '../../types/modal'
 import { NOTIFICATION_TIME_OPTIONS } from '@/constants/notifications'
 import { isIpad } from '@/utils/deviceUtils'
+
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,
   isViewEventModalVisible,

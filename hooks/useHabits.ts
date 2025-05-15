@@ -3,7 +3,7 @@ import { useHabitStore } from '@/store/HabitStore';
 import { TaskCategory } from '@/types/task';
 import { isWeb } from 'tamagui';
 import { differenceInDays, subDays, format } from 'date-fns';
-import { triggerHaptic } from '@/services/noteService';
+import { triggerHaptic } from '@/services';
 import { ImpactFeedbackStyle } from 'expo-haptics';
 import { Habit } from '@/types/habits';
 export function useHabits() {

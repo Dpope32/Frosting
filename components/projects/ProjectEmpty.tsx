@@ -1,16 +1,9 @@
 import React from 'react'
-import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
+import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome5 } from '@expo/vector-icons'
 import { ProjectExampleChip } from './ProjectExampleChip';
 import { Project } from '@/types/project';
-import { 
-  addWebsiteRedesignProject, 
-  addMobileAppProject,
-  addHomeRenovationProject,
-  addVacationProject
-} from '@/services/devServices';
-import { useToastStore } from '@/store/ToastStore';
+import {addWebsiteRedesignProject, addMobileAppProject, addHomeRenovationProject, addVacationProject} from '@/services';
 
 interface ProjectEmptyProps {
   isDark: boolean

@@ -1,7 +1,7 @@
 import { Alert, Platform } from 'react-native'
 import * as Notifications from 'expo-notifications'
 import { SchedulableTriggerInputTypes, AndroidNotificationPriority } from 'expo-notifications'
-import { isHabitCompletedForToday } from './habitNotificationHelper'
+import { isHabitCompletedForToday } from '@/services/habits/habitNotificationHelper'
 import { format } from 'date-fns'
 
 // Configure notifications to work properly even when the app is in the background

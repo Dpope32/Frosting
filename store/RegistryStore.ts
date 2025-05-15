@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 import * as Notifications from 'expo-notifications';
-import * as FileSystem from 'expo-file-system';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { debounce } from 'lodash';
-import * as Sentry from '@sentry/react-native';
 
 // Import all stores
 import { useHabitStore } from './HabitStore';
@@ -16,7 +14,6 @@ import { useWallpaperStore } from './WallpaperStore';
 import { useUserStore } from './UserStore';
 import { useNetworkStore } from './NetworkStore';
 import { useVaultStore } from './VaultStore';
-import { storage } from './AsyncStorage';
 import { useCRMStore } from './CRMStore';
 import { usePortfolioStore } from './PortfolioStore';
 import { usePeopleStore } from './People';
@@ -39,7 +36,7 @@ interface RegistryState {
   setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
   setNotificationStatus: (status: 'granted' | 'denied' | 'unavailable') => void;
   setStocksLastUpdated: (timestamp: number) => void;
-  checkNotificationStatus: () => void; // Changed to void to match debounced function
+  checkNotificationStatus: () => void; 
   getAllStoreStates: () => Record<string, any>;
   logSyncStatus: () => void;
   exportStateToFile: () => Promise<string | null>;
