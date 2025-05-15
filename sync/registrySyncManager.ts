@@ -6,6 +6,8 @@ import { encryptSnapshot } from '@/lib/encryption';
 import * as Sentry from '@sentry/react-native';
 import { useUserStore } from '@/store/UserStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
+import { getCurrentWorkspaceId } from './workspace';
+import { getWorkspaceKey } from './workspaceKey';
 const SYNC_KEY = 'registry_sync_key';
 
 /**
@@ -75,7 +77,8 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     level: 'info',
   });
   try {
-    const key = await generateSyncKey();
+   const wsId = await getCurrentWorkspaceId();
+   const key = wsId ? await getWorkspaceKey(wsId) : await generateSyncKey();
     const cipher = encryptSnapshot(allStates, key);
     const uri = `${FileSystem.documentDirectory}stateSnapshot.enc`;
     await FileSystem.writeAsStringAsync(uri, cipher, {

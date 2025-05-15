@@ -2,9 +2,12 @@
 import { getPocketBase } from "./pocketSync";
 import * as FileSystem from "expo-file-system";
 import { exportEncryptedState, generateSyncKey } from "@/sync/registrySyncManager";
+import { generateRandomKey } from "@/sync/randomKey";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { useRegistryStore } from "@/store/RegistryStore";
 import { pullLatestSnapshot, pushSnapshot } from "@/sync/snapshotPushPull";
+
+import { storage } from "@/store/AsyncStorage";
 export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
@@ -60,11 +63,15 @@ export const createOrJoinWorkspace = async (
     addSyncLog("📡 Creating new sync workspace.", "info");
 
     const newInviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const newWorkspace = await pb.collection("sync_workspaces").create({
-      owner_device_id: deviceId,
-      device_ids: [deviceId],
-      invite_code: newInviteCode,
-    });
+    const sharedKey = generateRandomKey();         
+    const newWorkspace = await pb
+      .collection('sync_workspaces')
+      .create({
+        owner_device_id: deviceId,
+        device_ids: [deviceId],
+        invite_code: newInviteCode,
+        shared_key: sharedKey,                    
+      });
 
     addSyncLog(`✅ Created sync workspace with ID: ${newWorkspace.id}`, "success");
 
@@ -157,6 +164,8 @@ export const leaveWorkspace = async (
         const workspace = await pb
           .collection("sync_workspaces")
           .getOne(workspaceId);
+          const sharedKey = workspace.shared_key as string;          // << add
+        await storage.set(`ws_key_${workspaceId}`, sharedKey); 
         const updated = (
           Array.isArray(workspace.device_ids)
             ? workspace.device_ids
