@@ -78,8 +78,6 @@ export default function SyncScreen() {
   const [showAddDevice, setShowAddDevice] = useState(false)
   const [initialModalMode, setInitialModalMode] =useState<'create' | 'join' | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false)
-  const [currentSpaceId, setCurrentSpaceId] =useState<string | null>(null)
-  const [devices] = useState<any[]>([])
   const [syncLogs, setSyncLogs] = useState<LogEntry[]>([])
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({})
   const premium = useUserStore((s) => s.preferences.premium === true)
@@ -87,7 +85,8 @@ export default function SyncScreen() {
   const colors = getColors(isDark, primaryColor)
   const contentWidth = Math.min(width - baseSpacing * 2, 350)
   const syncStatus = useRegistryStore((s) => s.syncStatus)
-
+  const [currentSpaceId, setCurrentSpaceId] =useState<string | null>(null)
+  const [devices] = useState<any[]>([])
   useAuthCheck()
   const { deviceId } = useDeviceId(premium)
   const { workspaceId } = useWorkspaceId(premium)
@@ -190,7 +189,6 @@ export default function SyncScreen() {
     }
   }, [syncLogs])
 
-  const needsWorkspace = premium && !workspaceId
   const fontSizes = { xs: 10, sm: 12, md: 14, lg: 16, xl: 18 }
 
   return (
@@ -254,7 +252,7 @@ export default function SyncScreen() {
           </XStack>
         )}
 
-        {needsWorkspace && (
+        {premium && !workspaceId && (
           <NeedsWorkspace
             isDark={isDark}
             onPressCreate={() => {
@@ -303,8 +301,16 @@ export default function SyncScreen() {
           }}
           initialMode={initialModalMode}
           currentWorkspaceId={workspaceId}
-          onWorkspaceCreated={(id) => { setCurrentSpaceId(id); addSyncLog(`Workspace created: ${id}`, 'success') }}
-          onWorkspaceJoined={(id) => { setCurrentSpaceId(id); addSyncLog(`Workspace joined: ${id}`, 'success') }}
+          onWorkspaceCreated={() => {
+            setShowAddDevice(false)
+            setInitialModalMode(undefined)
+            addSyncLog(`Workspace created: ${workspaceId}`, 'success')
+          }}
+          onWorkspaceJoined={() => {
+            setShowAddDevice(false)
+            setInitialModalMode(undefined)
+            addSyncLog(`Workspace joined: ${workspaceId}`, 'success')
+          }}
         />
       )}
     </ScrollView>

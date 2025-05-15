@@ -11,6 +11,7 @@ import * as Clipboard from 'expo-clipboard';
 import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync/workspace';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { baseSpacing, fontSizes, cardRadius, buttonRadius, getColors } from '@/components/sync/sharedStyles';
+import { useRegistryStore } from '@/store/RegistryStore';
 
 type AddDeviceModalProps = {
   onClose: () => void;
@@ -98,6 +99,8 @@ export default function AddDeviceModal({
       setWorkspaceId(result.id);
       setInviteCode(result.inviteCode);
       
+      useRegistryStore.getState().setWorkspaceId(result.id);
+      
       if (onWorkspaceCreated) {
         onWorkspaceCreated(result.id, result.inviteCode);
       }
@@ -147,6 +150,8 @@ export default function AddDeviceModal({
       );
       
       setWorkspaceId(result.id);
+      
+      useRegistryStore.getState().setWorkspaceId(result.id);
       
       if (onWorkspaceJoined) {
         onWorkspaceJoined(result.id);

@@ -31,6 +31,7 @@ interface RegistryState {
   syncStatus: 'idle' | 'syncing' | 'error';
   notificationStatus: 'granted' | 'denied' | 'unavailable';
   stocksLastUpdated: number;
+  workspaceId?: string | null;
 
   setHasCompletedOnboarding: (value: boolean) => void;
   setIsFirstLaunch: (value: boolean) => void;
@@ -43,6 +44,7 @@ interface RegistryState {
   exportStateToFile: () => Promise<string | null>;
   hydrateAll: (data: Record<string, any>) => void;
   syncOnboardingWithUser: () => void;
+  setWorkspaceId: (id: string | null) => void;
 }
 
 // Schema validation helpers
@@ -97,11 +99,13 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     syncStatus: 'idle',
     notificationStatus: 'unavailable',
     stocksLastUpdated: 0,
+    workspaceId: null,
     setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
     setIsFirstLaunch: (value) => set({ isFirstLaunch: value }),
     setSyncStatus: (status) => set({ syncStatus: status }),
     setNotificationStatus: (status) => set({ notificationStatus: status }),
     setStocksLastUpdated: (timestamp) => set({ stocksLastUpdated: timestamp }),
+    setWorkspaceId: (id) => set({ workspaceId: id }),
 
     // Fixed debounced notification check
     checkNotificationStatus: () => {
