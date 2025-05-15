@@ -25,5 +25,5 @@ export function useWorkspaceId(premium: boolean) {
     loadWorkspace()
   }, [premium])
 
-  return { workspaceId }
+  return { workspaceId, setWorkspaceId }
 }

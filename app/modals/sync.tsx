@@ -85,11 +85,8 @@ export default function SyncScreen() {
   const colors = getColors(isDark, primaryColor)
   const contentWidth = Math.min(width - baseSpacing * 2, 350)
   const syncStatus = useRegistryStore((s) => s.syncStatus)
-  const [currentSpaceId, setCurrentSpaceId] =useState<string | null>(null)
-  const [devices] = useState<any[]>([])
-  useAuthCheck()
   const { deviceId } = useDeviceId(premium)
-  const { workspaceId } = useWorkspaceId(premium)
+  const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
   const { inviteCode } = useWorkspaceDetails(premium, workspaceId, deviceId)
   useSyncStatusLogger(syncStatus, isLoading)
   useLifecycleLogger()
@@ -166,16 +163,14 @@ export default function SyncScreen() {
                 ok ? 'success' : 'error'
               )
             if (ok) {
-              setCurrentSpaceId(null)
-              // Force a rerender by updating a dummy state
-              useRegistryStore.getState().setWorkspaceId(null)
+              setWorkspaceId(null)
             }
             setIsLoading(false)
           },
         },
       ]
     )
-  }, [workspaceId])
+  }, [workspaceId, setWorkspaceId])
 
   const handleSyncButtonPress = React.useCallback(() => {
     performSync('both')
@@ -288,7 +283,7 @@ export default function SyncScreen() {
                 performSync={performSync}
                 handleSyncButtonPress={handleSyncButtonPress}
                 premium={premium}
-                devices={devices}
+                devices={[]}
                 contentWidth={contentWidth}
                 maxHeight={350}
               />
@@ -305,15 +300,17 @@ export default function SyncScreen() {
           }}
           initialMode={initialModalMode}
           currentWorkspaceId={workspaceId}
-          onWorkspaceCreated={() => {
+          onWorkspaceCreated={(id: string) => {
             setShowAddDevice(false)
             setInitialModalMode(undefined)
-            addSyncLog(`Workspace created: ${workspaceId}`, 'success')
+            setWorkspaceId(id)
+            addSyncLog(`Workspace created: ${id}`, 'success')
           }}
-          onWorkspaceJoined={() => {
+          onWorkspaceJoined={(id: string) => {
             setShowAddDevice(false)
             setInitialModalMode(undefined)
-            addSyncLog(`Workspace joined: ${workspaceId}`, 'success')
+            setWorkspaceId(id)
+            addSyncLog(`Workspace joined: ${id}`, 'success')
           }}
         />
       )}
