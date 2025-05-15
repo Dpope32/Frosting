@@ -23,12 +23,13 @@ import { Ionicons } from '@expo/vector-icons';
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
-const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: { 
+const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb, isIpadDevice }: { 
   props: DrawerContentComponentProps; 
   username: string | undefined;
   profilePicture: string | undefined | null;
   styles: any;
   isWeb: boolean;
+  isIpadDevice: boolean;
 }) => {
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -62,7 +63,7 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
           <Text style={styles.username}>
             {username || 'User'}
           </Text>
-          {!isWeb && !isIpad() && (
+          {!isWeb && !isIpadDevice && (
                 <Pressable
                   onPress={() => {
                     if (Platform.OS !== 'web') {
@@ -71,7 +72,7 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
                     props.navigation.closeDrawer();
                   }}
                   style={{  
-                    padding: isIpad() ? 8 : 8,
+                    padding: isIpadDevice ? 8 : 8,
                     marginLeft: 16,
                     ...(isWeb ? {
                       cursor: 'pointer',
@@ -97,7 +98,7 @@ const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb }: 
             <DrawerItemList {...props} />
           </DrawerContentScrollView>
         </View>
-        <XStack alignItems="center" justifyContent="space-between" marginBottom={32} paddingHorizontal={isWeb ? 24 : isIpad() ? 20 : 16}>
+        <XStack alignItems="center" justifyContent="space-between" marginBottom={32} paddingHorizontal={isWeb ? 24 : isIpadDevice ? 20 : 16}>
           <ChangeLogButton />
           <LegalButton />
         </XStack>
@@ -115,7 +116,8 @@ export default function DrawerLayout() {
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
-  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(220, window.innerWidth * 0.20) : 220 : isIpadDevice ? 220  : 200;
+  const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 220  : 200;
+
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 
@@ -124,8 +126,9 @@ export default function DrawerLayout() {
       profilePicture={profilePicture} 
       styles={styles} 
       isWeb={isWeb} 
+      isIpadDevice={isIpadDevice}
     />
-  ), [username, profilePicture, styles, isWeb, drawerWidth]);
+  ), [username, profilePicture, styles, isWeb, isIpadDevice, drawerWidth]);
 
   const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
     const icon = DRAWER_ICONS[route];
