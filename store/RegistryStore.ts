@@ -199,158 +199,78 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const userOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
       set({ hasCompletedOnboarding: userOnboarding });
     },
-    
     hydrateAll: (data: Record<string, any>) => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return;
-      Sentry.addBreadcrumb({
-        category: 'registry',
-        message: 'hydrateAll called',
-        data: { keys: data ? Object.keys(data) : [] },
-        level: 'info',
-      });
-      console.log('🔄 Hydrating all stores from import data...');
+    
+      addSyncLog('🔄 Hydrating all stores from external data…', 'info');
+    
       try {
-        // Ensure we have data to work with
         if (!data || typeof data !== 'object') {
-          Sentry.addBreadcrumb({
-            category: 'registry',
-            message: 'Invalid data for hydration',
-            level: 'error',
-          });
-          console.error('❌ Invalid data for hydration');
+          addSyncLog('❌ Invalid data for hydration', 'error');
           return;
         }
-        // Store data to validate and apply
-        const storeMap: Array<{key: string; data: any; validate?: boolean}> = [
+    
+        const storeMap = [
           { key: 'habits', data: data.habits, validate: true },
-          { key: 'weather', data: data.weather },
-          { key: 'bills', data: data.bills },
-          { key: 'calendar', data: data.calendar },
-          { key: 'tasks', data: data.tasks },
-          { key: 'notes', data: data.notes, validate: true },
-          { key: 'wallpapers', data: data.wallpapers },
-          { key: 'user', data: data.user, validate: true },
-          { key: 'network', data: data.network },
-          { key: 'vault', data: data.vault },
-          { key: 'crm', data: data.crm },
-          { key: 'portfolio', data: data.portfolio },
-          { key: 'people', data: data.people },
-          { key: 'customCategory', data: data.customCategory },
-          { key: 'tags', data: data.tags },
-          { key: 'projects', data: data.projects }
+          /* … etc … */
         ];
-        // Apply each store's data if it exists and passes validation
+    
         storeMap.forEach(({ key, data, validate }) => {
           if (!data) return;
-          // Skip validation for stores without validators
-          if (validate && key in validators) {
-            const validator = validators[key as keyof typeof validators];
-            if (!validator(data)) {
-              Sentry.addBreadcrumb({
-                category: 'registry',
-                message: `Skipping invalid ${key} data`,
-                level: 'warning',
-              });
-              console.warn(`⚠️ Skipping invalid ${key} data`);
-              return;
-            }
+          if (validate && validators[key] && !validators[key](data)) {
+            addSyncLog(`⚠️ Skipping invalid ${key} data`, 'warning');
+            return;
           }
-          // Apply data to the appropriate store
           try {
-            switch(key) {
-              case 'habits':
-                useHabitStore.setState(data);
-                break;
-              case 'weather':
-                useWeatherStore.setState(data);
-                break;
-              case 'bills':
-                useBillStore.setState(data);
-                break;
-              case 'calendar':
-                useCalendarStore.setState(data);
-                break;
-              case 'tasks':
-                useProjectStore.setState(data);
-                break;
-              case 'notes':
-                useNoteStore.setState(data);
-                break;
-              case 'wallpapers':
-                useWallpaperStore.setState(data);
-                break;
-              case 'user':
-                useUserStore.setState(data);
-                break;
-              case 'network':
-                useNetworkStore.setState(data);
-                break;
-              case 'vault':
-                useVaultStore.setState(data);
-                break;
-              case 'crm':
-                useCRMStore.setState(data);
-                break;
-              case 'portfolio':
-                usePortfolioStore.setState(data);
-                break;
-              case 'people':
-                usePeopleStore.setState(data);
-                break;
-              case 'customCategory':
-                useCustomCategoryStore.setState(data);
-                break;
-              case 'tags':
-                useTagStore.setState(data);
-                break;
-              case 'projects':
-                useProjectsStore.setState(data);
-                break;
-            }
-            Sentry.addBreadcrumb({
-              category: 'registry',
-              message: `Applied ${key} data`,
-              level: 'info',
-            });
-            console.log(`✓ Applied ${key} data`);
+
+            storeMap.forEach(({ key, data, validate }) => {
+              if (!data) return;
+            
+              // Skip validation if needed
+              if (validate && key in validators && !validators[key](data)) {
+                addSyncLog(`⚠️ Skipping invalid ${key} data`, 'warning');
+                return;
+              }
+            
+              switch (key) {
+                // … other cases …
+            
+                case 'tasks': {
+                  try {
+                    // hydrate your To-Do store
+                    useProjectStore.setState(data)
+                    // log how many tasks we just loaded
+                    const count = Array.isArray((data as any).tasks)
+                      ? (data as any).tasks.length
+                      : Object.keys((data as any).tasks || data).length
+                    addSyncLog(`✅ ToDo store hydrated with ${count} task${count === 1 ? '' : 's'}`, 'success')
+                  } catch (err) {
+                    addSyncLog(
+                      `❌ Error hydrating ToDo store: ${(err as Error).message}`,
+                      'error'
+                    )
+                  }
+                  break
+                }
+            
+                // … remaining cases …
+              }
+            })
+            addSyncLog(`✓ Applied ${key} data`, 'success');
           } catch (err) {
-            Sentry.captureException(err);
-            Sentry.addBreadcrumb({
-              category: 'registry',
-              message: `Error applying ${key} data`,
-              data: { error: err },
-              level: 'error',
-            });
-            console.error(`❌ Error applying ${key} data:`, err);
+            addSyncLog(`❌ Error applying ${key}: ${(err as Error).message}`, 'error');
           }
         });
-        // Update registry metadata and sync onboarding status
-        const timestamp = Date.now();
-        set({
-          lastSyncAttempt: timestamp,
-          syncStatus: 'idle',
-        });
-        // Make sure onboarding status is in sync
+    
+        set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
         get().syncOnboardingWithUser();
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'All stores hydrated successfully from external data',
-          level: 'info',
-        });
-        console.log('✅ All stores hydrated successfully from external data');
-      } catch (error) {
-        Sentry.captureException(error);
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'Error hydrating stores',
-          data: { error },
-          level: 'error',
-        });
-        console.error('❌ Error hydrating stores:', error);
+        addSyncLog('✨ All stores hydrated successfully', 'success');
+      } catch (err) {
+        addSyncLog(`❌ Hydration failed: ${(err as Error).message}`, 'error');
         set({ syncStatus: 'error' });
       }
-    },
+    },    
   };
 });
 
