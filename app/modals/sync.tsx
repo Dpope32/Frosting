@@ -23,8 +23,13 @@ import {
   clearLogQueue,
   LogEntry,
 } from '@/components/sync/syncUtils';
-import { getCurrentWorkspaceId as getWsIdUtil } from '@/sync/workspace';
+import { 
+  getCurrentWorkspaceId as getWsIdUtil,
+  leaveWorkspace 
+} from '@/sync/workspace';
 import NeedsWorkspace from '@/components/sync/needsWorkspace';
+import * as Clipboard from 'expo-clipboard';
+import { getPocketBase } from '@/sync/pocketSync';
 // Create a custom fetch to intercept and log all network requests
 const originalFetch = global.fetch;
 global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -44,8 +49,29 @@ global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   
   // Log request if premium
   if (isPremium) {
+    let bodyString = '';
+    
+    if (init?.body) {
+      try {
+        if (init.body instanceof FormData) {
+          bodyString = '[FormData object]';
+        } else if (typeof init.body === 'string') {
+          // If body is already a string, use it directly but truncate if needed
+          bodyString = init.body.length > 500 ? init.body.substring(0, 500) + '...' : init.body;
+        } else if (init.body instanceof Blob || init.body instanceof ArrayBuffer) {
+          bodyString = '[Binary data]';
+        } else {
+          // Try to stringify other object types
+          bodyString = JSON.stringify(init.body).substring(0, 500);
+          if (bodyString.length >= 500) bodyString += '...';
+        }
+      } catch (e) {
+        bodyString = '[Unstringifiable body]';
+      }
+    }
+    
     addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', 
-      init?.body ? `Body: ${JSON.stringify(init?.body)}` : undefined);
+      init?.body ? `Body: ${bodyString}` : undefined);
   }
   
   try {
@@ -57,17 +83,39 @@ global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       const clonedResponse = response.clone();
       
       try {
-        // Try to parse as JSON first
-        const jsonData = await clonedResponse.json();
-        addSyncLog(`📥 Response: ${response.status} from ${url}`, 
-          response.ok ? 'success' : 'error',
-          `Data: ${JSON.stringify(jsonData).substring(0, 500)}${JSON.stringify(jsonData).length > 500 ? '...' : ''}`);
+        const contentType = response.headers.get('content-type') || '';
+        
+        if (contentType.includes('application/json')) {
+          // Try to parse as JSON
+          const jsonData = await clonedResponse.json();
+          const truncatedData = JSON.stringify(jsonData);
+          const displayData = truncatedData.length > 500 
+            ? truncatedData.substring(0, 500) + '...' 
+            : truncatedData;
+          
+          addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+            response.ok ? 'success' : 'error',
+            `Data: ${displayData}`);
+        } else if (contentType.includes('text')) {
+          // Get text for text content types
+          const textData = await clonedResponse.text();
+          const displayText = textData.length > 500 
+            ? textData.substring(0, 500) + '...' 
+            : textData;
+          
+          addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+            response.ok ? 'success' : 'error',
+            textData.length > 0 ? displayText : undefined);
+        } else {
+          // For binary or other types
+          addSyncLog(`📥 Response: ${response.status} from ${url} (${contentType})`, 
+            response.ok ? 'success' : 'error');
+        }
       } catch (e) {
-        // If not JSON, get text
-        const textData = await clonedResponse.clone().text();
-        addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+        // If parsing fails
+        addSyncLog(`📥 Response: ${response.status} from ${url} (parsing error)`, 
           response.ok ? 'success' : 'error',
-          textData.length > 0 ? `${textData.substring(0, 500)}${textData.length > 500 ? '...' : ''}` : undefined);
+          e instanceof Error ? e.message : String(e));
       }
     }
     
@@ -102,6 +150,16 @@ export default function SyncScreen() {
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 350);
   const syncStatus = useRegistryStore((state) => state.syncStatus);
+  const [workspaceInviteCode, setWorkspaceInviteCode] = useState<string | null>(null);
+  
+  // Define fontSizes locally since import is causing issues
+  const fontSizes = {
+    xs: 10,
+    sm: 12,
+    md: 14,
+    lg: 16,
+    xl: 18
+  };
   
   // Check authorization on component mount and when premium/username changes
   useEffect(() => {
@@ -213,7 +271,7 @@ export default function SyncScreen() {
   /**
    * Perform a real sync using the actual pocketSync functions
    */
-  const performSync = async (syncType: 'push' | 'pull' | 'both') => {
+  const performSync = React.useCallback(async (syncType: 'push' | 'pull' | 'both') => {
     if (!premium) {
       useToastStore.getState().showToast('Premium required for sync', 'error');
       return;
@@ -254,23 +312,23 @@ export default function SyncScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [premium]);
 
-  // Toggle log details visibility
-  const toggleDetails = (logId: string) => {
+  // Toggle log details visibility with useCallback
+  const toggleDetails = React.useCallback((logId: string) => {
     setShowDetails(prev => ({
       ...prev,
       [logId]: !prev[logId]
     }));
-  };
+  }, []);
   
-  // Clear logs
-  const clearLogs = () => {
+  // Clear logs with useCallback
+  const clearLogs = React.useCallback(() => {
     clearLogQueue();
     setSyncLogs([]);
-  };
+  }, []);
 
-  const handlePremiumToggle = () => {
+  const handlePremiumToggle = React.useCallback(() => {
     // Debug log of current state
     console.log('TOGGLE - Current premium:', premium, 'Username:', username);
     
@@ -301,19 +359,15 @@ export default function SyncScreen() {
     } else if (!isLoading) {
       performSync('both');
     }
-  };
+  }, [premium, username, isLoading, performSync]);
   
   // This function handles the button press specifically
-  const handleSyncButtonPress = () => {
+  const handleSyncButtonPress = React.useCallback(() => {
     console.log('Sync button pressed - checking premium status');
     handlePremiumToggle();
-  };
+  }, [handlePremiumToggle]);
 
-  /**
-   * Zero-arg wrapper for exporting logs so it matches the
-   * `exportLogs: () => void` signature expected by <PremiumLogs/>.
-   */
-  const handleExportLogs = async () => {
+  const handleExportLogs = React.useCallback(async () => {
     try {
       await exportLogs(syncLogs);
     } catch (error) {
@@ -323,7 +377,7 @@ export default function SyncScreen() {
         error instanceof Error ? error.message : String(error),
       );
     }
-  };
+  }, [syncLogs]);
 
   /* ------------------------------------------------------------------ */
   /*                        LIFE-CYCLE LOGGING                          */
@@ -361,6 +415,101 @@ export default function SyncScreen() {
   // Check if user needs to create/join a workspace
   const needsWorkspace = premium && !currentSpaceId;
 
+  // New function to handle leaving workspace
+  const handleLeaveWorkspace = React.useCallback(async () => {
+    if (!currentSpaceId) return;
+    
+    Alert.alert(
+      "Leave Workspace",
+      "Are you sure you want to leave this workspace? Your device will no longer receive sync updates.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Leave",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              addSyncLog("User confirmed leaving workspace", "info");
+              setIsLoading(true);
+              
+              const success = await leaveWorkspace(true);
+              
+              if (success) {
+                setCurrentSpaceId(null);
+                useToastStore.getState().showToast("Successfully left workspace", "success");
+              } else {
+                useToastStore.getState().showToast("Failed to leave workspace", "error");
+              }
+            } catch (error) {
+              addSyncLog(
+                "Error leaving workspace",
+                "error",
+                error instanceof Error ? error.message : String(error)
+              );
+              useToastStore.getState().showToast("Error leaving workspace", "error");
+            } finally {
+              setIsLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  }, [currentSpaceId]);
+
+  // Fetch workspace invite code when currentSpaceId changes
+  useEffect(() => {
+    const fetchWorkspaceDetails = async () => {
+      if (!premium || !currentSpaceId) {
+        setWorkspaceInviteCode(null);
+        return;
+      }
+      
+      try {
+        addSyncLog('🔍 Fetching workspace details', 'verbose');
+        const pb = await getPocketBase();
+        const workspace = await pb.collection('sync_workspaces').getOne(currentSpaceId);
+        
+        if (workspace && workspace.invite_code) {
+          setWorkspaceInviteCode(workspace.invite_code);
+          addSyncLog('✅ Workspace invite code retrieved', 'verbose');
+        } else {
+          setWorkspaceInviteCode(null);
+          addSyncLog('⚠️ Workspace has no invite code', 'warning');
+        }
+      } catch (error) {
+        setWorkspaceInviteCode(null);
+        addSyncLog(
+          '❌ Failed to fetch workspace details', 
+          'error',
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+    };
+    
+    fetchWorkspaceDetails();
+  }, [premium, currentSpaceId]);
+
+  // Copy invite code to clipboard
+  const copyInviteCode = React.useCallback(async () => {
+    if (!workspaceInviteCode) return;
+    
+    try {
+      await Clipboard.setStringAsync(workspaceInviteCode);
+      useToastStore.getState().showToast('Invite code copied to clipboard', 'success');
+      addSyncLog('📋 Workspace invite code copied to clipboard', 'verbose');
+    } catch (error) {
+      useToastStore.getState().showToast('Failed to copy invite code', 'error');
+      addSyncLog(
+        '❌ Failed to copy invite code', 
+        'error',
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }, [workspaceInviteCode]);
+
   return (
     <ScrollView 
       style={[styles.container, { backgroundColor: colors.bg }]} 
@@ -393,19 +542,43 @@ export default function SyncScreen() {
         </XStack>
         
         <XStack alignItems="center" justifyContent="center">
-          <SyncTable isDark={isDark} primaryColor={primaryColor} syncStatus={syncStatus} currentSpaceId={currentSpaceId || ''} deviceId={deviceId} />
+          <SyncTable 
+            isDark={isDark} 
+            primaryColor={primaryColor} 
+            syncStatus={syncStatus} 
+            currentSpaceId={currentSpaceId || ''} 
+            deviceId={deviceId} 
+            inviteCode={workspaceInviteCode}
+            onCopyInviteCode={copyInviteCode}
+          />
         </XStack>
-
-        {needsWorkspace && (
-          <XStack alignItems="center" justifyContent="center">
-            <View style={{ width: contentWidth }}>
-              <NeedsWorkspace isDark={isDark} />
-            </View>
+        
+        {currentSpaceId && premium && (
+          <XStack alignItems="center" justifyContent="center" marginTop={0}>
+            <TouchableOpacity onPress={handleLeaveWorkspace}>
+              <Text 
+                color={colors.error || "#f44336"} 
+                fontSize={fontSizes.sm} 
+                fontWeight="500"
+                textAlign="center"
+                marginBottom={baseSpacing}
+              >
+                Leave Workspace
+              </Text>
+            </TouchableOpacity>
           </XStack>
         )}
 
+        {needsWorkspace && (
+          <NeedsWorkspace 
+            isDark={isDark}
+            onPressCreate={() => setShowAddDevice(true)}
+            onPressJoin={() => setShowAddDevice(true)}
+          />
+        )}
+
         {premium && (
-          <XStack alignItems="center" justifyContent="center">
+          <XStack alignItems="center" justifyContent="center" marginTop={baseSpacing * 2}>
             <View style={{ width: contentWidth }}>
               <PremiumLogs 
                 isLoading={isLoading} 
@@ -428,7 +601,19 @@ export default function SyncScreen() {
       </YStack>
 
       {showAddDevice && (
-        <AddDeviceModal onClose={() => setShowAddDevice(false)} />
+        <AddDeviceModal 
+          onClose={() => setShowAddDevice(false)} 
+          currentWorkspaceId={currentSpaceId}
+          onWorkspaceCreated={(id, inviteCode) => {
+            setCurrentSpaceId(id);
+            setWorkspaceInviteCode(inviteCode);
+            addSyncLog(`Workspace created in AddDeviceModal: ${id}`, "success");
+          }}
+          onWorkspaceJoined={(id) => {
+            setCurrentSpaceId(id);
+            addSyncLog(`Workspace joined in AddDeviceModal: ${id}`, "success");
+          }}
+        />
       )}
     </ScrollView>
   );

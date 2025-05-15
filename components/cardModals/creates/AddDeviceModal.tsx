@@ -175,36 +175,40 @@ export default function AddDeviceModal({
             <Text color={colors.subtext} fontSize={fontSizes.md}>
               How would you like to sync your data?
             </Text>
-            <Button
-              onPress={handleCreateWorkspace}
-              backgroundColor={colors.accentBg}
-              borderColor={colors.accent}
-              borderWidth={2}
-              size="$3"
-              height={44}
-              pressStyle={{ scale: 0.97 }}
-              animation="quick"
-              style={{ borderRadius: buttonRadius }}
-            >
-              <Text color={colors.accent} fontSize={fontSizes.md} fontWeight="600">
-                Create New Workspace
-              </Text>
-            </Button>
-            <Button
-              onPress={handleJoinWorkspace}
-              backgroundColor={colors.card}
-              borderColor={colors.border}
-              borderWidth={2}
-              size="$3"
-              height={44}
-              pressStyle={{ scale: 0.97 }}
-              animation="quick"
-              style={{ borderRadius: buttonRadius }}
-            >
-              <Text color={colors.text} fontSize={fontSizes.md} fontWeight="600">
-                Join Existing Workspace
-              </Text>
-            </Button>
+            <XStack gap={baseSpacing} justifyContent="space-between">
+              <Button
+                onPress={handleCreateWorkspace}
+                backgroundColor={colors.accentBg}
+                borderColor={colors.accent}
+                borderWidth={2}
+                size="$3"
+                height={44}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+                style={{ borderRadius: buttonRadius }}
+                flex={1}
+              >
+                <Text color={colors.accent} fontSize={fontSizes.md} fontWeight="600">
+                  Create New Workspace
+                </Text>
+              </Button>
+              <Button
+                onPress={handleJoinWorkspace}
+                backgroundColor={colors.card}
+                borderColor={colors.border}
+                borderWidth={2}
+                size="$3"
+                height={44}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+                style={{ borderRadius: buttonRadius }}
+                flex={1}
+              >
+                <Text color={colors.text} fontSize={fontSizes.md} fontWeight="600">
+                  Join Existing Workspace
+                </Text>
+              </Button>
+            </XStack>
           </>
         )}
         

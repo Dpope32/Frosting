@@ -11,10 +11,10 @@
   Kaiba Nexus
 </h1>
 
-<div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 30px;">
-  <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 15px 15px;">Web Version</a>
-  <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 15px 15px;">Download on App Store</a>
-  <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 15px 15px;">Privacy Policy</a>
+<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px; width: 100%; margin-bottom: 30px;">
+  <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 10px 0;">Web Version</a>
+  <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 10px 0;">Download on App Store</a>
+  <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 10px 0;">Privacy Policy</a>
 </div>
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
@@ -97,12 +97,11 @@ npx start web-dev
 MIT License - see [LICENSE](LICENSE) for details.
 
 ## Web Calendar Layout
-<div style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
-  <img src="assets/screenshots/web/web2.png" style="width: 100%; max-width: 800px;" />
-  Change the layout of the app by clicking the number in the top right corner
-  <img src="assets/screenshots/web/web3.png" style="width: 100%; max-width: 800px;" />
-  Pick between 3 2 or 1 column layout
-  <img src="assets/screenshots/web/web1.png" style="width: 100%; max-width: 800px;" />
+<div style="margin-top: 30px;">
+  <video controls autoplay muted loop style="width: 100%; max-width: 800px;">
+    <source src="assets/videos/hero-ambient-1.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 </div>
 
 ## Contributing
@@ -115,5 +114,3 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 This project is licensed under the [Creative Commons Attribution-NonCommercial 4.0 International License](https://creativecommons.org/licenses/by-nc/4.0/).  
 You may fork, modify, and submit pull requests, but **commercial use is strictly prohibited** and **credit is required**.
-
-

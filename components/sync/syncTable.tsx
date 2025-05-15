@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, useWindowDimensions } from 'react-native';
+import { View, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { Text, Button, XStack } from 'tamagui';
 import { useUserStore } from '@/store/UserStore';
+import { MaterialIcons } from '@expo/vector-icons';
+
 const baseSpacing = 8;
 const fontSizes = {
   xs: 12,
@@ -32,9 +34,19 @@ interface SyncTableProps {
   syncStatus: string;
   currentSpaceId: string;
   deviceId: string;
+  inviteCode?: string | null;
+  onCopyInviteCode?: () => Promise<void>;
 }
 
-export default function SyncTable({ isDark, primaryColor, syncStatus, currentSpaceId, deviceId }: SyncTableProps) {
+export default function SyncTable({ 
+  isDark, 
+  primaryColor, 
+  syncStatus, 
+  currentSpaceId, 
+  deviceId,
+  inviteCode,
+  onCopyInviteCode
+}: SyncTableProps) {
   const premium = useUserStore((state) => state.preferences.premium === true);
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
@@ -88,6 +100,29 @@ return (
         <Text fontSize={fontSizes.sm} color={colors.text}>
           {deviceId.substring(0, 10)}...
         </Text>
+      </XStack>
+    )}
+    {inviteCode && currentSpaceId && (
+      <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+        <Text fontSize={fontSizes.md} color={colors.subtext}>
+          Invite Code
+        </Text>
+        <TouchableOpacity 
+          onPress={onCopyInviteCode || (() => {})}
+          style={{ 
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            backgroundColor: colors.accentBg,
+            paddingHorizontal: baseSpacing,
+            paddingVertical: baseSpacing / 2,
+            borderRadius: buttonRadius / 2,
+          }}
+        >
+          <Text fontSize={fontSizes.sm} color={colors.accent} marginRight={baseSpacing / 2}>
+            {inviteCode}
+          </Text>
+          <MaterialIcons name="content-copy" size={14} color={colors.accent} />
+        </TouchableOpacity>
       </XStack>
     )}
   </View>

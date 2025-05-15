@@ -3,13 +3,14 @@
 // Purpose: create or join a PocketBase workspace and persist its ID locally.
 // Notes:  
 // • Dropped manual `created` field – PB sets this automatically.  
-// • Minor refactor for readability while we’re still in debug‑mode.  
+// • Minor refactor for readability while we're still in debug‑mode.  
 // ===============================================
 
 import { getPocketBase } from "./pocketSync";
 import * as FileSystem from "expo-file-system";
 import { generateSyncKey } from "@/sync/registrySyncManager";
 import { addSyncLog } from "@/components/sync/syncUtils";
+import { useRegistryStore } from "@/store/RegistryStore";
 
 export interface WorkspaceMeta {
   id: string;
@@ -97,5 +98,71 @@ export const getCurrentWorkspaceId = async (): Promise<string | null> => {
       "warning",
     );
     return null;
+  }
+};
+
+/**
+ * Leave the current workspace by removing the local workspace ID file.
+ * Optionally also remove this device from the workspace's device_ids list.
+ */
+export const leaveWorkspace = async (removeFromServer: boolean = true): Promise<boolean> => {
+  // Check if sync is in progress
+  const syncStatus = useRegistryStore.getState().syncStatus;
+  if (syncStatus === 'syncing') {
+    addSyncLog("Cannot leave workspace while sync is in progress", "warning");
+    return false;
+  }
+  
+  try {
+    // Get current workspace ID and device ID
+    const workspaceId = await getCurrentWorkspaceId();
+    
+    if (!workspaceId) {
+      addSyncLog("No workspace to leave - device is not connected to any workspace", "warning");
+      return false;
+    }
+    
+    addSyncLog(`🚪 Leaving workspace: ${workspaceId}`, "info");
+    
+    // Delete the workspace ID file locally
+    await FileSystem.deleteAsync(
+      `${FileSystem.documentDirectory}workspace_id.txt`,
+      { idempotent: true }
+    );
+    
+    // Optionally remove this device from the workspace record on server
+    if (removeFromServer) {
+      try {
+        const pb = await getPocketBase();
+        const deviceId = await generateSyncKey();
+        
+        // Get current workspace to modify its device_ids list
+        const workspace = await pb.collection("sync_workspaces").getOne(workspaceId);
+        
+        if (workspace) {
+          // Filter out this device ID
+          const updatedDeviceIds = (workspace.device_ids || []).filter(
+            (id: string) => id !== deviceId
+          );
+          
+          // Update workspace with new device list
+          await pb.collection("sync_workspaces").update(workspaceId, {
+            device_ids: updatedDeviceIds,
+          });
+          
+          addSyncLog(`✅ Removed device from workspace on server`, "success");
+        }
+      } catch (serverErr) {
+        // Don't fail if server part fails - still considered successful if local file is deleted
+        addSyncLog(`⚠️ Could not update server (but left workspace locally): ${serverErr}`, "warning");
+      }
+    }
+    
+    addSyncLog(`✅ Successfully left workspace`, "success");
+    return true;
+  } catch (err) {
+    console.error("Error leaving workspace:", err);
+    addSyncLog(`❌ Failed to leave workspace: ${err}`, "error");
+    throw err;
   }
 };

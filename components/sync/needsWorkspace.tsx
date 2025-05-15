@@ -9,9 +9,10 @@ interface NeedsWorkspaceProps {
   isDark: boolean;
   width?: number;
   onPressCreate?: () => void;
+  onPressJoin?: () => void;
 }
 
-export default function NeedsWorkspace({ isDark, width, onPressCreate }: NeedsWorkspaceProps) {
+export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJoin }: NeedsWorkspaceProps) {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
 
   return (
@@ -22,28 +23,36 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate }: NeedsWo
             fontWeight="500" 
             color={isDark ? "#fff" : "#000"}
             textAlign="center"
- >
+        >
             Your device is not connected to a workspace
         </Text>
-        <TouchableOpacity 
-            style={[styles.addWorkspaceButton, { backgroundColor: 'transparent' }]}
-            onPress={onPressCreate}
-        >
-            <XStack alignItems="center" justifyContent="center" gap={8}>
-            <Ionicons name="add-circle-outline" size={20} color={primaryColor} />
-            <Text color={primaryColor} fontWeight="600">Create or Join Workspace</Text>
-            </XStack>
-        </TouchableOpacity>
-        </View>
+        <XStack alignItems="center" justifyContent="center" gap={12} marginTop={8}>
+          <TouchableOpacity 
+              style={[styles.workspaceButton, { borderColor: primaryColor }]}
+              onPress={onPressCreate}
+          >
+              <XStack alignItems="center" justifyContent="center" gap={4}>
+                <Ionicons name="add-circle-outline" size={18} color={primaryColor} />
+                <Text color={primaryColor} fontWeight="600">Create Workspace</Text>
+              </XStack>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+              style={styles.workspaceButton}
+              onPress={onPressJoin}
+          >
+              <XStack alignItems="center" justifyContent="center" gap={4}>
+                <Ionicons name="link-outline" size={18} color={primaryColor} />
+                <Text color={primaryColor} fontWeight="600">Join Workspace</Text>
+              </XStack>
+          </TouchableOpacity>
+        </XStack>
+      </View>
     </YStack>
   )
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      marginBottom: 100,
-    },
     noWorkspaceContainer: {
       width: '100%',
       padding: 10,
@@ -51,13 +60,13 @@ const styles = StyleSheet.create({
       marginBottom: 0,
       alignItems: 'center',
     },
-    addWorkspaceButton: {
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+    workspaceButton: {
+      paddingHorizontal: 14,
+      paddingVertical: 10,
       borderRadius: 8,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: 'rgba(150, 150, 150, 0.3)',
+      backgroundColor: 'transparent',
     },
   });
   

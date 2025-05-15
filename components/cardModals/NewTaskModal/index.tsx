@@ -10,6 +10,7 @@ import { useProjectStore } from '@/store/ToDo'
 import { useUserStore } from '@/store/UserStore'
 import { useToastStore } from '@/store/ToastStore'
 import { syncTasksToCalendar } from '@/services'
+import { scheduleEventNotification } from '@/services/notificationServices'
 import { Base } from './Base'
 import { getDefaultTask, WEEKDAYS } from '@/services/taskService'
 import { RecurrenceSelector } from './RecurrenceSelector'
@@ -44,6 +45,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [keyboardOffset, setKeyboardOffset] = useState(0)
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false)
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false)
+  const [alertMe, setAlertMe] = useState(false)
   const nameInputRef =  React.useRef<any>(null);
   const username = useUserStore((state) => state.preferences.username)
 
@@ -58,6 +60,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setSelectedDate(new Date()); 
       setIsAdvancedSettingsOpen(false);
       setIsDatePickerVisible(false);
+      setAlertMe(false);
     } else {
       setTimeout(() => {
         setShowTimePicker(false);
@@ -67,6 +70,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         setSelectedDate(new Date());
         setIsAdvancedSettingsOpen(false);
         setIsDatePickerVisible(false);
+        setAlertMe(false);
       }, 200);
     }
   }, [open]);
@@ -161,6 +165,43 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     // Don't close advanced settings when the date picker is shown
   }, []);
 
+  const scheduleNotificationForTask = useCallback(async (taskName: string, time: string) => {
+    if (Platform.OS === 'web' || Platform.OS === 'windows' || Platform.OS === 'macos') return;
+
+    try {
+      // Parse the time string and set it on today's date
+      const [hourStr, minuteStr] = time.split(':');
+      const [minutes, period] = minuteStr.split(' ');
+      
+      let hour = parseInt(hourStr);
+      if (period && period.toLowerCase() === 'pm' && hour < 12) {
+        hour += 12;
+      } else if (period && period.toLowerCase() === 'am' && hour === 12) {
+        hour = 0;
+      }
+      
+      const notificationDate = new Date();
+      notificationDate.setHours(hour);
+      notificationDate.setMinutes(parseInt(minutes));
+      notificationDate.setSeconds(0);
+      
+      // If the time is in the past for today, schedule for tomorrow
+      if (notificationDate.getTime() < Date.now()) {
+        notificationDate.setDate(notificationDate.getDate() + 1);
+      }
+      
+      // Schedule the notification
+      await scheduleEventNotification(
+        notificationDate,
+        'Task Reminder',
+        `Time to complete: ${taskName}`,
+        `task-${taskName}-${Date.now()}`
+      );
+    } catch (error) {
+      console.error('Error scheduling notification:', error);
+    }
+  }, []);
+
   const handleAddTask = useCallback(async () => {
     if (isSubmitting) return
     try {
@@ -192,6 +233,12 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         if (taskToAdd.showInCalendar) {
           syncTasksToCalendar()
         }
+        
+        // Schedule notification if alertMe is true and time is set
+        if (alertMe && taskToAdd.time) {
+          await scheduleNotificationForTask(taskToAdd.name, taskToAdd.time);
+        }
+        
         setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 200)
         if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
         showToast('Task added successfully', 'success')
@@ -206,7 +253,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     } finally {
       setIsSubmitting(false)
     }
-  }, [newTask, addTask, onOpenChange, showToast, isSubmitting])
+  }, [newTask, addTask, onOpenChange, showToast, isSubmitting, alertMe, scheduleNotificationForTask])
 
   const handleTagChange = useCallback((tags: Tag[]) => {
     setNewTask(prev => ({ ...prev, tags }))
@@ -283,6 +330,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             primaryColor={preferences.primaryColor}
             isOpen={isAdvancedSettingsOpen}
             onOpenChange={setIsAdvancedSettingsOpen}
+            alertMe={alertMe}
+            onAlertMeChange={setAlertMe}
           />
 
           {!shouldHideSubmitButton && (

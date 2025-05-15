@@ -6,7 +6,12 @@ import { encryptSnapshot } from '@/lib/encryption';
 import * as Sentry from '@sentry/react-native';
 import { useUserStore } from '@/store/UserStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
+import { v4 as uuidv4 } from 'uuid';
+
 const SYNC_KEY = 'registry_sync_key';
+
+let syncKeyCache: string | null = null;
+let syncKeyPromise: Promise<string> | null = null;
 
 /**
  * Generates a pseudo-random 32-byte key using pure JavaScript.
@@ -29,35 +34,54 @@ const generateRandomKey = (): string => {
  * Retrieves or generates a unique sync key stored in AsyncStorage.
  */
 export const generateSyncKey = async (): Promise<string> => {
-  const isPremium = useUserStore.getState().preferences.premium === true;
-  if (!isPremium) return '';
-  Sentry.addBreadcrumb({
-    category: 'sync',
-    message: 'generateSyncKey called',
-    level: 'info',
-  });
-  try {
-    let key = await storage.getString(SYNC_KEY);
-    if (!key) {
-      Sentry.addBreadcrumb({
-        category: 'sync',
-        message: 'No sync key found, generating new',
-        level: 'warning',
-      });
-      key = generateRandomKey();
-      await storage.set(SYNC_KEY, key);
-    }
-    return key;
-  } catch (err) {
-    Sentry.captureException(err);
-    Sentry.addBreadcrumb({
-      category: 'sync',
-      message: 'Error in generateSyncKey',
-      data: { error: err },
-      level: 'error',
-    });
-    throw err;
+  // Return cached key if we have one
+  if (syncKeyCache) {
+    return syncKeyCache;
   }
+  
+  // If we're already generating a key, return the existing promise
+  if (syncKeyPromise) {
+    return syncKeyPromise;
+  }
+  
+  // Create a new promise for generating the key
+  syncKeyPromise = (async () => {
+    try {
+      addSyncLog('🔑 Generating sync key', 'verbose');
+      let key: string;
+      
+      // Try to load existing device key
+      try {
+        key = await FileSystem.readAsStringAsync(
+          `${FileSystem.documentDirectory}/device_id.txt`
+        );
+        addSyncLog('🔓 Loaded existing device key', 'verbose');
+      } catch (e) {
+        // Generate a new key if none exists
+        key = uuidv4();
+        addSyncLog('🆕 Generated new device key', 'verbose');
+        
+        // Save to persistent storage
+        await FileSystem.writeAsStringAsync(
+          `${FileSystem.documentDirectory}/device_id.txt`,
+          key
+        );
+      }
+      
+      // Cache the result
+      syncKeyCache = key;
+      return key;
+    } catch (error) {
+      addSyncLog('⚠️ Error generating sync key', 'error', 
+        error instanceof Error ? error.message : String(error));
+      throw error;
+    } finally {
+      // Clear the promise reference when done
+      syncKeyPromise = null;
+    }
+  })();
+  
+  return syncKeyPromise;
 };
 
 /**

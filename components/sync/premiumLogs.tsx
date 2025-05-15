@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Text, Button, YStack, XStack } from 'tamagui';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
 import { baseSpacing, fontSizes, cardRadius, getColors } from '@/components/sync/sharedStyles';
+import { clearLogQueue, setLogUpdateCallback } from '@/components/sync/syncUtils';
 
 interface PremiumLogsProps {
   isLoading: boolean;
@@ -48,6 +49,16 @@ export const PremiumLogs = ({
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colors = getColors(isDark, primaryColor);
   const fadeAnims = useRef<{[key: string]: Animated.Value}>({});
+
+  // Clean up logs when component unmounts
+  useEffect(() => {
+    return () => {
+      clearLogQueue();
+      // Also unsubscribe from log updates to prevent listener leaks
+      setLogUpdateCallback(null);
+    };
+  }, []);
+
   return (
     <YStack alignItems="center" justifyContent="center" padding={0} >
       <XStack alignItems="center"  marginBottom={-20}>
