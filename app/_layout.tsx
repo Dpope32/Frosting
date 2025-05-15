@@ -8,7 +8,7 @@ import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useCallback } from 'react';
-import { Linking, Platform } from 'react-native';
+import { Linking, Platform, AppState } from 'react-native';
 import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TamaguiProvider } from 'tamagui';
@@ -19,6 +19,7 @@ import * as Notifications from 'expo-notifications';
 import type { NotificationResponse } from 'expo-notifications';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store/UserStore';
+import { useRegistryStore } from '@/store/RegistryStore';
 import { Toast } from '@/components/Toast';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
 import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
@@ -26,6 +27,10 @@ import { EditStockModal } from '@/components/cardModals/edits/EditStockModal';
 import { handleSharedContact } from '../services/shareService';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 
+import { addSyncLog } from '@/components/sync/syncUtils';
+// Preload sync modules to avoid dynamic import issues on Android
+import * as syncModules from '@/sync/snapshotPushPull';
+import * as registryModules from '@/sync/registrySyncManager';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -207,6 +212,78 @@ export default Sentry.wrap(function RootLayout() {
   }, [handleDeepLink]);
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
+
+  // Add background sync for premium users
+  useEffect(() => {
+    if (!loaded) return;
+    
+    const isPremium = useUserStore.getState().preferences.premium === true;
+    if (!isPremium) return;
+    
+    addSyncLog('🔄 Setting up background sync handler', 'verbose');
+    
+    const handleAppStateChange = async (nextAppState: string) => {
+      const currentState = useUserStore.getState().preferences;
+      const isPremium = currentState.premium === true;
+      const username = currentState.username || 'unknown';
+      
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        console.log('App going to background, triggering sync for premium user:', username);
+        
+        if (isPremium) {
+          try {
+            addSyncLog('📱 App going to background - initiating sync', 'info');
+            
+            // Use preloaded modules instead of dynamic imports for Android compatibility
+            try {
+              // Export and push data
+              addSyncLog('🗄️ Background sync: Exporting & encrypting state', 'info');
+              const allStates = useRegistryStore.getState().getAllStoreStates();
+              
+              // Verify we have store data before exporting
+              const storeKeys = Object.keys(allStates);
+              if (storeKeys.length === 0) {
+                addSyncLog('⚠️ Background sync: No store states found to export', 'warning');
+                return;
+              }
+              
+              await registryModules.exportEncryptedState(allStates);
+              addSyncLog('🔐 Background sync: State encrypted & saved', 'success');
+              
+              addSyncLog('📤 Background sync: Pushing snapshot → server', 'info');
+              await syncModules.pushSnapshot();
+              addSyncLog('✅ Background sync: Push completed successfully', 'success');
+            } catch (importError) {
+              console.error('Failed to use sync modules:', importError);
+              addSyncLog(
+                '🔥 Failed to use sync modules',
+                'error',
+                importError instanceof Error ? importError.message : String(importError)
+              );
+            }
+          } catch (error) {
+            console.error('Background sync failed:', error);
+            addSyncLog(
+              '🔥 Background sync failed',
+              'error',
+              error instanceof Error ? error.message : String(error)
+            );
+          }
+        }
+      } else if (nextAppState === 'active') {
+        console.log('App came to foreground');
+        addSyncLog('📱 App returned to foreground', 'verbose');
+      }
+    };
+    
+    // Subscribe to app state changes
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    
+    return () => {
+      subscription.remove();
+      addSyncLog('🔄 Background sync handler removed', 'verbose');
+    };
+  }, [loaded]);
 
   if (!loaded) {
     return null;

@@ -3,7 +3,6 @@ import { generateSyncKey } from '@/sync/registrySyncManager';
 import { useUserStore } from '@/store/UserStore';
 import * as Sentry from '@sentry/react-native';
 import { addSyncLog, LogEntry } from '@/components/sync/syncUtils';
-import { add } from 'lodash';
 
 const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL || 'http://192.168.1.32:8090';
 // We'll use type-only imports to help TypeScript understand the PocketBase types

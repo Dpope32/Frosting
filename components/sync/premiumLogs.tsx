@@ -79,7 +79,6 @@ export const PremiumLogs = ({
         borderColor: colors.border,
         padding: baseSpacing * 2,
         maxHeight: maxHeight || 'auto',
-        overflow: 'scroll'
       }}>
         {/* Log header */}
         <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
@@ -97,11 +96,18 @@ export const PremiumLogs = ({
         </XStack>
         <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
         
-        {/* Log list */}
+        {/* Log list - Fix scrolling for all platforms */}
         <ScrollView 
-          style={{ maxHeight: 400 }}
+          style={{ 
+            maxHeight: 400,
+            // Use height instead of maxHeight for more consistent behavior
+            height: syncLogs.length > 0 ? 350 : 100,
+          }}
           contentContainerStyle={{ paddingBottom: baseSpacing * 3 }}
           showsVerticalScrollIndicator={true}
+          // Add these props for better mobile scrolling
+          nestedScrollEnabled={true}
+          keyboardShouldPersistTaps="handled"
         > 
           <YStack gap={baseSpacing} alignItems="flex-start">
             {syncLogs.map((log) => {
@@ -190,14 +196,14 @@ export const PremiumLogs = ({
             
             {syncLogs.length === 0 && (
               <Text fontSize={fontSizes.sm} color={colors.subtext} alignSelf="center" textAlign="center" padding={baseSpacing * 2}>
-                {isLoading ? 'Waiting for sync to start...' : 'Click one of the sync buttons below to begin'}
+                Sync logs will appear here
               </Text>
             )}
           </YStack>
         </ScrollView>
       </View>
 
-      {/* Sync buttons */}
+
       <YStack 
         alignItems="center"
         marginTop={baseSpacing * 2}
@@ -205,86 +211,49 @@ export const PremiumLogs = ({
         gap={baseSpacing}
         width={contentWidth}
       >
-        <XStack gap={baseSpacing} width="100%">
-          <Button
-            flex={1}
-            height={40}
-            backgroundColor={isDark ? "rgba(59, 130, 246, 0.10)" : "rgba(30, 64, 175, 0.4)"}
-            borderColor={"rgba(59, 130, 246, 0.5)"}
-            fontFamily="$body"
-            br={8}
-            borderWidth={1}
-            alignItems="center"
-            justifyContent="center"
-            pressStyle={{ opacity: 0.7 }}
-            scale={1}
-            opacity={isLoading ? 0.5 : 1}
-            onPress={() => !isLoading && performSync('push')}
-            disabled={isLoading}
-          >
-            <XStack alignItems="center" gap={4} justifyContent="center">
-              <MaterialIcons name="upload" size={14} color={isDark ? "#60a5fa" : "#60a5fa"} />
-              <Text color={isDark ? "#60a5fa" : "#60a5fa"} fontSize={13} fontWeight="500" fontFamily="$body">
-                Push
-              </Text>
-            </XStack>
-          </Button>
-          <Button
-            flex={1}
-            height={40}
-            backgroundColor={isDark ? "rgba(139, 92, 246, 0.10)" : "rgba(91, 33, 182, 0.4)"}
-            borderColor={"rgba(139, 92, 246, 0.5)"}
-            fontFamily="$body"
-            br={8}
-            borderWidth={1}
-            alignItems="center"
-            justifyContent="center"
-            pressStyle={{ opacity: 0.7 }}
-            scale={1}
-            opacity={isLoading ? 0.5 : 1}
-            onPress={() => !isLoading && performSync('pull')}
-            disabled={isLoading}
-          >
-            <XStack alignItems="center" gap={4} justifyContent="center">
-              <MaterialIcons name="download" size={14} color={isDark ? "#a78bfa" : "#a78bfa"} />
-              <Text color={isDark ? "#a78bfa" : "#a78bfa"} fontSize={13} fontWeight="500" fontFamily="$body">
-                Pull
-              </Text>
-            </XStack>
-          </Button>
-        </XStack>
-        
-        <Button
-          width="100%"
-          height={40}
-          backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.7)"}
+        <XStack 
+          padding={baseSpacing * 2}
+          backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.2)"}
           borderColor={"rgba(16, 185, 129, 0.5)"}
-          fontFamily="$body"
-          br={8}
           borderWidth={1}
+          borderRadius={8}
+          width="100%"
           alignItems="center"
           justifyContent="center"
-          pressStyle={{ opacity: 0.7 }}
-          scale={1}
-          onPress={handleSyncButtonPress}
-          opacity={isLoading ? 0.5 : 1}
-          disabled={premium && isLoading}
         >
-          <XStack alignItems="center" gap={4} justifyContent="center">
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#4ade80" />
-            ) : (
+          <Ionicons name="sync-outline" size={16} color="#4ade80" style={{ marginHorizontal: 8 }} />
+          <Text color={isDark ? "#4ade80" : "#047857"} fontSize={13} fontWeight="500" fontFamily="$body" textAlign="center">
+            {!premium 
+              ? 'Premium required for automatic sync across devices'
+              : isLoading 
+                ? 'Sync in progress... Please wait'
+                : 'Local data pulls automatically on app start and pushes local changes when app goes to background'}
+          </Text>
+        </XStack>
+        
+        {!premium && (
+          <Button
+            width="100%"
+            height={40}
+            backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.7)"}
+            borderColor={"rgba(16, 185, 129, 0.5)"}
+            fontFamily="$body"
+            br={8}
+            borderWidth={1}
+            alignItems="center"
+            justifyContent="center"
+            pressStyle={{ opacity: 0.7 }}
+            scale={1}
+            onPress={handleSyncButtonPress}
+          >
+            <XStack alignItems="center" gap={4} justifyContent="center">
               <Ionicons name="water-outline" size={14} color="#4ade80" />
-            )}
-            <Text color="#4ade80" fontSize={13} fontWeight="500" fontFamily="$body">
-              {!premium 
-                ? 'Request Sync Access' 
-                : isLoading 
-                ? 'Syncing...' 
-                : 'Sync Now (Push & Pull)'}
-            </Text>
-          </XStack>
-        </Button>
+              <Text color="#4ade80" fontSize={13} fontWeight="500" fontFamily="$body">
+                Request Sync Access
+              </Text>
+            </XStack>
+          </Button>
+        )}
       </YStack>
 
       {devices.length > 0 && (

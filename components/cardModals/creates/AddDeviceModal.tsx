@@ -17,13 +17,15 @@ type AddDeviceModalProps = {
   currentWorkspaceId?: string | null;
   onWorkspaceCreated?: (id: string, inviteCode: string) => void;
   onWorkspaceJoined?: (id: string) => void;
+  initialMode?: 'create' | 'join';
 };
 
 export default function AddDeviceModal({ 
   onClose, 
   currentWorkspaceId, 
   onWorkspaceCreated, 
-  onWorkspaceJoined 
+  onWorkspaceJoined,
+  initialMode 
 }: AddDeviceModalProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -33,7 +35,11 @@ export default function AddDeviceModal({
   const [inviteCode, setInviteCode] = useState<string>('');
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
   const [inputWorkspaceId, setInputWorkspaceId] = useState<string>('');
-  const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>('choose');
+  const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
+    initialMode === 'create' ? 'creating' : 
+    initialMode === 'join' ? 'joining' : 
+    'choose'
+  );
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
@@ -45,6 +51,13 @@ export default function AddDeviceModal({
   // ➋  – component mount / un-mount
   useEffect(() => {
     addSyncLog('🛠️  AddDeviceModal mounted', 'verbose');
+    
+    // Auto-trigger the appropriate action based on initialMode
+    if (initialMode === 'create' && modalStep === 'creating') {
+      handleCreateWorkspace();
+    }
+    // We don't need to do anything special for join mode since the modalStep is already set to 'joining'
+    
     return () => addSyncLog('📤 AddDeviceModal un-mounted', 'verbose');
   }, []);
 
@@ -165,11 +178,12 @@ export default function AddDeviceModal({
         modalStep === 'connected' ? 'Sync Workspace' : 
         modalStep === 'showCode' ? 'Share Workspace' :
         modalStep === 'joining' ? 'Join Workspace' :
+        modalStep === 'creating' ? 'Creating Workspace' :
         'Sync Setup'
       }
       onClose={onClose}
     >
-      <YStack gap={baseSpacing * 2} padding={baseSpacing}>
+      <YStack gap={baseSpacing} paddingHorizontal={baseSpacing} marginTop={-baseSpacing}>
         {modalStep === 'choose' && (
           <>
             <Text color={colors.subtext} fontSize={fontSizes.md}>

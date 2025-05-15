@@ -4,6 +4,7 @@ import { Text, YStack, XStack, isWeb } from 'tamagui';
 
 import { useUserStore } from '@/store/UserStore';
 import { Ionicons } from '@expo/vector-icons';
+import { baseSpacing } from './sharedStyles';
 
 interface NeedsWorkspaceProps {
   isDark: boolean;
@@ -16,7 +17,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
 
   return (
-    <YStack alignItems="center" justifyContent="center" width={width || '100%'}>
+    <YStack alignItems="center" justifyContent="center" marginTop={-baseSpacing * 1.5} width={width || '100%'}>
       <View style={[styles.noWorkspaceContainer, width ? { width } : undefined]}>
         <Text 
             fontSize={isWeb ? 16 : 14} 
@@ -32,7 +33,6 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
               onPress={onPressCreate}
           >
               <XStack alignItems="center" justifyContent="center" gap={4}>
-                <Ionicons name="add-circle-outline" size={18} color={primaryColor} />
                 <Text color={primaryColor} fontWeight="600">Create Workspace</Text>
               </XStack>
           </TouchableOpacity>
@@ -42,7 +42,6 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
               onPress={onPressJoin}
           >
               <XStack alignItems="center" justifyContent="center" gap={4}>
-                <Ionicons name="link-outline" size={18} color={primaryColor} />
                 <Text color={primaryColor} fontWeight="600">Join Workspace</Text>
               </XStack>
           </TouchableOpacity>

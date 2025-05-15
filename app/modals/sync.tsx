@@ -30,105 +30,112 @@ import {
 import NeedsWorkspace from '@/components/sync/needsWorkspace';
 import * as Clipboard from 'expo-clipboard';
 import { getPocketBase } from '@/sync/pocketSync';
-// Create a custom fetch to intercept and log all network requests
-const originalFetch = global.fetch;
-global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-  // Only log if user is premium
-  const isPremium = useUserStore.getState().preferences.premium === true;
+// Prevent multiple wrappers of fetch during hot reload
+if (!(global as any)._syncFetchWrapped) {
+  // Store original fetch
+  const originalFetch = global.fetch;
   
-  // Fix the URL extraction to handle all input types correctly
-  let url: string;
-  if (typeof input === 'string') {
-    url = input;
-  } else if (input instanceof URL) {
-    url = input.toString();
-  } else {
-    // Must be a Request object
-    url = input.url;
-  }
-  
-  // Log request if premium
-  if (isPremium) {
-    let bodyString = '';
+  global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    // Only log if user is premium
+    const isPremium = useUserStore.getState().preferences.premium === true;
     
-    if (init?.body) {
-      try {
-        if (init.body instanceof FormData) {
-          bodyString = '[FormData object]';
-        } else if (typeof init.body === 'string') {
-          // If body is already a string, use it directly but truncate if needed
-          bodyString = init.body.length > 500 ? init.body.substring(0, 500) + '...' : init.body;
-        } else if (init.body instanceof Blob || init.body instanceof ArrayBuffer) {
-          bodyString = '[Binary data]';
-        } else {
-          // Try to stringify other object types
-          bodyString = JSON.stringify(init.body).substring(0, 500);
-          if (bodyString.length >= 500) bodyString += '...';
-        }
-      } catch (e) {
-        bodyString = '[Unstringifiable body]';
-      }
+    // Fix the URL extraction to handle all input types correctly
+    let url: string;
+    if (typeof input === 'string') {
+      url = input;
+    } else if (input instanceof URL) {
+      url = input.toString();
+    } else {
+      // Must be a Request object
+      url = input.url;
     }
     
-    addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', 
-      init?.body ? `Body: ${bodyString}` : undefined);
-  }
-  
-  try {
-    const response = await originalFetch(input, init);
-    
-    // Only process response logging if premium
+    // Log request if premium
     if (isPremium) {
-      // Clone the response to get its content
-      const clonedResponse = response.clone();
+      let bodyString = '';
       
-      try {
-        const contentType = response.headers.get('content-type') || '';
-        
-        if (contentType.includes('application/json')) {
-          // Try to parse as JSON
-          const jsonData = await clonedResponse.json();
-          const truncatedData = JSON.stringify(jsonData);
-          const displayData = truncatedData.length > 500 
-            ? truncatedData.substring(0, 500) + '...' 
-            : truncatedData;
-          
-          addSyncLog(`📥 Response: ${response.status} from ${url}`, 
-            response.ok ? 'success' : 'error',
-            `Data: ${displayData}`);
-        } else if (contentType.includes('text')) {
-          // Get text for text content types
-          const textData = await clonedResponse.text();
-          const displayText = textData.length > 500 
-            ? textData.substring(0, 500) + '...' 
-            : textData;
-          
-          addSyncLog(`📥 Response: ${response.status} from ${url}`, 
-            response.ok ? 'success' : 'error',
-            textData.length > 0 ? displayText : undefined);
-        } else {
-          // For binary or other types
-          addSyncLog(`📥 Response: ${response.status} from ${url} (${contentType})`, 
-            response.ok ? 'success' : 'error');
+      if (init?.body) {
+        try {
+          if (init.body instanceof FormData) {
+            bodyString = '[FormData object]';
+          } else if (typeof init.body === 'string') {
+            // If body is already a string, use it directly but truncate if needed
+            bodyString = init.body.length > 500 ? init.body.substring(0, 500) + '...' : init.body;
+          } else if (init.body instanceof Blob || init.body instanceof ArrayBuffer) {
+            bodyString = '[Binary data]';
+          } else {
+            // Try to stringify other object types
+            bodyString = JSON.stringify(init.body).substring(0, 500);
+            if (bodyString.length >= 500) bodyString += '...';
+          }
+        } catch (e) {
+          bodyString = '[Unstringifiable body]';
         }
-      } catch (e) {
-        // If parsing fails
-        addSyncLog(`📥 Response: ${response.status} from ${url} (parsing error)`, 
-          response.ok ? 'success' : 'error',
-          e instanceof Error ? e.message : String(e));
       }
+      
+      addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', 
+        init?.body ? `Body: ${bodyString}` : undefined);
     }
     
-    return response;
-  } catch (error) {
-    // Log network errors if premium
-    if (isPremium) {
-      addSyncLog(`❌ Network error with ${url}`, 'error', 
-        error instanceof Error ? error.message : String(error));
+    try {
+      const response = await originalFetch(input, init);
+      
+      // Only process response logging if premium
+      if (isPremium) {
+        // Clone the response to get its content
+        const clonedResponse = response.clone();
+        
+        try {
+          const contentType = response.headers.get('content-type') || '';
+          
+          if (contentType.includes('application/json')) {
+            // Try to parse as JSON
+            const jsonData = await clonedResponse.json();
+            const truncatedData = JSON.stringify(jsonData);
+            const displayData = truncatedData.length > 500 
+              ? truncatedData.substring(0, 500) + '...' 
+              : truncatedData;
+            
+            addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+              response.ok ? 'success' : 'error',
+              `Data: ${displayData}`);
+          } else if (contentType.includes('text')) {
+            // Get text for text content types
+            const textData = await clonedResponse.text();
+            const displayText = textData.length > 500 
+              ? textData.substring(0, 500) + '...' 
+              : textData;
+            
+            addSyncLog(`📥 Response: ${response.status} from ${url}`, 
+              response.ok ? 'success' : 'error',
+              textData.length > 0 ? displayText : undefined);
+          } else {
+            // For binary or other types
+            addSyncLog(`📥 Response: ${response.status} from ${url} (${contentType})`, 
+              response.ok ? 'success' : 'error');
+          }
+        } catch (e) {
+          // If parsing fails
+          addSyncLog(`📥 Response: ${response.status} from ${url} (parsing error)`, 
+            response.ok ? 'success' : 'error',
+            e instanceof Error ? e.message : String(e));
+        }
+      }
+      
+      return response;
+    } catch (error) {
+      // Log network errors if premium
+      if (isPremium) {
+        addSyncLog(`❌ Network error with ${url}`, 'error', 
+          error instanceof Error ? error.message : String(error));
+      }
+      throw error;
     }
-    throw error;
-  }
-};
+  };
+  
+  // Mark as wrapped to prevent multiple wrapping
+  (global as any)._syncFetchWrapped = true;
+}
 
 export default function SyncScreen() {
   const insets = useSafeAreaInsets();
@@ -137,6 +144,7 @@ export default function SyncScreen() {
   const router = useRouter();
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const [showAddDevice, setShowAddDevice] = useState(false);
+  const [initialModalMode, setInitialModalMode] = useState<'create' | 'join' | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [currentSpaceId, setCurrentSpaceId] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState('');
@@ -274,6 +282,7 @@ export default function SyncScreen() {
   const performSync = React.useCallback(async (syncType: 'push' | 'pull' | 'both') => {
     if (!premium) {
       useToastStore.getState().showToast('Premium required for sync', 'error');
+      addSyncLog('🔒 Sync attempt rejected - premium required', 'warning');
       return;
     }
     
@@ -281,28 +290,26 @@ export default function SyncScreen() {
     addSyncLog(`🚀 Starting ${syncType.toUpperCase()} sync`, 'info');
     
     try {
-      // First export the encrypted state (required for push)
-      if (syncType === 'push' || syncType === 'both') {
-        addSyncLog('🗄️  Exporting & encrypting state', 'info');
-        const allStates = useRegistryStore.getState().getAllStoreStates();
-        await exportEncryptedState(allStates);
-        addSyncLog('🔐 State encrypted & saved', 'success');
-        
-        // Push to remote
-        addSyncLog('📤 Pushing snapshot → server', 'info');
-        await pushSnapshot();
-        addSyncLog('✅ Snapshot push success', 'success');
-      }
-      
-      // Pull from remote if requested
+      // FIXED ORDER: Pull first, then push for "both" type
       if (syncType === 'pull' || syncType === 'both') {
         addSyncLog('📥 Pulling latest snapshot ← server', 'info');
         await pullLatestSnapshot();
         addSyncLog('✅ Snapshot pull success', 'success');
       }
       
-      // Finalize
-      addSyncLog(`${syncType.toUpperCase()} sync finished OK`, 'success');
+      // Then push after pulling
+      if (syncType === 'push' || syncType === 'both') {
+        addSyncLog('🗄️  Exporting & encrypting state', 'info');
+        const allStates = useRegistryStore.getState().getAllStoreStates();
+        await exportEncryptedState(allStates);
+        addSyncLog('🔐 State encrypted & saved', 'success');
+        
+        addSyncLog('📤 Pushing snapshot → server', 'info');
+        await pushSnapshot();
+        addSyncLog('✅ Snapshot push success', 'success');
+      }
+      
+      addSyncLog(`${syncType.toUpperCase()} sync finished successfully ✨`, 'success');
     } catch (error) {
       addSyncLog(
         '🔥 performSync() aborted with error',
@@ -510,6 +517,18 @@ export default function SyncScreen() {
     }
   }, [workspaceInviteCode]);
 
+  // Handle workspace creation button press
+  const handleCreateWorkspaceClick = React.useCallback(() => {
+    setInitialModalMode('create');
+    setShowAddDevice(true);
+  }, []);
+
+  // Handle workspace join button press
+  const handleJoinWorkspaceClick = React.useCallback(() => {
+    setInitialModalMode('join');
+    setShowAddDevice(true);
+  }, []);
+
   return (
     <ScrollView 
       style={[styles.container, { backgroundColor: colors.bg }]} 
@@ -572,8 +591,8 @@ export default function SyncScreen() {
         {needsWorkspace && (
           <NeedsWorkspace 
             isDark={isDark}
-            onPressCreate={() => setShowAddDevice(true)}
-            onPressJoin={() => setShowAddDevice(true)}
+            onPressCreate={handleCreateWorkspaceClick}
+            onPressJoin={handleJoinWorkspaceClick}
           />
         )}
 
@@ -602,7 +621,11 @@ export default function SyncScreen() {
 
       {showAddDevice && (
         <AddDeviceModal 
-          onClose={() => setShowAddDevice(false)} 
+          onClose={() => {
+            setShowAddDevice(false);
+            setInitialModalMode(undefined);
+          }} 
+          initialMode={initialModalMode}
           currentWorkspaceId={currentSpaceId}
           onWorkspaceCreated={(id, inviteCode) => {
             setCurrentSpaceId(id);

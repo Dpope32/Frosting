@@ -13,6 +13,10 @@ import { useVaultStore } from '@/store/VaultStore';
 import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
 import { useTagStore } from '@/store/TagStore';
 import { useNoteStore } from '@/store/NoteStore';
+import { addSyncLog } from '@/components/sync/syncUtils';
+
+// The sync modules are already imported in _layout.tsx
+// Don't need to re-import them here as _layout.tsx loads first
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
@@ -23,10 +27,14 @@ export default function Index() {
   const { logSyncStatus, exportStateToFile } = useRegistryStore();
   // Call app initialization hook at the top level (per React rules)
   useAppInitialization();
+  
+  // Initial sync on app startup for premium users - ONLY after hydration is complete
   useEffect(() => {
     if (hasCompletedOnboarding && isPremium) {
+      // Log status but DO NOT export state until after hydration
       logSyncStatus();
-      exportStateToFile();
+      
+      // We don't call syncOnStartup here anymore - wait for hydration
     }
   }, [hasCompletedOnboarding, isPremium]);
   
@@ -55,9 +63,63 @@ export default function Index() {
         ]);
         // Manually load NoteStore
         await useNoteStore.getState().loadNotes();
+        
+        if (isPremium) {
+          addSyncLog('📚 All stores hydrated successfully', 'verbose');
+          
+          // NOW it's safe to export state and sync
+          exportStateToFile();
+          
+          // After successful hydration, now we can run the sync process
+          if (hasCompletedOnboarding) {
+            const syncOnStartup = async () => {
+              try {
+                addSyncLog('🚀 Starting sync after hydration complete', 'info');
+                
+                // Access sync modules from the global scope (imported in _layout.tsx)
+                const syncModules = await import('@/sync/snapshotPushPull');
+                const registryModules = await import('@/sync/registrySyncManager');
+                
+                // Pull first to get latest data
+                addSyncLog('📥 Post-hydration sync: Pulling latest snapshot', 'info');
+                await syncModules.pullLatestSnapshot();
+                addSyncLog('✅ Post-hydration sync: Pull completed', 'success');
+                
+                // Then prepare and push any local changes
+                addSyncLog('🗄️ Post-hydration sync: Exporting state', 'info');
+                const allStates = useRegistryStore.getState().getAllStoreStates();
+                
+                // Verify we have store data before exporting
+                const storeKeys = Object.keys(allStates);
+                if (storeKeys.length === 0) {
+                  addSyncLog('⚠️ No store states found to export', 'warning');
+                  return;
+                }
+                
+                await registryModules.exportEncryptedState(allStates);
+                addSyncLog('🔐 Post-hydration sync: State encrypted', 'success');
+                
+                addSyncLog('📤 Post-hydration sync: Pushing snapshot', 'info');
+                await syncModules.pushSnapshot();
+                addSyncLog('✅ Post-hydration sync: Push completed', 'success');
+              } catch (error) {
+                console.error('Post-hydration sync failed:', error);
+                addSyncLog(
+                  '🔥 Post-hydration sync failed',
+                  'error',
+                  error instanceof Error ? error.message : String(error)
+                );
+              }
+            };
+            
+            syncOnStartup();
+          }
+        }
       } catch (error) {
         if (isPremium) {
           console.error('Sync/export failed:', error);
+          addSyncLog('❌ Store hydration failed', 'error', 
+            error instanceof Error ? error.message : String(error));
         }
       }
     })();
