@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { YStack, Text } from 'tamagui';
+import { YStack, Text, isWeb } from 'tamagui';
 import { useWeatherStore } from '@/store/WeatherStore';
 import { getWeatherIcon } from '@/components/weather/weatherUtils';
 import { getTemperatureColor } from '@/services/weatherServices';
@@ -32,7 +32,24 @@ const HourlyCarousel: React.FC = () => {
 
   // Render each hour
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, paddingVertical: 10, paddingBottom: 12 }} contentContainerStyle={{ paddingLeft: isIpad() ? 18 : 10, paddingRight: isIpad() ? 18 : 10 }}>
+    <ScrollView 
+      horizontal 
+      showsHorizontalScrollIndicator={false} 
+      style={{ 
+        flexGrow: 0, 
+        paddingVertical: 10, 
+        paddingBottom: 12,
+        width: isWeb ? '100%' : undefined 
+      }} 
+      contentContainerStyle={{ 
+        paddingLeft: isIpad() ? 18 : 10, 
+        paddingRight: isIpad() ? 18 : 10,
+        display: isWeb ? 'flex' : undefined,
+        flexDirection: isWeb ? 'row' : undefined,
+        justifyContent: isWeb ? 'space-around' : undefined,
+        width: isWeb ? '100%' : undefined
+      }}
+    >
       {items.map(period => {
         const date = new Date(period.startTime);
         const hour = date.getHours();
@@ -57,19 +74,19 @@ const HourlyCarousel: React.FC = () => {
             justifyContent="center"
             px={isIpad() ? 10 : 7}
             py={isIpad() ? 8 : 4}
-            mx={isIpad() ? 4 : 2}
+            mx={isWeb ? (isIpad() ? 6 : 4) : (isIpad() ? 4 : 2)}
             borderRadius={14}
             backgroundColor={isDark ? 'rgba(40,40,60,0.55)' : 'rgba(255,255,255,0.75)'}
-            minWidth={isIpad() ? 54 : 44}
+            minWidth={isWeb ? (isIpad() ? 64 : 52) : (isIpad() ? 54 : 44)}
             style={{ shadowColor: isDark ? '#000' : '#bbb', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.13, shadowRadius: 3, elevation: 2 }}
           >
-            <Text color={isDark ? '#e0e6f7' : '#23243a'} my={1} fontSize={isIpad() ? 15 : 13} fontWeight="600">
+            <Text color={isDark ? '#e0e6f7' : '#23243a'} my={1} fontSize={isIpad() ? 15 : 13} fontWeight="600" fontFamily="$body">
               {label}
             </Text>
-            <Text mb={1} fontSize={isIpad() ? 28 : 22} style={iconColor ? { color: iconColor } : {}}>
+            <Text mb={1} fontSize={isIpad() ? 28 : 22} style={iconColor ? { color: iconColor } : {}} fontFamily="$body">
               {icon}
             </Text>
-            <Text mt={1} color={tempColor} fontSize={isIpad() ? 19 : 16} fontWeight="800" style={{ marginBottom: 2, letterSpacing: -0.5 }}>
+            <Text mt={1} color={tempColor} fontSize={isIpad() ? 19 : 16} fontWeight="800" style={{ marginBottom: 2, letterSpacing: -0.5 }} fontFamily="$body">
               {`${temp}°`}
             </Text>
           </YStack>

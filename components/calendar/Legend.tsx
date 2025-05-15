@@ -28,8 +28,8 @@ export const Legend: React.FC<LegendProps> = ({ isDark, eventTypes = [] }) => {
     { color: '#2196F3', label: 'Work', type: 'work' },
     { color: '#9C27B0', label: 'Family', type: 'family' },
     { color: '#FF69B4', label: 'Birthdays', type: 'birthday' },
-    { color: '#FF9800', label: 'Tasks', type: 'task' },
-    { color: '#FFD700', label: 'Bills', type: 'bill' },
+    { color: '#FF0000', label: 'Tasks', type: 'task' },
+    { color: '#ff0000', label: 'Bills', type: 'bill' },
   ];
   
   // Filter items to only show types that exist in the calendar
@@ -39,7 +39,7 @@ export const Legend: React.FC<LegendProps> = ({ isDark, eventTypes = [] }) => {
 
   const isWebOrIpad = Platform.OS === 'web' || isIpad();
   
-  // Don't render anything if there are no items to show
+  // Don't render FFD700anything if there are no items to show
   if (items.length === 0) {
     return null;
   }

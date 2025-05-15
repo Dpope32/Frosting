@@ -34,7 +34,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
         backgroundColor={isDark ? "$gray950" : "$gray100"}
       >
         <Animated.View entering={FadeIn.duration(400)}>
-          <Text fontSize={18} fontWeight="500" color={isDark ? "$gray200" : "$gray800"}>
+          <Text fontSize={18} fontWeight="500" color={isDark ? "$gray200" : "$gray800"} fontFamily="$body">
             Loading weather forecast...
           </Text>
         </Animated.View>
@@ -68,7 +68,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   return (
     <Animated.View entering={FadeIn.duration(500)}>
       <YStack
-        marginHorizontal={isIpad() ? 32 : 16}
+        marginHorizontal={isWeb ? 16 : (isIpad() ? 32 : 16)}
         borderRadius={16}
         backgroundColor={cardBg}
         overflow="hidden"
@@ -77,9 +77,10 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
         shadowOpacity={isDark ? 0.45 : 0.18}
         shadowRadius={12}
         elevation={6}
-        maxWidth={isIpad() ? 800 : 400}
+        maxWidth={isWeb ? "80%" : (isIpad() ? 800 : 400)}
         paddingHorizontal={isIpad() ? 28 : 0}
-        minWidth={isIpad() ? 600 : 0}
+        minWidth={isWeb ? "40%" : (isIpad() ? 600 : 0)}
+        width={isWeb ? "80%" : "auto"}
         alignSelf="center"
         pt={isIpad() ? 22 : 0}
         mb={isIpad() ? 16 : 0}
@@ -96,33 +97,33 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
           </View>
           <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(20,22,40,0.18)' : 'rgba(255,255,255,0.18)' }]} />
           <XStack px={0} pt={0} alignItems="center" gap={isIpad() ? 18 : 8} mb={isIpad() ? 8 : 0}>
-            <Text fontSize={isIpad() ? 44 : 34} style={{ marginRight: isIpad() ? 10 : 6 }}>
+            <Text fontSize={isIpad() ? 44 : 34} style={{ marginRight: isIpad() ? 10 : 6 }} fontFamily="$body">
               {isNight ? '🌙' : getWeatherIcon(todayForecast.shortForecast)}
             </Text>
             <YStack flex={1}>
               <XStack alignItems="center" justifyContent="flex-start" ml={isIpad() ? -10 : -10} gap={isIpad() ? 10 : 6}>
-                <Text color={textColor} fontSize={isIpad() ? 28 : 22} fontWeight="700">
+                <Text color={textColor} fontSize={isIpad() ? 28 : 22} fontWeight="700" fontFamily="$body">
                   Today
                 </Text>
               </XStack>
             </YStack>
             <XStack alignItems="center" gap={4} style={{ backgroundColor: isDark ? 'rgba(40,40,60,0.7)' : 'rgba(255,255,255,0.7)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 2, marginLeft: 8 }}>
-              <Text fontSize={isIpad() ? 15 : 13} color={textColor} fontWeight="500" style={{ marginRight: 2 }}>
+              <Text fontSize={isIpad() ? 15 : 13} color={textColor} fontWeight="500" style={{ marginRight: 2 }} fontFamily="$body">
                 Now
               </Text>
-              <Text fontSize={isIpad() ? 28 : 18} fontWeight="600" color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)} style={{ minWidth: 38, textAlign: 'right', letterSpacing: -1 }}>
+              <Text fontSize={isIpad() ? 28 : 18} fontWeight="600" color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)} style={{ minWidth: 38, textAlign: 'right', letterSpacing: -1 }} fontFamily="$body">
                 {todayForecast.temperature !== null ? `${todayForecast.temperature}°` : 'N/A'}
               </Text>
             </XStack>
           </XStack>
           <XStack paddingHorizontal={0} pt={isIpad() ? 8 : 4} justifyContent="space-between" alignItems="center" mb={isIpad() ? 8 : 4}>
             <XStack alignItems="center" justifyContent="center" gap={isIpad() ? 18 : 10}>
-              <Text fontSize={isIpad() ? 18 : 15} color={textColor} fontWeight="500">💨 {todayForecast.windSpeed}</Text>
-              <Text fontSize={isIpad() ? 18 : 15} color={textColor} fontWeight="500">💧 {todayPrecipitation}%</Text>
+              <Text fontSize={isIpad() ? 18 : 15} color={textColor} fontWeight="500" fontFamily="$body">💨 {todayForecast.windSpeed}</Text>
+              <Text fontSize={isIpad() ? 18 : 15} color={textColor} fontWeight="500" fontFamily="$body">💧 {todayPrecipitation}%</Text>
             </XStack>
           </XStack>
           <XStack paddingHorizontal={6} pt={isIpad() ? 8 : 4} justifyContent="space-between" alignItems="center" mb={isIpad() ? 8 : 8}>
-            <Text color={textColor} fontSize={isIpad() ? 18 : 15} fontWeight="600" style={{ opacity: 0.8, marginTop: 2 }}>
+            <Text color={textColor} fontSize={isIpad() ? 18 : 15} fontWeight="600" style={{ opacity: 0.8, marginTop: 2 }} fontFamily="$body">
               {todayForecast.shortForecast}
             </Text>
           </XStack>

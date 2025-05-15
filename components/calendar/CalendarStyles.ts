@@ -8,7 +8,6 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     paddingTop: isWeb ? 80 : 80,
     backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
     ...(Platform.OS === 'web' ? {
-      maxWidth: 1850,
       backgroundColor: '#f0f2f5',
     } as any : {}),
     ...(isIpad() ? {
@@ -45,7 +44,7 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     } as any : {}),
   },
   webMonthWrapper: {
-    width: webColumnCount === 1 ? '100%' : (webColumnCount === 2 ? '49%' : '27%'),
+    width: webColumnCount === 1 ? '100%' : (webColumnCount === 2 ? '49%' : '33%'),
     padding: 0,
     margin: webColumnCount === 1 ? 0 : (webColumnCount === 2 ? 4 : 0),
     backgroundColor: '#0a0a0a',

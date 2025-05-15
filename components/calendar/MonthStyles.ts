@@ -58,7 +58,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   dayCell: {
     width: '14.28%',
-    aspectRatio: 1,
+    aspectRatio: webColumnCount === 3 ? 0.8 : (webColumnCount === 2 ? 0.7 : 1),
     padding: Platform.OS === 'web' ? 3 : 1,
     borderWidth: 0.5,
     borderColor: isDark ? '#333' : '#E8E8E8',
@@ -103,7 +103,8 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    padding: 2
+    padding: 2,
+    overflow: webColumnCount > 1 ? 'hidden' : 'visible'
   },
   pastDateOverlay: {
     opacity: 0.7,
@@ -129,7 +130,8 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
         ? (Platform.OS === 'web' ? 16 : 10)
         : (Platform.OS === 'web' ? 12 : 8)),
     fontWeight: '500',
-    color: isDark ? '#FFFFFF' : '#333333'
+    color: isDark ? '#FFFFFF' : '#333333',
+    zIndex: 10
   },
   today: {
     borderWidth: 2.5,
@@ -140,77 +142,35 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     zIndex: 5,
     elevation: 1,
   },
-  // Icon containers
-  holidayIconContainer: {
-    zIndex: 9999,
-    bottom: 12,
-    left: 0,
-    right: 2,
-    alignItems: 'center',
-    backgroundColor: isDark ? 'rgba(0,50,0,0.7)' : 'rgba(200,255,200,0.9)',
-    borderRadius: 3,
-    paddingVertical: 2,
-    borderWidth: 0.5,
-    borderColor: 'rgba(168, 168, 168, 0.18)',
-    paddingHorizontal: 6,
-
-  },
-  holidayIconText: {
-    fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 13 : 10) 
-      : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 12 : 8) 
-        : (Platform.OS === 'web' ? 10 : 8)),
-    color: isDark ? '#FFFFFF' : '#006400',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    maxWidth: '100%'
-  },
-  billIconContainer: {
+  // Common event container and text styles
+  eventIconContainer: {
     position: 'absolute',
-    bottom: 24,
     right: 4,
     left: 4,
     alignItems: 'center',
-    borderColor: 'rgba(255,0,0,0.5)',
-    borderRadius: 3,
-    borderWidth: 0.5,
+    zIndex: 5,
+    // For multi-month views, ensure events don't overflow the cell
+    maxHeight: webColumnCount === 1 ? 'auto' : (webColumnCount === 2 ? 14 : 16),
+    overflow: 'hidden'
   },
-  billIconText: {
+  eventIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 14 : 9) 
+      ? (Platform.OS === 'web' ? 12 : 8) 
       : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 12 : 6) 
-        : (Platform.OS === 'web' ? 10 : 6)),
-    color: isDark ? '#FF8A80' : '#E57373',
+        ? (Platform.OS === 'web' ? 8 : 5) 
+        : (Platform.OS === 'web' ? 7 : 5)),
     textAlign: 'center',
     maxWidth: '100%',
-    opacity: 0.9
-  },
-  birthdayIconContainer: {
-    zIndex: 9999,
-    bottom: -10,
-    left: 2,
-    right: 2,
-    alignItems: 'center',
-    backgroundColor: isDark ? 'rgba(100,0,100,0.7)' : 'rgba(255,200,255,0.9)',
+    opacity: 0.95,
+    paddingVertical: 1,
+    paddingHorizontal: 2,
     borderRadius: 3,
-    paddingVertical: 2,
-    ...(Platform.OS === 'web' ? {
-      borderWidth: 1,
-      borderColor: isDark ? '#E91E63' : '#880E4F',
+    width: '100%',
+    // For smaller screens/views
+    ...(webColumnCount > 1 ? {
+      lineHeight: webColumnCount === 2 ? 12 : 10,
+      marginVertical: 0
     } : {})
-  },
-  birthdayIconText: {
-    fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 13 : 10) 
-      : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 12 : 8) 
-        : (Platform.OS === 'web' ? 10 : 8)),
-    color: isDark ? '#FFFFFF' : '#880E4F',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    maxWidth: '100%'
   },
   // Dots
   indicatorContainer: {

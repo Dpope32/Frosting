@@ -68,6 +68,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             birthday: false,
             birthdayName: '',
             personal: false,
+            personalName: '',
             work: false,
             family: false,
             bill: false,
@@ -106,6 +107,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           acc[e.date].task = true;
         } else {
           acc[e.date].personal = true;
+          acc[e.date].personalName = e.title || '';
         }
         return acc;
       }, {} as Record<string, {
@@ -123,6 +125,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         holidayColor: string;
         holidayIcon: string;
         teamCode: string | null;
+        personalName: string;
       }>);
   }, [date, events]);
 
@@ -155,7 +158,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const dateKey = currentDate.toISOString().split('T')[0];
           const dayEvents = eventsByDate[dateKey] || {
             birthday: false, birthdayName: '', personal: false, work: false, family: false, bill: false, billName: '',
-            task: false, nba: false, holiday: false, holidayName: '', holidayColor: '', holidayIcon: '', teamCode: null
+            task: false, nba: false, holiday: false, holidayName: '', holidayColor: '', holidayIcon: '', teamCode: null, personalName: ''
           };
 
           const isToday = currentDate.toDateString() === new Date().toDateString();
@@ -203,48 +206,119 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   )}
 
                   {dayEvents.task && (
-                    <View style={styles.taskIconContainer}>
-                      <Text style={styles.taskIconText}>🔔</Text>
+                    <View style={[styles.eventIconContainer, { 
+                      bottom: webColumnCount === 1 ? 10 : (webColumnCount === 2 ? 4 : 2), 
+                      zIndex: 5 
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#FFCC80' : '#FF9800', 
+                        borderColor: isDark ? 'rgba(255,152,0,0.5)' : 'rgba(255,152,0,0.5)', 
+                        borderWidth: 0.5,
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        🔔 Task Due
+                      </Text>
                     </View>
                   )}
             
                   {dayEvents.holiday && (
-                    <View style={styles.holidayIconContainer}>
-                      <Text style={styles.holidayIconText} numberOfLines={1} ellipsizeMode="tail">
-                        {dayEvents.holidayName.length > 12 
-                          ? dayEvents.holidayName.substring(0, 10) + '...' 
-                          : dayEvents.holidayName}
+                    <View style={[styles.eventIconContainer, { 
+                      top: webColumnCount === 1 ? 24 : (webColumnCount === 2 ? 22 : 20),
+                      bottom: 'auto',
+                      zIndex: 5,
+                      width: webColumnCount === 3 ? '90%' : '100%',
+                      right: webColumnCount === 3 ? 'auto' : 4
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#FFFFFF' : '#006400', 
+                        borderColor: isDark ? 'rgba(0,100,0,0.5)' : 'rgba(0,100,0,0.5)', 
+                        borderWidth: 0.5,
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        {dayEvents.holidayName}
                       </Text>
                     </View>
                   )}
 
-                  {!dayEvents.holiday && dayEvents.birthday && (
-                    <View style={styles.birthdayIconContainer}>
-                      <Text style={styles.birthdayIconText} numberOfLines={1} ellipsizeMode="tail">
-                        {dayEvents.birthdayName.length > 12 
-                          ? dayEvents.birthdayName.substring(0, 10) + '...' 
-                          : dayEvents.birthdayName}
+                  {dayEvents.birthday && (
+                    <View style={[styles.eventIconContainer, { 
+                      bottom: webColumnCount === 1 ? 50 : (webColumnCount === 2 ? 70 : 22),
+                      zIndex: 6
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#FF80AB' : '#880E4F', 
+                        borderColor: isDark ? 'rgba(255,105,180,0.5)' : 'rgba(136,14,79,0.5)', 
+                        borderWidth: 0.5,
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        🎂 {dayEvents.birthdayName.replace(/'s Birthday/g, '')} 🎂
                       </Text>
                     </View>
                   )}
             
-                  {!dayEvents.holiday && !dayEvents.birthday && dayEvents.bill && (
-                    <View style={styles.billIconContainer}>
-                      <Text style={styles.billIconText} numberOfLines={1} ellipsizeMode="tail">
+                  {dayEvents.bill && (
+                    <View style={[styles.eventIconContainer, { 
+                      bottom: webColumnCount === 1 ? 30 : (webColumnCount === 2 ? 52 : 12), 
+                      zIndex: 7
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#FF8A80' : '#E57373', 
+                        borderColor: 'rgba(255,0,0,0.5)', 
+                        borderWidth: 0.5, 
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
                         {dayEvents.billName}
                       </Text>
                     </View>
                   )}
             
-                  <View style={styles.indicatorContainer}>
-                    {dayEvents.personal && <View style={[styles.eventDot, { backgroundColor: '#555' }]} />}
-                    {dayEvents.work && <View style={[styles.eventDot, { backgroundColor: '#2196F3' }]} />}
-                    {dayEvents.family && <View style={[styles.eventDot, { backgroundColor: '#9C27B0' }]} />}
-                    {dayEvents.birthday && <View style={[styles.eventDot, { backgroundColor: '#FF69B4' }]} />}
-                    {dayEvents.task && <View style={[styles.eventDot, { backgroundColor: '#FF9800' }]} />}
-                    {dayEvents.bill && <View style={[styles.eventDot, { backgroundColor: '#FF5252' }]} />}
-                  </View>
-            
+                  {dayEvents.personal && (
+                    <View style={[styles.eventIconContainer, { 
+                      bottom: webColumnCount === 1 ? 90 : (webColumnCount === 2 ? 88 : 42),
+                      zIndex: 5 
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#81C784' : '#2E7D32', 
+                        borderColor: isDark ? 'rgba(46,125,50,0.5)' : 'rgba(46,125,50,0.5)', 
+                        borderWidth: 0.5,
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        {dayEvents.personalName ? `👋 ${dayEvents.personalName} 👋` : 'Personal Event'}
+                      </Text>
+                    </View>
+                  )}
+
+                  {dayEvents.work && (
+                    <View style={[styles.eventIconContainer, { 
+                      bottom: webColumnCount === 1 ? 2 : (webColumnCount === 2 ? 16 : 2),
+                      zIndex: 8
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#90CAF9' : '#0D47A1', 
+                        borderColor: isDark ? 'rgba(33,150,243,0.5)' : 'rgba(13,71,161,0.5)', 
+                        borderWidth: 0.5,
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        Work Event
+                      </Text>
+                    </View>
+                  )}
+
+                  {dayEvents.family && (
+                    <View style={[styles.eventIconContainer, { 
+                      bottom: webColumnCount === 1 ? 130 : (webColumnCount === 2 ? 106 : 62),
+                      zIndex: 5 
+                    }]}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#CE93D8' : '#4A148C', 
+                        borderColor: isDark ? 'rgba(156,39,176,0.5)' : 'rgba(74,20,140,0.5)', 
+                        borderWidth: 0.5,
+                        backgroundColor: 'transparent'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        Family Event
+                      </Text>
+                    </View>
+                  )}            
                   {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && nbaTeams.find(t => t.code === dayEvents.teamCode) && (
                     <View style={styles.nbaLogoContainer}>
                       <Image

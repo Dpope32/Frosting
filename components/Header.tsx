@@ -26,6 +26,10 @@ import { useUserStore } from '@/store/UserStore';
 import { isIpad } from '@/utils/deviceUtils';
 import { Bill } from '@/types/bills';
 import type { VaultEntry } from '@/types/vault';
+import { Legend } from '@/components/calendar/Legend';
+import { useCalendarStore } from '@/store/CalendarStore';
+import { getUSHolidays } from '@/services/holidayService';
+
 interface HeaderProps {
   title: string;
   rightElement?: React.ReactNode;
@@ -54,7 +58,9 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const [showArchivedProjectsModal, setShowArchivedProjectsModal] = useState(false);
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
   const username = useUserStore(s => s.preferences.username);
-
+  const { events } = useCalendarStore();
+  
+  // Define isCalendarScreen before using it in useEffect
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
@@ -64,9 +70,35 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isCalendarScreen = route.name === 'calendar';
   const isHabitsScreen = route.name === 'habits';
   const isProjectsScreen = route.name === 'projects';
+  
+  // Calculate active event types for the Legend
+  const [activeEventTypes, setActiveEventTypes] = React.useState<string[]>([]);
+  
+  React.useEffect(() => {
+    if (isCalendarScreen && isWeb) {
+      const currentYear = new Date().getFullYear();
+      const holidays = [
+        ...getUSHolidays(currentYear), 
+        ...getUSHolidays(currentYear + 1)
+      ];
+      
+      const allEvents = [...events, ...holidays];
+      
+      // Extract unique event types from combined events
+      const types: string[] = [];
+      allEvents.forEach(event => {
+        if (event.type && !types.includes(event.type)) {
+          types.push(event.type);
+        }
+      });
+      setActiveEventTypes(types);
+    }
+  }, [events, isCalendarScreen]);
+
   const textColor = isHome ? colorScheme === 'dark' ? '#FCF5E5' : '#fcf5e5' : colorScheme === 'dark' ? '#FCF5E5' : '#000000';
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
   const scale = useSharedValue(1);
+  const isDark = colorScheme === 'dark';
 
   const handleTemperaturePress = () => {
     router.push('/modals/temperature');
@@ -279,6 +311,19 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                 />
               )}
             </XStack>
+            
+            {/* Web Calendar Legend */}
+            {isWeb && isCalendarScreen && activeEventTypes.length > 0 && (
+              <XStack 
+                flex={1} 
+                justifyContent="center" 
+                alignItems="center"
+                style={{ marginLeft: 20, marginRight: 20 }}
+              >
+                <Legend isDark={isDark} eventTypes={activeEventTypes} />
+              </XStack>
+            )}
+            
             <Stack>
               {getRightHeaderElement()}
             </Stack>

@@ -98,9 +98,9 @@ export default function CalendarScreen() {
     const today = new Date();
     today.setDate(1);
     
-    // Set up months
+    // Set up months - now showing 6 months instead of 12
     const monthArr = [];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 6; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
       monthArr.push(d);
     }
@@ -149,7 +149,7 @@ export default function CalendarScreen() {
       styles.container, 
       isDark? { backgroundColor: '#000' }: { backgroundColor: '#f9f9f9' }
     ]}>
-      {activeEventTypes.length > 0 && (
+      {!isWeb && activeEventTypes.length > 0 && (
         <BlurView 
           intensity={isWeb? 2 : isDark ? 15 : 30}
           tint={isDark ? 'dark' : 'light'}
