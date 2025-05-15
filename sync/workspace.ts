@@ -1,11 +1,4 @@
-// ===============================================
 // File: sync/workspace.ts
-// Purpose: create or join a PocketBase workspace and persist its ID locally.
-// Notes:
-// • Dropped manual `created` field – PB sets this automatically.
-// • Minimized array patch to ensure proper update of `device_ids`.
-// ===============================================
-
 import { getPocketBase } from "./pocketSync";
 import * as FileSystem from "expo-file-system";
 import { generateSyncKey } from "@/sync/registrySyncManager";
@@ -16,6 +9,7 @@ export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
 }
+
 /**
  * Create a new workspace or join an existing one if `workspaceId` & `inviteCode` are supplied.
  */
@@ -50,10 +44,13 @@ export const createOrJoinWorkspace = async (
         device_ids: updatedIds,
       });
 
+      // persist locally
       await FileSystem.writeAsStringAsync(
         `${FileSystem.documentDirectory}workspace_id.txt`,
         workspaceId
       );
+      // update in-memory registry store
+      useRegistryStore.getState().setWorkspaceId(workspaceId);
 
       return { id: workspaceId, inviteCode: workspace.invite_code };
     }
@@ -78,15 +75,18 @@ export const createOrJoinWorkspace = async (
       "success"
     );
 
+    // persist locally
     await FileSystem.writeAsStringAsync(
       `${FileSystem.documentDirectory}workspace_id.txt`,
       newWorkspace.id
     );
-
     addSyncLog(
       `📁 Saved workspace ID to file: ${newWorkspace.id}`,
       "verbose"
     );
+
+    // update in-memory registry store
+    useRegistryStore.getState().setWorkspaceId(newWorkspace.id);
 
     return { id: newWorkspace.id, inviteCode: newInviteCode };
   } catch (err) {
@@ -154,6 +154,9 @@ export const leaveWorkspace = async (
       `${FileSystem.documentDirectory}workspace_id.txt`,
       { idempotent: true },
     );
+
+    // clear it in memory, too
+    useRegistryStore.getState().setWorkspaceId(null);
 
     if (removeFromServer) {
       try {

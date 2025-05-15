@@ -23,6 +23,7 @@ import { usePeopleStore } from './People';
 import { useCustomCategoryStore } from './CustomCategoryStore';
 import { useTagStore } from './TagStore';
 import { useProjectStore as useProjectsStore } from './ProjectStore';
+import { addSyncLog } from '@/components/sync/syncUtils';
 
 interface RegistryState {
   hasCompletedOnboarding: boolean;
@@ -141,84 +142,57 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     logSyncStatus: () => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return;
-      // Check if onboarding is completed before logging
-      const hasCompletedOnboarding = useUserStore.getState().preferences.hasCompletedOnboarding;
-      
+    
+      const hasCompletedOnboarding = useUserStore
+        .getState()
+        .preferences.hasCompletedOnboarding;
       if (!hasCompletedOnboarding) {
-        console.log('⏸️ Skipping sync status logging - onboarding not completed');
+        addSyncLog('⏸️ Skipping sync status logging (onboarding incomplete)', 'verbose');
         return;
       }
-      
+    
       const s = get();
       const states = s.getAllStoreStates();
-      console.log(`
-      🌟 Registry Sync Status 🌟
-      🕒 Last Sync: ${new Date(s.lastSyncAttempt).toLocaleString()}
-      📊 Sync Status: ${s.syncStatus}
-      🔔 Notifications: ${s.notificationStatus}
-      📈 Stocks Last Updated: ${new Date(s.stocksLastUpdated).toLocaleString()}
-      📦 Stores Synced:
-  ${Object.entries(states)
-    .map(([k, v]) => `    • ${k}: ${Object.keys(v).length} items`)
-    .join('\n')}
-      💾 Storage Status:
-      • AsyncStorage: ${storage ? '✅ Available' : '❌ Not Available'}
-      `);
+      const summary = [
+        `🕒 Last Sync: ${new Date(s.lastSyncAttempt).toLocaleString()}`,
+        `📊 Sync Status: ${s.syncStatus}`,
+        `🔔 Notifications: ${s.notificationStatus}`,
+        `📈 Stocks Last Updated: ${new Date(s.stocksLastUpdated).toLocaleString()}`,
+        `📦 Stores Synced:`,
+        ...Object.entries(states).map(([k, v]) => `   • ${k}: ${Object.keys(v).length} items`),
+      ].join('\n');
+    
+      addSyncLog(`🌟 Registry Sync Status 🌟\n${summary}`, 'info');
     },
+    
 
     exportStateToFile: async () => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return null;
-      Sentry.addBreadcrumb({
-        category: 'registry',
-        message: 'exportStateToFile called',
-        level: 'info',
-      });
-      // Prevent duplicate exports in quick succession
+    
       const now = Date.now();
       const lastSync = get().lastSyncAttempt;
-      const MIN_SYNC_INTERVAL = 2000; // 2 seconds
-      if (now - lastSync < MIN_SYNC_INTERVAL) {
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'Skipping duplicate export - too soon since last export',
-          level: 'warning',
-        });
-        console.log('⏸️ Skipping duplicate export - too soon since last export');
+      if (now - lastSync < 2000) {
+        addSyncLog('⏸️ Skipping duplicate export (too soon since last)', 'warning');
         return null;
       }
+    
       set({ syncStatus: 'syncing' });
       try {
+        addSyncLog('🔄 Beginning encrypted export', 'info');
         const states = get().getAllStoreStates();
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'Calling exportEncryptedState',
-          data: { statesKeys: Object.keys(states) },
-          level: 'info',
-        });
         const uri = await exportEncryptedState(states);
+    
         set({ syncStatus: 'idle', lastSyncAttempt: now });
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'Encrypted export complete',
-          data: { uri },
-          level: 'info',
-        });
-        console.log('✅ Encrypted export at', uri);
+        addSyncLog(`✅ Encrypted export complete at ${uri}`, 'success');
         return uri;
       } catch (e) {
         set({ syncStatus: 'error' });
-        Sentry.captureException(e);
-        Sentry.addBreadcrumb({
-          category: 'registry',
-          message: 'Error during exportStateToFile',
-          data: { error: e },
-          level: 'error',
-        });
-        console.error('❌ Sync failed', e);
+        addSyncLog(`❌ Export failed: ${(e as Error).message}`, 'error');
         return null;
       }
     },
+    
     
     syncOnboardingWithUser: () => {
       // Keep registry and user store onboarding flags in sync
