@@ -71,7 +71,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
 
   try {
-    addSyncLog("Pulling latest snapshot from PocketBase", "info");
+    addSyncLog("🔄 Pulling latest snapshot from PocketBase", "info");
 
     if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
       addSyncLog("Skipping pull – onboarding not completed", "warning");
@@ -83,34 +83,44 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       return;
     }
 
-    const pb = await getPocketBase();
     const workspaceId = await getCurrentWorkspaceId();
-    if (!workspaceId) throw new Error("No workspace configured");
+    if (!workspaceId) {
+      addSyncLog("No workspace configured, aborting pull", "warning");
+      return;
+    }
 
-    const list = await pb.collection("registry_snapshots").getList(1, 1, {
+    const pb = await getPocketBase();
+    const { items } = await pb.collection("registry_snapshots").getList(1, 1, {
       filter: `workspace_id="${workspaceId}"`,
       sort: "-created",
     });
 
-    if (list.items.length === 0) {
-      addSyncLog("No snapshots found for this workspace", "info");
+    if (items.length === 0) {
+      addSyncLog("📭 No snapshots found on server yet", "info");
       return;
     }
 
-    const blob = list.items[0].snapshot_blob;
+    const cipher = items[0].snapshot_blob as string;
     const key = await generateSyncKey();
 
-    let data: Record<string, unknown>;
+    let plain: Record<string, unknown>;
     try {
-      data = decryptSnapshot(blob, key);
-    } catch (e) {
-      addSyncLog("Decrypt failed – probably an old format", "error");
-      return; // bail gracefully during debug
+      plain = decryptSnapshot(cipher, key);
+    } catch (err) {
+      addSyncLog("❌ Decrypt failed – key mismatch or old format", "error");
+      return;
     }
 
+    // Keep a local copy so future pushes have a baseline
+    await FileSystem.writeAsStringAsync(
+      `${FileSystem.documentDirectory}stateSnapshot.enc`,
+      cipher,
+      { encoding: FileSystem.EncodingType.UTF8 },
+    );
+
     useRegistryStore.getState().setSyncStatus("syncing");
-    useRegistryStore.getState().hydrateAll(data);
-    addSyncLog("Successfully pulled and hydrated data from PocketBase", "info");
+    useRegistryStore.getState().hydrateAll(plain);
+    addSyncLog("✅ Snapshot pulled & stores hydrated", "success");
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(

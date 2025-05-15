@@ -90,6 +90,7 @@ export default function SyncScreen() {
   const { inviteCode } = useWorkspaceDetails(premium, workspaceId, deviceId)
   useSyncStatusLogger(syncStatus, isLoading)
   useLifecycleLogger()
+  useAuthCheck()
   useLogUpdates(premium, setSyncLogs)  
 
   const performSync = React.useCallback(
@@ -232,6 +233,12 @@ export default function SyncScreen() {
               await Clipboard.setStringAsync(inviteCode);
               useToastStore.getState().showToast('Invite code copied', 'success');
               addSyncLog('📋 Invite code copied', 'info');
+            }}
+            onCopyCurrentSpaceId={async () => {
+              if (!workspaceId) return;
+              await Clipboard.setStringAsync(workspaceId);
+              useToastStore.getState().showToast('Current space ID copied', 'success');
+              addSyncLog('📋 Current space ID copied', 'info');
             }}            
           />
         </XStack>

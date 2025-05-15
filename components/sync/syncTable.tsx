@@ -36,6 +36,7 @@ interface SyncTableProps {
   deviceId: string;
   inviteCode?: string | null;
   onCopyInviteCode?: () => Promise<void>;
+  onCopyCurrentSpaceId?: () => Promise<void>;
 }
 
 export default function SyncTable({ 
@@ -45,7 +46,8 @@ export default function SyncTable({
   currentSpaceId, 
   deviceId,
   inviteCode,
-  onCopyInviteCode
+  onCopyInviteCode,
+  onCopyCurrentSpaceId
 }: SyncTableProps) {
   const premium = useUserStore((state) => state.preferences.premium === true);
   const setPreferences = useUserStore((state) => state.setPreferences);
@@ -124,6 +126,29 @@ return (
           <MaterialIcons name="content-copy" size={14} color={colors.accent} />
         </TouchableOpacity>
       </XStack>
+    )}
+    {currentSpaceId && (
+      <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+      <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+        Current Space ID
+      </Text>
+      <TouchableOpacity 
+        onPress={onCopyCurrentSpaceId || (() => {})}
+        style={{ 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          backgroundColor: colors.accentBg,
+          paddingHorizontal: baseSpacing,
+          paddingVertical: baseSpacing / 2,
+          borderRadius: buttonRadius / 2,
+        }}
+      >
+        <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2}>
+          {currentSpaceId}
+        </Text>
+        <MaterialIcons name="content-copy" size={14} color={colors.accent} />
+      </TouchableOpacity>
+    </XStack>
     )}
   </View>
 )

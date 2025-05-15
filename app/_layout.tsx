@@ -212,75 +212,41 @@ export default Sentry.wrap(function RootLayout() {
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
 
-  // Add background sync for premium users
-  useEffect(() => {
-    if (!loaded) return;
-    
-    const isPremium = useUserStore.getState().preferences.premium === true;
-    if (!isPremium) return;
-    
-    addSyncLog('🔄 Setting up background sync handler', 'verbose');
-    
-    const handleAppStateChange = async (nextAppState: string) => {
-      const currentState = useUserStore.getState().preferences;
-      const isPremium = currentState.premium === true;
-      const username = currentState.username || 'unknown';
-      
-      if (nextAppState === 'background' || nextAppState === 'inactive') {
-        console.log('App going to background, triggering sync for premium user:', username);
-        
-        if (isPremium) {
-          try {
-            addSyncLog('📱 App going to background - initiating sync', 'info');
-            
-            // Use preloaded modules instead of dynamic imports for Android compatibility
-            try {
-              // Export and push data
-              addSyncLog('🗄️ Background sync: Exporting & encrypting state', 'info');
-              const allStates = useRegistryStore.getState().getAllStoreStates();
-              
-              // Verify we have store data before exporting
-              const storeKeys = Object.keys(allStates);
-              if (storeKeys.length === 0) {
-                addSyncLog('⚠️ Background sync: No store states found to export', 'warning');
-                return;
-              }
-              
-              await registryModules.exportEncryptedState(allStates);
-              addSyncLog('🔐 Background sync: State encrypted & saved', 'success');
-              
-              addSyncLog('📤 Background sync: Pushing snapshot → server', 'info');
-              await syncModules.pushSnapshot();
-              addSyncLog('✅ Background sync: Push completed successfully', 'success');
-            } catch (importError) {
-              console.error('Failed to use sync modules:', importError);
-              addSyncLog(
-                '🔥 Failed to use sync modules',
-                'error',
-                importError instanceof Error ? importError.message : String(importError)
-              );
-            }
-          } catch (error) {
-            console.error('Background sync failed:', error);
-            addSyncLog(
-              '🔥 Background sync failed',
-              'error',
-              error instanceof Error ? error.message : String(error)
-            );
-          }
+    useEffect(() => {
+      if (!loaded) return;
+
+      const isPremium = useUserStore.getState().preferences.premium === true;
+      if (!isPremium) return;
+
+      addSyncLog('🔄 Setting up AppState sync handler', 'verbose');
+
+      const handleAppStateChange = async (nextAppState: string) => {
+        try {
+          if (nextAppState === 'active') {
+            addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
+          await syncModules.pullLatestSnapshot();
+          addSyncLog('✅ Resume pull completed', 'success');
+        } else if (nextAppState === 'background' || nextAppState === 'inactive') {
+          addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
+          // exportEncryptedState has already been done in your big syncOnStartup,
+          // so just push what’s on disk:
+          await syncModules.pushSnapshot();
+          addSyncLog('✅ Background push completed', 'success');
         }
-      } else if (nextAppState === 'active') {
-        console.log('App came to foreground');
-        addSyncLog('📱 App returned to foreground', 'verbose');
+      } catch (e: any) {
+        addSyncLog(
+          nextAppState === 'active'
+            ? '❌ Resume pull failed'
+            : '❌ Background push failed',
+          'error',
+          e.message
+        );
       }
     };
-    
-    // Subscribe to app state changes
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
     return () => {
       subscription.remove();
-      addSyncLog('🔄 Background sync handler removed', 'verbose');
+      addSyncLog('🔄 AppState sync handler removed', 'verbose');
     };
   }, [loaded]);
 

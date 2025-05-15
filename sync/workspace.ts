@@ -1,17 +1,19 @@
 // File: sync/workspace.ts
 import { getPocketBase } from "./pocketSync";
 import * as FileSystem from "expo-file-system";
-import { generateSyncKey } from "@/sync/registrySyncManager";
+import { exportEncryptedState, generateSyncKey } from "@/sync/registrySyncManager";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { useRegistryStore } from "@/store/RegistryStore";
-
+import { pullLatestSnapshot, pushSnapshot } from "@/sync/snapshotPushPull";
 export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
 }
 
 /**
- * Create a new workspace or join an existing one if `workspaceId` & `inviteCode` are supplied.
+ * Create a new workspace or join an existing one.
+ * – Always writes the workspace ID to disk
+ * – Always exports + pushes a snapshot so other devices have data to pull
  */
 export const createOrJoinWorkspace = async (
   workspaceId?: string,
@@ -23,11 +25,9 @@ export const createOrJoinWorkspace = async (
   try {
     addSyncLog("Creating or joining workspace", "info");
 
-    // ———————————————————————————— JOIN ———————————————————————————
+    // —————————————————— JOIN ——————————————————
     if (workspaceId && inviteCode) {
-      const workspace = await pb
-        .collection("sync_workspaces")
-        .getOne(workspaceId);
+      const workspace = await pb.collection("sync_workspaces").getOne(workspaceId);
       addSyncLog("Workspace found", "info");
 
       if (workspace.invite_code !== inviteCode) {
@@ -35,58 +35,49 @@ export const createOrJoinWorkspace = async (
         throw new Error("Invalid invite code");
       }
 
-      // merge in the new deviceId, dedupe with a Set
-      const updatedIds = Array.from(
-        new Set([...(workspace.device_ids || []), deviceId])
-      );
-
+      // append this device (filter removes empty strings)
       await pb.collection("sync_workspaces").update(workspaceId, {
-        device_ids: updatedIds,
+        device_ids: [...(workspace.device_ids ?? []), deviceId].filter(Boolean),
       });
 
-      // persist locally
       await FileSystem.writeAsStringAsync(
         `${FileSystem.documentDirectory}workspace_id.txt`,
-        workspaceId
+        workspaceId,
       );
-      // update in-memory registry store
-      useRegistryStore.getState().setWorkspaceId(workspaceId);
+
+      // push local state ⇢ server so the workspace has a baseline snapshot
+      await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
+      await pushSnapshot();
+      addSyncLog("✅ Joined workspace, exported + pushed state", "success");
+      // immediately pull the freshest snapshot (could be ours or another device's)
+      await pullLatestSnapshot();
+      addSyncLog("✅ Pulled latest snapshot", "success");
 
       return { id: workspaceId, inviteCode: workspace.invite_code };
     }
 
-    // ———————————————————————————— CREATE ——————————————————————————
-    addSyncLog("📡 Creating new sync workspace...", "info");
+    // —————————————————— CREATE ——————————————————
+    addSyncLog("📡 Creating new sync workspace.", "info");
 
-    const newInviteCode = Math.random()
-      .toString(36)
-      .substring(2, 10)
-      .toUpperCase();
-    const newWorkspace = await pb
-      .collection("sync_workspaces")
-      .create({
-        owner_device_id: deviceId,
-        device_ids: [deviceId],
-        invite_code: newInviteCode,
-      });
+    const newInviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const newWorkspace = await pb.collection("sync_workspaces").create({
+      owner_device_id: deviceId,
+      device_ids: [deviceId],
+      invite_code: newInviteCode,
+    });
 
-    addSyncLog(
-      `✅ Created sync workspace with ID: ${newWorkspace.id}`,
-      "success"
-    );
+    addSyncLog(`✅ Created sync workspace with ID: ${newWorkspace.id}`, "success");
 
-    // persist locally
     await FileSystem.writeAsStringAsync(
       `${FileSystem.documentDirectory}workspace_id.txt`,
-      newWorkspace.id
-    );
-    addSyncLog(
-      `📁 Saved workspace ID to file: ${newWorkspace.id}`,
-      "verbose"
+      newWorkspace.id,
     );
 
-    // update in-memory registry store
-    useRegistryStore.getState().setWorkspaceId(newWorkspace.id);
+    addSyncLog(`📁 Saved workspace ID to file: ${newWorkspace.id}`, "verbose");
+
+    // push first snapshot so future joiners have something to pull
+    await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
+    await pushSnapshot();
 
     return { id: newWorkspace.id, inviteCode: newInviteCode };
   } catch (err) {
@@ -94,6 +85,7 @@ export const createOrJoinWorkspace = async (
     throw err;
   }
 };
+
 
 /**
  * Retrieve the workspace ID saved on-device (or `null` if not set).
