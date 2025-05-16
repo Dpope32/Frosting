@@ -6,8 +6,9 @@ import { generateRandomKey } from "@/sync/randomKey";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { useRegistryStore } from "@/store/RegistryStore";
 import { pullLatestSnapshot, pushSnapshot } from "@/sync/snapshotPushPull";
-
 import { storage } from "@/store/AsyncStorage";
+
+const WS_KEY_PREFIX = 'ws_key_'; 
 export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
@@ -138,7 +139,7 @@ export const leaveWorkspace = async (
 
     // clear it in memory, too
     useRegistryStore.getState().setWorkspaceId(null);
-
+    await storage.delete(`${WS_KEY_PREFIX}${workspaceId}`);
     if (removeFromServer) {
       try {
         const pb = await getPocketBase();

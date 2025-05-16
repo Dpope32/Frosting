@@ -8,6 +8,8 @@ import { useUserStore } from '@/store/UserStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { getCurrentWorkspaceId } from './workspace';
 import { getWorkspaceKey } from './workspaceKey';
+
+const WS_KEY_PREFIX = 'ws_key_'; 
 const SYNC_KEY = 'registry_sync_key';
 
 /**
@@ -39,6 +41,11 @@ export const generateSyncKey = async (): Promise<string> => {
     level: 'info',
   });
   try {
+    const wid = await getCurrentWorkspaceId().catch(() => null);
+    if (wid) {
+      const shared = await storage.getString(`${WS_KEY_PREFIX}${wid}`);
+      if (shared) return shared;                    // ←<<<< use workspace key
+    }
     let key = await storage.getString(SYNC_KEY);
     if (!key) {
       Sentry.addBreadcrumb({
