@@ -217,14 +217,12 @@ export default Sentry.wrap(function RootLayout() {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return;
 
-      addSyncLog('🔄 Setting up AppState sync handler', 'verbose');
 
       const handleAppStateChange = async (nextAppState: string) => {
         try {
           if (nextAppState === 'active') {
             addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
           await syncModules.pullLatestSnapshot();
-          addSyncLog('✅ Resume pull completed', 'success');
         } else if (nextAppState === 'background' || nextAppState === 'inactive') {
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
           // exportEncryptedState has already been done in your big syncOnStartup,

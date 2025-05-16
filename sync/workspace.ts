@@ -7,6 +7,7 @@ import { addSyncLog } from "@/components/sync/syncUtils";
 import { useRegistryStore } from "@/store/RegistryStore";
 import { pullLatestSnapshot, pushSnapshot } from "@/sync/snapshotPushPull";
 import { storage } from "@/store/AsyncStorage";
+import { ensureWorkspaceKey } from "./workspaceKey";
 
 const WS_KEY_PREFIX = 'ws_key_'; 
 export interface WorkspaceMeta {
@@ -40,6 +41,9 @@ export const createOrJoinWorkspace = async (
               .update(workspaceId, { shared_key: sharedKey });
     }
     await storage.set(`ws_key_${workspaceId}`, sharedKey);
+    
+    // Ensure workspace key is properly synchronized
+    await ensureWorkspaceKey(workspaceId);
 
     // add device + save file + push/pull
     await pb.collection('sync_workspaces')
@@ -68,6 +72,9 @@ export const createOrJoinWorkspace = async (
     `${FileSystem.documentDirectory}workspace_id.txt`,
     newWorkspace.id,
   );
+
+  // Ensure workspace key is properly synchronized
+  await ensureWorkspaceKey(newWorkspace.id);
 
   await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
   await pushSnapshot();
@@ -147,8 +154,10 @@ export const leaveWorkspace = async (
         const workspace = await pb
           .collection("sync_workspaces")
           .getOne(workspaceId);
-          const sharedKey = workspace.shared_key as string;          // << add
-        await storage.set(`ws_key_${workspaceId}`, sharedKey); 
+        
+        // Use the ensureWorkspaceKey function
+        await ensureWorkspaceKey(workspaceId);
+          
         const updated = (
           Array.isArray(workspace.device_ids)
             ? workspace.device_ids

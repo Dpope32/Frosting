@@ -1,28 +1,51 @@
 // sync/workspaceKey.ts
 import { storage } from '@/store/AsyncStorage';
 import { getPocketBase } from '@/sync/pocketSync';
-import { generateRandomKey } from '@/sync/randomKey';
 import { addSyncLog } from '@/components/sync/syncUtils';
-export const getWorkspaceKey = async (wsId: string) => {
-  const cacheKey = `ws_key_${wsId}`;
-  let key = await storage.getString(cacheKey);
+import { getCurrentWorkspaceId } from '@/sync/workspace';
 
-  const bad = !key || key.length !== 64;          // empty, wrong length
-  addSyncLog(`Workspace key check: ${key}`, 'info');
-  if (bad) {
-    addSyncLog(`Workspace key is bad: ${key}`, 'info');
-    const pb = await getPocketBase();
-    addSyncLog(`Workspace key fetched from server: ${key}`, 'info');
-    const ws = await pb.collection('sync_workspaces').getOne(wsId);
-    key = ws.shared_key as string;
-    addSyncLog(`Workspace key fetched from server: ${key}`, 'info');
-    if (!key || key.length !== 64) {              // server blank too → mint
-      key = generateRandomKey();
-      await pb.collection('sync_workspaces').update(wsId, { shared_key: key });
-      addSyncLog(`Workspace key generated and saved: ${key}`, 'info');
-    }
-    await storage.set(cacheKey, key);             // cache the good key
-    addSyncLog(`Workspace key cached: ${key}`, 'info');
+export const getWorkspaceKey = async (): Promise<string> => {
+  const wsId = await getCurrentWorkspaceId();
+  addSyncLog(`🔍 Retrieving workspace key for: ${wsId}`, 'info');
+  if (!wsId) {
+    addSyncLog('❌ No workspace ID found', 'error');
+    throw new Error('No workspace ID found');
   }
-  return key;
+
+  const pb = await getPocketBase();
+  addSyncLog(`🔍 Retrieving workspace key from PocketBase`, 'info');
+  const { shared_key } = await pb.collection('sync_workspaces').getOne(wsId);
+  if (!shared_key) {
+    addSyncLog('❌ No shared key in workspace record', 'error');
+    throw new Error('Workspace has no shared_key');
+  }
+
+  await storage.set(`ws_key_${wsId}`, shared_key);   // cache
+  addSyncLog(`🔑 Retrieved workspace key: ${shared_key.slice(0,6)}...${shared_key.slice(-6)}`, 'info');
+  return shared_key as string;
+};
+
+/**
+ * Ensures the device has the correct workspace key by fetching it from PocketBase
+ * and storing it locally. This should be called when joining a workspace.
+ */
+export const ensureWorkspaceKey = async (workspaceId: string): Promise<boolean> => {
+  try {
+    const pb = await getPocketBase();
+    
+    // Get the workspace record
+    const workspace = await pb.collection('sync_workspaces').getOne(workspaceId);
+    const remoteKey = workspace.shared_key;
+    
+    if (!remoteKey) {
+      return false;
+    }
+    
+    // Always update the key to ensure it's correct
+    await storage.set(`ws_key_${workspaceId}`, remoteKey);
+    
+    return true;
+  } catch (error) {
+    return false;
+  }
 };

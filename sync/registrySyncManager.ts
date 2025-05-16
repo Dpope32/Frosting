@@ -8,6 +8,7 @@ import { useUserStore } from '@/store';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { getCurrentWorkspaceId } from './workspace';
 import { getWorkspaceKey } from './workspaceKey';
+import { getPocketBase } from './pocketSync';
 
 const WS_KEY_PREFIX = 'ws_key_'; 
 const SYNC_KEY = 'registry_sync_key';
@@ -33,38 +34,39 @@ export const generateRandomKey = (): string => {
  * Retrieves or generates a unique sync key stored in AsyncStorage.
  */
 export const generateSyncKey = async (): Promise<string> => {
-  const isPremium = useUserStore.getState().preferences.premium === true;
-  if (!isPremium) return '';
-  Sentry.addBreadcrumb({
-    category: 'sync',
-    message: 'generateSyncKey called',
-    level: 'info',
-  });
+  // key can exist for free users; premium just gates network sync
+  addSyncLog('🔐 Generating sync key for device', 'info');
+  
   try {
     const wid = await getCurrentWorkspaceId().catch(() => null);
     if (wid) {
-      const shared = await storage.getString(`${WS_KEY_PREFIX}${wid}`);
-      if (shared) return shared;                    // ←<<<< use workspace key
+      addSyncLog(`🔍 Checking for workspace key for: ${wid}`, 'info');
+      const keyPath = `${WS_KEY_PREFIX}${wid}`;
+      const shared = await storage.getString(keyPath);
+      
+      if (shared) {
+        addSyncLog(`🔑 Found workspace key: ${shared.slice(0,6)}...${shared.slice(-6)}`, 'info');
+        return shared;  // ←<<<< use workspace key
+      } else {
+        addSyncLog(`⚠️ No workspace key found at ${keyPath}`, 'warning');
+      }
     }
+    
+    addSyncLog('🔍 Checking for device sync key', 'info');
     let key = await storage.getString(SYNC_KEY);
     if (!key) {
-      Sentry.addBreadcrumb({
-        category: 'sync',
-        message: 'No sync key found, generating new',
-        level: 'warning',
-      });
+      addSyncLog('⚠️ No sync key found, generating new random key', 'warning');
       key = generateRandomKey();
       await storage.set(SYNC_KEY, key);
+      addSyncLog(`🔑 Generated new key: ${key.slice(0,6)}...${key.slice(-6)}`, 'info');
+    } else {
+      addSyncLog(`🔑 Using existing device key: ${key.slice(0,6)}...${key.slice(-6)}`, 'info');
     }
     return key;
   } catch (err) {
+    addSyncLog('❌ Error in generateSyncKey', 'error', 
+      err instanceof Error ? err.message : String(err));
     Sentry.captureException(err);
-    Sentry.addBreadcrumb({
-      category: 'sync',
-      message: 'Error in generateSyncKey',
-      data: { error: err },
-      level: 'error',
-    });
     throw err;
   }
 };
@@ -75,8 +77,6 @@ export const generateSyncKey = async (): Promise<string> => {
  * @returns URI of the encrypted file.
  */
 export const exportEncryptedState = async (allStates: Record<string, any>): Promise<string> => {
-  const isPremium = useUserStore.getState().preferences.premium === true;
-  if (!isPremium) return '';
   addSyncLog('Exporting encrypted state', 'info');
   Sentry.addBreadcrumb({
     category: 'sync',
@@ -84,8 +84,10 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     level: 'info',
   });
   try {
-   const wsId = await getCurrentWorkspaceId();
-   const key = wsId ? await getWorkspaceKey(wsId!) : await generateSyncKey();
+    const wsId = await getCurrentWorkspaceId();
+    
+    // This call is already correct (no parameter passed)
+    const key = wsId ? await getWorkspaceKey() : await generateSyncKey();
     if (!key) {
       addSyncLog('Failed to generate or retrieve encryption key', 'error');
       throw new Error('Failed to generate or retrieve encryption key');
@@ -115,5 +117,45 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     });
     addSyncLog('Error in exportEncryptedState', 'error');
     throw err;
+  }
+};
+
+// Add this new function to explicitly check and log the key comparison
+export const checkKeySync = async (workspaceId: string): Promise<boolean> => {
+  addSyncLog(`🧪 Checking key synchronization for workspace: ${workspaceId}`, 'info');
+  
+  try {
+    // Get the workspace shared key
+    const wsKeyPath = `${WS_KEY_PREFIX}${workspaceId}`;
+    const wsKey = await storage.getString(wsKeyPath);
+    
+    if (!wsKey) {
+      addSyncLog('❌ No workspace key found locally', 'error');
+      return false;
+    }
+    
+    // Get the actual workspace record to compare shared_key
+    const pb = await getPocketBase();
+    const workspace = await pb.collection('sync_workspaces').getOne(workspaceId);
+    
+    const remoteKey = workspace.shared_key;
+    
+    addSyncLog(`🔑 Local key: ${wsKey.slice(0,6)}...${wsKey.slice(-6)}`, 'info');
+    addSyncLog(`🔑 Remote key: ${remoteKey.slice(0,6)}...${remoteKey.slice(-6)}`, 'info');
+    
+    const keysMatch = wsKey === remoteKey;
+    addSyncLog(keysMatch ? '✅ Keys match!' : '❌ Keys mismatch!', keysMatch ? 'success' : 'error');
+    
+    if (!keysMatch) {
+      // Update local key to match remote
+      addSyncLog('🔄 Updating local key to match remote', 'info');
+      await storage.set(wsKeyPath, remoteKey);
+    }
+    
+    return keysMatch;
+  } catch (err) {
+    addSyncLog('❌ Error checking key sync', 'error', 
+      err instanceof Error ? err.message : String(err));
+    return false;
   }
 };

@@ -2,9 +2,9 @@
 // File: sync/snapshotPushPull.ts
 // Purpose: push / pull encrypted snapshots to PocketBase.
 // Notes:  
-// • Removed redundant `timestamp` property; rely on PB’s `created` field.  
+// • Removed redundant `timestamp` property; rely on PB's `created` field.  
 // • Added final `setSyncStatus('idle')` on success paths.  
-// • Graceful decrypt failures while we’re iterating.  
+// • Graceful decrypt failures while we're iterating.  
 // ===============================================
 
 import * as FileSystem from "expo-file-system";
@@ -16,6 +16,7 @@ import * as Sentry from "@sentry/react-native";
 import { checkNetworkConnectivity, getPocketBase } from "./pocketSync";
 import { getCurrentWorkspaceId } from "./workspace";
 import { addSyncLog } from "@/components/sync/syncUtils";
+import { getWorkspaceKey } from "./workspaceKey";
 
 // ————————————————————— PUSH ——————————————————————
 export const pushSnapshot = async (): Promise<void> => {
@@ -96,6 +97,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       addSyncLog("No workspace configured, aborting pull", "warning");
       return;
     }
+    addSyncLog(`📦 Using workspace ID: ${workspaceId}`, "info");
 
     const pb = await getPocketBase();
     const { items } = await pb.collection("registry_snapshots").getList(1, 1, {
@@ -109,13 +111,19 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
 
     const cipher = items[0].snapshot_blob as string;
-    const key = await generateSyncKey();
+    addSyncLog(`📦 Found snapshot from device: ${items[0].device_id}`, "info");
+    
+    const key = await getWorkspaceKey();
+    addSyncLog(`🔑 Using decryption key: ${key.slice(0,6)}...${key.slice(-6)}`, "info");
 
     let plain: Record<string, unknown>;
     try {
+      addSyncLog(`🔓 Attempting to decrypt snapshot using key`, "info");
       plain = decryptSnapshot(cipher, key);
+      addSyncLog(`✅ Snapshot decrypted successfully`, "success");
     } catch (err) {
-      addSyncLog("❌ Decrypt failed – key mismatch or old format", "error");
+      addSyncLog(`❌ Decrypt failed – key mismatch or old format`, "error");
+      addSyncLog(`🔍 Encryption error details: ${err instanceof Error ? err.message : String(err)}`, "error");
       return;
     }
 
