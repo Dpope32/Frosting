@@ -97,18 +97,12 @@ npx start web-dev
 MIT License - see [LICENSE](LICENSE) for details.
 
 ## Web Calendar Layout
-<div style="margin-top: 30px;">
-  <video controls autoplay muted loop style="width: 100%; max-width: 800px;">
-    <source src="assets/videos/hero-ambient-1.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
+![Web Calendar Demo](assets/videos/hero-ambient-1.gif)
 
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request. 
-  - The current workflow involves running npx expo-doctor on every push to ensure the project's health.
-    - This is automatically done through github actions.
+  - On every commit, github actions runs npx expo-docotr and yarn install
 
 ## License
 

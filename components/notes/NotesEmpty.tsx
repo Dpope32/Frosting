@@ -106,7 +106,6 @@ export const NotesEmpty = ({
                 key={index}
                 title={getExampleNoteTitle(index)} 
                 onPress={() => handleExampleNotePress(index)} 
-                isDark={isDark}
                 index={index}
               />
             ))}

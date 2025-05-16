@@ -11,7 +11,7 @@ export interface NoteExampleChipProps {
 export const NoteExampleChip: React.FC<NoteExampleChipProps> = ({ 
   title, 
   onPress, 
-  index
+  index,
 }) => {
   const getChipStyle = () => {
     const styles = [
