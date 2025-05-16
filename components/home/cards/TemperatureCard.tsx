@@ -2,8 +2,8 @@
 import { Stack, Text, Spinner, isWeb } from 'tamagui';
 import React, { useEffect, useRef } from 'react';
 import { useUserStore, useWeatherQuery, useWeatherStore } from '@/store';
-import { getValueColor } from '@/constants/valueHelper';    
-import { isIpad } from '@/utils/deviceUtils';
+import { getValueColor } from '@/constants';    
+import { isIpad } from '@/utils';
 
 const ONE_HOUR = 1000 * 60 * 60;
 

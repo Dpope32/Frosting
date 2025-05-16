@@ -4,11 +4,11 @@ import { Pressable, Platform, useColorScheme} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useBills } from '@/hooks';
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services';
-import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
+import { BillRecommendationCategory } from '@/constants/';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
 import { Bill } from '@/types';
-import { getChipStyle } from '@/utils/recChipStyles';
+import { getChipStyle } from '@/utils';
 
 interface BillsListModalProps {
   open: boolean

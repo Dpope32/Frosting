@@ -11,7 +11,7 @@ import { AttachmentSelector } from '@/components/projects/ProjectCard/modal/atta
 import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer';
 import { Attachment } from '@/types';
 import type { Project, Tag, Person } from '@/types';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { DeadlineInputter } from '@/components/projects/ProjectCard/modal/deadlineInputter'; 
 import { TasksInModal } from '@/components/projects/ProjectCard/modal/tasksInModal';
 import { MaterialIcons } from '@expo/vector-icons';

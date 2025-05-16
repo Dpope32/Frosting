@@ -2,7 +2,7 @@ import React from 'react'
 import { Image, ImageSourcePropType } from 'react-native'
 import { YStack, XStack, Text, Circle, isWeb } from 'tamagui';
 import { DebouncedInput } from '../../shared/debouncedInput'
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import type { Settings } from './utils'
 

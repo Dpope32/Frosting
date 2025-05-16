@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { Stack, Spinner, isWeb } from 'tamagui';
 import { useNetworkSpeed } from '@/hooks/useNetworkSpeed';
 import { getActiveBarColor } from '@/utils/styleUtils';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface WifiCardProps {
   isHome?: boolean;

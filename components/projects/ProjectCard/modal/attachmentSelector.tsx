@@ -3,7 +3,7 @@ import { YStack, XStack, Text, Button, ScrollView } from 'tamagui';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Attachment } from '@/types';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer';
 

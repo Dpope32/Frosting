@@ -3,7 +3,7 @@ import React from 'react'
 import { Pressable, View } from 'react-native'
 import { XStack, Text } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { Bell } from '@tamagui/lucide-icons'
 
 interface AlertMeSelectorProps {

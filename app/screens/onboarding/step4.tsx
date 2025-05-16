@@ -3,8 +3,7 @@ import { YStack, Input, Label, Text, Button } from 'tamagui'
 import { FormData } from '@/types'
 import {  Platform } from 'react-native'
 import { useState, useEffect } from 'react'
-import { validateZipCode, FALLBACK_ZIP_CODES } from '@/utils/zipCodeValidator'
-import { isIpad } from '@/utils/deviceUtils'
+import { validateZipCode, FALLBACK_ZIP_CODES, isIpad } from '@/utils'
 
 export default function Step4({
   formData,

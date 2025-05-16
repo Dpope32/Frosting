@@ -1,7 +1,7 @@
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { XStack, Text, Button } from 'tamagui';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import type { Project } from '@/types';
 
 type ProjectStatus = Project['status'];

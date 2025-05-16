@@ -8,9 +8,9 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRouter } from 'expo-router';
 import { useMarkdownStyles } from '@/hooks';
 import type { TextStyle } from 'react-native';
-import { CHANGELOG } from '@/constants/changelog';
+import { CHANGELOG } from '@/constants';
 import { useUserStore } from '@/store';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import Animated, { FadeIn, FadeInDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 export default function ChangeLog() {

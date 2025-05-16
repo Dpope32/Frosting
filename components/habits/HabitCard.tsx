@@ -4,12 +4,11 @@ import { XStack, YStack, Text } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getCategoryColor } from '@/utils/styleUtils';
+import { getCategoryColor, isIpad } from '@/utils';
 import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/types';
 import { useToastStore } from '@/store'
 import { LongPressDelete } from '@/components/common/LongPressDelete';
-import { isIpad } from '@/utils/deviceUtils';
 
 interface HabitCardProps {
   habit: Habit;

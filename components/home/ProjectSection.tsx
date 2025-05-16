@@ -3,7 +3,7 @@ import { Platform } from 'react-native'
 import { YStack } from 'tamagui'
 import { useProjectStore } from '@/store'
 import { ProjectPreviewCard } from '@/components/home/ProjectPreviewCard'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { useRouter } from 'expo-router'
 
 // This component previews a list of projects for the user on **mobile only**.

@@ -3,7 +3,7 @@ import { Text, XStack } from 'tamagui';
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, getCategoryIcon } from '@/utils/styleUtils';
+import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, getCategoryIcon, isIpad } from '@/utils';
 import { useCustomCategoryStore, useUserStore } from '@/store'
 import { TaskPriority, TaskCategory, RecurrencePattern, Tag } from '@/types';
 

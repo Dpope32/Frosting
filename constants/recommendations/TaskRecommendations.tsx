@@ -3,7 +3,7 @@ import { Platform } from 'react-native'
 import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { RecurrencePattern, TaskCategory, WeekDay } from '@/types'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 export interface RecommendedTask {
   name: string

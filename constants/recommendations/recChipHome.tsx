@@ -2,7 +2,7 @@ import React from 'react'
 import { Platform } from 'react-native'
 import { XStack, Button, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { RecommendationChipProps } from './TaskRecommendations'
 
 export const RecommendationChipHome: React.FC<RecommendationChipProps> = ({ category, onPress, isDark = false, width }) => {

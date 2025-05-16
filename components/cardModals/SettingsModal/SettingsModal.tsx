@@ -9,7 +9,7 @@ import { ColorPickerModal } from '../shared/ColorPickerModal'
 import { BlurView } from 'expo-blur'
 import * as Sentry from '@sentry/react-native';
 import { useCustomWallpaper } from '@/hooks/useCustomWallpaper';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { TopSection } from './topSection';
 import { Switches } from './switches';
 import { MobileSwitches } from './mobileSwitches';

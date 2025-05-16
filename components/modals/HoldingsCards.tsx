@@ -2,9 +2,8 @@ import React from 'react'
 import { useColorScheme, StyleSheet, Platform } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { portfolioData } from '@/utils/Portfolio'
+import { portfolioData, getStockValueColor } from '@/utils'
 import { usePortfolioStore } from '@/store'
-import { getStockValueColor } from '@/utils/styleUtils'
 import Animated, { FadeIn } from 'react-native-reanimated'
 
 interface HoldingsCardsProps {

@@ -3,7 +3,7 @@ import { TextInput, Platform } from 'react-native'
 import { Input} from 'tamagui'
 import { DebouncedInputProps } from '@/types'
 import { useColorScheme } from '@/hooks'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 // Define the handle type
 export interface DebouncedInputHandle {
   setValue: (newValue: string) => void;

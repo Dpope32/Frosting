@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Platform } from 'react-native';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 type ViewMode = 'month' | 'week';
 

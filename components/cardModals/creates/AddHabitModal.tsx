@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { NotificationTimePicker } from '@/components/shared/NotificationTimePicker';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface AddHabitModalProps {
   isVisible: boolean;

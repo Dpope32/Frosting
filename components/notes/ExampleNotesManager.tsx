@@ -1,4 +1,4 @@
-import { generateTestNotes } from '@/constants/devNotes';
+import { generateTestNotes } from '@/constants';
 import { Note } from '@/types';
 
 export interface ExampleNotesManagerProps {

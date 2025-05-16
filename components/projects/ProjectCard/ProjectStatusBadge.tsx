@@ -2,7 +2,7 @@ import React from 'react'
 import { XStack, Text, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types'
-import { getPriorityColor } from '@/utils/styleUtils'
+import { getPriorityColor } from '@/utils'
 
 export const ProjectStatusBadge = ({ project, isDark }: { project: Project; isDark: boolean }) => {
   const priorityColor = getPriorityColor(project.priority)

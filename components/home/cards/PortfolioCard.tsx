@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { isWeb, Stack, Text } from 'tamagui';
-import { getValueColor } from '@/constants/valueHelper';
+import { getValueColor } from '@/constants';
 import { usePortfolioQuery, usePortfolioStore } from '@/store';
 import { StorageUtils } from '@/store/AsyncStorage';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface PortfolioCardProps {
   roundToWholeNumber?: boolean;

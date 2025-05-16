@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
 import { usePeopleStore } from "@/store";
 import type { Tag } from '@/types';
-import { generateId } from '@/constants/devNotes';
+import { generateId } from '@/constants';
 
 const getRandomProfilePicture = () => {
   const gender = Math.random() > 0.5 ? "men" : "women";

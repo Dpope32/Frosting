@@ -1,7 +1,4 @@
-import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
-import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
-
-export type ReccomendationCategory = VaultRecommendationCategory | BillRecommendationCategory ;
+import { ReccomendationCategory } from './styleUtils';
 
 
 export const getChipStyle = (category: ReccomendationCategory) => {

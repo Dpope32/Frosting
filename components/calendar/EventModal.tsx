@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal, Alert, StyleSheet } from 'react-native'
 import { isWeb, XStack } from 'tamagui'
-import { withOpacity } from '@/utils/styleUtils'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { format, parse } from 'date-fns'
-import { getCategoryColor } from '@/utils/styleUtils';
+import { getCategoryColor, isIpad, withOpacity } from '@/utils';
 import { TaskCategory } from '@/types';
 import { Ionicons } from '@expo/vector-icons'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
@@ -15,8 +14,7 @@ import { EventPreview } from './EventPreview'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { styles } from './EventStyles'
 import { EventModalProps } from '../../types/modal'
-import { NOTIFICATION_TIME_OPTIONS } from '@/constants/notifications'
-import { isIpad } from '@/utils/deviceUtils'
+import { NOTIFICATION_TIME_OPTIONS } from '@/constants'
 
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,

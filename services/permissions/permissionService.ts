@@ -5,7 +5,7 @@ import * as Notifications from 'expo-notifications';
 import * as ImagePicker from 'expo-image-picker';
 import * as Contacts from 'expo-contacts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PERMISSIONS_EXPLAINED_KEY } from '@/constants/KEYS';
+import { PERMISSIONS_EXPLAINED_KEY } from '@/constants';
 
 // Import Calendar conditionally to avoid issues on web
 let Calendar: any = null;

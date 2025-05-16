@@ -1,6 +1,4 @@
-import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
-import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
-import { getValueColor } from '@/constants/valueHelper';
+import { VaultRecommendationCategory, BillRecommendationCategory, getValueColor } from '@/constants';
 import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types';
 
 export type ReccomendationCategory = VaultRecommendationCategory | BillRecommendationCategory ;

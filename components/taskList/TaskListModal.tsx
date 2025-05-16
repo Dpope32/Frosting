@@ -10,12 +10,11 @@ import { TaskItem } from './taskItem'
 import { useProjectStore } from '@/store/ToDo'
 import { useBillStore, useRecommendationStore, useEditTaskStore, useToastStore, useUserStore, useCustomCategoryStore } from '@/store'
 import { RecurrencePattern, Task } from '@/types'
-import { RecommendationCategory, RecommendationChip } from '@/constants/recommendations/TaskRecommendations'
+import { RecommendationCategory, RecommendationChip } from '@/constants'
 import { ScrollView as RNScrollView } from 'react-native'
-import { getCategoryColor } from '@/utils/styleUtils'
+import { getCategoryColor, isIpad } from '@/utils'
 import { useColorScheme } from '@/hooks'
 import { Sheet } from 'tamagui'
-import { isIpad } from '@/utils/deviceUtils'
 
 interface TaskListModalProps {
   open: boolean

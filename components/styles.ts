@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
-import { Colors } from '@/constants/Colors';
-import { isIpad } from '@/utils/deviceUtils';
+import { Colors } from '@/constants';
+import { isIpad } from '@/utils';
 const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({

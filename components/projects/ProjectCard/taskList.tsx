@@ -2,7 +2,7 @@ import React from 'react'
 import { XStack, Text, Button } from 'tamagui'
 import { Check } from '@tamagui/lucide-icons'
 import { Project, TaskPriority } from '@/types'
-import { getPriorityColor } from '@/utils/styleUtils'
+import { getPriorityColor} from '@/utils'
 import { getTaskBackgroundColor } from './projectCardUtils'
 
 interface TaskListProps {

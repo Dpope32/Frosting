@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/react-native';
 import { getWallpapers } from '@/services';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
-import { WALLPAPER_CACHE_DIR, LAST_APP_VERSION_KEY } from '@/constants/KEYS';
+import { WALLPAPER_CACHE_DIR, LAST_APP_VERSION_KEY } from '@/constants';
 
 interface WallpaperCache {
   [key: string]: string; 

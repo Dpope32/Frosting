@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { isWeb } from 'tamagui';
 
 export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({

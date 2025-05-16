@@ -6,8 +6,7 @@ import { Plus, Check } from '@tamagui/lucide-icons';
 import type { Tag } from '@/types/tag';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DebouncedTagInput } from '../shared/debouncedTagInput';
-import { isIpad } from '@/utils/deviceUtils';
-import { withOpacity, getDarkerColor } from '@/utils/styleUtils';
+import { isIpad, withOpacity, getDarkerColor } from '@/utils';
 import { useToastStore, useTagStore } from '@/store';
 
 interface TagSelectorProps {

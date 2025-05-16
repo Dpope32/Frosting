@@ -6,7 +6,7 @@ import Animated, { FadeIn} from "react-native-reanimated";
 import { useWeatherStore } from "@/store/WeatherStore";
 import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { isIpad } from "@/utils/deviceUtils";
+import { isIpad } from "@/utils";
 import TodayForecast from '@/components/weather/todayForecast';
 import DailyForecasts from '@/components/weather/dailyForecasts';
 if (Platform.OS === 'web') {

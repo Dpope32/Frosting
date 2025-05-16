@@ -3,7 +3,7 @@ import { XStack, Text, isWeb } from 'tamagui'
 import { getGreeting } from '@/services'
 import { useColorScheme } from 'react-native'
 import { useWeatherStore } from '@/store'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 interface GreetingSectionProps { username: string }
 

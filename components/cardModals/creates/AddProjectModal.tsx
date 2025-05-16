@@ -7,7 +7,7 @@ import { TagSelector } from '@/components/notes/TagSelector';
 import { useProjectStore, usePeopleStore, useTagStore, useToastStore, useCalendarStore } from '@/store';
 import type { Project, Person, Tag } from '@/types';
 import { DebouncedInput } from '@/components/shared/debouncedInput'
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform, Pressable } from 'react-native';
 import { useAutoFocus } from '@/hooks';

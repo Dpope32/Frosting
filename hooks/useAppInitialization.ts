@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { useCalendarStore, useWallpaperStore } from '@/store';
 import { useColorScheme as useRNColorScheme } from 'react-native';
-import { preloadTheme } from '@/utils/preloadTheme';
+import { preloadTheme } from '@/utils';
 
 export function useAppInitialization() {
   // Get the system theme using the hook properly at the top level

@@ -4,7 +4,7 @@ import { Stack, YStack, Text } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 import { Platform } from 'react-native'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { isWeb } from 'tamagui'
 
 interface SettingsCardProps {

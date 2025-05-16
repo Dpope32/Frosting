@@ -6,7 +6,7 @@ import { useWeatherStore, WeatherPeriod } from "@/store/WeatherStore";
 import { getTemperatureColor } from "@/services/weatherServices";
 import AnimatedCloud from '@/components/weather/AnimatedCloud';
 import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
-import { isIpad } from "@/utils/deviceUtils";
+import { isIpad } from "@/utils";
 import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon } from "@/components/weather/styleUtils";
 import HourlyCarousel from '@/components/weather/HourlyCarousel';
 

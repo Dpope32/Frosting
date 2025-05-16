@@ -1,10 +1,10 @@
 import React from 'react'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
-import { BillRecommendationChip } from '@/constants/recommendations/BillRecommendations'
-import { useColorScheme } from '@/hooks/useColorScheme'
+import { BillRecommendationChip } from '@/constants';
+import { useColorScheme } from '@/hooks';
 import { useUserStore } from '@/store'
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface BillEmptyProps {
   setHousingModalOpen: (open: boolean) => void

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useCalendarStore, useUserStore } from '@/store';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PERMISSIONS_EXPLAINED_KEY } from '@/constants/KEYS'
+import { PERMISSIONS_EXPLAINED_KEY } from '@/constants'
 
 let permissionService: any = null;
 if (Platform.OS !== 'web') {

@@ -3,7 +3,7 @@ import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
 import { FormData, ColorOption } from '@/types'
 import { View, useColorScheme, Platform } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 const EmptyColorPicker = () => null;
 
 import WheelColorPicker from 'react-native-wheel-color-picker';

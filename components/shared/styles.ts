@@ -1,7 +1,7 @@
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { StyleSheet, Platform } from 'react-native';
 import { useMemo } from 'react';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 export const useDrawerStyles = () => {
   const colorScheme = useColorScheme();

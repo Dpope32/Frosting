@@ -1,14 +1,12 @@
 // Lightweight project preview card used on the LandingPage mobile view
 import React from 'react'
-import { Pressable, Platform, useColorScheme, ViewStyle, DimensionValue } from 'react-native'
+import { Pressable, Platform, useColorScheme } from 'react-native'
 import { XStack, YStack, Text, Image } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Haptics from 'expo-haptics'
-
 import { Project } from '@/types'
-import { isIpad } from '@/utils/deviceUtils'
-import { getPriorityColor } from '@/utils/styleUtils'
+import { isIpad, getPriorityColor } from '@/utils'
 
 interface ProjectPreviewCardProps {
   project: Project

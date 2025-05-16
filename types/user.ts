@@ -1,4 +1,4 @@
-import { BackgroundStyle } from '@/constants/Backgrounds';
+import { BackgroundStyle } from '@/constants';
 export interface UserPreferences {
     username: string;
     /**

@@ -1,5 +1,5 @@
 import { StyleSheet, Platform, ViewStyle } from "react-native";
-import { isIpad } from "@/utils/deviceUtils";
+import { isIpad } from "@/utils";
 // Web-specific styles as a separate object
 const webSpecificStyles = Platform.OS === 'web' ? {
   card: {

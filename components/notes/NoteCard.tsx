@@ -11,7 +11,7 @@ import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SimpleImageViewer } from './SimpleImageViewer';
 import { TagChip } from './TagChip';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { CachedImage } from '@/components/common/CachedImage';
 
 type NoteCardProps = {

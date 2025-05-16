@@ -9,7 +9,7 @@ import { HabitCard } from '@/components/habits/HabitCard';
 import { useHabits } from '@/hooks/useHabits';
 import { useUserStore, useHabitStore } from '@/store';
 import { generateTestHabits } from '@/services';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { format } from 'date-fns';
 
 export default function HabitsScreen() {

@@ -2,7 +2,7 @@ import React from 'react';
 import { useColorScheme, Pressable } from 'react-native';
 import { YStack, XStack, Text, Tooltip, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { getValueColor } from '@/constants/valueHelper';
+import { getValueColor } from '@/constants';
 import { PortfolioQueryData } from '@/types/stocks';
 import { ReturnType } from '@/services/calculationService';
 import { Stock } from '@/types/stocks';

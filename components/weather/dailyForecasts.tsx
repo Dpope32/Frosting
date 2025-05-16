@@ -9,7 +9,7 @@ import WeatherCardAnimations from '@/components/weather/WeatherCardAnimations';
 import { getCardBackground, getTextColorForBackground, parseWindSpeed, getWeatherIcon, getCloudCount, getSunIntensity, getPrecipitationColor } from "@/components/weather/styleUtils";
 import LowHighBar from '@/components/weather/LowHighBar';
 import { CloudType } from "@/components/weather/AnimatedCloud";
-import { isIpad } from "@/utils/deviceUtils";
+import { isIpad } from "@/utils";
 interface DailyForecast {
     dayName: string;
     dayPeriod: WeatherPeriod;

@@ -6,7 +6,7 @@ import { BlurView } from 'expo-blur'
 import { useUserStore, useWallpaperStore } from '@/store'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import * as Sentry from '@sentry/react-native'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 export const BackgroundSection = () => {
   const preferences = useUserStore(s => s.preferences);

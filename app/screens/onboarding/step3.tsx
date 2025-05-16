@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb,Label } from 'tamagui'
 import { Image, View, useWindowDimensions, Platform, ImageSourcePropType, useColorScheme } from 'react-native' 
 import { FormData, BackgroundStyleOption } from '@/types'
-import { BackgroundStyle } from '@/constants/Backgrounds'
+import { BackgroundStyle } from '@/constants'
 import { useWallpaperStore } from '@/store'
 import { useCustomWallpaper } from '@/hooks'
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 let LinearGradient: any = null;
 let BlurView: any = null;

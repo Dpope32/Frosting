@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, Text, Platform, ScrollView } from 'react-native';
 import { isWeb } from 'tamagui';
-//import { useNBAStore } from '@/store/NBAStore';
-//import { useUserStore } from '@/store/UserStore';
-//import { nbaTeams } from '@/constants/nba';
-import { isIpad } from '@/utils/deviceUtils';
+//import { useNBAStore, useUserStore } from '@/store';
+//import { nbaTeams } from '@/constants';
+import { isIpad } from '@/utils';
 
 interface LegendProps { 
   isDark: boolean;

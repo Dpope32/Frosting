@@ -1,4 +1,4 @@
-import { THEME_STORAGE_KEY } from '@/constants/KEYS';
+import { THEME_STORAGE_KEY } from '@/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ColorSchemeName } from 'react-native';
 

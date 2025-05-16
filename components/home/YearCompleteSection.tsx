@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Platform, useColorScheme } from 'react-native';
 import { YStack, Text, Stack, isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 export function YearCompleteSection() {
   const colorScheme = useColorScheme();

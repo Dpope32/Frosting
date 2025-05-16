@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface BaseCardWithRecommendationsModalProps {
   open: boolean;

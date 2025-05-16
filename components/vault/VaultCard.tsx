@@ -1,7 +1,7 @@
 import React from 'react'
 import { XStack, YStack, Text, Button } from 'tamagui'
 import { Eye, EyeOff } from '@tamagui/lucide-icons'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Alert, Platform } from 'react-native'
 import { LongPressDelete } from '@/components/common/LongPressDelete'

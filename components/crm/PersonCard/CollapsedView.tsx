@@ -4,7 +4,7 @@ import { TouchableOpacity, View, Platform, Text } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { styles } from './styles';
 import type { Person } from '@/types';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { adjustColor, getDarkerHslColor } from './utils';
 import { formatDistanceToNow, format } from 'date-fns';
 

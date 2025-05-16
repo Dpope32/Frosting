@@ -1,7 +1,7 @@
 import React from 'react';
 import { XStack, Button, Text, isWeb } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface FormattingToolbarProps {
   onBold: () => void;

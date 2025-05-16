@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { FloatingAction } from "react-native-floating-action";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { ActionButton } from './ActionButton';
 import { ActionButtonTitle } from './ActionButtonTitle';
 

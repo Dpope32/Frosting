@@ -9,7 +9,7 @@ import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { ProjectCard } from '@/components/projects/projectCard'
 import { useProjectStore, useUserStore } from '@/store'
 import { Sheet } from 'tamagui'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { Project } from '@/types/project'
 import { ScrollView as RNScrollView } from 'react-native'
 

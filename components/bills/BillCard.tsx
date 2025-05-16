@@ -7,7 +7,7 @@ import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { LongPressDelete } from '../common/LongPressDelete'
 import { Alert, Platform } from 'react-native'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 interface BillCardProps {
   bill: Bill

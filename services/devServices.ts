@@ -1,6 +1,6 @@
 import { useProjectStore as useTaskStore } from '@/store/ToDo'
 import { useProjectStore } from '@/store';
-import { getRecommendedTasks, RecommendationCategory, RecommendedTask } from '@/constants/recommendations/TaskRecommendations';
+import { getRecommendedTasks, RecommendationCategory, RecommendedTask } from '@/constants';
 import { Project, Task } from '@/types';
 
 

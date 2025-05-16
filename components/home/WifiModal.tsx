@@ -7,7 +7,7 @@ import { useNetworkStore } from '@/store'
 import { getWifiDetails } from '@/services'
 import { useNetworkSpeed } from '@/hooks'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
-import { getStrengthColor } from '@/utils/styleUtils'
+import { getStrengthColor, isIpad } from '@/utils'
 
 interface WifiModalProps {
   open: boolean

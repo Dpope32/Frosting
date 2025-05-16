@@ -2,7 +2,7 @@
 import React from 'react'
 import { Button, Text } from 'tamagui'
 import { RecurrencePattern } from '@/types'
-import { getRecurrenceColor, withOpacity } from '@/utils/styleUtils'
+import { getRecurrenceColor, withOpacity } from '@/utils'
 import { useColorScheme } from 'react-native'
 
 interface FilterChipProps {

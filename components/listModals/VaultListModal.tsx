@@ -4,12 +4,11 @@ import { Pressable, Platform, useColorScheme, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { useVault } from '@/hooks/useVault';
-import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
+import { VaultRecommendationCategory } from '@/constants';
 import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal';
 import { useToastStore } from '@/store';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal'; 
-import { getChipStyle } from '@/utils/recChipStyles';
-import { isIpad } from '@/utils/deviceUtils';
+import { getChipStyle, isIpad } from '@/utils';
 
 interface VaultListModalProps {
   open: boolean

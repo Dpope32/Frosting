@@ -13,7 +13,7 @@ import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { getCalendarStyles } from "@/components/calendar/CalendarStyles";
 import { getUSHolidays } from '@/services';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { BlurView } from 'expo-blur';
 import { startOfWeek, addWeeks } from 'date-fns';
 

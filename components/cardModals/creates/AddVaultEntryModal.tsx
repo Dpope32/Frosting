@@ -4,7 +4,7 @@ import { useUserStore } from '@/store'
 import { BaseCardAnimated } from '../../baseModals/BaseCardAnimated'
 import {  Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { useAutoFocus } from '@/hooks'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 

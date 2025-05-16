@@ -4,7 +4,7 @@ import { XStack, Text, YStack, Button } from 'tamagui';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { Pencil } from '@tamagui/lucide-icons';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface TimePickerProps {
   showTimePicker: boolean;

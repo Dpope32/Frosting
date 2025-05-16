@@ -10,7 +10,7 @@ import { useBills } from '@/hooks';
 import { AddBillModal } from '@/components/cardModals/creates/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/edits/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import { EditBillModal } from '@/components/cardModals/edits/EditBillModal';
 import { Bill } from '@/types';
 import { BillsListModal } from '@/components/listModals/BillsListModal';

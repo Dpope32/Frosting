@@ -3,7 +3,7 @@ import { useColorScheme } from 'react-native'
 import {  XStack, Text, Button, ScrollView } from 'tamagui'
 import { RecurrencePattern } from '@/types'
 import { RECURRENCE_PATTERNS } from '@/services'
-import { getRecurrenceColor, withOpacity } from '@/utils/styleUtils'
+import { getRecurrenceColor, withOpacity, isIpad } from '@/utils'
 
 interface RecurrenceSelectorProps {
   selectedPattern: RecurrencePattern

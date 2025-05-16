@@ -15,10 +15,9 @@ import Animated, {
 } from 'react-native-reanimated'
 import * as Haptics from 'expo-haptics'
 import { Ionicons } from '@expo/vector-icons'
-import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, getPriorityColor, getPriorityIonIcon } from '@/utils/styleUtils'
+import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, getPriorityColor, getPriorityIonIcon, isIpad } from '@/utils'
 import { useCustomCategoryStore, useUserStore } from '@/store'
 import { useColorScheme } from '@/hooks'
-import { isIpad } from '@/utils/deviceUtils'
 
 interface TaskCardItemProps {
   task: Task

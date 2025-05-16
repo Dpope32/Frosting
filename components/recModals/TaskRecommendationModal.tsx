@@ -13,7 +13,7 @@ import {
   getRecurrenceColor,
   getPriorityIcon,
   getPriorityColor
-} from '@/constants/recommendations/TaskRecommendations'
+} from '@/constants'
 
 // Global recommendation modal component
 export function TaskRecommendationModal() {

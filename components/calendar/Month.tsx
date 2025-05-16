@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CalendarEvent, useUserStore } from '@/store';
-import { nbaTeams } from '@/constants/nba';
+import { nbaTeams } from '@/constants';
 import { getMonthStyles } from './MonthStyles';
 
 // List of holidays to exclude from display

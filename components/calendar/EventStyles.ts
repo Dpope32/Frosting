@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 export const styles = StyleSheet.create({
   modalOverlay: {

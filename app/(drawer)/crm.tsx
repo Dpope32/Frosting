@@ -11,7 +11,7 @@ import type { Person } from "@/types";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
 import { handleImportContacts } from "@/services";
-import { isIpad } from "@/utils/deviceUtils";
+import { isIpad } from "@/utils";
 import { DevButtons } from "@/components/crm/devButtons";
 const { width } = Dimensions.get("window");
 

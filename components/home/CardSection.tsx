@@ -8,7 +8,7 @@ import { QuoteCard } from '@/components/home/cards/QuoteCard'
 import { SettingsCard } from '@/components/home/cards/SettingsCard'
 import { useUserStore } from '@/store'
 import { GreetingSection } from '@/components/home/GreetingSection'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal'
 
 interface CardSectionProps {

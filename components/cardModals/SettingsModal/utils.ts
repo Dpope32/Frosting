@@ -1,5 +1,5 @@
 import { ImageSourcePropType, Platform } from 'react-native';
-import { BackgroundStyle, getWallpaperPath } from '@/constants/Backgrounds';
+import { BackgroundStyle, getWallpaperPath } from '@/constants';
 import { useWallpaperStore } from '@/store';
 import { ImageURISource } from 'react-native';
 

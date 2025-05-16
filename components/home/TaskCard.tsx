@@ -6,11 +6,10 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TaskPriority, TaskCategory, RecurrencePattern, Tag } from '@/types';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity } from '@/utils/styleUtils';
+import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity, isIpad } from '@/utils';
 import { useColorScheme } from '@/hooks';
-import { isIpad } from '@/utils/deviceUtils';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
-import { variants } from '@/constants/variants';
+import { variants } from '@/constants';
 import { TaskChips } from './TaskChips';
 import { useCustomCategoryStore, useUserStore, useToastStore } from '@/store'
 

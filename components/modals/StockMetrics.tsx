@@ -1,6 +1,6 @@
 import React from 'react'
 import { Text, XStack, YStack, Input } from 'tamagui'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { isWeb } from 'tamagui'
 
 interface StockMetricsProps {

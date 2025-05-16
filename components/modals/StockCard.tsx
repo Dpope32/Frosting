@@ -1,9 +1,9 @@
 import React from 'react'
-import { useColorScheme, StyleSheet, Platform } from 'react-native'
-import { YStack, isWeb } from 'tamagui'
+import { useColorScheme, StyleSheet } from 'react-native'
+import { YStack } from 'tamagui'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { StockMetrics } from './StockMetrics'
-import { getStockValueColor } from '@/utils/styleUtils'
+import { getStockValueColor } from '@/utils'
 import { LinearGradient } from 'expo-linear-gradient'
 
 interface StockCardProps {

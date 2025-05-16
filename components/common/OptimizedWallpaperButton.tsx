@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { Image, ImageSourcePropType, Platform, TouchableOpacity, View } from 'react-native';
 import { YStack, Text } from 'tamagui';
-import { BackgroundStyle } from '@/constants/Backgrounds';
+import { BackgroundStyle } from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Sentry from '@sentry/react-native';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 let ImagePicker: any = null
 if (Platform.OS !== 'web') {

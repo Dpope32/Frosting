@@ -23,7 +23,7 @@ import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
 import { useCalendarViewStore, useCalendarStore } from '@/store'
 import { useUserStore } from '@/store'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { Bill, VaultEntry } from '@/types'
 import { Legend } from '@/components/calendar/Legend'
 import { getUSHolidays } from '@/services';

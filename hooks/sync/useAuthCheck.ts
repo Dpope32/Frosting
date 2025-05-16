@@ -1,7 +1,7 @@
 // hooks/sync/useAuthCheck.ts
 import { useEffect } from 'react'
 import { Alert } from 'react-native'
-import { AUTHORIZED_USERS } from '@/constants/KEYS'
+import { AUTHORIZED_USERS } from '@/constants'
 import { useUserStore } from '@/store'
 import { addSyncLog } from '@/components/sync/syncUtils'
 

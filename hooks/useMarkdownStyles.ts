@@ -1,6 +1,6 @@
 import { useColorScheme } from './useColorScheme';
 import { TextStyle, ViewStyle, ImageStyle } from 'react-native';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 type MarkdownStyle = {
   [key: string]: TextStyle | ViewStyle | ImageStyle;

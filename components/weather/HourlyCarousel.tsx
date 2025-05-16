@@ -5,7 +5,7 @@ import { useWeatherStore } from '@/store';
 import { getWeatherIcon } from '@/components/weather/weatherUtils';
 import { getTemperatureColor } from '@/services/weatherServices';
 import { useColorScheme } from 'react-native';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 // Helper functions for sun/moon icon variation
 const sunIcons = ['☀️', '🌤️', '🌞'];

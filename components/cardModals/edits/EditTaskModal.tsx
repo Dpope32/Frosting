@@ -16,7 +16,7 @@ import { TagSelector } from '@/components/notes/TagSelector'
 import { ShowInCalendar } from '../NewTaskModal/showInCalendar'
 import { PrioritySelector } from '../NewTaskModal/PrioritySelector'
 import { SubmitButton } from '../NewTaskModal/SubmitButton'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { styles } from '@/components/styles'
 

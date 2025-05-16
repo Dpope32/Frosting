@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform  } from 'react-native';
 
 import { MaterialIcons } from '@expo/vector-icons';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface DeadlineInputterProps {
     deadline: string;

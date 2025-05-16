@@ -6,7 +6,7 @@ import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { TaskPriority } from '@/types';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface AddTaskToProjectModalProps {
   open: boolean;

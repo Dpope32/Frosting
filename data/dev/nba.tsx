@@ -11,7 +11,7 @@ import { nbaTeams } from '../../constants/nba'
 import { useUserStore } from '../../store/UserStore'
 import { styles } from '../../components/sports/nbaStyles'
 import { renderGameCard } from '@/components/sports/renderGameCard'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 export default function Sports() {
   const { data: schedule, isLoading, error, refetch, teamStats } = useSportsAPI()

@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Trash2 } from '@tamagui/lucide-icons';
 import { Text, YStack } from 'tamagui';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 export interface TrashcanAreaProps {
   isVisible: boolean;

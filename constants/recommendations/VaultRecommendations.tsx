@@ -2,7 +2,7 @@ import React from 'react'
 import { Platform } from 'react-native'
 import { XStack, Button, Text } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
-import { getChipStyle } from '@/utils/recChipStyles'
+import { getChipStyle } from '@/utils'
 
 export interface RecommendedVaultEntry {
   name: string

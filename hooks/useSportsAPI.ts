@@ -2,7 +2,7 @@
 import { useQueries } from '@tanstack/react-query';
 import { getCurrentTeamCode, getESPNTeamCode, getNBASeason, fetchWithRetry } from '@/services';
 import { useUserStore, Game, useNBAStore } from '@/store';
-import { nbaTeams } from '@/constants/nba';
+import { nbaTeams } from '@/constants';
 import React from 'react';
 
 export const useSportsAPI = () => {

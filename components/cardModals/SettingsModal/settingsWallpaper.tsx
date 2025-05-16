@@ -2,9 +2,9 @@ import React from 'react';
 import { YStack, XStack, Text } from 'tamagui';
 import { isWeb } from 'tamagui';
 import { OptimizedWallpaperButton } from '@/components/common/OptimizedWallpaperButton';
-import { BackgroundStyle } from '@/constants/Backgrounds';
+import { BackgroundStyle } from '@/constants';
 import { ImageURISource } from 'react-native';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import type { Settings } from './utils';
 interface WallpaperSource extends ImageURISource {
   failed?: boolean;

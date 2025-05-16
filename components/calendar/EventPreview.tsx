@@ -3,9 +3,9 @@ import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { CalendarEvent, useCustomCategoryStore, useUserStore } from '@/store'
 import { Ionicons } from '@expo/vector-icons'
 import { TaskPriority } from '@/types'
-import { getCategoryColor, getPriorityColor } from '@/utils/styleUtils'
+import { getCategoryColor, getPriorityColor, isIpad } from '@/utils'
 import { LongPressDelete } from '../common/LongPressDelete'
-import { isIpad } from '@/utils/deviceUtils'
+
 
 export const EventPreview: React.FC<{
   event: CalendarEvent

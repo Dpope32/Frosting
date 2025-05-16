@@ -4,9 +4,9 @@ import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb, Card
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
-import { BillRecommendationCategory, getRecommendedBills} from '@/constants/recommendations/BillRecommendations'
+import { BillRecommendationCategory, getRecommendedBills} from '@/constants/'
 import { useUserStore } from '@/store'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 type DebouncedTextInputProps = {
   value: string

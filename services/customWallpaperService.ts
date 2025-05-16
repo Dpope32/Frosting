@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { useWallpaperStore } from '@/store';
-import { WALLPAPER_CACHE_DIR } from '@/constants/KEYS';
+import { WALLPAPER_CACHE_DIR } from '@/constants';
 
 interface UploadResult {
   wallpaperKey: `wallpaper-${string}`;

@@ -5,8 +5,7 @@ import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 import { addToWatchlist, usePortfolioStore, useUserStore } from '@/store';
 import { useQueryClient } from '@tanstack/react-query';
 import { initializeStocksData, searchStocks, getRecommendedStocks} from '@/services';
-import { StockData } from '@/constants/stocks';
-import { getIconForStock } from '../../constants/popularStocks'
+import { StockData, getIconForStock } from '@/constants';
 import { debounce } from 'lodash';
 
 interface WatchlistModalProps { open: boolean; onOpenChange: (open: boolean) => void}

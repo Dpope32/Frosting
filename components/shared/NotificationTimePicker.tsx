@@ -4,7 +4,7 @@ import { XStack, YStack, Text, Button } from 'tamagui';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { Ionicons } from '@expo/vector-icons';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface NotificationTimePickerProps {
   notificationTime: Date | null;

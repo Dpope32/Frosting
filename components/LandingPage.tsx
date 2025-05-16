@@ -29,7 +29,7 @@ import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
 
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 import type { Attachment, Tag } from '@/types'
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services';
 import { createFormattingHandler } from '@/services';

@@ -1,7 +1,7 @@
 import { useColorScheme as useRNColorScheme } from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { THEME_STORAGE_KEY } from '@/constants/KEYS';
+import { THEME_STORAGE_KEY } from '@/constants';
 
 export function useColorScheme() {
   // Initialize with null to indicate loading state

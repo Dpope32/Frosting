@@ -24,11 +24,10 @@ import { NoteListItem } from '@/components/notes/NoteListItem';
 import { AddNoteButton } from '@/components/notes/AddNoteButton';
 import { DevToolsButton } from '@/components/notes/DevToolsButton';
 
-import { createTrashAnimatedStyle, noteStyles } from '@/utils/noteStyles';
+import { createTrashAnimatedStyle, noteStyles, isIpad } from '@/utils';
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/notes/noteService';
 import { setupColumnCalculation, createFormattingHandler, handleDragging, handleDragEnd, handleMoveNote, handleSelectNote } from '@/services/notes/noteService2';
 import { createNoteHandlers } from '@/services';
-import { isIpad } from '@/utils/deviceUtils';
 
 export const draggedCardBottomYRef = { current: 0 };
 

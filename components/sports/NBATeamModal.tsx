@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Image, Platform, useColorScheme, useWindowDimensions } from 'react-native'
+import { Image, useColorScheme, useWindowDimensions } from 'react-native'
 import { Button, YStack, XStack, Text, ScrollView, Switch, isWeb } from 'tamagui'; 
-import { nbaTeams } from '@/constants/nba';
+import { nbaTeams } from '@/constants';
 import { useNBAStore, useUserStore, useToastStore } from '@/store';
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 

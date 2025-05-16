@@ -1,10 +1,10 @@
-import { generateTestNotes } from "@/constants/devNotes";
+import { generateTestNotes } from "@/constants";
 import { Dimensions, Platform, Alert } from "react-native";
 import { NoteStore, ToastStore } from "@/store";
 import * as Haptics from "expo-haptics";
 import type { Note, Attachment, Tag } from '@/types';
 import type { SharedValue } from "react-native-reanimated"; 
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 export const triggerHaptic = (style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) => {
   if (Platform.OS !== 'web') {

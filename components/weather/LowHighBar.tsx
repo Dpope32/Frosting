@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getTemperatureColor } from '@/services/weatherServices';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface LowHighBarProps {
   low: number;

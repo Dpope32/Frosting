@@ -4,7 +4,7 @@ import { Stack, Spinner } from 'tamagui'
 import { MessageSquareQuote } from '@tamagui/lucide-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import { useUserStore } from '@/store'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 const isWeb = Platform.OS === 'web';
 

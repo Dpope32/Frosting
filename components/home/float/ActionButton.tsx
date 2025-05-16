@@ -2,7 +2,7 @@ import React from 'react'
 import { Platform } from 'react-native'
 import { XStack, Button, Text, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 
 interface ActionButtonProps {
   onPress: () => void;

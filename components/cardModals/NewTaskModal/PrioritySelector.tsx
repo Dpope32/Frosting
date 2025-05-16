@@ -3,9 +3,9 @@ import React from 'react'
 import { useColorScheme } from 'react-native'
 import { XStack, Text, Button } from 'tamagui'
 import { TaskPriority } from '@/types'
-import { getPriorityColor, withOpacity } from '@/utils/styleUtils'
+import { getPriorityColor, withOpacity, isIpad } from '@/utils'
 import { ArrowUp, ArrowRight, ArrowDown } from '@tamagui/lucide-icons'
-import { isIpad } from '@/utils/deviceUtils'
+
 interface PrioritySelectorProps {
   selectedPriority: TaskPriority
   onPrioritySelect: (priority: TaskPriority, e?: any) => void

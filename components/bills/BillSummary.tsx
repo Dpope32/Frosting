@@ -4,7 +4,7 @@ import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { Edit3 } from '@tamagui/lucide-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { isIpad } from '@/utils/deviceUtils';
+import { isIpad } from '@/utils';
 
 interface BillSummaryProps {
   monthlyIncome: number;

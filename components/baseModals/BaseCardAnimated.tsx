@@ -10,7 +10,7 @@ import Animated, {
   FadeOut,
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
-import { isIpad } from '@/utils/deviceUtils'
+import { isIpad } from '@/utils'
 interface BaseCardAnimatedProps {
   onClose: () => void 
   title: string
