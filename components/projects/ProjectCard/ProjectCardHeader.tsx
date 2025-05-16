@@ -1,7 +1,7 @@
 import React from 'react'
 import { XStack, Text, Button, } from 'tamagui'
 import { Plus } from '@tamagui/lucide-icons'
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { ProjectStatusBadge } from './ProjectStatusBadge'
 import { MaterialIcons } from '@expo/vector-icons'
 

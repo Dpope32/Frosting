@@ -1,7 +1,7 @@
 // store/People.ts
 import { create } from 'zustand'
 import { StorageUtils } from '@/store/AsyncStorage'
-import type { Person } from '@/types/people'
+import type { Person } from '@/types'
 
 const STORAGE_KEY = 'contacts-store'
 

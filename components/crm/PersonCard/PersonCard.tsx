@@ -2,7 +2,7 @@ import React, { useMemo, useEffect } from "react";
 import { useCRMStore } from "@/store/CRMStore";
 import { Theme } from "tamagui";
 import { View, StyleProp, ViewStyle, Platform, useColorScheme } from "react-native";
-import type { Person } from "@/types/people";
+import type { Person } from "@/types";
 import { styles } from "./styles";
 import { webStyles } from "./webStyles";
 import CollapsedView from './CollapsedView';

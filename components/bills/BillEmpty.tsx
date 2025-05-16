@@ -3,7 +3,7 @@ import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { BillRecommendationChip } from '@/constants/recommendations/BillRecommendations'
 import { useColorScheme } from '@/hooks/useColorScheme'
-import { useUserStore } from '@/store/UserStore'
+import { useUserStore } from '@/store'
 import { isIpad } from '@/utils/deviceUtils';
 
 interface BillEmptyProps {

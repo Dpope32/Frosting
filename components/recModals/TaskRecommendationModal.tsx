@@ -3,10 +3,8 @@ import { useColorScheme } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, isWeb, Circle } from 'tamagui'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
+import {  useRecommendationStore, useToastStore, useUserStore } from '@/store'
 import { useProjectStore, useStoreTasks } from '@/store/ToDo'
-import { useRecommendationStore } from '@/store/RecommendationStore'
-import { useToastStore } from '@/store/ToastStore'
-import { useUserStore } from '@/store/UserStore'
 import { 
   RecommendationCategory, 
   RecommendedTask, 

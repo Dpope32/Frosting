@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { useColorScheme, TextInput} from 'react-native'
+import { useColorScheme, TextInput } from 'react-native'
 import { YStack, Text, XStack, Button, ScrollView, Checkbox, Circle, isWeb } from 'tamagui'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useVault } from '@/hooks/useVault'
-import { VaultRecommendationCategory,  getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
-import { useToastStore } from '@/store/ToastStore'
-import { useUserStore } from '@/store/UserStore'
+import { VaultRecommendationCategory, getRecommendedVaultEntries } from '@/constants/recommendations/VaultRecommendations'
+import { useToastStore, useUserStore } from '@/store'
 
 type DebouncedTextInputProps = {
   value: string

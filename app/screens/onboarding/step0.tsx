@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
 import { Platform, View, Text, Animated, Easing } from 'react-native'
-import { FormData } from '@/types/onboarding'
+import { FormData } from '@/types'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils/deviceUtils'
 import Svg, { Defs, ClipPath, Rect, Text as SvgText, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg'

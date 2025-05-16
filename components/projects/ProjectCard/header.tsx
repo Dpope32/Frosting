@@ -1,7 +1,7 @@
 import React from 'react'
 import { XStack, Text } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { isIpad } from '@/utils/deviceUtils'
 import { tagColors } from '@/utils/styleUtils'
 

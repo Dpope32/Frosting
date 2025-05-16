@@ -5,7 +5,7 @@ import { Animated, Dimensions } from 'react-native'
 import { YStack, Text, GetThemeValueForKey, useMedia } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
-import { useToastStore } from '@/store/ToastStore'
+import { useToastStore } from '@/store'
 import { isIpad } from '@/utils/deviceUtils'
 import { useColorScheme } from '@/hooks/useColorScheme'
 const { height, width } = Dimensions.get('window')

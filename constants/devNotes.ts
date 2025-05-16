@@ -1,4 +1,4 @@
-import { Note } from '@/types/notes';
+import { Note } from '@/types';
 
 // Function to generate a random ID
 export const generateId = () => Math.random().toString(36).substring(2, 15);

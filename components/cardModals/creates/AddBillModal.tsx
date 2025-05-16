@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Input, Text, YStack, XStack, View, isWeb } from 'tamagui'
-import { useUserStore } from '@/store/UserStore'
+import { getOrdinalSuffix, useUserStore } from '@/store'
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import {  TouchableOpacity, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
-import { getOrdinalSuffix } from '@/store/BillStore'
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated'
-import { useAutoFocus } from '@/hooks/useAutoFocus'
+import { useAutoFocus } from '@/hooks'
 
 interface AddBillModalProps {
   isVisible: boolean
@@ -21,8 +20,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
   const [amountInputValue, setAmountInputValue] = useState('')
   const [dueDate, setDueDate] = useState(new Date())
   const [showDatePicker, setShowDatePicker] = useState(isWeb)
-  const [sliderValue, setSliderValue] = useState(0)
-  const [inputError, setInputError] = useState(false)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -36,7 +33,6 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       setName('')
       setAmount(0)
       setAmountInputValue('')
-      setSliderValue(0)
       setDueDate(new Date())
     }
   }, [isVisible])
@@ -52,25 +48,11 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       setName('')
       setAmount(0)
       setAmountInputValue('')
-      setSliderValue(0)
       setDueDate(new Date())
     }
     onClose()
   }
 
-  const handleAmountChange = (value: number[]) => {
-    try {
-      const newAmount = value[0]
-      setSliderValue(newAmount)
-      const fixedAmount = Math.floor(newAmount * 100) / 100
-      setAmount(fixedAmount)
-      setAmountInputValue(fixedAmount.toString())
-      setInputError(false)
-    } catch (error) {
-      console.error("Error updating slider value:", error)
-      setInputError(true)
-    }
-  }
 
   // Format amount for display only (not for input)
   const formattedAmount = amount.toFixed(2)
@@ -198,16 +180,11 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                         if (!isNaN(value) && value <= MAX_AMOUNT) {
                           const roundedValue = Math.floor(value * 100) / 100;
                           setAmount(roundedValue);
-                          setSliderValue(roundedValue);
-                          setInputError(false);
                         } else if (formattedText === '' || formattedText === '0') {
                           setAmount(0);
-                          setSliderValue(0);
-                          setInputError(false);
                         }
                       } catch (error) {
                         console.error("Error processing input:", error);
-                        setInputError(true);
                       }
                     }}
                     keyboardType="decimal-pad"

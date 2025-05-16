@@ -2,7 +2,7 @@ import React from 'react'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProjectExampleChip } from './ProjectExampleChip';
-import { Project } from '@/types/project';
+import { Project } from '@/types';
 import {addWebsiteRedesignProject, addMobileAppProject, addHomeRenovationProject, addVacationProject} from '@/services';
 
 interface ProjectEmptyProps {

@@ -1,9 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Platform, Image } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { CalendarEvent } from '@/store/CalendarStore';
+import { CalendarEvent, useUserStore } from '@/store';
 import { nbaTeams } from '@/constants/nba';
-import { useUserStore } from '@/store/UserStore';
 import { getWeekStyles } from './WeekStyles';
 import { format, addDays, startOfWeek } from 'date-fns';
 

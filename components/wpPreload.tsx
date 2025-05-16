@@ -1,5 +1,5 @@
 import { getWallpapers } from '@/services';
-import { useWallpaperStore } from '@/store/WallpaperStore';
+import { useWallpaperStore } from '@/store';
 import * as Sentry from '@sentry/react-native';
 
 export interface WallpaperPreloaderProps {

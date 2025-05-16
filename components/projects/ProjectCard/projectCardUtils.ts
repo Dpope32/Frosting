@@ -1,4 +1,4 @@
-import { TaskPriority } from "@/types/task"
+import { TaskPriority } from "@/types"
 
 export const getDaysUntilDeadline = (deadline?: Date | string): string => {
   if (!deadline) return '-'

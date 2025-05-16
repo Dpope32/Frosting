@@ -3,7 +3,7 @@ import { useColorScheme, StyleSheet, Platform } from 'react-native'
 import { YStack, Text, XStack, ScrollView, Button, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { portfolioData } from '@/utils/Portfolio'
-import { usePortfolioStore } from '@/store/PortfolioStore'
+import { usePortfolioStore } from '@/store'
 import { getStockValueColor } from '@/utils/styleUtils'
 import Animated, { FadeIn } from 'react-native-reanimated'
 

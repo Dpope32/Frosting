@@ -2,9 +2,9 @@
 import { Alert, Platform, Linking } from "react-native";
 import * as Haptics from 'expo-haptics';
 import * as Contacts from 'expo-contacts';
-import { usePeopleStore } from "@/store/People";
+import { usePeopleStore } from "@/store";
 import { StorageUtils } from "@/store/AsyncStorage";
-import type { Person } from "@/types/people";
+import type { Person } from "@/types";
 import { requestNotificationPermissions } from "@/services/notificationServices";
 
 const STORAGE_KEY = 'contacts-store';

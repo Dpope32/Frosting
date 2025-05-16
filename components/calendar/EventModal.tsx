@@ -6,12 +6,11 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { format, parse } from 'date-fns'
 import { getCategoryColor } from '@/utils/styleUtils';
-import { TaskCategory } from '@/types/task';
+import { TaskCategory } from '@/types';
 import { Ionicons } from '@expo/vector-icons'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 
-import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore'
-import { useToastStore } from '@/store/ToastStore'
+import { CalendarEvent, useCalendarStore, useToastStore } from '@/store'
 import { EventPreview } from './EventPreview'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { styles } from './EventStyles'

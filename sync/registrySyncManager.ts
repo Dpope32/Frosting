@@ -4,7 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import { storage } from '@/store/AsyncStorage';
 import { encryptSnapshot } from '@/lib/encryption';
 import * as Sentry from '@sentry/react-native';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { getCurrentWorkspaceId } from './workspace';
 import { getWorkspaceKey } from './workspaceKey';

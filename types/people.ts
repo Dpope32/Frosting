@@ -1,5 +1,5 @@
 // types/people.ts
-import type { Tag } from '@/types/tag'
+import type { Tag } from '@/types'
 
 export type SocialLink = {
   platform: string

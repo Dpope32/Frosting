@@ -6,7 +6,7 @@ import { getValueColor } from '@/constants/valueHelper';
 import { PortfolioQueryData } from '@/types/stocks';
 import { ReturnType } from '@/services/calculationService';
 import { Stock } from '@/types/stocks';
-import { usePortfolioStore } from '@/store/PortfolioStore'
+import { usePortfolioStore } from '@/store'
 
 interface PortfolioTableProps {
   activeTab: 'portfolio' | 'watchlist';

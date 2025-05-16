@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { CustomWallpaperService } from '@/services';
 import { useImagePicker } from './useImagePicker';
-import { useToastStore } from '@/store/ToastStore';
-import { useWallpaperStore } from '@/store/WallpaperStore';
-import { isWeb } from 'tamagui';
+import { useToastStore, useWallpaperStore } from '@/store';
 
 export function useCustomWallpaper() {
   const [isUploading, setIsUploading] = useState(false);

@@ -1,6 +1,6 @@
 import React from 'react';
-import { YStack, Text, XStack, Circle, Label, isWeb, Image } from 'tamagui'
-import { FormData, ColorOption } from '@/types/onboarding'
+import { YStack, Text, XStack, Circle, Label, isWeb } from 'tamagui'
+import { FormData, ColorOption } from '@/types'
 import { View, useColorScheme, Platform } from 'react-native' 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { isIpad } from '@/utils/deviceUtils';

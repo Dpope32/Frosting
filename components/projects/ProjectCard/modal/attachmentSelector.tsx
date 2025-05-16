@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { YStack, XStack, Text, Button, ScrollView } from 'tamagui';
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Attachment } from '@/types/notes';
+import { Attachment } from '@/types';
 import { isIpad } from '@/utils/deviceUtils';
 import { useImagePicker } from '@/hooks/useImagePicker';
 import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer';
@@ -83,6 +83,7 @@ export const AttachmentSelector = ({ isDark, attachments, setAttachments }: Atta
         <SimpleImageViewer
           imageUrl={selectedImageUrl}
           onClose={() => setSelectedImageUrl(null)}
+          isDark={isDark}
         />
       )}
     </YStack>

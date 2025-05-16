@@ -1,9 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { TaskCategory } from '@/types/task';
+import { TaskCategory, Habit } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cancelHabitNotification } from '@/services';
-import { Habit } from '@/types/habits';
 
 interface HabitStore {
   habits: Record<string, Habit>;

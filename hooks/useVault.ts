@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useVaultStore } from '@/store/VaultStore';
+import { useVaultStore } from '@/store';
 
 export function useVault() {
   const queryClient = useQueryClient();

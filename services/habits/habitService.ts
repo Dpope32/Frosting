@@ -1,7 +1,7 @@
-import { useHabitStore } from '@/store/HabitStore';
+import { useHabitStore } from '@/store';
 import * as Haptics from 'expo-haptics';
 import { Alert, Platform } from 'react-native';
-import { TaskCategory } from '@/types/task';
+import { TaskCategory } from '@/types';
 
 const testHabits = [
   { 

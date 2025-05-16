@@ -1,4 +1,4 @@
-import { Tag } from '@/types/tag'
+import { Tag } from '@/types'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 export type TaskCategory =

@@ -1,8 +1,8 @@
 // hooks/usePeople.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { StorageUtils } from '@/store/AsyncStorage'
-import { usePeopleStore } from '@/store/People'
-import type { Person } from '@/types/people'
+import { usePeopleStore } from '@/store'
+import type { Person } from '@/types'
 
 const STORAGE_KEY = 'contacts-store'
 

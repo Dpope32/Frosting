@@ -12,8 +12,8 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 import { useProjectStore } from '@/store/ToDo';
-import { Task, WeekDay } from '@/types/task';
-import { format, addDays, subDays } from 'date-fns';
+import { Task } from '@/types';
+import { format, subDays } from 'date-fns';
 
 // Helper to create mock dates
 const createDate = (dateString: string): Date => {

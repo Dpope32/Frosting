@@ -1,5 +1,5 @@
 import React, { useRef, forwardRef } from 'react'
-import { YStack, XStack, ScrollView, Text, Button, isWeb } from 'tamagui'
+import { YStack, XStack, ScrollView, isWeb } from 'tamagui'
 import { TextInput, useColorScheme } from 'react-native'
 import { useMedia } from 'tamagui'
 import { DebouncedInput, DateDebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput'
@@ -7,7 +7,7 @@ import { ProfileSection } from './ProfileSection'
 import { PaymentMethodSection } from './PaymentMethodSection'
 import { TagSelector } from '@/components/notes/TagSelector'
 import type { FormContentProps } from './types'
-import type { Tag } from '@/types/notes'
+import type { Tag } from '@/types'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((props, ref) => { // Use forwardRef

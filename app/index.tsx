@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore, 
+  useRegistryStore, 
+  useProjectStore,
+  useHabitStore,
+  useBillStore,
+  useCalendarStore, 
+  useWallpaperStore,
+  useVaultStore, 
+  useCustomCategoryStore, 
+  useTagStore, 
+  useNoteStore, 
+  useProjectStore as useProjectsStore 
+} from '@/store';
 import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
-import { useRegistryStore } from '@/store/RegistryStore';
-import { useProjectStore } from '@/store/ToDo';
-import { useProjectStore as useProjectsStore } from '@/store/ProjectStore';
-import { useHabitStore } from '@/store/HabitStore';
-import { useBillStore } from '@/store/BillStore';
-import { useCalendarStore } from '@/store/CalendarStore';
-import { useWallpaperStore } from '@/store/WallpaperStore';
-import { useVaultStore } from '@/store/VaultStore';
-import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
-import { useTagStore } from '@/store/TagStore';
-import { useNoteStore } from '@/store/NoteStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
-
-// The sync modules are already imported in _layout.tsx
-// Don't need to re-import them here as _layout.tsx loads first
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);

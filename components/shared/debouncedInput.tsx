@@ -1,8 +1,8 @@
 import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef } from 'react'
 import { TextInput, Platform } from 'react-native'
 import { Input} from 'tamagui'
-import { DebouncedInputProps } from '@/types/debounce'
-import { useColorScheme } from '@/hooks/useColorScheme'
+import { DebouncedInputProps } from '@/types'
+import { useColorScheme } from '@/hooks'
 import { isIpad } from '@/utils/deviceUtils'
 // Define the handle type
 export interface DebouncedInputHandle {

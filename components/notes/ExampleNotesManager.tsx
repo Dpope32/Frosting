@@ -1,6 +1,5 @@
-import React from 'react';
 import { generateTestNotes } from '@/constants/devNotes';
-import { Note } from '@/types/notes';
+import { Note } from '@/types';
 
 export interface ExampleNotesManagerProps {
   onSelectNote: (note: Note) => void;

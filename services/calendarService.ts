@@ -1,4 +1,4 @@
-import { CalendarEvent } from '@/store/CalendarStore';
+import { CalendarEvent } from '@/store';
 import { Platform } from 'react-native';
 
 let Calendar: any = null;

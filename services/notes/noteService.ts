@@ -1,10 +1,8 @@
 import { generateTestNotes } from "@/constants/devNotes";
 import { Dimensions, Platform, Alert } from "react-native";
-import { type NoteStore } from "@/store/NoteStore";
-import { ToastStore, } from "@/store/ToastStore"; 
+import { NoteStore, ToastStore } from "@/store";
 import * as Haptics from "expo-haptics";
-import type { Note, Attachment } from '@/types/notes';
-import type { Tag } from '@/types/tag';
+import type { Note, Attachment, Tag } from '@/types';
 import type { SharedValue } from "react-native-reanimated"; 
 import { isIpad } from '@/utils/deviceUtils';
 

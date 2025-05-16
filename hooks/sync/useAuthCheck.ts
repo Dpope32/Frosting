@@ -2,7 +2,7 @@
 import { useEffect } from 'react'
 import { Alert } from 'react-native'
 import { AUTHORIZED_USERS } from '@/constants/KEYS'
-import { useUserStore } from '@/store/UserStore'
+import { useUserStore } from '@/store'
 import { addSyncLog } from '@/components/sync/syncUtils'
 
 export function useAuthCheck() {

@@ -4,14 +4,12 @@ import { Text, Button, YStack, XStack } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
-import { useUserStore } from '@/store/UserStore';
-import { useToastStore } from '@/store/ToastStore';
-import { TextInput } from 'react-native';
+import { useUserStore, useToastStore, useRegistryStore } from '@/store';
+import { TextInput } from 'react-native'; 
 import * as Clipboard from 'expo-clipboard';
 import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync/workspace';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { baseSpacing, fontSizes, cardRadius, buttonRadius, getColors } from '@/components/sync/sharedStyles';
-import { useRegistryStore } from '@/store/RegistryStore';
 
 type AddDeviceModalProps = {
   onClose: () => void;

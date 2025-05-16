@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
-import { UserPreferences } from '@/types/user';
+import { UserPreferences } from '@/types'
 import * as Sentry from '@sentry/react-native';
 
 interface UserStore {

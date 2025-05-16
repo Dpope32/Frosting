@@ -1,8 +1,8 @@
 import React from 'react'
 import { XStack, Text, isWeb } from 'tamagui'
-import { getGreeting } from '@/services/greetingService'
+import { getGreeting } from '@/services'
 import { useColorScheme } from 'react-native'
-import { useWeatherStore } from '@/store/WeatherStore'
+import { useWeatherStore } from '@/store'
 import { isIpad } from '@/utils/deviceUtils'
 
 interface GreetingSectionProps { username: string }

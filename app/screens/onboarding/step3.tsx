@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb,Label } from 'tamagui'
 import { Image, View, useWindowDimensions, Platform, ImageSourcePropType, useColorScheme } from 'react-native' 
-import { FormData } from '@/types/onboarding'
-import { BackgroundStyleOption } from '@/types/background'
+import { FormData, BackgroundStyleOption } from '@/types'
 import { BackgroundStyle } from '@/constants/Backgrounds'
-import { useWallpaperStore } from '@/store/WallpaperStore'
-import { useCustomWallpaper } from '@/hooks/useCustomWallpaper'
+import { useWallpaperStore } from '@/store'
+import { useCustomWallpaper } from '@/hooks'
 import { isIpad } from '@/utils/deviceUtils';
+
 let LinearGradient: any = null;
 let BlurView: any = null;
 let Animated: any = null;

@@ -3,7 +3,7 @@ import { Platform } from 'react-native'
 import { Stack, Spinner } from 'tamagui'
 import { MessageSquareQuote } from '@tamagui/lucide-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
-import { useUserStore } from '@/store/UserStore'
+import { useUserStore } from '@/store'
 import { isIpad } from '@/utils/deviceUtils'
 
 const isWeb = Platform.OS === 'web';

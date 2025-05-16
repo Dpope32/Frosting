@@ -1,7 +1,7 @@
 import React from 'react'
 import { Platform } from 'react-native'
 import { YStack } from 'tamagui'
-import { useProjectStore } from '@/store/ProjectStore'
+import { useProjectStore } from '@/store'
 import { ProjectPreviewCard } from '@/components/home/ProjectPreviewCard'
 import { isIpad } from '@/utils/deviceUtils'
 import { useRouter } from 'expo-router'

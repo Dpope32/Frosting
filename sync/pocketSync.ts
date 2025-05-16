@@ -1,6 +1,6 @@
 // sync/pocketSync.ts
 import { generateSyncKey } from '@/sync/registrySyncManager';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import * as Sentry from '@sentry/react-native';
 import { addSyncLog, LogEntry } from '@/components/sync/syncUtils';
 

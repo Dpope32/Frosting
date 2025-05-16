@@ -1,10 +1,9 @@
 import React from 'react'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient';
-import { isIpad } from '@/utils/deviceUtils';
 import { NoteExampleChip } from './NoteExampleChip';
 import { useExampleNotes, getExampleNoteTitle } from './ExampleNotesManager';
-import { Note } from '@/types/notes';
+import { Note } from '@/types';
 
 interface NotesEmptyProps {
   isDark: boolean
@@ -106,7 +105,6 @@ export const NotesEmpty = ({
                 key={index}
                 title={getExampleNoteTitle(index)} 
                 onPress={() => handleExampleNotePress(index)} 
-                isDark={isDark}
                 index={index}
               />
             ))}

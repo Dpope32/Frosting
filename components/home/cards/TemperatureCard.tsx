@@ -1,9 +1,8 @@
 // src/components/TemperatureCard.tsx
 import { Stack, Text, Spinner, isWeb } from 'tamagui';
 import React, { useEffect, useRef } from 'react';
-import { useUserStore } from '@/store/UserStore';
-import { useWeatherQuery, useWeatherStore } from '@/store/WeatherStore';
-import { getValueColor } from '@/constants/valueHelper';
+import { useUserStore, useWeatherQuery, useWeatherStore } from '@/store';
+import { getValueColor } from '@/constants/valueHelper';    
 import { isIpad } from '@/utils/deviceUtils';
 
 const ONE_HOUR = 1000 * 60 * 60;

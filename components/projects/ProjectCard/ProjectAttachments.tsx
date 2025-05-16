@@ -1,9 +1,8 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { isWeb, YStack } from 'tamagui';
-import { Attachment } from '@/types/notes';
+import { Attachment } from '@/types';
 import { isIpad } from '@/utils/deviceUtils';
-import { useToastStore } from '@/store/ToastStore';
 import { CachedImage } from '@/components/common/CachedImage';
 
 interface ProjectAttachmentsProps {

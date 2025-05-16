@@ -3,7 +3,7 @@ import { format, isSameDay } from 'date-fns'
 import { View, Text } from 'tamagui'
 import { isWeb } from 'tamagui'
 import { styles } from './nbaStyles'
-import { Game, useNBAStore } from '@/store/NBAStore'
+import { Game, useNBAStore } from '@/store'
 
 export const renderGameCard = (game: Game, index: number, teamColor: string, isDark: boolean, teamName: string) => {
     const gameDate = new Date(game.date)

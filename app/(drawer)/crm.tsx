@@ -7,7 +7,7 @@ import { usePeopleStore } from "@/store/People";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
 import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
 import { EditPersonForm } from "@/components/crm/Forms/EditPersonForm";
-import type { Person } from "@/types/people";
+import type { Person } from "@/types";
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from "@/store/UserStore";
 import { handleImportContacts } from "@/services";

@@ -1,10 +1,8 @@
 import React from 'react'
-import { XStack, YStack, Text, Button } from 'tamagui'
+import { XStack, Text, Button } from 'tamagui'
 import { Check } from '@tamagui/lucide-icons'
-import { Project } from '@/types/project'
-import { isIpad } from '@/utils/deviceUtils'
+import { Project, TaskPriority } from '@/types'
 import { getPriorityColor } from '@/utils/styleUtils'
-import { TaskPriority } from '@/types/task'
 import { getTaskBackgroundColor } from './projectCardUtils'
 
 interface TaskListProps {

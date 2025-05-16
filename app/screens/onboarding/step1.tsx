@@ -1,8 +1,8 @@
 import React from 'react'
-import { YStack, Text, Button, Circle, Label, isWeb } from 'tamagui'
+import { YStack, Text, Button, Circle, isWeb } from 'tamagui'
 import { Image } from 'react-native'
-import { FormData } from '@/types/onboarding'
-import { useUserStore } from '@/store/UserStore'
+import { FormData } from '@/types'
+import { useUserStore } from '@/store'
 
 export default function Step1({
   formData,

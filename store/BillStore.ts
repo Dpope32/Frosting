@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import { Bill } from '@/types/bills';
+import { Bill } from '@/types';
 
 export { getOrdinalSuffix };
 

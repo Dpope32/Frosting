@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import * as Sentry from '@sentry/react-native';
-import { useCalendarStore } from '@/store/CalendarStore';
-//import { useNBAStore } from '@/store/NBAStore';
-//import { useSportsAPI } from './useSportsAPI';
+import { useCalendarStore, useWallpaperStore } from '@/store';
 import { useColorScheme as useRNColorScheme } from 'react-native';
-import { useWallpaperStore } from '@/store/WallpaperStore';
 import { preloadTheme } from '@/utils/preloadTheme';
 
 export function useAppInitialization() {

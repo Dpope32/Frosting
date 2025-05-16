@@ -2,12 +2,10 @@ import React from 'react';
 import { Text, XStack } from 'tamagui';
 import { StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
 import { isWeb } from 'tamagui';
 import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, getCategoryIcon } from '@/utils/styleUtils';
-import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
-import { useUserStore } from '@/store/UserStore';
-import { Tag } from '@/types/tag';
+import { useCustomCategoryStore, useUserStore } from '@/store'
+import { TaskPriority, TaskCategory, RecurrencePattern, Tag } from '@/types';
 
 interface TaskChipsProps {
   category?: string;

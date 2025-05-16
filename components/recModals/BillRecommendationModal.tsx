@@ -5,7 +5,7 @@ import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { Ionicons, AntDesign } from '@expo/vector-icons'
 import { useBills } from '@/hooks/useBills'
 import { BillRecommendationCategory, getRecommendedBills} from '@/constants/recommendations/BillRecommendations'
-import { useUserStore } from '@/store/UserStore'
+import { useUserStore } from '@/store'
 import { isIpad } from '@/utils/deviceUtils'
 
 type DebouncedTextInputProps = {

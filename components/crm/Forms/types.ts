@@ -1,4 +1,4 @@
-import type { Person } from '@/types/people'
+import type { Person } from '@/types'
 
 export type FormData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 

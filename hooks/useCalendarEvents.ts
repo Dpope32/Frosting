@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { CalendarEvent, useCalendarStore } from '@/store/CalendarStore';
-import { useToastStore } from '@/store/ToastStore';
+import { CalendarEvent, useCalendarStore, useToastStore } from '@/store';
 import { parseTimeString } from '@/services';
 
 /**

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNetworkStore } from '@/store/NetworkStore';
+import { useNetworkStore } from '@/store';
 import { getWifiDetails } from '@/services';
 
 const CHECK_INTERVAL = 1000 * 60; 

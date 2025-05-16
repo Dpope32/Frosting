@@ -1,7 +1,7 @@
 // services/syncServices.ts
 import { useProjectStore} from "@/store/ToDo";
-import { Task, WeekDay } from "@/types/task"
-import { useCalendarStore, CalendarEvent } from "@/store/CalendarStore";
+import { Task, WeekDay } from "@/types"
+import { useCalendarStore, CalendarEvent } from "@/store";
 import { format } from "date-fns";
 
 // This function determines if a task should be shown on a specific date

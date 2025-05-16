@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { ProjectAttachments } from './ProjectCard/ProjectAttachments'
 import { isIpad } from '@/utils/deviceUtils'
 import { getPriorityColor } from '@/utils/styleUtils'

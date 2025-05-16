@@ -5,14 +5,14 @@ import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { BillSummary } from '@/components/bills/BillSummary';
 import { Plus, Database, Trash } from '@tamagui/lucide-icons';
-import { useUserStore } from '@/store/UserStore';
-import { useBills } from '@/hooks/useBills';
+import { useUserStore } from '@/store';
+import { useBills } from '@/hooks';
 import { AddBillModal } from '@/components/cardModals/creates/AddBillModal';
 import { IncomeModal } from '@/components/cardModals/edits/IncomeModal';
 import { BillRecommendationModal } from '@/components/recModals/BillRecommendationModal';
 import { isIpad } from '@/utils/deviceUtils';
 import { EditBillModal } from '@/components/cardModals/edits/EditBillModal';
-import { Bill } from '@/types/bills';
+import { Bill } from '@/types';
 import { BillsListModal } from '@/components/listModals/BillsListModal';
 
 export default function BillsScreen() {

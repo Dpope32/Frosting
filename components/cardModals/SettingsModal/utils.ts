@@ -1,6 +1,6 @@
 import { ImageSourcePropType, Platform } from 'react-native';
 import { BackgroundStyle, getWallpaperPath } from '@/constants/Backgrounds';
-import { useWallpaperStore } from '@/store/WallpaperStore';
+import { useWallpaperStore } from '@/store';
 import { ImageURISource } from 'react-native';
 
 export interface WallpaperSource extends ImageURISource {

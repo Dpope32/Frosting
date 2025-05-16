@@ -1,22 +1,18 @@
 import React from 'react';
-import { Stack, Text, XStack } from 'tamagui';
+import { Stack, Text } from 'tamagui';
 import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useToastStore } from '@/store/ToastStore';
-import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
-import { Tag } from '@/types/tag';
+import { TaskPriority, TaskCategory, RecurrencePattern, Tag } from '@/types';
 import { isWeb } from 'tamagui';
-import { getCategoryColor, getPriorityColor, getRecurrenceColor, getRecurrenceIcon, withOpacity } from '@/utils/styleUtils';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { getCategoryColor, getPriorityColor, getRecurrenceColor, withOpacity } from '@/utils/styleUtils';
+import { useColorScheme } from '@/hooks';
 import { isIpad } from '@/utils/deviceUtils';
 import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { variants } from '@/constants/variants';
 import { TaskChips } from './TaskChips';
-import { useCustomCategoryStore } from '@/store/CustomCategoryStore';
-import { useUserStore } from '@/store/UserStore';
-import { NotificationFeedbackType } from 'expo-haptics';
+import { useCustomCategoryStore, useUserStore, useToastStore } from '@/store'
 
 interface TaskCardProps {
   title: string;

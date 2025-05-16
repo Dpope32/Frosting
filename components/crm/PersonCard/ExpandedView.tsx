@@ -3,7 +3,7 @@ import { Sheet, Image, Paragraph, XStack, YStack } from 'tamagui';
 import { TouchableOpacity, View, Platform, Linking, Alert, Text, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Ionicons } from '@expo/vector-icons';
-import type { Person } from '@/types/people';
+import type { Person } from '@/types';
 import { styles } from './styles';
 import { webStyles } from './webStyles';
 import { formatPhoneNumber } from './utils';

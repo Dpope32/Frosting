@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
 import { Platform } from 'react-native'
-import { Task, WeekDay } from '@/types/task'
+import { Task, WeekDay } from '@/types'
 import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils/deviceUtils';
 

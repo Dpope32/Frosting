@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator, useWin
 import { Text, Button, YStack, XStack } from 'tamagui';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { baseSpacing, fontSizes, cardRadius, getColors } from '@/components/sync/sharedStyles';
 import { clearLogQueue, setLogUpdateCallback } from '@/components/sync/syncUtils';
 

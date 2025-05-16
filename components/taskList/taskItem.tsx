@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
-import { Pressable, View, Alert } from 'react-native'
-import { Task, RecurrencePattern } from '@/types/task'
+import { Pressable, View, Platform } from 'react-native'
+import { Task, RecurrencePattern } from '@/types'
 import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import Animated, {
@@ -14,12 +14,12 @@ import Animated, {
   interpolate
 } from 'react-native-reanimated'
 import * as Haptics from 'expo-haptics'
-import { useColorScheme, Platform } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { getCategoryColor, getRecurrenceColor, getRecurrenceIcon, getPriorityColor, getPriorityIonIcon } from '@/utils/styleUtils'
-import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
-import { useUserStore } from '@/store/UserStore'
+import { useCustomCategoryStore, useUserStore } from '@/store'
+import { useColorScheme } from '@/hooks'
 import { isIpad } from '@/utils/deviceUtils'
+
 interface TaskCardItemProps {
   task: Task
   onLongPress: (task: Task, onComplete: (deleted: boolean) => void) => void

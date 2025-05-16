@@ -21,24 +21,21 @@ import { AddPersonForm } from '@/components/crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
 import { AddProjectModal } from './cardModals/creates/AddProjectModal'
 
-import { useUserStore } from '@/store/UserStore'
+import { useUserStore, useProjectStore as useProjectsStore, useEditTaskStore, CalendarEvent, useEditStockStore } from '@/store'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
-import { useProjectStore as useProjectsStore } from '@/store/ProjectStore'
-import { useEditTaskStore } from '@/store/EditTaskStore'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { AssetSection } from '@/components/home/AssetSection'
+
 import { isIpad } from '@/utils/deviceUtils';
-import { CalendarEvent } from '@/store/CalendarStore'
-import type { Attachment } from '@/types/notes';
-import type { Tag } from '@/types/tag';
+import type { Attachment, Tag } from '@/types'
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services';
 import { createFormattingHandler } from '@/services';
-import { useEditStockStore } from '@/store/EditStockStore'
+
 import { EditStockModal } from './cardModals/edits/EditStockModal'
-import { useHabits } from '@/hooks/useHabits';
+import { useHabits } from '@/hooks';
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)

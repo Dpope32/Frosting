@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { Text, Button, XStack } from 'tamagui';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const baseSpacing = 8;

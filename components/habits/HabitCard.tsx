@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal } from 'react-native';
-import { XStack, YStack, Text, Button } from 'tamagui';
+import { XStack, YStack, Text } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCategoryColor } from '@/utils/styleUtils';
 import { useHabits } from '@/hooks/useHabits';
-import type { Habit } from '@/types/habits';
-import { useToastStore } from '@/store/ToastStore';
+import type { Habit } from '@/types';
+import { useToastStore } from '@/store'
 import { LongPressDelete } from '@/components/common/LongPressDelete';
 import { isIpad } from '@/utils/deviceUtils';
 

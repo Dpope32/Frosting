@@ -1,7 +1,7 @@
 import { VaultRecommendationCategory } from '@/constants/recommendations/VaultRecommendations';
 import { BillRecommendationCategory } from '@/constants/recommendations/BillRecommendations';
 import { getValueColor } from '@/constants/valueHelper';
-import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types/task';
+import { TaskPriority, TaskCategory, RecurrencePattern } from '@/types';
 
 export type ReccomendationCategory = VaultRecommendationCategory | BillRecommendationCategory ;
 

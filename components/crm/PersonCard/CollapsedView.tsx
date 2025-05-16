@@ -3,7 +3,7 @@ import { Card, Image, Paragraph, XStack, isWeb } from 'tamagui';
 import { TouchableOpacity, View, Platform, Text } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { styles } from './styles';
-import type { Person } from '@/types/people';
+import type { Person } from '@/types';
 import { isIpad } from '@/utils/deviceUtils';
 import { adjustColor, getDarkerHslColor } from './utils';
 import { formatDistanceToNow, format } from 'date-fns';

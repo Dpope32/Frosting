@@ -3,8 +3,7 @@ import { TouchableOpacity } from 'react-native';
 import { XStack } from 'tamagui';
 import { RefreshCw } from '@tamagui/lucide-icons';
 import { handleAddTestNotes } from '@/services/notes/noteService';
-import { useNoteStore } from '@/store/NoteStore';
-import { useToastStore } from '@/store/ToastStore';
+import { useNoteStore, useToastStore } from '@/store';
 
 interface DevToolsButtonProps {
   isDark: boolean;

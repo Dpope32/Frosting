@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useNoteStore } from '@/store/NoteStore';
-import type { Note, Attachment } from '@/types/notes';
-import type { Tag } from '@/types/tag';
+import { useNoteStore } from '@/store';
+import type { Note, Attachment, Tag } from '@/types';
 import { StorageUtils } from '@/store/AsyncStorage';
 
 // Storage keys for notes

@@ -6,7 +6,7 @@ import { Platform, useColorScheme, ScrollView, Pressable, Linking } from 'react-
 import * as Clipboard from 'expo-clipboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {  SlideInRight, SlideInLeft } from 'react-native-reanimated';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 

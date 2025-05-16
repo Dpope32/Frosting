@@ -2,14 +2,12 @@
 import React, { useState, useRef } from 'react'
 import { useColorScheme, Alert, Platform } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
-import { TaskCategory } from '@/types/task'
+import { TaskCategory } from '@/types'
 import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon, getDarkerColor } from '@/utils/styleUtils'
 import { isIpad } from '@/utils/deviceUtils'
-import { useCustomCategoryStore } from '@/store/CustomCategoryStore'
-import { useUserStore } from '@/store/UserStore'
+import { useCustomCategoryStore, useUserStore, useToastStore } from '@/store'
 import { DebouncedTagInput } from '@/components/shared/debouncedTagInput'
 import { Check, Plus } from '@tamagui/lucide-icons'
-import { useToastStore } from '@/store/ToastStore'
 
 interface CategorySelectorProps {
   selectedCategory: TaskCategory

@@ -1,4 +1,4 @@
-import { Task } from '@/types/task';
+import { Task } from '@/types';
 
 export const isNBATask = (task: Task): boolean => {
   return task.category === 'nba';

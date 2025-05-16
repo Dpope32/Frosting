@@ -2,10 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { useColorScheme, Pressable } from 'react-native';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { usePortfolioStore, usePortfolioQuery, removeFromWatchlist } from '@/store/PortfolioStore';
+import { usePortfolioStore, usePortfolioQuery, removeFromWatchlist, useEditStockStore } from '@/store'
 import { portfolioData } from '@/utils/Portfolio';
-import { PortfolioQueryData } from '@/types/stocks';
-import { useEditStockStore } from '@/store/EditStockStore';
+import { PortfolioQueryData } from '@/types';
 import { PortfolioTable } from '@/components/home/PortfolioTable';
 import { calculateBuyIndicator, calculateReturns } from '@/services';
 

@@ -21,13 +21,11 @@ import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
 import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
-import { useCalendarViewStore } from '@/store/CalendarViewStore';
-import { useUserStore } from '@/store/UserStore';
-import { isIpad } from '@/utils/deviceUtils';
-import { Bill } from '@/types/bills';
-import type { VaultEntry } from '@/types/vault';
-import { Legend } from '@/components/calendar/Legend';
-import { useCalendarStore } from '@/store/CalendarStore';
+import { useCalendarViewStore, useCalendarStore } from '@/store'
+import { useUserStore } from '@/store'
+import { isIpad } from '@/utils/deviceUtils'
+import { Bill, VaultEntry } from '@/types'
+import { Legend } from '@/components/calendar/Legend'
 import { getUSHolidays } from '@/services';
 
 interface HeaderProps {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useColorScheme } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView } from 'tamagui'
-import { WeekDay } from '@/types/task'
+import { WeekDay } from '@/types'
 import { WEEKDAYS } from '@/services/taskService'
 import { dayColors, withOpacity } from '@/utils/styleUtils'
 

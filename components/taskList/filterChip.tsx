@@ -1,7 +1,7 @@
 // components/tasklist/FilterChip.tsx
 import React from 'react'
 import { Button, Text } from 'tamagui'
-import { RecurrencePattern } from '@/types/task'
+import { RecurrencePattern } from '@/types'
 import { getRecurrenceColor, withOpacity } from '@/utils/styleUtils'
 import { useColorScheme } from 'react-native'
 
@@ -10,13 +10,12 @@ interface FilterChipProps {
   onPress: () => void
   isSelected: boolean
   pattern?: RecurrencePattern | 'all'
-  color?: string // optional color for category chips
+  color?: string 
 }
 
 export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelected, pattern, color }) => {
   const isDark = useColorScheme() === 'dark'
   const recurrenceColor = pattern && pattern !== 'all' ? getRecurrenceColor(pattern) : null
-  // Use color prop if provided (for category), else recurrenceColor, else default
   const chipColor = color || recurrenceColor
   const bgColor = isSelected
     ? chipColor

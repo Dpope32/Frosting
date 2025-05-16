@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { usePeopleStore } from '@/store/People';
+import { usePeopleStore } from '@/store';
 
 export const handleSharedContact = (contactData: {
   name: string;

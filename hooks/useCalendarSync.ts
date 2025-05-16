@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useCalendarStore } from '@/store/CalendarStore';
+import { useCalendarStore, useUserStore } from '@/store';
 import { Platform } from 'react-native';
-import { useUserStore } from '@/store/UserStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PERMISSIONS_EXPLAINED_KEY } from '@/constants/KEYS'
 

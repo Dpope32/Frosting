@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Image, Platform, useColorScheme, useWindowDimensions } from 'react-native'
 import { Button, YStack, XStack, Text, ScrollView, Switch, isWeb } from 'tamagui'; 
 import { nbaTeams } from '@/constants/nba';
-import { useNBAStore } from '@/store/NBAStore';
-import { useUserStore } from '@/store/UserStore';
-import { useToastStore } from '@/store/ToastStore';
+import { useNBAStore, useUserStore, useToastStore } from '@/store';
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 
 interface NBATeamModalProps {

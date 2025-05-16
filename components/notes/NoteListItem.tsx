@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { NoteCard } from './NoteCard';
 import * as Haptics from 'expo-haptics';
-import type { Note } from '@/types/notes';
+import type { Note } from '@/types';
 import { handleSelectNote } from '@/services';
 import { View } from 'react-native';
 import { draggedCardBottomYRef } from '../../app/(drawer)/notes';

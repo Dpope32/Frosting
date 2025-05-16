@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { Stock } from '@/types/stocks'
+import { Stock } from '@/types'
 
 interface EditStockState {
   isOpen: boolean

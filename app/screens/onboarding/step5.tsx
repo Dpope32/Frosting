@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, isWeb, Text, Button, XStack, ScrollView, Label, Switch } from 'tamagui'
 import { Image, useWindowDimensions, useColorScheme } from 'react-native' 
-import { FormData } from '@/types/onboarding'
+import { FormData } from '@/types'
 import { nbaTeams } from '@/constants/nba'
 import { isIpad } from '@/utils/deviceUtils';
 

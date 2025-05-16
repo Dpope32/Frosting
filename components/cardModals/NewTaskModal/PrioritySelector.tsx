@@ -2,7 +2,7 @@
 import React from 'react'
 import { useColorScheme } from 'react-native'
 import { XStack, Text, Button } from 'tamagui'
-import { TaskPriority } from '@/types/task'
+import { TaskPriority } from '@/types'
 import { getPriorityColor, withOpacity } from '@/utils/styleUtils'
 import { ArrowUp, ArrowRight, ArrowDown } from '@tamagui/lucide-icons'
 import { isIpad } from '@/utils/deviceUtils'

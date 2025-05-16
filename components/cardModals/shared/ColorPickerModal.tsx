@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react'; // Import useState
 import { View, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Sheet, Button, Text, XStack, YStack } from 'tamagui';
-import { useToastStore } from '@/store/ToastStore';
+import { useToastStore, useUserStore } from '@/store'
 import { X } from '@tamagui/lucide-icons';
-import { useUserStore } from '@/store/UserStore';
 
 // Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;

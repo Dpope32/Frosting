@@ -6,7 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Haptics from 'expo-haptics'
 
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { isIpad } from '@/utils/deviceUtils'
 import { getPriorityColor } from '@/utils/styleUtils'
 

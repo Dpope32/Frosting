@@ -2,10 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Alert, Platform } from 'react-native';
 import { MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useCalendarStore, CalendarEvent } from '@/store/CalendarStore';
-import { useBillStore } from '@/store/BillStore';
-import { useToastStore } from '@/store/ToastStore';
-import { useVaultStore } from '@/store/VaultStore';
+import { useCalendarStore, CalendarEvent, useBillStore, useToastStore, useVaultStore } from '@/store'
 import { generateBillEvents, generateRandomTime } from '@/services';
 import { getCalendarStyles } from './CalendarStyles';
 

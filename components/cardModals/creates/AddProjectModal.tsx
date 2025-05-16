@@ -4,20 +4,14 @@ import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
 import { PrioritySelector } from '@/components/cardModals/NewTaskModal/PrioritySelector';
 import { PeopleSelector } from '@/components/cardModals/NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
-import { useProjectStore } from '@/store/ProjectStore';
-import { usePeopleStore } from '@/store/People';
-import type { Project } from '@/types/project';
-import type { Person } from '@/types/people';
-import type { Tag } from '@/types/tag';
+import { useProjectStore, usePeopleStore, useTagStore, useToastStore, useCalendarStore } from '@/store';
+import type { Project, Person, Tag } from '@/types';
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { isIpad } from '@/utils/deviceUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform, Pressable } from 'react-native';
-import { useToastStore } from '@/store/ToastStore';
-import { useAutoFocus } from '@/hooks/useAutoFocus';
-import { useTagStore } from '@/store/TagStore';
+import { useAutoFocus } from '@/hooks';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useCalendarStore } from '@/store/CalendarStore';
 
 interface AddProjectModalProps {
   open: boolean;

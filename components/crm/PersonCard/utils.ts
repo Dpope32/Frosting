@@ -1,4 +1,3 @@
-import type { Person } from '@/types/people';
 
 export const formatPhoneNumber = (phone: string): string => {
   const cleaned = phone.replace(/\D/g, '');

@@ -1,9 +1,8 @@
 import React from 'react'
 import { XStack, YStack, Text } from 'tamagui'
 import { Image } from 'react-native'
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { isIpad } from '@/utils/deviceUtils'
-import { getDaysUntilDeadline } from './projectCardUtils';
 
 interface ProjectCardDetailsProps {
   project: Project

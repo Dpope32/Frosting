@@ -1,6 +1,6 @@
 import React from 'react'
 import { isWeb } from 'tamagui'
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { ProjectCardWebView } from './ProjectCard/ProjectCardWebView';
 import { ProjectCardMobile } from './ProjectCardMobile'
 

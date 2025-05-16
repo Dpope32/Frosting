@@ -5,11 +5,9 @@
 
 import { Dimensions, ViewStyle } from 'react-native';
 import { SharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import type { Note, Attachment } from '@/types/notes';
-import type { Tag } from '@/types/tag';
-import type { NoteStore } from '@/store/NoteStore';
+import type { Note, Attachment, Tag } from '@/types';
+import type { NoteStore } from '@/store';
 import { triggerHaptic, setupEditNote } from './noteService';
-import { isIpad } from '@/utils/deviceUtils';
 import { GestureResponderEvent } from 'react-native';
 import React from 'react';
 

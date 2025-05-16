@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Person } from '@/types/people';
+import type { Person } from '@/types';
 
 interface CRMStoreState {
   expandedPersonId: string | null;
@@ -20,7 +20,7 @@ export const useCRMStore = create<CRMStoreState>()((set) => ({
   openEditModal: (person) => set({ 
     isEditModalOpen: true,
     selectedPerson: person,
-    expandedPersonId: null // Close person card when opening edit modal
+    expandedPersonId: null 
   }),
   closeEditModal: () => set({ 
     isEditModalOpen: false,

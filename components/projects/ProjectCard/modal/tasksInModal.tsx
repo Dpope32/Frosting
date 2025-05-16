@@ -1,7 +1,7 @@
 import React from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import type { TaskPriority } from '@/types/task';
+import type { TaskPriority } from '@/types';
 import { getPriorityColor } from '@/utils/styleUtils';
 import { isIpad } from '@/utils/deviceUtils';
 import { getTaskBackgroundColor } from '@/components/projects/ProjectCard/projectCardUtils';
@@ -11,7 +11,7 @@ interface Task {
   name: string;
   priority: TaskPriority;
   completed: boolean;
-  [key: string]: any; // allows for other task properties
+  [key: string]: any; 
 }
 
 interface TasksInModalProps {

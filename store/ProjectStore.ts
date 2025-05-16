@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import { Project } from '@/types/project';
+import { Project } from '@/types';
 
 interface ProjectStore {
   projects: Project[];

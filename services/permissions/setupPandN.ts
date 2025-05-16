@@ -1,5 +1,5 @@
 import { configureNotifications } from '@/services/notificationServices';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 // Function to handle permission requests and notification setup
 // This will be called from the onboarding flow after the user views the permissions screen
 export async function setupPermissionsAndNotifications(permissions: any) {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { XStack, Text, Button, isWeb } from 'tamagui'
-import { TaskPriority } from '@/types/task'
+import { TaskPriority } from '@/types'
 import { getPriorityColor } from '@/utils/styleUtils'
 
 interface TaskListItemProps {

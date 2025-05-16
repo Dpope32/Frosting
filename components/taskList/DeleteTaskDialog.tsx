@@ -1,8 +1,8 @@
 // components/tasklist/DeleteTaskDialog.tsx
 import React, { useState } from 'react'
 import { AlertDialog, Button, YStack, XStack, isWeb, Spinner, Text } from 'tamagui'
-import { Task } from '@/types/task'
-import { useColorScheme as useRNColorScheme } from 'react-native'
+import { Task } from '@/types'
+import { useColorScheme } from '@/hooks'
 
 interface DeleteTaskDialogProps {
   task: Task | null
@@ -12,7 +12,7 @@ interface DeleteTaskDialogProps {
 }
 
 export const DeleteTaskDialog: React.FC<DeleteTaskDialogProps> = ({ task, isOpen, onCancel, onConfirm }) => {
-  const isDark = useRNColorScheme() === 'dark'
+  const isDark = useColorScheme() === 'dark'
   const [isDeleting, setIsDeleting] = useState(false)
   
   const handleConfirm = () => {

@@ -1,7 +1,7 @@
 import { getWallpapers, isImagePreloaded } from '@/services';
-import { useWallpaperStore } from '@/store/WallpaperStore';
+import { useWallpaperStore } from '@/store';
 import { ImageSourcePropType } from 'react-native';
-import { BackgroundStyleOption } from '@/types/background';
+import { BackgroundStyleOption } from '@/types';
 
 const s3Wallpapers = getWallpapers();
 

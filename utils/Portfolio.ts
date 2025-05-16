@@ -1,6 +1,6 @@
 // src/utils/Portfolio.ts
-import { Stock } from "@/types/onboarding";
-import { StorageUtils } from '../store/AsyncStorage';
+import { Stock } from "@/types";
+import { StorageUtils } from '@/store/AsyncStorage';
 
 const defaultPortfolio: Stock[] = [
   { symbol: 'TSLA', quantity: 1, name: 'Tesla' },

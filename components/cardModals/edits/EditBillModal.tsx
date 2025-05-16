@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, Input, Text, YStack, XStack, View, isWeb } from 'tamagui'
-import { useUserStore } from '@/store/UserStore'
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import { TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
-import { getOrdinalSuffix } from '@/store/BillStore'
-import { useAutoFocus } from '@/hooks/useAutoFocus'
-import { Bill } from '@/types/bills'
+import { getOrdinalSuffix, useUserStore } from '@/store'
+import { useAutoFocus } from '@/hooks'
+import { Bill } from '@/types'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 
 interface EditBillModalProps {

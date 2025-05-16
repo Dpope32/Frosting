@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Platform, useColorScheme } from 'react-native';
 import { Button, Input, Text, YStack, XStack } from 'tamagui';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 
 interface IncomeModalProps {

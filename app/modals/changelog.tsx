@@ -6,10 +6,10 @@ import { Text, YStack, XStack, Button, isWeb } from 'tamagui';
 import { ChevronLeft, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRouter } from 'expo-router';
-import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
+import { useMarkdownStyles } from '@/hooks';
 import type { TextStyle } from 'react-native';
 import { CHANGELOG } from '@/constants/changelog';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { isIpad } from '@/utils/deviceUtils';
 import Animated, { FadeIn, FadeInDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 

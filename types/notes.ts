@@ -1,10 +1,5 @@
 // types/notes.ts
-export type Tag = {
-    id: string
-    name: string
-    color?: string
-  }
-  
+import { Tag } from './tag';
   export type Attachment = {
     id: string
     name: string

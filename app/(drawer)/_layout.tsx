@@ -8,7 +8,7 @@ import { View, Image, Text, Platform, TouchableOpacity, Pressable } from 'react-
 
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
 import { LegalButton } from '@/components/drawer/LegalButton';

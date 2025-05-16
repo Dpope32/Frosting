@@ -1,8 +1,8 @@
-import { useProjectStore } from '@/store/ProjectStore'
 import { useProjectStore as useTaskStore } from '@/store/ToDo'
+import { useProjectStore } from '@/store';
 import { getRecommendedTasks, RecommendationCategory, RecommendedTask } from '@/constants/recommendations/TaskRecommendations';
-import { Task } from '@/types/task'; 
-import { Project } from '@/types/project';
+import { Project, Task } from '@/types';
+
 
 // Don't use hooks at module level, use getState() instead
 

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, isWeb } from 'tamagui'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
-import { usePortfolioStore, updatePrincipal } from '@/store/PortfolioStore'
-import { useEditStockStore } from '@/store/EditStockStore'
+import { usePortfolioStore, updatePrincipal, useEditStockStore } from '@/store'
 import { HoldingsCards } from '@/components/modals/HoldingsCards'
 import { StockCard } from '@/components/modals/StockCard'
 

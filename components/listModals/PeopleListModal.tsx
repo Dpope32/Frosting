@@ -2,8 +2,7 @@ import React from 'react';
 import { YStack, XStack, Text, Button } from 'tamagui';
 import { Platform, useColorScheme, Alert } from 'react-native';
 import { BaseCardWithRecommendationsModal } from '../recModals/BaseCardWithRecommendationsModal';
-import { usePeopleStore } from '@/store/People';
-import { useToastStore } from '@/store/ToastStore';
+import { usePeopleStore, useToastStore } from '@/store';
 import { Ionicons } from '@expo/vector-icons';
 import type { Person } from '@/types/people';
 

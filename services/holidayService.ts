@@ -1,4 +1,4 @@
-import { CalendarEvent } from '@/store/CalendarStore';
+import { CalendarEvent } from '@/store/';
 import Holidays from 'date-holidays';
 
 // List of holidays to exclude from display

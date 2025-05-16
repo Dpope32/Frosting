@@ -1,5 +1,5 @@
 // portfolioService.ts
-import { PortfolioQueryData } from '@/types/stocks';
+import { PortfolioQueryData } from '@/types';
 
 // Portfolio calculations that don't use hooks
 export const calculateBuyIndicator = (

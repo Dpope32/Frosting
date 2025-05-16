@@ -6,11 +6,8 @@ import { X, Pencil, Check } from '@tamagui/lucide-icons';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from '@/components/notes/FormattingToolbar';
 import { ContentInput } from '@/components/notes/ContentInput'; 
-import type { Note, Attachment } from '@/types/notes';
-import type { Tag } from '@/types/tag';
-import { useUserStore } from '@/store/UserStore';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { isIpad } from '@/utils/deviceUtils';
+import type { Note, Attachment, Tag } from '@/types';
+import { useUserStore, useColorScheme, isIpad } from '@/store';
 
 interface AddNoteSheetProps {
   isModalOpen: boolean;

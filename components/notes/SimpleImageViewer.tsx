@@ -2,7 +2,7 @@
 import React from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View, Platform, TouchableWithoutFeedback, useColorScheme, NativeSyntheticEvent, Image, ImageErrorEventData, ImageProps } from 'react-native'; 
 import { X } from '@tamagui/lucide-icons';
-import { useToastStore } from '@/store/ToastStore';
+import { useToastStore } from '@/store';
 import { PanGestureHandler, PinchGestureHandler, State, PanGestureHandlerGestureEvent, PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,

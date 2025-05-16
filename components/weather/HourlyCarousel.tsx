@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
 import { YStack, Text, isWeb } from 'tamagui';
-import { useWeatherStore } from '@/store/WeatherStore';
+import { useWeatherStore } from '@/store';
 import { getWeatherIcon } from '@/components/weather/weatherUtils';
 import { getTemperatureColor } from '@/services/weatherServices';
 import { useColorScheme } from 'react-native';

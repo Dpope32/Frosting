@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import type { Tag } from '@/types/tag';
+import type { Tag } from '@/types';
 
 interface TagStoreState {
   tags: Tag[];

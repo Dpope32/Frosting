@@ -1,13 +1,12 @@
 import React, { useState, useCallback } from "react";
 import { Button, Text } from "tamagui";
-import { useUserStore } from "@/store/UserStore";
-import { useImagePicker } from "@/hooks/useImagePicker";
+import { useImagePicker } from "@/hooks";
 import { BaseCardModal } from "@/components/baseModals/BaseCardModal";
 import { Platform, useColorScheme } from "react-native";
-import type { Person } from "@/types/people";
+import type { Person } from "@/types";
 import { format } from "date-fns";
 import { FormContent } from "./FormContent";
-import { useToastStore } from "@/store/ToastStore";
+import { useToastStore, useUserStore } from "@/store";
 import { XStack } from "tamagui";
 
 type FormData = Omit<Person, "id" | "createdAt" | "updatedAt">;

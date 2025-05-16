@@ -1,5 +1,5 @@
 
-import { CalendarEvent } from '@/store/CalendarStore'
+import { CalendarEvent } from '@/store'
 
 export interface EventModalProps {
     isEventModalVisible: boolean

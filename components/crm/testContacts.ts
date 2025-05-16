@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
-import { usePeopleStore } from "@/store/People";
-import type { Tag } from '@/types/tag';
+import { usePeopleStore } from "@/store";
+import type { Tag } from '@/types';
 import { generateId } from '@/constants/devNotes';
 
 const getRandomProfilePicture = () => {

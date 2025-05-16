@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Button, Input, YStack, XStack, isWeb } from 'tamagui'
-import { useUserStore } from '@/store/UserStore'
+import { useUserStore } from '@/store'
 import { BaseCardAnimated } from '../../baseModals/BaseCardAnimated'
 import {  Platform, useColorScheme } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { isIpad } from '@/utils/deviceUtils'
-import { useAutoFocus } from '@/hooks/useAutoFocus'
+import { useAutoFocus } from '@/hooks'
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 
 interface AddVaultEntryModalProps {

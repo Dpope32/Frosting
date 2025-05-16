@@ -3,12 +3,8 @@ import { Alert } from 'react-native'
 import { StorageUtils } from '@/store/AsyncStorage'
 import { router } from 'expo-router';
 import { Button, XStack, Text, isWeb } from 'tamagui';
-import { useUserStore } from '@/store/UserStore';
-import { useBillStore } from '@/store/BillStore'; 
-import { useProjectStore } from '@/store/ToDo'; 
-import { usePeopleStore } from '@/store/People'; 
-import { useNoteStore } from '@/store/NoteStore';
-import { useToastStore } from '@/store/ToastStore';
+import { useUserStore, useToastStore, useBillStore, usePeopleStore, useNoteStore } from '@/store'
+import { useProjectStore } from '@/store/ToDo'
 import type { Settings } from './utils'
 
 export const SettingsModalFooter = ({

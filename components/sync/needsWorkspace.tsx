@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
 
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore } from '@/store';
 import { Ionicons } from '@expo/vector-icons';
 import { baseSpacing } from './sharedStyles';
 

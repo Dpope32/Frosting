@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
-import { useProjectStore } from '@/store/ProjectStore';
-import type { Project } from '@/types/project';
-import type { Tag } from '@/types/tag';
+import { useProjectStore } from '@/store';
+import type { Project, Tag } from '@/types';
 
 // Hook to manage project list and add/edit modal state
 export function useProjects() {

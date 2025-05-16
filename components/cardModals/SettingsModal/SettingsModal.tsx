@@ -2,8 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { View, ActivityIndicator, StyleSheet, Modal, useColorScheme, Platform } from 'react-native' 
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { YStack, Text, Spinner, isWeb } from 'tamagui';
-import { useUserStore } from '@/store/UserStore';
-import { useWallpaperStore } from '@/store/WallpaperStore';
+import { useUserStore, useWallpaperStore } from '@/store'
 import { colorOptions } from '../../../constants/Colors';
 import { backgroundStyles, wallpapers, BackgroundStyle } from '../../../constants/Backgrounds'; 
 import { ColorPickerModal } from '../shared/ColorPickerModal'

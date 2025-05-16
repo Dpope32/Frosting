@@ -1,5 +1,5 @@
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
-import { defaultPreferences } from '@/store/UserStore';
+import { defaultPreferences } from '@/store';
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
 // stub StorageUtils before any source file executes
 jest.mock(

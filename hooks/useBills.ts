@@ -1,12 +1,10 @@
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { useBillStore } from '@/store/BillStore';
-import { Bill } from '@/types/bills';
+import { Bill, Task, WeekDay } from '@/types';
 import { useMemo } from 'react';
-import { useCalendarStore, CalendarEvent } from '@/store/CalendarStore';
+import { useCalendarStore, CalendarEvent, useToastStore } from '@/store';
 import { useProjectStore } from '@/store/ToDo';
-import { WeekDay, Task } from '@/types/task';
 import { format } from 'date-fns';
-import { useToastStore } from '@/store/ToastStore';
 
 // Use the proper types derived from CalendarEvent
 type EventToAdd = Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>;

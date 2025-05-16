@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import type { Attachment } from '@/types/notes';
-import type { Tag } from '@/types/tag';
+import type { Attachment, Tag } from '@/types';
 
 export const createNoteHandlers = (
   setEditTags: (tags: Tag[]) => void,

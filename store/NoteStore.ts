@@ -1,7 +1,7 @@
 // store/NoteStore.ts
 import { create } from 'zustand'
 import { StorageUtils } from '@/store/AsyncStorage'
-import type { Note } from '@/types/notes'
+import type { Note } from '@/types'
 import { generateNoteId } from '@/services'
 
 const NOTES_STORAGE_KEY = 'notes-store-data'

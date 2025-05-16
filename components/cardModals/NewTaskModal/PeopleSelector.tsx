@@ -2,7 +2,7 @@ import React from 'react';
 import { XStack, Text, Button, YStack } from 'tamagui';
 import { useColorScheme, Image } from 'react-native';
 import { isIpad } from '@/utils/deviceUtils';
-import { Person } from '@/types/people';
+import { Person } from '@/types';
 
 interface PeopleSelectorProps {
   people: Person[];

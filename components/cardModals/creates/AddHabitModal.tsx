@@ -4,15 +4,14 @@ import { YStack, Text, Button } from 'tamagui';
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 import { scheduleDailyHabitNotification } from '@/services/notificationServices';
 import { CategorySelector } from '@/components/cardModals/NewTaskModal/CategorySelector';
-import { TaskCategory } from '@/types/task';
+import { TaskCategory } from '@/types';
 import { useColorScheme } from 'react-native';
-import { useToastStore } from '@/store/ToastStore';
+import { useToastStore, useUserStore } from '@/store';
 import { format } from 'date-fns';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useAutoFocus } from '@/hooks/useAutoFocus';
 import { NotificationTimePicker } from '@/components/shared/NotificationTimePicker';
 import { isIpad } from '@/utils/deviceUtils';
-import { useUserStore } from '@/store/UserStore';
 
 interface AddHabitModalProps {
   isVisible: boolean;

@@ -1,9 +1,7 @@
 // Update useSportsAPI.tsx
 import { useQueries } from '@tanstack/react-query';
 import { getCurrentTeamCode, getESPNTeamCode, getNBASeason, fetchWithRetry } from '@/services';
-import type { Game } from '@/store/NBAStore';
-import { useNBAStore } from '@/store/NBAStore';
-import { useUserStore } from '@/store/UserStore';
+import { useUserStore, Game, useNBAStore } from '@/store';
 import { nbaTeams } from '@/constants/nba';
 import React from 'react';
 

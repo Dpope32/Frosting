@@ -3,12 +3,11 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { useProjectStore } from './ToDo'
-import { WeekDay } from '@/types/task'
 import { scheduleEventNotification } from '@/services/notificationServices'
 import { format } from 'date-fns'
 import { Platform } from 'react-native'
 import { usePeopleStore } from './People'
-import type { Person } from '@/types/people'
+import type { Person, WeekDay } from '@/types'
 import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services'
 
 export interface CalendarEvent {

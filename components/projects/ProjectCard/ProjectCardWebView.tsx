@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { XStack, YStack, Text } from 'tamagui'
 import { Check } from '@tamagui/lucide-icons'
-import { Project } from '@/types/project'
+import { Project } from '@/types'
 import { ProjectAttachments } from './ProjectAttachments'
 import { ProjectCardHeader } from './ProjectCardHeader'
 import { TaskListItem } from './TaskListItem'

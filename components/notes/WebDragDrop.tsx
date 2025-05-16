@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, memo } from 'react';
 import { Platform, StyleSheet, ScrollView } from 'react-native';
 import { XStack, Stack, StackProps } from 'tamagui';
 import { NoteCard } from '@/components/notes/NoteCard';
-import type { Note } from '@/types/notes';
+import type { Note } from '@/types';
 
 type DragSourceMonitor = any;
 type DropTargetMonitor = any;
