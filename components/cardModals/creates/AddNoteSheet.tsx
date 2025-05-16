@@ -7,7 +7,10 @@ import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from '@/components/notes/FormattingToolbar';
 import { ContentInput } from '@/components/notes/ContentInput'; 
 import type { Note, Attachment, Tag } from '@/types';
-import { useUserStore, useColorScheme, isIpad } from '@/store';
+import { useUserStore } from '@/store';
+import { useWallpaperStore } from '@/store/WallpaperStore';
+import { useColorScheme } from '@/hooks';
+import { isIpad } from '@/utils';
 
 interface AddNoteSheetProps {
   isModalOpen: boolean;
