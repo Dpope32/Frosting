@@ -20,20 +20,26 @@ import { addSyncLog } from "@/components/sync/syncUtils";
 // ————————————————————— PUSH ——————————————————————
 export const pushSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
-
+  const runId = Date.now().toString(36)
+  addSyncLog(`🛰️  ${runId} – push`, 'info');
   try {
     addSyncLog("Pushing snapshot to PocketBase", "info");
 
     // guards
     if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
+      Sentry.addBreadcrumb({ category:'sync', level:'warning',
+         message:'Skipped push – onboarding not completed' });
       addSyncLog("Skipping push – onboarding not completed", "warning");
       return;
     }
 
     if (!(await checkNetworkConnectivity())) {
-      addSyncLog("Skipping push – no network connection", "warning");
-      return;
-    }
+      Sentry.addBreadcrumb({ category:'sync', level:'warning',
+         message:'Skipped push – no network' });
+         addSyncLog('Skipping push – no network connection', 'warning');
+         return;
+      }
+      
 
     const pb = await getPocketBase();
     const workspaceId = await getCurrentWorkspaceId();
@@ -51,6 +57,7 @@ export const pushSnapshot = async (): Promise<void> => {
     });
 
     addSyncLog("Successfully pushed data to PocketBase", "info");
+    addSyncLog(`🛰️  ${runId} – push done`, 'success');
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(
@@ -69,7 +76,8 @@ export const pushSnapshot = async (): Promise<void> => {
 // ————————————————————— PULL ——————————————————————
 export const pullLatestSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
-
+  const runId = Date.now().toString(36);
+  addSyncLog(`🛰️  ${runId} – pull`, 'info');
   try {
     addSyncLog("🔄 Pulling latest snapshot from PocketBase", "info");
 
@@ -121,6 +129,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     useRegistryStore.getState().setSyncStatus("syncing");
     useRegistryStore.getState().hydrateAll(plain);
     addSyncLog("✅ Snapshot pulled & stores hydrated", "success");
+    addSyncLog(`🛰️  ${runId} – pull done`, 'success');
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(

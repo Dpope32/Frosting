@@ -22,76 +22,58 @@ export const createOrJoinWorkspace = async (
   workspaceId?: string,
   inviteCode?: string,
 ): Promise<WorkspaceMeta> => {
-  const pb = await getPocketBase();
+  const pb       = await getPocketBase();
   const deviceId = await generateSyncKey();
 
-  try {
-    addSyncLog("Creating or joining workspace", "info");
+  // ------------------------------------------------ JOIN
+  if (workspaceId && inviteCode) {
+    const ws = await pb.collection('sync_workspaces').getOne(workspaceId);
 
-    // —————————————————— JOIN ——————————————————
-    if (workspaceId && inviteCode) {
-      const workspace = await pb.collection("sync_workspaces").getOne(workspaceId);
-      addSyncLog("Workspace found", "info");
+    if (ws.invite_code !== inviteCode) throw new Error('Invalid invite code');
 
-      if (workspace.invite_code !== inviteCode) {
-        addSyncLog("Invalid invite code", "error");
-        throw new Error("Invalid invite code");
-      }
-
-      // append this device (filter removes empty strings)
-      await pb.collection("sync_workspaces").update(workspaceId, {
-        device_ids: [...(workspace.device_ids ?? []), deviceId].filter(Boolean),
-      });
-
-      await FileSystem.writeAsStringAsync(
-        `${FileSystem.documentDirectory}workspace_id.txt`,
-        workspaceId,
-      );
-
-      // push local state ⇢ server so the workspace has a baseline snapshot
-      await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
-      await pushSnapshot();
-      addSyncLog("✅ Joined workspace, exported + pushed state", "success");
-      // immediately pull the freshest snapshot (could be ours or another device's)
-      await pullLatestSnapshot();
-      addSyncLog("✅ Pulled latest snapshot", "success");
-
-      return { id: workspaceId, inviteCode: workspace.invite_code };
+    // 🔑 ensure shared_key exists
+    let sharedKey = ws.shared_key as string;
+    if (!sharedKey) {
+      sharedKey = generateRandomKey();
+      await pb.collection('sync_workspaces')
+              .update(workspaceId, { shared_key: sharedKey });
     }
+    await storage.set(`ws_key_${workspaceId}`, sharedKey);
 
-    // —————————————————— CREATE ——————————————————
-    addSyncLog("📡 Creating new sync workspace.", "info");
+    // add device + save file + push/pull
+    await pb.collection('sync_workspaces')
+            .update(workspaceId, { device_ids: [...ws.device_ids, deviceId] });
+    await FileSystem.writeAsStringAsync(`${FileSystem.documentDirectory}workspace_id.txt`, workspaceId);
 
-    const newInviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const sharedKey = generateRandomKey();         
-    const newWorkspace = await pb
-      .collection('sync_workspaces')
-      .create({
-        owner_device_id: deviceId,
-        device_ids: [deviceId],
-        invite_code: newInviteCode,
-        shared_key: sharedKey,                    
-      });
-
-    addSyncLog(`✅ Created sync workspace with ID: ${newWorkspace.id}`, "success");
-
-    await FileSystem.writeAsStringAsync(
-      `${FileSystem.documentDirectory}workspace_id.txt`,
-      newWorkspace.id,
-    );
-
-    addSyncLog(`📁 Saved workspace ID to file: ${newWorkspace.id}`, "verbose");
-
-    // push first snapshot so future joiners have something to pull
     await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
     await pushSnapshot();
+    await pullLatestSnapshot();
 
-    return { id: newWorkspace.id, inviteCode: newInviteCode };
-  } catch (err) {
-    console.error("Error creating/joining workspace:", err);
-    throw err;
+    return { id: workspaceId, inviteCode };
   }
+
+  // ------------------------------------------------ CREATE
+  const sharedKey    = generateRandomKey();                 // << generate once
+  const newInvite    = Math.random().toString(36).slice(2,10).toUpperCase();
+  const newWorkspace = await pb.collection('sync_workspaces').create({
+    owner_device_id : deviceId,
+    device_ids      : [deviceId],
+    invite_code     : newInvite,
+    shared_key      : sharedKey,
+  });
+
+  await storage.set(`ws_key_${newWorkspace.id}`, sharedKey);
+  await FileSystem.writeAsStringAsync(
+    `${FileSystem.documentDirectory}workspace_id.txt`,
+    newWorkspace.id,
+  );
+
+  await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
+  await pushSnapshot();
+
+  return { id: newWorkspace.id, inviteCode: newInvite };
 };
+
 
 
 /**
