@@ -399,17 +399,17 @@ export const useProjectStore = create<ProjectStore>()(
               addSyncLog(`🔄 Syncing new task: ${newTask.name}`, 'info');
               
               // Import sync modules dynamically to avoid circular dependencies
-              const syncModules = await import('@/sync/snapshotPushPull');
-              const registryModules = await import('@/sync/registrySyncManager');
+              const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
+              const { exportEncryptedState } = await import('@/sync/exportState.js');
               
               // Get all store states
               const allStates = useRegistryStore.getState().getAllStoreStates();
               
               // Export encrypted state
-              await registryModules.exportEncryptedState(allStates);
+              await exportEncryptedState(allStates);
               
               // Push snapshot
-              await syncModules.pushSnapshot();
+              await pushSnapshot();
               
               // Update sync status to idle
               useRegistryStore.getState().setSyncStatus('idle');
@@ -443,17 +443,17 @@ export const useProjectStore = create<ProjectStore>()(
               addSyncLog(`🔄 Syncing task deletion: ${taskName}`, 'info');
               
               // Import sync modules dynamically to avoid circular dependencies
-              const syncModules = await import('@/sync/snapshotPushPull');
-              const registryModules = await import('@/sync/registrySyncManager');
+              const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
+              const { exportEncryptedState } = await import('@/sync/exportState.js');
               
               // Get all store states
               const allStates = useRegistryStore.getState().getAllStoreStates();
               
               // Export encrypted state
-              await registryModules.exportEncryptedState(allStates);
+              await exportEncryptedState(allStates);
               
               // Push snapshot
-              await syncModules.pushSnapshot();
+              await pushSnapshot();
               
               // Update sync status to idle
               useRegistryStore.getState().setSyncStatus('idle');
@@ -528,27 +528,22 @@ export const useProjectStore = create<ProjectStore>()(
           // SYNC INTEGRATION - Add sync functionality for premium users
           const isPremium = useUserStore.getState().preferences.premium === true;
           if (isPremium) {
-            // Use setTimeout to not block the UI update
             setTimeout(async () => {
               try {
-                // Set sync status to syncing for UI feedback
                 useRegistryStore.getState().setSyncStatus('syncing');
                 addSyncLog(`🔄 Syncing task toggle: ${tasks[id].name}`, 'info');
                 
-                // Import sync modules dynamically to avoid circular dependencies
-                const syncModules = await import('@/sync/snapshotPushPull');
-                const registryModules = await import('@/sync/registrySyncManager');
+                // Fix: Import from the correct module path
+                const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
+                const { exportEncryptedState } = await import('@/sync/exportState.js');
                 
                 // Get all store states
                 const allStates = useRegistryStore.getState().getAllStoreStates();
                 
-                // Export encrypted state
-                await registryModules.exportEncryptedState(allStates);
+                // Export encrypted state and push snapshot
+                await exportEncryptedState(allStates);
+                await pushSnapshot();
                 
-                // Push snapshot
-                await syncModules.pushSnapshot();
-                
-                // Update sync status to idle
                 useRegistryStore.getState().setSyncStatus('idle');
                 addSyncLog(`✅ Task toggle synced: ${tasks[id].name}`, 'success');
               } catch (error) {
@@ -619,17 +614,17 @@ export const useProjectStore = create<ProjectStore>()(
                 addSyncLog(`🔄 Syncing task update: ${updatedTask.name}`, 'info');
                 
                 // Import sync modules dynamically to avoid circular dependencies
-                const syncModules = await import('@/sync/snapshotPushPull');
-                const registryModules = await import('@/sync/registrySyncManager');
+                const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
+                const { exportEncryptedState } = await import('@/sync/exportState.js');
                 
                 // Get all store states
                 const allStates = useRegistryStore.getState().getAllStoreStates();
                 
                 // Export encrypted state
-                await registryModules.exportEncryptedState(allStates);
+                await exportEncryptedState(allStates);
                 
                 // Push snapshot
-                await syncModules.pushSnapshot();
+                await pushSnapshot();
                 
                 // Update sync status to idle
                 useRegistryStore.getState().setSyncStatus('idle');
