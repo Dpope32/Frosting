@@ -103,7 +103,18 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     setSyncStatus: (status) => set({ syncStatus: status }),
     setNotificationStatus: (status) => set({ notificationStatus: status }),
     setStocksLastUpdated: (timestamp) => set({ stocksLastUpdated: timestamp }),
-    setWorkspaceId: (id) => set({ workspaceId: id }),
+    setWorkspaceId: (id) => {
+      set({ workspaceId: id });
+      if (id) {
+        addSyncLog(`Workspace ID set: ${id}`, 'info');
+      } else {
+        addSyncLog('Workspace ID cleared', 'info');
+      }
+      
+      setTimeout(() => {
+        set({ syncStatus: 'idle' });
+      }, 50);
+    },
 
     // Fixed debounced notification check
     checkNotificationStatus: () => {
@@ -118,17 +129,13 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         
       return {
         habits: grab(useHabitStore.getState()),
-        weather: grab(useWeatherStore.getState()),
         bills: grab(useBillStore.getState()),
         calendar: grab(useCalendarStore.getState()),
         tasks: grab(useProjectStore.getState()),
         notes: grab(useNoteStore.getState()),
-        wallpapers: grab(useWallpaperStore.getState()),
         user: grab(useUserStore.getState()),
-        network: grab(useNetworkStore.getState()),
         vault: grab(useVaultStore.getState()),
         crm: grab(useCRMStore.getState()),
-        portfolio: grab(usePortfolioStore.getState()),
         people: grab(usePeopleStore.getState()),
         customCategory: grab(useCustomCategoryStore.getState()),
         tags: grab(useTagStore.getState()),
@@ -200,8 +207,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         let successCount = 0;
         let errorCount = 0;
     
-        // Fix the nested forEach issue from original code
-        // Directly handle each store type
+        // Handle each store type
         if (data.habits) {
           try {
             if (validators.habits && !validators.habits(data.habits)) {
@@ -209,6 +215,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
             } else {
               useHabitStore.setState(data.habits);
               successCount++;
+              addSyncLog('✅ Rehydrated habits store', 'verbose');
             }
           } catch (err) {
             errorCount++;
@@ -220,20 +227,41 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           try {
             useProjectStore.setState(data.tasks);
             successCount++;
+            addSyncLog('✅ Rehydrated tasks store', 'verbose');
           } catch (err) {
             errorCount++;
             addSyncLog(`❌ Error hydrating tasks`, 'error');
           }
         }
+        
+        // Add other stores that might be missing
+        if (data.projects) {
+          try {
+            useProjectsStore.setState(data.projects);
+            successCount++;
+            addSyncLog('✅ Rehydrated projects store', 'verbose');
+          } catch (err) {
+            errorCount++;
+            addSyncLog(`❌ Error hydrating projects`, 'error');
+          }
+        }
+        
+        if (data.notes) {
+          try {
+            useNoteStore.setState(data.notes);
+            successCount++;
+            addSyncLog('✅ Rehydrated notes store', 'verbose');
+          } catch (err) {
+            errorCount++;
+            addSyncLog(`❌ Error hydrating notes`, 'error');
+          }
+        }
     
-        // Handle other stores similarly...
-        // This is a simplified example, you would need to add all other stores
-        // that you want to hydrate
-    
+        // Force UI refresh after hydration
         set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
         get().syncOnboardingWithUser();
         
-        // Single summary log instead of many individual logs
+        // Single summary log
         addSyncLog(`✨ Hydration complete: ${successCount} stores updated`, 'success');
       } catch (err) {
         addSyncLog(`❌ Hydration failed: ${(err as Error).message}`, 'error');

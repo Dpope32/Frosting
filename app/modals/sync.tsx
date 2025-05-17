@@ -99,6 +99,13 @@ export default function SyncScreen() {
         )
         return
       }
+      
+      if (!workspaceId) {
+        addSyncLog('❌ No workspace connected', 'error')
+        useToastStore.getState().showToast('No workspace connected', 'error')
+        return
+      }
+      
       setIsLoading(true)
       addSyncLog(`🚀 Starting ${type} sync`, 'info')
       try {
@@ -112,13 +119,29 @@ export default function SyncScreen() {
           const all = useRegistryStore
             .getState()
             .getAllStoreStates()
-          await exportEncryptedState(all)
-          addSyncLog('🔐 State encrypted', 'success')
+            
+          if (!all || typeof all !== 'object') {
+            throw new Error('Failed to get store states')
+          }
+          
+          try {
+            await exportEncryptedState(all)
+            addSyncLog('🔐 State encrypted', 'success')
+          } catch (encErr) {
+            addSyncLog('❌ Encryption failed', 'error', encErr instanceof Error ? encErr.message : String(encErr))
+            throw encErr
+          }
+          
           addSyncLog('📤 Pushing…', 'info')
           await pushSnapshot()
           addSyncLog('✅ Push success', 'success')
         }
         addSyncLog('✨ Sync finished', 'success')
+        
+        // Force UI refresh
+        setTimeout(() => {
+          useRegistryStore.getState().setSyncStatus('idle')
+        }, 300)
       } catch (e) {
         addSyncLog(
           '🔥 Sync aborted',
@@ -129,7 +152,7 @@ export default function SyncScreen() {
         setIsLoading(false)
       }
     },
-    [premium]
+    [premium, workspaceId]
   )
 
   const toggleDetails = React.useCallback((id: string) => {
@@ -184,6 +207,21 @@ export default function SyncScreen() {
   }, [syncLogs])
 
   const fontSizes = { xs: 10, sm: 12, md: 14, lg: 16, xl: 18 }
+
+  const onWorkspaceUpdated = React.useCallback((id: string, action: 'created' | 'joined') => {
+    setShowAddDevice(false)
+    setInitialModalMode(undefined)
+    setWorkspaceId(id)
+    addSyncLog(`Workspace ${action}: ${id}`, 'success')
+    
+    // Force refresh of registry state after workspace update
+    useRegistryStore.getState().setSyncStatus('idle')
+    
+    // Force re-render
+    setTimeout(() => {
+      useRegistryStore.getState().setSyncStatus('idle')
+    }, 100)
+  }, [setWorkspaceId])
 
   return (
     <ScrollView
@@ -301,18 +339,8 @@ export default function SyncScreen() {
           }}
           initialMode={initialModalMode}
           currentWorkspaceId={workspaceId}
-          onWorkspaceCreated={(id: string) => {
-            setShowAddDevice(false)
-            setInitialModalMode(undefined)
-            setWorkspaceId(id)
-            addSyncLog(`Workspace created: ${id}`, 'success')
-          }}
-          onWorkspaceJoined={(id: string) => {
-            setShowAddDevice(false)
-            setInitialModalMode(undefined)
-            setWorkspaceId(id)
-            addSyncLog(`Workspace joined: ${id}`, 'success')
-          }}
+          onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
+          onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
         />
       )}
     </ScrollView>

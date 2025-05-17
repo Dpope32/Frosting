@@ -54,6 +54,22 @@ export default function SyncTable({
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 350);
+  
+  // More explicit connection status determination
+  const connectionStatus = React.useMemo(() => {
+    if (!premium) return 'Premium Required';
+    if (syncStatus === 'error') return 'Error';
+    if (syncStatus === 'syncing') return 'Syncing';
+    if (currentSpaceId) return 'Connected';
+    return 'Not Connected';
+  }, [premium, syncStatus, currentSpaceId]);
+  
+  const statusColor = React.useMemo(() => {
+    if (syncStatus === 'error') return colors.error;
+    if (syncStatus === 'syncing') return colors.accent;
+    if (currentSpaceId) return colors.success;
+    return colors.subtext;
+  }, [syncStatus, currentSpaceId, colors]);
 
 return (
 <View style={{
@@ -90,8 +106,8 @@ return (
       <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
         Sync Status
       </Text>
-      <Text fontSize={fontSizes.sm} fontFamily="$body" color={syncStatus === 'error' ? colors.error : syncStatus === 'syncing' ? colors.accent : currentSpaceId ? colors.success : colors.subtext}>
-        {syncStatus === 'error' ? 'Error' : syncStatus === 'syncing' ? 'Syncing' : currentSpaceId ? 'Connected' : 'Not Connected'}
+      <Text fontSize={fontSizes.sm} fontFamily="$body" color={statusColor}>
+        {connectionStatus}
       </Text>
     </XStack>
     {deviceId && (

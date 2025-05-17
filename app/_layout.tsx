@@ -211,26 +211,46 @@ export default Sentry.wrap(function RootLayout() {
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
 
-    useEffect(() => {
-      if (!loaded) return;
+  useEffect(() => {
+    if (!loaded) return;
 
-      const isPremium = useUserStore.getState().preferences.premium === true;
-      if (!isPremium) return;
+    const isPremium = useUserStore.getState().preferences.premium === true;
+    if (!isPremium) return;
 
-
-      const handleAppStateChange = async (nextAppState: string) => {
-        try {
-          if (nextAppState === 'active') {
-            addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
+    const handleAppStateChange = async (nextAppState: string) => {
+      try {
+        if (nextAppState === 'active') {
+          addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
+          
+          // First update sync status to show activity
+          useRegistryStore.getState().setSyncStatus('syncing');
+          
           await syncModules.pullLatestSnapshot();
+          
+          // Update sync status to idle after successful operation
+          useRegistryStore.getState().setSyncStatus('idle');
+          addSyncLog('✅ Resume pull completed', 'success');
         } else if (nextAppState === 'background' || nextAppState === 'inactive') {
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
-          // exportEncryptedState has already been done in your big syncOnStartup,
-          // so just push what’s on disk:
+          
+          // Update sync status to show activity
+          useRegistryStore.getState().setSyncStatus('syncing');
+          
+          // Get current state and export it first (this part was missing)
+          const allStates = useRegistryStore.getState().getAllStoreStates();
+          await registryModules.exportEncryptedState(allStates);
+          
+          // Then push the exported state
           await syncModules.pushSnapshot();
+          
+          // Update sync status to idle after successful operation
+          useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Background push completed', 'success');
         }
       } catch (e: any) {
+        // Set error status on failure
+        useRegistryStore.getState().setSyncStatus('error');
+        
         addSyncLog(
           nextAppState === 'active'
             ? '❌ Resume pull failed'
@@ -240,6 +260,7 @@ export default Sentry.wrap(function RootLayout() {
         );
       }
     };
+    
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => {
       subscription.remove();
