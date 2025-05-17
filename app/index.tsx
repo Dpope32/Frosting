@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUserStore, 
   useRegistryStore, 
-  useProjectStore,
   useHabitStore,
   useBillStore,
   useCalendarStore, 
@@ -10,11 +9,14 @@ import { useUserStore,
   useCustomCategoryStore, 
   useTagStore, 
   useNoteStore, 
-  useProjectStore as useProjectsStore 
+  useProjectStore
 } from '@/store';
+import { useProjectStore as useProjectsStore } from '@/store/ToDo';
 import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { addSyncLog } from '@/components/sync/syncUtils';
+import { exportEncryptedState } from '@/sync/registrySyncManager';
+import { pullLatestSnapshot, pushSnapshot } from '@/sync/snapshotPushPull';
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
@@ -75,12 +77,10 @@ export default function Index() {
                 addSyncLog('🚀 Starting sync after hydration complete', 'info');
                 
                 // Access sync modules from the global scope (imported in _layout.tsx)
-                const syncModules = await import('@/sync/snapshotPushPull');
-                const registryModules = await import('@/sync/registrySyncManager');
                 
                 // Pull first to get latest data
                 addSyncLog('📥 Post-hydration sync: Pulling latest snapshot', 'info');
-                await syncModules.pullLatestSnapshot();
+                await pullLatestSnapshot();
                 addSyncLog('✅ Post-hydration sync: Pull completed', 'success');
                 
                 // Then prepare and push any local changes
@@ -94,11 +94,11 @@ export default function Index() {
                   return;
                 }
                 
-                await registryModules.exportEncryptedState(allStates);
+                await exportEncryptedState(allStates);
                 addSyncLog('🔐 Post-hydration sync: State encrypted', 'success');
                 
                 addSyncLog('📤 Post-hydration sync: Pushing snapshot', 'info');
-                await syncModules.pushSnapshot();
+                await pushSnapshot();
                 addSyncLog('✅ Post-hydration sync: Push completed', 'success');
               } catch (error) {
                 console.error('Post-hydration sync failed:', error);
