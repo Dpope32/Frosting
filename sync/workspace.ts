@@ -2,10 +2,8 @@
 import { getPocketBase } from "./pocketSync";
 import * as FileSystem from "expo-file-system";
 import { generateSyncKey, generateRandomKey, ensureWorkspaceKey, exportEncryptedState, pushSnapshot, pullLatestSnapshot } from "@/sync";
-import { addSyncLog } from "@/components/sync/syncUtils";
 import { useRegistryStore } from "@/store";
 import { storage } from "@/store/AsyncStorage";
-import { getCurrentWorkspaceId } from "./getWorkspace";
 
 const WS_KEY_PREFIX = 'ws_key_'; 
 export interface WorkspaceMeta {

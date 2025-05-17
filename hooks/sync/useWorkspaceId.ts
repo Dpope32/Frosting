@@ -1,29 +1,8 @@
-// hooks/sync/useWorkspaceId.ts
-import { useEffect, useState } from 'react'
-import { getCurrentWorkspaceId as getWsIdUtil } from '@/sync/workspace'
-import { addSyncLog } from '@/components/sync/syncUtils'
+import { useRegistryStore } from '@/store'
 
 export function useWorkspaceId(premium: boolean) {
-  const [workspaceId, setWorkspaceId] = useState<string | null>(null)
+  const workspaceId = useRegistryStore((s) => s.workspaceId)
+  const setWorkspaceId = useRegistryStore((s) => s.setWorkspaceId)
+  return { workspaceId: premium ? workspaceId ?? null : null, setWorkspaceId }
 
-  useEffect(() => {
-    if (!premium) {
-      setWorkspaceId(null)
-      return
-    }
-
-    async function loadWorkspace() {
-      try {
-        const id = await getWsIdUtil()  // await the Promise
-        setWorkspaceId(id)
-        addSyncLog(`Workspace ID loaded: ${id}`, 'info')
-      } catch (e) {
-        addSyncLog(`Failed to load workspace ID`, 'error', (e as Error).message)
-      }
-    }
-
-    loadWorkspace()
-  }, [premium])
-
-  return { workspaceId, setWorkspaceId }
 }

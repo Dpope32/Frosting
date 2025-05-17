@@ -20,7 +20,7 @@ import type { NotificationResponse } from 'expo-notifications';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore, useRegistryStore } from '@/store';
 import { Toast } from '@/components/Toast';
-import { useCalendarSync } from '@/hooks/useCalendarSync';
+import { useCalendarSync } from '@/hooks';
 import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/edits/EditStockModal';
 import { handleSharedContact } from '@/services';
