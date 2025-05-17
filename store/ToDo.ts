@@ -7,7 +7,6 @@ import { Task, WeekDay } from '@/types'
 import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils';
 import { addSyncLog } from '@/components/sync/syncUtils'
-import { useUserStore, useRegistryStore } from '@/store'
 
 // Enable debugging
 const DEBUG = false;
@@ -387,87 +386,12 @@ export const useProjectStore = create<ProjectStore>()(
         }
         tasks[id] = newTask
         set({ tasks, todaysTasks: taskFilter(tasks) })
-        
-        // SYNC INTEGRATION - Add sync functionality for premium users
-        const isPremium = useUserStore.getState().preferences.premium === true;
-        if (isPremium) {
-          // Use setTimeout to not block the UI update
-          setTimeout(async () => {
-            try {
-              // Set sync status to syncing for UI feedback
-              useRegistryStore.getState().setSyncStatus('syncing');
-              addSyncLog(`🔄 Syncing new task: ${newTask.name}`, 'info');
-              
-              // Import sync modules dynamically to avoid circular dependencies
-              const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
-              const { exportEncryptedState } = await import('@/sync/exportState.js');
-              
-              // Get all store states
-              const allStates = useRegistryStore.getState().getAllStoreStates();
-              
-              // Export encrypted state
-              await exportEncryptedState(allStates);
-              
-              // Push snapshot
-              await pushSnapshot();
-              
-              // Update sync status to idle
-              useRegistryStore.getState().setSyncStatus('idle');
-              addSyncLog(`✅ New task synced: ${newTask.name}`, 'success');
-            } catch (error) {
-              useRegistryStore.getState().setSyncStatus('error');
-              addSyncLog(
-                `❌ Failed to sync new task: ${newTask.name}`,
-                'error',
-                error instanceof Error ? error.message : String(error)
-              );
-            }
-          }, 100);
-        }
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }
-        const taskName = tasks[id]?.name || 'Unknown';
-        if (DEBUG) log(`Deleting task ${id}: ${taskName}`);
+        if (DEBUG) log(`Deleting task ${id}: ${tasks[id]?.name}`);
         delete tasks[id]
         set({ tasks, todaysTasks: taskFilter(tasks) })
-        
-        // SYNC INTEGRATION - Add sync functionality for premium users
-        const isPremium = useUserStore.getState().preferences.premium === true;
-        if (isPremium) {
-          // Use setTimeout to not block the UI update
-          setTimeout(async () => {
-            try {
-              // Set sync status to syncing for UI feedback
-              useRegistryStore.getState().setSyncStatus('syncing');
-              addSyncLog(`🔄 Syncing task deletion: ${taskName}`, 'info');
-              
-              // Import sync modules dynamically to avoid circular dependencies
-              const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
-              const { exportEncryptedState } = await import('@/sync/exportState.js');
-              
-              // Get all store states
-              const allStates = useRegistryStore.getState().getAllStoreStates();
-              
-              // Export encrypted state
-              await exportEncryptedState(allStates);
-              
-              // Push snapshot
-              await pushSnapshot();
-              
-              // Update sync status to idle
-              useRegistryStore.getState().setSyncStatus('idle');
-              addSyncLog(`✅ Task deletion synced: ${taskName}`, 'success');
-            } catch (error) {
-              useRegistryStore.getState().setSyncStatus('error');
-              addSyncLog(
-                `❌ Failed to sync task deletion: ${taskName}`,
-                'error',
-                error instanceof Error ? error.message : String(error)
-              );
-            }
-          }, 100);
-        }
       },
       toggleTaskCompletion: (id) => {
         if (DEBUG) log(`========== TOGGLING TASK COMPLETION: ${id} ==========`);
@@ -524,38 +448,6 @@ export const useProjectStore = create<ProjectStore>()(
           }
           
           set({ tasks, todaysTasks: updatedTodaysTasks });
-          
-          // SYNC INTEGRATION - Add sync functionality for premium users
-          const isPremium = useUserStore.getState().preferences.premium === true;
-          if (isPremium) {
-            setTimeout(async () => {
-              try {
-                useRegistryStore.getState().setSyncStatus('syncing');
-                addSyncLog(`🔄 Syncing task toggle: ${tasks[id].name}`, 'info');
-                
-                // Fix: Import from the correct module path
-                const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
-                const { exportEncryptedState } = await import('@/sync/exportState.js');
-                
-                // Get all store states
-                const allStates = useRegistryStore.getState().getAllStoreStates();
-                
-                // Export encrypted state and push snapshot
-                await exportEncryptedState(allStates);
-                await pushSnapshot();
-                
-                useRegistryStore.getState().setSyncStatus('idle');
-                addSyncLog(`✅ Task toggle synced: ${tasks[id].name}`, 'success');
-              } catch (error) {
-                useRegistryStore.getState().setSyncStatus('error');
-                addSyncLog(
-                  `❌ Failed to sync task toggle: ${tasks[id].name}`,
-                  'error',
-                  error instanceof Error ? error.message : String(error)
-                );
-              }
-            }, 100);
-          }
         } else {
           if (DEBUG) log(`Task ${id} not found!`);
         }
@@ -589,6 +481,7 @@ export const useProjectStore = create<ProjectStore>()(
             id: task.id, // Keep original ID
             createdAt: task.createdAt, // Keep original creation date
             // Preserve existing completion status and history unless explicitly part of updatedData
+            // (which is unlikely based on the Omit in the function signature)
             completed: task.completed,
             completionHistory: task.completionHistory || {}, // Ensure history is an object
           };
@@ -602,43 +495,6 @@ export const useProjectStore = create<ProjectStore>()(
           if (DEBUG) log(`Task list after update - count: ${updatedTodaysTasks.length}`);
 
           set({ tasks, todaysTasks: updatedTodaysTasks }); // Update state
-          
-          // SYNC INTEGRATION - Add sync functionality for premium users
-          const isPremium = useUserStore.getState().preferences.premium === true;
-          if (isPremium) {
-            // Use setTimeout to not block the UI update
-            setTimeout(async () => {
-              try {
-                // Set sync status to syncing for UI feedback
-                useRegistryStore.getState().setSyncStatus('syncing');
-                addSyncLog(`🔄 Syncing task update: ${updatedTask.name}`, 'info');
-                
-                // Import sync modules dynamically to avoid circular dependencies
-                const { pushSnapshot } = await import('@/sync/snapshotPushPull.js');
-                const { exportEncryptedState } = await import('@/sync/exportState.js');
-                
-                // Get all store states
-                const allStates = useRegistryStore.getState().getAllStoreStates();
-                
-                // Export encrypted state
-                await exportEncryptedState(allStates);
-                
-                // Push snapshot
-                await pushSnapshot();
-                
-                // Update sync status to idle
-                useRegistryStore.getState().setSyncStatus('idle');
-                addSyncLog(`✅ Task update synced: ${updatedTask.name}`, 'success');
-              } catch (error) {
-                useRegistryStore.getState().setSyncStatus('error');
-                addSyncLog(
-                  `❌ Failed to sync task update: ${updatedTask.name}`,
-                  'error',
-                  error instanceof Error ? error.message : String(error)
-                );
-              }
-            }, 100);
-          }
         } else {
           if (DEBUG) log(`Task ${taskId} not found for update!`);
         }
@@ -721,13 +577,23 @@ export const useProjectStore = create<ProjectStore>()(
                   addSyncLog(`Migrated task ${id} completion to history for date ${completionDate}`, 'info');
                 }
               }
+            } else {
+              const oldHistorySize = Object.keys(tasks[id].completionHistory).length;
+              tasks[id].completionHistory = Object.entries(tasks[id].completionHistory)
+                .filter(([date]) => new Date(date) >= thirtyDaysAgo)
+                .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
+              const newHistorySize = Object.keys(tasks[id].completionHistory).length;
+          
+              if (oldHistorySize !== newHistorySize && DEBUG) {
+                log(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`);
+              }
             }
             
             // Update completion status based on local date string
             if (tasks[id].recurrencePattern !== 'one-time') {
               const oldCompletedState = tasks[id].completed;
               tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false;
-             
+          
               if (oldCompletedState !== tasks[id].completed && DEBUG) {
                 log(`Updated completion status for task ${id} from ${oldCompletedState} to ${tasks[id].completed}`);
               }
@@ -740,7 +606,6 @@ export const useProjectStore = create<ProjectStore>()(
           }
           
           state.hydrated = true
-          addSyncLog(`Rehydrated tasks store`, 'info');
           // Update todaysTasks using the filter
           const todaysTasks = taskFilter(state.tasks)
           if (DEBUG) log(`After rehydration, found ${todaysTasks.length} tasks for today`);
@@ -749,6 +614,7 @@ export const useProjectStore = create<ProjectStore>()(
           if (DEBUG) log("No state found during rehydration or error occurred");
           if (error) log("Rehydration error:", error);
           useProjectStore.setState({ hydrated: true })
+          addSyncLog(`Rehydrated tasks store`, 'info', useStoreTasks().length.toString());
         }
       }
     }
