@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as Notifications from 'expo-notifications';
-import { exportEncryptedState } from '@/sync/registrySyncManager';
+import { exportEncryptedState } from '@/sync';
 import { debounce } from 'lodash';
 
 // Import all stores

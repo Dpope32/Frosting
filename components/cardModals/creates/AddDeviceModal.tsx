@@ -7,7 +7,7 @@ import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 import { useUserStore, useToastStore, useRegistryStore } from '@/store';
 import { TextInput } from 'react-native'; 
 import * as Clipboard from 'expo-clipboard';
-import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync/workspace';
+import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { baseSpacing, fontSizes, cardRadius, buttonRadius, getColors } from '@/components/sync/sharedStyles';
 

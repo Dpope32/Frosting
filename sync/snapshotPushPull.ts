@@ -14,7 +14,7 @@ import { useRegistryStore } from "@/store/RegistryStore";
 import { useUserStore } from "@/store/UserStore";
 import * as Sentry from "@sentry/react-native";
 import { checkNetworkConnectivity, getPocketBase } from "./pocketSync";
-import { getCurrentWorkspaceId } from "./workspace";
+import { getCurrentWorkspaceId } from "./getWorkspace";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { getWorkspaceKey } from "./workspaceKey";
 

@@ -6,6 +6,7 @@ import { Platform } from 'react-native'
 import { Task, WeekDay } from '@/types'
 import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils';
+import { addSyncLog } from '@/components/sync/syncUtils'
 
 // Enable debugging
 const DEBUG = false;
@@ -26,7 +27,8 @@ interface ProjectStore {
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
   getTodaysTasks: () => Task[]
   clearTasks: () => void
-  recalculateTodaysTasks: () => void; 
+  recalculateTodaysTasks: () => void
+  hydrateFromSync: (syncedData: {tasks?: Record<string, Task>}) => void
 }
 
 const dayNames: WeekDay[] = [
@@ -507,6 +509,40 @@ export const useProjectStore = create<ProjectStore>()(
         if (DEBUG) log("Recalculating todaysTasks due to preference change. New count:", filteredTasks.length);
         set({ todaysTasks: filteredTasks });
       },
+      hydrateFromSync: (syncedData) => {
+        if (DEBUG) log('========== HYDRATING TASKS FROM SYNC ==========');
+        
+        if (!syncedData || !syncedData.tasks) {
+          if (DEBUG) log('No tasks data to hydrate from sync');
+          return;
+        }
+        
+        if (DEBUG) {
+          log(`Received ${Object.keys(syncedData.tasks).length} tasks from sync`);
+          log('First few tasks:', Object.values(syncedData.tasks).slice(0, 3).map(t => t.name));
+        }
+        
+        // Complete replacement of tasks
+        const newState = {
+          tasks: { ...syncedData.tasks },
+          hydrated: true,
+          // Recalculate today's tasks based on the new tasks
+        };
+        
+        // Apply the new state
+        set(newState);
+        
+        // Recalculate today's tasks after state update
+        setTimeout(() => {
+          const tasks = get().tasks;
+          const updatedTodaysTasks = taskFilter(tasks);
+          set({ todaysTasks: updatedTodaysTasks });
+          
+          if (DEBUG) {
+            log(`Hydration complete. Updated today's tasks: ${updatedTodaysTasks.length}`);
+          }
+        }, 0);
+      },
     }),
     {
       name: 'tasks-store',
@@ -528,6 +564,7 @@ export const useProjectStore = create<ProjectStore>()(
               tasks[id].recurrencePattern = 'weekly' // Keep existing migration logic
               needsMigration = true
               if (DEBUG) log(`Migrated task ${id} to have recurrencePattern: weekly`);
+              addSyncLog(`Migrated task ${id} to have recurrencePattern: weekly`, 'info');
             }
             
             if (!tasks[id].completionHistory) {
@@ -537,7 +574,7 @@ export const useProjectStore = create<ProjectStore>()(
                 const completionDate = new Date(tasks[id].updatedAt).toISOString().split('T')[0]
                 if (new Date(completionDate) >= thirtyDaysAgo) {
                   tasks[id].completionHistory[completionDate] = true
-                  if (DEBUG) log(`Migrated task ${id} completion to history for date ${completionDate}`);
+                  addSyncLog(`Migrated task ${id} completion to history for date ${completionDate}`, 'info');
                 }
               }
             } else {
@@ -546,7 +583,7 @@ export const useProjectStore = create<ProjectStore>()(
                 .filter(([date]) => new Date(date) >= thirtyDaysAgo)
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
               const newHistorySize = Object.keys(tasks[id].completionHistory).length;
-              
+              addSyncLog(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`, 'info');
               if (oldHistorySize !== newHistorySize && DEBUG) {
                 log(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`);
               }
@@ -556,7 +593,7 @@ export const useProjectStore = create<ProjectStore>()(
             if (tasks[id].recurrencePattern !== 'one-time') {
               const oldCompletedState = tasks[id].completed;
               tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false;
-              
+              addSyncLog(`Updated completion status for task ${id} from ${oldCompletedState} to ${tasks[id].completed}`, 'info');
               if (oldCompletedState !== tasks[id].completed && DEBUG) {
                 log(`Updated completion status for task ${id} from ${oldCompletedState} to ${tasks[id].completed}`);
               }
@@ -569,7 +606,7 @@ export const useProjectStore = create<ProjectStore>()(
           }
           
           state.hydrated = true
-          
+          addSyncLog(`Rehydrated tasks store`, 'info');
           // Update todaysTasks using the filter
           const todaysTasks = taskFilter(state.tasks)
           if (DEBUG) log(`After rehydration, found ${todaysTasks.length} tasks for today`);

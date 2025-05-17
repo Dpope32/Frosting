@@ -1,8 +1,7 @@
 // sync/workspaceKey.ts
 import { storage } from '@/store/AsyncStorage';
-import { getPocketBase } from '@/sync/pocketSync';
 import { addSyncLog } from '@/components/sync/syncUtils';
-import { getCurrentWorkspaceId } from '@/sync/workspace';
+import { getCurrentWorkspaceId, getPocketBase } from '@/sync';
 
 export const getWorkspaceKey = async (): Promise<string> => {
   const wsId = await getCurrentWorkspaceId();

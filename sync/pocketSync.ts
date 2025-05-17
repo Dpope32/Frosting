@@ -16,7 +16,7 @@ type PocketBaseType = any; // We'll use 'any' for now since we're dynamically im
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
   Sentry.addBreadcrumb({
     category: 'pocketSync',
-    message: 'checkNetworkConnectivity called',
+    message: 'checkNetworkConnectivity called', 
     level: 'info',
   });
   try {
