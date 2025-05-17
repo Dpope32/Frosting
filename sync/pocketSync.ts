@@ -7,7 +7,7 @@ import { addSyncLog, LogEntry } from '@/components/sync/syncUtils';
 const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL || 'http://192.168.1.32:8090';
 // We'll use type-only imports to help TypeScript understand the PocketBase types
 // without actually importing the module at compile time
-type PocketBaseType = any; // We'll use 'any' for now since we're dynamically importing
+type PocketBaseType = import('pocketbase', { with: { 'resolution-mode': 'import' } }).default; // Updated PocketBaseType
 
 /**
  * Check if the application has network connectivity.
@@ -66,40 +66,54 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   });
   try {
     // First check if the PocketBase server is reachable
-    try {
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'Checking PocketBase server health',
-        data: { url: `${PB_URL}/api/health` },
-        level: 'info',
-      });
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 500);
-      const response = await fetch(`${PB_URL}/api/health`, {
-        method: 'GET',
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      if (!response.ok) {
+    const HEALTH_TIMEOUT = 3000; // Increased timeout
+
+    for (let attempt = 0; attempt < 2; attempt++) { // Retry loop for health check
+      try {
         Sentry.addBreadcrumb({
           category: 'pocketSync',
-          message: 'PocketBase health check failed (not ok)',
-          data: { status: response.status },
+          message: `Checking PocketBase server health (attempt ${attempt + 1})`,
+          data: { url: `${PB_URL}/api/health` },
+          level: 'info',
+        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), HEALTH_TIMEOUT); // Use new timeout
+        const response = await fetch(`${PB_URL}/api/health`, {
+          method: 'GET',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+          Sentry.addBreadcrumb({
+            category: 'pocketSync',
+            message: `PocketBase health check failed (not ok, attempt ${attempt + 1})`,
+            data: { status: response.status, statusText: response.statusText },
+            level: 'warning',
+          });
+          addSyncLog(`PocketBase server unreachable (attempt ${attempt + 1}) - Status: ${response.status}`, 'error');
+          // Throw an error to be caught by the loop's catch, to trigger retry/failure logic
+          throw new Error(`Health check failed with status: ${response.status}`);
+        }
+        Sentry.addBreadcrumb({ // Sentry log for successful health check
+          category: 'pocketSync',
+          message: 'PocketBase health check successful',
+          level: 'info',
+        });
+        break; // Health check successful, exit retry loop
+      } catch (err) { // Catches fetch errors (network, abort) and the error thrown above
+        Sentry.addBreadcrumb({
+          category: 'pocketSync',
+          message: `PocketBase server health check attempt ${attempt + 1} failed`,
+          data: { error: String(err) }, // Ensure error is stringified for Sentry
           level: 'warning',
         });
-        addSyncLog('PocketBase server unreachable', 'error');
-        throw new Error('SKIP_SYNC_SILENTLY');
+        addSyncLog(`PocketBase server unreachable (catch, attempt ${attempt + 1})`, 'error');
+        if (attempt === 1) { // If this was the last attempt (0-indexed, so 2nd attempt)
+          throw new Error('SKIP_SYNC_SILENTLY'); // Give up and throw the special error
+        }
+        await new Promise(r => setTimeout(r, 500)); // Wait 500ms before retrying
       }
-    } catch (error) {
-      Sentry.addBreadcrumb({
-        category: 'pocketSync',
-        message: 'PocketBase server unreachable',
-        data: { error },
-        level: 'warning',
-      });
-      addSyncLog('PocketBase server unreachable (catch)', 'error');
-      throw new Error('SKIP_SYNC_SILENTLY');
     }
     // If we get here, server is reachable, proceed normally
     Sentry.addBreadcrumb({

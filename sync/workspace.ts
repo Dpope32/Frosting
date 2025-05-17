@@ -4,8 +4,8 @@ import * as FileSystem from "expo-file-system";
 import { generateSyncKey, generateRandomKey, ensureWorkspaceKey, exportEncryptedState, pushSnapshot, pullLatestSnapshot } from "@/sync";
 import { useRegistryStore } from "@/store";
 import { storage } from "@/store/AsyncStorage";
+import { addSyncLog } from '@/components/sync/syncUtils';
 
-const WS_KEY_PREFIX = 'ws_key_'; 
 export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
@@ -42,13 +42,14 @@ export const createOrJoinWorkspace = async (
     await ensureWorkspaceKey(workspaceId);
 
     // add device + save file + push/pull
-    await pb.collection('sync_workspaces')
-            .update(workspaceId, { device_ids: [...ws.device_ids, deviceId] });
+    if (!ws.device_ids || !ws.device_ids.includes(deviceId)) {
+      await pb.collection('sync_workspaces')
+              .update(workspaceId, { 'device_ids+': deviceId });
+    }
     await FileSystem.writeAsStringAsync(`${FileSystem.documentDirectory}workspace_id.txt`, workspaceId);
 
     await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
-    await pushSnapshot();
-    await pullLatestSnapshot();
+    await Promise.all([pushSnapshot(), pullLatestSnapshot()]);
 
     return { id: workspaceId, inviteCode };
   }

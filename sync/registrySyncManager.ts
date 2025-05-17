@@ -1,22 +1,27 @@
 // src/sync/registrySyncManager.ts
 import { storage } from '@/store/AsyncStorage';
-import * as Sentry from '@sentry/react-native';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { getPocketBase } from './pocketSync';
 import { generateRandomKey } from './randomKey';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { nanoid } from 'nanoid';
+import { useUserStore } from '@/store';
 
 const WS_KEY_PREFIX = 'ws_key_'; 
-const SYNC_KEY = 'registry_sync_key';
 
 /**
  * Retrieves or generates a unique DEVICE-SPECIFIC sync key stored in AsyncStorage.
  * This key is used for device-level identification or encryption when not in a workspace context.
  * IT SHOULD NOT RETURN THE WORKSPACE KEY.
+ * Throws an error if premium is not enabled.
  */
 export const generateSyncKey = async (): Promise<string> => {
+  // Check if premium is enabled
+  if (!useUserStore.getState().preferences.premium) {
+    addSyncLog('Premium sync is not enabled. Cannot generate/retrieve device-specific sync key.', 'error');
+    throw new Error('Premium sync is not enabled. Cannot generate/retrieve device-specific sync key.');
+  }
+
   // Check for stored unique device ID first
   const deviceIdKey = 'app_unique_device_id';
   const storedDeviceId = await AsyncStorage.getItem(deviceIdKey);
