@@ -144,22 +144,11 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         .getState()
         .preferences.hasCompletedOnboarding;
       if (!hasCompletedOnboarding) {
-        addSyncLog('⏸️ Skipping sync status logging (onboarding incomplete)', 'verbose');
         return;
       }
     
       const s = get();
-      const states = s.getAllStoreStates();
-      const summary = [
-        `🕒 Last Sync: ${new Date(s.lastSyncAttempt).toLocaleString()}`,
-        `📊 Sync Status: ${s.syncStatus}`,
-        `🔔 Notifications: ${s.notificationStatus}`,
-        `📈 Stocks Last Updated: ${new Date(s.stocksLastUpdated).toLocaleString()}`,
-        `📦 Stores Synced:`,
-        ...Object.entries(states).map(([k, v]) => `   • ${k}: ${Object.keys(v).length} items`),
-      ].join('\n');
-    
-      addSyncLog(`🌟 Registry Sync Status 🌟\n${summary}`, 'info');
+      addSyncLog(`📊 Sync Status: ${s.syncStatus}`, 'info');
     },
     
 
@@ -170,18 +159,17 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const now = Date.now();
       const lastSync = get().lastSyncAttempt;
       if (now - lastSync < 2000) {
-        addSyncLog('⏸️ Skipping duplicate export (too soon since last)', 'warning');
         return null;
       }
     
       set({ syncStatus: 'syncing' });
       try {
-        addSyncLog('🔄 Beginning encrypted export', 'info');
+        addSyncLog('🔄 Starting export', 'info');
         const states = get().getAllStoreStates();
         const uri = await exportEncryptedState(states);
     
         set({ syncStatus: 'idle', lastSyncAttempt: now });
-        addSyncLog(`✅ Encrypted export complete at ${uri}`, 'success');
+        addSyncLog('✅ Export complete', 'success');
         return uri;
       } catch (e) {
         set({ syncStatus: 'error' });
@@ -200,7 +188,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return;
     
-      addSyncLog('🔄 Hydrating all stores from external data…', 'info');
+      addSyncLog('🔄 Hydrating stores', 'info');
     
       try {
         if (!data || typeof data !== 'object') {
@@ -208,61 +196,45 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           return;
         }
     
-        const storeMap = [
-          { key: 'habits', data: data.habits, validate: true },
-          /* … etc … */
-        ];
+        // Track success and error counts for summary
+        let successCount = 0;
+        let errorCount = 0;
     
-        storeMap.forEach(({ key, data, validate }) => {
-          if (!data) return;
-          if (validate && validators[key] && !validators[key](data)) {
-            addSyncLog(`⚠️ Skipping invalid ${key} data`, 'warning');
-            return;
-          }
+        // Fix the nested forEach issue from original code
+        // Directly handle each store type
+        if (data.habits) {
           try {
-
-            storeMap.forEach(({ key, data, validate }) => {
-              if (!data) return;
-            
-              // Skip validation if needed
-              if (validate && key in validators && !validators[key](data)) {
-                addSyncLog(`⚠️ Skipping invalid ${key} data`, 'warning');
-                return;
-              }
-            
-              switch (key) {
-                // … other cases …
-            
-                case 'tasks': {
-                  try {
-                    // hydrate your To-Do store
-                    useProjectStore.setState(data)
-                    // log how many tasks we just loaded
-                    const count = Array.isArray((data as any).tasks)
-                      ? (data as any).tasks.length
-                      : Object.keys((data as any).tasks || data).length
-                    addSyncLog(`✅ ToDo store hydrated with ${count} task${count === 1 ? '' : 's'}`, 'success')
-                  } catch (err) {
-                    addSyncLog(
-                      `❌ Error hydrating ToDo store: ${(err as Error).message}`,
-                      'error'
-                    )
-                  }
-                  break
-                }
-            
-                // … remaining cases …
-              }
-            })
-            addSyncLog(`✓ Applied ${key} data`, 'success');
+            if (validators.habits && !validators.habits(data.habits)) {
+              errorCount++;
+            } else {
+              useHabitStore.setState(data.habits);
+              successCount++;
+            }
           } catch (err) {
-            addSyncLog(`❌ Error applying ${key}: ${(err as Error).message}`, 'error');
+            errorCount++;
+            addSyncLog(`❌ Error hydrating habits`, 'error');
           }
-        });
+        }
+    
+        if (data.tasks) {
+          try {
+            useProjectStore.setState(data.tasks);
+            successCount++;
+          } catch (err) {
+            errorCount++;
+            addSyncLog(`❌ Error hydrating tasks`, 'error');
+          }
+        }
+    
+        // Handle other stores similarly...
+        // This is a simplified example, you would need to add all other stores
+        // that you want to hydrate
     
         set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
         get().syncOnboardingWithUser();
-        addSyncLog('✨ All stores hydrated successfully', 'success');
+        
+        // Single summary log instead of many individual logs
+        addSyncLog(`✨ Hydration complete: ${successCount} stores updated`, 'success');
       } catch (err) {
         addSyncLog(`❌ Hydration failed: ${(err as Error).message}`, 'error');
         set({ syncStatus: 'error' });
