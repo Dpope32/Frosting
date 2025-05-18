@@ -27,7 +27,8 @@ import { handleSharedContact } from '@/services';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 
 import { addSyncLog } from '@/components/sync/syncUtils';
-import { pushSnapshot, pullLatestSnapshot, exportEncryptedState } from '@/sync/snapshotPushPull';
+import { pushSnapshot, pullLatestSnapshot, } from '@/sync/snapshotPushPull';
+import {exportEncryptedState  } from '@/sync/exportState';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
