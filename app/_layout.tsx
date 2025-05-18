@@ -210,6 +210,7 @@ export default Sentry.wrap(function RootLayout() {
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
           
           const allStates = useRegistryStore.getState().getAllStoreStates();
+          addSyncLog('📚 Exporting state', 'info', typeof exportEncryptedState === 'function');
           await exportEncryptedState(allStates);
           
           await pushSnapshot();
@@ -237,6 +238,7 @@ export default Sentry.wrap(function RootLayout() {
   if (!loaded) {
     return null;
   }
+  
 
   return (
     <QueryClientProvider client={queryClient}>

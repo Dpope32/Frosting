@@ -1,3 +1,6 @@
+// sync/getWorkspace.ts
+// Purpose: get the current workspace ID from the device.
+
 import { addSyncLog } from "@/components/sync/syncUtils";
 import * as FileSystem from 'expo-file-system';
 

@@ -1,5 +1,4 @@
 export * from './registrySyncManager';
-export * from './exportState';
 export * from './workspace';
 export * from './workspaceKey';
 export * from './pocketSync';

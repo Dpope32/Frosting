@@ -1,3 +1,6 @@
+// sync/randomKey.ts
+// Purpose: generate a random key for the device.
+
 /**
  * Generates a pseudo-random 32-byte key using pure JavaScript.
  * This function completely avoids native crypto modules to ensure cross-platform compatibility.

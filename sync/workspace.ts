@@ -4,7 +4,6 @@ import * as FileSystem from "expo-file-system";
 import { generateSyncKey, generateRandomKey, ensureWorkspaceKey, exportEncryptedState, pushSnapshot, pullLatestSnapshot } from "@/sync";
 import { useRegistryStore } from "@/store";
 import { storage } from "@/store/AsyncStorage";
-import { addSyncLog } from '@/components/sync/syncUtils';
 
 export interface WorkspaceMeta {
   id: string;
