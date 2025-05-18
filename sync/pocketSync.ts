@@ -109,20 +109,18 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
           level: 'warning',
         });
         addSyncLog(`PocketBase server unreachable (catch, attempt ${attempt + 1})`, 'error');
-        if (attempt === 1) { // If this was the last attempt (0-indexed, so 2nd attempt)
+        if (attempt === 1) { 
           throw new Error('SKIP_SYNC_SILENTLY'); // Give up and throw the special error
         }
-        await new Promise(r => setTimeout(r, 500)); // Wait 500ms before retrying
+        await new Promise(r => setTimeout(r, 500)); 
       }
     }
-    // If we get here, server is reachable, proceed normally
     Sentry.addBreadcrumb({
       category: 'pocketSync',
       message: 'PocketBase server reachable, loading PocketBase',
       level: 'info',
     });
     const PocketBaseModule = await import('pocketbase');
-    addSyncLog('PocketBase module loaded', 'info');
     const PocketBase = PocketBaseModule.default;
     Sentry.addBreadcrumb({
       category: 'pocketSync',

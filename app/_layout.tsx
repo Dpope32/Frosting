@@ -102,12 +102,9 @@ export default Sentry.wrap(function RootLayout() {
 
     const checkAndApplyUpdate = async () => {
       try {
-        // Check if we're in emergency launch mode
         const isEmergencyLaunch = Updates.isEmergencyLaunch;
         
         if (isEmergencyLaunch) {
-          console.log('App is running in emergency launch mode');
-          // Show a notification about emergency mode
           if (Platform.OS !== 'web') {
             Alert.alert(
               'Running in Emergency Mode',
@@ -115,12 +112,9 @@ export default Sentry.wrap(function RootLayout() {
               [{ text: 'OK' }]
             );
           }
-          // In emergency mode, we might want to be more cautious with updates
-          // or implement special handling for backwards compatibility
-          return; // Skip normal update checking in emergency mode
+          return; 
         }
         
-        // Normal update flow
         const update = await Updates.checkForUpdateAsync();
         
         if (update.isAvailable) {
@@ -128,14 +122,10 @@ export default Sentry.wrap(function RootLayout() {
           
           if (Platform.OS !== 'web') {
             Alert.alert(
-              'Update Available',
-              'A new version is ready. Restart to apply?',
+              'Update Available', 'A new version is ready. Restart to apply?',
               [
                 { text: 'Later', style: 'cancel' },
-                { 
-                  text: 'Restart', 
-                  onPress: () => Updates.reloadAsync() 
-                }
+                { text: 'Restart', onPress: () => Updates.reloadAsync() }
               ]
             );
           } else {
@@ -148,8 +138,6 @@ export default Sentry.wrap(function RootLayout() {
         console.error('Update check failed:', error);
       }
     };
-    
-    // Initial check with a delay to not block app startup
     setTimeout(checkAndApplyUpdate, 2500);
     
     // Periodic checks
@@ -160,8 +148,6 @@ export default Sentry.wrap(function RootLayout() {
 
   const handleDeepLink = useCallback((event: { url: string | NotificationResponse }) => {
     console.log('Handling deep link:', event.url);
-    
-    // Handle notification response
     if (typeof event.url === 'object' && 'notification' in event.url) {
       const url = event.url.notification.request.content.data?.url;
       if (url) {
@@ -169,8 +155,6 @@ export default Sentry.wrap(function RootLayout() {
         return;
       }
     }
-    
-    // Handle URL-based deep links
     if (typeof event.url === 'string' && event.url.startsWith('kaiba-nexus://share')) {
       const url = new URL(event.url);
       const params = Object.fromEntries(url.searchParams.entries());
@@ -183,22 +167,16 @@ export default Sentry.wrap(function RootLayout() {
       };
       handleSharedContact(contactData);
     } else if (typeof event.url === 'string' && event.url.startsWith('kaiba-nexus://habits')) {
-      // Route to habits screen
       router.push('/(drawer)/habits');
     }
   }, []);
 
   useEffect(() => {
-    // Set up notification response handler
     const notificationSubscription = Notifications.addNotificationResponseReceivedListener(response => {
       handleDeepLink({ url: response });
     });
-
-    // Set up URL-based deep link handler
     Linking.getInitialURL().then(url => {
-      if (url) {
-        handleDeepLink({ url });
-      }
+      if (url) handleDeepLink({ url });
     });
 
     const urlSubscription = Linking.addEventListener('url', handleDeepLink);
@@ -217,45 +195,34 @@ export default Sentry.wrap(function RootLayout() {
     const isPremium = useUserStore.getState().preferences.premium === true;
     if (!isPremium) return;
 
+    // Push on background, pull on resume
     const handleAppStateChange = async (nextAppState: string) => {
       try {
         if (nextAppState === 'active') {
           addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
           
-          // First update sync status to show activity
           useRegistryStore.getState().setSyncStatus('syncing');
           
           await syncModules.pullLatestSnapshot();
           
-          // Update sync status to idle after successful operation
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Resume pull completed', 'success');
         } else if (nextAppState === 'background' || nextAppState === 'inactive') {
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
           
-          // Update sync status to show activity
-          useRegistryStore.getState().setSyncStatus('syncing');
-          
-          // Get current state and export it first (this part was missing)
           const allStates = useRegistryStore.getState().getAllStoreStates();
           await registryModules.exportEncryptedState(allStates);
           
-          // Then push the exported state
           await syncModules.pushSnapshot();
           
-          // Update sync status to idle after successful operation
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Background push completed', 'success');
         }
       } catch (e: any) {
-        // Set error status on failure
         useRegistryStore.getState().setSyncStatus('error');
         
         addSyncLog(
-          nextAppState === 'active'
-            ? '❌ Resume pull failed'
-            : '❌ Background push failed',
-          'error',
+          nextAppState === 'active' ? '❌ Resume pull failed' : '❌ Background push failed', 'error',
           e.message
         );
       }

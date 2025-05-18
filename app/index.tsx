@@ -15,30 +15,15 @@ import { useProjectStore as useProjectsStore } from '@/store/ToDo';
 import { Redirect } from 'expo-router';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
 import { addSyncLog } from '@/components/sync/syncUtils';
-import { exportEncryptedState } from '@/sync/registrySyncManager';
-import { pullLatestSnapshot, pushSnapshot } from '@/sync/snapshotPushPull';
+import { pullLatestSnapshot } from '@/sync/snapshotPushPull';
 
 export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
   const isPremium = useUserStore((state) => state.preferences.premium === true);
   
-  // Grab sync and export actions
-  const { logSyncStatus, exportStateToFile } = useRegistryStore();
-  // Call app initialization hook at the top level (per React rules)
+  const {  exportStateToFile } = useRegistryStore();
   useAppInitialization();
-  
-  // Initial sync on app startup for premium users - ONLY after hydration is complete
-  useEffect(() => {
-    if (hasCompletedOnboarding && isPremium) {
-      // Log status but DO NOT export state until after hydration
-      logSyncStatus();
-      
-      // We don't call syncOnStartup here anymore - wait for hydration
-    }
-  }, [hasCompletedOnboarding, isPremium]);
-  
-  // Initial intro timer
   useEffect(() => {
     setShowIntro(true);
     const timer = setTimeout(() => setShowIntro(false), 500);
@@ -75,31 +60,7 @@ export default function Index() {
             const syncOnStartup = async () => {
               try {
                 addSyncLog('🚀 Starting sync after hydration complete', 'info');
-                
-                // Access sync modules from the global scope (imported in _layout.tsx)
-                
-                // Pull first to get latest data
-                addSyncLog('📥 Post-hydration sync: Pulling latest snapshot', 'info');
                 await pullLatestSnapshot();
-                addSyncLog('✅ Post-hydration sync: Pull completed', 'success');
-                
-                // Then prepare and push any local changes
-                addSyncLog('🗄️ Post-hydration sync: Exporting state', 'info');
-                const allStates = useRegistryStore.getState().getAllStoreStates();
-                
-                // Verify we have store data before exporting
-                const storeKeys = Object.keys(allStates);
-                if (storeKeys.length === 0) {
-                  addSyncLog('⚠️ No store states found to export', 'warning');
-                  return;
-                }
-                
-                await exportEncryptedState(allStates);
-                addSyncLog('🔐 Post-hydration sync: State encrypted', 'success');
-                
-                addSyncLog('📤 Post-hydration sync: Pushing snapshot', 'info');
-                await pushSnapshot();
-                addSyncLog('✅ Post-hydration sync: Push completed', 'success');
               } catch (error) {
                 console.error('Post-hydration sync failed:', error);
                 addSyncLog(
@@ -109,7 +70,6 @@ export default function Index() {
                 );
               }
             };
-            
             syncOnStartup();
           }
         }
@@ -123,12 +83,9 @@ export default function Index() {
     })();
   }, [hasCompletedOnboarding, isPremium]);
 
-  
-  // If onboarding is not completed, go to onboarding
   if (!hasCompletedOnboarding) {
     return <Redirect href="/screens/onboarding" />;
   }
   
-  // If onboarding is completed, go to drawer tabs layout
   return <Redirect href="/(drawer)/(tabs)" />;
 }

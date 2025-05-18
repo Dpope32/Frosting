@@ -4,14 +4,14 @@ import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert, ScrollV
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, YStack, XStack, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { useColorScheme } from '@/hooks/useColorScheme'
+import { useColorScheme } from '@/hooks'
 import { useRouter } from 'expo-router'
 import { useUserStore, useToastStore, useRegistryStore } from '@/store'
 import { isIpad } from '@/utils'
 import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal'
-import { exportLogs, pullLatestSnapshot, pushSnapshot, exportEncryptedState } from '@/sync'
+import { exportLogs } from '@/sync'
 import * as Clipboard from 'expo-clipboard'
-import { useAuthCheck, useDeviceId, useWorkspaceId, useWorkspaceDetails, useSyncStatusLogger, useLogUpdates, useLifecycleLogger } from '@/hooks/sync'
+import { useAuthCheck, useDeviceId, useWorkspaceId, useWorkspaceDetails, useSyncStatusLogger, useLogUpdates } from '@/hooks/sync'
 import { addSyncLog, clearLogQueue, LogEntry, getColors, baseSpacing, PremiumLogs } from '@/components/sync'
 import SyncTable from '@/components/sync/syncTable'
 import NeedsWorkspace from '@/components/sync/needsWorkspace'
@@ -83,77 +83,8 @@ export default function SyncScreen() {
   const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
   const { inviteCode } = useWorkspaceDetails(premium, workspaceId, deviceId)
   useSyncStatusLogger(syncStatus, isLoading)
-  useLifecycleLogger()
   useAuthCheck()
   useLogUpdates(premium, setSyncLogs)  
-
-  const performSync = React.useCallback(
-    async (type: 'push' | 'pull' | 'both') => {
-      if (!premium) {
-        useToastStore
-          .getState()
-          .showToast('Premium required', 'error')
-        addSyncLog(
-          '🔒 Sync rejected - premium required',
-          'warning'
-        )
-        return
-      }
-      
-      if (!workspaceId) {
-        addSyncLog('❌ No workspace connected', 'error')
-        useToastStore.getState().showToast('No workspace connected', 'error')
-        return
-      }
-      
-      setIsLoading(true)
-      addSyncLog(`🚀 Starting ${type} sync`, 'info')
-      try {
-        if (type === 'pull' || type === 'both') {
-          addSyncLog('📥 Pulling latest…', 'info')
-          await pullLatestSnapshot()
-          addSyncLog('✅ Pull success', 'success')
-        }
-        if (type === 'push' || type === 'both') {
-          addSyncLog('🗄️ Export & encrypt', 'info')
-          const all = useRegistryStore
-            .getState()
-            .getAllStoreStates()
-            
-          if (!all || typeof all !== 'object') {
-            throw new Error('Failed to get store states')
-          }
-          
-          try {
-            await exportEncryptedState(all)
-            addSyncLog('🔐 State encrypted', 'success')
-          } catch (encErr) {
-            addSyncLog('❌ Encryption failed', 'error', encErr instanceof Error ? encErr.message : String(encErr))
-            throw encErr
-          }
-          
-          addSyncLog('📤 Pushing…', 'info')
-          await pushSnapshot()
-          addSyncLog('✅ Push success', 'success')
-        }
-        addSyncLog('✨ Sync finished', 'success')
-        
-        // Force UI refresh
-        setTimeout(() => {
-          useRegistryStore.getState().setSyncStatus('idle')
-        }, 300)
-      } catch (e) {
-        addSyncLog(
-          '🔥 Sync aborted',
-          'error',
-          e instanceof Error ? e.message : String(e)
-        )
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [premium, workspaceId]
-  )
 
   const toggleDetails = React.useCallback((id: string) => {
     setShowDetails((p) => ({ ...p, [id]: !p[id] }))
@@ -190,19 +121,11 @@ export default function SyncScreen() {
     )
   }, [workspaceId, setWorkspaceId])
 
-  const handleSyncButtonPress = React.useCallback(() => {
-    performSync('both')
-  }, [performSync])
-
   const handleExportLogs = React.useCallback(async () => {
     try {
       await exportLogs(syncLogs)
     } catch (e) {
-      addSyncLog(
-        'Failed to export logs',
-        'error',
-        e instanceof Error ? e.message : String(e)
-      )
+      addSyncLog('Failed to export logs', 'error', e instanceof Error ? e.message : String(e))
     }
   }, [syncLogs])
 
@@ -213,30 +136,15 @@ export default function SyncScreen() {
     setInitialModalMode(undefined)
     setWorkspaceId(id)
     addSyncLog(`Workspace ${action}: ${id}`, 'success')
-    
-    // Force refresh of registry state after workspace update
     useRegistryStore.getState().setSyncStatus('idle')
-    
-    // Force re-render
-    setTimeout(() => {
-      useRegistryStore.getState().setSyncStatus('idle')
-    }, 100)
   }, [setWorkspaceId])
 
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.bg }]}
-      contentContainerStyle={{
-        paddingTop: isIpad() ? 30 : insets.top,
-        paddingBottom: 100,
-      }}
+      contentContainerStyle={{ paddingTop: isIpad() ? 30 : insets.top, paddingBottom: 100 }}
     >
-      <YStack
-        gap={baseSpacing * 2}
-        padding={isWeb ? '$4' : '$2'}
-        px={isWeb ? '$4' : '$3'}
-        paddingBottom={baseSpacing * 6}
-      >
+      <YStack gap={baseSpacing * 2} p={isWeb ? '$4' : '$2'} px={isWeb ? '$4' : '$3'} pb={baseSpacing * 6} >
         <XStack alignItems="center" justifyContent="center" position="relative">
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <MaterialIcons name="arrow-back"  size={22} color={isDark ? '#fff' : '#000'} />
@@ -319,8 +227,6 @@ export default function SyncScreen() {
                 toggleDetails={toggleDetails}
                 clearLogs={clearLogsCB}
                 exportLogs={handleExportLogs}
-                performSync={performSync}
-                handleSyncButtonPress={handleSyncButtonPress}
                 premium={premium}
                 devices={[]}
                 contentWidth={contentWidth}

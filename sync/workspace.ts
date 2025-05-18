@@ -70,12 +70,9 @@ export const createOrJoinWorkspace = async (
     newWorkspace.id,
   );
 
-  // Ensure workspace key is properly synchronized
   await ensureWorkspaceKey(newWorkspace.id);
-
   await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
   await pushSnapshot();
-
   return { id: newWorkspace.id, inviteCode: newInvite };
 };
 

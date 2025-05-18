@@ -118,7 +118,6 @@ export const pullLatestSnapshot = async (): Promise<void> => {
 
     let plain: Record<string, unknown>;
     try {
-      addSyncLog(`🔓 Attempting to decrypt snapshot using key`, "info");
       plain = decryptSnapshot(cipher, key);
       addSyncLog(`✅ Snapshot decrypted successfully`, "success");
     } catch (err) {

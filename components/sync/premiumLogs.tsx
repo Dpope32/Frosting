@@ -21,8 +21,6 @@ interface PremiumLogsProps {
   toggleDetails: (logId: string) => void;
   clearLogs: () => void;
   exportLogs: () => void;
-  performSync: (syncType: 'push' | 'pull' | 'both') => Promise<void>;
-  handleSyncButtonPress: () => void;
   premium: boolean;
   devices: any[];
   contentWidth: number;
@@ -37,8 +35,6 @@ export const PremiumLogs = ({
   toggleDetails,
   clearLogs,
   exportLogs,
-  performSync,
-  handleSyncButtonPress,
   premium,
   devices,
   contentWidth,
@@ -225,30 +221,6 @@ export const PremiumLogs = ({
                 : 'Local data pulls automatically on app start and pushes local changes when app goes to background'}
           </Text>
         </XStack>
-        
-        {!premium && (
-          <Button
-            width="100%"
-            height={40}
-            backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.7)"}
-            borderColor={"rgba(16, 185, 129, 0.5)"}
-            fontFamily="$body"
-            br={8}
-            borderWidth={1}
-            alignItems="center"
-            justifyContent="center"
-            pressStyle={{ opacity: 0.7 }}
-            scale={1}
-            onPress={handleSyncButtonPress}
-          >
-            <XStack alignItems="center" gap={4} justifyContent="center">
-              <Ionicons name="water-outline" size={14} color="#4ade80" />
-              <Text color="#4ade80" fontSize={13} fontWeight="500" fontFamily="$body">
-                Request Sync Access
-              </Text>
-            </XStack>
-          </Button>
-        )}
       </YStack>
 
       {devices.length > 0 && (

@@ -12,9 +12,6 @@ export function useAuthCheck() {
   useEffect(() => {
     const trimmed = username.trim()
     const isAllowed = AUTHORIZED_USERS.includes(trimmed)
-
-    addSyncLog('Authorization check', 'info', JSON.stringify({ username, premium, isAllowed }))
-
     if (premium && !isAllowed) {
       addSyncLog('Revoking unauthorized premium', 'warning')
       Alert.alert(

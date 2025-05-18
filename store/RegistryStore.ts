@@ -34,7 +34,6 @@ interface RegistryState {
   setStocksLastUpdated: (timestamp: number) => void;
   checkNotificationStatus: () => void; 
   getAllStoreStates: () => Record<string, any>;
-  logSyncStatus: () => void;
   exportStateToFile: () => Promise<string | null>;
   hydrateAll: (data: Record<string, any>) => void;
   syncOnboardingWithUser: () => void;
@@ -139,22 +138,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       };
     },
 
-    logSyncStatus: () => {
-      const isPremium = useUserStore.getState().preferences.premium === true;
-      if (!isPremium) return;
-    
-      const hasCompletedOnboarding = useUserStore
-        .getState()
-        .preferences.hasCompletedOnboarding;
-      if (!hasCompletedOnboarding) {
-        return;
-      }
-    
-      const s = get();
-      addSyncLog(`📊 Sync Status: ${s.syncStatus}`, 'info');
-    },
-    
-
     exportStateToFile: async () => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return null;
@@ -211,7 +194,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
             } else {
               useHabitStore.setState(data.habits);
               successCount++;
-              addSyncLog('✅ Rehydrated habits store', 'verbose');
             }
           } catch (err) {
             errorCount++;
@@ -223,7 +205,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           try {
             useProjectStore.setState(data.tasks);
             successCount++;
-            addSyncLog('✅ Rehydrated tasks store', 'verbose');
           } catch (err) {
             errorCount++;
             addSyncLog(`❌ Error hydrating tasks`, 'error');
@@ -235,7 +216,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           try {
             useProjectsStore.setState(data.projects);
             successCount++;
-            addSyncLog('✅ Rehydrated projects store', 'verbose');
           } catch (err) {
             errorCount++;
             addSyncLog(`❌ Error hydrating projects`, 'error');
@@ -246,7 +226,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           try {
             useNoteStore.setState(data.notes);
             successCount++;
-            addSyncLog('✅ Rehydrated notes store', 'verbose');
           } catch (err) {
             errorCount++;
             addSyncLog(`❌ Error hydrating notes`, 'error');

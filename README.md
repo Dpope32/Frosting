@@ -35,10 +35,8 @@ A feature-rich personal dashboard app built with React Native and Expo, designed
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
 **Coming Soon**: 
-1. Cross-Device Sync with TinyBase integration
+1. Cross-Device Sync with Pocketbase integration (all encrypted with AES-256 of course)
 2. Feature Request powered by FeatureBase
-3. Video Demo on Welcome Screen powered by ScreenStudio
-4. 👀 WebSockets to connect to selfhosted Jellyfin Server 👀
 
 ![Home Screen Preview](assets/screenshots/web/loaded.png)
 
@@ -82,15 +80,15 @@ npx start web-dev
 
 ## Development Stack
 
-| Category           | Technology       |
-|--------------------|------------------|
+| Category           | Technology          |
+|--------------------|---------------------|
 | Framework          | Expo + React Native |
-| UI Components      | Tamagui          |
-| State Management   | Zustand          |
-| Data Fetching      | React Query      |
-| Testing            | Jest             |
-| Web Hosting        | Vercel           |
-| Updates            | Expo OTA Updates |
+| UI Components      | Tamagui             |
+| State Management   | Zustand             |
+| Data Fetching      | React Query         |
+| Testing            | Jest                |
+| Web Hosting        | Vercel              |
+| Updates            | Expo OTA Updates    |
 
 ## License
 
