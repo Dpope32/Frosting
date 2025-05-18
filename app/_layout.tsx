@@ -27,8 +27,7 @@ import { handleSharedContact } from '@/services';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 
 import { addSyncLog } from '@/components/sync/syncUtils';
-import * as syncModules from '@/sync/snapshotPushPull';
-import * as registryModules from '@/sync/registrySyncManager';
+import { pushSnapshot, pullLatestSnapshot, exportEncryptedState } from '@/sync/snapshotPushPull';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -203,7 +202,7 @@ export default Sentry.wrap(function RootLayout() {
           
           useRegistryStore.getState().setSyncStatus('syncing');
           
-          await syncModules.pullLatestSnapshot();
+          await pullLatestSnapshot();
           
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Resume pull completed', 'success');
@@ -211,9 +210,9 @@ export default Sentry.wrap(function RootLayout() {
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
           
           const allStates = useRegistryStore.getState().getAllStoreStates();
-          await registryModules.exportEncryptedState(allStates);
+          await exportEncryptedState(allStates);
           
-          await syncModules.pushSnapshot();
+          await pushSnapshot();
           
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Background push completed', 'success');
