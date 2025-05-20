@@ -506,12 +506,41 @@ export const useProjectStore = create<ProjectStore>()(
       recalculateTodaysTasks: () => { // Implement recalculation function
         const tasks = get().tasks;
         const filteredTasks = taskFilter(tasks);
-        if (DEBUG) log("Recalculating todaysTasks due to preference change. New count:", filteredTasks.length);
+        if (DEBUG) {
+          log("Recalculating todaysTasks. New count:", filteredTasks.length);
+          
+          // Log bill-specific tasks for debugging
+          const billTasks = filteredTasks.filter(t => t.category === 'bills');
+          if (billTasks.length > 0) {
+            log("Bills showing today:", billTasks.map(t => ({
+              name: t.name,
+              dueDate: t.dueDate,
+              today: new Date().getDate()
+            })));
+          }
+          
+          // Verify each task's visibility
+          const today = new Date();
+          const currentDateStrLocal = format(today, 'yyyy-MM-dd');
+          
+          Object.values(tasks).forEach(task => {
+            if (task.category === 'bills' && task.dueDate) {
+              const isDue = isTaskDue(task, today);
+              const shouldBeVisible = today.getDate() === task.dueDate;
+              
+              if (isDue !== shouldBeVisible) {
+                log(`⚠️ Task visibility mismatch for bill "${task.name}": isDue=${isDue}, shouldBeVisible=${shouldBeVisible}, dueDate=${task.dueDate}, today=${today.getDate()}`);
+              }
+            }
+          });
+        }
+        
+        // Update the state with the new filtered tasks
         set({ todaysTasks: filteredTasks });
       },
       hydrateFromSync: (syncedData) => {
         if (DEBUG) log('========== HYDRATING TASKS FROM SYNC ==========');
-        
+        addSyncLog(`========== HYDRATING TASKS FROM SYNC ==========`, 'info');
         if (!syncedData || !syncedData.tasks) {
           if (DEBUG) log('No tasks data to hydrate from sync');
           return;
@@ -521,12 +550,66 @@ export const useProjectStore = create<ProjectStore>()(
           log(`Received ${Object.keys(syncedData.tasks).length} tasks from sync`);
           log('First few tasks:', Object.values(syncedData.tasks).slice(0, 3).map(t => t.name));
         }
+        addSyncLog(`Received ${Object.keys(syncedData.tasks).length} tasks from sync`, 'info');
+        // Get existing tasks to merge completion states
+        const existingTasks = get().tasks;
+        const mergedTasks: Record<string, Task> = {};
         
-        // Complete replacement of tasks
+        // Process all synced tasks
+        for (const taskId in syncedData.tasks) {
+          const syncedTask = syncedData.tasks[taskId];
+          const existingTask = existingTasks[taskId];
+          
+          if (!existingTask) {
+            // If task doesn't exist locally, use the synced version
+            mergedTasks[taskId] = syncedTask;
+            addSyncLog(`New task from sync: ${syncedTask.name}`, 'info');
+            if (DEBUG) log(`New task from sync: ${syncedTask.name}`);
+          } else {
+            // Merge completion histories, prioritizing completed states
+            const mergedCompletionHistory = { ...existingTask.completionHistory };
+            
+            // Add/overwrite with completed dates from synced task
+            for (const date in syncedTask.completionHistory) {
+              if (syncedTask.completionHistory[date] === true) {
+                mergedCompletionHistory[date] = true;
+                addSyncLog(`Prioritizing completion for task ${syncedTask.name} on ${date}`, 'info');
+                if (DEBUG) log(`Prioritizing completion for task ${syncedTask.name} on ${date}`);
+              } else if (!(date in mergedCompletionHistory)) {
+                // Only add incomplete states if we don't have any record for that date
+                mergedCompletionHistory[date] = false;
+              }
+            }
+            
+            // Use synced task as base, but with merged completion history
+            mergedTasks[taskId] = {
+              ...syncedTask,
+              completionHistory: mergedCompletionHistory,
+            };
+            
+            // Update completed flag based on today's date
+            const todayLocalStr = format(new Date(), 'yyyy-MM-dd');
+            if (syncedTask.recurrencePattern !== 'one-time') {
+              mergedTasks[taskId].completed = mergedCompletionHistory[todayLocalStr] || false;
+            }
+            addSyncLog(`Merged task: ${syncedTask.name}, completion state for today: ${mergedTasks[taskId].completed}`, 'info');
+            if (DEBUG) log(`Merged task: ${syncedTask.name}, completion state for today: ${mergedTasks[taskId].completed}`);
+          }
+        }
+        
+        // Include any tasks that exist locally but not in sync
+        // This is important for tasks created after the last sync
+        for (const taskId in existingTasks) {
+          if (!syncedData.tasks[taskId]) {
+            mergedTasks[taskId] = existingTasks[taskId];
+            if (DEBUG) log(`Keeping local-only task: ${existingTasks[taskId].name}`);
+          }
+        }
+        
+        // Complete replacement of tasks with merged result
         const newState = {
-          tasks: { ...syncedData.tasks },
+          tasks: mergedTasks,
           hydrated: true,
-          // Recalculate today's tasks based on the new tasks
         };
         
         // Apply the new state
@@ -541,6 +624,7 @@ export const useProjectStore = create<ProjectStore>()(
           if (DEBUG) {
             log(`Hydration complete. Updated today's tasks: ${updatedTodaysTasks.length}`);
           }
+          addSyncLog(`Hydrated tasks from sync: ${updatedTodaysTasks.length} tasks`, 'info');
         }, 0);
       },
     }),
@@ -558,13 +642,12 @@ export const useProjectStore = create<ProjectStore>()(
           const todayLocalStr = format(new Date(), 'yyyy-MM-dd') // Use local date string
           
           if (DEBUG) log(`Total tasks in storage: ${Object.keys(tasks).length}`);
-          
+          addSyncLog(`Total tasks in storage before migration: ${Object.keys(tasks).length}`, 'info');
           Object.keys(tasks).forEach(id => {
             if (!tasks[id].recurrencePattern) {
               tasks[id].recurrencePattern = 'weekly' // Keep existing migration logic
               needsMigration = true
               if (DEBUG) log(`Migrated task ${id} to have recurrencePattern: weekly`);
-              addSyncLog(`Migrated task ${id} to have recurrencePattern: weekly`, 'info');
             }
             
             if (!tasks[id].completionHistory) {
@@ -604,7 +687,8 @@ export const useProjectStore = create<ProjectStore>()(
             if (DEBUG) log("Migrations were applied to tasks data");
             state.tasks = tasks
           }
-          
+
+          addSyncLog(`Rehydrated tasks store after migration`, 'info', useStoreTasks().length.toString());
           state.hydrated = true
           // Update todaysTasks using the filter
           const todaysTasks = taskFilter(state.tasks)

@@ -203,11 +203,14 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     
         if (data.tasks) {
           try {
-            useProjectStore.setState(data.tasks);
+            // Use specialized hydrateFromSync method for tasks to ensure proper merging
+            // of completion states and filtering
+            useProjectStore.getState().hydrateFromSync(data.tasks);
             successCount++;
+            addSyncLog(`✅ Tasks hydrated with completion priority logic`, 'success');
           } catch (err) {
             errorCount++;
-            addSyncLog(`❌ Error hydrating tasks`, 'error');
+            addSyncLog(`❌ Error hydrating tasks: ${(err as Error).message}`, 'error');
           }
         }
         

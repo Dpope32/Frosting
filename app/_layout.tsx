@@ -29,6 +29,7 @@ import * as Sentry from '@sentry/react-native';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { pushSnapshot, pullLatestSnapshot, } from '@/sync/snapshotPushPull';
 import {exportEncryptedState  } from '@/sync/exportState';
+import { useProjectStore } from '@/store';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -204,6 +205,12 @@ export default Sentry.wrap(function RootLayout() {
           useRegistryStore.getState().setSyncStatus('syncing');
           
           await pullLatestSnapshot();
+          
+          // Ensure today's tasks are recalculated after hydration
+          setTimeout(() => {
+            useProjectStore.getState().recalculateTodaysTasks();
+            addSyncLog('🔄 Recalculated today\'s tasks after pull', 'info');
+          }, 500);
           
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Resume pull completed', 'success');
