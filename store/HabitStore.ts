@@ -1,41 +1,54 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { TaskCategory, Habit } from '@/types';
+import { TaskCategory, Habit as HabitType } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cancelHabitNotification } from '@/services';
+import { addSyncLog } from '@/components/sync/syncUtils';
+
+export interface Habit extends HabitType {
+  updatedAt?: string;
+}
 
 interface HabitStore {
   habits: Record<string, Habit>;
   hydrated: boolean;
+  isSyncEnabled: boolean;
   addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string, description: string) => void;
   toggleHabitCompletion: (habitId: string, date: string) => void;
   deleteHabit: (habitId: string) => void;
   editHabit: (habitId: string, updates: Partial<Habit>) => void;
+  toggleHabitSync: () => void;
+  hydrateFromSync?: (syncedData: { habits?: Record<string, Habit>, isSyncEnabled?: boolean }) => void;
 }
 
 export const useHabitStore = create<HabitStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       habits: {},
       hydrated: false,
+      isSyncEnabled: false,
       
       addHabit: (title: string, category: TaskCategory, notificationTimeValue: string, customMessage: string, description: string) => set((state) => {
         const id = Math.random().toString(36).substring(2, 9);
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date().toISOString();
+        const today = now.split('T')[0];
         
+        const newHabit: Habit = {
+          id,
+          title,
+          category,
+          createdAt: today,
+          completionHistory: {},
+          notificationTimeValue,
+          customMessage,
+          description,
+          updatedAt: now,
+        };
+        addSyncLog(`[HabitStore] Habit added locally: ${title}`, 'info');
         return {
           habits: {
             ...state.habits,
-            [id]: {
-              id,
-              title,
-              category,
-              createdAt: today,
-              completionHistory: {},
-              notificationTimeValue,
-              customMessage,
-              description
-            }
+            [id]: newHabit,
           }
         };
       }),
@@ -45,7 +58,7 @@ export const useHabitStore = create<HabitStore>()(
         if (!habit) return state;
 
         const newCompletionStatus = !habit.completionHistory[date];
-        // Only update completionHistory, do not cancel notification here
+        addSyncLog(`[HabitStore] Habit completion toggled: ${habit.title}, Date: ${date}, Status: ${newCompletionStatus}`, 'info');
         return {
           habits: {
             ...state.habits,
@@ -54,7 +67,8 @@ export const useHabitStore = create<HabitStore>()(
               completionHistory: {
                 ...habit.completionHistory,
                 [date]: newCompletionStatus
-              }
+              },
+              updatedAt: new Date().toISOString(),
             }
           }
         };
@@ -63,14 +77,10 @@ export const useHabitStore = create<HabitStore>()(
       deleteHabit: (habitId: string) => set((state) => {
         const habit = state.habits[habitId];
         if (habit) {
-          // Cancel the scheduled notification for this habit
-          // Use both identifier formats just to be safe
           const identifier = `${habit.title}-${habit.notificationTimeValue}`;
           cancelHabitNotification(identifier);
-          
-          // Also try canceling by just the habit title as a fallback
-          // This helps clean up any stray notifications
           cancelHabitNotification(habit.title);
+          addSyncLog(`[HabitStore] Habit deleted locally: ${habit.title}`, 'info');
         }
         const { [habitId]: _, ...rest } = state.habits;
         return { habits: rest };
@@ -79,17 +89,86 @@ export const useHabitStore = create<HabitStore>()(
       editHabit: (habitId: string, updates: Partial<Habit>) => set((state) => {
         const habit = state.habits[habitId];
         if (!habit) return state;
-
+        addSyncLog(`[HabitStore] Habit edited locally: ${habit.title}`, 'info');
         return {
           habits: {
             ...state.habits,
             [habitId]: {
               ...habit,
-              ...updates
+              ...updates,
+              updatedAt: new Date().toISOString(),
             }
           }
         };
-      })
+      }),
+
+      toggleHabitSync: () => {
+        set((state) => {
+          const newSyncState = !state.isSyncEnabled;
+          addSyncLog(`[HabitStore] Habits sync ${newSyncState ? 'enabled' : 'disabled'}.`, 'info');
+          return { isSyncEnabled: newSyncState };
+        });
+      },
+
+      hydrateFromSync: (syncedData: { habits?: Record<string, Habit>, isSyncEnabled?: boolean }) => {
+        const localStore = get();
+        addSyncLog(`[Hydrate Attempt] HabitStore sync is currently ${localStore.isSyncEnabled ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
+
+        if (!localStore.isSyncEnabled) {
+          addSyncLog('[HabitStore] Local habits sync is OFF. Skipping hydration.', 'info');
+          return;
+        }
+
+        if (syncedData.isSyncEnabled === false) {
+          addSyncLog('[HabitStore] Incoming snapshot for habits has sync turned OFF. Skipping hydration.', 'warning');
+          return;
+        }
+
+        if (!syncedData.habits || typeof syncedData.habits !== 'object') {
+          addSyncLog('[HabitStore] No habits data in snapshot or data is malformed. Skipping hydration.', 'info');
+          return;
+        }
+
+        addSyncLog('[HabitStore] 🔄 Hydrating habits from sync...', 'info');
+        let itemsMergedCount = 0;
+        let itemsAddedCount = 0;
+
+        const currentHabits = { ...localStore.habits }; 
+        const incomingHabits = syncedData.habits;
+
+        for (const id in incomingHabits) {
+          const incomingHabit = incomingHabits[id];
+          const localHabit = currentHabits[id];
+
+          if (localHabit) {
+            const localUpdatedAt = new Date(localHabit.updatedAt || localHabit.createdAt || 0).getTime();
+            const incomingUpdatedAt = new Date(incomingHabit.updatedAt || incomingHabit.createdAt || 0).getTime();
+
+            if (incomingUpdatedAt > localUpdatedAt) {
+              const mergedCompletionHistory = { ...localHabit.completionHistory, ...incomingHabit.completionHistory }; 
+              currentHabits[id] = { 
+                ...localHabit,
+                ...incomingHabit,
+                completionHistory: mergedCompletionHistory,
+              };
+              itemsMergedCount++;
+            } else if (incomingUpdatedAt === localUpdatedAt && localHabit.id === incomingHabit.id) {
+              const mergedCompletionHistory = { ...localHabit.completionHistory, ...incomingHabit.completionHistory }; 
+              currentHabits[id] = {
+                 ...localHabit, 
+                 ...incomingHabit,
+                 completionHistory: mergedCompletionHistory,
+              };
+            }
+          } else {
+            currentHabits[id] = incomingHabit;
+            itemsAddedCount++;
+          }
+        }
+        
+        set({ habits: currentHabits });
+        addSyncLog(`[HabitStore] Habits hydrated: ${itemsAddedCount} added, ${itemsMergedCount} updated based on timestamp. Total habits: ${Object.keys(currentHabits).length}.`, 'success');
+      },
     }),
     {
       name: 'habit-storage',
@@ -99,7 +178,10 @@ export const useHabitStore = create<HabitStore>()(
           state.hydrated = true;
         }
       },
-      partialize: (state) => ({ habits: state.habits }),
+      partialize: (state) => ({ 
+        habits: state.habits, 
+        isSyncEnabled: state.isSyncEnabled
+      }),
     }
   )
 );

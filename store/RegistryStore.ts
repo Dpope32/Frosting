@@ -8,10 +8,8 @@ import { useHabitStore } from './HabitStore';
 import { useBillStore } from './BillStore';
 import { useCalendarStore } from './CalendarStore';
 import { useProjectStore as useTaskStore } from './ToDo';
-import { useNoteStore } from './NoteStore';
 import { useUserStore } from './UserStore';
 import { useVaultStore } from './VaultStore';
-import { useCRMStore } from './CRMStore';
 import { usePeopleStore } from './People';
 import { useCustomCategoryStore } from './CustomCategoryStore';
 import { useTagStore } from './TagStore';
@@ -40,39 +38,6 @@ interface RegistryState {
   setWorkspaceId: (id: string | null) => void;
 }
 
-// Schema validation helpers
-const validateSchema = (data: any, requiredKeys: string[], storeName: string): boolean => {
-  if (!data || typeof data !== 'object') {
-    console.error(`❌ Invalid data format for ${storeName}`);
-    return false;
-  }
-  
-  // Check for minimal required structure based on store type
-  const missingKeys = requiredKeys.filter(key => !(key in data));
-  if (missingKeys.length > 0) {
-    console.error(`❌ Missing required keys in ${storeName}: ${missingKeys.join(', ')}`);
-    return false;
-  }
-  
-  return true;
-};
-
-// Store-specific validators
-const validators: Record<string, (data: any) => boolean> = {
-  habits: (data) => validateSchema(data, ['habits', 'lastUpdated'], 'habits'),
-  notes: (data) => validateSchema(data, ['notes', 'lastUpdated'], 'notes'),
-  user: (data) => validateSchema(data, ['preferences', 'hydrated'], 'user'),
-  // Add more store validators as needed
-};
-
-// Helper function to safely apply data to a store
-const applyToStore = (data: any, setter: any): void => {
-  try {
-    setter(data);
-  } catch (error) {
-    console.error('Error setting store data:', error);
-  }
-};
 
 export const useRegistryStore = create<RegistryState>((set, get) => {
   // Create the debounced notification check function outside the store properties
@@ -119,63 +84,93 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     // Always get fresh states from all stores
     getAllStoreStates: () => {
       const now = Date.now();
-      const grab = (store: any) =>
-        typeof store === 'object' && store ? { ...store, lastUpdated: now } : { lastUpdated: now };
       
-
-      // BillStore processing
       const billStoreFullState = useBillStore.getState();
-      let billStateForSnapshot: any = { 
-        isSyncEnabled: billStoreFullState.isSyncEnabled,
-      };
+      let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
       if (billStoreFullState.isSyncEnabled) {
         billStateForSnapshot.bills = billStoreFullState.bills;
         billStateForSnapshot.monthlyIncome = billStoreFullState.monthlyIncome;
-        billStateForSnapshot.lastUpdated = now; 
-        addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills and income ${billStoreFullState.monthlyIncome}.`, 'info');
+        billStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills, income ${billStoreFullState.monthlyIncome}.`, 'info');
       } else {
-        addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income from snapshot.', 'info');
+        addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
       }
 
-      // VaultStore processing
       const vaultStoreFullState = useVaultStore.getState();
-      let vaultStateForSnapshot: any = {
-        isSyncEnabled: vaultStoreFullState.isSyncEnabled, 
-      };
+      let vaultStateForSnapshot: any = { isSyncEnabled: vaultStoreFullState.isSyncEnabled };
       if (vaultStoreFullState.isSyncEnabled) {
         vaultStateForSnapshot.vaultData = vaultStoreFullState.vaultData;
-        vaultStateForSnapshot.lastUpdated = now; 
+        vaultStateForSnapshot.lastUpdated = now;
         addSyncLog(`[Snapshot] Passwords (Vault) sync ON: Including ${vaultStoreFullState.vaultData?.items?.length || 0} items.`, 'info');
       } else {
-        addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items from snapshot.', 'info');
+        addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items.', 'info');
       }
-        
-      // ProjectStore (for actual Projects) processing
-      const projectStoreFullState = useProjectStore.getState(); // Actual ProjectStore
-      let projectStateForSnapshot: any = {
-        isSyncEnabled: projectStoreFullState.isSyncEnabled,
-      };
+
+      const projectStoreFullState = useProjectStore.getState();
+      let projectStateForSnapshot: any = { isSyncEnabled: projectStoreFullState.isSyncEnabled };
       if (projectStoreFullState.isSyncEnabled) {
         projectStateForSnapshot.projects = projectStoreFullState.projects;
         projectStateForSnapshot.lastUpdated = now;
         addSyncLog(`[Snapshot] Projects sync ON: Including ${projectStoreFullState.projects?.length || 0} projects.`, 'info');
       } else {
-        addSyncLog('[Snapshot] Projects sync OFF: Excluding projects from snapshot.', 'info');
+        addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
       }
+      
+      const peopleStoreFullState = usePeopleStore.getState();
+      let peopleStateForSnapshot: any = { isSyncEnabled: peopleStoreFullState.isSyncEnabled };
+      if (peopleStoreFullState.isSyncEnabled) {
+        peopleStateForSnapshot.contacts = peopleStoreFullState.contacts;
+        peopleStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] People (Contacts) sync ON: Including ${Object.keys(peopleStoreFullState.contacts || {}).length} contacts.`, 'info');
+      } else {
+        addSyncLog('[Snapshot] People (Contacts) sync OFF: Excluding contacts.', 'info');
+      }
+
+      // HabitStore processing
+      const habitStoreFullState = useHabitStore.getState();
+      let habitStateForSnapshot: any = { isSyncEnabled: habitStoreFullState.isSyncEnabled };
+      if (habitStoreFullState.isSyncEnabled) {
+        habitStateForSnapshot.habits = habitStoreFullState.habits;
+        habitStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] Habits sync ON: Including ${Object.keys(habitStoreFullState.habits || {}).length} habits.`, 'info');
+      } else {
+        addSyncLog('[Snapshot] Habits sync OFF: Excluding habits.', 'info');
+      }
+
+      // CalendarStore processing
+      const calendarStoreFullState = useCalendarStore.getState();
+      let calendarStateForSnapshot: any = { isSyncEnabled: calendarStoreFullState.isSyncEnabled };
+      if (calendarStoreFullState.isSyncEnabled) {
+        calendarStateForSnapshot.events = calendarStoreFullState.events;
+        calendarStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] Calendar sync ON: Including ${calendarStoreFullState.events?.length || 0} events.`, 'info');
+      } else {
+        addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
+      }
+      addSyncLog('[Snapshot] UserStore: Explicitly EXCLUDING (sync_disabled: true).', 'info');
+      addSyncLog('[Snapshot] CRMStore: Explicitly EXCLUDING (sync_disabled: true, ui_store: true).', 'info');
+      addSyncLog('[Snapshot] NoteStore: Explicitly EXCLUDING (sync_disabled: true, local_only: true).', 'info');
+      addSyncLog('[Snapshot] WallpaperStore: Explicitly EXCLUDING (local_cache_only: true).', 'info');
+      addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON', 'info');
+
+      // For stores that sync automatically (like CustomCategory and Tags as per user request)
+      const customCategoryState = { ...useCustomCategoryStore.getState(), lastUpdated: now };
+      const tagsState = { ...useTagStore.getState(), lastUpdated: now };
         
       return {
-        habits: grab(useHabitStore.getState()),
-        bills: billStateForSnapshot,
-        calendar: grab(useCalendarStore.getState()),
-        tasks: grab(useTaskStore.getState()),
-        notes: grab(useNoteStore.getState()),
-        user: grab(useUserStore.getState()),
-        vault: vaultStateForSnapshot, // Use the conditionally prepared vault state
-        crm: grab(useCRMStore.getState()),
-        people: grab(usePeopleStore.getState()),
-        customCategory: grab(useCustomCategoryStore.getState()),
-        tags: grab(useTagStore.getState()),
-        projects: projectStateForSnapshot, // This is for actual Projects
+        habits: habitStateForSnapshot,
+        bills: billStateForSnapshot, 
+        calendar: calendarStateForSnapshot,
+        tasks: { ...useTaskStore.getState(), lastUpdated: now }, // Tasks store has its own internal sync logic for now
+        notes: { sync_disabled: true, local_only: true, lastUpdated: now }, // Excluded
+        user: { sync_disabled: true, lastUpdated: now }, // Excluded
+        vault: vaultStateForSnapshot, 
+        crm: { sync_disabled: true, ui_store: true, lastUpdated: now }, // Excluded
+        people: peopleStateForSnapshot, 
+        customCategory: customCategoryState, 
+        tags: tagsState, 
+        projects: projectStateForSnapshot, 
+        wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now }, // Excluded
       };
     },
 
@@ -214,134 +209,101 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     hydrateAll: (data: Record<string, any>) => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return;
-    
       addSyncLog('🔄 Hydrating stores', 'info');
-    
-      try {
-        if (!data || typeof data !== 'object') {
-          addSyncLog('❌ Invalid data for hydration', 'error');
-          return;
-        }
-    
-        let successCount = 0;
-        let errorCount = 0;
-    
-        // Helper function to attempt hydration for a store
-        const tryHydrateStore = (storeName: keyof typeof data, store: any, storeKeyForLog: string) => {
-          if (data[storeName]) {
-            try {
-              const storeState = store.getState();
-              // Prefer hydrateFromSync if available
-              if (storeState.hydrateFromSync && typeof storeState.hydrateFromSync === 'function') {
-                storeState.hydrateFromSync(data[storeName]);
-                addSyncLog(`✅ ${storeKeyForLog} hydrated via hydrateFromSync`, 'success');
-              } else {
-                // Fallback to setState
-                store.setState(data[storeName]);
-                addSyncLog(`✅ ${storeKeyForLog} hydrated via setState`, 'success');
-              }
-              successCount++;
-            } catch (err) {
-              errorCount++;
-              addSyncLog(`❌ Error hydrating ${storeKeyForLog}: ${(err as Error).message}`, 'error');
-            }
-          } else {
-            addSyncLog(`ℹ️ No data for ${storeKeyForLog} in snapshot, skipping hydration.`, 'info');
-          }
-        };
-        
-        // Habits (existing logic, adapted slightly for consistency if needed)
-        if (data.habits) {
-          try {
-            if (validators.habits && !validators.habits(data.habits)) {
-              errorCount++;
-               addSyncLog(`❌ Invalid schema for habits`, 'error');
-            } else {
-              useHabitStore.setState(data.habits);
-              successCount++;
-              addSyncLog(`✅ Habits hydrated`, 'success');
-            }
-          } catch (err) {
-            errorCount++;
-            addSyncLog(`❌ Error hydrating habits: ${(err as Error).message}`, 'error');
-          }
-        } else {
-           addSyncLog(`ℹ️ No data for habits in snapshot, skipping hydration.`, 'info');
-        }
-
-        // CustomCategoryStore (fixed and made optional)
-        tryHydrateStore('customCategory', useCustomCategoryStore, 'Custom Categories');
-
-        // Tasks (existing specialized logic)
-        if (data.tasks) {
-          try {
-            useTaskStore.getState().hydrateFromSync(data.tasks);
-            successCount++;
-            addSyncLog(`✅ Tasks hydrated with completion priority logic`, 'success');
-          } catch (err) {
-            errorCount++;
-            addSyncLog(`❌ Error hydrating tasks: ${(err as Error).message}`, 'error');
-          }
-        } else {
-          addSyncLog(`ℹ️ No data for tasks in snapshot, skipping hydration.`, 'info');
-        }
-        
-        // Projects (existing logic, adapted)
-        tryHydrateStore('projects', useProjectStore, 'Projects');
-        
-        // Notes (existing logic, adapted)
-        tryHydrateStore('notes', useNoteStore, 'Notes');
-
-        // Optional hydration for other stores:
-        // Bills store will now use its own hydrateFromSync logic which respects its internal isSyncEnabled flag.
-        tryHydrateStore('bills', useBillStore, 'Bills');
-        tryHydrateStore('calendar', useCalendarStore, 'Calendar');
-        
-        // User store: Special care might be needed depending on what's in user preferences
-        // For now, direct setState if data.user exists.
-        if (data.user) {
-            try {
-                // Check for specific hydrate function or apply directly.
-                // UserStore likely doesn't have hydrateFromSync to avoid overwriting local device prefs
-                // unless explicitly designed to.
-                // Let's assume direct state setting is okay for now, or you might have specific fields to merge.
-                const currentUserState = useUserStore.getState();
-                const incomingUserState = data.user;
-                
-                // Example of merging preferences if that's desired,
-                // otherwise, a direct setState might overwrite things like `hydrated` or `premium` incorrectly.
-                // This part needs to be tailored to how you want user settings to sync.
-                // For now, a simple setState for demonstration.
-                useUserStore.setState({ ...currentUserState, ...incomingUserState, preferences: { ...currentUserState.preferences, ...incomingUserState.preferences } });
-                // Or, if UserStore has its own `hydrateFromSync`
-                // if (useUserStore.getState().hydrateFromSync) {
-                //   useUserStore.getState().hydrateFromSync(data.user);
-                // } else {
-                //   useUserStore.setState(data.user);
-                // }
-                successCount++;
-                addSyncLog(`✅ User store hydrated`, 'success');
-            } catch (err) {
-                errorCount++;
-                addSyncLog(`❌ Error hydrating User store: ${(err as Error).message}`, 'error');
-            }
-        } else {
-          addSyncLog(`ℹ️ No data for User store in snapshot, skipping hydration.`, 'info');
-        }
-
-        tryHydrateStore('vault', useVaultStore, 'Vault');
-        tryHydrateStore('crm', useCRMStore, 'CRM');
-        tryHydrateStore('people', usePeopleStore, 'People');
-        tryHydrateStore('tags', useTagStore, 'Tags');
-    
-        set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
-        get().syncOnboardingWithUser();
-        
-        addSyncLog(`✨ Hydration complete: ${successCount} stores updated, ${errorCount} errors.`, 'success');
-      } catch (err) {
-        addSyncLog(`❌ Hydration failed: ${(err as Error).message}`, 'error');
-        set({ syncStatus: 'error' });
+      if (!data || typeof data !== 'object') {
+        addSyncLog('❌ Invalid data for hydration', 'error');
+        return;
       }
+
+      // Explicitly delete data for stores that should NEVER be hydrated from sync
+      if (data.user) {
+        addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
+        delete data.user;
+      }
+      if (data.crm) {
+        addSyncLog('[Hydrate] CRMStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (UI store).', 'warning');
+        delete data.crm;
+      }
+      if (data.notes) {
+        addSyncLog('[Hydrate] NoteStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-only store).', 'warning');
+        delete data.notes;
+      }
+      if (data.wallpaper) {
+        addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
+        delete data.wallpaper;
+      }
+  
+      let successCount = 0;
+      let errorCount = 0;
+  
+      const tryHydrateStore = (storeName: keyof typeof data, store: any, storeKeyForLog: string, isAlwaysSynced: boolean = false) => {
+        const storeDataFromSnapshot = data[storeName];
+        if (storeDataFromSnapshot) {
+          try {
+            if (!isAlwaysSynced && typeof storeDataFromSnapshot.isSyncEnabled === 'boolean' && !storeDataFromSnapshot.isSyncEnabled) {
+              addSyncLog(`[Hydrate] ${storeKeyForLog}: Incoming snapshot data for this store has sync OFF by sender. Skipping hydration.`, 'warning');
+              return; 
+            }
+            const storeState = store.getState();
+            if (storeState.hydrateFromSync && typeof storeState.hydrateFromSync === 'function') {
+              if (!isAlwaysSynced && typeof storeState.isSyncEnabled === 'boolean' && !storeState.isSyncEnabled) {
+                addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
+              } else {
+                storeState.hydrateFromSync(storeDataFromSnapshot);
+                addSyncLog(`✅ ${storeKeyForLog} hydrated via hydrateFromSync`, 'success');
+              }
+            } else {
+              if (isAlwaysSynced || typeof storeDataFromSnapshot.isSyncEnabled === 'undefined') { 
+                // This path should only be taken by stores explicitly marked as isAlwaysSynced (like Tags, CustomCategories)
+                // OR very simple stores that don't have/need complex merging or toggles.
+                // We should avoid this for stores that manage sensitive/complex data without their own hydrateFromSync.
+                store.setState(storeDataFromSnapshot);
+                addSyncLog(`✅ ${storeKeyForLog} hydrated via setState (${isAlwaysSynced ? 'always-on store' : 'legacy/no toggle or sync flag in snapshot'}).`, 'info');
+              } else {
+                 addSyncLog(`[Hydrate] ${storeKeyForLog}: Has isSyncEnabled in snapshot but no local hydrateFromSync/isAlwaysSynced. Check store setup. Defaulting to skip.`, 'warning');
+              }
+            }
+            successCount++; 
+          } catch (err) {
+            errorCount++;
+            addSyncLog(`❌ Error hydrating ${storeKeyForLog}: ${(err as Error).message}`, 'error');
+          }
+        } else {
+          addSyncLog(`ℹ️ No data for ${storeKeyForLog} in snapshot (or already deleted for exclusion), skipping hydration.`, 'info');
+        }
+      };
+        
+      tryHydrateStore('habits', useHabitStore, 'Habits');
+      tryHydrateStore('bills', useBillStore, 'Bills');
+      tryHydrateStore('projects', useProjectStore, 'Projects'); 
+      tryHydrateStore('calendar', useCalendarStore, 'Calendar');
+      tryHydrateStore('vault', useVaultStore, 'Vault');
+      tryHydrateStore('people', usePeopleStore, 'People'); 
+
+      tryHydrateStore('customCategory', useCustomCategoryStore, 'Custom Categories', true);
+      tryHydrateStore('tags', useTagStore, 'Tags', true);
+
+      // TaskStore has its own complex hydration, called separately for now
+      // It will also need an isSyncEnabled flag and to be integrated into tryHydrateStore
+      if (data.tasks) { 
+        const taskStore = useTaskStore.getState();
+        // Placeholder: if TaskStore gets an isSyncEnabled, check it here
+        // if(taskStore.isSyncEnabled === false || (data.tasks.isSyncEnabled === false)) { ... skip ... }
+        try {
+          taskStore.hydrateFromSync(data.tasks); 
+          successCount++;
+          addSyncLog(`✅ Tasks hydrated with completion priority logic (pending toggle integration)`, 'success');
+        } catch (err) {
+          errorCount++;
+          addSyncLog(`❌ Error hydrating tasks: ${(err as Error).message}`, 'error');
+        }
+      } else {
+        addSyncLog(`ℹ️ No data for tasks in snapshot, skipping hydration.`, 'info');
+      }
+      
+      set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
+      get().syncOnboardingWithUser();
+      addSyncLog(`✨ Hydration complete: ${successCount} stores updated, ${errorCount} errors.`, 'success');
     },    
   };
 });

@@ -6,6 +6,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
 import { useVaultStore } from '@/store/VaultStore';
 import { useProjectStore } from '@/store/ProjectStore';
+import { usePeopleStore } from '@/store/People';
+import { useHabitStore } from '@/store/HabitStore';
+import { useCalendarStore } from '@/store/CalendarStore';
 
 const baseSpacing = 8;
 const fontSizes = {
@@ -69,6 +72,18 @@ export default function SyncTable({
   // ProjectStore (for actual projects) state and actions
   const isProjectSyncEnabled = useProjectStore((state) => state.isSyncEnabled);
   const toggleProjectSync = useProjectStore((state) => state.toggleProjectSync);
+
+  // PeopleStore (Contacts) state and actions
+  const isPeopleSyncEnabled = usePeopleStore((state) => state.isSyncEnabled);
+  const togglePeopleSync = usePeopleStore((state) => state.togglePeopleSync);
+
+  // HabitStore state and actions
+  const isHabitSyncEnabled = useHabitStore((state) => state.isSyncEnabled);
+  const toggleHabitSync = useHabitStore((state) => state.toggleHabitSync);
+
+  // CalendarStore state and actions
+  const isCalendarSyncEnabled = useCalendarStore((state) => state.isSyncEnabled);
+  const toggleCalendarSync = useCalendarStore((state) => state.toggleCalendarSync);
   
   // More explicit connection status determination
   const connectionStatus = React.useMemo(() => {
@@ -232,6 +247,69 @@ return (
           >
             <Text color="#fff" fontWeight="700" fontFamily="$body">
               {isProjectSyncEnabled ? 'ON' : 'OFF'}
+            </Text>
+          </Button>
+        </XStack>
+
+        {/* People (Contacts) Sync Toggle - Only show if premium is enabled */} 
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Contacts
+          </Text>
+          <Button
+            size="$2"
+            backgroundColor={isPeopleSyncEnabled ? colors.success : colors.disabled}
+            onPress={togglePeopleSync}
+            borderRadius={buttonRadius}
+            paddingHorizontal={baseSpacing * 2}
+            pressStyle={{ scale: 0.97 }}
+            animation="quick"
+          >
+            <Text color="#fff" fontWeight="700" fontFamily="$body">
+              {isPeopleSyncEnabled ? 'ON' : 'OFF'}
+            </Text>
+          </Button>
+        </XStack>
+
+        {/* Habit Sync Toggle - Only show if premium is enabled */} 
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Habits
+          </Text>
+          <Button
+            size="$2"
+            backgroundColor={isHabitSyncEnabled ? colors.success : colors.disabled}
+            onPress={toggleHabitSync}
+            borderRadius={buttonRadius}
+            paddingHorizontal={baseSpacing * 2}
+            pressStyle={{ scale: 0.97 }}
+            animation="quick"
+          >
+            <Text color="#fff" fontWeight="700" fontFamily="$body">
+              {isHabitSyncEnabled ? 'ON' : 'OFF'}
+            </Text>
+          </Button>
+        </XStack>
+
+        {/* Calendar Sync Toggle - Only show if premium is enabled */} 
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Calendar
+          </Text>
+          <Button
+            size="$2"
+            backgroundColor={isCalendarSyncEnabled ? colors.success : colors.disabled}
+            onPress={toggleCalendarSync}
+            borderRadius={buttonRadius}
+            paddingHorizontal={baseSpacing * 2}
+            pressStyle={{ scale: 0.97 }}
+            animation="quick"
+          >
+            <Text color="#fff" fontWeight="700" fontFamily="$body">
+              {isCalendarSyncEnabled ? 'ON' : 'OFF'}
             </Text>
           </Button>
         </XStack>
