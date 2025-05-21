@@ -64,8 +64,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         />
         <XStack
           padding={isIpad() ? 10 : 3}
-          paddingBottom={isIpad() ? 14 : 8}
-          paddingTop={isIpad() ? 14 : 6}
+          paddingBottom={isIpad() ? 14 : 10}
+          paddingTop={isIpad() ? 14 : 8}
           paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
@@ -78,7 +78,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 fontFamily="$heading"
                 fontWeight="900"
                 color={isDark ? "#dbd0c6" : "#dbd0c6"}
-                fontSize={isIpad() ? 15 : 13}
+                fontSize={isIpad() ? 15 : 14}
                 maxWidth={'70%'}
                 elevation={2}
                 shadowColor="#000"

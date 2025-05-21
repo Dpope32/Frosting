@@ -38,11 +38,7 @@ export default function NotesScreen() {
   const trashLayoutRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
   const trashAreaViewRef = useRef<View>(null);
   // Ref to the currently dragged card's View
-  const draggedCardViewRef = useRef<any>(null);
-  // Callback to set the dragged card ref from NoteListItem
-  const setDraggedCardRef = useCallback((ref: any) => {
-    draggedCardViewRef.current = ref;
-  }, []);
+  const noteListItemRef = useRef<any>(null);
   const insets = useSafeAreaInsets();
   // Compute static threshold: window height minus trash area height and safe area bottom inset
   useEffect(() => {
@@ -131,8 +127,8 @@ export default function NotesScreen() {
   };
 
   // Patch: Use measured trash area for hit testing
-  // Helper to check if a Y is inside the trash area
-  const isYInTrashArea = (fingerY: number) => {
+  // Helper to check if the dragged card's bottom is inside the trash area
+  const isYInTrashArea = () => {
     const { y: trashTopY, height: trashHeight } = trashLayoutRef.current;
 
     // If trash layout hasn't been measured yet, default to false.
@@ -141,35 +137,30 @@ export default function NotesScreen() {
       return false;
     }
 
-    // Estimate the offset from the finger touch point to the bottom of the card being dragged.
-    // This might need tuning based on typical card size and grab point. Let's start with 70 pixels.
-    const estimatedCardBottomOffset = 100;
-    const estimatedCardBottomY = fingerY + estimatedCardBottomOffset;
+    const cardBottomY = draggedCardBottomYRef.current;
+    const buffer = 100; // hardcoded card height
+    const trashBottomY = trashTopY + trashHeight;
 
-    // Define the effective top of the trash area for hit detection.
-    // Add a small negative buffer to trigger slightly *before* the card visually hits the absolute top edge, making it feel more responsive.
-    const buffer = 20;
-    const effectiveTrashTop = trashTopY - buffer;
+    // Accept if the card's bottom is within a buffer above the trash area
+    const isInTrash = cardBottomY >= (trashTopY - buffer) && cardBottomY <= trashBottomY;
 
-    // Check if the *estimated bottom* of the card has crossed into the trash zone.
-    const isInTrash = estimatedCardBottomY >= effectiveTrashTop;
-
-    // Debug log - Keep this temporarily for testing
-    console.log('[isYInTrashArea]', { fingerY, estimatedCardBottomY, trashTopY, effectiveTrashTop, isInTrash });
-
+    console.log('[isYInTrashArea]', { cardBottomY, trashTopY, trashBottomY, buffer, isInTrash });
     return isInTrash;
   };
 
   // Patch: Wrap the drag handlers to use the measured trash area
   const patchedHandleDragging = (event: any) => {
     if (!draggingNoteId || isPendingDelete) return;
+    if (noteListItemRef.current && noteListItemRef.current.measureCard) {
+      noteListItemRef.current.measureCard();
+    }
     const { pageY, pageX } = event.nativeEvent;
     lastDragPosition.current = { x: pageX, y: pageY };
-    // Only use the finger's Y for trash detection
-    const inTrash = isYInTrashArea(pageY);
+    // Use the actual card bottom Y for trash detection
+    const inTrash = isYInTrashArea();
     // Debug log for drag
     const { y: trashY, height: trashHeight } = trashLayoutRef.current;
-    console.log('[DRAGGING] pageY:', pageY, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
+    console.log('[DRAGGING] cardBottomY:', draggedCardBottomYRef.current, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
     if (inTrash !== isHoveringTrash) {
       try {
         triggerHaptic();
@@ -192,11 +183,11 @@ export default function NotesScreen() {
       return;
     }
     try {
-      const lastY = lastDragPosition.current.y;
-      const inTrash = isYInTrashArea(lastY);
+      // Use the actual card bottom Y for trash detection
+      const inTrash = isYInTrashArea();
       // Debug log for drag end
       const { y: trashY, height: trashHeight } = trashLayoutRef.current;
-      console.log('[DRAG END] lastY:', lastY, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash, 'isHoveringTrash:', isHoveringTrash);
+      console.log('[DRAG END] cardBottomY:', draggedCardBottomYRef.current, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash, 'isHoveringTrash:', isHoveringTrash);
       if ((isHoveringTrash || inTrash) && draggingNoteId) {
         preventReorder.current = true;
         const noteToDelete = notes.find(note => note.id === draggingNoteId);
@@ -205,7 +196,7 @@ export default function NotesScreen() {
           setPendingDeleteNote(noteToDelete);
           setPendingDeletePosition({
             x: lastDragPosition.current.x,
-            y: lastY
+            y: draggedCardBottomYRef.current
           });
           noteToDeleteRef.current = draggingNoteId;
           attemptDeleteNote({
@@ -341,6 +332,7 @@ export default function NotesScreen() {
               keyExtractor={(item) => item.id}
               renderItem={({ item, drag, isActive }) => (
                 <NoteListItem
+                  ref={noteListItemRef}
                   item={item}
                   drag={drag}
                   isActive={isActive}
@@ -357,7 +349,6 @@ export default function NotesScreen() {
                   originalIndexRef={originalIndexRef}
                   preventReorder={preventReorder}
                   isTrashVisible={isTrashVisible}
-                  setCardRef={setDraggedCardRef}
                 />
               )}
               onDragEnd={patchedHandleDragEnd}

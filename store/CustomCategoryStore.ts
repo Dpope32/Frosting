@@ -18,6 +18,7 @@ interface CustomCategoryState {
   deleteDefaultCategory: (name: string) => void;
   restoreDefaultCategory: (name: string) => void;
   isDefaultCategoryDeleted: (name: string) => boolean;
+  hydrateFromSync?: (syncedData: {categories?: CustomCategory[]}) => void;
 }
 
 export const useCustomCategoryStore = create<CustomCategoryState>()(
@@ -64,6 +65,13 @@ export const useCustomCategoryStore = create<CustomCategoryState>()(
       },
       isDefaultCategoryDeleted: (name: string) => {
         return get().deletedDefaultCategories.includes(name);
+      },
+      hydrateFromSync: (syncedData: {categories?: CustomCategory[]}) => {
+        if (syncedData.categories) {
+          set((state) => ({
+            categories: syncedData.categories,
+          }));
+        }
       },
     }),
     {

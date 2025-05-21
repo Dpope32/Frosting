@@ -103,44 +103,41 @@ export default function CollapsedView({
                 {person.nickname || person.name}
               </Paragraph>
             </XStack>
-            {person.occupation && (
-              <Paragraph
-                fontSize={isWeb ? 16 : isIpad() ? 14 : 12}
-                color={isDark ? '#999' : '#333'}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={{ marginTop: -2 }}
-              >
-                {person.occupation}
-              </Paragraph>
-            )}
-            
-            <View style={styles.additionalInfoRow as any}>
-              {birthdayText && (
-                <XStack key="birthday-row" alignItems="center" gap="$1" marginRight={6} marginBottom={2}>
-                  <MaterialIcons 
-                    name="cake" 
-                    size={10} 
-                    color={isDark ? "#777" : "#555"} 
-                  />
-                  <Text 
-                    style={[
-                      styles.contactInfo as any, 
-                      {color: isDark ? "#888" : "#555"}
-                    ]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
+            {(person.birthday || person.occupation || hasTags) && (
+              <XStack key="birthday-occupation-tags-info" alignItems="center" gap="$2" style={{ marginTop: -2, flexWrap: 'nowrap', flexShrink: 1 }}>
+                {person.birthday && (
+                  <>
+                    <MaterialIcons
+                      name="cake"
+                      size={10}
+                      color={isDark ? "#777" : "#555"}
+                    />
+                    <Text
+                      style={[
+                        styles.contactInfo as any,
+                        { color: isDark ? "#888" : "#555", flexShrink: 0, minWidth: 0 }
+                      ]}
+                    >
+                      {birthdayText}
+                    </Text>
+                  </>
+                )}
+                {person.occupation && (
+                  <Text
+                    style={{
+                      fontSize: isWeb ? 16 : isIpad() ? 14 : 12,
+                      color: isDark ? '#999' : '#333',
+                      marginLeft: person.birthday ? 8 : 0,
+                      flexShrink: 0,
+                      minWidth: 0,
+                    }}
                   >
-                    {birthdayText}
+                    {person.occupation}
                   </Text>
-                </XStack>
-              )}
-              
-              {hasTags && (
-                <React.Fragment key="tags-list">
-                  {person.tags!.map(tag => {
-                    console.log(`Mapping tag: ${JSON.stringify(tag)}, ID for key: ${tag.id}`);
-                    return (
+                )}
+                {hasTags && (
+                  <View style={{ flexDirection: 'row', flexShrink: 1, minWidth: 0, overflow: 'hidden' }}>
+                    {person.tags!.map(tag => (
                       <View 
                         key={tag.id} 
                         style={[
@@ -148,6 +145,7 @@ export default function CollapsedView({
                           {
                             backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
                             marginBottom: 2,
+                            marginLeft: 6,
                           }
                         ]}
                       >
@@ -162,6 +160,8 @@ export default function CollapsedView({
                             styles.tagText as any,
                             {
                               color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
+                              flexShrink: 1,
+                              minWidth: 0,
                             }
                           ]}
                           numberOfLines={1}
@@ -170,11 +170,12 @@ export default function CollapsedView({
                           {tag.name}
                         </Text>
                       </View>
-                    );
-                  })}
-                </React.Fragment>
-              )}
-              
+                    ))}
+                  </View>
+                )}
+              </XStack>
+            )}
+            <View style={styles.additionalInfoRow as any}>
               {!hasTags && lastContacted && (
                 <Text 
                   key="last-contacted"

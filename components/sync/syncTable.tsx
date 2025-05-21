@@ -3,6 +3,9 @@ import { View, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { Text, Button, XStack } from 'tamagui';
 import { useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useBillStore } from '@/store/BillStore';
+import { useVaultStore } from '@/store/VaultStore';
+import { useProjectStore } from '@/store/ProjectStore';
 
 const baseSpacing = 8;
 const fontSizes = {
@@ -54,6 +57,18 @@ export default function SyncTable({
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 350);
+  
+  // BillStore state and actions
+  const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
+  const toggleBillSync = useBillStore((state) => state.toggleBillSync);
+
+  // VaultStore state and actions
+  const isVaultSyncEnabled = useVaultStore((state) => state.isSyncEnabled);
+  const toggleVaultSync = useVaultStore((state) => state.toggleVaultSync);
+
+  // ProjectStore (for actual projects) state and actions
+  const isProjectSyncEnabled = useProjectStore((state) => state.isSyncEnabled);
+  const toggleProjectSync = useProjectStore((state) => state.toggleProjectSync);
   
   // More explicit connection status determination
   const connectionStatus = React.useMemo(() => {
@@ -110,16 +125,6 @@ return (
         {connectionStatus}
       </Text>
     </XStack>
-    {deviceId && (
-      <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-          Device ID
-        </Text>
-        <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.text}>
-          {deviceId.substring(0, 10)}...
-        </Text>
-      </XStack>
-    )}
     {inviteCode && currentSpaceId && (
       <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
         <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
@@ -165,6 +170,72 @@ return (
         <MaterialIcons name="content-copy" size={14} color={colors.accent} />
       </TouchableOpacity>
     </XStack>
+    )}
+
+    {premium && (
+      <>
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Bills
+          </Text>
+          <Button
+            size="$2"
+            backgroundColor={isBillSyncEnabled ? colors.success : colors.disabled} 
+            onPress={toggleBillSync}
+            borderRadius={buttonRadius}
+            paddingHorizontal={baseSpacing * 2}
+            pressStyle={{ scale: 0.97 }}
+            animation="quick"
+          >
+            <Text color="#fff" fontWeight="700" fontFamily="$body">
+              {isBillSyncEnabled ? 'ON' : 'OFF'}
+            </Text>
+          </Button>
+        </XStack>
+
+        {/* Vault (Passwords) Sync Toggle - Only show if premium is enabled */} 
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Passwords
+          </Text>
+          <Button
+            size="$2"
+            backgroundColor={isVaultSyncEnabled ? colors.success : colors.disabled}
+            onPress={toggleVaultSync}
+            borderRadius={buttonRadius}
+            paddingHorizontal={baseSpacing * 2}
+            pressStyle={{ scale: 0.97 }}
+            animation="quick"
+          >
+            <Text color="#fff" fontWeight="700" fontFamily="$body">
+              {isVaultSyncEnabled ? 'ON' : 'OFF'}
+            </Text>
+          </Button>
+        </XStack>
+
+        {/* Project Sync Toggle - Only show if premium is enabled */} 
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Projects
+          </Text>
+          <Button
+            size="$2"
+            backgroundColor={isProjectSyncEnabled ? colors.success : colors.disabled}
+            onPress={toggleProjectSync}
+            borderRadius={buttonRadius}
+            paddingHorizontal={baseSpacing * 2}
+            pressStyle={{ scale: 0.97 }}
+            animation="quick"
+          >
+            <Text color="#fff" fontWeight="700" fontFamily="$body">
+              {isProjectSyncEnabled ? 'ON' : 'OFF'}
+            </Text>
+          </Button>
+        </XStack>
+      </>
     )}
   </View>
 )

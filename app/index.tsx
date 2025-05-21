@@ -22,7 +22,7 @@ export default function Index() {
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
   const isPremium = useUserStore((state) => state.preferences.premium === true);
   const calendarPermission = useUserStore((state) => state.preferences.calendarPermission);
-  console.log('calendarPermission', calendarPermission)
+
   const {  exportStateToFile } = useRegistryStore();
   useAppInitialization();
   useEffect(() => {

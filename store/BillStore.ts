@@ -25,20 +25,25 @@ const getOrdinalSuffix = (day: number): string => {
 interface BillStore {
   bills: Record<string, Bill>;
   monthlyIncome: number;
+  isSyncEnabled: boolean;
   addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => void;
   deleteBill: (id: string) => void;
   getBills: () => Bill[];
   clearBills: () => void;
   setMonthlyIncome: (income: number) => void;
+  toggleBillSync: () => void;
+  hydrateFromSync?: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number }) => void;
 }
 
 const asyncStorage = createPersistStorage<BillStore>();
+const getAddSyncLog = () => require('@/components/sync/syncUtils').addSyncLog;
 
 export const useBillStore = create<BillStore>()(
   persist(
     (set, get) => ({
       bills: {},
       monthlyIncome: 0,
+      isSyncEnabled: false,
 
       addBill: (billData) => {
         const id = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -105,12 +110,75 @@ export const useBillStore = create<BillStore>()(
 
       clearBills: () => {
         set({ bills: {} });
+        try {
+          getAddSyncLog()('Bills cleared locally', 'info');
+        } catch (e) { /* ignore if logger not available */ }
       },
 
       setMonthlyIncome: (income: number) => {
         // Ensure income is not negative
         const validIncome = Math.max(0, income);
         set({ monthlyIncome: validIncome });
+      },
+
+      toggleBillSync: () => {
+        set((state) => {
+          const newSyncState = !state.isSyncEnabled;
+          try {
+            getAddSyncLog()(`Bill sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
+          } catch (e) { /* ignore if logger not available */ }
+          return { isSyncEnabled: newSyncState };
+        });
+      },
+
+      hydrateFromSync: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number }) => {
+        const addSyncLog = getAddSyncLog();
+        const currentSyncEnabledState = get().isSyncEnabled;
+        addSyncLog(`[Hydrate Attempt] BillStore sync is currently ${currentSyncEnabledState ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
+
+        if (!currentSyncEnabledState) {
+          addSyncLog('Bill sync is disabled, skipping hydration for BillStore.', 'info');
+          return;
+        }
+
+        addSyncLog('🔄 Hydrating BillStore from sync...', 'info');
+        let billsMergedCount = 0;
+        let billsAddedCount = 0;
+
+        set((state) => {
+          let newBills = { ...state.bills };
+          let newMonthlyIncome = state.monthlyIncome;
+
+          if (syncedData.bills) {
+            for (const billId in syncedData.bills) {
+              const incomingBill = syncedData.bills[billId];
+              if (state.bills[billId]) {
+                // Bill exists, merge/update (last write wins for the whole object)
+                newBills[billId] = { ...state.bills[billId], ...incomingBill, updatedAt: new Date().toISOString() };
+                billsMergedCount++;
+              } else {
+                // New bill, add it
+                newBills[billId] = { ...incomingBill, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+                billsAddedCount++;
+              }
+            }
+            addSyncLog(`Bills hydrated: ${billsAddedCount} added, ${billsMergedCount} merged. Total bills: ${Object.keys(newBills).length}`, 'success');
+          } else {
+            addSyncLog('No bills data in snapshot for BillStore.', 'info');
+          }
+
+          if (typeof syncedData.monthlyIncome === 'number') {
+            newMonthlyIncome = Math.max(0, syncedData.monthlyIncome); // Ensure non-negative
+            if (state.monthlyIncome !== newMonthlyIncome) {
+              addSyncLog(`Monthly income updated from ${state.monthlyIncome} to ${newMonthlyIncome} via sync.`, 'info');
+            }
+          } else {
+            addSyncLog('No monthly income data in snapshot for BillStore.', 'info');
+          }
+          
+          return { bills: newBills, monthlyIncome: newMonthlyIncome };
+        });
+        addSyncLog('✅ BillStore hydration complete.', 'success');
       },
     }),
     {

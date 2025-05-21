@@ -273,7 +273,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             
                   {dayEvents.bill && (
                     <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 30 : (webColumnCount === 2 ? 52 : 12), 
+                      bottom: webColumnCount === 1 ? 33 : (webColumnCount === 2 ? 52 : 12), 
                       zIndex: 7
                     }]}>
                       <Text style={[styles.eventIconText, {
@@ -289,8 +289,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             
                   {dayEvents.personal && (
                     <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 24 : (webColumnCount === 2 ? 88 : 42),
-                      zIndex: 5 
+                      bottom: webColumnCount === 1 ? 22 : (webColumnCount === 2 ? 88 : 42),
+                      zIndex: 5 ,
+                      marginLeft: -2
                     }]}>
                       <Text style={[styles.eventIconText, {
                         color: isDark ? '#81C784' : '#2E7D32', 

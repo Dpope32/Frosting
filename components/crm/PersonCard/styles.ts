@@ -231,8 +231,7 @@ export const styles = StyleSheet.create({
   },
   modalHeaderIcons: {
     position: 'absolute',
-    top: Platform.OS === 'web' ? 10 : 10,
-    left: 10,
+    top: Platform.OS === 'web' ? 10 : 0,
     right: 10,
     zIndex: 2,
     flexDirection: 'row',
@@ -259,7 +258,7 @@ export const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: Platform.OS === 'web' ? 20 : 10,
+    marginTop: Platform.OS === 'web' ? 20 : 0,
     marginBottom: 15,
   },
   modalAvatarContainer: {
@@ -278,7 +277,7 @@ export const styles = StyleSheet.create({
   },
   modalStarIndicator: {
     position: 'absolute',
-    top: -4,
+    top: 4,
     right: -4,
     backgroundColor: 'rgba(0,0,0,0.8)',
     borderRadius: 10,
@@ -296,8 +295,8 @@ export const styles = StyleSheet.create({
     flexShrink: 1
   },
   infoSection: {
-    marginTop: 16,
-    gap: 15,
+    marginTop: 4,
+    gap: 14,
   },
   actionBar: {
     position: "absolute",
@@ -330,8 +329,6 @@ export const styles = StyleSheet.create({
   pillRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 15,
     justifyContent: 'space-between', // Ensure pills are spaced evenly
     flexWrap: 'nowrap', // Prevent wrapping to ensure horizontal layout
     gap: 6
@@ -349,7 +346,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     marginRight: 4,
-    marginBottom: 4,
+    marginTop: -4,
   },
   modalTagText: {
     fontSize: 13,

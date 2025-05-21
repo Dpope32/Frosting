@@ -29,7 +29,6 @@ export const generateSyncKey = async (): Promise<string> => {
   const storedDeviceId = await AsyncStorage.getItem(deviceIdKey);
   
   if (storedDeviceId) {
-    console.log('Using stored device ID for sync operations', storedDeviceId.substring(0, 8) + '...');
     return storedDeviceId;
   }
   
@@ -41,7 +40,6 @@ export const generateSyncKey = async (): Promise<string> => {
   
   // Store for future use
   await AsyncStorage.setItem(deviceIdKey, newDeviceId);
-  console.log('Generated new device ID for sync:', newDeviceId.substring(0, 8) + '...');
   
   return newDeviceId;
 };

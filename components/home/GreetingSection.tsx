@@ -25,7 +25,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       <XStack alignItems="center" paddingRight={isWeb ? "$7" : isIpad() ? "$0" : "$0"} justifyContent="center"> 
         <Text
           fontFamily="$heading"
-          fontSize={isWeb ? 23 : isIpad() ? 20 : 18}
+          fontSize={isWeb ? 23 : isIpad() ? 20 : 17}
           color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
           fontWeight="bold"
         >

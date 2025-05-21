@@ -77,7 +77,7 @@ export default function SyncScreen() {
   const premium = useUserStore((s) => s.preferences.premium === true)
   const { width } = useWindowDimensions()
   const colors = getColors(isDark, primaryColor)
-  const contentWidth = Math.min(width - baseSpacing * 2, 350)
+  const contentWidth = Math.min(width - baseSpacing * 2, isIpad() ? 450 : 350)
   const syncStatus = useRegistryStore((s) => s.syncStatus)
   const { deviceId } = useDeviceId(premium)
   const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
@@ -212,7 +212,7 @@ export default function SyncScreen() {
           />
         )}
 
-        {premium && (
+        {premium && workspaceId && (
           <XStack
             alignItems="center"
             justifyContent="center"
@@ -230,7 +230,7 @@ export default function SyncScreen() {
                 premium={premium}
                 devices={[]}
                 contentWidth={contentWidth}
-                maxHeight={350}
+                maxHeight={isIpad() ? 750 : 500}
               />
             </View>
           </XStack>

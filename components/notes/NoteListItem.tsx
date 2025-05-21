@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { NoteCard } from './NoteCard';
 import * as Haptics from 'expo-haptics';
@@ -27,7 +27,7 @@ interface NoteListItemProps {
   setCardRef?: (ref: any) => void;
 }
 
-export const NoteListItem: React.FC<NoteListItemProps> = ({
+export const NoteListItem = forwardRef<any, NoteListItemProps>(({
   item,
   drag,
   isActive,
@@ -45,15 +45,26 @@ export const NoteListItem: React.FC<NoteListItemProps> = ({
   preventReorder,
   isTrashVisible,
   setCardRef
-}) => {
+}, ref) => {
   const cardRef = useRef<View>(null);
+
+  useImperativeHandle(ref, () => ({
+    measureCard: (cb?: () => void) => {
+      if (cardRef.current) {
+        cardRef.current.measureInWindow((x, y, width, height) => {
+          const bottomY = y + height;
+          if (draggedCardBottomYRef) draggedCardBottomYRef.current = bottomY;
+          if (cb) cb();
+        });
+      }
+    }
+  }));
+
   useEffect(() => {
     if (isActive && cardRef.current) {
-      // Wait a tick for layout to settle
       setTimeout(() => {
         cardRef.current?.measureInWindow((x, y, width, height) => {
           const bottomY = y + height;
-          console.log('[NOTE DRAG] NoteCard bottomY:', bottomY, 'y:', y, 'height:', height);
           if (draggedCardBottomYRef) draggedCardBottomYRef.current = bottomY;
         });
       }, 16);
@@ -79,7 +90,6 @@ export const NoteListItem: React.FC<NoteListItemProps> = ({
   return (
     <ScaleDecorator>
       <View ref={node => {
-        // Only set if node is not null
         if (node) {
           (cardRef as any).current = node;
           if (setCardRef) setCardRef(node);
@@ -111,4 +121,6 @@ export const NoteListItem: React.FC<NoteListItemProps> = ({
       </View>
     </ScaleDecorator>
   );
-}; 
+});
+
+NoteListItem.displayName = 'NoteListItem'; 

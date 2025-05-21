@@ -24,16 +24,22 @@ export const VAULT_DATA = {
 interface VaultStore {
   vaultData: VaultData;
   isLoaded: boolean;
+  isSyncEnabled: boolean;
   addEntry: (entry: Omit<VaultEntry, 'id'>) => Promise<VaultEntry>;
   deleteEntry: (id: string) => Promise<void>;
   getEntries: () => VaultEntry[];
+  toggleVaultSync: () => void;
+  hydrateFromSync?: (syncedData: { vaultData?: VaultData }) => void;
 }
+
+const getAddSyncLog = () => require('@/components/sync/syncUtils').addSyncLog;
 
 export const useVaultStore = create<VaultStore>()(
   persist(
     (set, get) => ({
       vaultData: VAULT_DATA,
       isLoaded: false,
+      isSyncEnabled: false,
       
       addEntry: async (entry) => {
         const timestamp = Date.now();
@@ -71,7 +77,66 @@ export const useVaultStore = create<VaultStore>()(
       
       getEntries: () => {
         return get().vaultData.items;
-      }
+      },
+
+      toggleVaultSync: () => {
+        set((state) => {
+          const newSyncState = !state.isSyncEnabled;
+          try {
+            getAddSyncLog()(`Vault sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
+          } catch (e) { /* ignore */ }
+          return { isSyncEnabled: newSyncState };
+        });
+      },
+
+      hydrateFromSync: (syncedData: { vaultData?: VaultData }) => {
+        const addSyncLog = getAddSyncLog();
+        const currentSyncEnabledState = get().isSyncEnabled;
+        addSyncLog(`[Hydrate Attempt] VaultStore sync is currently ${currentSyncEnabledState ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
+
+        if (!currentSyncEnabledState) {
+          addSyncLog('Vault sync is disabled, skipping hydration for VaultStore.', 'info');
+          return;
+        }
+
+        const itemsToSync = syncedData.vaultData?.items;
+        if (!itemsToSync || !Array.isArray(itemsToSync)) {
+          addSyncLog('No vault items data in snapshot for VaultStore, or items are not an array.', 'info');
+          return;
+        }
+
+        addSyncLog('🔄 Hydrating VaultStore from sync...', 'info');
+        let itemsMergedCount = 0;
+        let itemsAddedCount = 0;
+
+        set((state) => {
+          const existingItemsMap = new Map(state.vaultData.items.map(item => [item.id, item]));
+          const newItemsArray = [...state.vaultData.items];
+
+          for (const incomingItem of itemsToSync) {
+            if (existingItemsMap.has(incomingItem.id)) {
+              const existingItemIndex = newItemsArray.findIndex(item => item.id === incomingItem.id);
+              if (existingItemIndex !== -1) {
+                newItemsArray[existingItemIndex] = incomingItem;
+                itemsMergedCount++;
+              }
+            } else {
+              newItemsArray.push(incomingItem);
+              itemsAddedCount++;
+            }
+          }
+          
+          addSyncLog(`Vault items hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total items: ${newItemsArray.length}`, 'success');
+          return {
+            vaultData: {
+              ...state.vaultData,
+              items: newItemsArray,
+              totalItems: newItemsArray.length,
+            },
+          };
+        });
+        addSyncLog('✅ VaultStore hydration complete.', 'success');
+      },
     }),
     {
       name: 'vault-storage',

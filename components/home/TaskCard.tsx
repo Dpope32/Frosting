@@ -157,7 +157,7 @@ export function TaskCard({
       progressBarStyle={{
         paddingHorizontal: 8
       }}
-      longPressDuration={1600}
+      longPressDuration={800}
     >
       <Stack
         backgroundColor={cardBgColor}
@@ -242,7 +242,7 @@ export function TaskCard({
                   }
                 }}
                 style={styles.checkboxContainer}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 16 }}
+                hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
                 accessibilityRole="button"
                 accessibilityLabel={checked ? "Mark task as incomplete" : "Mark task as complete"}
               >
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingVertical: 7,
     position: 'relative',
     zIndex: 2
   },
@@ -314,6 +314,7 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: -2,
   }
 });

@@ -27,11 +27,8 @@ export const useCalendarSync = () => {
     if (calendarPermission === undefined && Platform.OS !== 'web') {
       getCalendarPermissionStatus().then((granted) => {
         setPreferences({ calendarPermission: granted });
-        console.log('calendarPermission (patched):', granted);
       });
-    } else {
-      console.log('calendarPermission:', calendarPermission);
-    }
+    } 
     // Only run once, only on non-web platforms, and only if onboarding is completed
     if (isInitialized || Platform.OS === 'web') return;
     const initializeCalendarSync = async () => {

@@ -53,31 +53,7 @@ export default function ExpandedView({
         ] as any}
       >
         <Sheet.Handle key="sheet-handle" />
-        <ScrollView key="scroll-view" style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
-          <View key="header-icons" style={styles.modalHeaderIcons as any}>
-            <TouchableOpacity
-              key="share-icon"
-              style={[
-                styles.shareIcon,
-                { backgroundColor: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(100,100,100,0.5)' }
-              ] as any}
-              onPress={() => {
-                const shareUrl = `kaiba-nexus://share?name=${encodeURIComponent(person.name)}` +
-                  (person.nickname ? `&nickname=${encodeURIComponent(person.nickname)}` : '') +
-                  (person.phoneNumber ? `&phone=${encodeURIComponent(formatPhoneNumber(person.phoneNumber))}` : '') +
-                  (person.email ? `&email=${encodeURIComponent(person.email)}` : '') +
-                  (person.occupation ? `&occupation=${encodeURIComponent(person.occupation)}` : '');
-                const plainText = `Contact: ${person.nickname || person.name}\n` +
-                  (person.phoneNumber ? `Phone: ${formatPhoneNumber(person.phoneNumber)}\n` : '') +
-                  (person.email ? `Email: ${person.email}\n` : '') +
-                  (person.occupation ? `Occupation: ${person.occupation}\n` : '');
-                const clipboardContent = `${shareUrl}\n---\n${plainText}`;
-                Clipboard.setStringAsync(clipboardContent);
-                Alert.alert('Success', 'Contact info copied to clipboard!');
-              }}
-            >
-              <Ionicons key="share-outline-icon" name="share-outline" size={24} color="#fff" />
-            </TouchableOpacity>
+        <View key="header-icons" style={styles.modalHeaderIcons as any}>
             <TouchableOpacity
               key="close-icon"
               style={[
@@ -92,6 +68,7 @@ export default function ExpandedView({
               <Ionicons key="close-outline-icon" name="close-outline" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
+        <ScrollView key="scroll-view" style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
 
           <View key="header-row" style={[styles.headerRow, applyWebStyle('headerRow')] as any}>
             <View key="avatar-container" style={styles.modalAvatarContainer as any}>
@@ -157,7 +134,7 @@ export default function ExpandedView({
           <YStack style={styles.infoSection as any}>
             {person.birthday && (
               <XStack key="birthday-info" gap="$3" alignItems="center">
-                <Ionicons name="gift-outline" size={22} color={nicknameColor} />
+                <Ionicons name="gift-outline" backgroundColor={"transparent"} size={22} color={nicknameColor} />
                 <Paragraph fontSize={14} fontFamily="$body" color={isDark ? '#fff' : '#333'}>
                   {(() => {
                     const date = new Date(person.birthday);
@@ -169,8 +146,8 @@ export default function ExpandedView({
             )}
             
             {person.tags && person.tags.length > 0 && (
-              <XStack key="tags-info" gap="$3" alignItems="flex-start">
-                <Ionicons name="pricetag-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
+              <XStack key="tags-info" gap="$2" alignItems="flex-start">
+                <Ionicons name="pricetag-outline" size={22} color={isDark ? '#fff' : '#555'} />
                 <View style={styles.modalTagsContainer as any}>
                   {person.tags.map(tag => (
                     <View
@@ -309,7 +286,20 @@ export default function ExpandedView({
         >
           <TouchableOpacity
             key="copy-action"
-            onPress={() => Clipboard.setStringAsync(person.name).then(() => Alert.alert('Success', 'Name copied to clipboard!'))}
+            onPress={() => {
+              const shareUrl = `kaiba-nexus://share?name=${encodeURIComponent(person.name)}` +
+                (person.nickname ? `&nickname=${encodeURIComponent(person.nickname)}` : '') +
+                (person.phoneNumber ? `&phone=${encodeURIComponent(formatPhoneNumber(person.phoneNumber))}` : '') +
+                (person.email ? `&email=${encodeURIComponent(person.email)}` : '') +
+                (person.occupation ? `&occupation=${encodeURIComponent(person.occupation)}` : '');
+              const plainText = `Contact: ${person.nickname || person.name}\n` +
+                (person.phoneNumber ? `Phone: ${formatPhoneNumber(person.phoneNumber)}\n` : '') +
+                (person.email ? `Email: ${person.email}\n` : '') +
+                (person.occupation ? `Occupation: ${person.occupation}\n` : '');
+              const clipboardContent = `${shareUrl}\n---\n${plainText}`;
+              Clipboard.setStringAsync(clipboardContent);
+              Alert.alert('Success', 'Contact info copied to clipboard!');
+            }}
             style={styles.actionButton as any}
             activeOpacity={0.6}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
