@@ -59,6 +59,11 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
 
+  // Calculate trailing blanks (empty cells after the last day of the month)
+  const totalCells = daysInMonth + firstDayOfMonth;
+  const trailingBlanksCount = (7 - (totalCells % 7)) % 7;
+  const trailingBlanks = Array.from({ length: trailingBlanksCount }, (_, i) => i);
+
   const monthName = date.toLocaleString('default', { month: 'long' });
   const year = date.getFullYear();
   const todayTextColor = primaryColor;
@@ -187,21 +192,29 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const weekday = currentDate.getDay();
           const isWeekend = weekday === 0 || weekday === 6;
 
-            return (
-              <TouchableOpacity
-                key={day}
-                onPress={() => onDayPress(currentDate)}
-                onPressIn={() => { if (Platform.OS !== 'web') Haptics.selectionAsync(); }}
-                style={[
-                  styles.dayCell,
-                  isWeekend && styles.weekendDayCell,
-                  isToday && [styles.today, { borderColor: primaryColor }],
-                  dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
-                  isLastRow && styles.lastRowCell,
-                  isPastDate && styles.pastDateCell,
-                  Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 6 }
-                ]}
-              >
+          // For last row: leftmost and rightmost cell logic
+          const isFirstCellInLastRow = isLastRow && (dayIndex % 7 === 0);
+          // The last cell in the last row is either the last day or the last trailing blank
+          const isLastCellInLastRow = isLastRow && ((dayIndex % 7) === 6 || (day === daysInMonth && trailingBlanks.length === 0));
+
+          return (
+            <TouchableOpacity
+              key={day}
+              onPress={() => onDayPress(currentDate)}
+              onPressIn={() => { if (Platform.OS !== 'web') Haptics.selectionAsync(); }}
+              style={[
+                styles.dayCell,
+                isWeekend && styles.weekendDayCell,
+                isToday && [styles.today, { borderColor: primaryColor }],
+                dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
+                isLastRow && styles.lastRowCell,
+                isLastRow && { borderBottomWidth: 1 },
+                isFirstCellInLastRow && styles.lastRowCellLeft,
+                isLastCellInLastRow && styles.lastRowCellRight,
+                isPastDate && styles.pastDateCell,
+                Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 6 }
+              ]}
+            >
                 <View style={[
                   styles.dayCellContent, 
                   isPastDate && !isToday && styles.pastDateOverlay
@@ -347,6 +360,19 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
               </TouchableOpacity>
             );
           })}
+        {trailingBlanks.map((_, idx) => {
+          const isLast = idx === trailingBlanks.length - 1;
+          return (
+            <View
+              key={`trailing-blank-${idx}`}
+              style={[
+                styles.dayCell,
+                styles.trailingBlankCell,
+                isLast && styles.trailingBlankCellLast
+              ]}
+            />
+          );
+        })}
       </View>
     </View>
   );

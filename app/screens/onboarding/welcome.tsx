@@ -302,18 +302,6 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
             />
           )}
 
-          {isWeb && (
-            <View position="absolute" top={40} left={-60} zIndex={2}>
-              <video
-                src={heroAmbient1}
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ width: 120, height: 120, borderRadius: 24, opacity: 0.7, objectFit: 'cover', boxShadow: '0 4px 32px #C080FF33' }}
-              />
-            </View>
-          )}
           <XStack position="relative" alignItems="center" zIndex={1}>
             {isWeb && (
               <Image
@@ -324,7 +312,7 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
                   borderRadius: 40,
                   position: 'absolute',
                   left: -120,
-                  top: -10,
+                  top: -48,
                 }}
               />
             )}
@@ -337,7 +325,8 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
                 background: isWeb ? 'linear-gradient(90deg, #C080FF 30%, #4ADECD 70%)' : undefined,
                 WebkitBackgroundClip: isWeb ? 'text' : undefined,
                 WebkitTextFillColor: isWeb ? 'transparent' : undefined,
-                marginBottom: isWeb ? 30 : 8, 
+                marginBottom: isWeb ? 0 : 8, 
+                marginTop: isWeb ? -45 : 8,
               }}
             >
               Kaiba Nexus
@@ -357,6 +346,54 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
           >
             Your world, all in one place
           </H2>
+          {isWeb && (
+            <XStack
+              width="100%"
+              alignItems="center"
+              justifyContent="center"
+              marginTop={0}
+              marginBottom={-50}
+              gap={32}
+              style={{ display: 'flex' }}
+            >
+              <video
+                src={heroAmbient1}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  width: '60vw',
+                  maxWidth: 900,
+                  minWidth: 320,
+                  height: 'auto',
+                  borderRadius: 32,
+                  opacity: 0.95,
+                  objectFit: 'cover',
+                  boxShadow: '0 8px 48px #C080FF33, 0 2px 16px #4ADECD22'
+                }}
+              />
+              {/* Uncomment and import heroAmbient2 when available
+              <video
+                src={heroAmbient2}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  width: '60vw',
+                  maxWidth: 900,
+                  minWidth: 320,
+                  height: 'auto',
+                  borderRadius: 32,
+                  opacity: 0.95,
+                  objectFit: 'cover',
+                  boxShadow: '0 8px 48px #4ADECD22, 0 2px 16px #C080FF33'
+                }}
+              />
+              */}
+            </XStack>
+          )}
         </YStack>
 
         {isWeb ? (
@@ -377,25 +414,24 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: isMobileBrowser ? 220 : 240,
+                minHeight: isMobileBrowser ? 220 : 280,
               }}
             >
               <MarqueeContent
                 style={{
-                  height: isMobileBrowser ? 200 : 240,
+                  height: isMobileBrowser ? 200 : 250,
                   alignItems: 'center',
                 }}
               >
                 {[...features, ...features].map((feature, index) => {
                   const bgColor = feature.titleColor + "20";
-                  const isCRM = feature.title === "CRM";
                   const uniqueKey = `${feature.id}-${index}`;
                   return (
                     <YStack
                       key={uniqueKey}
                       minWidth={isMobileBrowser ? 320 : 380}
                       maxWidth={isMobileBrowser ? 340 : 400}
-                      height={isMobileBrowser ? 180 : 220} 
+                      height={isMobileBrowser ? 180 : 240} 
                       bc={bgColor}
                       br="$10"
                       overflow="hidden"

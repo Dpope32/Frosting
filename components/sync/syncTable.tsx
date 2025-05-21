@@ -39,7 +39,6 @@ interface SyncTableProps {
   primaryColor: string;
   syncStatus: string;
   currentSpaceId: string;
-  deviceId: string;
   inviteCode?: string | null;
   onCopyInviteCode?: () => Promise<void>;
   onCopyCurrentSpaceId?: () => Promise<void>;
@@ -50,7 +49,6 @@ export default function SyncTable({
   primaryColor, 
   syncStatus, 
   currentSpaceId, 
-  deviceId,
   inviteCode,
   onCopyInviteCode,
   onCopyCurrentSpaceId

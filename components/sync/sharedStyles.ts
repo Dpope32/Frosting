@@ -9,6 +9,9 @@ export const fontSizes = {
 };
 export const cardRadius = 12;
 export const buttonRadius = 20;
+
+export type Colors = ReturnType<typeof getColors>;
+
 export const getColors = (isDark: boolean, primaryColor: string) => ({
   bg: isDark ? '#181A20' : '#fff',
   card: isDark ? '#23262F' : '#F7F8FA',

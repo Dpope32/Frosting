@@ -5,7 +5,7 @@ import { isWeb } from 'tamagui';
 export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: isWeb ? 80 : 80,
+    paddingTop: webColumnCount === 1 ? 90 : webColumnCount === 2 ? isWeb ? 100 : 80 : webColumnCount === 3 ? isWeb ? 90 : 80 : 80,
     backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
     ...(Platform.OS === 'web' ? {
       backgroundColor: '#f0f2f5',
@@ -44,10 +44,40 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     } as any : {}),
   },
   webMonthWrapper: {
-    width: webColumnCount === 1 ? '100%' : (webColumnCount === 2 ? '49%' : '33%'),
+    width: webColumnCount === 1
+      ? '100%'
+      : webColumnCount === 2
+        ? '49%'
+        : webColumnCount === 3 && Platform.OS === 'web'
+          ? '31%'
+          : webColumnCount === 3
+            ? '33%'
+            : '33%',
     padding: 0,
-    margin: webColumnCount === 1 ? 0 : (webColumnCount === 2 ? 4 : 0),
-    backgroundColor: '#0a0a0a',
+    margin: webColumnCount === 1
+      ? 0
+      : webColumnCount === 2
+        ? isWeb ? 20 : 4
+        : webColumnCount === 3 && Platform.OS === 'web'
+          ? 0
+          : webColumnCount === 3
+            ? 4
+            : 0,
+      marginBottom: webColumnCount === 1
+      ? isWeb ? 30 : isIpad() ? 20 : 10
+      : webColumnCount === 2
+        ? isWeb ? 20 : isIpad() ? 10 : 4
+        : webColumnCount === 3 && Platform.OS === 'web'
+          ? 20
+          : webColumnCount === 3
+            ? 4
+            : 0,
+    ...(Platform.OS === 'web' && webColumnCount === 3 ? {
+      borderRadius: 12,
+    } : Platform.OS === 'web' ? {
+      borderRadius: 16,
+      overflow: 'hidden'
+    } : {}),
     ...(isIpad() ? {
       width: '49%',
       margin: '0.5%',
@@ -84,7 +114,7 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     width: '90%',
     minHeight: Platform.OS === 'web' ? '87.5%' : '72%',
     maxHeight: Platform.OS === 'web' ? '95%' : '100%',
-    borderRadius: 16,
+    borderRadius: isWeb ? 12 : 16,
     elevation: 5,
     overflow: 'hidden',
     padding: 8,

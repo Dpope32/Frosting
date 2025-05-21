@@ -4,12 +4,12 @@ import { isWeb } from 'tamagui';
 
 export const getMonthStyles = (webColumnCount: number, isDark: boolean) => StyleSheet.create({
   calendar: {
-    borderRadius: isWeb? 0 : 12,
+    borderRadius: Platform.OS === 'web' ? 16 : 12,
     elevation: isWeb? 0 : 3,
     padding: 0,
     margin: 8,
     backgroundColor: isDark ? '#121212' : '#FFFFFF',
-    overflow: 'hidden',
+    overflow: 'visible',
     borderWidth: isDark ? 0 : 1,
     borderColor: isDark ? 'transparent' : '#E0E0E0',
     ...(Platform.OS === 'web' ? { 
@@ -58,7 +58,18 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   dayCell: {
     width: '14.28%',
-    aspectRatio: webColumnCount === 3 ? 0.8 : (webColumnCount === 2 ? 0.7 : 1),
+    aspectRatio:
+      Platform.OS === 'web'
+        ? (webColumnCount === 3
+            ? 0.75
+            : webColumnCount === 2
+              ? 0.95
+              : 1)
+        : (webColumnCount === 3
+            ? 0.8
+            : webColumnCount === 2
+              ? 0.7
+              : 1),
     padding: Platform.OS === 'web' ? 3 : 1,
     borderWidth: 0.25,
     borderColor: isDark ? '#555' : '#E8E8E8',
@@ -201,5 +212,24 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   nbaLogo: {
     width: '100%',
     height: '100%'
+  },
+  trailingBlankCell: {
+    width: '14.28%',
+    aspectRatio: 1,
+    backgroundColor: isDark ? '#000000' : '#FFFFFF',
+    borderRightWidth: 0,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    borderBottomWidth: 1,
+    borderColor: isDark ? '#555' : '#E8E8E8',
+  },
+  trailingBlankCellLast: {
+    borderRightWidth: 1
+  },
+  lastRowCellLeft: {
+    borderLeftWidth: 1
+  },
+  lastRowCellRight: {
+    borderRightWidth: 1
   }
 });

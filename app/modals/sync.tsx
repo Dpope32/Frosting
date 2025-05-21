@@ -166,7 +166,6 @@ export default function SyncScreen() {
             primaryColor={primaryColor}
             syncStatus={syncStatus}
             currentSpaceId={workspaceId || ''}
-            deviceId={deviceId}
             inviteCode={inviteCode}
             onCopyInviteCode={async () => {
               if (!inviteCode) return;
