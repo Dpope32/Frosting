@@ -4,7 +4,7 @@ import { useUserStore } from '@/store';
 import * as Sentry from '@sentry/react-native';
 import { addSyncLog, LogEntry } from '@/components/sync/syncUtils';
 
-const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL || 'http://192.168.1.32:8090';
+const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL || 'https://fedora.tail557534.ts.net';
 // We'll use type-only imports to help TypeScript understand the PocketBase types
 // without actually importing the module at compile time
 type PocketBaseType = import('pocketbase', { with: { 'resolution-mode': 'import' } }).default; // Updated PocketBaseType

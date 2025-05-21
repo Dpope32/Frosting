@@ -82,7 +82,7 @@ describe('PocketBase Unreachable Test', () => {
     
     // Verify fetch was called with the right URL
     expect(global.fetch).toHaveBeenCalledWith(
-      'http://192.168.1.32:8090/api/health',
+      'https://fedora.tail557534.ts.net',
       expect.objectContaining({ method: 'HEAD' })
     );
     

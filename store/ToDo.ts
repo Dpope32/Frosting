@@ -573,8 +573,6 @@ export const useProjectStore = create<ProjectStore>()(
             for (const date in syncedTask.completionHistory) {
               if (syncedTask.completionHistory[date] === true) {
                 mergedCompletionHistory[date] = true;
-                addSyncLog(`Prioritizing completion for task ${syncedTask.name} on ${date}`, 'info');
-                if (DEBUG) log(`Prioritizing completion for task ${syncedTask.name} on ${date}`);
               } else if (!(date in mergedCompletionHistory)) {
                 // Only add incomplete states if we don't have any record for that date
                 mergedCompletionHistory[date] = false;
