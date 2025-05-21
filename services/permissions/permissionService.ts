@@ -190,3 +190,15 @@ export const showPermissionExplanation = async (): Promise<void> => {
   // since we now have a dedicated permissions screen
   await markPermissionsAsExplained();
 };
+
+// Returns true if calendar permission is currently granted (does not request, just checks)
+export const getCalendarPermissionStatus = async () => {
+  if (Platform.OS === 'web' || !Calendar) return false;
+  try {
+    const { status } = await Calendar.getCalendarPermissionsAsync();
+    return status === 'granted';
+  } catch (e) {
+    console.error('Error checking calendar permission status:', e);
+    return false;
+  }
+};

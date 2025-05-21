@@ -36,14 +36,17 @@ export default function CalendarScreen() {
   const { events: storeEvents } = useCalendarStore();
   const [combinedEvents, setCombinedEvents] = useState(storeEvents);
   const [activeEventTypes, setActiveEventTypes] = useState<string[]>([]);
+  const calendarPermission = useUserStore(state => state.preferences.calendarPermission);
   
   useEffect(() => {
     const currentYear = new Date().getFullYear();
-    const holidays = [
-      ...getUSHolidays(currentYear), 
-      ...getUSHolidays(currentYear + 1)
-    ];
-    
+    let holidays: any[] = [];
+    if (!calendarPermission) {
+      holidays = [
+        ...getUSHolidays(currentYear),
+        ...getUSHolidays(currentYear + 1)
+      ];
+    }
     const allEvents = [...storeEvents, ...holidays];
     setCombinedEvents(allEvents);
     const types: string[] = [];
@@ -53,7 +56,7 @@ export default function CalendarScreen() {
       }
     });
     setActiveEventTypes(types);
-  }, [storeEvents]);
+  }, [storeEvents, calendarPermission]);
   
 
   const {
@@ -231,7 +234,7 @@ export default function CalendarScreen() {
         setNotifyBeforeTime={setNotifyBeforeTime}
         editingEvent={editingEvent}
         handleAddEvent={handleAddEvent}
-        handleEditEvent={handleEditEvent}
+        handleEditEvent={handleEditEvent} 
         handleDeleteEvent={handleDeleteEvent}
         resetForm={resetForm}  
         closeEventModals={closeEventModals}

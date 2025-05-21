@@ -184,12 +184,6 @@ export const PremiumLogs = ({
                 </Animated.View>
               );
             })}
-            
-            {syncLogs.length === 0 && (
-              <Text fontSize={fontSizes.sm} color={colors.subtext} alignSelf="center" textAlign="center" padding={baseSpacing * 2}>
-                Sync logs will appear here
-              </Text>
-            )}
           </YStack>
         </ScrollView>
       </View>
@@ -212,13 +206,32 @@ export const PremiumLogs = ({
           alignItems="center"
           justifyContent="center"
         >
-          <Ionicons name="sync-outline" size={16} color="#4ade80" style={{ marginHorizontal: 8 }} />
+          <Ionicons name="download-outline" size={16} color="#4ade80" style={{ marginHorizontal: 8 }} />
           <Text color={isDark ? "#4ade80" : "#047857"} fontSize={13} fontWeight="500" fontFamily="$body" textAlign="center">
             {!premium 
               ? 'Premium required for automatic sync across devices'
               : isLoading 
-                ? 'Sync in progress... Please wait'
-                : 'Local data pulls automatically on app start and pushes local changes when app goes to background'}
+                ? 'Sync in progress...'
+                : 'Local data pulls automatically on app start'}
+          </Text>
+        </XStack>
+          <XStack 
+          padding={baseSpacing * 2}
+          backgroundColor={isDark ? "rgba(140, 16, 185, 0.1)" : "rgba(6, 95, 70, 0.2)"}
+          borderColor={"rgba(154, 16, 185, 0.5)"}
+          borderWidth={1}
+          borderRadius={8}
+          width="100%"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Ionicons name="push-outline" size={16} color="#8c10b9" style={{ marginHorizontal: 8 }} />
+          <Text color={isDark ? "#8c10b9" : "#8c10b9"} fontSize={13} fontWeight="500" fontFamily="$body" textAlign="center">
+            {!premium 
+              ? 'Sign up today!'
+              : isLoading 
+                ? 'Please wait'
+                : 'Pushes changes when app goes to background'}
           </Text>
         </XStack>
       </YStack>

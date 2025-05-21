@@ -161,7 +161,7 @@ export const TaskSection = ({
             <Button
               size="$2"
               circular
-              bg="#00AAFF"
+              bg="transparent"
               pressStyle={{ scale: 0.95 }}
               animation="quick"
               elevation={4}
@@ -171,7 +171,7 @@ export const TaskSection = ({
               top="-10%" 
               y="0%" 
             >
-              <Text color="white" fontSize={16}>+</Text>
+              <Text color="#c3c3c3" fontSize={20} fontWeight="bold">+</Text>
             </Button>
           )}
         </XStack>

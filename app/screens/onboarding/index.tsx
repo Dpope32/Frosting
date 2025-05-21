@@ -77,8 +77,9 @@ export default function Onboarding() {
         
         if (Platform.OS !== 'web') {
           try {
-            const permissions = await requestPermissionsWithDelay(1000);
+            const permissions: any = await requestPermissionsWithDelay(1000);
             await setupPermissionsAndNotifications(permissions);
+            setPreferences({ calendarPermission: permissions.calendar });
           } catch (error) {
             console.error("Error setting up permissions:", error);
             // Continue anyway to not block users

@@ -25,6 +25,7 @@ export const defaultPreferences: UserPreferences = {
   showNBAGameTasks: false, 
   permissionsExplained: false,
   premium: false,
+  calendarPermission: false,
 };
 
 export const useUserStore = create<UserStore>()(

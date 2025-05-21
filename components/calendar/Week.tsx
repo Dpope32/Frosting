@@ -14,6 +14,26 @@ interface WeekProps {
   primaryColor: string;
 }
 
+const dedupeHolidays = (events: CalendarEvent[]): CalendarEvent[] => {
+  const byDate: Record<string, CalendarEvent[]> = {};
+  for (const e of events) {
+    if (e.type === 'holiday') {
+      if (!byDate[e.date]) byDate[e.date] = [];
+      byDate[e.date].push(e);
+    }
+  }
+  const deduped: Record<string, CalendarEvent> = {};
+  for (const date in byDate) {
+    const native = byDate[date].find(ev => ev.id.startsWith('device-'));
+    deduped[date] = native || byDate[date][0];
+  }
+  // Return all non-holiday events, plus only the deduped holidays
+  return [
+    ...events.filter(e => e.type !== 'holiday'),
+    ...Object.values(deduped)
+  ];
+};
+
 export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDark, primaryColor }) => {
   const styles = getWeekStyles(isDark);
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
@@ -27,9 +47,8 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
   const eventsByDate = React.useMemo(() => {
     const weekStartStr = weekStart.toISOString().split('T')[0];
     const weekEndStr = addDays(weekStart, 6).toISOString().split('T')[0];
-
-    return events
-      .filter(e => e.date >= weekStartStr && e.date <= weekEndStr)
+    const filteredEvents = dedupeHolidays(events.filter(e => e.date >= weekStartStr && e.date <= weekEndStr));
+    return filteredEvents
       .reduce((acc, e) => {
         if (!acc[e.date]) {
           acc[e.date] = {

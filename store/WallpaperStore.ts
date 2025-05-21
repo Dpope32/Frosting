@@ -47,6 +47,7 @@ export const useWallpaperStore = create<WallpaperStore>()(
           }
         } catch (error) {
           console.error('[WallpaperStore] Error initializing cache directory:', error);
+          throw error;
         }
       },
       
@@ -303,8 +304,8 @@ export const useWallpaperStore = create<WallpaperStore>()(
   )
 );
 
-if (Platform.OS !== 'web') {
-  useWallpaperStore.getState().initializeCache().catch(error => {
-    console.error('[WallpaperStore] Failed to initialize cache:', error);
-  });
-}
+//if (Platform.OS !== 'web') {
+//  useWallpaperStore.getState().initializeCache().catch(error => {
+//    console.error('[WallpaperStore] Failed to initialize cache:', error);
+//  });
+//}

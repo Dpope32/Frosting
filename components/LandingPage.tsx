@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import { Alert } from 'react-native';
 
 import { NewTaskModal } from '@/components/cardModals/NewTaskModal/index'
 import { PortfolioModal } from '@/components/home/PortfolioModal'
@@ -36,6 +37,10 @@ import { createFormattingHandler } from '@/services';
 
 import { EditStockModal } from './cardModals/edits/EditStockModal'
 import { useHabits } from '@/hooks';
+import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
+import { useWallpaperStore } from '@/store';
+
+let wallpaperInitErrorPatched = false;
 
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
@@ -86,6 +91,8 @@ export function LandingPage() {
   const openStockModal = useEditStockStore(s => s.openModal)
   const { addHabit } = useHabits();
   const projects = useProjectsStore(s => s.projects);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+  const [wallpaperErrorChecked, setWallpaperErrorChecked] = useState(false);
 
   // Effect hooks
   React.useEffect(() => {
@@ -96,6 +103,37 @@ export function LandingPage() {
     
     return () => clearTimeout(timer)
   }, [])
+  
+  React.useEffect(() => {
+    if (wallpaperErrorChecked) return;
+    setWallpaperErrorChecked(true);
+    const store = useWallpaperStore.getState();
+    if (!wallpaperInitErrorPatched) {
+      const origInit = store.initializeCache;
+      store.initializeCache = async function patchedInit() {
+        try {
+          await origInit();
+        } catch (e) {
+          if (typeof window !== 'undefined' && window.confirm) {
+            if (window.confirm('No wallpaper is set or there was an error initializing wallpaper storage. Set a new one in Settings?')) {
+              setSettingsModalOpen(true);
+            }
+          } else if (Platform.OS !== 'web' && Alert && Alert.alert) {
+            Alert.alert(
+              'Wallpaper Error',
+              'No wallpaper is set or there was an error initializing wallpaper storage. Set a new one in Settings?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Open Settings', onPress: () => setSettingsModalOpen(true) },
+              ]
+            );
+          }
+        }
+      };
+      wallpaperInitErrorPatched = true;
+    }
+    store.initializeCache().catch((e) => {});
+  }, [wallpaperErrorChecked]);
   
   if (!userHydrated) {
     return (
@@ -348,6 +386,7 @@ export function LandingPage() {
             isDark={isDark}
             primaryColor={primaryColor}
           />
+          <SettingsModal open={settingsModalOpen} onOpenChange={setSettingsModalOpen} />
         </>
       )}
         <FloatingActionSection onActionPress={handleActionPress} isDark={isDark} />

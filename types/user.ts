@@ -65,4 +65,8 @@ export interface UserPreferences {
      * Only premium users can use sync features. Default is false.
      */
     premium?: boolean;
+    /**
+     * True if the user has granted calendar permission (native calendar sync enabled)
+     */
+    calendarPermission?: boolean;
   }

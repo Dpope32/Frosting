@@ -7,7 +7,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     borderRadius: isWeb? 0 : 12,
     elevation: isWeb? 0 : 3,
     padding: 0,
-    margin: 0,
+    margin: 8,
     backgroundColor: isDark ? '#121212' : '#FFFFFF',
     overflow: 'hidden',
     borderWidth: isDark ? 0 : 1,
@@ -22,30 +22,30 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     marginBottom: 0,
     height: webColumnCount === 1 ? isWeb? 72 : 48 : (webColumnCount === 2 ? isWeb ? 60 : 48 : 48),
     justifyContent: 'center',
-    backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+    backgroundColor: isDark ? '#111' : '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: isDark ? '#333' : '#E8E8E8',
   },
   monthText: {
-    fontSize: webColumnCount === 1 ? isWeb? 26 :22 : (webColumnCount === 2 ? isWeb? 24 : 20 : 16),
+    fontSize: webColumnCount === 1 ? isWeb? 26 :20 : (webColumnCount === 2 ? isWeb? 24 : 20 : 16),
     fontWeight: '600',
     color: isDark ? '#FFF' : '#333'
   },
   weekDays: {
     flexDirection: 'row',
-    marginBottom: 0,
+    marginVertical: 6,
     borderBottomWidth: 0,
-    paddingBottom: 4,
-    paddingTop: 8,
+
     backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
   },
   weekDayContainer: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: 0,
+    backgroundColor: isDark ? '#111' : '#FFFFFF',
   },
   weekDay: {
-    fontSize: webColumnCount === 1 ? isWeb? 18 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
+    fontSize: webColumnCount === 1 ? isWeb? 18 : 10 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
     fontWeight: '500',
     color: isDark ? '#AAA' : '#757575',
   },
@@ -60,11 +60,11 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     width: '14.28%',
     aspectRatio: webColumnCount === 3 ? 0.8 : (webColumnCount === 2 ? 0.7 : 1),
     padding: Platform.OS === 'web' ? 3 : 1,
-    borderWidth: 0.5,
-    borderColor: isDark ? '#333' : '#E8E8E8',
+    borderWidth: 0.25,
+    borderColor: isDark ? '#555' : '#E8E8E8',
   },
   weekendDayCell: {
-    backgroundColor: isDark ? '#252525' : '#F5F5F5',
+    backgroundColor: isDark ? '#212121' : '#F5F5F5',
     borderRadius:isWeb? 0: 6,
   },
   currentDateCell: {
@@ -82,8 +82,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     borderRadius:isWeb? 0: 6,
   },
   holidayText: {
-    fontSize: webColumnCount === 1 ? isWeb? 18 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
+    fontSize: webColumnCount === 1 ? isWeb? 18 : 7 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
     fontWeight: '500',
+    marginTop: 2,
     color: isDark ? '#AAA' : '#757575',
   },
   taskIconContainer: {
@@ -114,7 +115,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     position: 'absolute',
     width: isWeb ? '145%' : '143%',
     height: 1,
-    backgroundColor: isDark ? '#777' : '#999',
+    backgroundColor: isDark ? '#555' : '#999',
     top: isWeb ? '50%' : '55%',
     left: webColumnCount === 1 ? isWeb ? -45 : -6 : webColumnCount === 2 ? isWeb ? -26 : -6 : webColumnCount === 3 ? isWeb ? -20 : -6 : -6,
     transform: [{ rotate: '135deg' }],
@@ -134,7 +135,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     zIndex: 10
   },
   today: {
-    borderWidth: 2.5,
+    borderWidth: 1.5,
     borderRadius: 6,
     marginVertical: 0,
     marginHorizontal: 0,
@@ -145,8 +146,8 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   // Common event container and text styles
   eventIconContainer: {
     position: 'absolute',
-    right: 4,
-    left: 4,
+    right: 0,
+    left: 0,
     alignItems: 'center',
     zIndex: 5,
     // For multi-month views, ensure events don't overflow the cell
@@ -155,17 +156,17 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   eventIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 12 : 8) 
+      ? (Platform.OS === 'web' ? 12 : 7) 
       : (webColumnCount === 2 
         ? (Platform.OS === 'web' ? 8 : 5) 
         : (Platform.OS === 'web' ? 7 : 5)),
-    textAlign: 'center',
+    textAlign: 'left',
     maxWidth: '100%',
     opacity: 0.95,
-    paddingVertical: 1,
-    paddingHorizontal: 2,
+    paddingVertical: 0,
+    paddingLeft: 0,
     borderRadius: 3,
-    width: '100%',
+    width: '99%',
     // For smaller screens/views
     ...(webColumnCount > 1 ? {
       lineHeight: webColumnCount === 2 ? 12 : 10,

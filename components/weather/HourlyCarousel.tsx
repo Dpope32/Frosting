@@ -39,15 +39,17 @@ const HourlyCarousel: React.FC = () => {
         flexGrow: 0, 
         paddingVertical: 10, 
         paddingBottom: 12,
-        width: isWeb ? '100%' : undefined 
+        ...(isWeb ? { width: '100%' } : {})
       }} 
       contentContainerStyle={{ 
         paddingLeft: isIpad() ? 18 : 10, 
         paddingRight: isIpad() ? 18 : 10,
-        display: isWeb ? 'flex' : undefined,
-        flexDirection: isWeb ? 'row' : undefined,
-        justifyContent: isWeb ? 'space-around' : undefined,
-        width: isWeb ? '100%' : undefined
+        ...(isWeb ? {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          width: '100%'
+        } : {})
       }}
     >
       {items.map(period => {

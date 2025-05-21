@@ -30,6 +30,26 @@ interface MonthProps {
   webColumnCount: number;
 }
 
+const dedupeHolidays = (events: CalendarEvent[]): CalendarEvent[] => {
+  const byDate: Record<string, CalendarEvent[]> = {};
+  for (const e of events) {
+    if (e.type === 'holiday') {
+      if (!byDate[e.date]) byDate[e.date] = [];
+      byDate[e.date].push(e);
+    }
+  }
+  const deduped: Record<string, CalendarEvent> = {};
+  for (const date in byDate) {
+    const native = byDate[date].find(ev => ev.id.startsWith('device-'));
+    deduped[date] = native || byDate[date][0];
+  }
+  // Return all non-holiday events, plus only the deduped holidays
+  return [
+    ...events.filter(e => e.type !== 'holiday'),
+    ...Object.values(deduped)
+  ];
+};
+
 export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, primaryColor, webColumnCount }) => {
   const styles = getMonthStyles(webColumnCount, isDark);
   const showNBAGamesInCalendar = useUserStore(state => state.preferences.showNBAGamesInCalendar);
@@ -56,9 +76,8 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     const m = date.getMonth();
     const start = new Date(y, m, 1).toISOString().split('T')[0];
     const end = new Date(y, m + 1, 0).toISOString().split('T')[0];
-
-    return events
-      .filter(e => e.date >= start && e.date <= end)
+    const filteredEvents = dedupeHolidays(events.filter(e => e.date >= start && e.date <= end));
+    return filteredEvents
       // Filter out excluded holidays
       .filter(e => !(e.type === 'holiday' && EXCLUDED_HOLIDAYS.includes(e.title)))
       .reduce((acc, e) => {
@@ -199,7 +218,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                     {day}
                   </Text>
             
-                  {/* Add strikethrough for past dates */}
                   {isPastDate && !isToday && (
                     <View style={styles.pastDateStrikethrough} />
                   )}
@@ -221,14 +239,14 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   )}
             
                   {dayEvents.holiday && (
-                    <View style={[styles.eventIconContainer, { 
-                      top: webColumnCount === 1 ? 24 : (webColumnCount === 2 ? 22 : 20),
+                    <View style={[styles.holidayCell, { 
+                      top: webColumnCount === 1 ? 16 : (webColumnCount === 2 ? 22 : 20),
                       bottom: 'auto',
                       zIndex: 5,
                       width: webColumnCount === 3 ? '90%' : '100%',
                       right: webColumnCount === 3 ? 'auto' : 4
                     }]}>
-                      <Text style={[styles.eventIconText, {
+                      <Text style={[styles.holidayText, {
                         color: isDark ? '#FFFFFF' : '#006400', 
                         borderColor: isDark ? 'rgba(0,100,0,0.5)' : 'rgba(0,100,0,0.5)', 
                         borderWidth: 0.5,
@@ -241,16 +259,14 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
 
                   {dayEvents.birthday && (
                     <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 50 : (webColumnCount === 2 ? 70 : 22),
+                      top: webColumnCount === 1 ? 2 : (webColumnCount === 2 ? 5 : 6),
                       zIndex: 6
                     }]}>
                       <Text style={[styles.eventIconText, {
                         color: isDark ? '#FF80AB' : '#880E4F', 
-                        borderColor: isDark ? 'rgba(255,105,180,0.5)' : 'rgba(136,14,79,0.5)', 
-                        borderWidth: 0.5,
                         backgroundColor: 'transparent'
                       }]} numberOfLines={1} ellipsizeMode="tail">
-                        🎂 {dayEvents.birthdayName.replace(/'s Birthday/g, '')} 🎂
+                        {dayEvents.birthdayName.replace(/'s Birthday/g, '')}
                       </Text>
                     </View>
                   )}
@@ -273,7 +289,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             
                   {dayEvents.personal && (
                     <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 90 : (webColumnCount === 2 ? 88 : 42),
+                      bottom: webColumnCount === 1 ? 24 : (webColumnCount === 2 ? 88 : 42),
                       zIndex: 5 
                     }]}>
                       <Text style={[styles.eventIconText, {
@@ -281,8 +297,8 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                         borderColor: isDark ? 'rgba(46,125,50,0.5)' : 'rgba(46,125,50,0.5)', 
                         borderWidth: 0.5,
                         backgroundColor: 'transparent'
-                      }]} numberOfLines={1} ellipsizeMode="tail">
-                        {dayEvents.personalName ? `👋 ${dayEvents.personalName} 👋` : 'Personal Event'}
+                      }]} numberOfLines={1}>
+                        {dayEvents.personalName ? ` ${dayEvents.personalName}` : 'Personal Event'}
                       </Text>
                     </View>
                   )}
@@ -305,7 +321,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
 
                   {dayEvents.family && (
                     <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 130 : (webColumnCount === 2 ? 106 : 62),
+                      bottom: webColumnCount === 1 ? 12 : (webColumnCount === 2 ? 16 : 2),
                       zIndex: 5 
                     }]}>
                       <Text style={[styles.eventIconText, {

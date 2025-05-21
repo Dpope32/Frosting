@@ -79,7 +79,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
         elevation={6}
         maxWidth={isWeb ? "80%" : (isIpad() ? 800 : 400)}
         paddingHorizontal={isIpad() ? 28 : 0}
-        minWidth={isWeb ? "40%" : (isIpad() ? 600 : 0)}
+        minWidth={isWeb ? "40%" : (isIpad() ? 600 : "90%")}
         width={isWeb ? "80%" : "auto"}
         alignSelf="center"
         pt={isIpad() ? 22 : 0}

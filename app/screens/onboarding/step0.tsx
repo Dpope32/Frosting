@@ -2,11 +2,9 @@ import React, { useRef, useEffect } from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
 import { Platform, View, Text, Animated, Easing } from 'react-native'
 import { FormData } from '@/types'
-import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils'
 import Svg, { Defs, ClipPath, Rect, Text as SvgText, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg'
 
-const AnimatedLinearGradient: any = Animated.createAnimatedComponent(LinearGradient as any)
 const AnimatedRect = Animated.createAnimatedComponent(Rect)
 
 export default function Step0({

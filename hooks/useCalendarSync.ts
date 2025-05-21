@@ -3,6 +3,7 @@ import { useCalendarStore, useUserStore } from '@/store';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PERMISSIONS_EXPLAINED_KEY } from '@/constants'
+import { getCalendarPermissionStatus } from '@/services/permissions/permissionService';
 
 let permissionService: any = null;
 if (Platform.OS !== 'web') {
@@ -18,8 +19,19 @@ export const useCalendarSync = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const syncDeviceCalendarEvents = useCalendarStore(state => state.syncDeviceCalendarEvents);
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
+  const calendarPermission = useUserStore(state => state.preferences.calendarPermission);
+  const setPreferences = useUserStore(state => state.setPreferences);
   
   useEffect(() => {
+    // Patch calendarPermission for existing users if undefined
+    if (calendarPermission === undefined && Platform.OS !== 'web') {
+      getCalendarPermissionStatus().then((granted) => {
+        setPreferences({ calendarPermission: granted });
+        console.log('calendarPermission (patched):', granted);
+      });
+    } else {
+      console.log('calendarPermission:', calendarPermission);
+    }
     // Only run once, only on non-web platforms, and only if onboarding is completed
     if (isInitialized || Platform.OS === 'web') return;
     const initializeCalendarSync = async () => {

@@ -1,20 +1,18 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal, Alert, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal } from 'react-native'
 import { isWeb, XStack } from 'tamagui'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
-import { format, parse } from 'date-fns'
+import { format } from 'date-fns'
 import { getCategoryColor, isIpad, withOpacity } from '@/utils';
 import { TaskCategory } from '@/types';
 import { Ionicons } from '@expo/vector-icons'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
-
 import { CalendarEvent, useCalendarStore, useToastStore } from '@/store'
-import { EventPreview } from './EventPreview'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
 import { styles } from './EventStyles'
 import { EventModalProps } from '../../types/modal'
 import { NOTIFICATION_TIME_OPTIONS } from '@/constants'
+import { ViewEventModal } from './ViewEventModal'
 
 export const EventModal: React.FC<EventModalProps> = ({
   isEventModalVisible,
@@ -35,7 +33,6 @@ export const EventModal: React.FC<EventModalProps> = ({
   setNotifyBeforeTime: propSetNotifyBeforeTime,
   editingEvent,
   handleAddEvent,
-  handleEditEvent,
   handleDeleteEvent,
   resetForm,
   closeEventModals,
@@ -59,9 +56,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const textColor = isDark ? '#ffffff' : '#000000'
   const { showToast } = useToastStore()
   const screenWidth = Dimensions.get('window').width
-  const screenHeight = Dimensions.get('window').height
   const modalWidth = isWeb ? Math.min(screenWidth * 0.8, 600) : Math.min(screenWidth * 0.85, 400)
-  const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 700) : Math.min(screenWidth * 0.85, 400)}
   const noScrollbar = isWeb ? { overflow: 'hidden' as const } : {}
   const eventTitleInputRef = React.useRef<any>(null);
   useAutoFocus(eventTitleInputRef, 1000, isEventModalVisible);
@@ -101,34 +96,6 @@ export const EventModal: React.FC<EventModalProps> = ({
     }, 300)
   }
 
-  const handleDeleteEventWithConfirmation = (eventId: string) => {
-    if (isWeb) {
-      if (window.confirm('Are you sure you want to remove this event?')) {
-        handleDeleteEvent(eventId)
-        showToast('Successfully removed event!', 'success')
-      }
-    } else {
-      Alert.alert(
-        'Delete Event',
-        'Are you sure you want to remove this event?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel'
-          },
-          {
-            text: 'Delete',
-            onPress: () => {
-              handleDeleteEvent(eventId)
-              showToast('Successfully removed event!', 'success')
-            },
-            style: 'destructive'
-          }
-        ]
-      )
-    }
-  }
-
   const handleEditEventInternal = (event: CalendarEvent) => {
     console.log('Edit event clicked:', event);
     setNewEventTitle(event.title);
@@ -146,67 +113,17 @@ export const EventModal: React.FC<EventModalProps> = ({
   return (
     <>
       {isViewEventModalVisible && (
-        <BaseCardAnimated
-          onClose={closeEventModals} 
-          title={`Events for ${selectedDate?.toLocaleDateString() || ''}`}
-          modalWidth={getViewModalMaxWidth()}
-          modalMaxWidth={getViewModalMaxWidth()}
-          visible={isViewEventModalVisible}
-        >
-          <View style={{ paddingBottom: 50, ...noScrollbar }}>
-            <ScrollView
-              style={{
-                maxHeight: screenHeight * 0.77
-              }}
-              showsVerticalScrollIndicator={!isWeb}
-            >
-                {selectedEvents
-                  ?.slice()
-                  .sort((a, b) => {
-                    if (!a.time && !b.time) return 0;
-                    if (!a.time) return 1; 
-                    if (!b.time) return -1; 
-                    
-                    const timeA = parse(a.time, 'h:mm a', selectedDate || new Date());
-                    const timeB = parse(b.time, 'h:mm a', selectedDate || new Date());
-                    return timeB.getTime() - timeA.getTime(); 
-                  })
-                  .map((event) => (
-                    <Animated.View
-                      key={event.id}
-                      entering={FadeIn.duration(300).delay(100)}
-                      exiting={FadeOut.duration(300).delay(100)}
-                      style={{ marginBottom: 10 }}
-                    >
-                      <EventPreview
-                        event={event}
-                        onEdit={() => handleEditEventInternal(event)}
-                        onDelete={() => handleDeleteEventWithConfirmation(event.id)}
-                        isDark={isDark}
-                        primaryColor={primaryColor}
-                      />
-                    </Animated.View>
-                  ))}
-            </ScrollView>
-            <TouchableOpacity
-              onPress={handleAddNewEvent}
-              style={[styles.buttonEvent]}
-            >
-              <Text style={{ 
-                position: 'absolute',
-                color: '#ffffff', 
-                fontSize: 32,
-                top: '50%',
-                left: '50%',
-                transform: [
-                  { translateX: -8 },
-                  { translateY: -10 }
-                ],
-                fontWeight: '300'
-              }}>+</Text>
-            </TouchableOpacity>
-          </View>
-        </BaseCardAnimated>
+        <ViewEventModal
+          isViewEventModalVisible={isViewEventModalVisible}
+          selectedDate={selectedDate}
+          selectedEvents={selectedEvents}
+          handleDeleteEvent={handleDeleteEvent}
+          closeEventModals={closeEventModals}
+          isDark={isDark}
+          primaryColor={primaryColor}
+          onEdit={handleEditEventInternal}
+          onAddNewEvent={handleAddNewEvent}
+        />
       )}
 
       {isEventModalVisible && (
@@ -224,7 +141,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 style={[
                   styles.input,
                   {
-                    backgroundColor: isDark ? '#222222' : '#f5f5f5',
+                    backgroundColor: isDark ? '#121212' : '#f5f5f5',
                     color: textColor,
                     borderColor: isDark ? '#444444' : '#dddddd'
                   }
@@ -239,8 +156,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                 style={[
                   {
                     backgroundColor: 'transparent',
-                    borderWidth: 1,
-                    borderColor: isDark ? '#555555' : '#cccccc',
+                    borderBottomWidth: 1,
+                    borderBottomColor: isDark ? '#555555' : '#cccccc',
                     borderRadius: 8,
                     flexDirection: 'row',
                     justifyContent: 'space-between',
@@ -252,7 +169,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 onPress={() => setShowTimePicker(true)}
               >
                 <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666', fontSize: 16 }}>
-                  {newEventTime || 'Select Event Time'}
+                  {newEventTime || 'Event Time (optional)'}
                 </Text>
                 <Ionicons name="time-outline" size={20} color={primaryColor} />
               </TouchableOpacity>
@@ -410,7 +327,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 onPress={handleAddEventWithNotifications}
               >
                 <Text style={[styles.buttonText, { color: '#f1f1f1' }]}>
-                  {editingEvent ? 'Update' : 'Add Event'}
+                  {editingEvent ? 'Update' : 'Save'}
                 </Text>
               </TouchableOpacity>
             </View>
