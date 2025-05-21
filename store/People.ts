@@ -43,7 +43,7 @@ export const usePeopleStore = create<PeopleStore>((set, get) => {
       // Create person object with ID and timestamps
       const personWithId = {
         ...person,
-        id: person.id || Math.random().toString(36).substr(2, 9),
+        id: person.id || Math.random().toString(36).substring(2, 11),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }

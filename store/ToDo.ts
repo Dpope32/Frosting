@@ -590,8 +590,6 @@ export const useProjectStore = create<ProjectStore>()(
             if (syncedTask.recurrencePattern !== 'one-time') {
               mergedTasks[taskId].completed = mergedCompletionHistory[todayLocalStr] || false;
             }
-            addSyncLog(`Merged task: ${syncedTask.name}, completion state for today: ${mergedTasks[taskId].completed}`, 'info');
-            if (DEBUG) log(`Merged task: ${syncedTask.name}, completion state for today: ${mergedTasks[taskId].completed}`);
           }
         }
         

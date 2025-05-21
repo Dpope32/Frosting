@@ -126,13 +126,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       const interval = req.query.interval || '1d';
       const range = req.query.range || '1y';
-      
-      
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}&includePrePost=false`;
       
       const response = await axios.get(yahooUrl, {
         headers: BROWSER_HEADERS,
-        timeout: 10000, // 10 second timeout
+        timeout: 30000, // 30 second timeout
       });
       
       return res.status(200).json(response.data);
@@ -140,7 +138,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else if (endpoint === 'stoic-quote') {
       console.log('[Stoic Quote] Attempting to fetch quote');
       
-      // Try stoic-quotes.com first
       try {
         const response = await axios.get('https://stoic-quotes.com/api/quote', {
           headers: { 'User-Agent': BROWSER_USER_AGENT },

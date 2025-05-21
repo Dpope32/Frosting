@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ActivityIndicator, useWindowDimensions } from 'react-native';
 import { Text, Button, YStack, XStack } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from '@/hooks';
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 import { useUserStore, useToastStore, useRegistryStore } from '@/store';
 import { TextInput } from 'react-native'; 
@@ -34,11 +34,7 @@ export default function AddDeviceModal({
   const [inviteCode, setInviteCode] = useState<string>('');
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
   const [inputWorkspaceId, setInputWorkspaceId] = useState<string>('');
-  const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
-    initialMode === 'create' ? 'creating' : 
-    initialMode === 'join' ? 'joining' : 
-    'choose'
-  );
+  const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(initialMode === 'create' ? 'creating' : initialMode === 'join' ? 'joining' :  'choose');
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
@@ -47,7 +43,6 @@ export default function AddDeviceModal({
   /*                        LIFE-CYCLE & WATCHERS                       */
   /* ------------------------------------------------------------------ */
 
-  // ➋  – component mount / un-mount
   useEffect(() => {
     addSyncLog('🛠️  AddDeviceModal mounted', 'verbose');
     
@@ -55,17 +50,14 @@ export default function AddDeviceModal({
     if (initialMode === 'create' && modalStep === 'creating') {
       handleCreateWorkspace();
     }
-    // We don't need to do anything special for join mode since the modalStep is already set to 'joining'
-    
+
     return () => addSyncLog('📤 AddDeviceModal un-mounted', 'verbose');
   }, []);
 
-  // ➌  – watch modal step changes
   useEffect(() => {
     addSyncLog(`🔀 Modal step ➜ ${modalStep}`, 'verbose');
   }, [modalStep]);
 
-  // ➍  – initial workspace lookup
   useEffect(() => {
     const checkWorkspace = async () => {
       const id = await getCurrentWorkspaceId();
@@ -80,9 +72,6 @@ export default function AddDeviceModal({
     checkWorkspace();
   }, []);
 
-  /* ------------------------------------------------------------------ */
-  /*                          ACTION HANDLERS                           */
-  /* ------------------------------------------------------------------ */
 
   const handleCreateWorkspace = async () => {
     addSyncLog('🪄 User chose "Create Workspace"', 'info');
@@ -90,19 +79,11 @@ export default function AddDeviceModal({
     try {
       setIsLoading(true);
       addSyncLog('Creating new sync workspace...', 'info');
-      
-      // Create a new workspace
       const result = await createOrJoinWorkspace();
-      
       setWorkspaceId(result.id);
       setInviteCode(result.inviteCode);
-      
       useRegistryStore.getState().setWorkspaceId(result.id);
-      
-      if (onWorkspaceCreated) {
-        onWorkspaceCreated(result.id, result.inviteCode);
-      }
-      
+      if (onWorkspaceCreated) { onWorkspaceCreated(result.id, result.inviteCode)}
       addSyncLog(`Workspace created with ID: ${result.id.substring(0, 8)}`, 'success');
       useToastStore.getState().showToast('Your workspace is ready!', 'success');
       setModalStep('showCode');
@@ -171,10 +152,6 @@ export default function AddDeviceModal({
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /*                      CLIPBOARD COPY HELPERS                        */
-  /* ------------------------------------------------------------------ */
-
   return (
     <BaseCardAnimated
       title={
@@ -189,7 +166,7 @@ export default function AddDeviceModal({
       <YStack gap={baseSpacing} paddingHorizontal={baseSpacing} marginTop={-baseSpacing}>
         {modalStep === 'choose' && (
           <>
-            <Text color={colors.subtext} fontSize={fontSizes.md}>
+            <Text color={colors.subtext} fontFamily="$body" fontSize={fontSizes.md}>
               How would you like to sync your data?
             </Text>
             <XStack gap={baseSpacing} justifyContent="space-between">
@@ -205,7 +182,7 @@ export default function AddDeviceModal({
                 style={{ borderRadius: buttonRadius }}
                 flex={1}
               >
-                <Text color={colors.accent} fontSize={fontSizes.md} fontWeight="600">
+                <Text color={colors.accent} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
                   Create New Workspace
                 </Text>
               </Button>
@@ -221,7 +198,7 @@ export default function AddDeviceModal({
                 style={{ borderRadius: buttonRadius }}
                 flex={1}
               >
-                <Text color={colors.text} fontSize={fontSizes.md} fontWeight="600">
+                <Text color={colors.text} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
                   Join Existing Workspace
                 </Text>
               </Button>
@@ -232,7 +209,7 @@ export default function AddDeviceModal({
         {modalStep === 'creating' && (
           <YStack alignItems="center" justifyContent="center" padding={baseSpacing * 2}>
             <ActivityIndicator size="large" color={colors.accent} />
-            <Text marginTop={baseSpacing} color={colors.subtext}>
+            <Text marginTop={baseSpacing} fontFamily="$body" color={colors.subtext}>
               Creating your sync workspace...
             </Text>
           </YStack>
@@ -240,11 +217,11 @@ export default function AddDeviceModal({
         
         {modalStep === 'showCode' && workspaceId && inviteCode && (
           <YStack backgroundColor={colors.card} padding={baseSpacing * 3} borderRadius={cardRadius} marginBottom={baseSpacing * 2}>
-            <Text fontSize={fontSizes.sm} color={colors.subtext}>
+              <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
               Workspace ID:
             </Text>
             <XStack justifyContent="space-between" alignItems="center" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
+              <Text fontSize={fontSizes.lg} fontFamily="$body" fontWeight="600" color={colors.text}>
                 {workspaceId}
               </Text>
               <Button 
@@ -264,7 +241,7 @@ export default function AddDeviceModal({
               Invite Code:
             </Text>
             <XStack justifyContent="space-between" alignItems="center" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
+              <Text fontSize={fontSizes.lg} fontFamily="$body" fontWeight="600" color={colors.text}>
                 {inviteCode}
               </Text>
               <Button 
@@ -280,7 +257,7 @@ export default function AddDeviceModal({
               </Button>
             </XStack>
             
-            <Text fontSize={fontSizes.xs} color={colors.subtext} marginTop={baseSpacing}>
+            <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext} marginTop={baseSpacing}>
               Share both the Workspace ID and Invite Code with your other devices to connect them.
             </Text>
             
@@ -296,7 +273,7 @@ export default function AddDeviceModal({
               marginTop={baseSpacing * 2}
               style={{ borderRadius: buttonRadius }}
             >
-              <Text color={colors.accent} fontSize={fontSizes.md} fontWeight="600">
+              <Text color={colors.accent} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
                 Done
               </Text>
             </Button>
@@ -305,7 +282,7 @@ export default function AddDeviceModal({
         
         {modalStep === 'joining' && (
           <YStack gap={baseSpacing * 2} padding={baseSpacing}>
-            <Text color={colors.subtext} fontSize={fontSizes.md}>
+            <Text color={colors.subtext} fontFamily="$body" fontSize={fontSizes.md}>
               Enter the Workspace ID and Invite Code:
             </Text>
             <TextInput
@@ -350,7 +327,7 @@ export default function AddDeviceModal({
               {isLoading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text color="#fff" fontSize={fontSizes.md} fontWeight="600">
+                <Text color="#fff" fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
                   Join Workspace
                 </Text>
               )}
@@ -374,10 +351,10 @@ export default function AddDeviceModal({
                   alignSelf="center"
                 >
                   <YStack>
-                    <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.accent}>
+                    <Text fontSize={fontSizes.lg} fontFamily="$body" fontWeight="600" color={colors.accent}>
                       Connected to Workspace
                     </Text>
-                    <Text fontSize={fontSizes.sm} color={colors.subtext} marginTop={4}>
+                    <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext} marginTop={4}>
                       ID: {workspaceId}
                     </Text>
                   </YStack>
@@ -388,7 +365,7 @@ export default function AddDeviceModal({
                   />
                 </XStack>
                 
-                <Text fontSize={fontSizes.sm} color={colors.subtext} marginTop={baseSpacing * 2} textAlign="center">
+                <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext} marginTop={baseSpacing * 2} textAlign="center">
                   Your data will automatically sync between all devices connected to this workspace.
                 </Text>
               </YStack>
@@ -404,7 +381,7 @@ export default function AddDeviceModal({
                 width={contentWidth}
                 alignSelf="center"
               >
-                <Text fontSize={fontSizes.md} color={colors.error} textAlign="center">
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.error} textAlign="center">
                   No workspace connected. Create or join a workspace to enable sync.
                 </Text>
               </XStack>
@@ -443,7 +420,7 @@ export default function AddDeviceModal({
               marginTop={baseSpacing}
               style={{ borderRadius: buttonRadius }}
             >
-              <Text color={colors.text} fontSize={fontSizes.md} fontWeight="600">
+              <Text color={colors.text} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
                 Close
               </Text>
             </Button>

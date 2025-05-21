@@ -43,11 +43,9 @@ export function useWorkspaceId(isPremium: boolean) {
   useEffect(() => {
     const loadWorkspaceId = async () => {
       if (!isPremium) return
-      
       try {
         const id = await readWorkspaceIdFromFile()
         if (id) {
-          addSyncLog(`📋 UI loaded workspace ID: ${id}`, 'info')
           setWorkspaceIdState(id)
         }
       } catch (err) {

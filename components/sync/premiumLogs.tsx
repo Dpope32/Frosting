@@ -217,7 +217,7 @@ export const PremiumLogs = ({
         </XStack>
           <XStack 
           padding={baseSpacing * 2}
-          backgroundColor={isDark ? "rgba(140, 16, 185, 0.1)" : "rgba(6, 95, 70, 0.2)"}
+          backgroundColor={isDark ? "rgba(140, 16, 185, 0.1)" : "rgba(62, 6, 95, 0.2)"}
           borderColor={"rgba(154, 16, 185, 0.5)"}
           borderWidth={1}
           borderRadius={8}

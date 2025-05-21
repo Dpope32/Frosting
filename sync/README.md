@@ -11,15 +11,12 @@ The Kaiba Nexus sync system enables seamless data synchronization between multip
 Each device generates and maintains a unique device ID that's used for identifying synchronization operations.
 
 - **`generateSyncKey()`** - Creates a device-specific unique identifier
-- **`registerDeviceWithWorkspace()`** - Associates a device with a workspace
 
-### 2. Data Export/Import (`exportState.ts`)
+### 2. Data Export/Import (`registrySyncManager.ts`)
 
 Handles the export of app state for synchronization:
 
-- Collects data from all Zustand stores
-- Prepares data for encryption
-- Formats data for storage in PocketBase
+- **`exportEncryptedState()`** - Collects data from all Zustand stores, encrypts it, and prepares it for push operations.
 
 ### 3. Workspace Management (`workspace.ts` & `workspaceKey.ts`)
 
@@ -28,6 +25,7 @@ Manages workspace creation, joining, and device registration:
 - **Workspace Creation**: Initializes a new workspace with the creating device as owner
 - **Invite Mechanism**: Generates shareable invite codes for other devices
 - **Workspace Keys**: Manages encryption keys for secure data sharing
+- **`createOrJoinWorkspace()`** (in `workspace.ts`) - Handles creating or joining a workspace, and associates the current device with the workspace.
 
 ### 4. PocketBase Integration (`pocketSync.ts`)
 

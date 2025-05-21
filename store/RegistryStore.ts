@@ -177,16 +177,16 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     exportStateToFile: async () => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return null;
-    
       const now = Date.now();
       const lastSync = get().lastSyncAttempt;
-      if (now - lastSync < 2000) {
+      addSyncLog('🔄 Starting export', 'info', `Last sync: ${lastSync}ms ago`);
+
+      if (now - lastSync < 2000) { 
         return null;
       }
     
       set({ syncStatus: 'syncing' });
       try {
-        addSyncLog('🔄 Starting export', 'info');
         const states = get().getAllStoreStates();
         const uri = await exportEncryptedState(states);
     
@@ -216,13 +216,12 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       }
 
       // Explicitly delete data for stores that should NEVER be hydrated from sync
+      // User store holds the username, pfp, and other user-specific data that should not be synced. Encryption and decryption does not currently work with images
+      // So any store with images or user-specific data should not be hydrated from sync (user, wallpaper, notes)
+      // Project store holds images as well, this will be the next starting point for when I work on image sync. 
       if (data.user) {
         addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
         delete data.user;
-      }
-      if (data.crm) {
-        addSyncLog('[Hydrate] CRMStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (UI store).', 'warning');
-        delete data.crm;
       }
       if (data.notes) {
         addSyncLog('[Hydrate] NoteStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-only store).', 'warning');
@@ -257,6 +256,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
                 // This path should only be taken by stores explicitly marked as isAlwaysSynced (like Tags, CustomCategories)
                 // OR very simple stores that don't have/need complex merging or toggles.
                 // We should avoid this for stores that manage sensitive/complex data without their own hydrateFromSync.
+                // This is a legacy path for stores that don't have/need complex merging or toggles.  If a store does not have a hydrateFromSync, it should not be used.
                 store.setState(storeDataFromSnapshot);
                 addSyncLog(`✅ ${storeKeyForLog} hydrated via setState (${isAlwaysSynced ? 'always-on store' : 'legacy/no toggle or sync flag in snapshot'}).`, 'info');
               } else {
@@ -279,7 +279,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       tryHydrateStore('calendar', useCalendarStore, 'Calendar');
       tryHydrateStore('vault', useVaultStore, 'Vault');
       tryHydrateStore('people', usePeopleStore, 'People'); 
-
       tryHydrateStore('customCategory', useCustomCategoryStore, 'Custom Categories', true);
       tryHydrateStore('tags', useTagStore, 'Tags', true);
 
@@ -318,8 +317,10 @@ if (userOnboarding) {
 } else {
   // if we get here, either the user has not completed onboarding or the user is not premium so we need to seperate the logic
   if (useUserStore.getState().preferences.premium) {
+    // user is premium, so we need to show a message that sync is disabled until onboarding completes
     console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
   } else {
+    // user is not premium, so we need to show a message that sync is disabled because user is not premium
     console.log('⚙️ Registry store initialized (sync disabled because user is not premium)');
   }
 }

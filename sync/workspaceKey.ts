@@ -5,7 +5,6 @@ import { getCurrentWorkspaceId, getPocketBase } from '@/sync';
 
 export const getWorkspaceKey = async (): Promise<string> => {
   const wsId = await getCurrentWorkspaceId();
-  addSyncLog(`🔍 Retrieving workspace key for: ${wsId}`, 'info');
   if (!wsId) {
     addSyncLog('❌ No workspace ID found', 'error');
     throw new Error('No workspace ID found');
@@ -20,7 +19,6 @@ export const getWorkspaceKey = async (): Promise<string> => {
   }
 
   await storage.set(`ws_key_${wsId}`, shared_key);   // cache
-  addSyncLog(`🔑 Retrieved workspace key: ${shared_key.slice(0,6)}...${shared_key.slice(-6)}`, 'info');
   return shared_key as string;
 };
 

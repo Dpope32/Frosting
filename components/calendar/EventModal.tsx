@@ -66,7 +66,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       await handleAddEvent()
       if (selectedDate) {
         const eventToSchedule: CalendarEvent = {
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 11),
                   date: selectedDate?.toISOString().split('T')[0] || format(new Date(), 'yyyy-MM-dd'),
                   time: newEventTime || undefined,
           title: newEventTitle,

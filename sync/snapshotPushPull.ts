@@ -57,8 +57,7 @@ export const pushSnapshot = async (): Promise<void> => {
       snapshot_blob: cipher,
     });
 
-    addSyncLog("Successfully pushed data to PocketBase", "info");
-    addSyncLog(`🛰️  ${runId} – push done`, 'success');
+    addSyncLog(` Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(
@@ -80,10 +79,14 @@ export const pullLatestSnapshot = async (): Promise<void> => {
   const runId = Date.now().toString(36);
   addSyncLog(`🛰️  ${runId} – pull`, 'info');
   try {
-    addSyncLog("🔄 Pulling latest snapshot from PocketBase", "info");
 
     if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
       addSyncLog("Skipping pull – onboarding not completed", "warning");
+      return;
+    }
+
+    if (!useUserStore.getState().preferences.premium) {
+      addSyncLog("Skipping pull – not premium", "warning");
       return;
     }
 
@@ -97,8 +100,6 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       addSyncLog("No workspace configured, aborting pull", "warning");
       return;
     }
-    addSyncLog(`📦 Using workspace ID: ${workspaceId}`, "info");
-
     const pb = await getPocketBase();
     const { items } = await pb.collection("registry_snapshots").getList(1, 1, {
       filter: `workspace_id="${workspaceId}"`,
@@ -109,17 +110,13 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       addSyncLog("📭 No snapshots found on server yet", "info");
       return;
     }
-
     const cipher = items[0].snapshot_blob as string;
-    addSyncLog(`📦 Found snapshot from device: ${items[0].device_id}`, "info");
-    
     const key = await getWorkspaceKey();
-    addSyncLog(`🔑 Using decryption key: ${key.slice(0,6)}...${key.slice(-6)}`, "info");
+    //addSyncLog(`🔑 Using decryption key: ${key.slice(0,6)}...${key.slice(-6)}`, "info");
 
     let plain: Record<string, unknown>;
     try {
       plain = decryptSnapshot(cipher, key);
-      addSyncLog(`✅ Snapshot decrypted successfully`, "success");
     } catch (err) {
       addSyncLog(`❌ Decrypt failed – key mismatch or old format`, "error");
       addSyncLog(`🔍 Encryption error details: ${err instanceof Error ? err.message : String(err)}`, "error");
@@ -135,8 +132,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
 
     useRegistryStore.getState().setSyncStatus("syncing");
     useRegistryStore.getState().hydrateAll(plain);
-    addSyncLog("✅ Snapshot pulled & stores hydrated", "success");
-    addSyncLog(`🛰️  ${runId} – pull done`, 'success');
+    addSyncLog(`✅ Snapshot pulled & stores hydrated  ${runId} – pull done`, 'success');
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(

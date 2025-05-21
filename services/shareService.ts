@@ -20,7 +20,7 @@ export const handleSharedContact = (contactData: {
           onPress: () => {
             usePeopleStore.getState().addPerson({
               ...contactData,
-              id: Math.random().toString(36).substr(2, 9),
+              id: Math.random().toString(36).substring(2, 11),
               birthday: '', // Required field with empty default
               profilePicture: '', // Required field with empty default
               registered: false, // Required field with default

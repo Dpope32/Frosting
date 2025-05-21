@@ -9,11 +9,6 @@ import * as FileSystem from 'expo-file-system';
  */
 export const getCurrentWorkspaceId = async (): Promise<string | null> => {
     try {
-      addSyncLog(
-        "📖 Attempting to read workspace ID from file...",
-        "verbose",
-      );
-  
       const workspaceId = await FileSystem.readAsStringAsync(
         `${FileSystem.documentDirectory}workspace_id.txt`,
       );

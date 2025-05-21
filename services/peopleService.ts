@@ -47,7 +47,7 @@ export const importContacts = async (data: Contacts.Contact[]) => {
             zipCode: contact.addresses[0].postalCode || '',
             country: contact.addresses[0].country || ''
           } : undefined,
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 11),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };

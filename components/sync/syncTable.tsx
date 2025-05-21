@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { View, useWindowDimensions, TouchableOpacity, Platform } from 'react-native';
 import { Text, Button, XStack } from 'tamagui';
 import { useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -59,7 +59,10 @@ export default function SyncTable({
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
-  const contentWidth = Math.min(width - baseSpacing * 2, 350);
+  const isWeb = Platform.OS === 'web';
+  const isTablet = Platform.OS === 'ios' && (Platform as any).isPad === true;
+  const wideMode = isWeb || isTablet;
+  const contentWidth = wideMode ? Math.min(width - baseSpacing * 2, 700) : Math.min(width - baseSpacing * 2, 350);
   
   // BillStore state and actions
   const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
@@ -189,130 +192,255 @@ return (
 
     {premium && (
       <>
-        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Bills
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={isBillSyncEnabled ? colors.success : colors.disabled} 
-            onPress={toggleBillSync}
-            borderRadius={buttonRadius}
-            paddingHorizontal={baseSpacing * 2}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color="#fff" fontWeight="700" fontFamily="$body">
-              {isBillSyncEnabled ? 'ON' : 'OFF'}
-            </Text>
-          </Button>
-        </XStack>
+        {wideMode ? (
+          <XStack marginTop={baseSpacing}>
+            <View style={{ flex: 1, marginRight: baseSpacing }}>
+              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
+              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                  Bills
+                </Text>
+                <Button
+                  size="$2"
+                  backgroundColor={isBillSyncEnabled ? colors.success : colors.disabled}
+                  onPress={toggleBillSync}
+                  borderRadius={buttonRadius}
+                  paddingHorizontal={baseSpacing * 2}
+                  pressStyle={{ scale: 0.97 }}
+                  animation="quick"
+                >
+                  <Text color="#fff" fontWeight="700" fontFamily="$body">
+                    {isBillSyncEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </Button>
+              </XStack>
+              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
+              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                  Passwords
+                </Text>
+                <Button
+                  size="$2"
+                  backgroundColor={isVaultSyncEnabled ? colors.success : colors.disabled}
+                  onPress={toggleVaultSync}
+                  borderRadius={buttonRadius}
+                  paddingHorizontal={baseSpacing * 2}
+                  pressStyle={{ scale: 0.97 }}
+                  animation="quick"
+                >
+                  <Text color="#fff" fontWeight="700" fontFamily="$body">
+                    {isVaultSyncEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </Button>
+              </XStack>
+              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
+              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                  Projects
+                </Text>
+                <Button
+                  size="$2"
+                  backgroundColor={isProjectSyncEnabled ? colors.success : colors.disabled}
+                  onPress={toggleProjectSync}
+                  borderRadius={buttonRadius}
+                  paddingHorizontal={baseSpacing * 2}
+                  pressStyle={{ scale: 0.97 }}
+                  animation="quick"
+                >
+                  <Text color="#fff" fontWeight="700" fontFamily="$body">
+                    {isProjectSyncEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </Button>
+              </XStack>
+            </View>
+            <View style={{ flex: 1, marginLeft: baseSpacing }}>
+              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
+              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                  Contacts
+                </Text>
+                <Button
+                  size="$2"
+                  backgroundColor={isPeopleSyncEnabled ? colors.success : colors.disabled}
+                  onPress={togglePeopleSync}
+                  borderRadius={buttonRadius}
+                  paddingHorizontal={baseSpacing * 2}
+                  pressStyle={{ scale: 0.97 }}
+                  animation="quick"
+                >
+                  <Text color="#fff" fontWeight="700" fontFamily="$body">
+                    {isPeopleSyncEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </Button>
+              </XStack>
+              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
+              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                  Habits
+                </Text>
+                <Button
+                  size="$2"
+                  backgroundColor={isHabitSyncEnabled ? colors.success : colors.disabled}
+                  onPress={toggleHabitSync}
+                  borderRadius={buttonRadius}
+                  paddingHorizontal={baseSpacing * 2}
+                  pressStyle={{ scale: 0.97 }}
+                  animation="quick"
+                >
+                  <Text color="#fff" fontWeight="700" fontFamily="$body">
+                    {isHabitSyncEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </Button>
+              </XStack>
+              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
+              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                  Calendar
+                </Text>
+                <Button
+                  size="$2"
+                  backgroundColor={isCalendarSyncEnabled ? colors.success : colors.disabled}
+                  onPress={toggleCalendarSync}
+                  borderRadius={buttonRadius}
+                  paddingHorizontal={baseSpacing * 2}
+                  pressStyle={{ scale: 0.97 }}
+                  animation="quick"
+                >
+                  <Text color="#fff" fontWeight="700" fontFamily="$body">
+                    {isCalendarSyncEnabled ? 'ON' : 'OFF'}
+                  </Text>
+                </Button>
+              </XStack>
+            </View>
+          </XStack>
+        ) : (
+          <>
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                Bills
+              </Text>
+              <Button
+                size="$2"
+                backgroundColor={isBillSyncEnabled ? colors.success : colors.disabled} 
+                onPress={toggleBillSync}
+                borderRadius={buttonRadius}
+                paddingHorizontal={baseSpacing * 2}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+              >
+                <Text color="#fff" fontWeight="700" fontFamily="$body">
+                  {isBillSyncEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Button>
+            </XStack>
 
-        {/* Vault (Passwords) Sync Toggle - Only show if premium is enabled */} 
-        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Passwords
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={isVaultSyncEnabled ? colors.success : colors.disabled}
-            onPress={toggleVaultSync}
-            borderRadius={buttonRadius}
-            paddingHorizontal={baseSpacing * 2}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color="#fff" fontWeight="700" fontFamily="$body">
-              {isVaultSyncEnabled ? 'ON' : 'OFF'}
-            </Text>
-          </Button>
-        </XStack>
+            {/* Vault (Passwords) Sync Toggle - Only show if premium is enabled */} 
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                Passwords
+              </Text>
+              <Button
+                size="$2"
+                backgroundColor={isVaultSyncEnabled ? colors.success : colors.disabled}
+                onPress={toggleVaultSync}
+                borderRadius={buttonRadius}
+                paddingHorizontal={baseSpacing * 2}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+              >
+                <Text color="#fff" fontWeight="700" fontFamily="$body">
+                  {isVaultSyncEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Button>
+            </XStack>
 
-        {/* Project Sync Toggle - Only show if premium is enabled */} 
-        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Projects
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={isProjectSyncEnabled ? colors.success : colors.disabled}
-            onPress={toggleProjectSync}
-            borderRadius={buttonRadius}
-            paddingHorizontal={baseSpacing * 2}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color="#fff" fontWeight="700" fontFamily="$body">
-              {isProjectSyncEnabled ? 'ON' : 'OFF'}
-            </Text>
-          </Button>
-        </XStack>
+            {/* Project Sync Toggle - Only show if premium is enabled */} 
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                Projects
+              </Text>
+              <Button
+                size="$2"
+                backgroundColor={isProjectSyncEnabled ? colors.success : colors.disabled}
+                onPress={toggleProjectSync}
+                borderRadius={buttonRadius}
+                paddingHorizontal={baseSpacing * 2}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+              >
+                <Text color="#fff" fontWeight="700" fontFamily="$body">
+                  {isProjectSyncEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Button>
+            </XStack>
 
-        {/* People (Contacts) Sync Toggle - Only show if premium is enabled */} 
-        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Contacts
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={isPeopleSyncEnabled ? colors.success : colors.disabled}
-            onPress={togglePeopleSync}
-            borderRadius={buttonRadius}
-            paddingHorizontal={baseSpacing * 2}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color="#fff" fontWeight="700" fontFamily="$body">
-              {isPeopleSyncEnabled ? 'ON' : 'OFF'}
-            </Text>
-          </Button>
-        </XStack>
+            {/* People (Contacts) Sync Toggle - Only show if premium is enabled */} 
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                Contacts
+              </Text>
+              <Button
+                size="$2"
+                backgroundColor={isPeopleSyncEnabled ? colors.success : colors.disabled}
+                onPress={togglePeopleSync}
+                borderRadius={buttonRadius}
+                paddingHorizontal={baseSpacing * 2}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+              >
+                <Text color="#fff" fontWeight="700" fontFamily="$body">
+                  {isPeopleSyncEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Button>
+            </XStack>
 
-        {/* Habit Sync Toggle - Only show if premium is enabled */} 
-        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Habits
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={isHabitSyncEnabled ? colors.success : colors.disabled}
-            onPress={toggleHabitSync}
-            borderRadius={buttonRadius}
-            paddingHorizontal={baseSpacing * 2}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color="#fff" fontWeight="700" fontFamily="$body">
-              {isHabitSyncEnabled ? 'ON' : 'OFF'}
-            </Text>
-          </Button>
-        </XStack>
+            {/* Habit Sync Toggle - Only show if premium is enabled */} 
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                Habits
+              </Text>
+              <Button
+                size="$2"
+                backgroundColor={isHabitSyncEnabled ? colors.success : colors.disabled}
+                onPress={toggleHabitSync}
+                borderRadius={buttonRadius}
+                paddingHorizontal={baseSpacing * 2}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+              >
+                <Text color="#fff" fontWeight="700" fontFamily="$body">
+                  {isHabitSyncEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Button>
+            </XStack>
 
-        {/* Calendar Sync Toggle - Only show if premium is enabled */} 
-        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Calendar
-          </Text>
-          <Button
-            size="$2"
-            backgroundColor={isCalendarSyncEnabled ? colors.success : colors.disabled}
-            onPress={toggleCalendarSync}
-            borderRadius={buttonRadius}
-            paddingHorizontal={baseSpacing * 2}
-            pressStyle={{ scale: 0.97 }}
-            animation="quick"
-          >
-            <Text color="#fff" fontWeight="700" fontFamily="$body">
-              {isCalendarSyncEnabled ? 'ON' : 'OFF'}
-            </Text>
-          </Button>
-        </XStack>
+            {/* Calendar Sync Toggle - Only show if premium is enabled */} 
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+                Calendar
+              </Text>
+              <Button
+                size="$2"
+                backgroundColor={isCalendarSyncEnabled ? colors.success : colors.disabled}
+                onPress={toggleCalendarSync}
+                borderRadius={buttonRadius}
+                paddingHorizontal={baseSpacing * 2}
+                pressStyle={{ scale: 0.97 }}
+                animation="quick"
+              >
+                <Text color="#fff" fontWeight="700" fontFamily="$body">
+                  {isCalendarSyncEnabled ? 'ON' : 'OFF'}
+                </Text>
+              </Button>
+            </XStack>
+          </>
+        )}
       </>
     )}
   </View>

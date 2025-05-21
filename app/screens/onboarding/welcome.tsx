@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { YStack, XStack, H1, H2, H3, Text, Image, isWeb, ScrollView, Card, View, styled  } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 
+// @ts-ignore
+import heroAmbient1 from '@/assets/videos/hero-ambient-1.mp4';
+
 // Component to inject keyframes CSS
 const MarqueeStyles = () => {
   if (!isWeb) return null;
@@ -302,24 +305,12 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
           {isWeb && (
             <View position="absolute" top={40} left={-60} zIndex={2}>
               <video
-                src="/assets/videos/hero-ambient-1.mp4"
+                src={heroAmbient1}
                 autoPlay
                 muted
                 loop
                 playsInline
                 style={{ width: 120, height: 120, borderRadius: 24, opacity: 0.7, objectFit: 'cover', boxShadow: '0 4px 32px #C080FF33' }}
-              />
-            </View>
-          )}
-          {isWeb && (
-            <View position="absolute" top={100} right={-40} zIndex={2}>
-              <video
-                src="/assets/videos/hero-ambient-2.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ width: 80, height: 80, borderRadius: 18, opacity: 0.6, objectFit: 'cover', boxShadow: '0 2px 16px #4ADECD22' }}
               />
             </View>
           )}

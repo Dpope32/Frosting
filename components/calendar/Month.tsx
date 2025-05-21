@@ -12,14 +12,6 @@ const EXCLUDED_HOLIDAYS = [
   'Indigenous Peoples\' Day'
 ];
 
-const shouldUseDarkText = (backgroundColor: string): boolean => {
-  const hex = backgroundColor.replace('#', '');
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5;
-};
 
 interface MonthProps {
   date: Date;
@@ -121,6 +113,13 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             acc[e.date].holidayColor = e.holidayColor || '#E53935';
             acc[e.date].holidayIcon = e.holidayIcon || '🎉';
           }
+        // Triple check excluded holidays, if ANY holidays found containing same text as excluded holidays, set to excluded holiday
+        if (EXCLUDED_HOLIDAYS.some(excluded => e.title.includes(excluded))) {
+          acc[e.date].holiday = true;
+          acc[e.date].holidayName = e.title || 'Holiday';
+          acc[e.date].holidayColor = e.holidayColor || '#E53935';
+          acc[e.date].holidayIcon = e.holidayIcon || '🎉';
+        }
         } else if (e.type === 'task') {
           acc[e.date].task = true;
         } else {

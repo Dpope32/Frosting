@@ -21,7 +21,6 @@ export default function Index() {
   const [showIntro, setShowIntro] = useState(true);
   const hasCompletedOnboarding = useUserStore((state) => state.preferences.hasCompletedOnboarding);
   const isPremium = useUserStore((state) => state.preferences.premium === true);
-  const calendarPermission = useUserStore((state) => state.preferences.calendarPermission);
 
   const {  exportStateToFile } = useRegistryStore();
   useAppInitialization();
@@ -51,7 +50,7 @@ export default function Index() {
         await useNoteStore.getState().loadNotes();
         
         if (isPremium) {
-          addSyncLog('📚 All stores hydrated successfully', 'verbose');
+          addSyncLog('📚 All stores hydrated from local, exporting state now.', 'verbose');
           
           // NOW it's safe to export state and sync
           exportStateToFile();
@@ -60,7 +59,6 @@ export default function Index() {
           if (hasCompletedOnboarding) {
             const syncOnStartup = async () => {
               try {
-                addSyncLog('🚀 Starting sync after hydration complete', 'info');
                 await pullLatestSnapshot();
               } catch (error) {
                 console.error('Post-hydration sync failed:', error);

@@ -22,7 +22,7 @@ export const useTagStore = create<TagStoreState>()(
     }
     
     // Create new tag if it doesn't exist
-    const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+    const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
     const newTag: Tag = {
       id,
       name,

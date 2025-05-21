@@ -27,7 +27,7 @@ export const useCustomCategoryStore = create<CustomCategoryState>()(
       categories: [],
       addCategory: (name: string) => {
         // Generate a unique id for the category (similar to ToDo.ts approach)
-        const id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
         const newCategory: CustomCategory = {
           id,
           name,
