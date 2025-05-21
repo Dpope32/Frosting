@@ -29,6 +29,7 @@ import * as Sentry from '@sentry/react-native';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { pushSnapshot, pullLatestSnapshot, } from '@/sync/snapshotPushPull';
 import { useProjectStore as useTaskStore } from '@/store/ToDo';
+import { exportEncryptedState } from '@/sync/registrySyncManager';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -222,6 +223,8 @@ export default Sentry.wrap(function RootLayout() {
           useRegistryStore.getState().setSyncStatus('syncing');
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
           
+          const allStates = useRegistryStore.getState().getAllStoreStates();
+          await exportEncryptedState(allStates);
           await pushSnapshot();
           
           useRegistryStore.getState().setSyncStatus('idle');
