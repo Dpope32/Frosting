@@ -5,15 +5,17 @@ import { isWeb } from 'tamagui';
 export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: webColumnCount === 1 ? 90 : webColumnCount === 2 ? isWeb ? 100 : 80 : webColumnCount === 3 ? isWeb ? 90 : 80 : 80,
+    paddingTop: webColumnCount === 1 ? isWeb? 90 : 85 : webColumnCount === 2 ? isWeb ? 100 : 80 : webColumnCount === 3 ? isWeb ? 90 : 80 : 85,
     backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
     ...(Platform.OS === 'web' ? {
       backgroundColor: '#f0f2f5',
     } as any : {}),
     ...(isIpad() ? {
       paddingTop: 80,
-      paddingHorizontal: 10,
-      paddingLeft: 16,
+      paddingHorizontal: webColumnCount === 1 ? 0 : 10,
+      paddingLeft: 12,
+      borderRadius: 12,
+      overflow: 'hidden',
       backgroundColor: '#f0f2f5',
     } as any : {}),
   },
@@ -40,7 +42,8 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     width: '100%',
     ...(isIpad() ? {
       justifyContent: 'center',
-      paddingTop: 8,
+      borderRadius: 12,
+      overflow: 'hidden',
     } as any : {}),
   },
   webMonthWrapper: {
@@ -57,16 +60,16 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     margin: webColumnCount === 1
       ? 0
       : webColumnCount === 2
-        ? isWeb ? 20 : 4
+        ? isWeb ? 20 : 0
         : webColumnCount === 3 && Platform.OS === 'web'
           ? 0
           : webColumnCount === 3
             ? 4
             : 0,
       marginBottom: webColumnCount === 1
-      ? isWeb ? 30 : isIpad() ? 20 : 10
+      ? isWeb ? 30 : isIpad() ? 0 : 0
       : webColumnCount === 2
-        ? isWeb ? 20 : isIpad() ? 10 : 4
+        ? isWeb ? 20 : isIpad() ? 0 : 4
         : webColumnCount === 3 && Platform.OS === 'web'
           ? 20
           : webColumnCount === 3
@@ -80,7 +83,8 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     } : {}),
     ...(isIpad() ? {
       width: '49%',
-      margin: '0.5%',
+      borderRadius: 12,
+      overflow: 'hidden',
     } as any : {}),
   },
   floatingButton: {

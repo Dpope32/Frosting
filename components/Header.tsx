@@ -1,9 +1,9 @@
-//@ts-nocheck
 import React, { useState } from 'react';
 import { Platform, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Stack, XStack, YStack, isWeb } from 'tamagui'; 
 import { Text } from 'tamagui';
+// @ts-ignore - Suppressing ESM import error
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router'; 
 import { Ionicons } from '@expo/vector-icons';
@@ -142,16 +142,34 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         </Pressable>
       );
     } else if (isIpad() && isCalendarScreen) {
-      // Get appropriate layout icon for iPad (only 1 or 2 columns)
-      const layoutIcon = webColumnCount === 1 ? "apps-outline" : "grid-outline";
+      // Get layout icon for iPad (3-state toggle: 1-column, 2-column, and Week view)
+      const { viewMode } = useCalendarViewStore();
+      
+      let layoutIcon: keyof typeof Ionicons.glyphMap;
+      if (viewMode === 'week') {
+        layoutIcon = "reorder-three";
+      } else {
+        layoutIcon = webColumnCount === 1 ? "apps-outline" : "grid-outline";
+      }
       
       return (
         <Pressable
           onPress={() => {
             Haptics.selectionAsync();
-            // Direct approach that worked before
-            const newCount = webColumnCount === 1 ? 2 : 1;
-            useCalendarViewStore.setState({ webColumnCount: newCount });
+            
+            // 3-state toggle: 1-column → 2-column → Week view → (back to 1-column)
+            if (viewMode === 'month') {
+              if (webColumnCount === 1) {
+                // Change to 2-column Month view
+                useCalendarViewStore.setState({ webColumnCount: 2 });
+              } else {
+                // Change to Week view
+                useCalendarViewStore.setState({ viewMode: 'week' });
+              }
+            } else {
+              // Change back to 1-column Month view
+              useCalendarViewStore.setState({ viewMode: 'month', webColumnCount: 1 });
+            }
           }}
           style={{ padding: 6, marginRight: -8, marginTop: 0, marginLeft: -40 }}
         >
@@ -385,3 +403,4 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     </>
   );
 }
+
