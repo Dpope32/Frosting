@@ -28,7 +28,6 @@ import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { pushSnapshot, pullLatestSnapshot, } from '@/sync/snapshotPushPull';
-import {exportEncryptedState  } from '@/sync/exportState';
 import { useProjectStore as useTaskStore } from '@/store/ToDo';
 
 Sentry.init({
@@ -198,11 +197,16 @@ export default Sentry.wrap(function RootLayout() {
 
     // Push on background, pull on resume
     const handleAppStateChange = async (nextAppState: string) => {
+      const currentSyncStatus = useRegistryStore.getState().syncStatus;
+      if (currentSyncStatus === 'syncing' && (nextAppState === 'active' || nextAppState === 'background' || nextAppState === 'inactive')) {
+        addSyncLog(`🔄 Sync already in progress (${currentSyncStatus}), skipping AppState change for ${nextAppState}.`, 'verbose');
+        return;
+      }
+
       try {
         if (nextAppState === 'active') {
-          addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
-          
           useRegistryStore.getState().setSyncStatus('syncing');
+          addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
           
           await pullLatestSnapshot();
           
@@ -215,11 +219,8 @@ export default Sentry.wrap(function RootLayout() {
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Resume pull completed', 'success');
         } else if (nextAppState === 'background' || nextAppState === 'inactive') {
+          useRegistryStore.getState().setSyncStatus('syncing');
           addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
-          
-          const allStates = useRegistryStore.getState().getAllStoreStates();
-          addSyncLog('📚 Exporting state', 'info', typeof exportEncryptedState === 'function');
-          await exportEncryptedState(allStates);
           
           await pushSnapshot();
           
