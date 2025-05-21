@@ -94,8 +94,10 @@ npx start web-dev
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## Web Calendar Layout
+## Calendar Layout
 ![Web Calendar Demo](assets/videos/hero-ambient-1.gif)
+![iPad App Preview](assets/videos/hero-2.gif)
+![iPhone App Preview](assets/videos/hero-3.gif)
 
 ## Contributing
 

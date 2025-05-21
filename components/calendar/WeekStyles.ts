@@ -1,4 +1,5 @@
 import { Platform, StyleSheet } from 'react-native';
+import { isIpad } from '@/utils';
 
 export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
   weekContainer: {
@@ -9,13 +10,16 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
     overflow: 'hidden',
     borderWidth: isDark ? 0 : 1,
-    borderColor: isDark ? 'transparent' : '#E0E0E0',
+    borderColor: isDark ? 'transparent' : '#5c5c5c',
+    ...(isIpad() ? {
+      marginBottom: 20,
+    } : {}),
   },
   header: {
     alignItems: 'center',
     height: 48,
     justifyContent: 'center',
-    backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
+    backgroundColor: isDark ? '#1e1e1e' : '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: isDark ? '#333' : '#E8E8E8',
   },
@@ -29,20 +33,25 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
   },
   dayRow: {
     flexDirection: 'row',
-    paddingVertical: 10,
+    paddingVertical: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
     paddingHorizontal: 15,
     borderBottomWidth: 1,
-    borderBottomColor: isDark ? '#333' : '#E8E8E8',
+    borderBottomColor: isDark ? '#333' : '#5c5c5c',
     minHeight: 75,
     height: 'auto',
     position: 'relative',
   },
   weekendDayRow: {
     backgroundColor: isDark ? '#252525' : '#F5F5F5',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   today: {
     borderLeftWidth: 3,
     borderRightWidth: 3,
+    borderBottomWidth: 3,
   },
   pastDateRow: {
     position: 'relative',
@@ -54,7 +63,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     right: 0,
     bottom: 0,
     opacity: 0.7,
-    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: isDark ? 'rgba(0, 0, 0, 0.99)' : 'rgba(0, 0, 0, 0.3)',
     zIndex: 10,
   },
   pastDateText: {
@@ -67,7 +76,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     backgroundColor: isDark ? '#222' : '#999',
     top: '52%',
     left: '-35%',
-    transform: [{ rotate: '10deg' }],
+    transform: isIpad() ? [{ rotate: '7deg' }] : [{ rotate: '10deg' }],
     zIndex: 11,
   },
   pastDateStrikethrough2: {
@@ -77,7 +86,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     backgroundColor: isDark ? '#222' : '#999',
     top: '60%',
     left: '-10%',
-    transform: [{ rotate: '-10deg' }],
+    transform: isIpad() ? [{ rotate: '-7deg' }] : [{ rotate: '-10deg' }],
     zIndex: 11,
   },
   dayInfo: {

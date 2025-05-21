@@ -156,7 +156,7 @@ export default function CalendarScreen() {
         </BlurView>
       )}
       <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
-        {isWeb || isIpadDevice ? (
+        {isWeb ? (
           <View style={[
             styles.webMonthsContainer,
             isWeb && webColumnCount === 2 && { justifyContent: 'center' }
@@ -187,6 +187,46 @@ export default function CalendarScreen() {
               </View>
             ))}
           </View>
+        ) : isIpadDevice ? (
+          viewMode === 'week' ? (
+            weeks.map((weekStart, index) => (
+              <Week
+                key={index}
+                startDate={weekStart}
+                events={combinedEvents}
+                onDayPress={handleDayPress}
+                isDark={isDark}
+                primaryColor={primaryColor}
+              />
+            ))
+          ) : (
+            <View style={[
+              styles.webMonthsContainer,
+              webColumnCount === 2 && { justifyContent: 'center' }
+            ]}>
+              {months.map((date, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.webMonthWrapper,
+                    { 
+                      width: webColumnCount === 2 ? '49%' : '94%',
+                      margin: webColumnCount === 2 ? '0.5%' : '3%'
+                    }
+                  ]}
+                >
+                  <Month 
+                    date={date}
+                    events={combinedEvents}
+                    onDayPress={handleDayPress}
+                    isDark={isDark}
+                    primaryColor={primaryColor}
+                    webColumnCount={webColumnCount}
+                  />
+                </View>
+              ))}
+            </View>
+          )
         ) : (
           isMobile && viewMode === 'week' ? (
             weeks.map((weekStart, index) => (
@@ -243,8 +283,7 @@ export default function CalendarScreen() {
         primaryColor={primaryColor}
       />
 
-      <CalendarAnalytics visible={debugModalVisible}  onClose={closeDebugModal} debugData={debugData} isDark={isDark}/>
-      <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} webColumnCount={webColumnCount} />
+
     </View>
   );
 }

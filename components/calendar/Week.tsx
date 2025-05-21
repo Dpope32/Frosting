@@ -135,7 +135,7 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
               style={[
                 styles.dayRow,
                 isWeekend && styles.weekendDayRow,
-                isToday && [styles.today, { borderColor: primaryColor }],
+                isToday && [styles.today, { borderColor: primaryColor, borderBottomColor: primaryColor, borderWidth: 1.5 }],
                 dayEvents.holiday && !isToday && { backgroundColor: `${dayEvents.holidayColor}20` },
                 isPastDate && styles.pastDateRow,
                 Platform.OS === 'web' && { cursor: 'pointer', borderRadius: 6 }
@@ -161,7 +161,6 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
               </View>
 
               <View style={styles.eventsContainer}>
-                {/* Holiday indicator */}
                 {dayEvents.holiday && (
                   <View style={styles.eventIndicator}>
                     <Text style={styles.holidayIconText}>{dayEvents.holidayIcon}</Text>
@@ -169,7 +168,6 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
                   </View>
                 )}
 
-                {/* Birthday indicator */}
                 {dayEvents.birthday && (
                   <View style={styles.eventIndicator}>
                     <Text style={styles.birthdayIconText}>🎉</Text>
@@ -177,42 +175,36 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
                   </View>
                 )}
 
-                {/* Bill indicator */}
                 {dayEvents.bill && (
                   <View style={styles.eventIndicator}>
                     <Text style={[styles.eventText, { color: '#FF5252' }]}>{dayEvents.billName}</Text>
                   </View>
                 )}
 
-                {/* Task indicator */}
                 {dayEvents.task && (
                   <View style={styles.eventIndicator}>
                     <Text style={[styles.eventText, { color: '#FF9800' }]}>Task</Text>
                   </View>
                 )}
 
-                {/* Work indicator */}
                 {dayEvents.work && (
                   <View style={styles.eventIndicator}>
                     <Text style={[styles.eventText, { color: '#2196F3' }]}>Work</Text>
                   </View>
                 )}
 
-                {/* Family indicator */}
                 {dayEvents.family && (
                   <View style={styles.eventIndicator}>
                     <Text style={[styles.eventText, { color: '#9C27B0' }]}>Family</Text>
                   </View>
                 )}
 
-                {/* Personal indicator */}
                 {dayEvents.personal && (
                   <View style={styles.eventIndicator}>
                     <Text style={[styles.eventText, { color: '#555' }]}>Personal</Text>
                   </View>
                 )}
 
-                {/* NBA indicator */}
                 {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && nbaTeams.find(t => t.code === dayEvents.teamCode) && (
                   <View style={styles.eventIndicator}>
                     <Image
@@ -225,7 +217,6 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
                 )}
               </View>
 
-              {/* Add overlay and strikethrough for past dates */}
               {isPastDate && !isToday && (
                 <>
                   <View style={styles.pastDateOverlay} />
