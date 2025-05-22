@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { YStack, isWeb } from 'tamagui'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { usePortfolioStore, updatePrincipal, useEditStockStore } from '@/store'
 import { HoldingsCards } from '@/components/modals/HoldingsCards'
 import { StockCard } from '@/components/modals/StockCard'
+import { Stock } from '@/types'
 
 interface PortfolioModalProps {
   open: boolean
@@ -37,7 +38,20 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       }
     }
   }, [debouncedPrincipalInput, isEditingPrincipal])
-  const openEditStockModal = useEditStockStore(s => s.openModal)
+  const openEditStockModal = useCallback((stock: Stock) => {
+    console.log('Opening EDIT stock modal from Portfolio for:', stock);
+    onOpenChange(false);
+    setTimeout(() => {
+      useEditStockStore.getState().openModal(stock, false);
+    }, 100);
+  }, [onOpenChange]);
+  const openAddStockModal = useCallback(() => {
+    console.log('Opening ADD stock modal from Portfolio');
+    onOpenChange(false);
+    setTimeout(() => {
+      useEditStockStore.getState().openModal(undefined, true);
+    }, 100);
+  }, [onOpenChange]);
   const closePortfolioModal = () => onOpenChange(false)
   const calculateROI = () => { 
    if (!principal || principal === 0) return 0
@@ -70,7 +84,8 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
         />
         <HoldingsCards 
           closePortfolioModal={closePortfolioModal} 
-          openEditStockModal={openEditStockModal} 
+          openEditStockModal={openEditStockModal}
+          openAddStockModal={openAddStockModal}
         />
       </YStack>
     </BaseCardModal>

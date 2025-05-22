@@ -5,13 +5,16 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { portfolioData, getStockValueColor } from '@/utils'
 import { usePortfolioStore } from '@/store'
 import Animated, { FadeIn } from 'react-native-reanimated'
+import { Pressable } from 'react-native'
+import { Stock } from '@/types'
 
 interface HoldingsCardsProps {
   closePortfolioModal: () => void
-  openEditStockModal: (stock?: any) => void
+  openEditStockModal: (stock: Stock) => void
+  openAddStockModal: () => void
 }
 
-export function HoldingsCards({ closePortfolioModal, openEditStockModal }: HoldingsCardsProps) {
+export function HoldingsCards({ closePortfolioModal, openEditStockModal, openAddStockModal }: HoldingsCardsProps) {
   const { prices, historicalData } = usePortfolioStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -49,18 +52,14 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal }: Holdi
         <Text color={isDark ? '#999' : '#666'} fontFamily="$body" fontSize={14}>
           Holdings
         </Text>
-        <Button
-          backgroundColor="transparent"
-          onPress={() => {
-            closePortfolioModal()
-            setTimeout(() => {
-              openEditStockModal(undefined)
-            }, 100)
-          }}
-          padding="$1"
-          pressStyle={{ opacity: 0.7 }}
-          icon={<MaterialIcons name="add" size={24} color={isDark ? '#f9f9f9' : '#000'} />}
-        />
+        <Pressable 
+          onPress={openAddStockModal}
+          style={({ pressed }) => ({
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <MaterialIcons name="add" size={24} color={isDark ? '#f9f9f9' : '#000'} />
+        </Pressable>
       </XStack>
       <ScrollView
         maxHeight={isWeb ? 600 : '100%'}

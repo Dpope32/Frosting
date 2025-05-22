@@ -23,18 +23,13 @@ export function StockCardAnimated({
   title,
   children,
   onClose, 
-  modalWidth = Platform.OS === 'web' ? 700 : 360,
-  modalMaxWidth = Platform.OS === 'web' ? 700 : 500,
   showCloseButton = true,
 }: StockCardAnimatedProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const insets = useSafeAreaInsets()
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
-  const actualWidth = Math.min(
-    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.88,
-    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
-  )
+  const actualWidth = isWeb ? 440 : Dimensions.get('window').width * 0.9
 
   if (!open) return null
 

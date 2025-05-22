@@ -4,7 +4,7 @@ import { YStack, XStack, Text, Button } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { usePortfolioStore, usePortfolioQuery, removeFromWatchlist, useEditStockStore } from '@/store'
 import { portfolioData } from '@/utils/Portfolio';
-import { PortfolioQueryData } from '@/types';
+import { PortfolioQueryData, Stock } from '@/types';
 import { PortfolioTable } from '@/components/home/PortfolioTable';
 import { calculateBuyIndicator, calculateReturns } from '@/services';
 
@@ -25,7 +25,8 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
   }, [refetch]);
   
   const openAddStockModal = useCallback(() => {
-    useEditStockStore.setState({ isOpen: true, selectedStock: undefined });
+    console.log('Opening ADD stock modal');
+    useEditStockStore.getState().openModal(undefined, true);
   }, []);
   
   const handleRemoveFromWatchlist = async (symbol: string) => {
@@ -39,6 +40,11 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
   const calculateBuyIndicatorForSymbol = useCallback((symbol: string) => {
     return calculateBuyIndicator(symbol, stockData, calculateReturns);
   }, [stockData]);
+  
+  const handleEditStock = useCallback((stock: Stock) => {
+    console.log('Opening EDIT stock modal for:', stock);
+    useEditStockStore.getState().openModal(stock, false);
+  }, []);
   
   return (
     <YStack>
@@ -68,7 +74,8 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
               if (activeTab === 'watchlist') {
                 onAddToWatchlist();
               } else {
-                openAddStockModal();
+                console.log('Plus icon clicked in AssetSection');
+                useEditStockStore.getState().openModal(undefined, true);
               }
             }}
             style={({ pressed }) => ({
@@ -103,6 +110,7 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
           portfolioData={portfolioData}
           watchlist={watchlist}
           onRemoveFromWatchlist={handleRemoveFromWatchlist}
+          onEditStock={handleEditStock}
           calculateReturns={calculateReturnsForSymbol}
           totalPortfolioValue={totalValue ?? 0}
           calculateBuyIndicator={calculateBuyIndicatorForSymbol}

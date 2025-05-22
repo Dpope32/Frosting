@@ -63,20 +63,19 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
 export const getPocketBase = async (): Promise<PocketBaseType> => {
   let selected: string | undefined;
 
-  const USE_HEAD_HOSTS = [/\.ts\.net$/i];
-  const needsHead = (host: string) => USE_HEAD_HOSTS.some(re => re.test(host));
-
   for (const base of CANDIDATE_URLS) {
-    const method = needsHead(base) ? 'HEAD' : 'GET';
     const url = `${base}${HEALTH_PATH}`;
-
-    addSyncLog(`Health-check ${url} via ${method}`, 'verbose');
+    addSyncLog(`Health-check ${url} (GET→HEAD fallback)`, 'verbose');
 
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), HEALTH_TIMEOUT);
 
     try {
-      const res = await fetch(url, { method, signal: ctrl.signal });
+      let res = await fetch(url, { method: 'GET', signal: ctrl.signal });
+      if (res.status === 405) {
+        addSyncLog(`GET 405 — retrying HEAD`, 'verbose');
+        res = await fetch(url, { method: 'HEAD', signal: ctrl.signal });
+      }
       clearTimeout(t);
 
       if (res.status === 200 || res.status === 401) {

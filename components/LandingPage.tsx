@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Platform, Alert } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
@@ -33,8 +33,6 @@ import { isIpad } from '@/utils';
 import type { Attachment, Tag } from '@/types'
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services';
 import { createFormattingHandler } from '@/services';
-
-import { EditStockModal } from './cardModals/edits/EditStockModal'
 import { useHabits } from '@/hooks';
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
 import { useWallpaperStore } from '@/store';
@@ -86,7 +84,6 @@ export function LandingPage() {
   const handleUnderline = createFormattingHandler(formatUnderline, selection, setNoteContent);
   const handleCode = createFormattingHandler(formatCode, selection, setNoteContent);
   const handleBullet = createFormattingHandler(formatBullet, selection, setNoteContent);
-  const isStockModalOpen = useEditStockStore(s => s.isOpen)
   const openStockModal = useEditStockStore(s => s.openModal)
   const { addHabit } = useHabits();
   const projects = useProjectsStore(s => s.projects);
@@ -163,8 +160,8 @@ export function LandingPage() {
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
 
-  const handleActionPress = (name: string) => {
-    switch (name) {
+  const handleActionPress = useCallback((action: string) => {
+    switch (action) {
       case 'bt_password':
         setVaultModalOpen(true);
         break;
@@ -188,13 +185,14 @@ export function LandingPage() {
         setContactModalOpen(true);
         break;
       case 'bt_stock':
-        openStockModal()
-        break
+        console.log('FAB: Opening ADD stock modal');
+        useEditStockStore.getState().openModal(undefined, true);
+        break;
       case 'bt_project':
         setProjectModalOpen(true);
         break;
     }
-  };
+  }, []);
 
   // Calculate YStack padding top in a readable way
   let ptop: number;
@@ -300,7 +298,6 @@ export function LandingPage() {
           {sheetOpen && <NewTaskModal open={sheetOpen} onOpenChange={setSheetOpen} isDark={isDark} />}
           {taskListModalOpen && <TaskListModal open={taskListModalOpen} onOpenChange={setTaskListModalOpen} />}
           {isEditModalOpen && <EditTaskModal open={isEditModalOpen} isDark={isDark} onOpenChange={closeEditModal} />}
-          {isStockModalOpen && <EditStockModal />}
           <AddVaultEntryModal isVisible={vaultModalOpen} onClose={() => setVaultModalOpen(false)} onSubmit={(entry) => { setVaultModalOpen(false); }} />
           <AddHabitModal  isVisible={habitModalOpen} onClose={() => setHabitModalOpen(false)} onSave={addHabit}/>
           <AddNoteSheet 

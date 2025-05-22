@@ -276,14 +276,6 @@ const createTaskFilter = () => {
     const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd');
     //const currentShowNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks;
 
-    if (DEBUG) {
-      log("========== RUNNING TASK FILTER ==========");
-      log("- currentDateStrLocal:", currentDateStrLocal);
-      log("- total tasks:", Object.keys(tasks).length);
-     // log("- currentShowNBAGameTasks:", currentShowNBAGameTasks); // Log preference state
-    }
-
-    // Check cache, including the preference state
     if (
       lastToday === dateStr &&
       lastTasks === tasks &&
@@ -312,18 +304,9 @@ const createTaskFilter = () => {
     // Filter tasks that are due today
     const filtered = Object.values(tasks).filter(task => {
       const isDue = isTaskDue(task, currentDate);
-      if (DEBUG && (task.name.includes("birthday") || task.name.includes("🎂") || task.name.includes("🎁"))) {
-        log(`Final filter result for task ${task.name} (${task.id}): ${isDue} - ${task.recurrencePattern} - ${task.schedule} - ${task.dueDate}`);
-      }
-      if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
-        log(`Final filter result for task ${task.name} (${task.id}): ${isDue}`);
-      }
       return isDue;
     });
     
-    debugTaskFilter('After initial filtering', filtered);
-    
-    debugTaskFilter('After initial filtering', filtered);
 
     // Sort tasks - completed tasks go to the bottom
     const sorted = [...filtered].sort((a, b) => {
@@ -349,7 +332,6 @@ const createTaskFilter = () => {
       const bPriority = priorityOrder[b.priority] ?? 99;
       return aPriority - bPriority;
     });
-    
     if (DEBUG) {
       log("Final sorted task list:");
       sorted.forEach((task, index) => {
@@ -367,7 +349,7 @@ const taskFilter = createTaskFilter()
 
 export const useProjectStore = create<ProjectStore>()(
   persist(
-    (set, get) => ({ // Added 'get' to access state within actions
+    (set, get) => ({ 
       tasks: {},
       hydrated: false,
       todaysTasks: [],
@@ -394,29 +376,12 @@ export const useProjectStore = create<ProjectStore>()(
         set({ tasks, todaysTasks: taskFilter(tasks) })
       },
       toggleTaskCompletion: (id) => {
-        if (DEBUG) log(`========== TOGGLING TASK COMPLETION: ${id} ==========`);
+      
         
         const tasks = { ...get().tasks }
         if (tasks[id]) {
           const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
           const currentStatus = tasks[id].completionHistory[todayLocalStr] || false
-          
-          if (DEBUG) {
-            log(`Task: ${tasks[id].name} (${id})`);
-            log(`Recurrence pattern: ${tasks[id].recurrencePattern}`);
-            log(`Current completion status: ${currentStatus}`);
-            log(`Current completionHistory:`, tasks[id].completionHistory);
-            
-            // Check for duplicates with the same name
-            const duplicates = Object.values(tasks).filter(t => t.name === tasks[id].name);
-            if (duplicates.length > 1) {
-              log(`⚠️ FOUND ${duplicates.length} TASKS WITH THE SAME NAME: "${tasks[id].name}"`);
-              duplicates.forEach((dupe, i) => {
-                log(`Duplicate #${i+1}: ID=${dupe.id}, Completed=${dupe.completionHistory[todayLocalStr] || false}`);
-              });
-            }
-          }
-          
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
           const cleanedHistory = Object.entries(tasks[id].completionHistory)
@@ -434,24 +399,15 @@ export const useProjectStore = create<ProjectStore>()(
             updatedAt: new Date().toISOString()
           }
           
-          if (DEBUG) {
-            log(`New completion status: ${newCompletionStatus}`);
-            log(`New completionHistory:`, tasks[id].completionHistory);
-          }
-          
+          addSyncLog(`[Tasks] toggled "${tasks[id].name}" -> ${newCompletionStatus}`, 'info');
           const updatedTodaysTasks = taskFilter(tasks);
-          
-          if (DEBUG) {
-            log(`Task list after toggle - count: ${updatedTodaysTasks.length}`);
-            log(`Task list IDs:`, updatedTodaysTasks.map(t => t.id));
-            log(`Is our toggled task in the list? ${updatedTodaysTasks.some(t => t.id === id)}`);
-          }
-          
+          addSyncLog(`[Tasks] updated todaysTasks count: ${updatedTodaysTasks.length}`, 'info');
+          addSyncLog(`Task list: ${updatedTodaysTasks.map(t => t.id).join(', ')}`, 'info');
+          addSyncLog(`Is our toggled task in the list? ${updatedTodaysTasks.some(t => t.id === id)}`, 'info');
           set({ tasks, todaysTasks: updatedTodaysTasks });
         } else {
           if (DEBUG) log(`Task ${id} not found!`);
         }
-        
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
         }
@@ -506,11 +462,8 @@ export const useProjectStore = create<ProjectStore>()(
       recalculateTodaysTasks: () => {
         const { tasks } = get();
         const before = Object.keys(tasks).length;
-      
-        // Filter ⟶ update
         const todaysTasks = taskFilter(tasks);
         const after = todaysTasks.length;
-      
         addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
         set({ todaysTasks });
       },
@@ -519,34 +472,39 @@ export const useProjectStore = create<ProjectStore>()(
           addSyncLog('[Tasks] No tasks field – skip', 'warning');
           return;
         }
-      
         // 1️⃣ Cast once to the correct map type
         const incoming = syncedData.tasks as Record<string, Task>;
         const existing  = get().tasks;
         const merged: Record<string, Task> = {};
-      
         // 2️⃣ Iterate with Object.entries so TS knows inc is a Task
         Object.entries(incoming).forEach(([id, inc]) => {
           const curr = existing[id];
-      
+
           if (!curr) {
             addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
-            merged[id] = inc;              // ✅ inc is a Task here
+            merged[id] = inc;              
             return;
           }
-      
           // 3️⃣ mergedHistory is **not** a Task, so type it explicitly
           const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
-      
           for (const date in inc.completionHistory) {
             if (inc.completionHistory[date] || !(date in mergedHistory)) {
               mergedHistory[date] = inc.completionHistory[date];
             }
           }
-      
-          merged[id] = { ...inc, completionHistory: mergedHistory };
+         // One-time tasks keep explicit flag; recurring derive it per-day
+        const today = format(new Date(), 'yyyy-MM-dd');
+        const resolvedCompleted =
+          inc.recurrencePattern === 'one-time'
+            ? inc.completed
+            : !!mergedHistory[today];
+
+        merged[id] = { ...inc, completionHistory: mergedHistory, completed: resolvedCompleted };
+        addSyncLog(
+          `[Tasks] merge "${inc.name}" completed:${resolvedCompleted}`,
+          'verbose'
+        );
         });
-      
         // keep local-only tasks unchanged …
         Object.entries(existing).forEach(([id, task]) => {
           if (!merged[id]) {
@@ -554,9 +512,7 @@ export const useProjectStore = create<ProjectStore>()(
             merged[id] = task;
           }
         });
-      
         set({ tasks: merged, hydrated: true });
-      
         setTimeout(() => {
           const final = taskFilter(get().tasks);
           set({ todaysTasks: final });
@@ -568,20 +524,18 @@ export const useProjectStore = create<ProjectStore>()(
       name: 'tasks-store',
       storage: createPersistStorage<ProjectStore>(),
       onRehydrateStorage: () => (state, error) => {
-        if (DEBUG) log("Rehydrating store");
-        
         if (state) {
           const tasks = state.tasks
           let needsMigration = false
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-          const todayLocalStr = format(new Date(), 'yyyy-MM-dd') // Use local date string
+          const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
           
           if (DEBUG) log(`Total tasks in storage: ${Object.keys(tasks).length}`);
           addSyncLog(`Total tasks in storage before migration: ${Object.keys(tasks).length}`, 'info');
           Object.keys(tasks).forEach(id => {
             if (!tasks[id].recurrencePattern) {
-              tasks[id].recurrencePattern = 'weekly' // Keep existing migration logic
+              tasks[id].recurrencePattern = 'weekly' 
               needsMigration = true
               if (DEBUG) log(`Migrated task ${id} to have recurrencePattern: weekly`);
             }
@@ -623,10 +577,8 @@ export const useProjectStore = create<ProjectStore>()(
             if (DEBUG) log("Migrations were applied to tasks data");
             state.tasks = tasks
           }
-
           addSyncLog(`Rehydrated tasks store after migration`, 'info', useStoreTasks().length.toString());
           state.hydrated = true
-          // Update todaysTasks using the filter
           const todaysTasks = taskFilter(state.tasks)
           if (DEBUG) log(`After rehydration, found ${todaysTasks.length} tasks for today`);
           state.todaysTasks = todaysTasks

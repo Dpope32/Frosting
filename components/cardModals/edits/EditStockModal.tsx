@@ -1,25 +1,30 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { debounce } from 'lodash'
-import { YStack, Text, Button, XStack, ScrollView, useTheme, Input } from 'tamagui'
-import { Platform, useColorScheme, TextInput } from 'react-native'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { YStack, Text, Button, XStack, useTheme, Input, isWeb } from 'tamagui'
+import { useColorScheme, TextInput, Alert } from 'react-native'
 import { StockCardAnimated } from '../../baseModals/StockCardAnimated'
 import { useUserStore, useToastStore, useEditStockStore } from '@/store'
 import { Stock } from '@/types'
-import { portfolioData, updatePortfolioData } from '@/utils'
+import { portfolioData, updatePortfolioData, isIpad } from '@/utils'
 import { useQueryClient } from '@tanstack/react-query'
-import { initializeStocksData, searchStocks } from '@/services'
-import { StockData, getIconForStock } from '@/constants'
-import { DebouncedInput, DebouncedInputHandle } from '@/components/shared/debouncedInput'
+import { initializeStocksData } from '@/services'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useAutoFocus } from '@/hooks'
+import { 
+  StockQuantityInput, 
+  ErrorMessage, 
+  StockDisplay, 
+  ActionButton, 
+  useStockStyles,
+  renderStockIcon
+} from '@/components/stocks'
 
 export function EditStockModal() {
-  const isOpen = useEditStockStore(s => s.isOpen)
+  const isOpen = useEditStockStore(s => s.isOpen && s.isAddMode !== true)
   const selectedStock = useEditStockStore(s => s.selectedStock)
   const closeModal = useEditStockStore(s => s.closeModal)
-
+  
   return (
-    <StockEditorModal
+    <EditStockModalContent
       open={isOpen}
       onOpenChange={(open) => {
         if (!open) closeModal()
@@ -29,36 +34,27 @@ export function EditStockModal() {
   )
 }
 
-// Individual stock editor modal component
-interface StockEditorModalProps {
+interface EditStockModalContentProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stock?: Stock
 }
 
-export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModalProps) {
-  const [formData, setFormData] = useState({ ticker: '', quantity: '', name: ''})
+export function EditStockModalContent({ open, onOpenChange, stock }: EditStockModalContentProps) {
+  const [formData, setFormData] = useState({ ticker: '', quantity: '', name: '' })
   const [error, setError] = useState('')
-  const [searchResults, setSearchResults] = useState<StockData[]>([])
   const [stocksInitialized, setStocksInitialized] = useState(false)
-  const [dropdownActive, setDropdownActive] = useState(false)
-  // Add this to track if we have an explicit selection, not just matching text
-  const [hasExplicitSelection, setHasExplicitSelection] = useState(false)
-  // Add state to track if quantity input is focused
+  const [loading, setLoading] = useState(false)
   const [isQuantityFocused, setIsQuantityFocused] = useState(false)
-  // Add state to track if we're in edit mode for quantity
-  const [isQuantityEditMode, setIsQuantityEditMode] = useState(false)
-
+  const [isQuantityEditMode, setIsQuantityEditMode] = useState(true)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const theme = useTheme()
   const showToast = useToastStore((state) => state.showToast)
-  const tickerInputRef = useRef<DebouncedInputHandle>(null)
   const quantityInputRef = useRef<TextInput>(null)
-  useAutoFocus(quantityInputRef, 750, open && isQuantityEditMode)
+  const queryClient = useQueryClient()
+  useAutoFocus(quantityInputRef, 500, open)
 
-  // Initialize stocks data when modal opens
   useEffect(() => {
     const initStocks = async () => {
       try {
@@ -73,146 +69,48 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
 
     if (open) {
       initStocks()
-      // Set quantity edit mode to true when modal opens
       setIsQuantityEditMode(true)
     }
   }, [open, stocksInitialized])
 
   useEffect(() => {
-    if (stock) {
+    if (stock && open) {
       setFormData({
         ticker: stock.symbol,
         quantity: stock.quantity.toString(),
         name: stock.name
       })
-      setHasExplicitSelection(true)
     } else {
       setFormData({ ticker: '', quantity: '', name: '' })
-      setHasExplicitSelection(false)
     }
     setError('')
-    setSearchResults([])
-    setDropdownActive(false)
+    setLoading(false)
   }, [stock, open])
 
-  const queryClient = useQueryClient()
-
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      if (query.trim().length > 0) {
-        // If we have an exact match that was explicitly selected, don't show any results
-        if (hasExplicitSelection && query.toUpperCase() === formData.ticker) {
-          setSearchResults([])
-          setDropdownActive(false)
-          return
-        }
-
-        const results = searchStocks(query, 10, true)
-        setSearchResults(results)
-        
-        // Only set dropdown active if we have results and no explicit selection
-        setDropdownActive(results.length > 0 && !hasExplicitSelection)
-      } else {
-        setSearchResults([])
-        setDropdownActive(false)
-      }
-    }, 300),
-    [stocksInitialized, hasExplicitSelection, formData.ticker]
-  )
-
-  const handleTickerChange = useCallback((value: string) => {
-    // Update ticker field
-    setFormData(prev => ({ ...prev, ticker: value }))
-    
-    // If user is typing, they're making a new choice, clear any previous selection
-    if (hasExplicitSelection) {
-      // Only clear the name if they're changing the ticker from a previous selection
-      setFormData(prev => ({ 
-        ...prev, 
-        ticker: value,
-        name: '' 
-      }))
-      setHasExplicitSelection(false)
-    } else {
-      setFormData(prev => ({ ...prev, ticker: value }))
-    }
-    
-    setError('')
-
-    // Search for stocks if not editing an existing stock
-    if (!stock) {
-      debouncedSearch(value)
-    }
-  }, [stock, debouncedSearch, hasExplicitSelection])
-
   const handleQuantityChange = useCallback((value: string) => {
-    // Only allow numeric input for quantity
     const numericValue = value.replace(/[^0-9]/g, '')
     setFormData(prev => ({ ...prev, quantity: numericValue }))
     setError('')
   }, [])
 
-  // Add handler for quantity input focus
   const handleQuantityFocus = useCallback(() => {
     setIsQuantityFocused(true)
     setIsQuantityEditMode(true)
   }, [])
 
-  // Add handler for quantity input blur
   const handleQuantityBlur = useCallback(() => {
     setIsQuantityFocused(false)
-    // Only exit edit mode if there's a value
     if (formData.quantity) {
       setIsQuantityEditMode(false)
     }
   }, [formData.quantity])
 
-  // Update the ticker input focus handler to show dropdown when typing
-  const handleTickerFocus = useCallback(() => {
-    setIsQuantityFocused(false)
-    // Show dropdown if we have results and no explicit selection
-    if (!stock && !hasExplicitSelection && formData.ticker.trim() && searchResults.length > 0) {
-      setDropdownActive(true)
-    }
-  }, [stock, formData.ticker, searchResults.length, hasExplicitSelection])
-
-  // Handle selecting a stock from search results
-  const handleSelectStock = useCallback((selectedStockData: StockData) => {
-    // Cancel any pending searches
-    debouncedSearch.cancel()
-
-    // Set the ticker and name in the parent state
-    setFormData(prev => ({
-      ...prev,
-      ticker: selectedStockData.symbol,
-      name: selectedStockData.name
-    }))
+  const handleSave = useCallback(async () => {
+    if (loading) return
     
-    // Mark that we have an explicit selection
-    setHasExplicitSelection(true)
-
-    // Close the dropdown
-    setSearchResults([])
-    setDropdownActive(false)
-    
-    // Blur the input after selection is complete
-    tickerInputRef.current?.blur()
-  }, [debouncedSearch])
-
-  // Handle removing a selected stock
-  const handleRemoveStock = useCallback(() => {
-    setFormData(prev => ({ ...prev, ticker: '', name: '' }))
-    setHasExplicitSelection(false)
-    setDropdownActive(false)
-    // Allow time for state to update before attempting to focus
-    setTimeout(() => {
-      tickerInputRef.current?.focus()
-    }, 100)
-  }, [])
-
-  const handleSave = useCallback(() => {
     try {
+      setLoading(true)
+      
       if (!formData.ticker || !formData.quantity || !formData.name) {
         setError('All fields are required')
         return
@@ -220,102 +118,119 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
 
       const quantityNum = Number(formData.quantity)
       if (isNaN(quantityNum) || quantityNum <= 0) {
-        setError('Please enter a valid quantity')
+        setError('Please enter a valid quantity greater than 0')
         return
       }
 
-      const newStock: Stock = {
+      if (!stock) {
+        setError('No stock selected for editing')
+        return
+      }
+
+      const updatedStock: Stock = {
         symbol: formData.ticker.toUpperCase(),
         quantity: quantityNum,
         name: formData.name
       }
 
-      const updatedPortfolio = stock
-        ? portfolioData.map(s => s.symbol === stock.symbol ? newStock : s)
-        : [...portfolioData, newStock]
+      const updatedPortfolio = portfolioData.map(s => 
+        s.symbol === stock.symbol ? updatedStock : s
+      )
 
       updatePortfolioData(updatedPortfolio)
-      // Invalidate and refetch portfolio data
       queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
-
-      // Show success message
+      
       setError('')
       onOpenChange(false)
-      showToast('Successfully added stock!', 'success')
+      showToast(`Successfully updated ${updatedStock.symbol} holdings!`, 'success')
     } catch (err) {
+      console.error('Error updating stock:', err)
       setError('Failed to update portfolio. Please try again.')
+    } finally {
+      setLoading(false)
     }
-  }, [formData, stock, onOpenChange, queryClient, showToast])
+  }, [formData, stock, onOpenChange, queryClient, showToast, loading])
 
   const handleDelete = useCallback(() => {
-    if (!stock) return
+    if (!stock || loading) return
 
-    if (Platform.OS === 'web') {
-      if (window.confirm(`Are you sure you want to delete ${stock.symbol} from your portfolio?`)) {
+    const deleteStock = () => {
+      setLoading(true)
+      try {
         const updatedPortfolio = portfolioData.filter(s => s.symbol !== stock.symbol)
         updatePortfolioData(updatedPortfolio)
         queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
         onOpenChange(false)
+        showToast(`${stock.symbol} removed from portfolio`, 'success')
+      } catch (err) {
+        console.error('Error deleting stock:', err)
+        showToast('Failed to remove stock. Please try again.', 'error')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (isWeb) {
+      if (window.confirm(`Are you sure you want to remove ${stock.symbol} from your portfolio?`)) {
+        deleteStock()
       }
     } else {
-      // For mobile, you might want to use Alert here
-      const updatedPortfolio = portfolioData.filter(s => s.symbol !== stock.symbol)
-      updatePortfolioData(updatedPortfolio)
-      queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
+      Alert.alert(
+        'Remove Stock',
+        `Are you sure you want to remove ${stock.symbol} from your portfolio?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Remove', 
+            style: 'destructive', 
+            onPress: deleteStock
+          }
+        ]
+      )
+    }
+  }, [stock, onOpenChange, queryClient, showToast, loading])
+
+  const handleClose = useCallback(() => {
+    if (!loading) {
       onOpenChange(false)
     }
-  }, [stock, onOpenChange, queryClient])
+  }, [onOpenChange, loading])
 
-  // Simplify the input blur handler - don't hide dropdown on blur
-  const handleInputBlur = useCallback(() => {
-    // We don't do anything on blur anymore
-    // The dropdown will stay visible until a selection is made
-  }, [])
+  const modalTitle = stock ? `Edit ${stock.symbol} Holdings` : 'Edit Stock'
+  const isFormValid = formData.ticker && formData.quantity && formData.name && !loading
+  const hasChanges = stock && (
+    stock.quantity.toString() !== formData.quantity ||
+    stock.symbol !== formData.ticker ||
+    stock.name !== formData.name
+  )
 
-  // Render stock icon helper function
-  const renderStockIcon = useCallback((symbol: string, size: number, color: string) => {
-    try {
-      const iconData = getIconForStock(symbol)
-      const { Component, type } = iconData
-      if (type === 'lucide') {
-        return <Component size={size} color={color} />
-      } else if (type === 'brand' || type === 'solid') {
-        return <Component name={iconData.name} size={size} color={color} />
-      } else if (type === 'material') {
-        return <Component name={iconData.name} size={size} color={color} />
-      }
-      return <Text fontSize={size} color={color}>$</Text>
-    } catch (err) {
-      console.error(`Error rendering icon for ${symbol}:`, err)
-      return <Text fontSize={size} color={color}>$</Text>
-    }
-  }, [])
-
-  const inputStyle = useMemo(() => ({
-    backgroundColor: "rgba(0,0,0,0.20)",
-    color: "$color",
-    fontSize: 14,
-    height: 40,
-    px: "$2",
-    py: "$2",
-  }), [])
-
-  const modalTitle = stock ? `Edit Holdings for ${stock.symbol}` : 'Add New Stock'
-
-  // Ensure the modal closes when the close button is clicked
-  const handleClose = useCallback(() => {
-    onOpenChange(false)
-  }, [onOpenChange])
-
-  // Add function to adjust color brightness
-  const adjustColor = useCallback((color: string, amount: number) => {
-    const hex = color.replace('#', '')
-    const num = parseInt(hex, 16)
-    const r = Math.min(255, Math.max(0, (num >> 16) + amount))
-    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amount))
-    const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
-    return `#${(b | (g << 8) | (r << 16)).toString(16).padStart(6, '0')}`
-  }, [])
+  if (!stock && open) {
+    return (
+      <StockCardAnimated
+        open={open}
+        onClose={handleClose}
+        title="Edit Stock"
+        showCloseButton={true}
+      >
+        <YStack padding="$4" alignItems="center" justifyContent="center" minHeight={200}>
+          <MaterialIcons 
+            name="error-outline" 
+            size={48} 
+            color={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)"} 
+          />
+          <Text 
+            fontSize={16} 
+            fontFamily="$body" 
+            color={isDark ? "$color11" : "$color10"}
+            textAlign="center"
+            mt="$3"
+          >
+            No stock selected for editing
+          </Text>
+        </YStack>
+      </StockCardAnimated>
+    )
+  }
 
   return (
     <StockCardAnimated
@@ -324,242 +239,86 @@ export function StockEditorModal({ open, onOpenChange, stock }: StockEditorModal
       title={modalTitle}
       showCloseButton={true}
     >
-      <YStack mb="$2" gap="$2" px="$2">
-        {!stock && (
-          <YStack>
-            {hasExplicitSelection ? (
-              <XStack 
-                alignItems="center" 
-                justifyContent="space-between"
-                backgroundColor={formData.quantity ? (isDark ?  "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)") : "transparent"}
-                br={formData.quantity ? 12 : 0}
-                px={formData.quantity ? "$1" : "$0"}
-                py={formData.quantity ? "$1" : "$0"}
-                borderWidth={formData.quantity ? 1 : 0}
-                borderColor={formData.quantity ? (isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)") : "transparent"}
-              >
-                <YStack gap="$1" flex={1}>
-                  <XStack  mb="$-2"  alignItems="center" justifyContent="space-between" px="$2">
-                    <XStack jc="center" alignItems="center" gap="$1">
-                      <XStack
-                        width={28}
-                        height={28}
-                        br={14}
-                        backgroundColor="transparent"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        {renderStockIcon(formData.ticker, 16, isDark ? "#f7f7f7" : theme.color10.get())}
-                      </XStack>
-                      <Text fontSize={16} fontWeight="500">{formData.name}</Text>
-                    </XStack>
-                    {formData.quantity && (
-                      <Button
-                        backgroundColor="transparent"
-                        onPress={() => {
-                          setIsQuantityEditMode(true)
-                          setTimeout(() => {
-                            quantityInputRef.current?.focus()
-                          }, 100)
-                        }}
-                      >
-                        <MaterialIcons 
-                          name="edit" 
-                          size={18} 
-                          color={isDark ? "#f7f7f7" : "$color12"} 
-                        />
-                      </Button>
-                    )}
-                  </XStack>
-                  
-                  <XStack mt="$-1" px="$4" alignItems="center" justifyContent="space-between">
-                    {formData.quantity && (
-                      <Text fontSize={14} color={isDark ? "$color11" : "$color10"}>
-                        {formData.quantity} shares
-                      </Text>
-                    )}
-                    <Button
-                      backgroundColor="transparent"
-                      br={4}
-                      px="$2"
-                      onPress={handleRemoveStock}
-                    >
-                      <Text color="$red10" fontSize={12} fontWeight="500">Remove</Text>
-                    </Button>
-                  </XStack>
-                </YStack>
-              </XStack>
-            ) : (
-              <>
-                <YStack>
-                  <XStack alignItems="center" gap="$2" pb="$2" justifyContent="space-between" width="100%">
-                    {isQuantityEditMode ? (
-                      <Input
-                        ref={quantityInputRef}
-                        value={formData.quantity}
-                        onChangeText={handleQuantityChange}
-                        placeholder="# Shares"
-                        placeholderTextColor={isDark ? "#333" : "#777"}
-                        keyboardType="numeric"
-                        width={90}
-                        onFocus={handleQuantityFocus}
-                        onBlur={handleQuantityBlur}
-                        {...inputStyle}
-                      />
-                    ) : (
-                      <XStack 
-                        alignItems="center" 
-                        width="100%"
-                        justifyContent="space-between"
-                        px="$3"
-                      >
-                        <Text 
-                          color={isDark ? "#f7f7f7" : "$color12"} 
-                          fontSize={16} 
-                          fontWeight="500"
-                        >
-                          {formData.quantity ? `${formData.quantity} shares` : 'Enter shares'}
-                        </Text>
-                        <Button
-                          backgroundColor="transparent"
-                          onPress={() => {
-                            setIsQuantityEditMode(true)
-                            setTimeout(() => {
-                              quantityInputRef.current?.focus()
-                            }, 100)
-                          }}
-                        >
-                          <MaterialIcons 
-                            name="edit" 
-                            size={18} 
-                            color={isDark ? "#f7f7f7" : "$color12"} 
-                          />
-                        </Button>
-                      </XStack>
-                    )}
-                  </XStack>
-                </YStack>
-                <DebouncedInput
-                  ref={tickerInputRef} 
-                  value={formData.ticker}
-                  onDebouncedChange={handleTickerChange}
-                  placeholder="Start typing to search"
-                  width={300}
-                  placeholderTextColor={isDark ? "#333" : "#777"}
-                  autoCapitalize="characters"
-                  fontFamily="$body"
-                  onFocus={handleTickerFocus}
-                  onBlur={handleInputBlur}
-                  {...inputStyle}
-                />
-              </>
-            )}
-            {(!hasExplicitSelection && dropdownActive && searchResults.length > 0) && (
-              <YStack
-                py="$2"
-                maxHeight={Platform.OS === 'web' ? 500 : 450}
-              >
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  <YStack gap="$2">
-                    {searchResults.map((result, index) => (
-                      <XStack
-                        key={`${result.symbol}-${index}`}
-                        backgroundColor={isDark ? "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)"}
-                        br={8}
-                        padding="$2"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        pressStyle={{ opacity: 0.7 }}
-                      >
-                        <XStack alignItems="center" gap="$2" flex={1}>
-                          <XStack
-                            width={32}
-                            height={32}
-                            br={16}
-                            backgroundColor={isDark ?  "rgba(4, 4, 4, 0.91)" : "rgba(255,255,255,0.8)"}
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            {renderStockIcon(result.symbol, 18, isDark ? "#f7f7f7" : theme.color10.get())}
-                          </XStack>
-                          <YStack>
-                            <Text color={isDark ? "$color" : "$color12"} fontWeight="600" fontSize={14} fontFamily="$body">
-                              {result.symbol}
-                            </Text>
-                            <Text color={isDark ? "$color11" : "$color10"} fontSize={12} fontFamily="$body" numberOfLines={1}>
-                              {result.name}
-                            </Text>
-                          </YStack>
-                        </XStack>
-                        <Button
-                          size="$2"
-                          backgroundColor={'transparent'}
-                          br={4}
-                          px="$2"
-                          onPress={(e) => {
-                            // Prevent default behavior to avoid keyboard dismissal
-                            e.preventDefault && e.preventDefault();
-                            // Process the selection immediately
-                            handleSelectStock(result);
-                          }}
-                        >
-                          <Text color="$blue10" fontSize={12} fontWeight="500">
-                            Select
-                          </Text>
-                        </Button>
-                      </XStack>
-                    ))}
-                  </YStack>
-                </ScrollView>
-              </YStack>
-            )}
-          </YStack>
-        )}
-
-        {error && (
-          <Text
-            color="$red10"
-            fontSize={12}
-            textAlign="center"
-            backgroundColor="$red2"
-            padding="$2"
-            br={6}
-          >
-            {error}
+      <YStack padding="$4" gap="$4">
+        <StockDisplay
+          symbol={formData.ticker}
+          name={formData.name}
+          primaryColor={primaryColor}
+          showQuantity={true}
+          quantity={stock?.quantity}
+        />
+        
+        <YStack gap="$2">
+          <Text fontSize={14} fontWeight="600" color={isDark ? "$color11" : "$color10"} fontFamily="$body">
+            Number of Shares
           </Text>
-        )}
-      </YStack>
-      <XStack gap="$2" py="$2.5" px="$2" justifyContent="space-between">
-          <Button
-            backgroundColor={isDark ? `${primaryColor}40` : `${adjustColor(primaryColor, 20)}80`}
-            height={40}
-            flex={1}
-            br={8}
-            opacity={!formData.ticker || !formData.quantity || !formData.name ? 0.5 : 1}
-            disabled={!formData.ticker || !formData.quantity || !formData.name}
-            pressStyle={{ opacity: 0.8, scale: 0.98 }}
-            onPress={handleSave}
-            borderWidth={2}
-            borderColor={primaryColor}
-          >
-            <Text color={isDark ? "#f7f7f7" : adjustColor(primaryColor, -100)} fontWeight="600" fontSize={14}>
-              {stock ? 'Update' : 'Add Stock'}
-            </Text>
-          </Button>
-
-          {stock && (
-            <Button
-              backgroundColor={isDark ? "$red8" : "$red6"}
-              height={40}
-              width={40}
-              br={8}
-              pressStyle={{ opacity: 0.8, scale: 0.98 }}
-              onPress={handleDelete}
-            >
-              <MaterialIcons name="delete" size={20} color="#f7f7f7" />
-            </Button>
+          <StockQuantityInput
+            value={formData.quantity}
+            onChange={handleQuantityChange}
+            onFocus={handleQuantityFocus}
+            onBlur={handleQuantityBlur}
+            isEditMode={isQuantityEditMode}
+            setIsEditMode={setIsQuantityEditMode}
+            inputRef={quantityInputRef}
+            primaryColor={primaryColor}
+            isDark={isDark}
+          />
+          
+          {hasChanges && (
+            <XStack alignItems="center" gap="$2" mt="$1">
+              <MaterialIcons 
+                name="info" 
+                size={16} 
+                color={isDark ? "$color11" : "$color10"} 
+              />
+              <Text 
+                fontSize={12} 
+                fontFamily="$body" 
+                color={isDark ? '$color11' : '$color10'}
+              >
+                Changes from {stock?.quantity} to {formData.quantity} shares
+              </Text>
+            </XStack>
           )}
+        </YStack>
+        
+        <ErrorMessage 
+          message={error} 
+          visible={!!error} 
+        />
+        
+        <XStack gap="$3" mt="$2">
+          <Button
+            onPress={handleDelete}
+            backgroundColor={isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)'}
+            borderColor="$red8"
+            borderWidth={1}
+            br={12}
+            height={48}
+            width={48}
+            pressStyle={{ opacity: 0.7, scale: 0.95 }}
+            disabled={loading || !stock}
+            opacity={loading ? 0.5 : 1}
+          >
+            {loading ? (
+              <MaterialIcons name="hourglass-empty" size={20} color="$red10" />
+            ) : (
+              <MaterialIcons name="delete-outline" size={20} color="rgba(233, 25, 25, 0.73)" />
+            )}
+          </Button>
+          
+          <ActionButton
+            onPress={handleSave}
+            label={hasChanges ? 'Update Holdings' : 'No Changes'}
+            icon="save"
+            isValid={Boolean(isFormValid && hasChanges)}
+            isLoading={loading}
+            primaryColor={primaryColor}
+            isDark={isDark}
+            loadingText="Updating..."
+          />
         </XStack>
+      </YStack>
     </StockCardAnimated>
   )
 }

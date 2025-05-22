@@ -29,7 +29,7 @@ export const getIconForStock = (symbol: string) => {
       'AAPL': { Component: FontAwesome, name: 'apple', type: 'brand' },
       'AMZN': { Component: FontAwesome, name: 'amazon', type: 'brand' },
       'NFLX': { Component: FontAwesome5, name: 'netflix', type: 'brand' },
-      'TSLA': { Component: FontAwesome5, name: 'tesla', type: 'brand' },
+      'TSLA': { Component: MaterialCommunityIcons, name: 'car-sports', type: 'material' },
       'ORCL': { Component: Cpu, type: 'lucide' },
       'CRM': { Component: FontAwesome5, name: 'salesforce', type: 'brand' },
       'IBM': { Component: FontAwesome5, name: 'ibm', type: 'brand' },

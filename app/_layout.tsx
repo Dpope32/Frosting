@@ -23,6 +23,7 @@ import { Toast } from '@/components/Toast';
 import { useCalendarSync } from '@/hooks';
 import { TaskRecommendationModal } from '@/components/recModals/TaskRecommendationModal';
 import { EditStockModal } from '@/components/cardModals/edits/EditStockModal';
+import { AddStockModal } from '@/components/cardModals/creates/AddStockModal';
 import { handleSharedContact } from '@/services';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import * as Sentry from '@sentry/react-native'; 
@@ -262,6 +263,7 @@ export default Sentry.wrap(function RootLayout() {
             <StatusBar style="auto" />
               <TaskRecommendationModal />
               <EditStockModal />
+              <AddStockModal />
             </>
           </ErrorBoundary>
         </NavigationThemeProvider>

@@ -14,6 +14,7 @@ interface PortfolioTableProps {
   portfolioData: Stock[];
   watchlist: string[];
   onRemoveFromWatchlist: (symbol: string) => void;
+  onEditStock: (stock: Stock) => void;
   calculateReturns: (symbol: string) => ReturnType | null;
   calculateBuyIndicator: (symbol: string) => number | null;
   totalPortfolioValue: number;
@@ -25,6 +26,7 @@ export function PortfolioTable({
   portfolioData,
   watchlist,
   onRemoveFromWatchlist,
+  onEditStock,
   calculateReturns,
   calculateBuyIndicator,
   totalPortfolioValue
@@ -160,6 +162,20 @@ export function PortfolioTable({
                 <Text color={isDark ? "#999" : "#666"} fontSize={14} fontFamily="$body">N/A</Text>
               )}
             </XStack>
+            {activeTab === 'portfolio' && (
+              <Pressable
+                onPress={() => {
+                  console.log('Edit button clicked for stock:', stock);
+                  onEditStock(stock);
+                }}
+                style={({ pressed }) => ({
+                  opacity: pressed ? 0.7 : 1,
+                  padding: 8,
+                })}
+              >
+                <MaterialIcons name="edit" size={16} color="#888" />
+              </Pressable>
+            )}
           </XStack>
         );
       })}
