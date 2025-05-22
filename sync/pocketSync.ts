@@ -21,6 +21,7 @@ const HEALTH_TIMEOUT = 3000 // ms
 // 2. Quick connectivity probe (unchanged)
 // ---------------------------------------------------------------------------
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
+  addSyncLog('Checking network connectivity in ps', 'info')
   Sentry.addBreadcrumb({ category: 'pocketSync', message: 'checkNetworkConnectivity', level: 'info' })
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 3000)
@@ -28,11 +29,12 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
     const r = await fetch('https://www.google.com', { method: 'HEAD', signal: controller.signal })
     clearTimeout(timer)
     Sentry.addBreadcrumb({ category: 'pocketSync', message: `network ok = ${r.ok}`, level: 'info' })
+    addSyncLog(`network ok = ${r.ok}`, 'info')
     return r.ok
   } catch (err) {
     clearTimeout(timer)
     Sentry.captureException(err)
-    addSyncLog('Network check failed', 'warning')
+    addSyncLog(`Network check failed in ps: ${err}`, 'warning')
     return false
   }
 }
@@ -42,7 +44,7 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
 // ---------------------------------------------------------------------------
 export const getPocketBase = async (): Promise<PocketBaseType> => {
   Sentry.addBreadcrumb({ category: 'pocketSync', message: 'getPocketBase()', level: 'info' })
-
+   addSyncLog('getPocketBase()', 'info')
   let selectedUrl: string | undefined
 
   outer: for (const url of CANDIDATE_URLS) {
@@ -53,6 +55,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
           message: `Health‑check ${url} (attempt ${attempt + 1})`,
           level: 'info',
         })
+        addSyncLog(`Health‑check ${url} (attempt ${attempt + 1})`, 'info')
         const controller = new AbortController()
         const t = setTimeout(() => controller.abort(), HEALTH_TIMEOUT)
         const res = await fetch(`${url}/api/health`, { method: 'HEAD', signal: controller.signal })
@@ -67,18 +70,19 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
           data: { error: String(err) },
           level: 'warning',
         })
+        addSyncLog(`Health‑check failed for ${url} (attempt ${attempt + 1})`, 'warning')
         await new Promise(r => setTimeout(r, 400))
       }
     }
   }
 
   if (!selectedUrl) {
-    addSyncLog('Skipping sync silently – no PocketBase endpoint reachable', 'warning')
+      addSyncLog('Skipping sync silently – no PocketBase endpoint reachable. This implementation will be the death of me.', 'warning')
     Sentry.addBreadcrumb({ category: 'pocketSync', message: 'No endpoint reachable', level: 'error' })
     throw new Error('SKIP_SYNC_SILENTLY')
   }
 
-  addSyncLog(`PocketBase selected: ${selectedUrl}`, 'info')
+  addSyncLog(`PocketBase selected lfg: ${selectedUrl}`, 'info')
   Sentry.addBreadcrumb({ category: 'pocketSync', message: `PocketBase selected: ${selectedUrl}`, level: 'info' })
 
   const { default: PocketBase } = await import('pocketbase')
