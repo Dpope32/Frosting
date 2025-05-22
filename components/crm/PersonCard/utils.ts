@@ -43,3 +43,12 @@ export const getDarkerHslColor = (hslColor: string): string => {
   // Reduce lightness to create darker color
   return `hsl(${hue}, ${saturation}%, ${Math.max(10, lightness - 80)}%)`;
 }; 
+
+export const getLighterHslColor = (hslColor: string): string => {
+  const match = hslColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+  if (!match) return hslColor;
+  const hue = parseInt(match[1], 10);
+  const saturation = parseInt(match[2], 10);
+  const lightness = parseInt(match[3], 10);
+  return `hsl(${hue}, ${saturation}%, ${Math.min(90, lightness + 80)}%)`;
+};

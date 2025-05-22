@@ -64,8 +64,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         />
         <XStack
           padding={isIpad() ? 10 : 3}
-          paddingBottom={isIpad() ? 14 : 10}
-          paddingTop={isIpad() ? 14 : 8}
+          paddingBottom={isIpad() ? 10 : 8}
+          paddingTop={isIpad() ? 12 : 6}
           paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}

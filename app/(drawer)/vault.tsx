@@ -5,6 +5,7 @@ import { useVault } from '@/hooks/useVault'
 import { BlurView } from 'expo-blur'
 import { useUserStore, useToastStore } from '@/store'
 import { AddVaultEntryModal } from '@/components/cardModals/creates/AddVaultEntryModal'
+// @ts-ignore
 import { Plus, Database, Trash } from '@tamagui/lucide-icons'
 import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal'
 import { VaultCard } from '@/components/vault/VaultCard'
@@ -103,7 +104,7 @@ export default function VaultScreen() {
         vaultEntry={selectedVaultEntry}
         onSubmit={() => { setEditVaultModalOpen(false); setSelectedVaultEntry(null) }}
       />
-      <YStack f={1} pt={isWeb ? 90 : isIpad() ? isDark? 80:  70 : 90} bg={isDark ? '#000000' : '$backgroundLight'} paddingLeft={isWeb? 24 : isIpad() ? 4 : 0}>
+      <YStack f={1} pt={isWeb ? 90 : isIpad() ? isDark? 80 : 70 : 80} bg={isDark ? '#000000' : '$backgroundLight'} paddingLeft={isWeb? 24 : isIpad() ? 4 : 0}>
         <ScrollView
         showsVerticalScrollIndicator={false}
           contentContainerStyle={{

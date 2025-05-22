@@ -101,7 +101,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
 
   const squareSize = 20;
   const gap = isMobile ? 3 : 4;
-  const cellsToShow = isMobile ? 15 : 73;
+  const cellsToShow = isMobile ? 14 : 73;
 
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
     if (isMobile) {
@@ -334,7 +334,10 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                 </Text>
               </XStack>
             )}
-            {habit.description && (
+          </XStack>
+        )}
+
+          {habit.description && (
               <XStack
                 alignItems="center"
                 alignSelf="flex-start"
@@ -350,19 +353,18 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                 </Text>
               </XStack>
             )}
-          </XStack>
-        )}
-
         <XStack alignItems="center" style={{ zIndex: 2 }}>
           <YStack
             borderRadius={6}
-            padding={8}
+            px={isIpad() ? 8 : 0}
+            pb={isIpad() ? 4 : 0}
+            mt={isIpad() ? 4 : 4}
             backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'transparent'}
             mb={history.length === 1 ? 4 : 0}
-            gap={6}
+            gap={4}
             maxWidth="100%"
           >
-            <XStack gap={gap} minWidth={isMobile ? undefined : `${cellsToShow * (squareSize + gap)}px`}>
+            <XStack mb={-6} gap={gap} minWidth={isMobile ? undefined : `${cellsToShow * (squareSize + gap)}px`}>
               {Array.from({ length: cellsToShow }).map((_, idx) => {
                 const day = history[history.length - 1 - idx];
                 return (

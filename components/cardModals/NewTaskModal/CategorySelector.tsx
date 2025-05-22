@@ -163,7 +163,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   };
 
   return (
-    <XStack pl={8} gap="$2" alignItems="center">
+    <XStack pl={isIpad() ? 10 : 8} gap="$2" alignItems="center">
+      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}  fontFamily="$body" fontWeight="500">Category:</Text>
       {isAddingCategory ? (
         <XStack gap="$2" alignItems="center" py="$1">
           <XStack position="relative" width={isIpad() ? 180 : 140}>
@@ -239,7 +240,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                   pressStyle={{ opacity: 0.8, scale: 0.98 }}
                   br={20}
                   px="$3"
-                  py="$2.5"
+                  py={isIpad() ? "$2.5" : "$1"}
+                  height={isIpad() ? undefined : 30}
                   borderWidth={1}
                   borderColor={
                     isSelected

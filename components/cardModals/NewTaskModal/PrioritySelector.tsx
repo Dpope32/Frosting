@@ -22,12 +22,13 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   }
 
   return (
-    <XStack px={isIpad() ? "$2.5" : "$2.5"} ml={6} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
-      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority?</Text>
-      <XStack gap={isIpad() ? "$2" : "$2"} ml={isIpad() ? "$2.5" : "$2.5"}>
+    <XStack px={isIpad() ? "$2.5" : "$2"} ml={0} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
+      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority:</Text>
+      <XStack gap={isIpad() ? "$2" : "$1.5"} ml={isIpad() ? "$2.5" : "$2.5"}>
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)
           const Icon = priorityIcons[priority as keyof typeof priorityIcons]
+          const buttonSize = isIpad() ? 42 : 32
           return (
             <Button
               key={priority}
@@ -38,9 +39,10 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
                   : isDark ? "$gray2" : "white"
               }
               pressStyle={{ opacity: 0.8, scale: 0.98 }}
-              br={isIpad() ? 20 : 20}
-              px={isIpad() ? "$2.5" : 12}
-              py={isIpad() ? "$2.5" : 12}
+              br={buttonSize / 2}
+              width={buttonSize}
+              height={buttonSize}
+              padding={0}
               borderWidth={1}
               borderColor={
                 selectedPriority === priority
@@ -49,7 +51,7 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
               }
             >
               <Icon
-                size={isIpad() ? 20 : 16}
+                size={isIpad() ? 20 : 14}
                 color={selectedPriority === priority ? color : isDark ? "$gray12" : "$gray11"}
               />
             </Button>

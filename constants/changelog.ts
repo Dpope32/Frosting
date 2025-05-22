@@ -1,5 +1,14 @@
 export const CHANGELOG = [
   {
+    version: '1.1.231',
+    date: '2025-05-22',
+    notes: 'Enhanced Light Mode',
+    bullets: [
+      'Improved light mode inside New Task Modal',
+      'Improved light mode of contacts in CRM',
+    ],
+  },
+  {
     version: '1.1.228',
     date: '2025-05-21',
     notes: 'Finished Cross-Platform Sync!',
@@ -9,7 +18,7 @@ export const CHANGELOG = [
       'Data is added together to ensure no data is lost during sync',
       'Upgraded ThinkPad server to use Tailscale for secure peer-to-peer connections',
       'Improved Web UI/UX to support new sync features',
-      'Message developer now to request new sync feature! (beta only for now)',
+      'Message developer now to request new sync feature! (beta only)',
     ],
   },
   {

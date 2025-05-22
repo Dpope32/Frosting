@@ -1,5 +1,6 @@
 import React from 'react'
 import { XStack, YStack, Text, Button } from 'tamagui'
+// @ts-ignore
 import { Eye, EyeOff } from '@tamagui/lucide-icons'
 import { isIpad } from '@/utils'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -87,7 +88,7 @@ export const VaultCard = ({
           />
           <YStack flex={1}>
             <XStack jc="space-between" ai="center" mt="$1" mb="$2">
-              <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
+              <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 24 : 20} fontWeight="bold" fontFamily="$body">
                 {cred.name}
               </Text>
             </XStack>
@@ -179,7 +180,7 @@ export const VaultCard = ({
                   Username:
                 </Text>
               )}
-              <Text color={isDark ? isIpad() ? '#ccc' : '#f3f3f3' :  isIpad() ? '#333' : '#f6f6f6'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
+              <Text color={isDark ? isIpad() ? '#ccc' : '#f3f3f3' :  isIpad() ? '#333' : '#333'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
                 {cred.username}
               </Text>
             </XStack>

@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
   card: {
     borderWidth: 2,
     padding: Platform.OS === 'web' ? 12 : 6, 
-    paddingHorizontal: Platform.OS === 'web' ? 12 : 16, 
+    paddingHorizontal: Platform.OS === 'web' ? 12 : 8,
     paddingBottom: Platform.OS === 'web' ? 12 : 8, 
     borderRadius: 12,
     width: Platform.OS === 'web' ? 'auto' : '100%',

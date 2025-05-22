@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { Platform } from 'react-native'
 import * as FileSystem from 'expo-file-system'
 import { addSyncLog } from '@/components/sync/syncUtils'
 
 // Simple functions to read/write the workspace ID directly
 async function readWorkspaceIdFromFile(): Promise<string | null> {
+  if (Platform.OS === 'web') return null;
   try {
     const filepath = `${FileSystem.documentDirectory}workspace_id.txt`
     const fileInfo = await FileSystem.getInfoAsync(filepath)
@@ -20,6 +22,7 @@ async function readWorkspaceIdFromFile(): Promise<string | null> {
 }
 
 async function writeWorkspaceIdToFile(id: string | null): Promise<void> {
+  if (Platform.OS === 'web') return;
   try {
     const filepath = `${FileSystem.documentDirectory}workspace_id.txt`
     if (id) {
@@ -38,11 +41,16 @@ async function writeWorkspaceIdToFile(id: string | null): Promise<void> {
 
 export function useWorkspaceId(isPremium: boolean) {
   const [workspaceId, setWorkspaceIdState] = useState<string | null>(null)
+  const webWorkspaceId = useRef<string | null>(null)
   
   // Immediately read the workspace ID on component mount
   useEffect(() => {
     const loadWorkspaceId = async () => {
       if (!isPremium) return
+      if (Platform.OS === 'web') {
+        setWorkspaceIdState(webWorkspaceId.current)
+        return
+      }
       try {
         const id = await readWorkspaceIdFromFile()
         if (id) {
@@ -58,6 +66,10 @@ export function useWorkspaceId(isPremium: boolean) {
   
   const setWorkspaceId = useCallback(async (id: string | null) => {
     setWorkspaceIdState(id)
+    if (Platform.OS === 'web') {
+      webWorkspaceId.current = id
+      return
+    }
     await writeWorkspaceIdToFile(id)
     
     if (id) {

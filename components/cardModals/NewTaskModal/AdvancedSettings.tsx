@@ -56,23 +56,26 @@ export function AdvancedSettings({
 }: AdvancedSettingsProps) {
   const colorScheme = useColorScheme()
   
+  // Handle button press without conditional rendering that causes remounts
+  const handleButtonPress = () => {
+    if (showTimePicker) {
+      setShowTimePicker(false);
+    } else {
+      onOpenChange(!isOpen);
+    }
+  }
+  
   return (
     <YStack>
       <Button
         backgroundColor="transparent"
-        height={isIpad() ? 48 : 34}
-        onPress={() => {
-          if (showTimePicker) {
-            setShowTimePicker(false);
-          } else {
-            onOpenChange(!isOpen);
-          }
-        }}
+        height={isIpad() ? isOpen ? 10 : 34 : isOpen ? 10 : 34}
+        onPress={handleButtonPress}
         pressStyle={{ opacity: 0.7 }}
         width="100%"
         px={0}
       >
-        <XStack px={isIpad() ? "$2.5" : "$2.5"} alignItems="center" justifyContent="space-between" width="100%">
+        <XStack px={isIpad() ? "$2.5" : 5} alignItems="center" justifyContent="space-between" width="100%">
           {!isOpen && !showTimePicker && (
             <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
               Advanced Settings
@@ -80,7 +83,7 @@ export function AdvancedSettings({
           )}
           <XStack flex={1} justifyContent={isOpen ? "flex-end" : "flex-end"}>
             {(isOpen || showTimePicker) ? (
-              <ChevronUp size={isIpad() ? 20 : 16} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
+              <ChevronUp size={isIpad() ? 20 : 16} color={isDark ? 'transparent' : 'transparent'} />
             ) : (
               <ChevronDown size={isIpad() ? 20 : 16} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
             )}
@@ -89,18 +92,23 @@ export function AdvancedSettings({
       </Button>
       
       <AnimatePresence>
-        {showTimePicker && (
+        {(isOpen || showTimePicker) && (
           <YStack
-            key="time-picker"
+            key="advanced-settings-content"
             animation="quick"
             enterStyle={{ opacity: 0, y: -10 }}
             exitStyle={{ opacity: 0, y: -10 }}
             y={0}
             opacity={1}
-            pt={0}
-            pb={0}
+            gap="$2"
+            pb="$2"
           >
-            <YStack pl={6} pt={0} pb={0}>
+            <YStack 
+              pl={showTimePicker ? 6 : 0} 
+              pt={0} 
+              pb={0}
+              display={showTimePicker ? "flex" : "none"}
+            >
               <TimePicker
                 showTimePicker={showTimePicker}
                 setShowTimePicker={setShowTimePicker}
@@ -113,59 +121,52 @@ export function AdvancedSettings({
                 primaryColor={primaryColor}
               />
             </YStack>
-          </YStack>
-        )}
-        
-        {isOpen && !showTimePicker && (
-          <YStack
-            key="content"
-            animation="quick"
-            enterStyle={{ opacity: 0, y: -10 }}
-            exitStyle={{ opacity: 0, y: -10 }}
-            y={0}
-            opacity={1}
-            gap="$2"
-            pb="$2"
-          >
-
-           <YStack>
-              <TagSelector
-                onTagsChange={onTagsChange}
-                tags={tags}
-              />
-            </YStack>
-            <CategorySelector
-              selectedCategory={category}
-              onCategorySelect={onCategorySelect}
-            />
-
-            <ShowInCalendar
-              showInCalendar={showInCalendar}
-              onShowInCalendarChange={onShowInCalendarChange}
-              isDark={isDark}
-            />
             
-            <YStack pl={6}>
-              <TimePicker
-                showTimePicker={false}
-                setShowTimePicker={setShowTimePicker}
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-                onTimeChange={onTimeChange}
-                onWebTimeChange={onWebTimeChange}
-                time={time}
-                isDark={isDark}
-                primaryColor={primaryColor}
+            <YStack 
+              display={isOpen && !showTimePicker ? "flex" : "none"}
+              animation="quick"
+              gap="$2"
+            >
+              <YStack>
+                <TagSelector
+                  onTagsChange={onTagsChange}
+                  tags={tags}
+                />
+              </YStack>
+              
+              <CategorySelector
+                selectedCategory={category}
+                onCategorySelect={onCategorySelect}
               />
-            </YStack>
-            
-            {time && (
-              <AlertMeSelector
-                alertMe={alertMe}
-                onAlertMeChange={onAlertMeChange}
+
+              <ShowInCalendar
+                showInCalendar={showInCalendar}
+                onShowInCalendarChange={onShowInCalendarChange}
                 isDark={isDark}
               />
-            )}
+              
+              <YStack pl={6}>
+                <TimePicker
+                  showTimePicker={false}
+                  setShowTimePicker={setShowTimePicker}
+                  selectedDate={selectedDate}
+                  setSelectedDate={setSelectedDate}
+                  onTimeChange={onTimeChange}
+                  onWebTimeChange={onWebTimeChange}
+                  time={time}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                />
+              </YStack>
+              
+              {time && (
+                <AlertMeSelector
+                  alertMe={alertMe}
+                  onAlertMeChange={onAlertMeChange}
+                  isDark={isDark}
+                />
+              )}
+            </YStack>
           </YStack>
         )}
       </AnimatePresence>

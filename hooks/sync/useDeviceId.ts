@@ -31,7 +31,6 @@ export const useDeviceId = (isPremium: boolean) => {
           
           // Store the new ID for future use
           await AsyncStorage.setItem(DEVICE_ID_KEY, storedId)
-          console.log('New device ID created:', storedId)
         }
         
         setDeviceId(storedId)

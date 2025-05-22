@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Button, XStack } from 'tamagui';
+import { Text, Button, XStack, YStack } from 'tamagui';
 import { baseSpacing, fontSizes, buttonRadius, Colors } from '@/components/sync/sharedStyles';
 
 type ChooseAddProps = {
@@ -10,7 +10,7 @@ type ChooseAddProps = {
 
 export function ChooseAdd({ colors, handleCreateWorkspace, handleJoinWorkspace }: ChooseAddProps) {
   return (
-    <>
+    <YStack gap={baseSpacing * 2} paddingHorizontal={5} paddingVertical={10}>
       <Text color={colors.subtext} fontFamily="$body" fontSize={fontSizes.md}>
         How would you like to sync your data?
       </Text>
@@ -28,7 +28,7 @@ export function ChooseAdd({ colors, handleCreateWorkspace, handleJoinWorkspace }
           flex={1}
         >
           <Text color={colors.accent} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
-            Create New Workspace
+            New Space
           </Text>
         </Button>
         <Button
@@ -44,10 +44,10 @@ export function ChooseAdd({ colors, handleCreateWorkspace, handleJoinWorkspace }
           flex={1}
         >
           <Text color={colors.text} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
-            Join Existing Workspace
+            Join Existing
           </Text>
         </Button>
       </XStack>
-    </>
+    </YStack>
   );
 }

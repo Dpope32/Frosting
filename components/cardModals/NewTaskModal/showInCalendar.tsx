@@ -1,6 +1,6 @@
 import React  from 'react'
 import { Pressable, View } from 'react-native'
-import { XStack, Text  } from 'tamagui'
+import { XStack, Text, isWeb  } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
 
@@ -13,9 +13,9 @@ interface ShowInCalendarProps {
 export function ShowInCalendar({ showInCalendar, onShowInCalendarChange, isDark }: ShowInCalendarProps) {
         
   return (
-    <XStack alignItems="center" ml={4} justifyContent="space-between" paddingHorizontal="$2.5" marginTop="$1.5">
+    <XStack alignItems="center" justifyContent="space-between" paddingHorizontal={isIpad() ? "$2.5" : 7} marginTop="$2" mb={isWeb ? 0 : 6}>
       <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} flexWrap="nowrap">
-        Add an Event to Calendar?
+        Add an Event to Calendar
       </Text>
       <Pressable onPress={() => onShowInCalendarChange(!showInCalendar)}
         style={{ 

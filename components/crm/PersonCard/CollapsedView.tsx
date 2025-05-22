@@ -5,7 +5,7 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { styles } from './styles';
 import type { Person } from '@/types';
 import { isIpad } from '@/utils';
-import { adjustColor, getDarkerHslColor } from './utils';
+import { adjustColor, getDarkerHslColor, getLighterHslColor } from './utils';
 import { formatDistanceToNow, format } from 'date-fns';
 
 type CollapsedViewProps = {
@@ -60,7 +60,7 @@ export default function CollapsedView({
           borderColor: nicknameColor,
           backgroundColor: isDark
             ? getDarkerHslColor(nicknameColor)
-            : `${nicknameColor}15`
+            :  getLighterHslColor(nicknameColor)
         },
         applyWebStyle('card')
       ] as any}
@@ -104,7 +104,7 @@ export default function CollapsedView({
               </Paragraph>
             </XStack>
             {(person.birthday || person.occupation || hasTags) && (
-              <XStack key="birthday-occupation-tags-info" alignItems="center" gap="$2" style={{ marginTop: -2, flexWrap: 'nowrap', flexShrink: 1 }}>
+              <XStack key="birthday-occupation-tags-info" alignItems="center" justifyContent="flex-start" alignSelf="flex-start"  gap={isWeb || isIpad() ? "$2" : "$1"} style={{ marginTop: 2, flexWrap: 'nowrap', flexShrink: 1 }}>
                 {person.birthday && (
                   <>
                     <MaterialIcons
@@ -126,8 +126,8 @@ export default function CollapsedView({
                   <Text
                     style={{
                       fontSize: isWeb ? 16 : isIpad() ? 14 : 12,
-                      color: isDark ? '#999' : '#333',
-                      marginLeft: person.birthday ? 8 : 0,
+                      color: isDark ? '#999' : '#555',
+                      marginLeft: person.birthday ? (isWeb || isIpad() ? 8 : 4) : 0,
                       flexShrink: 0,
                       minWidth: 0,
                     }}
@@ -136,7 +136,7 @@ export default function CollapsedView({
                   </Text>
                 )}
                 {hasTags && (
-                  <View style={{ flexDirection: 'row', flexShrink: 1, minWidth: 0, overflow: 'hidden' }}>
+                  <View style={{ flexDirection: 'row', marginTop: 2, flexShrink: 1, minWidth: 0, overflow: 'hidden' }}>
                     {person.tags!.map(tag => (
                       <View 
                         key={tag.id} 

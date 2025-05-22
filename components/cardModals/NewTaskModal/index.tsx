@@ -274,16 +274,16 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 4} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12}>
         <DebouncedInput
             ref={nameInputRef}
-            style={[styles.input, { borderWidth: 1, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.02)', color: isDark ? '#fff' : '#000' }]}
+            style={[styles.input, { borderWidth: 2, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.00)', color: isDark ? '#fff' : '#000' }]}
             placeholder={`What do you need to do ${username}?`} 
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
             value={newTask.name}
             fontSize={isIpad() ? 17 : 15}
             fontFamily={isIpad() ? '$body' : '$body'}
-            width={isIpad() ? '100%' : '98%'}
+            width={isIpad() ? '100%' : '100%'}
             onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
             delay={300}
           />
@@ -337,6 +337,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               <SubmitButton 
                 isSubmitting={isSubmitting} 
                 preferences={preferences}
+                isDark={isDark}
                 onPress={handleAddTask}
               />
             </Form.Trigger>

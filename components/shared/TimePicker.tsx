@@ -3,6 +3,7 @@ import { Platform, Pressable, View } from 'react-native';
 import { XStack, Text, YStack, Button } from 'tamagui';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
+//@ts-ignore
 import { Pencil } from '@tamagui/lucide-icons';
 import { isIpad } from '@/utils';
 
@@ -32,27 +33,25 @@ export function TimePicker({
   // Handle time selection completion
   const handleTimeSelected = () => {
     setShowTimePicker(false);
-    // We don't call any function to close advanced settings here
   };
 
   return (
-    <YStack flex={1} alignItems='flex-end' paddingHorizontal={isIpad() ? 16 : 0} marginRight={0} mt={0} mb={0}>
+    <YStack flex={1} alignItems='center' paddingHorizontal={isIpad() ? 16 : 0} marginRight={0} mt={isIpad() ? 8 : 4} mb={0}>
       {!showTimePicker && (
       <Pressable
         onPress={() => setShowTimePicker(!showTimePicker)}
         style={{
-          width: '100%',
-          height: 48,
-          borderRadius: 10,
-          borderWidth: 1,
+          width: '102%',
+          height: 45,
+          borderRadius: 12,
+          borderWidth: 2,
           borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
           paddingHorizontal: isIpad() ? 16 : 12,
           justifyContent: 'space-between',
-          backgroundColor: time ? 'transparent' : (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)'),
-          shadowOpacity: 0,
+          backgroundColor: time ? 'transparent' : (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.01)'),
           marginTop: 0,
           marginBottom: 10,
         }}
@@ -60,14 +59,14 @@ export function TimePicker({
         <Text
           fontFamily="$body"
           color={time ? (isDark ? '#f3f3f3' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
-          fontSize={isIpad() ? 17 : 16}
+          fontSize={isIpad() ? 17 : 14}
           style={{ flex: 1 }}
           fontWeight="500"
         >
           {time || "Select time"}
         </Text>
         {time ? (
-          <Pencil size={18} color={isDark ? '#555' : '#f3f3f3'} />
+          <Pencil size={15} color={isDark ? '#555' : '#f3f3f3'} />
         ) : (
           <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
             {showTimePicker ? '▲' : '▼'}

@@ -15,9 +15,10 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
   const isDark = colorScheme === 'dark'
 
   return (
-      <XStack pl="$2" gap="$2.5" alignItems="center">
+      <XStack px={isIpad() ? 10 : 6} gap="$2.5" alignItems="center">
+      <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="600">When:</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <XStack gap="$2" py="$1">
+        <XStack gap={isIpad() ? "$2" : "$1.5"} py="$1">
           {RECURRENCE_PATTERNS.map(pattern => {
             const recurrenceColor = getRecurrenceColor(pattern.value)
             
@@ -31,9 +32,10 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
                 }
                 pressStyle={{ opacity: 0.8, scale: 0.98 }}
                 onPress={(e) => onPatternSelect(pattern.value, e)}
-                br={20}
-                px="$3"
-                py="$2.5"
+                br={isIpad() ? 20 : 16}
+                px={isIpad() ? "$3" : "$2"}
+                py={isIpad() ? "$2.5" : "$1"}
+                height={isIpad() ? undefined : 30}
                 borderWidth={1}
                 borderColor={
                   selectedPattern === pattern.value

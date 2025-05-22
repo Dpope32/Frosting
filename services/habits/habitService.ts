@@ -8,35 +8,35 @@ const testHabits = [
     title: 'Morning Exercise', 
     category: 'health' as TaskCategory, 
     notificationTimeValue: '07:30', 
-    customMessage: 'Time to get moving! Your morning workout awaits.',
-    description: 'This is a test description'
+    customMessage: 'Time to get moving!',
+    description: 'Get yo fat ass up boy'
   },
   { 
     title: 'Read 30 Minutes', 
     category: 'personal' as TaskCategory, 
     notificationTimeValue: '20:00', 
-    customMessage: 'Reading time! Grab your book and relax.',
-    description: 'This is a test description'
+    customMessage: 'Reading time! ',
+    description: 'Read a book'
   },
   { 
     title: 'Meditate', 
     category: 'health' as TaskCategory, 
     notificationTimeValue: '08:15', 
-    customMessage: 'Take a moment to clear your mind with meditation.' ,
-    description: 'This is a test description'
+    customMessage: 'Take a moment to clear your mind' ,
+    description: 'Clear your mind'
     },
     { 
     title: 'Drink Water', 
     category: 'health' as TaskCategory, 
     notificationTimeValue: '', 
     customMessage: '' ,
-    description: 'This is a test description'
+    description: 'Drink water and get hydrated'
   },
   { 
     title: 'Call Family', 
     category: 'family' as TaskCategory, 
     notificationTimeValue: '19:00', 
-    customMessage: 'Don\'t forget to check in with your family today!' 
+    customMessage: 'Don\'t forget to check in!' 
   },
 ];
 

@@ -129,120 +129,88 @@ export default function NotesScreen() {
   // Patch: Use measured trash area for hit testing
   // Helper to check if the dragged card's bottom is inside the trash area
   const isYInTrashArea = () => {
-    const { y: trashTopY, height: trashHeight } = trashLayoutRef.current;
-
-    // If trash layout hasn't been measured yet, default to false.
-    if (!trashTopY || !trashHeight) {
-      console.warn('[isYInTrashArea] Trash layout not yet available.');
-      return false;
-    }
-
-    const cardBottomY = draggedCardBottomYRef.current;
-    const buffer = 100; // hardcoded card height
-    const trashBottomY = trashTopY + trashHeight;
-
-    // Accept if the card's bottom is within a buffer above the trash area
-    const isInTrash = cardBottomY >= (trashTopY - buffer) && cardBottomY <= trashBottomY;
-
-    console.log('[isYInTrashArea]', { cardBottomY, trashTopY, trashBottomY, buffer, isInTrash });
+    // Use the last touch Y position against the static threshold
+    const pointerY = lastDragPosition.current.y;
+    const threshold = trashThresholdRef.current;
+    const isInTrash = pointerY >= threshold;
+    console.log('[isYInTrashArea]', { pointerY, threshold, isInTrash });
     return isInTrash;
   };
 
   // Patch: Wrap the drag handlers to use the measured trash area
   const patchedHandleDragging = (event: any) => {
     if (!draggingNoteId || isPendingDelete) return;
-    if (noteListItemRef.current && noteListItemRef.current.measureCard) {
-      noteListItemRef.current.measureCard();
-    }
     const { pageY, pageX } = event.nativeEvent;
     lastDragPosition.current = { x: pageX, y: pageY };
-    // Use the actual card bottom Y for trash detection
     const inTrash = isYInTrashArea();
-    // Debug log for drag
     const { y: trashY, height: trashHeight } = trashLayoutRef.current;
-    console.log('[DRAGGING] cardBottomY:', draggedCardBottomYRef.current, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
+    console.log('[DRAGGING] pointerY:', pageY, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
     if (inTrash !== isHoveringTrash) {
       try {
         triggerHaptic();
         setIsHoveringTrash(inTrash);
-        if (isTrashVisible && typeof isTrashVisible.value !== 'undefined') {
+        if (isTrashVisible?.value !== undefined) {
           isTrashVisible.value = inTrash;
         }
-      } catch (error) {
-        // ...
-      }
+      } catch {}
     }
   };
 
   const patchedHandleDragEnd = (args: any) => {
-    // args: { data, from, to }
-    if (preventReorder.current === true || !draggingNoteId) {
+    if (preventReorder.current || !draggingNoteId) {
       setDraggingNoteId(null);
       isTrashVisible.value = false;
       setIsHoveringTrash(false);
       return;
     }
-    try {
-      // Use the actual card bottom Y for trash detection
-      const inTrash = isYInTrashArea();
-      // Debug log for drag end
-      const { y: trashY, height: trashHeight } = trashLayoutRef.current;
-      console.log('[DRAG END] cardBottomY:', draggedCardBottomYRef.current, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash, 'isHoveringTrash:', isHoveringTrash);
-      if ((isHoveringTrash || inTrash) && draggingNoteId) {
-        preventReorder.current = true;
-        const noteToDelete = notes.find(note => note.id === draggingNoteId);
-        if (noteToDelete) {
-          setIsPendingDelete(true);
-          setPendingDeleteNote(noteToDelete);
-          setPendingDeletePosition({
-            x: lastDragPosition.current.x,
-            y: draggedCardBottomYRef.current
-          });
-          noteToDeleteRef.current = draggingNoteId;
-          attemptDeleteNote({
-            noteId: draggingNoteId,
-            notes,
-            noteStore,
-            showToast,
-            selectedNote,
-            setIsModalOpen,
-            setSelectedNote,
-            setIsPendingDelete,
-            setPendingDeleteNote,
-            setDraggingNoteId,
-            setIsHoveringTrash,
-            noteToDeleteRef,
-            preventReorderRef: preventReorder,
-            originalIndexRef,
-            isTrashVisibleValue: isTrashVisible
-          }).catch(error => {
-            setIsPendingDelete(false);
-            setPendingDeleteNote(null);
-            setDraggingNoteId(null);
-            isTrashVisible.value = false;
-            setIsHoveringTrash(false);
-          });
-        } else {
+    const inTrash = isYInTrashArea();
+    const { y: trashY, height: trashHeight } = trashLayoutRef.current;
+    console.log('[DRAG END] pointerY:', lastDragPosition.current.y, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
+    if (inTrash) {
+      preventReorder.current = true;
+      const noteToDelete = notes.find(n => n.id === draggingNoteId);
+      if (noteToDelete) {
+        setIsPendingDelete(true);
+        setPendingDeleteNote(noteToDelete);
+        setPendingDeletePosition({ x: lastDragPosition.current.x, y: lastDragPosition.current.y });
+        noteToDeleteRef.current = draggingNoteId;
+        attemptDeleteNote({
+          noteId: draggingNoteId,
+          notes,
+          noteStore,
+          showToast,
+          selectedNote,
+          setIsModalOpen,
+          setSelectedNote,
+          setIsPendingDelete,
+          setPendingDeleteNote,
+          setDraggingNoteId,
+          setIsHoveringTrash,
+          noteToDeleteRef,
+          preventReorderRef: preventReorder,
+          originalIndexRef,
+          isTrashVisibleValue: isTrashVisible
+        }).catch(() => {
           setIsPendingDelete(false);
+          setPendingDeleteNote(null);
           setDraggingNoteId(null);
           isTrashVisible.value = false;
           setIsHoveringTrash(false);
-        }
-      } else if (!preventReorder.current) {
-        noteStore.updateNoteOrder(args.data);
+        });
+      } else {
+        setIsPendingDelete(false);
+        setDraggingNoteId(null);
+        isTrashVisible.value = false;
+        setIsHoveringTrash(false);
       }
-    } catch (error) {
-      setIsPendingDelete(false);
-      setDraggingNoteId(null);
-      isTrashVisible.value = false;
-      setIsHoveringTrash(false);
+    } else if (!preventReorder.current) {
+      noteStore.updateNoteOrder(args.data);
     }
-    try {
-      setDraggingNoteId(null);
-      isTrashVisible.value = false;
-      setIsHoveringTrash(false);
-      triggerHaptic();
-    } catch (error) {}
+    // Final cleanup
+    setDraggingNoteId(null);
+    isTrashVisible.value = false;
+    setIsHoveringTrash(false);
+    triggerHaptic();
   };
 
   const handleAddExampleNote = (note: Note) => {
