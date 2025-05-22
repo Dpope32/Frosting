@@ -53,8 +53,8 @@ export default function Index() {
       ]);
       await useNoteStore.getState().loadNotes();
 
-      if (!premium) return;                                        // non-premium? bail.
-      addSyncLog('📚 All stores hydrated', 'verbose');
+      if (!premium) return;                                       
+      addSyncLog('📚 All stores hydrated (in app/index.tsx) with local cache', 'verbose');
 
       // one-shot export
       const state = getAllStoreStates();

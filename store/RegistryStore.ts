@@ -138,22 +138,20 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
       }
-      addSyncLog('[Snapshot] UserStore, CRMStore, NoteStore, WallpaperStore: Explicitly EXCLUDING (sync_disabled: true).', 'info');
-      addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON', 'info',);
 
       // For stores that sync automatically (like CustomCategory and Tags as per user request)
       const customCategoryState = { ...useCustomCategoryStore.getState(), lastUpdated: now };
       const tagsState = { ...useTagStore.getState(), lastUpdated: now };
-        
+      addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON ' + 'pulled ' + tagsState.tags.length + ' tags and ' + customCategoryState.categories.length + ' custom categories', 'info',);
       return {
         habits: habitStateForSnapshot,
         bills: billStateForSnapshot, 
         calendar: calendarStateForSnapshot,
-        tasks: { ...useTaskStore.getState(), lastUpdated: now }, // Tasks store has its own internal sync logic for now
-        notes: { sync_disabled: true, local_only: true, lastUpdated: now }, // Excluded
-        user: { sync_disabled: true, lastUpdated: now }, // Excluded
+        tasks: { ...useTaskStore.getState(), lastUpdated: now }, 
+        notes: { sync_disabled: true, local_only: true, lastUpdated: now }, 
+        user: { sync_disabled: true, lastUpdated: now }, 
         vault: vaultStateForSnapshot, 
-        crm: { sync_disabled: true, ui_store: true, lastUpdated: now }, // Excluded
+        crm: { sync_disabled: true, ui_store: true, lastUpdated: now },
         people: peopleStateForSnapshot, 
         customCategory: customCategoryState, 
         tags: tagsState, 

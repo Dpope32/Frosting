@@ -20,22 +20,22 @@ const DEFAULT_PORT = 8090
  * Ensures the provided base URL includes a port.
  * If none present append `:8090`. Trailing slashes removed.
  */
-const withPort = (raw: string | undefined): string | undefined => {
-  if (!raw) return undefined
-  const url = raw.replace(/\/$/, '')
-  return /:\d+$/.test(url) ? url : `${url}:${DEFAULT_PORT}`
-}
+const withPort = (raw?: string): string | undefined => {
+  if (!raw) return undefined;
+  const url = raw.replace(/\/$/, '');
+  const hasPort = /:\d+$/.test(url);
+  const isPlainHttp = url.startsWith('http://');
+  return hasPort || !isPlainHttp ? url : `${url}:${DEFAULT_PORT}`;
+};
 
-const ENV_URL = withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL)
-// Primary tailscale → fallback LAN
-const CANDIDATE_URLS = [ENV_URL, `http://192.168.1.32:${DEFAULT_PORT}`].filter(Boolean) as string[]
 
-const HEALTH_TIMEOUT = 3_000
+const CANDIDATE_URLS = [
+  withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
+  withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
+].filter(Boolean) as string[];
+
+const HEALTH_TIMEOUT = 3000
 const HEALTH_PATH = '/api/health'
-// Acceptable "alive" status codes when hitting /api/health
-const OK_STATUSES = new Set([200, 401, 404])
-
-// PocketBase dynamic import type helper (preserve resolution-mode to satisfy TS)
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export type PocketBaseType = import('pocketbase', {
   with: { 'resolution-mode': 'import' }
@@ -126,8 +126,3 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
 
   addSyncLog('Logs saved in PocketBase', 'info')
 }
-
-// ===============================================
-// Update summary (1 change):
-// • Restored type-only import with "resolution-mode": "import" to silence TS complaint.
-// ===============================================

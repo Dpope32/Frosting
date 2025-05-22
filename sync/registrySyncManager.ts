@@ -51,7 +51,7 @@ export const generateSyncKey = async (): Promise<string> => {
  * @returns URI of the encrypted file.
  */
 export const exportEncryptedState = async (allStates: Record<string, any>): Promise<string> => {
-  addSyncLog('Exporting encrypted state', 'info');
+  addSyncLog('Exporting encrypted state in registrySyncManager.ts', 'info');
   Sentry.addBreadcrumb({
     category: 'sync',
     message: 'exportEncryptedState called',
