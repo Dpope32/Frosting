@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react'
 import { Animated, Dimensions } from 'react-native'
-import { YStack, Text, GetThemeValueForKey, useMedia } from 'tamagui'
+import { YStack, Text, GetThemeValueForKey, useMedia, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { useToastStore } from '@/store'
@@ -64,13 +64,13 @@ const ToastItem: React.FC<ToastItemProps> = ({
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 300,
-        useNativeDriver: true,
+        useNativeDriver: !isWeb   
       }),
       Animated.delay(duration - 600),
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 300,
-        useNativeDriver: true,
+        useNativeDriver: !isWeb
       }),
     ]).start(({ finished }) => {
       if (finished) {

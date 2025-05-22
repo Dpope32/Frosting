@@ -22,7 +22,7 @@ export default function Step0({
         toValue: 1,
         duration: 4000,
         easing: Easing.linear,
-        useNativeDriver: true,
+        useNativeDriver: !isWeb
       })
     ).start()
   }, [])

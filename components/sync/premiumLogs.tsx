@@ -1,11 +1,12 @@
 import React, { useRef, useEffect } from 'react';
-import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator } from 'react-native';
-import { Text, YStack, XStack } from 'tamagui';
+import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store';
 import { baseSpacing, fontSizes, cardRadius, getColors } from '@/components/sync/sharedStyles';
 import { clearLogQueue, setLogUpdateCallback } from '@/components/sync/syncUtils';
+import { isIpad } from '@/utils';
 
 interface PremiumLogsProps {
   isLoading: boolean;
@@ -45,6 +46,8 @@ export const PremiumLogs = ({
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colors = getColors(isDark, primaryColor);
   const fadeAnims = useRef<{[key: string]: Animated.Value}>({});
+  const wideMode = isWeb || isIpad();
+  const adjustedContentWidth = wideMode ? Math.min(700, contentWidth) : contentWidth;
 
   // Clean up logs when component unmounts
   useEffect(() => {
@@ -67,7 +70,7 @@ export const PremiumLogs = ({
       </XStack>
 
       <View style={{
-        width: contentWidth,
+        width: adjustedContentWidth,
         marginTop: 0,
         backgroundColor: colors.card,
         borderRadius: cardRadius,
@@ -107,7 +110,7 @@ export const PremiumLogs = ({
                 Animated.timing(fadeAnims.current[log.id], {
                   toValue: 1,
                   duration: 500,
-                  useNativeDriver: true,
+                  useNativeDriver: !isWeb,
                 }).start();
               }
               
@@ -194,7 +197,7 @@ export const PremiumLogs = ({
         marginTop={baseSpacing * 2}
         marginBottom={baseSpacing * 2}
         gap={baseSpacing}
-        width={contentWidth}
+        width={adjustedContentWidth}
       >
         <XStack 
           padding={baseSpacing * 2}
@@ -251,7 +254,7 @@ export const PremiumLogs = ({
               borderColor={colors.border}
               justifyContent="space-between"
               alignItems="center"
-              width={contentWidth}
+              width={adjustedContentWidth}
               alignSelf="center"
             >
               <YStack>

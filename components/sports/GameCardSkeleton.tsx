@@ -3,6 +3,7 @@
 // (Mostly unchanged except for fontFamily if you like, but here's an example with minimal additions.)
 import React from 'react'
 import { StyleSheet, View, Animated, Dimensions, useColorScheme } from 'react-native'
+import { isWeb } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 
 const { width } = Dimensions.get('window')
@@ -18,12 +19,12 @@ export const GameCardSkeleton = () => {
         Animated.timing(animatedValue, {
           toValue: 1,
           duration: 1200,
-          useNativeDriver: true,
+          useNativeDriver: !isWeb
         }),
         Animated.timing(animatedValue, {
           toValue: 0,
           duration: 1200,
-          useNativeDriver: true,
+          useNativeDriver: !isWeb
         }),
       ])
     ).start()
