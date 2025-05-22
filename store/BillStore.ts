@@ -178,7 +178,6 @@ export const useBillStore = create<BillStore>()(
           
           return { bills: newBills, monthlyIncome: newMonthlyIncome };
         });
-        addSyncLog('✅ BillStore hydration complete.', 'success');
       },
     }),
     {

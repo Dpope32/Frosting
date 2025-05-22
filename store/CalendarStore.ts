@@ -379,7 +379,6 @@ export const useCalendarStore = create<CalendarState>()(
           addSyncLog(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
           return { events: mergedEventsArray }
         })
-        addSyncLog('✅ CalendarStore hydration complete.', 'success')
       },
     }),
     {

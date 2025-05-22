@@ -11,14 +11,13 @@ export const getWorkspaceKey = async (): Promise<string> => {
   }
 
   const pb = await getPocketBase();
-  addSyncLog(`🔍 Retrieving workspace key from PocketBase`, 'info');
   const { shared_key } = await pb.collection('sync_workspaces').getOne(wsId);
   if (!shared_key) {
     addSyncLog('❌ No shared key in workspace record', 'error');
     throw new Error('Workspace has no shared_key');
   }
 
-  await storage.set(`ws_key_${wsId}`, shared_key);   // cache
+  await storage.set(`ws_key_${wsId}`, shared_key);   
   return shared_key as string;
 };
 

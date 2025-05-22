@@ -81,10 +81,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       debouncedCheck();
     },
 
-    // Always get fresh states from all stores
     getAllStoreStates: () => {
       const now = Date.now();
-      
       const billStoreFullState = useBillStore.getState();
       let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
       if (billStoreFullState.isSyncEnabled) {
@@ -95,7 +93,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
       }
-
       const vaultStoreFullState = useVaultStore.getState();
       let vaultStateForSnapshot: any = { isSyncEnabled: vaultStoreFullState.isSyncEnabled };
       if (vaultStoreFullState.isSyncEnabled) {
@@ -105,7 +102,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items.', 'info');
       }
-
       const projectStoreFullState = useProjectStore.getState();
       let projectStateForSnapshot: any = { isSyncEnabled: projectStoreFullState.isSyncEnabled };
       if (projectStoreFullState.isSyncEnabled) {
@@ -115,7 +111,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
       }
-      
       const peopleStoreFullState = usePeopleStore.getState();
       let peopleStateForSnapshot: any = { isSyncEnabled: peopleStoreFullState.isSyncEnabled };
       if (peopleStoreFullState.isSyncEnabled) {
@@ -125,8 +120,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] People (Contacts) sync OFF: Excluding contacts.', 'info');
       }
-
-      // HabitStore processing
       const habitStoreFullState = useHabitStore.getState();
       let habitStateForSnapshot: any = { isSyncEnabled: habitStoreFullState.isSyncEnabled };
       if (habitStoreFullState.isSyncEnabled) {
@@ -136,8 +129,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Habits sync OFF: Excluding habits.', 'info');
       }
-
-      // CalendarStore processing
       const calendarStoreFullState = useCalendarStore.getState();
       let calendarStateForSnapshot: any = { isSyncEnabled: calendarStoreFullState.isSyncEnabled };
       if (calendarStoreFullState.isSyncEnabled) {
@@ -147,11 +138,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
       }
-      addSyncLog('[Snapshot] UserStore: Explicitly EXCLUDING (sync_disabled: true).', 'info');
-      addSyncLog('[Snapshot] CRMStore: Explicitly EXCLUDING (sync_disabled: true, ui_store: true).', 'info');
-      addSyncLog('[Snapshot] NoteStore: Explicitly EXCLUDING (sync_disabled: true, local_only: true).', 'info');
-      addSyncLog('[Snapshot] WallpaperStore: Explicitly EXCLUDING (local_cache_only: true).', 'info');
-      addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON', 'info');
+      addSyncLog('[Snapshot] UserStore, CRMStore, NoteStore, WallpaperStore: Explicitly EXCLUDING (sync_disabled: true).', 'info');
+      addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON', 'info',);
 
       // For stores that sync automatically (like CustomCategory and Tags as per user request)
       const customCategoryState = { ...useCustomCategoryStore.getState(), lastUpdated: now };

@@ -27,3 +27,4 @@ declare module '@/sync/registrySyncManager' {
    */
   export function exportEncryptedState(allStates: Record<string, any>): Promise<string>;
 } 
+

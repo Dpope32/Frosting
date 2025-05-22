@@ -49,7 +49,7 @@ export const pushSnapshot = async (): Promise<void> => {
     const deviceId = await generateSyncKey();
     const now = Date.now();
     const state  = useRegistryStore.getState().getAllStoreStates();
-  
+    addSyncLog('🔐 stateSnapshot.enc exported (in sync/snapshotPushPull.ts) to File System ' + lastExport, 'success');
     // ✋ bail if we exported <=10 s ago
     if (now - lastExport < 10000) {
       addSyncLog('⏸️  export skipped – <10 s since last', 'verbose');
@@ -57,7 +57,7 @@ export const pushSnapshot = async (): Promise<void> => {
       await exportEncryptedState(state);
       lastExport = now;
       addSyncLog(
-        `💾 snapshot encrypted → stateSnapshot.enc (${new Date(now).toISOString()})`,
+        `💾 snapshot encrypted → stateSnapshot.enc NEW Last Export (${new Date(now).toISOString()})`,
         'info'
       );
     }

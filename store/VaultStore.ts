@@ -135,7 +135,6 @@ export const useVaultStore = create<VaultStore>()(
             },
           };
         });
-        addSyncLog('✅ VaultStore hydration complete.', 'success');
       },
     }),
     {

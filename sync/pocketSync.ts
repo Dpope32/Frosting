@@ -61,45 +61,46 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
 
 // ───────────────────────── PB FACTORY ─────────────────────────
 export const getPocketBase = async (): Promise<PocketBaseType> => {
-  addSyncLog('getPocketBase()', 'info')
+  let selected: string | undefined;
 
-  let selected: string | undefined
+  const USE_HEAD_HOSTS = [/\.ts\.net$/i];
+  const needsHead = (host: string) => USE_HEAD_HOSTS.some(re => re.test(host));
 
-  outer: for (const base of CANDIDATE_URLS) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const url = `${base}${HEALTH_PATH}`
-        Sentry.addBreadcrumb({ category: 'pocketSync', message: `Health-check ${url} (try ${attempt})`, level: 'info' })
-        addSyncLog(`Health-check ${url} (try ${attempt})`, 'info')
+  for (const base of CANDIDATE_URLS) {
+    const method = needsHead(base) ? 'HEAD' : 'GET';
+    const url = `${base}${HEALTH_PATH}`;
 
-        const controller = new AbortController()
-        const t = setTimeout(() => controller.abort(), HEALTH_TIMEOUT)
-        const res = await fetch(url, { method: 'HEAD', signal: controller.signal })
-        clearTimeout(t)
+    addSyncLog(`Health-check ${url} via ${method}`, 'verbose');
 
-        if (!OK_STATUSES.has(res.status)) throw new Error(`status ${res.status}`)
-        selected = base
-        break outer
-      } catch (err) {
-        Sentry.addBreadcrumb({ category: 'pocketSync', message: `Health-check fail (${base})`, data: { err: String(err) }, level: 'warning' })
-        await new Promise(r => setTimeout(r, 400))
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), HEALTH_TIMEOUT);
+
+    try {
+      const res = await fetch(url, { method, signal: ctrl.signal });
+      clearTimeout(t);
+
+      if (res.status === 200 || res.status === 401) {
+        addSyncLog(`✅ ${url} -> ${res.status}`, 'info');
+        selected = base;
+        break;
       }
+      addSyncLog(`⚠️ ${url} -> ${res.status}`, 'warning');
+    } catch (e) {
+      clearTimeout(t);
+      addSyncLog(`❌ ${url} network error (${e})`, 'warning');
     }
   }
 
   if (!selected) {
-    addSyncLog('Skipping sync – no PocketBase reachable', 'warning')
-    Sentry.addBreadcrumb({ category: 'pocketSync', message: 'No PocketBase reachable', level: 'error' })
-    throw new Error('SKIP_SYNC_SILENTLY')
+    addSyncLog('Skipping sync – no PocketBase reachable', 'warning');
+    throw new Error('SKIP_SYNC_SILENTLY');
   }
 
-  Sentry.addBreadcrumb({ category: 'pocketSync', message: `PocketBase selected ${selected}`, level: 'info' })
-  addSyncLog(`PocketBase selected: ${selected}`, 'info')
+  addSyncLog(`PocketBase selected: ${selected}`, 'info');
+  const { default: PocketBase } = await import('pocketbase');
+  return new PocketBase(selected);
+};
 
-  // dynamic import at runtime – no resolution-mode needed here
-  const { default: PocketBase } = await import('pocketbase')
-  return new PocketBase(selected)
-}
 
 // ───────────────────────── LOG EXPORT ─────────────────────────
 export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {

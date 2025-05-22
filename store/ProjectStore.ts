@@ -100,12 +100,11 @@ export const useProjectStore = create<ProjectStoreState>()(
           addSyncLog(`Projects hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total projects: ${newItemsArray.length}`, 'success');
           return { projects: newItemsArray };
         });
-        addSyncLog('✅ ProjectStore hydration complete.', 'success');
       },
     }),
     {
       name: 'projects',
-      storage: createPersistStorage<ProjectStoreState>(), // Ensure type matches
+      storage: createPersistStorage<ProjectStoreState>(),
     }
   )
 );

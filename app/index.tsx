@@ -59,7 +59,7 @@ export default function Index() {
       // one-shot export
       const state = getAllStoreStates();
       await exportEncryptedState(state);
-      addSyncLog('🔐 state exported', 'success');
+      addSyncLog('🔐 stateSnapshot.enc exported (in app/index) to File System ', 'success');
 
       if (finishedOnboarding) {
         await pullLatestSnapshot();

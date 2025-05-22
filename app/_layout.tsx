@@ -218,10 +218,8 @@ export default Sentry.wrap(function RootLayout() {
           addSyncLog('✅ Resume pull completed', 'success');
         } else if (nextAppState === 'background' || nextAppState === 'inactive') {
           useRegistryStore.getState().setSyncStatus('syncing');
-          addSyncLog('📤 App backgrounded – pushing snapshot', 'info');
+          addSyncLog('📤 App backgrounded – pushing snapshot in app/_layout.tsx', 'info');
           
-          //const allStates = useRegistryStore.getState().getAllStoreStates();
-          //await exportEncryptedState(allStates);
           await pushSnapshot();
           
           useRegistryStore.getState().setSyncStatus('idle');

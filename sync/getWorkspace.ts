@@ -12,11 +12,6 @@ export const getCurrentWorkspaceId = async (): Promise<string | null> => {
       const workspaceId = await FileSystem.readAsStringAsync(
         `${FileSystem.documentDirectory}workspace_id.txt`,
       );
-  
-      addSyncLog(
-        `📦 Found workspace ID: ${workspaceId}`,
-        "info",
-      );
       return workspaceId;
     } catch {
       addSyncLog(

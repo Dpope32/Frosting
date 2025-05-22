@@ -503,98 +503,66 @@ export const useProjectStore = create<ProjectStore>()(
       clearTasks: () => {
         set({ tasks: {}, todaysTasks: [] }) // Reset tasks and todaysTasks
       },
-      recalculateTodaysTasks: () => { // Implement recalculation function
-        const tasks = get().tasks;
-        const filteredTasks = taskFilter(tasks);
-        addSyncLog(`Recalculated todaysTasks. New count: ${filteredTasks.length}`, 'info');
-        // Update the state with the new filtered tasks
-        set({ todaysTasks: filteredTasks });
+      recalculateTodaysTasks: () => {
+        const { tasks } = get();
+        const before = Object.keys(tasks).length;
+      
+        // Filter ⟶ update
+        const todaysTasks = taskFilter(tasks);
+        const after = todaysTasks.length;
+      
+        addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
+        set({ todaysTasks });
       },
-      hydrateFromSync: (syncedData) => {
-        if (DEBUG) log('========== HYDRATING TASKS FROM SYNC ==========');
-        addSyncLog(`========== HYDRATING TASKS FROM SYNC ==========`, 'info');
-        if (!syncedData || !syncedData.tasks) {
-          if (DEBUG) log('No tasks data to hydrate from sync');
+      hydrateFromSync: (syncedData?: { tasks?: Record<string, Task> }) => {
+        if (!syncedData?.tasks) {
+          addSyncLog('[Tasks] No tasks field – skip', 'warning');
           return;
         }
-        
-        if (DEBUG) {
-          log(`Received ${Object.keys(syncedData.tasks).length} tasks from sync`);
-          log('First few tasks:', Object.values(syncedData.tasks).slice(0, 3).map(t => t.name));
-        }
-        addSyncLog(`Received ${Object.keys(syncedData.tasks).length} tasks from sync`, 'info');
-        // Get existing tasks to merge completion states
-        const existingTasks = get().tasks;
-        const mergedTasks: Record<string, Task> = {};
-        
-        // Process all synced tasks
-        for (const taskId in syncedData.tasks) {
-          const syncedTask = syncedData.tasks[taskId];
-          const existingTask = existingTasks[taskId];
-          
-          if (!existingTask) {
-            // If task doesn't exist locally, use the synced version
-            mergedTasks[taskId] = syncedTask;
-            addSyncLog(`New task from sync: ${syncedTask.name}`, 'info');
-            if (DEBUG) log(`New task from sync: ${syncedTask.name}`);
-          } else {
-            // Merge completion histories, prioritizing completed states
-            const mergedCompletionHistory = { ...existingTask.completionHistory };
-            
-            // Add/overwrite with completed dates from synced task
-            for (const date in syncedTask.completionHistory) {
-              if (syncedTask.completionHistory[date] === true) {
-                mergedCompletionHistory[date] = true;
-              } else if (!(date in mergedCompletionHistory)) {
-                // Only add incomplete states if we don't have any record for that date
-                mergedCompletionHistory[date] = false;
-              }
-            }
-            
-            // Use synced task as base, but with merged completion history
-            mergedTasks[taskId] = {
-              ...syncedTask,
-              completionHistory: mergedCompletionHistory,
-            };
-            
-            // Update completed flag based on today's date
-            const todayLocalStr = format(new Date(), 'yyyy-MM-dd');
-            if (syncedTask.recurrencePattern !== 'one-time') {
-              mergedTasks[taskId].completed = mergedCompletionHistory[todayLocalStr] || false;
+      
+        // 1️⃣ Cast once to the correct map type
+        const incoming = syncedData.tasks as Record<string, Task>;
+        const existing  = get().tasks;
+        const merged: Record<string, Task> = {};
+      
+        // 2️⃣ Iterate with Object.entries so TS knows inc is a Task
+        Object.entries(incoming).forEach(([id, inc]) => {
+          const curr = existing[id];
+      
+          if (!curr) {
+            addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
+            merged[id] = inc;              // ✅ inc is a Task here
+            return;
+          }
+      
+          // 3️⃣ mergedHistory is **not** a Task, so type it explicitly
+          const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
+      
+          for (const date in inc.completionHistory) {
+            if (inc.completionHistory[date] || !(date in mergedHistory)) {
+              mergedHistory[date] = inc.completionHistory[date];
             }
           }
-        }
-        
-        // Include any tasks that exist locally but not in sync
-        // This is important for tasks created after the last sync
-        for (const taskId in existingTasks) {
-          if (!syncedData.tasks[taskId]) {
-            mergedTasks[taskId] = existingTasks[taskId];
-            if (DEBUG) log(`Keeping local-only task: ${existingTasks[taskId].name}`);
+      
+          merged[id] = { ...inc, completionHistory: mergedHistory };
+        });
+      
+        // keep local-only tasks unchanged …
+        Object.entries(existing).forEach(([id, task]) => {
+          if (!merged[id]) {
+            addSyncLog(`[Tasks] keep local ${task.name}`, 'verbose');
+            merged[id] = task;
           }
-        }
-        
-        // Complete replacement of tasks with merged result
-        const newState = {
-          tasks: mergedTasks,
-          hydrated: true,
-        };
-        
-        // Apply the new state
-        set(newState);
-        
-        // Recalculate today's tasks after state update
+        });
+      
+        set({ tasks: merged, hydrated: true });
+      
         setTimeout(() => {
-          const tasks = get().tasks;
-          const updatedTodaysTasks = taskFilter(tasks);
-          set({ todaysTasks: updatedTodaysTasks });
-          
-          if (DEBUG) {
-            log(`Hydration complete. Updated today's tasks: ${updatedTodaysTasks.length}`);
-          }
-          addSyncLog(`Hydrated tasks from sync: ${updatedTodaysTasks.length} tasks`, 'info');
+          const final = taskFilter(get().tasks);
+          set({ todaysTasks: final });
+          addSyncLog(`[Tasks] hydrate done → ${Object.keys(merged).length} total, ${final.length} today`, 'info');
         }, 0);
-      },
+      },      
     }),
     {
       name: 'tasks-store',
