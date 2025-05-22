@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -59,8 +61,8 @@ jobs:
       - name: Commit and push changes
         if: env.VERSIONS_MATCH == 'false'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add -f android/app/build.gradle
           git diff --staged --quiet || git commit -m "chore: sync Android versionName to ${{ env.APP_JSON_VERSION }}"
           git push 
