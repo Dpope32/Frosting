@@ -139,7 +139,8 @@ export default function ChangeLog() {
                     </YStack>
                     <YStack flex={1} paddingVertical={12} paddingRight={16} marginLeft={4}>
                       <XStack alignItems="center" justifyContent="space-between">
-                        <Text style={{
+                        <Text 
+                         style={{
                           ...markdownStyles.heading3 as TextStyle,
                           marginBottom: 2,
                           marginTop: 0,
