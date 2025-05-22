@@ -5,7 +5,7 @@ import { XStack, YStack, Text, Button } from 'tamagui';
 import { Plus, Check } from '@tamagui/lucide-icons';
 import type { Tag } from '@/types/tag';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { DebouncedTagInput } from '@/components/shared/debouncedTagInput';
+import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { isIpad, withOpacity, getDarkerColor } from '@/utils';
 import { useToastStore, useTagStore } from '@/store';
 
@@ -251,7 +251,7 @@ export function TagSelector({
           {isAdding && (
             <YStack gap={isWeb ? "$3" : "$1"} marginLeft={-10} width="100%">
             <XStack position="relative" width="100%" maxWidth={isIpad() ? 200 : 120}>
-              <DebouncedTagInput
+              <DebouncedInput
                 width="100%"
                 placeholder="Tag Name"
                 value={newTagName}
