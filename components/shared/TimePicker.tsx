@@ -11,7 +11,6 @@ interface TimePickerProps {
   showTimePicker: boolean;
   setShowTimePicker: (show: boolean) => void;
   selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
   onTimeChange: (event: any, selectedTime?: Date) => void;
   onWebTimeChange: (date: Date) => void;
   time: string | undefined | null;
@@ -23,14 +22,13 @@ export function TimePicker({
   showTimePicker,
   setShowTimePicker,
   selectedDate,
-  setSelectedDate,
   onTimeChange,
   onWebTimeChange,
   time,
   isDark,
   primaryColor,
 }: TimePickerProps) {
-  // Handle time selection completion
+
   const handleTimeSelected = () => {
     setShowTimePicker(false);
   };

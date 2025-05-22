@@ -32,8 +32,8 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
                 }
                 pressStyle={{ opacity: 0.8, scale: 0.98 }}
                 onPress={(e) => onPatternSelect(pattern.value, e)}
-                br={isIpad() ? 20 : 16}
-                px={isIpad() ? "$3" : "$2"}
+                br={20}
+                px="$3"
                 py={isIpad() ? "$2.5" : "$1"}
                 height={isIpad() ? undefined : 30}
                 borderWidth={1}

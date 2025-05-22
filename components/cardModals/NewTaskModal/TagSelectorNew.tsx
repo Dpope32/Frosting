@@ -166,14 +166,14 @@ export function TagSelector({
       borderRadius={8}
       padding={0}
       marginVertical={0}
-      paddingHorizontal={isIpad() ? 8 : 6}
+      paddingHorizontal={isIpad() ? 8 : 2}
       mt={isWeb ? 4 : -6} 
-      ml={1}
+      ml={4}
       mb={isWeb ? 0 : 6}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={6} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
-        <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="center">
+        {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={4} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
+        <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="flex-start" alignSelf="flex-start" alignContent="flex-start" justifyContent="center">
           {tagStoreTags.map(tag => {
             const tagColor = tag.color || NEUTRAL_BORDER;
             const isSelected = tags.some(t => t.id === tag.id);
@@ -215,6 +215,7 @@ export function TagSelector({
               </Button>
             )
           })}
+
           {!isAdding && (
             keyboardVisible ? (
               <Button

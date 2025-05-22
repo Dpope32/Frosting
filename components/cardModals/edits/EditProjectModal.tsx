@@ -138,7 +138,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       open={open}
       onOpenChange={onOpenChange}
       title={
-        <XStack ai="center" space="$2">
+        <XStack ai="center"  mt={6}>
           <Button
             size="$2"
             backgroundColor="transparent"
@@ -217,7 +217,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       <YStack 
         gap="$3" 
         px={isIpad() ? '$4' : '$2.5'} 
-        pt={6}
+        pt={isIpad() ? 6 : 2}
       >
         <Separator 
           marginBottom="$2" 
