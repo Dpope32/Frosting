@@ -11,10 +11,10 @@
   Kaiba Nexus
 </h1>
 
-<div style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px; width: 100%; margin-bottom: 30px;">
-  <a href="https://kaiba.vercel.app/" style="text-decoration: none; padding: 10px 0;">Web Version</a>
-  <a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none; padding: 10px 0;">Download on App Store</a>
-  <a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none; padding: 10px 0;">Privacy Policy</a>
+<div style="display: flex; flex-direction: row; align-items: flex-start; gap: 10px; width: 100%; margin-bottom: 10px;">
+  <div style="padding: 10px 10px;"><a href="https://kaiba.vercel.app/" style="text-decoration: none;">Web Version</a></div>
+  <div style="padding: 10px 10px;"><a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none;">Download on App Store</a></div>
+  <div style="padding: 10px 10px;"><a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none;">Privacy Policy</a></div>
 </div>
 
 A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
@@ -100,10 +100,10 @@ MIT License - see [LICENSE](LICENSE) for details.
 ![Web Calendar Demo](assets/videos/hero-ambient-1.gif)
 
 ### iPad Calendar Layout
-![iPad Calendar Layout](assets/videos/hero-2.gif)
+<img src="assets/videos/hero-2.gif" style="height: 380px; width: auto;" />
 
 ### iPhone Calendar Layout
-![iPhone Calendar Layout](assets/videos/hero-3.gif)
+<img src="assets/videos/hero-3.gif" style="height: 300px; width: auto;" />
 
 ## Contributing
 
