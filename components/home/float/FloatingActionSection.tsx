@@ -237,7 +237,7 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
         iconWidth={isWeb ? 20 : iconSize}
         iconHeight={isWeb ? 20 : isIpad() ? 17 : 15}
         overlayColor={isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(0, 0, 0, 0.8)'}
-        actionsPaddingTopBottom={isWeb ? 12 : isIpad() ? 12 : 4}
+        actionsPaddingTopBottom={isWeb ? 8 : isIpad() ? 12 : 4}
         shadow={{
           shadowOpacity: 0.4,
           shadowOffset: { width: 0, height: 4 },
