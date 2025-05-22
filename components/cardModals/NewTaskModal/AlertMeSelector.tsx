@@ -1,59 +1,92 @@
 //@ts-nocheck
 import React from 'react'
-import { Pressable, View } from 'react-native'
-import { XStack, Text } from 'tamagui'
+import { Pressable, View, Switch } from 'react-native'
+import { XStack, YStack, Text } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
-import { Bell } from '@tamagui/lucide-icons'
+import { NOTIFICATION_TIME_OPTIONS } from '@/constants'
 
 interface AlertMeSelectorProps {
-  alertMe: boolean
-  onAlertMeChange: (value: boolean) => void
+  notifyOnTime: boolean
+  onNotifyOnTimeChange: (value: boolean) => void
+  notifyBefore: boolean
+  onNotifyBeforeChange: (value: boolean) => void
+  notifyBeforeTime: string
+  onNotifyBeforeTimeChange: (value: string) => void
   isDark: boolean
+  primaryColor: string
+  showTimeOptions: boolean
+  setShowTimeOptions: (show: boolean) => void
 }
 
-export function AlertMeSelector({ 
-  alertMe, 
-  onAlertMeChange, 
-  isDark 
+export function AlertMeSelector({
+  notifyOnTime,
+  onNotifyOnTimeChange,
+  notifyBefore,
+  onNotifyBeforeChange,
+  notifyBeforeTime,
+  onNotifyBeforeTimeChange,
+  isDark,
+  primaryColor,
+  showTimeOptions,
+  setShowTimeOptions
 }: AlertMeSelectorProps) {
+  const textColor = isDark ? '#ffffff' : '#000000'
+
   return (
-    <XStack alignItems="center" ml={4} justifyContent="space-between" paddingHorizontal="$2.5" marginTop="$1.5">
-      <XStack alignItems="center" gap="$2">
-        <Bell size={isIpad() ? 18 : 15} color={isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)'} />
-        <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} flexWrap="nowrap">
-          Alert me
+    <YStack space={isIpad() ? '$2' : '$1'} pl={6} mt="$2" pb="$3">
+      <XStack alignItems="center" justifyContent="space-between">
+        <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}>
+          Notify at task time
         </Text>
+        <Switch
+          value={notifyOnTime}
+          onValueChange={onNotifyOnTimeChange}
+          trackColor={{ false: '#767577', true: primaryColor }}
+          thumbColor="#f4f3f4"
+        />
       </XStack>
-      <Pressable onPress={() => onAlertMeChange(!alertMe)}
-        style={{ 
-          paddingHorizontal: 2, 
-          paddingVertical: 2, 
-          backgroundColor: alertMe ? (isDark ? '#1a1a1a' : '#f0f0f0') : 'transparent',
-          borderRadius: 8,
-        }}
-      >
-        <View style={{
-          width: 22,
-          height: 22,
-          borderWidth: 1.5,
-          borderRadius: 6,
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderColor: alertMe ? '#00C851' : '#bbb',
-          backgroundColor: alertMe 
-            ? (isDark ? '#181f1b' : '#b6f2d3') 
-            : (isDark ? '#232323' : '#f7f7f7'),
-          shadowColor: '#000',
-          shadowOpacity: 0.08,
-          shadowRadius: 2,
-          shadowOffset: { width: 0, height: 1 },
-        }}>
-          {alertMe && (
-            <Ionicons name="checkmark-sharp" size={15} color="#00C851" />
-          )}
-        </View>
-      </Pressable>
-    </XStack>
+
+      <XStack alignItems="center" justifyContent="space-between">
+        <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}>
+          Notify before task
+        </Text>
+        <Switch
+          value={notifyBefore}
+          onValueChange={onNotifyBeforeChange}
+          trackColor={{ false: '#767577', true: primaryColor }}
+          thumbColor="#f4f3f4"
+        />
+      </XStack>
+
+      {notifyBefore && (
+        <XStack alignItems="center" justifyContent="flex-start" mt="$1">
+          <Pressable onPress={() => setShowTimeOptions(!showTimeOptions)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text color={textColor} fontSize={isIpad() ? 17 : 15} mr={4}>
+              {NOTIFICATION_TIME_OPTIONS.find(opt => opt.value === notifyBeforeTime)?.label || 'Select time'}
+            </Text>
+            <Ionicons name={showTimeOptions ? 'chevron-up' : 'chevron-down'} size={18} color={textColor} />
+          </Pressable>
+        </XStack>
+      )}
+
+      {showTimeOptions && (
+        <YStack bg={isDark ? '#222222' : '#ffffff'} borderColor={isDark ? '#444444' : '#dddddd'} borderWidth={1} borderRadius={8} mt="$1" mb="$3" maxHeight={isIpad() ? 200 : 150}
+          overflow="auto"
+        >
+          {NOTIFICATION_TIME_OPTIONS.map(opt => (
+            <Pressable
+              key={opt.value}
+              onPress={() => { onNotifyBeforeTimeChange(opt.value); setShowTimeOptions(false) }}
+              style={{ padding: 8, backgroundColor: opt.value === notifyBeforeTime ? primaryColor : 'transparent' }}
+            >
+              <Text color={opt.value === notifyBeforeTime ? '#ffffff' : textColor} fontSize={isIpad() ? 17 : 15}>
+                {opt.label}
+              </Text>
+            </Pressable>
+          ))}
+        </YStack>
+      )}
+    </YStack>
   )
 } 

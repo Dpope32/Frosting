@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { YStack } from 'tamagui';
 import { useColorScheme } from '@/hooks';
-import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
+import { BaseCardAnimatedWS } from '@/components/baseModals/BaseCardAnimatedWS';
 import { useUserStore, useToastStore, useRegistryStore } from '@/store';
 import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync';
 import { addSyncLog } from '@/components/sync/syncUtils';
@@ -136,7 +136,7 @@ export default function AddDeviceModal({
   };
 
   return (
-    <BaseCardAnimated
+    <BaseCardAnimatedWS
       title={
         modalStep === 'connected' ? 'Sync Workspace' : 
         modalStep === 'showCode' ? 'Share Workspace' :
@@ -190,7 +190,7 @@ export default function AddDeviceModal({
           />
         )}
       </YStack>
-    </BaseCardAnimated>
+    </BaseCardAnimatedWS>
   );
 }
 

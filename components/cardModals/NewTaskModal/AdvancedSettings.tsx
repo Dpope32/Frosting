@@ -29,8 +29,14 @@ interface AdvancedSettingsProps {
   primaryColor: string
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
-  alertMe: boolean
-  onAlertMeChange: (alertMe: boolean) => void
+  notifyOnTime: boolean
+  onNotifyOnTimeChange: (notifyOnTime: boolean) => void
+  notifyBefore: boolean
+  onNotifyBeforeChange: (notifyBefore: boolean) => void
+  notifyBeforeTime: string
+  onNotifyBeforeTimeChange: (notifyBeforeTime: string) => void
+  showNotifyTimeOptions: boolean
+  onShowNotifyTimeOptionsChange: (show: boolean) => void
 }
 
 export function AdvancedSettings({
@@ -51,8 +57,14 @@ export function AdvancedSettings({
   primaryColor,
   isOpen,
   onOpenChange,
-  alertMe,
-  onAlertMeChange
+  notifyOnTime,
+  onNotifyOnTimeChange,
+  notifyBefore,
+  onNotifyBeforeChange,
+  notifyBeforeTime,
+  onNotifyBeforeTimeChange,
+  showNotifyTimeOptions,
+  onShowNotifyTimeOptionsChange
 }: AdvancedSettingsProps) {
   const colorScheme = useColorScheme()
   
@@ -78,7 +90,7 @@ export function AdvancedSettings({
         <XStack px={isIpad() ? "$2.5" : 5} alignItems="center" justifyContent="space-between" width="100%">
           {!isOpen && !showTimePicker && (
             <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
-              Advanced Settings
+              Advanced
             </Text>
           )}
           <XStack flex={1} justifyContent={isOpen ? "flex-end" : "flex-end"}>
@@ -161,9 +173,16 @@ export function AdvancedSettings({
               
               {time && (
                 <AlertMeSelector
-                  alertMe={alertMe}
-                  onAlertMeChange={onAlertMeChange}
+                  notifyOnTime={notifyOnTime}
+                  onNotifyOnTimeChange={onNotifyOnTimeChange}
+                  notifyBefore={notifyBefore}
+                  onNotifyBeforeChange={onNotifyBeforeChange}
+                  notifyBeforeTime={notifyBeforeTime}
+                  onNotifyBeforeTimeChange={onNotifyBeforeTimeChange}
+                  showTimeOptions={showNotifyTimeOptions}
+                  setShowTimeOptions={onShowNotifyTimeOptionsChange}
                   isDark={isDark}
+                  primaryColor={primaryColor}
                 />
               )}
             </YStack>

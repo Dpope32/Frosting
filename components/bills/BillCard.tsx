@@ -47,8 +47,8 @@ export const BillCard = ({
     <LongPressDelete onDelete={handleDelete} progressBarStyle={{ paddingHorizontal: isIpad() ? 10 : 3}} isDark={isDark}>
       <XStack
         jc="center"
-        minHeight={isWeb ? 100 : isIpad() ? 95 : 75}
-        height={isWeb ? 100 : isIpad() ? 95 : 75}
+        minHeight={isWeb ? 60 : isIpad() ? 55 : 50}
+        height={isWeb ? 60 : isIpad() ? 55 : 50}
         flexShrink={0}
         bg={isDark ? '#111' : 'rgba(234, 234, 234, 0.75)'}
         p="$3"
@@ -97,8 +97,9 @@ export const BillCard = ({
           </YStack>
         )}
 
-        <YStack flex={1} jc="center" zIndex={1} style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb? 16 : 4, marginTop: isIpad() ? 4 : 4 }}>
-          <XStack jc="space-between" ai="center" style={{ minWidth: 0, marginTop: isIpad() ? -4 : 4, paddingLeft: isWeb? 16 : 0}}>
+        <XStack flex={1} ai="center" jc="space-between" style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb ? 16 : 4 }}>
+          <XStack ai="center" space="$2" style={{ minWidth: 0, flexShrink: 1 }}>
+            <Icon size={isIpad() ? 26 : 18} color={isDark ? '#ccc' : '#666'} />
             <Text
               color={isDark ? '#cccccc' : '#222'}
               fontSize={isIpad() ? "$4" : 16}
@@ -106,33 +107,23 @@ export const BillCard = ({
               fontFamily="$body"
               numberOfLines={1}
             >
-              {bill.name}
-              {isToday && ' (due today!)'}
+              {bill.name}{isToday && ' (due today!)'}
             </Text>
           </XStack>
-
-          <XStack mt={isIpad() ? "$2" : "$1"} ai="center" gap="$1" style={{ minWidth: 0, paddingLeft: isWeb? 6 : 0, marginBottom: isWeb? 8 : 0 }}>
-            <YStack width={42} height={28} br="$6" ai="center" jc="center">
-              <Icon size={isIpad() ? 26 : 18} color={isDark ? '#ccc' : '#666'} />
-            </YStack>
-            <XStack flex={1} pl="$2" jc="space-between" style={{ minWidth: 0 }}>
-              <Paragraph color={amountColor} fontSize={isIpad() ? "$5" : 15} fontWeight={600} fontFamily="$body">
-                ${bill.amount.toFixed(2)}
-              </Paragraph>
-              <Paragraph
-                pl="$3"
-                color={isDark ? '#666' : '#666'}
-                alignSelf="flex-end"
-                fontSize={isIpad() ? "$4" : 14}
-                fontFamily="$body"
-                numberOfLines={1}
-              >
-                Due {bill.dueDate}
-                {getOrdinalSuffix(bill.dueDate)}
-              </Paragraph>
-            </XStack>
+          <XStack ai="center" space="$3">
+            <Paragraph color={amountColor} fontSize={isIpad() ? "$5" : 15} fontWeight={600} fontFamily="$body">
+              ${bill.amount.toFixed(2)}
+            </Paragraph>
+            <Paragraph
+              color={isDark ? '#666' : '#666'}
+              fontSize={isIpad() ? "$4" : 14}
+              fontFamily="$body"
+              numberOfLines={1}
+            >
+              Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
+            </Paragraph>
           </XStack>
-        </YStack>
+        </XStack>
       </XStack>
     </LongPressDelete>
   )

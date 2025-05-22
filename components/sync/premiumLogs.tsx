@@ -193,7 +193,6 @@ export const PremiumLogs = ({
       alignItems: 'center',
       justifyContent: 'center',
     }}>
-      {/* Loading indicator */}
       {isLoading && (
         <XStack 
           alignItems="center" 
@@ -208,7 +207,6 @@ export const PremiumLogs = ({
         </XStack>
       )}
 
-      {/* Main logs container */}
       <View style={{
         width: adjustedContentWidth,
         backgroundColor: colors.card,
@@ -219,13 +217,14 @@ export const PremiumLogs = ({
         maxHeight: maxHeight || (wideMode ? 600 : 450),
         alignSelf: 'center',
       }}>
-        {/* Header */}
         <XStack 
           alignItems="center" 
           justifyContent="space-between" 
-          marginBottom={baseSpacing * 1.5}
+          paddingBottom={baseSpacing}
           flexWrap={wideMode ? 'nowrap' : 'wrap'}
           gap={wideMode ? 0 : baseSpacing}
+          borderBottomWidth={1}
+          borderColor={colors.border}
         >
           <Text 
             fontSize={wideMode ? fontSizes.lg : fontSizes.md} 
@@ -245,7 +244,6 @@ export const PremiumLogs = ({
               style={{
                 padding: wideMode ? 8 : 6,
                 borderRadius: 6,
-                backgroundColor: autoScroll ? colors.success + '20' : colors.subtext + '20',
               }}
             >
               <Ionicons 
@@ -266,7 +264,7 @@ export const PremiumLogs = ({
             </TouchableOpacity>
             <TouchableOpacity onPress={clearLogs}>
               <Text 
-                color={colors.accent} 
+                color={colors.error} 
                 fontFamily="$body" 
                 fontWeight="500" 
                 fontSize={wideMode ? 15 : 14}
@@ -277,16 +275,13 @@ export const PremiumLogs = ({
           </XStack>
         </XStack>
 
-        {/* Search Bar */}
         <View style={{
-          backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5',
-          borderRadius: wideMode ? 12 : 8,
+          borderRadius: 12,
           paddingHorizontal: wideMode ? 16 : 12,
-          paddingVertical: wideMode ? 12 : 8,
-          marginBottom: baseSpacing * 1.5,
+          marginBottom: baseSpacing,
           flexDirection: 'row',
           alignItems: 'center',
-          minHeight: wideMode ? 44 : 36,
+          minHeight: wideMode ? 44 : 30,
         }}>
           <Ionicons name="search" size={wideMode ? 18 : 16} color={colors.subtext} />
           <DebouncedInput
@@ -297,6 +292,11 @@ export const PremiumLogs = ({
               color: colors.text,
               fontSize: wideMode ? 15 : 14,
               fontFamily: '$body',
+              backgroundColor: 'transparent',
+              borderRightWidth: 0,
+              borderTopWidth: 0,
+              borderLeftWidth: 0,
+              borderBottomWidth: 0,
             }}
             placeholder="Search logs..."
             placeholderTextColor={colors.subtext}
@@ -312,7 +312,6 @@ export const PremiumLogs = ({
           )}
         </View>
 
-        {/* Filter Chips */}
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
@@ -334,13 +333,12 @@ export const PremiumLogs = ({
 
         <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
         
-        {/* Log Stats */}
         <XStack 
           justifyContent="space-between" 
           alignItems="center" 
           marginBottom={baseSpacing}
           flexWrap={wideMode ? 'nowrap' : 'wrap'}
-          gap={wideMode ? 0 : baseSpacing / 2}
+          gap={wideMode ? 0 : baseSpacing}
         >
           <Text fontSize={wideMode ? fontSizes.sm : fontSizes.xs} color={colors.subtext} fontFamily="$body">
             Showing {processedLogs.length} of {syncLogs.length} logs
@@ -371,8 +369,8 @@ export const PremiumLogs = ({
         <ScrollView 
           ref={scrollViewRef}
           style={{ 
-            maxHeight: wideMode ? 450 : 350,
-            height: processedLogs.length > 0 ? (wideMode ? 400 : 300) : (wideMode ? 150 : 100),
+            maxHeight: wideMode ? 700 : 500,
+            height: processedLogs.length > 0 ? (wideMode ? 500 : 400) : (wideMode ? 350 : 250),
           }}
           contentContainerStyle={{ 
             paddingBottom: baseSpacing * 3,
@@ -517,73 +515,6 @@ export const PremiumLogs = ({
         gap={baseSpacing * 1.5}
         width={adjustedContentWidth}
       >
-        <XStack 
-          padding={wideMode ? baseSpacing * 3 : baseSpacing * 2}
-          backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.2)"}
-          borderColor={"rgba(16, 185, 129, 0.5)"}
-          borderWidth={1}
-          borderRadius={wideMode ? 12 : 8}
-          width="100%"
-          alignItems="center"
-          justifyContent="center"
-          minHeight={wideMode ? 60 : 48}
-        >
-          <Ionicons 
-            name="download-outline" 
-            size={wideMode ? 20 : 16} 
-            color="#4ade80" 
-            style={{ marginHorizontal: wideMode ? 12 : 8 }} 
-          />
-          <Text 
-            color={isDark ? "#4ade80" : "#047857"} 
-            fontSize={wideMode ? 15 : 13} 
-            fontWeight="500" 
-            fontFamily="$body" 
-            textAlign="center"
-            flex={1}
-            style={{ lineHeight: wideMode ? 22 : 18 }}
-          >
-            {!premium 
-              ? 'Premium required for automatic sync across devices'
-              : isLoading 
-                ? 'Sync in progress...'
-                : 'Local data pulls automatically on app start'}
-          </Text>
-        </XStack>
-        
-        <XStack 
-          padding={wideMode ? baseSpacing * 3 : baseSpacing * 2}
-          backgroundColor={isDark ? "rgba(140, 16, 185, 0.1)" : "rgba(62, 6, 95, 0.2)"}
-          borderColor={"rgba(154, 16, 185, 0.5)"}
-          borderWidth={1}
-          borderRadius={wideMode ? 12 : 8}
-          width="100%"
-          alignItems="center"
-          justifyContent="center"
-          minHeight={wideMode ? 60 : 48}
-        >
-          <Ionicons 
-            name="push-outline" 
-            size={wideMode ? 20 : 16} 
-            color="#8c10b9" 
-            style={{ marginHorizontal: wideMode ? 12 : 8 }} 
-          />
-          <Text 
-            color={isDark ? "#8c10b9" : "#8c10b9"} 
-            fontSize={wideMode ? 15 : 13} 
-            fontWeight="500" 
-            fontFamily="$body" 
-            textAlign="center"
-            flex={1}
-            style={{ lineHeight: wideMode ? 22 : 18 }}
-          >
-            {!premium 
-              ? 'Sign up today!'
-              : isLoading 
-                ? 'Please wait'
-                : 'Pushes changes when app goes to background'}
-          </Text>
-        </XStack>
       </YStack>
     </View>
   );

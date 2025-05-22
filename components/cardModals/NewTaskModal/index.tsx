@@ -43,7 +43,10 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [keyboardOffset, setKeyboardOffset] = useState(0)
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false)
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false)
-  const [alertMe, setAlertMe] = useState(false)
+  const [notifyOnTime, setNotifyOnTime] = useState(false)
+  const [notifyBefore, setNotifyBefore] = useState(false)
+  const [notifyBeforeTime, setNotifyBeforeTime] = useState<string>('1h')
+  const [showNotifyTimeOptions, setShowNotifyTimeOptions] = useState(false)
   const nameInputRef =  React.useRef<any>(null);
   const username = useUserStore((state) => state.preferences.username)
 
@@ -58,7 +61,9 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setSelectedDate(new Date()); 
       setIsAdvancedSettingsOpen(false);
       setIsDatePickerVisible(false);
-      setAlertMe(false);
+      setNotifyOnTime(false);
+      setNotifyBefore(false);
+      setNotifyBeforeTime('1h');
     } else {
       setTimeout(() => {
         setShowTimePicker(false);
@@ -68,7 +73,9 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         setSelectedDate(new Date());
         setIsAdvancedSettingsOpen(false);
         setIsDatePickerVisible(false);
-        setAlertMe(false);
+        setNotifyOnTime(false);
+        setNotifyBefore(false);
+        setNotifyBeforeTime('1h');
       }, 200);
     }
   }, [open]);
@@ -232,8 +239,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
           syncTasksToCalendar()
         }
         
-        // Schedule notification if alertMe is true and time is set
-        if (alertMe && taskToAdd.time) {
+        // Schedule notification if notifyOnTime is true and time is set
+        if (notifyOnTime && taskToAdd.time) {
           await scheduleNotificationForTask(taskToAdd.name, taskToAdd.time);
         }
         
@@ -251,14 +258,14 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     } finally {
       setIsSubmitting(false)
     }
-  }, [newTask, addTask, onOpenChange, showToast, isSubmitting, alertMe, scheduleNotificationForTask])
+  }, [newTask, addTask, onOpenChange, showToast, isSubmitting, notifyOnTime, scheduleNotificationForTask])
 
   const handleTagChange = useCallback((tags: Tag[]) => {
     setNewTask(prev => ({ ...prev, tags }))
   }, [])
 
   // Determine if submit button should be hidden
-  const shouldHideSubmitButton = showTimePicker || isDatePickerVisible;
+  const shouldHideSubmitButton = showTimePicker || isDatePickerVisible || showNotifyTimeOptions;
 
   return (
     <Base
@@ -328,8 +335,14 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             primaryColor={preferences.primaryColor}
             isOpen={isAdvancedSettingsOpen}
             onOpenChange={setIsAdvancedSettingsOpen}
-            alertMe={alertMe}
-            onAlertMeChange={setAlertMe}
+            notifyOnTime={notifyOnTime}
+            onNotifyOnTimeChange={setNotifyOnTime}
+            notifyBefore={notifyBefore}
+            onNotifyBeforeChange={setNotifyBefore}
+            notifyBeforeTime={notifyBeforeTime}
+            onNotifyBeforeTimeChange={setNotifyBeforeTime}
+            showNotifyTimeOptions={showNotifyTimeOptions}
+            onShowNotifyTimeOptionsChange={setShowNotifyTimeOptions}
           />
 
           {!shouldHideSubmitButton && (
@@ -337,7 +350,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               <SubmitButton 
                 isSubmitting={isSubmitting} 
                 preferences={preferences}
-                isDark={isDark}
                 onPress={handleAddTask}
               />
             </Form.Trigger>

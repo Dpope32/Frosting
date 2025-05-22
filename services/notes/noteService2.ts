@@ -10,6 +10,7 @@ import type { NoteStore } from '@/store';
 import { triggerHaptic, setupEditNote } from './noteService';
 import { GestureResponderEvent } from 'react-native';
 import React from 'react';
+import { isIpad } from '@/utils';
 
 export const calculateColumns = (screenWidth: number): number => {
   if (screenWidth > 1200) {
@@ -30,7 +31,6 @@ export const setupColumnCalculation = (
       const screenWidth = window.innerWidth;
       setNumColumns(calculateColumns(screenWidth));
     };
-
     calculateColumnsHandler();
     window.addEventListener('resize', calculateColumnsHandler);
     return () => window.removeEventListener('resize', calculateColumnsHandler);
@@ -50,6 +50,7 @@ export const createFormattingHandler = (
   };
 };
 
+// Enhanced interface with scroll-aware threshold calculation
 interface HandleDraggingArgs {
   lastDragPosition: React.MutableRefObject<{ x: number; y: number }>;
   isHoveringTrash: boolean;
@@ -57,9 +58,12 @@ interface HandleDraggingArgs {
   isTrashVisible: SharedValue<boolean>;
   draggingNoteId: string | null;
   isPendingDelete: boolean;
-  thresholdRef: React.MutableRefObject<number>;
+  thresholdRef?: React.MutableRefObject<number>; // Made optional since we'll calculate dynamically
+  scrollOffsetRef?: React.MutableRefObject<number>; // Added scroll offset
+  getDynamicThreshold?: () => number; // Function to get current threshold
 }
 
+// Updated to use dynamic threshold calculation
 export const handleDragging = ({
   isHoveringTrash,
   lastDragPosition,
@@ -68,19 +72,34 @@ export const handleDragging = ({
   draggingNoteId,
   isPendingDelete,
   thresholdRef,
+  scrollOffsetRef,
+  getDynamicThreshold,
 }: HandleDraggingArgs) => (event: GestureResponderEvent) => {
   // Only proceed if a note is currently being dragged
   if (!draggingNoteId || isPendingDelete) return;
-  const { pageY } = event.nativeEvent;
 
+  const { pageY } = event.nativeEvent;
+  
   // Ensure we capture the position even if we don't trigger other effects
   lastDragPosition.current = {
     x: event.nativeEvent.pageX,
     y: pageY
   };
-  
-  // Calculate buffer threshold so card bottom touching counts as in-trash
-  const threshold = thresholdRef.current;
+
+  // Calculate dynamic threshold that accounts for scroll position
+  let threshold: number;
+  if (getDynamicThreshold) {
+    threshold = getDynamicThreshold();
+  } else if (thresholdRef) {
+    // Fallback to static threshold if dynamic function not available
+    threshold = thresholdRef.current;
+  } else {
+    // Last resort: calculate basic threshold
+    const windowHeight = Dimensions.get('window').height;
+    const containerHeight = isIpad() ? 120 : 100;
+    threshold = windowHeight - containerHeight - 50; // 50 for safe area
+  }
+
   // Ensure we have a valid threshold before proceeding
   if (!threshold || threshold <= 0) {
     console.warn('Invalid threshold value:', threshold);
@@ -89,8 +108,14 @@ export const handleDragging = ({
 
   // Determine if the touch point is within the trash area
   const touchInTrashArea = pageY > threshold;
-  console.log('handleDragging threshold check:', { threshold, pageY, touchInTrashArea });
   
+  console.log('handleDragging threshold check:', { 
+    threshold, 
+    pageY, 
+    touchInTrashArea,
+    scrollOffset: scrollOffsetRef?.current || 0
+  });
+
   // Only trigger haptic feedback when crossing the trash area boundary
   if (touchInTrashArea !== isHoveringTrash) {
     try {
@@ -128,7 +153,9 @@ interface HandleDragEndArgs {
   preventReorderRef: React.MutableRefObject<boolean>;
   originalIndexRef: React.MutableRefObject<number | null>;
   isTrashVisibleValue: SharedValue<boolean>;
-  thresholdRef: React.MutableRefObject<number>;
+  thresholdRef?: React.MutableRefObject<number>;
+  scrollOffsetRef?: React.MutableRefObject<number>;
+  getDynamicThreshold?: () => number;
   showToast: (message: string, type: string) => void;
 }
 
@@ -154,6 +181,8 @@ export const handleDragEnd = ({
   originalIndexRef,
   isTrashVisibleValue,
   thresholdRef,
+  scrollOffsetRef,
+  getDynamicThreshold,
   showToast
 }: HandleDragEndArgs) => ({ data, from, to }: { data: Note[]; from: number; to: number }) => {
   // Safety check - ensure we aren't already processing a delete
@@ -163,29 +192,49 @@ export const handleDragEnd = ({
     setIsHoveringTrash(false);
     return;
   }
-  
+
   try {
-  // Buffer threshold strike: bottom of card touching area counts
-  const threshold = thresholdRef.current;
-  // Make sure we have a valid threshold
-  if (!threshold || threshold <= 0) {
-    console.warn('Invalid threshold value in drag end:', threshold);
-    noteStore.updateNoteOrder(data);
-    setDraggingNoteId(null);
-    isTrashVisible.value = false;
-    setIsHoveringTrash(false);
-    return;
-  }
-  
-  // Determine if the last drag position is within the trash area
-  const lastY = lastDragPosition.current.y;
-  const isOverTrash = lastY > threshold;
-  console.log('handleDragEnd threshold check:', { threshold, lastY, isHoveringTrash, isOverTrash, draggingNoteId });
+    // Calculate dynamic threshold that accounts for scroll position
+    let threshold: number;
+    if (getDynamicThreshold) {
+      threshold = getDynamicThreshold();
+    } else if (thresholdRef) {
+      threshold = thresholdRef.current;
+    } else {
+      // Last resort calculation
+      const windowHeight = Dimensions.get('window').height;
+      const containerHeight = isIpad() ? 120 : 100;
+      threshold = windowHeight - containerHeight - 50;
+    }
+
+    // Make sure we have a valid threshold
+    if (!threshold || threshold <= 0) {
+      console.warn('Invalid threshold value in drag end:', threshold);
+      noteStore.updateNoteOrder(data);
+      setDraggingNoteId(null);
+      isTrashVisible.value = false;
+      setIsHoveringTrash(false);
+      return;
+    }
+
+    // Determine if the last drag position is within the trash area
+    const lastY = lastDragPosition.current.y;
+    const isOverTrash = lastY > threshold;
     
+    console.log('handleDragEnd threshold check:', { 
+      threshold, 
+      lastY, 
+      isHoveringTrash, 
+      isOverTrash, 
+      draggingNoteId,
+      scrollOffset: scrollOffsetRef?.current || 0
+    });
+
     // If the note is in the trash area or was hovering over it, attempt to delete it
     if ((isHoveringTrash || isOverTrash) && draggingNoteId) {
       preventReorder.current = true;
       const noteToDelete = notes.find(note => note.id === draggingNoteId);
+      
       if (noteToDelete) {
         setIsPendingDelete(true);
         setPendingDeleteNote(noteToDelete);
@@ -193,10 +242,10 @@ export const handleDragEnd = ({
           x: lastDragPosition.current.x,
           y: lastDragPosition.current.y
         });
-        
+
         // Store the note ID to delete in the ref to ensure it's available during the delete process
         noteToDeleteRef.current = draggingNoteId;
-        
+
         // Call attemptDeleteNote with the correct parameters
         attemptDeleteNote({
           noteId: draggingNoteId,
@@ -254,7 +303,6 @@ export const handleDragEnd = ({
   }
 };
 
-
 export interface NoteRenderData {
   note: Note;
   isActive: boolean;
@@ -275,7 +323,6 @@ export const getNoteRenderData = (
   }
 
   const itemIndex = notes.findIndex(note => note.id === item.id);
-
   return {
     note: item,
     isActive,
@@ -306,7 +353,6 @@ export const getGhostNoteStyle = (): ViewStyle => {
     opacity: 0.9
   };
 };
-
 
 interface MoveNoteArgs {
   dragIndex: number;

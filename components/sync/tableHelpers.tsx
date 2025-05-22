@@ -21,22 +21,5 @@ export const getDeviceStatusColor = (device: Device, colors: Colors) => {
     return colors.subtext;
   };
 
-export const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
-  return React.useMemo(() => {
-    if (!premium) return 'Premium Required';
-    if (syncStatus === 'error') return 'Error';
-    if (syncStatus === 'syncing') return 'Syncing';
-    if (currentSpaceId) return 'Connected';
-    return 'Not Connected';
-  }, [premium, syncStatus, currentSpaceId]);
-};
 
-export const getStatusColor = (syncStatus: string, currentSpaceId: string, colors: Colors) => {
-  return React.useMemo(() => {
-    if (syncStatus === 'error') return colors.error;
-    if (syncStatus === 'syncing') return colors.accent;
-    if (currentSpaceId) return colors.success;
-    return colors.subtext;
-  }, [syncStatus, currentSpaceId, colors]);
-};
 

@@ -68,10 +68,8 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
     if (isNaN(hours) || isNaN(minutes)) {
       return 'No time set';
     }
-
     const period = hours >= 12 ? 'PM' : 'AM';
-    const standardHours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-
+    const standardHours = hours % 12 || 12; 
     return `${standardHours}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
   const history = getRecentHistory(habit);
@@ -201,7 +199,6 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             <Ionicons name="checkmark-circle" size={24} color="#00C851" />
           </View>
         )}
-        
         <XStack justifyContent="space-between" alignItems="center" mt={isIpad() ? 8 : 0}>
           <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
             <Pressable 
@@ -357,7 +354,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           <YStack
             borderRadius={6}
             px={isIpad() ? 8 : 0}
-            pb={isIpad() ? 4 : 0}
+            pb={isIpad() ? 6 : 4}
             mt={isIpad() ? 4 : 4}
             backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'transparent'}
             mb={history.length === 1 ? 4 : 0}

@@ -167,12 +167,12 @@ export function TagSelector({
       padding={0}
       marginVertical={0}
       paddingHorizontal={isIpad() ? 8 : 2}
-      mt={isWeb ? 4 : -6} 
+      mt={isWeb ? 4 : -10} 
       ml={4}
-      mb={isWeb ? 0 : 6}
+      mb={0}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && tagStoreTags.length === 0 && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={4} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
+        {!isAdding && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={isIpad() ? 4 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="flex-start" alignSelf="flex-start" alignContent="flex-start" justifyContent="center">
           {tagStoreTags.map(tag => {
             const tagColor = tag.color || NEUTRAL_BORDER;
@@ -191,7 +191,7 @@ export function TagSelector({
                 br={20}
                 px="$3"
                 py={isIpad() ? "$2.5" : "$1"}
-                height={isIpad() ? undefined : 30}
+                height={isWeb ? 50 : isIpad() ? undefined : 35}
                 borderWidth={1}
                 borderColor={
                   isSelected

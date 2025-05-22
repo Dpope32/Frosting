@@ -30,7 +30,6 @@ const testHabits = [
     category: 'health' as TaskCategory, 
     notificationTimeValue: '', 
     customMessage: '' ,
-    description: 'Drink water and get hydrated'
   },
   { 
     title: 'Call Family', 

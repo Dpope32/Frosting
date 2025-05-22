@@ -24,25 +24,9 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
-    const imageSource = (() => {
-      if (!profilePicture) {
-        return require('@/assets/images/adaptive-icon.png');
-      }
-      if (isWeb) {
-        if (profilePicture.startsWith('data:')) {
-          return { uri: profilePicture };
-        }
-        if (profilePicture.startsWith('file:')) {
-          return require('@/assets/images/adaptive-icon.png');
-        }
-        return { uri: profilePicture };
-      }
-      // Native: fallback for file:// URIs
-      if (profilePicture.startsWith('file:')) {
-        return require('@/assets/images/adaptive-icon.png');
-      }
-      return { uri: profilePicture };
-    })();
+    const imageSource = profilePicture
+      ? { uri: profilePicture }
+      : require('@/assets/images/adaptive-icon.png');
     
       return (
         <View style={styles.container}>

@@ -32,41 +32,14 @@ import { createNoteHandlers } from '@/services';
 export const draggedCardBottomYRef = { current: 0 };
 
 export default function NotesScreen() {
-  // Ref to store computed static trash area threshold
-  const trashThresholdRef = useRef<number>(0);
-  // Ref to store the actual trash area layout (y, height)
+  // Dynamic trash area threshold that updates with scroll
+  const scrollOffsetRef = useRef<number>(0);
   const trashLayoutRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
   const trashAreaViewRef = useRef<View>(null);
-  // Ref to the currently dragged card's View
   const noteListItemRef = useRef<any>(null);
+  const flatListRef = useRef<any>(null);
+  
   const insets = useSafeAreaInsets();
-  // Compute static threshold: window height minus trash area height and safe area bottom inset
-  useEffect(() => {
-    const windowHeight = Dimensions.get('window').height;
-    if (windowHeight <= 0) {
-      console.error("Invalid window height detected:", windowHeight);
-      return;
-    }
-    
-    const containerHeight = isIpad() ? 120 : 100;
-    const bottomInset = insets.bottom || 0;
-    const calculatedThreshold = windowHeight - containerHeight - bottomInset;
-    
-    // Validate threshold to ensure it's a positive number
-    if (calculatedThreshold <= 0) {
-      console.error("Calculated invalid trash threshold:", { 
-        windowHeight, containerHeight, bottomInset, calculatedThreshold 
-      });
-      // Fallback to a safe minimum value
-      trashThresholdRef.current = Math.max(windowHeight * 0.7, 400);  
-    } else {
-      trashThresholdRef.current = calculatedThreshold;
-    }
-    
-    console.log('Computed static trash threshold Y:', trashThresholdRef.current, {
-      windowHeight, containerHeight, bottomInset
-    });
-  }, [insets.bottom]);
   const colorScheme = useColorScheme();
   const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();
   const showToast = useToastStore(state => state.showToast);
@@ -94,6 +67,28 @@ export default function NotesScreen() {
   const lastDragPosition = useRef({ x: 0, y: 0 });
   const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
 
+  // Calculate dynamic trash threshold based on current scroll position
+  const getDynamicTrashThreshold = useCallback(() => {
+    const windowHeight = Dimensions.get('window').height;
+    const containerHeight = isIpad() ? 120 : 100;
+    const bottomInset = insets.bottom || 0;
+    
+    // Calculate the threshold relative to the current scroll position
+    const baseThreshold = windowHeight - containerHeight - bottomInset;
+    const adjustedThreshold = baseThreshold + scrollOffsetRef.current;
+    
+    console.log('Dynamic trash threshold:', { 
+      windowHeight, 
+      containerHeight, 
+      bottomInset, 
+      scrollOffset: scrollOffsetRef.current,
+      baseThreshold,
+      adjustedThreshold 
+    });
+    
+    return Math.max(adjustedThreshold, windowHeight * 0.7);
+  }, [insets.bottom]);
+
   useEffect(() => {return setupColumnCalculation(isWeb, setNumColumns)}, [isWeb]);
 
   const {  handleTagsChange, handleAddAttachment,  handleRemoveAttachment, handleSelectionChange 
@@ -104,47 +99,44 @@ export default function NotesScreen() {
   const localHandleUnderline = createFormattingHandler(formatUnderline, selection, setEditContent);
   const localHandleCode = createFormattingHandler(formatCode, selection, setEditContent);
   const localHandleBullet = createFormattingHandler(formatBullet, selection, setEditContent);
-  const localHandleDragging = handleDragging({ draggingNoteId, isPendingDelete, lastDragPosition, isHoveringTrash, setIsHoveringTrash, isTrashVisible, thresholdRef: trashThresholdRef });
-  const localHandleDragEnd = handleDragEnd({
-    isHoveringTrash, draggingNoteId, preventReorder, notes, lastDragPosition,
-    setIsPendingDelete, setPendingDeleteNote, setPendingDeletePosition,
-    noteStore, setDraggingNoteId, isTrashVisible, setIsHoveringTrash,
-    attemptDeleteNote, selectedNote, setIsModalOpen, setSelectedNote,
-    noteToDeleteRef, preventReorderRef: preventReorder, originalIndexRef,
-    isTrashVisibleValue: isTrashVisible, thresholdRef: trashThresholdRef,
-    showToast: (message: string, type: string) => {
-      showToast(message, type as ToastType);
-    }
-  });
 
-  // Helper to update trash area position using measureInWindow
-  const updateTrashAreaPosition = () => {
+  // Update trash area position using measureInWindow
+  const updateTrashAreaPosition = useCallback(() => {
     if (trashAreaViewRef.current) {
       trashAreaViewRef.current.measureInWindow((x, y, width, height) => {
         trashLayoutRef.current = { y, height };
+        console.log('Trash area position updated:', { x, y, width, height });
       });
     }
-  };
+  }, []);
 
-  // Patch: Use measured trash area for hit testing
-  // Helper to check if the dragged card's bottom is inside the trash area
-  const isYInTrashArea = () => {
-    // Use the last touch Y position against the static threshold
+  // Check if drag position is in trash area using dynamic threshold
+  const isYInTrashArea = useCallback(() => {
     const pointerY = lastDragPosition.current.y;
-    const threshold = trashThresholdRef.current;
+    const threshold = getDynamicTrashThreshold();
     const isInTrash = pointerY >= threshold;
-    console.log('[isYInTrashArea]', { pointerY, threshold, isInTrash });
+    
+    console.log('[isYInTrashArea]', { 
+      pointerY, 
+      threshold, 
+      scrollOffset: scrollOffsetRef.current,
+      isInTrash 
+    });
+    
     return isInTrash;
-  };
+  }, [getDynamicTrashThreshold]);
 
-  // Patch: Wrap the drag handlers to use the measured trash area
-  const patchedHandleDragging = (event: any) => {
+  // Enhanced drag handling with scroll-aware threshold
+  const patchedHandleDragging = useCallback((event: any) => {
     if (!draggingNoteId || isPendingDelete) return;
+    
     const { pageY, pageX } = event.nativeEvent;
     lastDragPosition.current = { x: pageX, y: pageY };
+    
     const inTrash = isYInTrashArea();
-    const { y: trashY, height: trashHeight } = trashLayoutRef.current;
-    console.log('[DRAGGING] pointerY:', pageY, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
+    
+    console.log('[DRAGGING] pointerY:', pageY, 'scrollOffset:', scrollOffsetRef.current, 'inTrash:', inTrash);
+    
     if (inTrash !== isHoveringTrash) {
       try {
         triggerHaptic();
@@ -152,28 +144,35 @@ export default function NotesScreen() {
         if (isTrashVisible?.value !== undefined) {
           isTrashVisible.value = inTrash;
         }
-      } catch {}
+      } catch (error) {
+        console.error('Error in drag handling:', error);
+      }
     }
-  };
+  }, [draggingNoteId, isPendingDelete, isHoveringTrash, isYInTrashArea]);
 
-  const patchedHandleDragEnd = (args: any) => {
+  // Enhanced drag end handling with scroll-aware threshold
+  const patchedHandleDragEnd = useCallback((args: any) => {
     if (preventReorder.current || !draggingNoteId) {
       setDraggingNoteId(null);
       isTrashVisible.value = false;
       setIsHoveringTrash(false);
       return;
     }
+    
     const inTrash = isYInTrashArea();
-    const { y: trashY, height: trashHeight } = trashLayoutRef.current;
-    console.log('[DRAG END] pointerY:', lastDragPosition.current.y, 'trashY:', trashY, 'trashHeight:', trashHeight, 'inTrash:', inTrash);
+    
+    console.log('[DRAG END] pointerY:', lastDragPosition.current.y, 'scrollOffset:', scrollOffsetRef.current, 'inTrash:', inTrash);
+    
     if (inTrash) {
       preventReorder.current = true;
       const noteToDelete = notes.find(n => n.id === draggingNoteId);
+      
       if (noteToDelete) {
         setIsPendingDelete(true);
         setPendingDeleteNote(noteToDelete);
         setPendingDeletePosition({ x: lastDragPosition.current.x, y: lastDragPosition.current.y });
         noteToDeleteRef.current = draggingNoteId;
+        
         attemptDeleteNote({
           noteId: draggingNoteId,
           notes,
@@ -206,15 +205,15 @@ export default function NotesScreen() {
     } else if (!preventReorder.current) {
       noteStore.updateNoteOrder(args.data);
     }
+    
     // Final cleanup
     setDraggingNoteId(null);
     isTrashVisible.value = false;
     setIsHoveringTrash(false);
     triggerHaptic();
-  };
+  }, [draggingNoteId, isYInTrashArea, notes, noteStore, showToast, selectedNote, setIsModalOpen, setSelectedNote, setIsPendingDelete, setPendingDeleteNote, setDraggingNoteId, setIsHoveringTrash]);
 
   const handleAddExampleNote = (note: Note) => {
-    // Create a new note with a unique ID but keep the content from the example note
     const newNote = {
       ...note,
       id: Math.random().toString(36).substring(2, 15),
@@ -225,10 +224,14 @@ export default function NotesScreen() {
     console.log('[handleAddExampleNote] Adding example note with ID:', newNote.id, 'and title:', newNote.title);
     console.log('[handleAddExampleNote] New note object:', newNote);
 
-    // Add the note to the store
     noteStore.addNote(newNote);
     showToast(`Added example note: ${newNote.title}`, 'success');
   };
+
+  // Handle scroll events to track scroll position
+  const handleScroll = useCallback((event: any) => {
+    scrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+  }, []);
 
   return (
     <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0}>
@@ -294,10 +297,13 @@ export default function NotesScreen() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <View style={{ flex: 1, overflow: 'visible' }} onTouchMove={draggingNoteId ? patchedHandleDragging : undefined}>
             <DraggableFlatList
+              ref={flatListRef}
               style={{ overflow: 'visible' }}
               dragItemOverflow={true}
               data={notes}
               keyExtractor={(item) => item.id}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
               renderItem={({ item, drag, isActive }) => (
                 <NoteListItem
                   ref={noteListItemRef}
@@ -332,7 +338,11 @@ export default function NotesScreen() {
                   triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
                 }
               }}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 500, paddingTop: 8}}
+              contentContainerStyle={{ 
+                paddingHorizontal: 16, 
+                paddingBottom: insets.bottom + 120, // Reduced from 500 to 120
+                paddingTop: 8
+              }}
               ListEmptyComponent={ 
                 <NotesEmpty 
                   isDark={isDark} 

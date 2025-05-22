@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.1.241',
+    date: '2025-05-22',
+    notes: 'Finishing Touches',
+    bullets: [
+      'Added long press delete into CRM screen to delete contacts',
+      'Made billcards smaller to mimic excel like rows',
+      'Fixed bug of time re rendering in the new task modal',
+      'Users can now schedule notifications to be sent with todos (before or at time of event)',
+    ],
+  },
+  {
     version: '1.1.231',
     date: '2025-05-22',
     notes: 'Enhanced Light Mode',

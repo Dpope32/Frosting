@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { useUserStore } from '@/store';
-import { baseSpacing } from './sharedStyles';
+import { baseSpacing, cardRadius, getColors } from './sharedStyles';
 
 interface NeedsWorkspaceProps {
   isDark: boolean;
@@ -13,9 +13,20 @@ interface NeedsWorkspaceProps {
 
 export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJoin }: NeedsWorkspaceProps) {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-
+  const colors = getColors(isDark, primaryColor);
   return (
-    <YStack alignItems="center" justifyContent="space-between" marginTop={-baseSpacing * 1.5} width={width || '100%'}>
+    <View style={{
+      width: '95%',
+      backgroundColor: colors.card,
+      borderRadius: cardRadius, 
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingTop: baseSpacing * 2,
+      paddingBottom: baseSpacing * 1.5,
+      maxHeight: 450,
+      alignSelf: 'center',
+    }}>
+    <YStack alignItems="center" justifyContent="space-between" marginTop={-baseSpacing} width={width || '100%'}>
       <View style={[styles.noWorkspaceContainer, width ? { width } : undefined]}>
         <Text 
             fontSize={isWeb ? 16 : 15} 
@@ -24,7 +35,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
             fontFamily="$body"
             textAlign="center"
         >
-            Your device is not connected to a workspace!
+            You're not connected to a workspace!
         </Text>
         <XStack alignItems="center" justifyContent="center" gap={12} marginTop={8}>
           <TouchableOpacity 
@@ -47,6 +58,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
         </XStack>
       </View>
     </YStack>
+    </View>
   )
 }
 
@@ -55,7 +67,6 @@ const styles = StyleSheet.create({
       width: '100%',
       padding: 12,
       borderRadius: 12,
-      marginBottom: 10,
       alignItems: 'center',
     },
     workspaceButton1: {

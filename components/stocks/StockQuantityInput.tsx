@@ -2,7 +2,6 @@ import React from 'react'
 import { XStack, Text, Input, useTheme } from 'tamagui'
 import { useColorScheme, TextInput } from 'react-native'
 import { MaterialIcons } from '@expo/vector-icons'
-import { sizing } from './sizing'
 
 interface StockQuantityInputProps {
   value: string

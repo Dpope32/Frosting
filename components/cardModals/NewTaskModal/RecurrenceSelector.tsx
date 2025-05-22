@@ -1,6 +1,6 @@
 import React from 'react'
 import { useColorScheme } from 'react-native'
-import {  XStack, Text, Button, ScrollView } from 'tamagui'
+import {  XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { RecurrencePattern } from '@/types'
 import { RECURRENCE_PATTERNS } from '@/services'
 import { getRecurrenceColor, withOpacity, isIpad } from '@/utils'
@@ -35,7 +35,7 @@ export function RecurrenceSelector({ selectedPattern, onPatternSelect }: Recurre
                 br={20}
                 px="$3"
                 py={isIpad() ? "$2.5" : "$1"}
-                height={isIpad() ? undefined : 30}
+                height={isWeb ? 50 : isIpad() ? undefined : 35}
                 borderWidth={1}
                 borderColor={
                   selectedPattern === pattern.value

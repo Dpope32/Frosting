@@ -40,23 +40,24 @@ export function TimePicker({
         onPress={() => setShowTimePicker(!showTimePicker)}
         style={{
           width: '102%',
-          height: 45,
+          height: time ? 35 : 45,
           borderRadius: 12,
-          borderWidth: 2,
-          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          borderWidth: time ? 0 : 2,
+          borderColor: time ? 'transparent' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: isIpad() ? 16 : 12,
+          paddingHorizontal: isIpad() ? 16 : time ? 6 : 16,
+          paddingRight: isIpad() ? 16 : time ? 8 : 16,
           justifyContent: 'space-between',
           backgroundColor: time ? 'transparent' : (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.01)'),
-          marginTop: 0,
-          marginBottom: 10,
+          marginTop: time ? -6 : 0,
+          marginBottom: time ? 0 : 10,
         }}
       >
         <Text
           fontFamily="$body"
-          color={time ? (isDark ? '#f3f3f3' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
+          color={time ? (isDark ? '#ccc' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
           fontSize={isIpad() ? 17 : 14}
           style={{ flex: 1 }}
           fontWeight="500"

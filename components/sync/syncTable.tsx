@@ -9,7 +9,7 @@ import { useProjectStore } from '@/store/ProjectStore';
 import { usePeopleStore } from '@/store/People';
 import { useHabitStore } from '@/store/HabitStore';
 import { useCalendarStore } from '@/store/CalendarStore';
-import { baseSpacing, cardRadius, fontSizes, getColors, buttonRadius, getDeviceIcon, getDeviceStatusColor, getConnectionStatus, getStatusColor } from '@/components/sync';
+import { baseSpacing, cardRadius, fontSizes, getColors, buttonRadius, getDeviceIcon, getDeviceStatusColor, Colors } from '@/components/sync';
 
 export interface Device {
   id: string;
@@ -66,9 +66,26 @@ export default function SyncTable({
   const isCalendarSyncEnabled = useCalendarStore((state) => state.isSyncEnabled);
   const toggleCalendarSync = useCalendarStore((state) => state.toggleCalendarSync);
   
-  const connectionStatus = getConnectionStatus(premium, syncStatus, currentSpaceId);
+
+   const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
+    return React.useMemo(() => {
+      if (!premium) return 'Premium Required';
+      if (syncStatus === 'error') return 'Error';
+      if (syncStatus === 'syncing') return 'Syncing';
+      if (currentSpaceId) return 'Connected';
+      return 'Not Connected';
+    }, [premium, syncStatus, currentSpaceId]);
+  };
+
+     const getStatusColor = () => {
+    return React.useMemo(() => {
+      if (syncStatus === 'error') return colors.error;
+      if (syncStatus === 'syncing') return colors.accent;
+      if (currentSpaceId) return colors.success;
+      return colors.subtext;
+    }, [syncStatus, currentSpaceId, colors]);
+  };
   
-  const statusColor = getStatusColor(syncStatus, currentSpaceId, colors);
 
   const syncSettings = [
     { key: 'bills', label: 'Bills', enabled: isBillSyncEnabled, toggle: toggleBillSync },
@@ -123,10 +140,10 @@ export default function SyncTable({
             width: 8,
             height: 8,
             borderRadius: 4,
-            backgroundColor: statusColor,
+            backgroundColor: getStatusColor(),
           }} />
-          <Text fontSize={fontSizes.sm} fontFamily="$body" color={statusColor} fontWeight="500">
-            {connectionStatus}
+          <Text fontSize={fontSizes.sm} fontFamily="$body" color={getStatusColor()} fontWeight="500">
+            {getConnectionStatus(premium, syncStatus, currentSpaceId)}
           </Text>
         </XStack>
       </XStack>
@@ -168,7 +185,6 @@ export default function SyncTable({
         </XStack>
       )}
 
-      {/* Current Space ID */}
       {currentSpaceId && (
         <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
           <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
@@ -262,88 +278,12 @@ export default function SyncTable({
         </>
       )}
 
-      {/* Sync Settings */}
       {premium && (
         <>
           <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-          <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
-            <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
-              Sync Settings
-            </Text>
-            <TouchableOpacity 
-              onPress={() => {
-                // Toggle all sync settings
-                const shouldEnable = enabledSyncCount < syncSettings.length;
-                syncSettings.forEach(setting => {
-                  if (setting.enabled !== shouldEnable) {
-                    setting.toggle();
-                  }
-                });
-              }}
-            >
-              <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.accent} fontWeight="500">
-                {enabledSyncCount === syncSettings.length ? 'Disable All' : 'Enable All'}
-              </Text>
-            </TouchableOpacity>
-          </XStack>
-
-          {wideMode ? (
-            <XStack gap={baseSpacing * 2}>
-              <YStack flex={1} gap={baseSpacing}>
-                {syncSettings.slice(0, 3).map((setting, index) => (
-                  <React.Fragment key={setting.key}>
-                    <XStack alignItems="center" justifyContent="space-between">
-                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
-                        {setting.label}
-                      </Text>
-                      <Button
-                        size="$2"
-                        backgroundColor={setting.enabled ? colors.success : colors.disabled}
-                        onPress={setting.toggle}
-                        borderRadius={buttonRadius}
-                        paddingHorizontal={baseSpacing * 1.5}
-                        pressStyle={{ scale: 0.97 }}
-                        animation="quick"
-                      >
-                        <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
-                          {setting.enabled ? 'ON' : 'OFF'}
-                        </Text>
-                      </Button>
-                    </XStack>
-                    {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
-                  </React.Fragment>
-                ))}
-              </YStack>
-              
-              <YStack flex={1} gap={baseSpacing}>
-                {syncSettings.slice(3).map((setting, index) => (
-                  <React.Fragment key={setting.key}>
-                    <XStack alignItems="center" justifyContent="space-between">
-                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
-                        {setting.label}
-                      </Text>
-                      <Button
-                        size="$2"
-                        backgroundColor={setting.enabled ? colors.success : colors.disabled}
-                        onPress={setting.toggle}
-                        borderRadius={buttonRadius}
-                        paddingHorizontal={baseSpacing * 1.5}
-                        pressStyle={{ scale: 0.97 }}
-                        animation="quick"
-                      >
-                        <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
-                          {setting.enabled ? 'ON' : 'OFF'}
-                        </Text>
-                      </Button>
-                    </XStack>
-                    {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
-                  </React.Fragment>
-                ))}
-              </YStack>
-            </XStack>
-          ) : (
-            <YStack gap={baseSpacing}>
-              {syncSettings.map((setting, index) => (
+          <XStack gap={baseSpacing * 2}>
+            <YStack flex={1} gap={baseSpacing}>
+              {syncSettings.slice(0, 3).map((setting, index) => (
                 <React.Fragment key={setting.key}>
                   <XStack alignItems="center" justifyContent="space-between">
                     <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
@@ -363,13 +303,37 @@ export default function SyncTable({
                       </Text>
                     </Button>
                   </XStack>
-                  {index < syncSettings.length - 1 && (
-                    <View style={{ height: 1, backgroundColor: colors.border }} />
-                  )}
+                  {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
                 </React.Fragment>
               ))}
             </YStack>
-          )}
+
+            <YStack flex={1} gap={baseSpacing}>
+              {syncSettings.slice(3).map((setting, index) => (
+                <React.Fragment key={setting.key}>
+                  <XStack alignItems="center" justifyContent="space-between">
+                    <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
+                      {setting.label}
+                    </Text>
+                    <Button
+                      size="$2"
+                      backgroundColor={setting.enabled ? colors.success : colors.disabled}
+                      onPress={setting.toggle}
+                      borderRadius={buttonRadius}
+                      paddingHorizontal={baseSpacing * 1.5}
+                      pressStyle={{ scale: 0.97 }}
+                      animation="quick"
+                    >
+                      <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                        {setting.enabled ? 'ON' : 'OFF'}
+                      </Text>
+                    </Button>
+                  </XStack>
+                  {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                </React.Fragment>
+              ))}
+            </YStack>
+          </XStack>
         </>
       )}
     </View>

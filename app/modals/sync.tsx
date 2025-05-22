@@ -156,7 +156,7 @@ export default function SyncScreen() {
             style={{ textAlign: 'center', flex: 1 }}
             fontFamily="$body"
           >
-            Sync Devices
+            Sync
           </Text>
         </XStack>
 
@@ -181,7 +181,18 @@ export default function SyncScreen() {
             }}            
           />
         </XStack>
-
+        {showAddDevice && (
+        <AddDeviceModal
+          onClose={() => {
+            setShowAddDevice(false)
+            setInitialModalMode(undefined)
+          }}
+          initialMode={initialModalMode}
+          currentWorkspaceId={workspaceId}
+          onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
+          onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
+        />
+      )}
         {workspaceId && premium && (
           <XStack alignItems="center" justifyContent="center">
             <TouchableOpacity onPress={handleLeaveWorkspace}>
@@ -215,7 +226,7 @@ export default function SyncScreen() {
           <XStack
             alignItems="center"
             justifyContent="center"
-            marginTop={baseSpacing * 2}
+            marginTop={baseSpacing}
           >
             <View style={{ width: contentWidth }}>
               <PremiumLogs
@@ -235,19 +246,6 @@ export default function SyncScreen() {
           </XStack>
         )}
       </YStack>
-
-      {showAddDevice && (
-        <AddDeviceModal
-          onClose={() => {
-            setShowAddDevice(false)
-            setInitialModalMode(undefined)
-          }}
-          initialMode={initialModalMode}
-          currentWorkspaceId={workspaceId}
-          onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
-          onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
-        />
-      )}
     </ScrollView>
   )
 }
