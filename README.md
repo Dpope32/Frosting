@@ -11,26 +11,31 @@
   Kaiba Nexus
 </h1>
 
-<div style="display: flex; flex-direction: row; align-items: flex-start; gap: 10px; width: 100%; margin-bottom: 10px;">
+<div style="display: flex; flex-direction: row; align-items: flex-start; gap: 10px; width: 100%; margin-bottom: 30px;">
   <div style="padding: 10px 10px;"><a href="https://kaiba.vercel.app/" style="text-decoration: none;">Web Version</a></div>
   <div style="padding: 10px 10px;"><a href="https://apps.apple.com/us/app/kaiba-nexus/id6743065823" style="text-decoration: none;">Download on App Store</a></div>
   <div style="padding: 10px 10px;"><a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none;">Privacy Policy</a></div>
 </div>
 
-A feature-rich personal dashboard app built with React Native and Expo, designed to help you manage your life with style.
+### A feature-rich personal management app built with React Native and Expo, designed to help you manage your life with style. 
+- **Sync Engine**: Seamlessly synchronize your data across all your devices with our powerful sync engine
+- **Offline Capability**: Built with a local-first approach, the app works fully offline. It pulls the latest information on startup and saves all your data when closed
+- **Customizable Sync**: You have complete control over what data gets synchronized. Choose exactly which modules to sync across your devices
+- **Privacy-First Design**: All data is encrypted at rest and in transit using AES-256 cryptography. Your information remains private - even we can't access it. Your devices are the only machines with the key to decrypt your data. Note: This security model means we cannot help recover data if you lose all your devices. Premium users with multiple devices effectively have "backups" of their data.
 
 ## Features
 
 - **📝Notes**: Create rich notes with with Markdown formatting and drag-and-drop organization
 - **✅Todo List**: Manage tasks with recurring, one-time todos, priority levels, and categories
-- **📅Calendar**: Track birthdays, bills, events, and more
+- **📅Calendar**: Track birthdays, bills, events, sync with native device calendar, and more
 - **👤CRM**: Manage contacts with attributes like Payment Methods, Addresses, Birthdays (recieve notifications on day of to remind you to wish them a happy birthday)
 - **🔒Password Vault**: Securely store passwords locally using Cryptograpgy
-- **💰Finance Tracking**: Monitor portfolio with real-time stock updates
+- **💰Finance Tracking**: Monitor portfolio with real-time stock updates and a screen to manage your bills (comes in handy with spouses syncing their bills!)
 - **🔄Year Progress Bar**: Visualize the current year's progress
 - **🌤️Weather**: 5 Day forecast with animations and current temp! 
 - **🌐Network**: Check your network speed and ping right from the app
-- **🏀NBA**: Follow your favorite teams' schedules
+- **🏀NBA**: Follow your favorite teams' schedules (deprecated during offseason)
+- **🏆Project Tracker**: Track your projects, attach other people, notes, pictures, and more
 - **☑️HabitTracker** Track your habits, recieve notification reminders on mobile
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
