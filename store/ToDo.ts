@@ -506,35 +506,7 @@ export const useProjectStore = create<ProjectStore>()(
       recalculateTodaysTasks: () => { // Implement recalculation function
         const tasks = get().tasks;
         const filteredTasks = taskFilter(tasks);
-        if (DEBUG) {
-          log("Recalculating todaysTasks. New count:", filteredTasks.length);
-          
-          // Log bill-specific tasks for debugging
-          const billTasks = filteredTasks.filter(t => t.category === 'bills');
-          if (billTasks.length > 0) {
-            log("Bills showing today:", billTasks.map(t => ({
-              name: t.name,
-              dueDate: t.dueDate,
-              today: new Date().getDate()
-            })));
-          }
-          
-          // Verify each task's visibility
-          const today = new Date();
-          const currentDateStrLocal = format(today, 'yyyy-MM-dd');
-          
-          Object.values(tasks).forEach(task => {
-            if (task.category === 'bills' && task.dueDate) {
-              const isDue = isTaskDue(task, today);
-              const shouldBeVisible = today.getDate() === task.dueDate;
-              
-              if (isDue !== shouldBeVisible) {
-                log(`⚠️ Task visibility mismatch for bill "${task.name}": isDue=${isDue}, shouldBeVisible=${shouldBeVisible}, dueDate=${task.dueDate}, today=${today.getDate()}`);
-              }
-            }
-          });
-        }
-        
+        addSyncLog(`Recalculated todaysTasks. New count: ${filteredTasks.length}`, 'info');
         // Update the state with the new filtered tasks
         set({ todaysTasks: filteredTasks });
       },

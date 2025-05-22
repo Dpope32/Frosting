@@ -9,7 +9,7 @@
 
 import * as FileSystem from "expo-file-system";
 import { decryptSnapshot } from "@/lib/encryption";
-import { generateSyncKey } from "@/sync/registrySyncManager";
+import { generateSyncKey, exportEncryptedState } from "@/sync/registrySyncManager";
 import { useRegistryStore } from "@/store/RegistryStore";
 import { useUserStore } from "@/store/UserStore";
 import * as Sentry from "@sentry/react-native";
@@ -17,7 +17,7 @@ import { checkNetworkConnectivity, getPocketBase } from "./pocketSync";
 import { getCurrentWorkspaceId } from "./getWorkspace";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { getWorkspaceKey } from "./workspaceKey";
-
+let lastExport = 0; 
 // ————————————————————— PUSH ——————————————————————
 export const pushSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
@@ -47,8 +47,23 @@ export const pushSnapshot = async (): Promise<void> => {
     if (!workspaceId) throw new Error("No workspace configured");
 
     const deviceId = await generateSyncKey();
+    const now = Date.now();
+    const state  = useRegistryStore.getState().getAllStoreStates();
+  
+    // ✋ bail if we exported <=10 s ago
+    if (now - lastExport < 10000) {
+      addSyncLog('⏸️  export skipped – <10 s since last', 'verbose');
+    } else {
+      await exportEncryptedState(state);
+      lastExport = now;
+      addSyncLog(
+        `💾 snapshot encrypted → stateSnapshot.enc (${new Date(now).toISOString()})`,
+        'info'
+      );
+    }
+  
     const cipher = await FileSystem.readAsStringAsync(
-      `${FileSystem.documentDirectory}stateSnapshot.enc`,
+      `${FileSystem.documentDirectory}stateSnapshot.enc`
     );
 
     await pb.collection("registry_snapshots").create({
