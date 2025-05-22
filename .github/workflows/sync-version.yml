@@ -3,9 +3,8 @@ name: Sync Version Numbers
 on:
   push:
     branches:
-      - main
-    paths:
-      - 'app.json'
+      - master
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   sync-versions:
@@ -21,22 +20,47 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Extract version from app.json
-        id: extract-version
+      - name: Check version mismatch
+        id: check-versions
         run: |
-          VERSION=$(node -e "console.log(require('./app.json').expo.version)")
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Version extracted from app.json: $VERSION"
+          # Extract version from app.json
+          APP_JSON_VERSION=$(node -e "console.log(require('./app.json').expo.version)")
+          echo "APP_JSON_VERSION=$APP_JSON_VERSION" >> $GITHUB_ENV
+          
+          # Extract version from build.gradle if it exists
+          if [ -f "android/app/build.gradle" ]; then
+            GRADLE_VERSION=$(grep -o 'versionName "[^"]*"' android/app/build.gradle | cut -d'"' -f2)
+            echo "GRADLE_VERSION=$GRADLE_VERSION" >> $GITHUB_ENV
+            
+            # Check if versions match
+            if [ "$APP_JSON_VERSION" != "$GRADLE_VERSION" ]; then
+              echo "Versions don't match: app.json=$APP_JSON_VERSION, build.gradle=$GRADLE_VERSION"
+              echo "VERSIONS_MATCH=false" >> $GITHUB_ENV
+            else
+              echo "Versions match: $APP_JSON_VERSION"
+              echo "VERSIONS_MATCH=true" >> $GITHUB_ENV
+            fi
+          else
+            echo "Warning: android/app/build.gradle file not found"
+            echo "VERSIONS_MATCH=false" >> $GITHUB_ENV
+          fi
 
       - name: Update Android build.gradle
+        if: env.VERSIONS_MATCH == 'false'
         run: |
-          sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.APP_VERSION }}\"/" android/app/build.gradle
-          echo "Updated Android versionName to ${{ env.APP_VERSION }}"
+          if [ -f "android/app/build.gradle" ]; then
+            sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.APP_JSON_VERSION }}\"/" android/app/build.gradle
+            echo "Updated Android versionName from ${{ env.GRADLE_VERSION }} to ${{ env.APP_JSON_VERSION }}"
+          else
+            echo "Error: android/app/build.gradle file not found"
+            exit 1
+          fi
 
       - name: Commit and push changes
+        if: env.VERSIONS_MATCH == 'false'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add android/app/build.gradle
-          git diff --staged --quiet || git commit -m "chore: sync Android versionName to ${{ env.APP_VERSION }}"
+          git diff --staged --quiet || git commit -m "chore: sync Android versionName to ${{ env.APP_JSON_VERSION }}"
           git push 
