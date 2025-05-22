@@ -34,9 +34,11 @@ A feature-rich personal dashboard app built with React Native and Expo, designed
 - **☑️HabitTracker** Track your habits, recieve notification reminders on mobile
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
-**Coming Soon**: 
-1. Cross-Device Sync with Pocketbase integration (all encrypted with AES-256 of course)
-2. Feature Request powered by FeatureBase
+**Premium Features**: 
+- Coming soon all for $3/month 
+1. Cross-Device Sync (all encrypted with AES-256 of course)
+2. Unlimited Devices 
+3. Choose what you want to sync (Notes, Todos, Calendar, CRM, Password Vault)
 
 ![Home Screen Preview](assets/screenshots/web/loaded.png)
 
@@ -94,15 +96,27 @@ npx start web-dev
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## Calendar Layout
+### Web Calendar Layout
 ![Web Calendar Demo](assets/videos/hero-ambient-1.gif)
-![iPad App Preview](assets/videos/hero-2.gif)
-![iPhone App Preview](assets/videos/hero-3.gif)
+
+### iPad Calendar Layout
+![iPad Calendar Layout](assets/videos/hero-2.gif)
+
+### iPhone Calendar Layout
+![iPhone Calendar Layout](assets/videos/hero-3.gif)
 
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request. 
-  - On every commit, github actions runs npx expo-docotr and yarn install
+
+## CI/CD Workflows
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+- **Version Sync**: Automatically updates Android's build.gradle versionName to match the version in app.json when app.json changes
+- **Expo Doctor**: Runs npx expo-doctor on every push to verify project configuration health
+- **Dependency Check**: Runs yarn install on every push and pull request to ensure dependencies are properly installed
+
 
 ## License
 

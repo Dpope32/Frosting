@@ -1,0 +1,42 @@
+name: Sync Version Numbers
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app.json'
+
+jobs:
+  sync-versions:
+    name: Sync version from app.json to build.gradle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Extract version from app.json
+        id: extract-version
+        run: |
+          VERSION=$(node -e "console.log(require('./app.json').expo.version)")
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version extracted from app.json: $VERSION"
+
+      - name: Update Android build.gradle
+        run: |
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${{ env.APP_VERSION }}\"/" android/app/build.gradle
+          echo "Updated Android versionName to ${{ env.APP_VERSION }}"
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add android/app/build.gradle
+          git diff --staged --quiet || git commit -m "chore: sync Android versionName to ${{ env.APP_VERSION }}"
+          git push 
