@@ -17,3 +17,5 @@ export * from './useProjects';
 export * from './useSportsAPI';
 export * from './useStoicQuote';
 export * from './useVault';
+export * from './useAppStateSync';
+export * from './useAppUpdateCheck';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { LandingPage } from '@/components/LandingPage';
 import { View, Text } from 'react-native';
-import * as Sentry from '@sentry/react-native'; 
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, errorMessage: string}> {
   constructor(props: {children: React.ReactNode}) {

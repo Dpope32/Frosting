@@ -1,110 +1,19 @@
-// @ts-nocheck
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isWeb } from 'tamagui';
 import { Header } from '@/components/Header';
-import { View, Image, Text, Platform, TouchableOpacity, Pressable } from 'react-native'; 
-
-import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { View, Platform } from 'react-native'; 
+import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store';
-import { memo, useCallback, useMemo } from 'react';
 import { useDrawerStyles } from '../../components/shared/styles';
-import { LegalButton } from '@/components/drawer/LegalButton';
-import  { ChangeLogButton } from '@/components/drawer/changeLogButton';
 import { isIpad } from '@/utils';
 import { DRAWER_ICONS } from '@/constants';
-import { useRouter } from 'expo-router';
-import { XStack } from 'tamagui';
-import * as Haptics from 'expo-haptics';
-import { Ionicons } from '@expo/vector-icons';
+import { DrawerContent } from '@/components/drawer/DrawerContent';
 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
-
-const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb, isIpadDevice }: { 
-  props: DrawerContentComponentProps; 
-  username: string | undefined;
-  profilePicture: string | undefined | null;
-  styles: any;
-  isWeb: boolean;
-  isIpadDevice: boolean;
-}) => {
-  const router = useRouter();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const textColor = colorScheme === 'dark' ? '#FCF5E5' : '#000000';
-  const imageSource = (() => {
-    if (!profilePicture) {
-      return require('@/assets/images/adaptive-icon.png');
-    }
-    if (isWeb) {
-      if (profilePicture.startsWith('data:')) {
-        return { uri: profilePicture };
-      }
-      if (profilePicture.startsWith('file:')) {
-        return require('@/assets/images/adaptive-icon.png');
-      }
-      return { uri: profilePicture };
-    }
-    return { uri: profilePicture };
-  })();
-  
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push('/modals/sync')}>
-            <Image 
-              source={imageSource}
-              style={styles.profileImage}
-            />
-          </TouchableOpacity>
-          <Text style={styles.username}>
-            {username || 'User'}
-          </Text>
-          {!isWeb && !isIpadDevice && (
-                <Pressable
-                  onPress={() => {
-                    if (Platform.OS !== 'web') {
-                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                    }
-                    props.navigation.closeDrawer();
-                  }}
-                  style={{  
-                    padding: isIpadDevice ? 8 : 8,
-                    marginLeft: 16,
-                    ...(isWeb ? {
-                      cursor: 'pointer',
-                      borderRadius: 8,
-                      transition: 'all 0.2s ease',
-                    } as any : {})
-                  }}
-                >
-                  <Ionicons
-                    name="caret-back"
-                    size={isWeb ? 24 : 20}
-                    color={isDark ? '#fff' : '#000'}
-                  />
-                </Pressable>
-              )}
-        </View>
-        <View style={styles.content}>
-          <DrawerContentScrollView 
-            {...props}
-            contentContainerStyle={styles.scrollViewContent}
-            style={styles.scrollView}
-          >
-            <DrawerItemList {...props} />
-          </DrawerContentScrollView>
-        </View>
-        <XStack alignItems="center" justifyContent="space-between" marginBottom={32} paddingHorizontal={isWeb ? 24 : isIpadDevice ? 20 : 16}>
-          <ChangeLogButton />
-          <LegalButton />
-        </XStack>
-    </View>
-  );
-});
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
@@ -128,7 +37,7 @@ export default function DrawerLayout() {
       isWeb={isWeb} 
       isIpadDevice={isIpadDevice}
     />
-  ), [username, profilePicture, styles, isWeb, isIpadDevice, drawerWidth]);
+  ), [username, profilePicture, styles, isWeb, isIpadDevice]);
 
   const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
     const icon = DRAWER_ICONS[route];
@@ -152,7 +61,6 @@ export default function DrawerLayout() {
         );
       },
       headerTransparent: true,
-      useNativeDriver: true,
       drawerStyle: {
         backgroundColor,
         width: drawerWidth,
@@ -176,7 +84,7 @@ export default function DrawerLayout() {
       },
       drawerContentStyle: { backgroundColor },
       drawerType: isPermanentDrawer ? 'permanent' as const : 'back' as const,
-      defaultStatus: 'open',
+      defaultStatus: isPermanentDrawer ? 'open' : 'closed',
       overlayColor: isPermanentDrawer ? 'transparent' : isDark ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
       swipeEnabled: !isPermanentDrawer,
       swipeEdgeWidth: 150,
@@ -198,16 +106,15 @@ export default function DrawerLayout() {
       
       options.minSwipeDistance = 5;
     }
-      options.drawerOpeningAnimation = {
-        type: '',
-        stiffness: 750,
-        damping: 70,
-        mass: 1,
-        overshootClamping: false,
-        restDisplacementThreshold: 0.01,
-        restSpeedThreshold: 0.01,
-      };
-
+    options.drawerOpeningAnimation = {
+      type: 'spring',
+      stiffness: 750,
+      damping: 70,
+      mass: 1,
+      overshootClamping: false,
+      restDisplacementThreshold: 0.01,
+      restSpeedThreshold: 0.01,
+    };
     return options;
   }, [backgroundColor, drawerWidth, borderColor, isPermanentDrawer, inactiveColor, isDark, primaryColor, isIpadDevice]);
 

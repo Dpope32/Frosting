@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Platform } from 'react-native'
+import { Platform, Alert } from 'react-native'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { Alert } from 'react-native';
 
 import { NewTaskModal } from '@/components/cardModals/NewTaskModal/index'
 import { PortfolioModal } from '@/components/home/PortfolioModal'
@@ -45,7 +44,7 @@ let wallpaperInitErrorPatched = false;
 export function LandingPage() {
   const userHydrated = useUserStore(s => s.hydrated)
   const projectHydrated = useStoreHydrated()
-  const todaysTasks = useProjectStore(s => s.todaysTasks)
+  const todaysTasks = useProjectStore(s => s.todaysTasks || [])
   const toggleTaskCompletion = useProjectStore(s => s.toggleTaskCompletion)
   const deleteTask = useProjectStore(s => s.deleteTask)
   const isEditModalOpen = useEditTaskStore(s => s.isOpen)
@@ -114,7 +113,7 @@ export function LandingPage() {
         try {
           await origInit();
         } catch (e) {
-          if (typeof window !== 'undefined' && window.confirm) {
+          if (typeof window !== 'undefined' && Platform.OS === 'web' && window.confirm) {
             if (window.confirm('No wallpaper is set or there was an error initializing wallpaper storage. Set a new one in Settings?')) {
               setSettingsModalOpen(true);
             }
@@ -143,7 +142,6 @@ export function LandingPage() {
     )
   }
   
-
   const handleNewTaskPress = () => { 
     setSheetOpen(true) 
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
