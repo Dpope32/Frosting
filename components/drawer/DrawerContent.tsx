@@ -1,22 +1,25 @@
 import React, { memo } from 'react';
+// @ts-ignore
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { View, TouchableOpacity, Image, Platform, Pressable, Text } from 'react-native';
 import { XStack } from 'tamagui';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { ChangeLogButton } from './changeLogButton';
 import { LegalButton } from './LegalButton';
+// @ts-ignore
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import * as Haptics from 'expo-haptics';
 
-export const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb, isIpadDevice }: { 
+export const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb, isIpadDevice, premium }: { 
     props: DrawerContentComponentProps; 
     username: string | undefined;
     profilePicture: string | undefined | null;
     styles: any;
     isWeb: boolean;
     isIpadDevice: boolean;
+    premium: boolean;
   }) => {
     const router = useRouter();
     const colorScheme = useColorScheme();
@@ -50,9 +53,19 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
                 style={styles.profileImage}
               />
             </TouchableOpacity>
-            <Text style={styles.username}>
-              {username || 'User'}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.username}>
+                {username || 'User'}
+              </Text>
+              {premium && (
+                <MaterialIcons 
+                  name="verified" 
+                  size={16} 
+                  color="#0cbfe9"
+                  style={{ marginLeft: 4 }} 
+                />
+              )}
+            </View>
             {!isWeb && !isIpadDevice && (
                   <Pressable
                     onPress={() => {

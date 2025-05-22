@@ -57,34 +57,57 @@ export function TaskChips({ category, priority, status, time, checked = false, t
   
   return (
     <View style={styles.tagsRow}>
-      {category && (
-        <XStack
-          alignItems="center"
-          backgroundColor={isCustom ? `${userColor}15` : `${calculatedCategoryColor}15`}
-          px="$1"
+
+      {time && (
+        <XStack 
+          alignItems="center" 
+          backgroundColor="rgba(255, 255, 255, 0.05)"
+          px="$1.5"
           py="$0.5"
           br={12}
+          borderWidth={1}
+          borderColor="rgb(52, 54, 55)"
           opacity={checked ? 0.6 : 0.9}
           marginRight={6}
           marginBottom={4}
         >
-          {!isCustom && (
-            <Ionicons
-              name={categoryIcon as any}
-              size={10}
-              color={calculatedCategoryColor}
-              style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
-            />
-          )}
           <Text
             fontFamily="$body"
-            color={isCustom ? "$gray11" : calculatedCategoryColor}
+            color="rgb(157, 157, 157)"
             fontSize={11}
             fontWeight="500"
           >
-            {category.toLowerCase()}
+            {time}
           </Text>
         </XStack>
+      )}
+
+      {recurrencePattern && (
+        <XStack 
+          alignItems="center" 
+          backgroundColor={`${recurrenceColor}15`}
+        px="$1.5"
+        py="$0.5"
+        br={12}
+        opacity={checked ? 0.6 : 0.9}
+        marginRight={6}
+        marginBottom={4}
+      >
+        <Ionicons 
+          name={recurrenceIcon as any}
+          size={10} 
+          color={recurrenceColor}
+          style={{ marginRight: 2, marginTop: 1 }}
+        />
+        <Text
+          fontFamily="$body"
+          color={recurrenceColor}
+          fontSize={11}
+          fontWeight="500"
+        >
+          {status.toLowerCase()}
+        </Text>
+      </XStack>
       )}
 
       {priority && (
@@ -114,55 +137,33 @@ export function TaskChips({ category, priority, status, time, checked = false, t
           </Text>
         </XStack>
       )}
-      
 
-      {recurrencePattern && (
-        <XStack 
-          alignItems="center" 
-          backgroundColor={`${recurrenceColor}15`}
-        px="$1.5"
-        py="$0.5"
-        br={12}
-        opacity={checked ? 0.6 : 0.9}
-        marginRight={6}
-        marginBottom={4}
-      >
-        <Ionicons 
-          name={recurrenceIcon as any}
-          size={10} 
-          color={recurrenceColor}
-          style={{ marginRight: 2, marginTop: 1 }}
-        />
-        <Text
-          fontFamily="$body"
-          color={recurrenceColor}
-          fontSize={11}
-          fontWeight="500"
-        >
-          {status.toLowerCase()}
-        </Text>
-      </XStack>
-      )}
-      {time && (
-        <XStack 
-          alignItems="center" 
-          backgroundColor="rgba(255, 255, 255, 0.05)"
-          px="$1.5"
+      {category && (
+        <XStack
+          alignItems="center"
+          backgroundColor={isCustom ? `${userColor}15` : `${calculatedCategoryColor}15`}
+          px="$1"
           py="$0.5"
           br={12}
-          borderWidth={1}
-          borderColor="rgb(52, 54, 55)"
           opacity={checked ? 0.6 : 0.9}
           marginRight={6}
           marginBottom={4}
         >
+          {!isCustom && (
+            <Ionicons
+              name={categoryIcon as any}
+              size={10}
+              color={calculatedCategoryColor}
+              style={{ marginLeft: 4, marginRight: 2, marginTop: 1 }}
+            />
+          )}
           <Text
             fontFamily="$body"
-            color="rgb(157, 157, 157)"
+            color={isCustom ? "$gray11" : calculatedCategoryColor}
             fontSize={11}
             fontWeight="500"
           >
-            {time}
+            {category.toLowerCase()}
           </Text>
         </XStack>
       )}

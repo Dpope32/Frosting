@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { isWeb } from 'tamagui';
 import { Header } from '@/components/Header';
 import { View, Platform } from 'react-native'; 
+// @ts-ignore
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store';
@@ -17,7 +18,7 @@ type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
-  const { primaryColor, username, profilePicture } = useUserStore(s => s.preferences);
+  const { primaryColor, username, profilePicture, premium = false } = useUserStore(s => s.preferences);
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : 'rgb(225, 225, 225)';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
@@ -26,18 +27,19 @@ export default function DrawerLayout() {
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
   const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 200  : 200;
-
+  console.log('premium', premium);
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 
       props={props} 
-      username={username} 
+      username={username || ''} 
       profilePicture={profilePicture} 
       styles={styles} 
       isWeb={isWeb} 
       isIpadDevice={isIpadDevice}
+      premium={premium || false}
     />
-  ), [username, profilePicture, styles, isWeb, isIpadDevice]);
+  ), [username, profilePicture, styles, isWeb, isIpadDevice, premium]);
 
   const renderIcon = useCallback(({ color, route }: { color: string; route: string }) => {
     const icon = DRAWER_ICONS[route];
