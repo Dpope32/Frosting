@@ -23,18 +23,14 @@ import {
 export function AddStockModal() {
   const isOpen = useEditStockStore(s => {
     const shouldOpen = s.isOpen && s.isAddMode === true;
-    console.log('ADD MODAL CHECK: isOpen =', s.isOpen, 'isAddMode =', s.isAddMode, 'shouldOpen =', shouldOpen);
     return shouldOpen;
   });
   const closeModal = useEditStockStore(s => s.closeModal);
-  
-  console.log('ADD MODAL RENDER: isOpen =', isOpen);
 
   return (
     <AddStockModalContent
       open={isOpen}
       onOpenChange={(open) => {
-        console.log('ADD MODAL onOpenChange:', open);
         if (!open) closeModal();
       }}
     />
@@ -58,7 +54,6 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const theme = useTheme()
   const showToast = useToastStore((state) => state.showToast)
   const tickerInputRef = useRef<DebouncedInputHandle>(null)
   const quantityInputRef = useRef<TextInput>(null)

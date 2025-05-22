@@ -31,6 +31,7 @@ import { addSyncLog } from '@/components/sync/syncUtils';
 import { pushSnapshot, pullLatestSnapshot, } from '@/sync/snapshotPushPull';
 import { useProjectStore as useTaskStore } from '@/store/ToDo';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
+import { handleDeepLink } from '@/services/notifications/deepLinkHandler';  
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -148,30 +149,6 @@ export default Sentry.wrap(function RootLayout() {
     return () => clearInterval(updateInterval);
   }, [loaded]);
 
-  const handleDeepLink = useCallback((event: { url: string | NotificationResponse }) => {
-    console.log('Handling deep link:', event.url);
-    if (typeof event.url === 'object' && 'notification' in event.url) {
-      const url = event.url.notification.request.content.data?.url;
-      if (url) {
-        router.push(url.replace('kaiba-nexus://', '/(drawer)/'));
-        return;
-      }
-    }
-    if (typeof event.url === 'string' && event.url.startsWith('kaiba-nexus://share')) {
-      const url = new URL(event.url);
-      const params = Object.fromEntries(url.searchParams.entries());
-      const contactData = {
-        name: decodeURIComponent(params.name || ''),
-        nickname: params.nickname ? decodeURIComponent(params.nickname) : undefined,
-        phoneNumber: params.phone ? decodeURIComponent(params.phone) : undefined,
-        email: params.email ? decodeURIComponent(params.email) : undefined,
-        occupation: params.occupation ? decodeURIComponent(params.occupation) : undefined
-      };
-      handleSharedContact(contactData);
-    } else if (typeof event.url === 'string' && event.url.startsWith('kaiba-nexus://habits')) {
-      router.push('/(drawer)/habits');
-    }
-  }, []);
 
   useEffect(() => {
     const notificationSubscription = Notifications.addNotificationResponseReceivedListener(response => {
@@ -242,6 +219,7 @@ export default Sentry.wrap(function RootLayout() {
       addSyncLog('🔄 AppState sync handler removed', 'verbose');
     };
   }, [loaded]);
+  
 
   if (!loaded) {
     return null;

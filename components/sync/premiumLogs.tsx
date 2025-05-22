@@ -1,12 +1,13 @@
-import React, { useRef, useEffect } from 'react';
-import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { View, TouchableOpacity, Animated, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
-import { MaterialIcons, Ionicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store';
 import { baseSpacing, fontSizes, cardRadius, getColors } from '@/components/sync/sharedStyles';
 import { clearLogQueue, setLogUpdateCallback } from '@/components/sync/syncUtils';
 import { isIpad } from '@/utils';
+import { DebouncedInput } from '@/components/shared/debouncedInput';
 
 interface PremiumLogsProps {
   isLoading: boolean;
@@ -37,8 +38,6 @@ export const PremiumLogs = ({
   clearLogs,
   exportLogs,
   premium,
-  devices,
-  contentWidth,
   maxHeight
 }: PremiumLogsProps) => {
   const colorScheme = useColorScheme();
@@ -46,171 +45,504 @@ export const PremiumLogs = ({
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colors = getColors(isDark, primaryColor);
   const fadeAnims = useRef<{[key: string]: Animated.Value}>({});
+  const scrollViewRef = useRef<ScrollView>(null);
+  const { width } = useWindowDimensions();
   const wideMode = isWeb || isIpad();
-  const adjustedContentWidth = wideMode ? Math.min(700, contentWidth) : contentWidth;
+  
+  // Better responsive width calculation
+  const adjustedContentWidth = useMemo(() => {
+    if (isWeb) {
+      return Math.min(width - baseSpacing * 4, 700);
+    }
+    if (isIpad()) {
+      return Math.min(width - baseSpacing * 3, 600);
+    }
+    return Math.min(width - baseSpacing * 2, 350);
+  }, [width]);
+  
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [autoScroll, setAutoScroll] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Auto-scroll to bottom when new logs arrive
+  useEffect(() => {
+    if (autoScroll && syncLogs.length > 0) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [syncLogs.length, autoScroll]);
+
+  // Deduplicate and filter logs
+  const processedLogs = useMemo(() => {
+    // Deduplicate by message content and timestamp proximity (within 1 second)
+    const deduped = syncLogs.reduce((acc, log) => {
+      const isDuplicate = acc.some(existing => 
+        existing.message === log.message &&
+        Math.abs(existing.timestamp.getTime() - log.timestamp.getTime()) < 1000
+      );
+      
+      if (!isDuplicate) {
+        acc.push(log);
+      }
+      return acc;
+    }, [] as typeof syncLogs);
+
+    // Apply filters
+    let filtered = deduped;
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(log => log.status === statusFilter);
+    }
+    
+    if (searchTerm) {
+      filtered = filtered.filter(log => 
+        log.message.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered.slice(-100); // Keep last 100 logs for performance
+  }, [syncLogs, statusFilter, searchTerm]);
+
+  // Status counts for filter badges
+  const statusCounts = useMemo(() => {
+    return syncLogs.reduce((acc, log) => {
+      acc[log.status] = (acc[log.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [syncLogs]);
 
   // Clean up logs when component unmounts
   useEffect(() => {
     return () => {
       clearLogQueue();
-      // Also unsubscribe from log updates to prevent listener leaks
       setLogUpdateCallback(null);
     };
   }, []);
 
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'verbose': return '🔍';
+      case 'success': return '✅';
+      case 'error': return '❌';
+      case 'warning': return '⚠️';
+      default: return '🔄';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'verbose': return isDark ? '#9CA3AF' : '#6B7280';
+      case 'success': return colors.success;
+      case 'error': return colors.error;
+      case 'warning': return isDark ? '#F39C12' : '#D35400';
+      default: return colors.text;
+    }
+  };
+
+  const StatusFilterChip = ({ status, label, count }: { status: string; label: string; count?: number }) => (
+    <TouchableOpacity
+      onPress={() => setStatusFilter(status === statusFilter ? 'all' : status)}
+      style={{
+        paddingHorizontal: wideMode ? 16 : 12,
+        paddingVertical: wideMode ? 8 : 6,
+        borderRadius: wideMode ? 20 : 16,
+        backgroundColor: status === statusFilter ? colors.accent : colors.card,
+        borderWidth: 1,
+        borderColor: status === statusFilter ? colors.accent : colors.border,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        minHeight: wideMode ? 36 : 28,
+      }}
+    >
+      <Text 
+        fontSize={wideMode ? 14 : 12} 
+        color={status === statusFilter ? 'white' : colors.text} 
+        fontWeight="500" 
+        fontFamily="$body"
+      >
+        {label}
+      </Text>
+      {count !== undefined && count > 0 && (
+        <View style={{
+          backgroundColor: status === statusFilter ? 'rgba(255,255,255,0.3)' : colors.accent,
+          borderRadius: wideMode ? 12 : 10,
+          paddingHorizontal: wideMode ? 8 : 6,
+          paddingVertical: wideMode ? 3 : 2,
+          minWidth: wideMode ? 20 : 18,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Text 
+            fontSize={wideMode ? 11 : 10} 
+            color="white" 
+            fontWeight="600"
+            textAlign="center"
+          >
+            {count > 99 ? '99+' : count}
+          </Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+
   return (
-    <YStack alignItems="center" justifyContent="center" padding={0} >
-      <XStack alignItems="center"  marginBottom={-20}>
-        {isLoading && <ActivityIndicator size="small" color={colors.accent} />}
-        {isLoading && (
-          <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext}>
+    <View style={{
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      {/* Loading indicator */}
+      {isLoading && (
+        <XStack 
+          alignItems="center" 
+          gap={baseSpacing}
+          marginBottom={baseSpacing * 2}
+          justifyContent="center"
+        >
+          <ActivityIndicator size="small" color={colors.accent} />
+          <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
             {syncStatus === 'syncing' ? 'Sync in progress...' : 'Preparing sync...'}
           </Text>
-        )}
-      </XStack>
+        </XStack>
+      )}
 
+      {/* Main logs container */}
       <View style={{
         width: adjustedContentWidth,
-        marginTop: 0,
         backgroundColor: colors.card,
         borderRadius: cardRadius,
         borderWidth: 1,
         borderColor: colors.border,
-        padding: baseSpacing * 2,
-        maxHeight: maxHeight || 'auto',
+        padding: wideMode ? baseSpacing * 3 : baseSpacing * 2,
+        maxHeight: maxHeight || (wideMode ? 600 : 450),
+        alignSelf: 'center',
       }}>
-        <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
+        {/* Header */}
+        <XStack 
+          alignItems="center" 
+          justifyContent="space-between" 
+          marginBottom={baseSpacing * 1.5}
+          flexWrap={wideMode ? 'nowrap' : 'wrap'}
+          gap={wideMode ? 0 : baseSpacing}
+        >
+          <Text 
+            fontSize={wideMode ? fontSizes.lg : fontSizes.md} 
+            fontFamily="$body" 
+            color={colors.text} 
+            fontWeight="600"
+          >
             Sync Progress Log
           </Text>
-          <XStack gap={10}>
+          <XStack 
+            gap={wideMode ? 16 : 10} 
+            alignItems="center"
+            flexShrink={0}
+          >
+            <TouchableOpacity 
+              onPress={() => setAutoScroll(!autoScroll)}
+              style={{
+                padding: wideMode ? 8 : 6,
+                borderRadius: 6,
+                backgroundColor: autoScroll ? colors.success + '20' : colors.subtext + '20',
+              }}
+            >
+              <Ionicons 
+                name={autoScroll ? "play" : "pause"} 
+                size={wideMode ? 18 : 16} 
+                color={autoScroll ? colors.success : colors.subtext} 
+              />
+            </TouchableOpacity>
             <TouchableOpacity onPress={exportLogs}>
-              <Text color={colors.accent} fontFamily="$body" fontWeight="500" fontSize={14}>Export</Text>
+              <Text 
+                color={colors.accent} 
+                fontFamily="$body" 
+                fontWeight="500" 
+                fontSize={wideMode ? 15 : 14}
+              >
+                Export
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={clearLogs}>
-              <Text color={colors.accent} fontFamily="$body" fontWeight="500" fontSize={14}>Clear</Text>
+              <Text 
+                color={colors.accent} 
+                fontFamily="$body" 
+                fontWeight="500" 
+                fontSize={wideMode ? 15 : 14}
+              >
+                Clear
+              </Text>
             </TouchableOpacity>
           </XStack>
         </XStack>
-        <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
+
+        {/* Search Bar */}
+        <View style={{
+          backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5',
+          borderRadius: wideMode ? 12 : 8,
+          paddingHorizontal: wideMode ? 16 : 12,
+          paddingVertical: wideMode ? 12 : 8,
+          marginBottom: baseSpacing * 1.5,
+          flexDirection: 'row',
+          alignItems: 'center',
+          minHeight: wideMode ? 44 : 36,
+        }}>
+          <Ionicons name="search" size={wideMode ? 18 : 16} color={colors.subtext} />
+          <DebouncedInput
+            onDebouncedChange={setSearchTerm}
+            style={{
+              flex: 1,
+              marginLeft: wideMode ? 12 : 8,
+              color: colors.text,
+              fontSize: wideMode ? 15 : 14,
+              fontFamily: '$body',
+            }}
+            placeholder="Search logs..."
+            placeholderTextColor={colors.subtext}
+            value={searchTerm}
+          />
+          {searchTerm.length > 0 && (
+            <TouchableOpacity 
+              onPress={() => setSearchTerm('')}
+              style={{ padding: 4 }}
+            >
+              <Ionicons name="close-circle" size={wideMode ? 18 : 16} color={colors.subtext} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Filter Chips */}
         <ScrollView 
-          style={{ 
-            maxHeight: 400,
-            height: syncLogs.length > 0 ? 350 : 100,
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={{ marginBottom: baseSpacing * 1.5 }}
+          contentContainerStyle={{ 
+            gap: wideMode ? 12 : 8, 
+            paddingHorizontal: wideMode ? 8 : 4,
+            paddingVertical: 4,
+            alignItems: 'center',
           }}
-          contentContainerStyle={{ paddingBottom: baseSpacing * 3 }}
+        >
+          <StatusFilterChip status="all" label="All" count={syncLogs.length} />
+          <StatusFilterChip status="error" label="Errors" count={statusCounts.error} />
+          <StatusFilterChip status="warning" label="Warnings" count={statusCounts.warning} />
+          <StatusFilterChip status="success" label="Success" count={statusCounts.success} />
+          <StatusFilterChip status="info" label="Info" count={statusCounts.info} />
+          <StatusFilterChip status="verbose" label="Verbose" count={statusCounts.verbose} />
+        </ScrollView>
+
+        <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
+        
+        {/* Log Stats */}
+        <XStack 
+          justifyContent="space-between" 
+          alignItems="center" 
+          marginBottom={baseSpacing}
+          flexWrap={wideMode ? 'nowrap' : 'wrap'}
+          gap={wideMode ? 0 : baseSpacing / 2}
+        >
+          <Text fontSize={wideMode ? fontSizes.sm : fontSizes.xs} color={colors.subtext} fontFamily="$body">
+            Showing {processedLogs.length} of {syncLogs.length} logs
+            {searchTerm && ` (filtered)`}
+          </Text>
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            backgroundColor: autoScroll ? colors.success + '15' : colors.subtext + '15',
+            paddingHorizontal: wideMode ? 10 : 8,
+            paddingVertical: wideMode ? 4 : 3,
+            borderRadius: wideMode ? 12 : 10,
+          }}>
+            <View style={{
+              width: wideMode ? 6 : 5,
+              height: wideMode ? 6 : 5,
+              borderRadius: wideMode ? 3 : 2.5,
+              backgroundColor: autoScroll ? colors.success : colors.subtext,
+            }} />
+            <Text fontSize={wideMode ? fontSizes.sm : fontSizes.xs} color={colors.subtext} fontFamily="$body">
+              Auto-scroll {autoScroll ? 'ON' : 'OFF'}
+            </Text>
+          </View>
+        </XStack>
+
+        {/* Logs Container */}
+        <ScrollView 
+          ref={scrollViewRef}
+          style={{ 
+            maxHeight: wideMode ? 450 : 350,
+            height: processedLogs.length > 0 ? (wideMode ? 400 : 300) : (wideMode ? 150 : 100),
+          }}
+          contentContainerStyle={{ 
+            paddingBottom: baseSpacing * 3,
+            flexGrow: 1,
+          }}
           showsVerticalScrollIndicator={true}
           nestedScrollEnabled={true}
           keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={() => setAutoScroll(false)}
         > 
-          <YStack gap={baseSpacing} alignItems="flex-start">
-            {syncLogs.map((log) => {
-              if (!fadeAnims.current[log.id]) {
-                fadeAnims.current[log.id] = new Animated.Value(0);
-                Animated.timing(fadeAnims.current[log.id], {
-                  toValue: 1,
-                  duration: 500,
-                  useNativeDriver: !isWeb,
-                }).start();
-              }
-              
-              let icon = '🔄';
-              let textColor = colors.text;
-              
-              switch(log.status) {
-                case 'verbose':
-                  icon = '🔍';
-                  textColor = isDark ? '#9CA3AF' : '#6B7280';
-                  break;
-                case 'success':
-                  icon = '✅';
-                  textColor = colors.success;
-                  break;
-                case 'error':
-                  icon = '❌';
-                  textColor = colors.error;
-                  break;
-                case 'warning':
-                  icon = '⚠️';
-                  textColor = isDark ? '#F39C12' : '#D35400';
-                  break;
-                default:
-                  icon = '🔄';
-                  break;
-              }
-              
-              return (
-                <Animated.View 
-                  key={log.id} 
-                  style={{
-                    opacity: fadeAnims.current[log.id],
-                    width: '100%',
-                  }}
+          <YStack gap={wideMode ? baseSpacing * 1.5 : baseSpacing} alignItems="flex-start">
+            {processedLogs.length === 0 ? (
+              <YStack 
+                alignItems="center" 
+                justifyContent="center" 
+                padding={baseSpacing * 6}
+                width="100%"
+                flex={1}
+              >
+                <Ionicons name="document-outline" size={wideMode ? 64 : 48} color={colors.subtext} />
+                <Text 
+                  fontSize={wideMode ? fontSizes.lg : fontSizes.md} 
+                  color={colors.subtext} 
+                  textAlign="center" 
+                  marginTop={baseSpacing * 2} 
+                  fontFamily="$body"
+                  fontWeight="500"
                 >
-                  <TouchableOpacity 
-                    onPress={() => log.details && toggleDetails(log.id)}
+                  {searchTerm ? 'No logs match your search' : 'No logs yet'}
+                </Text>
+                <Text 
+                  fontSize={wideMode ? fontSizes.md : fontSizes.sm} 
+                  color={colors.subtext} 
+                  textAlign="center" 
+                  marginTop={baseSpacing} 
+                  fontFamily="$body"
+                  maxWidth={wideMode ? 400 : 280}
+                >
+                  {searchTerm ? 'Try adjusting your search terms or clear filters' : 'Logs will appear here during sync operations'}
+                </Text>
+              </YStack>
+            ) : (
+              processedLogs.map((log) => {
+                if (!fadeAnims.current[log.id]) {
+                  fadeAnims.current[log.id] = new Animated.Value(0);
+                  Animated.timing(fadeAnims.current[log.id], {
+                    toValue: 1,
+                    duration: 300,
+                    useNativeDriver: !isWeb,
+                  }).start();
+                }
+                
+                const icon = getStatusIcon(log.status);
+                const textColor = getStatusColor(log.status);
+                
+                return (
+                  <Animated.View 
+                    key={log.id} 
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'flex-start',
+                      opacity: fadeAnims.current[log.id],
+                      width: '100%',
                     }}
                   >
-                    <Text fontSize={fontSizes.md} marginRight={baseSpacing / 2}>
-                      {icon}
-                    </Text>
-                    <YStack flex={1}>
-                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={textColor} fontWeight="500">
-                        {log.message}
+                    <TouchableOpacity 
+                      onPress={() => log.details && toggleDetails(log.id)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'flex-start',
+                        backgroundColor: log.status === 'error' ? 'rgba(239, 68, 68, 0.1)' : 
+                                       log.status === 'warning' ? 'rgba(245, 158, 11, 0.1)' : 
+                                       'transparent',
+                        borderRadius: wideMode ? 10 : 6,
+                        padding: log.status === 'error' || log.status === 'warning' ? (wideMode ? 12 : 8) : 0,
+                        marginVertical: wideMode ? 4 : 2,
+                      }}
+                    >
+                      <Text 
+                        fontSize={wideMode ? fontSizes.lg : fontSizes.md} 
+                        marginRight={wideMode ? baseSpacing : baseSpacing / 2}
+                        style={{ lineHeight: wideMode ? 24 : 20 }}
+                      >
+                        {icon}
                       </Text>
-                      <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext}>
-                        {log.timestamp.toLocaleTimeString()} · {Math.floor((Date.now() - log.timestamp.getTime()) / 1000)}s ago
-                        {log.details && ' · Tap for details'}
-                      </Text>
-                      
-                      {log.details && showDetails[log.id] && (
-                        <View style={{
-                          backgroundColor: isDark ? '#1E1E1E' : '#F0F0F0',
-                          padding: baseSpacing,
-                          borderRadius: 6,
-                          marginTop: baseSpacing / 2,
-                          marginBottom: baseSpacing / 2,
-                          maxHeight: 300, 
-                        }}>
-                          <ScrollView>
-                            <Text fontSize={fontSizes.xs} color={colors.subtext} fontFamily="$body">
-                              {log.details}
-                            </Text>
-                          </ScrollView>
-                        </View>
-                      )}
-                    </YStack>
-                  </TouchableOpacity>
-                </Animated.View>
-              );
-            })}
+                      <YStack flex={1}>
+                        <Text 
+                          fontSize={wideMode ? fontSizes.md : fontSizes.sm} 
+                          fontFamily="$body" 
+                          color={textColor} 
+                          fontWeight="500"
+                          style={{ lineHeight: wideMode ? 22 : 18 }}
+                        >
+                          {log.message}
+                        </Text>
+                        <Text 
+                          fontSize={wideMode ? fontSizes.sm : fontSizes.xs} 
+                          fontFamily="$body" 
+                          color={colors.subtext}
+                          marginTop={wideMode ? 4 : 2}
+                        >
+                          {log.timestamp.toLocaleTimeString()} · {Math.floor((Date.now() - log.timestamp.getTime()) / 1000)}s ago
+                          {log.details && ' · Tap for details'}
+                        </Text>
+                        
+                        {log.details && showDetails[log.id] && (
+                          <View style={{
+                            backgroundColor: isDark ? '#1E1E1E' : '#F0F0F0',
+                            padding: wideMode ? baseSpacing * 1.5 : baseSpacing,
+                            borderRadius: wideMode ? 10 : 6,
+                            marginTop: wideMode ? baseSpacing : baseSpacing / 2,
+                            marginBottom: wideMode ? baseSpacing : baseSpacing / 2,
+                            maxHeight: wideMode ? 400 : 300,
+                          }}>
+                            <ScrollView>
+                              <Text 
+                                fontSize={wideMode ? fontSizes.sm : fontSizes.xs} 
+                                color={colors.subtext} 
+                                fontFamily="$body"
+                                style={{ 
+                                  lineHeight: wideMode ? 20 : 16,
+                                }}
+                              >
+                                {log.details}
+                              </Text>
+                            </ScrollView>
+                          </View>
+                        )}
+                      </YStack>
+                    </TouchableOpacity>
+                  </Animated.View>
+                );
+              })
+            )}
           </YStack>
         </ScrollView>
       </View>
 
-
+      {/* Status Cards */}
       <YStack 
         alignItems="center"
-        marginTop={baseSpacing * 2}
+        marginTop={baseSpacing * 3}
         marginBottom={baseSpacing * 2}
-        gap={baseSpacing}
+        gap={baseSpacing * 1.5}
         width={adjustedContentWidth}
       >
         <XStack 
-          padding={baseSpacing * 2}
+          padding={wideMode ? baseSpacing * 3 : baseSpacing * 2}
           backgroundColor={isDark ? "rgba(16, 185, 129, 0.10)" : "rgba(6, 95, 70, 0.2)"}
           borderColor={"rgba(16, 185, 129, 0.5)"}
           borderWidth={1}
-          borderRadius={8}
+          borderRadius={wideMode ? 12 : 8}
           width="100%"
           alignItems="center"
           justifyContent="center"
+          minHeight={wideMode ? 60 : 48}
         >
-          <Ionicons name="download-outline" size={16} color="#4ade80" style={{ marginHorizontal: 8 }} />
-          <Text color={isDark ? "#4ade80" : "#047857"} fontSize={13} fontWeight="500" fontFamily="$body" textAlign="center">
+          <Ionicons 
+            name="download-outline" 
+            size={wideMode ? 20 : 16} 
+            color="#4ade80" 
+            style={{ marginHorizontal: wideMode ? 12 : 8 }} 
+          />
+          <Text 
+            color={isDark ? "#4ade80" : "#047857"} 
+            fontSize={wideMode ? 15 : 13} 
+            fontWeight="500" 
+            fontFamily="$body" 
+            textAlign="center"
+            flex={1}
+            style={{ lineHeight: wideMode ? 22 : 18 }}
+          >
             {!premium 
               ? 'Premium required for automatic sync across devices'
               : isLoading 
@@ -218,18 +550,33 @@ export const PremiumLogs = ({
                 : 'Local data pulls automatically on app start'}
           </Text>
         </XStack>
-          <XStack 
-          padding={baseSpacing * 2}
+        
+        <XStack 
+          padding={wideMode ? baseSpacing * 3 : baseSpacing * 2}
           backgroundColor={isDark ? "rgba(140, 16, 185, 0.1)" : "rgba(62, 6, 95, 0.2)"}
           borderColor={"rgba(154, 16, 185, 0.5)"}
           borderWidth={1}
-          borderRadius={8}
+          borderRadius={wideMode ? 12 : 8}
           width="100%"
           alignItems="center"
           justifyContent="center"
+          minHeight={wideMode ? 60 : 48}
         >
-          <Ionicons name="push-outline" size={16} color="#8c10b9" style={{ marginHorizontal: 8 }} />
-          <Text color={isDark ? "#8c10b9" : "#8c10b9"} fontSize={13} fontWeight="500" fontFamily="$body" textAlign="center">
+          <Ionicons 
+            name="push-outline" 
+            size={wideMode ? 20 : 16} 
+            color="#8c10b9" 
+            style={{ marginHorizontal: wideMode ? 12 : 8 }} 
+          />
+          <Text 
+            color={isDark ? "#8c10b9" : "#8c10b9"} 
+            fontSize={wideMode ? 15 : 13} 
+            fontWeight="500" 
+            fontFamily="$body" 
+            textAlign="center"
+            flex={1}
+            style={{ lineHeight: wideMode ? 22 : 18 }}
+          >
             {!premium 
               ? 'Sign up today!'
               : isLoading 
@@ -238,48 +585,6 @@ export const PremiumLogs = ({
           </Text>
         </XStack>
       </YStack>
-
-      {devices.length > 0 && (
-        <YStack gap={baseSpacing} marginTop={baseSpacing * 4}>
-          <Text fontSize={fontSizes.md} color={colors.text} fontWeight="600" marginBottom={baseSpacing}>
-            Connected Devices
-          </Text>
-          {devices.map((device: any) => (
-            <XStack
-              key={device.id}
-              padding={baseSpacing * 2}
-              backgroundColor={colors.card}
-              borderRadius={cardRadius}
-              borderWidth={1}
-              borderColor={colors.border}
-              justifyContent="space-between"
-              alignItems="center"
-              width={adjustedContentWidth}
-              alignSelf="center"
-            >
-              <YStack>
-                <Text fontSize={fontSizes.lg} fontWeight="600" color={colors.text}>
-                  {device.name}
-                </Text>
-                <Text fontSize={fontSizes.sm} color={colors.subtext}>
-                  {device.isCurrentDevice
-                    ? (devices.length > 1 ? 'Connected' : 'Waiting for other devices')
-                    : device.status + ' • Last active: ' + new Date(device.lastActive).toLocaleDateString()}
-                </Text>
-              </YStack>
-              {!device.isCurrentDevice && (
-                <TouchableOpacity>
-                  <MaterialIcons 
-                    name="more-vert" 
-                    size={24} 
-                    color={colors.text} 
-                  />
-                </TouchableOpacity>
-              )}
-            </XStack>
-          ))}
-        </YStack>
-      )}
-    </YStack>
+    </View>
   );
-}
+};

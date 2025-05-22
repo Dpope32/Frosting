@@ -467,58 +467,113 @@ export const useProjectStore = create<ProjectStore>()(
         addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
         set({ todaysTasks });
       },
+      
       hydrateFromSync: (syncedData?: { tasks?: Record<string, Task> }) => {
         if (!syncedData?.tasks) {
           addSyncLog('[Tasks] No tasks field – skip', 'warning');
           return;
         }
-        // 1️⃣ Cast once to the correct map type
+      
         const incoming = syncedData.tasks as Record<string, Task>;
-        const existing  = get().tasks;
+        const existing = get().tasks;
         const merged: Record<string, Task> = {};
-        // 2️⃣ Iterate with Object.entries so TS knows inc is a Task
+        
+        // Counters for surgical logging
+        let addedCount = 0;
+        let mergedCount = 0;
+        let keptLocalCount = 0;
+        let billTasksProcessed = 0;
+        let importantMerges: string[] = [];
+      
+        // Process incoming tasks
         Object.entries(incoming).forEach(([id, inc]) => {
           const curr = existing[id];
-
+          const isBillTask = inc.name.includes('($') || inc.name.toLowerCase().includes('pay ');
+      
           if (!curr) {
-            addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
-            merged[id] = inc;              
+            // Only log non-bill additions or first few bill tasks
+            if (!isBillTask || addedCount < 3) {
+              addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
+            }
+            if (isBillTask) billTasksProcessed++;
+            merged[id] = inc;
+            addedCount++;
             return;
           }
-          // 3️⃣ mergedHistory is **not** a Task, so type it explicitly
+      
+          // Merge logic
           const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
           for (const date in inc.completionHistory) {
             if (inc.completionHistory[date] || !(date in mergedHistory)) {
               mergedHistory[date] = inc.completionHistory[date];
             }
           }
-         // One-time tasks keep explicit flag; recurring derive it per-day
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const resolvedCompleted =
-          inc.recurrencePattern === 'one-time'
-            ? inc.completed
-            : !!mergedHistory[today];
-
-        merged[id] = { ...inc, completionHistory: mergedHistory, completed: resolvedCompleted };
-        addSyncLog(
-          `[Tasks] merge "${inc.name}" completed:${resolvedCompleted}`,
-          'verbose'
-        );
+      
+          const today = format(new Date(), 'yyyy-MM-dd');
+          const resolvedCompleted =
+            inc.recurrencePattern === 'one-time'
+              ? inc.completed
+              : !!mergedHistory[today];
+      
+          merged[id] = { ...inc, completionHistory: mergedHistory, completed: resolvedCompleted };
+      
+          // Strategic logging: only log important merges or sample of bill tasks
+          if (!isBillTask) {
+            // Always log non-bill task merges
+            addSyncLog(`[Tasks] merge "${inc.name}" completed:${resolvedCompleted}`, 'verbose');
+            importantMerges.push(inc.name);
+          } else {
+            billTasksProcessed++;
+            // Only log first 2 and last 2 bill task merges
+            if (billTasksProcessed <= 2) {
+              addSyncLog(`[Tasks] merge "${inc.name}" completed:${resolvedCompleted}`, 'verbose');
+            }
+          }
+          mergedCount++;
         });
-        // keep local-only tasks unchanged …
+      
+        // Log the last few bill tasks if we processed many
+        if (billTasksProcessed > 4) {
+          const billTasks = Object.entries(incoming)
+            .filter(([_, task]) => task.name.includes('($') || task.name.toLowerCase().includes('pay '))
+            .slice(-2); // Get last 2 bill tasks
+          
+          billTasks.forEach(([id, task]) => {
+            const today = format(new Date(), 'yyyy-MM-dd');
+            const resolvedCompleted = task.recurrencePattern === 'one-time' 
+              ? task.completed 
+              : !!task.completionHistory?.[today];
+            addSyncLog(`[Tasks] merge "${task.name}" completed:${resolvedCompleted}`, 'verbose');
+          });
+        }
+      
+        // Keep local-only tasks
         Object.entries(existing).forEach(([id, task]) => {
           if (!merged[id]) {
             addSyncLog(`[Tasks] keep local ${task.name}`, 'verbose');
             merged[id] = task;
+            keptLocalCount++;
           }
         });
+      
         set({ tasks: merged, hydrated: true });
+      
+        // Summary log instead of thousands of individual ones
+        if (billTasksProcessed > 10) {
+          addSyncLog(`[Tasks] Processed ${billTasksProcessed} bill tasks (showing first 2 + last 2 only)`, 'info');
+        }
+        
+        if (importantMerges.length > 0) {
+          addSyncLog(`[Tasks] Key merges: ${importantMerges.slice(0, 3).join(', ')}${importantMerges.length > 3 ? '...' : ''}`, 'info');
+        }
+      
         setTimeout(() => {
           const final = taskFilter(get().tasks);
           set({ todaysTasks: final });
           addSyncLog(`[Tasks] hydrate done → ${Object.keys(merged).length} total, ${final.length} today`, 'info');
+          addSyncLog(`[Tasks] Stats: +${addedCount} new, ~${mergedCount} merged, ${keptLocalCount} kept local`, 'info');
         }, 0);
-      },      
+      },    
     }),
     {
       name: 'tasks-store',
@@ -547,7 +602,6 @@ export const useProjectStore = create<ProjectStore>()(
                 const completionDate = new Date(tasks[id].updatedAt).toISOString().split('T')[0]
                 if (new Date(completionDate) >= thirtyDaysAgo) {
                   tasks[id].completionHistory[completionDate] = true
-                  addSyncLog(`Migrated task ${id} completion to history for date ${completionDate}`, 'info');
                 }
               }
             } else {

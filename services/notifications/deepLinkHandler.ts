@@ -2,10 +2,9 @@ import { router } from 'expo-router';
 import { handleSharedContact } from '@/services';
 import type { NotificationResponse } from 'expo-notifications';
 
-export function handleDeepLink(event: { url: string | NotificationResponse }) {
-  console.log('Handling deep link:', event.url);
-  
+export function handleDeepLink(event: { url: string | NotificationResponse }) {  
   if (typeof event.url === 'object' && 'notification' in event.url) {
+    console.log('Handling deep link for notification:', event.url);
     const url = event.url.notification.request.content.data?.url;
     if (url) {
       router.push(url.replace('kaiba-nexus://', '/(drawer)/'));

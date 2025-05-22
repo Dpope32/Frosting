@@ -211,7 +211,7 @@ export default function SyncScreen() {
           />
         )}
 
-        {premium && workspaceId && (
+        {premium && (
           <XStack
             alignItems="center"
             justifyContent="center"
@@ -229,7 +229,7 @@ export default function SyncScreen() {
                 premium={premium}
                 devices={[]}
                 contentWidth={contentWidth}
-                maxHeight={isIpad() ? 750 : 500}
+                maxHeight={isWeb ? 2000 : isIpad() ? 1000 : 750}
               />
             </View>
           </XStack>

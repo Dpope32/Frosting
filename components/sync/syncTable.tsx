@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, useWindowDimensions, TouchableOpacity, Platform } from 'react-native';
-import { Text, Button, XStack } from 'tamagui';
+import { Text, Button, XStack, YStack } from 'tamagui';
 import { useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
@@ -9,30 +9,17 @@ import { useProjectStore } from '@/store/ProjectStore';
 import { usePeopleStore } from '@/store/People';
 import { useHabitStore } from '@/store/HabitStore';
 import { useCalendarStore } from '@/store/CalendarStore';
+import { baseSpacing, cardRadius, fontSizes, getColors, buttonRadius, getDeviceIcon, getDeviceStatusColor, getConnectionStatus, getStatusColor } from '@/components/sync';
 
-const baseSpacing = 8;
-const fontSizes = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 22,
-  xxl: 28,
-};
-const cardRadius = 12;
-const buttonRadius = 20;
-const getColors = (isDark: boolean, primaryColor: string) => ({
-  bg: isDark ? '#181A20' : '#fff',
-  card: isDark ? '#23262F' : '#F7F8FA',
-  border: isDark ? '#333' : '#E3E5E8',
-  text: isDark ? '#fff' : '#181A20',
-  subtext: isDark ? '#fff' : '#666',
-  accent: primaryColor,
-  accentBg: isDark ? `${primaryColor}33` : `${primaryColor}30`,
-  error: isDark ? '#E74C3C' : '#E74C3C',
-  success: isDark ? '#27AE60' : '#27AE60',
-  disabled: isDark ? '#333' : '#eee',
-});
+export interface Device {
+  id: string;
+  name: string;
+  isCurrentDevice: boolean;
+  status: string;
+  lastActive: string;
+  deviceType?: 'ios' | 'android' | 'web' | 'desktop';
+  syncEnabled?: boolean;
+}
 
 interface SyncTableProps {
   isDark: boolean;
@@ -40,8 +27,10 @@ interface SyncTableProps {
   syncStatus: string;
   currentSpaceId: string;
   inviteCode?: string | null;
+  devices?: Device[];
   onCopyInviteCode?: () => Promise<void>;
   onCopyCurrentSpaceId?: () => Promise<void>;
+  onDeviceAction?: (deviceId: string, action: 'remove' | 'sync') => void;
 }
 
 export default function SyncTable({ 
@@ -50,8 +39,10 @@ export default function SyncTable({
   syncStatus, 
   currentSpaceId, 
   inviteCode,
+  devices = [],
   onCopyInviteCode,
-  onCopyCurrentSpaceId
+  onCopyCurrentSpaceId,
+  onDeviceAction
 }: SyncTableProps) {
   const premium = useUserStore((state) => state.preferences.premium === true);
   const setPreferences = useUserStore((state) => state.setPreferences);
@@ -62,385 +53,325 @@ export default function SyncTable({
   const wideMode = isWeb || isTablet;
   const contentWidth = wideMode ? Math.min(width - baseSpacing * 2, 700) : Math.min(width - baseSpacing * 2, 350);
   
-  // BillStore state and actions
   const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
   const toggleBillSync = useBillStore((state) => state.toggleBillSync);
-
-  // VaultStore state and actions
   const isVaultSyncEnabled = useVaultStore((state) => state.isSyncEnabled);
   const toggleVaultSync = useVaultStore((state) => state.toggleVaultSync);
-
-  // ProjectStore (for actual projects) state and actions
   const isProjectSyncEnabled = useProjectStore((state) => state.isSyncEnabled);
   const toggleProjectSync = useProjectStore((state) => state.toggleProjectSync);
-
-  // PeopleStore (Contacts) state and actions
   const isPeopleSyncEnabled = usePeopleStore((state) => state.isSyncEnabled);
   const togglePeopleSync = usePeopleStore((state) => state.togglePeopleSync);
-
-  // HabitStore state and actions
   const isHabitSyncEnabled = useHabitStore((state) => state.isSyncEnabled);
   const toggleHabitSync = useHabitStore((state) => state.toggleHabitSync);
-
-  // CalendarStore state and actions
   const isCalendarSyncEnabled = useCalendarStore((state) => state.isSyncEnabled);
   const toggleCalendarSync = useCalendarStore((state) => state.toggleCalendarSync);
   
-  // More explicit connection status determination
-  const connectionStatus = React.useMemo(() => {
-    if (!premium) return 'Premium Required';
-    if (syncStatus === 'error') return 'Error';
-    if (syncStatus === 'syncing') return 'Syncing';
-    if (currentSpaceId) return 'Connected';
-    return 'Not Connected';
-  }, [premium, syncStatus, currentSpaceId]);
+  const connectionStatus = getConnectionStatus(premium, syncStatus, currentSpaceId);
   
-  const statusColor = React.useMemo(() => {
-    if (syncStatus === 'error') return colors.error;
-    if (syncStatus === 'syncing') return colors.accent;
-    if (currentSpaceId) return colors.success;
-    return colors.subtext;
-  }, [syncStatus, currentSpaceId, colors]);
+  const statusColor = getStatusColor(syncStatus, currentSpaceId, colors);
 
-return (
-<View style={{
-    backgroundColor: colors.card,
-    borderRadius: cardRadius,
-    padding: baseSpacing * 2,
-    borderWidth: 1,
-    borderColor: colors.border,
-    width: contentWidth,
-    alignSelf: 'center',
-    marginVertical: baseSpacing,
-  }}>
-    <XStack alignItems="center" justifyContent="space-between">
-      <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
-        Premium Sync
-      </Text>
-      <Button
-        size="$2"
-        backgroundColor={premium ? colors.success : colors.error}
-        onPress={() => setPreferences({ premium: !premium })}
-        borderRadius={buttonRadius}
-        paddingHorizontal={baseSpacing * 2}
-        pressStyle={{ scale: 0.97 }}
-        animation="quick"
-      >
-        <Text color="#fff" fontWeight="700" fontFamily="$body">
-          {premium ? 'Enabled' : 'Disabled'}
+  const syncSettings = [
+    { key: 'bills', label: 'Bills', enabled: isBillSyncEnabled, toggle: toggleBillSync },
+    { key: 'vault', label: 'Passwords', enabled: isVaultSyncEnabled, toggle: toggleVaultSync },
+    { key: 'projects', label: 'Projects', enabled: isProjectSyncEnabled, toggle: toggleProjectSync },
+    { key: 'people', label: 'Contacts', enabled: isPeopleSyncEnabled, toggle: togglePeopleSync },
+    { key: 'habits', label: 'Habits', enabled: isHabitSyncEnabled, toggle: toggleHabitSync },
+    { key: 'calendar', label: 'Calendar', enabled: isCalendarSyncEnabled, toggle: toggleCalendarSync },
+  ];
+
+  const enabledSyncCount = syncSettings.filter(s => s.enabled).length;
+
+  return (
+    <View style={{
+      backgroundColor: colors.card,
+      borderRadius: cardRadius,
+      padding: baseSpacing * 2,
+      borderWidth: 1,
+      borderColor: colors.border,
+      width: contentWidth,
+      alignSelf: 'center',
+      marginVertical: baseSpacing,
+    }}>
+      {/* Premium Toggle Header */}
+      <XStack alignItems="center" justifyContent="space-between">
+        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
+          Premium Sync
         </Text>
-      </Button>
-    </XStack>
-    
-    <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-    <XStack alignItems="center" justifyContent="space-between">
-      <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-        Sync Status
-      </Text>
-      <Text fontSize={fontSizes.sm} fontFamily="$body" color={statusColor}>
-        {connectionStatus}
-      </Text>
-    </XStack>
-    {inviteCode && currentSpaceId && (
-      <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-          Invite Code
-        </Text>
-        <TouchableOpacity 
-          onPress={onCopyInviteCode || (() => {})}
-          style={{ 
-            flexDirection: 'row', 
-            alignItems: 'center', 
-            backgroundColor: colors.accentBg,
-            paddingHorizontal: baseSpacing,
-            paddingVertical: baseSpacing / 2,
-            borderRadius: buttonRadius / 2,
-          }}
+        <Button
+          size="$2"
+          backgroundColor={premium ? colors.success : colors.error}
+          onPress={() => setPreferences({ premium: !premium })}
+          borderRadius={buttonRadius}
+          paddingHorizontal={baseSpacing * 2}
+          pressStyle={{ scale: 0.97 }}
+          animation="quick"
         >
-          <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2}>
-            {inviteCode}
+          <Text color="#fff" fontWeight="700" fontFamily="$body">
+            {premium ? 'Enabled' : 'Disabled'}
           </Text>
-          <MaterialIcons name="content-copy" size={14} color={colors.accent} />
-        </TouchableOpacity>
+        </Button>
       </XStack>
-    )}
-    {currentSpaceId && (
-      <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-      <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-        Current Space ID
-      </Text>
-      <TouchableOpacity 
-        onPress={onCopyCurrentSpaceId || (() => {})}
-        style={{ 
-          flexDirection: 'row', 
-          alignItems: 'center', 
-          backgroundColor: colors.accentBg,
-          paddingHorizontal: baseSpacing,
-          paddingVertical: baseSpacing / 2,
-          borderRadius: buttonRadius / 2,
-        }}
-      >
-        <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2}>
-          {currentSpaceId}
+      
+      {/* Connection Status */}
+      <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+      <XStack alignItems="center" justifyContent="space-between">
+        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+          Sync Status
         </Text>
-        <MaterialIcons name="content-copy" size={14} color={colors.accent} />
-      </TouchableOpacity>
-    </XStack>
-    )}
+        <XStack alignItems="center" gap={6}>
+          <View style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: statusColor,
+          }} />
+          <Text fontSize={fontSizes.sm} fontFamily="$body" color={statusColor} fontWeight="500">
+            {connectionStatus}
+          </Text>
+        </XStack>
+      </XStack>
 
-    {premium && (
-      <>
-        {wideMode ? (
-          <XStack marginTop={baseSpacing}>
-            <View style={{ flex: 1, marginRight: baseSpacing }}>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
-              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                  Bills
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={isBillSyncEnabled ? colors.success : colors.disabled}
-                  onPress={toggleBillSync}
-                  borderRadius={buttonRadius}
-                  paddingHorizontal={baseSpacing * 2}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontWeight="700" fontFamily="$body">
-                    {isBillSyncEnabled ? 'ON' : 'OFF'}
-                  </Text>
-                </Button>
-              </XStack>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
-              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                  Passwords
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={isVaultSyncEnabled ? colors.success : colors.disabled}
-                  onPress={toggleVaultSync}
-                  borderRadius={buttonRadius}
-                  paddingHorizontal={baseSpacing * 2}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontWeight="700" fontFamily="$body">
-                    {isVaultSyncEnabled ? 'ON' : 'OFF'}
-                  </Text>
-                </Button>
-              </XStack>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
-              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                  Projects
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={isProjectSyncEnabled ? colors.success : colors.disabled}
-                  onPress={toggleProjectSync}
-                  borderRadius={buttonRadius}
-                  paddingHorizontal={baseSpacing * 2}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontWeight="700" fontFamily="$body">
-                    {isProjectSyncEnabled ? 'ON' : 'OFF'}
-                  </Text>
-                </Button>
-              </XStack>
-            </View>
-            <View style={{ flex: 1, marginLeft: baseSpacing }}>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
-              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                  Contacts
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={isPeopleSyncEnabled ? colors.success : colors.disabled}
-                  onPress={togglePeopleSync}
-                  borderRadius={buttonRadius}
-                  paddingHorizontal={baseSpacing * 2}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontWeight="700" fontFamily="$body">
-                    {isPeopleSyncEnabled ? 'ON' : 'OFF'}
-                  </Text>
-                </Button>
-              </XStack>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
-              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                  Habits
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={isHabitSyncEnabled ? colors.success : colors.disabled}
-                  onPress={toggleHabitSync}
-                  borderRadius={buttonRadius}
-                  paddingHorizontal={baseSpacing * 2}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontWeight="700" fontFamily="$body">
-                    {isHabitSyncEnabled ? 'ON' : 'OFF'}
-                  </Text>
-                </Button>
-              </XStack>
-              <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5 }} />
-              <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-                <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                  Calendar
-                </Text>
-                <Button
-                  size="$2"
-                  backgroundColor={isCalendarSyncEnabled ? colors.success : colors.disabled}
-                  onPress={toggleCalendarSync}
-                  borderRadius={buttonRadius}
-                  paddingHorizontal={baseSpacing * 2}
-                  pressStyle={{ scale: 0.97 }}
-                  animation="quick"
-                >
-                  <Text color="#fff" fontWeight="700" fontFamily="$body">
-                    {isCalendarSyncEnabled ? 'ON' : 'OFF'}
-                  </Text>
-                </Button>
-              </XStack>
-            </View>
+      {/* Sync Summary */}
+      {premium && currentSpaceId && (
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Active Syncs
+          </Text>
+          <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.text} fontWeight="500">
+            {enabledSyncCount} of {syncSettings.length} enabled
+          </Text>
+        </XStack>
+      )}
+
+      {/* Invite Code */}
+      {inviteCode && currentSpaceId && (
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Invite Code
+          </Text>
+          <TouchableOpacity 
+            onPress={onCopyInviteCode || (() => {})}
+            style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              backgroundColor: colors.accentBg,
+              paddingHorizontal: baseSpacing,
+              paddingVertical: baseSpacing / 2,
+              borderRadius: buttonRadius / 2,
+            }}
+          >
+            <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2} fontWeight="600">
+              {inviteCode}
+            </Text>
+            <MaterialIcons name="content-copy" size={14} color={colors.accent} />
+          </TouchableOpacity>
+        </XStack>
+      )}
+
+      {/* Current Space ID */}
+      {currentSpaceId && (
+        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
+          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
+            Workspace ID
+          </Text>
+          <TouchableOpacity 
+            onPress={onCopyCurrentSpaceId || (() => {})}
+            style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center', 
+              backgroundColor: colors.accentBg,
+              paddingHorizontal: baseSpacing,
+              paddingVertical: baseSpacing / 2,
+              borderRadius: buttonRadius / 2,
+            }}
+          >
+            <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2} fontWeight="500">
+              {currentSpaceId.substring(0, 8)}...
+            </Text>
+            <MaterialIcons name="content-copy" size={14} color={colors.accent} />
+          </TouchableOpacity>
+        </XStack>
+      )}
+
+      {/* Connected Devices */}
+      {premium && devices.length > 0 && (
+        <>
+          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+          <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
+            <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
+              Connected Devices
+            </Text>
+            <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext}>
+              {devices.length} device{devices.length !== 1 ? 's' : ''}
+            </Text>
           </XStack>
-        ) : (
-          <>
-            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                Bills
-              </Text>
-              <Button
-                size="$2"
-                backgroundColor={isBillSyncEnabled ? colors.success : colors.disabled} 
-                onPress={toggleBillSync}
-                borderRadius={buttonRadius}
-                paddingHorizontal={baseSpacing * 2}
-                pressStyle={{ scale: 0.97 }}
-                animation="quick"
+          
+          <YStack gap={baseSpacing}>
+            {devices.map((device) => (
+              <XStack
+                key={device.id}
+                alignItems="center"
+                justifyContent="space-between"
+                backgroundColor={device.isCurrentDevice ? colors.accentBg : 'transparent'}
+                borderRadius={8}
+                padding={baseSpacing}
+                borderWidth={device.isCurrentDevice ? 1 : 0}
+                borderColor={device.isCurrentDevice ? colors.accent : 'transparent'}
               >
-                <Text color="#fff" fontWeight="700" fontFamily="$body">
-                  {isBillSyncEnabled ? 'ON' : 'OFF'}
-                </Text>
-              </Button>
-            </XStack>
+                <XStack alignItems="center" gap={baseSpacing} flex={1}>
+                  <MaterialIcons 
+                    name={getDeviceIcon(device.deviceType)} 
+                    size={20} 
+                    color={getDeviceStatusColor(device, colors)} 
+                  />
+                  <YStack flex={1}>
+                    <XStack alignItems="center" gap={6}>
+                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.text} fontWeight="500">
+                        {device.name}
+                      </Text>
+                      {device.isCurrentDevice && (
+                        <View style={{
+                          backgroundColor: colors.accent,
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                          borderRadius: 4,
+                        }}>
+                          <Text fontSize={10} color="white" fontWeight="600">This Device</Text>
+                        </View>
+                      )}
+                    </XStack>
+                    <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.subtext}>
+                      {device.isCurrentDevice 
+                        ? (devices.length > 1 ? 'Connected & Syncing' : 'Waiting for other devices')
+                        : `${device.status} • Last seen ${new Date(device.lastActive).toLocaleDateString()}`}
+                    </Text>
+                  </YStack>
+                </XStack>
+                
+                {!device.isCurrentDevice && onDeviceAction && (
+                  <TouchableOpacity 
+                    onPress={() => onDeviceAction(device.id, 'remove')}
+                    style={{ padding: 4 }}
+                  >
+                    <MaterialIcons name="more-vert" size={20} color={colors.subtext} />
+                  </TouchableOpacity>
+                )}
+              </XStack>
+            ))}
+          </YStack>
+        </>
+      )}
 
-            {/* Vault (Passwords) Sync Toggle - Only show if premium is enabled */} 
-            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                Passwords
+      {/* Sync Settings */}
+      {premium && (
+        <>
+          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+          <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing}>
+            <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
+              Sync Settings
+            </Text>
+            <TouchableOpacity 
+              onPress={() => {
+                // Toggle all sync settings
+                const shouldEnable = enabledSyncCount < syncSettings.length;
+                syncSettings.forEach(setting => {
+                  if (setting.enabled !== shouldEnable) {
+                    setting.toggle();
+                  }
+                });
+              }}
+            >
+              <Text fontSize={fontSizes.xs} fontFamily="$body" color={colors.accent} fontWeight="500">
+                {enabledSyncCount === syncSettings.length ? 'Disable All' : 'Enable All'}
               </Text>
-              <Button
-                size="$2"
-                backgroundColor={isVaultSyncEnabled ? colors.success : colors.disabled}
-                onPress={toggleVaultSync}
-                borderRadius={buttonRadius}
-                paddingHorizontal={baseSpacing * 2}
-                pressStyle={{ scale: 0.97 }}
-                animation="quick"
-              >
-                <Text color="#fff" fontWeight="700" fontFamily="$body">
-                  {isVaultSyncEnabled ? 'ON' : 'OFF'}
-                </Text>
-              </Button>
-            </XStack>
+            </TouchableOpacity>
+          </XStack>
 
-            {/* Project Sync Toggle - Only show if premium is enabled */} 
-            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                Projects
-              </Text>
-              <Button
-                size="$2"
-                backgroundColor={isProjectSyncEnabled ? colors.success : colors.disabled}
-                onPress={toggleProjectSync}
-                borderRadius={buttonRadius}
-                paddingHorizontal={baseSpacing * 2}
-                pressStyle={{ scale: 0.97 }}
-                animation="quick"
-              >
-                <Text color="#fff" fontWeight="700" fontFamily="$body">
-                  {isProjectSyncEnabled ? 'ON' : 'OFF'}
-                </Text>
-              </Button>
+          {wideMode ? (
+            <XStack gap={baseSpacing * 2}>
+              <YStack flex={1} gap={baseSpacing}>
+                {syncSettings.slice(0, 3).map((setting, index) => (
+                  <React.Fragment key={setting.key}>
+                    <XStack alignItems="center" justifyContent="space-between">
+                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
+                        {setting.label}
+                      </Text>
+                      <Button
+                        size="$2"
+                        backgroundColor={setting.enabled ? colors.success : colors.disabled}
+                        onPress={setting.toggle}
+                        borderRadius={buttonRadius}
+                        paddingHorizontal={baseSpacing * 1.5}
+                        pressStyle={{ scale: 0.97 }}
+                        animation="quick"
+                      >
+                        <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                          {setting.enabled ? 'ON' : 'OFF'}
+                        </Text>
+                      </Button>
+                    </XStack>
+                    {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                  </React.Fragment>
+                ))}
+              </YStack>
+              
+              <YStack flex={1} gap={baseSpacing}>
+                {syncSettings.slice(3).map((setting, index) => (
+                  <React.Fragment key={setting.key}>
+                    <XStack alignItems="center" justifyContent="space-between">
+                      <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
+                        {setting.label}
+                      </Text>
+                      <Button
+                        size="$2"
+                        backgroundColor={setting.enabled ? colors.success : colors.disabled}
+                        onPress={setting.toggle}
+                        borderRadius={buttonRadius}
+                        paddingHorizontal={baseSpacing * 1.5}
+                        pressStyle={{ scale: 0.97 }}
+                        animation="quick"
+                      >
+                        <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                          {setting.enabled ? 'ON' : 'OFF'}
+                        </Text>
+                      </Button>
+                    </XStack>
+                    {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                  </React.Fragment>
+                ))}
+              </YStack>
             </XStack>
-
-            {/* People (Contacts) Sync Toggle - Only show if premium is enabled */} 
-            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                Contacts
-              </Text>
-              <Button
-                size="$2"
-                backgroundColor={isPeopleSyncEnabled ? colors.success : colors.disabled}
-                onPress={togglePeopleSync}
-                borderRadius={buttonRadius}
-                paddingHorizontal={baseSpacing * 2}
-                pressStyle={{ scale: 0.97 }}
-                animation="quick"
-              >
-                <Text color="#fff" fontWeight="700" fontFamily="$body">
-                  {isPeopleSyncEnabled ? 'ON' : 'OFF'}
-                </Text>
-              </Button>
-            </XStack>
-
-            {/* Habit Sync Toggle - Only show if premium is enabled */} 
-            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                Habits
-              </Text>
-              <Button
-                size="$2"
-                backgroundColor={isHabitSyncEnabled ? colors.success : colors.disabled}
-                onPress={toggleHabitSync}
-                borderRadius={buttonRadius}
-                paddingHorizontal={baseSpacing * 2}
-                pressStyle={{ scale: 0.97 }}
-                animation="quick"
-              >
-                <Text color="#fff" fontWeight="700" fontFamily="$body">
-                  {isHabitSyncEnabled ? 'ON' : 'OFF'}
-                </Text>
-              </Button>
-            </XStack>
-
-            {/* Calendar Sync Toggle - Only show if premium is enabled */} 
-            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-            <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-              <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-                Calendar
-              </Text>
-              <Button
-                size="$2"
-                backgroundColor={isCalendarSyncEnabled ? colors.success : colors.disabled}
-                onPress={toggleCalendarSync}
-                borderRadius={buttonRadius}
-                paddingHorizontal={baseSpacing * 2}
-                pressStyle={{ scale: 0.97 }}
-                animation="quick"
-              >
-                <Text color="#fff" fontWeight="700" fontFamily="$body">
-                  {isCalendarSyncEnabled ? 'ON' : 'OFF'}
-                </Text>
-              </Button>
-            </XStack>
-          </>
-        )}
-      </>
-    )}
-  </View>
-)
+          ) : (
+            <YStack gap={baseSpacing}>
+              {syncSettings.map((setting, index) => (
+                <React.Fragment key={setting.key}>
+                  <XStack alignItems="center" justifyContent="space-between">
+                    <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
+                      {setting.label}
+                    </Text>
+                    <Button
+                      size="$2"
+                      backgroundColor={setting.enabled ? colors.success : colors.disabled}
+                      onPress={setting.toggle}
+                      borderRadius={buttonRadius}
+                      paddingHorizontal={baseSpacing * 1.5}
+                      pressStyle={{ scale: 0.97 }}
+                      animation="quick"
+                    >
+                      <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                        {setting.enabled ? 'ON' : 'OFF'}
+                      </Text>
+                    </Button>
+                  </XStack>
+                  {index < syncSettings.length - 1 && (
+                    <View style={{ height: 1, backgroundColor: colors.border }} />
+                  )}
+                </React.Fragment>
+              ))}
+            </YStack>
+          )}
+        </>
+      )}
+    </View>
+  );
 }

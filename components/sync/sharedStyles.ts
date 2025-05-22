@@ -24,3 +24,5 @@ export const getColors = (isDark: boolean, primaryColor: string) => ({
   success: '#27AE60',
   disabled: isDark ? '#333' : '#eee',
 });
+
+
