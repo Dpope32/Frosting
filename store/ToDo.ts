@@ -376,45 +376,31 @@ export const useProjectStore = create<ProjectStore>()(
             return;
           }
       
-          // Merge logic
-          const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
-          for (const date in inc.completionHistory) {
-            if (inc.completionHistory[date] || !(date in mergedHistory)) {
-              mergedHistory[date] = inc.completionHistory[date];
-            }
-          }
-      
+          // Merge logic - FIX THE COMPLETION RESOLUTION
+          const mergedHistory: Record<string, boolean> = { ...curr.completionHistory, ...inc.completionHistory };
+          
           const today = format(new Date(), 'yyyy-MM-dd');
-          const resolvedCompleted =
-            inc.recurrencePattern === 'one-time'
-              ? inc.completed
-              : !!mergedHistory[today];
-      
-          merged[id] = { ...inc, completionHistory: mergedHistory, completed: resolvedCompleted };
-      
-          // Strategic logging: only log important merges or sample of bill tasks
-          if (!isBillTask) {
-            // Always log non-bill task merges
-            importantMerges.push(inc.name);
-          } else {
-            billTasksProcessed++;
+          const resolvedCompleted = inc.recurrencePattern === 'one-time'
+            ? (curr.completed || inc.completed) // Preserve ANY completion for one-time tasks
+            : !!(mergedHistory[today] || curr.completed); // For recurring, check today's history OR current completion
+          
+          // Add focused completion tracking log
+          if (curr.completed !== inc.completed || curr.completed !== resolvedCompleted) {
+            addSyncLog(`[Completion] ${inc.name.slice(0, 20)}: local=${curr.completed} sync=${inc.completed} final=${resolvedCompleted}`, 'info');
           }
+          
+          merged[id] = { 
+            ...inc, 
+            completionHistory: mergedHistory, 
+            completed: resolvedCompleted,
+            updatedAt: curr.updatedAt > inc.updatedAt ? curr.updatedAt : inc.updatedAt // Keep latest timestamp
+          };
           mergedCount++;
         });
       
-        // Log the last few bill tasks if we processed many
-        if (billTasksProcessed > 4) {
-          const billTasks = Object.entries(incoming)
-            .filter(([_, task]) => task.name.includes('($') || task.name.toLowerCase().includes('pay '))
-            .slice(-2); // Get last 2 bill tasks
-          addSyncLog(`[Tasks] last 2 bill tasks to make sure were sane: ${billTasks.map(([id, task]) => task.name).join(', ')}`, 'info');
-
-        }
-      
-        // Keep local-only tasks
+        // Preserve any local-only tasks that aren't in incoming
         Object.entries(existing).forEach(([id, task]) => {
-          if (!merged[id]) {
-            addSyncLog(`[Tasks] keep local ${task.name}`, 'verbose');
+          if (!incoming[id]) {
             merged[id] = task;
             keptLocalCount++;
           }
