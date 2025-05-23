@@ -3,7 +3,7 @@ import { useColorScheme, Platform, View } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView } from 'tamagui'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
-import { MONTHS } from '@/services/taskService'
+import { MONTHS } from '@/services/tasks/taskService'
 
 interface DateSelectorProps {
   isYearly: boolean

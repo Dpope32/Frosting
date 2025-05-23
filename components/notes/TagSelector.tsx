@@ -141,8 +141,11 @@ export function TagSelector({
       return;
     }
     lastTapRef.current = now;
+    
+    // Only toggle selection, don't delete tags on press
     if (isSelected) {
-      handleRemoveTag(tag.id);
+      // Remove from selection without deleting from store
+      onTagsChange(tags.filter(t => t.id !== tag.id));
     } else {
       if (!tags.some(t => t.id === tag.id)) {
         onTagsChange([...tags, tag]);

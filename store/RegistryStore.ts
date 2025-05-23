@@ -299,7 +299,6 @@ useRegistryStore.getState().setHasCompletedOnboarding(userOnboarding);
 
 // Contextual initialization message
 if (userOnboarding) {
-  console.log('🎉 Registry store successfully created and ready for sync!');
 } else {
   // if we get here, either the user has not completed onboarding or the user is not premium so we need to seperate the logic
   if (useUserStore.getState().preferences.premium) {

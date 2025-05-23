@@ -75,8 +75,16 @@ export const PremiumLogs = ({
 
   // Deduplicate and filter logs
   const processedLogs = useMemo(() => {
+    // First filter out any logs containing "yahoo" or "geocoding"
+    const filteredLogs = syncLogs.filter(log => {
+      const messageLC = log.message.toLowerCase();
+      const detailsLC = log.details?.toLowerCase() || '';
+      return !(messageLC.includes('yahoo') || messageLC.includes('geocoding') || 
+               detailsLC.includes('yahoo') || detailsLC.includes('geocoding'));
+    });
+    
     // Deduplicate by message content and timestamp proximity (within 1 second)
-    const deduped = syncLogs.reduce((acc, log) => {
+    const deduped = filteredLogs.reduce((acc, log) => {
       const isDuplicate = acc.some(existing => 
         existing.message === log.message &&
         Math.abs(existing.timestamp.getTime() - log.timestamp.getTime()) < 1000
@@ -106,7 +114,15 @@ export const PremiumLogs = ({
 
   // Status counts for filter badges
   const statusCounts = useMemo(() => {
-    return syncLogs.reduce((acc, log) => {
+    // Use filtered logs for counts, not including yahoo or geocoding
+    const filteredLogs = syncLogs.filter(log => {
+      const messageLC = log.message.toLowerCase();
+      const detailsLC = log.details?.toLowerCase() || '';
+      return !(messageLC.includes('yahoo') || messageLC.includes('geocoding') || 
+               detailsLC.includes('yahoo') || detailsLC.includes('geocoding'));
+    });
+    
+    return filteredLogs.reduce((acc, log) => {
       acc[log.status] = (acc[log.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -239,19 +255,6 @@ export const PremiumLogs = ({
             alignItems="center"
             flexShrink={0}
           >
-            <TouchableOpacity 
-              onPress={() => setAutoScroll(!autoScroll)}
-              style={{
-                padding: wideMode ? 8 : 6,
-                borderRadius: 6,
-              }}
-            >
-              <Ionicons 
-                name={autoScroll ? "play" : "pause"} 
-                size={wideMode ? 18 : 16} 
-                color={autoScroll ? colors.success : colors.subtext} 
-              />
-            </TouchableOpacity>
             <TouchableOpacity onPress={exportLogs}>
               <Text 
                 color={colors.accent} 
@@ -310,14 +313,39 @@ export const PremiumLogs = ({
               <Ionicons name="close-circle" size={wideMode ? 18 : 16} color={colors.subtext} />
             </TouchableOpacity>
           )}
+          <TouchableOpacity 
+            onPress={() => setAutoScroll(!autoScroll)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              backgroundColor: autoScroll ? colors.success + '15' : colors.subtext + '15',
+              paddingHorizontal: wideMode ? 8 : 6,
+              paddingVertical: wideMode ? 4 : 3,
+              borderRadius: wideMode ? 12 : 10,
+              marginRight: -8,
+            }}
+          >
+            <View style={{
+              width: wideMode ? 10 : 8,
+              height: wideMode ? 10 : 8,
+              borderRadius: wideMode ? 5 : 4,
+              backgroundColor: autoScroll ? colors.success : colors.subtext,
+            }} />
+            <Ionicons 
+              name={autoScroll ? "play" : "pause"} 
+              size={wideMode ? 16 : 14} 
+              color={autoScroll ? colors.success : colors.subtext} 
+            />
+          </TouchableOpacity>
         </View>
 
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
-          style={{ marginBottom: baseSpacing * 1.5 }}
+          style={{ marginBottom: baseSpacing}}
           contentContainerStyle={{ 
-            gap: wideMode ? 12 : 8, 
+            gap: wideMode ? 12 : 6, 
             paddingHorizontal: wideMode ? 8 : 4,
             paddingVertical: 4,
             alignItems: 'center',
@@ -330,8 +358,6 @@ export const PremiumLogs = ({
           <StatusFilterChip status="info" label="Info" count={statusCounts.info} />
           <StatusFilterChip status="verbose" label="Verbose" count={statusCounts.verbose} />
         </ScrollView>
-
-        <View style={{height: 1, backgroundColor: colors.border, marginBottom: baseSpacing * 2}} />
         
         <XStack 
           justifyContent="space-between" 
@@ -339,31 +365,7 @@ export const PremiumLogs = ({
           marginBottom={baseSpacing}
           flexWrap={wideMode ? 'nowrap' : 'wrap'}
           gap={wideMode ? 0 : baseSpacing}
-        >
-          <Text fontSize={wideMode ? fontSizes.sm : fontSizes.xs} color={colors.subtext} fontFamily="$body">
-            Showing {processedLogs.length} of {syncLogs.length} logs
-            {searchTerm && ` (filtered)`}
-          </Text>
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            backgroundColor: autoScroll ? colors.success + '15' : colors.subtext + '15',
-            paddingHorizontal: wideMode ? 10 : 8,
-            paddingVertical: wideMode ? 4 : 3,
-            borderRadius: wideMode ? 12 : 10,
-          }}>
-            <View style={{
-              width: wideMode ? 6 : 5,
-              height: wideMode ? 6 : 5,
-              borderRadius: wideMode ? 3 : 2.5,
-              backgroundColor: autoScroll ? colors.success : colors.subtext,
-            }} />
-            <Text fontSize={wideMode ? fontSizes.sm : fontSizes.xs} color={colors.subtext} fontFamily="$body">
-              Auto-scroll {autoScroll ? 'ON' : 'OFF'}
-            </Text>
-          </View>
-        </XStack>
+        />
 
         {/* Logs Container */}
         <ScrollView 

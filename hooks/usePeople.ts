@@ -29,12 +29,8 @@ export const useAddPerson = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (person: Person) => {
-      console.log('🔍 [useAddPerson] mutation function start:', new Date().toISOString())
-      const startTime = performance.now()
-      
       try {
         await usePeopleStore.getState().addPerson(person)
-        console.log(`🔍 [useAddPerson] store.addPerson completed (${performance.now() - startTime}ms)`)
         return person
       } catch (error) {
         console.error('🔴 [useAddPerson] Error in mutation function:', error)
@@ -42,16 +38,11 @@ export const useAddPerson = () => {
       }
     },
     onSuccess: (_, variables) => {
-      console.log('🔍 [useAddPerson] onSuccess triggered:', new Date().toISOString())
-      const invalidateStart = performance.now()
-      
       try {
-        // Show toast notification
         const { showToast } = require('@/store/ToastStore').useToastStore.getState()
         showToast(`${variables.name} added successfully`, 'success', { duration: 3000 })
         
         queryClient.invalidateQueries({ queryKey: ['contacts'] })
-        console.log(`🔍 [useAddPerson] query invalidation completed (${performance.now() - invalidateStart}ms)`)
       } catch (error) {
         console.error('🔴 [useAddPerson] Error in onSuccess:', error)
       }

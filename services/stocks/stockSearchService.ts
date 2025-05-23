@@ -1,5 +1,5 @@
-import { stocksData, StockData } from '../constants/stocks';
-import { popularStocks } from '../constants/popularStocks';
+import { stocksData, StockData } from '@/constants';
+import { popularStocks } from '@/constants';
 import { usePortfolioStore } from '@/store';
 
 export const initializeStocksData = async () => {

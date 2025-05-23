@@ -8,14 +8,6 @@ import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils';
 import { addSyncLog } from '@/components/sync/syncUtils'
 
-// Enable debugging
-const DEBUG = false;
-
-function log(...args: any[]) {
-  if (DEBUG) {
-    console.log('[TaskStore]', ...args);
-  }
-}
 
 interface ProjectStore {
   tasks: Record<string, Task>
@@ -43,61 +35,31 @@ const isTaskDue = (task: Task, date: Date): boolean => {
     ? (() => { const [year, month, day] = task.recurrenceDate.split('-').map(Number); return new Date(year, month - 1, day); })()
     : new Date(task.createdAt)
 
-  // Debug specific tasks
-  const shouldDebug = DEBUG && (task.name.includes("Thunder") || task.name.includes("Journal"))
-
-  if (shouldDebug) {
-    log("isTaskDue checking task:", task.id, task.name, task.recurrencePattern);
-    log("- currentDateStrLocal:", currentDateStrLocal);
-    log("- completionHistory:", JSON.stringify(task.completionHistory));
-    log("- task.completed:", task.completed);
-    if (task.scheduledDate) log("- scheduledDate:", task.scheduledDate);
-  }
-  
   // ONE-TIME TASKS SPECIAL HANDLING
   if (task.recurrencePattern === 'one-time') {
     // If completed today, still show it (so user can untoggle if needed)
     if (task.completionHistory[currentDateStrLocal] === true) {
-      if (shouldDebug) log("- one-time task completed today, showing it");
       return true;
     }
     
     // If completed on a previous day, hide it
     if (task.completed) {
-      if (shouldDebug) log("- one-time task completed on a previous day, hiding it");
       return false;
     }
     
     // Special handling for games
     //if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
       // Check user preference first
-
      // const gameDate = new Date(task.scheduledDate)
      // const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
     //  const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
-      
       // Only show game if it's scheduled for today
       //const isGameDay = localGameDateStr === currentDateStrLocal;
-      
-      //if (shouldDebug) {
-      //  log("- game check:");
-      //  log("  - localGameDateStr:", localGameDateStr);
-      //  log("  - currentDateStrLocal:", currentDateStrLocal);
-      //  log("  - isGameDay:", isGameDay);
-      //}
-      
       //return isGameDay;
     //}
     
     // Special handling for birthdays
     if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
-      // Enable debug for all birthday tasks to troubleshoot issues
-      const birthdayDebug = DEBUG && task.name.includes('birthday');
-      
-      if (birthdayDebug) {
-        log("- birthday task detected:", task.name);
-        log("- scheduledDate:", task.scheduledDate);
-      }
       
       // Compare year, month, and day for birthdays
       const [bYear, bMonth, bDay] = task.scheduledDate.split('-').map(Number);
@@ -113,38 +75,20 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         date.getMonth() === bdayDate.getMonth();
 
       const shouldShowBirthday = isBirthdayToday || isBirthdayTodayAlt;
-
-      if (birthdayDebug) {
-        log("- birthday check:");
-        log("  - task scheduledDate:", task.scheduledDate);
-        log("  - bdayDate:", bdayDate);
-        log("  - currentDate:", date);
-        log("  - isBirthdayToday (Y/M/D):", isBirthdayToday);
-        log("  - isBirthdayTodayAlt (M/D):", isBirthdayTodayAlt);
-        log("  - final result:", shouldShowBirthday);
-      }
-
       return shouldShowBirthday;
     }
-
-    // For regular one-time tasks, show if not completed
-    if (shouldDebug) log("- one-time regular task, not completed, showing it");
     return true;
   }
 
   // RECURRING TASKS
   // If completed today, always show recurring tasks (so user can untoggle if needed)
   if (task.completionHistory[currentDateStrLocal] === true) {
-    if (shouldDebug) log("- recurring task completed today, showing it");
     return true;
   }
 
   // STEP 3: Special handling for bills
   if (task.category === 'bills' && task.dueDate) {
     const isDueDate = date.getDate() === task.dueDate;
-    if (shouldDebug) log("- bills check, isDueDate:", isDueDate);
-    // Only show bills that are due today and not completed
-    if (shouldDebug) log(`- bills check result for ${task.name}: ${isDueDate}`);
     return isDueDate;
   }
 
@@ -160,7 +104,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       if (result === true) {
         // If the task is due today (creation date was yesterday),
         // convert it to a one-time task
-        if (shouldDebug) log(`- tomorrow task ${task.id} due today, converting to one-time`);
 
         // We need to modify the task in the store, not just the local copy
         // This needs to be done asynchronously to avoid mutating during filtering
@@ -174,34 +117,23 @@ const isTaskDue = (task: Task, date: Date): boolean => {
               recurrencePattern: 'one-time',
               updatedAt: new Date().toISOString()
             };
-
-            if (DEBUG) log(`- converted tomorrow task ${task.id} to one-time`);
             storeUpdate.tasks = tasks;
             useProjectStore.setState({ tasks });
           }
         }, 0);
       }
 
-      if (shouldDebug) log("- tomorrow check, result:", result);
       return result;
     }
 
     case 'everyday': {
       // For everyday tasks, always show
-      if (shouldDebug) log("- everyday task, showing it");
       return true;
     }
 
     case 'weekly': {
       // Only show weekly tasks on their scheduled days
       const isDueToday = task.schedule.includes(today);
-      if (shouldDebug) {
-        log("- weekly check:");
-        log("  - schedule:", task.schedule);
-        log("  - today:", today);
-        log("  - isDueToday:", isDueToday);
-      }
-      if (shouldDebug) log(`- weekly check result for ${task.name}: ${isDueToday}`);
       return isDueToday;
     }
 
@@ -209,22 +141,18 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       const startDate = fallbackRecDate
       const weekDiff = Math.floor((date.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000))
       const isDueToday = task.schedule.includes(today) && (weekDiff % 2 === 0);
-      if (shouldDebug) log("- biweekly check, isDueToday:", isDueToday);
-      if (shouldDebug) log(`- biweekly check result for ${task.name}: ${isDueToday}`);
       return isDueToday;
     }
 
     case 'monthly': {
       // Check if this is a bill (which was already handled above)
       if (task.category === 'bills') {
-        if (shouldDebug) log("- monthly bills already handled earlier, skipping");
         return false;
       }
       
       // Compare day of the month for non-bill monthly tasks
       const recDay = fallbackRecDate.getDate();
       const isDueToday = date.getDate() === recDay;
-      if (shouldDebug) log(`- monthly check result for ${task.name}: ${isDueToday} (today: ${date.getDate()}, recDay: ${recDay})`);
       return isDueToday;
     }
 
@@ -233,12 +161,10 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       const recMonth = fallbackRecDate.getMonth();
       const recDay = fallbackRecDate.getDate();
       const isDueToday = date.getMonth() === recMonth && date.getDate() === recDay;
-      if (shouldDebug) log(`- yearly check result for ${task.name}: ${isDueToday} (today: ${date.getMonth()+1}/${date.getDate()}, recDate: ${recMonth+1}/${recDay})`);
       return isDueToday;
     }
 
     default:
-      if (shouldDebug) log("- no matching recurrence pattern, returning false");
       return false;
   }
 }
@@ -246,29 +172,9 @@ const isTaskDue = (task: Task, date: Date): boolean => {
 const createTaskFilter = () => {
   let lastToday: string | null = null;
   let lastTasks: Record<string, Task> | null = null;
-  let lastShowNBAGameTasks: boolean | null = null; // Add preference to cache key
+  let lastShowNBAGameTasks: boolean | null = null; 
   let lastResult: Task[] | null = null;
 
-  // Debug function for monitoring task filtering
-  const debugTaskFilter = (stage: string, tasks: Task[]) => {
-    if (!DEBUG) return;
-
-    log(`Task filter stage: ${stage}`);
-    log(`- tasks count: ${tasks.length}`);
-    
-    const monthlyCounts: Record<string, number> = {}
-    
-    tasks.forEach(task => {
-      if (task.recurrencePattern === 'monthly') {
-        const key = `${task.name}-${task.id}`
-        monthlyCounts[key] = (monthlyCounts[key] || 0) + 1
-      }
-    })
-    
-    if (Object.keys(monthlyCounts).length > 0) {
-      log("- monthly tasks counts:", monthlyCounts);
-    }
-  }
   
   return (tasks: Record<string, Task>): Task[] => {
     const currentDate = new Date();
@@ -282,7 +188,6 @@ const createTaskFilter = () => {
       //lastShowNBAGameTasks === currentShowNBAGameTasks && // Check preference cache
       lastResult !== null
     ) {
-      if (DEBUG) log("- returning cached result:", lastResult.length, "tasks");
       return lastResult;
     }
 
@@ -294,9 +199,6 @@ const createTaskFilter = () => {
     Object.values(tasks).forEach(task => {
       if (task.recurrencePattern !== 'one-time') {
         const newCompletedState = task.completionHistory[currentDateStrLocal] || false;
-        if (DEBUG && task.completed !== newCompletedState) {
-          log(`Updating completion state for ${task.name} from ${task.completed} to ${newCompletedState}`);
-        }
         task.completed = newCompletedState;
       }
     })
@@ -313,11 +215,6 @@ const createTaskFilter = () => {
       // First sort by completion status
       const aCompletedToday = a.completionHistory[currentDateStrLocal] || false;
       const bCompletedToday = b.completionHistory[currentDateStrLocal] || false;
-      
-      if (DEBUG && (a.name.includes("Test") || a.name.includes("Pay") || b.name.includes("Test") || b.name.includes("Pay"))) {
-        log(`Sorting: ${a.name} (completed: ${aCompletedToday}) vs ${b.name} (completed: ${bCompletedToday})`);
-      }
-      
       if (aCompletedToday !== bCompletedToday) {
         return aCompletedToday ? 1 : -1;  // Completed tasks go to the bottom
       }
@@ -332,13 +229,6 @@ const createTaskFilter = () => {
       const bPriority = priorityOrder[b.priority] ?? 99;
       return aPriority - bPriority;
     });
-    if (DEBUG) {
-      log("Final sorted task list:");
-      sorted.forEach((task, index) => {
-        const completedToday = task.completionHistory[currentDateStrLocal] || false;
-        log(`${index + 1}. ${task.name} (${task.id}) - completed: ${completedToday}`);
-      });
-    }
     
     lastResult = sorted;
     return sorted;
@@ -371,7 +261,6 @@ export const useProjectStore = create<ProjectStore>()(
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }
-        if (DEBUG) log(`Deleting task ${id}: ${tasks[id]?.name}`);
         delete tasks[id]
         set({ tasks, todaysTasks: taskFilter(tasks) })
       },
@@ -406,26 +295,19 @@ export const useProjectStore = create<ProjectStore>()(
           addSyncLog(`Is our toggled task in the list? ${updatedTodaysTasks.some(t => t.id === id)}`, 'info');
           set({ tasks, todaysTasks: updatedTodaysTasks });
         } else {
-          if (DEBUG) log(`Task ${id} not found!`);
         }
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
         }
       },
       updateTask: (taskId, updatedData) => {
-        if (DEBUG) log(`========== UPDATING TASK: ${taskId} ==========`);
         const tasks = { ...get().tasks };
         const task = tasks[taskId];
 
         if (task) {
-          if (DEBUG) {
-            log(`Original task data:`, task);
-            log(`Update data received:`, updatedData);
-          }
           let finalSchedule = updatedData.schedule ?? task.schedule;
           if (updatedData.recurrencePattern === 'one-time') {
             finalSchedule = []; // One-time tasks should have an empty schedule array
-            if (DEBUG) log(`Setting schedule to [] for one-time task.`);
           }
 
           const updatedTask: Task = {
@@ -443,16 +325,11 @@ export const useProjectStore = create<ProjectStore>()(
           };
 
           tasks[taskId] = updatedTask; // Update the task in the tasks object
-
-          if (DEBUG) log(`Updated task data:`, updatedTask);
-
           // Recalculate todaysTasks after updating
           const updatedTodaysTasks = taskFilter(tasks);
-          if (DEBUG) log(`Task list after update - count: ${updatedTodaysTasks.length}`);
 
           set({ tasks, todaysTasks: updatedTodaysTasks }); // Update state
         } else {
-          if (DEBUG) log(`Task ${taskId} not found for update!`);
         }
       },
       getTodaysTasks: () => get().todaysTasks,
@@ -585,14 +462,11 @@ export const useProjectStore = create<ProjectStore>()(
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
           const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
-          
-          if (DEBUG) log(`Total tasks in storage: ${Object.keys(tasks).length}`);
           addSyncLog(`Total tasks in storage before migration: ${Object.keys(tasks).length}`, 'info');
           Object.keys(tasks).forEach(id => {
             if (!tasks[id].recurrencePattern) {
               tasks[id].recurrencePattern = 'weekly' 
               needsMigration = true
-              if (DEBUG) log(`Migrated task ${id} to have recurrencePattern: weekly`);
             }
             
             if (!tasks[id].completionHistory) {
@@ -610,9 +484,9 @@ export const useProjectStore = create<ProjectStore>()(
                 .filter(([date]) => new Date(date) >= thirtyDaysAgo)
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
               const newHistorySize = Object.keys(tasks[id].completionHistory).length;
-          
-              if (oldHistorySize !== newHistorySize && DEBUG) {
-                log(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`);
+            
+              if (oldHistorySize !== newHistorySize) {
+                addSyncLog(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`, 'info');
               }
             }
             
@@ -621,24 +495,20 @@ export const useProjectStore = create<ProjectStore>()(
               const oldCompletedState = tasks[id].completed;
               tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false;
           
-              if (oldCompletedState !== tasks[id].completed && DEBUG) {
-                log(`Updated completion status for task ${id} from ${oldCompletedState} to ${tasks[id].completed}`);
+              if (oldCompletedState !== tasks[id].completed) {
+                addSyncLog(`Updated completion status for task ${id} from ${oldCompletedState} to ${tasks[id].completed}`, 'info');
               }
             }
           })
           
           if (needsMigration) {
-            if (DEBUG) log("Migrations were applied to tasks data");
             state.tasks = tasks
           }
           addSyncLog(`Rehydrated tasks store after migration`, 'info', useStoreTasks().length.toString());
           state.hydrated = true
           const todaysTasks = taskFilter(state.tasks)
-          if (DEBUG) log(`After rehydration, found ${todaysTasks.length} tasks for today`);
           state.todaysTasks = todaysTasks
         } else {
-          if (DEBUG) log("No state found during rehydration or error occurred");
-          if (error) log("Rehydration error:", error);
           useProjectStore.setState({ hydrated: true })
           addSyncLog(`Rehydrated tasks store`, 'info', useStoreTasks().length.toString());
         }

@@ -52,7 +52,6 @@ const logNetInfoState = (state: NetInfoState) => {
 };
 
 const fetchCurrentState = async () => {
-  console.log('[🔍 Fetching NetInfo state]');
   const state = await NetInfo.fetch();
   logNetInfoState(state);
   return state;

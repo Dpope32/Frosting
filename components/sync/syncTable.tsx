@@ -10,6 +10,7 @@ import { usePeopleStore } from '@/store/People';
 import { useHabitStore } from '@/store/HabitStore';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { baseSpacing, cardRadius, fontSizes, getColors, buttonRadius, getDeviceIcon, getDeviceStatusColor, Colors } from '@/components/sync';
+import { isIpad } from '@/utils/deviceUtils';
 
 export interface Device {
   id: string;
@@ -31,6 +32,7 @@ interface SyncTableProps {
   onCopyInviteCode?: () => Promise<void>;
   onCopyCurrentSpaceId?: () => Promise<void>;
   onDeviceAction?: (deviceId: string, action: 'remove' | 'sync') => void;
+  onLeaveWorkspace?: () => void;
 }
 
 export default function SyncTable({ 
@@ -42,7 +44,8 @@ export default function SyncTable({
   devices = [],
   onCopyInviteCode,
   onCopyCurrentSpaceId,
-  onDeviceAction
+  onDeviceAction,
+  onLeaveWorkspace
 }: SyncTableProps) {
   const premium = useUserStore((state) => state.preferences.premium === true);
   const setPreferences = useUserStore((state) => state.setPreferences);
@@ -102,19 +105,14 @@ export default function SyncTable({
     <View style={{
       backgroundColor: colors.card,
       borderRadius: cardRadius,
-      padding: baseSpacing * 2,
+      padding: baseSpacing *2,
       borderWidth: 1,
       borderColor: colors.border,
       width: contentWidth,
       alignSelf: 'center',
-      marginVertical: baseSpacing,
     }}>
-      {/* Premium Toggle Header */}
       <XStack alignItems="center" justifyContent="space-between">
-        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.text} fontWeight="600">
-          Premium Sync
-        </Text>
-        <Button
+       <Button
           size="$2"
           backgroundColor={premium ? colors.success : colors.error}
           onPress={() => setPreferences({ premium: !premium })}
@@ -127,14 +125,6 @@ export default function SyncTable({
             {premium ? 'Enabled' : 'Disabled'}
           </Text>
         </Button>
-      </XStack>
-      
-      {/* Connection Status */}
-      <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-      <XStack alignItems="center" justifyContent="space-between">
-        <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-          Sync Status
-        </Text>
         <XStack alignItems="center" gap={6}>
           <View style={{
             width: 8,
@@ -145,20 +135,9 @@ export default function SyncTable({
           <Text fontSize={fontSizes.sm} fontFamily="$body" color={getStatusColor()} fontWeight="500">
             {getConnectionStatus(premium, syncStatus, currentSpaceId)}
           </Text>
-        </XStack>
       </XStack>
-
-      {/* Sync Summary */}
-      {premium && currentSpaceId && (
-        <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
-          <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
-            Active Syncs
-          </Text>
-          <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.text} fontWeight="500">
-            {enabledSyncCount} of {syncSettings.length} enabled
-          </Text>
-        </XStack>
-      )}
+      </XStack>
+      <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
 
       {/* Invite Code */}
       {inviteCode && currentSpaceId && (
@@ -190,22 +169,40 @@ export default function SyncTable({
           <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
             Workspace ID
           </Text>
-          <TouchableOpacity 
-            onPress={onCopyCurrentSpaceId || (() => {})}
-            style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center', 
-              backgroundColor: colors.accentBg,
-              paddingHorizontal: baseSpacing,
-              paddingVertical: baseSpacing / 2,
-              borderRadius: buttonRadius / 2,
-            }}
-          >
-            <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2} fontWeight="500">
-              {currentSpaceId.substring(0, 8)}...
-            </Text>
-            <MaterialIcons name="content-copy" size={14} color={colors.accent} />
-          </TouchableOpacity>
+          <XStack alignItems="center" gap={6}>
+            <TouchableOpacity 
+              onPress={onCopyCurrentSpaceId || (() => {})}
+              style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center', 
+                backgroundColor: colors.accentBg,
+                paddingHorizontal: baseSpacing,
+                paddingVertical: baseSpacing / 2,
+                borderRadius: buttonRadius / 2,
+              }}
+            >
+              <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.accent} marginRight={baseSpacing / 2} fontWeight="500">
+                {currentSpaceId.substring(0, 8)}...
+              </Text>
+              <MaterialIcons name="content-copy" size={14} color={colors.accent} />
+            </TouchableOpacity>
+            
+            {onLeaveWorkspace && (
+              <TouchableOpacity 
+                onPress={onLeaveWorkspace}
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 11,
+                  backgroundColor: 'rgba(255,59,48,0.1)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <MaterialIcons name="close" size={14} color={colors.error} />
+              </TouchableOpacity>
+            )}
+          </XStack>
         </XStack>
       )}
 
@@ -280,8 +277,10 @@ export default function SyncTable({
 
       {premium && (
         <>
-          <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
-          <XStack gap={baseSpacing * 2}>
+          {currentSpaceId || devices.length > 0 ? (
+            <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+          ) : null}
+          <XStack gap={baseSpacing * 4}>
             <YStack flex={1} gap={baseSpacing}>
               {syncSettings.slice(0, 3).map((setting, index) => (
                 <React.Fragment key={setting.key}>
@@ -291,14 +290,15 @@ export default function SyncTable({
                     </Text>
                     <Button
                       size="$2"
-                      backgroundColor={setting.enabled ? colors.success : colors.disabled}
+                      backgroundColor={setting.enabled ? isDark ? colors.successBgDark : colors.successBgLight : colors.disabledBg}
                       onPress={setting.toggle}
                       borderRadius={buttonRadius}
                       paddingHorizontal={baseSpacing * 1.5}
                       pressStyle={{ scale: 0.97 }}
                       animation="quick"
+                      borderColor={setting.enabled ? isDark ? colors.successBorder : colors.successBorder : colors.disabledBorder}
                     >
-                      <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                      <Text color={isDark ? colors.successText : colors.disabledText} fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
                         {setting.enabled ? 'ON' : 'OFF'}
                       </Text>
                     </Button>
@@ -317,14 +317,15 @@ export default function SyncTable({
                     </Text>
                     <Button
                       size="$2"
-                      backgroundColor={setting.enabled ? colors.success : colors.disabled}
+                      backgroundColor={setting.enabled ? isDark ? colors.successBgDark : colors.successBgLight : colors.disabledBg}
                       onPress={setting.toggle}
                       borderRadius={buttonRadius}
                       paddingHorizontal={baseSpacing * 1.5}
                       pressStyle={{ scale: 0.97 }}
                       animation="quick"
+                      borderColor={setting.enabled ? isDark ? colors.successBorder : colors.successBorder : colors.disabledBorder}
                     >
-                      <Text color="#fff" fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                      <Text color={setting.enabled ? colors.successText : colors.disabledText} fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
                         {setting.enabled ? 'ON' : 'OFF'}
                       </Text>
                     </Button>

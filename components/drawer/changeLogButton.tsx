@@ -12,17 +12,20 @@ export const ChangeLogButton = () => {
   const router = useRouter();
 
   const handlePress = () => {
-    scale.value = withSpring(0.9, { damping: 10 });
+    // Apply quick scale feedback and immediately navigate
+    scale.value = withSpring(0.9, { damping: 15, stiffness: 150 });
+    animationProgress.value = withTiming(1, {
+      duration: 300,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+    
+    // Navigate immediately
+    router.push('/modals/changelog');
+    
+    // Reset scale after navigation starts
     setTimeout(() => {
-      scale.value = withSpring(1);
-      animationProgress.value = withTiming(1, {
-        duration: 500,
-        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      });
-      setTimeout(() => {
-        router.push('/modals/changelog');
-      }, 400);
-    }, 100);
+      scale.value = withSpring(1, { damping: 15, stiffness: 150 });
+    }, 50);
   };
 
   const buttonStyle = useAnimatedStyle(() => { return { transform: [{ scale: scale.value }] } });

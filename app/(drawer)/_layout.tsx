@@ -27,7 +27,6 @@ export default function DrawerLayout() {
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
   const drawerWidth = isWeb  ? typeof window !== 'undefined' ? Math.min(280, window.innerWidth * 0.25) : 280 : isIpadDevice ? 200  : 200;
-  console.log('premium', premium);
 
   const renderDrawerContent = useCallback((props: DrawerContentComponentProps) => (
     <DrawerContent 

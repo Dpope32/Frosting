@@ -1,6 +1,5 @@
-
-import { espnTeamCodes, getCurrentNBASeason } from '../constants/nba';
-import { useUserStore } from '../store/UserStore';
+import { espnTeamCodes, getCurrentNBASeason } from '@/constants';
+import { useUserStore } from '@/store';
 
 export const fetchWithRetry = async (
     url: string, 

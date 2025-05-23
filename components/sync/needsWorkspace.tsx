@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { useUserStore } from '@/store';
 import { baseSpacing, cardRadius, getColors } from './sharedStyles';
+import { isIpad } from '@/utils/deviceUtils';
 
 interface NeedsWorkspaceProps {
   isDark: boolean;
@@ -21,8 +22,8 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
       borderRadius: cardRadius, 
       borderWidth: 1,
       borderColor: colors.border,
-      paddingTop: baseSpacing * 2,
-      paddingBottom: baseSpacing * 1.5,
+      paddingTop: baseSpacing * 1.5,
+      paddingBottom: baseSpacing,
       maxHeight: 450,
       alignSelf: 'center',
     }}>
@@ -65,24 +66,26 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
 const styles = StyleSheet.create({
     noWorkspaceContainer: {
       width: '100%',
-      padding: 12,
+      padding: isIpad() ? 12 : 8,
       borderRadius: 12,
       alignItems: 'center',
     },
     workspaceButton1: {
-      paddingHorizontal: 60,
-      paddingVertical: 12,
-      marginTop: 10,
+      paddingHorizontal: isWeb ? 70 : isIpad() ? 50 : 40,
+      paddingVertical: isWeb ? 12 : isIpad() ? 10 : 8,
+      marginTop: isWeb ? 12 : isIpad() ? 10 : 2,
       borderRadius: 8,
       borderWidth: 1,
       borderColor: 'rgba(150, 150, 150, 0.3)',
       backgroundColor: 'transparent',
+      marginRight: isWeb ? 12 : isIpad() ? 10 : 6,
     },
     workspaceButton2: {
-      paddingHorizontal: 50,
-      paddingVertical: 12,
-      marginTop: 10,
+      paddingHorizontal: isWeb ? 70 : isIpad() ? 50 : 40,
+      paddingVertical: isWeb ? 12 : isIpad() ? 10 : 8 ,
+      marginTop: isWeb ? 12 : isIpad() ? 10 : 2,
       borderRadius: 8,
+      marginLeft: isWeb ? 12 : isIpad() ? 10 : 6,
       backgroundColor: "rgba(255, 255, 255, 0.1)",
     },
   });

@@ -14,13 +14,9 @@ export const useEditStockStore = create<EditStockState>((set, get) => ({
   selectedStock: undefined,
   isAddMode: false,
   openModal: (stock, isAdd = false) => { 
-    console.log('openModal called with stock:', stock, 'isAdd:', isAdd);
     set({ isOpen: true, selectedStock: stock, isAddMode: isAdd });
-    console.log('State after openModal:', get());
   },
   closeModal: () => {
-    console.log('closeModal called');
     set({ isOpen: false });
-    console.log('State after closeModal:', get());
   }
 }))

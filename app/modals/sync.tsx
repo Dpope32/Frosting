@@ -24,7 +24,14 @@ if (!(global as any)._syncFetchWrapped) {
   global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const isPremium = useUserStore.getState().preferences.premium === true
     let url: string = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
-    if (isPremium) {
+    
+    // Skip logging for yahoo and geocoding requests
+    const shouldSkipLogging = 
+    url.toLowerCase().includes('yahoo') || url.toLowerCase().includes('geocoding') || 
+    url.toLowerCase().includes('weather') || url.toLowerCase().includes('stoic' ) 
+    || url.toLowerCase().includes('google') || url.toLowerCase().includes('cloudflare')
+    
+    if (isPremium && !shouldSkipLogging) {
       let bodyString = ''
       if (init?.body) {
         try {
@@ -38,7 +45,7 @@ if (!(global as any)._syncFetchWrapped) {
     }
     try {
       const response = await originalFetch(input, init)
-      if (isPremium) {
+      if (isPremium && !shouldSkipLogging) {
         const cloned = response.clone()
         const contentType = response.headers.get('content-type') || ''
         let details: string | undefined
@@ -54,7 +61,7 @@ if (!(global as any)._syncFetchWrapped) {
       }
       return response
     } catch (err) {
-      if (isPremium) {
+      if (isPremium && !shouldSkipLogging) {
         addSyncLog(`❌ Network error with ${url}`, 'error', err instanceof Error ? err.message : String(err))
       }
       throw err
@@ -129,7 +136,6 @@ export default function SyncScreen() {
     }
   }, [syncLogs])
 
-  const fontSizes = { xs: 10, sm: 12, md: 14, lg: 16, xl: 18 }
 
   const onWorkspaceUpdated = React.useCallback((id: string, action: 'created' | 'joined') => {
     setShowAddDevice(false)
@@ -142,7 +148,7 @@ export default function SyncScreen() {
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.bg }]}
-      contentContainerStyle={{ paddingTop: isIpad() ? 30 : insets.top, paddingBottom: 100 }}
+      contentContainerStyle={{ paddingTop: isIpad() ? 30 : insets.top, paddingBottom: isWeb ? 100 : isIpad() ? 50 : 25}}
     >
       <YStack gap={baseSpacing * 2} p={isWeb ? '$4' : '$2'} px={isWeb ? '$4' : '$3'} pb={baseSpacing * 6} >
         <XStack alignItems="center" justifyContent="center" position="relative">
@@ -160,7 +166,7 @@ export default function SyncScreen() {
           </Text>
         </XStack>
 
-        <XStack alignItems="center" justifyContent="center">
+        <XStack alignItems="center" justifyContent="center" marginBottom={premium && !workspaceId ? -baseSpacing : baseSpacing}>
           <SyncTable
             isDark={isDark}
             primaryColor={primaryColor}
@@ -178,7 +184,8 @@ export default function SyncScreen() {
               await Clipboard.setStringAsync(workspaceId);
               useToastStore.getState().showToast('Current space ID copied', 'success');
               addSyncLog('📋 Current space ID copied', 'info');
-            }}            
+            }}
+            onLeaveWorkspace={handleLeaveWorkspace}
           />
         </XStack>
         {showAddDevice && (
@@ -193,21 +200,7 @@ export default function SyncScreen() {
           onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
         />
       )}
-        {workspaceId && premium && (
-          <XStack alignItems="center" justifyContent="center">
-            <TouchableOpacity onPress={handleLeaveWorkspace}>
-              <Text
-                color={colors.error}
-                fontSize={fontSizes.sm}
-                fontWeight="500"
-                fontFamily="$body"
-              >
-                Leave Workspace
-              </Text>
-            </TouchableOpacity>
-          </XStack>
-        )}
-
+        
         {premium && !workspaceId && (
           <NeedsWorkspace
             isDark={isDark}
@@ -226,7 +219,7 @@ export default function SyncScreen() {
           <XStack
             alignItems="center"
             justifyContent="center"
-            marginTop={baseSpacing}
+            marginVertical={premium && !workspaceId ? -baseSpacing : baseSpacing}
           >
             <View style={{ width: contentWidth }}>
               <PremiumLogs

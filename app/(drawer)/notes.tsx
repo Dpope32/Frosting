@@ -26,8 +26,9 @@ import { DevToolsButton } from '@/components/notes/DevToolsButton';
 
 import { createTrashAnimatedStyle, noteStyles, isIpad } from '@/utils';
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/notes/noteService';
-import { setupColumnCalculation, createFormattingHandler, handleDragging, handleDragEnd, handleMoveNote, handleSelectNote } from '@/services/notes/noteService2';
+import { setupColumnCalculation, createFormattingHandler, handleMoveNote, handleSelectNote } from '@/services/notes/noteService2';
 import { createNoteHandlers } from '@/services';
+import { handleAddExampleNote } from '@/services/dev/devNotes';
 
 export const draggedCardBottomYRef = { current: 0 };
 
@@ -67,25 +68,12 @@ export default function NotesScreen() {
   const lastDragPosition = useRef({ x: 0, y: 0 });
   const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
 
-  // Calculate dynamic trash threshold based on current scroll position
   const getDynamicTrashThreshold = useCallback(() => {
     const windowHeight = Dimensions.get('window').height;
     const containerHeight = isIpad() ? 120 : 100;
     const bottomInset = insets.bottom || 0;
-    
-    // Calculate the threshold relative to the current scroll position
     const baseThreshold = windowHeight - containerHeight - bottomInset;
     const adjustedThreshold = baseThreshold + scrollOffsetRef.current;
-    
-    console.log('Dynamic trash threshold:', { 
-      windowHeight, 
-      containerHeight, 
-      bottomInset, 
-      scrollOffset: scrollOffsetRef.current,
-      baseThreshold,
-      adjustedThreshold 
-    });
-    
     return Math.max(adjustedThreshold, windowHeight * 0.7);
   }, [insets.bottom]);
 
@@ -105,7 +93,6 @@ export default function NotesScreen() {
     if (trashAreaViewRef.current) {
       trashAreaViewRef.current.measureInWindow((x, y, width, height) => {
         trashLayoutRef.current = { y, height };
-        console.log('Trash area position updated:', { x, y, width, height });
       });
     }
   }, []);
@@ -115,28 +102,15 @@ export default function NotesScreen() {
     const pointerY = lastDragPosition.current.y;
     const threshold = getDynamicTrashThreshold();
     const isInTrash = pointerY >= threshold;
-    
-    console.log('[isYInTrashArea]', { 
-      pointerY, 
-      threshold, 
-      scrollOffset: scrollOffsetRef.current,
-      isInTrash 
-    });
-    
     return isInTrash;
   }, [getDynamicTrashThreshold]);
 
   // Enhanced drag handling with scroll-aware threshold
   const patchedHandleDragging = useCallback((event: any) => {
     if (!draggingNoteId || isPendingDelete) return;
-    
     const { pageY, pageX } = event.nativeEvent;
     lastDragPosition.current = { x: pageX, y: pageY };
-    
     const inTrash = isYInTrashArea();
-    
-    console.log('[DRAGGING] pointerY:', pageY, 'scrollOffset:', scrollOffsetRef.current, 'inTrash:', inTrash);
-    
     if (inTrash !== isHoveringTrash) {
       try {
         triggerHaptic();
@@ -150,7 +124,6 @@ export default function NotesScreen() {
     }
   }, [draggingNoteId, isPendingDelete, isHoveringTrash, isYInTrashArea]);
 
-  // Enhanced drag end handling with scroll-aware threshold
   const patchedHandleDragEnd = useCallback((args: any) => {
     if (preventReorder.current || !draggingNoteId) {
       setDraggingNoteId(null);
@@ -160,8 +133,6 @@ export default function NotesScreen() {
     }
     
     const inTrash = isYInTrashArea();
-    
-    console.log('[DRAG END] pointerY:', lastDragPosition.current.y, 'scrollOffset:', scrollOffsetRef.current, 'inTrash:', inTrash);
     
     if (inTrash) {
       preventReorder.current = true;
@@ -213,20 +184,6 @@ export default function NotesScreen() {
     triggerHaptic();
   }, [draggingNoteId, isYInTrashArea, notes, noteStore, showToast, selectedNote, setIsModalOpen, setSelectedNote, setIsPendingDelete, setPendingDeleteNote, setDraggingNoteId, setIsHoveringTrash]);
 
-  const handleAddExampleNote = (note: Note) => {
-    const newNote = {
-      ...note,
-      id: Math.random().toString(36).substring(2, 15),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    console.log('[handleAddExampleNote] Adding example note with ID:', newNote.id, 'and title:', newNote.title);
-    console.log('[handleAddExampleNote] New note object:', newNote);
-
-    noteStore.addNote(newNote);
-    showToast(`Added example note: ${newNote.title}`, 'success');
-  };
 
   // Handle scroll events to track scroll position
   const handleScroll = useCallback((event: any) => {

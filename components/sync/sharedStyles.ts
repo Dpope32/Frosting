@@ -21,8 +21,15 @@ export const getColors = (isDark: boolean, primaryColor: string) => ({
   accent: primaryColor,
   accentBg: isDark ? `${primaryColor}33` : `${primaryColor}18`,
   error: '#E74C3C',
-  success: '#27AE60',
-  disabled: isDark ? '#333' : '#eee',
+  success: 'rgb(34, 157, 36)',
+  successBgLight: 'rgba(34, 157, 36, 0.1)',
+  successBgDark: 'rgba(20, 91, 21, 0.2)',
+  successBorder: 'rgba(34, 157, 36, 0.3)',
+  successText: 'rgba(57, 245, 60, 0.8)',
+  disabled: isDark ? 'rgba(231, 14, 14, 0.1)' : 'rgba(208, 18, 18, 0.1)',
+  disabledBg: isDark ? 'rgba(231, 14, 14, 0.1)' : 'rgba(208, 18, 18, 0.2)',
+  disabledText: isDark ? 'rgba(253, 32, 32, 0.74)' : 'rgba(208, 18, 18, 0.5)',
+  disabledBorder: isDark ? 'rgba(231, 14, 14, 0.3)' : 'rgba(208, 18, 18, 0.3)',
 });
 
 

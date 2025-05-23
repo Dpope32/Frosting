@@ -4,7 +4,7 @@ import { YStack, XStack, Text, Tooltip, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { getValueColor } from '@/constants';
 import { PortfolioQueryData } from '@/types/stocks';
-import { ReturnType } from '@/services/calculationService';
+import { ReturnType } from '@/services/stocks/calculationService';
 import { Stock } from '@/types/stocks';
 import { usePortfolioStore } from '@/store'
 
@@ -165,7 +165,6 @@ export function PortfolioTable({
             {activeTab === 'portfolio' && (
               <Pressable
                 onPress={() => {
-                  console.log('Edit button clicked for stock:', stock);
                   onEditStock(stock);
                 }}
                 style={({ pressed }) => ({

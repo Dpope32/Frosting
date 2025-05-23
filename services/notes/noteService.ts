@@ -265,7 +265,6 @@ export const attemptDeleteNote = async ({
                       text: 'Cancel', 
                       style: 'cancel', 
                       onPress: () => {
-                        console.log('Delete cancelled');
                         resolve(false);
                       } 
                     },
@@ -273,7 +272,6 @@ export const attemptDeleteNote = async ({
                       text: 'Delete', 
                       style: 'destructive', 
                       onPress: () => {
-                        console.log('Delete confirmed');
                         resolve(true);
                       } 
                     },
@@ -311,8 +309,6 @@ export const attemptDeleteNote = async ({
         console.error("Error in delete confirmation:", error);
         showToast('Failed to delete note', 'error');
       } finally {
-        // Clean up state regardless of the outcome
-        console.log('Cleanup after delete attempt');
         setIsPendingDelete(false);
         setPendingDeleteNote(null);
         setDraggingNoteId(null);
@@ -322,7 +318,7 @@ export const attemptDeleteNote = async ({
         preventReorderRef.current = false;
         if (originalIndexRef) originalIndexRef.current = null;
       }
-    }, isIpad() ? 200 : 100); // Longer timeout for iPad
+    }, isIpad() ? 200 : 100); 
 };
 
 
@@ -376,22 +372,8 @@ export const isPointInTrashArea = (y: number): boolean => {
         console.warn('Invalid window height for trash area check:', height);
         return false;
     }
-    
-    // Adjust threshold calculation for both iPad and mobile
-    // Make it slightly more sensitive on mobile
-    const trashAreaPercent = isIpad() ? 0.70 : 0.80; // Adjusted from 0.85 to 0.80 for mobile
+    const trashAreaPercent = isIpad() ? 0.70 : 0.80; 
     const trashAreaThreshold = height * trashAreaPercent;
-    
-    // Add some debug logging
     const isInArea = y > trashAreaThreshold;
-    console.log('isPointInTrashArea:', { 
-        y, 
-        windowHeight: height, 
-        trashAreaPercent, 
-        trashAreaThreshold, 
-        isInArea, 
-        isIpad: isIpad() 
-    });
-    
     return isInArea;
 };

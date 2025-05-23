@@ -121,7 +121,6 @@ export function TaskCard({
         if (onDelete) {
           if (Platform.OS === 'web') {
             if (confirm('Are you sure you want to delete this task?')) {
-              console.log('Deleting task:', title);
               onDelete();
               if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               showToast('Task deleted successfully', 'success');
@@ -138,7 +137,6 @@ export function TaskCard({
                 { 
                   text: 'Delete', 
                   onPress: () => {
-                    console.log('Deleting task:', title);
                     onDelete();
                     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                     showToast('Task deleted successfully', 'success');
