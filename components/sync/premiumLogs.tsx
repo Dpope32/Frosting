@@ -242,14 +242,6 @@ export const PremiumLogs = ({
           borderBottomWidth={1}
           borderColor={colors.border}
         >
-          <Text 
-            fontSize={wideMode ? fontSizes.lg : fontSizes.md} 
-            fontFamily="$body" 
-            color={colors.text} 
-            fontWeight="600"
-          >
-            Sync Progress Log
-          </Text>
           <XStack 
             gap={wideMode ? 16 : 10} 
             alignItems="center"
