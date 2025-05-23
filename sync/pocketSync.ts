@@ -79,7 +79,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
       clearTimeout(t);
 
       if (res.status === 200 || res.status === 401) {
-        addSyncLog(`✅ ${url} -> ${res.status}`, 'info');
+        addSyncLog(`✅ ${url} -> ${res.status}`, 'success');
         selected = base;
         break;
       }
@@ -89,13 +89,10 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
       addSyncLog(`❌ ${url} network error (${e})`, 'warning');
     }
   }
-
   if (!selected) {
     addSyncLog('Skipping sync – no PocketBase reachable', 'warning');
     throw new Error('SKIP_SYNC_SILENTLY');
   }
-
-  addSyncLog(`PocketBase selected: ${selected}`, 'info');
   const { default: PocketBase } = await import('pocketbase');
   return new PocketBase(selected);
 };

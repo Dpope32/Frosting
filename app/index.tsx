@@ -1,6 +1,10 @@
 // app/index.tsx  ← single source of truth for first-run sync
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
+import { Platform } from 'react-native';
+import * as NavigationBar from 'expo-navigation-bar';
+import * as SystemUI from 'expo-system-ui';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import {
   useUserStore,
   useRegistryStore,
@@ -25,6 +29,20 @@ export default function Index() {
   const { preferences } = useUserStore.getState();
   const finishedOnboarding = preferences.hasCompletedOnboarding;
   const premium = preferences.premium === true;
+  const colorScheme = useColorScheme();
+  
+  // Hide navigation bar on Android only - run immediately
+  if (Platform.OS === 'android') {
+    NavigationBar.setVisibilityAsync("hidden");
+  }
+
+  // Set system UI background colors to match Header (Android only)
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const backgroundColor = colorScheme === 'dark' ? '#0e0e0f' : '#ffffff';
+      SystemUI.setBackgroundColorAsync(backgroundColor);
+    }
+  }, [colorScheme]);
 
   const { getAllStoreStates } = useRegistryStore.getState();
 
@@ -55,7 +73,9 @@ export default function Index() {
 
       if (!premium) return;                                       
       addSyncLog('📚 All stores hydrated (in app/index.tsx) with local cache', 'verbose');
-
+      if (Platform.OS === 'android') {
+        addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
+      }
       // one-shot export
       const state = getAllStoreStates();
       await exportEncryptedState(state);
@@ -63,7 +83,8 @@ export default function Index() {
 
       if (finishedOnboarding) {
         await pullLatestSnapshot();
-        addSyncLog('📥 pulled latest snapshot', 'success');
+        const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
+        addSyncLog(`📥 ${platformEmoji} Latest snapshot pulled successfully on ${Platform.OS}`, 'success');
       }
     })().catch(e =>
       addSyncLog('🔥 startup sync failed', 'error', e?.message || String(e))

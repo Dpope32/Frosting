@@ -173,20 +173,41 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     
       set({ syncStatus: 'syncing' });
       try {
-        // Diagnostic block for pruning candidates
-        const allTasks = useTaskStore.getState().tasks;
-        const pruneCandidates = Object.values(allTasks)
-          .filter(task => task.recurrencePattern === "one-time" || (task as any).deleted === true)
-          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    // Replace the diagnostic block in exportStateToFile:
+    const allTasks = useTaskStore.getState().tasks;
+    const pruneCandidates = Object.values(allTasks)
+      .filter(task => {
+        // Only one-time tasks that are completed
+        if (task.recurrencePattern !== 'one-time' || !task.completed) return false;
+        
+        // Find when it was completed
+        const completionDates = Object.entries(task.completionHistory || {})
+          .filter(([_, completed]) => completed)
+          .map(([date]) => date);
+        
+        return completionDates.length > 0;
+      })
+      .map(task => {
+        // Get the most recent completion date
+        const completionDates = Object.entries(task.completionHistory || {})
+          .filter(([_, completed]) => completed)
+          .map(([date]) => date)
+          .sort();
+        
+            const lastCompleted = completionDates[completionDates.length - 1];
+            const daysAgo = Math.floor((Date.now() - new Date(lastCompleted).getTime()) / (1000 * 60 * 60 * 24));
+            
+            return { task, daysAgo, lastCompleted };
+          })
+          .sort((a, b) => b.daysAgo - a.daysAgo) // Oldest completed first
           .slice(0, 10);
-        
-        pruneCandidates.forEach(task => {
-          addSyncLog(`🪓 chopping block? – ${task.id} – "${task.name}" – created ${task.createdAt}`, "warning");
+
+        pruneCandidates.forEach(({ task, daysAgo }) => {
+          addSyncLog(`🪓 chopping block? – "${task.name}" – completed ${daysAgo}d ago`, "warning");
         });
-        
-        addSyncLog(`🪓 prune preview complete – ${pruneCandidates.length} candidates logged`, "info");
-        
-        const states = get().getAllStoreStates();
+
+        addSyncLog(`🪓 prune preview complete – ${pruneCandidates.length} candidates (one-time tasks completed >7d ago would be ideal targets)`, "info");
+                const states = get().getAllStoreStates();
         const uri = await exportEncryptedState(states);
     
         set({ syncStatus: 'idle', lastSyncAttempt: now });

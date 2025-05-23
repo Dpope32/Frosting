@@ -288,11 +288,9 @@ export const useProjectStore = create<ProjectStore>()(
             updatedAt: new Date().toISOString()
           }
           
-          addSyncLog(`[Tasks] toggled "${tasks[id].name}" -> ${newCompletionStatus}`, 'info');
           const updatedTodaysTasks = taskFilter(tasks);
-          addSyncLog(`[Tasks] updated todaysTasks count: ${updatedTodaysTasks.length}`, 'info');
-          addSyncLog(`Task list: ${updatedTodaysTasks.map(t => t.id).join(', ')}`, 'info');
-          addSyncLog(`Is our toggled task in the list? ${updatedTodaysTasks.some(t => t.id === id)}`, 'info');
+          // UNCOMMENT THIS TO SEE THE TASK LIST TO DEBUG CROSS PLATFORM COMPLETION HISTORY
+          //addSyncLog(`Task list: ${updatedTodaysTasks.map(t => `${t.name}(${t.id.slice(-6)})`).join(', ')}`, 'info');
           set({ tasks, todaysTasks: updatedTodaysTasks });
         } else {
         }
@@ -400,10 +398,6 @@ export const useProjectStore = create<ProjectStore>()(
             importantMerges.push(inc.name);
           } else {
             billTasksProcessed++;
-            // Only log first 2 and last 2 bill task merges
-            if (billTasksProcessed <= 2) {
-              addSyncLog(`[Tasks] merge "${inc.name}" completed:${resolvedCompleted}`, 'verbose');
-            }
           }
           mergedCount++;
         });
