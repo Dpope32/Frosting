@@ -319,23 +319,17 @@ export const PremiumLogs = ({
               flexDirection: 'row',
               alignItems: 'center',
               gap: 4,
-              backgroundColor: autoScroll ? colors.success + '15' : colors.subtext + '15',
+              backgroundColor: autoScroll ? isDark ? colors.successBgDark : colors.successBgLight : colors.subtext + '15',
               paddingHorizontal: wideMode ? 8 : 6,
               paddingVertical: wideMode ? 4 : 3,
               borderRadius: wideMode ? 12 : 10,
               marginRight: -8,
             }}
           >
-            <View style={{
-              width: wideMode ? 10 : 8,
-              height: wideMode ? 10 : 8,
-              borderRadius: wideMode ? 5 : 4,
-              backgroundColor: autoScroll ? colors.success : colors.subtext,
-            }} />
             <Ionicons 
               name={autoScroll ? "play" : "pause"} 
               size={wideMode ? 16 : 14} 
-              color={autoScroll ? colors.success : colors.subtext} 
+              color={autoScroll ? isDark ? colors.successText : colors.successText : colors.subtext} 
             />
           </TouchableOpacity>
         </View>

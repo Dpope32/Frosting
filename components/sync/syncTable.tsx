@@ -298,7 +298,7 @@ export default function SyncTable({
                       animation="quick"
                       borderColor={setting.enabled ? isDark ? colors.successBorder : colors.successBorder : colors.disabledBorder}
                     >
-                      <Text color={isDark ? colors.successText : colors.disabledText} fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                      <Text color={isDark ? colors.successText : colors.successText} fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
                         {setting.enabled ? 'ON' : 'OFF'}
                       </Text>
                     </Button>
