@@ -64,8 +64,6 @@ export const useProjectStore = create<ProjectStoreState>()(
       hydrateFromSync: (syncedData: { projects?: Project[] }) => {
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
-        addSyncLog(`[Hydrate Attempt] ProjectStore sync is currently ${currentSyncEnabledState ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
-
         if (!currentSyncEnabledState) {
           addSyncLog('Project sync is disabled, skipping hydration for ProjectStore.', 'info');
           return;

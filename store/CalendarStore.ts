@@ -326,8 +326,6 @@ export const useCalendarStore = create<CalendarState>()(
 
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
         const currentSyncEnabledState = get().isSyncEnabled
-        addSyncLog(`[Hydrate Attempt] CalendarStore sync is currently ${currentSyncEnabledState ? 'ENABLED' : 'DISABLED'}.`, 'verbose')
-
         if (!currentSyncEnabledState) {
           addSyncLog('Calendar sync is disabled, skipping hydration for CalendarStore.', 'info')
           return
@@ -338,7 +336,6 @@ export const useCalendarStore = create<CalendarState>()(
           return
         }
 
-        addSyncLog('🔄 Hydrating CalendarStore from sync...', 'info')
         let itemsMergedCount = 0
         let itemsAddedCount = 0
         let itemsSkippedDevice = 0

@@ -134,8 +134,6 @@ export const useBillStore = create<BillStore>()(
       hydrateFromSync: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number }) => {
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
-        addSyncLog(`[Hydrate Attempt] BillStore sync is currently ${currentSyncEnabledState ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
-
         if (!currentSyncEnabledState) {
           addSyncLog('Bill sync is disabled, skipping hydration for BillStore.', 'info');
           return;

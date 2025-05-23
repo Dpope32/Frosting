@@ -112,8 +112,6 @@ export const useHabitStore = create<HabitStore>()(
 
       hydrateFromSync: (syncedData: { habits?: Record<string, Habit>, isSyncEnabled?: boolean }) => {
         const localStore = get();
-        addSyncLog(`[Hydrate Attempt] HabitStore sync is currently ${localStore.isSyncEnabled ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
-
         if (!localStore.isSyncEnabled) {
           addSyncLog('[HabitStore] Local habits sync is OFF. Skipping hydration.', 'info');
           return;

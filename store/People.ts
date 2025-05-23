@@ -133,8 +133,6 @@ export const usePeopleStore = create<PeopleStore>((set, get) => {
 
     hydrateFromSync: (syncedData: { contacts?: Record<string, Person>, isSyncEnabled?: boolean }) => {
       const localStore = get()
-      addSyncLog(`[Hydrate Attempt] PeopleStore (Contacts) sync is currently ${localStore.isSyncEnabled ? 'ENABLED' : 'DISABLED'}.`, 'verbose')
-
       if (!localStore.isSyncEnabled) {
         addSyncLog('[PeopleStore] Local contacts sync is OFF. Skipping hydration.', 'info')
         return

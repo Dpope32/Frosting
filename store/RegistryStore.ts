@@ -173,6 +173,19 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     
       set({ syncStatus: 'syncing' });
       try {
+        // Diagnostic block for pruning candidates
+        const allTasks = useTaskStore.getState().tasks;
+        const pruneCandidates = Object.values(allTasks)
+          .filter(task => task.recurrencePattern === "one-time" || (task as any).deleted === true)
+          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+          .slice(0, 10);
+        
+        pruneCandidates.forEach(task => {
+          addSyncLog(`🪓 chopping block? – ${task.id} – "${task.name}" – created ${task.createdAt}`, "warning");
+        });
+        
+        addSyncLog(`🪓 prune preview complete – ${pruneCandidates.length} candidates logged`, "info");
+        
         const states = get().getAllStoreStates();
         const uri = await exportEncryptedState(states);
     

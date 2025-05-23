@@ -369,7 +369,7 @@ export const useProjectStore = create<ProjectStore>()(
       
           if (!curr) {
             // Only log non-bill additions or first few bill tasks
-            if (!isBillTask || addedCount < 3) {
+            if (!isBillTask || addedCount < 2) {
               addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
             }
             if (isBillTask) billTasksProcessed++;
@@ -397,7 +397,6 @@ export const useProjectStore = create<ProjectStore>()(
           // Strategic logging: only log important merges or sample of bill tasks
           if (!isBillTask) {
             // Always log non-bill task merges
-            addSyncLog(`[Tasks] merge "${inc.name}" completed:${resolvedCompleted}`, 'verbose');
             importantMerges.push(inc.name);
           } else {
             billTasksProcessed++;
@@ -414,14 +413,8 @@ export const useProjectStore = create<ProjectStore>()(
           const billTasks = Object.entries(incoming)
             .filter(([_, task]) => task.name.includes('($') || task.name.toLowerCase().includes('pay '))
             .slice(-2); // Get last 2 bill tasks
-          
-          billTasks.forEach(([id, task]) => {
-            const today = format(new Date(), 'yyyy-MM-dd');
-            const resolvedCompleted = task.recurrencePattern === 'one-time' 
-              ? task.completed 
-              : !!task.completionHistory?.[today];
-            addSyncLog(`[Tasks] merge "${task.name}" completed:${resolvedCompleted}`, 'verbose');
-          });
+          addSyncLog(`[Tasks] last 2 bill tasks to make sure were sane: ${billTasks.map(([id, task]) => task.name).join(', ')}`, 'info');
+
         }
       
         // Keep local-only tasks
@@ -494,10 +487,14 @@ export const useProjectStore = create<ProjectStore>()(
             if (tasks[id].recurrencePattern !== 'one-time') {
               const oldCompletedState = tasks[id].completed;
               tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false;
-          
+
               if (oldCompletedState !== tasks[id].completed) {
                 addSyncLog(`Updated completion status for task ${id} from ${oldCompletedState} to ${tasks[id].completed}`, 'info');
               }
+            } else {
+              // For one-time tasks, preserve their completed status
+              // Don't reset based on today's date - they stay completed once completed
+              // The completion date is stored in completionHistory for reference
             }
           })
           

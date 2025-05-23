@@ -53,7 +53,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
               onPress={onPressJoin}
           >
               <XStack alignItems="center" justifyContent="center" gap={4}>
-                <Text color={"#fff"} fontWeight="600" fontFamily="$body">Join</Text>
+                <Text color={isDark ? "#f9f9f9" : primaryColor} fontWeight="600" fontFamily="$body">Join</Text>
               </XStack>
           </TouchableOpacity>
         </XStack>

@@ -92,8 +92,6 @@ export const useVaultStore = create<VaultStore>()(
       hydrateFromSync: (syncedData: { vaultData?: VaultData }) => {
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
-        addSyncLog(`[Hydrate Attempt] VaultStore sync is currently ${currentSyncEnabledState ? 'ENABLED' : 'DISABLED'}.`, 'verbose');
-
         if (!currentSyncEnabledState) {
           addSyncLog('Vault sync is disabled, skipping hydration for VaultStore.', 'info');
           return;
@@ -105,7 +103,6 @@ export const useVaultStore = create<VaultStore>()(
           return;
         }
 
-        addSyncLog('🔄 Hydrating VaultStore from sync...', 'info');
         let itemsMergedCount = 0;
         let itemsAddedCount = 0;
 
