@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import { format, parse, isValid } from 'date-fns'
 import { XStack, Button, Text } from 'tamagui'
+import * as Haptics from 'expo-haptics'
+import { Platform } from 'react-native'
 import { useUserStore, useToastStore } from '@/store'
 import { useAddPerson } from '@/hooks/usePeople'
 import { useImagePicker } from '@/hooks/useImagePicker'
@@ -36,7 +38,6 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
   const [paymentUsername, setPaymentUsername] = useState<string>('')
   const { pickImage: pickImageFromLibrary, isLoading: isPickingImage } = useImagePicker();
 
-
   const pickImage = useCallback(async (): Promise<void> => {
     const imageUri = await pickImageFromLibrary();
     if (imageUri) {
@@ -70,22 +71,19 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
   }, [])
 
   const handleSubmit = useCallback((): void => {
-    console.log('🔍 [AddPersonForm] handleSubmit start:', new Date().toISOString())
-    const startTime = performance.now()
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    }
     
     if (addPersonMutation.isPending) {
-      console.log('🔍 [AddPersonForm] mutation already pending, not submitting')
       return
     }
     
     if (!formData.name?.trim()) {
-      console.log('🔍 [AddPersonForm] validation failed: name required')
       showToast('Name is required', 'error', { duration: 2000 })
       return
     }
-    
-    console.log(`🔍 [AddPersonForm] validation passed (${performance.now() - startTime}ms)`)
-    
+
     let updatedFormData = { ...formData }
     if (paymentMethod && paymentUsername) {
       updatedFormData.socialMedia = [
@@ -104,29 +102,12 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
-    
-    console.log(`🔍 [AddPersonForm] prepared data (${performance.now() - startTime}ms)`)
-    console.log('🔍 [AddPersonForm] calling mutation.mutate()')
-    
-    // Start the mutation
     addPersonMutation.mutate(newPerson)
-    
-    console.log(`🔍 [AddPersonForm] mutation initiated (${performance.now() - startTime}ms)`)
-    
-    // Reset the form
     setFormData({ ...initialFormData })
     setPaymentMethod('')
     setPaymentUsername('')
     setInputResetKey((prev) => prev + 1)
-    
-    console.log(`🔍 [AddPersonForm] form reset (${performance.now() - startTime}ms)`)
-    console.log('🔍 [AddPersonForm] closing modal')
-    
-    // Track when the modal actually closes
-    const closeStart = performance.now()
     onClose()
-    console.log(`🔍 [AddPersonForm] onClose called (${performance.now() - closeStart}ms)`)
-
   }, [formData, paymentMethod, paymentUsername, addPersonMutation, onClose, showToast])
 
   const isDark = useColorScheme() === 'dark'

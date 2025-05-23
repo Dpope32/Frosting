@@ -86,13 +86,10 @@ export default Sentry.wrap(function RootLayout() {
             });
           })
         ]),
-        // Timeout after 3 seconds
         timeoutPromise
       ]);
 
-      // Hide splash screen regardless of what happened above
       await SplashScreen.hideAsync().catch(() => {
-        console.log('Splash screen hide failed, continuing anyway');
       });
     };
 

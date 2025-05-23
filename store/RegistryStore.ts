@@ -350,9 +350,9 @@ if (userOnboarding) {
   // if we get here, either the user has not completed onboarding or the user is not premium so we need to seperate the logic
   if (useUserStore.getState().preferences.premium) {
     // user is premium, so we need to show a message that sync is disabled until onboarding completes
-    console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
+    addSyncLog('⚙️ Registry store initialized (sync disabled until onboarding completes)', 'info');
   } else {
     // user is not premium, so we need to show a message that sync is disabled because user is not premium
-    console.log('⚙️ Registry store initialized (sync disabled because user is not premium)');
+    addSyncLog('⚙️ Registry store initialized (sync disabled because user is not premium)', 'info');
   }
 }

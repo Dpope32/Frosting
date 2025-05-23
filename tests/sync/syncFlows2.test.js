@@ -2,7 +2,6 @@
 // NOTE: this **must** come before _any_ import that might touch StorageUtils.
 
 jest.mock('@/lib/StorageUtils', () => {
-    console.log('SETUP: Mocking StorageUtils');
     const mStorage = {
       get:    jest.fn().mockResolvedValue({}),
       set:    jest.fn().mockResolvedValue(undefined),

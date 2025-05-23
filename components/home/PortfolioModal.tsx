@@ -39,14 +39,12 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
     }
   }, [debouncedPrincipalInput, isEditingPrincipal])
   const openEditStockModal = useCallback((stock: Stock) => {
-    console.log('Opening EDIT stock modal from Portfolio for:', stock);
     onOpenChange(false);
     setTimeout(() => {
       useEditStockStore.getState().openModal(stock, false);
     }, 100);
   }, [onOpenChange]);
   const openAddStockModal = useCallback(() => {
-    console.log('Opening ADD stock modal from Portfolio');
     onOpenChange(false);
     setTimeout(() => {
       useEditStockStore.getState().openModal(undefined, true);

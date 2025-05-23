@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import { portfolioData, updatePortfolioData } from '../utils/Portfolio';
 import { StorageUtils } from '../store/AsyncStorage';
 import ProxyServerManager from '../utils/ProxyServerManager';
+import { addSyncLog } from '@/components/sync/syncUtils';
 
 interface PortfolioState {
     totalValue: number | null;
@@ -41,13 +42,13 @@ export const usePortfolioStore = create<PortfolioState>(() => {
     togglePortfolioSync: () => {
       const currentState = usePortfolioStore.getState().isSyncEnabled;
       usePortfolioStore.setState({ isSyncEnabled: !currentState });
-      console.log(`[Portfolio] Sync ${!currentState ? 'enabled' : 'disabled'}`);
+      addSyncLog(`[Portfolio] Sync ${!currentState ? 'enabled' : 'disabled'}`, 'info');
     },
 
     hydrateFromSync: (syncedData: any) => {
       const currentState = usePortfolioStore.getState();
       if (!currentState.isSyncEnabled) {
-        console.log('[Portfolio] Local sync disabled - skipping hydration');
+        addSyncLog('[Portfolio] Local sync disabled - skipping hydration', 'info');
         return;
       }
 
@@ -97,7 +98,7 @@ export const usePortfolioStore = create<PortfolioState>(() => {
         if (syncedData.lastUpdate) updates.lastUpdate = new Date(syncedData.lastUpdate);
 
         usePortfolioStore.setState(updates);
-        console.log(`[Portfolio] Hydrated: ${mergedArray.length} stocks, watchlist: ${updates.watchlist?.length || 0}`);
+        addSyncLog(`[Portfolio] Hydrated: ${mergedArray.length} stocks, watchlist: ${updates.watchlist?.length || 0}`, 'info');
         
       } catch (error) {
         console.error('[Portfolio] Hydration error:', error);

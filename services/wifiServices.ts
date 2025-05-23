@@ -8,35 +8,15 @@ import NetInfo, {
 
 let unsubscribe: NetInfoSubscription | null = null;
 
-const logIfDefined = (label: string, value: unknown) => {
-  if (value !== undefined && value !== null) {
-    console.log(`${label}:`, value);
-  }
-};
-
 const logNetInfoState = (state: NetInfoState) => {
-
   switch (state.type) {
     case NetInfoStateType.wifi: {
-      const wifi = state as NetInfoWifiState;
       console.group('[📡 WiFi]');
-      logIfDefined('SSID', wifi.details.ssid);
-      logIfDefined('BSSID', wifi.details.bssid);
-      logIfDefined('IP Address', wifi.details.ipAddress);
-      logIfDefined('Subnet', wifi.details.subnet);
-      logIfDefined('Strength', wifi.details.strength);
-      logIfDefined('Frequency', wifi.details.frequency);
-      logIfDefined('Link Speed', wifi.details.linkSpeed);
-      logIfDefined('Expensive', wifi.details.isConnectionExpensive);
       console.groupEnd();
       break;
     }
     case NetInfoStateType.cellular: {
-      const cell = state as NetInfoCellularState;
       console.group('[📱 Cellular]');
-      logIfDefined('Carrier', cell.details.carrier);
-      logIfDefined('Generation', cell.details.cellularGeneration);
-      logIfDefined('Expensive', cell.details.isConnectionExpensive);
       console.groupEnd();
       break;
     }

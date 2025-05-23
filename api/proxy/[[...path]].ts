@@ -29,9 +29,6 @@ const BROWSER_HEADERS = {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  console.log(`[DEBUG] Received request: ${req.method} ${req.url}`);
-  
-  // Apply CORS middleware
   await new Promise((resolve, reject) => {
     corsMiddleware(req, res, (result: any) => {
       if (result instanceof Error) {
@@ -41,32 +38,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   });
 
-  // Handle OPTIONS request immediately after CORS
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Ensure it's a GET request after OPTIONS is handled
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET', 'OPTIONS']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
   try {
-    // Simple path extraction - first try using the query param method which worked before
     let pathSegments: string[] = [];
     let endpoint = '';
     
     if (req.query.path) {
-      // This is the method that worked before
       const path = req.query.path;
       pathSegments = Array.isArray(path) ? path : [path];
       endpoint = pathSegments.join('/');
-      console.log(`[DEBUG] Using req.query.path: ${endpoint}`);
     } else {
-      // Fallback to URL parsing as a backup method
-      const url = req.url || '';
-      console.log(`[DEBUG] Raw URL: ${url}`);
+        const url = req.url || '';
       
       const basePath = '/api/proxy/';
       const basePathIndex = url.indexOf(basePath);
@@ -74,7 +64,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (basePathIndex !== -1) {
         endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
         pathSegments = endpoint.split('/');
-        console.log(`[DEBUG] Extracted from URL: ${endpoint}`);
       }
     }
     
@@ -83,7 +72,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Bad Request: Could not determine endpoint' });
     }
 
-    console.log(`[INFO] Processing endpoint: ${endpoint}`);
 
     // Now route based on the extracted endpoint
     if (endpoint.startsWith('yahoo-finance/')) {
@@ -92,10 +80,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error('[Yahoo Finance] Missing symbol');
         return res.status(400).json({ error: 'Missing stock symbol' });
       }
-      
-      
+
+      // Try to scrape the data from yahoo finance
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&includePrePost=false`;
-      
       try {
         const response = await axios.get(yahooUrl, {
           headers: BROWSER_HEADERS,
@@ -106,7 +93,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } catch (yahooError) {
         console.error(`[Yahoo Finance] Error fetching data for symbol ${symbol}:`, yahooError);
         
-        // Try alternative service if Yahoo fails
+        // Try alternative service if Yahoo fails with API key
         try {
           const fallbackUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=demo`;
           const fallbackResponse = await axios.get(fallbackUrl);
@@ -136,29 +123,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json(response.data);
       
     } else if (endpoint === 'stoic-quote') {
-      console.log('[Stoic Quote] Attempting to fetch quote');
       
       try {
         const response = await axios.get('https://stoic-quotes.com/api/quote', {
           headers: { 'User-Agent': BROWSER_USER_AGENT },
         });
         
-        console.log('[Stoic Quote] Request successful');
         return res.status(200).json(response.data);
       } catch (error) {
         // Fallback to tekloon if the first one fails
-        console.log('[Stoic Quote] Primary source failed, trying backup');
         const response = await axios.get('https://stoic.tekloon.net/stoic-quote', {
           headers: { 'User-Agent': BROWSER_USER_AGENT },
         });
         
-        console.log('[Stoic Quote] Backup request successful');
         return res.status(200).json(response.data);
       }
       
     } 
     else if (endpoint === 'debug-query') {
-      console.log('[Debug] Query object:', req.query);
       return res.status(200).json({
         query: req.query,
         url: req.url,
@@ -167,14 +149,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
     else if (endpoint === 'debug') {
-      console.log('[Debug] Debug endpoint called');
       return res.status(200).json({
         status: 'ok',
         time: new Date().toISOString(),
         version: 'latest deployment'
       });
     }else if (endpoint === 'ping') {
-      console.log('[Ping] Request received');
       return res.status(200).json({ 
         status: 'ok', 
         timestamp: new Date().toISOString(),
@@ -182,7 +162,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
       
     } else {
-      console.warn(`[Not Found] Endpoint not recognized: ${endpoint}`);
       return res.status(404).json({ error: 'Endpoint not found' });
     }
   } catch (error) {

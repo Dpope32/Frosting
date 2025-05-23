@@ -97,7 +97,6 @@ export const EventModal: React.FC<EventModalProps> = ({
   }
 
   const handleEditEventInternal = (event: CalendarEvent) => {
-    console.log('Edit event clicked:', event);
     setNewEventTitle(event.title);
     setNewEventTime(event.time || '');
     setSelectedType(event.type);

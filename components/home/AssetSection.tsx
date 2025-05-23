@@ -24,10 +24,6 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
     return () => clearTimeout(timer);
   }, [refetch]);
   
-  const openAddStockModal = useCallback(() => {
-    console.log('Opening ADD stock modal');
-    useEditStockStore.getState().openModal(undefined, true);
-  }, []);
   
   const handleRemoveFromWatchlist = async (symbol: string) => {
     await removeFromWatchlist(symbol);
@@ -42,7 +38,6 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
   }, [stockData]);
   
   const handleEditStock = useCallback((stock: Stock) => {
-    console.log('Opening EDIT stock modal for:', stock);
     useEditStockStore.getState().openModal(stock, false);
   }, []);
   
@@ -74,7 +69,6 @@ export function AssetSection({ onAddToWatchlist }: { onAddToWatchlist: () => voi
               if (activeTab === 'watchlist') {
                 onAddToWatchlist();
               } else {
-                console.log('Plus icon clicked in AssetSection');
                 useEditStockStore.getState().openModal(undefined, true);
               }
             }}
