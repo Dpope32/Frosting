@@ -15,6 +15,8 @@ import { useCustomCategoryStore } from './CustomCategoryStore';
 import { useTagStore } from './TagStore';
 import { useProjectStore } from './ProjectStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
+import { usePortfolioStore } from './PortfolioStore';
+import { portfolioData } from '@/utils/Portfolio';
 
 interface RegistryState {
   hasCompletedOnboarding: boolean;
@@ -139,6 +141,30 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
       }
 
+      // Tasks sync handling
+      const taskStoreFullState = useTaskStore.getState();
+      let taskStateForSnapshot: any = { isSyncEnabled: taskStoreFullState.isSyncEnabled };
+      if (taskStoreFullState.isSyncEnabled) {
+        taskStateForSnapshot.tasks = taskStoreFullState.tasks;
+        taskStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] Tasks sync ON: Including ${Object.keys(taskStoreFullState.tasks || {}).length} tasks.`, 'info');
+      } else {
+        addSyncLog('[Snapshot] Tasks sync OFF: Excluding tasks.', 'info');
+      }
+
+      // Portfolio sync handling
+      const portfolioStoreFullState = usePortfolioStore.getState();
+      let portfolioStateForSnapshot: any = { isSyncEnabled: portfolioStoreFullState.isSyncEnabled };
+      if (portfolioStoreFullState.isSyncEnabled) {
+        portfolioStateForSnapshot.portfolio = portfolioData;
+        portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
+        portfolioStateForSnapshot.watchlist = portfolioStoreFullState.watchlist;
+        portfolioStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} stocks, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
+      } else {
+        addSyncLog('[Snapshot] Portfolio sync OFF: Excluding stocks and portfolio data.', 'info');
+      }
+
       // For stores that sync automatically (like CustomCategory and Tags as per user request)
       const customCategoryState = { ...useCustomCategoryStore.getState(), lastUpdated: now };
       const tagsState = { ...useTagStore.getState(), lastUpdated: now };
@@ -147,7 +173,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         habits: habitStateForSnapshot,
         bills: billStateForSnapshot, 
         calendar: calendarStateForSnapshot,
-        tasks: { ...useTaskStore.getState(), lastUpdated: now }, 
+        tasks: taskStateForSnapshot,
+        portfolio: portfolioStateForSnapshot,
         notes: { sync_disabled: true, local_only: true, lastUpdated: now }, 
         user: { sync_disabled: true, lastUpdated: now }, 
         vault: vaultStateForSnapshot, 
@@ -301,24 +328,10 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       tryHydrateStore('people', usePeopleStore, 'People'); 
       tryHydrateStore('customCategory', useCustomCategoryStore, 'Custom Categories', true);
       tryHydrateStore('tags', useTagStore, 'Tags', true);
+      tryHydrateStore('tasks', useTaskStore, 'Tasks');
+      tryHydrateStore('portfolio', usePortfolioStore, 'Portfolio');
 
-      // TaskStore has its own complex hydration, called separately for now
-      // It will also need an isSyncEnabled flag and to be integrated into tryHydrateStore
-      if (data.tasks) { 
-        const taskStore = useTaskStore.getState();
-        // Placeholder: if TaskStore gets an isSyncEnabled, check it here
-        // if(taskStore.isSyncEnabled === false || (data.tasks.isSyncEnabled === false)) { ... skip ... }
-        try {
-          taskStore.hydrateFromSync(data.tasks); 
-          successCount++;
-          addSyncLog(`✅ Tasks hydrated with completion priority logic (pending toggle integration)`, 'success');
-        } catch (err) {
-          errorCount++;
-          addSyncLog(`❌ Error hydrating tasks: ${(err as Error).message}`, 'error');
-        }
-      } else {
-        addSyncLog(`ℹ️ No data for tasks in snapshot, skipping hydration.`, 'info');
-      }
+      // Remove the separate TaskStore hydration since it's now handled by tryHydrateStore
       
       set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
       get().syncOnboardingWithUser();

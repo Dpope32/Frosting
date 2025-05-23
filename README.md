@@ -18,7 +18,7 @@
 </div>
 
 ### A feature-rich personal management app built with React Native and Expo, designed to help you manage your life with style. 
-- **Sync Engine**: Seamlessly synchronize your data across all your devices with our powerful sync engine
+- **Sync Engine**: Seamlessly synchronize your data across all your devices with our powerful sync engine. Only available to premium users.
 - **Offline Capability**: Built with a local-first approach, the app works fully offline. It pulls the latest information on startup and saves all your data when closed
 - **Customizable Sync**: You have complete control over what data gets synchronized. Choose exactly which modules to sync across your devices
 - **Privacy-First Design**: All data is encrypted at rest and in transit using AES-256 cryptography. Your information remains private - even we can't access it. Your devices are the only machines with the key to decrypt your data. Note: This security model means we cannot help recover data if you lose all your devices. Premium users with multiple devices effectively have "backups" of their data.
@@ -40,10 +40,10 @@
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
 **Premium Features**: 
-- Coming soon all for $3/month 
+- Coming soon all for $3/month (or $49.99 lifetime)
 1. Cross-Device Sync (all encrypted with AES-256 of course)
 2. Unlimited Devices 
-3. Choose what you want to sync (Notes, Todos, Calendar, CRM, Password Vault)
+3. Choose what you want to sync (Notes, Todos, Calendar, CRM, Password Vault, Stocks, Habits, Projects)
 
 ![Home Screen Preview](assets/screenshots/web/loaded.png)
 

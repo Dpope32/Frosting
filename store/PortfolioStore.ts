@@ -12,6 +12,7 @@ interface PortfolioState {
     lastUpdate?: Date;
     principal: number;
     watchlist: string[];
+    isSyncEnabled: boolean;
     historicalData: Record<string, {
       '1d': number | null;
       '1w': number | null;
@@ -22,6 +23,8 @@ interface PortfolioState {
       'ytd': number | null;
       'earliest': number | null; 
     }>;
+    togglePortfolioSync: () => void;
+    hydrateFromSync: (syncedData: any) => void;
 }
 
 // Initialize with default values
@@ -32,7 +35,74 @@ export const usePortfolioStore = create<PortfolioState>(() => {
     prices: {},
     principal: 1000,
     watchlist: [],
-    historicalData: {}
+    isSyncEnabled: false,
+    historicalData: {},
+    
+    togglePortfolioSync: () => {
+      const currentState = usePortfolioStore.getState().isSyncEnabled;
+      usePortfolioStore.setState({ isSyncEnabled: !currentState });
+      console.log(`[Portfolio] Sync ${!currentState ? 'enabled' : 'disabled'}`);
+    },
+
+    hydrateFromSync: (syncedData: any) => {
+      const currentState = usePortfolioStore.getState();
+      if (!currentState.isSyncEnabled) {
+        console.log('[Portfolio] Local sync disabled - skipping hydration');
+        return;
+      }
+
+      if (!syncedData) return;
+
+      try {
+        // Merge portfolio data from sync
+        const incomingPortfolio = syncedData.portfolio || [];
+        const currentPortfolio = [...portfolioData];
+        
+        // Create a map for efficient merging
+        const mergedPortfolio = new Map();
+        
+        // Add current portfolio stocks
+        currentPortfolio.forEach(stock => {
+          mergedPortfolio.set(stock.symbol, { ...stock });
+        });
+        
+        // Merge incoming stocks - combine quantities for same symbols
+        incomingPortfolio.forEach((incomingStock: any) => {
+          const existing = mergedPortfolio.get(incomingStock.symbol);
+          if (existing) {
+            // Combine quantities and recalculate average cost
+            const totalShares = existing.quantity + incomingStock.quantity;
+            const totalCost = (existing.quantity * existing.averagePrice) + 
+                            (incomingStock.quantity * incomingStock.averagePrice);
+            const newAveragePrice = totalCost / totalShares;
+            
+            mergedPortfolio.set(incomingStock.symbol, {
+              ...existing,
+              quantity: totalShares,
+              averagePrice: newAveragePrice
+            });
+          } else {
+            mergedPortfolio.set(incomingStock.symbol, { ...incomingStock });
+          }
+        });
+
+        // Update portfolio data
+        const mergedArray = Array.from(mergedPortfolio.values());
+        updatePortfolioData(mergedArray);
+
+        // Update other synced fields
+        const updates: Partial<PortfolioState> = {};
+        if (syncedData.principal !== undefined) updates.principal = syncedData.principal;
+        if (syncedData.watchlist) updates.watchlist = [...new Set([...currentState.watchlist, ...syncedData.watchlist])];
+        if (syncedData.lastUpdate) updates.lastUpdate = new Date(syncedData.lastUpdate);
+
+        usePortfolioStore.setState(updates);
+        console.log(`[Portfolio] Hydrated: ${mergedArray.length} stocks, watchlist: ${updates.watchlist?.length || 0}`);
+        
+      } catch (error) {
+        console.error('[Portfolio] Hydration error:', error);
+      }
+    }
   };
   
   // Load data asynchronously

@@ -13,6 +13,7 @@ interface ProjectStore {
   tasks: Record<string, Task>
   hydrated: boolean
   todaysTasks: Task[]
+  isSyncEnabled: boolean
   addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
   deleteTask: (id: string) => void
   toggleTaskCompletion: (id: string) => void
@@ -20,6 +21,7 @@ interface ProjectStore {
   getTodaysTasks: () => Task[]
   clearTasks: () => void
   recalculateTodaysTasks: () => void
+  toggleTaskSync: () => void
   hydrateFromSync: (syncedData: {tasks?: Record<string, Task>}) => void
 }
 
@@ -243,6 +245,7 @@ export const useProjectStore = create<ProjectStore>()(
       tasks: {},
       hydrated: false,
       todaysTasks: [],
+      isSyncEnabled: false,
       addTask: (data) => {
         const tasks = { ...get().tasks }
         const id = generateUniqueId(); // Use the new utility function
@@ -342,8 +345,18 @@ export const useProjectStore = create<ProjectStore>()(
         addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
         set({ todaysTasks });
       },
-      
+      toggleTaskSync: () => {
+        const currentState = get().isSyncEnabled;
+        set({ isSyncEnabled: !currentState });
+        addSyncLog(`[Tasks] Sync ${!currentState ? 'enabled' : 'disabled'}`, 'info');
+      },
       hydrateFromSync: (syncedData?: { tasks?: Record<string, Task> }) => {
+        const { isSyncEnabled } = get();
+        if (!isSyncEnabled) {
+          addSyncLog('[Tasks] Local sync disabled - skipping hydration', 'info');
+          return;
+        }
+      
         if (!syncedData?.tasks) {
           addSyncLog('[Tasks] No tasks field – skip', 'warning');
           return;
