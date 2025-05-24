@@ -6,13 +6,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
 import { useVaultStore } from '@/store/VaultStore';
 import { useProjectStore } from '@/store/ProjectStore';
-import { useProjectStore as useTaskStore  } from '@/store/ToDo';
 import { usePeopleStore } from '@/store/People';
 import { useHabitStore } from '@/store/HabitStore';
 import { useCalendarStore } from '@/store/CalendarStore';
 import { baseSpacing, cardRadius, fontSizes, getColors, buttonRadius, getDeviceIcon, getDeviceStatusColor, Colors } from '@/components/sync';
 import { isIpad } from '@/utils/deviceUtils';
-import { usePortfolioStore } from '@/store/PortfolioStore';
 
 export interface Device {
   id: string;
@@ -70,10 +68,6 @@ export default function SyncTable({
   const toggleHabitSync = useHabitStore((state) => state.toggleHabitSync);
   const isCalendarSyncEnabled = useCalendarStore((state) => state.isSyncEnabled);
   const toggleCalendarSync = useCalendarStore((state) => state.toggleCalendarSync);
-  const isTaskSyncEnabled = useTaskStore((state) => state.isSyncEnabled);
-  const toggleTaskSync = useTaskStore((state) => state.toggleTaskSync);
-  const isPortfolioSyncEnabled = usePortfolioStore((state) => state.isSyncEnabled);
-  const togglePortfolioSync = usePortfolioStore((state) => state.togglePortfolioSync);
   
 
    const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
@@ -103,8 +97,6 @@ export default function SyncTable({
     { key: 'people', label: 'Contacts', enabled: isPeopleSyncEnabled, toggle: togglePeopleSync },
     { key: 'habits', label: 'Habits', enabled: isHabitSyncEnabled, toggle: toggleHabitSync },
     { key: 'calendar', label: 'Calendar', enabled: isCalendarSyncEnabled, toggle: toggleCalendarSync },
-    { key: 'tasks', label: 'Tasks', enabled: isTaskSyncEnabled, toggle: toggleTaskSync },
-    { key: 'stocks', label: 'Stocks', enabled: isPortfolioSyncEnabled, toggle: togglePortfolioSync },
   ];
 
   const enabledSyncCount = syncSettings.filter(s => s.enabled).length;
@@ -290,7 +282,7 @@ export default function SyncTable({
           ) : null}
           <XStack gap={baseSpacing * 4}>
             <YStack flex={1} gap={baseSpacing}>
-              {syncSettings.slice(0, 4).map((setting, index) => (
+              {syncSettings.slice(0, 3).map((setting, index) => (
                 <React.Fragment key={setting.key}>
                   <XStack alignItems="center" justifyContent="space-between">
                     <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
@@ -311,13 +303,13 @@ export default function SyncTable({
                       </Text>
                     </Button>
                   </XStack>
-                  {index < 3 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                  {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
                 </React.Fragment>
               ))}
             </YStack>
 
             <YStack flex={1} gap={baseSpacing}>
-              {syncSettings.slice(4).map((setting, index) => (
+              {syncSettings.slice(3).map((setting, index) => (
                 <React.Fragment key={setting.key}>
                   <XStack alignItems="center" justifyContent="space-between">
                     <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
@@ -338,7 +330,7 @@ export default function SyncTable({
                       </Text>
                     </Button>
                   </XStack>
-                  {index < 3 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                  {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
                 </React.Fragment>
               ))}
             </YStack>
