@@ -174,7 +174,7 @@ export function TagSelector({
       mb={0}
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
-        {!isAdding && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={isIpad() ? 4 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
+        {!isAdding && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={isIpad() ? 0 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
         <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="flex-start" alignSelf="flex-start" alignContent="flex-start" justifyContent="center">
           {tagStoreTags.map(tag => {
             const tagColor = tag.color || NEUTRAL_BORDER;
@@ -238,7 +238,7 @@ export function TagSelector({
                 key="start-add-tag"
                 size="$2"
                 circular
-                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
                 onPress={() => setIsAdding(true)}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}

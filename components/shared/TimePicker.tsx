@@ -33,7 +33,7 @@ export function TimePicker({
   };
 
   return (
-    <YStack flex={1} alignItems='center' paddingHorizontal={isIpad() ? 16 : 0} marginRight={0} mt={isIpad() ? 8 : 4} mb={0}>
+    <YStack flex={1} alignItems='center' paddingHorizontal={isIpad() ? 10 : 0} marginRight={0} mt={isIpad() ? 8 : 4} mb={0}>
       {!showTimePicker && (
       <Pressable
         onPress={() => setShowTimePicker(!showTimePicker)}
@@ -46,8 +46,8 @@ export function TimePicker({
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          paddingHorizontal: isIpad() ? 16 : time ? 6 : 16,
-          paddingRight: isIpad() ? 16 : time ? 8 : 16,
+          paddingHorizontal: isIpad() ? 0 : time ? 6 : 16,
+          paddingRight: isIpad() ? 0 : time ? 8 : 16,
           justifyContent: 'space-between',
           backgroundColor: time ? 'transparent' : (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.01)'),
           marginTop: time ? -6 : 0,
@@ -56,7 +56,7 @@ export function TimePicker({
       >
         <Text
           fontFamily="$body"
-          color={time ? (isDark ? '#ccc' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
+          color={time ? (isDark ? '#f1f1f1' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
           fontSize={isIpad() ? 17 : 14}
           style={{ flex: 1 }}
           fontWeight="500"
@@ -64,7 +64,7 @@ export function TimePicker({
           {time || "Select time"}
         </Text>
         {time ? (
-          <MaterialIcons name="edit" size={15} color={isDark ? '#555' : '#f3f3f3'} />
+          <MaterialIcons name="edit" size={20} color={isDark ? '#555' : '#f3f3f3'} />
         ) : (
           <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
             {showTimePicker ? '▲' : '▼'}

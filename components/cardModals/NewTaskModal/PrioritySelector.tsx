@@ -14,19 +14,19 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
-  const priorityIcons = {
-    high: MaterialIcons,
-    medium: MaterialIcons,
-    low: MaterialIcons
+  const priorityIconNames = {
+    high: 'keyboard-arrow-up',
+    medium: 'keyboard-arrow-right',
+    low: 'keyboard-arrow-down'
   }
 
   return (
-    <XStack px={isIpad() ? "$2.5" : "$2"} ml={0} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
+    <XStack px={isIpad() ? "$2.5" : "$2"} my={6} ml={0} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority:</Text>
       <XStack gap={isIpad() ? "$2" : "$1.5"} ml={isIpad() ? "$2.5" : "$2.5"}>
         {['high', 'medium', 'low'].map(priority => {
           const color = getPriorityColor(priority as TaskPriority)
-          const Icon = priorityIcons[priority as keyof typeof priorityIcons]
+          const iconName = priorityIconNames[priority as keyof typeof priorityIconNames]
           const buttonSize = isIpad() ? 42 : 32
           return (
             <Button
@@ -49,9 +49,10 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
                   : isDark ? "$gray7" : "$gray8"
               }
             >
-              <Icon
+              <MaterialIcons
+                name={iconName as any}
                 size={isIpad() ? 20 : 14}
-                color={selectedPriority === priority ? color : isDark ? "$gray12" : "$gray11"}
+                color={selectedPriority === priority ? color : isDark ? "#6c6c6c" : "#9c9c9c"}
               />
             </Button>
           )

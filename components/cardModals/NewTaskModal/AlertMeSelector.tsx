@@ -34,7 +34,7 @@ export function AlertMeSelector({
   const textColor = isDark ? '#ffffff' : '#000000'
 
   return (
-    <YStack space={isIpad() ? '$2' : '$1'} pl={6} mt="$2" pb="$3">
+    <YStack space={isIpad() ? '$2' : '$1'} pl={12} mt="$2" pb="$3">
       <XStack alignItems="center" justifyContent="space-between">
         <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}>
           Notify at task time

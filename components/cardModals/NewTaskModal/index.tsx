@@ -318,7 +318,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12} mt={isIpad() ? 0 : 10}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { borderWidth: 2, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.00)', color: isDark ? '#fff' : '#000' }]}
@@ -327,7 +327,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             value={newTask.name}
             fontSize={isIpad() ? 17 : 15}
             fontFamily={isIpad() ? '$body' : '$body'}
-            width={isIpad() ? '100%' : '100%'}
+            width={isIpad() ? '90%' : '90%'}
+            alignSelf="center"
             onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
             delay={300}
           />
