@@ -1,6 +1,6 @@
 import React from 'react'
 import { XStack, Text, Button } from 'tamagui'
-import { Check } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { Project, TaskPriority } from '@/types'
 import { getPriorityColor} from '@/utils'
 import { getTaskBackgroundColor } from './projectCardUtils'
@@ -61,7 +61,7 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
                 jc="center"
                 style={{ width: isIpad() ? 24 : 20, height: isIpad() ? 24 : 20 }}
               >
-                {task.completed ? <Check size={isIpad() ? 16 : 14} color={isDark ? '#00ff00' : '#00ff00'} /> : ''}
+                {task.completed ? <MaterialIcons name="check" size={isIpad() ? 16 : 14} color={isDark ? '#00ff00' : '#00ff00'} /> : ''}
               </Button>
               <Text
                 fontSize={isIpad() ? 14 : 13}

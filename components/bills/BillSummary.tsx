@@ -2,7 +2,7 @@ import React from 'react';
 import { useColorScheme } from 'react-native';
 import { Button, XStack, YStack, Text, isWeb } from 'tamagui';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { Edit3 } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { isIpad } from '@/utils';
 
@@ -89,7 +89,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                       bg: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)",
                     }}
                     onPress={onEditIncome}
-                    icon={<Edit3 size={14} color={isDark ? "#999" : "#666"} />}
+                    icon={<MaterialIcons name="edit" size={14} color={isDark ? "#999" : "#666"} />}
                   />
                 </XStack>
               </YStack>
@@ -191,7 +191,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 size="$1"
                 bg="transparent"
                 onPress={onEditIncome}
-                icon={<Edit3 size={16} color={isDark ? '#999' : '#666'} />}
+                icon={<MaterialIcons name="edit" size={16} color={isDark ? '#999' : '#666'} />}
               />
               <Text
                 fontSize={16}

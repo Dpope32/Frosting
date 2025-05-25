@@ -4,8 +4,7 @@ import { ScrollView, Platform, View, StyleSheet, useColorScheme } from "react-na
 import { YStack, Text, XStack, Stack, Button, isWeb } from "tamagui";
 import Animated, { FadeIn} from "react-native-reanimated";
 import { useWeatherStore } from "@/store/WeatherStore";
-//@ts-ignore
-import { ChevronLeft } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIpad } from "@/utils";
 import TodayForecast from '@/components/weather/todayForecast';
@@ -101,7 +100,7 @@ export default function TemperatureScreen() {
         <YStack gap="$2" paddingVertical="$1">
           <XStack paddingHorizontal="$4" alignItems="center" justifyContent="center" position="relative" marginBottom="$3">
             <Button
-              icon={ChevronLeft}
+              icon={<MaterialIcons name="chevron-left" size={isIpad() ? 24 : 20} color={isDark ? "#b8b3ba" : "#708090"} />}
               onPress={() => {
                 if (isWeb) {
                   router.dismiss();

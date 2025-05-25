@@ -1,11 +1,8 @@
 import React, { useState } from 'react'
 import { XStack, YStack, Text } from 'tamagui'
-import { Check } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types'
-import { ProjectAttachments } from './ProjectAttachments'
-import { ProjectCardHeader } from './ProjectCardHeader'
-import { TaskListItem } from './TaskListItem'
-import { getDaysUntilDeadline } from './projectCardUtils'
+import { ProjectAttachments, ProjectCardHeader, TaskListItem ,getDaysUntilDeadline } from './'
 import { Pressable } from 'react-native'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 
@@ -114,7 +111,7 @@ export const ProjectCardWebView = ({
               jc="center"
               opacity={0.9}
             >
-              <Check size={30} color="white" />
+              <MaterialIcons name="check" size={30} color="white" />
             </XStack>
           </Animated.View>
         </Pressable>

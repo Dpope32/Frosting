@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import React, { useState, useRef } from 'react'
 import { useColorScheme, Alert, Platform } from 'react-native'
 import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
@@ -6,7 +6,7 @@ import { TaskCategory } from '@/types'
 import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon, getDarkerColor, isIpad } from '@/utils'
 import { useCustomCategoryStore, useUserStore, useToastStore } from '@/store'
 import { DebouncedTagInput } from '@/components/shared/debouncedTagInput'
-import { Check, Plus } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface CategorySelectorProps {
   selectedCategory: TaskCategory
@@ -190,7 +190,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
             <Button
               size="$2"
               circular
-              icon={<Check size={isWeb ? 14 : 16} color={isDark ? userColor : userColor} />}
+              icon={<MaterialIcons name="check" size={isWeb ? 14 : 16} color={isDark ? userColor : userColor} />}
               onPress={handleCreateNewCategory}
               backgroundColor="transparent"
               position="absolute"
@@ -272,7 +272,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                 key="start-add-category"
                 size="$2"
                 circular
-                icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}
                 borderColor={isDark ? "$gray7" : "$gray8"}

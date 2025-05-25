@@ -1,14 +1,13 @@
 import React, { useState } from 'react'
 import { XStack, Button } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
-import { Check } from '@tamagui/lucide-icons'
 import { Project } from '@/types'
 import { isIpad } from '@/utils'
 import Animated, { FadeIn, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isWeb } from 'tamagui'
 import { Alert, Platform, Pressable } from 'react-native'
-import * as Haptics from 'expo-haptics'
+import * as Haptics from 'expo-haptics' 
 
 interface ProjectCardWrapperProps {
   project: Project
@@ -142,7 +141,7 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
               jc="center"
               opacity={0.9}
             >
-              <Check size={30} color="#00ff00" />
+              <MaterialIcons name="check" size={30} color="#00ff00" />
             </XStack>
           </Animated.View>
         </Pressable>

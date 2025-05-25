@@ -1,9 +1,8 @@
-// @ts-nocheck
 import React, { useState, useEffect, useRef } from 'react';
 import { Platform, Keyboard, KeyboardEvent, Alert } from 'react-native';
 import { XStack, YStack, Text, Button } from 'tamagui';
-import { Plus, Check } from '@tamagui/lucide-icons';
-import type { Tag } from '@/types/tag';
+import { MaterialIcons } from '@expo/vector-icons';
+import type { Tag } from '@/types';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DebouncedTagInput } from '../shared/debouncedTagInput';
 import { isIpad, withOpacity, getDarkerColor } from '@/utils';
@@ -224,7 +223,7 @@ export function TagSelector({
                 key="confirm-new-tag"
                 size="$2"
                 circular
-                icon={<Check size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 onPress={handleAddTag}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}
@@ -238,7 +237,7 @@ export function TagSelector({
                 key="start-add-tag"
                 size="$2"
                 circular
-                icon={<Plus size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
                 onPress={() => setIsAdding(true)}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}
@@ -279,7 +278,7 @@ export function TagSelector({
               <Button
                 size="$3"
                 circular
-                icon={<Check size={isWeb ? 14 : 16} color={selectedColor} />}
+                icon={<MaterialIcons name="check" size={isWeb ? 14 : 16} color={selectedColor} />}
                 onPress={handleAddTag}
                 backgroundColor="transparent"
                 position="absolute"
@@ -302,7 +301,7 @@ export function TagSelector({
               <Button
                 size="$2"
                 circular
-                icon={<Check size={isWeb ? 24 : 18} />}
+                icon={<MaterialIcons name="check" size={isWeb ? 24 : 18} />}
                 onPress={handleAddTag}
                 backgroundColor="transparent"
                 color="#1E40AF"

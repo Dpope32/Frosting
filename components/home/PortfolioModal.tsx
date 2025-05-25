@@ -5,6 +5,7 @@ import { usePortfolioStore, updatePrincipal, useEditStockStore } from '@/store'
 import { HoldingsCards } from '@/components/modals/HoldingsCards'
 import { StockCard } from '@/components/modals/StockCard'
 import { Stock } from '@/types'
+import { isIpad } from '@/utils'
 
 interface PortfolioModalProps {
   open: boolean
@@ -69,7 +70,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       <YStack
         gap={isWeb ? '$2' : '$1'}
         pb={isWeb ? '$5' : '$3'}
-        pt={isWeb ? '$3' : '$1'}
+        pt={isWeb ? '$3' : isIpad() ? '$2' : '$1'}
       >
         <StockCard
           currentTotalValue={currentTotalValue}

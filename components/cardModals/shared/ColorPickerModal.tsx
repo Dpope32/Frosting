@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'; // Import useState
 import { View, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Sheet, Button, Text, XStack, YStack } from 'tamagui';
 import { useToastStore, useUserStore } from '@/store'
-import { X } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 // Define a default empty component for ColorPicker
 const EmptyColorPicker = () => null;
@@ -74,7 +74,7 @@ export function ColorPickerModal({
             Color Selection
           </Text>
           <TouchableOpacity onPress={() => onOpenChange(false)} style={{ padding: 8 }}> 
-            <X size={24} color={textColor} />
+            <MaterialIcons name="close" size={24} color={textColor} />
           </TouchableOpacity>
         </XStack>
         <YStack gap="$3"> 

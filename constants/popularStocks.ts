@@ -1,5 +1,4 @@
-import { Briefcase, TrendingUp, Zap, DollarSign, Building2, ShoppingCart, Pill, Coffee, Plane, Car, Droplet, Cpu, Landmark, Heart, Hammer, Lightbulb, Truck, Globe } from '@tamagui/lucide-icons';
-import { FontAwesome, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome5, MaterialCommunityIcons, MaterialIcons, Ionicons, Feather, Foundation, Entypo } from '@expo/vector-icons';
 
 export const popularStocks = [
     { symbol: 'MSFT', name: 'Microsoft Corp.' },
@@ -28,65 +27,117 @@ export const getIconForStock = (symbol: string) => {
       'META': { Component: FontAwesome5, name: 'facebook', type: 'brand' },
       'AAPL': { Component: FontAwesome, name: 'apple', type: 'brand' },
       'AMZN': { Component: FontAwesome, name: 'amazon', type: 'brand' },
-      'NFLX': { Component: FontAwesome5, name: 'netflix', type: 'brand' },
+      'NFLX': { Component: MaterialCommunityIcons, name: 'netflix', type: 'material' },
       'TSLA': { Component: MaterialCommunityIcons, name: 'car-sports', type: 'material' },
-      'ORCL': { Component: Cpu, type: 'lucide' },
+      'ORCL': { Component: MaterialCommunityIcons, name: 'cpu-64-bit', type: 'material' },
       'CRM': { Component: FontAwesome5, name: 'salesforce', type: 'brand' },
-      'IBM': { Component: FontAwesome5, name: 'ibm', type: 'brand' },
+      'IBM': { Component: MaterialCommunityIcons, name: 'ibm', type: 'material' },
       'NVDA': { Component: MaterialCommunityIcons, name: 'chip', type: 'material' },
       'INTC': { Component: MaterialCommunityIcons, name: 'cpu-64-bit', type: 'material' },
       'AMD': { Component: MaterialCommunityIcons, name: 'memory', type: 'material' },
+      'ADBE': { Component: FontAwesome5, name: 'adobe', type: 'brand' },
+      'CSCO': { Component: MaterialCommunityIcons, name: 'router-network', type: 'material' },
+      'AVGO': { Component: MaterialCommunityIcons, name: 'integrated-circuit-chip', type: 'material' },
+      'TXN': { Component: MaterialCommunityIcons, name: 'resistor', type: 'material' },
+      'QCOM': { Component: MaterialCommunityIcons, name: 'cellphone-link', type: 'material' },
       
       // Finance
-      'JPM': { Component: Landmark, type: 'lucide' },
+      'JPM': { Component: FontAwesome5, name: 'landmark', type: 'solid' },
       'V': { Component: FontAwesome5, name: 'cc-visa', type: 'brand' },
       'MA': { Component: FontAwesome5, name: 'cc-mastercard', type: 'brand' },
-      'BAC': { Component: Landmark, type: 'lucide' },
-      'WFC': { Component: Landmark, type: 'lucide' },
-      'GS': { Component: Briefcase, type: 'lucide' },
+      'BAC': { Component: MaterialCommunityIcons, name: 'bank', type: 'material' },
+      'WFC': { Component: MaterialCommunityIcons, name: 'bank', type: 'material' },
+      'GS': { Component: MaterialIcons, name: 'business-center', type: 'material' },
       'PYPL': { Component: FontAwesome5, name: 'paypal', type: 'brand' },
+      'AXP': { Component: FontAwesome5, name: 'cc-amex', type: 'brand' },
+      'C': { Component: MaterialCommunityIcons, name: 'bank-outline', type: 'material' },
+      'MS': { Component: MaterialCommunityIcons, name: 'finance', type: 'material' },
+      'BRK.B': { Component: MaterialIcons, name: 'account-balance', type: 'material' },
       
       // Healthcare
-      'JNJ': { Component: Pill, type: 'lucide' },
-      'PFE': { Component: Pill, type: 'lucide' },
-      'MRK': { Component: Pill, type: 'lucide' },
-      'UNH': { Component: Heart, type: 'lucide' },
+      'JNJ': { Component: MaterialCommunityIcons, name: 'pill', type: 'material' },
+      'PFE': { Component: MaterialCommunityIcons, name: 'pill', type: 'material' },
+      'MRK': { Component: MaterialCommunityIcons, name: 'pill', type: 'material' },
+      'UNH': { Component: FontAwesome5, name: 'heartbeat', type: 'solid' },
+      'CVS': { Component: MaterialCommunityIcons, name: 'pharmacy', type: 'material' },
+      'ABT': { Component: MaterialCommunityIcons, name: 'medical-bag', type: 'material' },
+      'TMO': { Component: MaterialCommunityIcons, name: 'microscope', type: 'material' },
+      'DHR': { Component: MaterialCommunityIcons, name: 'test-tube', type: 'material' },
+      'LLY': { Component: MaterialCommunityIcons, name: 'needle', type: 'material' },
+      'BMY': { Component: MaterialCommunityIcons, name: 'pill-multiple', type: 'material' },
       
       // Consumer
-      'WMT': { Component: ShoppingCart, type: 'lucide' },
-      'PG': { Component: ShoppingCart, type: 'lucide' },
-      'KO': { Component: Coffee, type: 'lucide' },
-      'PEP': { Component: Coffee, type: 'lucide' },
-      'MCD': { Component: FontAwesome5, name: 'hamburger', type: 'solid' },
-      'SBUX': { Component: FontAwesome5, name: 'coffee', type: 'solid' },
+      'WMT': { Component: MaterialIcons, name: 'shopping-cart', type: 'material' },
+      'PG': { Component: MaterialIcons, name: 'shopping-basket', type: 'material' },
+      'KO': { Component: MaterialCommunityIcons, name: 'bottle-soda', type: 'material' },
+      'PEP': { Component: MaterialCommunityIcons, name: 'bottle-soda-classic', type: 'material' },
+      'MCD': { Component: MaterialCommunityIcons, name: 'hamburger', type: 'material' },
+      'SBUX': { Component: MaterialCommunityIcons, name: 'coffee', type: 'material' },
+      'NKE': { Component: MaterialCommunityIcons, name: 'shoe-sneaker', type: 'material' },
+      'HD': { Component: MaterialCommunityIcons, name: 'hammer', type: 'material' },
+      'LOW': { Component: MaterialCommunityIcons, name: 'saw-blade', type: 'material' },
+      'TGT': { Component: MaterialCommunityIcons, name: 'target', type: 'material' },
+      'COST': { Component: MaterialCommunityIcons, name: 'warehouse', type: 'material' },
       
       // Entertainment
-      'DIS': { Component: FontAwesome5, name: 'film', type: 'solid' }, // Disney icon
+      'DIS': { Component: MaterialCommunityIcons, name: 'movie-open', type: 'material' },
+      'CMCSA': { Component: MaterialCommunityIcons, name: 'television', type: 'material' },
+      'SPOT': { Component: FontAwesome5, name: 'spotify', type: 'brand' },
+      'ROKU': { Component: MaterialCommunityIcons, name: 'remote-tv', type: 'material' },
       
       // Energy
-      'XOM': { Component: FontAwesome5, name: 'gas-pump', type: 'solid' },
-      'CVX': { Component: Droplet, type: 'lucide' },
+      'XOM': { Component: MaterialCommunityIcons, name: 'gas-station', type: 'material' },
+      'CVX': { Component: MaterialCommunityIcons, name: 'oil', type: 'material' },
+      'COP': { Component: MaterialCommunityIcons, name: 'oil-lamp', type: 'material' },
+      'SLB': { Component: MaterialCommunityIcons, name: 'pipe', type: 'material' },
+      'EOG': { Component: MaterialCommunityIcons, name: 'barrel', type: 'material' },
       
       // Auto
-      'F': { Component: FontAwesome, name: 'car', type: 'solid' },
-      'GM': { Component: Car, type: 'lucide' },
+      'F': { Component: MaterialCommunityIcons, name: 'car', type: 'material' },
+      'GM': { Component: MaterialCommunityIcons, name: 'car-side', type: 'material' },
+      'TM': { Component: MaterialCommunityIcons, name: 'car-estate', type: 'material' },
+      'HMC': { Component: MaterialCommunityIcons, name: 'car-hatchback', type: 'material' },
       
-      // Travel
-      'UAL': { Component: FontAwesome5, name: 'plane', type: 'solid' },
-      'DAL': { Component: Plane, type: 'lucide' },
+      // Travel & Airlines
+      'UAL': { Component: MaterialCommunityIcons, name: 'airplane', type: 'material' },
+      'DAL': { Component: MaterialCommunityIcons, name: 'airplane-takeoff', type: 'material' },
+      'AAL': { Component: MaterialCommunityIcons, name: 'airplane-landing', type: 'material' },
+      'LUV': { Component: FontAwesome5, name: 'plane-departure', type: 'solid' },
+      'BA': { Component: MaterialCommunityIcons, name: 'rocket', type: 'material' },
       
       // Industrial
-      'CAT': { Component: Truck, type: 'lucide' },
-      'DE': { Component: Truck, type: 'lucide' },
-      'MMM': { Component: Hammer, type: 'lucide' },
+      'CAT': { Component: MaterialCommunityIcons, name: 'truck', type: 'material' },
+      'DE': { Component: MaterialCommunityIcons, name: 'tractor', type: 'material' },
+      'MMM': { Component: MaterialCommunityIcons, name: 'hammer-wrench', type: 'material' },
+      'HON': { Component: MaterialCommunityIcons, name: 'factory', type: 'material' },
+      'UPS': { Component: MaterialCommunityIcons, name: 'truck-delivery', type: 'material' },
+      'FDX': { Component: MaterialCommunityIcons, name: 'truck-fast', type: 'material' },
       
       // Utilities
-      'NEE': { Component: Lightbulb, type: 'lucide' },
-      'SO': { Component: Lightbulb, type: 'lucide' },
+      'NEE': { Component: MaterialCommunityIcons, name: 'lightbulb', type: 'material' },
+      'SO': { Component: MaterialCommunityIcons, name: 'lightbulb-on', type: 'material' },
+      'DUK': { Component: MaterialCommunityIcons, name: 'transmission-tower', type: 'material' },
+      'D': { Component: MaterialCommunityIcons, name: 'power-plug', type: 'material' },
+      'AEP': { Component: MaterialCommunityIcons, name: 'flash', type: 'material' },
       
       // Real Estate
-      'SPG': { Component: Building2, type: 'lucide' },
-      'AMT': { Component: Building2, type: 'lucide' },
+      'SPG': { Component: MaterialCommunityIcons, name: 'office-building', type: 'material' },
+      'AMT': { Component: MaterialCommunityIcons, name: 'antenna', type: 'material' },
+      'PLD': { Component: MaterialCommunityIcons, name: 'warehouse', type: 'material' },
+      'CCI': { Component: MaterialCommunityIcons, name: 'broadcast-tower', type: 'material' },
+      'EQIX': { Component: MaterialCommunityIcons, name: 'server', type: 'material' },
+      
+      // Telecom
+      'T': { Component: MaterialCommunityIcons, name: 'phone', type: 'material' },
+      'VZ': { Component: MaterialCommunityIcons, name: 'cellphone', type: 'material' },
+      'TMUS': { Component: MaterialCommunityIcons, name: 'cellphone-wireless', type: 'material' },
+      
+      // Food & Beverage
+      'MDLZ': { Component: MaterialCommunityIcons, name: 'cookie', type: 'material' },
+      'GIS': { Component: MaterialCommunityIcons, name: 'bowl-mix', type: 'material' },
+      'K': { Component: MaterialCommunityIcons, name: 'corn', type: 'material' },
+      'HSY': { Component: MaterialCommunityIcons, name: 'candy', type: 'material' },
+      'TSN': { Component: MaterialCommunityIcons, name: 'food-drumstick', type: 'material' },
     };
     
     // Return specific icon if available
@@ -97,16 +148,15 @@ export const getIconForStock = (symbol: string) => {
     // Default to a generic icon based on first letter
     const firstChar = symbol.charAt(0).toLowerCase();
     
-    if (['a', 'b', 'c'].includes(firstChar)) return { Component: Building2, type: 'lucide' };
-    if (['d', 'e', 'f'].includes(firstChar)) return { Component: DollarSign, type: 'lucide' };
-    if (['g', 'h', 'i'].includes(firstChar)) return { Component: Globe, type: 'lucide' };
-    if (['j', 'k', 'l'].includes(firstChar)) return { Component: Landmark, type: 'lucide' };
-    if (['m', 'n', 'o'].includes(firstChar)) return { Component: ShoppingCart, type: 'lucide' };
-    if (['p', 'q', 'r'].includes(firstChar)) return { Component: Pill, type: 'lucide' };
-    if (['s', 't', 'u'].includes(firstChar)) return { Component: TrendingUp, type: 'lucide' };
-    if (['v', 'w', 'x', 'y', 'z'].includes(firstChar)) return { Component: Zap, type: 'lucide' };
+    if (['a', 'b', 'c'].includes(firstChar)) return { Component: MaterialCommunityIcons, name: 'office-building', type: 'material' };
+    if (['d', 'e', 'f'].includes(firstChar)) return { Component: MaterialIcons, name: 'attach-money', type: 'material' };
+    if (['g', 'h', 'i'].includes(firstChar)) return { Component: MaterialCommunityIcons, name: 'earth', type: 'material' };
+    if (['j', 'k', 'l'].includes(firstChar)) return { Component: MaterialCommunityIcons, name: 'bank', type: 'material' };
+    if (['m', 'n', 'o'].includes(firstChar)) return { Component: MaterialIcons, name: 'shopping-cart', type: 'material' };
+    if (['p', 'q', 'r'].includes(firstChar)) return { Component: MaterialCommunityIcons, name: 'pill', type: 'material' };
+    if (['s', 't', 'u'].includes(firstChar)) return { Component: MaterialIcons, name: 'trending-up', type: 'material' };
+    if (['v', 'w', 'x', 'y', 'z'].includes(firstChar)) return { Component: MaterialCommunityIcons, name: 'lightning-bolt', type: 'material' };
     
     // Default fallback
-    return { Component: TrendingUp, type: 'lucide' };
+    return { Component: MaterialIcons, name: 'trending-up', type: 'material' };
   };
-  

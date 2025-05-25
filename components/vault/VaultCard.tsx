@@ -1,7 +1,6 @@
 import React from 'react'
 import { XStack, YStack, Text, Button } from 'tamagui'
-// @ts-ignore
-import { Eye, EyeOff } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Alert, Platform } from 'react-native'
@@ -121,9 +120,9 @@ export const VaultCard = ({
                 onPress={() => togglePasswordVisibility(cred.id)}
                 icon={
                   visiblePasswords[cred.id] ? (
-                    <EyeOff size={18} color={isDark ? '#666' : '#999'} />
+                    <MaterialIcons name="visibility-off" size={18} color={isDark ? '#666' : '#999'} />
                   ) : (
-                    <Eye size={18} color={isDark ? '#666' : '#999'} />
+                    <MaterialIcons name="visibility" size={18} color={isDark ? '#666' : '#999'} />
                   )
                 }
               />
@@ -166,9 +165,9 @@ export const VaultCard = ({
                 onPress={() => togglePasswordVisibility(cred.id)}
                 icon={
                   visiblePasswords[cred.id] ? (
-                    <EyeOff size={18} color={isDark ? '#666' : '#999'} />
+                    <MaterialIcons name="visibility-off" size={18} color={isDark ? '#666' : '#999'} />
                   ) : (
-                    <Eye size={18} color={isDark ? '#666' : '#999'} />
+                    <MaterialIcons name="visibility" size={18} color={isDark ? '#666' : '#999'} />
                   )
                 }
               />

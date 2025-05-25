@@ -1,14 +1,12 @@
-// @ts-nocheck
 import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView, Dimensions } from 'react-native';
 import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
-import { X, Pencil, Check } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { FormattingToolbar } from '@/components/notes/FormattingToolbar';
 import { ContentInput } from '@/components/notes/ContentInput'; 
 import type { Note, Attachment, Tag } from '@/types';
 import { useUserStore } from '@/store';
-import { useWallpaperStore } from '@/store/WallpaperStore';
 import { useColorScheme } from '@/hooks';
 import { isIpad } from '@/utils';
 
@@ -180,7 +178,7 @@ export function AddNoteSheet({
                   zIndex={2}
                   backgroundColor="rgba(0,0,0,0.5)"
                   onPress={() => handleRemoveAttachment(attachment.id)}
-                  icon={<X size={12} color="white" />}
+                  icon={<MaterialIcons name="delete" size={12} color="white" />}
                 />
               </XStack>
             ))}
@@ -310,7 +308,7 @@ export function AddNoteSheet({
               <Button
                 size={Platform.OS === 'web' ? "$1.5" : "$2"} 
                 circular
-                icon={<Check size={Platform.OS === 'web' ? 16 : 18} color={preferences.primaryColor} />} 
+                icon={<MaterialIcons name="check" size={Platform.OS === 'web' ? 16 : 18} color={preferences.primaryColor} />} 
                 onPress={commitTitleChange}
                 backgroundColor="transparent"
                 pressStyle={{ opacity: 0.7 }}
@@ -331,7 +329,7 @@ export function AddNoteSheet({
               <Button
                 size={Platform.OS === 'web' ? "$1.5" : "$1"} 
                 circular
-                icon={<Pencil size={Platform.OS === 'web' ? 16 : 18} />} 
+                icon={<MaterialIcons name="edit" size={Platform.OS === 'web' ? 16 : 18} />} 
                 onPress={() => { setIsEditingTitle(true) }}
                 backgroundColor="transparent"
                 pressStyle={{ opacity: 0.7 }}
@@ -343,7 +341,7 @@ export function AddNoteSheet({
           <Button
             size={Platform.OS === 'web' ? "$2" : "$2"} 
             circular
-            icon={<X size={Platform.OS === 'web' ? 18 : 22} />}
+            icon={<MaterialIcons name="close" size={Platform.OS === 'web' ? 18 : 22} />}
             onPress={handleCloseModal}
             backgroundColor="transparent"
             pressStyle={{ opacity: 0.7 }}

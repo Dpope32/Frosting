@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Platform, ScrollView, View } from 'react-native';
 import { YStack, Text, Button, XStack } from 'tamagui';
-import { Plus, Database, Trash } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { HabitEmpty } from '@/components/habits/HabitEmpty';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AddHabitModal } from '@/components/cardModals/creates/AddHabitModal';
@@ -115,7 +115,7 @@ export default function HabitsScreen() {
           size="$4"
           circular
           backgroundColor={primaryColor}
-          icon={<Plus color="#FFF" size={24} />}
+          icon={<MaterialIcons name="add" color="#FFF" size={24} />}
           pressStyle={{ scale: 0.95 }}
           animation="quick"
           elevation={4}
@@ -132,7 +132,7 @@ export default function HabitsScreen() {
               animation="quick"
               elevation={4}
               onPress={generateTestHabits}
-              icon={<Database color="#FFF" size={20} />}
+              icon={<MaterialIcons name="storage" color="#FFF" size={20} />}
             />
             <Button
               size="$4"
@@ -142,7 +142,7 @@ export default function HabitsScreen() {
               animation="quick"
               elevation={4}
               onPress={deleteAllDevHabits}
-              icon={<Trash color="#FFF" size={20} />}
+              icon={<MaterialIcons name="delete" color="#FFF" size={20} />}
             />
           </XStack>
         )}

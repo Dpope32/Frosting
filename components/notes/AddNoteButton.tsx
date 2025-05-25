@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'tamagui';
-import { Plus } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { setupAddNote } from '@/services';
 
 interface AddNoteButtonProps {
@@ -14,7 +14,7 @@ interface AddNoteButtonProps {
   setEditTags: (tags: any[]) => void;
   setEditAttachments: (attachments: any[]) => void;
   setIsModalOpen: (isOpen: boolean) => void;
-}
+} 
 
 export const AddNoteButton: React.FC<AddNoteButtonProps> = ({
   insets,
@@ -49,7 +49,7 @@ export const AddNoteButton: React.FC<AddNoteButtonProps> = ({
       pressStyle={{ scale: 0.95 }}
       animation="quick"
       elevation={4}
-      icon={<Plus size={24} color="white" />}
+      icon={<MaterialIcons name="add" size={24} color="white" />}
     />
   );
 }; 

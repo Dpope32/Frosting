@@ -1,10 +1,9 @@
-// @ts-nocheck
 import React from 'react'
 import { useColorScheme } from 'react-native'
 import { XStack, Text, Button } from 'tamagui'
 import { TaskPriority } from '@/types'
 import { getPriorityColor, withOpacity, isIpad } from '@/utils'
-import { ArrowUp, ArrowRight, ArrowDown } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 
 interface PrioritySelectorProps {
   selectedPriority: TaskPriority
@@ -16,9 +15,9 @@ export function PrioritySelector({ selectedPriority, onPrioritySelect }: Priorit
   const isDark = colorScheme === 'dark'
 
   const priorityIcons = {
-    high: ArrowUp,
-    medium: ArrowRight,
-    low: ArrowDown
+    high: MaterialIcons,
+    medium: MaterialIcons,
+    low: MaterialIcons
   }
 
   return (

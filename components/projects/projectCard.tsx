@@ -1,8 +1,7 @@
 import React from 'react'
 import { isWeb } from 'tamagui'
 import { Project } from '@/types'
-import { ProjectCardWebView } from './ProjectCard/ProjectCardWebView';
-import { ProjectCardMobile } from './ProjectCardMobile'
+import { ProjectCardWebView, ProjectCardMobile } from './ProjectCard/'
 
 interface ProjectCardProps {
   project: Project

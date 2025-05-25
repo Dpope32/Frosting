@@ -10,6 +10,8 @@ import { useProjectStore } from '@/store/ToDo'
 import { useUserStore, useToastStore } from '@/store'
 import { syncTasksToCalendar, getDefaultTask, WEEKDAYS } from '@/services'
 import { scheduleEventNotification } from '@/services/notificationServices'
+import { useDeviceId } from '@/hooks/sync/useDeviceId'
+import { addSyncLog } from '@/components/sync/syncUtils'
 import { Base } from './Base'
 import { RecurrenceSelector } from './RecurrenceSelector'
 import { DaySelector } from './DaySelector'
@@ -36,6 +38,8 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
+  const premium = useUserStore((s) => s.preferences.premium === true)
+  const { deviceId } = useDeviceId(premium)
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
@@ -234,6 +238,39 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         recurrenceDate: newTask.recurrenceDate
       }
       try {
+        // 🚨 DEBUG LOGGING: Track tomorrow and one-time task creation
+        if (taskToAdd.recurrencePattern === 'tomorrow' || taskToAdd.recurrencePattern === 'one-time') {
+          const timestamp = new Date().toISOString()
+          const deviceInfo = deviceId || 'unknown-device'
+          const taskName = taskToAdd.name.slice(0, 30) // Truncate for readability
+          const pattern = taskToAdd.recurrencePattern
+          
+          addSyncLog(
+            `[NEW TASK] "${taskName}" created with pattern: ${pattern}`,
+            'info',
+            `Device: ${deviceInfo} | Timestamp: ${timestamp} | Full name: "${taskToAdd.name}" | Category: ${taskToAdd.category || 'none'} | Priority: ${taskToAdd.priority} | Time: ${taskToAdd.time || 'none'} | Schedule: [${taskToAdd.schedule.join(', ')}] | RecurrenceDate: ${taskToAdd.recurrenceDate || 'none'}`
+          )
+          
+          // Special logging for tomorrow tasks to track conversion behavior
+          if (pattern === 'tomorrow') {
+            const createdDate = new Date().toISOString().split('T')[0]
+            addSyncLog(
+              `[TOMORROW TASK] "${taskName}" created on ${createdDate} - will be due tomorrow`,
+              'info',
+              `This task should convert to one-time after midnight. Created at: ${timestamp} on device: ${deviceInfo}`
+            )
+          }
+          
+          // Special logging for one-time tasks to track completion behavior
+          if (pattern === 'one-time') {
+            addSyncLog(
+              `[ONE-TIME TASK] "${taskName}" created - completion will be permanent`,
+              'info',
+              `One-time tasks stay completed once marked done. Created at: ${timestamp} on device: ${deviceInfo}`
+            )
+          }
+        }
+        
         addTask(taskToAdd)
         if (taskToAdd.showInCalendar) {
           syncTasksToCalendar()

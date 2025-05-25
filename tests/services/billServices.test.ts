@@ -1,195 +1,157 @@
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '../../services/billServices';
-import {
-  Wifi, CreditCard, Home, Tv, ShoppingBag, Zap, Droplet, GaugeCircle,
-  Phone, Shield, Activity, Car, DollarSign, Calendar, BookOpen,
-  Newspaper, Cloud, Wrench, Trash, Lock, Heart, GraduationCap,
-  PlaneTakeoff, Coffee, FileText, Percent
-} from '@tamagui/lucide-icons';
-
-// Mock setup for testing icon components
-jest.mock('@tamagui/lucide-icons', () => {
-  const mockIcon = (name: string) => ({ displayName: name });
-  return {
-    Wifi: mockIcon('Wifi'),
-    CreditCard: mockIcon('CreditCard'),
-    Home: mockIcon('Home'),
-    Tv: mockIcon('Tv'),
-    ShoppingBag: mockIcon('ShoppingBag'),
-    Zap: mockIcon('Zap'),
-    Droplet: mockIcon('Droplet'),
-    GaugeCircle: mockIcon('GaugeCircle'),
-    Phone: mockIcon('Phone'),
-    Shield: mockIcon('Shield'),
-    Activity: mockIcon('Activity'),
-    Car: mockIcon('Car'),
-    DollarSign: mockIcon('DollarSign'),
-    Calendar: mockIcon('Calendar'),
-    BookOpen: mockIcon('BookOpen'),
-    Newspaper: mockIcon('Newspaper'),
-    Cloud: mockIcon('Cloud'),
-    Wrench: mockIcon('Wrench'),
-    Trash: mockIcon('Trash'),
-    Lock: mockIcon('Lock'),
-    Heart: mockIcon('Heart'),
-    GraduationCap: mockIcon('GraduationCap'),
-    PlaneTakeoff: mockIcon('PlaneTakeoff'),
-    Coffee: mockIcon('Coffee'),
-    FileText: mockIcon('FileText'),
-    Percent: mockIcon('Percent'),
-  };
-});
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 describe('billServices', () => {
   describe('getIconForBill', () => {
     // Test all the icon mappings
-    it('should return Wifi icon for wifi and internet bills', () => {
-      expect(getIconForBill('Wifi Bill')).toBe(Wifi);
-      expect(getIconForBill('internet service')).toBe(Wifi);
+    it('should return wifi icon for wifi and internet bills', () => {
+      expect(getIconForBill('Wifi Bill')).toEqual({ icon: MaterialIcons, name: 'wifi' });
+      expect(getIconForBill('internet service')).toEqual({ icon: MaterialIcons, name: 'wifi' });
     });
 
-    it('should return Home icon for rent and mortgage bills', () => {
-      expect(getIconForBill('Rent')).toBe(Home);
-      expect(getIconForBill('Mortgage Payment')).toBe(Home);
+    it('should return home icon for rent and mortgage bills', () => {
+      expect(getIconForBill('Rent')).toEqual({ icon: MaterialIcons, name: 'home' });
+      expect(getIconForBill('Mortgage Payment')).toEqual({ icon: MaterialIcons, name: 'home' });
     });
 
-    it('should return Tv icon for streaming services', () => {
-      expect(getIconForBill('Netflix')).toBe(Tv);
-      expect(getIconForBill('Hulu')).toBe(Tv);
-      expect(getIconForBill('Streaming Service')).toBe(Tv);
-      expect(getIconForBill('Cable')).toBe(Tv);
-      expect(getIconForBill('Satellite TV')).toBe(Tv);
+    it('should return tv icon for streaming services', () => {
+      expect(getIconForBill('Netflix')).toEqual({ icon: MaterialIcons, name: 'tv' });
+      expect(getIconForBill('Hulu')).toEqual({ icon: MaterialIcons, name: 'tv' });
+      expect(getIconForBill('Streaming Service')).toEqual({ icon: MaterialIcons, name: 'tv' });
+      expect(getIconForBill('Cable')).toEqual({ icon: MaterialIcons, name: 'tv' });
+      expect(getIconForBill('Satellite TV')).toEqual({ icon: MaterialIcons, name: 'tv' });
     });
 
-    it('should return ShoppingBag icon for shopping services', () => {
-      expect(getIconForBill('Shopping')).toBe(ShoppingBag);
-      expect(getIconForBill('Amazon Prime')).toBe(ShoppingBag);
-      expect(getIconForBill('Store Credit')).toBe(ShoppingBag);
+    it('should return shopping-bag icon for shopping services', () => {
+      expect(getIconForBill('Shopping')).toEqual({ icon: MaterialIcons, name: 'shopping-bag' });
+      expect(getIconForBill('Amazon Prime')).toEqual({ icon: MaterialIcons, name: 'shopping-bag' });
+      expect(getIconForBill('Store Credit')).toEqual({ icon: MaterialIcons, name: 'shopping-bag' });
     });
 
-    it('should return Zap icon for electric bills', () => {
-      expect(getIconForBill('Electric Bill')).toBe(Zap);
-      expect(getIconForBill('Power Company')).toBe(Zap);
-      expect(getIconForBill('Energy Bill')).toBe(Zap);
+    it('should return bolt icon for electric bills', () => {
+      expect(getIconForBill('Electric Bill')).toEqual({ icon: MaterialIcons, name: 'bolt' });
+      expect(getIconForBill('Power Company')).toEqual({ icon: MaterialIcons, name: 'bolt' });
+      expect(getIconForBill('Energy Bill')).toEqual({ icon: MaterialIcons, name: 'bolt' });
     });
 
-    it('should return Droplet icon for water bills', () => {
-      expect(getIconForBill('Water Bill')).toBe(Droplet);
-      expect(getIconForBill('Aqua Services')).toBe(Droplet);
-      expect(getIconForBill('Water Heater Maintenance')).toBe(Droplet);
-      expect(getIconForBill('Boiler Service')).toBe(Droplet);
+    it('should return water icon for water bills', () => {
+      expect(getIconForBill('Water Bill')).toEqual({ icon: MaterialCommunityIcons, name: 'water' });
+      expect(getIconForBill('Aqua Services')).toEqual({ icon: MaterialCommunityIcons, name: 'water' });
+      expect(getIconForBill('Water Heater Maintenance')).toEqual({ icon: MaterialCommunityIcons, name: 'water' });
+      expect(getIconForBill('Boiler Service')).toEqual({ icon: MaterialCommunityIcons, name: 'water' });
     });
 
-    it('should return GaugeCircle icon for gas bills', () => {
-      expect(getIconForBill('Gas Bill')).toBe(GaugeCircle);
-      expect(getIconForBill('Propane Delivery')).toBe(GaugeCircle);
+    it('should return gas-cylinder icon for gas bills', () => {
+      expect(getIconForBill('Gas Bill')).toEqual({ icon: MaterialCommunityIcons, name: 'gas-cylinder' });
+      expect(getIconForBill('Propane Delivery')).toEqual({ icon: MaterialCommunityIcons, name: 'gas-cylinder' });
     });
 
-    it('should return Phone icon for phone bills', () => {
-      expect(getIconForBill('Phone Bill')).toBe(Phone);
-      expect(getIconForBill('Cellular Service')).toBe(Phone);
-      expect(getIconForBill('Mobile Payment')).toBe(Phone);
+    it('should return phone icon for phone bills', () => {
+      expect(getIconForBill('Phone Bill')).toEqual({ icon: MaterialIcons, name: 'phone' });
+      expect(getIconForBill('Cellular Service')).toEqual({ icon: MaterialIcons, name: 'phone' });
+      expect(getIconForBill('Mobile Payment')).toEqual({ icon: MaterialIcons, name: 'phone' });
     });
 
-    it('should return Shield icon for insurance and security bills', () => {
-      expect(getIconForBill('Insurance')).toBe(Shield);
-      expect(getIconForBill('VPN Service')).toBe(Shield);
+    it('should return security icon for insurance and security bills', () => {
+      expect(getIconForBill('Insurance')).toEqual({ icon: MaterialIcons, name: 'security' });
+      expect(getIconForBill('VPN Service')).toEqual({ icon: MaterialIcons, name: 'security' });
     });
 
-    it('should return Activity icon for fitness bills', () => {
-      expect(getIconForBill('Gym Membership')).toBe(Activity);
-      expect(getIconForBill('Fitness App')).toBe(Activity);
-      expect(getIconForBill('Workout Subscription')).toBe(Activity);
+    it('should return fitness-center icon for fitness bills', () => {
+      expect(getIconForBill('Gym Membership')).toEqual({ icon: MaterialIcons, name: 'fitness-center' });
+      expect(getIconForBill('Fitness App')).toEqual({ icon: MaterialIcons, name: 'fitness-center' });
+      expect(getIconForBill('Workout Subscription')).toEqual({ icon: MaterialIcons, name: 'fitness-center' });
     });
 
-    it('should return Car icon for vehicle related bills', () => {
-      expect(getIconForBill('Car Payment')).toBe(Car);
-      expect(getIconForBill('Auto Loan')).toBe(Car);
-      expect(getIconForBill('Vehicle Insurance')).toBe(Car);
-      expect(getIconForBill('EV Charging')).toBe(Car);
-      expect(getIconForBill('Electric Car Lease')).toBe(Car);
+    it('should return car icon for vehicle related bills', () => {
+      expect(getIconForBill('Car Payment')).toEqual({ icon: MaterialCommunityIcons, name: 'car' });
+      expect(getIconForBill('Auto Loan')).toEqual({ icon: MaterialCommunityIcons, name: 'car' });
+      expect(getIconForBill('Vehicle Insurance')).toEqual({ icon: MaterialCommunityIcons, name: 'car-insurance' });
+      expect(getIconForBill('EV Charging')).toEqual({ icon: MaterialCommunityIcons, name: 'car-electric' });
+      expect(getIconForBill('Electric Car Lease')).toEqual({ icon: MaterialCommunityIcons, name: 'car-electric' });
     });
 
-    it('should return DollarSign icon for loans and debts', () => {
-      expect(getIconForBill('Loan Payment')).toBe(DollarSign);
-      expect(getIconForBill('Debt Consolidation')).toBe(DollarSign);
+    it('should return attach-money icon for loans and debts', () => {
+      expect(getIconForBill('Loan Payment')).toEqual({ icon: MaterialIcons, name: 'attach-money' });
+      expect(getIconForBill('Debt Consolidation')).toEqual({ icon: MaterialIcons, name: 'attach-money' });
     });
 
-    it('should return CreditCard icon for credit card payments', () => {
-      expect(getIconForBill('Credit Card Payment')).toBe(CreditCard);
-      expect(getIconForBill('Card Payment')).toBe(CreditCard);
+    it('should return credit-card icon for credit card payments', () => {
+      expect(getIconForBill('Credit Card Payment')).toEqual({ icon: MaterialIcons, name: 'credit-card' });
+      expect(getIconForBill('Card Payment')).toEqual({ icon: MaterialIcons, name: 'credit-card' });
     });
 
-    it('should return Calendar icon for subscriptions', () => {
-      expect(getIconForBill('Subscription')).toBe(Calendar);
-      expect(getIconForBill('Membership Dues')).toBe(Calendar);
+    it('should return event icon for subscriptions', () => {
+      expect(getIconForBill('Subscription')).toEqual({ icon: MaterialIcons, name: 'event' });
+      expect(getIconForBill('Membership Dues')).toEqual({ icon: MaterialIcons, name: 'event' });
     });
 
-    it('should return BookOpen icon for magazine and book services', () => {
-      expect(getIconForBill('Magazine Subscription')).toBe(BookOpen);
-      expect(getIconForBill('Book Club')).toBe(BookOpen);
+    it('should return book-open-variant icon for magazine and book services', () => {
+      expect(getIconForBill('Magazine Subscription')).toEqual({ icon: MaterialCommunityIcons, name: 'book-open-variant' });
+      expect(getIconForBill('Book Club')).toEqual({ icon: MaterialCommunityIcons, name: 'book-open-variant' });
     });
 
-    it('should return Newspaper icon for news services', () => {
-      expect(getIconForBill('Newspaper Delivery')).toBe(Newspaper);
-      expect(getIconForBill('News Subscription')).toBe(Newspaper);
+    it('should return newspaper icon for news services', () => {
+      expect(getIconForBill('Newspaper Delivery')).toEqual({ icon: MaterialCommunityIcons, name: 'newspaper' });
+      expect(getIconForBill('News Subscription')).toEqual({ icon: MaterialCommunityIcons, name: 'newspaper' });
     });
 
-    it('should return Cloud icon for storage services', () => {
-      expect(getIconForBill('Cloud Storage')).toBe(Cloud);
-      expect(getIconForBill('iCloud')).toBe(Cloud);
-      expect(getIconForBill('Storage Rental')).toBe(Cloud);
+    it('should return cloud/storage icon for storage services', () => {
+      expect(getIconForBill('Cloud Storage')).toEqual({ icon: MaterialIcons, name: 'cloud' });
+      expect(getIconForBill('iCloud')).toEqual({ icon: MaterialIcons, name: 'cloud' });
+      expect(getIconForBill('Storage Rental')).toEqual({ icon: MaterialIcons, name: 'storage' });
     });
 
-    it('should return Wrench icon for maintenance services', () => {
-      expect(getIconForBill('Maintenance Fee')).toBe(Wrench);
-      expect(getIconForBill('Repair Service')).toBe(Wrench);
+    it('should return build icon for maintenance services', () => {
+      expect(getIconForBill('Maintenance Fee')).toEqual({ icon: MaterialIcons, name: 'build' });
+      expect(getIconForBill('Repair Service')).toEqual({ icon: MaterialIcons, name: 'build' });
     });
 
-    it('should return Trash icon for waste management', () => {
-      expect(getIconForBill('Waste Management')).toBe(Trash);
-      expect(getIconForBill('Garbage Collection')).toBe(Trash);
-      expect(getIconForBill('Trash Service')).toBe(Trash);
+    it('should return delete icon for waste management', () => {
+      expect(getIconForBill('Waste Management')).toEqual({ icon: MaterialIcons, name: 'delete' });
+      expect(getIconForBill('Garbage Collection')).toEqual({ icon: MaterialIcons, name: 'delete' });
+      expect(getIconForBill('Trash Service')).toEqual({ icon: MaterialIcons, name: 'delete' });
     });
 
-    it('should return Lock icon for security services', () => {
-      expect(getIconForBill('Security System')).toBe(Lock);
-      expect(getIconForBill('Alarm Monitoring')).toBe(Lock);
+    it('should return lock icon for security services', () => {
+      expect(getIconForBill('Security System')).toEqual({ icon: MaterialIcons, name: 'lock' });
+      expect(getIconForBill('Alarm Monitoring')).toEqual({ icon: MaterialIcons, name: 'lock' });
     });
 
-    it('should return Heart icon for health services', () => {
-      expect(getIconForBill('Health Insurance')).toBe(Heart);
-      expect(getIconForBill('Medical Bill')).toBe(Heart);
+    it('should return favorite/local-hospital icon for health services', () => {
+      expect(getIconForBill('Health Insurance')).toEqual({ icon: MaterialIcons, name: 'favorite' });
+      expect(getIconForBill('Medical Bill')).toEqual({ icon: MaterialIcons, name: 'local-hospital' });
     });
 
-    it('should return GraduationCap icon for education expenses', () => {
-      expect(getIconForBill('Education Loan')).toBe(GraduationCap);
-      expect(getIconForBill('School Fees')).toBe(GraduationCap);
-      expect(getIconForBill('Tuition Payment')).toBe(GraduationCap);
+    it('should return school icon for education expenses', () => {
+      expect(getIconForBill('Education Loan')).toEqual({ icon: MaterialIcons, name: 'school' });
+      expect(getIconForBill('School Fees')).toEqual({ icon: MaterialIcons, name: 'school' });
+      expect(getIconForBill('Tuition Payment')).toEqual({ icon: MaterialIcons, name: 'school' });
     });
 
-    it('should return PlaneTakeoff icon for travel expenses', () => {
-      expect(getIconForBill('Travel Insurance')).toBe(PlaneTakeoff);
-      expect(getIconForBill('Transport Pass')).toBe(PlaneTakeoff);
+    it('should return flight/flight-takeoff icon for travel expenses', () => {
+      expect(getIconForBill('Travel Insurance')).toEqual({ icon: MaterialIcons, name: 'flight-takeoff' });
+      expect(getIconForBill('Transport Pass')).toEqual({ icon: MaterialIcons, name: 'flight' });
     });
 
-    it('should return Coffee icon for food services', () => {
-      expect(getIconForBill('Food Delivery')).toBe(Coffee);
-      expect(getIconForBill('Meal Kit')).toBe(Coffee);
+    it('should return restaurant icon for food services', () => {
+      expect(getIconForBill('Food Delivery')).toEqual({ icon: MaterialIcons, name: 'restaurant' });
+      expect(getIconForBill('Meal Kit')).toEqual({ icon: MaterialIcons, name: 'restaurant' });
     });
 
-    it('should return FileText icon for service fees', () => {
-      expect(getIconForBill('Service Fee')).toBe(FileText);
-      expect(getIconForBill('Subscription Fee')).toBe(FileText);
+    it('should return description icon for service fees', () => {
+      expect(getIconForBill('Service Fee')).toEqual({ icon: MaterialIcons, name: 'description' });
+      expect(getIconForBill('Subscription Fee')).toEqual({ icon: MaterialIcons, name: 'description' });
     });
 
-    it('should return Percent icon for tax payments', () => {
-      expect(getIconForBill('Tax Payment')).toBe(Percent);
-      expect(getIconForBill('Property Tax')).toBe(Percent);
+    it('should return percent icon for tax payments', () => {
+      expect(getIconForBill('Tax Payment')).toEqual({ icon: MaterialIcons, name: 'percent' });
+      expect(getIconForBill('Property Tax')).toEqual({ icon: MaterialIcons, name: 'percent' });
     });
 
-    it('should return CreditCard as default icon', () => {
-      expect(getIconForBill('Random Bill')).toBe(CreditCard);
-      expect(getIconForBill('')).toBe(CreditCard);
+    it('should return credit-card as default icon', () => {
+      expect(getIconForBill('Random Bill')).toEqual({ icon: MaterialIcons, name: 'credit-card' });
+      expect(getIconForBill('')).toEqual({ icon: MaterialIcons, name: 'credit-card' });
     });
   });
 

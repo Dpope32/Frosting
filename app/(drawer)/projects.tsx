@@ -5,7 +5,7 @@ import { YStack, Button, XStack, isWeb } from 'tamagui'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
 import { useProjects } from '@/hooks/useProjects'
-import { Plus, Database, Trash } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
 
 import { addDevProjects, addWebsiteRedesignProject, addMobileAppProject, addHomeRenovationProject, addVacationProject } from '@/services'
@@ -240,7 +240,7 @@ export default function ProjectsScreen() {
             animation="quick"
             elevation={4}
             onPress={handleDevButtonClick}
-            icon={<Database color="#FFF" size={20} />}
+            icon={<MaterialIcons name="storage" color="#FFF" size={20} />}
           />
           <Button
             size="$4"
@@ -250,7 +250,7 @@ export default function ProjectsScreen() {
             animation="quick"
             elevation={4}
             onPress={deleteAllProjects}
-            icon={<Trash color="#FFF" size={20} />}
+            icon={<MaterialIcons name="delete" color="#FFF" size={20} />}
           />
         </XStack>
       )}

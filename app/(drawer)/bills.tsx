@@ -4,7 +4,7 @@ import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { BillSummary } from '@/components/bills/BillSummary';
-import { Plus, Database, Trash } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store';
 import { useBills } from '@/hooks';
 import { AddBillModal } from '@/components/cardModals/creates/AddBillModal';
@@ -179,7 +179,6 @@ export default function BillsScreen() {
           <FlatList
             data={bills?.sort((a, b) => a.dueDate - b.dueDate) || []}
             keyExtractor={(item) => item.id}
-            numColumns={2}
             renderItem={({ item }) => (
               <BillCard
                 bill={item}
@@ -189,14 +188,11 @@ export default function BillsScreen() {
               />
             )}
             contentContainerStyle={{
-              padding: 8,
+              paddingTop: 0,
               paddingBottom: 100,
-              paddingHorizontal: 12,
-              paddingLeft: 32,
-              paddingRight: 32,
-              gap: 12,
+              paddingHorizontal: '5%',
+              gap: 8,
             }}
-            columnWrapperStyle={{ gap: 10 }}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <BillEmpty
@@ -296,7 +292,7 @@ export default function BillsScreen() {
           animation="quick" 
           elevation={4}
         >
-          <Plus color="white" size={24} />
+          <MaterialIcons name="add" color="white" size={24} />
         </Button>
         
         {__DEV__ && (
@@ -309,7 +305,7 @@ export default function BillsScreen() {
               animation="quick"
               elevation={4}
               onPress={loadDevBills}
-              icon={<Database color="#FFF" size={20} />}
+              icon={<MaterialIcons name="storage" color="#FFF" size={20} />}
             />
             <Button
               size="$4"
@@ -319,7 +315,7 @@ export default function BillsScreen() {
               animation="quick"
               elevation={4}
               onPress={deleteAllBills}
-              icon={<Trash color="#FFF" size={20} />}
+              icon={<MaterialIcons name="delete" color="#FFF" size={20} />}
             />
           </XStack>
         )}

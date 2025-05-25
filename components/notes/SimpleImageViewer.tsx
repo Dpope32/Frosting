@@ -1,7 +1,7 @@
-// @ts-nocheck
+
 import React from 'react';
 import { Modal, StyleSheet, TouchableOpacity, View, Platform, TouchableWithoutFeedback, useColorScheme, NativeSyntheticEvent, Image, ImageErrorEventData, ImageProps } from 'react-native'; 
-import { X } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useToastStore } from '@/store';
 import { PanGestureHandler, PinchGestureHandler, State, PanGestureHandlerGestureEvent, PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import Animated, {
@@ -9,7 +9,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-
+  
 interface SimpleImageViewerProps {
   imageUrl: string | null;
   onClose: () => void;
@@ -97,7 +97,7 @@ export const SimpleImageViewer: React.FC<SimpleImageViewerProps> = ({ imageUrl, 
           </PinchGestureHandler>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <X color="white" size={24} />
+            <MaterialIcons name="close" color="white" size={24} />
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>

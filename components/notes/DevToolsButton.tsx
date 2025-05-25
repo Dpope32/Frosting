@@ -1,11 +1,11 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { XStack } from 'tamagui';
-import { RefreshCw } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { handleAddTestNotes } from '@/services/notes/noteService';
 import { useNoteStore, useToastStore } from '@/store';
 
-interface DevToolsButtonProps {
+interface DevToolsButtonProps { 
   isDark: boolean;
 }
 
@@ -39,7 +39,7 @@ export const DevToolsButton: React.FC<DevToolsButtonProps> = ({ isDark }) => {
           elevation: 3,
         }}
       >
-        <RefreshCw size={20} color={isDark ? '#4dabf7' : '#3498db'} />
+        <MaterialIcons name="refresh" size={20} color={isDark ? '#4dabf7' : '#3498db'} />
       </TouchableOpacity>
     </XStack>
   );

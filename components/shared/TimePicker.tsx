@@ -3,8 +3,7 @@ import { Platform, Pressable, View } from 'react-native';
 import { XStack, Text, YStack, Button } from 'tamagui';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
-//@ts-ignore
-import { Pencil } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { isIpad } from '@/utils';
 
 interface TimePickerProps {
@@ -65,7 +64,7 @@ export function TimePicker({
           {time || "Select time"}
         </Text>
         {time ? (
-          <Pencil size={15} color={isDark ? '#555' : '#f3f3f3'} />
+          <MaterialIcons name="edit" size={15} color={isDark ? '#555' : '#f3f3f3'} />
         ) : (
           <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
             {showTimePicker ? '▲' : '▼'}

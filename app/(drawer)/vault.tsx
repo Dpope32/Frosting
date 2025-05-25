@@ -5,8 +5,7 @@ import { useVault } from '@/hooks/useVault'
 import { BlurView } from 'expo-blur'
 import { useUserStore, useToastStore } from '@/store'
 import { AddVaultEntryModal } from '@/components/cardModals/creates/AddVaultEntryModal'
-// @ts-ignore
-import { Plus, Database, Trash } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { VaultRecommendationModal } from '@/components/recModals/VaultRecommendationModal'
 import { VaultCard } from '@/components/vault/VaultCard'
 import { VaultEmpty } from '@/components/vault/VaultEmpty'
@@ -220,7 +219,7 @@ export default function VaultScreen() {
           animation="quick"
           elevation={4}
         >
-          <Plus color="white" size={24} />
+          <MaterialIcons name="add" color="white" size={24} />
         </Button>
 
         {__DEV__ && (
@@ -233,7 +232,7 @@ export default function VaultScreen() {
               animation='quick'
               elevation={4}
               onPress={loadDevVaultEntries}
-              icon={<Database color='#FFF' size={20} />}
+              icon={<MaterialIcons name="storage" color='#FFF' size={20} />}
             />
             <Button
               size='$4'
@@ -243,7 +242,7 @@ export default function VaultScreen() {
               animation='quick'
               elevation={4}
               onPress={deleteAllVaultEntries}
-              icon={<Trash color='#FFF' size={20} />}
+              icon={<MaterialIcons name="delete" color='#FFF' size={20} />}
             />
           </XStack>
         )}

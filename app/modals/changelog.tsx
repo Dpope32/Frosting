@@ -1,9 +1,8 @@
-// @ts-nocheck
 import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, YStack, XStack, Button, isWeb } from 'tamagui';
-import { ChevronLeft, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRouter } from 'expo-router';
 import { useMarkdownStyles } from '@/hooks';
@@ -67,7 +66,7 @@ export default function ChangeLog() {
           }}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <ChevronLeft size={isWeb ? 28 : isIpad() ? 26 : 22} color={isDark ? '#b8b3ba' : '#708090'} />
+          <MaterialIcons name="chevron-left" size={isWeb ? 28 : isIpad() ? 26 : 22} color={isDark ? '#b8b3ba' : '#708090'} />
         </TouchableOpacity>
         <Text
           style={{
@@ -155,9 +154,9 @@ export default function ChangeLog() {
                         {hasBullets && (
                           <View>
                             {isExpanded ? (
-                              <ChevronUp size={20} color={isDark ? '#b8b3ba' : '#708090'} />
+                              <MaterialIcons name="keyboard-arrow-up" size={20} color={isDark ? '#b8b3ba' : '#708090'} />
                             ) : (
-                              <ChevronDown size={20} color={isDark ? '#b8b3ba' : '#708090'} />
+                              <MaterialIcons name="keyboard-arrow-down" size={20} color={isDark ? '#b8b3ba' : '#708090'} />
                             )}
                           </View>
                         )}

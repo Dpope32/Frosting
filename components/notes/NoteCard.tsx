@@ -1,11 +1,11 @@
-// @ts-nocheck
+
 import React, { useMemo, useState, useEffect } from 'react';
 import { Card, YStack, Text, Paragraph, XStack, ScrollView, isWeb } from 'tamagui';
 import { TouchableOpacity, Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Note } from '@/types';
 import Markdown from 'react-native-markdown-display';
-import { ChevronDown, ChevronUp, Pencil } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useNoteStore } from '@/store';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -151,9 +151,9 @@ export const NoteCard = ({
                 {note.title || 'Untitled Note'}
               </Text>
               {isExpanded ? (
-                <ChevronUp size={isWeb ? 24 : 20} color={colors.textSecondary} />
+                <MaterialIcons name="keyboard-arrow-up" size={isWeb ? 24 : 20} color={colors.textSecondary} />
               ) : (
-                <ChevronDown size={isWeb ? 24 : 20} color={colors.textSecondary} />
+                <MaterialIcons name="keyboard-arrow-down" size={isWeb ? 24 : 20} color={colors.textSecondary} />
               )}
             </XStack>
           </TouchableOpacity>
@@ -310,7 +310,7 @@ export const NoteCard = ({
                           }}
                           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         >
-                          <Pencil size={isWeb ? 18 : 16} color={colors.textSecondary} />
+                          <MaterialIcons name="edit" size={isWeb ? 18 : 16} color={colors.textSecondary} />
                         </TouchableOpacity>
                       )}
                     </XStack>

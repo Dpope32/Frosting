@@ -100,6 +100,16 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       yesterday.setDate(yesterday.getDate() - 1)
       const yesterdayStr = yesterday.toISOString().split('T')[0]
       const result = createdDateStr === yesterdayStr;
+      
+      // 🚨 DEBUG LOGGING: Track tomorrow task evaluation
+      const currentDateStr = date.toISOString().split('T')[0];
+      if (task.name && !task.name.includes('$') && !task.name.includes('"')) { // Skip bill tasks
+        addSyncLog(
+          `[TOMORROW EVAL] "${task.name.slice(0, 25)}" due check: ${result}`,
+          'verbose',
+          `Created: ${createdDateStr} | Yesterday: ${yesterdayStr} | Today: ${currentDateStr} | Due today: ${result} | Task ID: ${task.id.slice(-8)}`
+        );
+      }
 
       if (result === true) {
         // If the task is due today (creation date was yesterday),
@@ -113,7 +123,15 @@ const isTaskDue = (task: Task, date: Date): boolean => {
 
           if (tasks[task.id] && tasks[task.id].recurrencePattern === 'tomorrow') {
             const newTimestamp = new Date().toISOString();
-            addSyncLog(`[Tomorrow->OneTime] '${task.name.slice(0, 20)}': converting at ${newTimestamp}`, 'info');
+            const createdDate = new Date(task.createdAt).toISOString().split('T')[0];
+            const currentDate = new Date().toISOString().split('T')[0];
+            
+            addSyncLog(
+              `[TOMORROW→ONE-TIME] "${task.name.slice(0, 25)}" converting to one-time`,
+              'info',
+              `Task created: ${createdDate} | Converting on: ${currentDate} | Original creation: ${task.createdAt} | Conversion timestamp: ${newTimestamp} | Task ID: ${task.id.slice(-8)}`
+            );
+            
             tasks[task.id] = {
               ...tasks[task.id],
               recurrencePattern: 'one-time',
@@ -121,6 +139,13 @@ const isTaskDue = (task: Task, date: Date): boolean => {
             };
             storeUpdate.tasks = tasks;
             useProjectStore.setState({ tasks });
+            
+            // Additional logging to track the conversion result
+            addSyncLog(
+              `[CONVERSION COMPLETE] "${task.name.slice(0, 25)}" is now one-time`,
+              'success',
+              `Task will now behave as one-time task. Completion will be permanent. Updated at: ${newTimestamp}`
+            );
           }
         }, 0);
       }
@@ -184,6 +209,16 @@ const createTaskFilter = () => {
     const currentDateStrLocal = format(currentDate, 'yyyy-MM-dd');
     //const currentShowNBAGameTasks = useUserStore.getState().preferences.showNBAGameTasks;
 
+    // 🚨 DEBUG LOGGING: Track daily filter recalculation
+    const isNewDay = lastToday !== dateStr;
+    if (isNewDay && lastToday !== null) {
+      addSyncLog(
+        `[NEW DAY DETECTED] Filter recalculating for ${dateStr}`,
+        'info',
+        `Previous day: ${lastToday} | Current day: ${dateStr} | Total tasks: ${Object.keys(tasks).length} | Tomorrow tasks will be evaluated for conversion`
+      );
+    }
+
     if (
       lastToday === dateStr &&
       lastTasks === tasks &&
@@ -204,7 +239,9 @@ const createTaskFilter = () => {
       if (task.recurrencePattern !== 'one-time') {
         const newCompletedState = task.completionHistory[currentDateStrLocal] || false;
         task.completed = newCompletedState;
-        addSyncLog(`[Filter Mutation] '${task.name.slice(0, 20)}': setting completed=${newCompletedState} based on today's history`, 'verbose');
+        if (newCompletedState && !task.name.includes('$') && !task.name.includes('"')) {
+          addSyncLog(`[Filter Mutation] '${task.name.slice(0, 20)}': setting completed=${newCompletedState} based on today's history`, 'verbose');
+        }
       }
     })
     
@@ -283,6 +320,39 @@ export const useProjectStore = create<ProjectStore>()(
             .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
           
           const newCompletionStatus = !currentStatus;
+          
+          // 🚨 DEBUG LOGGING: Track completion changes for tomorrow and one-time tasks
+          if (tasks[id].recurrencePattern === 'tomorrow' || tasks[id].recurrencePattern === 'one-time') {
+            const taskName = tasks[id].name.slice(0, 25);
+            const pattern = tasks[id].recurrencePattern;
+            const timestamp = new Date().toISOString();
+            
+            addSyncLog(
+              `[COMPLETION TOGGLE] "${taskName}" (${pattern}) ${currentStatus ? 'uncompleted' : 'completed'}`,
+              newCompletionStatus ? 'success' : 'info',
+              `Date: ${todayLocalStr} | Previous status: ${currentStatus} | New status: ${newCompletionStatus} | Pattern: ${pattern} | Timestamp: ${timestamp} | Task ID: ${id.slice(-8)}`
+            );
+            
+            // Special logging for one-time task completion
+            if (pattern === 'one-time' && newCompletionStatus) {
+              addSyncLog(
+                `[ONE-TIME COMPLETED] "${taskName}" marked complete - will stay completed`,
+                'success',
+                `One-time tasks remain completed permanently. Completed on: ${todayLocalStr} at ${timestamp}`
+              );
+            }
+            
+            // Special logging for tomorrow task completion
+            if (pattern === 'tomorrow') {
+              const createdDate = new Date(tasks[id].createdAt).toISOString().split('T')[0];
+              addSyncLog(
+                `[TOMORROW TASK TOGGLE] "${taskName}" completion changed`,
+                newCompletionStatus ? 'success' : 'warning',
+                `Created: ${createdDate} | Toggled on: ${todayLocalStr} | Status: ${newCompletionStatus ? 'completed' : 'uncompleted'} | May convert to one-time after midnight`
+              );
+            }
+          }
+          
           tasks[id] = {
             ...tasks[id],
             completed: newCompletionStatus, 
@@ -370,6 +440,23 @@ export const useProjectStore = create<ProjectStore>()(
         Object.entries(incoming).forEach(([id, inc]) => {
           const curr = existing[id];
           const isBillTask = inc.name.includes('($') || inc.name.toLowerCase().includes('pay ');
+          
+          // 🚨 DEBUG LOGGING: Track tomorrow/one-time tasks during sync
+          if ((inc.recurrencePattern === 'tomorrow' || inc.recurrencePattern === 'one-time') && !isBillTask) {
+            if (!curr) {
+              addSyncLog(
+                `[SYNC NEW] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) from sync`,
+                'info',
+                `New ${inc.recurrencePattern} task from sync | Created: ${inc.createdAt} | Updated: ${inc.updatedAt} | Task ID: ${id.slice(-8)}`
+              );
+            } else {
+              addSyncLog(
+                `[SYNC MERGE] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) merging`,
+                'verbose',
+                `Local pattern: ${curr.recurrencePattern} | Sync pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
+              );
+            }
+          }
       
           if (!curr) {
             // Only log non-bill additions or first few bill tasks

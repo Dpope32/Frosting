@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import { StyleSheet, Dimensions } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { Trash2 } from '@tamagui/lucide-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Text, YStack } from 'tamagui';
 import { isIpad } from '@/utils';
 
@@ -44,16 +44,14 @@ const TrashcanArea = forwardRef<any, TrashcanAreaProps>(
         ref={ref}
         style={[styles.container, animatedStyle, { 
           height: containerHeight,
-          // Ensure trashcan has enough z-index to be visible above other elements
           zIndex: 1000 
         }]}
         onLayout={onLayout}
         testID="trashcan-drop-area"
-        // Add a large hit area to ensure touch events are captured
-        hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+        hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
       >
         <YStack alignItems="center" gap="$2" pointerEvents="none">
-          <Trash2 size={isIpad() ? 50 : 40} color="$red11" />
+          <MaterialIcons name="delete" size={isIpad() ? 50 : 40} color="$red11" />
         </YStack>
       </Animated.View>
     );

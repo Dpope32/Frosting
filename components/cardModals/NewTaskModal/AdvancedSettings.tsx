@@ -1,8 +1,7 @@
-//@ts-nocheck
 import React from 'react'
 import { useColorScheme } from 'react-native'
 import { XStack, YStack, Text, Button, AnimatePresence } from 'tamagui'
-import { ChevronDown, ChevronUp } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
 import { CategorySelector } from './CategorySelector'
 import { TaskCategory, Tag } from '@/types'
@@ -92,12 +91,12 @@ export function AdvancedSettings({
             <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
               Advanced
             </Text>
-          )}
+          )}  
           <XStack flex={1} justifyContent={isOpen ? "flex-end" : "flex-end"}>
             {(isOpen || showTimePicker) ? (
-              <ChevronUp size={isIpad() ? 20 : 16} color={isDark ? 'transparent' : 'transparent'} />
+              <MaterialIcons name="keyboard-arrow-up" size={isIpad() ? 20 : 16} color={isDark ? 'transparent' : 'transparent'} />
             ) : (
-              <ChevronDown size={isIpad() ? 20 : 16} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
+              <MaterialIcons name="keyboard-arrow-down" size={isIpad() ? 20 : 16} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
             )}
           </XStack>
         </XStack>
@@ -125,7 +124,6 @@ export function AdvancedSettings({
                 showTimePicker={showTimePicker}
                 setShowTimePicker={setShowTimePicker}
                 selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
                 onTimeChange={onTimeChange}
                 onWebTimeChange={onWebTimeChange}
                 time={time}
@@ -162,7 +160,6 @@ export function AdvancedSettings({
                   showTimePicker={false}
                   setShowTimePicker={setShowTimePicker}
                   selectedDate={selectedDate}
-                  setSelectedDate={setSelectedDate}
                   onTimeChange={onTimeChange}
                   onWebTimeChange={onWebTimeChange}
                   time={time}

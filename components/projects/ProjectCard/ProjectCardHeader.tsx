@@ -1,9 +1,8 @@
 import React from 'react'
 import { XStack, Text, Button, } from 'tamagui'
-import { Plus } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types'
 import { ProjectStatusBadge } from './ProjectStatusBadge'
-import { MaterialIcons } from '@expo/vector-icons'
 
 interface ProjectCardHeaderProps {
   project: Project
@@ -51,7 +50,7 @@ export const ProjectCardHeader = ({
         circular 
         onPress={() => onOpenAddTaskModal?.(project.id)}
       >
-        <Plus size={16} />
+        <MaterialIcons name="add" size={16} />
       </Button>
     </XStack>
   )

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import { XStack, YStack, Text, Paragraph, isWeb } from 'tamagui'
-import { CheckCircle } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import type { Bill } from '@/types'
 import { getIconForBill, getOrdinalSuffix, getAmountColor } from '@/services'
 import { useColorScheme } from '@/hooks/useColorScheme'
@@ -23,7 +23,9 @@ export const BillCard = ({
   onDelete,
 }: BillCardProps) => {
   const isDark = useColorScheme() === 'dark'
-  const Icon = getIconForBill(bill.name)
+  const iconData = getIconForBill(bill.name)
+  const Icon = iconData.icon
+  const iconName = iconData.name
   const amountColor = getAmountColor(bill.amount)
   const isPast = bill.dueDate < currentDay
   const isToday = bill.dueDate === currentDay
@@ -57,8 +59,8 @@ export const BillCard = ({
         ai="center"
         borderWidth={1}
         borderColor={isToday ? primaryColor : isDark ? '#222' : '#9c9c9c'}
-        width={isWeb ? 320 : isIpad() ? 260 : '100%'}
-        maxWidth={isWeb ? 320 : isIpad() ? 260 : '100%'}
+        width={isWeb ? 320 : isIpad() ? '100%' : '100%'}
+        maxWidth={isWeb ? 320 : isIpad() ? '100%' : '100%'}
         position="relative"
         opacity={isPast ? 0.8 : 1}
         overflow="hidden"
@@ -89,7 +91,7 @@ export const BillCard = ({
             zIndex={5}
           >
             <XStack ai="center" gap="$2">
-              <CheckCircle size={18} color="rgba(0, 255, 17, 0.8)" />
+              <MaterialIcons name="check-circle" size={18} color="rgba(0, 255, 17, 0.8)" />
               <Text color="rgba(0, 255, 17, 0.8)" fontSize={isIpad() ? 18 : 16} fontWeight="bold" fontFamily="$body">
                 Paid
               </Text>
@@ -99,7 +101,7 @@ export const BillCard = ({
 
         <XStack flex={1} ai="center" jc="space-between" style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb ? 16 : 4 }}>
           <XStack ai="center" space="$2" style={{ minWidth: 0, flexShrink: 1 }}>
-            <Icon size={isIpad() ? 26 : 18} color={isDark ? '#ccc' : '#666'} />
+            <Icon name={iconName as any} size={isIpad() ? 26 : 18} color={isDark ? '#ccc' : '#666'} />
             <Text
               color={isDark ? '#cccccc' : '#222'}
               fontSize={isIpad() ? "$4" : 16}

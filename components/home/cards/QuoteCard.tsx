@@ -1,7 +1,7 @@
 import React from 'react'
 import { Platform } from 'react-native'
 import { Stack, Spinner } from 'tamagui'
-import { MessageSquareQuote } from '@tamagui/lucide-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import { useUserStore } from '@/store'
 import { isIpad } from '@/utils'
@@ -37,7 +37,7 @@ export function QuoteCard({ isHome, isDark }: QuoteCardProps) {
         {isLoading ? (
           <Spinner size="small" color="#dbd0c6" />
         ) : (
-          <MessageSquareQuote size={isWeb ? 28 : isIpad() ? 24 : 20} color="#dbd0c6" />
+          <MaterialIcons name="format-quote" size={isWeb ? 28 : isIpad() ? 24 : 20} color="#dbd0c6" />
         )}
       </Stack>
     </>

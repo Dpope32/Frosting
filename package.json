@@ -44,7 +44,6 @@
     "@tamagui/config": "^1.122.7",
     "@tamagui/core": "^1.122.7",
     "@tamagui/font-inter": "^1.122.7",
-    "@tamagui/lucide-icons": "^1.122.8",
     "@tamagui/react-native-media-driver": "^1.122.7",
     "@tamagui/shorthands": "^1.122.7",
     "@tamagui/tabs": "^1.125.31",

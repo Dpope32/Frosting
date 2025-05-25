@@ -1,15 +1,10 @@
-// @ts-nocheck
+
 import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { Project } from '@/types'
-import { ProjectAttachments } from './ProjectCard/ProjectAttachments'
-import { isIpad } from '@/utils'
-import { getPriorityColor } from '@/utils/styleUtils'
-import { Plus } from '@tamagui/lucide-icons'
-import { ProjectCardDetails } from './ProjectCard/details'
-import { ProjectCardWrapper } from './ProjectCard/wrapper'
-import { ProjectHeader } from './ProjectCard/header'
-import { TaskList } from './ProjectCard/taskList'
+import { getPriorityColor, isIpad } from '@/utils'
+import { MaterialIcons } from '@expo/vector-icons'
+import { ProjectAttachments, ProjectCardDetails, ProjectCardWrapper, ProjectHeader, TaskList } from './ProjectCard/'
 
 interface ProjectCardMobileProps {
   project: Project
@@ -108,7 +103,7 @@ export const ProjectCardMobile = ({
                       borderWidth={1}
                       jc="center"
                     >
-                      <Plus size={isIpad() ? 20 : 16} color={isDark ? '#c9c9c9' : '#555'} />
+                      <MaterialIcons name="add" size={isIpad() ? 20 : 16} color={isDark ? '#c9c9c9' : '#555'} />
                     </Button>
                   </XStack>
                 )}
