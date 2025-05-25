@@ -42,8 +42,8 @@ const HourlyCarousel: React.FC = () => {
         ...(isWeb ? { width: '100%' } : {})
       }} 
       contentContainerStyle={{ 
-        paddingLeft: isIpad() ? 18 : 10, 
-        paddingRight: isIpad() ? 18 : 10,
+        paddingLeft: isIpad() ? 0 : 10, 
+        paddingRight: isIpad() ? 0 : 10,
         ...(isWeb ? {
           display: 'flex',
           flexDirection: 'row',

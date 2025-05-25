@@ -22,7 +22,7 @@ const LowHighBar: React.FC<LowHighBarProps> = ({ low, high, isDark }) => {
   const minWidth = large ? 60 : 30;
   const maxWidth = large ? 160 : 80;
   const width = minWidth + ratio * (maxWidth - minWidth);
-  const height = large ? 4 : 2;
+  const height = large ? 6 : 2;
   const borderRadius = height / 2;
 
   // Determine track (background) and bar widths

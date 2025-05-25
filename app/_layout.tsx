@@ -186,7 +186,6 @@ export default Sentry.wrap(function RootLayout() {
           
           setTimeout(() => {
             useTaskStore.getState().recalculateTodaysTasks();
-            addSyncLog('🔄 Recalculated today\'s tasks after pull', 'info');
           }, 500);
           
           useRegistryStore.getState().setSyncStatus('idle');

@@ -4,6 +4,7 @@ import { ScrollView, Platform, View, StyleSheet, useColorScheme } from "react-na
 import { YStack, Text, XStack, Stack, Button, isWeb } from "tamagui";
 import Animated, { FadeIn} from "react-native-reanimated";
 import { useWeatherStore } from "@/store/WeatherStore";
+//@ts-ignore
 import { ChevronLeft } from '@tamagui/lucide-icons';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIpad } from "@/utils";
@@ -93,7 +94,7 @@ export default function TemperatureScreen() {
       <ScrollView 
         contentContainerStyle={{ 
           paddingBottom: insets.bottom + 20,
-          paddingTop: isIpad() ? insets.top + 30: insets.top
+          paddingTop: isIpad() ? insets.top + 50: insets.top
         }}
         showsVerticalScrollIndicator={false}
       >

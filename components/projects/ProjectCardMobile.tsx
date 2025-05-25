@@ -62,23 +62,8 @@ export const ProjectCardMobile = ({
                 mr={0}
               >
                 <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
-                <YStack
-                  minWidth={isIpad() ? 400 : 240}
-                  px={"$1"}
-                  ml={isIpad() ? 24 : 12}
-                  mr={isIpad() ? 24 : 12}
-                >
-                  <TaskList 
-                    project={project} 
-                    isDark={isDark} 
-                    isIpad={isIpad} 
-                    isWeb={isWeb} 
-                    onToggleTaskCompleted={onToggleTaskCompleted} 
-                  />
-                </YStack>
-
                 {project.attachments?.length > 0 && (
-                  <YStack w="100%" mb={project.tasks?.length > 0 ? isIpad() ? 10 : 6 : 24} mx={isIpad() ? 10 : 6} mt={isIpad() ? 10 : 6}>
+                  <YStack w="100%" mb={project.tasks?.length > 0 ? isIpad() ? 0 : 0 : 0} mx={isIpad() ? 16 : 10} mt={isIpad() ? 10 : 6}>
                     <ProjectAttachments 
                       attachments={project.attachments} 
                       isDark={isDark} 
@@ -90,6 +75,21 @@ export const ProjectCardMobile = ({
                     />
                   </YStack>
                 )}
+                <YStack
+                  minWidth={isIpad() ? 400 : 240}
+                  px={"$1"}
+                  ml={isIpad() ? 24 : 12}
+                  mr={isIpad() ? 24 : 12}
+                  mb={isIpad() ? 10 : 6}
+                >
+                  <TaskList 
+                    project={project} 
+                    isDark={isDark} 
+                    isIpad={isIpad} 
+                    isWeb={isWeb} 
+                    onToggleTaskCompleted={onToggleTaskCompleted} 
+                  />
+                </YStack>
 
                 {onOpenAddTaskModal && (
                   <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} px={0} mt={project.attachments?.length > 0 ? -30 : 10} mb={0} ai="center">

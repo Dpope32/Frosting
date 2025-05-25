@@ -28,8 +28,9 @@ if (!(global as any)._syncFetchWrapped) {
     // Skip logging for yahoo and geocoding requests
     const shouldSkipLogging = 
     url.toLowerCase().includes('yahoo') || url.toLowerCase().includes('geocoding') || 
-    url.toLowerCase().includes('weather') || url.toLowerCase().includes('stoic' ) 
-    || url.toLowerCase().includes('google') || url.toLowerCase().includes('cloudflare')
+    url.toLowerCase().includes('weather') || url.toLowerCase().includes('stoic' ) || 
+    url.toLowerCase().includes('google') || url.toLowerCase().includes('cloudflare') ||
+    url.toLowerCase().includes('ealth-chec')
     
     if (isPremium && !shouldSkipLogging) {
       let bodyString = ''
@@ -177,13 +178,11 @@ export default function SyncScreen() {
               if (!inviteCode) return;
               await Clipboard.setStringAsync(inviteCode);
               useToastStore.getState().showToast('Invite code copied', 'success');
-              addSyncLog('📋 Invite code copied', 'info');
             }}
             onCopyCurrentSpaceId={async () => {
               if (!workspaceId) return;
               await Clipboard.setStringAsync(workspaceId);
               useToastStore.getState().showToast('Current space ID copied', 'success');
-              addSyncLog('📋 Current space ID copied', 'info');
             }}
             onLeaveWorkspace={handleLeaveWorkspace}
           />

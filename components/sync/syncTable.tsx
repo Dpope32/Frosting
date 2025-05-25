@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, useWindowDimensions, TouchableOpacity, Platform } from 'react-native';
-import { Text, Button, XStack, YStack } from 'tamagui';
+import { Text, Button, XStack, YStack, isWeb } from 'tamagui';
 import { useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
@@ -51,11 +51,7 @@ export default function SyncTable({
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
-  const isWeb = Platform.OS === 'web';
-  const isTablet = Platform.OS === 'ios' && (Platform as any).isPad === true;
-  const wideMode = isWeb || isTablet;
-  const contentWidth = wideMode ? Math.min(width - baseSpacing * 2, 700) : Math.min(width - baseSpacing * 2, 350);
-  
+  const contentWidth = isIpad() ? Math.min(width - baseSpacing * 2, 600) : Math.min(width - baseSpacing * 2, 350);
   const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
   const toggleBillSync = useBillStore((state) => state.toggleBillSync);
   const isVaultSyncEnabled = useVaultStore((state) => state.isSyncEnabled);
@@ -99,13 +95,12 @@ export default function SyncTable({
     { key: 'calendar', label: 'Calendar', enabled: isCalendarSyncEnabled, toggle: toggleCalendarSync },
   ];
 
-  const enabledSyncCount = syncSettings.filter(s => s.enabled).length;
 
   return (
     <View style={{
       backgroundColor: colors.card,
       borderRadius: cardRadius,
-      padding: baseSpacing *2,
+      padding: baseSpacing * 2,
       borderWidth: 1,
       borderColor: colors.border,
       width: contentWidth,
@@ -139,7 +134,6 @@ export default function SyncTable({
       </XStack>
       <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
 
-      {/* Invite Code */}
       {inviteCode && currentSpaceId && (
         <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
           <Text fontSize={fontSizes.md} fontFamily="$body" color={colors.subtext}>
@@ -298,7 +292,7 @@ export default function SyncTable({
                       animation="quick"
                       borderColor={setting.enabled ? isDark ? colors.successBorder : colors.successBorder : colors.disabledBorder}
                     >
-                      <Text color={isDark ? colors.successText : colors.successText} fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
+                      <Text color={setting.enabled ? colors.successText : colors.disabledText} fontWeight="600" fontFamily="$body" fontSize={fontSizes.xs}>
                         {setting.enabled ? 'ON' : 'OFF'}
                       </Text>
                     </Button>

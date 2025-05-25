@@ -68,7 +68,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   return (
     <Animated.View entering={FadeIn.duration(500)}>
       <YStack
-        marginHorizontal={isWeb ? 16 : (isIpad() ? 32 : 16)}
+        marginHorizontal={isWeb ? 16 : (isIpad() ? 16 : 16)}
         borderRadius={16}
         backgroundColor={cardBg}
         overflow="hidden"
@@ -78,17 +78,17 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
         shadowRadius={12}
         elevation={6}
         maxWidth={isWeb ? "80%" : (isIpad() ? 800 : 400)}
-        paddingHorizontal={isIpad() ? 28 : 0}
+        paddingHorizontal={0}
         minWidth={isWeb ? "40%" : (isIpad() ? 600 : "90%")}
         width={isWeb ? "80%" : "auto"}
         alignSelf="center"
-        pt={isIpad() ? 22 : 0}
-        mb={isIpad() ? 16 : 0}
+        pt={isIpad() ? 0 : 0}
+        mb={isIpad() ? 2 : 0}
         gap={0}
       >
         <YStack 
           paddingHorizontal={isIpad() ? 32 : 16}
-          pt={isIpad() ? 0 : 16}>
+          pt={isIpad() ? 10 : 16}>
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <WeatherCardAnimations shortForecast={todayForecast.shortForecast} precipitation={todayPrecipitation} windValue={todayWindValue} isDark={isDark} />
             {[...Array(todayIsCloudy ? 5 : (todayIsSunny ? 2 : 3))].map((_, i) => (
@@ -111,7 +111,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
               <Text fontSize={isIpad() ? 15 : 13} color={textColor} fontWeight="500" style={{ marginRight: 2 }} fontFamily="$body">
                 Now
               </Text>
-              <Text fontSize={isIpad() ? 28 : 18} fontWeight="600" color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)} style={{ minWidth: 38, textAlign: 'right', letterSpacing: -1 }} fontFamily="$body">
+              <Text fontSize={isIpad() ? 22 : 18} fontWeight="600" color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)} style={{ minWidth: 38, textAlign: 'right', letterSpacing: -1 }} fontFamily="$body">
                 {todayForecast.temperature !== null ? `${todayForecast.temperature}°` : 'N/A'}
               </Text>
             </XStack>

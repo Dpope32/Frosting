@@ -269,7 +269,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
                 addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
               } else {
                 storeState.hydrateFromSync(storeDataFromSnapshot);
-                addSyncLog(`✅ ${storeKeyForLog} hydrated via hydrateFromSync`, 'success');
               }
             } else {
               if (isAlwaysSynced || typeof storeDataFromSnapshot.isSyncEnabled === 'undefined') { 
@@ -278,7 +277,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
                 // We should avoid this for stores that manage sensitive/complex data without their own hydrateFromSync.
                 // This is a legacy path for stores that don't have/need complex merging or toggles.  If a store does not have a hydrateFromSync, it should not be used.
                 store.setState(storeDataFromSnapshot);
-                addSyncLog(`✅ ${storeKeyForLog} hydrated via setState (${isAlwaysSynced ? 'always-on store' : 'legacy/no toggle or sync flag in snapshot'}).`, 'info');
               } else {
                  addSyncLog(`[Hydrate] ${storeKeyForLog}: Has isSyncEnabled in snapshot but no local hydrateFromSync/isAlwaysSynced. Check store setup. Defaulting to skip.`, 'warning');
               }

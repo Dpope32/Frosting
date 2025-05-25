@@ -197,19 +197,19 @@ return (
                     <Text fontFamily="$body" color={textColor} fontSize={18} fontWeight="600">
                     {daily.dayName}
                     </Text>
-                    <Text color={textColor} fontSize={14} numberOfLines={1} fontFamily="$body" ellipsizeMode="tail">
+                    <Text color={textColor} fontSize={isIpad() ? 16 : 14} numberOfLines={1} fontFamily="$body" ellipsizeMode="tail">
                     {dayPeriod.shortForecast}
                     </Text>
                 </YStack>
-                <Text fontFamily="$body" fontSize={13} color={textColor} alignSelf="flex-end">
+                <Text fontFamily="$body" fontSize={isIpad() ? 15 : 13} color={textColor} alignSelf="flex-end">
                   🌡️ Feels like {feelsLike}°
                 </Text>
                 </XStack>
                 <XStack justifyContent="space-between" alignItems="flex-end" mt="$2">
                 <YStack gap="$2">
                     <XStack alignItems="center" gap="$1.5">
-                    <Text fontFamily="$body" fontSize={14}>💨</Text>
-                    <Text fontFamily="$body" color={textColor} fontSize={14}>
+                    <Text fontFamily="$body" fontSize={isIpad() ? 16 : 14}>💨</Text>
+                    <Text fontFamily="$body" color={textColor} fontSize={isIpad() ? 16 : 14}>
                         {dayPeriod.windSpeed} {dayPeriod.windDirection}
                     </Text>
                     </XStack>
@@ -217,7 +217,7 @@ return (
                     <Text fontFamily="$body" fontSize={14}>💧</Text>
                     <Text 
                       fontFamily="$body" 
-                      fontSize={14}
+                      fontSize={isIpad() ? 16 : 14}
                       color={precipitationValue > 0 ? getPrecipitationColor(precipitationValue, isDark) : textColor}
                       fontWeight={precipitationValue > 30 ? '600' : '400'}
                     >

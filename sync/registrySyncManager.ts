@@ -66,10 +66,10 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       addSyncLog('Failed to generate or retrieve encryption key', 'error');
       throw new Error('Failed to generate or retrieve encryption key');
     }
-    addSyncLog(`🔑 Using key hash ${key.slice(0,6)}…${key.slice(-6)}`, 'verbose');
+    //addSyncLog(`🔑 Using key hash ${key.slice(0,6)}…${key.slice(-6)}`, 'verbose');
     const cipher = encryptSnapshot(allStates, key);
     const sha = CryptoJS.SHA256(cipher).toString().slice(0,8);
-    addSyncLog(`📦 Snapshot SHA ${sha}`, 'verbose');
+    //addSyncLog(`📦 Snapshot SHA ${sha}`, 'verbose');
     const uri = `${FileSystem.documentDirectory}stateSnapshot.enc`;
     await FileSystem.writeAsStringAsync(uri, cipher, {
       encoding: FileSystem.EncodingType.UTF8,

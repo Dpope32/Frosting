@@ -182,7 +182,6 @@ export const PremiumLogs = ({
       </Text>
       {count !== undefined && count > 0 && (
         <View style={{
-          backgroundColor: status === statusFilter ? 'rgba(255,255,255,0.3)' : colors.accent,
           borderRadius: wideMode ? 12 : 10,
           paddingHorizontal: wideMode ? 8 : 6,
           paddingVertical: wideMode ? 3 : 2,
@@ -267,6 +266,27 @@ export const PremiumLogs = ({
                 Clear
               </Text>
             </TouchableOpacity>
+            <XStack justifyContent="flex-end" flex={1} >  
+            <TouchableOpacity 
+            onPress={() => setAutoScroll(!autoScroll)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              backgroundColor: autoScroll ? isDark ? colors.successBgDark : colors.successBgLight : colors.subtext + '15',
+              paddingHorizontal: wideMode ? 8 : 6,
+              paddingVertical: wideMode ? 4 : 3,
+              borderRadius: wideMode ? 12 : 10,
+              marginRight: -8,
+            }}
+          >
+            <Ionicons 
+              name={autoScroll ? "play" : "pause"} 
+              size={wideMode ? 16 : 14} 
+              color={autoScroll ? isDark ? colors.successText : colors.successText : colors.subtext} 
+            />
+          </TouchableOpacity>
+          </XStack>
           </XStack>
         </XStack>
 
@@ -305,25 +325,6 @@ export const PremiumLogs = ({
               <Ionicons name="close-circle" size={wideMode ? 18 : 16} color={colors.subtext} />
             </TouchableOpacity>
           )}
-          <TouchableOpacity 
-            onPress={() => setAutoScroll(!autoScroll)}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 4,
-              backgroundColor: autoScroll ? isDark ? colors.successBgDark : colors.successBgLight : colors.subtext + '15',
-              paddingHorizontal: wideMode ? 8 : 6,
-              paddingVertical: wideMode ? 4 : 3,
-              borderRadius: wideMode ? 12 : 10,
-              marginRight: -8,
-            }}
-          >
-            <Ionicons 
-              name={autoScroll ? "play" : "pause"} 
-              size={wideMode ? 16 : 14} 
-              color={autoScroll ? isDark ? colors.successText : colors.successText : colors.subtext} 
-            />
-          </TouchableOpacity>
         </View>
 
         <ScrollView 

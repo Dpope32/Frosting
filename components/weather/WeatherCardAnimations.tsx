@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { XStack } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
+import RainDrop from '@/components/shared/RainDrop';
 
 interface WeatherCardAnimationsProps {
   shortForecast: string;
@@ -53,70 +54,52 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   const screenWidth = Dimensions.get('window').width;
 
   // =============================================================
-  // Rain Animation (refined palette & thinner drops)
+  // Rain Animation Configuration
   // =============================================================
-  const RainDrop = ({ index }: { index: number }) => {
-    const initialY = useSharedValue(-18);
-    const dropHeight = 8 + Math.random() * 8;
-    const dropWidth = 0.8 + Math.random() * 0.8;
-    const leftPosition = (Math.random() * screenWidth);
-    const baseDuration = 1800 - (precipitation * 10);
-    const duration = baseDuration + Math.random() * 300;
-    const delay = Math.random() * 1000 * (index % 5);
-
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        initialY.value = withRepeat(
-          withTiming(120, { duration, easing: Easing.linear }),
-          -1,
-          false
-        );
-      }, delay);
-      return () => clearTimeout(timer);
-    }, []);
-
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        position: 'absolute',
-        top: initialY.value,
-        left: leftPosition,
-        height: dropHeight,
-        width: dropWidth,
-        backgroundColor: rainColor,
-        borderRadius: dropWidth / 2,
-        opacity: rainOpacity,
-      };
-    });
-
-    return <Animated.View style={animatedStyle} />;
+  const createRainDrop = (index: number) => {
+    const dropHeight = 6 + Math.random() * 6; // Smaller drops
+    const dropWidth = 1 + Math.random() * 1.5; // Thinner drops
+    const leftPosition = Math.random() * screenWidth;
+    const baseDuration = 1200 - (precipitation * 8); // Faster base speed
+    const duration = baseDuration + Math.random() * 400;
+    const delay = Math.random() * 2000; // Stagger over 2 seconds
+    
+    return {
+      delay,
+      duration,
+      initialX: leftPosition,
+      startY: -20,
+      endY: 140,
+      width: dropWidth,
+      height: dropHeight,
+      color: rainColor,
+      opacity: rainOpacity * (0.6 + Math.random() * 0.4), // Vary opacity
+      rotation: -10 - Math.random() * 10, // Slight angle variation
+    };
   };
 
   // =============================================================
-  // Wind Animation (finer streaks, softened opacity)
+  // Wind Animation (more subtle and refined)
   // =============================================================
   const WindStreak = ({ index }: { index: number }) => {
-    const initialX = useSharedValue(-120); // Start further off-screen left
-    const top = 5 + (index * 8) + (Math.random() * 15); // More vertical spread, less uniform spacing
+    const initialX = useSharedValue(-80);
+    const top = 10 + (index * 12) + (Math.random() * 20);
     
-    // Use numeric position instead of percentage string
-    const leftPosition = (2 + Math.random() * 90) * screenWidth / 100;
+    const leftPosition = (5 + Math.random() * 80) * screenWidth / 100;
     
-    // Significantly longer width, much thinner height
-    const width = (hasVeryHighWind ? 55 : 40) + (Math.random() * 45);
-    const height = 0.6 + (Math.random() * 0.35); // Very thin
-    const speedFactor = hasVeryHighWind ? 0.6 + (Math.random() * 0.4) : 0.8 + (Math.random() * 0.5);
-    const duration = (1000 / speedFactor) + Math.random() * 300; // Adjust duration based on speed
-    const delay = Math.random() * 500 * (index % (hasVeryHighWind ? 6 : 4));
+    // More reasonable sizes
+    const width = (hasVeryHighWind ? 35 : 25) + (Math.random() * 25);
+    const height = 0.4 + (Math.random() * 0.3); // Even thinner
+    const speedFactor = hasVeryHighWind ? 0.7 + (Math.random() * 0.3) : 0.9 + (Math.random() * 0.4);
+    const duration = (1200 / speedFactor) + Math.random() * 400;
+    const delay = Math.random() * 800 * (index % 4);
 
     useEffect(() => {
       const timer = setTimeout(() => {
         initialX.value = withRepeat(
-          withSequence(
-            withTiming(-100, { duration: 0 }), // Start position
-            // Travel much further across the screen
-            withTiming(250 + Math.random() * 50, { duration, easing: Easing.linear })
-          ),
-          -1, false
+          withTiming(180, { duration, easing: Easing.linear }),
+          -1,
+          false
         );
       }, delay);
       
@@ -130,38 +113,32 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         left: leftPosition,
         height: height,
         width: width,
-        // Lighter opacity for streak effect
-        backgroundColor: isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.18)",
-        opacity: 0.12 + (Math.random() * 0.18), // Slightly subtler opacity
+        backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)",
+        opacity: 0.08 + (Math.random() * 0.12), // Much more subtle
         transform: [{ translateX: initialX.value }],
       };
     });
 
-    const Element = Platform.OS === 'web' ? XStack : Animated.View;
-    return <Element style={animatedStyle} />;
+    return <Animated.View style={animatedStyle} />;
   };
 
-  // --- Debris Animation (for very high wind) ---
+  // --- Debris Animation (for very high wind) - more subtle ---
   const WindDebris = ({ index }: { index: number }) => {
-    const initialX = useSharedValue(-30); // Start off-screen left
+    const initialX = useSharedValue(-25);
     const initialRotate = useSharedValue(0);
-    const top = 20 + Math.random() * 60; // Random vertical position
+    const top = 25 + Math.random() * 50;
     
-    // Use numeric position instead of percentage string
-    const leftPosition = (20 + Math.random() * 60) * screenWidth / 100;
+    const leftPosition = (30 + Math.random() * 40) * screenWidth / 100;
     
-    const size = 2.5 + Math.random() * 2.5;
-    const duration = 800 + Math.random() * 400;
-    const rotationSpeed = (Math.random() > 0.5 ? 1 : -1) * (360 + Math.random() * 360); // Random rotation amount/direction
-    const delay = Math.random() * 700 * (index % 3); // Stagger debris
+    const size = 1.5 + Math.random() * 2; // Smaller debris
+    const duration = 1000 + Math.random() * 600; // Slower movement
+    const rotationSpeed = (Math.random() > 0.5 ? 1 : -1) * (180 + Math.random() * 180); // Less rotation
+    const delay = Math.random() * 1000 * (index + 1); // Better staggering
 
     useEffect(() => {
       const timer = setTimeout(() => {
         initialX.value = withRepeat(
-          withSequence(
-            withTiming(-30, { duration: 0 }), // Reset position instantly
-            withTiming(130, { duration, easing: Easing.linear }) // Animate across
-          ),
+          withTiming(120, { duration, easing: Easing.linear }),
           -1,
           false
         );
@@ -182,9 +159,9 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         left: leftPosition,
         height: size,
         width: size,
-        borderRadius: size / 3, // Slightly less round
-        backgroundColor: isDark ? "rgba(210,180,140,0.55)" : "rgba(139,69,19,0.5)", // Tan / Brown
-        opacity: 0.55,
+        borderRadius: size / 2,
+        backgroundColor: isDark ? "rgba(210,180,140,0.4)" : "rgba(139,69,19,0.35)",
+        opacity: 0.4,
         transform: [
           { translateX: initialX.value },
           { rotate: `${initialRotate.value}deg` }
@@ -192,16 +169,14 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
       };
     });
 
-    // Use XStack for web compatibility if needed, otherwise View
-    const Element = Platform.OS === 'web' ? XStack : Animated.View;
-    return <Element style={animatedStyle} />;
+    return <Animated.View style={animatedStyle} />;
   };
 
   // For web, we need to add a style element with updated CSS animations
   React.useEffect(() => {
     if (Platform.OS === 'web') {
       // Calculate rain animation duration based on precipitation
-      const rainDuration = (2.5 - (precipitation / 100) * 1.5).toFixed(1); // Range: 2.5s (0%) to 1.0s (100%)
+      const rainDuration = (2.0 - (precipitation / 100) * 1.2).toFixed(1); // Faster, more realistic
       
       // Create or update the style element
       const styleId = 'dynamic-weather-animations';
@@ -216,8 +191,8 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
       // Update CSS with dynamic animation durations
       styleElement.textContent = `
         @keyframes rain {
-          0% { transform: translateY(-10px) rotate(-30deg); }
-          100% { transform: translateY(120px) rotate(-30deg); }
+          0% { transform: translateY(-20px) rotate(-15deg); opacity: 0.8; }
+          100% { transform: translateY(140px) rotate(-15deg); opacity: 0.3; }
         }
         
         .rain-drop {
@@ -228,11 +203,11 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   }, [precipitation]);
 
   // Determine number of raindrops and opacity based on precipitation
-  const numRaindrops = Math.min(32, Math.max(4, Math.floor(precipitation / 2.5) + (precipitation > 70 ? 8 : 0)));
-  const rainOpacity = 0.25 + Math.min(0.75, precipitation / 100);
+  const numRaindrops = Math.min(20, Math.max(3, Math.floor(precipitation / 4))); // Reduced count for performance
+  const rainOpacity = 0.3 + Math.min(0.6, precipitation / 120); // More subtle opacity
   const rainColor = isDark
-    ? `rgba(147, 197, 253, ${0.5 + precipitation / 200})`
-    : `rgba(59, 130, 246, ${0.35 + precipitation / 150})`;
+    ? `rgba(147, 197, 253, ${0.4 + precipitation / 250})`
+    : `rgba(59, 130, 246, ${0.3 + precipitation / 200})`;
 
   // Render rain differently for web vs native
   const renderRain = () => {
@@ -249,12 +224,12 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
               position: 'absolute',
               top: -10,
               left: randomLeft,
-              height: 10 + Math.random() * 10,
+              height: 8 + Math.random() * 6,
               width: 1 + Math.random() * 1,
               backgroundColor: rainColor,
               borderRadius: 1,
               opacity: rainOpacity,
-              animation: `rain ${(2.5 - (precipitation / 100) * 1.5).toFixed(1)}s linear infinite`,
+              animation: `rain ${(2.0 - (precipitation / 100) * 1.2).toFixed(1)}s linear infinite`,
               animationDelay: randomDelay
             }}
             className="rain-drop"
@@ -262,9 +237,15 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         );
       });
     } else {
-      return [...Array(numRaindrops)].map((_, i) => (
-        <RainDrop key={`rain-${i}`} index={i} />
-      ));
+      return [...Array(numRaindrops)].map((_, i) => {
+        const dropProps = createRainDrop(i);
+        return (
+          <RainDrop 
+            key={`rain-${i}`} 
+            {...dropProps}
+          />
+        );
+      });
     }
   };
 
@@ -340,29 +321,30 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   };
 
   // -------------------------------------------------------------
-  // Lightning flash effect using shared value (no entering prop)
+  // Lightning flash effect - much more subtle and realistic
   // -------------------------------------------------------------
   const flashOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (isStorm) {
-      // Adjust pause duration based on precipitation chance
-      const pauseDuration = precipitation < 21 ? 8000 : precipitation < 41 ? 5000 : precipitation < 70 ? 1600 : precipitation < 90 ? 1200 : 800; // Pause durations by precipitation intensity
+      // More realistic lightning timing - longer pauses, quicker flashes
+      const pauseDuration = precipitation < 30 ? 12000 : precipitation < 50 ? 8000 : precipitation < 70 ? 5000 : 3000;
 
       flashOpacity.value = withRepeat(
         withSequence(
-          withTiming(1, { duration: 80 }), // Flash on
-          withTiming(0, { duration: 260 }), // Flash off
-          withTiming(0, { duration: pauseDuration }) // Pause between flashes
+          // Quick double flash (common in real lightning)
+          withTiming(0.15, { duration: 50 }), // First flash - much dimmer
+          withTiming(0, { duration: 100 }),
+          withTiming(0.25, { duration: 30 }), // Second flash - slightly brighter
+          withTiming(0, { duration: 200 }),
+          withTiming(0, { duration: pauseDuration }) // Long pause between strikes
         ),
         -1,
         false
       );
     } else {
-      // Ensure opacity resets if isStorm becomes false
       flashOpacity.value = withTiming(0, { duration: 100 });
     }
-    // Add precipitation to dependency array
   }, [isStorm, precipitation, flashOpacity]);
 
   const lightningStyle = useAnimatedStyle(() => ({
@@ -377,7 +359,9 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         style={[
           StyleSheet.absoluteFillObject,
           {
-            backgroundColor: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.35)',
+            // Much more subtle lightning effect
+            backgroundColor: isDark ? 'rgba(200,220,255,0.4)' : 'rgba(255,255,255,0.6)',
+            pointerEvents: 'none',
           },
           lightningStyle,
         ]}
@@ -389,10 +373,10 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
     <>
       {renderSunGlow()}
       {renderRain()}
-      {hasHighWind && [...Array(hasVeryHighWind ? 12 : 8)].map((_, i) => (
+      {hasHighWind && [...Array(hasVeryHighWind ? 6 : 4)].map((_, i) => (
         <WindStreak key={`wind-${i}`} index={i} />
       ))}
-      {hasVeryHighWind && [...Array(5)].map((_, i) => (
+      {hasVeryHighWind && [...Array(3)].map((_, i) => (
         <WindDebris key={`debris-${i}`} index={i} />
       ))}
       {renderLightning()}

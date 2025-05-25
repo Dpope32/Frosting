@@ -5,18 +5,13 @@ import Animated, {
   withRepeat,
   withTiming,
   Easing,
-  interpolate,
-  withDelay,
-  withSequence,
 } from 'react-native-reanimated';
 import { ViewStyle } from 'react-native';
-
-import { DimensionValue } from 'react-native';
 
 interface RainDropProps {
   delay: number;
   duration: number;
-  initialX: DimensionValue; // Use DimensionValue for better type safety
+  initialX: number;
   startY: number;
   endY: number;
   width: number;
@@ -35,48 +30,28 @@ const RainDrop: React.FC<RainDropProps> = ({
   width,
   height,
   color,
-  opacity: targetOpacity, // Rename to avoid conflict with animatedOpacity
-  rotation = -30, // Default rotation matching common CSS rain
+  opacity,
+  rotation = -15, // Gentler rotation
 }) => {
   const translateY = useSharedValue(startY);
-  const animatedOpacity = useSharedValue(0); // Start invisible
 
   useEffect(() => {
-    // Use withDelay to handle the animation start time
-    // Use withSequence to fade in, then start the repeating fall
-    translateY.value = withDelay(
-      delay * 1000, // Convert delay seconds to ms
-      withRepeat(
-        withSequence(
-          // Reset position to startY before each fall (ensures clean loop)
-          withTiming(startY, { duration: 0 }),
-          // Fade in quickly
-          withTiming(startY, { duration: 50 }, () => { // Use callback to set opacity
-            animatedOpacity.value = withTiming(targetOpacity, { duration: 100 });
-          }),
-          // Fall down
-          withTiming(endY, {
-            duration: duration * 1000, // Convert duration seconds to ms
-            easing: Easing.linear,
-          }),
-          // Fade out at the end (optional, but can look smoother)
-           withTiming(endY, { duration: 50 }, () => {
-             animatedOpacity.value = withTiming(0, { duration: 100 });
-           })
-        ),
-        -1, // Infinite repeat
-        false // Don't reverse
-      )
-    );
+    // Simple delayed start with smooth repeat
+    const timer = setTimeout(() => {
+      translateY.value = withRepeat(
+        withTiming(endY, {
+          duration: duration,
+          easing: Easing.linear,
+        }),
+        -1,
+        false
+      );
+    }, delay);
 
-    // Cleanup function not strictly needed for shared values,
-    // but good practice if managing other side effects.
     return () => {
-        // Optional: Cancel animation if component unmounts mid-animation
-        // cancelAnimation(translateY);
-        // cancelAnimation(animatedOpacity);
+      clearTimeout(timer);
     };
-  }, [delay, duration, endY, startY, targetOpacity, translateY, animatedOpacity]);
+  }, [delay, duration, endY, translateY]);
 
   const animatedStyle = useAnimatedStyle((): ViewStyle => {
     return {
@@ -85,7 +60,8 @@ const RainDrop: React.FC<RainDropProps> = ({
       width: width,
       height: height,
       backgroundColor: color,
-      opacity: animatedOpacity.value,
+      opacity: opacity,
+      borderRadius: width / 2,
       transform: [
         { translateY: translateY.value },
         { rotate: `${rotation}deg` },
@@ -93,7 +69,6 @@ const RainDrop: React.FC<RainDropProps> = ({
     };
   });
 
-  // Use Animated.View for the animated styles
   return <Animated.View style={animatedStyle} />;
 };
 

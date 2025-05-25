@@ -27,7 +27,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         onPress()
       }}
       style={{
-        width: isIpad() ? 455 : '100%',
+        width: isIpad() ? 475 : '100%',
         justifyContent: 'center',
         alignSelf: 'center',
         paddingHorizontal: isIpad() ? 24 : 18,
@@ -65,7 +65,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         <XStack
           padding={isIpad() ? 10 : 3}
           paddingBottom={isIpad() ? 10 : 8}
-          paddingTop={isIpad() ? 12 : 6}
+          paddingTop={isIpad() ? 8 : 6}
           paddingHorizontal={isIpad() ? '$4' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
@@ -90,26 +90,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               >
                 {project.name}
               </Text>
-              {project.deadline && (() => {
-                let d: Date | undefined
-                if (typeof project.deadline === 'string') d = new Date(project.deadline)
-                else if (project.deadline instanceof Date) d = project.deadline
-                if (d && !isNaN(d.getTime())) {
-                  return (
-                    <XStack alignItems="center" gap="$1">
-                      <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
-                      <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
-                        {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </Text>
-                    </XStack>
-                  )
-                }
-                return null
-              })()}
-            </XStack>
-
-            <XStack jc="flex-start" gap="$2.5" ai="center">
-            {project.status && (
+              {project.status && (
                 <XStack
                   bg={
                     project.status === 'completed'
@@ -153,21 +134,35 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                   </Text>
                 </XStack>
               )}
-              {project.tasks && project.tasks.length > 0 && (
-                <Text fontSize={12} color={isDark ? '#ccc' : '#9c9c9c'} fontFamily="$body">
-                  {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
-                </Text>
-              )}
-             {project.people && project.people.length > 0 && (
+              {project.deadline && (() => {
+                let d: Date | undefined
+                if (typeof project.deadline === 'string') d = new Date(project.deadline)
+                else if (project.deadline instanceof Date) d = project.deadline
+                if (d && !isNaN(d.getTime())) {
+                  return (
+                    <XStack alignItems="center" gap="$1">
+                      <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
+                      <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
+                        {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </Text>
+                    </XStack>
+                  )
+                }
+                return null
+              })()}
+            </XStack>
+
+            <XStack jc="space-between" gap="$2.5" px={"$1"} ai="center">
+            {project.people && project.people.length > 0 && (
               <XStack gap="$1" ai="center" mt={0}>
                 {project.people.slice(0, 3).map((person) => (
                   <YStack
                     key={person.id}
                     br={isIpad() ? 14 : 10}
                     overflow="hidden"
-                    width={isIpad() ? 24 : 20}
-                    height={isIpad() ? 24 : 20}
-                    marginBottom={isIpad() ? -6 : 0}
+                    width={isIpad() ? 22 : 20}
+                    height={isIpad() ? 22 : 20}
+                    marginBottom={isIpad() ? 0 : 0}
                   >
                     {person.profilePicture ? (
                       <Image
@@ -185,6 +180,11 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 ))}
               </XStack>
             )}
+            {project.tasks && project.tasks.length > 0 && (
+                <Text fontSize={isIpad() ? 13 : 12} color={isDark ? '#7c7c7c' : '#9c9c9c'} fontFamily="$body">
+                  {project.tasks.filter(t => t.completed).length}/{project.tasks.length} tasks completed
+                </Text>
+              )}
             </XStack>
           </YStack>
         </XStack>

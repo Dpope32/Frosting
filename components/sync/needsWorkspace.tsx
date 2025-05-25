@@ -17,7 +17,7 @@ export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJo
   const colors = getColors(isDark, primaryColor);
   return (
     <View style={{
-      width: '95%',
+      width: isIpad() ? '75%' : '95%',
       backgroundColor: colors.card,
       borderRadius: cardRadius, 
       borderWidth: 1,

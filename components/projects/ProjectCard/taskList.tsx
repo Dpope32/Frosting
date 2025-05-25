@@ -20,7 +20,7 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
 
   return (
     <>
-      <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.18} my={isIpad() ? 18 : 12} />
+      <XStack w="100%" h={1} bg={isDark ? '#555555' : '#ccc'} opacity={0.18} my={isIpad() ? 10 : 8} />
       {project.tasks.length > 1 && (
         <Text fontSize={12} color={isDark ? 'rgba(255, 255, 255, 0.84)' : 'rgba(0, 0, 0, 0.5)'} ml={0} mb={6} fontFamily="$body">
           {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
@@ -32,7 +32,7 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
             <XStack
               key={task.id}
               ai="center"
-              px={isIpad() ? 8 : 6}
+              px={isIpad() ? 12 : 6}
               py={isIpad() ? 6 : 5}
               alignContent='center'
               alignItems='center'
