@@ -83,6 +83,7 @@ export default function SyncScreen() {
   const [syncLogs, setSyncLogs] = useState<LogEntry[]>([])
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({})
   const premium = useUserStore((s) => s.preferences.premium === true)
+  const [premiumLoaded, setPremiumLoaded] = useState(false)
   const { width } = useWindowDimensions()
   const colors = getColors(isDark, primaryColor)
   const contentWidth = Math.min(width - baseSpacing * 2, isIpad() ? 450 : 350)
@@ -90,6 +91,15 @@ export default function SyncScreen() {
   const { deviceId } = useDeviceId(premium)
   const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
   const { inviteCode } = useWorkspaceDetails(premium, workspaceId, deviceId)
+  
+  // Track when premium status has been determined
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setPremiumLoaded(true)
+    }, 100) // Small delay to ensure store is hydrated
+    return () => clearTimeout(timer)
+  }, [])
+
   useSyncStatusLogger(syncStatus, isLoading)
   useAuthCheck()
   useLogUpdates(premium, setSyncLogs)  
@@ -200,7 +210,7 @@ export default function SyncScreen() {
         />
       )}
         
-        {premium && !workspaceId && (
+        {premium && !workspaceId && premiumLoaded && (
           <NeedsWorkspace
             isDark={isDark}
             onPressCreate={() => {

@@ -191,12 +191,10 @@ export default Sentry.wrap(function RootLayout() {
           useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Resume pull completed', 'success');
         } else if (nextAppState === 'background' || nextAppState === 'inactive') {
-          useRegistryStore.getState().setSyncStatus('syncing');
           addSyncLog('📤 App backgrounded – pushing snapshot in app/_layout.tsx', 'info');
           
           await pushSnapshot();
           
-          useRegistryStore.getState().setSyncStatus('idle');
           addSyncLog('✅ Background push completed', 'success');
         }
       } catch (e: any) {
