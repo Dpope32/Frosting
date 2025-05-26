@@ -61,9 +61,9 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     aspectRatio:
       Platform.OS === 'web'
         ? (webColumnCount === 3
-            ? 0.75
+            ? 1
             : webColumnCount === 2
-              ? 0.95
+              ? 0.9
               : 1)
         : (webColumnCount === 3
             ? 0.8
@@ -89,14 +89,23 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     borderBottomWidth: 0
   },
   holidayCell: {
-    backgroundColor: isDark ? '#252525' : '#F5F5F5',
-    borderRadius:isWeb? 0: 6,
+    backgroundColor: isDark ? '#1E1E1E' : '#F5F5F5',
+    borderRadius: 4,
+    width: '100%',
+    marginVertical: webColumnCount === 1 && isWeb ? 1 : 0,
+    borderWidth: 0.5,
+    borderColor: isDark ? '#555' : '#E8E8E8',
+    paddingHorizontal: webColumnCount === 3 ? 1 : webColumnCount === 2 ? 2 : 3,
+    paddingVertical: webColumnCount === 3 ? 0 : webColumnCount === 2 ? 1 : 2,
+    minHeight: webColumnCount === 3 ? 10 : webColumnCount === 2 ? 12 : 'auto',
+    justifyContent: 'center',
   },
   holidayText: {
-    fontSize: webColumnCount === 1 ? isWeb? 18 : isIpad() ? 14 : 7 : (webColumnCount === 2 ? isWeb? 16 : isIpad() ? 14 : 14 : 11),
-    fontWeight: '600',
-    marginTop: 2,
-    color: isDark ? '#AAA' : '#555',
+    fontSize: webColumnCount === 3 ? 7 : webColumnCount === 1 ? (isWeb ? 11 : 7) : (webColumnCount === 2 ? (isWeb ? 8 : 6) : 8),
+    color: isDark ? '#FFFFFF' : '#006400',
+    textAlign: 'center',
+    fontWeight: '500',
+    lineHeight: webColumnCount === 3 ? 8 : webColumnCount === 2 ? 10 : undefined,
   },
   taskIconContainer: {
     position: 'absolute',
@@ -106,17 +115,19 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     bottom: 0,
   },  
   taskIconText: {
-    fontSize: webColumnCount === 1 ? isWeb? 18 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
+    fontSize: webColumnCount === 1 ? isWeb? 15 : 16 : (webColumnCount === 2 ? isWeb? 16 : 14 : 11),
     fontWeight: '600',  
     color: isDark ? '#AAA' : '#444',
   },
   dayCellContent: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     position: 'relative',
     padding: 2,
-    overflow: webColumnCount > 1 ? 'hidden' : 'visible'
+    overflow: 'visible',
+    paddingTop: webColumnCount === 1 && isWeb ? 26 : webColumnCount === 2 ? 16 : webColumnCount === 3 ? 12 : 2,
+    gap: webColumnCount === 1 && isWeb ? 2 : 1,
   },
   pastDateOverlay: {
     opacity: isDark ? 0.7 : 0.4,
@@ -134,13 +145,13 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   dayNumber: {
     position: 'absolute',
-    top: Platform.OS === 'web' ? 4 : 2,
+    top: Platform.OS === 'web' ? 1 : 2,
     right: Platform.OS === 'web' ? 4 : 2,
     fontSize: webColumnCount === 1 
       ? (Platform.OS === 'web' ? 18 : isIpad() ? 14 : 12) 
       : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 16 : isIpad() ? 14 : 10)
-        : (Platform.OS === 'web' ? 12 : isIpad() ? 10 : 8)),
+        ? (Platform.OS === 'web' ? 12 : isIpad() ? 12 : 10)
+        : (Platform.OS === 'web' ? 10 : isIpad() ? 9 : 8)),
     fontWeight: '700',
     color: isDark ? '#FFFFFF' : '#222222',
     zIndex: 10
@@ -156,34 +167,26 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   // Common event container and text styles
   eventIconContainer: {
-    position: 'absolute',
-    right: 0,
-    left: 0,
+    width: '100%',
     alignItems: 'center',
-    zIndex: 5,
-    // For multi-month views, ensure events don't overflow the cell
-    maxHeight: webColumnCount === 1 ? 'auto' : (webColumnCount === 2 ? 14 : 16),
-    overflow: 'hidden'
+    borderRadius: 4,
+    borderWidth: 0.5,
+    borderColor: isDark ? '#555' : '#E8E8E8',
+    marginVertical: webColumnCount === 1 && isWeb ? 1 : 0,
+    paddingHorizontal: webColumnCount === 3 ? 1 : webColumnCount === 2 ? 2 : 3,
+    paddingVertical: webColumnCount === 3 ? 0 : webColumnCount === 2 ? 1 : 2,
+    backgroundColor: isDark ? '#1E1E1E' : '#F5F5F5',
+    minHeight: webColumnCount === 3 ? 10 : webColumnCount === 2 ? 12 : 'auto',
+    justifyContent: 'center',
   },
   eventIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 12 : isIpad() ? 8 : 7) 
-      : (webColumnCount === 2 
-        ? (Platform.OS === 'web' ? 8 : isIpad() ? 6 : 5) 
-        : (Platform.OS === 'web' ? 7 : 5)),
-    textAlign: 'left',
-    maxWidth: '100%',
-    opacity: 0.95,
-    paddingVertical: 0,
-    paddingLeft: 0,
-    borderRadius: 3,
-    width: '99%',
-    fontWeight: '600',
-    // For smaller screens/views
-    ...(webColumnCount > 1 ? {
-      lineHeight: webColumnCount === 2 ? 12 : 10,
-      marginVertical: 0
-    } : {})
+      ? (Platform.OS === 'web' ? 11 : 7) 
+      : (webColumnCount === 2 ? (Platform.OS === 'web' ? 8 : 6) : 7),
+    textAlign: 'center',
+    fontWeight: '500',
+    width: '100%',
+    lineHeight: webColumnCount === 3 ? 8 : webColumnCount === 2 ? 10 : undefined,
   },
   // Dots
   indicatorContainer: {

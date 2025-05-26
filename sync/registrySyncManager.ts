@@ -57,6 +57,45 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     message: 'exportEncryptedState called',
     level: 'info',
   });
+  
+  // Add prune analysis here
+  if (allStates.TaskStore?.tasks) {
+    const tasks = allStates.TaskStore.tasks;
+    const completedOneTimeTasks = tasks.filter((task: any) => 
+      task.pattern === 'one-time' && task.completed === true
+    );
+    
+    addSyncLog(`🔍 Prune analysis: Found ${completedOneTimeTasks.length} completed one-time tasks`, 'info');
+    
+    if (completedOneTimeTasks.length > 0) {
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+      
+      const pruneCandidates = completedOneTimeTasks.filter((task: any) => {
+        const completedDate = new Date(task.updatedAt || task.createdAt);
+        return completedDate < thirtyDaysAgo;
+      });
+      
+      addSyncLog(`📋 Prune candidates: ${pruneCandidates.length} tasks completed >30 days ago`, 'info');
+      
+      if (pruneCandidates.length > 0) {
+        pruneCandidates.slice(0, 5).forEach((task: any) => {
+          const completedDate = new Date(task.updatedAt || task.createdAt);
+          const daysAgo = Math.floor((now.getTime() - completedDate.getTime()) / (24 * 60 * 60 * 1000));
+          addSyncLog(`🗑️ Prune candidate: "${task.name}" (completed ${daysAgo} days ago)`, 'verbose');
+        });
+        
+        if (pruneCandidates.length > 5) {
+          addSyncLog(`... and ${pruneCandidates.length - 5} more prune candidates`, 'verbose');
+        }
+      } else {
+        addSyncLog('✅ No prune candidates found (all completed tasks are <30 days old)', 'info');
+      }
+    } else {
+      addSyncLog('ℹ️ No completed one-time tasks found', 'info');
+    }
+  }
+  
   try {
     const wsId = await getCurrentWorkspaceId();
     

@@ -234,49 +234,18 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                     <View style={styles.pastDateStrikethrough} />
                   )}
 
-                  {dayEvents.task && (
-                    <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 10 : (webColumnCount === 2 ? 4 : 2), 
-                      zIndex: 5 
-                    }]}>
-                      <Text style={[styles.eventIconText, {
-                        color: isDark ? '#FFCC80' : '#FF9800', 
-                        borderColor: isDark ? 'rgba(255,152,0,0.5)' : 'rgba(255,152,0,0.5)', 
-                        borderWidth: 0.5,
-                        backgroundColor: 'transparent'
-                      }]} numberOfLines={1} ellipsizeMode="tail">
-                        🔔 Task Due
-                      </Text>
-                    </View>
-                  )}
-            
                   {dayEvents.holiday && (
-                    <View style={[styles.holidayCell, { 
-                      top: webColumnCount === 1 ? 16 : (webColumnCount === 2 ? 22 : 20),
-                      bottom: 'auto',
-                      zIndex: 5,
-                      width: webColumnCount === 3 ? '90%' : '100%',
-                      right: webColumnCount === 3 ? 'auto' : 4
-                    }]}>
-                      <Text style={[styles.holidayText, {
-                        color: isDark ? '#FFFFFF' : '#006400', 
-                        borderColor: isDark ? 'rgba(0,100,0,0.5)' : 'rgba(0,100,0,0.5)', 
-                        borderWidth: 0.5,
-                        backgroundColor: 'transparent'
-                      }]} numberOfLines={1} ellipsizeMode="tail">
+                    <View style={styles.holidayCell}>
+                      <Text style={styles.holidayText} numberOfLines={1} ellipsizeMode="tail">
                         {dayEvents.holidayName}
                       </Text>
                     </View>
                   )}
 
                   {dayEvents.birthday && (
-                    <View style={[styles.eventIconContainer, { 
-                      top: webColumnCount === 1 ? 2 : (webColumnCount === 2 ? 5 : 6),
-                      zIndex: 6
-                    }]}>
+                    <View style={styles.eventIconContainer}>
                       <Text style={[styles.eventIconText, {
-                        color: isDark ? '#FF80AB' : '#880E4F', 
-                        backgroundColor: 'transparent'
+                        color: isDark ? '#FF80AB' : '#880E4F'
                       }]} numberOfLines={1} ellipsizeMode="tail">
                         {dayEvents.birthdayName.replace(/'s Birthday/g, '')}
                       </Text>
@@ -284,15 +253,9 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   )}
             
                   {dayEvents.bill && (
-                    <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 33 : (webColumnCount === 2 ? 52 : 12), 
-                      zIndex: 7
-                    }]}>
+                    <View style={styles.eventIconContainer}>
                       <Text style={[styles.eventIconText, {
-                        color: isDark ? '#FF8A80' : '#E57373', 
-                        borderColor: 'rgba(255,0,0,0.5)', 
-                        borderWidth: 0.5, 
-                        backgroundColor: 'transparent'
+                        color: isDark ? '#FF8A80' : '#E57373'
                       }]} numberOfLines={1} ellipsizeMode="tail">
                         {dayEvents.billName}
                       </Text>
@@ -300,32 +263,19 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   )}
             
                   {dayEvents.personal && (
-                    <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 22 : (webColumnCount === 2 ? 88 : 42),
-                      zIndex: 5 ,
-                      marginLeft: -2
-                    }]}>
+                    <View style={styles.eventIconContainer}>
                       <Text style={[styles.eventIconText, {
-                        color: isDark ? '#81C784' : '#2E7D32', 
-                        borderColor: isDark ? 'rgba(46,125,50,0.5)' : 'rgba(46,125,50,0.5)', 
-                        borderWidth: 0.5,
-                        backgroundColor: 'transparent'
+                        color: isDark ? '#81C784' : '#2E7D32'
                       }]} numberOfLines={1}>
-                        {dayEvents.personalName ? ` ${dayEvents.personalName}` : 'Personal Event'}
+                        {dayEvents.personalName ? dayEvents.personalName : 'Personal Event'}
                       </Text>
                     </View>
                   )}
 
                   {dayEvents.work && (
-                    <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 2 : (webColumnCount === 2 ? 16 : 2),
-                      zIndex: 8
-                    }]}>
+                    <View style={styles.eventIconContainer}>
                       <Text style={[styles.eventIconText, {
-                        color: isDark ? '#90CAF9' : '#0D47A1', 
-                        borderColor: isDark ? 'rgba(33,150,243,0.5)' : 'rgba(13,71,161,0.5)', 
-                        borderWidth: 0.5,
-                        backgroundColor: 'transparent'
+                        color: isDark ? '#90CAF9' : '#0D47A1'
                       }]} numberOfLines={1} ellipsizeMode="tail">
                         Work Event
                       </Text>
@@ -333,20 +283,25 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                   )}
 
                   {dayEvents.family && (
-                    <View style={[styles.eventIconContainer, { 
-                      bottom: webColumnCount === 1 ? 12 : (webColumnCount === 2 ? 16 : 2),
-                      zIndex: 5 
-                    }]}>
+                    <View style={styles.eventIconContainer}>
                       <Text style={[styles.eventIconText, {
-                        color: isDark ? '#CE93D8' : '#4A148C', 
-                        borderColor: isDark ? 'rgba(156,39,176,0.5)' : 'rgba(74,20,140,0.5)', 
-                        borderWidth: 0.5,
-                        backgroundColor: 'transparent'
+                        color: isDark ? '#CE93D8' : '#4A148C'
                       }]} numberOfLines={1} ellipsizeMode="tail">
                         Family Event
                       </Text>
                     </View>
-                  )}            
+                  )}
+
+                  {dayEvents.task && (
+                    <View style={styles.eventIconContainer}>
+                      <Text style={[styles.eventIconText, {
+                        color: isDark ? '#FFCC80' : '#FF9800'
+                      }]} numberOfLines={1} ellipsizeMode="tail">
+                        🔔 Task Due
+                      </Text>
+                    </View>
+                  )}
+                  
                   {showNBAGamesInCalendar && dayEvents.nba && dayEvents.teamCode && nbaTeams.find(t => t.code === dayEvents.teamCode) && (
                     <View style={styles.nbaLogoContainer}>
                       <Image

@@ -6,7 +6,7 @@ export const webStyles = {
     transition: 'all 0.2s ease',
     padding: 16,
     borderRadius: 8,
-    width: 350,
+    width: 420,
     height: 100,
     minWidth: 300,
     minHeight: 100,

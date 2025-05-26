@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ScrollView, useColorScheme, Platform } from 'react-native'
-import { YStack, Button, isWeb, XStack } from 'tamagui'
+import { YStack, Button, isWeb, XStack, Text } from 'tamagui'
 import { useVault } from '@/hooks/useVault'
 import { BlurView } from 'expo-blur'
 import { useUserStore, useToastStore } from '@/store'
@@ -13,7 +13,6 @@ import { isIpad } from '@/utils'
 import { EditVaultModal } from '@/components/cardModals/edits/EditVaultModal'
 import { VaultListModal } from '@/components/listModals/VaultListModal'
 import { VaultEntry } from '@/types/vault'
-
 
 export default function VaultScreen() {
   const { data, addVaultEntry, deleteVaultEntry } = useVault()
@@ -29,7 +28,9 @@ export default function VaultScreen() {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
 
   const [visiblePasswords, setVisiblePasswords] = useState<{ [id: string]: boolean }>({})
-  const togglePasswordVisibility = (id: string) => { setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))}
+  const togglePasswordVisibility = (id: string) => { 
+    setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
 
   const handleAddEntry = (entry: { name: string; username: string; password: string }) => {
     addVaultEntry(entry)
@@ -44,15 +45,15 @@ export default function VaultScreen() {
   }, [])
 
   const getColumnCount = () => {
-    if (windowWidth < 768) return 1
+    if (windowWidth < 640) return 1
     if (windowWidth < 1024) return 2
-    if (windowWidth < 1280) return 3
-    if (windowWidth < 1600) return 4
+    if (windowWidth < 1440) return 3
+    if (windowWidth < 1920) return 4
     return 5
   }
 
   const columnCount = getColumnCount()
-  const columnWidthWeb = `calc(${100 / columnCount}% - ${(columnCount - 100) / columnCount}px)`
+  const columnWidthWeb = `calc(${100 / columnCount}% - 24px)`
 
   // Dev functions to load and clear vault entries
   const loadDevVaultEntries = () => {
@@ -103,34 +104,67 @@ export default function VaultScreen() {
         vaultEntry={selectedVaultEntry}
         onSubmit={() => { setEditVaultModalOpen(false); setSelectedVaultEntry(null) }}
       />
-      <YStack f={1} pt={isWeb ? 90 : isIpad() ? isDark? 80 : 70 : 80} bg={isDark ? '#000000' : '$backgroundLight'} paddingLeft={isWeb? 24 : isIpad() ? 4 : 0}>
+      
+      <YStack 
+        flex={1} 
+        paddingTop={isWeb ? 90 : isIpad() ? (isDark ? 80 : 70) : 80} 
+        backgroundColor={isDark ? '#0a0a0a' : '#fafafa'}
+        paddingLeft={isWeb ? 24 : isIpad() ? 4 : 0}
+      >
+        {isWeb && (
+          <XStack 
+            paddingHorizontal="$6" 
+            paddingBottom="$2"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <YStack>
+              <Text 
+                color={isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'} 
+                fontSize="$4" 
+                fontFamily="$body"
+                marginTop="$1"
+              >
+                {data?.items.length || 0} saved passwords
+              </Text>
+            </YStack>
+            
+          </XStack>
+        )}
+
         <ScrollView
-        showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            padding: isWeb ? 8 : 6,
-            paddingBottom: 100,
-            paddingHorizontal: isWeb ? 0 : 16,
-            paddingTop: isWeb ? 0 : 20,
-            paddingLeft: isWeb ? isIpad() ? 12 : 0 : 16,
+            padding: isWeb ? 0 : 16,
+            paddingBottom: 120,
+            paddingTop: isWeb ? 10 : 20,
             display: isWeb ? 'flex' : undefined,
             flexDirection: isWeb ? 'row' : undefined,
             flexWrap: isWeb ? 'wrap' : undefined,
             justifyContent: isWeb ? 'flex-start' : undefined,
-            gap: isWeb ? 32 : undefined,
+            gap: isWeb ? 24 : 16,
             maxWidth: isWeb ? 1800 : undefined,
             marginHorizontal: isWeb ? 'auto' : undefined,
           }}
         >
           {data?.items.length === 0 ? (
-            <VaultEmpty
-              isDark={isDark}
-              primaryColor={primaryColor}
-              isWeb={isWeb}
-              setSocialMediaModalOpen={setSocialMediaModalOpen}
-              setEmailCloudModalOpen={setEmailCloudModalOpen}
-              setShoppingModalOpen={setShoppingModalOpen}
-              setWorkModalOpen={setWorkModalOpen}
-            />
+            <YStack 
+              flex={1} 
+              alignItems="center" 
+              justifyContent="center" 
+              paddingVertical="$10"
+              width="100%"
+            >
+              <VaultEmpty
+                isDark={isDark}
+                primaryColor={primaryColor}
+                isWeb={isWeb}
+                setSocialMediaModalOpen={setSocialMediaModalOpen}
+                setEmailCloudModalOpen={setEmailCloudModalOpen}
+                setShoppingModalOpen={setShoppingModalOpen}
+                setWorkModalOpen={setWorkModalOpen}
+              />
+            </YStack>
           ) : Platform.OS === 'web' ? (
             data?.items.map((cred: VaultEntry) => (
               <VaultCard
@@ -149,8 +183,8 @@ export default function VaultScreen() {
               />
             ))
           ) : isIpad() ? (
-            <XStack width="100%" gap="$3">
-              <YStack flex={1} gap="$3">
+            <XStack width="100%" gap="$4">
+              <YStack flex={1} gap="$4">
                 {leftColumnItems.map((cred: VaultEntry) => (
                   <VaultCard
                     key={cred.id}
@@ -167,7 +201,7 @@ export default function VaultScreen() {
                   />
                 ))}
               </YStack>
-              <YStack flex={1} gap="$3">
+              <YStack flex={1} gap="$4">
                 {rightColumnItems.map((cred: VaultEntry) => (
                   <VaultCard
                     key={cred.id}
@@ -186,7 +220,7 @@ export default function VaultScreen() {
               </YStack>
             </XStack>
           ) : (
-            <YStack gap="$3" width="100%">
+            <YStack gap="$4" width="100%">
               {data?.items.map((cred: VaultEntry) => (
                 <VaultCard
                   key={cred.id}
@@ -206,30 +240,42 @@ export default function VaultScreen() {
           )}
         </ScrollView>
 
-        <Button
-          onPress={() => setIsModalVisible(true)}
-          position="absolute"
-          bottom={32}
-          right={24}
-          zIndex={1000}
-          size="$4"
-          circular
-          bg={primaryColor}
-          pressStyle={{ scale: 0.95 }}
-          animation="quick"
-          elevation={4}
-        >
-          <MaterialIcons name="add" color="white" size={24} />
-        </Button>
+        {/* Floating Action Button - Only show on mobile/tablet */}
+        {!isWeb && (
+          <Button
+            onPress={() => setIsModalVisible(true)}
+            position="absolute"
+            bottom={32}
+            right={24}
+            zIndex={1000}
+            size="$5"
+            circular
+            backgroundColor={primaryColor}
+            pressStyle={{ scale: 0.95 }}
+            animation="quick"
+            shadowColor={primaryColor}
+            shadowOffset={{ width: 0, height: 4 }}
+            shadowOpacity={0.3}
+            shadowRadius={8}
+            elevation={8}
+          >
+            <MaterialIcons name="add" color="white" size={28} />
+          </Button>
+        )}
 
+        {/* Dev Buttons */}
         {__DEV__ && (
-          <XStack position='absolute' bottom={32} left={24} gap='$2' zIndex={1000}>
+          <XStack position='absolute' bottom={32} left={24} gap='$3' zIndex={1000}>
             <Button
               size='$4'
               circular
-              bg='#00AAFF'
+              backgroundColor='#3b82f6'
               pressStyle={{ scale: 0.95 }}
               animation='quick'
+              shadowColor='#3b82f6'
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.3}
+              shadowRadius={4}
               elevation={4}
               onPress={loadDevVaultEntries}
               icon={<MaterialIcons name="storage" color='#FFF' size={20} />}
@@ -237,9 +283,13 @@ export default function VaultScreen() {
             <Button
               size='$4'
               circular
-              bg='#FF5555'
+              backgroundColor='#ef4444'
               pressStyle={{ scale: 0.95 }}
               animation='quick'
+              shadowColor='#ef4444'
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={0.3}
+              shadowRadius={4}
               elevation={4}
               onPress={deleteAllVaultEntries}
               icon={<MaterialIcons name="delete" color='#FFF' size={20} />}

@@ -32,7 +32,6 @@ interface RegistryState {
   setStocksLastUpdated: (timestamp: number) => void;
   checkNotificationStatus: () => void; 
   getAllStoreStates: () => Record<string, any>;
-  exportStateToFile: () => Promise<string | null>;
   hydrateAll: (data: Record<string, any>) => void;
   syncOnboardingWithUser: () => void;
   setWorkspaceId: (id: string | null) => void;
@@ -160,66 +159,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       };
     },
 
-    exportStateToFile: async () => {
-      const isPremium = useUserStore.getState().preferences.premium === true;
-      if (!isPremium) return null;
-      const now = Date.now();
-      const lastSync = get().lastSyncAttempt;
-      addSyncLog('🔄 Starting export', 'info', `Last sync: ${lastSync}ms ago`);
-
-      if (now - lastSync < 2000) { 
-        return null;
-      }
-    
-      set({ syncStatus: 'syncing' });
-      try {
-    // Replace the diagnostic block in exportStateToFile:
-    const allTasks = useTaskStore.getState().tasks;
-    const pruneCandidates = Object.values(allTasks)
-      .filter(task => {
-        // Only one-time tasks that are completed
-        if (task.recurrencePattern !== 'one-time' || !task.completed) return false;
-        
-        // Find when it was completed
-        const completionDates = Object.entries(task.completionHistory || {})
-          .filter(([_, completed]) => completed)
-          .map(([date]) => date);
-        
-        return completionDates.length > 0;
-      })
-      .map(task => {
-        // Get the most recent completion date
-        const completionDates = Object.entries(task.completionHistory || {})
-          .filter(([_, completed]) => completed)
-          .map(([date]) => date)
-          .sort();
-        
-            const lastCompleted = completionDates[completionDates.length - 1];
-            const daysAgo = Math.floor((Date.now() - new Date(lastCompleted).getTime()) / (1000 * 60 * 60 * 24));
-            
-            return { task, daysAgo, lastCompleted };
-          })
-          .sort((a, b) => b.daysAgo - a.daysAgo) // Oldest completed first
-          .slice(0, 10);
-
-        pruneCandidates.forEach(({ task, daysAgo }) => {
-          addSyncLog(`🪓 chopping block? – "${task.name}" – completed ${daysAgo}d ago`, "warning");
-        });
-
-        addSyncLog(`🪓 prune preview complete – ${pruneCandidates.length} candidates (one-time tasks completed >7d ago would be ideal targets)`, "info");
-                const states = get().getAllStoreStates();
-        const uri = await exportEncryptedState(states);
-    
-        set({ syncStatus: 'idle', lastSyncAttempt: now });
-        addSyncLog('✅ Export complete', 'success');
-        return uri;
-      } catch (e) {
-        set({ syncStatus: 'error' });
-        addSyncLog(`❌ Export failed: ${(e as Error).message}`, 'error');
-        return null;
-      }
-    },
-    
     
     syncOnboardingWithUser: () => {
       // Keep registry and user store onboarding flags in sync

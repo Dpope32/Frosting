@@ -57,16 +57,18 @@ export const VaultCard = ({
       {isWeb ? (
         <XStack
           px="$5"
-          pt="$2"
+          py="$2"
           br="$4"
           ai="center"
           animation="quick"
           width={columnWidthWeb}
-          minWidth={300}
-          maxWidth={400}
-          height={120}
+          minWidth={350}
+          maxWidth={500}
+          height={100}
           position="relative"
           overflow="hidden"
+          borderWidth={1}
+          borderColor={isDark ? '#333' : '#e0e0e0'}
           hoverStyle={{
             transform: [{ scale: 1.02 }],
             borderColor: primaryColor,
@@ -86,29 +88,9 @@ export const VaultCard = ({
             }}
           />
           <YStack flex={1}>
-            <XStack jc="space-between" ai="center" mt="$1" mb="$2">
+            <XStack jc="space-between" ai="center" mb="$1">
               <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 24 : 20} fontWeight="bold" fontFamily="$body">
                 {cred.name}
-              </Text>
-            </XStack>
-
-            <XStack ai="center" gap={ "$2"} mb={isWeb ? 0 : "$2"}>
-              {!isIpad() && (
-                <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" w={70} fontFamily="$body">
-                  Username:
-                </Text>
-              )}
-              <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
-                {cred.username}
-              </Text>
-            </XStack>
-
-            <XStack ai="center" gap={"$2"} mb="$2">
-              <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
-                Password:
-              </Text>
-              <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
-                {visiblePasswords[cred.id] ? cred.password : '••••••••'}
               </Text>
               <Button
                 size="$3"
@@ -127,20 +109,40 @@ export const VaultCard = ({
                 }
               />
             </XStack>
+
+            <XStack ai="center" gap="$2" mb="$1">
+              {!isIpad() && (
+                <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+                  Username:
+                </Text>
+              )}
+              <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+                {cred.username}
+              </Text>
+            </XStack>
+
+            <XStack ai="center" gap="$2">
+              <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+                Password:
+              </Text>
+              <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+                {visiblePasswords[cred.id] ? cred.password : '••••••••'}
+              </Text>
+            </XStack>
           </YStack>
         </XStack>
       ) : (
         <XStack
-          p={isIpad() ? "$2" : "$1.5"}
+          p={isIpad() ? "$1.5" : "$1"}
           px={isWeb ? "$3.5" : isIpad() ? "$1" : "$4"}
           pl={isWeb ? "$3" : isIpad() ? "$2.5" : "$4"}
           br="$4"
           borderWidth={1}
           w={isIpad() ? "99%" : "100%"}
-          borderColor={isDark ? '#777' : '#9c9c9c'}
+          borderColor={isDark ? '#333' : '#e0e0e0'}
           ai="center"
           animation="quick"
-          py={isIpad() ? "$3.5" : "$2.5"}
+          py={isIpad() ? "$2" : "$1.5"}
           position="relative"
           overflow="hidden"
         >
@@ -154,7 +156,7 @@ export const VaultCard = ({
             }}
           />
           <YStack flex={1}>
-            <XStack jc="space-between" px={isIpad() ? "$2.5" : "$1"} mb={isIpad() ? "$1.5" : "$1"} ai="center" mt={isIpad() ? "$-1" : 0}>
+            <XStack jc="space-between" px={isIpad() ? "$2.5" : "$1"} mb={isIpad() ? "$1" : "$0.5"} ai="center">
               <Text color={isDark ? '#f6f6f6' : '#222'} fontSize="$4" fontWeight="bold" fontFamily="$body">
                 {cred.name}
               </Text>
@@ -173,7 +175,7 @@ export const VaultCard = ({
               />
             </XStack>
 
-            <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$2" : 6}>
+            <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$1" : 4}>
               {!isIpad() && (
                 <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
                   Username:
@@ -184,14 +186,13 @@ export const VaultCard = ({
               </Text>
             </XStack>
 
-            <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$1" : 4}>
+            <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3">
               <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
                 Password:
               </Text>
               <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
                 {visiblePasswords[cred.id] ? cred.password : '••••••••'}
               </Text>
-
             </XStack>
           </YStack>
         </XStack>

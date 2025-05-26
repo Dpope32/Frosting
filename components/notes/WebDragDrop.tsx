@@ -201,7 +201,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   };
 
   const itemStackProps: StackProps = {
-    flexBasis: `${95 / numColumns}%`,
+    flexBasis: `${90 / numColumns}%`,
     marginBottom: 16,
   };
 

@@ -202,7 +202,6 @@ const createTaskFilter = () => {
   let lastShowNBAGameTasks: boolean | null = null; 
   let lastResult: Task[] | null = null;
 
-  
   return (tasks: Record<string, Task>): Task[] => {
     const currentDate = new Date();
     const dateStr = currentDate.toISOString().split('T')[0];
@@ -219,6 +218,7 @@ const createTaskFilter = () => {
       );
     }
 
+    // Only cache if same day AND same tasks reference
     if (
       lastToday === dateStr &&
       lastTasks === tasks &&
@@ -230,28 +230,45 @@ const createTaskFilter = () => {
 
     lastToday = dateStr;
     lastTasks = tasks;
-   // lastShowNBAGameTasks = currentShowNBAGameTasks; // Update preference cache
+    // lastShowNBAGameTasks = currentShowNBAGameTasks; // Check preference cache
 
-    // Update completion status for recurring tasks based on local date
-    // 🚨 CRITICAL: This mutates the original task objects during filtering!
-    // This can cause sync conflicts when the mutated state gets synced
-    Object.values(tasks).forEach(task => {
+    // Create task copies with updated completion status instead of mutating originals
+    const tasksWithUpdatedCompletion = Object.values(tasks).map(task => {
       if (task.recurrencePattern !== 'one-time') {
         const newCompletedState = task.completionHistory[currentDateStrLocal] || false;
-        task.completed = newCompletedState;
         if (newCompletedState && !task.name.includes('$') && !task.name.includes('"')) {
-          addSyncLog(`[Filter Mutation] '${task.name.slice(0, 20)}': setting completed=${newCompletedState} based on today's history`, 'verbose');
+          addSyncLog(`[Filter Update] '${task.name.slice(0, 20)}': completion=${newCompletedState} based on today's history`, 'verbose');
         }
+        
+        // Return a copy with updated completion status instead of mutating original
+        return {
+          ...task,
+          completed: newCompletedState
+        };
       }
-    })
-    
-    // Filter tasks that are due today
-    const filtered = Object.values(tasks).filter(task => {
-      const isDue = isTaskDue(task, currentDate);
-      return isDue;
+      return task;
     });
     
-
+    // Filter tasks that are due today
+    const filtered = tasksWithUpdatedCompletion.filter(task => {
+      const isDue = isTaskDue(task, currentDate);
+      
+      // Additional debug logging for tomorrow tasks
+      if (task.recurrencePattern === 'tomorrow' && !task.name.includes('$')) {
+        addSyncLog(
+          `[FILTER CHECK] "${task.name.slice(0, 25)}" (tomorrow) - isDue: ${isDue}`,
+          'verbose',
+          `Created: ${new Date(task.createdAt).toISOString().split('T')[0]} | Today: ${dateStr} | Should show: ${isDue}`
+        );
+      }
+      
+      return isDue;
+    });
+    addSyncLog(
+      `[POST-FILTER] ${filtered.length} tasks after filtering`,
+      'verbose', 
+      `Tomorrow tasks in filtered result: ${filtered.filter(t => t.recurrencePattern === 'tomorrow').map(t => `"${t.name.slice(0, 20)}" (${t.id.slice(-8)})`).join(', ')}`
+    );
     // Sort tasks - completed tasks go to the bottom
     const sorted = [...filtered].sort((a, b) => {
       // First sort by completion status
@@ -271,6 +288,16 @@ const createTaskFilter = () => {
       const bPriority = priorityOrder[b.priority] ?? 99;
       return aPriority - bPriority;
     });
+    
+    // Additional logging for tomorrow tasks in final result
+    const tomorrowTasksInResult = sorted.filter(t => t.recurrencePattern === 'tomorrow');
+    if (tomorrowTasksInResult.length > 0) {
+      addSyncLog(
+        `[FILTER RESULT] ${tomorrowTasksInResult.length} tomorrow tasks in final result`,
+        'warning',
+        tomorrowTasksInResult.map(t => `"${t.name.slice(0, 20)}" (created: ${new Date(t.createdAt).toISOString().split('T')[0]})`).join(', ')
+      );
+    }
     
     lastResult = sorted;
     return sorted;

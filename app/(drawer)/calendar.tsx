@@ -167,7 +167,7 @@ export default function CalendarScreen() {
                 style={[
                   styles.webMonthWrapper,
                   isWeb && { 
-                    width: webColumnCount === 3 ? '30%' : 
+                    width: webColumnCount === 3 ? '32%' : 
                            webColumnCount === 2 ? '45%' : '80%' 
                   },
                   isIpadDevice && {
@@ -282,8 +282,8 @@ export default function CalendarScreen() {
         isDark={isDark}
         primaryColor={primaryColor}
       />
-
-
+      <CalendarAnalytics visible={debugModalVisible}  onClose={closeDebugModal} debugData={debugData} isDark={isDark}/>
+      <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} webColumnCount={webColumnCount} />
     </View>
   );
 }

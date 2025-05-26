@@ -203,7 +203,7 @@ export default function ProjectsScreen() {
         animation="quick"
         elevation={4}
       >
-        <Plus color="white" size={24} />
+        <MaterialIcons name="add" color="white" size={24} />
       </Button>
 
       <AddProjectModal open={isModalOpen} isDark={isDark} onOpenChange={handleCloseModal} />
