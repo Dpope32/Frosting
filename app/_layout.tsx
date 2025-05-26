@@ -32,6 +32,7 @@ import { pushSnapshot, pullLatestSnapshot, } from '@/sync/snapshotPushPull';
 import { useProjectStore as useTaskStore } from '@/store/ToDo';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { handleDeepLink } from '@/services/notifications/deepLinkHandler';  
+import { initializePremiumService } from '@/services';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -165,18 +166,28 @@ export default Sentry.wrap(function RootLayout() {
 
   const hasCompletedOnboarding = useUserStore(state => state.preferences.hasCompletedOnboarding);
 
+  // Initialize premium service
+  useEffect(() => {
+    if (loaded) {
+      initializePremiumService();
+    }
+  }, [loaded]);
+
+  // Enhanced app state change handler that considers premium status changes
   useEffect(() => {
     if (!loaded) return;
 
-    const isPremium = useUserStore.getState().preferences.premium === true;
-    if (!isPremium) return;
-
     const handleAppStateChange = async (nextAppState: string) => {
       const currentSyncStatus = useRegistryStore.getState().syncStatus;
+      const isPremium = useUserStore.getState().preferences.premium === true;
+      
       if (currentSyncStatus === 'syncing' && (nextAppState === 'active' || nextAppState === 'background' || nextAppState === 'inactive')) {
         addSyncLog(`🔄 Sync already in progress (${currentSyncStatus}), skipping AppState change for ${nextAppState}.`, 'verbose');
         return;
       }
+
+      // Only proceed if user is premium (either was premium or just became premium)
+      if (!isPremium) return;
 
       try {
         if (nextAppState === 'active') {

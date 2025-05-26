@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react'
 import { useColorScheme, Alert, Platform } from 'react-native'
-import { YStack, XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
+import {  XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
 import { TaskCategory } from '@/types'
 import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon, getDarkerColor, isIpad } from '@/utils'
 import { useCustomCategoryStore, useUserStore, useToastStore } from '@/store'
@@ -21,7 +21,6 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   const customCategories = useCustomCategoryStore((s) => s.categories)
   const addCategory = useCustomCategoryStore((s) => s.addCategory)
   const removeCategoryFromStore = useCustomCategoryStore((s) => s.removeCategory)
-  const getCategoryByName = useCustomCategoryStore((s) => s.getCategoryByName)
   const deleteDefaultCategory = useCustomCategoryStore((s) => s.deleteDefaultCategory)
   const isDefaultCategoryDeleted = useCustomCategoryStore((s) => s.isDefaultCategoryDeleted)
   const userColor = useUserStore((s) => s.preferences.primaryColor)
@@ -163,7 +162,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   };
 
   return (
-    <XStack pl={isIpad() ? 10 : 8} gap="$2" alignItems="center">
+    <XStack pl={isWeb ? 8 : isIpad() ? 10 : 8} gap="$2" alignItems="center">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}  fontFamily="$body" fontWeight="500">Category:</Text>
       {isAddingCategory ? (
         <XStack gap="$2" alignItems="center" py="$1">
@@ -266,13 +265,13 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                 </Button>
               )
             })}
-            <XStack alignItems="center">
+            <XStack alignItems="center" justifyContent="center" alignSelf="center" alignContent="center">
               <Button
                 onPress={toggleAddCategory}
                 key="start-add-category"
                 size="$2"
                 circular
-                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#5a5a5a" : "$gray11"} />}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}
                 borderColor={isDark ? "$gray7" : "$gray8"}

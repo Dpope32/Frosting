@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React from 'react'
 import { Pressable, View, Switch } from 'react-native'
-import { XStack, YStack, Text } from 'tamagui'
+import { XStack, YStack, Text, isWeb } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
 import { NOTIFICATION_TIME_OPTIONS } from '@/constants'
@@ -34,9 +34,9 @@ export function AlertMeSelector({
   const textColor = isDark ? '#ffffff' : '#000000'
 
   return (
-    <YStack space={isIpad() ? '$2' : '$1'} pl={12} mt="$2" pb="$3">
+    <YStack gap={isWeb ? 24 : isIpad() ? '$2' : '$1'} pl={isWeb ? 6 : isIpad() ? 12 : 12} mt={isWeb ? 16 : "$2"} pb="$3">
       <XStack alignItems="center" justifyContent="space-between">
-        <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}>
+        <Text fontWeight="600" fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isWeb ? 15 : isIpad() ? 17 : 15}>
           Notify at task time
         </Text>
         <Switch
@@ -48,7 +48,7 @@ export function AlertMeSelector({
       </XStack>
 
       <XStack alignItems="center" justifyContent="space-between">
-        <Text fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}>
+        <Text fontWeight="600" fontFamily="$body" color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isWeb ? 15 : isIpad() ? 17 : 15}>
           Notify before task
         </Text>
         <Switch

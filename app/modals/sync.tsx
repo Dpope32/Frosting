@@ -1,6 +1,6 @@
 // app/modals/sync.tsx
 import React, { useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert, ScrollView } from 'react-native'
+import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, YStack, XStack, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -16,7 +16,8 @@ import { addSyncLog, clearLogQueue, LogEntry, getColors, baseSpacing, PremiumLog
 import SyncTable from '@/components/sync/syncTable'
 import NeedsWorkspace from '@/components/sync/needsWorkspace'
 import { leaveWorkspace } from '@/sync/leaveWorkspace'
-
+import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
+import { AUTHORIZED_USERS } from '@/constants'
 // Prevent multiple wrappers of fetch during hot reload
 if (!(global as any)._syncFetchWrapped) {
   const originalFetch = global.fetch
@@ -83,10 +84,21 @@ export default function SyncScreen() {
   const [syncLogs, setSyncLogs] = useState<LogEntry[]>([])
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({})
   const premium = useUserStore((s) => s.preferences.premium === true)
+  const username = useUserStore((s) => s.preferences.username || '')
+  
+  // Calculate syncAccess directly in the component for better reactivity
+  const syncAccess = React.useMemo(() => {
+    if (premium) return 'premium';
+    if (username && AUTHORIZED_USERS.includes(username.trim())) return 'authorized';
+    return 'none';
+  }, [premium, username]);
+
+  const shouldShowSyncTable = syncAccess !== 'none';
+
   const [premiumLoaded, setPremiumLoaded] = useState(false)
   const { width } = useWindowDimensions()
   const colors = getColors(isDark, primaryColor)
-  const contentWidth = Math.min(width - baseSpacing * 2, isIpad() ? 450 : 350)
+  const contentWidth = isWeb ? width - baseSpacing * 2 : Math.min(width - baseSpacing * 2, isIpad() ? 450 : 350)
   const syncStatus = useRegistryStore((s) => s.syncStatus)
   const { deviceId } = useDeviceId(premium)
   const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
@@ -156,6 +168,14 @@ export default function SyncScreen() {
     useRegistryStore.getState().setSyncStatus('idle')
   }, [setWorkspaceId])
 
+  const handleSignUp = React.useCallback(async () => {
+    try {
+      await Linking.openURL('https://deedaw.cc');
+    } catch (error) {
+      useToastStore.getState().showToast('Failed to open signup page', 'error');
+    }
+  }, []);
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.bg }]}
@@ -177,27 +197,39 @@ export default function SyncScreen() {
           </Text>
         </XStack>
 
-        <XStack alignItems="center" justifyContent="center" marginBottom={premium && !workspaceId ? -baseSpacing : baseSpacing}>
-          <SyncTable
-            isDark={isDark}
-            primaryColor={primaryColor}
-            syncStatus={syncStatus}
-            currentSpaceId={workspaceId || ''}
-            inviteCode={inviteCode}
-            onCopyInviteCode={async () => {
-              if (!inviteCode) return;
-              await Clipboard.setStringAsync(inviteCode);
-              useToastStore.getState().showToast('Invite code copied', 'success');
-            }}
-            onCopyCurrentSpaceId={async () => {
-              if (!workspaceId) return;
-              await Clipboard.setStringAsync(workspaceId);
-              useToastStore.getState().showToast('Current space ID copied', 'success');
-            }}
-            onLeaveWorkspace={handleLeaveWorkspace}
-          />
-        </XStack>
-        {showAddDevice && (
+     
+        {shouldShowSyncTable ? (
+          <XStack alignItems="center" justifyContent="center" marginBottom={premium && !workspaceId ? -baseSpacing : baseSpacing}>
+            <SyncTable
+              isDark={isDark}
+              primaryColor={primaryColor}
+              syncStatus={syncStatus}
+              currentSpaceId={workspaceId || ''}
+              inviteCode={inviteCode}
+              onCopyInviteCode={async () => {
+                if (!inviteCode) return;
+                await Clipboard.setStringAsync(inviteCode);
+                useToastStore.getState().showToast('Invite code copied', 'success');
+              }}
+              onCopyCurrentSpaceId={async () => {
+                if (!workspaceId) return;
+                await Clipboard.setStringAsync(workspaceId);
+                useToastStore.getState().showToast('Current space ID copied', 'success');
+              }}
+              onLeaveWorkspace={handleLeaveWorkspace}
+            />
+          </XStack>
+        ) : (
+          <XStack alignItems="center" justifyContent="center" marginBottom={baseSpacing}>
+            <NonPremiumUser
+              colors={colors}
+              contentWidth={contentWidth}
+              onSignUp={handleSignUp}
+            />
+          </XStack>
+        )}
+
+        {shouldShowSyncTable && showAddDevice && (
         <AddDeviceModal
           onClose={() => {
             setShowAddDevice(false)
@@ -210,7 +242,7 @@ export default function SyncScreen() {
         />
       )}
         
-        {premium && !workspaceId && premiumLoaded && (
+        {shouldShowSyncTable && premium && !workspaceId && premiumLoaded && (
           <NeedsWorkspace
             isDark={isDark}
             onPressCreate={() => {
@@ -224,7 +256,7 @@ export default function SyncScreen() {
           />
         )}
 
-        {premium && (
+        {shouldShowSyncTable && premium && (
           <XStack
             alignItems="center"
             justifyContent="center"

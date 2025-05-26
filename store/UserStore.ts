@@ -3,12 +3,14 @@ import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { UserPreferences } from '@/types'
 import * as Sentry from '@sentry/react-native';
+import { AUTHORIZED_USERS } from '@/constants';
 
 interface UserStore {
   preferences: UserPreferences;
   setPreferences: (prefs: Partial<UserPreferences>) => void;
   clearPreferences: () => void;
   hydrated: boolean;
+  get syncAccess(): string;
 }
 
 export const defaultPreferences: UserPreferences = {
@@ -30,7 +32,7 @@ export const defaultPreferences: UserPreferences = {
 
 export const useUserStore = create<UserStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       preferences: defaultPreferences,
       hydrated: false,
       setPreferences: (newPrefs) => {
@@ -45,6 +47,15 @@ export const useUserStore = create<UserStore>()(
         set({
           preferences: defaultPreferences,
         }),
+      get syncAccess() {
+        const state = get();
+        const premium = state.preferences.premium === true;
+        const username = state.preferences.username || '';
+        
+        if (premium) return 'premium';
+        if (AUTHORIZED_USERS.includes(username.trim())) return 'authorized';
+        return 'none';
+      }
     }),
     {
       name: 'user-preferences',

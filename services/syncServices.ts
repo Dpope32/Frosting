@@ -20,13 +20,16 @@ export const isTaskDueOnDate = (task: Task, date: Date): boolean => {
   
   // For tomorrow tasks, check if the date is the day after creation
   if (task.recurrencePattern === 'tomorrow') {
+    // Get the creation date and add one day, both in local time
     const creationDate = new Date(task.createdAt);
     const nextDay = new Date(creationDate);
     nextDay.setDate(nextDay.getDate() + 1);
     
-    return date.getDate() === nextDay.getDate() && 
-           date.getMonth() === nextDay.getMonth() && 
-           date.getFullYear() === nextDay.getFullYear();
+    // Compare using local date strings to avoid timezone issues
+    const targetDateString = format(date, 'yyyy-MM-dd');
+    const nextDayString = format(nextDay, 'yyyy-MM-dd');
+    
+    return targetDateString === nextDayString;
   }
   
   // Get the day name (sunday, monday, etc.)

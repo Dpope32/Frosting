@@ -51,7 +51,7 @@ export default function SyncTable({
   const setPreferences = useUserStore((state) => state.setPreferences);
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
-  const contentWidth = isIpad() ? Math.min(width - baseSpacing * 2, 600) : Math.min(width - baseSpacing * 2, 350);
+  const contentWidth = isWeb ? width * 0.7025 : isIpad() ? Math.min(width - baseSpacing * 2, 600) : Math.min(width - baseSpacing * 2, 350);
   const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
   const toggleBillSync = useBillStore((state) => state.toggleBillSync);
   const isVaultSyncEnabled = useVaultStore((state) => state.isSyncEnabled);

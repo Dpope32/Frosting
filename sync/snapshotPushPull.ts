@@ -17,8 +17,11 @@ import { checkNetworkConnectivity, getPocketBase } from "./pocketSync";
 import { getCurrentWorkspaceId } from "./getWorkspace";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { getWorkspaceKey } from "./workspaceKey";
+import { Platform } from 'react-native';
 let lastExport = 0;
 let dirtyAfterPush = false;           // <— new flag
+
+const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
 
 // ————————————————————— PUSH ——————————————————————
 export const pushSnapshot = async (): Promise<void> => {
@@ -71,9 +74,24 @@ export const pushSnapshot = async (): Promise<void> => {
       addSyncLog('⏸️  export skipped – <10 s since last', 'verbose');
     }
 
-    const cipher = await FileSystem.readAsStringAsync(
-      `${FileSystem.documentDirectory}stateSnapshot.enc`
-    );
+    // Web compatibility: read from localStorage instead of FileSystem
+    let cipher: string;
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        cipher = window.localStorage.getItem(WEB_SNAPSHOT_KEY) || '';
+        if (!cipher) {
+          addSyncLog('No snapshot found in localStorage', 'warning');
+          return;
+        }
+      } else {
+        addSyncLog('localStorage not available on web', 'error');
+        return;
+      }
+    } else {
+      cipher = await FileSystem.readAsStringAsync(
+        `${FileSystem.documentDirectory}stateSnapshot.enc`
+      );
+    }
 
     await pb.collection('registry_snapshots').create({
       workspace_id: workspaceId,
@@ -150,11 +168,17 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
 
     // keep local copy so future pushes have baseline
-    await FileSystem.writeAsStringAsync(
-      `${FileSystem.documentDirectory}stateSnapshot.enc`,
-      cipher,
-      { encoding: FileSystem.EncodingType.UTF8 }
-    );
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(WEB_SNAPSHOT_KEY, cipher);
+      }
+    } else {
+      await FileSystem.writeAsStringAsync(
+        `${FileSystem.documentDirectory}stateSnapshot.enc`,
+        cipher,
+        { encoding: FileSystem.EncodingType.UTF8 }
+      );
+    }
 
     useRegistryStore.getState().hydrateAll(plain);
     addSyncLog(`✅ Snapshot pulled & stores hydrated  ${runId} – pull done`, 'success');

@@ -1,5 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants';
+import { isWeb } from 'tamagui';
 import { isIpad } from '@/utils';
 const { width } = Dimensions.get('window');
 
@@ -30,7 +31,7 @@ export const styles = StyleSheet.create({
     fontFamily: '$body',
     borderRadius: 8,
     paddingHorizontal: 16,
-    fontSize: isIpad() ? 17 : 15,
+    fontSize: isWeb ? 17 : isIpad() ? 17 : 15,
   },
   imagePickerButton: {
     width: width * 0.4,

@@ -65,10 +65,7 @@ export default function TemperatureScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const insets = useSafeAreaInsets();
-
-
   const todayForecast = forecastPeriods && forecastPeriods.length > 0 ? forecastPeriods[0] : null;
-
   if (!forecastPeriods || forecastPeriods.length === 0 || !todayForecast) {
     return (
       <Stack 
@@ -93,7 +90,7 @@ export default function TemperatureScreen() {
       <ScrollView 
         contentContainerStyle={{ 
           paddingBottom: insets.bottom + 20,
-          paddingTop: isIpad() ? insets.top + 50: insets.top
+          paddingTop: isWeb ? insets.top + 30 : isIpad() ? insets.top + 50: insets.top
         }}
         showsVerticalScrollIndicator={false}
       >
@@ -125,7 +122,7 @@ export default function TemperatureScreen() {
             <TodayForecast isDark={isDark} todayPrecipitation={todayPrecipitation} />
           )}
 
-          <YStack mt="$3" gap="$3" paddingHorizontal="$4">
+          <YStack mt="$3" gap="$3" paddingHorizontal={isWeb ? 200 : "$4"}>
             <DailyForecasts isDark={isDark} />
           </YStack>
         </YStack>

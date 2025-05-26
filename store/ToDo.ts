@@ -236,8 +236,10 @@ const createTaskFilter = () => {
     const tasksWithUpdatedCompletion = Object.values(tasks).map(task => {
       if (task.recurrencePattern !== 'one-time') {
         const newCompletedState = task.completionHistory[currentDateStrLocal] || false;
-        if (newCompletedState && !task.name.includes('$') && !task.name.includes('"')) {
-          addSyncLog(`[Filter Update] '${task.name.slice(0, 20)}': completion=${newCompletedState} based on today's history`, 'verbose');
+        const oldCompletedState = task.completed;
+        
+        if (newCompletedState !== oldCompletedState && !task.name.includes('$') && !task.name.includes('"')) {
+          addSyncLog(`[Filter Update] '${task.name.slice(0, 20)}': completion=${oldCompletedState}→${newCompletedState} based on today's history`, 'verbose');
         }
         
         // Return a copy with updated completion status instead of mutating original
@@ -527,24 +529,45 @@ export const useProjectStore = create<ProjectStore>()(
           const resolvedCompleted = (() => {
             if (inc.recurrencePattern === 'one-time') {
               // ONE-TIME TASKS: Once completed anywhere, stay completed everywhere
-              const resolved = curr.completed || inc.completed || mergedHistory[today] || false;
+              const localCompleted = curr.completed;
+              const syncCompleted = inc.completed;
+              const historyCompleted = mergedHistory[today] || false;
+              const resolved = localCompleted || syncCompleted || historyCompleted;
               
-              // Log when we're resolving a completion conflict (one device thinks it's done, other doesn't)
-              // Only log if we're actually changing the state due to merge logic
-              if (resolved && !(curr.completed && inc.completed)) {
+              // Log the resolution decision with source tracking
+              if (resolved) {
+                const sources = [];
+                if (localCompleted) sources.push('local=true');
+                if (syncCompleted) sources.push('sync=true');
+                if (historyCompleted) sources.push('history=true');
+                
                 addSyncLog(
-                  `[Resolved Completion] '${inc.name.slice(0, 24)}': marked complete due to merge logic (curr=${curr.completed}, inc=${inc.completed})`,
-                  'info'
+                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=true (${sources.join(', ')})`,
+                  'info',
+                  `Task will remain completed. Sources: ${sources.join(' | ')} | Task ID: ${id.slice(-8)}`
+                );
+              } else {
+                addSyncLog(
+                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=false (local=false, sync=false, history=false)`,
+                  'verbose'
                 );
               }
-          
+              
               return resolved;
             }
-          
+        
             // RECURRING TASKS: Completion is date-specific, check today's merged history first
-            // For recurring tasks, we care about TODAY's completion status specifically
-            // mergedHistory[today] takes precedence over curr.completed for date accuracy
-            return !!(mergedHistory[today] || curr.completed);
+            const resolved = !!(mergedHistory[today] || curr.completed);
+            
+            // Log recurring task resolution if there's a conflict
+            if (curr.completed !== inc.completed) {
+              addSyncLog(
+                `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (local=${curr.completed}, sync=${inc.completed}, today_history=${!!mergedHistory[today]})`,
+                'verbose'
+              );
+            }
+            
+            return resolved;
           })();
           
           // SYNC DEBUGGING: Log completion state changes for troubleshooting sync conflicts
@@ -646,13 +669,13 @@ export const useProjectStore = create<ProjectStore>()(
           if (needsMigration) {
             state.tasks = tasks
           }
-          addSyncLog(`Rehydrated tasks store after migration`, 'info', useStoreTasks().length.toString());
+          addSyncLog(`Rehydrated tasks store after migration`, 'info', Object.keys(state.tasks).length.toString());
           state.hydrated = true
           const todaysTasks = taskFilter(state.tasks)
           state.todaysTasks = todaysTasks
         } else {
           useProjectStore.setState({ hydrated: true })
-          addSyncLog(`Rehydrated tasks store`, 'info', useStoreTasks().length.toString());
+          addSyncLog(`Rehydrated tasks store`, 'info', '0');
         }
       }
     }

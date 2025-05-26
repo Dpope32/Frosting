@@ -168,7 +168,7 @@ export default function CalendarScreen() {
                   styles.webMonthWrapper,
                   isWeb && { 
                     width: webColumnCount === 3 ? '32%' : 
-                           webColumnCount === 2 ? '45%' : '80%' 
+                           webColumnCount === 2 ? isWeb ? '47%' : '45%' : '80%' 
                   },
                   isIpadDevice && {
                     width: webColumnCount === 2 ? '49%' : '94%',

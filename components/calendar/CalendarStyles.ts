@@ -60,7 +60,7 @@ export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
     margin: webColumnCount === 1
       ? 0
       : webColumnCount === 2
-        ? isWeb ? 20 : 0
+        ? isWeb ? 10 : 0
         : webColumnCount === 3 && Platform.OS === 'web'
           ? 0
           : webColumnCount === 3

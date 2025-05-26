@@ -28,7 +28,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     borderBottomColor: isDark ? '#333' : '#E8E8E8',
   },
   monthText: {
-    fontSize: webColumnCount === 1 ? isWeb? 26 : isIpad() ? 22 : 20 : (webColumnCount === 2 ? isWeb? 24 : isIpad() ? 18 : 20 : 16),
+    fontSize: webColumnCount === 1 ? isWeb? 26 : isIpad() ? 22 : 20 : (webColumnCount === 2 ? isWeb? 22 : isIpad() ? 18 : 20 : 16),
     fontWeight: '600',
     color: isDark ? '#FFF' : '#222'
   },
@@ -101,7 +101,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     justifyContent: 'center',
   },
   holidayText: {
-    fontSize: webColumnCount === 3 ? 7 : webColumnCount === 1 ? (isWeb ? 11 : 7) : (webColumnCount === 2 ? (isWeb ? 8 : 6) : 8),
+    fontSize: webColumnCount === 3 ? 7 : webColumnCount === 1 ? (isWeb ? 13 : 7) : (webColumnCount === 2 ? (isWeb ? 10 : 6) : 8),
     color: isDark ? '#FFFFFF' : '#006400',
     textAlign: 'center',
     fontWeight: '500',
@@ -181,8 +181,8 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   eventIconText: {
     fontSize: webColumnCount === 1 
-      ? (Platform.OS === 'web' ? 11 : 7) 
-      : (webColumnCount === 2 ? (Platform.OS === 'web' ? 8 : 6) : 7),
+      ? (Platform.OS === 'web' ? 13 : 7) 
+      : (webColumnCount === 2 ? (Platform.OS === 'web' ? 10 : 6) : 7),
     textAlign: 'center',
     fontWeight: '500',
     width: '100%',

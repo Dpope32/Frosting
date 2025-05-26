@@ -42,8 +42,8 @@ const HourlyCarousel: React.FC = () => {
         ...(isWeb ? { width: '100%' } : {})
       }} 
       contentContainerStyle={{ 
-        paddingLeft: isIpad() ? 0 : 10, 
-        paddingRight: isIpad() ? 0 : 10,
+        paddingLeft: isWeb ? 0 : isIpad() ? 0 : 10, 
+        paddingRight: isWeb ? 0 : isIpad() ? 0 : 10,
         ...(isWeb ? {
           display: 'flex',
           flexDirection: 'row',
@@ -82,7 +82,7 @@ const HourlyCarousel: React.FC = () => {
             minWidth={isWeb ? (isIpad() ? 64 : 52) : (isIpad() ? 54 : 44)}
             style={{ shadowColor: isDark ? '#000' : '#bbb', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.13, shadowRadius: 3, elevation: 2 }}
           >
-            <Text color={isDark ? '#e0e6f7' : '#23243a'} my={1} fontSize={isIpad() ? 15 : 13} fontWeight="600" fontFamily="$body">
+            <Text color={isDark ? '#e0e6f7' : '#23243a'} my={1} fontSize={isWeb ? 15 : isIpad() ? 15 : 13} fontWeight="600" fontFamily="$body">
               {label}
             </Text>
             <Text mb={1} fontSize={isIpad() ? 28 : 22} style={iconColor ? { color: iconColor } : {}} fontFamily="$body">

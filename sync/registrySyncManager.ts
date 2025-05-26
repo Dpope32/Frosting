@@ -11,6 +11,8 @@ import { encryptSnapshot } from '@/lib/encryption';
 import * as FileSystem from 'expo-file-system';
 import CryptoJS from 'crypto-js';
 
+const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
+
 /**
  * Retrieves or generates a unique DEVICE-SPECIFIC sync key stored in AsyncStorage.
  * This key is used for device-level identification or encryption when not in a workspace context.
@@ -33,7 +35,9 @@ export const generateSyncKey = async (): Promise<string> => {
   }
   
   // If no stored ID (fallback), create a new one using your existing generateRandomKey function
-  const deviceInfo = Platform.OS + '-' + Platform.Version;
+  // Fix Platform.Version for web compatibility
+  const platformVersion = Platform.OS === 'web' ? 'browser' : Platform.Version;
+  const deviceInfo = Platform.OS + '-' + platformVersion;
   const timestamp = Date.now().toString(36);
   const randomKey = generateRandomKey(); // Use your existing function
   const newDeviceId = `${deviceInfo}-${timestamp}-${randomKey.substring(0, 12)}`.replace(/\s+/g, '-');
@@ -64,6 +68,11 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     const completedOneTimeTasks = tasks.filter((task: any) => 
       task.pattern === 'one-time' && task.completed === true
     );
+
+    if (!allStates.TaskStore.tasks) {
+      addSyncLog('No tasks found in TaskStore for some reason?', 'error');
+      throw new Error('No tasks found in TaskStore');
+    }
     
     addSyncLog(`🔍 Prune analysis: Found ${completedOneTimeTasks.length} completed one-time tasks`, 'info');
     
@@ -109,10 +118,21 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     const cipher = encryptSnapshot(allStates, key);
     const sha = CryptoJS.SHA256(cipher).toString().slice(0,8);
     //addSyncLog(`📦 Snapshot SHA ${sha}`, 'verbose');
-    const uri = `${FileSystem.documentDirectory}stateSnapshot.enc`;
-    await FileSystem.writeAsStringAsync(uri, cipher, {
-      encoding: FileSystem.EncodingType.UTF8,
-    });
+    
+    // Web compatibility: use localStorage instead of FileSystem
+    let uri: string;
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(WEB_SNAPSHOT_KEY, cipher);
+      }
+      uri = `web://localStorage/${WEB_SNAPSHOT_KEY}`;
+    } else {
+      uri = `${FileSystem.documentDirectory}stateSnapshot.enc`;
+      await FileSystem.writeAsStringAsync(uri, cipher, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+    }
+    
     Sentry.addBreadcrumb({
       category: 'sync',
       message: 'Encrypted state exported',

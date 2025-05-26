@@ -7,6 +7,10 @@ import { addSyncLog } from '@/components/sync/syncUtils';
 import { getCurrentWorkspaceId } from './getWorkspace';
 import { getWorkspaceKey } from './workspaceKey';
 import { generateSyncKey } from './registrySyncManager';
+import { Platform } from 'react-native';
+
+const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
+
 /**
  * Exports the entire registry snapshot, encrypts it, and writes to a file.
  * @param allStates The states from all stores to encrypt and export
@@ -32,17 +36,33 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       const cipher = encryptSnapshot(allStates, key);
       const sha = CryptoJS.SHA256(cipher).toString().slice(0,8);
       //addSyncLog(`📦 Snapshot SHA ${sha}`, 'verbose');
-      const uri = `${FileSystem.documentDirectory}stateSnapshot.enc`;
-      await FileSystem.writeAsStringAsync(uri, cipher, {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
-      Sentry.addBreadcrumb({
-        category: 'sync',
-        message: 'Encrypted state exported',
-        data: { uri },
-        level: 'info',
-      });
-      return uri;
+      
+      // Web compatibility: use localStorage instead of FileSystem
+      if (Platform.OS === 'web') {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem(WEB_SNAPSHOT_KEY, cipher);
+        }
+        const uri = `web://localStorage/${WEB_SNAPSHOT_KEY}`;
+        Sentry.addBreadcrumb({
+          category: 'sync',
+          message: 'Encrypted state exported to localStorage',
+          data: { uri },
+          level: 'info',
+        });
+        return uri;
+      } else {
+        const uri = `${FileSystem.documentDirectory}stateSnapshot.enc`;
+        await FileSystem.writeAsStringAsync(uri, cipher, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+        Sentry.addBreadcrumb({
+          category: 'sync',
+          message: 'Encrypted state exported',
+          data: { uri },
+          level: 'info',
+        });
+        return uri;
+      }
     } catch (err) {
       Sentry.captureException(err);
       Sentry.addBreadcrumb({

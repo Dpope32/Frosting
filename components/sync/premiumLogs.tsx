@@ -27,6 +27,7 @@ interface PremiumLogsProps {
   devices: any[];
   contentWidth: number;
   maxHeight?: number;
+  isExporting?: boolean;
 }
 
 export const PremiumLogs = ({
@@ -38,7 +39,8 @@ export const PremiumLogs = ({
   clearLogs,
   exportLogs,
   premium,
-  maxHeight
+  maxHeight,
+  isExporting = false,
 }: PremiumLogsProps) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -48,11 +50,11 @@ export const PremiumLogs = ({
   const scrollViewRef = useRef<ScrollView>(null);
   const { width } = useWindowDimensions();
   const wideMode = isWeb || isIpad();
-  
+  const webWidth = width ? width * 0.7025 : '100%';
   // Better responsive width calculation
   const adjustedContentWidth = useMemo(() => {
     if (isWeb) {
-      return Math.min(width - baseSpacing * 4, 700);
+      return webWidth;
     }
     if (isIpad()) {
       return Math.min(width - baseSpacing * 3, 600);
@@ -246,14 +248,18 @@ export const PremiumLogs = ({
             alignItems="center"
             flexShrink={0}
           >
-            <TouchableOpacity onPress={exportLogs}>
+            <TouchableOpacity 
+              onPress={exportLogs}
+              disabled={isExporting}
+              style={{ opacity: isExporting ? 0.5 : 1 }}
+            >
               <Text 
-                color={colors.accent} 
+                color={isExporting ? colors.subtext : colors.accent} 
                 fontFamily="$body" 
                 fontWeight="500" 
                 fontSize={wideMode ? 15 : 14}
               >
-                Export
+                {isExporting ? 'Exporting...' : 'Export'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={clearLogs}>

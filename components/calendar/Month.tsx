@@ -182,7 +182,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             birthday: false, birthdayName: '', personal: false, work: false, family: false, bill: false, billName: '',
             task: false, nba: false, holiday: false, holidayName: '', holidayColor: '', holidayIcon: '', teamCode: null, personalName: ''
           };
-
           const isToday = currentDate.toDateString() === new Date().toDateString();
           const isPastDate = currentDate < new Date(new Date().setHours(0, 0, 0, 0));
           const dayIndex = day + firstDayOfMonth - 1;
@@ -191,10 +190,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const isLastRow = rowIndex === totalRows - 1;
           const weekday = currentDate.getDay();
           const isWeekend = weekday === 0 || weekday === 6;
-
-          // For last row: leftmost and rightmost cell logic
           const isFirstCellInLastRow = isLastRow && (dayIndex % 7 === 0);
-          // The last cell in the last row is either the last day or the last trailing blank
           const isLastCellInLastRow = isLastRow && ((dayIndex % 7) === 6 || (day === daysInMonth && trailingBlanks.length === 0));
 
           return (

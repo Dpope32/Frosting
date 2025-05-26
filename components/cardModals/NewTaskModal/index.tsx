@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Platform, Keyboard, KeyboardEvent } from 'react-native'
-import { Form, ScrollView } from 'tamagui'
+import { Form, ScrollView, isWeb } from 'tamagui'
 import { format } from 'date-fns'
 import * as Haptics from 'expo-haptics'
 
@@ -53,7 +53,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const [showNotifyTimeOptions, setShowNotifyTimeOptions] = useState(false)
   const nameInputRef =  React.useRef<any>(null);
   const username = useUserStore((state) => state.preferences.username)
-  const [localTaskName, setLocalTaskName] = useState('')
 
   useAutoFocus(nameInputRef, 750, open);
 
@@ -69,7 +68,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setNotifyOnTime(false);
       setNotifyBefore(false);
       setNotifyBeforeTime('1h');
-      setLocalTaskName('');
     } else {
       setTimeout(() => {
         setShowTimePicker(false);
@@ -82,7 +80,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         setNotifyOnTime(false);
         setNotifyBefore(false);
         setNotifyBeforeTime('1h');
-        setLocalTaskName('');
       }, 200);
     }
   }, [open]);
@@ -217,7 +214,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const handleAddTask = useCallback(async () => {
     if (isSubmitting) return
     try {
-      if (!localTaskName.trim()) {
+      if (!newTask.name.trim()) {
         if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         showToast('Please enter a task name', 'error')
         return
@@ -231,7 +228,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setIsSubmitting(true)
       const taskToAdd = {
         ...newTask,
-        name: localTaskName.trim(),
+        name: newTask.name.trim(),
         schedule:
           newTask.recurrencePattern === 'one-time'
             ? []
@@ -298,7 +295,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     } finally {
       setIsSubmitting(false)
     }
-  }, [localTaskName, newTask, addTask, onOpenChange, showToast, isSubmitting, notifyOnTime, scheduleNotificationForTask])
+  }, [newTask, addTask, onOpenChange, showToast, isSubmitting, notifyOnTime, scheduleNotificationForTask])
 
   const handleTagChange = useCallback((tags: Tag[]) => {
     setNewTask(prev => ({ ...prev, tags }))
@@ -321,20 +318,20 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12} mt={isIpad() ? 0 : -4}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12} pt={isWeb ? 0 : isIpad() ? 0 : -4}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { borderWidth: 2, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.00)', color: isDark ? '#fff' : '#000' }]}
             placeholder={`What do you need to do ${username}?`} 
             placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
-            value={localTaskName}
+            value={newTask.name}
             fontSize={isIpad() ? 17 : 15}
             fontFamily={isIpad() ? '$body' : '$body'}
             width={isIpad() ? '90%' : '90%'}
             alignSelf="center"
-            onChangeText={setLocalTaskName}
-            onDebouncedChange={(value) => setNewTask(prev => ({ ...prev, name: value }))}
-            delay={150}
+            onChangeText={(value) => setNewTask(prev => ({ ...prev, name: value }))}
+            onDebouncedChange={() => {}}
+            delay={0}
           />
           <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
 

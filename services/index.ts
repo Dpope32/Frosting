@@ -35,6 +35,7 @@ export * from './customWallpaperService';
 export * from './greetingService';
 export * from './holidayService';
 export * from './crm/peopleService';
+export * from './premiumService';
 export * from './s3Service';
 export * from './crm/shareService';
 export * from './syncServices';

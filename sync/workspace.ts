@@ -4,6 +4,7 @@ import * as FileSystem from "expo-file-system";
 import { generateSyncKey, generateRandomKey, ensureWorkspaceKey, exportEncryptedState, pushSnapshot, pullLatestSnapshot } from "@/sync";
 import { useRegistryStore } from "@/store";
 import { storage } from "@/store/AsyncStorage";
+import { Platform } from "react-native";
 
 export interface WorkspaceMeta {
   id: string;
@@ -45,7 +46,15 @@ export const createOrJoinWorkspace = async (
       await pb.collection('sync_workspaces')
               .update(workspaceId, { 'device_ids+': deviceId });
     }
-    await FileSystem.writeAsStringAsync(`${FileSystem.documentDirectory}workspace_id.txt`, workspaceId);
+    
+    // Web compatibility: use localStorage instead of FileSystem
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem('workspace_id', workspaceId);
+      }
+    } else {
+      await FileSystem.writeAsStringAsync(`${FileSystem.documentDirectory}workspace_id.txt`, workspaceId);
+    }
 
     await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
     await Promise.all([pushSnapshot(), pullLatestSnapshot()]);
@@ -64,10 +73,18 @@ export const createOrJoinWorkspace = async (
   });
 
   await storage.set(`ws_key_${newWorkspace.id}`, sharedKey);
-  await FileSystem.writeAsStringAsync(
-    `${FileSystem.documentDirectory}workspace_id.txt`,
-    newWorkspace.id,
-  );
+  
+  // Web compatibility: use localStorage instead of FileSystem
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem('workspace_id', newWorkspace.id);
+    }
+  } else {
+    await FileSystem.writeAsStringAsync(
+      `${FileSystem.documentDirectory}workspace_id.txt`,
+      newWorkspace.id,
+    );
+  }
 
   await ensureWorkspaceKey(newWorkspace.id);
   await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());

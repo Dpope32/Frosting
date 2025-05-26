@@ -1,6 +1,6 @@
 import React from 'react'
 import { useColorScheme } from 'react-native'
-import { XStack, YStack, Text, Button, AnimatePresence } from 'tamagui'
+import { XStack, YStack, Text, Button, AnimatePresence, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
 import { CategorySelector } from './CategorySelector'
@@ -86,7 +86,7 @@ export function AdvancedSettings({
         width="100%"
         px={0}
       >
-        <XStack px={isIpad() ? "$2.5" : 5} alignItems="center" justifyContent="space-between" width="100%">
+        <XStack px={isWeb ? 6 : isIpad() ? "$2.5" : 5} alignItems="center" justifyContent="space-between" width="100%">
           {!isOpen && !showTimePicker && (
             <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
               Advanced
@@ -155,18 +155,6 @@ export function AdvancedSettings({
                 isDark={isDark}
               />
               
-              <YStack pl={6}>
-                <TimePicker
-                  showTimePicker={false}
-                  setShowTimePicker={setShowTimePicker}
-                  selectedDate={selectedDate}
-                  onTimeChange={onTimeChange}
-                  onWebTimeChange={onWebTimeChange}
-                  time={time}
-                  isDark={isDark}
-                  primaryColor={primaryColor}
-                />
-              </YStack>
               
               {time && (
                 <AlertMeSelector
