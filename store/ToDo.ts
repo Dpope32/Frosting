@@ -316,14 +316,19 @@ export const useProjectStore = create<ProjectStore>()(
       todaysTasks: [],
       addTask: (data) => {
         const tasks = { ...get().tasks }
-        const id = generateUniqueId(); // Use the new utility function
+        const id = generateUniqueId();
+        
+        // FIX: Use local timezone instead of UTC
+        const now = new Date();
+        const localISOString = format(now, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
+        
         const newTask: Task = {
           ...data,
           id,
           completed: false,
           completionHistory: {},
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: localISOString, // Use local timezone
+          updatedAt: localISOString, // Use local timezone
           recurrencePattern: data.recurrencePattern || (data.category === 'bills' ? 'monthly' : 'one-time'),
           dueDate: data.category === 'bills' ? data.dueDate : undefined
         }

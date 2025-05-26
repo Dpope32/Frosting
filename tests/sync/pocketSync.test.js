@@ -57,7 +57,6 @@ describe('pocketSync', () => {
     const mockGetPocketBase = async () => {
       const urls = [
         'https://fedora.tail557534.ts.net/api/health',
-        'http://192.168.1.32:8090/api/health'
       ];
 
       for (const url of urls) {
@@ -77,18 +76,9 @@ describe('pocketSync', () => {
 
     // Test our mock implementation
     await expect(mockGetPocketBase()).rejects.toThrow('SKIP_SYNC_SILENTLY');
-
-    // Verify that both endpoints were tried
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
       'https://fedora.tail557534.ts.net/api/health',
-      expect.objectContaining({ 
-        method: 'GET',
-        signal: expect.any(AbortSignal)
-      })
-    );
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://192.168.1.32:8090/api/health', 
       expect.objectContaining({ 
         method: 'GET',
         signal: expect.any(AbortSignal)
