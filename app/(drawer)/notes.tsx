@@ -191,9 +191,9 @@ export default function NotesScreen() {
   }, []);
 
   return (
-    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#0a0a0a' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0}>
+    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#0a0a0a' : '$backgroundLight'} marginLeft={0}>
       <XStack
-        pb={16} px={isIpad() ? 16 : 16}
+        pb={16} px={isWeb ? 6 : isIpad() ? 16 : 16}
         backgroundColor={isDark ? '#0a0a0a' : '$backgroundLight' }
         justifyContent="space-between" alignItems="center"
       >
@@ -206,14 +206,16 @@ export default function NotesScreen() {
             paddingBottom: 100,
             paddingHorizontal: 0,
             paddingTop: 0,
-            paddingLeft: 12,
+            paddingLeft: 8,
             display: 'flex',
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'flex-start',
-            gap: 32,
+            gap: 0,
             maxWidth: 1800,
             marginHorizontal: 'auto',
+            marginLeft: 16,
+            marginRight: 0,
           }}
         >
           {notes.length === 0 ? (

@@ -103,7 +103,7 @@ export default function CRM() {
   };
 
   return (
-    <YStack flex={1} paddingTop={isWeb ? 90 : isIpad() ? 85 : 95}>
+    <YStack flex={1} paddingTop={isWeb ? 90 : isIpad() ? 85 : 95} bg={isDark ? '#0a0a0a' : '$backgroundLight'}>
       {__DEV__ && (
          <DevButtons />
       )}

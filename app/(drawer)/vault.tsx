@@ -109,7 +109,7 @@ export default function VaultScreen() {
         flex={1} 
         paddingTop={isWeb ? 90 : isIpad() ? (isDark ? 80 : 70) : 80} 
         backgroundColor={isDark ? '#0a0a0a' : '#fafafa'}
-        paddingLeft={isWeb ? 24 : isIpad() ? 4 : 0}
+        paddingLeft={isWeb ? 0 : isIpad() ? 4 : 0}
       >
         {isWeb && (
           <XStack 
@@ -142,7 +142,8 @@ export default function VaultScreen() {
             flexDirection: isWeb ? 'row' : undefined,
             flexWrap: isWeb ? 'wrap' : undefined,
             justifyContent: isWeb ? 'flex-start' : undefined,
-            gap: isWeb ? 24 : 16,
+           rowGap: isWeb ? 12 : 16,
+           columnGap: isWeb ? 12 : 16,
             maxWidth: isWeb ? 1800 : undefined,
             marginHorizontal: isWeb ? 'auto' : undefined,
           }}

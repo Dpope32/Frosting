@@ -8,7 +8,7 @@
 
 <h1 style="display: flex; align-items: center; margin-bottom: 20px;">
   <img src="assets/images/icon.png" style="height: 50px; width: auto; margin-right: 40px;" />
-  Kaiba Nexus
+  Kaiba - Nexus
 </h1>
 
 <div style="display: flex; flex-direction: row; align-items: flex-start; gap: 10px; width: 100%; margin-bottom: 30px;">
@@ -17,7 +17,7 @@
   <div style="padding: 10px 10px;"><a href="https://deedaw.cc/pages/privacy.html" style="text-decoration: none;">Privacy Policy</a></div>
 </div>
 
-### A feature-rich personal management app built with React Native and Expo, designed to help you manage your life with style. 
+Kaiba - Nexus is a free, feature-rich personal management app built with to organize your life, designed local first. 
 - **Sync Engine**: Seamlessly synchronize your data across all your devices with our powerful sync engine. Only available to premium users.
 - **Offline Capability**: Built with a local-first approach, the app works fully offline. It pulls the latest information on startup and saves all your data when closed
 - **Customizable Sync**: You have complete control over what data gets synchronized. Choose exactly which modules to sync across your devices
@@ -39,8 +39,8 @@
 - **☑️HabitTracker** Track your habits, recieve notification reminders on mobile
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
-**Premium Features**: 
-- Coming soon all for $3/month (or $49.99 lifetime)
+**Premium**: 
+- Coming soon for $3/month (or $49.99 lifetime)
 1. Cross-Device Sync (all encrypted with AES-256 of course)
 2. Unlimited Devices 
 3. Choose what you want to sync (Notes, Todos, Calendar, CRM, Password Vault, Stocks, Habits, Projects)

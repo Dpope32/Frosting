@@ -147,13 +147,14 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
         }
         .note-container {
           width: 100%; 
-          padding: 0 16px;  
+          padding: 0;  
         }
         .scrollable-container {
           height: 100%;
           overflow-y: auto;
           flex: 1;
           width: 100%; 
+          padding: 0;
         }
         .note-text {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
@@ -163,7 +164,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           align-items: center;
           justify-content: center;
           border-radius: 12px;
-          padding: 4px 10px;
+          padding: 4px 2px;
           margin-right: 6px;
           margin-bottom: 6px;
           font-size: 12px;
@@ -201,7 +202,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   };
 
   const itemStackProps: StackProps = {
-    flexBasis: `${90 / numColumns}%`,
+    flexBasis: `${98 / numColumns}%`,
     marginBottom: 16,
   };
 
@@ -211,22 +212,18 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
         <XStack
           flexWrap="wrap"
           paddingBottom={bottomPadding}
-          paddingTop={30}
+          paddingTop={10}
           alignItems="flex-start"
           gap={12}
-          paddingHorizontal={12}
+          paddingHorizontal={0}
         >
           {notes.map((note) => (
-             <Stack
-               key={note.id}
-               {...itemStackProps}
-             >
-               <NoteCard
-                 note={note}
-                 onPress={() => onSelectNote(note)}
-                 onEdit={onEditNote ? () => onEditNote(note) : undefined}
-               />
-             </Stack>
+            <NoteCard
+              key={note.id}
+              note={note}
+              onPress={() => onSelectNote(note)}
+              onEdit={onEditNote ? () => onEditNote(note) : undefined}
+            />
           ))}
         </XStack>
       </ContentWrapper>
@@ -239,10 +236,10 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
         <XStack
           flexWrap="wrap"
           paddingBottom={bottomPadding}
-          paddingTop={30}
+          paddingTop={10}
           alignItems="flex-start"
-          gap={16}
-          paddingHorizontal={16}
+          columnGap={16}
+          paddingHorizontal={0}
         >
           {notes.map((note, index) => (
             <DraggableNote

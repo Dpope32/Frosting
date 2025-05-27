@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { Card, YStack, Text, Paragraph, XStack, ScrollView, isWeb } from 'tamagui';
 import { TouchableOpacity, Platform, StyleSheet, View } from 'react-native';
@@ -38,7 +37,7 @@ export const NoteCard = ({
   const { colors, markdownStyles } = useMarkdownStyles();
   const noTagSpacerHeight = isWeb ? 40 : 6;
   const horizontalPadding = isWeb ? 20 : isIpad() ? 12 : 12;
-  const verticalPadding = isWeb ? 16 : isIpad() ? 8 : 10;
+  const verticalPadding = isWeb ? 6 : isIpad() ? 8 : 10;
   const attachmentWidth = isWeb ? 150 : 120;
   const attachmentHeight = isWeb ? 120 : 96;
 
@@ -96,7 +95,8 @@ export const NoteCard = ({
         shadowRadius={2}
         borderRadius={10}
         style={cardSpecificStyle}
-        minWidth={isWeb ? 300 : undefined}
+        minWidth={isWeb ? 250 : undefined}
+        maxWidth={isWeb ? 600 : undefined}
       >
         <LinearGradient
           colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
@@ -330,7 +330,7 @@ NoteCard.displayName = 'NoteCard';
 
 const localStyles = StyleSheet.create({
   touchableContainer: {
-    width: '100%',
+    width: Platform.OS === 'web' ? '100%' : '100%',
     paddingVertical: Platform.OS === 'web' ? 2 : 8,
     paddingHorizontal: Platform.OS === 'web' ? 2 : 0,
     flexShrink: 1,

@@ -61,7 +61,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     aspectRatio:
       Platform.OS === 'web'
         ? (webColumnCount === 3
-            ? 1
+            ? 0.9
             : webColumnCount === 2
               ? 0.9
               : 1)
@@ -101,7 +101,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     justifyContent: 'center',
   },
   holidayText: {
-    fontSize: webColumnCount === 3 ? 7 : webColumnCount === 1 ? (isWeb ? 13 : 7) : (webColumnCount === 2 ? (isWeb ? 10 : 6) : 8),
+    fontSize: webColumnCount === 3 ? 8 : webColumnCount === 1 ? (isWeb ? 13 : 7) : (webColumnCount === 2 ? (isWeb ? 10 : 6) : 8),
     color: isDark ? '#FFFFFF' : '#006400',
     textAlign: 'center',
     fontWeight: '500',
