@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Text } from 'tamagui'
+import { Button, isWeb, Text } from 'tamagui'
 import { isIpad } from '@/utils'
 
 interface SubmitButtonProps {
@@ -19,7 +19,7 @@ export const SubmitButton = React.forwardRef<any, SubmitButtonProps>(({ isSubmit
       pressStyle={{ opacity: 0.8, scale: 0.98 }}
       br={12}
       m={isIpad() ? 0 : 0}
-      mt={10}
+      mt={isWeb ? 10 : 0}
       width="95%"
       shadowColor="black" 
       shadowOffset={{ width: 0, height: 2 }}

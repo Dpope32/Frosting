@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { YStack, Input, Label, isWeb } from 'tamagui'
-import { Platform, View, Text, Animated, Easing } from 'react-native'
+import { Platform, View, Text, Animated, Easing, useColorScheme } from 'react-native'
 import { FormData } from '@/types'
 import { isIpad } from '@/utils'
 import Svg, { Defs, ClipPath, Rect, Text as SvgText, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg'
@@ -15,6 +15,8 @@ export default function Step0({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
 }) {
   const translateX = useRef(new Animated.Value(0)).current
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
 
   useEffect(() => {
     Animated.loop(
@@ -48,7 +50,7 @@ export default function Step0({
   ]
 
   return (
-    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$15" : "$10"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
+    <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$15" : "$14"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
       {isWeb ? (
         <div
           style={{
@@ -140,7 +142,7 @@ export default function Step0({
           </Text>
         </View>
       )}
-      <Label paddingBottom={isWeb ? 20 : isIpad() ? 12 : 8} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">
+      <Label paddingBottom={isWeb ? 20 : isIpad() ? 12 : 2} fontFamily="$heading" fontWeight={isWeb ? 500 : 800} fontSize={isWeb ? "$9" : 20} textAlign="center" color="$onboardingLabel">
         What should we call you?
       </Label>
       <Input
@@ -161,7 +163,10 @@ export default function Step0({
         placeholderTextColor="$onboardingPlaceholder"
         fontFamily="$body"
         textAlign="center"
-        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 48}}
+        focusStyle={{
+          borderColor: isDark ? "$onboardingInputBorder" : "#999999",
+        }}
+        style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 43}}
       />
     </YStack>
   )

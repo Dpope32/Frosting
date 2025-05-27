@@ -123,7 +123,7 @@ export const useVaultStore = create<VaultStore>()(
             }
           }
           
-          addSyncLog(`Vault items hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total items: ${newItemsArray.length}`, 'success');
+          //addSyncLog(`Vault items hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total items: ${newItemsArray.length}`, 'success');
           return {
             vaultData: {
               ...state.vaultData,

@@ -35,10 +35,9 @@ export function PaymentMethodSection({
           <Button
             onPress={() => setShowPaymentMethodDropdown(!showPaymentMethodDropdown)}
             theme={isDark ? "dark" : "light"}
-            backgroundColor={isDark ? "$gray2" : "white"}
             br={8}
             height={40}
-            borderColor={isDark ? "$gray7" : "$gray4"}
+            borderColor={isDark ? "#3c3c3c" : "#f9f9f9"}
             borderWidth={1}
             px="$2"
             pressStyle={{ opacity: 0.8 }}

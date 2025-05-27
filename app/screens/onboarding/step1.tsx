@@ -3,6 +3,7 @@ import { YStack, Text, Button, Circle, isWeb } from 'tamagui'
 import { Image } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store'
+import { isIpad } from '@/utils'
 
 export default function Step1({
   formData,
@@ -19,7 +20,7 @@ export default function Step1({
   const defaultIcon = { icon: '👤', label: 'Default User' };
 
   return (
-    <YStack gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
+    <YStack marginTop={isIpad() ? 0 : -40} gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <Text 
         color="$onboardingLabel" 
         fontFamily="$heading" 
@@ -27,7 +28,7 @@ export default function Step1({
         fontSize={isWeb ? "$8" : "$7"}
         textAlign="center"
       >
-        Welcome, {formData.username}!
+        {formData.profilePicture ? "Final answer?" : `Welcome, ${formData.username}!`}
       </Text>
       <YStack gap="$2" alignItems="center">
         <Circle

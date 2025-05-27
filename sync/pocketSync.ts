@@ -65,7 +65,6 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
 
   for (const base of CANDIDATE_URLS) {
     const url = `${base}${HEALTH_PATH}`;
-    addSyncLog(`Health-check ${url} (GET→HEAD fallback)`, 'verbose');
 
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), HEALTH_TIMEOUT);
@@ -79,7 +78,6 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
       clearTimeout(t);
 
       if (res.status === 200 || res.status === 401) {
-        addSyncLog(`✅ ${url} -> ${res.status}`, 'success');
         selected = base;
         break;
       }
@@ -101,8 +99,6 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
 // ───────────────────────── LOG EXPORT ─────────────────────────
 export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return
-
-  addSyncLog('Exporting logs to PocketBase', 'info')
 
   if (!(await checkNetworkConnectivity())) {
     addSyncLog('No network – abort log export', 'warning')

@@ -223,7 +223,7 @@ export function TagSelector({
                 key="confirm-new-tag"
                 size="$2"
                 circular
-                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
                 onPress={handleAddTag}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}

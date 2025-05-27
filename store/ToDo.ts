@@ -27,6 +27,12 @@ const dayNames: WeekDay[] = [
   'sunday','monday','tuesday','wednesday','thursday','friday','saturday'
 ]
 
+// Helper function to extract local date string from any timestamp
+const getLocalDateString = (timestamp: string): string => {
+  // Parse the timestamp and format it in local timezone
+  return format(new Date(timestamp), 'yyyy-MM-dd');
+};
+
 // This is the function that determines whether a task should be shown or not
 const isTaskDue = (task: Task, date: Date): boolean => {
   const today = dayNames[date.getDay()]
@@ -95,19 +101,20 @@ const isTaskDue = (task: Task, date: Date): boolean => {
   // STEP 4: Handle different recurrence patterns
   switch (task.recurrencePattern) {
     case 'tomorrow': {
-      const createdDateStr = new Date(task.createdAt).toISOString().split('T')[0]
-      const yesterday = new Date(date)
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().split('T')[0]
+      // FIX: Use local timezone for both creation date and yesterday calculation
+      const createdDateStr = getLocalDateString(task.createdAt);
+      const yesterday = new Date(date);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = format(yesterday, 'yyyy-MM-dd');
       const result = createdDateStr === yesterdayStr;
       
       // 🚨 DEBUG LOGGING: Track tomorrow task evaluation
-      const currentDateStr = date.toISOString().split('T')[0];
+      const currentDateStr = format(date, 'yyyy-MM-dd');
       if (task.name && !task.name.includes('$') && !task.name.includes('"')) { // Skip bill tasks
         addSyncLog(
           `[TOMORROW EVAL] "${task.name.slice(0, 25)}" due check: ${result}`,
           'verbose',
-          `Created: ${createdDateStr} | Yesterday: ${yesterdayStr} | Today: ${currentDateStr} | Due today: ${result} | Task ID: ${task.id.slice(-8)}`
+          `Created (local): ${createdDateStr} | Yesterday: ${yesterdayStr} | Today: ${currentDateStr} | Due today: ${result} | Task ID: ${task.id.slice(-8)}`
         );
       }
 
@@ -123,13 +130,13 @@ const isTaskDue = (task: Task, date: Date): boolean => {
 
           if (tasks[task.id] && tasks[task.id].recurrencePattern === 'tomorrow') {
             const newTimestamp = new Date().toISOString();
-            const createdDate = new Date(task.createdAt).toISOString().split('T')[0];
-            const currentDate = new Date().toISOString().split('T')[0];
+            const createdDate = getLocalDateString(task.createdAt);
+            const currentDate = format(new Date(), 'yyyy-MM-dd');
             
             addSyncLog(
               `[TOMORROW→ONE-TIME] "${task.name.slice(0, 25)}" converting to one-time`,
               'info',
-              `Task created: ${createdDate} | Converting on: ${currentDate} | Original creation: ${task.createdAt} | Conversion timestamp: ${newTimestamp} | Task ID: ${task.id.slice(-8)}`
+              `Task created (local): ${createdDate} | Converting on: ${currentDate} | Original creation: ${task.createdAt} | Conversion timestamp: ${newTimestamp} | Task ID: ${task.id.slice(-8)}`
             );
             
             tasks[task.id] = {
@@ -661,9 +668,6 @@ export const useProjectStore = create<ProjectStore>()(
               const oldCompletedState = tasks[id].completed;
               tasks[id].completed = tasks[id].completionHistory[todayLocalStr] || false;
 
-              if (oldCompletedState !== tasks[id].completed) {
-                addSyncLog(`Updated completion status for task ${tasks[id].name} from ${oldCompletedState} to ${tasks[id].completed}`, 'info');
-              }
             } else {
               // For one-time tasks, preserve their completed status
               // Don't reset based on today's date - they stay completed once completed

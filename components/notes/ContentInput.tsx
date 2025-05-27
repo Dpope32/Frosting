@@ -188,6 +188,11 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     position: 'relative',
+    backgroundColor: '#1c1c1c',
+    paddingHorizontal: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#3a3a3c',
   },
   input: {
     width: '100%',

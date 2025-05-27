@@ -179,15 +179,15 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       // So any store with images or user-specific data should not be hydrated from sync (user, wallpaper, notes)
       // Project store holds images as well, this will be the next starting point for when I work on image sync. 
       if (data.user) {
-        addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
+        //addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
         delete data.user;
       }
       if (data.notes) {
-        addSyncLog('[Hydrate] NoteStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-only store).', 'warning');
+        //addSyncLog('[Hydrate] NoteStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-only store).', 'warning');
         delete data.notes;
       }
       if (data.wallpaper) {
-        addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
+        //addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
         delete data.wallpaper;
       }
   
@@ -205,7 +205,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
             const storeState = store.getState();
             if (storeState.hydrateFromSync && typeof storeState.hydrateFromSync === 'function') {
               if (!isAlwaysSynced && typeof storeState.isSyncEnabled === 'boolean' && !storeState.isSyncEnabled) {
-                addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
+             //   addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
               } else {
                 storeState.hydrateFromSync(storeDataFromSnapshot);
               }

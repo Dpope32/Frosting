@@ -130,6 +130,16 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     setSelectedDate(date)
   }, [])
 
+  const handleTimePress = useCallback(() => {
+    if (newTask.time) {
+      // If time is already set, open the time picker to edit it
+      setShowTimePicker(true)
+    } else {
+      // If no time is set, open the time picker
+      setShowTimePicker(true)
+    }
+  }, [newTask.time])
+
   const handleRecurrenceSelect = useCallback((pattern: RecurrencePattern, e?: any) => {
     if (e) {
       e.preventDefault()
@@ -318,7 +328,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       keyboardOffset={keyboardOffset}
     >
       <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12} pt={isWeb ? 0 : isIpad() ? 0 : -4}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={isWeb ? 12 : 12} pt={isWeb ? 0 : isIpad() ? 0 : -4}>
         <DebouncedInput
             ref={nameInputRef}
             style={[styles.input, { borderWidth: 2, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.00)', color: isDark ? '#fff' : '#000' }]}
@@ -332,8 +342,17 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             onChangeText={(value) => setNewTask(prev => ({ ...prev, name: value }))}
             onDebouncedChange={() => {}}
             delay={0}
+            focusStyle={{
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#999999',
+            }}
           />
-          <PrioritySelector selectedPriority={newTask.priority} onPrioritySelect={handlePrioritySelect}/>
+          <PrioritySelector 
+            selectedPriority={newTask.priority} 
+            onPrioritySelect={handlePrioritySelect}
+            time={newTask.time}
+            onTimePress={handleTimePress}
+            isDark={isDark}
+          />
 
           <RecurrenceSelector
             selectedPattern={newTask.recurrencePattern} 

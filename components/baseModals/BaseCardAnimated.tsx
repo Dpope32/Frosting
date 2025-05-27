@@ -145,6 +145,8 @@ export function BaseCardAnimated({
                   marginBottom: insets.bottom + 20,
                   width: actualWidth,
                   maxHeight: screenHeight,
+                  borderColor: isDark ? '#3c3c3c' : '#1c1c1c',
+                  borderWidth: 1,
                 }
               ]}
               onTouchEnd={(e) => e.stopPropagation()}

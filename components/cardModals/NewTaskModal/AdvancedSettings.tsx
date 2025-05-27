@@ -69,7 +69,7 @@ export function AdvancedSettings({
   
   // Handle button press without conditional rendering that causes remounts
   const handleButtonPress = () => {
-    if (showTimePicker) {
+    if (showTimePicker && !time) {
       setShowTimePicker(false);
     } else {
       onOpenChange(!isOpen);
@@ -80,20 +80,20 @@ export function AdvancedSettings({
     <YStack>
       <Button
         backgroundColor="transparent"
-        height={isIpad() ? isOpen ? 10 : 34 : isOpen ? 10 : 34}
+        height={isIpad() ? isOpen ? 8 : 34 : isOpen ? 2 : 34}
         onPress={handleButtonPress}
         pressStyle={{ opacity: 0.7 }}
         width="100%"
         px={0}
       >
         <XStack px={isWeb ? 6 : isIpad() ? "$2.5" : 5} alignItems="center" justifyContent="space-between" width="100%">
-          {!isOpen && !showTimePicker && (
+          {!isOpen && !(showTimePicker && !time) && (
             <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
               Advanced
             </Text>
           )}  
           <XStack flex={1} justifyContent={isOpen ? "flex-end" : "flex-end"}>
-            {(isOpen || showTimePicker) ? (
+            {(isOpen || (showTimePicker && !time)) ? (
               <MaterialIcons name="keyboard-arrow-up" size={isIpad() ? 20 : 16} color={isDark ? 'transparent' : 'transparent'} />
             ) : (
               <MaterialIcons name="keyboard-arrow-down" size={isIpad() ? 20 : 16} color={isDark ? '#6c6c6c' : '#9c9c9c'} />
@@ -103,7 +103,7 @@ export function AdvancedSettings({
       </Button>
       
       <AnimatePresence>
-        {(isOpen || showTimePicker) && (
+        {(isOpen || (showTimePicker && !time)) && (
           <YStack
             key="advanced-settings-content"
             animation="quick"
@@ -115,10 +115,9 @@ export function AdvancedSettings({
             pb="$2"
           >
             <YStack 
-              pl={showTimePicker ? 6 : 0} 
-              pt={0} 
-              pb={0}
-              display={showTimePicker ? "flex" : "none"}
+              display={isOpen && !time ? "flex" : "none"}
+              animation="quick"
+              gap="$2" pb={6}
             >
               <TimePicker
                 showTimePicker={showTimePicker}

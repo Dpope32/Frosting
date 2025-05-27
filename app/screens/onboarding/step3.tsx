@@ -467,7 +467,7 @@ useEffect(() => {
             textAlign="center" 
             color="$onboardingLabel"
           >
-            Which wallpaper {formData.username}?
+            Which wallpaper?
           </Label>
           </XStack>
         </YStack>

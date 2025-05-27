@@ -155,8 +155,6 @@ export const EventModal: React.FC<EventModalProps> = ({
                 style={[
                   {
                     backgroundColor: 'transparent',
-                    borderBottomWidth: 1,
-                    borderBottomColor: isDark ? '#555555' : '#cccccc',
                     borderRadius: 8,
                     flexDirection: 'row',
                     justifyContent: 'space-between',

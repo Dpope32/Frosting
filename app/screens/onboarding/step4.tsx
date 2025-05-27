@@ -1,7 +1,7 @@
 import React from 'react'
 import { YStack, Input, Label, Text, Button } from 'tamagui'
 import { FormData } from '@/types'
-import {  Platform } from 'react-native'
+import {  Platform, useColorScheme } from 'react-native'
 import { useState, useEffect } from 'react'
 import { validateZipCode, FALLBACK_ZIP_CODES, isIpad } from '@/utils'
 
@@ -17,6 +17,8 @@ export default function Step4({
   setPreferences: (data: any) => void
 }) {
   const isWeb = Platform.OS === 'web';
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const [zipError, setZipError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 
@@ -90,7 +92,7 @@ export default function Step4({
           shadowRadius={20}
           shadowOpacity={0.2}
           focusStyle={{
-            borderColor: zipError ? "$onboardingError" : "$onboardingInputBorder", 
+            borderColor: zipError ? "$onboardingError" : (isDark ? "$onboardingInputBorder" : "#999999"), 
             scale: 1.02,
           }}
           width={isWeb ? 300 : isIpad() ? 300 : "70%"}

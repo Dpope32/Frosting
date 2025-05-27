@@ -36,6 +36,8 @@ export const getDefaultTask = (): Omit<Task, 'id' | 'completed' | 'completionHis
     priority: null as unknown as TaskPriority,
     category: null as unknown as TaskCategory,
     recurrencePattern: 'one-time',
-    recurrenceDate: new Date().toISOString().split('T')[0]
+    recurrenceDate: new Date().toISOString().split('T')[0],
+    showInCalendar: false,
+    tags: []
   }
 }

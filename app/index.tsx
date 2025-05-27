@@ -16,6 +16,7 @@ import {
   useCustomCategoryStore,
   useTagStore,
   useNoteStore,
+  useToastStore,
 } from '@/store';
 import { useProjectStore as useTasks } from '@/store/ToDo';
 import { useProjectStore as useProjects } from '@/store/ProjectStore';
@@ -79,12 +80,13 @@ export default function Index() {
       // one-shot export
       const state = getAllStoreStates();
       await exportEncryptedState(state);
-      addSyncLog('🔐 stateSnapshot.enc exported (in app/index) to File System ', 'success');
+      //addSyncLog('🔐 stateSnapshot.enc exported (in app/index) to File System ', 'success');
 
       if (finishedOnboarding) {
         await pullLatestSnapshot();
         const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
-        addSyncLog(`📥 ${platformEmoji} Latest snapshot pulled successfully on ${Platform.OS}`, 'success');
+        addSyncLog(`📥 ${platformEmoji} Latest snapshot pulled successfully on ${Platform.OS} within the index.tsx`, 'success');
+        useToastStore.getState().showToast('Pulled latest data from workspace', 'success');
       }
     })().catch(e =>
       addSyncLog('🔥 startup sync failed', 'error', e?.message || String(e))
