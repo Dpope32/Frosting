@@ -267,7 +267,7 @@ const createTaskFilter = () => {
         addSyncLog(
           `[FILTER CHECK] "${task.name.slice(0, 25)}" (tomorrow) - isDue: ${isDue}`,
           'verbose',
-          `Created: ${new Date(task.createdAt).toISOString().split('T')[0]} | Today: ${dateStr} | Should show: ${isDue}`
+          `Created (local): ${getLocalDateString(task.createdAt)} | Today: ${dateStr} | Should show: ${isDue}`
         );
       }
       
@@ -385,11 +385,11 @@ export const useProjectStore = create<ProjectStore>()(
             
             // Special logging for tomorrow task completion
             if (pattern === 'tomorrow') {
-              const createdDate = new Date(tasks[id].createdAt).toISOString().split('T')[0];
+              const createdDate = getLocalDateString(tasks[id].createdAt);
               addSyncLog(
                 `[TOMORROW TASK TOGGLE] "${taskName}" completion changed`,
                 newCompletionStatus ? 'success' : 'warning',
-                `Created: ${createdDate} | Toggled on: ${todayLocalStr} | Status: ${newCompletionStatus ? 'completed' : 'uncompleted'} | May convert to one-time after midnight`
+                `Created (local): ${createdDate} | Toggled on: ${todayLocalStr} | Status: ${newCompletionStatus ? 'completed' : 'uncompleted'} | May convert to one-time after midnight`
               );
             }
           }
