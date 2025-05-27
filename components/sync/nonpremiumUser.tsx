@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   gradientCard: {
     borderRadius: cardRadius + 4,
     padding: isWeb ? baseSpacing * 4 : isIpad() ? baseSpacing * 3.5 : baseSpacing * 3,
-    borderWidth: 1,
+    borderWidth: 3,
     alignItems: 'center',
     width: '100%',
     minHeight: isWeb ? 500 : isIpad() ? 450 : 400,

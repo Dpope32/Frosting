@@ -99,7 +99,7 @@ export const BillCard = ({
           </YStack>
         )}
 
-        <XStack flex={1} ai="center" jc="space-between" style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb ? 16 : 4 }}>
+        <XStack flex={1} ai="center" jc="space-between" style={{ minWidth: 0, marginHorizontal: isIpad() ? 10 : isWeb ? 16 : 2 }}>
           <XStack ai="center" space="$2" style={{ minWidth: 0, flexShrink: 1 }}>
             <Icon name={iconName as any} size={isIpad() ? 26 : 18} color={isDark ? '#ccc' : '#666'} />
             <Text
@@ -109,7 +109,7 @@ export const BillCard = ({
               fontFamily="$body"
               numberOfLines={1}
             >
-              {bill.name}{isToday && ' (due today!)'}
+              {bill.name}{isToday && ' (today!)'}
             </Text>
           </XStack>
           <XStack ai="center" space="$3">
@@ -122,7 +122,7 @@ export const BillCard = ({
               fontFamily="$body"
               numberOfLines={1}
             >
-              Due {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
+              {bill.dueDate}{getOrdinalSuffix(bill.dueDate)}
             </Paragraph>
           </XStack>
         </XStack>

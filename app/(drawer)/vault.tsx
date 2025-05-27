@@ -152,7 +152,7 @@ export default function VaultScreen() {
               flex={1} 
               alignItems="center" 
               justifyContent="center" 
-              paddingVertical="$10"
+              paddingVertical={isWeb ? "$10" : isIpad() ? "$8" : "$2"}
               width="100%"
             >
               <VaultEmpty
@@ -201,7 +201,7 @@ export default function VaultScreen() {
                   />
                 ))}
               </YStack>
-              <YStack flex={1} gap="$4">
+              <YStack flex={1} gap={isWeb ? "$4" : "$2"}>
                 {rightColumnItems.map((cred: VaultEntry) => (
                   <VaultCard
                     key={cred.id}
@@ -220,7 +220,7 @@ export default function VaultScreen() {
               </YStack>
             </XStack>
           ) : (
-            <YStack gap="$4" width="100%">
+            <YStack gap={isWeb ? "$4" : "$2.5"} width="100%">
               {data?.items.map((cred: VaultEntry) => (
                 <VaultCard
                   key={cred.id}

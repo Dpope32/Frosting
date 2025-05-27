@@ -133,7 +133,7 @@ export default function BillsScreen() {
         bill={selectedBill}
         onSubmit={handleUpdateBill}
       />
-      <YStack f={1} mt={isWeb ? 65 : isIpad() ? isDark ? 90 : 80 : 100} py={isIpad() ? "$2" : "$2"} bg={isDark ? "#010101" : "$backgroundLight"} px={isIpad() ? "$1" : "$0"}>
+      <YStack f={1} paddingTop={isWeb ? 65 : isIpad() ? (isDark ? 90 : 80) : 100} pb={isIpad() ? "$2" : "$2"} backgroundColor={isDark ? '#0a0a0a' : '#fafafa'} px={isIpad() ? "$1" : "$0"}>
         <BillSummary 
           monthlyIncome={monthlyIncome}
           totalMonthlyAmount={totalMonthlyAmount}
@@ -221,25 +221,26 @@ export default function BillsScreen() {
             }}
           >
             {isLoading ? (
-              Array.from({ length: 4 }).map((_, index) => (
+              Array.from({ length: bills?.length || 10 }).map((_, index) => (
                 <XStack 
                   key={`skeleton-${index}`} 
                   bg={isDark ? "#111" : "#f5f5f5"}
-                  p={isWeb ? "$3" : "$4"} 
-                  mb="$2"
+                  p={isWeb ? "$3" : "$2"} 
+                  mb="$1"
                   br="$4" 
                   ai="center" 
                   animation="quick"
                   borderWidth={1}
                   borderColor={isDark ? "#222" : "#e0e0e0"}
                   width={isWeb ? columnWidth : "100%"}
-                  height={isWeb ? 120 : undefined}
+                  minHeight={isWeb ? 60 : isIpad() ? 55 : 50}
+                  height={isWeb ? 60 : isIpad() ? 55 : 50}
                 >
-                  <YStack width={44} height={44} bg={isDark ? "#333" : "#e0e0e0"} br="$4" />
-                  <YStack ml="$3" flex={1} gap="$1">
-                    <YStack width={100} height={20} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
-                    <YStack width={60} height={16} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
-                  </YStack>
+                  <YStack width={40} height={30} bg={isDark ? "#333" : "#e0e0e0"} br="$4" />
+                  <XStack mx="$3" flex={1} gap="$1">
+                    <YStack width={100} mx="$8" height={20} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
+                    <YStack width={60}mx="$3"  height={16} bg={isDark ? "#333" : "#e0e0e0"} br="$2" />
+                  </XStack>
                 </XStack>
               ))
             ) : bills?.length === 0 ? (

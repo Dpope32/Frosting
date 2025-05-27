@@ -1,8 +1,8 @@
 import React, { forwardRef } from 'react';
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Text, YStack } from 'tamagui';
+import { YStack } from 'tamagui';
 import { isIpad } from '@/utils';
 
 export interface TrashcanAreaProps {

@@ -77,8 +77,6 @@ export const NoteCard = ({
     shadowRadius: isDragging ? 6 : 2,
     elevation: isDragging ? 8 : 2,
     padding: verticalPadding,
-    borderWidth: isDragging ? 1 : 0,
-    borderColor: isDragging ? colors.cardBorderDragging : '#1c1c1c',
     overflow: 'hidden' as 'hidden',
     position: 'relative' as 'relative',
   }), [isDragging, colors]);
@@ -99,8 +97,6 @@ export const NoteCard = ({
         borderRadius={10}
         style={cardSpecificStyle}
         minWidth={isWeb ? 300 : undefined}
-        borderWidth={1}
-        borderColor={isDragging ? colors.cardBorderDragging : '#9c9c9c'}
       >
         <LinearGradient
           colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
@@ -164,8 +160,8 @@ export const NoteCard = ({
               height: 2,
               backgroundColor: colors.cardBorder,
               marginHorizontal: horizontalPadding,
-              marginTop: 4,
-              marginBottom: 2,
+              marginTop: 2,
+              marginBottom: 6,
               borderRadius: 2,
             }}
           />

@@ -142,7 +142,7 @@ export const VaultCard = ({
           borderColor={isDark ? '#333' : '#e0e0e0'}
           ai="center"
           animation="quick"
-          py={isIpad() ? "$2" : "$1.5"}
+          py={isIpad() ? "$2" : "$2"}
           position="relative"
           overflow="hidden"
         >

@@ -27,6 +27,7 @@ interface BillStore {
   monthlyIncome: number;
   isSyncEnabled: boolean;
   addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateBill: (id: string, updates: Partial<Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>>) => void;
   deleteBill: (id: string) => void;
   getBills: () => Bill[];
   clearBills: () => void;
@@ -65,6 +66,35 @@ export const useBillStore = create<BillStore>()(
         }));
 
         return newBill;
+      },
+
+      updateBill: (id, updates) => {
+        console.log('🏪 BillStore.updateBill called with:', { id, updates });
+        set((state) => {
+          const existingBill = state.bills[id];
+          if (!existingBill) {
+            console.error(`❌ BillStore: Bill with id ${id} not found`);
+            return state;
+          }
+
+          console.log('📋 BillStore: Existing bill:', existingBill);
+
+          const updatedBill: Bill = {
+            ...existingBill,
+            ...updates,
+            updatedAt: new Date().toISOString(),
+          };
+
+          console.log('🆕 BillStore: Updated bill:', updatedBill);
+
+          return {
+            bills: {
+              ...state.bills,
+              [id]: updatedBill,
+            },
+          };
+        });
+        console.log('✅ BillStore: Bill updated successfully');
       },
 
       deleteBill: (id) => {

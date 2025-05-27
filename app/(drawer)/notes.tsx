@@ -191,10 +191,10 @@ export default function NotesScreen() {
   }, []);
 
   return (
-    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#000000' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0}>
+    <YStack f={1} overflow="visible" mt={isWeb ? 80 : isIpad() ? 65 : isDark ? 75 : 65} bg={isDark ? '#0a0a0a' : '$backgroundLight'} marginLeft={isWeb ? 24 : 0}>
       <XStack
         pb={16} px={isIpad() ? 16 : 16}
-        backgroundColor={isDark ? '$backgroundDark' : '$backgroundLight' }
+        backgroundColor={isDark ? '#0a0a0a' : '$backgroundLight' }
         justifyContent="space-between" alignItems="center"
       >
       </XStack>
@@ -296,8 +296,8 @@ export default function NotesScreen() {
                 }
               }}
               contentContainerStyle={{ 
-                paddingHorizontal: 16, 
-                paddingBottom: insets.bottom + 120, // Reduced from 500 to 120
+                paddingHorizontal: isWeb ? 16 : isIpad() ? 8 : 0, 
+                paddingBottom: insets.bottom + 120, 
                 paddingTop: 8
               }}
               ListEmptyComponent={ 

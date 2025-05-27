@@ -10,18 +10,18 @@ export const TagChip = ({ tag }: { tag: { id: string, name: string, color?: stri
       key={tag.id}
       backgroundColor={`${tag.color || '#888888'}20`}
       borderRadius={isWeb ? '$8' : '$6'}
-      paddingVertical={isWeb ? 6 : 4}
+      paddingVertical={isWeb ? 6 : 3}
       paddingHorizontal="$3"
       borderWidth={1}
-      borderColor={tag.color || colors.textSecondary}
+      borderColor={`${tag.color || colors.textSecondary}50`}
       alignItems="center"
-      margin={isWeb ? 2 : 0}
+      margin={isWeb ? 2 : 2}
       className={isWeb ? "note-tag" : undefined}
     >
       <Text
         fontSize={isWeb ? 12 : 11}
-        color={tag.color}
-        fontWeight="700"
+        color={`${tag.color}99`}
+        fontWeight="500"
         fontFamily="$body"
         className={isWeb ? "note-text" : undefined}
       >
