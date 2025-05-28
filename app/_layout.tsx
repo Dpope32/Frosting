@@ -187,8 +187,8 @@ export default Sentry.wrap(function RootLayout() {
       }
 
       // Only proceed if user is premium (either was premium or just became premium)
-      if (!isPremium) return;
-
+      if (!loaded || !isPremium) return;
+      addSyncLog('🔄 Setting up background sync handler', 'verbose');
       try {
         if (nextAppState === 'active') {
           addSyncLog('📥 App resumed – pulling latest snapshot', 'info');

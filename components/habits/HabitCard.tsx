@@ -152,7 +152,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
       <YStack
         mb={10}
         p={isMobile ? 8 : 10}
-        px={isMobile ? 12 : 16}
+        px={isMobile ? 14 : 16}
         borderRadius={12}
         backgroundColor={isDark ? (doneToday ? '#000' : '#151515') : 'rgba(255, 255, 255, 0.7)'}
         borderWidth={1}
@@ -333,31 +333,14 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             )}
           </XStack>
         )}
-
-          {habit.description && (
-              <XStack
-                alignItems="center"
-                alignSelf="flex-start"
-                opacity={doneToday ? 0.6 : 0.9}
-              >
-                <Text
-                  fontFamily="$body"
-                  fontSize={isIpad() ? 15 : 13}
-                  color={isDark ? '#ccc' : '#666'}
-                  style={{ marginLeft: 2 }}
-                >
-                  {habit.description}
-                </Text>
-              </XStack>
-            )}
         <XStack alignItems="center" style={{ zIndex: 2 }}>
           <YStack
             borderRadius={6}
-            px={isIpad() ? 8 : 0}
-            pb={isIpad() ? 6 : 4}
+            px={isIpad() ? 8 : 2}
+            pb={isIpad() ? 6 : 6}
             mt={isIpad() ? 4 : 4}
             backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'transparent'}
-            mb={history.length === 1 ? 4 : 0}
+            mb={history.length === 1 ? 4 : 6}
             gap={4}
             maxWidth="100%"
           >

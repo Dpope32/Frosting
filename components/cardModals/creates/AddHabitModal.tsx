@@ -125,29 +125,6 @@ export function AddHabitModal({ isVisible, onClose, onSave }: AddHabitModalProps
               onCategorySelect={(cat) => setCategory(cat as TaskCategory)}
             />
           </YStack>
-          <YStack mb={12} width="100%" >
-            <TextInput
-              style={{
-                borderWidth: 1,
-                borderColor: borderColor,
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 12,
-                fontSize: isIpad() ? 17 : 15,
-                minHeight: 80,
-                textAlignVertical: 'top',
-                paddingTop: 8,
-                backgroundColor: inputBgColor,
-                color: textColor,
-              }}
-              placeholder="Habit Description"
-              multiline={true}
-              numberOfLines={2}
-              placeholderTextColor={placeholderColor}
-              value={description}
-              onChangeText={setDescription}
-            />
-          </YStack>
 
           <NotificationTimePicker
             notificationTime={notificationTime}

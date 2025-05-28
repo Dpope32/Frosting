@@ -23,7 +23,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     marginBottom: 0,
     height: webColumnCount === 1 ? isWeb? 72 : 48 : (webColumnCount === 2 ? isWeb ? 60 : 40 : 40),
     justifyContent: 'center',
-    backgroundColor: isDark ? '#101010' : '#bdbdbd',
+    backgroundColor: isDark ? '#0a0a0a' : '#f7f7f7',
     borderBottomWidth: 1,
     borderBottomColor: isDark ? '#333' : '#E8E8E8',
   },
@@ -42,7 +42,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     flex: 1,
     alignItems: 'center',
     paddingVertical: 0,
-    backgroundColor: isDark ? '#111' : '#FFFFFF',
+    backgroundColor: isDark ? '#111' : '#f7f7f7',
   },
   weekDay: {
     fontSize: webColumnCount === 1 ? isWeb? 18 : isIpad() ? 14 : 10 : (webColumnCount === 2 ? isWeb? 16 : isIpad() ? 14  : 14 : 11),
@@ -126,7 +126,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     position: 'relative',
     padding: 2,
     overflow: 'visible',
-    paddingTop: webColumnCount === 1 && isWeb ? 26 : webColumnCount === 2 ? 16 : webColumnCount === 3 ? 12 : 2,
+    paddingTop: webColumnCount === 1 ? (isWeb ? 26 : 20) : webColumnCount === 2 ? 16 : webColumnCount === 3 ? 12 : 2, // Adjusted for webColumnCount === 1 on web (reverted) and mobile (increased)
     gap: webColumnCount === 1 && isWeb ? 2 : 1,
   },
   pastDateOverlay: {
@@ -154,7 +154,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
         : (Platform.OS === 'web' ? 10 : isIpad() ? 9 : 8)),
     fontWeight: '700',
     color: isDark ? '#FFFFFF' : '#222222',
-    zIndex: 10
+    zIndex: 100 // Increased zIndex to ensure day number is on top
   },
   today: {
     borderWidth: 1.5,
@@ -220,7 +220,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   trailingBlankCell: {
     width: '14.28%',
     aspectRatio: 1,
-    backgroundColor: isDark ? '#000000' : '#FFFFFF',
+    backgroundColor: isDark ? '#0b0b0b' : '#f9f9f9',
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderTopWidth: 0,

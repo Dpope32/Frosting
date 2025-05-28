@@ -107,7 +107,7 @@ export const NoteCard = ({
             top: 0, left: 0, right: 0, bottom: 0,
             borderRadius: 9,
             borderWidth: isDark ? 2 : 1,
-            borderColor: isDark ? undefined : '#9c9c9c',
+            borderColor: isDark ? '#0a0a0a' : '#9c9c9c',
           }}
         />
         <YStack gap="$0">
@@ -157,10 +157,10 @@ export const NoteCard = ({
           {isExpanded && (
           <View
             style={{
-              height: 2,
+              height: 1,
               backgroundColor: colors.cardBorder,
-              marginHorizontal: horizontalPadding,
-              marginTop: 2,
+              marginHorizontal: horizontalPadding, 
+              marginTop: 1,
               marginBottom: 6,
               borderRadius: 2,
             }}

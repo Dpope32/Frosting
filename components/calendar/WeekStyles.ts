@@ -34,8 +34,8 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
   dayRow: {
     flexDirection: 'row',
     paddingVertical: 12,
-    borderRadius: 12,
-    overflow: 'hidden',
+    borderRadius: 0, // Removed rounded corners for all day rows
+    overflow: 'visible', // Changed from hidden
     paddingHorizontal: 15,
     borderBottomWidth: 1,
     borderBottomColor: isDark ? '#333' : '#5c5c5c',
@@ -45,13 +45,18 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
   },
   weekendDayRow: {
     backgroundColor: isDark ? '#252525' : '#F5F5F5',
-    borderRadius: 12,
-    overflow: 'hidden',
+    borderRadius: 0, // Removed rounded corners for weekend rows
+    overflow: 'visible', // Changed from hidden
   },
   today: {
     borderLeftWidth: 3,
     borderRightWidth: 3,
     borderBottomWidth: 3,
+    borderRadius: 0,
+    elevation: 0,    // Ensure no elevation
+    marginLeft: -3,   // Pull cell to the left edge
+    marginRight: -10,   // Re-apply padding for content alignment
+
   },
   pastDateRow: {
     position: 'relative',
@@ -90,7 +95,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     zIndex: 11,
   },
   dayInfo: {
-    width: 80,
+    width: 70, // Reduced from 80
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -106,13 +111,19 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     marginRight: 8,
   },
   dayNumber: {
-    fontSize: 18,
+    fontSize: 16, // Changed from 18 to match dayName
     fontWeight: '500',
     color: isDark ? '#FFFFFF' : '#333333',
   },
   eventsContainer: {
     flex: 1,
-    paddingLeft: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: isDark ? '#333' : '#5c5c5c', // Dark separator line
+    paddingLeft: 10, // Space between line and chip content
+    marginTop: -12, // Counteract dayRow.paddingVertical for the border
+    marginBottom: -12, // Counteract dayRow.paddingVertical for the border
+    paddingTop: 12, // Restore padding for content
+    paddingBottom: 12, // Restore padding for content
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
@@ -120,7 +131,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     justifyContent: 'flex-start',
     gap: 8,
     zIndex: 9,
-    minHeight: 55,
+    minHeight: 55, // This minHeight will now apply to the content area inside the new padding
   },
   eventIndicator: {
     flexDirection: 'row',
@@ -135,7 +146,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
   eventText: {
     fontSize: 14,
     marginLeft: 6,
-    maxWidth: 120,
+    maxWidth: 150, // Increased from 120 to 150
   },
   holidayIconText: {
     fontSize: 14,
@@ -147,4 +158,4 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     width: 20,
     height: 20,
   }
-}); 
+});
