@@ -233,54 +233,56 @@ export default function Onboarding() {
               <View flex={1} style={{ paddingBottom: isWeb ? 80 : 0 }}> 
                 {renderStep()}
               </View>
-              <View
-                position="absolute"
-                bottom={0}
-                left={0}
-                right={0}
-                padding="$4"
-                paddingBottom={getBottomPadding()}
-                backgroundColor="$onboardingIndexBackground" 
-                style={{ 
-                  borderTopWidth: keyboardVisible ? 0 : 1, 
-                  borderTopColor: '$onboardingIndexBorder',
-                  zIndex: 10 
-                }}> 
-                <XStack gap="$3" justifyContent="center" maxWidth={isWeb ? 750 : 500} alignSelf="center" width="100%">
-                  {step >= 0 && (
+              {!(isWeb && step === -2) && (
+                <View
+                  position="absolute"
+                  bottom={0}
+                  left={0}
+                  right={0}
+                  padding="$4"
+                  paddingBottom={getBottomPadding()}
+                  backgroundColor="$onboardingIndexBackground" 
+                  style={{ 
+                    borderTopWidth: keyboardVisible ? 0 : 1, 
+                    borderTopColor: '$onboardingIndexBorder',
+                    zIndex: 10 
+                  }}> 
+                  <XStack gap="$3" justifyContent="center" maxWidth={isWeb ? 750 : 500} alignSelf="center" width="100%">
+                    {step >= 0 && (
+                      <Button
+                        flex={1}
+                        width={isWeb ? 300 : isIpad() ? 150 : 100}
+                        height={isWeb ? 55 : isIpad() ? 50 : 43}
+                        variant="outlined"
+                        onPress={handleBack}
+                        backgroundColor="$onboardingIndexButtonBackground" 
+                        borderColor="$onboardingIndexButtonBorder"
+                        justifyContent="center"
+                        alignItems="center"
+                      > 
+                        <Text fontFamily="$body" color="$onboardingIndexButtonText" fontSize={14} fontWeight="bold">Back</Text> 
+                      </Button>
+                    )}
                     <Button
                       flex={1}
                       width={isWeb ? 300 : isIpad() ? 150 : 100}
-                      height={isWeb ? 55 : isIpad() ? 50 : 43}
-                      variant="outlined"
-                      onPress={handleBack}
-                      backgroundColor="$onboardingIndexButtonBackground" 
-                      borderColor="$onboardingIndexButtonBorder"
+                      height={isWeb ? 50 : isIpad() ? 50 : 43}
+                      backgroundColor={getButtonColor()} 
+                      borderColor="$onboardingIndexButtonBorder" 
+                      borderWidth={1}
+                      opacity={1}
+                      disabled={!canProceed()}
+                      onPress={handleNext}
                       justifyContent="center"
                       alignItems="center"
-                    > 
-                      <Text fontFamily="$body" color="$onboardingIndexButtonText" fontSize={14} fontWeight="bold">Back</Text> 
+                    >
+                      <Text fontFamily="$body" color={getButtonTextColor()} fontSize={14} fontWeight="500">
+                        {step === 5 ? 'Complete' : 'Continue'}
+                      </Text>
                     </Button>
-                  )}
-                  <Button
-                    flex={1}
-                    width={isWeb ? 300 : isIpad() ? 150 : 100}
-                    height={isWeb ? 50 : isIpad() ? 50 : 43}
-                    backgroundColor={getButtonColor()} 
-                    borderColor="$onboardingIndexButtonBorder" 
-                    borderWidth={1}
-                    opacity={1}
-                    disabled={!canProceed()}
-                    onPress={handleNext}
-                    justifyContent="center"
-                    alignItems="center"
-                  >
-                    <Text fontFamily="$body" color={getButtonTextColor()} fontSize={14} fontWeight="500">
-                      {step === 5 ? 'Complete' : 'Continue'}
-                    </Text>
-                  </Button>
-                </XStack>
-              </View>
+                  </XStack>
+                </View>
+              )}
             </View>
           </TouchableWithoutFeedback>
         ) : (
@@ -288,45 +290,47 @@ export default function Onboarding() {
             <View flex={1} style={{ paddingBottom: isMobileBrowser ? 80 : 0 }}> 
               {renderStep()}
             </View>
-            <View
-              position="absolute"
-              bottom={0}
-              left={0}
-              right={0}
-              padding="$4"
-              paddingBottom={24}
-              backgroundColor="$onboardingIndexBackground" 
-              style={{ 
-                borderTopWidth: 1, 
-                borderTopColor: '$onboardingIndexBorder',
-                zIndex: 10 
-              }}> 
-              <XStack gap="$3" justifyContent="center" maxWidth={500} alignSelf="center" width="100%">
-                {(step > -1) && (
+            {!(isWeb && !isMobileBrowser && step === -2) && (
+              <View
+                position="absolute"
+                bottom={0}
+                left={0}
+                right={0}
+                padding="$4"
+                paddingBottom={24}
+                backgroundColor="$onboardingIndexBackground" 
+                style={{ 
+                  borderTopWidth: 1, 
+                  borderTopColor: '$onboardingIndexBorder',
+                  zIndex: 10 
+                }}> 
+                <XStack gap="$3" justifyContent="center" maxWidth={500} alignSelf="center" width="100%">
+                  {(step > -1) && (
+                    <Button
+                      width={120}
+                      height={50}
+                      onPress={handleBack}
+                      backgroundColor="$onboardingIndexButtonBackground" 
+                      borderColor="$onboardingIndexButtonBorder"> 
+                      <Text fontFamily="$body" fontSize={isWeb ? 18 : 14} fontWeight="500" color="$onboardingIndexButtonText">Back</Text> 
+                    </Button>
+                  )}
                   <Button
-                    width={120}
-                    height={50}
-                    onPress={handleBack}
-                    backgroundColor="$onboardingIndexButtonBackground" 
-                    borderColor="$onboardingIndexButtonBorder"> 
-                    <Text fontFamily="$body" fontSize={isWeb ? 18 : 14} fontWeight="500" color="$onboardingIndexButtonText">Back</Text> 
+                    width={isWeb ? 300 : isIpad() ? 150 : 100}
+                    height={isWeb ? 52 : isIpad() ? 50 : 43}
+                    backgroundColor={getButtonColor()} 
+                    borderColor="$onboardingIndexButtonBorder" 
+                    borderWidth={1}
+                    opacity={1}
+                    disabled={!canProceed()}
+                    onPress={handleNext}>
+                    <Text fontFamily="$body" color={getButtonTextColor()} fontSize={isWeb ? 20 : isIpad() ? 18 : 16} fontWeight="500">
+                      {step === 5 ? 'Complete' : 'Continue'}
+                    </Text>
                   </Button>
-                )}
-                <Button
-                  width={isWeb ? 300 : isIpad() ? 150 : 100}
-                  height={isWeb ? 52 : isIpad() ? 50 : 43}
-                  backgroundColor={getButtonColor()} 
-                  borderColor="$onboardingIndexButtonBorder" 
-                  borderWidth={1}
-                  opacity={1}
-                  disabled={!canProceed()}
-                  onPress={handleNext}>
-                  <Text fontFamily="$body" color={getButtonTextColor()} fontSize={isWeb ? 20 : isIpad() ? 18 : 16} fontWeight="500">
-                    {step === 5 ? 'Complete' : 'Continue'}
-                  </Text>
-                </Button>
-              </XStack>
-            </View>
+                </XStack>
+              </View>
+            )}
           </View>
         )}
       </View>

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { YStack, XStack, H1, H2, H3, Text, Image, isWeb, ScrollView, Card, View, styled  } from 'tamagui';
+import React, { useState, useEffect, useRef } from 'react';
+import { YStack, XStack, H1, H2, H3, Text, isWeb, ScrollView, Card, View, styled, Button } from 'tamagui';
+import { Linking, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { features } from '@/constants/features';
 import { Marquee, MarqueeStyles } from '@/components/welcome/marquee';
 import { SyncSection } from '@/components/welcome/syncSection';
+import { useToastStore } from '@/store';
 // @ts-ignore
 import heroAmbient1 from '@/assets/videos/hero-ambient-1.mp4';
 // @ts-ignore
@@ -10,13 +12,30 @@ import heroAmbient2 from '@/assets/videos/hero-2.mp4';
 // @ts-ignore
 import heroAmbient3 from '@/assets/videos/hero-3.mp4';
 
-
-export default function WelcomeScreen({}: { onComplete: () => void }) {
+export default function WelcomeScreen({ onComplete }: { onComplete: () => void }) {
   const [gradientPos, setGradientPos] = useState(0);
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const [showContinueButton, setShowContinueButton] = useState(false);
+  const screenWidth = Dimensions.get('window').width;
+  
+  // Animation refs for sections
+  const marqueeOpacity = useRef(new Animated.Value(0)).current;
+  const marqueeTranslateY = useRef(new Animated.Value(50)).current;
+  const descriptionOpacity = useRef(new Animated.Value(0)).current;
+  const descriptionTranslateY = useRef(new Animated.Value(50)).current;
+  const syncSectionOpacity = useRef(new Animated.Value(0)).current;
+  const syncSectionTranslateY = useRef(new Animated.Value(50)).current;
+
+  // Track animation states to prevent re-triggering
+  const animationStates = useRef({
+    marquee: false,
+    description: false,
+    sync: false
+  });
 
   useEffect(() => {
     if (!isWeb) return;
-"Quick access to credentials"
+
     const interval = setInterval(() => {
       setGradientPos(prev => (prev + 0.5) % 100);
     }, 50);
@@ -24,7 +43,72 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Ambient background style (applied to ScrollView container)
+  // Optimized scroll listener with throttling and animation state tracking
+  useEffect(() => {
+    if (!isWeb) return;
+
+    const listener = scrollY.addListener(({ value }) => {
+      // Show button after scrolling 300px
+      setShowContinueButton(value > 300);
+      
+      // Animate marquee section (around 400px scroll)
+      if (value > 400 && !animationStates.current.marquee) {
+        animationStates.current.marquee = true;
+        Animated.parallel([
+          Animated.timing(marqueeOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(marqueeTranslateY, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+      
+      // Animate description section (around 500px scroll)
+      if (value > 500 && !animationStates.current.description) {
+        animationStates.current.description = true;
+        Animated.parallel([
+          Animated.timing(descriptionOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(descriptionTranslateY, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+      
+      // Animate sync section (around 1200px scroll)
+      if (value > 1200 && !animationStates.current.sync) {
+        animationStates.current.sync = true;
+        Animated.parallel([
+          Animated.timing(syncSectionOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(syncSectionTranslateY, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    });
+
+    return () => {
+      scrollY.removeListener(listener);
+    };
+  }, [scrollY, marqueeOpacity, marqueeTranslateY, descriptionOpacity, descriptionTranslateY, syncSectionOpacity, syncSectionTranslateY]);
+
+  // Ambient background style
   const webBackgroundStyle = isWeb ? {
     backgroundImage: [
       'radial-gradient(circle at 10% 20%, rgba(192, 128, 255, 0.15) 0%, transparent 35%)',
@@ -43,201 +127,346 @@ export default function WelcomeScreen({}: { onComplete: () => void }) {
     backgroundPosition: `${gradientPos}% 50%`
   } : {};
 
-
-
   const combinedContentContainerStyle = {
     flexGrow: 1,
-    paddingBottom: isWeb ? 80 : 0, 
+    paddingVertical: isWeb ? 80 : 0, 
     ...webBackgroundStyle 
   };
 
   const isMobileBrowser = isWeb && typeof window !== 'undefined' &&
     (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
 
-  return (
-    <ScrollView contentContainerStyle={combinedContentContainerStyle}>
-      {isWeb && <MarqueeStyles />}
-      <YStack
-        flex={1}
-        paddingHorizontal="$4"
-        paddingTop="$8"
-        gap="$2"
-        width="100%"
-        position="relative"
-        zi={1} 
-        minHeight="100vh"
-        justifyContent="space-between"
-      >
-        <YStack alignItems="center" gap="$4" marginVertical="$6" maxWidth={1200} marginHorizontal="auto" position="relative">
-          {isWeb && (
-            <View
-              position="absolute"
-              top={-60}
-              left={-80}
-              width={340}
-              height={340}
-              style={{
-                zIndex: 0,
-                pointerEvents: 'none',
-                background: 'radial-gradient(circle at 60% 40%, #C080FF33 0%, transparent 70%)',
-                filter: 'blur(24px)',
-              }}
-            />
-          )}
-          {isWeb && (
-            <View
-              position="absolute"
-              top={-60}
-              right={-100}
-              width={260}
-              height={260}
-              style={{
-                zIndex: 0,
-                pointerEvents: 'none',
-                background: 'radial-gradient(circle at 40% 60%, #4ADECD22 0%, transparent 70%)',
-                filter: 'blur(18px)',
-              }}
-            />
-          )}
+  const handleSignUp = React.useCallback(async () => {
+    try {
+      await Linking.openURL('https://kaiba.lemonsqueezy.com/');
+    } catch (error) {
+      useToastStore.getState().showToast('Failed to open signup page', 'error');
+    }
+  }, []);
 
-          <XStack position="relative" alignItems="center" zIndex={1}>
+  return (
+    <>
+      <ScrollView 
+        contentContainerStyle={{
+          ...combinedContentContainerStyle,
+          paddingVertical: isWeb ? 80 : 80, 
+          paddingLeft: 20,
+        }}
+        onScroll={isWeb ? Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        ) : undefined}
+        scrollEventThrottle={32}
+        showsVerticalScrollIndicator={false}
+      >
+        {isWeb && <MarqueeStyles />}
+        <YStack
+          flex={1}
+          paddingHorizontal="$4"
+          paddingTop="$12"
+          gap="$8"
+          width="100%"
+          position="relative"
+          zi={1} 
+          minHeight="100vh"
+          justifyContent="flex-start"
+          alignItems="center"
+        >
+          {/* Hero Section */}
+          <YStack alignItems="center" gap="$4" paddingVertical="$2" maxWidth={1400} marginHorizontal="auto" position="relative">
             {isWeb && (
-              <Image
-                source={require('@/assets/images/icon.png')}
+              <View
+                position="absolute"
+                top={-60}
+                left={-80}
+                width={340}
+                height={340}
                 style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
-                  position: 'absolute',
-                  left: -120,
-                  top: -48,
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  background: 'radial-gradient(circle at 60% 40%, #C080FF33 0%, transparent 70%)',
+                  filter: 'blur(24px)',
                 }}
               />
             )}
+            {isWeb && (
+              <View
+                position="absolute"
+                top={-40}
+                right={-100}
+                width={260}
+                height={260}
+                style={{
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  background: 'radial-gradient(circle at 40% 60%, #4ADECD22 0%, transparent 70%)',
+                  filter: 'blur(18px)',
+                }}
+              />
+            )}
+
             <H1
               color="$onboardingLabel"
               fontFamily="$heading"
-              fontSize={isWeb ? (isMobileBrowser ? "$10" : "$13") : "$9"}
+              fontSize={isWeb ? (isMobileBrowser ? "$9" : screenWidth * 0.05) : "$8"}
+              fontWeight="500"
+              textAlign="center"
               style={{
-                padding: 12,
                 background: isWeb ? 'linear-gradient(90deg, #C080FF 30%, #4ADECD 70%)' : undefined,
                 WebkitBackgroundClip: isWeb ? 'text' : undefined,
+                backgroundClip: isWeb ? 'text' : undefined,
                 WebkitTextFillColor: isWeb ? 'transparent' : undefined,
-                marginBottom: isWeb ? 0 : 8, 
-                marginTop: isWeb ? -45 : 8,
+                color: isWeb ? 'transparent' : '$onboardingLabel',
+                letterSpacing: '-0.02em',
+                maxWidth: '100%',
+                overflow: 'visible',
+                lineHeight: 1.2,
+                minHeight: 100,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              Kaiba Nexus
+              Kaiba
             </H1>
-          </XStack>
+            <H2 
+              color="$onboardingLabel" 
+              fontFamily="$heading" 
+              fontSize="$9" 
+              fontWeight="800"
+              textAlign="center"
+              opacity={0.95}
+              letterSpacing={0.9}
+            >
+              Your Personal Productivity Nexus
+            </H2>
+          </YStack>
+
+          <Text 
+            color="$onboardingLabel" 
+            fontSize="$6" 
+            textAlign="center" 
+            opacity={0.85}
+            lineHeight="$7"
+            maxWidth={600}
+            fontWeight="400"
+          >
+            Manage your calendar, tasks, passwords, and habits across all your devices with military-grade encryption.
+          </Text>
 
           {isWeb && (
-            <XStack
+            <Button
+              size="$6"
+              backgroundColor="$blue10"
+              color="white"
+              fontWeight="700"
+              borderRadius="$8"
+              paddingHorizontal="$20"
+              marginLeft={20}
+              paddingVertical="$5"
+              onPress={onComplete}
+              pressStyle={{ opacity: 0.8, scale: 0.98 }}
+              style={{
+                boxShadow: isWeb ? '0 12px 40px rgba(59, 130, 246, 0.4)' : undefined,
+                cursor: 'pointer',
+              }}
+            >
+              <Text fontSize="$5" fontWeight="700" color="white" letterSpacing={0.5}>
+                Continue
+              </Text>
+            </Button>
+          )}
+
+          {/* Web Content */}
+          {isWeb ? (
+            <YStack
               width="100%"
               alignItems="center"
               justifyContent="center"
-              marginTop={0}
-              marginBottom={-50}
-              gap={16}
-              style={{ display: 'flex' }}
+              gap="$6"
+              maxWidth={screenWidth}
+              marginHorizontal="auto"
             >
-              <video
-                src={heroAmbient3}
-                autoPlay
-                muted
-                loop
-                playsInline
+
+                <YStack width="100%" alignItems="center">
+                  <Marquee/>
+                </YStack>
+              <Animated.View
                 style={{
-                  width: '20%', 
-                  aspectRatio: '9/19.5',
-                  height: 380,
-                  borderRadius: 32,
-                  opacity: 0.95,
-                  objectFit: 'cover',
-                  boxShadow: '0 8px 48px #FF9D5C22, 0 2px 16px #6495ED22' 
+                  opacity: descriptionOpacity,
+                  transform: [{ translateY: descriptionTranslateY }],
+                  width: '100%',
+                  paddingTop: 40,
                 }}
-              /> 
-              <video
-                src={heroAmbient1}
-                autoPlay
-                muted
-                loop
-                playsInline
+              >
+                <YStack alignItems="center" width="100%" paddingBottom="$6">
+                  <H2>
+                    Different screen sizes? No problem.
+                  </H2>
+                  <Text color="$onboardingLabel" fontSize="$5" textAlign="center" opacity={0.85} lineHeight="$7" maxWidth={600} fontWeight="400" paddingTop="$4">
+                    Kaiba is designed to be used on any screen size.
+                    Many of our features include different layout options
+                    to ensure you get the most out of your device.
+                  </Text>
+                </YStack>
+
+                <XStack
+                  width="100%"
+                  alignItems="center"
+                  justifyContent="center"
+                  marginLeft={20}
+                  marginBottom="$6"
+                  gap={16}
+                  style={{ display: 'flex' }}
+                >
+                  <video
+                    src={heroAmbient3}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '14%', 
+                      aspectRatio: '9/21',
+                      zoom: 1.4,
+                      height: "82%",
+                      borderRadius: 32,
+                      opacity: 0.95,
+                      objectFit: 'cover',
+                      boxShadow: '0 8px 48px #FF9D5C22, 0 2px 16px #6495ED22' 
+                    }}
+                  /> 
+                  <video
+                    src={heroAmbient2}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '25%',
+                      height: "85%",
+                      borderRadius: 32,
+                      opacity: 0.95,
+                      zoom: 1.4,
+                      objectFit: 'cover',
+                      boxShadow: '0 8px 48px #4ADECD22, 0 2px 16px #C080FF33'
+                    }}
+                  />
+                </XStack>
+
+                <YStack alignItems="center">
+                  <video
+                    src={heroAmbient1}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '45%',
+                      height: "85%",
+                      borderRadius: 32,
+                      opacity: 0.95,
+                      objectFit: 'cover',
+                      boxShadow: '0 8px 48px #C080FF33, 0 2px 16px #4ADECD22'
+                    }}
+                  />
+                </YStack>
+              </Animated.View>
+              
+              {/* Sync Section */}
+              <Animated.View
                 style={{
-                  width: '50%',
-                  height: 380,
-                  borderRadius: 32,
-                  opacity: 0.95,
-                  objectFit: 'cover',
-                  boxShadow: '0 8px 48px #C080FF33, 0 2px 16px #4ADECD22'
+                  opacity: syncSectionOpacity,
+                  transform: [{ translateY: syncSectionTranslateY }],
+                  width: '100%',
+                  paddingTop: 40,
+                  paddingBottom: 120,
                 }}
-              />
-              <video
-                src={heroAmbient2}
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{
-                  width: '30%',
-                  height: 380,
-                  borderRadius: 32,
-                  opacity: 0.95,
-                  objectFit: 'cover',
-                  boxShadow: '0 8px 48px #4ADECD22, 0 2px 16px #C080FF33'
-                }}
-              />
-            </XStack>
+              >
+                <YStack alignItems="center" width="100%">
+                  <SyncSection />
+                </YStack>
+              </Animated.View>
+            </YStack>
+          ) : (
+            /* Mobile Content */
+            <YStack width="100%" alignItems="center" paddingVertical="$8">
+              <XStack flexWrap="wrap" justifyContent="center" gap="$4" maxWidth={1200} width="100%">
+                {features.map((feature) => (
+                  <Card
+                    key={feature.id}
+                    width="100%"
+                    minWidth={300}
+                    padding="$4"
+                    marginBottom="$4"
+                    backgroundColor="$onboardingCardBackground"
+                    borderColor="$onboardingCardBorder"
+                    borderWidth={1}
+                  >
+                    <H3
+                      color="$onboardingLabel"
+                      fontFamily="$heading"
+                      fontSize="$6"
+                      marginBottom="$3"
+                    >
+                      {feature.title}
+                    </H3>
+                    <YStack gap="$2" marginBottom="$3">
+                      {feature.items.map((item, i) => (
+                        <XStack key={i} alignItems="center" gap="$2">
+                          <Text fontFamily="$body" color="$onboardingButtonSecondaryText">•</Text>
+                          <Text fontFamily="$body" color="$onboardingLabel">{item}</Text>
+                        </XStack>
+                      ))}
+                    </YStack>
+                  </Card>
+                ))}
+              </XStack>
+            </YStack>
           )}
         </YStack>
+      </ScrollView>
 
-        {isWeb ? (
-          <YStack
-            width="100%"
-            mb={isMobileBrowser ? "$-2" : "$-4"} 
-            alignItems="center"
-            justifyContent="flex-start"
-            flex={1}
-            minHeight="100vh"
-            py={80}
+      {/* Floating Continue Button - Web Only */}
+      {isWeb && (
+        <Animated.View
+          style={{
+            position: 'fixed',
+            bottom: 30,
+            right: 30,
+            zIndex: 1000,
+            transform: [
+              {
+                translateY: showContinueButton ? 0 : 100,
+              },
+              {
+                scale: showContinueButton ? 1 : 0.8,
+              }
+            ],
+            opacity: showContinueButton ? 1 : 0,
+          }}
+        >
+          <TouchableOpacity
+            onPress={onComplete}
+            style={{
+              backgroundColor: '#3b82f6',
+              paddingHorizontal: 28,
+              paddingVertical: 18,
+              borderRadius: 50,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.25)',
+              cursor: 'pointer',
+            }}
           >
-            <Marquee/>
-            <SyncSection />
-          </YStack>
-        ) : (
-          <XStack flexWrap="wrap" justifyContent="center" gap="$4" marginBottom="$4" maxWidth={1200} marginHorizontal="auto">
-            {features.map((feature) => (
-              <Card
-                key={feature.id}
-                width="100%"
-                minWidth={300}
-                padding="$4"
-                marginBottom="$4"
-                backgroundColor="$onboardingCardBackground"
-                borderColor="$onboardingCardBorder"
-                borderWidth={1}
-              >
-                <H3
-                  color="$onboardingLabel"
-                  fontFamily="$heading"
-                  fontSize="$6"
-                  marginBottom="$3"
-                >
-                  {feature.title}
-                </H3>
-                <YStack gap="$2" marginBottom="$3">
-                  {feature.items.map((item, i) => (
-                    <XStack key={i} alignItems="center" gap="$2">
-                      <Text fontFamily="$body" color="$onboardingButtonSecondaryText">•</Text>
-                      <Text fontFamily="$body" color="$onboardingLabel">{item}</Text>
-                    </XStack>
-                  ))}
-                </YStack>
-              </Card>
-            ))}
-          </XStack>
-        )}
-      </YStack>
-    </ScrollView>
+            <Text style={{ color: 'white', fontWeight: '700', fontSize: 17, fontFamily: '$body' }}>
+              Continue
+            </Text>
+            <Text style={{ color: 'white', fontSize: 16, fontFamily: '$body' }}>→</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
+    </>
   );
 }

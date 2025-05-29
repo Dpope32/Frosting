@@ -170,7 +170,7 @@ export default function SyncScreen() {
 
   const handleSignUp = React.useCallback(async () => {
     try {
-      await Linking.openURL('https://deedaw.cc');
+      await Linking.openURL('https://kaiba.lemonsqueezy.com/');
     } catch (error) {
       useToastStore.getState().showToast('Failed to open signup page', 'error');
     }
