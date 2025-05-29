@@ -310,36 +310,46 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                   </Text>
                 </YStack>
 
-                <XStack
-                  width="100%"
-                  alignItems="center"
-                  justifyContent="center"
-                  marginLeft={20}
-                  marginBottom="$6"
-                  gap={16}
-                  style={{ display: 'flex' }}
-                >
-                  <View style={{ width: '30vw', height: '55vh', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(74, 222, 205, 0.4), 0 4px 16px rgba(192, 128, 255, 0.3)' }}>
-                    <video
-                      src={heroAmbient2}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                  <View style={{ width: '40vw', height: '60vh', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(192, 128, 255, 0.4), 0 4px 16px rgba(74, 222, 205, 0.3)' }}>
-                    <video
-                      src={heroAmbient1}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                </XStack>
+                {/* Web Video Showcase */}
+                <YStack alignItems="center" width="100%" paddingBottom="$6" gap="$4">
+                  <H2 color="$onboardingLabel" fontFamily="$heading" fontSize="$7" fontWeight="800" textAlign="center" marginBottom="$2">
+                    Showcase of Features
+                  </H2>
+                  <Text color="$onboardingLabel" fontSize="$5" textAlign="center" opacity={0.85} lineHeight="$7" maxWidth={600} fontWeight="400">
+                    Explore some of Kaiba's key features in action.
+                  </Text>
+                  <XStack
+                    width="100%"
+                    alignItems="center"
+                    justifyContent="center"
+                    marginLeft={20}
+                    marginBottom="$6"
+                    gap={30}
+                    style={{ display: 'flex', perspective: 1000 }}
+                  >
+                    <View style={{ width: '35%', height: '60vh', borderRadius: 24, overflow: 'hidden', transform: 'rotateY(-10deg) rotateX(5deg)', boxShadow: '0 20px 60px rgba(74, 222, 205, 0.5), 0 8px 24px rgba(192, 128, 255, 0.4)' }}>
+                      <video
+                        src={heroAmbient2}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </View>
+                    <View style={{ width: '45%', height: '65vh', borderRadius: 24, overflow: 'hidden', transform: 'rotateY(10deg) rotateX(-5deg)', boxShadow: '0 20px 60px rgba(192, 128, 255, 0.5), 0 8px 24px rgba(74, 222, 205, 0.4)' }}>
+                      <video
+                        src={heroAmbient1}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </View>
+                  </XStack>
+
+                </YStack>
 
                 <YStack alignItems="center">
                   <video
