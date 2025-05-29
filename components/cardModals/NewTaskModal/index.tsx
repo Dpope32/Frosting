@@ -121,6 +121,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setSelectedDate(pickedDate)
       const timeString = format(pickedDate, 'h:mm a')
       setNewTask(prev => ({ ...prev, time: timeString }))
+      setIsAdvancedSettingsOpen(true)
     }
   }, [])
 
@@ -128,6 +129,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     const timeString = format(date, 'h:mm a')
     setNewTask(prev => ({ ...prev, time: timeString }))
     setSelectedDate(date)
+    setIsAdvancedSettingsOpen(true)
   }, [])
 
   const handleTimePress = useCallback(() => {
@@ -312,7 +314,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   }, [])
 
   // Determine if submit button should be hidden
-  const shouldHideSubmitButton = showTimePicker || isDatePickerVisible || showNotifyTimeOptions;
+  const shouldHideSubmitButton = isDatePickerVisible || showNotifyTimeOptions;
 
   return (
     <Base

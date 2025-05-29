@@ -101,14 +101,45 @@ npx start web-dev
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-### Web Calendar Layout
-![Web Calendar Demo](assets/videos/hero-ambient-1.gif)
+## Web Features
+<div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto;">
+  <video controls autoplay loop muted playsinline style="height: 380px; width: auto; object-fit: cover;">
+    <source src="assets/videos/hero-ambient-1.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
 
-### iPad Calendar Layout
-<img src="assets/videos/hero-2.gif" style="height: 380px; width: auto;" />
-
-### iPhone Calendar Layout
-<img src="assets/videos/hero-3.gif" style="height: 300px; width: auto;" />
+## Mobile Features
+<div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto;">
+  <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/mobilehomescreen.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/calVaultBillsMobile.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/notesMobile.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/syncmobile.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/habitsAndProjectsMobile.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/hero-2.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+   <video controls autoplay loop muted playsinline style="height: 300px; width: auto; object-fit: cover;">
+    <source src="assets/videos/hero-3.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
 
 ## Contributing
 

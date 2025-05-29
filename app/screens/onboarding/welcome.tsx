@@ -319,39 +319,26 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                   gap={16}
                   style={{ display: 'flex' }}
                 >
-                  <video
-                    src={heroAmbient3}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{
-                      width: '14%', 
-                      aspectRatio: '9/21',
-                      zoom: 1.4,
-                      height: "82%",
-                      borderRadius: 32,
-                      opacity: 0.95,
-                      objectFit: 'cover',
-                      boxShadow: '0 8px 48px #FF9D5C22, 0 2px 16px #6495ED22' 
-                    }}
-                  /> 
-                  <video
-                    src={heroAmbient2}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{
-                      width: '25%',
-                      height: "85%",
-                      borderRadius: 32,
-                      opacity: 0.95,
-                      zoom: 1.4,
-                      objectFit: 'cover',
-                      boxShadow: '0 8px 48px #4ADECD22, 0 2px 16px #C080FF33'
-                    }}
-                  />
+                  <View style={{ width: '30vw', height: '55vh', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(74, 222, 205, 0.4), 0 4px 16px rgba(192, 128, 255, 0.3)' }}>
+                    <video
+                      src={heroAmbient2}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                  <View style={{ width: '40vw', height: '60vh', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(192, 128, 255, 0.4), 0 4px 16px rgba(74, 222, 205, 0.3)' }}>
+                    <video
+                      src={heroAmbient1}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
                 </XStack>
 
                 <YStack alignItems="center">
@@ -422,6 +409,86 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                   </Card>
                 ))}
               </XStack>
+
+              {/* Mobile Video Showcase */}
+              <YStack width="100%" alignItems="center" paddingVertical="$8">
+                <H2 color="$onboardingLabel" fontFamily="$heading" fontSize="$7" fontWeight="800" textAlign="center" marginBottom="$4">
+                  See Kaiba in Action
+                </H2>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}>
+                  <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={require('@/assets/videos/mobilehomescreen.mp4')}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={require('@/assets/videos/calVaultBillsMobile.mp4')}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={require('@/assets/videos/notesMobile.mp4')}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={require('@/assets/videos/syncmobile.mp4')}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={require('@/assets/videos/habitsAndProjectsMobile.mp4')}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={heroAmbient2} // Corresponds to hero-2.mp4
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
+                    <video
+                      src={heroAmbient3} // Corresponds to hero-3.mp4
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
+                </ScrollView>
+              </YStack>
+
             </YStack>
           )}
         </YStack>
@@ -431,7 +498,7 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
       {isWeb && (
         <Animated.View
           style={{
-            position: 'fixed',
+            position: 'absolute',
             bottom: 30,
             right: 30,
             zIndex: 1000,

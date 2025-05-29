@@ -37,7 +37,7 @@ const getRandomEmoji = (): string => {
   return emojis[Math.floor(Math.random() * emojis.length)];
 };
 
-export const getGreeting = (username: string, temp?: number): string => {
+export const getGreeting = (username: string, temp?: number, showUsername: boolean = true): string => {
   const nowMs = Date.now();
 
   // --- Cooldown Check ---
@@ -229,22 +229,22 @@ export const getGreeting = (username: string, temp?: number): string => {
   // --- Regular Personalized Greetings (expanded) ---
   const regularPersonalizedGreetings = [
     `${timeBasedGreeting}`,
-    `Welcome back, ${username}`,
-    `Hey ${username}, ${timeBasedGreeting.toLowerCase()}`,
-    `What's up, ${username}?`,
-    `${timeBasedGreeting}! Ready for action, ${username}?`,
-    `Greetings, ${username}`,
+    showUsername ? `Welcome back, ${username}` : 'Welcome back',
+    showUsername ? `Hey ${username}, ${timeBasedGreeting.toLowerCase()}` : `${timeBasedGreeting.toLowerCase()}`,
+    showUsername ? `What's up, ${username}?` : `What's up?`,
+    showUsername ? `${timeBasedGreeting}! Ready for action, ${username}?` : `${timeBasedGreeting}! Ready for action?`,
+    showUsername ? `Greetings, ${username}` : 'Greetings',
     `Hope you're having a great ${dayOfWeek}`,
     `How's your ${dayOfWeek} going`,
     `Let's make the most of ${dayOfWeek}`,
-    `Sending positive vibes, ${username}`,
-    `You got this, ${username}`,
-    `Keep crushing it, ${username}`,
-    `Stay awesome, ${username}`,
-    `Let's do this, ${username}`,
-    `Onward and upward, ${username}`,
-    `The day is yours, ${username}`,
-    `Seize the day, ${username}`,
+    showUsername ? `Sending positive vibes, ${username}` : 'Sending positive vibes',
+    showUsername ? `You got this, ${username}` : 'You got this',
+    showUsername ? `Keep crushing it, ${username}` : 'Keep crushing it',
+    showUsername ? `Stay awesome, ${username}` : 'Stay awesome',
+    showUsername ? `Let's do this, ${username}` : `Let's do this`,
+    showUsername ? `Onward and upward, ${username}` : 'Onward and upward',
+    showUsername ? `The day is yours, ${username}` : 'The day is yours',
+    showUsername ? `Seize the day, ${username}` : 'Seize the day',
   ];
 
   const edgyGreetingsThatShouldBeUsedRarely = [
@@ -283,7 +283,7 @@ export const getGreeting = (username: string, temp?: number): string => {
         selectedGreeting = `${timeBasedGreeting}`;
     }
     // Basic check to avoid double username in simple cases
-    else if (!selectedGreeting.includes(username)) {
+    else if (showUsername && !selectedGreeting.includes(username)) {
         selectedGreeting = `${selectedGreeting}, ${username}`;
     }
 

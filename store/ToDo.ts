@@ -344,12 +344,19 @@ export const useProjectStore = create<ProjectStore>()(
       },
       deleteTask: (id) => {
         const tasks = { ...get().tasks }
+        const existed = !!tasks[id];
+        console.log('[ToDo.deleteTask] Attempting to delete task:', id, 'Existed:', existed);
+        if (existed) {
+          console.log('[ToDo.deleteTask] Task details:', JSON.stringify(tasks[id], null, 2));
+        }
         delete tasks[id]
         set({ tasks, todaysTasks: taskFilter(tasks) })
+        console.log('[ToDo.deleteTask] After deletion, task exists?', !!tasks[id]);
+        console.log('[ToDo.deleteTask] Current tasks count:', Object.keys(tasks).length);
       },
       toggleTaskCompletion: (id) => {
-      
-        
+        // Completed tasks still display until midnight, then custom logic makes it not display the next day 
+        // if it is one-time. Otherwise, it follows the recurrence pattern.
         const tasks = { ...get().tasks }
         if (tasks[id]) {
           const todayLocalStr = format(new Date(), 'yyyy-MM-dd')

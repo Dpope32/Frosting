@@ -1,9 +1,9 @@
 import React from 'react'
-import { useColorScheme, Platform, Pressable } from 'react-native'
+import { useColorScheme, Platform } from 'react-native'
 import { XStack, Text, Button, isWeb } from 'tamagui'
 import { TaskPriority } from '@/types'
 import { getPriorityColor, withOpacity, isIpad } from '@/utils'
-import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 interface PrioritySelectorProps {
   selectedPriority: TaskPriority
@@ -85,37 +85,6 @@ export function PrioritySelector({
           )
         })}
       </XStack>
-      
-      {time && onTimePress && (
-        <XStack alignItems="center" gap="$1" ml="$3">
-          <Pressable
-            onPress={onTimePress}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 4,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              borderRadius: 8,
-              backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-            }}
-          >
-            <Text
-              color={isDark ? '#f1f1f1' : '#333'}
-              fontSize={isIpad() ? 15 : 13}
-              fontFamily="$body"
-              fontWeight="500"
-            >
-              {time}
-            </Text>
-            <MaterialIcons 
-              name="edit" 
-              size={isIpad() ? 16 : 14} 
-              color={isDark ? '#888' : '#666'} 
-            />
-          </Pressable>
-        </XStack>
-      )}
     </XStack>
   )
 } 

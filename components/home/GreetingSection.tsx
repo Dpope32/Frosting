@@ -4,13 +4,15 @@ import { getGreeting } from '@/services'
 import { useColorScheme } from 'react-native'
 import { useWeatherStore } from '@/store'
 import { isIpad } from '@/utils'
+import { Platform } from 'react-native'
 
 interface GreetingSectionProps { username: string }
 
 export const GreetingSection = ({ username }: GreetingSectionProps) => {
   const colorScheme = useColorScheme()
   const currentTemp = useWeatherStore(s => s.currentTemp)
-  const fullGreeting = getGreeting(username, currentTemp ?? undefined)
+  const showUsername = Platform.OS === 'web' || isIpad();
+  const fullGreeting = getGreeting(username, currentTemp ?? undefined, showUsername)
 
   return (
     <XStack 
@@ -20,14 +22,16 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       pl={isWeb ? "$2" : "$0"}
       ml={isIpad() ? -40 : 0}
       py={isWeb ? "$2" : isIpad() ? "$2" : "$1"}
+      maxWidth={isWeb ? 600 : isIpad() ? 500 : 320}
     >
-
-      <XStack alignItems="center" paddingRight={isWeb ? "$7" : isIpad() ? "$0" : "$0"} justifyContent="center"> 
+      <XStack alignItems="center" paddingRight={isWeb ? "$7" : "$0"} justifyContent="center"> 
         <Text
           fontFamily="$heading"
           fontSize={isWeb ? 23 : isIpad() ? 20 : 17}
           color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
           fontWeight="bold"
+          numberOfLines={1}
+          ellipsizeMode="tail"
         >
           {fullGreeting}
         </Text>

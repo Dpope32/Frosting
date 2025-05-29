@@ -13,9 +13,10 @@ import { isIpad } from '@/utils'
 import { EditVaultModal } from '@/components/cardModals/edits/EditVaultModal'
 import { VaultListModal } from '@/components/listModals/VaultListModal'
 import { VaultEntry } from '@/types/vault'
+import { VaultCardSkeleton } from '@/components/vault/VaultCardSkeleton'
 
 export default function VaultScreen() {
-  const { data, addVaultEntry, deleteVaultEntry } = useVault()
+  const { data, addVaultEntry, deleteVaultEntry, isLoading } = useVault()
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const showToast = useToastStore((state) => state.showToast)
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -142,13 +143,38 @@ export default function VaultScreen() {
             flexDirection: isWeb ? 'row' : undefined,
             flexWrap: isWeb ? 'wrap' : undefined,
             justifyContent: isWeb ? 'flex-start' : undefined,
-           rowGap: isWeb ? 12 : 16,
-           columnGap: isWeb ? 12 : 16,
+            rowGap: isWeb ? 12 : 16,
+            columnGap: isWeb ? 12 : 16,
             maxWidth: isWeb ? 1800 : undefined,
             marginHorizontal: isWeb ? 'auto' : undefined,
           }}
         >
-          {data?.items.length === 0 ? (
+          {isLoading ? (
+            isWeb ? (
+              Array.from({ length: 8 }).map((_, idx) => (
+                <VaultCardSkeleton key={idx} isWeb={isWeb} isDark={isDark} columnWidthWeb={columnWidthWeb} />
+              ))
+            ) : isIpad() ? (
+              <XStack width="100%" gap="$4">
+                <YStack flex={1} gap="$4">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <VaultCardSkeleton key={`ipad-left-${idx}`} isWeb={false} isDark={isDark} />
+                  ))}
+                </YStack>
+                <YStack flex={1} gap={isWeb ? "$4" : "$2"}>
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <VaultCardSkeleton key={`ipad-right-${idx}`} isWeb={false} isDark={isDark} />
+                  ))}
+                </YStack>
+              </XStack>
+            ) : (
+              <YStack gap={isWeb ? "$4" : "$2.5"} width="100%">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <VaultCardSkeleton key={idx} isWeb={false} isDark={isDark} />
+                ))}
+              </YStack>
+            )
+          ) : data?.items.length === 0 ? (
             <YStack 
               flex={1} 
               alignItems="center" 

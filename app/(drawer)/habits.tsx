@@ -87,7 +87,7 @@ export default function HabitsScreen() {
                 height: '100%',
               }}
             >
-              <View style={{ position: 'relative', zIndex: 1, gap: isIpad() ? 8 : 4}}>
+              <View style={{ position: 'relative', zIndex: 1, gap: isIpad() ? 16 : 12}}>
                 {habits.map((habit) => {
                   const today = format(new Date(), 'yyyy-MM-dd');
                   const doneToday = habit.completionHistory[today] || false;

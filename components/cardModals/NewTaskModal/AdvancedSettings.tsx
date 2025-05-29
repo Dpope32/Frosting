@@ -1,5 +1,5 @@
 import React from 'react'
-import { useColorScheme } from 'react-native'
+import { Pressable, useColorScheme } from 'react-native'
 import { XStack, YStack, Text, Button, AnimatePresence, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
@@ -80,10 +80,10 @@ export function AdvancedSettings({
     <YStack>
       <Button
         backgroundColor="transparent"
-        height={isIpad() ? isOpen ? 8 : 34 : isOpen ? 2 : 34}
+        height={isIpad() ? isOpen ? 2 : 34 : isOpen ? 2 : 34}
         onPress={handleButtonPress}
         pressStyle={{ opacity: 0.7 }}
-        width="100%"
+        width={200}
         px={0}
       >
         <XStack px={isWeb ? 6 : isIpad() ? "$2.5" : 5} alignItems="center" justifyContent="space-between" width="100%">
@@ -103,7 +103,7 @@ export function AdvancedSettings({
       </Button>
       
       <AnimatePresence>
-        {(isOpen || (showTimePicker && !time)) && (
+        {(isOpen || showTimePicker) && (
           <YStack
             key="advanced-settings-content"
             animation="quick"
@@ -114,8 +114,52 @@ export function AdvancedSettings({
             gap="$2"
             pb="$2"
           >
+            <Button
+              backgroundColor="transparent"
+              onPress={() => setShowTimePicker(true)}
+              px={0}
+              alignSelf="flex-start"
+              pressStyle={{ opacity: 0.7 }}
+              mt={0}
+              mb={6}
+              minHeight={40}
+              height={40}
+              flexDirection="row"
+              alignItems="center"
+              ml={time ?  -6 : 6}
+            >
+              <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={15} fontFamily="$body" fontWeight="500">
+                {time ? `` : 'Select Time'}
+              </Text>
+              {time && (
+                  <XStack alignItems="center" gap="$1" ml={time ? 0 : 6}>
+                    <Pressable
+                      onPress={() => setShowTimePicker(true)}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 4,
+                        paddingHorizontal: 12,
+                        paddingVertical: 10,
+                        borderRadius: 8,
+                        backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                      }}
+                    >
+                      <Text
+                        color={isDark ? '#f1f1f1' : '#333'}
+                        fontSize={isIpad() ? 15 : 13}
+                        fontFamily="$body"
+                        fontWeight="500"
+                      >
+                        {time}
+                      </Text>
+                    </Pressable>
+                  </XStack>
+                )}
+              <MaterialIcons name="keyboard-arrow-down" size={18} color={isDark ? '#6c6c6c' : '#9c9c9c'} style={{ marginLeft: 4 }} />
+            </Button>
             <YStack 
-              display={isOpen && !time ? "flex" : "none"}
+              display={showTimePicker ? "flex" : "none"}
               animation="quick"
               gap="$2" pb={6}
             >
@@ -132,11 +176,11 @@ export function AdvancedSettings({
             </YStack>
             
             <YStack 
-              display={isOpen && !showTimePicker ? "flex" : "none"}
+              display={!showTimePicker && isOpen ? "flex" : "none"}
               animation="quick"
               gap="$2"
             >
-              <YStack>
+              <YStack pt={6}>
                 <TagSelector
                   onTagsChange={onTagsChange}
                   tags={tags}

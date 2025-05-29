@@ -16,7 +16,7 @@ import { GreetingSection } from '@/components/home/GreetingSection'
 import { EasterEgg } from '../shared/EasterEgg'
 import { ProjectSection } from '@/components/home/ProjectSection'
 
-const DEBUG = false;
+const DEBUG = true;
 
 function log(...args: any[]) {
   if (DEBUG) { console.log('[TaskSection]', ...args)}
@@ -99,6 +99,26 @@ export const TaskSection = ({
       }
     }
     toggleTaskCompletion(id);
+  };
+
+  const handleDeleteTask = (id: string) => {
+    const task = todaysTasks.find(t => t.id === id);
+    if (DEBUG) {
+      log('Attempting to delete task:', id, task ? `Name: ${task.name}` : 'Task not found in todaysTasks');
+      log('Current todaysTasks count:', todaysTasks.length);
+      if (task) {
+        log('Task details:', JSON.stringify(task, null, 2));
+      }
+    }
+    deleteTask(id);
+    if (DEBUG) {
+      setTimeout(() => {
+        log('After deleteTask call. Checking if task still exists in todaysTasks:', id);
+        const stillExists = todaysTasks.some(t => t.id === id);
+        log('Task still exists after delete?', stillExists);
+        log('todaysTasks count after delete:', todaysTasks.length);
+      }, 500);
+    }
   };
 
   return (
@@ -255,7 +275,7 @@ export const TaskSection = ({
                       checked={isCompleted}
                       tags={task.tags}
                       onCheck={() => handleToggleTask(task.id)}
-                      onDelete={() => deleteTask(task.id)}
+                      onDelete={() => handleDeleteTask(task.id)}
                     />
                   </div>
                 );
@@ -319,7 +339,7 @@ export const TaskSection = ({
                           checked={isCompleted}
                           tags={task.tags}
                           onCheck={() => handleToggleTask(task.id)}
-                          onDelete={() => deleteTask(task.id)}
+                          onDelete={() => handleDeleteTask(task.id)}
                         />
                       </Stack>
                     );

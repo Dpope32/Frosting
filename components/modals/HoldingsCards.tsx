@@ -19,7 +19,7 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal, openAdd
 
   return (
     <YStack>
-      <XStack pt={isIpad() ? '$2' : '$1'} justifyContent="space-between" alignItems="center" paddingHorizontal="$3">
+      <XStack pb={isIpad() ? '$2' : '$1'} justifyContent="space-between" alignItems="center" paddingHorizontal="$3">
         <Text color={isDark ? '#999' : '#666'} fontFamily="$body" fontSize={14}>
           Holdings
         </Text>

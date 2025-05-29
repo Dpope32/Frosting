@@ -145,7 +145,9 @@ export const styles = StyleSheet.create({
     opacity: 0.6,
   },
   touchable: {
-    width: "100%"
+    width: "100%",
+    minHeight: 48,
+    paddingVertical: 8,
   },
   avatarContainer: {
     position: "relative",

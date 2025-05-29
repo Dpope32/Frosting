@@ -146,7 +146,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         habits: habitStateForSnapshot,
         bills: billStateForSnapshot, 
         calendar: calendarStateForSnapshot,
-        tasks: { ...useTaskStore.getState(), lastUpdated: now }, 
+        tasks: { ...useProjectStore.getState(), lastUpdated: now },
         notes: { sync_disabled: true, local_only: true, lastUpdated: now }, 
         user: { sync_disabled: true, lastUpdated: now }, 
         vault: vaultStateForSnapshot, 

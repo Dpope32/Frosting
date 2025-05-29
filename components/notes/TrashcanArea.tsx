@@ -51,7 +51,7 @@ const TrashcanArea = forwardRef<any, TrashcanAreaProps>(
         hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }}
       >
         <YStack alignItems="center" gap="$2" pointerEvents="none">
-          <MaterialIcons name="delete" size={isIpad() ? 50 : 40} color="$red11" />
+          <MaterialIcons name="delete" size={isIpad() ? 50 : 40} color="white" />
         </YStack>
       </Animated.View>
     );

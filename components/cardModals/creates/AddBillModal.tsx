@@ -142,11 +142,11 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                   placeholderTextColor="$placeholderColor"
                   color="$color"
                   fontFamily="$body"
-                  width="75%"
+                  width="60%"
                   fontSize={isWeb ? "$5" : "$4"}
                 />
-                <XStack alignItems="center" flex={1} justifyContent="flex-end" paddingLeft="$1" paddingRight="$2">
-                  <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$6" : "$4"} fontWeight="500">
+                <XStack alignItems="center" justifyContent="flex-end" paddingLeft="$1" paddingRight="$2" width="40%">
+                  <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$6" : "$4"} fontWeight="500" numberOfLines={1}>
                     ${formattedAmount}
                   </Text>
                 </XStack>

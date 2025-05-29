@@ -25,8 +25,6 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   const isDefaultCategoryDeleted = useCustomCategoryStore((s) => s.isDefaultCategoryDeleted)
   const userColor = useUserStore((s) => s.preferences.primaryColor)
   const showToast = useToastStore((s) => s.showToast)
-  
-  // Add state for creating a new category
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const lastTapRef = useRef<number>(0);

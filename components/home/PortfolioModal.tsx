@@ -68,7 +68,7 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
       hideHandle={true}
     >
       <YStack
-        gap={isWeb ? '$2' : '$1'}
+        gap={isWeb ? '$2' : '$3'}
         pb={isWeb ? '$5' : '$3'}
         pt={isWeb ? '$3' : isIpad() ? '$2' : '$1'}
       >
