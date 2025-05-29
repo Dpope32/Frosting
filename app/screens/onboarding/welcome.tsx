@@ -425,77 +425,19 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                 <H2 color="$onboardingLabel" fontFamily="$heading" fontSize="$7" fontWeight="800" textAlign="center" marginBottom="$4">
                   See Kaiba in Action
                 </H2>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}>
-                  <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={require('@/assets/videos/mobilehomescreen.mp4')}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={require('@/assets/videos/calVaultBillsMobile.mp4')}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={require('@/assets/videos/notesMobile.mp4')}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={require('@/assets/videos/syncmobile.mp4')}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={require('@/assets/videos/habitsAndProjectsMobile.mp4')}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={heroAmbient2} // Corresponds to hero-2.mp4
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                   <View style={{ width: 200, aspectRatio: '9/19', borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
-                    <video
-                      src={heroAmbient3} // Corresponds to hero-3.mp4
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}>
+                  {[heroAmbient2, heroAmbient3, require('@/assets/videos/mobilehomescreen.mp4'), require('@/assets/videos/calVaultBillsMobile.mp4'), require('@/assets/videos/notesMobile.mp4'), require('@/assets/videos/syncmobile.mp4'), require('@/assets/videos/habitsAndProjectsMobile.mp4')].map((videoSource, index) => (
+                    <View key={index} style={{ width: 220, aspectRatio: '9/19', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)' }}>
+                      <video
+                        src={videoSource}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </View>
+                  ))}
                 </ScrollView>
               </YStack>
 
