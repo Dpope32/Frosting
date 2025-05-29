@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, Platform, Pressable, StyleSheet } from 'react-native'
-import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -57,9 +56,8 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   const triggerDeleteAction = React.useCallback(() => {
     if (!isDeleting.value) {
       isDeleting.value = true;
-      runOnJS(handleNotificationFeedback)();
-      runOnJS(onDelete)((deleted: boolean) => {
-        'worklet';
+      handleNotificationFeedback();
+      onDelete((deleted: boolean) => {
         if (!deleted) {
           scale.value = withSpring(1, { damping: 15, stiffness: 100 });
           progress.value = withTiming(0, { duration: 200 });
@@ -69,44 +67,63 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     }
   }, [onDelete, handleNotificationFeedback, isDeleting, scale, progress]);
   
-  const longPressGesture = Gesture.LongPress()
-    .minDuration(delayBeforeFeedback)
-    .maxDistance(5)
-    .hitSlop({ left: 0, right: -40, top: 0, bottom: 0 }) // Increased right margin to avoid checkbox
-    .onStart(() => { // Changed from onBegin to onStart - this only fires after the 1-second delay
-      console.log('LongPress Gesture: onStart - Long press activated after delay.');
-      'worklet';
-      isDeleting.value = false;
-      progress.value = withTiming(1, {
-        duration: animationDuration,
-        easing: Easing.linear
-      }, (finished) => {
-        console.log('LongPress Gesture: Animation finished, triggering delete.');
-        'worklet';
-        if (finished && progress.value === 1) {
-          runOnJS(handleReadyHaptic)();
-          runOnJS(triggerDeleteAction)();
-        }
-      });
-      scale.value = withDelay(100, withSpring(1.02, { damping: 15, stiffness: 100 }));
-    })
-    .onFinalize(() => {
-      console.log('LongPress Gesture: onFinalize. isDeleting:', isDeleting.value);
-      'worklet';
-      if (!isDeleting.value) {
-        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-        progress.value = withTiming(0, { duration: 200 });
+  // Animation timers
+  const animationTimer = React.useRef<NodeJS.Timeout>();
+  const delayTimer = React.useRef<NodeJS.Timeout>();
+  
+  const startDeleteAnimation = () => {
+    console.log('Starting delete animation');
+    isDeleting.value = false;
+    
+    // Start the progress animation
+    progress.value = withTiming(1, {
+      duration: animationDuration,
+      easing: Easing.linear
+    }, (finished) => {
+      if (finished && progress.value === 1) {
+        handleReadyHaptic();
+        triggerDeleteAction();
       }
-    })
-    .onTouchesMove(() => {
-      console.log('LongPress Gesture: onTouchesMove - Cancelling due to movement');
-      'worklet';
-      cancelAnimation(progress);
-      progress.value = withTiming(0, { duration: 200 });
-      cancelAnimation(scale);
-      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      isDeleting.value = false;
     });
+    
+    // Start the scale animation with a slight delay
+    scale.value = withDelay(100, withSpring(1.02, { damping: 15, stiffness: 100 }));
+  };
+  
+  const cancelDeleteAnimation = () => {
+    console.log('Cancelling delete animation');
+    clearTimeout(delayTimer.current);
+    clearTimeout(animationTimer.current);
+    
+    if (!isDeleting.value) {
+      cancelAnimation(scale);
+      cancelAnimation(progress);
+      scale.value = withSpring(1, { damping: 15, stiffness: 100 });
+      progress.value = withTiming(0, { duration: 200 });
+    }
+  };
+  
+  const handlePressIn = () => {
+    console.log('Press in - starting delay timer');
+    // Start delay timer
+    delayTimer.current = setTimeout(() => {
+      startDeleteAnimation();
+    }, delayBeforeFeedback);
+  };
+  
+  const handlePressOut = () => {
+    console.log('Press out - cancelling');
+    cancelDeleteAnimation();
+  };
+  
+  const handleLongPress = () => {
+    // This shouldn't be called since we handle timing manually,
+    // but it's here as a fallback
+    console.log('Long press detected (fallback)');
+    if (!isDeleting.value && progress.value < 0.1) {
+      startDeleteAnimation();
+    }
+  };
     
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -116,10 +133,10 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   const progressStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     bottom: 0,
-    left: 0,
+    left: 5,
     right: 0,
     height: 2,
-    width: `${progress.value * 100}%`,
+    width: `${progress.value * 97}%`,
     borderRadius: 16,
     zIndex: 999,
     marginTop: 0,
@@ -163,77 +180,47 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
     padding: 0,
   }));
 
-  const webDelayTimer = React.useRef<NodeJS.Timeout>();
-  const webAnimationTimer = React.useRef<NodeJS.Timeout>();
-  
-  const contentZIndex = 2;
+  const contentZIndex = 10; 
   const overlayZIndex = 3;
   const textZIndex = 4;
   const progressZIndex = 1;
-  
-  const handlePressIn = () => {
-    console.log('Web: handlePressIn');
-    if (screen === 'web') {
-      isDeleting.value = false;
 
-      webDelayTimer.current = setTimeout(() => {
-        if (webDelayTimer.current !== null) {
-          console.log('Web: Starting animation after delay');
-          scale.value = withDelay(100, withSpring(1.02, { damping: 15, stiffness: 100 }));
-          progress.value = withTiming(1, {
-            duration: animationDuration,
-            easing: Easing.linear
-          });
-
-          webAnimationTimer.current = setTimeout(() => { 
-            runOnJS(handleReadyHaptic)(); 
-            runOnJS(triggerDeleteAction)(); 
-          }, animationDuration);
-        }
-      }, delayBeforeFeedback);
-    }
-  }
-  
-  const handlePressOut = () => {
-    if (screen === 'web') {
-      console.log('Web: handlePressOut - Cleaning up timers');
-      clearTimeout(webDelayTimer.current);
-      clearTimeout(webAnimationTimer.current);
-      webDelayTimer.current = undefined;
-      webAnimationTimer.current = undefined;
-
-      if (!isDeleting.value) {
-        cancelAnimation(scale);
-        cancelAnimation(progress);
-        scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-        progress.value = withTiming(0, { duration: 200 });
-      }
-    }
-  }
-
-  const content = (
-    <Animated.View style={animatedStyle}>
-      <Animated.View style={[deleteIndicatorStyle, { zIndex: overlayZIndex }]} />
-      <Animated.View style={[dimOverlayStyle, { zIndex: overlayZIndex }]} />
-      <View style={{ zIndex: contentZIndex, margin: 0, padding: 0 }}>{children}</View>
-      <Animated.View style={[deleteTextStyle, { zIndex: textZIndex }]}>
-        <XStack gap="$2" ai="center" justifyContent="center">
-          <Ionicons name="trash-outline" size={16} color="#ff3b30" />
-          <Text color="#ff3b30" fontSize={12} fontWeight="500">Delete</Text>
-        </XStack>
+  return (
+    <Pressable 
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      onLongPress={handleLongPress}
+      delayLongPress={delayBeforeFeedback + animationDuration} 
+      disabled={isDeleting.value}
+      style={{ flex: 1 }}
+    >
+      <Animated.View style={animatedStyle}>
+        <Animated.View style={[deleteIndicatorStyle, { zIndex: overlayZIndex }]} />
+        <Animated.View style={[dimOverlayStyle, { zIndex: overlayZIndex }]} />
+        
+        <View 
+          style={{ zIndex: contentZIndex, margin: 0, padding: 0 }}
+          pointerEvents="box-none" 
+        >
+          {children}
+        </View>
+        
+        <Animated.View style={[deleteTextStyle, { zIndex: textZIndex }]} pointerEvents="none">
+          <XStack gap="$2" ai="center" justifyContent="center">
+            <Ionicons name="trash-outline" size={16} color="#ff3b30" />
+            <Text color="#ff3b30" fontSize={12} fontWeight="500">Delete</Text>
+          </XStack>
+        </Animated.View>
+        
+        <Animated.View style={[progressStyle, { zIndex: progressZIndex, borderRadius: 2 }]} pointerEvents="none">
+          <LinearGradient
+            colors={['#CC0000', '#FF6666', '#FFCCCC']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[StyleSheet.absoluteFill, { margin: 0, padding: 0, borderRadius: 2 }]}
+          />
+        </Animated.View>
       </Animated.View>
-      <Animated.View style={[progressStyle, { zIndex: progressZIndex, borderRadius: 2 }]}>
-        <LinearGradient
-          colors={['#CC0000', '#FF6666', '#FFCCCC']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[StyleSheet.absoluteFill, { margin: 0, padding: 0, borderRadius: 2 }]}
-        />
-      </Animated.View>
-    </Animated.View>
+    </Pressable>
   );
-  
-  return screen === 'web'
-    ? <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} disabled={isDeleting.value}>{content}</Pressable>
-    : <GestureDetector gesture={longPressGesture}><Pressable disabled={isDeleting.value}>{content}</Pressable></GestureDetector>
 }
