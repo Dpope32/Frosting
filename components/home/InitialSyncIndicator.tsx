@@ -22,9 +22,9 @@ interface InitialSyncIndicatorProps {
 }
 
 export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
-  const premium = useUserStore(s => s.preferences.premium === true);
+  const premium = useUserStore(s => s.preferences?.premium === true);
   const isInitialSyncInProgress = useRegistryStore(s => s.isInitialSyncInProgress);
-  const primaryColor = useUserStore(s => s.preferences.primaryColor);
+  const primaryColor = useUserStore(s => s.preferences?.primaryColor) || '#007AFF';
   
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -149,7 +149,7 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
   return (
     <Animated.View style={{ 
       opacity: fadeAnim, 
-      pointerEvents: shouldShow ? 'auto' : 'none', // Fix: Disable pointer events when hidden
+      pointerEvents: shouldShow ? 'auto' : 'none',
       position: 'absolute',
       top: 0,
       left: 0,
@@ -183,8 +183,8 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
               boxShadow: isDark 
                 ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
                 : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)',
-              width: Platform.OS === 'web' ? (isIpad() ? 400 : 380) : '90%', 
-              maxWidth: Platform.OS === 'web' ? (isIpad() ? 400 : 380) : 400,
+              width: isIpad() ? 400 : 380,
+              maxWidth: isIpad() ? 400 : 380,
             }}
           >
             <ContentComponent />
