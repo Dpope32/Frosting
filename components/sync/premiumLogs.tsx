@@ -249,6 +249,15 @@ export const PremiumLogs = ({
             flexShrink={0}
           >
             <TouchableOpacity 
+              onPress={() => {
+                const { useProjectStore: useTaskStore } = require('@/store/ToDo');
+                useTaskStore.getState().debugSyncState();
+              }}
+              style={{ padding: 10, backgroundColor: colors.accent, borderRadius: 5 }}
+            >
+              <Text color="white">Debug Sync State</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
               onPress={exportLogs}
               disabled={isExporting}
               style={{ opacity: isExporting ? 0.5 : 1 }}

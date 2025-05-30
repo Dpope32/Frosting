@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import * as Notifications from 'expo-notifications';
 import { exportEncryptedState } from '@/sync';
 import { debounce } from 'lodash';
+import { format } from 'date-fns';
 
 // Import all stores
 import { useHabitStore } from './HabitStore';
@@ -146,7 +147,25 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         habits: habitStateForSnapshot,
         bills: billStateForSnapshot, 
         calendar: calendarStateForSnapshot,
-        tasks: { ...useTaskStore.getState(), lastUpdated: now }, 
+        tasks: (() => {
+          const taskState = useTaskStore.getState();
+          const today = format(new Date(), 'yyyy-MM-dd');
+          const tasksWithCompletion = Object.entries(taskState.tasks)
+            .filter(([_, task]) => task.completionHistory[today])
+            .map(([id, task]) => `${task.name.slice(0, 20)}(${id.slice(-6)}):${task.completionHistory[today]}`);
+          
+          if (tasksWithCompletion.length > 0) {
+            addSyncLog(
+              `[SNAPSHOT EXPORT] ${tasksWithCompletion.length} tasks with completion history for ${today}`,
+              'info',
+              tasksWithCompletion.slice(0, 5).join(', ') + (tasksWithCompletion.length > 5 ? '...' : '')
+            );
+          } else {
+            addSyncLog(`[SNAPSHOT EXPORT] No tasks have completion history for ${today}`, 'warning');
+          }
+          
+          return { ...taskState, lastUpdated: now };
+        })(),
         notes: { sync_disabled: true, local_only: true, lastUpdated: now }, 
         user: { sync_disabled: true, lastUpdated: now }, 
         vault: vaultStateForSnapshot, 
@@ -155,7 +174,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         customCategory: customCategoryState, 
         tags: tagsState, 
         projects: projectStateForSnapshot, 
-        wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now }, // Excluded
+        wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now },
       };
     },
 
