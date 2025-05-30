@@ -36,8 +36,8 @@ export function BaseCardAnimatedWS({
   const insets = useSafeAreaInsets()
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
   const actualWidth = Math.min(
-    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.88,
-    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
+    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.85,
+    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.88
   )
 
   if (!visible) return null;
@@ -81,6 +81,7 @@ export function BaseCardAnimatedWS({
                     marginBottom: insets.bottom + 40,
                     width: actualWidth,
                     maxHeight: screenHeight * 0.9,
+                    minHeight: 260,
                   }
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
@@ -130,7 +131,7 @@ export function BaseCardAnimatedWS({
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingBottom: screenHeight,
+            paddingBottom: screenHeight * 0.2,
           }}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
@@ -145,6 +146,7 @@ export function BaseCardAnimatedWS({
                   marginBottom: insets.bottom + 20,
                   width: actualWidth,
                   maxHeight: screenHeight,
+                  minHeight: 260,
                 }
               ]}
               onTouchEnd={(e) => e.stopPropagation()}

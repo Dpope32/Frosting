@@ -9,6 +9,7 @@ type JoiningProps = {
   setInputInviteCode: (text: string) => void;
   connectToWorkspace: () => void;
   isLoading: boolean;
+  isDark: boolean;
 };
 
 export function Joining({
@@ -17,9 +18,10 @@ export function Joining({
   setInputInviteCode,
   connectToWorkspace,
   isLoading,
+  isDark,
 }: JoiningProps) {
   return (
-    <YStack gap={baseSpacing * 2} padding={baseSpacing}>
+    <YStack gap={baseSpacing * 4} padding={baseSpacing}>
       <TextInput
         style={{
           backgroundColor: colors.card,
@@ -27,6 +29,7 @@ export function Joining({
           borderRadius: cardRadius,
           color: colors.text,
           fontSize: fontSizes.md,
+          width: '100%',
           borderWidth: 1,
           borderColor: colors.border,
         }}
@@ -48,7 +51,7 @@ export function Joining({
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text color="#fff" fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
+          <Text color={isDark ? "#3a3a3a" : "#fff"} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
             Join Workspace
           </Text>
         )}

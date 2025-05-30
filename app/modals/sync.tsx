@@ -178,6 +178,7 @@ export default function SyncScreen() {
   }, []);
 
   return (
+    <>
     <ScrollView
       style={[styles.container, { backgroundColor: colors.bg }]}
       contentContainerStyle={{ paddingTop: isIpad() ? 30 : insets.top, paddingBottom: isWeb ? 100 : isIpad() ? 50 : 25}}
@@ -269,19 +270,20 @@ export default function SyncScreen() {
           </XStack>
         )}
       </YStack>
-      {shouldShowSyncTable && showAddDevice && (
-        <AddDeviceModal
-          onClose={() => {
-            setShowAddDevice(false)
-            setInitialModalMode(undefined)
-          }}
-          initialMode={initialModalMode}
-          currentWorkspaceId={workspaceId}
-          onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
-          onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
-        />
-      )}
     </ScrollView>
+            {shouldShowSyncTable && showAddDevice && (
+            <AddDeviceModal
+              onClose={() => {
+                setShowAddDevice(false)
+                setInitialModalMode(undefined)
+              }}
+              initialMode={initialModalMode}
+              currentWorkspaceId={workspaceId}
+              onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
+              onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
+            />
+          )}
+          </>
   )
 }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWindowDimensions } from 'react-native';
+import { Dimensions, useWindowDimensions } from 'react-native';
 import { YStack } from 'tamagui';
 import { useColorScheme } from '@/hooks';
 import { BaseCardAnimatedWS } from '@/components/baseModals/BaseCardAnimatedWS';
@@ -31,6 +31,8 @@ export default function AddDeviceModal({
   const [isLoading, setIsLoading] = useState(false);
   const [workspaceId, setWorkspaceId] = useState<string | null>(currentWorkspaceId || null);
   const [inviteCode, setInviteCode] = useState<string>('');
+
+  const actualWidth = Dimensions.get('window').width * 0.55;
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
     initialMode === 'create' ? 'creating' : 
@@ -168,7 +170,7 @@ export default function AddDeviceModal({
   };
 
   return (
-    <BaseCardAnimated
+    <BaseCardAnimatedWS
       title={
         modalStep === 'connected' ? 'Sync Workspace' : 
         modalStep === 'showCode' ? 'Share Workspace' :
@@ -182,7 +184,9 @@ export default function AddDeviceModal({
         gap={baseSpacing} 
         paddingHorizontal={baseSpacing} 
         paddingVertical={baseSpacing}
-        minHeight={200}
+        minHeight={260}
+        width={actualWidth}
+        alignSelf="center"
         flex={1}
       >
         {modalStep === 'choose' && (
@@ -209,6 +213,7 @@ export default function AddDeviceModal({
         {modalStep === 'joining' && (
           <Joining
             colors={colors}
+            isDark={isDark}
             inputInviteCode={inputInviteCode}
             setInputInviteCode={setInputInviteCode}
             connectToWorkspace={connectToWorkspace}
@@ -227,7 +232,7 @@ export default function AddDeviceModal({
           />
         )}
       </YStack>
-    </BaseCardAnimated>
+    </BaseCardAnimatedWS>
   );
 }
 

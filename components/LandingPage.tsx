@@ -209,10 +209,11 @@ export function LandingPage() {
   }
   const filteredProjects = projects.filter((project) => project.status !== 'completed')
 
+  console.log('LandingPage: isMounted', isMounted, 'isDark', isDark);
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
-      <StarsAnimation /> 
+      <StarsAnimation />
       <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom={120} showsVerticalScrollIndicator={false} >
         <YStack pt={ptop} gap="$3" >
           {!isWeb && (
@@ -254,7 +255,7 @@ export function LandingPage() {
             <Stack alignItems="center" justifyContent="center" height={120}>
               <Text color="white">Loading tasks...</Text>
             </Stack>
-          )}
+          )} 
         </Stack>
          
           {Platform.OS === 'web' ?  (
@@ -290,11 +291,11 @@ export function LandingPage() {
         </YStack>
         <Stack height={180} />
       </ScrollView>
-
-
+      <InitialSyncIndicator isDark={isDark} />
+      {(() => { console.log('LandingPage: isMounted', isMounted); return null; })()}
       {isMounted && (
         <>
-          <InitialSyncIndicator isDark={isDark} />
+          {(() => { console.log('LandingPage: rendering modals/overlays'); return null; })()}
           <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
           <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
           <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />

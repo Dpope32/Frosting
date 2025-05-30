@@ -1,6 +1,6 @@
 // components/home/InitialSyncIndicator.tsx
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Platform, Animated, View } from 'react-native';
 import { YStack, XStack, Text, Stack, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -22,11 +22,10 @@ interface InitialSyncIndicatorProps {
 }
 
 export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
-  // Check if user store is hydrated and get registry sync status
+  // Check if user store is hydrated
   const userHydrated = useUserStore(s => s.hydrated);
-  const syncStatus = useRegistryStore(s => s.syncStatus);
   
-  // Early return if user store not hydrated - this prevents the crash
+  // Early return if user store not hydrated - this prevents crashes
   if (!userHydrated) {
     return null;
   }
@@ -38,136 +37,141 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [dots, setDots] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
+  const isComponentMounted = useRef(true); // For interval cleanup
 
   const shouldShow = premium && isInitialSyncInProgress;
 
-  // Safe mounting
+  // Defensive: ensure isIpad() always returns a boolean
+  const isIpadDevice = !!isIpad(); 
+  const safeWidth = isIpadDevice ? 400 : 380;
+  const safeMaxWidth = isIpadDevice ? 400 : 380;
+
   useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
+    isComponentMounted.current = true;
+    return () => {
+      isComponentMounted.current = false;
+    };
   }, []);
 
   // Rotation animation for sync icon
   useEffect(() => {
-    if (!isMounted || !shouldShow) return;
-
-    const startRotation = () => {
-      rotateAnim.setValue(0);
-      Animated.loop(
-        Animated.timing(rotateAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        })
-      ).start();
-    };
-
-    startRotation();
-
-    return () => {
+    if (!shouldShow) {
       rotateAnim.stopAnimation();
+      rotateAnim.setValue(0); // Reset animation value
+      return;
+    }
+    const animation = Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      })
+    );
+    animation.start();
+    return () => {
+      animation.stop();
     };
-  }, [rotateAnim, isMounted, shouldShow]);
+  }, [rotateAnim, shouldShow]);
 
   // Fade in animation
   useEffect(() => {
-    if (!isMounted || !shouldShow) return;
-
-    Animated.timing(fadeAnim, {
+    if (!shouldShow) {
+      fadeAnim.stopAnimation();
+      fadeAnim.setValue(0); // Reset fade to ensure it's hidden
+      return;
+    }
+    const animation = Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
-    }).start();
-
+    });
+    animation.start();
     return () => {
-      fadeAnim.stopAnimation();
+      animation.stop();
     };
-  }, [fadeAnim, isMounted, shouldShow]);
+  }, [fadeAnim, shouldShow]);
 
   // Animated dots
   useEffect(() => {
-    if (!isMounted || !shouldShow) return;
-
+    if (!shouldShow) {
+      setDots(''); // Reset dots when not showing
+      return;
+    }
     const interval = setInterval(() => {
+      if (!isComponentMounted.current) return; // Check if component is still mounted
       setDots(prev => {
         if (prev === '...') return '';
         return prev + '.';
       });
     }, 500);
-
     return () => clearInterval(interval);
-  }, [isMounted, shouldShow]);
+  }, [shouldShow]);
 
-  // Early return AFTER all hooks - but return an invisible, non-blocking container
-  if (!shouldShow || !isMounted) {
-    return (
-      <View style={{ 
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        pointerEvents: 'none', // Critical: Don't block touches when hidden
-        zIndex: -1, // Move behind everything when hidden
-      }} />
-    );
+  const rotation = useMemo(() => rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  }), [rotateAnim]);
+
+  const animatedViewStyle = useMemo(() => ({
+    opacity: fadeAnim,
+    pointerEvents: shouldShow ? 'auto' : 'none' as 'auto' | 'none',
+    position: 'absolute' as 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center' as 'center',
+    alignItems: 'center' as 'center',
+    zIndex: 10000,
+  }), [fadeAnim, shouldShow]);
+
+  // Early return if not showing - AFTER ALL HOOKS
+  if (!shouldShow) {
+    return null;
   }
 
   const backgroundColor = isDark ? "rgba(14, 14, 15, 0.75)" : "rgba(0, 0, 0, 0.35)";
-  
-  const rotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
 
-  const ContentComponent = () => (
-    <XStack alignItems="center" justifyContent="center" gap="$3" paddingVertical="$2">
-      <Animated.View
-        style={{
-          transform: [{ rotate: rotation }],
-        }}
-      >
-        <MaterialIcons 
-          name="sync" 
-          size={isWeb ? 24 : isIpad() ? 22 : 20} 
-          color={primaryColor} 
-        />
-      </Animated.View>
-      
-      <YStack alignItems="center" gap="$1">
-        <Text 
-          color="white" 
-          fontSize={isWeb ? 16 : isIpad() ? 15 : 14} 
-          fontWeight="600" 
-          fontFamily="$body"
+  const ContentComponent = () => {
+    const iconStyle = useMemo(() => ({
+      transform: [{ rotate: rotation }],
+    }), [rotation]);
+
+    return (
+      <XStack alignItems="center" justifyContent="center" gap="$3" paddingVertical="$2">
+        <Animated.View
+          style={iconStyle}
         >
-          Syncing with workspace{dots}
-        </Text>
-        <Text 
-          color={isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.8)"} 
-          fontSize={isWeb ? 13 : isIpad() ? 12 : 11} 
-          fontFamily="$body"
-        >
-          Pulling latest data from your devices
-        </Text>
-      </YStack>
-    </XStack>
-  );
+          <MaterialIcons 
+            name="sync" 
+            size={isWeb ? 24 : isIpadDevice ? 22 : 20} 
+            color={primaryColor} 
+          />
+        </Animated.View>
+        
+        <YStack alignItems="center" gap="$1">
+          <Text 
+            color="white" 
+            fontSize={isWeb ? 16 : isIpadDevice ? 15 : 14} 
+            fontWeight="600" 
+            fontFamily="$body"
+          >
+            Syncing with workspace{dots}
+          </Text>
+          <Text 
+            color={isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.8)"} 
+            fontSize={isWeb ? 13 : isIpadDevice ? 12 : 11} 
+            fontFamily="$body"
+          >
+            Pulling latest data from your devices
+          </Text>
+        </YStack>
+      </XStack>
+    );
+  };
 
   return (
-    <Animated.View style={{ 
-      opacity: fadeAnim, 
-      pointerEvents: shouldShow ? 'auto' : 'none',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 10000,
-    }}>
+    <Animated.View style={animatedViewStyle}>
       {Platform.OS === 'web' || !BlurView ? (
         <Stack
           position="absolute"
@@ -192,8 +196,8 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
               boxShadow: isDark 
                 ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
                 : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)',
-              width: isIpad() ? 400 : 380,
-              maxWidth: isIpad() ? 400 : 380,
+              width: safeWidth,
+              maxWidth: safeMaxWidth,
             }}
           >
             <ContentComponent />
@@ -224,8 +228,8 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
             shadowOpacity: 0.35,  
             shadowRadius: 12,
             elevation: 5, 
-            width: '90%', 
-            maxWidth: isIpad() ? 400 : 380, 
+            width: safeWidth, 
+            maxWidth: safeMaxWidth, 
           }}>
             <ContentComponent />
           </View>
