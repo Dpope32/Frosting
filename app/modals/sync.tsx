@@ -98,7 +98,7 @@ export default function SyncScreen() {
   const [premiumLoaded, setPremiumLoaded] = useState(false)
   const { width } = useWindowDimensions()
   const colors = getColors(isDark, primaryColor)
-  const contentWidth = isWeb ? width - baseSpacing * 2 : Math.min(width - baseSpacing * 2, isIpad() ? 450 : 350)
+  const contentWidth = isWeb ? width * 0.7025 : isIpad() ? Math.min(width - baseSpacing * 2, 600) : Math.min(width - baseSpacing * 2, 350);
   const syncStatus = useRegistryStore((s) => s.syncStatus)
   const { deviceId } = useDeviceId(premium)
   const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
@@ -164,6 +164,7 @@ export default function SyncScreen() {
     setShowAddDevice(false)
     setInitialModalMode(undefined)
     setWorkspaceId(id)
+    useRegistryStore.getState().setWorkspaceId(id)
     addSyncLog(`Workspace ${action}: ${id}`, 'success')
     useRegistryStore.getState().setSyncStatus('idle')
   }, [setWorkspaceId])

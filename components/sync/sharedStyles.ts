@@ -15,7 +15,7 @@ export type Colors = ReturnType<typeof getColors>;
 export const getColors = (isDark: boolean, primaryColor: string) => ({
   bg: isDark ? '#181A20' : '#fff',
   card: isDark ? '#23262F' : '#F7F8FA',
-  border: isDark ? '#333' : '#E3E5E8',
+  border: isDark ? '#333' : '#555',
   text: isDark ? '#fff' : '#181A20',
   subtext: isDark ? '#aaa' : '#666',
   accent: isDark ? "rgb(0, 255, 255)" : primaryColor,

@@ -176,7 +176,7 @@ export const PremiumLogs = ({
     >
       <Text 
         fontSize={wideMode ? 14 : 12} 
-        color={status === statusFilter ? "#3e3e3e" : colors.subtext} 
+        color={status === statusFilter ? isDark ? "#3e3e3e" : "#f9f9f9" : colors.subtext} 
         fontWeight="500" 
         fontFamily="$body"
       >
@@ -312,7 +312,7 @@ export const PremiumLogs = ({
           minHeight: wideMode ? 44 : 30,
           height: wideMode ? 44 : 30,
           marginTop:4,
-          backgroundColor: "#1f1f1f",
+          backgroundColor: isDark ? "#1f1f1f" : "#f0f0f0",
           borderWidth: 1,
           borderColor: colors.border,
         }}>

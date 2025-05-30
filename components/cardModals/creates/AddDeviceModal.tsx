@@ -12,7 +12,7 @@ import { ChooseAdd, Creating, ShowCode, Joining, Connected } from '@/components/
 type AddDeviceModalProps = {
   onClose: () => void;
   currentWorkspaceId?: string | null;
-  onWorkspaceCreated?: (id: string, inviteCode: string) => void;
+  onWorkspaceCreated?: (id: string) => void;
   onWorkspaceJoined?: (id: string) => void;
   initialMode?: 'create' | 'join';
 };
@@ -32,7 +32,11 @@ export default function AddDeviceModal({
   const [inviteCode, setInviteCode] = useState<string>('');
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
   const [inputWorkspaceId, setInputWorkspaceId] = useState<string>('');
-  const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(initialMode === 'create' ? 'creating' : initialMode === 'join' ? 'joining' :  'choose');
+  const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
+    initialMode === 'create' ? 'creating' : 
+    initialMode === 'join' ? 'joining' : 
+    'choose'
+  );
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = Math.min(width - baseSpacing * 2, 420);
@@ -40,9 +44,11 @@ export default function AddDeviceModal({
   useEffect(() => {
     addSyncLog('🛠️  AddDeviceModal mounted', 'verbose');
     
-    // Auto-trigger the appropriate action based on initialMode
+    // Auto-trigger the appropriate action based on initialMode with a small delay
     if (initialMode === 'create' && modalStep === 'creating') {
-      handleCreateWorkspace();
+      setTimeout(() => {
+        handleCreateWorkspace();
+      }, 100);
     }
 
     return () => addSyncLog('📤 AddDeviceModal un-mounted', 'verbose');
@@ -54,33 +60,54 @@ export default function AddDeviceModal({
 
   useEffect(() => {
     const checkWorkspace = async () => {
-      const id = await getCurrentWorkspaceId();
-      if (id) {
-        addSyncLog(`🔗 Existing workspace detected on device: ${id}`, 'info');
-        setWorkspaceId(id);
-        if (modalStep === 'choose') setModalStep('connected');
-      } else {
-        addSyncLog('🔍 No workspace file on device (first-time setup)', 'verbose');
+      try {
+        const id = await getCurrentWorkspaceId();
+        if (id) {
+          addSyncLog(`🔗 Existing workspace detected on device: ${id}`, 'info');
+          setWorkspaceId(id);
+          if (modalStep === 'choose') setModalStep('connected');
+        } else {
+          addSyncLog('🔍 No workspace file on device (first-time setup)', 'verbose');
+        }
+      } catch (error) {
+        addSyncLog('Error checking workspace', 'error', error instanceof Error ? error.message : String(error));
       }
     };
-    checkWorkspace();
-  }, []);
-
+    
+    // Only check if we're not in an active flow
+    if (modalStep === 'choose') {
+      checkWorkspace();
+    }
+  }, [modalStep]);
 
   const handleCreateWorkspace = async () => {
+    if (isLoading) return; // Prevent double execution
+    
     addSyncLog('🪄 User chose "Create Workspace"', 'info');
     setModalStep('creating');
+    
     try {
       setIsLoading(true);
       addSyncLog('Creating new sync workspace...', 'info');
+      
       const result = await createOrJoinWorkspace();
+      
+      // Set local state
       setWorkspaceId(result.id);
       setInviteCode(result.inviteCode);
+      
+      // Update store immediately
       useRegistryStore.getState().setWorkspaceId(result.id);
-      if (onWorkspaceCreated) { onWorkspaceCreated(result.id, result.inviteCode)}
+      
+      // Call parent callback
+      if (onWorkspaceCreated) {
+        onWorkspaceCreated(result.id);
+      }
+      
       addSyncLog(`Workspace created with ID: ${result.id.substring(0, 8)}`, 'success');
       useToastStore.getState().showToast('Your workspace is ready!', 'success');
       setModalStep('showCode');
+      
     } catch (error) {
       console.error('Error creating workspace:', error);
       addSyncLog('Failed to create workspace', 'error', 
@@ -107,6 +134,8 @@ export default function AddDeviceModal({
       return;
     }
     
+    if (isLoading) return; // Prevent double execution
+    
     setIsLoading(true);
     addSyncLog(
       `🔌 Attempting to join workspace ${inputWorkspaceId.trim().slice(0, 8)}…`,
@@ -115,16 +144,27 @@ export default function AddDeviceModal({
 
     try {
       addSyncLog('Joining existing workspace...', 'info');
+      
       const result = await createOrJoinWorkspace(
         inputWorkspaceId.trim(), 
         inputInviteCode.trim()
       );
+      
+      // Set local state
       setWorkspaceId(result.id);
+      
+      // Update store immediately and ensure it persists
       useRegistryStore.getState().setWorkspaceId(result.id);
-      if (onWorkspaceJoined) { onWorkspaceJoined(result.id)}
-      addSyncLog(  `✅ Joined workspace ${result.id.slice(0, 8)} (invite OK)`, 'success' );
+      
+      // Call parent callback
+      if (onWorkspaceJoined) {
+        onWorkspaceJoined(result.id);
+      }
+      
+      addSyncLog(`✅ Joined workspace ${result.id.slice(0, 8)} (invite OK)`, 'success');
       useToastStore.getState().showToast('Successfully joined workspace', 'success');
       setModalStep('connected');
+      
     } catch (error) {
       console.error('Failed to join workspace:', error);
       addSyncLog('Failed to join workspace', 'error',
@@ -146,7 +186,13 @@ export default function AddDeviceModal({
       }
       onClose={onClose}
     >
-      <YStack gap={baseSpacing} paddingHorizontal={baseSpacing} marginTop={-baseSpacing}>
+      <YStack 
+        gap={baseSpacing} 
+        paddingHorizontal={baseSpacing} 
+        paddingVertical={baseSpacing}
+        minHeight={200}
+        flex={1}
+      >
         {modalStep === 'choose' && (
           <ChooseAdd
             colors={colors}

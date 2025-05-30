@@ -22,6 +22,15 @@ interface InitialSyncIndicatorProps {
 }
 
 export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
+  // Check if user store is hydrated and get registry sync status
+  const userHydrated = useUserStore(s => s.hydrated);
+  const syncStatus = useRegistryStore(s => s.syncStatus);
+  
+  // Early return if user store not hydrated - this prevents the crash
+  if (!userHydrated) {
+    return null;
+  }
+  
   const premium = useUserStore(s => s.preferences?.premium === true);
   const isInitialSyncInProgress = useRegistryStore(s => s.isInitialSyncInProgress);
   const primaryColor = useUserStore(s => s.preferences?.primaryColor) || '#007AFF';

@@ -40,6 +40,11 @@ Sentry.init({
   sendDefaultPii: true,
   profilesSampleRate: 1.0,
   environment: 'production',
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+  integrations: [
+    Sentry.mobileReplayIntegration(),
+  ],
 });
 
 const queryClient = new QueryClient({
