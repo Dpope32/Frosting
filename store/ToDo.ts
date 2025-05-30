@@ -669,18 +669,8 @@ export const useProjectStore = create<ProjectStore>()(
                 if (syncCompleted) sources.push('sync=true');
                 if (historyCompleted) sources.push('history=true');
                 
-                addSyncLog(
-                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=true (${sources.join(', ')})`,
-                  'info',
-                  `Task will remain completed. Sources: ${sources.join(' | ')} | Task ID: ${id.slice(-8)}`
-                );
               } else {
-                addSyncLog(
-                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=false (local=false, sync=false, history=false)`,
-                  'verbose'
-                );
               }
-              
               return resolved;
             }
 

@@ -1,4 +1,5 @@
-// app/index.tsx  ← single source of truth for first-run sync
+// app/index.tsx - Enhanced version with initial sync tracking
+
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import { Platform } from 'react-native';
@@ -20,7 +21,7 @@ import {
 } from '@/store';
 import { useProjectStore as useTasks } from '@/store/ToDo';
 import { useProjectStore as useProjects } from '@/store/ProjectStore';
-import { pullLatestSnapshot, pushSnapshot } from '@/sync/snapshotPushPull';
+import { pullLatestSnapshot } from '@/sync/snapshotPushPull';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
@@ -45,8 +46,8 @@ export default function Index() {
     }
   }, [colorScheme]);
 
-  const { getAllStoreStates } = useRegistryStore.getState();
-
+  const { getAllStoreStates, startInitialSync, completeInitialSync } = useRegistryStore.getState();
+  const overallStartTime = Date.now();
   useAppInitialization();
 
   // dismiss splash card in ½ s
@@ -58,6 +59,7 @@ export default function Index() {
   // full-store hydration → export → pull once
   useEffect(() => {
     (async () => {
+      
       await Promise.all([
         useUserStore.persist.hasHydrated(),
         useTasks.persist.hasHydrated(),
@@ -71,28 +73,62 @@ export default function Index() {
         useTagStore.persist.hasHydrated(),
       ]);
       await useNoteStore.getState().loadNotes();
-
-      if (!premium) return;                                       
-      addSyncLog('📚 All stores hydrated (in app/index.tsx) with local cache', 'verbose');
+  
+      const hydrationTime = Date.now();
+      const hydrationDuration = hydrationTime - overallStartTime;
       
-      // Export state locally
+      addSyncLog(`📚 All stores hydrated in ${hydrationDuration}ms (${(hydrationDuration/1000).toFixed(1)}s)`, 'verbose');
+      if (Platform.OS === 'android') {
+        addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
+      }
+  
+      if (!premium) {
+        const totalTime = Date.now() - overallStartTime;
+        addSyncLog(`⚡ App ready for non-premium user in ${totalTime}ms (${(totalTime/1000).toFixed(1)}s)`, 'info');
+        return;
+      }                                       
+      
+      // Start tracking initial sync for premium users
+      startInitialSync();
+      
+      // Export phase timing
+      const exportStartTime = Date.now();
       const state = getAllStoreStates();
       await exportEncryptedState(state);
+      const exportEndTime = Date.now();
+      const exportDuration = exportEndTime - exportStartTime;
+      addSyncLog(`💾 Export phase completed in ${exportDuration}ms (${(exportDuration/1000).toFixed(1)}s)`, 'info');
   
       if (finishedOnboarding) {
-        // First pull latest
+        // Pull phase timing
+        const pullStartTime = Date.now();
         await pullLatestSnapshot();
-        addSyncLog(`📥 Latest snapshot pulled successfully`, 'success');
+        const pullEndTime = Date.now();
+        const pullDuration = pullEndTime - pullStartTime;
         
-        // Then push any local changes that might have happened while offline
-        await pushSnapshot();
-        addSyncLog(`📤 Local changes pushed to workspace`, 'success');
+        const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
+        addSyncLog(`📥 ${platformEmoji} Pull phase completed in ${pullDuration}ms (${(pullDuration/1000).toFixed(1)}s)`, 'success');
         
+        // Total timing breakdown
+        const totalTime = Date.now() - overallStartTime;
+        const syncTime = totalTime - hydrationDuration;
+        addSyncLog(`⚡ App startup breakdown: Hydration=${hydrationDuration}ms, Sync=${syncTime}ms, Total=${totalTime}ms`, 'info');
+        
+        // Complete initial sync tracking and show toast
+        completeInitialSync();
         useToastStore.getState().showToast('Synced with workspace', 'success');
+      } else {
+        // Complete initial sync even if onboarding not finished
+        completeInitialSync();
+        const totalTime = Date.now() - overallStartTime;
+        addSyncLog(`⚡ App ready (onboarding pending) in ${totalTime}ms (${(totalTime/1000).toFixed(1)}s)`, 'info');
       }
-    })().catch(e =>
-      addSyncLog('🔥 startup sync failed', 'error', e?.message || String(e))
-    );
+    })().catch(e => {
+      // Make sure to complete sync tracking even on error
+      completeInitialSync();
+      const totalTime = Date.now() - overallStartTime;
+      addSyncLog(`🔥 Startup sync failed after ${totalTime}ms: ${e?.message || String(e)}`, 'error');
+    });
   }, [premium, finishedOnboarding]);
 
   if (!finishedOnboarding) return <Redirect href="/screens/onboarding" />;

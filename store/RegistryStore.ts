@@ -25,6 +25,10 @@ interface RegistryState {
   notificationStatus: 'granted' | 'denied' | 'unavailable';
   stocksLastUpdated: number;
   workspaceId?: string | null;
+  
+  // NEW: Initial sync tracking
+  isInitialSyncInProgress: boolean;
+  initialSyncStartTime: number | null;
 
   setHasCompletedOnboarding: (value: boolean) => void;
   setIsFirstLaunch: (value: boolean) => void;
@@ -36,6 +40,10 @@ interface RegistryState {
   hydrateAll: (data: Record<string, any>) => void;
   syncOnboardingWithUser: () => void;
   setWorkspaceId: (id: string | null) => void;
+  
+  // NEW: Initial sync methods
+  startInitialSync: () => void;
+  completeInitialSync: () => void;
 }
 
 
@@ -56,6 +64,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     lastSyncAttempt: Date.now(),
     syncStatus: 'idle',
     notificationStatus: 'unavailable',
+    isInitialSyncInProgress: false,
+    initialSyncStartTime: null,
     stocksLastUpdated: 0,
     workspaceId: null,
     setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
@@ -89,7 +99,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         billStateForSnapshot.bills = billStoreFullState.bills;
         billStateForSnapshot.monthlyIncome = billStoreFullState.monthlyIncome;
         billStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills, income ${billStoreFullState.monthlyIncome}.`, 'info');
+       // addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills, income ${billStoreFullState.monthlyIncome}.`, 'info');
       } else {
         addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
       }
@@ -98,7 +108,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       if (vaultStoreFullState.isSyncEnabled) {
         vaultStateForSnapshot.vaultData = vaultStoreFullState.vaultData;
         vaultStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] Passwords (Vault) sync ON: Including ${vaultStoreFullState.vaultData?.items?.length || 0} items.`, 'info');
+    //    addSyncLog(`[Snapshot] Passwords (Vault) sync ON: Including ${vaultStoreFullState.vaultData?.items?.length || 0} items.`, 'info');
       } else {
         addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items.', 'info');
       }
@@ -107,7 +117,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       if (projectStoreFullState.isSyncEnabled) {
         projectStateForSnapshot.projects = projectStoreFullState.projects;
         projectStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] Projects sync ON: Including ${projectStoreFullState.projects?.length || 0} projects.`, 'info');
+     //   addSyncLog(`[Snapshot] Projects sync ON: Including ${projectStoreFullState.projects?.length || 0} projects.`, 'info');
       } else {
         addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
       }
@@ -116,7 +126,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       if (peopleStoreFullState.isSyncEnabled) {
         peopleStateForSnapshot.contacts = peopleStoreFullState.contacts;
         peopleStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] People (Contacts) sync ON: Including ${Object.keys(peopleStoreFullState.contacts || {}).length} contacts.`, 'info');
+   //     addSyncLog(`[Snapshot] People (Contacts) sync ON: Including ${Object.keys(peopleStoreFullState.contacts || {}).length} contacts.`, 'info');
       } else {
         addSyncLog('[Snapshot] People (Contacts) sync OFF: Excluding contacts.', 'info');
       }
@@ -125,7 +135,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       if (habitStoreFullState.isSyncEnabled) {
         habitStateForSnapshot.habits = habitStoreFullState.habits;
         habitStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] Habits sync ON: Including ${Object.keys(habitStoreFullState.habits || {}).length} habits.`, 'info');
+     //   addSyncLog(`[Snapshot] Habits sync ON: Including ${Object.keys(habitStoreFullState.habits || {}).length} habits.`, 'info');
       } else {
         addSyncLog('[Snapshot] Habits sync OFF: Excluding habits.', 'info');
       }
@@ -134,7 +144,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       if (calendarStoreFullState.isSyncEnabled) {
         calendarStateForSnapshot.events = calendarStoreFullState.events;
         calendarStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] Calendar sync ON: Including ${calendarStoreFullState.events?.length || 0} events.`, 'info');
+      //  addSyncLog(`[Snapshot] Calendar sync ON: Including ${calendarStoreFullState.events?.length || 0} events.`, 'info');
       } else {
         addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
       }
@@ -142,7 +152,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       // For stores that sync automatically (like CustomCategory and Tags as per user request)
       const customCategoryState = { ...useCustomCategoryStore.getState(), lastUpdated: now };
       const tagsState = { ...useTagStore.getState(), lastUpdated: now };
-      addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON ' + 'pulled ' + tagsState.tags.length + ' tags and ' + customCategoryState.categories.length + ' custom categories', 'info',);
+      // For ToDos in the Task store, we handle this in the Task store hydrateFromSync function
+     // addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON ' + 'pulled ' + tagsState.tags.length + ' tags and ' + customCategoryState.categories.length + ' custom categories', 'info',);
       return {
         habits: habitStateForSnapshot,
         bills: billStateForSnapshot, 
@@ -177,7 +188,26 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now },
       };
     },
-
+    startInitialSync: () => {
+      const startTime = Date.now();
+      addSyncLog('🚀 Starting initial sync for premium user', 'info');
+      set({ 
+        isInitialSyncInProgress: true, 
+        initialSyncStartTime: startTime 
+      });
+    },
+    
+    completeInitialSync: () => {
+      const { initialSyncStartTime } = get();
+      const endTime = Date.now();
+      const duration = initialSyncStartTime ? endTime - initialSyncStartTime : 0;
+      
+      addSyncLog(`✅ Initial sync completed in ${duration}ms (${(duration/1000).toFixed(1)}s)`, 'success');
+      set({ 
+        isInitialSyncInProgress: false, 
+        initialSyncStartTime: null 
+      });
+    },
     
     syncOnboardingWithUser: () => {
       // Keep registry and user store onboarding flags in sync

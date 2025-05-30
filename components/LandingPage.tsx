@@ -27,6 +27,7 @@ import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
 import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
+import { InitialSyncIndicator } from '@/components/home/InitialSyncIndicator';
 import { AssetSection } from '@/components/home/AssetSection'
 
 import { isIpad } from '@/utils';
@@ -214,6 +215,7 @@ export function LandingPage() {
       <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom={120} showsVerticalScrollIndicator={false} >
         <YStack pt={ptop} gap="$3" >
+          <InitialSyncIndicator isDark={isDark} />
           {!isWeb && (
             <Stack 
               borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
@@ -228,33 +230,33 @@ export function LandingPage() {
               />
             </Stack>
           )}
-          <Stack 
-            backgroundColor={backgroundColor} 
-            borderRadius={16} 
-            padding="$3" 
-            borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
-            borderWidth={1}
-            marginBottom="$2" 
-            style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
-                  boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
-              : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
-                  shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35,  shadowRadius: 12  }
-            }
-          >
-            {projectHydrated ? (
-              <TaskSection 
-                todaysTasks={todaysTasks} 
-                toggleTaskCompletion={toggleTaskCompletion} 
-                deleteTask={deleteTask} 
-                onAddTaskPress={handleNewTaskPress} 
-                onTaskListPress={() => setTaskListModalOpen(true)} 
-              />
-            ) : (
-              <Stack alignItems="center" justifyContent="center" height={120}>
-                <Text color="white">Loading tasks...</Text>
-              </Stack>
-            )}
-          </Stack>
+        <Stack 
+          backgroundColor={backgroundColor} 
+          borderRadius={16} 
+          padding="$3" 
+          borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
+          borderWidth={1}
+          marginBottom="$2" 
+          style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
+                boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
+            : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+                shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35,  shadowRadius: 12  }
+          }
+        >
+          {projectHydrated ? (
+            <TaskSection 
+              todaysTasks={todaysTasks} 
+              toggleTaskCompletion={toggleTaskCompletion} 
+              deleteTask={deleteTask} 
+              onAddTaskPress={handleNewTaskPress} 
+              onTaskListPress={() => setTaskListModalOpen(true)} 
+            />
+          ) : (
+            <Stack alignItems="center" justifyContent="center" height={120}>
+              <Text color="white">Loading tasks...</Text>
+            </Stack>
+          )}
+        </Stack>
          
           {Platform.OS === 'web' ?  (
             <Stack 
