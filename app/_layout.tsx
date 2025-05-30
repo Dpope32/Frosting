@@ -173,57 +173,66 @@ export default Sentry.wrap(function RootLayout() {
     }
   }, [loaded]);
 
-  // Enhanced app state change handler that considers premium status changes
-  useEffect(() => {
-    if (!loaded) return;
+// Enhanced app state change handler 
+useEffect(() => {
+  if (!loaded) return;
 
-    const handleAppStateChange = async (nextAppState: string) => {
-      const currentSyncStatus = useRegistryStore.getState().syncStatus;
-      const isPremium = useUserStore.getState().preferences.premium === true;
-      
-      if (currentSyncStatus === 'syncing' && (nextAppState === 'active' || nextAppState === 'background' || nextAppState === 'inactive')) {
-        addSyncLog(`🔄 Sync already in progress (${currentSyncStatus}), skipping AppState change for ${nextAppState}.`, 'verbose');
-        return;
-      }
-
-      // Only proceed if user is premium (either was premium or just became premium)
-      if (!loaded || !isPremium) return;
-      addSyncLog('🔄 Setting up background sync handler', 'verbose');
-      try {
-        if (nextAppState === 'active') {
-          addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
-          
-          await pullLatestSnapshot();
-          
-          setTimeout(() => {
-            useTaskStore.getState().recalculateTodaysTasks();
-          }, 500);
-          
-          useRegistryStore.getState().setSyncStatus('idle');
-          addSyncLog('✅ Resume pull completed', 'success');
-        } else if (nextAppState === 'background' || nextAppState === 'inactive') {
-          addSyncLog('📤 App backgrounded – pushing snapshot in app/_layout.tsx', 'info');
-          
-          await pushSnapshot();
-          
-          addSyncLog('✅ Background push completed', 'success');
-        }
-      } catch (e: any) {
-        useRegistryStore.getState().setSyncStatus('error');
-        
-        addSyncLog(
-          nextAppState === 'active' ? '❌ Resume pull failed' : '❌ Background push failed', 'error',
-          e.message
-        );
-      }
-    };
+  const handleAppStateChange = async (nextAppState: string) => {
+    const currentSyncStatus = useRegistryStore.getState().syncStatus;
+    const isPremium = useUserStore.getState().preferences.premium === true;
     
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => {
-      subscription.remove();
-      addSyncLog('🔄 AppState sync handler removed', 'verbose');
-    };
-  }, [loaded]);
+    if (currentSyncStatus === 'syncing') {
+      addSyncLog(`🔄 Sync already in progress (${currentSyncStatus}), skipping AppState change for ${nextAppState}.`, 'verbose');
+      return;
+    }
+
+    if (!loaded || !isPremium) return;
+    
+    try {
+      if (nextAppState === 'active') {
+        addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
+        await pullLatestSnapshot();
+        
+        setTimeout(() => {
+          useTaskStore.getState().recalculateTodaysTasks();
+        }, 500);
+        
+        addSyncLog('✅ Resume pull completed', 'success');
+      } else if (nextAppState === 'background' || nextAppState === 'inactive') {
+        addSyncLog('📤 App backgrounded – pushing snapshot in app/_layout.tsx', 'info');
+        
+        // 🚨 KEY IMPROVEMENTS:
+        // 1. Small delay to capture final state changes
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 2. Explicitly export current state before pushing
+        const state = useRegistryStore.getState().getAllStoreStates();
+        await exportEncryptedState(state);
+        
+        // 3. Then push
+        await pushSnapshot();
+        
+        addSyncLog('✅ Background push completed', 'success');
+      }
+    } catch (e: any) {
+      useRegistryStore.getState().setSyncStatus('error');
+      addSyncLog(
+        nextAppState === 'active' ? '❌ Resume pull failed' : '❌ Background push failed', 
+        'error',
+        e.message
+      );
+    } finally {
+      // 4. Always reset sync status
+      useRegistryStore.getState().setSyncStatus('idle');
+    }
+  };
+  
+  const subscription = AppState.addEventListener('change', handleAppStateChange);
+  return () => {
+    subscription.remove();
+    addSyncLog('🔄 AppState sync handler removed', 'verbose');
+  };
+}, [loaded]);
   
 
   if (!loaded) {

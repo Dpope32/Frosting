@@ -20,7 +20,7 @@ import {
 } from '@/store';
 import { useProjectStore as useTasks } from '@/store/ToDo';
 import { useProjectStore as useProjects } from '@/store/ProjectStore';
-import { pullLatestSnapshot } from '@/sync/snapshotPushPull';
+import { pullLatestSnapshot, pushSnapshot } from '@/sync/snapshotPushPull';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
@@ -74,19 +74,21 @@ export default function Index() {
 
       if (!premium) return;                                       
       addSyncLog('📚 All stores hydrated (in app/index.tsx) with local cache', 'verbose');
-      if (Platform.OS === 'android') {
-        addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
-      }
-      // one-shot export
+      
+      // Export state locally
       const state = getAllStoreStates();
       await exportEncryptedState(state);
-      //addSyncLog('🔐 stateSnapshot.enc exported (in app/index) to File System ', 'success');
-
+  
       if (finishedOnboarding) {
+        // First pull latest
         await pullLatestSnapshot();
-        const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
-        addSyncLog(`📥 ${platformEmoji} Latest snapshot pulled successfully on ${Platform.OS} within the index.tsx`, 'success');
-        useToastStore.getState().showToast('Pulled latest data from workspace', 'success');
+        addSyncLog(`📥 Latest snapshot pulled successfully`, 'success');
+        
+        // Then push any local changes that might have happened while offline
+        await pushSnapshot();
+        addSyncLog(`📤 Local changes pushed to workspace`, 'success');
+        
+        useToastStore.getState().showToast('Synced with workspace', 'success');
       }
     })().catch(e =>
       addSyncLog('🔥 startup sync failed', 'error', e?.message || String(e))
