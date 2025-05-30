@@ -9,6 +9,7 @@ interface FormattingToolbarProps {
   onUnderline: () => void;
   onBullet: () => void;
   onCode: () => void;
+  onCheckbox: () => void;
   onAttachImage: () => void;
 }
 
@@ -18,6 +19,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onUnderline,
   onBullet,
   onCode,
+  onCheckbox,
   onAttachImage,
 }) => {
   const iconColor = "#bbb";
@@ -69,6 +71,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         circular
         icon={<Text style={{ fontFamily: '$body', color: iconColor, fontSize: 16 }}>{'<>'}</Text>}
         onPress={onCode}
+        backgroundColor="transparent"
+        pressStyle={{ opacity: 0.7 }}
+      />
+      <Button
+        size="$4"
+        circular
+        icon={<Ionicons name="checkbox-outline" size={22} color={iconColor} />}
+        onPress={onCheckbox}
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />

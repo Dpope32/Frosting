@@ -144,12 +144,12 @@ export const useMarkdownStyles = () => {
       color: colors.text,
       fontSize: isTablet ? 18 : 16
     } as TextStyle,
-  em: { 
-    fontStyle: 'italic' as const,
-    fontFamily: '$body',
-    fontWeight: 'normal',
-    face: 'italic'
-  } as TextStyle,
+    em: { 
+      fontStyle: 'italic' as const,
+      fontFamily: '$body',
+      fontWeight: 'normal',
+      face: 'italic'
+    } as TextStyle,
     strong: { 
       fontWeight: 'bold' as const,
       fontFamily: '$body',
@@ -170,7 +170,32 @@ export const useMarkdownStyles = () => {
       marginTop: 4,
       marginHorizontal: 8,
       fontSize: isTablet ? 18 : 16
-    } as TextStyle
+    } as TextStyle,
+    checkbox: {
+      color: colors.text,
+      fontFamily: '$body',
+      fontSize: isTablet ? 18 : 16,
+      marginLeft: 10,
+      marginBottom: 3,
+      marginTop: 1,
+      position: 'relative',
+      paddingLeft: 24,
+    } as TextStyle,
+    checkbox_unchecked: {
+      width: 16,
+      height: 16,
+      borderWidth: 1.5,
+      borderRadius: 3,
+      borderColor: colors.textSecondary,
+      marginRight: 8,
+    } as ViewStyle,
+    checkbox_checked: {
+      backgroundColor: 'rgba(0, 200, 81, 0.1)',
+      borderColor: '#00C851',
+    } as ViewStyle,
+    checkbox_icon: {
+      color: '#00C851',
+    } as TextStyle,
   };
 
   /**
@@ -179,7 +204,7 @@ export const useMarkdownStyles = () => {
   const detectMarkdown = (content: string): boolean => {
     if (!content) return false;
     return Boolean(
-      content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- |\n- |```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[-*] |\n[-*] |__.*?__|`.*?`/)
+      content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- |\n- |```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[-*] |\n[-*] |- \[[ xX]?\]/)
     );
   };
 

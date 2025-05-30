@@ -328,22 +328,14 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                     style={{ display: 'flex', perspective: 1000 }}
                   >
                     <View style={{ width: '35%', height: '60vh', borderRadius: 24, overflow: 'hidden', transform: 'rotateY(-10deg) rotateX(5deg)', boxShadow: '0 20px 60px rgba(74, 222, 205, 0.5), 0 8px 24px rgba(192, 128, 255, 0.4)' }}>
-                      <video
-                        src={heroAmbient2}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
+                      <img
+                        src={require('@/assets/videos/hero-ambient-1.gif')}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </View>
                     <View style={{ width: '45%', height: '65vh', borderRadius: 24, overflow: 'hidden', transform: 'rotateY(10deg) rotateX(-5deg)', boxShadow: '0 20px 60px rgba(192, 128, 255, 0.5), 0 8px 24px rgba(74, 222, 205, 0.4)' }}>
-                      <video
-                        src={heroAmbient1}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
+                      <img
+                        src={require('@/assets/videos/hero-2.gif')}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </View>
@@ -420,24 +412,18 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                 ))}
               </XStack>
 
-              {/* Mobile Video Showcase */}
+              {/* Mobile GIF Showcase */}
               <YStack width="100%" alignItems="center" paddingVertical="$8">
                 <H2 color="$onboardingLabel" fontFamily="$heading" fontSize="$7" fontWeight="800" textAlign="center" marginBottom="$4">
-                  See Kaiba in Action
+                  App Adjusts Appearance to Your System Theme
                 </H2>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}>
-                  {[heroAmbient2, heroAmbient3, require('@/assets/videos/mobilehomescreen.mp4'), require('@/assets/videos/calVaultBillsMobile.mp4'), require('@/assets/videos/notesMobile.mp4'), require('@/assets/videos/syncmobile.mp4'), require('@/assets/videos/habitsAndProjectsMobile.mp4')].map((videoSource, index) => (
-                    <View key={index} style={{ width: 220, aspectRatio: '9/19', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)' }}>
-                      <video
-                        src={videoSource}
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </View>
-                  ))}
+                  <View style={{ width: 220, aspectRatio: '9/19', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)' }}>
+                    <img
+                      src={require('@/assets/videos/darkModeLightMOde.gif')}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </View>
                 </ScrollView>
               </YStack>
 

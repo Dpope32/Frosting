@@ -618,12 +618,6 @@ export const useProjectStore = create<ProjectStore>()(
           const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
           const today = format(new Date(), 'yyyy-MM-dd');
           
-          addSyncLog(
-            `[MERGE START] "${inc.name.slice(0, 25)}" merging completion data`,
-            'info',
-            `Local history: ${JSON.stringify(curr.completionHistory)} | Incoming history: ${JSON.stringify(inc.completionHistory)} | Local completed: ${curr.completed} | Incoming completed: ${inc.completed} | Local updatedAt: ${curr.updatedAt} | Incoming updatedAt: ${inc.updatedAt}`
-          );
-          
           // Merge incoming history, but respect timestamps and untoggle operations
           Object.entries(inc.completionHistory || {}).forEach(([date, value]) => {
             const hasLocalEntry = curr.completionHistory[date] !== undefined;
@@ -678,17 +672,9 @@ export const useProjectStore = create<ProjectStore>()(
               
               return resolved;
             }
-        
             // RECURRING TASKS: Completion is date-specific, check today's merged history first
             const todayFromHistory = mergedHistory[today] || false;
             const resolved = todayFromHistory || curr.completed;
-            
-            addSyncLog(
-              `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved}`,
-              'info',
-              `Today's history: ${todayFromHistory} | Local completed: ${curr.completed} | Final: ${resolved} | Pattern: ${inc.recurrencePattern}`
-            );
-            
             return resolved;
           })();
           

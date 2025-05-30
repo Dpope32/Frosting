@@ -248,6 +248,21 @@ export function AddNoteSheet({
     }
   }, [isModalOpen]);
 
+  const handleCheckbox = () => {
+    const checkboxSyntax = "- [ ] ";
+    const newContent = 
+      editContent.substring(0, selection.start) + 
+      checkboxSyntax + 
+      editContent.substring(selection.end);
+    setEditContent(newContent);
+    
+    // Move cursor after the inserted checkbox
+    const newCursorPos = selection.start + checkboxSyntax.length;
+    contentInputRef.current?.setNativeProps({
+      selection: { start: newCursorPos, end: newCursorPos }
+    });
+  };
+
   return (
     <Sheet
       modal
@@ -408,6 +423,7 @@ export function AddNoteSheet({
                     onUnderline={handleUnderline}
                     onBullet={handleBullet}
                     onCode={handleCode}
+                    onCheckbox={handleCheckbox}
                     onAttachImage={handleImagePick}
                   />
                 </YStack>
