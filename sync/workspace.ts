@@ -5,7 +5,7 @@ import { generateSyncKey, generateRandomKey, ensureWorkspaceKey, exportEncrypted
 import { useRegistryStore } from "@/store";
 import { storage } from "@/store/AsyncStorage";
 import { Platform } from "react-native";
-
+import { addSyncLog } from "@/components/sync/syncUtils";
 export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
@@ -29,12 +29,14 @@ export const createOrJoinWorkspace = async (
   
     workspaceId = ws.id;                                  // hydrate so old join-logic still works
   }
+  addSyncLog(`🔌 Joining workspace ${workspaceId}...`, 'info', inviteCode);   
   // ------------------------------------------------ JOIN
   if (workspaceId && inviteCode) {
     const ws = await pb.collection('sync_workspaces').getOne(workspaceId);
 
     if (ws.invite_code !== inviteCode) throw new Error('Invalid invite code');
-
+     addSyncLog('Invite code is valid', 'info', inviteCode);
+     addSyncLog('Expected invite code: ' + ws.invite_code, 'info');
     // 🔑 ensure shared_key exists
     let sharedKey = ws.shared_key as string;
     if (!sharedKey) {

@@ -91,10 +91,7 @@ export default function AddDeviceModal({
     try {
       setIsLoading(true);
       addSyncLog('Creating new sync workspace...', 'info');
-      const result = await createOrJoinWorkspace(
-          undefined,                     // workspaceId
-          inputInviteCode.trim()         // inviteCode
-        );
+      const result = await createOrJoinWorkspace();
       // Set local state
       setWorkspaceId(result.id);
       setInviteCode(result.inviteCode);
@@ -132,17 +129,14 @@ export default function AddDeviceModal({
     if (isLoading) return; // Prevent double execution
     
     setIsLoading(true);
-    addSyncLog(
-      `🔌 Attempting to join workspace ${inviteCode.trim().slice(0, 8)}…`,
-      'info'
-    );
+    const code = inputInviteCode.trim();
+    addSyncLog(`🔌 Attempting to join via ${code.slice(0, 8)}…`, 'info');
 
     try {
-      addSyncLog('Joining existing workspace...', 'info');
+      addSyncLog('Joining existing workspace...', 'info', inviteCode.trim());
       
-      const result = await createOrJoinWorkspace(
-        inputInviteCode.trim()
-      );
+      const result = await createOrJoinWorkspace(undefined, code);
+        setInviteCode(result.inviteCode);
       
       // Set local state
       setWorkspaceId(result.id);

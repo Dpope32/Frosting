@@ -151,7 +151,7 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
         
         <YStack alignItems="center" gap="$1">
           <Text 
-            color="white" 
+            color={isDark ? "white" : "black"} 
             fontSize={isWeb ? 16 : isIpadDevice ? 15 : 14} 
             fontWeight="600" 
             fontFamily="$body"
