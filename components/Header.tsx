@@ -21,7 +21,7 @@ import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
 import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
-import { useCalendarViewStore, useCalendarStore } from '@/store'
+import { useCalendarViewStore, useCalendarStore, useRegistryStore } from '@/store'
 import { useUserStore } from '@/store'
 import { isIpad } from '@/utils'
 import { Bill, VaultEntry } from '@/types'
@@ -57,7 +57,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
   const username = useUserStore(s => s.preferences.username);
   const { events } = useCalendarStore();
-  
+  const isSyncIndicatorActive = useRegistryStore(s => s.isInitialSyncInProgress);
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
@@ -229,9 +229,11 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     }
     else if (isCrmScreen) setShowPeopleListModal(true);
     else if (isProjectsScreen) setShowArchivedProjectsModal(true);
-    else setShowSettings(true);
+    else setShowSettings(true); 
   };
-
+if (isSyncIndicatorActive) {
+  return null;
+}
   return (
     <>
       {isWeb && (

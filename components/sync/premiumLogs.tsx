@@ -176,7 +176,7 @@ export const PremiumLogs = ({
     >
       <Text 
         fontSize={wideMode ? 14 : 12} 
-        color={status === statusFilter ? 'white' : colors.text} 
+        color={status === statusFilter ? "#3e3e3e" : colors.subtext} 
         fontWeight="500" 
         fontFamily="$body"
       >
@@ -240,8 +240,6 @@ export const PremiumLogs = ({
           paddingBottom={baseSpacing}
           flexWrap={wideMode ? 'nowrap' : 'wrap'}
           gap={wideMode ? 0 : baseSpacing}
-          borderBottomWidth={1}
-          borderColor={colors.border}
         >
           <XStack 
             gap={wideMode ? 16 : 10} 
@@ -253,14 +251,14 @@ export const PremiumLogs = ({
                 const { useProjectStore: useTaskStore } = require('@/store/ToDo');
                 useTaskStore.getState().debugSyncState();
               }}
-              style={{ padding: 10, backgroundColor: colors.accent, borderRadius: 5 }}
+              style={{ paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.6)",  width: 80, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text color="white">Debug Sync State</Text>
+              <Text color={colors.text}>Debug</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={exportLogs}
               disabled={isExporting}
-              style={{ opacity: isExporting ? 0.5 : 1 }}
+              style={{ opacity: isExporting ? 0.5 : 1, paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: colors.accent,  width: 70, alignItems: 'center', justifyContent: 'center' }}
             >
               <Text 
                 color={isExporting ? colors.subtext : colors.accent} 
@@ -271,7 +269,7 @@ export const PremiumLogs = ({
                 {isExporting ? 'Exporting...' : 'Export'}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={clearLogs}>
+            <TouchableOpacity onPress={clearLogs} style={{ paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: colors.error, width: 60, alignItems: 'center', justifyContent: 'center' }}>
               <Text 
                 color={colors.error} 
                 fontFamily="$body" 
@@ -306,12 +304,17 @@ export const PremiumLogs = ({
         </XStack>
 
         <View style={{
-          borderRadius: 12,
-          paddingHorizontal: wideMode ? 16 : 12,
+          borderRadius: 24,
+          paddingHorizontal: wideMode ? 16 : 10,
           marginBottom: baseSpacing,
           flexDirection: 'row',
           alignItems: 'center',
           minHeight: wideMode ? 44 : 30,
+          height: wideMode ? 44 : 30,
+          marginTop:4,
+          backgroundColor: "#1f1f1f",
+          borderWidth: 1,
+          borderColor: colors.border,
         }}>
           <Ionicons name="search" size={wideMode ? 18 : 16} color={colors.subtext} />
           <DebouncedInput

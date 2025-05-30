@@ -245,6 +245,7 @@ export default function SyncScreen() {
         {shouldShowSyncTable && premium && !workspaceId && premiumLoaded && (
           <NeedsWorkspace
             isDark={isDark}
+            width={contentWidth}
             onPressCreate={() => {
               setInitialModalMode('create')
               setShowAddDevice(true)

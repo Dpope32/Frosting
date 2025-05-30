@@ -15,10 +15,9 @@ interface NeedsWorkspaceProps {
 export default function NeedsWorkspace({ isDark, width, onPressCreate, onPressJoin }: NeedsWorkspaceProps) {
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colors = getColors(isDark, primaryColor);
-  const webWidth = width ? width * 0.7025 : '100%';
   return (
     <View style={{
-      width: isWeb ? '72%' : isIpad() ? '75%' : '95%',
+      width: width,
       backgroundColor: colors.card,
       borderRadius: cardRadius, 
       borderWidth: 1,

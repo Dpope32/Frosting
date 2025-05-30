@@ -215,7 +215,6 @@ export function LandingPage() {
       <StarsAnimation /> 
       <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom={120} showsVerticalScrollIndicator={false} >
         <YStack pt={ptop} gap="$3" >
-          <InitialSyncIndicator isDark={isDark} />
           {!isWeb && (
             <Stack 
               borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
@@ -291,6 +290,9 @@ export function LandingPage() {
         </YStack>
         <Stack height={180} />
       </ScrollView>
+
+        <InitialSyncIndicator isDark={isDark} />
+
       {isMounted && (
         <>
           <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
