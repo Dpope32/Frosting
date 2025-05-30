@@ -136,14 +136,6 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
   const isMobileBrowser = isWeb && typeof window !== 'undefined' &&
     (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
 
-  const handleSignUp = React.useCallback(async () => {
-    try {
-      await Linking.openURL('https://kaiba.lemonsqueezy.com/');
-    } catch (error) {
-      useToastStore.getState().showToast('Failed to open signup page', 'error');
-    }
-  }, []);
-
   return (
     <>
       <ScrollView 
