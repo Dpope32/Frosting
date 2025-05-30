@@ -179,7 +179,7 @@ export const SyncSection = () => {
                 fontWeight="600"
                 fontFamily="$body"
               >
-                Available with Premium Subscription for $3/month (currently free during beta)
+                Available with Premium Subscription 
               </Text>
               <Text color="#C080FF" fontSize="$3">→</Text>
             </XStack>

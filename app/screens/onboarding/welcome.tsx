@@ -304,46 +304,100 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                     Different screen sizes? No problem.
                   </H2>
                   <Text color="$onboardingLabel" fontSize="$5" textAlign="center" opacity={0.85} lineHeight="$7" maxWidth={600} fontWeight="400" paddingTop="$4">
-                    Kaiba is designed to be used on any screen size.
-                    Many of our features include different layout options
-                    to ensure you get the most out of your device.
+                    Kaiba is designed to work where you do.
                   </Text>
                 </YStack>
 
-                {/* Web Video Showcase */}
                 <YStack alignItems="center" width="100%" paddingBottom="$6" gap="$4">
-                  <H2 color="$onboardingLabel" fontFamily="$heading" fontSize="$7" fontWeight="800" textAlign="center" marginBottom="$2">
-                    Showcase of Features
-                  </H2>
-                  <Text color="$onboardingLabel" fontSize="$5" textAlign="center" opacity={0.85} lineHeight="$7" maxWidth={600} fontWeight="400">
-                    Explore some of Kaiba's key features in action.
-                  </Text>
                   <XStack
                     width="100%"
                     alignItems="center"
                     justifyContent="center"
-                    marginLeft={20}
                     marginBottom="$6"
-                    gap={30}
+                    gap={20}
                     style={{ display: 'flex', perspective: 1000 }}
                   >
-                    <View style={{ width: '35%', height: '60vh', borderRadius: 24, overflow: 'hidden', transform: 'rotateY(-10deg) rotateX(5deg)', boxShadow: '0 20px 60px rgba(74, 222, 205, 0.5), 0 8px 24px rgba(192, 128, 255, 0.4)' }}>
-                      <img
-                        src={require('@/assets/videos/hero-ambient-1.gif')}
+                    <View style={{ 
+                      width: 180, 
+                      height: 360, 
+                      borderRadius: 20, 
+                      overflow: 'hidden', 
+                      transform: 'rotateY(-8deg) rotateX(2deg)', 
+                      boxShadow: '0 12px 35px rgba(74, 222, 205, 0.3), 0 4px 15px rgba(192, 128, 255, 0.2)' 
+                    }}>
+                      <video
+                        src={require('@/assets/videos/mobilehomescreen.mp4')}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </View>
-                    <View style={{ width: '45%', height: '65vh', borderRadius: 24, overflow: 'hidden', transform: 'rotateY(10deg) rotateX(-5deg)', boxShadow: '0 20px 60px rgba(192, 128, 255, 0.5), 0 8px 24px rgba(74, 222, 205, 0.4)' }}>
-                      <img
-                        src={require('@/assets/videos/hero-2.gif')}
+                    
+                    <View style={{ 
+                      width: 180, 
+                      height: 360, 
+                      borderRadius: 20, 
+                      overflow: 'hidden', 
+                      transform: 'rotateY(-3deg) rotateX(1deg)', 
+                      boxShadow: '0 12px 35px rgba(255, 157, 92, 0.3), 0 4px 15px rgba(100, 149, 237, 0.2)' 
+                    }}>
+                      <video
+                        src={require('@/assets/videos/notesMobile.mp4')}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </View>
+                    
+                    <View style={{ 
+                      width: 180, 
+                      height: 360, 
+                      borderRadius: 20, 
+                      overflow: 'hidden', 
+                      transform: 'rotateY(3deg) rotateX(-1deg)', 
+                      boxShadow: '0 12px 35px rgba(192, 128, 255, 0.3), 0 4px 15px rgba(74, 222, 205, 0.2)' 
+                    }}>
+                      <video
+                        src={require('@/assets/videos/syncmobile.mp4')}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </View>
+                    
+                    <View style={{ 
+                      width: 180, 
+                      height: 360, 
+                      borderRadius: 20, 
+                      overflow: 'hidden', 
+                      transform: 'rotateY(8deg) rotateX(-2deg)', 
+                      boxShadow: '0 12px 35px rgba(255, 215, 0, 0.3), 0 4px 15px rgba(255, 157, 92, 0.2)' 
+                    }}>
+                      <video
+                        src={require('@/assets/videos/habitsAndProjectsMobile.mp4')}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </View>
                   </XStack>
-
                 </YStack>
 
-                <YStack alignItems="center">
+                <XStack 
+                  alignItems="center" 
+                  justifyContent="center"
+                  paddingBottom="$8"
+                  gap={40}
+                  width="100%"
+                >
                   <video
                     src={heroAmbient1}
                     autoPlay
@@ -351,18 +405,34 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                     loop
                     playsInline
                     style={{
-                      width: '45%',
-                      height: "85%",
+                      width: '55%',
+                      maxWidth: 700,
+                      height: "auto",
                       borderRadius: 32,
                       opacity: 0.95,
                       objectFit: 'cover',
                       boxShadow: '0 8px 48px #C080FF33, 0 2px 16px #4ADECD22'
                     }}
                   />
-                </YStack>
+                  <video
+                    src={heroAmbient2}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '30%',
+                      maxWidth: 400,
+                      height: "auto",
+                      borderRadius: 32,
+                      opacity: 0.95,
+                      objectFit: 'cover',
+                      boxShadow: '0 8px 48px #4ADECD33, 0 2px 16px #C080FF22'
+                    }}
+                  />
+                </XStack>
               </Animated.View>
               
-              {/* Sync Section */}
               <Animated.View
                 style={{
                   opacity: syncSectionOpacity,
@@ -378,7 +448,6 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
               </Animated.View>
             </YStack>
           ) : (
-            /* Mobile Content */
             <YStack width="100%" alignItems="center" paddingVertical="$8">
               <XStack flexWrap="wrap" justifyContent="center" gap="$4" maxWidth={1200} width="100%">
                 {features.map((feature) => (
@@ -411,28 +480,12 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
                   </Card>
                 ))}
               </XStack>
-
-              {/* Mobile GIF Showcase */}
-              <YStack width="100%" alignItems="center" paddingVertical="$8">
-                <H2 color="$onboardingLabel" fontFamily="$heading" fontSize="$7" fontWeight="800" textAlign="center" marginBottom="$4">
-                  App Adjusts Appearance to Your System Theme
-                </H2>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 20 }}>
-                  <View style={{ width: 220, aspectRatio: '9/19', borderRadius: 20, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)' }}>
-                    <img
-                      src={require('@/assets/videos/darkModeLightMOde.gif')}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </View>
-                </ScrollView>
-              </YStack>
-
+                 
             </YStack>
           )}
         </YStack>
       </ScrollView>
 
-      {/* Floating Continue Button - Web Only */}
       {isWeb && (
         <Animated.View
           style={{
