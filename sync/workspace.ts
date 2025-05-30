@@ -22,7 +22,13 @@ export const createOrJoinWorkspace = async (
 ): Promise<WorkspaceMeta> => {
   const pb       = await getPocketBase();
   const deviceId = await generateSyncKey();
-
+  if (!workspaceId && inviteCode) {
+    const ws = await pb
+      .collection('sync_workspaces')
+      .getFirstListItem(`invite_code="${inviteCode}"`);   // ← indexed column
+  
+    workspaceId = ws.id;                                  // hydrate so old join-logic still works
+  }
   // ------------------------------------------------ JOIN
   if (workspaceId && inviteCode) {
     const ws = await pb.collection('sync_workspaces').getOne(workspaceId);

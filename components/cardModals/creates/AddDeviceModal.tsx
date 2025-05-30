@@ -8,6 +8,7 @@ import { getCurrentWorkspaceId, createOrJoinWorkspace } from '@/sync';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { baseSpacing, getColors } from '@/components/sync/sharedStyles';
 import { ChooseAdd, Creating, ShowCode, Joining, Connected } from '@/components/sync/addDevice';
+import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated';
 
 type AddDeviceModalProps = {
   onClose: () => void;
@@ -31,7 +32,6 @@ export default function AddDeviceModal({
   const [workspaceId, setWorkspaceId] = useState<string | null>(currentWorkspaceId || null);
   const [inviteCode, setInviteCode] = useState<string>('');
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
-  const [inputWorkspaceId, setInputWorkspaceId] = useState<string>('');
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
     initialMode === 'create' ? 'creating' : 
     initialMode === 'join' ? 'joining' : 
@@ -89,9 +89,10 @@ export default function AddDeviceModal({
     try {
       setIsLoading(true);
       addSyncLog('Creating new sync workspace...', 'info');
-      
-      const result = await createOrJoinWorkspace();
-      
+      const result = await createOrJoinWorkspace(
+          undefined,                     // workspaceId
+          inputInviteCode.trim()         // inviteCode
+        );
       // Set local state
       setWorkspaceId(result.id);
       setInviteCode(result.inviteCode);
@@ -125,20 +126,12 @@ export default function AddDeviceModal({
   };
 
   const connectToWorkspace = async () => {
-    if (!inputWorkspaceId.trim() || !inputInviteCode.trim()) {
-      addSyncLog('⚠️  Join aborted – empty Workspace ID / Invite Code', 'warning');
-      useToastStore.getState().showToast(
-        'Please enter both workspace ID and invite code',
-        'error'
-      );
-      return;
-    }
     
     if (isLoading) return; // Prevent double execution
     
     setIsLoading(true);
     addSyncLog(
-      `🔌 Attempting to join workspace ${inputWorkspaceId.trim().slice(0, 8)}…`,
+      `🔌 Attempting to join workspace ${inviteCode.trim().slice(0, 8)}…`,
       'info'
     );
 
@@ -146,7 +139,6 @@ export default function AddDeviceModal({
       addSyncLog('Joining existing workspace...', 'info');
       
       const result = await createOrJoinWorkspace(
-        inputWorkspaceId.trim(), 
         inputInviteCode.trim()
       );
       
@@ -176,7 +168,7 @@ export default function AddDeviceModal({
   };
 
   return (
-    <BaseCardAnimatedWS
+    <BaseCardAnimated
       title={
         modalStep === 'connected' ? 'Sync Workspace' : 
         modalStep === 'showCode' ? 'Share Workspace' :
@@ -217,13 +209,12 @@ export default function AddDeviceModal({
         {modalStep === 'joining' && (
           <Joining
             colors={colors}
-            inputWorkspaceId={inputWorkspaceId}
-            setInputWorkspaceId={setInputWorkspaceId}
             inputInviteCode={inputInviteCode}
             setInputInviteCode={setInputInviteCode}
             connectToWorkspace={connectToWorkspace}
             isLoading={isLoading}
           />
+
         )}
         
         {modalStep === 'connected' && (
@@ -236,7 +227,7 @@ export default function AddDeviceModal({
           />
         )}
       </YStack>
-    </BaseCardAnimatedWS>
+    </BaseCardAnimated>
   );
 }
 

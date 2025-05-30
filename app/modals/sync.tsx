@@ -229,19 +229,6 @@ export default function SyncScreen() {
             />
           </XStack>
         )}
-
-        {shouldShowSyncTable && showAddDevice && (
-        <AddDeviceModal
-          onClose={() => {
-            setShowAddDevice(false)
-            setInitialModalMode(undefined)
-          }}
-          initialMode={initialModalMode}
-          currentWorkspaceId={workspaceId}
-          onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
-          onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
-        />
-      )}
         
         {shouldShowSyncTable && premium && !workspaceId && premiumLoaded && (
           <NeedsWorkspace
@@ -282,6 +269,18 @@ export default function SyncScreen() {
           </XStack>
         )}
       </YStack>
+      {shouldShowSyncTable && showAddDevice && (
+        <AddDeviceModal
+          onClose={() => {
+            setShowAddDevice(false)
+            setInitialModalMode(undefined)
+          }}
+          initialMode={initialModalMode}
+          currentWorkspaceId={workspaceId}
+          onWorkspaceCreated={(id: string) => onWorkspaceUpdated(id, 'created')}
+          onWorkspaceJoined={(id: string) => onWorkspaceUpdated(id, 'joined')}
+        />
+      )}
     </ScrollView>
   )
 }

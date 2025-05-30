@@ -291,10 +291,10 @@ export function LandingPage() {
         <Stack height={180} />
       </ScrollView>
 
-        <InitialSyncIndicator isDark={isDark} />
 
       {isMounted && (
         <>
+          <InitialSyncIndicator isDark={isDark} />
           <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
           <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
           <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
