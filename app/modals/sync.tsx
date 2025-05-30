@@ -18,6 +18,8 @@ import NeedsWorkspace from '@/components/sync/needsWorkspace'
 import { leaveWorkspace } from '@/sync/leaveWorkspace'
 import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
 import { AUTHORIZED_USERS } from '@/constants'
+import { SnapshotSize } from '@/components/sync/SnapshotSize'
+
 // Prevent multiple wrappers of fetch during hot reload
 if (!(global as any)._syncFetchWrapped) {
   const originalFetch = global.fetch
@@ -199,7 +201,6 @@ export default function SyncScreen() {
           </Text>
         </XStack>
 
-     
         {shouldShowSyncTable ? (
           <XStack alignItems="center" justifyContent="center" marginBottom={premium && !workspaceId ? -baseSpacing : baseSpacing}>
             <SyncTable
@@ -231,6 +232,17 @@ export default function SyncScreen() {
           </XStack>
         )}
         
+        {shouldShowSyncTable && premium && workspaceId && (
+          <XStack alignItems="center" justifyContent="center" marginBottom={baseSpacing}>
+            <SnapshotSize
+              contentWidth={contentWidth}
+              isDark={isDark}
+              primaryColor={primaryColor}
+              workspaceId={workspaceId}
+            />
+          </XStack>
+        )}
+
         {shouldShowSyncTable && premium && !workspaceId && premiumLoaded && (
           <NeedsWorkspace
             isDark={isDark}
