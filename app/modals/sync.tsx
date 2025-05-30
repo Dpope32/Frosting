@@ -33,7 +33,7 @@ if (!(global as any)._syncFetchWrapped) {
     url.toLowerCase().includes('yahoo') || url.toLowerCase().includes('geocoding') || 
     url.toLowerCase().includes('weather') || url.toLowerCase().includes('stoic' ) || 
     url.toLowerCase().includes('google') || url.toLowerCase().includes('cloudflare') ||
-    url.toLowerCase().includes('ealth-chec')
+    url.toLowerCase().includes('health-check') || url.toLowerCase().includes('fedora')
     
     if (isPremium && !shouldSkipLogging) {
       let bodyString = ''

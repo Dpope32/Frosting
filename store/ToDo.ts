@@ -277,11 +277,12 @@ const createTaskFilter = () => {
       
       // Log completion state for due tasks
       if (isDue && (task.completionHistory[currentDateStrLocal] !== undefined || task.completed)) {
-        addSyncLog(
-          `[DUE TASK COMPLETION] "${task.name.slice(0, 20)}" due today with completion data`,
-          'verbose',
-          `Completed: ${task.completed} | History[${currentDateStrLocal}]: ${task.completionHistory[currentDateStrLocal]} | Pattern: ${task.recurrencePattern}`
-        );
+        // umcomment this to enable logging of due tasks to debug sync issues
+      //  addSyncLog(
+      //    `[DUE TASK COMPLETION] "${task.name.slice(0, 20)}" due today with completion data`,
+      //    'verbose',
+      //    `Completed: ${task.completed} | History[${currentDateStrLocal}]: ${task.completionHistory[currentDateStrLocal]} | Pattern: ${task.recurrencePattern}`
+      //  );
       }
       
       return isDue;
@@ -594,11 +595,11 @@ export const useProjectStore = create<ProjectStore>()(
                 `New ${inc.recurrencePattern} task from sync | Created: ${inc.createdAt} | Updated: ${inc.updatedAt} | Task ID: ${id.slice(-8)}`
               );
             } else {
-              addSyncLog(
-                `[SYNC MERGE] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) merging`,
-                'verbose',
-                `Local pattern: ${curr.recurrencePattern} | Sync pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
-              );
+             // addSyncLog(
+             //   `[SYNC MERGE] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) merging`,
+             //   'verbose',
+             //   `Local pattern: ${curr.recurrencePattern} | Sync pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
+             // );
             }
           }
         
@@ -625,28 +626,22 @@ export const useProjectStore = create<ProjectStore>()(
             if (!hasLocalEntry) {
               // No local entry, always add incoming data
               mergedHistory[date] = value;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': added new date ${date} = ${value}`, 'info');
             } else if (value === false && localValue === true) {
               // Incoming is an untoggle (false), always respect this
               mergedHistory[date] = false;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': untoggle on ${date} (local=true, inc=false)`, 'info');
             } else if (value === true && localValue === false) {
               // Incoming is a completion (true), and local is false
               // Check timestamps to decide which to keep
               if (inc.updatedAt > curr.updatedAt) {
                 mergedHistory[date] = true;
-                addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': newer completion on ${date} (${value})`, 'info');
               } else {
                 // Keep local false value, but log it
-                addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': kept local value ${date} = ${localValue} (local is newer)`, 'verbose');
               }
             } else if (inc.updatedAt > curr.updatedAt) {
               // Incoming is newer, use its value
               mergedHistory[date] = value;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': newer timestamp on ${date} (${value})`, 'verbose');
             } else {
               // Local is same or newer, keep local value
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': kept local value ${date} = ${localValue} (local is newer or same)`, 'verbose');
             }
           });
                   

@@ -30,10 +30,11 @@ export const SnapshotSize: React.FC<SnapshotSizeProps> = ({
   };
 
   const getStorageMessage = (percentage: number) => {
-    if (percentage < 50) return 'Storage usage is healthy';
-    if (percentage < 80) return 'Consider cleaning up old data';
-    if (percentage < 95) return 'Storage almost full';
-    return 'Storage limit reached';
+    if (percentage < 20) return 'No where near full!';
+    if (percentage < 50) return 'Slow down there tiger!';
+    if (percentage < 80) return 'Consider cleaning up old data!';
+    if (percentage < 95) return 'Storage almost full!';
+    return 'Storage limit reached!';
   };
 
   if (error) {
