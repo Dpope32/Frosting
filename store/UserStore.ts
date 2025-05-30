@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { UserPreferences } from '@/types'
 import * as Sentry from '@sentry/react-native';
-import { AUTHORIZED_USERS } from '@/constants';
+import { AUTHORIZED_USERS } from '@/constants/KEYS';
 
 interface UserStore {
   preferences: UserPreferences;
