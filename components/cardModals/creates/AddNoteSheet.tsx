@@ -415,7 +415,7 @@ export function AddNoteSheet({
                   alignSelf="center"
                   justifyContent="space-between"
                   alignItems="center"
-                  style={{ marginBottom: keyboardHeight - 75}}
+                  style={{ marginBottom: keyboardHeight - 70, width: '100%'}}
                 >
                   <FormattingToolbar
                     onBold={handleBold}

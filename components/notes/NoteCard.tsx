@@ -3,7 +3,7 @@ import { Card, YStack, Text, Paragraph, XStack, ScrollView, isWeb } from 'tamagu
 import { TouchableOpacity, Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Note } from '@/types';
-import Markdown from 'react-native-markdown-display';
+import Markdown, { RenderRules } from 'react-native-markdown-display';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNoteStore } from '@/store';
 import { useMarkdownStyles } from '@/hooks/useMarkdownStyles';
@@ -29,7 +29,8 @@ export const NoteCard = ({
   drag,
 }: NoteCardProps) => {
   const [isExpanded, setIsExpanded] = useState(note.isExpanded || false);
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null); 
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [checkboxUpdateKey, setCheckboxUpdateKey] = useState(0); 
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
   const colorScheme = useColorScheme();
@@ -80,6 +81,167 @@ export const NoteCard = ({
     position: 'relative' as 'relative',
   }), [isDragging, colors]);
 
+  // Helper to get all checkbox matches and their indices
+  const getCheckboxMatches = (content: string) => {
+    const regex = /^[-*]\s+\[([ xX])\]\s?.*$/gm;
+    const matches: { index: number, match: RegExpMatchArray }[] = [];
+    let m;
+    let i = 0;
+    while ((m = regex.exec(content)) !== null) {
+      matches.push({ index: i++, match: m });
+    }
+    return matches;
+  };
+
+  // Custom rule for checkboxes
+  const checkboxRule: RenderRules = {
+    list_item: (node, children, parent, styles) => {
+      const findCheckboxString = (childrenArr: any[]): RegExpMatchArray | null => {
+        for (const child of childrenArr) {
+          if (typeof child === 'string') {
+            let match = child.match(/^[-*]\s+\[([ xX])\]\s?(.*)/);
+            if (!match) {
+              match = child.match(/^\[([ xX])\]\s?(.*)/);
+            }
+            if (!match) {
+              // Look for just the checkbox part
+              const checkboxMatch = child.match(/\[([ xX])\]/);
+              if (checkboxMatch) {
+                const labelMatch = child.match(/\[([ xX])\]\s?(.*)/);
+                return [child, checkboxMatch[1], labelMatch ? labelMatch[2] : ''];
+              }
+            }
+            if (match) return match;
+          } else if (Array.isArray(child)) {
+            const match = findCheckboxString(child);
+            if (match) return match;
+          } else if (child && typeof child === 'object' && child.props && child.props.children) {
+            const match = findCheckboxString(
+              Array.isArray(child.props.children) ? child.props.children : [child.props.children]
+            );
+            if (match) return match;
+          }
+        }
+        return null;
+      };
+
+      const match: RegExpMatchArray | null = findCheckboxString(children);
+      if (match) {
+        const checked = match[1].toLowerCase() === 'x';
+        const label = match[2] || '';
+        
+        // Find the index of this checkbox in the note content
+        const allMatches = getCheckboxMatches(note.content || '');
+        let matchIndex = allMatches.findIndex(
+          m => m.match[1].toLowerCase() === match[1].toLowerCase() && 
+               (m.match[2] || '').trim() === label.trim()
+        );
+        
+        // Fallback matching
+        if (matchIndex === -1 && allMatches.length > 0) {
+          matchIndex = 0; // Use first checkbox as fallback
+        }
+        
+        const handleToggle = () => {
+          if (matchIndex === -1) return;
+          
+          let count = 0;
+          let newContent = (note.content || '').replace(/^([-*]\s+\[)([ xX])(\]\s?.*)$/gm, (line) => {
+            if (count === matchIndex) {
+              count++;
+              return line.replace(/\[([ xX])\]/, checked ? '[ ]' : '[x]');
+            }
+            count++;
+            return line;
+          });
+          
+          // Try standalone checkbox replacement if no changes made
+          if (newContent === (note.content || '')) {
+            let checkboxCount = 0;
+            newContent = (note.content || '').replace(/\[([ xX])\]/g, (match) => {
+              if (checkboxCount === matchIndex) {
+                checkboxCount++;
+                return checked ? '[ ]' : '[x]';
+              }
+              checkboxCount++;
+              return match;
+            });
+          }
+          
+          noteStore.updateNote(note.id, { content: newContent });
+          setCheckboxUpdateKey(prev => prev + 1);
+        };
+
+        // Only interactive if expanded
+        if (isExpanded) {
+          return (
+            <TouchableOpacity
+              key={node.key || node.index || Math.random().toString()}
+              onPress={handleToggle}
+              activeOpacity={0.7}
+              style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
+            >
+              <View style={[
+                markdownStyles.checkbox_unchecked,
+                checked && markdownStyles.checkbox_checked,
+                !markdownStyles.checkbox_unchecked && {
+                  width: 20,
+                  height: 20,
+                  borderWidth: 1.5,
+                  borderRadius: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }
+              ]}>
+                {checked && <Text style={[markdownStyles.checkbox_icon, { marginBottom: 2 }]}>✓</Text>}
+              </View>
+              <Text style={[
+                markdownStyles.checkbox,
+                checked && { textDecorationLine: 'line-through', color: '#888' },
+                !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
+              ]}>{label}</Text>
+            </TouchableOpacity>
+          );
+        } else {
+          return (
+            <View
+              key={node.key || node.index || Math.random().toString()}
+              style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
+            >
+              <View style={[
+                markdownStyles.checkbox_unchecked,
+                checked && markdownStyles.checkbox_checked,
+                !markdownStyles.checkbox_unchecked && {
+                  width: 20,
+                  height: 20,
+                  borderWidth: 1.5,
+                  borderRadius: 5,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }
+              ]}>
+                {checked && <Text style={[markdownStyles.checkbox_icon, { marginBottom: 2 }]}>✓</Text>}
+              </View>
+              <Text style={[
+                markdownStyles.checkbox,
+                checked && { textDecorationLine: 'line-through', color: '#888' },
+                !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
+              ]}>{label}</Text>
+            </View>
+          );
+        }
+      }
+
+      return (
+        <View
+          key={node.key || node.index || Math.random().toString()}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+        >
+          {children}
+        </View>
+      );
+    }
+  };
 
   return (
     <View style={localStyles.touchableContainer}>
@@ -213,7 +375,11 @@ export const NoteCard = ({
               <View style={{ flex: 1 }}>
                 {hasMarkdown ? (
                   <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2">
-                    <Markdown style={markdownStyles}>
+                    <Markdown 
+                      key={`${note.id}-${checkboxUpdateKey}`}
+                      style={markdownStyles} 
+                      rules={checkboxRule}
+                    >
                       {displayContent || ''}
                     </Markdown>
                   </YStack>
@@ -332,7 +498,7 @@ const localStyles = StyleSheet.create({
   touchableContainer: {
     width: Platform.OS === 'web' ? '100%' : '100%',
     paddingVertical: Platform.OS === 'web' ? 2 : 8,
-    paddingHorizontal: Platform.OS === 'web' ? 2 : 0,
+    paddingHorizontal: Platform.OS === 'web' ? 2 : 4,
     flexShrink: 1,
     alignSelf: 'flex-start',
     height: 'auto',

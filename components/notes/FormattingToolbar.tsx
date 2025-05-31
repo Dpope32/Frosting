@@ -1,5 +1,5 @@
 import React from 'react';
-import { XStack, Button, Text, isWeb } from 'tamagui';
+import { XStack, Button, Text, isWeb, View } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { isIpad } from '@/utils';
 
@@ -25,7 +25,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   const iconColor = "#bbb";
 
   return (
-    <XStack gap={isIpad() ? "$10" : "$4"} marginBottom={isWeb ? 0 : 16} flexWrap="nowrap" >
+    <XStack width="100%" gap={isIpad() ? "$3" : "$2"} marginBottom={isWeb ? 0 : 16} flexWrap="nowrap" alignItems="center" justifyContent="space-between" alignSelf="center">
       <Button
         size="$4"
         circular
@@ -34,6 +34,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
@@ -42,6 +43,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
@@ -50,6 +52,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
@@ -58,6 +61,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
@@ -66,6 +70,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
@@ -74,6 +79,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular

@@ -12,7 +12,7 @@ export const searchStocks = (query: string, limit: number = 10, excludePortfolio
   const portfolioSymbols: string[] = [];
   if (excludePortfolio) {
     try {
-      const { portfolioData } = require('../utils/Portfolio');
+      const { portfolioData } = require('@/utils');
       portfolioSymbols.push(...portfolioData.map((stock: any) => stock.symbol));
     } catch (error) {
       console.error('Error getting portfolio data for filtering:', error);

@@ -4,6 +4,7 @@ import { Input} from 'tamagui'
 import { DebouncedInputProps } from '@/types'
 import { useColorScheme } from '@/hooks'
 import { isIpad } from '@/utils'
+
 // Define the handle type
 export interface DebouncedInputHandle {
   setValue: (newValue: string) => void;
@@ -13,20 +14,80 @@ export interface DebouncedInputHandle {
 }
 
 export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedInputProps>(
-  ({ value, onDebouncedChange, delay = 500, ...props }, ref) => {
-    const [text, setText] = useState(value || '')
+  ({ value, onDebouncedChange, delay = 500, onChangeText, ...props }, ref) => {
     const colorScheme = useColorScheme();
     const inputRef = useRef<TextInput>(null);
     const isDark = colorScheme === 'dark';
+    const timeoutRef = useRef<NodeJS.Timeout>();
+    
+    // If delay is 0, just use controlled mode (no debouncing)
+    if (delay === 0) {
+      // Expose methods via useImperativeHandle
+      useImperativeHandle(ref, () => ({
+        setValue: (newValue: string) => {
+          onChangeText?.(newValue);
+        },
+        blur: () => {
+          inputRef.current?.blur();
+        },
+        focus: () => {
+          inputRef.current?.focus();
+        },
+        clear: () => {
+          onChangeText?.('');
+        }
+      }));
+      
+      return (
+        <Input
+          ref={inputRef}
+          value={value}
+          onChangeText={onChangeText}
+          theme={isDark ? "dark" : "light"}
+          backgroundColor={isDark ? "$gray0" : "white"}
+          borderColor={isDark ? "$gray7" : "rgba(0, 0, 0, 0.15)"}
+          borderWidth={1}
+          fontFamily="$body"
+          spellCheck={true}
+          fontSize={isIpad() ? 17 : 15}
+          maxFontSizeMultiplier={1.4}
+          placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
+          {...(Platform.OS === 'ios' ? {
+            scrollEnabled: false,
+            selection: undefined,
+            contextMenuHidden: false,
+            caretHidden: false,
+            textContentType: 'none',
+            autoComplete: 'off'
+          } : {
+            textContentType: 'none',
+            autoComplete: 'off'
+          })}
+          {...props}
+          autoCapitalize={props.autoCapitalize || 'sentences'}
+        />
+      )
+    }
+
+    // Otherwise use debounced mode with internal state
+    const [text, setText] = useState(value || '')
     
     useEffect(() => {
-      const handler = setTimeout(() => onDebouncedChange(text), delay)
-      return () => clearTimeout(handler)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => onDebouncedChange(text), delay);
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
     }, [text, onDebouncedChange, delay])
     
+    // Initialize with external value, then component owns the state
     useEffect(() => {
-      setText(value || '')
-    }, [value])
+      setText(value || '');
+    }, []) // Only on mount
     
     // Expose methods via useImperativeHandle
     useImperativeHandle(ref, () => ({
@@ -84,15 +145,23 @@ export const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
     const colorScheme = useColorScheme()
     const isDark = colorScheme === 'dark'
     const [text, setText] = useState<string>(value || '')
+    const timeoutRef = useRef<NodeJS.Timeout>();
     
     useEffect(() => {
-      const handler = setTimeout(() => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
         if (text !== value) {
           onDebouncedChange(text)
         }
-      }, delay)
-      return () => clearTimeout(handler)
-    }, [text, onDebouncedChange, value])
+      }, delay);
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      };
+    }, [text, onDebouncedChange, delay])
     
     const formatDateWithSlashes = (input: string): string => {
       const cleaned = input.replace(/\D/g, '')

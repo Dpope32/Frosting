@@ -295,7 +295,7 @@ export function EditStockModalContent({ open, onOpenChange, stock }: EditStockMo
             borderWidth={1}
             br={12}
             height={48}
-            width={48}
+            width={64}
             pressStyle={{ opacity: 0.7, scale: 0.95 }}
             disabled={loading || !stock}
             opacity={loading ? 0.5 : 1}

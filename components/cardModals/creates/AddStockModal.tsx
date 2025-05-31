@@ -223,24 +223,7 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
       showCloseButton={true}
     >
       <YStack gap="$4" px="$3" pb="$2">
-        <YStack gap="$2">
-          <Text fontSize={14} fontWeight="600" color={isDark ? "$color11" : "$color10"} fontFamily="$body">
-            Number of Shares
-          </Text>
-          <StockQuantityInput
-            value={formData.quantity}
-            onChange={handleQuantityChange}
-            onFocus={handleQuantityFocus}
-            onBlur={handleQuantityBlur}
-            isEditMode={isQuantityEditMode}
-            setIsEditMode={setIsQuantityEditMode}
-            inputRef={quantityInputRef}
-            primaryColor={primaryColor}
-            isDark={isDark}
-          />
-        </YStack>
-
-        <YStack gap="$2">
+      <YStack gap="$2">
           <Text fontSize={14} fontWeight="600" color={isDark ? "$color11" : "$color10"} fontFamily="$body">
             Select Stock
           </Text>
@@ -274,6 +257,22 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
               />
             </>
           )}
+        </YStack>
+        <YStack gap="$2">
+          <Text fontSize={14} fontWeight="600" color={isDark ? "$color11" : "$color10"} fontFamily="$body">
+            Number of Shares
+          </Text>
+          <StockQuantityInput
+            value={formData.quantity}
+            onChange={handleQuantityChange}
+            onFocus={handleQuantityFocus}
+            onBlur={handleQuantityBlur}
+            isEditMode={isQuantityEditMode}
+            setIsEditMode={setIsQuantityEditMode}
+            inputRef={quantityInputRef}
+            primaryColor={primaryColor}
+            isDark={isDark}
+          />
         </YStack>
         
         <ErrorMessage 

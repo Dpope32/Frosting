@@ -12,7 +12,7 @@ const { height, width } = Dimensions.get('window')
 
 const toastStyle = {
   position: 'absolute' as const,
-  top: height * 0.12,
+  top: height * 0.085,
   left: 0,
   right: 0,
   alignItems: 'center' as const,
@@ -87,7 +87,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
   }
 
   const backgroundMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(10, 55, 32, 0.95)' : 'rgba(200, 254, 220, 0.88)',
+    success: isDark ? 'rgba(6, 26, 15, 0.95)' : 'rgba(200, 254, 220, 0.52)',
     error: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(245,158,11,0.15)',
@@ -126,7 +126,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
           },
         ],
         alignSelf: 'center',
-        marginLeft: isIpad() ? 100 : 0,
+        marginLeft: isWeb ? 150 : isIpad() ? 150 : 0,
       }}
     >
       <BlurView
@@ -138,7 +138,8 @@ const ToastItem: React.FC<ToastItemProps> = ({
           paddingHorizontal: isLarge ? 14 : 12,
           paddingVertical: isLarge ? 14 : 12,  
           backgroundColor: backgroundColor,
-          borderRadius: 8,
+          borderRadius: 14,
+          overflow: 'hidden',
           borderBlockColor: borderColorMap[type],
           borderWidth: 3,
           borderColor: borderColorMap[type],

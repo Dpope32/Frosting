@@ -30,11 +30,11 @@ export default function CRM() {
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const PADDING = isWeb? 30 : isIpad() ? 24 : 16;
-  const GAP = isWeb? 10 : isIpad() ? 12 : 6;
+  const GAP = isWeb? 10 : isIpad() ? 5 : 6;
   const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 2 : 1;
-  const CARD_WIDTH = isIpad() ? 300 : isWeb ?  (width - (12 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS
+  const CARD_WIDTH = isIpad() ? 320 : isWeb ?  (width - (12 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS
    : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-  const CARD_WIDTH_MOBILE = isIpad() ? 250 : "92%";
+  const CARD_WIDTH_MOBILE = isIpad() ? "92%" : "92%";
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
     setEditModalVisible(true);
@@ -85,8 +85,8 @@ export default function CRM() {
         <View
           style={{
             width: isWeb ? CARD_WIDTH : CARD_WIDTH_MOBILE,
-            marginLeft: isFirstInRow ? PADDING : GAP / 2,
-            marginRight: isLastInRow ? PADDING : GAP / 2,
+            marginLeft: isFirstInRow ? isIpad() ? 8 : PADDING : GAP / 2,
+            marginRight: isLastInRow ? isIpad() ? PADDING : PADDING : GAP / 2,
             marginBottom: GAP,
             alignSelf: NUM_COLUMNS === 1 ? "center" : "flex-start",
           }}

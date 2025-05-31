@@ -209,7 +209,6 @@ export function LandingPage() {
   }
   const filteredProjects = projects.filter((project) => project.status !== 'completed')
 
-  console.log('LandingPage: isMounted', isMounted, 'isDark', isDark);
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
@@ -292,10 +291,8 @@ export function LandingPage() {
         <Stack height={180} />
       </ScrollView>
       <InitialSyncIndicator isDark={isDark} />
-      {(() => { console.log('LandingPage: isMounted', isMounted); return null; })()}
       {isMounted && (
         <>
-          {(() => { console.log('LandingPage: rendering modals/overlays'); return null; })()}
           <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
           <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
           <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />

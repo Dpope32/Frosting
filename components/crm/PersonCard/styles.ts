@@ -180,8 +180,8 @@ export const styles = StyleSheet.create({
       width: 60,
       height: 60,
     } : {
-      width: isIpad() ? 50 : 40,
-      height: isIpad() ? 50 : 40
+      width: isIpad() ? 40 : 40,
+      height: isIpad() ? 40 : 40
     }),
   },
   starIndicator: {
@@ -298,7 +298,7 @@ export const styles = StyleSheet.create({
   },
   infoSection: {
     marginTop: 4,
-    gap: 14,
+    gap: 10,
   },
   actionBar: {
     position: "absolute",

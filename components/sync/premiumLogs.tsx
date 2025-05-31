@@ -312,7 +312,7 @@ export const PremiumLogs = ({
           minHeight: wideMode ? 44 : 30,
           height: wideMode ? 44 : 30,
           marginTop:4,
-          backgroundColor: isDark ? "#1f1f1f" : "#f0f0f0",
+          backgroundColor: isDark ? "#3f3f3f" : "#f0f0f0",
           borderWidth: 1,
           borderColor: colors.border,
         }}>

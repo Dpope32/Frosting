@@ -263,12 +263,13 @@ export function TagSelector({
                 fontSize="$3"
                 px={4}
                 onSubmitEditing={handleAddTag}
-                onDebouncedChange={setNewTagName}
+                onDebouncedChange={() => {}}
                 paddingRight="$4"
                 backgroundColor={isDark ? "rgba(255,255,255,0.0)" : "rgba(0,0,0,0.00)"}
                 borderBottomWidth={1}
                 borderTopWidth={0}
                 borderLeftWidth={0}
+                delay={0}
                 borderRightWidth={0}
                 borderColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}
                 borderRadius={4}

@@ -99,14 +99,14 @@ export default function CollapsedView({
         onPress={onPress}
         hitSlop={{ top: 12, bottom: 12, left: 0, right: 0 }}
       >
-        <XStack alignItems="center" gap="$3" style={styles.cardContent as any}>
+        <XStack alignItems="center" gap="$2" style={styles.cardContent as any}>
           <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
             <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
               <Image
                 source={{ uri: person.profilePicture || 'https://via.placeholder.com/80' }}
-                width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34}
-                height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
-                br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
+                width={Platform.OS === 'web' ? 80 : isIpad() ? 50 : 34}
+                height={Platform.OS === 'web' ? 60 : isIpad() ? 30 : 34}
+                br={Platform.OS === 'web' ? 30 : isIpad() ? 35 : 27}
                 style={styles.avatarImage as any}
               />
             </View>

@@ -30,7 +30,7 @@ export interface ToastStore {
 
 export type ToastStoreType = ReturnType<typeof useToastStore>;
 
-const DEFAULT_DURATION = 2000
+const DEFAULT_DURATION = 1500
 const DEFAULT_FONT_FAMILY = "$body" as GetThemeValueForKey<'fontFamily'>
 const DEFAULT_POSITION = "top-center"
 

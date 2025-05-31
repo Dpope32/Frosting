@@ -60,7 +60,7 @@ export function StockDisplay({
       </XStack>
       
       {showQuantity && quantity && (
-        <YStack alignItems="flex-end" mr={showRemoveButton ? "$2" : 0}>
+        <YStack alignItems="flex-end" mr={showRemoveButton ? "$2" : 0} px={8}>
           <Text fontSize={14} fontFamily="$body" color={isDark ? "$color11" : "$color10"}>
             Shares
           </Text>
