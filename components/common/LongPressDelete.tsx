@@ -38,7 +38,7 @@ export const LongPressDelete: React.FC<LongPressDeleteProps> = ({
   const isDeleting = useSharedValue(false)
   const screen = Platform.OS
   
-  const delayBeforeFeedback = 500;
+  const delayBeforeFeedback = 1000;
   const animationDuration = longPressDuration || 650;
 
   const handleReadyHaptic = () => {
