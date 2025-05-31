@@ -93,22 +93,6 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       )
     },
     {
-      text: "Stock",
-      icon: <MaterialIcons name="show-chart" size={iconSize} color={"$green6"} />,
-      name: "bt_stock",
-      position: 3,
-      render: () => (
-        <ActionButton
-          key="stock-action"
-          onPress={() => handleActionPress("bt_stock")}
-          isDark={isDark}
-          primaryColor={primaryColor}
-          icon="show-chart"
-          text="Stock"
-        />
-      )
-    },
-    {
       text: "Password",
       icon: <MaterialIcons name="lock" size={iconSize} color={textColor} />,
       name: "bt_password",

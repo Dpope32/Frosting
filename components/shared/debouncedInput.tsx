@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef } from 'react'
+import React, { forwardRef, useEffect, useState, useImperativeHandle, useRef, useCallback } from 'react'
 import { TextInput, Platform } from 'react-native'
 import { Input} from 'tamagui'
 import { DebouncedInputProps } from '@/types'
@@ -18,11 +18,9 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
     const colorScheme = useColorScheme();
     const inputRef = useRef<TextInput>(null);
     const isDark = colorScheme === 'dark';
-    const timeoutRef = useRef<NodeJS.Timeout>();
     
-    // If delay is 0, just use controlled mode (no debouncing)
+    // If delay is 0, render a simple controlled input with ZERO internal state
     if (delay === 0) {
-      // Expose methods via useImperativeHandle
       useImperativeHandle(ref, () => ({
         setValue: (newValue: string) => {
           onChangeText?.(newValue);
@@ -69,8 +67,14 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
       )
     }
 
-    // Otherwise use debounced mode with internal state
-    const [text, setText] = useState(value || '')
+    // For delay > 0, use debounced mode with internal state
+    const [text, setText] = useState('')
+    const timeoutRef = useRef<NodeJS.Timeout>();
+    
+    // Initialize once and never sync external value again
+    useEffect(() => {
+      setText(value || '');
+    }, []) // Only on mount
     
     useEffect(() => {
       if (timeoutRef.current) {
@@ -84,12 +88,6 @@ export const DebouncedInput = React.forwardRef<DebouncedInputHandle, DebouncedIn
       };
     }, [text, onDebouncedChange, delay])
     
-    // Initialize with external value, then component owns the state
-    useEffect(() => {
-      setText(value || '');
-    }, []) // Only on mount
-    
-    // Expose methods via useImperativeHandle
     useImperativeHandle(ref, () => ({
       setValue: (newValue: string) => {
         setText(newValue);
@@ -144,17 +142,19 @@ export const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
   ) => {
     const colorScheme = useColorScheme()
     const isDark = colorScheme === 'dark'
-    const [text, setText] = useState<string>(value || '')
+    const [text, setText] = useState<string>('')
     const timeoutRef = useRef<NodeJS.Timeout>();
+    
+    useEffect(() => {
+      setText(value || '');
+    }, [])
     
     useEffect(() => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
       timeoutRef.current = setTimeout(() => {
-        if (text !== value) {
-          onDebouncedChange(text)
-        }
+        onDebouncedChange(text)
       }, delay);
       return () => {
         if (timeoutRef.current) {
@@ -165,7 +165,6 @@ export const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
     
     const formatDateWithSlashes = (input: string): string => {
       const cleaned = input.replace(/\D/g, '')
-      // Format with slashes
       if (cleaned.length <= 2) {
         return cleaned
       } else if (cleaned.length <= 4) {
@@ -175,10 +174,10 @@ export const DateDebouncedInput = forwardRef<TextInput, DebouncedInputProps>(
       }
     }
     
-    const handleDateChange = (input: string) => {
+    const handleDateChange = useCallback((input: string) => {
       const formatted = formatDateWithSlashes(input)
       setText(formatted)
-    }
+    }, [])
     
     return (
       <Input
