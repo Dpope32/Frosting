@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,21 +29,53 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
   };
 
   const isLarge = isWeb || isIpad();
+  const isDark = __DEV__;
+  const IMAGE_SIZE = isLarge ? 88 : 72;
+  const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFlipped(f => !f);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <View style={[styles.container, { width: contentWidth }]}>
-      <LinearGradient
-        colors={[colors.accent + '15', colors.accent + '05']}
-        style={[styles.gradientCard, { borderColor: colors.accent + '30' }]}
+      <View
+        style={[
+          styles.heroCard,
+          {
+            backgroundColor: isWeb ? 'rgba(255, 255, 255, 0.75)' : 'rgba(86, 50, 18, 0.13)',
+            borderColor: colors.accent + '22',
+            shadowColor: colors.accent + '33',
+          },
+        ]}
       >
-        <View style={[styles.iconContainer, { backgroundColor: colors.accent + '20' }]}>
-          <MaterialIcons 
-            name="cloud-sync" 
-            size={isLarge ? 64 : 56} 
-            color={colors.accent} 
+        {isWeb && (
+          <View
+            style={[
+              StyleSheet.absoluteFillObject,
+              { zIndex: 0 },
+            ]}
+            pointerEvents="none"
+          />
+        )}
+        <View style={[styles.iconContainer, { backgroundColor: colors.accentBg, overflow: 'hidden' }]}>
+          <Image
+            source={require('../../assets/images/pog2.png')}
+            style={{
+              width: '100%',
+              height: '100%',
+              resizeMode: 'cover',
+              transform: [{ scaleX: flipped ? -1 : 1 }],
+              borderRadius: 9999,
+              borderWidth: 2,
+              borderColor: colors.accent,
+            }}
+            accessibilityLabel="Pot of Greed"
           />
         </View>
-
         <Text 
           fontSize={isLarge ? 28 : 24} 
           fontWeight="800" 
@@ -55,7 +87,6 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
         >
           Unlock Cloud Sync
         </Text>
-
         <Text 
           fontSize={isLarge ? 16 : 15} 
           color={colors.subtext} 
@@ -64,7 +95,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
           marginBottom={baseSpacing / 2}
           lineHeight={isLarge ? 24 : 22}
         >
-          Sync your data across all devices{'\n'}with premium access
+          Effortlessly sync your data across all your devices{'\n'}with secure, premium cloud access.
         </Text>
         <YStack alignItems="center" marginBottom={baseSpacing * 2}>
           <XStack alignItems="center" gap={baseSpacing / 2}>
@@ -76,46 +107,39 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
             >
               $4/month
             </Text>
+          </XStack>
+          <XStack alignItems="center" gap={baseSpacing / 2} marginTop={4}>
             <Text 
-              fontSize={isLarge ? 14 : 13} 
+              fontSize={isLarge ? 13 : 12} 
               color={colors.subtext} 
               fontFamily="$body"
+              fontWeight="600"
             >
-              • Unlimited devices
+              or
+            </Text>
+            <Text 
+              fontSize={isLarge ? 16 : 15} 
+              color={colors.accent} 
+              fontFamily="$body"
+              fontWeight="700"
+              marginLeft={4}
+            >
+              $25/year
+            </Text>
+            <Text 
+              fontSize={isLarge ? 12 : 11} 
+              color={colors.subtext} 
+              fontFamily="$body"
+              marginLeft={2}
+            >
+              (save 48%)
             </Text>
           </XStack>
         </YStack>
-        <YStack gap={baseSpacing} marginBottom={baseSpacing * 3} alignItems="center">
-          {[
-            '🔄 Real-time sync across devices',
-            '🔐 End-to-end encryption',
-            '☁️ Secure cloud backup',
-            '📱 Works on phone, tablet, web',
-            '🔑 Only you can access your data',
-            '🔍 You control which data syncs',
-          ].map((feature, index) => (
-            <XStack key={index} alignItems="center" gap={baseSpacing}>
-              <Text 
-                fontSize={isLarge ? 15 : 14} 
-                color={colors.text} 
-                fontFamily="$body"
-                textAlign="center"
-              >
-                {feature}
-              </Text>
-            </XStack>
-          ))}
-        </YStack>
         <TouchableOpacity
           onPress={handleButtonPress}
-          style={[
-            styles.ctaButton, 
-            { 
-              backgroundColor: colors.accent,
-              shadowColor: colors.accent,
-            }
-          ]}
-          activeOpacity={0.8}
+          style={styles.ctaButton}
+          activeOpacity={0.88}
         >
           <LinearGradient
             colors={[colors.accent, colors.accent + 'DD']}
@@ -123,7 +147,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
           >
             <XStack alignItems="center" gap={baseSpacing}>
               <Text 
-                color="white" 
+                color="#333" 
                 fontSize={isLarge ? 18 : 16} 
                 fontWeight="700" 
                 fontFamily="$body"
@@ -169,7 +193,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
             </Text>
           </XStack>
         </XStack>
-      </LinearGradient>
+      </View>
     </View>
   );
 }
@@ -178,15 +202,24 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     alignSelf: 'center',
+    paddingVertical: isWeb ? baseSpacing * 5 : isIpad() ? baseSpacing * 4.5 : baseSpacing * 4,
+    paddingHorizontal: isWeb ? baseSpacing * 4 : isIpad() ? baseSpacing * 3.5 : baseSpacing * 3,
   },
-  gradientCard: {
-    borderRadius: cardRadius + 4,
-    padding: isWeb ? baseSpacing * 4 : isIpad() ? baseSpacing * 3.5 : baseSpacing * 3,
-    borderWidth: 3,
+  heroCard: {
+    borderRadius: cardRadius + 8,
+    paddingVertical: isWeb ? baseSpacing * 5 : isIpad() ? baseSpacing * 4.5 : baseSpacing * 4,
+    paddingHorizontal: isWeb ? baseSpacing * 4 : isIpad() ? baseSpacing * 3.5 : baseSpacing * 3,
+    borderWidth: 1.5,
     alignItems: 'center',
     width: '100%',
-    minHeight: isWeb ? 500 : isIpad() ? 450 : 400,
+    minHeight: isWeb ? 700 : isIpad() ? 600 : 400,
     justifyContent: 'center',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.10,
+    shadowRadius: 24,
+    elevation: 8,
+    overflow: 'hidden',
+    position: 'relative',
   },
   iconContainer: {
     width: isWeb ? 120 : isIpad() ? 110 : 100,
@@ -199,6 +232,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+    overflow: 'hidden',
   },
   heading: {
     shadowOffset: { width: 0, height: 1 },
