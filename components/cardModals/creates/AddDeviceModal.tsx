@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dimensions, useWindowDimensions } from 'react-native';
-import { YStack } from 'tamagui';
+import { isWeb, YStack } from 'tamagui';
 import { useColorScheme } from '@/hooks';
 import { BaseCardAnimatedWS } from '@/components/baseModals/BaseCardAnimatedWS';
 import { useUserStore, useToastStore, useRegistryStore } from '@/store';
@@ -32,7 +32,7 @@ export default function AddDeviceModal({
   const [workspaceId, setWorkspaceId] = useState<string | null>(currentWorkspaceId || null);
   const [inviteCode, setInviteCode] = useState<string>('');
 
-  const actualWidth = Dimensions.get('window').width * 0.55;
+  const actualWidth = isWeb ? Dimensions.get('window').width * 0.35 : Dimensions.get('window').width * 0.55;
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
     initialMode === 'create' ? 'creating' : 
