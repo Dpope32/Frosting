@@ -11,6 +11,7 @@ import { LegalButton } from './LegalButton';
 // @ts-ignore
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import * as Haptics from 'expo-haptics';
+import { debouncedNavigate } from '@/utils';
 
 export const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb, isIpadDevice, premium }: { 
     props: DrawerContentComponentProps; 
@@ -31,7 +32,7 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
       return (
         <View style={styles.container}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.push('/modals/sync')}>
+            <TouchableOpacity onPress={() => debouncedNavigate('/modals/sync')}>
               <Image 
                 source={imageSource}
                 style={styles.profileImage}

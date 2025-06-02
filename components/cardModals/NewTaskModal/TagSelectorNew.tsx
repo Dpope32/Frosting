@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Platform, Keyboard, KeyboardEvent, Alert } from 'react-native';
-import { XStack, YStack, Text, Button } from 'tamagui';
+import { Platform, Keyboard, KeyboardEvent, Alert, View, TouchableOpacity } from 'react-native';
+import { XStack, YStack, Text, Button, Sheet, ScrollView } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { Tag } from '@/types/tag';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -25,8 +25,113 @@ const TAG_COLORS = [
   '#F97316', // Orange
   '#EF4444', // Red
   '#1E40AF', // Indigo
+  '#A855F7', // Purple
+  '#EC4899', // Pink
+  '#FACC15', // Yellow
+  '#14B8A6', // Teal
+  '#0EA5E9', // Sky Blue
+  '#06B6D4', // Cyan
+  '#8B5CF6', // Violet
+  '#D946EF', // Fuchsia
+  '#F43F5E', // Rose
+  '#10B981', // Emerald
+  '#84CC16', // Lime
+  '#78350F', // Brown
+  '#0F172A', // Slate
 ];
 
+// Simple color picker modal that doesn't affect the primary color
+function TagColorPickerModal({
+  open,
+  onOpenChange,
+  selectedColor,
+  onColorChange,
+  isDark,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedColor: string;
+  onColorChange: (color: string) => void;
+  isDark: boolean;
+}) {
+  const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)';
+  const textColor = isDark ? '#fff' : '#000';
+
+  return (
+    <Sheet
+      modal
+      open={open}
+      onOpenChange={onOpenChange}
+      snapPoints={[40]}
+      zIndex={100001}
+      disableDrag={true}
+    >
+      <Sheet.Overlay
+        animation="quick"
+        enterStyle={{ opacity: 0 }}
+        exitStyle={{ opacity: 0 }}
+        backgroundColor="rgba(0,0,0,0.5)"
+        opacity={0.8}
+      />
+      <Sheet.Frame
+        backgroundColor={backgroundColor}
+        paddingHorizontal="$4"
+        paddingVertical="$4"
+        gap="$3"
+      >
+        <XStack justifyContent="space-between" alignItems="center" paddingBottom="$1">
+          <Text fontSize={20} fontWeight="600" color={textColor} flex={1} textAlign="center" marginLeft="$6">
+            Tag Color
+          </Text>
+          <TouchableOpacity onPress={() => onOpenChange(false)} style={{ padding: 8 }}>
+            <MaterialIcons name="close" size={24} color={textColor} />
+          </TouchableOpacity>
+        </XStack>
+
+        <YStack gap="$4" paddingVertical="$2">
+          <XStack flexWrap="wrap" justifyContent="center" gap="$3">
+            {TAG_COLORS.map(color => (
+              <Button
+                key={color}
+                size="$4"
+                circular
+                backgroundColor={color}
+                borderWidth={3}
+                borderColor={selectedColor === color ? 'white' : 'transparent'}
+                onPress={() => {
+                  onColorChange(color);
+                  onOpenChange(false);
+                }}
+              />
+            ))}
+          </XStack>
+          
+          {Platform.OS === 'web' && (
+            <XStack justifyContent="center" marginTop="$2">
+              <View style={{ alignItems: 'center' }}>
+                <Text fontSize={14} color={textColor} marginBottom="$1">
+                  Custom Color
+                </Text>
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={(e) => onColorChange(e.target.value)}
+                  style={{ 
+                    width: '100px', 
+                    height: '40px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+                />
+              </View>
+            </XStack>
+          )}
+        </YStack>
+      </Sheet.Frame>
+    </Sheet>
+  );
+}
 
 export function TagSelector({
   tags,
@@ -37,6 +142,7 @@ export function TagSelector({
   const [selectedColor, setSelectedColor] = useState(TAG_COLORS[0]);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isWeb = Platform.OS === 'web';
@@ -175,146 +281,151 @@ export function TagSelector({
     >
       <XStack alignItems="center" justifyContent="flex-start" gap={8}>
         {!isAdding && <Text fontSize={isIpad() ? 17 : 15} mb={isWeb ? 12 : 2} ml={isIpad() ? 0 : 2} fontFamily="$body" fontWeight="500" color={isDark ? '#6c6c6c' : '#9c9c9c'}>Tags:</Text>}
-        <XStack flexWrap="wrap" gap="$2" paddingLeft="$1" alignItems="flex-start" alignSelf="flex-start" alignContent="flex-start" justifyContent="center">
-          {tagStoreTags.map(tag => {
-            const tagColor = tag.color || NEUTRAL_BORDER;
-            const isSelected = tags.some(t => t.id === tag.id);
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+          <XStack gap="$2" paddingLeft="$1" alignItems="center">
+            {tagStoreTags.map(tag => {
+              const tagColor = tag.color || NEUTRAL_BORDER;
+              const isSelected = tags.some(t => t.id === tag.id);
 
-            return (
-              <Button
-                key={tag.id}
-                backgroundColor={
-                  isSelected
-                    ? withOpacity(tagColor, 0.15)
-                    : isDark ? "$gray2" : "white"
-                }
-                pressStyle={{ opacity: 0.8, scale: 0.98 }}
-                onLongPress={() => handleTagLongPress(tag)}
-                br={20}
-                px="$3"
-                py={isIpad() ? "$2.5" : "$1"}
-                height={isWeb ? 50 : isIpad() ? undefined : 35}
-                borderWidth={1}
-                borderColor={
-                  isSelected
-                    ? 'transparent'
-                    : NEUTRAL_BORDER
-                }
-                onPress={() => handleTagButtonPress(tag, isSelected)}
-              >
-                <Text
-                  fontSize={14}
-                  fontWeight="600"
-                  fontFamily="$body"
-                  color={
+              return (
+                <Button
+                  key={tag.id}
+                  backgroundColor={
                     isSelected
-                      ? getDarkerColor(tagColor, 0.5)
-                      : NEUTRAL_TEXT
+                      ? withOpacity(tagColor, 0.15)
+                      : isDark ? "$gray2" : "white"
                   }
+                  pressStyle={{ opacity: 0.8, scale: 0.98 }}
+                  onLongPress={() => handleTagLongPress(tag)}
+                  br={20}
+                  px="$3"
+                  py={isIpad() ? "$2.5" : "$1"}
+                  height={isWeb ? 50 : isIpad() ? undefined : 35}
+                  borderWidth={1}
+                  borderColor={
+                    isSelected
+                      ? 'transparent'
+                      : NEUTRAL_BORDER
+                  }
+                  onPress={() => handleTagButtonPress(tag, isSelected)}
                 >
-                  {tag.name}
-                </Text>
-              </Button>
-            )
-          })}
+                  <Text
+                    fontSize={14}
+                    fontWeight="600"
+                    fontFamily="$body"
+                    color={
+                      isSelected
+                        ? getDarkerColor(tagColor, 0.5)
+                        : NEUTRAL_TEXT
+                    }
+                  >
+                    {tag.name}
+                  </Text>
+                </Button>
+              )
+            })}
 
-          {!isAdding && (
-            keyboardVisible ? (
-              <Button
-                key="confirm-new-tag"
-                size="$2"
-                circular
-                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
-                onPress={handleAddTag}
-                backgroundColor={isDark ? "$gray2" : "white"}
-                borderWidth={1}
-                borderColor={NEUTRAL_BORDER}
-                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
-                pressStyle={{ opacity: 0.7 }}
-                marginLeft={tagStoreTags.length ? 4 : 0}
-              />
-            ) : (
-              <Button
-                key="start-add-tag"
-                size="$2"
-                circular
-                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
-                onPress={() => setIsAdding(true)}
-                backgroundColor={isDark ? "$gray2" : "white"}
-                borderWidth={1}
-                borderColor={NEUTRAL_BORDER}
-                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
-                pressStyle={{ opacity: 0.7 }}
-                marginLeft={tagStoreTags.length ? 4 : 0}
-              />
-            )
-          )}
-        </XStack>
-          {isAdding && (
-            <YStack gap={isWeb ? "$3" : "$1"} marginLeft={-10} width="100%">
-            <XStack position="relative" width="100%" maxWidth={isIpad() ? 200 : 120}>
+            {!isAdding && (
+              keyboardVisible ? (
+                <Button
+                  key="confirm-new-tag"
+                  size="$2"
+                  circular
+                  icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color={isDark ? "$gray11" : "$gray11"} />}
+                  onPress={handleAddTag}
+                  backgroundColor={isDark ? "$gray2" : "white"}
+                  borderWidth={1}
+                  borderColor={NEUTRAL_BORDER}
+                  hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+                  pressStyle={{ opacity: 0.7 }}
+                  marginLeft={tagStoreTags.length ? 4 : 0}
+                />
+              ) : (
+                <Button
+                  key="start-add-tag"
+                  size="$2"
+                  circular
+                  icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
+                  onPress={() => setIsAdding(true)}
+                  backgroundColor={isDark ? "$gray2" : "white"}
+                  borderWidth={1}
+                  borderColor={NEUTRAL_BORDER}
+                  hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+                  pressStyle={{ opacity: 0.7 }}
+                  marginLeft={tagStoreTags.length ? 4 : 0}
+                />
+              )
+            )}
+          </XStack>
+        </ScrollView>
+      </XStack>
+          
+      {isAdding && (
+        <YStack gap={isWeb ? "$3" : "$1"} mt={isWeb ? "$3" : "$2"} ml={isIpad() ? "$2" : "$1"} width="100%">
+          <XStack position="relative" width="100%" maxWidth={"100%"} alignItems="center" gap="$2">
+            <XStack position="relative" width="40%" alignItems="center">
               <DebouncedInput
                 width="100%"
                 placeholder="Tag Name"
                 value={newTagName}
-                mt={isWeb ? 0 : 0}
                 onChangeText={setNewTagName}
                 autoFocus
                 fontSize="$3"
-                px={4}
+                px="$3"
+                py="$2"
                 onSubmitEditing={handleAddTag}
                 onDebouncedChange={() => {}}
                 paddingRight="$4"
-                backgroundColor={isDark ? "rgba(255,255,255,0.0)" : "rgba(0,0,0,0.00)"}
-                borderBottomWidth={1}
-                borderTopWidth={0}
-                borderLeftWidth={0}
+                backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}
+                borderWidth={1}
                 delay={0}
-                borderRightWidth={0}
-                borderColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}
-                borderRadius={4}
+                borderRadius={8}
                 fontFamily="$body"
                 color={isDark ? "white" : "black"}
                 placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
               />
-              <Button
-                size="$3"
-                circular
-                icon={<MaterialIcons name="check" size={isWeb ? 14 : 16} color={selectedColor} />}
-                onPress={handleAddTag}
-                backgroundColor="transparent"
-                position="absolute"
-                right="$2"
-                top={isWeb ? 0 : 6}
-              />
-             <XStack gap={isWeb ? "$3" : "$2"} alignItems="center" mt="$2" ml={4}>
-              {TAG_COLORS.map(color => (
-                <Button
-                  key={color}
-                  size="$2"
-                  circular
-                  onPress={() => setSelectedColor(color)}
-                  backgroundColor={color}
-                  borderWidth={1}
-                  borderColor={selectedColor === color ? 'white' : 'transparent'}
-                />
-              ))}
-              
-              <Button
-                size="$2"
-                circular
-                icon={<MaterialIcons name="check" size={isWeb ? 24 : 18} />}
-                onPress={handleAddTag}
-                backgroundColor="transparent"
-                color="#1E40AF"
-                ml="auto"
-              />
-            </XStack>
             </XStack>
             
-          </YStack>
-        )}
-      </XStack>
+            <Button
+              size="$2"
+              circular
+              backgroundColor={selectedColor}
+              onPress={() => setColorPickerOpen(true)}
+              borderWidth={1}
+              borderColor="white"
+            />
+            
+            {newTagName.trim() !== '' && (
+              <Button
+                size="$2"
+                px="$2"
+                br={8}
+                backgroundColor={selectedColor}
+                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color="white" />}
+                onPress={handleAddTag}
+                pressStyle={{ opacity: 0.8 }}
+              />
+            )}
+            
+            <Button
+              size="$2"
+              circular
+              icon={<MaterialIcons name="close" size={isWeb ? 20 : 16} color={"rgba(255, 0, 0, 0.77)"} />}
+              onPress={() => setIsAdding(false)}
+              backgroundColor="transparent"
+              pressStyle={{ opacity: 0.7 }}
+            />
+          </XStack>
+        </YStack>
+      )}
+      
+      <TagColorPickerModal
+        open={colorPickerOpen}
+        onOpenChange={setColorPickerOpen}
+        selectedColor={selectedColor}
+        onColorChange={setSelectedColor}
+        isDark={isDark}
+      />
     </YStack>
   );
 }

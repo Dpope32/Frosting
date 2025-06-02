@@ -59,11 +59,13 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
             bill: false,
             billName: '',
             task: false,
+            taskName: '',
             nba: false,
             holiday: false,
             holidayColor: '',
             holidayIcon: '',
-            teamCode: null
+            teamCode: null,
+            personalName: ''
           };
         }
         if (e.type === 'birthday') acc[e.date].birthday = true;
@@ -82,8 +84,10 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
           acc[e.date].holidayIcon = e.holidayIcon || '🎉';
         } else if (e.type === 'task') {
           acc[e.date].task = true;
+          acc[e.date].taskName = e.title || 'Task';
         } else {
           acc[e.date].personal = true;
+          acc[e.date].personalName = e.title || '';
         }
         return acc;
       }, {} as Record<string, {
@@ -94,11 +98,13 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
         bill: boolean;
         billName: string;
         task: boolean;
+        taskName: string;
         nba: boolean;
         holiday: boolean;
         holidayColor: string;
         holidayIcon: string;
         teamCode: string | null;
+        personalName: string;
       }>);
   }, [weekStart, events]);
 
@@ -117,7 +123,7 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
           const dateKey = day.toISOString().split('T')[0];
           const dayEvents = eventsByDate[dateKey] || {
             birthday: false, personal: false, work: false, family: false, bill: false, billName: '',
-            task: false, nba: false, holiday: false, holidayColor: '', holidayIcon: '', teamCode: null
+            task: false, taskName: '', nba: false, holiday: false, holidayColor: '', holidayIcon: '', teamCode: null, personalName: ''
           };
 
           const isToday = day.toDateString() === new Date().toDateString();
@@ -183,7 +189,7 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
 
                 {dayEvents.task && (
                   <View style={styles.eventIndicator}>
-                    <Text style={[styles.eventText, { color: '#FF9800' }]}>Task</Text>
+                    <Text style={[styles.eventText, { color: '#FF9800' }]}>{dayEvents.taskName || 'Task'}</Text>
                   </View>
                 )}
 
@@ -201,7 +207,7 @@ export const Week: React.FC<WeekProps> = ({ startDate, events, onDayPress, isDar
 
                 {dayEvents.personal && (
                   <View style={styles.eventIndicator}>
-                    <Text style={[styles.eventText, { color: '#555' }]}>Personal</Text>
+                    <Text style={[styles.eventText, { color: 'rgb(72, 137, 15)' }]}>{dayEvents.personalName || 'Personal'}</Text>
                   </View>
                 )}
 

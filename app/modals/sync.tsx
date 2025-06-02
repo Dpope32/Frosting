@@ -19,6 +19,7 @@ import { leaveWorkspace } from '@/sync/leaveWorkspace'
 import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
 import { AUTHORIZED_USERS } from '@/constants'
 import { SnapshotSize } from '@/components/sync/SnapshotSize'
+import { debouncedBack } from '@/utils'
 
 // Prevent multiple wrappers of fetch during hot reload
 if (!(global as any)._syncFetchWrapped) {
@@ -187,7 +188,7 @@ export default function SyncScreen() {
     >
       <YStack gap={baseSpacing * 2} p={isWeb ? '$4' : '$2'} px={isWeb ? '$4' : '$3'} pb={baseSpacing * 6} >
         <XStack alignItems="center" justifyContent="center" position="relative">
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={debouncedBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back"  size={22} color={isDark ? '#fff' : '#000'} />
           </TouchableOpacity>
           <Text

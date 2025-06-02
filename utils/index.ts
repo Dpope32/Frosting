@@ -1,4 +1,5 @@
 export * from './deviceUtils';
+export * from './navigationUtils';
 export * from './noteStyles';
 export * from './Portfolio';
 export * from './preloadTheme';

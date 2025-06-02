@@ -1,11 +1,10 @@
-
 import React, { useState, useRef } from 'react'
-import { useColorScheme, Alert, Platform } from 'react-native'
-import {  XStack, Text, Button, ScrollView, isWeb } from 'tamagui'
+import { useColorScheme, Alert, Platform, View, TouchableOpacity } from 'react-native'
+import {  XStack, YStack, Text, Button, ScrollView, isWeb, Sheet } from 'tamagui'
 import { TaskCategory } from '@/types'
 import { getCategoryColor, withOpacity, getRandomCustomCategoryIcon, getDarkerColor, isIpad } from '@/utils'
 import { useCustomCategoryStore, useUserStore, useToastStore } from '@/store'
-import { DebouncedTagInput } from '@/components/shared/debouncedTagInput'
+import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { MaterialIcons } from '@expo/vector-icons'
 
 interface CategorySelectorProps {
@@ -14,6 +13,120 @@ interface CategorySelectorProps {
 }
 
 const DEFAULT_CATEGORIES = ['work', 'health', 'personal', 'family', 'wealth'];
+
+const CATEGORY_COLORS = [
+  '#3B82F6', // Blue
+  '#22C55E', // Green
+  '#F97316', // Orange
+  '#EF4444', // Red
+  '#1E40AF', // Indigo
+  '#A855F7', // Purple
+  '#EC4899', // Pink
+  '#FACC15', // Yellow
+  '#14B8A6', // Teal
+  '#0EA5E9', // Sky Blue
+  '#06B6D4', // Cyan
+  '#8B5CF6', // Violet
+  '#D946EF', // Fuchsia
+  '#F43F5E', // Rose
+  '#10B981', // Emerald
+  '#84CC16', // Lime
+  '#78350F', // Brown
+  '#0F172A', // Slate
+];
+
+// Category color picker modal
+function CategoryColorPickerModal({
+  open,
+  onOpenChange,
+  selectedColor,
+  onColorChange,
+  isDark,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedColor: string;
+  onColorChange: (color: string) => void;
+  isDark: boolean;
+}) {
+  const backgroundColor = isDark ? 'rgba(28,28,28,0.95)' : 'rgba(255,255,255,0.95)';
+  const textColor = isDark ? '#fff' : '#000';
+
+  return (
+    <Sheet
+      modal
+      open={open}
+      onOpenChange={onOpenChange}
+      snapPoints={[40]}
+      zIndex={100001}
+      disableDrag={true}
+    >
+      <Sheet.Overlay
+        animation="quick"
+        enterStyle={{ opacity: 0 }}
+        exitStyle={{ opacity: 0 }}
+        backgroundColor="rgba(0,0,0,0.5)"
+        opacity={0.8}
+      />
+      <Sheet.Frame
+        backgroundColor={backgroundColor}
+        paddingHorizontal="$4"
+        paddingVertical="$4"
+        gap="$3"
+      >
+        <XStack justifyContent="space-between" alignItems="center" paddingBottom="$1">
+          <Text fontSize={20} fontWeight="600" color={textColor} flex={1} textAlign="center" marginLeft="$6">
+            Category Color
+          </Text>
+          <TouchableOpacity onPress={() => onOpenChange(false)} style={{ padding: 8 }}>
+            <MaterialIcons name="close" size={24} color={textColor} />
+          </TouchableOpacity>
+        </XStack>
+
+        <YStack gap="$4" paddingVertical="$2">
+          <XStack flexWrap="wrap" justifyContent="center" gap="$3">
+            {CATEGORY_COLORS.map(color => (
+              <Button
+                key={color}
+                size="$4"
+                circular
+                backgroundColor={color}
+                borderWidth={3}
+                borderColor={selectedColor === color ? 'white' : 'transparent'}
+                onPress={() => {
+                  onColorChange(color);
+                  onOpenChange(false);
+                }}
+              />
+            ))}
+          </XStack>
+          
+          {Platform.OS === 'web' && (
+            <XStack justifyContent="center" marginTop="$2">
+              <View style={{ alignItems: 'center' }}>
+                <Text fontSize={14} color={textColor} marginBottom="$1">
+                  Custom Color
+                </Text>
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={(e) => onColorChange(e.target.value)}
+                  style={{ 
+                    width: '100px', 
+                    height: '40px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+                />
+              </View>
+            </XStack>
+          )}
+        </YStack>
+      </Sheet.Frame>
+    </Sheet>
+  );
+}
 
 export function CategorySelector({ selectedCategory, onCategorySelect }: CategorySelectorProps) {
   const colorScheme = useColorScheme()
@@ -27,6 +140,8 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
   const showToast = useToastStore((s) => s.showToast)
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
+  const [selectedColor, setSelectedColor] = useState(CATEGORY_COLORS[0])
+  const [colorPickerOpen, setColorPickerOpen] = useState(false)
   const lastTapRef = useRef<number>(0);
 
 
@@ -51,9 +166,9 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
       // Get random icon
       const icon = getRandomCustomCategoryIcon()
       
-      // Add the category to store
+      // Add the category to store with selected color
       try {
-        const newCat = addCategory(newCategoryName)
+        const newCat = addCategory(newCategoryName.trim(), selectedColor)
         
         if (!newCat || !newCat.name) {
           Alert.alert('Error', 'Failed to create category. Please try again.')
@@ -163,65 +278,70 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
     <XStack pl={isWeb ? 8 : isIpad() ? 10 : 8} gap="$2" alignItems="center">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15}  fontFamily="$body" fontWeight="500">Category:</Text>
       {isAddingCategory ? (
-        <XStack gap="$2" alignItems="center" py="$1">
-          <XStack position="relative" width={isIpad() ? 180 : 140}>
-            <DebouncedTagInput
-              width="100%"
-              placeholder="Category Name"
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              onDebouncedChange={setNewCategoryName}
-              autoFocus
-              fontSize="$3"
-              onSubmitEditing={handleCreateNewCategory}
-              paddingRight="$8"
-              backgroundColor={isDark ? "rgba(255,255,255,0.0)" : "rgba(0,0,0,0.00)"}
-              borderWidth={1}
-              borderColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}
-              borderRadius={4}
-              fontFamily="$body"
-              color={isDark ? "white" : "black"}
-              placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
-              py="$1"
-            />
+        <YStack gap={isWeb ? "$3" : "$1"} mt={isWeb ? "$3" : "$1.5"} ml={isIpad() ? "$2" : "$1"} width="100%">
+          <XStack position="relative" width="100%" maxWidth={"100%"} alignItems="center" gap="$2">
+            <XStack position="relative" width="40%" alignItems="center">
+              <DebouncedInput
+                width="100%"
+                placeholder="Category Name"
+                value={newCategoryName}
+                onChangeText={setNewCategoryName}
+                autoFocus
+                fontSize="$3"
+                px="$3"
+                py="$2"
+                onSubmitEditing={handleCreateNewCategory}
+                onDebouncedChange={() => {}}
+                paddingRight="$4"
+                backgroundColor={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}
+                borderWidth={1}
+                delay={0}
+                borderColor={isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.1)"}
+                borderRadius={8}
+                fontFamily="$body"
+                color={isDark ? "white" : "black"}
+                placeholderTextColor={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)"}
+              />
+            </XStack>
+            
             <Button
               size="$2"
               circular
-              icon={<MaterialIcons name="check" size={isWeb ? 14 : 16} color={isDark ? userColor : userColor} />}
-              onPress={handleCreateNewCategory}
+              backgroundColor={selectedColor}
+              onPress={() => setColorPickerOpen(true)}
+              borderWidth={1}
+              borderColor="white"
+            />
+            
+            {newCategoryName.trim() !== '' && (
+              <Button
+                size="$2"
+                px="$2"
+                br={8}
+                backgroundColor={selectedColor}
+                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color="white" />}
+                onPress={handleCreateNewCategory}
+                pressStyle={{ opacity: 0.8 }}
+              />
+            )}
+            
+            <Button
+              size="$2"
+              circular
+              icon={<MaterialIcons name="close" size={isWeb ? 20 : 16} color={"rgba(255, 0, 0, 0.77)"} />}
+              onPress={() => setIsAddingCategory(false)}
               backgroundColor="transparent"
-              position="absolute"
-              right="$2"
-              top={isWeb ? 0 : 6}
+              pressStyle={{ opacity: 0.7 }}
             />
           </XStack>
-          <Button
-            onPress={() => setIsAddingCategory(false)}
-            backgroundColor={isDark ? "$gray2" : "white"}
-            pressStyle={{ opacity: 0.8, scale: 0.98 }}
-            br={20}
-            px="$2"
-            py="$1"
-            borderWidth={1}
-            borderColor={isDark ? "$gray7" : "$gray4"}
-            style={{ justifyContent: 'center', alignItems: 'center' }}
-          >
-            <Text
-              fontSize={14}
-              fontWeight="600"
-              fontFamily="$body"
-              color={isDark ? "$gray11" : "$gray11"}
-            >
-              Cancel
-            </Text>
-          </Button>
-        </XStack>
+        </YStack>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <XStack gap="$2">
             {[...customCategories.map(cat => cat.name), ...visibleDefaultCategories].map(cat => {
               const isCustom = customCategories.some(c => c.name === cat);
-              const color = isCustom ? userColor : getCategoryColor(cat as TaskCategory);
+              const customCategory = customCategories.find(c => c.name === cat);
+              const color = isCustom && customCategory?.color ? customCategory.color : getCategoryColor(cat as TaskCategory);
               const isSelected = selectedCategory === cat;
               const categoryType = cat as TaskCategory;
               return (
@@ -252,7 +372,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                     fontFamily="$body"
                     color={
                       isSelected
-                        ? (isCustom ? getDarkerColor(color, 0.5) : (isDark ? getCategoryColor(categoryType) : '$gray12'))
+                        ? getDarkerColor(color, 0.5)
                         : isDark
                           ? "$gray11"
                           : "$gray11"
@@ -269,7 +389,7 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
                 key="start-add-category"
                 size="$2"
                 circular
-                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#5a5a5a" : "$gray11"} />}
+                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#5a5a5a" : "#9c9c9c"} />}
                 backgroundColor={isDark ? "$gray2" : "white"}
                 borderWidth={1}
                 borderColor={isDark ? "$gray7" : "$gray8"}
@@ -280,6 +400,14 @@ export function CategorySelector({ selectedCategory, onCategorySelect }: Categor
           </XStack>
         </ScrollView>
       )}
+      
+      <CategoryColorPickerModal
+        open={colorPickerOpen}
+        onOpenChange={setColorPickerOpen}
+        selectedColor={selectedColor}
+        onColorChange={setSelectedColor}
+        isDark={isDark}
+      />
     </XStack>
   )
 }

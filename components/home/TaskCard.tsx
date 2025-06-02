@@ -26,7 +26,7 @@ interface TaskCardProps {
   onDelete?: () => void;
 }
 
-export function TaskCard({ 
+export const TaskCard = React.memo<TaskCardProps>(({ 
   title, 
   time, 
   category, 
@@ -36,7 +36,7 @@ export function TaskCard({
   tags = [],
   onCheck,
   onDelete
-}: TaskCardProps) {
+}) => {
   // Subscribe to primaryColor for reactivity
   const userColor = useUserStore(s => s.preferences.primaryColor);
   const customCategories = useCustomCategoryStore((s) => s.categories);
@@ -50,7 +50,7 @@ export function TaskCard({
   const showToast = useToastStore(s => s.showToast);
   const isDark = useColorScheme() === 'dark';
 
-  const mapStatusToRecurrencePattern = (status: string): RecurrencePattern | undefined => {
+  const mapStatusToRecurrencePattern = React.useCallback((status: string): RecurrencePattern | undefined => {
     const lowerStatus = status.toLowerCase();
     if (lowerStatus === 'one-time') return 'one-time';
     if (lowerStatus === 'tomorrow') return 'tomorrow';
@@ -60,102 +60,123 @@ export function TaskCard({
     if (lowerStatus === 'monthly') return 'monthly';
     if (lowerStatus === 'yearly') return 'yearly';
     return undefined;
-  };
+  }, []);
 
-  const recurrencePattern = mapStatusToRecurrencePattern(status);
-  const recurrenceColor = getRecurrenceColor(recurrencePattern);
+  const recurrencePattern = React.useMemo(() => mapStatusToRecurrencePattern(status), [mapStatusToRecurrencePattern, status]);
+  const recurrenceColor = React.useMemo(() => getRecurrenceColor(recurrencePattern), [recurrencePattern]);
 
   const baseOpacity = 0.075; 
   
-  let cardBgColor = isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(25, 25, 25, 0.7)"; 
-  let gradientColors: readonly [string, string, string] | undefined;
-  
-  // Dark mode
-  if (isDark && category) {
-    let categoryColor = calculatedCategoryColor;
-    gradientColors = [
-      withOpacity(categoryColor, baseOpacity * 0.7),  // Top - darker
-      withOpacity(categoryColor, baseOpacity),        // Middle
-      withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
-    ] as const;
-  } else if (isDark && priority) {
-    const priorityColor = getPriorityColor(priority);
-    gradientColors = [
-      withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
-      withOpacity(priorityColor, baseOpacity),        // Middle
-      withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
-    ] as const;
-  } else if (isDark && recurrencePattern) {
-    gradientColors = [
-      withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
-      withOpacity(recurrenceColor, baseOpacity),        // Middle
-      withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
-    ] as const;
-  } 
-  // Light mode
-    else if (!isDark && category) {
-    let categoryColor = calculatedCategoryColor;
-     gradientColors = [
-      withOpacity(categoryColor, baseOpacity * 0.9),  // Top - darker
-      withOpacity(categoryColor, baseOpacity),        // Middle
-      withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
-    ] as const;
-  } else if (!isDark && priority) {
-    const priorityColor = getPriorityColor(priority);
-    gradientColors = [
-      withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
-      withOpacity(priorityColor, baseOpacity),        // Middle
-      withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
-    ] as const;
-  } else if (!isDark && recurrencePattern) {
-    gradientColors = [
-      withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
-      withOpacity(recurrenceColor, baseOpacity),        // Middle
-      withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
-    ] as const;
-  }
+  const { cardBgColor, gradientColors } = React.useMemo(() => {
+    let cardBgColor = isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(25, 25, 25, 0.7)"; 
+    let gradientColors: readonly [string, string, string] | undefined;
+    
+    // Dark mode
+    if (isDark && category) {
+      let categoryColor = calculatedCategoryColor;
+      gradientColors = [
+        withOpacity(categoryColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(categoryColor, baseOpacity),        // Middle
+        withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
+      ] as const;
+    } else if (isDark && priority) {
+      const priorityColor = getPriorityColor(priority);
+      gradientColors = [
+        withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(priorityColor, baseOpacity),        // Middle
+        withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
+      ] as const;
+    } else if (isDark && recurrencePattern) {
+      gradientColors = [
+        withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(recurrenceColor, baseOpacity),        // Middle
+        withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
+      ] as const;
+    } 
+    // Light mode
+      else if (!isDark && category) {
+      let categoryColor = calculatedCategoryColor;
+       gradientColors = [
+        withOpacity(categoryColor, baseOpacity * 0.9),  // Top - darker
+        withOpacity(categoryColor, baseOpacity),        // Middle
+        withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
+      ] as const;
+    } else if (!isDark && priority) {
+      const priorityColor = getPriorityColor(priority);
+      gradientColors = [
+        withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(priorityColor, baseOpacity),        // Middle
+        withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
+      ] as const;
+    } else if (!isDark && recurrencePattern) {
+      gradientColors = [
+        withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(recurrenceColor, baseOpacity),        // Middle
+        withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
+      ] as const;
+    }
+    
+    return { cardBgColor, gradientColors };
+  }, [isDark, category, calculatedCategoryColor, priority, recurrencePattern, recurrenceColor, baseOpacity]);
+
+  const handleDelete = React.useCallback((onComplete: (deleted: boolean) => void) => {
+    if (onDelete) {
+      if (Platform.OS === 'web') {
+        if (confirm('Are you sure you want to delete this task?')) {
+          onDelete();
+          if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          showToast('Task deleted successfully', 'success');
+          onComplete(true);
+        } else {
+          onComplete(false);
+        }
+      } else {
+        Alert.alert(
+          'Delete Task',
+          'Are you sure you want to delete this task?',
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
+            { 
+              text: 'Delete', 
+              onPress: () => {
+                onDelete();
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                showToast('Task deleted successfully', 'success');
+                onComplete(true);
+              }, 
+              style: 'destructive' 
+            }
+          ]
+        );
+      }
+    } else {
+      console.warn('No delete handler provided for task:', title);
+      onComplete(false);
+    }
+  }, [onDelete, showToast, title]);
+
+  const handleCheck = React.useCallback(() => {
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    const newValue = !checked;
+    onCheck?.(newValue);
+    if (newValue) {
+      const msg = variants[Math.floor(Math.random() * variants.length)];
+      showToast(msg, 'success');
+    } else {
+      showToast("Undo successful", 'success');
+    }
+  }, [checked, onCheck, showToast]);
   
   return (
     <LongPressDelete 
-      onDelete={(onComplete) => {
-        if (onDelete) {
-          if (Platform.OS === 'web') {
-            if (confirm('Are you sure you want to delete this task?')) {
-              onDelete();
-              if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              showToast('Task deleted successfully', 'success');
-              onComplete(true);
-            } else {
-              onComplete(false);
-            }
-          } else {
-            Alert.alert(
-              'Delete Task',
-              'Are you sure you want to delete this task?',
-              [
-                { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
-                { 
-                  text: 'Delete', 
-                  onPress: () => {
-                    onDelete();
-                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                    showToast('Task deleted successfully', 'success');
-                    onComplete(true);
-                  }, 
-                  style: 'destructive' 
-                }
-              ]
-            );
-          }
-        } else {
-          console.warn('No delete handler provided for task:', title);
-          onComplete(false);
-        }
-      }}
+      onDelete={handleDelete}
       progressBarStyle={{
         paddingHorizontal: 8
       }}
       longPressDuration={800}
+      isDark={isDark}
     >
       <Stack
         backgroundColor={cardBgColor}
@@ -226,19 +247,7 @@ export function TaskCard({
                 {title}
               </Text>
               <Pressable 
-                onPress={() => {
-                  if (Platform.OS !== 'web') {
-                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                  }
-                  const newValue = !checked;
-                  onCheck?.(newValue);
-                  if (newValue) {
-                    const msg = variants[Math.floor(Math.random() * variants.length)];
-                    showToast(msg, 'success');
-                  } else {
-                    showToast("Undo successful", 'success');
-                  }
-                }}
+                onPress={handleCheck}
                 style={styles.checkboxContainer}
                 hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
                 accessibilityRole="button"
@@ -276,7 +285,9 @@ export function TaskCard({
       </Stack>
     </LongPressDelete>
   );
-}
+})
+
+TaskCard.displayName = 'TaskCard'
 
 const styles = StyleSheet.create({
   container: {

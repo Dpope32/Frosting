@@ -186,15 +186,22 @@ export const useMarkdownStyles = () => {
       height: 16,
       borderWidth: 1.5,
       borderRadius: 3,
+      marginRight: -14,
       borderColor: colors.textSecondary,
-      marginRight: 8,
     } as ViewStyle,
     checkbox_checked: {
       backgroundColor: 'rgba(0, 200, 81, 0.1)',
       borderColor: '#00C851',
+      width: 16,
+      marginRight: -14,
     } as ViewStyle,
     checkbox_icon: {
       color: '#00C851',
+      fontSize: 10,
+      alignSelf: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontWeight: 'bold',
     } as TextStyle,
   };
 

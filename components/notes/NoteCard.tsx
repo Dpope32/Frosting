@@ -33,7 +33,8 @@ export const NoteCard = ({
 }: NoteCardProps) => {
   const [isExpanded, setIsExpanded] = useState(note.isExpanded || false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
-  const [checkboxUpdateKey, setCheckboxUpdateKey] = useState(0); 
+  const [checkboxUpdateKey, setCheckboxUpdateKey] = useState(0);
+  const [checkboxRenderCount, setCheckboxRenderCount] = useState(0);
   const paragraphSize = isWeb ? '$4' : '$3';
   const noteStore = useNoteStore();
   const colorScheme = useColorScheme();
@@ -50,6 +51,11 @@ export const NoteCard = ({
       noteStore.updateNote(note.id, { isExpanded });
     }
   }, [isExpanded, note.id]);
+
+  // Reset checkbox counter when content changes
+  useEffect(() => {
+    setCheckboxRenderCount(0);
+  }, [note.content, checkboxUpdateKey]);
 
   const imageAttachments = useMemo(() => {
     return note.attachments?.filter(att => att.type === 'image') ?? [];
@@ -98,35 +104,38 @@ export const NoteCard = ({
 
   // Custom rule for checkboxes
   const checkboxRule: RenderRules = {
-    list_item: (node, children, parent, styles) => {
-      const findCheckboxString = (childrenArr: any[]): RegExpMatchArray | null => {
-        for (const child of childrenArr) {
-          if (typeof child === 'string') {
-            let match = child.match(/^[-*]\s+\[([ xX])\]\s?(.*)/);
-            if (!match) {
-              match = child.match(/^\[([ xX])\]\s?(.*)/);
-            }
-            if (!match) {
-              // Look for just the checkbox part
-              const checkboxMatch = child.match(/\[([ xX])\]/);
-              if (checkboxMatch) {
-                const labelMatch = child.match(/\[([ xX])\]\s?(.*)/);
-                return [child, checkboxMatch[1], labelMatch ? labelMatch[2] : ''];
+    list_item: (() => {
+      let currentCheckboxIndex = 0; // Track checkbox index within this render cycle
+      
+      return (node, children, parent, styles) => {
+        const findCheckboxString = (childrenArr: any[]): RegExpMatchArray | null => {
+          for (const child of childrenArr) {
+            if (typeof child === 'string') {
+              let match = child.match(/^[-*]\s+\[([ xX])\]\s?(.*)/);
+              if (!match) {
+                match = child.match(/^\[([ xX])\]\s?(.*)/);
               }
+              if (!match) {
+                // Look for just the checkbox part
+                const checkboxMatch = child.match(/\[([ xX])\]/);
+                if (checkboxMatch) {
+                  const labelMatch = child.match(/\[([ xX])\]\s?(.*)/);
+                  return [child, checkboxMatch[1], labelMatch ? labelMatch[2] : ''];
+                }
+              }
+              if (match) return match;
+            } else if (Array.isArray(child)) {
+              const match = findCheckboxString(child);
+              if (match) return match;
+            } else if (child && typeof child === 'object' && child.props && child.props.children) {
+              const match = findCheckboxString(
+                Array.isArray(child.props.children) ? child.props.children : [child.props.children]
+              );
+              if (match) return match;
             }
-            if (match) return match;
-          } else if (Array.isArray(child)) {
-            const match = findCheckboxString(child);
-            if (match) return match;
-          } else if (child && typeof child === 'object' && child.props && child.props.children) {
-            const match = findCheckboxString(
-              Array.isArray(child.props.children) ? child.props.children : [child.props.children]
-            );
-            if (match) return match;
           }
-        }
-        return null;
-      };
+          return null;
+        };
 
       const match: RegExpMatchArray | null = findCheckboxString(children);
       if (match) {
@@ -182,7 +191,6 @@ export const NoteCard = ({
               activeOpacity={0.7}
               style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
             >
-              
               <View style={[
                 markdownStyles.checkbox_unchecked,
                 checked && markdownStyles.checkbox_checked,
@@ -234,15 +242,16 @@ export const NoteCard = ({
         }
       }
 
-      return (
-        <View
-          key={node.key || node.index || Math.random().toString()}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          {children}
-        </View>
-      );
-    }
+        return (
+          <View
+            key={node.key || node.index || Math.random().toString()}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+          >
+            {children}
+          </View>
+        );
+      };
+    })()
   };
 
   return (

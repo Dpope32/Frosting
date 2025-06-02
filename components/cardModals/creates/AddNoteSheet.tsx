@@ -308,7 +308,7 @@ export function AddNoteSheet({
                 style={{ 
                   flex: 1, 
                   paddingVertical: isIpad() ? 8 : 8,
-                  fontSize: isIpad() ? 24 : 20,
+                  fontSize: isIpad() ? 24 : 18,
                   fontWeight: '600',
                   backgroundColor: 'transparent',
                   borderWidth: 0,
@@ -333,7 +333,7 @@ export function AddNoteSheet({
           ) : (
             <XStack alignItems="center" px="$2" gap={0} minHeight={44}>
               <Text
-                fontSize={isIpad() ? "$5" : 20}
+                fontSize={isIpad() ? "$5" : 18}
                 fontWeight="600"
                 numberOfLines={1}
                 ellipsizeMode="tail"

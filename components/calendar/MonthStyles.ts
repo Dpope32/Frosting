@@ -135,12 +135,12 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   pastDateStrikethrough: {
     position: 'absolute',
-    width: isWeb ? '145%' : isIpad() ? '146%' : '143%',
-    height: isIpad() ? 1.9 : 1.5,
+    width: isWeb ? '145%' : isIpad() ? '146%' : '150%',
+    height: isIpad() ? 1.9 : 1,
     backgroundColor: isDark ? '#555' : '#777',
-    top: isWeb ? '50%' : isIpad() ? '60%' : '55%',
-    left: webColumnCount === 1 ? isWeb ? -45 : isIpad() ? -15 : -6 : webColumnCount === 2 ? isWeb ? -26 : isIpad() ? -10 : -6 : webColumnCount === 3 ? isWeb ? -20 : isIpad() ? -14 : -6 : -6,
-    transform:  isIpad() ? [{ rotate: '131deg' }] : [{ rotate: '135deg' }],
+    top: isWeb ? '50%' : isIpad() ? '60%' : '75%',
+    left: webColumnCount === 1 ? isWeb ? -45 : isIpad() ? -15 : -10 : webColumnCount === 2 ? isWeb ? -26 : isIpad() ? -10 : -6 : webColumnCount === 3 ? isWeb ? -20 : isIpad() ? -14 : -6 : -6,
+    transform:  isIpad() ? [{ rotate: '131deg' }] : [{ rotate: '132deg' }],
     zIndex: 1000,
   },
   dayNumber: {

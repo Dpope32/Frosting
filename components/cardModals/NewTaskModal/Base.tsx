@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
+import { BlurView } from 'expo-blur'
 
 interface BaseProps {
   onClose: () => void 
@@ -149,51 +150,57 @@ export function Base({
       exiting={FadeOut.duration(300)}
       pointerEvents="box-none"
     >
-      <TouchableWithoutFeedback>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Theme name={isDark ? 'dark' : 'light'}>
-            <Animated.View
-              entering={ZoomIn.duration(300).springify()}
-              exiting={FadeOut.duration(300)} 
-              style={[
-                styles.modalContainer,
-                {
-                  backgroundColor: isDark ? 'rgb(27, 24, 24)' : '#fff',
-                  marginTop: insets.top, 
-                  marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.7 : 80),
-                  width: actualWidth,
-                  maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
-                }
-              ]}
-              onTouchEnd={(e) => e.stopPropagation()}
-            >
-              <XStack justifyContent="space-between" py="$2" marginTop={-5} marginBottom={2} px="$2" alignItems="center">
-                <Text
-                  fontSize={20}
-                  fontWeight="700"
-                  fontFamily="$body"
-                  color={isDark ? "#fffaef" : "black"}
-                  marginBottom={0}
-                >
-                  {title}
-                </Text>
-                {showCloseButton && (
-                  <Button
-                    backgroundColor="transparent"
-                    onPress={onClose} 
-                    padding={0}
-                    pressStyle={{ opacity: 0.7 }}
-                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
-                  />
-                )}
-              </XStack>
-              <View style={{ position: 'relative' }}>
-                {children}
-              </View>
-            </Animated.View>
-          </Theme>
-        </View>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <BlurView 
+         intensity={isDark ? 10 : 10}
+         tint={isDark ? 'dark' : 'light'}
+         style={StyleSheet.absoluteFillObject}>
+        </BlurView>
       </TouchableWithoutFeedback>
+      
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Theme name={isDark ? 'dark' : 'light'}>
+          <Animated.View
+            entering={ZoomIn.duration(300).springify()}
+            exiting={FadeOut.duration(300)} 
+            style={[
+              styles.modalContainer,
+              {
+                backgroundColor: isDark ? 'rgba(24, 22, 22, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                marginTop: insets.top, 
+                marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.7 : 80),
+                width: actualWidth,
+                maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
+              }
+            ]}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
+            <XStack justifyContent="space-between" py="$2" marginTop={-5} marginBottom={2} px="$2" alignItems="center">
+              <Text
+                fontSize={20}
+                fontWeight="700"
+                fontFamily="$body"
+                color={isDark ? "#fffaef" : "black"}
+                marginBottom={0}
+              >
+                {title}
+              </Text>
+              {showCloseButton && (
+                <Button
+                  backgroundColor="transparent"
+                  onPress={onClose} 
+                  padding={0}
+                  pressStyle={{ opacity: 0.7 }}
+                  icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                />
+              )}
+            </XStack>
+            <View style={{ position: 'relative' }}>
+              {children}
+            </View>
+          </Animated.View>
+        </Theme>
+      </View>
     </Animated.View>
   )
 }

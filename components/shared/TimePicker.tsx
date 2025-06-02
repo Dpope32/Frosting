@@ -33,44 +33,57 @@ export function TimePicker({
   };
 
   return (
-    <YStack flex={1} alignItems='center' paddingHorizontal={isWeb ? 5 : isIpad() ? 10 : 0} marginRight={0} mt={isIpad() ? 8 : 4} mb={0}>
+    <YStack flex={1} alignItems='center' paddingHorizontal={isWeb ? 5 : isIpad() ? 10 : 0} marginRight={0} mt={isIpad() ? 8 : 4} mb={4}>
       {!showTimePicker && (
-      <Pressable
-        onPress={() => setShowTimePicker(!showTimePicker)}
-        style={{
-          width: '102%',
-          height: time ? 35 : 45,
-          borderRadius: 12,
-          borderWidth: time ? 0 : 2,
-          borderColor: time ? 'transparent' : (isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: isIpad() ? 0 : time ? 6 : 16,
-          paddingRight: isIpad() ? 0 : time ? 8 : 16,
-          justifyContent: 'space-between',
-          backgroundColor: time ? 'transparent' : (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.01)'),
-          marginTop: time ? -6 : 0,
-          marginBottom: time ? 0 : 10,
-        }}
+      <XStack
+        width="102%"
+        alignItems="center"
+        justifyContent="flex-start"
+        my={6}
+        ml={0}
+        gap={isIpad() ? "$1.5" : "$0"}
       >
-        <Text
-          fontFamily="$body"
-          color={time ? (isDark ? '#f1f1f1' : '#333') : (isDark ? "#7c7c7c" : "#9c9c9c")}
-          fontSize={isWeb ? 15 : isIpad() ? 17 : 14}
-          style={{ flex: 1 }}
+        <Text 
+          color={isDark ? '#6c6c6c' : '#9c9c9c'} 
+          fontSize={isIpad() ? 17 : 15} 
+          fontFamily="$body" 
           fontWeight="500"
         >
-          {time || "Select time"}
+          Time:
         </Text>
-        {time ? (
-          <MaterialIcons name="edit" size={20} color={isDark ? '#555' : '#f3f3f3'} />
-        ) : (
-          <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
-            {showTimePicker ? '▲' : '▼'}
+        
+        <Pressable
+          onPress={() => setShowTimePicker(!showTimePicker)}
+          style={{
+            height: 35,
+            borderRadius: 12,
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: isIpad() ? 14 : 12,
+            paddingBottom: 5,
+            justifyContent: 'space-between',
+            backgroundColor: time ? (isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.05)') : 'transparent',
+            marginLeft: isIpad() ? 12 : 10,
+          }}
+        >
+          <Text
+            fontFamily="$body"
+            color={isDark ? '#9a9a9a' : '#7c7c7c'}
+            fontSize={isWeb ? 17 : isIpad() ? 15 : 14}
+            fontWeight="500"
+          >
+            {time || "Select time"}
           </Text>
-        )}
-      </Pressable>
+          {time ? (
+            <MaterialIcons name="timer" size={18} color={isDark ? '#5c5c5c' : '#aaa'} style={{ marginLeft: 4 }} />
+          ) : (
+            <Text fontFamily="$body" color={isDark ? "$gray11" : "$gray10"} fontSize={14}>
+              {showTimePicker ? '▲' : '▼'}
+            </Text>
+          )}
+        </Pressable>
+      </XStack>
       )}
 
       {showTimePicker && (
@@ -198,16 +211,16 @@ export function TimePicker({
                 <XStack width="100%" justifyContent="space-between" gap="$4" mt="$3" px="$2">
                   <Button
                     onPress={() => setShowTimePicker(false)}
-                    backgroundColor={isDark ? "$gray3" : "transparent"}
+                    backgroundColor={"rgba(255, 0, 0, 0.12)"}
                     px="$2"
                     py="$1"
                     height={32}
                     br={12}
                     flex={1}
                     borderWidth={1}
-                    borderColor={isDark ? "transparent" : "$gray4"}
+                    borderColor={"rgba(255, 0, 0, 0.77)"}
                   >
-                    <Text color={isDark ? "$gray11" : "$gray11"} fontFamily="$body" fontWeight="500">Cancel</Text>
+                    <Text color={"rgba(255, 0, 0, 0.77)"} fontFamily="$body" fontWeight="500">Cancel</Text>
                   </Button>
                   <Button
                     onPress={handleTimeSelected}
@@ -233,7 +246,7 @@ export function TimePicker({
                   display="spinner"
                   themeVariant={isDark ? "dark" : "light"}
                 />
-                <XStack width="100%" justifyContent="space-between" gap="$4" px="$2">
+                <XStack width="70%" justifyContent="space-between" gap="$4" px="$2">
                   <Button
                     onPress={() => setShowTimePicker(false)}
                     backgroundColor={isDark ? "$gray3" : "transparent"}
@@ -243,9 +256,9 @@ export function TimePicker({
                     br={12}
                     flex={1}
                     borderWidth={1}
-                    borderColor={isDark ? "transparent" : "$gray4"}
+                    borderColor={"rgba(255, 0, 0, 0.77)"}
                   >
-                    <Text color={isDark ? "$gray11" : "$gray11"} fontFamily="$body" fontWeight="500">Cancel</Text>
+                    <Text color={"rgba(255, 0, 0, 0.77)"} fontFamily="$body" fontWeight="500">Cancel</Text>
                   </Button>
                   <Button
                     onPress={handleTimeSelected}
