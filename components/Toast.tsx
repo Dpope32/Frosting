@@ -20,7 +20,7 @@ const toastStyle = {
   pointerEvents: 'box-none' as const,
 }
 
-export function Toast() {
+export const Toast = React.memo(() => {
   const { toasts, removeToast } = useToastStore()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -32,7 +32,9 @@ export function Toast() {
       ))}
     </YStack>
   )
-}
+})
+
+Toast.displayName = 'Toast'
 
 type ToastType = 'success' | 'error' | 'info' | 'warning'
 
@@ -46,7 +48,7 @@ interface ToastItemProps {
   isDark?: boolean
 }
 
-const ToastItem: React.FC<ToastItemProps> = ({
+const ToastItem: React.FC<ToastItemProps> = React.memo(({
   id,
   message,
   type,
@@ -79,33 +81,33 @@ const ToastItem: React.FC<ToastItemProps> = ({
     })
   }, [fadeAnim, duration, id, onRemove])
 
-  const colorMap: Record<ToastType, string> = {
+  const colorMap: Record<ToastType, string> = React.useMemo(() => ({
     success: '#22c55e',
     error: '#ef4444',
     info: '#3b82f6',
     warning: '#f59e0b',
-  }
+  }), [])
 
-  const backgroundMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(6, 26, 15, 0.95)' : 'rgba(200, 254, 220, 0.52)',
+  const backgroundMap: Record<ToastType, string> = React.useMemo(() => ({
+    success: isDark ? 'rgba(6, 26, 15, 0.95)' : 'rgba(51, 67, 57, 0.52)',
     error: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(245,158,11,0.15)',
-  }
+  }), [isDark])
 
-  const iconMap: Record<ToastType, any> = {
+  const iconMap: Record<ToastType, any> = React.useMemo(() => ({
     success: 'checkmark-circle',
     error: 'alert-circle',
     info: 'information-circle',
     warning: 'warning',
-  }
+  }), [])
    
-  const borderColorMap: Record<ToastType, string> = {
-    success: isDark ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)',
+  const borderColorMap: Record<ToastType, string> = React.useMemo(() => ({
+    success: isDark ? 'rgba(34,197,94,0.3)' : 'rgba(5, 255, 97, 0.15)',
     error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
-  }
+  }), [isDark])
 
   const iconColor = colorMap[type]
   const textColor = colorMap[type]
@@ -126,7 +128,7 @@ const ToastItem: React.FC<ToastItemProps> = ({
           },
         ],
         alignSelf: 'center',
-        marginLeft: isWeb ? 150 : isIpad() ? 150 : 0,
+        marginLeft: isWeb ? 150 : isIpad() ? 120 : 0,
       }}
     >
       <BlurView
@@ -164,4 +166,6 @@ const ToastItem: React.FC<ToastItemProps> = ({
       </BlurView>
     </Animated.View>
   )
-}
+})
+
+ToastItem.displayName = 'ToastItem'

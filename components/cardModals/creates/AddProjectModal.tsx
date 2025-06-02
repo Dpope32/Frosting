@@ -182,7 +182,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                   onPress={() => setShowDatePicker(true)}
                   borderWidth={1}
                   borderRadius={12}
-                  backgroundColor={isDark ? '$gray0' : 'transparent'}
+                  backgroundColor={isDark ? 'transparent' : 'transparent'}
                   px="$3"
                   width="100%"
                   borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
@@ -217,7 +217,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                     mode="date"
                     display={Platform.OS === 'ios' ? 'inline' : 'default'}
                     onChange={handleDateChange}
-                    style={{ width: '100%', backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF', alignSelf: 'center', padding: 10, marginBottom: 10, marginTop: -60 }}
+                    style={{ width: '100%', backgroundColor: isDark ? '#1e1e1e' : '#FFFFFF', alignSelf: 'center', padding: 10, marginBottom: 10, marginTop: -55, borderRadius: 16, overflow: 'hidden' }}
                   />
                 </YStack>
               )}

@@ -7,11 +7,12 @@ export interface CustomCategory {
   id: string;
   name: string;
   icon: string;
+  color?: string;
 }
 
 interface CustomCategoryState {
   categories: CustomCategory[];
-  addCategory: (name: string) => CustomCategory;
+  addCategory: (name: string, color?: string) => CustomCategory;
   removeCategory: (id: string) => void;
   getCategoryByName: (name: string) => CustomCategory | undefined;
   deletedDefaultCategories: string[];
@@ -25,13 +26,14 @@ export const useCustomCategoryStore = create<CustomCategoryState>()(
   persist(
     (set, get) => ({
       categories: [],
-      addCategory: (name: string) => {
+      addCategory: (name: string, color?: string) => {
         // Generate a unique id for the category (similar to ToDo.ts approach)
         const id = Date.now().toString() + Math.random().toString(36).substring(2, 7);
         const newCategory: CustomCategory = {
           id,
           name,
           icon: 'custom', // This will be overridden by the component
+          color,
         };
         
         try {

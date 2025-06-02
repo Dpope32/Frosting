@@ -73,15 +73,7 @@ export function CardSection({
           </Pressable>
         )}
         {temperatureEnabled && (
-          <Pressable
-            onPress={onTemperaturePress}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
-              ...(isWeb ? { marginRight: wifiEnabled || quoteEnabled ? 32 : 0 } : {})
-            })}
-          >
-            <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
-          </Pressable>
+          <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
         )}
         {isWeb && (
           <XStack>

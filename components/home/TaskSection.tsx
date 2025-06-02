@@ -30,16 +30,16 @@ interface TaskSectionProps {
   onTaskListPress: () => void
 }
 
-export const TaskSection = ({
+export const TaskSection = React.memo<TaskSectionProps>(({
   todaysTasks,
   toggleTaskCompletion,
   deleteTask,
   onTaskListPress
-}: TaskSectionProps) => {
+}) => {
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
+  const todayLocalStr = React.useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
   const username = useUserStore(s => s.preferences.username);
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -88,7 +88,7 @@ export const TaskSection = ({
  //   }
 //  }, [todaysTasks, todayLocalStr]);
 
-  const handleToggleTask = (id: string) => {
+  const handleToggleTask = React.useCallback((id: string) => {
     if (DEBUG) {
       const task = todaysTasks.find(t => t.id === id);
       if (task) {
@@ -99,9 +99,9 @@ export const TaskSection = ({
       }
     }
     toggleTaskCompletion(id);
-  };
+  }, [toggleTaskCompletion, todaysTasks, todayLocalStr]);
 
-  const handleDeleteTask = (id: string) => {
+  const handleDeleteTask = React.useCallback((id: string) => {
     const task = todaysTasks.find(t => t.id === id);
     if (DEBUG) {
       log('Attempting to delete task:', id, task ? `Name: ${task.name}` : 'Task not found in todaysTasks');
@@ -119,7 +119,64 @@ export const TaskSection = ({
         log('todaysTasks count after delete:', todaysTasks.length);
       }, 500);
     }
-  };
+  }, [deleteTask, todaysTasks]);
+
+  const handleTaskListPress = React.useCallback(() => {
+    if (RNPlatform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+    }
+    onTaskListPress()
+  }, [onTaskListPress]);
+
+  const handleEasterEgg = React.useCallback(() => {
+    if (!isWeb) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    setEasterEggVisible(false);
+    if (easterEggTimeout.current) {
+      clearTimeout(easterEggTimeout.current);
+      easterEggTimeout.current = null;
+    }
+    easterEggTimeout.current = setTimeout(() => {
+      setEasterEggVisible(true);
+    }, 100); 
+  }, []);
+
+  // Clean up timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (easterEggTimeout.current) {
+        clearTimeout(easterEggTimeout.current);
+      }
+    };
+  }, []);
+
+  // Memoize recommendation chips to prevent unnecessary re-renders
+  const recommendationChips = React.useMemo(() => (
+    <Stack 
+      p="$2"
+      px={RNPlatform.OS === 'web' ? "$2" : "$1"}
+      mt={RNPlatform.OS === 'web' ? "$3" : 0}
+      gap={RNPlatform.OS === 'web' ? "$4" : "$2"}
+      br={12}
+    >
+      <YStack width="100%">
+        <XStack
+          justifyContent={RNPlatform.OS === 'web' ? "space-between" : "center"}
+          gap="$2"
+          px="$2"
+          flexWrap="wrap"
+          width="100%"
+          flexDirection="row"
+        >
+          <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={isDark}/>
+          <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={isDark}/>
+          <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={isDark}/>
+          <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={isDark}/>
+        </XStack>
+      </YStack>
+    </Stack>
+  ), [openRecommendationModal, isDark]);
 
   return (
     <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={isIpad() ? "$3" : "$2"}>
@@ -132,12 +189,7 @@ export const TaskSection = ({
         justifyContent={RNPlatform.OS === 'web' ? "flex-start" : isIpad() ? "space-between" : "space-between" }
       >
         <Pressable
-          onPress={() => {
-            if (RNPlatform.OS !== 'web') {
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-            }
-            onTaskListPress()
-          }}
+          onPress={handleTaskListPress}
           style={({ pressed }) => ({
             opacity: pressed ? 0.7 : 1,
             width: 30,
@@ -206,29 +258,7 @@ export const TaskSection = ({
       >
         {RNPlatform.OS === 'web' ? (
           uniqueTasks.length === 0 ? (
-            <Stack 
-              p="$2"
-              px="$2"
-              mt="$3"
-              gap="$4"
-              br={12}
-            >
-              <YStack width="100%">
-                <XStack
-                  justifyContent="space-between"
-                  gap="$2"
-                  px="$2"
-                  flexWrap="wrap"
-                  width="100%"
-                  flexDirection="row"
-                >
-                  <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={isDark}/>
-                  <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={isDark}/>
-                  <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={isDark}/>
-                  <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={isDark}/>
-                </XStack>
-              </YStack>
-            </Stack>
+            recommendationChips
           ) : (
             <div style={{
               display: 'grid',
@@ -285,29 +315,7 @@ export const TaskSection = ({
         ) : (
           <>
             {uniqueTasks.length === 0 ? (
-              <Stack 
-                p="$2"
-                px="$1"
-                mt={0}
-                gap="$2"
-                br={12}
-              >
-                <YStack width="100%">
-                  <XStack
-                    justifyContent="center"
-                    gap="$2"
-                    px="$2"
-                    flexWrap="wrap"
-                    width="100%"
-                    flexDirection="row"
-                  >
-                    <RecommendationChipHome category="Cleaning" onPress={() => openRecommendationModal('Cleaning')} isDark={isDark}/>
-                    <RecommendationChipHome category="Wealth" onPress={() => openRecommendationModal('Wealth')} isDark={isDark}/>
-                    <RecommendationChipHome category="Gym" onPress={() => openRecommendationModal('Gym')} isDark={isDark}/>
-                    <RecommendationChipHome category="Self-Care" onPress={() => openRecommendationModal('Self-Care')} isDark={isDark}/>
-                  </XStack>
-                </YStack>
-              </Stack>
+              recommendationChips
             ) : (
               <>
                 <XStack
@@ -354,19 +362,7 @@ export const TaskSection = ({
                   delayLongPress={1500} 
                   hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} 
                   android_disableSound={true}
-                  onLongPress={() => {
-                    if (!isWeb) {
-                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                    }
-                    setEasterEggVisible(false);
-                    if (easterEggTimeout.current) {
-                      clearTimeout(easterEggTimeout.current);
-                      easterEggTimeout.current = null;
-                    }
-                    easterEggTimeout.current = setTimeout(() => {
-                      setEasterEggVisible(true);
-                    }, 100); 
-                  }}
+                  onLongPress={handleEasterEgg}
                   onPressIn={() => {
                     if (DEBUG) {
                       log('Press started on YearCompleteSection');
@@ -401,4 +397,6 @@ export const TaskSection = ({
       </Stack>
     </Stack>
   )
-}
+})
+
+TaskSection.displayName = 'TaskSection'

@@ -19,6 +19,7 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
   const { isLoading, refetch } = useWeatherQuery(zipCode);
   const currentTemp = useWeatherStore(s => s.currentTemp);
   const valueColor = currentTemp !== null ? getValueColor('temperature', currentTemp, '', isDark ?? false) : 'white';
+  
   useEffect(() => {
     const now = Date.now();
     if (zipCode && (!lastFetchRef.current || now - lastFetchRef.current >= ONE_HOUR)) {
@@ -26,12 +27,11 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
       refetch();
     }
   }, [zipCode, refetch]);
-  
 
-    const handlePress = () => {
+  const handlePress = () => {
+    console.log(`🌡️ TEMPERATURE CARD: onPress called at ${Date.now()}`);
     if (onPress) {
       onPress();
-    } else {
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Platform, View, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -23,14 +23,17 @@ const ACTIONS = [
   { name: 'bt_todo', label: 'ToDo', icon: 'check-box' },
 ];
 
-export function FloatingActionSection({ onActionPress, isDark }: FloatingActionSectionProps) {
+export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ onActionPress, isDark }) => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor);
-  const textColor = isDark ? '#f9f9f9' : '#222';
   const [open, setOpen] = useState(false);
-  const iconSize = isIpad() ? 26 : 20;
-
-  // FAB position
-  const fabStyle = [
+  
+  // Memoize static values
+  const textColor = useMemo(() => isDark ? '#f9f9f9' : '#fff', [isDark]);
+  const iconSize = useMemo(() => isIpad() ? 26 : 20, []);
+  const fabIconSize = useMemo(() => isIpad() ? 32 : 28, []);
+  
+  // Memoize FAB style to prevent recalculation
+  const fabStyle = useMemo(() => [
     styles.fab,
     {
       backgroundColor: primaryColor,
@@ -38,54 +41,62 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
       right: isWeb ? 40 : isIpad() ? 50 : 30,
       shadowColor: isDark ? '#000' : '#222',
     },
-  ];
+  ], [primaryColor, isDark]);
 
-  return (
-    <>
-      <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={fabStyle}
-          onPress={() => setOpen(true)}
-        >
-          <MaterialIcons name={open ? 'close' : 'add'} size={isIpad() ? 32 : 28} color={textColor} />
-        </TouchableOpacity>
-      </View>
+  // Memoize modal positioning
+  const modalYStackProps = useMemo(() => ({
+    position: "absolute" as const,
+    bottom: isWeb ? 100 : isIpad() ? 120 : 80,
+    right: isWeb ? 40 : isIpad() ? 50 : 30,
+    gap: "$3" as const,
+    backgroundColor: isDark ? 'rgba(20,20,20,0.98)' : 'rgba(255,255,255,0.98)',
+    borderRadius: 18,
+    padding: "$3" as const,
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    zIndex: 100,
+    minWidth: 170,
+  }), [isDark]);
+
+  // Memoize callbacks to prevent recreating functions
+  const handleFabPress = useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const handleActionPress = useCallback((actionName: string) => {
+    onActionPress(actionName);
+    setOpen(false);
+  }, [onActionPress]);
+
+  // Only render modal when open to reduce overhead
+  const renderModal = useMemo(() => {
+    if (!open) return null;
+    
+    return (
       <Modal
         visible={open}
         animationType="fade"
         transparent
-        onRequestClose={() => setOpen(false)}
+        onRequestClose={handleModalClose}
       >
         <TouchableOpacity
           style={styles.overlay}
           activeOpacity={1}
-          onPress={() => setOpen(false)}
+          onPress={handleModalClose}
         >
-          <YStack
-            position="absolute"
-            bottom={isWeb ? 100 : isIpad() ? 120 : 80}
-            right={isWeb ? 40 : isIpad() ? 50 : 30}
-            gap="$3"
-            backgroundColor={isDark ? 'rgba(20,20,20,0.98)' : 'rgba(255,255,255,0.98)'}
-            borderRadius={18}
-            padding="$3"
-            shadowColor="#000"
-            shadowOpacity={0.18}
-            shadowRadius={12}
-            shadowOffset={{ width: 0, height: 4 }}
-            zIndex={100}
-            minWidth={170}
-          >
+          <YStack {...modalYStackProps}>
             {ACTIONS.map(action => (
               <TouchableOpacity
                 key={action.name}
                 style={styles.actionBtn}
                 activeOpacity={0.7}
-                onPress={() => {
-                  onActionPress(action.name);
-                  setOpen(false);
-                }}
+                onPress={() => handleActionPress(action.name)}
               >
                 <XStack alignItems="center" gap="$2">
                   <MaterialIcons name={action.icon as any} size={iconSize} color={primaryColor} />
@@ -98,11 +109,32 @@ export function FloatingActionSection({ onActionPress, isDark }: FloatingActionS
           </YStack>
         </TouchableOpacity>
       </Modal>
+    );
+  }, [open, modalYStackProps, iconSize, primaryColor, isDark, handleModalClose, handleActionPress]);
+
+  return (
+    <>
+      <View pointerEvents="box-none" style={styles.fabContainer}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={fabStyle}
+          onPress={handleFabPress}
+        >
+          <MaterialIcons name={open ? 'close' : 'add'} size={fabIconSize} color={textColor} />
+        </TouchableOpacity>
+      </View>
+      {renderModal}
     </>
   );
-}
+});
+
+FloatingActionSection.displayName = 'FloatingActionSection';
 
 const styles = StyleSheet.create({
+  fabContainer: {
+    ...StyleSheet.absoluteFillObject,
+    pointerEvents: 'box-none',
+  },
   fab: {
     position: 'absolute',
     zIndex: 100,
@@ -118,7 +150,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.18)',
+    backgroundColor: 'rgba(0,0,0,0.75)',
   },
   actionBtn: {
     paddingVertical: 10,

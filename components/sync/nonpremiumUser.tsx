@@ -21,7 +21,6 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
     if (isDev) {
       // In dev mode, just activate premium
       setPreferences({ premium: true });
-      console.log('🎉 Dev mode: Premium activated!');
     } else {
       // In production, go to sign up
       onSignUp();
@@ -162,18 +161,6 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
             </XStack>
           </LinearGradient>
         </TouchableOpacity>
-        {isDev && (
-          <Text 
-            fontSize={12} 
-            color={colors.subtext} 
-            fontFamily="$body"
-            textAlign="center"
-            marginTop={baseSpacing}
-            fontStyle="italic"
-          >
-            Dev Mode: Button activates premium instantly
-          </Text>
-        )}
         <XStack 
           alignItems="center" 
           justifyContent="center" 

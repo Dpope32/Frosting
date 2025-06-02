@@ -17,6 +17,54 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const priorityColor = getPriorityColor(project.priority)
+  
+  const hasTasks = project.tasks && project.tasks.length > 0
+
+  // Status component that can be reused
+  const statusComponent = project.status ? (
+    <XStack
+      bg={
+        project.status === 'completed'
+          ? 'rgba(0, 128, 0, 0.1)'
+          : project.status === 'in_progress'
+          ? 'rgba(0, 0, 255, 0.1)'
+          : project.status === 'pending'
+          ? 'rgba(255, 255, 0, 0.1)'
+          : project.status === 'past_deadline'
+          ? 'rgba(255, 0, 0, 0.1)'
+          : isDark
+          ? 'rgba(113, 148, 255, 0.1)'
+          : 'rgba(0, 0, 0, 0.1)'
+      }
+      py="$0.5"
+      px="$1"
+      br={12}
+      opacity={0.9}
+      ai="center"
+    >
+      <Text
+        fontFamily="$body"
+        fontSize={isIpad() ? 12 : 11}
+        py="$0.5"
+        px="$1"
+        color={
+          project.status === 'completed'
+            ? '$green10'
+            : project.status === 'in_progress'
+            ? '$blue10'
+            : project.status === 'pending'
+            ? '$yellow10'
+            : project.status === 'past_deadline'
+            ? '$red10'
+            : isDark
+            ? '$blue10'
+            : '#777777'
+        }
+      >
+        {project.status.replace('_', ' ')}
+      </Text>
+    </XStack>
+  ) : null
 
   return (
     <Pressable
@@ -36,11 +84,12 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
       <YStack
         borderRadius={12}
         overflow="hidden"
-        mb={isIpad() ? 6 : 2}
+        mb={isIpad() ? 2 : 0}
         style={{
           backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(253, 253, 253, 0.17)',
           borderColor: isDark ? 'rgba(39, 39, 39, 0.8)' : 'rgba(255, 255, 255, 0.1)',
           borderWidth:  1,
+        
         }}
       >
         <LinearGradient
@@ -63,17 +112,18 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
         />
         <XStack
-          padding={isIpad() ? 10 : 3}
-          paddingBottom={isIpad() ? 10 : 8}
-          paddingTop={isIpad() ? 8 : 6}
-          paddingHorizontal={isIpad() ? '$4' : '$3'}
+          padding={isIpad() ? 7 : 7}
+          paddingBottom={isIpad() ? 7 : 7}
+          paddingTop={isIpad() ? 7 : 7}
+          paddingHorizontal={isIpad() ? '$3' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
           borderRadius={12}
-          gap={isIpad() ? '$3' : '$2'}
+          minHeight={50}
+          gap={isIpad() ? '$2' : '$2'}
         >
           <YStack flex={1} gap="$1">
-            <XStack py={"$1.5"} jc="space-between" ai="center">
+            <XStack py={"$1"} jc="space-between" ai="center">
               <Text
                 fontFamily="$heading"
                 fontWeight="900"
@@ -90,50 +140,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               >
                 {project.name}
               </Text>
-              {project.status && (
-                <XStack
-                  bg={
-                    project.status === 'completed'
-                      ? 'rgba(0, 128, 0, 0.1)'
-                      : project.status === 'in_progress'
-                      ? 'rgba(0, 0, 255, 0.1)'
-                      : project.status === 'pending'
-                      ? 'rgba(255, 255, 0, 0.1)'
-                      : project.status === 'past_deadline'
-                      ? 'rgba(255, 0, 0, 0.1)'
-                      : isDark
-                      ? 'rgba(113, 148, 255, 0.1)'
-                      : 'rgba(0, 0, 0, 0.1)'
-                  }
-                  py="$0.5"
-                  px="$1"
-                  br={12}
-                  opacity={0.9}
-                  ai="center"
-                >
-                  <Text
-                    fontFamily="$body"
-                    fontSize={isIpad() ? 12 : 11}
-                    py="$0.5"
-                    px="$1"
-                    color={
-                      project.status === 'completed'
-                        ? '$green10'
-                        : project.status === 'in_progress'
-                        ? '$blue10'
-                        : project.status === 'pending'
-                        ? '$yellow10'
-                        : project.status === 'past_deadline'
-                        ? '$red10'
-                        : isDark
-                        ? '$blue10'
-                        : '#777777'
-                    }
-                  >
-                    {project.status.replace('_', ' ')}
-                  </Text>
-                </XStack>
-              )}
+              {hasTasks && statusComponent}
               {project.deadline && (() => {
                 let d: Date | undefined
                 if (typeof project.deadline === 'string') d = new Date(project.deadline)
@@ -180,11 +187,13 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 ))}
               </XStack>
             )}
-            {project.tasks && project.tasks.length > 0 && (
-                <Text fontSize={isIpad() ? 13 : 12} color={isDark ? '#7c7c7c' : '#9c9c9c'} fontFamily="$body">
-                  {project.tasks.filter(t => t.completed).length}/{project.tasks.length} tasks completed
-                </Text>
-              )}
+            {hasTasks ? (
+              <Text fontSize={isIpad() ? 13 : 12} color={isDark ? '#7c7c7c' : '#9c9c9c'} fontFamily="$body">
+                {project.tasks.filter(t => t.completed).length}/{project.tasks.length} tasks completed
+              </Text>
+            ) : (
+              statusComponent
+            )}
             </XStack>
           </YStack>
         </XStack>

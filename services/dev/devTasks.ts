@@ -17,7 +17,7 @@ export const addDevTasks = () => {
   }
 
   // Select up to 10 tasks
-  const tasksToAdd: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>[] = allRecommendedTasks.slice(0, 10).map(task => ({
+  const tasksToAdd: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>[] = allRecommendedTasks.slice(0, 5).map(task => ({
     name: task.name,
     recurrencePattern: task.recurrencePattern,
     category: task.category,

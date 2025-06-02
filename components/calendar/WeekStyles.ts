@@ -36,10 +36,10 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 0, // Removed rounded corners for all day rows
     overflow: 'visible', // Changed from hidden
-    paddingHorizontal: 15,
+    paddingHorizontal: isIpad() ? 15 : 10,
     borderBottomWidth: 1,
     borderBottomColor: isDark ? '#333' : '#5c5c5c',
-    minHeight: 75,
+    minHeight: 120,
     height: 'auto',
     position: 'relative',
   },
@@ -79,9 +79,9 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     width: '150%',
     height: 1.5,
     backgroundColor: isDark ? '#222' : '#999',
-    top: '52%',
+    top: isIpad() ? '52%' : '45%',
     left: '-35%',
-    transform: isIpad() ? [{ rotate: '7deg' }] : [{ rotate: '10deg' }],
+    transform: isIpad() ? [{ rotate: '7deg' }] : [{ rotate: '17deg' }],
     zIndex: 11,
   },
   pastDateStrikethrough2: {
@@ -89,9 +89,9 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     width: '150%',
     height: 1.5,
     backgroundColor: isDark ? '#222' : '#999',
-    top: '60%',
+    top: isIpad() ? '60%' : '50%',
     left: '-10%',
-    transform: isIpad() ? [{ rotate: '-7deg' }] : [{ rotate: '-10deg' }],
+    transform: isIpad() ? [{ rotate: '-7deg' }] : [{ rotate: '-17deg' }],
     zIndex: 11,
   },
   dayInfo: {
@@ -119,11 +119,9 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     flex: 1,
     borderLeftWidth: 1,
     borderLeftColor: isDark ? '#333' : '#5c5c5c', // Dark separator line
-    paddingLeft: 10, // Space between line and chip content
-    marginTop: -12, // Counteract dayRow.paddingVertical for the border
-    marginBottom: -12, // Counteract dayRow.paddingVertical for the border
-    paddingTop: 12, // Restore padding for content
-    paddingBottom: 12, // Restore padding for content
+    paddingLeft: 8, // Slightly reduced space
+    marginTop: -6, // Less negative margin
+    marginBottom: -6, // Less negative margin
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
@@ -131,7 +129,7 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     justifyContent: 'flex-start',
     gap: 8,
     zIndex: 9,
-    minHeight: 55, // This minHeight will now apply to the content area inside the new padding
+    minHeight: 75, // This minHeight will now apply to the content area inside the new padding
   },
   eventIndicator: {
     flexDirection: 'row',
@@ -139,14 +137,18 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
     marginRight: 8,
     marginBottom: 5,
     backgroundColor: isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.03)',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: isDark ? '#333' : '#e0e0e0',
+    minHeight: 26,
+    maxWidth: "100%",
   },
   eventText: {
     fontSize: 14,
-    marginLeft: 6,
-    maxWidth: 150, // Increased from 120 to 150
+    maxWidth: "100%",
+    fontWeight: '600',
   },
   holidayIconText: {
     fontSize: 14,
@@ -157,5 +159,11 @@ export const getWeekStyles = (isDark: boolean) => StyleSheet.create({
   nbaLogo: {
     width: 20,
     height: 20,
-  }
+  },
+  taskChip: {
+    backgroundColor: isDark ? '#2e3a2e' : '#e6f7ee',
+    borderColor: isDark ? '#00C851' : '#00C851',
+    borderWidth: 1.2,
+    color: isDark ? '#b6f2d3' : '#00C851',
+  },
 });

@@ -111,8 +111,8 @@ export function AdvancedSettings({
             exitStyle={{ opacity: 0, y: -10 }}
             y={0}
             opacity={1}
-            gap="$2"
-            pb="$2"
+            gap="$1"
+            pb="$1"
           >
             <Button
               backgroundColor="transparent"
@@ -120,7 +120,7 @@ export function AdvancedSettings({
               px={0}
               alignSelf="flex-start"
               pressStyle={{ opacity: 0.7 }}
-              mt={0}
+              mt={time ? -6 : 0}
               mb={6}
               minHeight={40}
               height={40}
@@ -139,15 +139,16 @@ export function AdvancedSettings({
                         flexDirection: 'row',
                         alignItems: 'center',
                         gap: 4,
-                        paddingHorizontal: 12,
+                        paddingHorizontal: 2,
+                        paddingRight: 12,
                         paddingVertical: 10,
                         borderRadius: 8,
-                        backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                        backgroundColor: 'transparent' ,
                       }}
                     >
                       <Text
-                        color={isDark ? '#f1f1f1' : '#333'}
-                        fontSize={isIpad() ? 15 : 13}
+                        color={isDark ? '#9a9a9a' : '#7c7c7c'}
+                        fontSize={isWeb ? 17 : isIpad() ? 15 : 14}
                         fontFamily="$body"
                         fontWeight="500"
                       >
@@ -156,7 +157,7 @@ export function AdvancedSettings({
                     </Pressable>
                   </XStack>
                 )}
-              <MaterialIcons name="keyboard-arrow-down" size={18} color={isDark ? '#6c6c6c' : '#9c9c9c'} style={{ marginLeft: 4 }} />
+              <MaterialIcons name="timer" size={18} color={isDark ? '#5c5c5c' : 'rgba(191, 191, 191, 0.77)'} style={{ marginLeft: 4 }} />
             </Button>
             <YStack 
               display={showTimePicker ? "flex" : "none"}
@@ -180,7 +181,7 @@ export function AdvancedSettings({
               animation="quick"
               gap="$2"
             >
-              <YStack pt={6}>
+              <YStack>
                 <TagSelector
                   onTagsChange={onTagsChange}
                   tags={tags}

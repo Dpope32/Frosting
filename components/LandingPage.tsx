@@ -37,10 +37,11 @@ import { createFormattingHandler } from '@/services';
 import { useHabits } from '@/hooks';
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
 import { useWallpaperStore } from '@/store';
+import { debouncedNavigate } from '@/utils';
 
 let wallpaperInitErrorPatched = false;
 
-export function LandingPage() {
+export const LandingPage = React.memo(() => {
   const userHydrated = useUserStore(s => s.hydrated)
   const projectHydrated = useStoreHydrated()
   const todaysTasks = useProjectStore(s => s.todaysTasks || [])
@@ -52,7 +53,10 @@ export function LandingPage() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
-  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)"
+  const backgroundColor = React.useMemo(() => 
+    isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)", 
+    [isDark]
+  )
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
@@ -145,7 +149,7 @@ export function LandingPage() {
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handleTemperaturePress = () => {
-    router.push('/modals/temperature');
+    debouncedNavigate('/modals/temperature');
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handlePortfolioPress = () => { 
@@ -291,6 +295,7 @@ export function LandingPage() {
         <Stack height={180} />
       </ScrollView>
       <InitialSyncIndicator isDark={isDark} />
+      <FloatingActionSection onActionPress={handleActionPress} isDark={isDark} />
       {isMounted && (
         <>
           <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
@@ -386,7 +391,8 @@ export function LandingPage() {
           <SettingsModal open={settingsModalOpen} onOpenChange={setSettingsModalOpen} />
         </>
       )}
-        <FloatingActionSection onActionPress={handleActionPress} isDark={isDark} />
     </Stack>
   )
-}
+})
+
+LandingPage.displayName = 'LandingPage'

@@ -27,6 +27,7 @@ import { isIpad } from '@/utils'
 import { Bill, VaultEntry } from '@/types'
 import { Legend } from '@/components/calendar/Legend'
 import { getUSHolidays } from '@/services';
+import { debouncedNavigate } from '@/utils/navigationUtils';
 
 interface HeaderProps {
   title: string;
@@ -98,7 +99,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isDark = colorScheme === 'dark';
 
   const handleTemperaturePress = () => {
-    router.push('/modals/temperature');
+    debouncedNavigate('/modals/temperature');
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handlePortfolioPress = () => {

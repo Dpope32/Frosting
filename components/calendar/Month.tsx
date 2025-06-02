@@ -89,6 +89,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             bill: false,
             billName: '',
             task: false,
+            taskName: '',
             nba: false,
             holiday: false,
             holidayName: '',
@@ -127,6 +128,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         }
         } else if (e.type === 'task') {
           acc[e.date].task = true;
+          acc[e.date].taskName = e.title || 'Task';
         } else {
           acc[e.date].personal = true;
           acc[e.date].personalName = e.title || '';
@@ -141,6 +143,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
         bill: boolean;
         billName: string;
         task: boolean;
+        taskName: string;
         nba: boolean;
         holiday: boolean;
         holidayName: string;
@@ -180,7 +183,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const dateKey = currentDate.toISOString().split('T')[0];
           const dayEvents = eventsByDate[dateKey] || {
             birthday: false, birthdayName: '', personal: false, work: false, family: false, bill: false, billName: '',
-            task: false, nba: false, holiday: false, holidayName: '', holidayColor: '', holidayIcon: '', teamCode: null, personalName: ''
+            task: false, taskName: '', nba: false, holiday: false, holidayName: '', holidayColor: '', holidayIcon: '', teamCode: null, personalName: ''
           };
           const isToday = currentDate.toDateString() === new Date().toDateString();
           const isPastDate = currentDate < new Date(new Date().setHours(0, 0, 0, 0));
@@ -293,7 +296,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                       <Text style={[styles.eventIconText, {
                         color: isDark ? '#FFCC80' : '#FF9800'
                       }]} numberOfLines={1} ellipsizeMode="tail">
-                        🔔 Task Due
+                        {dayEvents.taskName || '🔔 Task Due'}
                       </Text>
                     </View>
                   )}

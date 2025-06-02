@@ -158,9 +158,9 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
               : isDark ? '#3a3a3c' : '#d1d1d6',
             height: isWeb ? minHeight : contentHeight,
             minHeight: minHeight,
-            fontSize: isWeb ? isIpad() ? 20 : 18 : 18,
+            fontSize: isWeb ? isIpad() ? 20 : 18 : 15,
             fontFamily: "$body",
-            marginVertical: isIpad() ? 8 : 5,
+            marginVertical: isIpad() ? 8 : 1,
           }
         ]}
         {...(isIOS ? {

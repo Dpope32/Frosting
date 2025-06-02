@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isIpad } from "@/utils";
 import TodayForecast from '@/components/weather/todayForecast';
 import DailyForecasts from '@/components/weather/dailyForecasts';
+import { debouncedBack, debouncedDismiss } from '@/utils/navigationUtils';
 if (Platform.OS === 'web') {
   const styleId = 'weather-animations-style';
   if (!document.getElementById(styleId)) {
@@ -100,9 +101,9 @@ export default function TemperatureScreen() {
               icon={<MaterialIcons name="chevron-left" size={isIpad() ? 24 : 20} color={isDark ? "#b8b3ba" : "#708090"} />}
               onPress={() => {
                 if (isWeb) {
-                  router.dismiss();
+                  debouncedDismiss();
                 } else {
-                  router.back();
+                  debouncedBack();
                 }
               }}
               circular

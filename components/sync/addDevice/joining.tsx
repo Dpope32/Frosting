@@ -1,7 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, TextInput } from 'react-native';
-import { Text, Button, YStack } from 'tamagui';
+import { Text, Button, YStack, isWeb } from 'tamagui';
 import { baseSpacing, fontSizes, cardRadius, buttonRadius, Colors } from '@/components/sync/sharedStyles';
+import { isIpad } from '@/utils/deviceUtils';
 
 type JoiningProps = {
   colors: Colors;
@@ -21,7 +22,7 @@ export function Joining({
   isDark,
 }: JoiningProps) {
   return (
-    <YStack gap={baseSpacing * 4} padding={baseSpacing}>
+    <YStack gap={baseSpacing * 4} padding={baseSpacing} alignItems="center" justifyContent="center">
       <TextInput
         style={{
           backgroundColor: colors.card,
@@ -29,7 +30,7 @@ export function Joining({
           borderRadius: cardRadius,
           color: colors.text,
           fontSize: fontSizes.md,
-          width: '100%',
+          width: isWeb ? 400 : isIpad() ? 300 : 250,
           borderWidth: 1,
           borderColor: colors.border,
         }}
@@ -42,6 +43,7 @@ export function Joining({
       <Button
         onPress={connectToWorkspace}
         backgroundColor={colors.accent}
+        width={isWeb ? 400 : isIpad() ? 300 : 250}
         height={44}
         pressStyle={{ scale: 0.97 }}
         animation="quick"

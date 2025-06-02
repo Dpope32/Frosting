@@ -84,6 +84,8 @@ const styles = StyleSheet.create({
       paddingHorizontal: isWeb ? 70 : isIpad() ? 50 : 40,
       paddingVertical: isWeb ? 12 : isIpad() ? 10 : 8 ,
       marginTop: isWeb ? 12 : isIpad() ? 10 : 2,
+      borderWidth: 1,
+      borderColor: 'rgba(150, 150, 150, 0.3)',
       borderRadius: 8,
       marginLeft: isWeb ? 12 : isIpad() ? 10 : 6,
       backgroundColor: "rgba(255, 255, 255, 0.1)",

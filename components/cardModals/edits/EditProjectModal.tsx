@@ -138,7 +138,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       open={open}
       onOpenChange={onOpenChange}
       title={
-        <XStack ai="center"  mt={6}>
+        <XStack ai="center" >
           <Button
             size="$2"
             backgroundColor="transparent"
@@ -157,7 +157,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
               value={name}
               onDebouncedChange={setName}
               autoCapitalize="words"
-              fontSize={22}
+              fontSize={isIpad() ? 22 : 18}
               fontFamily="$body"
               fontWeight="700"
               color={isDark ? '#fff' : '#000'}
@@ -167,7 +167,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
             />
           ) : (
             <Text
-              fontSize={22}
+              fontSize={isIpad() ? 22 : 18}
               fontFamily="$body"
               fontWeight="700"
               color={isDark ? '#fff' : '#000'}
@@ -186,7 +186,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           width="100%" 
           mx={-4} 
           py={keyboardVisible ? '$4' : '$2'}
-          mb={keyboardVisible ? isIpad() ? '$2' : '$3' : '$0'} 
+          mb={keyboardVisible ? isIpad() ? '$2' : '$2' : '$0'} 
           justifyContent="space-between"
         >
           <Button 
@@ -224,7 +224,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           height={1}
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} 
         />
-        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$2.5" mx={0}>
+        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$2" mx={0}>
         <DeadlineInputter deadline={deadline} setDeadline={setDeadline} isDark={isDark} />
         </YStack>
         <XStack ai="center" alignItems="center" mb="$2.5" gap="$2" mx={4}>
@@ -239,12 +239,11 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
               people={peopleArray}
               selectedPeople={selectedPeople}
               onPersonSelect={(person) => {
-                const isSelected = selectedPeople.some(p => p.id === person.id);
-                if (isSelected) {
-                  setSelectedPeople(selectedPeople.filter(p => p.id !== person.id));
-                } else {
-                  setSelectedPeople([...selectedPeople, person]);
-                }
+                setSelectedPeople(prev => 
+                  prev.some(p => p.id === person.id)
+                    ? prev.filter(p => p.id !== person.id)
+                    : [...prev, person]
+                );
               }}
             />
         </YStack>
