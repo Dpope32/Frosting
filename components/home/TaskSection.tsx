@@ -320,7 +320,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
               <>
                 <XStack
                   flexWrap="wrap"
-                  gap={isIpad() ? "$0.5" : "$0.5"}
+                  gap={isIpad() ? "$0.5" : "$0"}
                   px={isIpad() ? "$4" : "$3"}
                   paddingLeft={isIpad() ? "$4" : "$4"}
                   paddingVertical="$1"

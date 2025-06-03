@@ -78,7 +78,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         width: isIpad() ? "84%" : '100%',
         justifyContent: 'center',
         alignSelf: 'center',
-        paddingHorizontal: isIpad() ? 24 : 18,
+        paddingHorizontal: isIpad() ? 26 : 18,
       }}
     >
       <YStack
@@ -124,7 +124,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 fontFamily="$heading"
                 fontWeight="900"
                 color={isDark ? "#f0f0f0" : "#ffffff"}
-                fontSize={isIpad() ? 15 : 14}
+                fontSize={isIpad() ? 14 : 13}
                 maxWidth={'70%'}
                 elevation={2}
                 shadowColor="#000"
@@ -184,8 +184,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               </XStack>
             )}
             {hasTasks ? (
-              <Text fontSize={isIpad() ? 13 : 12} color={isDark ? '#7c7c7c' : '#9c9c9c'} fontFamily="$body">
-                {project.tasks.filter(t => t.completed).length}/{project.tasks.length} tasks completed
+              <Text fontSize={isIpad() ? 13 : 11} color={isDark ? '#7c7c7c' : '#9c9c9c'} fontFamily="$body">
+                {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
               </Text>
             ) : (
               statusComponent

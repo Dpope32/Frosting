@@ -231,7 +231,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
               <Text 
                 fontFamily="$body"
                 color="rgb(232, 230, 227)" 
-                fontSize={isIpad() ? 15 : 14}
+                fontSize={isIpad() ? 15 : 13}
                 fontWeight="500"
                 opacity={checked ? 0.6 : 1}
                 style={{
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingHorizontal: 8,
-    paddingVertical: isIpad() ? 5 : 6,
+    paddingVertical: isIpad() ? 5 : 4,
     position: 'relative',
     zIndex: 2
   },
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1.5,
-    marginLeft: -4,
+    marginRight: -4,
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
@@ -324,6 +324,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: -2,
+    marginVertical: -2,
   }
 });
