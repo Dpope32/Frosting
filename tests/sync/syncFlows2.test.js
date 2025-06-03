@@ -1,22 +1,4 @@
-/* ---------------------------  StorageUtils stub  --------------------------- */
-// NOTE: this **must** come before _any_ import that might touch StorageUtils.
 
-jest.mock('@/lib/StorageUtils', () => {
-    const mStorage = {
-      get:    jest.fn().mockResolvedValue({}),
-      set:    jest.fn().mockResolvedValue(undefined),
-      remove: jest.fn().mockResolvedValue(undefined),
-    };
-  
-    return {
-      __esModule: true,
-      default:        mStorage,
-      StorageUtils:   mStorage,
-      get:            mStorage.get,
-      set:            mStorage.set,
-      remove:         mStorage.remove,
-    };
-});
 
 // Mock the encryption module entirely
 jest.mock('@/lib/encryption', () => {
