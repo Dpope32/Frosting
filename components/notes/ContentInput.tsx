@@ -158,9 +158,9 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
               : isDark ? '#3a3a3c' : '#d1d1d6',
             height: isWeb ? minHeight : contentHeight,
             minHeight: minHeight,
-            fontSize: isWeb ? isIpad() ? 20 : 18 : 15,
+            fontSize: isWeb ? isIpad() ? 20 : 19 : 15,
             fontFamily: "$body",
-            marginVertical: isIpad() ? 8 : 1,
+            marginVertical: isIpad() ? 4 : 1,
           }
         ]}
         {...(isIOS ? {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    fontSize: 16,
+    fontSize: isIpad() ? 18 : 15,
     fontFamily: Platform.select({
       web: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       ios: 'System',

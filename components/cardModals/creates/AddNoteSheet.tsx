@@ -268,7 +268,7 @@ export function AddNoteSheet({
       modal
       open={isModalOpen}
       onOpenChange={handleCloseModal}
-      snapPoints={isWeb ? [85] : isIpadDevice ? [85] : [90]}
+      snapPoints={isWeb ? [85] : isIpadDevice ? [92] : [90]}
       dismissOnSnapToBottom
     >
       <Sheet.Overlay
@@ -364,11 +364,15 @@ export function AddNoteSheet({
         </XStack>
         
         <View style={{flex: 1}}>
-          <View style={{ height: 1, marginVertical: isIpad() ? 10 : 6, marginHorizontal: -8 }} />
+          <View style={{ height: 1, marginVertical: isIpad() ? 6 : 6, marginHorizontal: -8 }} />
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
-            keyboardVerticalOffset={isIpad() ? -100 : Platform.OS === 'ios' ? -124 : 0} 
+            keyboardVerticalOffset={
+              isIpad() 
+                ? (Dimensions.get('window').width > Dimensions.get('window').height ? -220 : -120) // iPad landscape vs portrait
+                : Platform.OS === 'ios' ? -100 : 0
+            } 
           >
             <YStack flex={1} paddingHorizontal={isIpad() ? "$2.5" : "$1.5"}>
               <RNScrollView
@@ -388,18 +392,20 @@ export function AddNoteSheet({
                 showsVerticalScrollIndicator={false}
                 keyboardDismissMode="none"
               >
-                <YStack gap={0} paddingTop={6} marginLeft={-8}>
+                {!keyboardVisible && (
+                  <YStack gap={0} paddingTop={6} marginLeft={-8}>
                     <TagSelector tags={editTags} onTagsChange={handleTagsChange} />
                   </YStack>
-                  <YStack gap={0} paddingTop={6} >
+                )}
+                  <YStack gap={0} paddingTop={-4} >
                   <YStack>
                     <ContentInput
                       ref={contentInputRef}
                       value={editContent}
                       onChangeText={setEditContent}
                       onSelectionChange={handleSelectionChange}
-                      numberOfLines={keyboardVisible ? 5 : 12}
-                      minHeight={keyboardVisible ? 300 : isIpadDevice ? 400 : 450}
+                      numberOfLines={keyboardVisible ? isIpad() ? 10 : 5 : isIpadDevice ? 10 : 12}
+                      minHeight={keyboardVisible ? isIpad() ? 500 : 300 : isIpadDevice ? 600 : 450}
                     />
                   </YStack>
                   {renderAttachments()}
@@ -415,7 +421,7 @@ export function AddNoteSheet({
                   alignSelf="center"
                   justifyContent="space-between"
                   alignItems="center"
-                  style={{ marginBottom: keyboardHeight - 70, width: '100%'}}
+                  style={{ marginBottom: isIpad() ? keyboardHeight - 85 : keyboardHeight - 70, width: '100%'}}
                 >
                   <FormattingToolbar
                     onBold={handleBold}
