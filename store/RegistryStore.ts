@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import * as Notifications from 'expo-notifications';
-import { exportEncryptedState } from '@/sync';
 import { debounce } from 'lodash';
 import { format } from 'date-fns';
+import { portfolioData } from '@/utils';
 
 // Import all stores
 import { useHabitStore } from './HabitStore';
@@ -17,6 +17,7 @@ import { useCustomCategoryStore } from './CustomCategoryStore';
 import { useTagStore } from './TagStore';
 import { useProjectStore } from './ProjectStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
+import { usePortfolioStore } from './PortfolioStore';
 
 interface RegistryState {
   hasCompletedOnboarding: boolean;
@@ -104,6 +105,25 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items.', 'info');
       }
 
+    // Portfolio store
+    const portfolioStoreFullState = usePortfolioStore.getState();
+    let portfolioStateForSnapshot: any = { isSyncEnabled: portfolioStoreFullState.isSyncEnabled };
+    if (portfolioStoreFullState.isSyncEnabled) {
+      portfolioStateForSnapshot.watchlist = portfolioStoreFullState.watchlist;
+      portfolioStateForSnapshot.historicalData = portfolioStoreFullState.historicalData;
+      portfolioStateForSnapshot.totalValue = portfolioStoreFullState.totalValue;
+      portfolioStateForSnapshot.prices = portfolioStoreFullState.prices;
+      portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
+      // Include actual portfolio holdings (stocks with quantities)
+      portfolioStateForSnapshot.portfolioHoldings = portfolioData.map(stock => ({
+        symbol: stock.symbol,
+        quantity: stock.quantity
+      }));
+      portfolioStateForSnapshot.lastUpdated = now;
+      addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
+    } else {
+      addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
+    }
       const billStoreFullState = useBillStore.getState();
       let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
       if (billStoreFullState.isSyncEnabled) {

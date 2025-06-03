@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, useWindowDimensions, TouchableOpacity, Platform } from 'react-native';
 import { Text, Button, XStack, YStack, isWeb } from 'tamagui';
-import { useUserStore } from '@/store';
+import { usePortfolioStore, useUserStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
 import { useVaultStore } from '@/store/VaultStore';
@@ -70,7 +70,10 @@ export default function SyncTable({
   const toggleCalendarSync = useCalendarStore((state) => state.toggleCalendarSync);
   const isNoteSyncEnabled = useNoteStore((state) => state.isSyncEnabled);
   const toggleNoteSync = useNoteStore((state) => state.toggleNoteSync);
+  const togglePortfolioSync = usePortfolioStore((state) => state.togglePortfolioSync);
+  const isPortfolioSyncEnabled = usePortfolioStore((state) => state.isSyncEnabled);
 
+  
   const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
     return React.useMemo(() => {
       if (!premium) return 'Premium Required';
@@ -97,6 +100,7 @@ export default function SyncTable({
     { key: 'notes', label: 'Notes', enabled: isNoteSyncEnabled, toggle: toggleNoteSync },
     { key: 'vault', label: 'Passwords', enabled: isVaultSyncEnabled, toggle: toggleVaultSync },
     { key: 'projects', label: 'Projects', enabled: isProjectSyncEnabled, toggle: toggleProjectSync },
+    { key: 'portfolio', label: 'Portfolio', enabled: isPortfolioSyncEnabled, toggle: togglePortfolioSync },
     { key: 'habits', label: 'Habits', enabled: isHabitSyncEnabled, toggle: toggleHabitSync },
     { key: 'calendar', label: 'Calendar', enabled: isCalendarSyncEnabled, toggle: toggleCalendarSync },
   ];
@@ -205,7 +209,6 @@ export default function SyncTable({
         </XStack>
       )}
 
-      {/* Connected Devices */}
       {premium && devices.length > 0 && (
         <>
           <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
@@ -280,7 +283,7 @@ export default function SyncTable({
             <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
           ) : null}
           <XStack gap={baseSpacing * 4}>
-            {/* Left Column: 4 items (0-3) */}
+  
             <YStack flex={1} gap={baseSpacing}>
               {syncSettings.slice(0, 4).map((setting, index) => (
                 <React.Fragment key={setting.key}>
@@ -308,7 +311,6 @@ export default function SyncTable({
               ))}
             </YStack>
 
-            {/* Right Column: 3 items (4-6) */}
             <YStack flex={1} gap={baseSpacing}>
               {syncSettings.slice(4).map((setting, index) => (
                 <React.Fragment key={setting.key}>
@@ -331,7 +333,7 @@ export default function SyncTable({
                       </Text>
                     </Button>
                   </XStack>
-                  {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                  {index < 3 && <View style={{ height: 1, backgroundColor: colors.border }} />}
                 </React.Fragment>
               ))}
             </YStack>

@@ -17,7 +17,6 @@ import SyncTable from '@/components/sync/syncTable'
 import NeedsWorkspace from '@/components/sync/needsWorkspace'
 import { leaveWorkspace } from '@/sync/leaveWorkspace'
 import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
-import { AUTHORIZED_USERS } from '@/constants'
 import { SnapshotSize } from '@/components/sync/SnapshotSize'
 import { debouncedBack } from '@/utils'
 
@@ -87,16 +86,9 @@ export default function SyncScreen() {
   const [syncLogs, setSyncLogs] = useState<LogEntry[]>([])
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({})
   const premium = useUserStore((s) => s.preferences.premium === true)
-  const username = useUserStore((s) => s.preferences.username || '')
   
-  // Calculate syncAccess directly in the component for better reactivity
-  const syncAccess = React.useMemo(() => {
-    if (premium) return 'premium';
-    if (username && AUTHORIZED_USERS.includes(username.trim())) return 'authorized';
-    return 'none';
-  }, [premium, username]);
-
-  const shouldShowSyncTable = syncAccess !== 'none';
+  // Simplified: only premium users get sync access
+  const shouldShowSyncTable = premium;
 
   const [premiumLoaded, setPremiumLoaded] = useState(false)
   const { width } = useWindowDimensions()

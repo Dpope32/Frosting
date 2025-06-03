@@ -1,24 +1,23 @@
 // hooks/sync/useAuthCheck.ts
 import { useEffect } from 'react'
-import { Alert } from 'react-native'
-import { AUTHORIZED_USERS } from '@/constants'
 import { useUserStore } from '@/store'
 import { addSyncLog } from '@/components/sync/syncUtils'
 
-export function useAuthCheck() {
-  const premium = useUserStore(state => state.preferences.premium)
+export const useAuthCheck = () => {
   const username = useUserStore(state => state.preferences.username)
-
+  const premium = useUserStore(state => state.preferences.premium)
+  
   useEffect(() => {
-    const trimmed = username.trim()
-    const isAllowed = AUTHORIZED_USERS.includes(trimmed)
-    if (premium && !isAllowed) {
-      addSyncLog('Revoking unauthorized premium', 'warning')
-      Alert.alert(
-        'Premium Removed',
-        'Your account is not authorized for premium sync.',
-        [{ text: 'OK', onPress: () => useUserStore.getState().setPreferences({ premium: false }) }]
-      )
+    const trimmed = username?.trim() || ''
+    
+    if (!trimmed) {
+      addSyncLog('⚠️ No username set for sync verification', 'warning')
+      return
     }
-  }, [premium, username])
+    
+    const isPremium = premium === true
+    const status = isPremium ? 'premium user' : 'non-premium user'
+    
+    addSyncLog(`🔐 Auth check: ${trimmed} verified as ${status}`, isPremium ? 'success' : 'info')
+  }, [username, premium])
 }

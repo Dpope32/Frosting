@@ -6,6 +6,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useUserStore } from '@/store';
 import { isIpad } from '@/utils/deviceUtils';
 import { baseSpacing, cardRadius, Colors } from './sharedStyles';
+import { startPremiumPurchase } from '@/services/premiumService';
+import { addSyncLog } from './syncUtils';
 
 interface NonPremiumUserProps {
   colors: Colors;
@@ -17,13 +19,22 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
   const isDev = __DEV__;
   const setPreferences = useUserStore(state => state.setPreferences);
   
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
     if (isDev) {
       // In dev mode, just activate premium
       setPreferences({ premium: true });
     } else {
-      // In production, go to sign up
-      onSignUp();
+      // In production, mark purchase as started and go to sign up
+      try {
+        addSyncLog('🛒 Starting premium purchase flow', 'info');
+        await startPremiumPurchase();
+        addSyncLog('✅ Purchase tracking started, redirecting to LemonSqueezy', 'info');
+        onSignUp();
+      } catch (error) {
+        addSyncLog(`❌ Error starting purchase tracking: ${error instanceof Error ? error.message : String(error)}`, 'error');
+        // Still proceed to sign up even if tracking fails
+        onSignUp();
+      }
     }
   };
 

@@ -28,6 +28,9 @@ export * from './permissions/setupPandN';
 export * from './stocks/calculationService';
 export * from './stocks/stockSearchService';
 
+// Sync & Premium
+export * from '../sync/premiumVerification';
+
 // Services that still need dividing up
 export * from './billServices';
 export * from './calendarService';

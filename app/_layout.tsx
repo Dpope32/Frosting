@@ -33,6 +33,7 @@ import { useProjectStore as useTaskStore } from '@/store/ToDo';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { handleDeepLink } from '@/services/notifications/deepLinkHandler';  
 import { initializePremiumService } from '@/services';
+import { usePremiumVerification } from '@/hooks/sync/usePremiumVerification';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -68,6 +69,9 @@ export default Sentry.wrap(function RootLayout() {
     inject();
     injectSpeedInsights();
   }
+
+  // Auto-verify premium status with PocketBase
+  usePremiumVerification();
 
   // Hide splash screen after critical initializations complete
   useEffect(() => {

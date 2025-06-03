@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { debounce } from 'lodash'
-import { YStack, Text, XStack, useTheme } from 'tamagui'
+import { YStack, Text, XStack } from 'tamagui'
 import { useColorScheme, TextInput } from 'react-native'
 import { StockCardAnimated } from '../../baseModals/StockCardAnimated'
 import { useUserStore, useToastStore, useEditStockStore } from '@/store'

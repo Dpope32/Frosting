@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { createPersistStorage } from './AsyncStorage'
 import { UserPreferences } from '@/types'
 import * as Sentry from '@sentry/react-native';
-import { AUTHORIZED_USERS } from '@/constants/KEYS';
+import { immer } from 'zustand/middleware/immer';
 
 interface UserStore {
   preferences: UserPreferences;
@@ -30,6 +30,11 @@ export const defaultPreferences: UserPreferences = {
   calendarPermission: false,
 };
 
+const getUserAccess = (premium: boolean, username: string): 'premium' | 'none' => {
+  if (premium) return 'premium';
+  return 'none';
+};
+
 export const useUserStore = create<UserStore>()(
   persist(
     (set, get) => ({
@@ -52,9 +57,7 @@ export const useUserStore = create<UserStore>()(
         const premium = state.preferences.premium === true;
         const username = state.preferences.username || '';
         
-        if (premium) return 'premium';
-        if (AUTHORIZED_USERS.includes(username.trim())) return 'authorized';
-        return 'none';
+        return getUserAccess(premium, username);
       }
     }),
     {
