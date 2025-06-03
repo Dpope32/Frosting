@@ -75,7 +75,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         onPress()
       }}
       style={{
-        width: isIpad() ? 475 : '100%',
+        width: isIpad() ? "84%" : '100%',
         justifyContent: 'center',
         alignSelf: 'center',
         paddingHorizontal: isIpad() ? 24 : 18,

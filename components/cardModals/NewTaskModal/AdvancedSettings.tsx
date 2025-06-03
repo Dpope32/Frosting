@@ -117,18 +117,18 @@ export function AdvancedSettings({
             <Button
               backgroundColor="transparent"
               onPress={() => setShowTimePicker(true)}
-              px={0}
+              px={10}
               alignSelf="flex-start"
               pressStyle={{ opacity: 0.7 }}
-              mt={time ? -6 : 0}
-              mb={6}
+              mt={time ? -6 : -4}
+              mb={isIpad() ? 12 : 6}
               minHeight={40}
               height={40}
               flexDirection="row"
               alignItems="center"
-              ml={time ?  -6 : 6}
+              ml={time ?  isIpad() ? -12 : -6 : isIpad() ? 0 : 0}
             >
-              <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={15} fontFamily="$body" fontWeight="500">
+              <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isWeb ? 15 : isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
                 {time ? `` : 'Select Time'}
               </Text>
               {time && (
@@ -148,7 +148,7 @@ export function AdvancedSettings({
                     >
                       <Text
                         color={isDark ? '#9a9a9a' : '#7c7c7c'}
-                        fontSize={isWeb ? 17 : isIpad() ? 15 : 14}
+                        fontSize={isWeb ? 17 : isIpad() ? 17 : 14}
                         fontFamily="$body"
                         fontWeight="500"
                       >

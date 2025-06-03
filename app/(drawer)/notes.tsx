@@ -17,7 +17,6 @@ import { useImagePicker } from '@/hooks/useImagePicker';
 
 import TrashcanArea from '@/components/notes/TrashcanArea';
 import WebDragDrop from '@/components/notes/WebDragDrop';
-import { NoteCard } from '@/components/notes/NoteCard';
 import { NotesEmpty } from '@/components/notes/NotesEmpty';
 import { AddNoteSheet } from '@/components/cardModals/creates/AddNoteSheet';
 import { NoteListItem } from '@/components/notes/NoteListItem';
@@ -37,7 +36,6 @@ export default function NotesScreen() {
   const scrollOffsetRef = useRef<number>(0);
   const trashLayoutRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
   const trashAreaViewRef = useRef<View>(null);
-  const noteListItemRef = useRef<any>(null);
   const flatListRef = useRef<any>(null);
   const activeNoteListItemRef = useRef<any>(null);
   
@@ -69,15 +67,6 @@ export default function NotesScreen() {
   const lastDragPosition = useRef({ x: 0, y: 0 });
   const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
 
-  const getDynamicTrashThreshold = useCallback(() => {
-    const windowHeight = Dimensions.get('window').height;
-    const containerHeight = isIpad() ? 120 : 100;
-    const bottomInset = insets.bottom || 0;
-    const baseThreshold = windowHeight - containerHeight - bottomInset;
-    const adjustedThreshold = baseThreshold + scrollOffsetRef.current;
-    return Math.max(adjustedThreshold, windowHeight * 0.7);
-  }, [insets.bottom]);
-
   useEffect(() => {return setupColumnCalculation(isWeb, setNumColumns)}, [isWeb]);
 
   const {  handleTagsChange, handleAddAttachment,  handleRemoveAttachment, handleSelectionChange 
@@ -106,7 +95,6 @@ export default function NotesScreen() {
     // Use a fixed percentage threshold as a workaround for unreliable coordinates
     // Trigger trash if pointerY is in the bottom 30% of the screen
     const threshold = windowHeight * 0.7;
-
     const isInTrash = pointerY >= threshold;
 
     return isInTrash;
@@ -352,7 +340,7 @@ export default function NotesScreen() {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                zIndex: 1000, // ensure it's above other content
+                zIndex: 1000,
                 pointerEvents: 'box-none',
               },
             ]}

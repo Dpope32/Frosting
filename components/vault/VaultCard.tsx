@@ -79,7 +79,7 @@ export const VaultCard = ({
           }}
         >
           <LinearGradient
-            colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+            colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(8, 7, 7)', 'rgb(11, 11, 11)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 1 }}
             style={{
@@ -138,16 +138,16 @@ export const VaultCard = ({
           pl={isWeb ? "$3" : isIpad() ? "$2.5" : "$4"}
           br="$4"
           borderWidth={1}
-          w={isIpad() ? "99%" : "100%"}
+          w={isIpad() ? "100%" : "100%"}
           borderColor={isDark ? '#333' : '#e0e0e0'}
           ai="center"
           animation="quick"
-          py={isIpad() ? "$2" : "$2.5"}
+          py={isIpad() ? "$3" : "$2.5"}
           position="relative"
           overflow="hidden"
         >
           <LinearGradient
-            colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
+            colors={isDark ? ['rgb(7, 7, 7)', 'rgb(10, 10, 10)', 'rgb(14, 13, 13)', 'rgb(18, 18, 18)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 1 }}
             style={{

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal } from 'react-native';
-import { XStack, YStack, Text } from 'tamagui';
+import { XStack, YStack, Text, isWeb } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,6 +9,7 @@ import { useHabits } from '@/hooks/useHabits';
 import type { Habit } from '@/types';
 import { useToastStore } from '@/store'
 import { LongPressDelete } from '@/components/common/LongPressDelete';
+import { styles } from './styles';
 
 interface HabitCardProps {
   habit: Habit;
@@ -17,31 +18,6 @@ interface HabitCardProps {
   doneToday: boolean; 
 }
 
-const styles = StyleSheet.create({
-  checkboxContainer: {
-    padding: 4,
-  },
-  checkbox: {
-    borderWidth: 1,
-    borderRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '80%',
-    maxWidth: 400,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginTop: -40
-  },
-});
 
 export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardProps) {
   const colorScheme = useColorScheme();
@@ -97,9 +73,9 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
     return { currentStreak: curr, longestStreak: max, totalCompletions: total, percentComplete: percent };
   }, [history]);
 
-  const squareSize = 20;
-  const gap = isMobile ? 3 : 4;
-  const cellsToShow = isMobile ? 14 : 73;
+  const squareSize = isIpad() ? 21 : 20;
+  const gap = isIpad() ? 4 : isMobile ? 3 : 4;
+  const cellsToShow = isIpad() ? 21 : isMobile ? 14 : isWeb? 90 : 73;
 
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
     if (isMobile) {
@@ -190,12 +166,12 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1,
+            zIndex: 10,
             borderRadius: 11,
           }}
           pointerEvents="none"
         >
-          <Ionicons name="checkmark-circle" size={24} color="#00C851" />
+          <Ionicons name="checkmark-circle" size={24} color="#00C851" style={{ zIndex: 11 }} />
         </View>
       )}
       <XStack justifyContent="space-between" alignItems="center" mt={isIpad() ? 8 : 0}>
@@ -305,36 +281,66 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
       )}
       <XStack alignItems="center" style={{ zIndex: 2 }}>
         <YStack
-          borderRadius={6}
-          px={isIpad() ? 8 : 2}
-          pb={isIpad() ? 6 : 6}
-          mt={isIpad() ? 4 : 4}
-          backgroundColor={isDark ? 'rgba(0, 0, 0, 0.2)' : 'transparent'}
-          mb={history.length === 1 ? 4 : 6}
-          gap={4}
+          borderRadius={8}
+          px={isIpad() ? 12 : 8}
+          py={isIpad() ? 8 : 6}
+          mt={isIpad() ? 6 : 4}
+          backgroundColor={isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.5)'}
+          borderWidth={1}
+          borderColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
+          mb={6}
+          gap={6}
           maxWidth="100%"
         >
-          <XStack mb={-6} gap={gap} minWidth={isMobile ? undefined : `${cellsToShow * (squareSize + gap)}px`}>
+          <Text 
+            fontFamily="$body" 
+            fontSize={isIpad() ? 13 : 11} 
+            color={isDark ? '#999' : '#666'} 
+            fontWeight="500"
+            mb={-2}
+          >
+            {isIpad() ? 'Last 3 weeks' : isMobile ? 'Last 2 weeks' : 'Last 3 months'}
+          </Text>
+          <XStack gap={gap} minWidth={isMobile ? undefined : `${cellsToShow * (squareSize + gap)}px`} justifyContent="flex-start">
             {Array.from({ length: cellsToShow }).map((_, idx) => {
-              const day = history[history.length - 1 - idx];
+              // Calculate the date for this cell (rightmost = today, going backwards)
+              const daysAgo = cellsToShow - 1 - idx;
+              const cellDate = new Date();
+              cellDate.setDate(cellDate.getDate() - daysAgo);
+              const cellDateString = cellDate.toISOString().split('T')[0];
+              
+              // Find if we have history for this specific date
+              const day = history.find(h => h.date === cellDateString);
+              const isToday = cellDateString === today;
+              
               return (
                 <YStack
-                  key={day ? day.date : idx}
+                  key={`cell-${cellDateString}`}
                   width={squareSize}
                   height={squareSize}
-                  borderRadius={3}
+                  borderRadius={4}
                   backgroundColor={day
                     ? day.completed
                       ? '#00C851'
                       : isDark
-                        ? '#333'
-                        : '#E0E0E0'
+                        ? '#2d2d2d'
+                        : '#EBEDF0'
                     : isDark
-                      ? '#333'
-                      : '#E0E0E0'}
+                      ? '#2d2d2d'
+                      : '#EBEDF0'}
+                  borderWidth={isToday ? 2 : 1}
+                  borderColor={isToday 
+                    ? (day?.completed ? '#00C851' : (isDark ? '#555' : '#C6C6C6'))
+                    : isDark ? '#404040' : '#D1D5DA'}
                   alignItems="center"
                   justifyContent="center"
-                  opacity={day && day.date === today ? 1 : 0.8}
+                  opacity={isToday ? 1 : 0.9}
+                  style={{
+                    shadowColor: isToday ? '#00C851' : 'transparent',
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: isToday ? 0.3 : 0,
+                    shadowRadius: 2,
+                  }}
                 />
               );
             })}

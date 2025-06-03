@@ -9,6 +9,7 @@ import { useHabitStore } from './HabitStore';
 import { useBillStore } from './BillStore';
 import { useCalendarStore } from './CalendarStore';
 import { useProjectStore as useTaskStore } from './ToDo';
+import { useNoteStore } from './NoteStore';
 import { useUserStore } from './UserStore';
 import { useVaultStore } from './VaultStore';
 import { usePeopleStore } from './People';
@@ -93,16 +94,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
 
     getAllStoreStates: () => {
       const now = Date.now();
-      const billStoreFullState = useBillStore.getState();
-      let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
-      if (billStoreFullState.isSyncEnabled) {
-        billStateForSnapshot.bills = billStoreFullState.bills;
-        billStateForSnapshot.monthlyIncome = billStoreFullState.monthlyIncome;
-        billStateForSnapshot.lastUpdated = now;
-       // addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills, income ${billStoreFullState.monthlyIncome}.`, 'info');
-      } else {
-        addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
-      }
       const vaultStoreFullState = useVaultStore.getState();
       let vaultStateForSnapshot: any = { isSyncEnabled: vaultStoreFullState.isSyncEnabled };
       if (vaultStoreFullState.isSyncEnabled) {
@@ -111,6 +102,21 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     //    addSyncLog(`[Snapshot] Passwords (Vault) sync ON: Including ${vaultStoreFullState.vaultData?.items?.length || 0} items.`, 'info');
       } else {
         addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items.', 'info');
+      }
+
+      const billStoreFullState = useBillStore.getState();
+      let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
+      if (billStoreFullState.isSyncEnabled) {
+        billStateForSnapshot.bills = billStoreFullState.bills;
+        billStateForSnapshot.monthlyIncome = billStoreFullState.monthlyIncome;
+        billStateForSnapshot.lastIncomeUpdate = billStoreFullState.lastIncomeUpdate; // ADD THIS LINE
+        billStateForSnapshot.lastUpdated = now;
+        // Optionally log income value for debugging
+        if (billStoreFullState.monthlyIncome > 0) {
+          addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills, income $${billStoreFullState.monthlyIncome}.`, 'info');
+        }
+      } else {
+        addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
       }
       const projectStoreFullState = useProjectStore.getState();
       let projectStateForSnapshot: any = { isSyncEnabled: projectStoreFullState.isSyncEnabled };
@@ -121,6 +127,17 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       } else {
         addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
       }
+        // ADD NOTES SYNC LOGIC:
+        const noteStoreFullState = useNoteStore.getState();
+        let noteStateForSnapshot: any = { isSyncEnabled: noteStoreFullState.isSyncEnabled };
+        if (noteStoreFullState.isSyncEnabled) {
+          noteStateForSnapshot.notes = noteStoreFullState.notes;
+          noteStateForSnapshot.noteOrder = noteStoreFullState.noteOrder;
+          noteStateForSnapshot.lastUpdated = now;
+          addSyncLog(`[Snapshot] Notes sync ON: Including ${Object.keys(noteStoreFullState.notes || {}).length} notes.`, 'info');
+        } else {
+          addSyncLog('[Snapshot] Notes sync OFF: Excluding notes.', 'info');
+        }
       const peopleStoreFullState = usePeopleStore.getState();
       let peopleStateForSnapshot: any = { isSyncEnabled: peopleStoreFullState.isSyncEnabled };
       if (peopleStoreFullState.isSyncEnabled) {
@@ -154,40 +171,39 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const tagsState = { ...useTagStore.getState(), lastUpdated: now };
       // For ToDos in the Task store, we handle this in the Task store hydrateFromSync function
      // addSyncLog('[Snapshot] CustomCategoryStore & TagStore: Syncing automatically (full data). ALWAYS ON ' + 'pulled ' + tagsState.tags.length + ' tags and ' + customCategoryState.categories.length + ' custom categories', 'info',);
-      return {
-        habits: habitStateForSnapshot,
-        bills: billStateForSnapshot, 
-        calendar: calendarStateForSnapshot,
-        tasks: (() => {
-          const taskState = useTaskStore.getState();
-          const today = format(new Date(), 'yyyy-MM-dd');
-          const tasksWithCompletion = Object.entries(taskState.tasks)
-            .filter(([_, task]) => task.completionHistory[today])
-            .map(([id, task]) => `${task.name.slice(0, 20)}(${id.slice(-6)}):${task.completionHistory[today]}`);
-          
-          if (tasksWithCompletion.length > 0) {
-            addSyncLog(
-              `[SNAPSHOT EXPORT] ${tasksWithCompletion.length} tasks with completion history for ${today}`,
-              'info',
-              tasksWithCompletion.slice(0, 5).join(', ') + (tasksWithCompletion.length > 5 ? '...' : '')
-            );
-          } else {
-            addSyncLog(`[SNAPSHOT EXPORT] No tasks have completion history for ${today}`, 'warning');
-          }
-          
-          return { ...taskState, lastUpdated: now };
-        })(),
-        notes: { sync_disabled: true, local_only: true, lastUpdated: now }, 
-        user: { sync_disabled: true, lastUpdated: now }, 
-        vault: vaultStateForSnapshot, 
-        crm: { sync_disabled: true, ui_store: true, lastUpdated: now },
-        people: peopleStateForSnapshot, 
-        customCategory: customCategoryState, 
-        tags: tagsState, 
-        projects: projectStateForSnapshot, 
-        wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now },
-      };
-    },
+     return {
+      habits: habitStateForSnapshot,
+      bills: billStateForSnapshot, 
+      calendar: calendarStateForSnapshot,
+      tasks: (() => {
+        const taskState = useTaskStore.getState();
+        const today = format(new Date(), 'yyyy-MM-dd');
+        const tasksWithCompletion = Object.entries(taskState.tasks)
+          .filter(([_, task]) => task.completionHistory[today])
+          .map(([id, task]) => `${task.name.slice(0, 20)}(${id.slice(-6)}):${task.completionHistory[today]}`);
+        
+        if (tasksWithCompletion.length > 0) {
+          addSyncLog(
+            `[SNAPSHOT EXPORT] ${tasksWithCompletion.length} tasks with completion history for ${today}`,
+            'info',
+            tasksWithCompletion.slice(0, 5).join(', ') + (tasksWithCompletion.length > 5 ? '...' : '')
+          );
+        } else {
+          addSyncLog(`[SNAPSHOT EXPORT] No tasks have completion history for ${today}`, 'warning');
+        }
+        
+        return { ...taskState, lastUpdated: now };
+      })(),
+      notes: noteStateForSnapshot,
+      user: { sync_disabled: true, lastUpdated: now }, 
+      vault: vaultStateForSnapshot, 
+      people: peopleStateForSnapshot, 
+      customCategory: customCategoryState, 
+      tags: tagsState, 
+      projects: projectStateForSnapshot, 
+      wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now },
+    };
+  },
     startInitialSync: () => {
       const startTime = Date.now();
       addSyncLog('🚀 Starting initial sync for premium user', 'info');
@@ -230,10 +246,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       if (data.user) {
         //addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
         delete data.user;
-      }
-      if (data.notes) {
-        //addSyncLog('[Hydrate] NoteStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-only store).', 'warning');
-        delete data.notes;
       }
       if (data.wallpaper) {
         //addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
@@ -287,7 +299,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       tryHydrateStore('people', usePeopleStore, 'People'); 
       tryHydrateStore('customCategory', useCustomCategoryStore, 'Custom Categories', true);
       tryHydrateStore('tags', useTagStore, 'Tags', true);
-
+      tryHydrateStore('notes', useNoteStore, 'Notes');
       // TaskStore has its own complex hydration, called separately for now
       // It will also need an isSyncEnabled flag and to be integrated into tryHydrateStore
       if (data.tasks) { 

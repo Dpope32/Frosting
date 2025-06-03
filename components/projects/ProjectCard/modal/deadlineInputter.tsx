@@ -23,7 +23,7 @@ export const DeadlineInputter = ({ deadline, setDeadline, isDark }: DeadlineInpu
       };
 
     return (
-        <YStack gap="$1.5" px={isIpad() ? '$2' : '$1'}>
+        <YStack gap="$1.5" px={isIpad() ? 8 : '$1'}>
             {isWeb ? (
                 <input
                 type="date"

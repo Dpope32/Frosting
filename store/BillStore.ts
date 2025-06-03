@@ -21,10 +21,10 @@ const getOrdinalSuffix = (day: number): string => {
   }
 };
 
-
 interface BillStore {
   bills: Record<string, Bill>;
   monthlyIncome: number;
+  lastIncomeUpdate: number; // ADD: Timestamp for conflict resolution
   isSyncEnabled: boolean;
   addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateBill: (id: string, updates: Partial<Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>>) => void;
@@ -33,7 +33,7 @@ interface BillStore {
   clearBills: () => void;
   setMonthlyIncome: (income: number) => void;
   toggleBillSync: () => void;
-  hydrateFromSync?: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number }) => void;
+  hydrateFromSync?: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number, lastIncomeUpdate?: number }) => void;
 }
 
 const asyncStorage = createPersistStorage<BillStore>();
@@ -44,6 +44,7 @@ export const useBillStore = create<BillStore>()(
     (set, get) => ({
       bills: {},
       monthlyIncome: 0,
+      lastIncomeUpdate: 0, // ADD: Initialize timestamp
       isSyncEnabled: false,
 
       addBill: (billData) => {
@@ -146,9 +147,17 @@ export const useBillStore = create<BillStore>()(
       },
 
       setMonthlyIncome: (income: number) => {
-        // Ensure income is not negative
+        // Ensure income is not negative and update timestamp
         const validIncome = Math.max(0, income);
-        set({ monthlyIncome: validIncome });
+        const now = Date.now();
+        set({ 
+          monthlyIncome: validIncome,
+          lastIncomeUpdate: now
+        });
+        
+        try {
+          getAddSyncLog()(`Monthly income set to ${validIncome} locally`, 'info');
+        } catch (e) { /* ignore if logger not available */ }
       },
 
       toggleBillSync: () => {
@@ -161,11 +170,16 @@ export const useBillStore = create<BillStore>()(
         });
       },
 
-      hydrateFromSync: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number }) => {
+      hydrateFromSync: (syncedData: { bills?: Record<string, Bill>, monthlyIncome?: number, lastIncomeUpdate?: number }) => {
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
         if (!currentSyncEnabledState) {
           addSyncLog('Bill sync is disabled, skipping hydration for BillStore.', 'info');
+          return;
+        }
+
+        if (!syncedData) {
+          addSyncLog('No data provided for BillStore hydration.', 'warning');
           return;
         }
 
@@ -174,38 +188,82 @@ export const useBillStore = create<BillStore>()(
         let billsAddedCount = 0;
 
         set((state) => {
-          let newBills = { ...state.bills };
-          let newMonthlyIncome = state.monthlyIncome;
+          const newState = { ...state };
 
-          if (syncedData.bills) {
-            for (const billId in syncedData.bills) {
-              const incomingBill = syncedData.bills[billId];
-              if (state.bills[billId]) {
-                // Bill exists, merge/update (last write wins for the whole object)
-                newBills[billId] = { ...state.bills[billId], ...incomingBill, updatedAt: new Date().toISOString() };
-                billsMergedCount++;
+          // Handle bills sync
+          if (syncedData.bills && typeof syncedData.bills === 'object') {
+            const existingBillsMap = new Map(Object.entries(state.bills));
+            const newBillsObject = { ...state.bills };
+
+            for (const [billId, incomingBill] of Object.entries(syncedData.bills)) {
+              if (existingBillsMap.has(billId)) {
+                const existingBill = existingBillsMap.get(billId)!;
+                const incomingTimestamp = new Date(incomingBill.updatedAt || incomingBill.createdAt || Date.now()).getTime();
+                const existingTimestamp = new Date(existingBill.updatedAt || existingBill.createdAt || Date.now()).getTime();
+                
+                if (incomingTimestamp >= existingTimestamp) {
+                  newBillsObject[billId] = { ...existingBill, ...incomingBill };
+                  billsMergedCount++;
+                }
               } else {
-                // New bill, add it
-                newBills[billId] = { ...incomingBill, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+                newBillsObject[billId] = incomingBill;
                 billsAddedCount++;
               }
             }
-            addSyncLog(`Bills hydrated: ${billsAddedCount} added, ${billsMergedCount} merged. Total bills: ${Object.keys(newBills).length}`, 'success');
-          } else {
-            addSyncLog('No bills data in snapshot for BillStore.', 'info');
+            newState.bills = newBillsObject;
           }
 
+          // SMART MONTHLY INCOME CONFLICT RESOLUTION
           if (typeof syncedData.monthlyIncome === 'number') {
-            newMonthlyIncome = Math.max(0, syncedData.monthlyIncome); // Ensure non-negative
-            if (state.monthlyIncome !== newMonthlyIncome) {
-              addSyncLog(`Monthly income updated from ${state.monthlyIncome} to ${newMonthlyIncome} via sync.`, 'info');
+            const currentIncome = state.monthlyIncome;
+            const incomingIncome = syncedData.monthlyIncome;
+            const currentUpdate = state.lastIncomeUpdate || 0;
+            const incomingUpdate = syncedData.lastIncomeUpdate || 0;
+
+            // Smart conflict resolution rules:
+            // 1. Never overwrite a non-zero value with zero unless explicitly newer by a significant margin (30+ seconds)
+            // 2. Always prefer non-zero values over zero values
+            // 3. If both are non-zero, use timestamp
+            
+            let shouldUpdate = false;
+            let reason = '';
+
+            if (currentIncome === 0 && incomingIncome > 0) {
+              // Current is 0, incoming is positive - always update
+              shouldUpdate = true;
+              reason = 'current is 0, incoming is positive';
+            } else if (currentIncome > 0 && incomingIncome === 0) {
+              // Current is positive, incoming is 0 - only update if incoming is significantly newer (30+ seconds)
+              const timeDiff = incomingUpdate - currentUpdate;
+              if (timeDiff > 30000) { // 30 seconds
+                shouldUpdate = true;
+                reason = `incoming zero is significantly newer by ${Math.round(timeDiff/1000)}s`;
+              } else {
+                reason = `keeping non-zero value, incoming zero not significantly newer (${Math.round(timeDiff/1000)}s)`;
+              }
+            } else if (currentIncome !== incomingIncome) {
+              // Both non-zero or both zero - use timestamp
+              if (incomingUpdate > currentUpdate) {
+                shouldUpdate = true;
+                reason = 'incoming timestamp is newer';
+              } else {
+                reason = 'current timestamp is newer or equal';
+              }
             }
-          } else {
-            addSyncLog('No monthly income data in snapshot for BillStore.', 'info');
+
+            if (shouldUpdate) {
+              addSyncLog(`Monthly income updated from ${currentIncome} to ${incomingIncome} via sync (${reason}).`, 'info');
+              newState.monthlyIncome = Math.max(0, incomingIncome); // Ensure non-negative
+              newState.lastIncomeUpdate = incomingUpdate;
+            } else {
+              addSyncLog(`Monthly income kept at ${currentIncome}, not updating to ${incomingIncome} (${reason}).`, 'verbose');
+            }
           }
-          
-          return { bills: newBills, monthlyIncome: newMonthlyIncome };
+
+          return newState;
         });
+
+        addSyncLog(`Bills hydrated: ${billsAddedCount} added, ${billsMergedCount} merged. Total bills: ${Object.keys(get().bills).length}`, 'success');
       },
     }),
     {

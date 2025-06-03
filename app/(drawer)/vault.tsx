@@ -155,8 +155,8 @@ export default function VaultScreen() {
                 <VaultCardSkeleton key={idx} isWeb={isWeb} isDark={isDark} columnWidthWeb={columnWidthWeb} />
               ))
             ) : isIpad() ? (
-              <XStack width="100%" gap="$4">
-                <YStack flex={1} gap="$4">
+              <XStack width="100%" gap="$2">
+                <YStack flex={1} gap="$2">
                   {Array.from({ length: 3 }).map((_, idx) => (
                     <VaultCardSkeleton key={`ipad-left-${idx}`} isWeb={false} isDark={isDark} />
                   ))}
@@ -210,8 +210,8 @@ export default function VaultScreen() {
               />
             ))
           ) : isIpad() ? (
-            <XStack width="100%" gap="$4">
-              <YStack flex={1} gap="$4">
+            <XStack width="100%" gap={isIpad() ? "$3" : "$2"}>
+              <YStack flex={1} gap={isIpad() ? "$3" : "$2"} alignItems="stretch" >
                 {leftColumnItems.map((cred: VaultEntry) => (
                   <VaultCard
                     key={cred.id}
@@ -228,7 +228,7 @@ export default function VaultScreen() {
                   />
                 ))}
               </YStack>
-              <YStack flex={1} gap={isWeb ? "$4" : "$2"}>
+              <YStack flex={1} gap={isIpad() ? "$3" : "$2"} alignItems="stretch">
                 {rightColumnItems.map((cred: VaultEntry) => (
                   <VaultCard
                     key={cred.id}
@@ -267,7 +267,6 @@ export default function VaultScreen() {
           )}
         </ScrollView>
 
-        {/* Floating Action Button - Only show on mobile/tablet */}
         {!isWeb && (
           <Button
             onPress={() => setIsModalVisible(true)}
@@ -290,7 +289,6 @@ export default function VaultScreen() {
           </Button>
         )}
 
-        {/* Dev Buttons */}
         {__DEV__ && (
           <XStack position='absolute' bottom={32} left={24} gap='$3' zIndex={1000}>
             <Button

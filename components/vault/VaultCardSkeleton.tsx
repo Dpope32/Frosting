@@ -2,7 +2,6 @@ import React from 'react'
 import { XStack, YStack } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import { isIpad } from '@/utils'
-import { Platform } from 'react-native'
 
 interface VaultCardSkeletonProps {
   isWeb: boolean
@@ -11,7 +10,6 @@ interface VaultCardSkeletonProps {
 }
 
 export const VaultCardSkeleton = ({ isWeb, isDark, columnWidthWeb }: VaultCardSkeletonProps) => {
-  // Sizing matches VaultCard
   if (isWeb) {
     return (
       <XStack
@@ -53,11 +51,10 @@ export const VaultCardSkeleton = ({ isWeb, isDark, columnWidthWeb }: VaultCardSk
       </XStack>
     )
   }
-  // Mobile/iPad
   return (
     <XStack
-      p={isIpad() ? "$1.5" : "$1"}
-      px={isWeb ? "$3.5" : isIpad() ? "$1" : "$4"}
+      p={isIpad() ? "2" : "$1"}
+      px={isWeb ? "$3.5" : isIpad() ? "$3" : "$4"}
       pl={isWeb ? "$3" : isIpad() ? "$2.5" : "$4"}
       br="$4"
       borderWidth={1}
@@ -65,7 +62,7 @@ export const VaultCardSkeleton = ({ isWeb, isDark, columnWidthWeb }: VaultCardSk
       borderColor={isDark ? '#333' : '#e0e0e0'}
       ai="center"
       animation="quick"
-      py={isIpad() ? "$2" : "$2.5"}
+      py={isIpad() ? "$3" : "$2.5"}
       position="relative"
       overflow="hidden"
       style={{ backgroundColor: isDark ? '#181818' : '#f5f5f5' }}

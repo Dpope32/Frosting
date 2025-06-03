@@ -105,8 +105,8 @@ export default function CollapsedView({
               <Image
                 source={{ uri: person.profilePicture || 'https://via.placeholder.com/80' }}
                 width={Platform.OS === 'web' ? 80 : isIpad() ? 50 : 34}
-                height={Platform.OS === 'web' ? 60 : isIpad() ? 30 : 34}
-                br={Platform.OS === 'web' ? 30 : isIpad() ? 35 : 27}
+                height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
+                br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
                 style={styles.avatarImage as any}
               />
             </View>
@@ -128,7 +128,7 @@ export default function CollapsedView({
               )}
               <Paragraph
                 fontWeight="600"
-                fontSize={isWeb ? 18 : isIpad() ? 18 : 16}
+                fontSize={isWeb ? 18 : isIpad() ? 17 : 16}
                 color={isDark ? adjustColor(nicknameColor, 250) : adjustColor(nicknameColor, -40)}
                 numberOfLines={1}
                 ellipsizeMode="tail"
@@ -142,7 +142,7 @@ export default function CollapsedView({
                   <>
                     <MaterialIcons
                       name="cake"
-                      size={10}
+                      size={isIpad() ? 12 : 10}
                       color={isDark ? "#777" : "#555"}
                     />
                     <Text
@@ -158,7 +158,7 @@ export default function CollapsedView({
                 {person.occupation && (
                   <Text
                     style={{
-                      fontSize: isWeb ? 16 : isIpad() ? 14 : 12,
+                      fontSize: isWeb ? 16 : isIpad() ? 13 : 12,
                       color: isDark ? '#999' : '#555',
                       marginLeft: person.birthday ? (isWeb || isIpad() ? 8 : 4) : 0,
                       flexShrink: 0,
@@ -184,7 +184,7 @@ export default function CollapsedView({
                       >
                         <Ionicons
                           name="pricetag-outline"
-                          size={10}
+                          size={isIpad() ? 12 : 10}
                           color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
                           style={{ marginRight: 3 }}
                         />
@@ -195,6 +195,7 @@ export default function CollapsedView({
                               color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
                               flexShrink: 1,
                               minWidth: 0,
+                              fontSize: isIpad() ? 12 : 11,
                             }
                           ]}
                           numberOfLines={1}

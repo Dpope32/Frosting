@@ -4,7 +4,7 @@ import { YStack, XStack, Text, Button, isWeb, Separator } from 'tamagui';
 import { Platform, Alert, Keyboard } from 'react-native';
 import { StatusSelector } from '../NewTaskModal/StatusSelector';
 import { PeopleSelector } from '../NewTaskModal/PeopleSelector';
-import { TagSelector } from '@/components/notes/TagSelector';
+import { TagSelector } from '../NewTaskModal/TagSelectorNew';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useProjectStore, useToastStore, usePeopleStore } from '@/store';
 import { AttachmentSelector } from '@/components/projects/ProjectCard/modal/attachmentSelector';
@@ -138,7 +138,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       open={open}
       onOpenChange={onOpenChange}
       title={
-        <XStack ai="center" >
+        <XStack ai="center" pt={isIpad() ? 10 : 4} >
           <Button
             size="$2"
             backgroundColor="transparent"
@@ -179,12 +179,12 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
         </XStack>
       }
       showCloseButton
-      snapPoints={isWeb ? [90] : isIpad() ? [70] : [93]}
+      snapPoints={isWeb ? [90] : isIpad() ? [80] : [93]}
       hideHandle
       footer={
         <XStack 
           width="100%" 
-          mx={-4} 
+          mx={isIpad() ? 0 : -4} 
           py={keyboardVisible ? '$4' : '$2'}
           mb={keyboardVisible ? isIpad() ? '$2' : '$2' : '$0'} 
           justifyContent="space-between"
@@ -224,7 +224,7 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           height={1}
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'} 
         />
-        <YStack gap="$2" mt={isIpad() ? "$2" : "$0"} mb="$2" mx={0}>
+        <YStack gap="$2" mt={isIpad() ? "$1" : "$0"} mb="$2" mx={0}>
         <DeadlineInputter deadline={deadline} setDeadline={setDeadline} isDark={isDark} />
         </YStack>
         <XStack ai="center" alignItems="center" mb="$2.5" gap="$2" mx={4}>

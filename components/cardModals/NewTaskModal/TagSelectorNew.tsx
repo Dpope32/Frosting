@@ -361,7 +361,7 @@ export function TagSelector({
       </XStack>
           
       {isAdding && (
-        <YStack gap={isWeb ? "$3" : "$1"} mt={isWeb ? "$3" : "$2"} ml={isIpad() ? "$2" : "$1"} width="100%">
+        <YStack gap={isWeb ? "$3" : "$1"} mt={isWeb ? "$3" : "$0"} ml={isIpad() ? "$0" : "$1"} width="100%">
           <XStack position="relative" width="100%" maxWidth={"100%"} alignItems="center" gap="$2">
             <XStack position="relative" width="40%" alignItems="center">
               <DebouncedInput

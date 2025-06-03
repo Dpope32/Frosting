@@ -25,13 +25,13 @@ export function TasksInModal({ tasks, isDark, onTaskDelete }: TasksInModalProps)
   }
 
   return (
-    <YStack gap="$2" pb="$4" mx={0} mr={0}>
+    <YStack gap="$2" pb="$4" mx={isIpad() ? 10 : 4} mr={0}>
       <XStack gap={0} flexWrap="wrap" alignItems='center' alignContent="center">
         {tasks.map((task) => (
           <XStack
             key={task.id}
             ai="center"
-            px={isIpad() ? 12 : 12}
+            px={isIpad() ? 18 : 14}
             py={isIpad() ? 10 : 8}
             alignContent='center'
             alignItems='center'

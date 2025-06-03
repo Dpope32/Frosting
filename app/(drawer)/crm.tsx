@@ -30,9 +30,9 @@ export default function CRM() {
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const PADDING = isWeb? 30 : isIpad() ? 24 : 16;
-  const GAP = isWeb? 10 : isIpad() ? 5 : 6;
-  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 2 : 1;
-  const CARD_WIDTH = isIpad() ? 320 : isWeb ?  (width - (12 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS
+  const GAP = isWeb? 10 : isIpad() ? 8 : 6;
+  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 1 : 1;
+  const CARD_WIDTH = isIpad() ? 380 : isWeb ?  (width - (12 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS
    : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
   const CARD_WIDTH_MOBILE = isIpad() ? "92%" : "92%";
   const handleEdit = (person: Person) => {
@@ -116,8 +116,8 @@ export default function CRM() {
         contentContainerStyle={{
           paddingTop: 4,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : isIpad() ? 8 : 8,
-          paddingLeft: isWeb ? 0 : isIpad() ? 8 : 4,
+          paddingHorizontal: isWeb ? 0 : isIpad() ? 12 : 8,
+          paddingLeft: isWeb ? 0 : isIpad() ? 12 : 4,
         }}
         ListEmptyComponent={
           <PersonEmpty 

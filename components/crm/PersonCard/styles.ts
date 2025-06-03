@@ -49,9 +49,9 @@ export const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 2,
-    padding: Platform.OS === 'web' ? 12 : 6, 
-    paddingHorizontal: Platform.OS === 'web' ? 12 : 8,
-    paddingBottom: Platform.OS === 'web' ? 12 : 8, 
+    padding: Platform.OS === 'web' ? 12 : isIpad() ? 12 : 6, 
+    paddingHorizontal: Platform.OS === 'web' ? 12 : isIpad() ? 12 : 8,
+    paddingBottom: Platform.OS === 'web' ? 12 : isIpad() ? 12 : 8, 
     borderRadius: 12,
     width: Platform.OS === 'web' ? 'auto' : '100%',
     ...(Platform.OS === 'web' ? webSpecificStyles.card : {
@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     }),
   },
   cardContent: {
-    minHeight: Platform.OS === 'web' ? 60 : isIpad() ? 60 : 50,
+    minHeight: Platform.OS === 'web' ? 60 : isIpad() ? 55 : 50,
     ...(Platform.OS === 'web' ? {
       flexDirection: 'row',
       alignItems: 'center',
@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: Platform.OS === 'web' ? 'auto' as any : 'auto',
     justifyContent: 'center',
-    marginLeft: Platform.OS === 'web' ? 12 : 2,
+    marginLeft: Platform.OS === 'web' ? 12 : isIpad() ? 8 : 2,
   },
   nameText: {
     flexShrink: 1,
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
     gap: 4,
   },
   contactInfo: {
-    fontSize: 12,
+    fontSize: isIpad() ? 13 : 12,
     lineHeight: 14,
     opacity: 0.8,
     flexShrink: 1,
@@ -137,11 +137,11 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
   },
   tagText: {
-    fontSize: 11,
+    fontSize: isIpad() ? 12 : 11,
     fontWeight: '500',
   },
   lastContactText: {
-    fontSize: 11,
+    fontSize: isIpad() ? 12 : 11,
     opacity: 0.6,
   },
   touchable: {
@@ -180,8 +180,8 @@ export const styles = StyleSheet.create({
       width: 60,
       height: 60,
     } : {
-      width: isIpad() ? 40 : 40,
-      height: isIpad() ? 40 : 40
+      width: isIpad() ? 50 : 40,
+      height: isIpad() ? 50 : 40
     }),
   },
   starIndicator: {
@@ -308,7 +308,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "rgba(20,20,20,0.95)",
-    paddingVertical: Platform.OS === 'web' ? 12 : 10,
+    paddingVertical: Platform.OS === 'web' ? 12 : isIpad() ? 10 : 10,
     borderTopWidth: 1,
     borderTopColor: "rgba(255,255,255,0.1)",
     zIndex: 50, // Add high zIndex to ensure it's on top

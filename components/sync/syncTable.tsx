@@ -1,3 +1,4 @@
+// Fixed SyncTable - Remove duplicates and organize properly
 import React from 'react';
 import { View, useWindowDimensions, TouchableOpacity, Platform } from 'react-native';
 import { Text, Button, XStack, YStack, isWeb } from 'tamagui';
@@ -6,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
 import { useVaultStore } from '@/store/VaultStore';
 import { useProjectStore } from '@/store/ProjectStore';
+import { useNoteStore } from '@/store/NoteStore';
 import { usePeopleStore } from '@/store/People';
 import { useHabitStore } from '@/store/HabitStore';
 import { useCalendarStore } from '@/store/CalendarStore';
@@ -52,6 +54,8 @@ export default function SyncTable({
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = isWeb ? width * 0.7025 : isIpad() ? Math.min(width - baseSpacing * 2, 600) : Math.min(width - baseSpacing * 2, 350);
+  
+  // Store hooks
   const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
   const toggleBillSync = useBillStore((state) => state.toggleBillSync);
   const isVaultSyncEnabled = useVaultStore((state) => state.isSyncEnabled);
@@ -64,9 +68,10 @@ export default function SyncTable({
   const toggleHabitSync = useHabitStore((state) => state.toggleHabitSync);
   const isCalendarSyncEnabled = useCalendarStore((state) => state.isSyncEnabled);
   const toggleCalendarSync = useCalendarStore((state) => state.toggleCalendarSync);
-  
+  const isNoteSyncEnabled = useNoteStore((state) => state.isSyncEnabled);
+  const toggleNoteSync = useNoteStore((state) => state.toggleNoteSync);
 
-   const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
+  const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
     return React.useMemo(() => {
       if (!premium) return 'Premium Required';
       if (syncStatus === 'error') return 'Error';
@@ -76,7 +81,7 @@ export default function SyncTable({
     }, [premium, syncStatus, currentSpaceId]);
   };
 
-     const getStatusColor = () => {
+  const getStatusColor = () => {
     return React.useMemo(() => {
       if (syncStatus === 'error') return colors.error;
       if (syncStatus === 'syncing') return colors.accent;
@@ -85,16 +90,16 @@ export default function SyncTable({
     }, [syncStatus, currentSpaceId, colors]);
   };
   
-
+  // FIXED: Remove duplicate entries, organize cleanly with 6 items total
   const syncSettings = [
     { key: 'bills', label: 'Bills', enabled: isBillSyncEnabled, toggle: toggleBillSync },
+    { key: 'crm', label: 'CRM', enabled: isPeopleSyncEnabled, toggle: togglePeopleSync },
+    { key: 'notes', label: 'Notes', enabled: isNoteSyncEnabled, toggle: toggleNoteSync },
     { key: 'vault', label: 'Passwords', enabled: isVaultSyncEnabled, toggle: toggleVaultSync },
     { key: 'projects', label: 'Projects', enabled: isProjectSyncEnabled, toggle: toggleProjectSync },
-    { key: 'people', label: 'Contacts', enabled: isPeopleSyncEnabled, toggle: togglePeopleSync },
     { key: 'habits', label: 'Habits', enabled: isHabitSyncEnabled, toggle: toggleHabitSync },
     { key: 'calendar', label: 'Calendar', enabled: isCalendarSyncEnabled, toggle: toggleCalendarSync },
   ];
-
 
   return (
     <View style={{
@@ -275,8 +280,9 @@ export default function SyncTable({
             <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
           ) : null}
           <XStack gap={baseSpacing * 4}>
+            {/* Left Column: 4 items (0-3) */}
             <YStack flex={1} gap={baseSpacing}>
-              {syncSettings.slice(0, 3).map((setting, index) => (
+              {syncSettings.slice(0, 4).map((setting, index) => (
                 <React.Fragment key={setting.key}>
                   <XStack alignItems="center" justifyContent="space-between">
                     <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>
@@ -297,13 +303,14 @@ export default function SyncTable({
                       </Text>
                     </Button>
                   </XStack>
-                  {index < 2 && <View style={{ height: 1, backgroundColor: colors.border }} />}
+                  {index < 3 && <View style={{ height: 1, backgroundColor: colors.border }} />}
                 </React.Fragment>
               ))}
             </YStack>
 
+            {/* Right Column: 3 items (4-6) */}
             <YStack flex={1} gap={baseSpacing}>
-              {syncSettings.slice(3).map((setting, index) => (
+              {syncSettings.slice(4).map((setting, index) => (
                 <React.Fragment key={setting.key}>
                   <XStack alignItems="center" justifyContent="space-between">
                     <Text fontSize={fontSizes.sm} fontFamily="$body" color={colors.subtext}>

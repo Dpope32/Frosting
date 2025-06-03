@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     paddingHorizontal: 8,
-    paddingVertical: 7,
+    paddingVertical: isIpad() ? 5 : 6,
     position: 'relative',
     zIndex: 2
   },
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    paddingLeft: isWeb ? 12 : isIpad() ? 4 : 0
+    paddingLeft: isWeb ? 12 : isIpad() ? 0 : 0
   },
   titleRow: {
     flexDirection: 'row',

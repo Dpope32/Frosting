@@ -268,7 +268,7 @@ export function AddNoteSheet({
       modal
       open={isModalOpen}
       onOpenChange={handleCloseModal}
-      snapPoints={isWeb ? [85] : isIpadDevice ? [75] : [90]}
+      snapPoints={isWeb ? [85] : isIpadDevice ? [85] : [90]}
       dismissOnSnapToBottom
     >
       <Sheet.Overlay
@@ -368,7 +368,7 @@ export function AddNoteSheet({
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? -124 : 0} 
+            keyboardVerticalOffset={isIpad() ? -100 : Platform.OS === 'ios' ? -124 : 0} 
           >
             <YStack flex={1} paddingHorizontal={isIpad() ? "$2.5" : "$1.5"}>
               <RNScrollView

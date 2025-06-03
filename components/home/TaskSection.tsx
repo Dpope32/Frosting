@@ -321,9 +321,9 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                 <XStack
                   flexWrap="wrap"
                   gap={isIpad() ? "$0.5" : "$0.5"}
-                  px={isIpad() ? "$3" : "$3"}
-                  paddingLeft={isIpad() ? "$2.5" : "$4"}
-                  paddingVertical="$1.5"
+                  px={isIpad() ? "$4" : "$3"}
+                  paddingLeft={isIpad() ? "$4" : "$4"}
+                  paddingVertical="$1"
                   paddingBottom={isIpad() ? "$4" : "$3"}
                   justifyContent={isIpad() ? "center" : "flex-start"}
                   borderBottomWidth={1}

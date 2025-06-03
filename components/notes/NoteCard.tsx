@@ -90,22 +90,10 @@ export const NoteCard = ({
     position: 'relative' as 'relative',
   }), [isDragging, colors]);
 
-  // Helper to get all checkbox matches and their indices
-  const getCheckboxMatches = (content: string) => {
-    const regex = /^[-*]\s+\[([ xX])\]\s?.*$/gm;
-    const matches: { index: number, match: RegExpMatchArray }[] = [];
-    let m;
-    let i = 0;
-    while ((m = regex.exec(content)) !== null) {
-      matches.push({ index: i++, match: m });
-    }
-    return matches;
-  };
-
   // Custom rule for checkboxes
   const checkboxRule: RenderRules = {
     list_item: (() => {
-      let currentCheckboxIndex = 0; // Track checkbox index within this render cycle
+      let renderCheckboxCount = 0; // Track checkbox count during this render cycle
       
       return (node, children, parent, styles) => {
         const findCheckboxString = (childrenArr: any[]): RegExpMatchArray | null => {
@@ -137,110 +125,104 @@ export const NoteCard = ({
           return null;
         };
 
-      const match: RegExpMatchArray | null = findCheckboxString(children);
-      if (match) {
-        const checked = match[1].toLowerCase() === 'x';
-        const label = match[2] || '';
-        
-        // Find the index of this checkbox in the note content
-        const allMatches = getCheckboxMatches(note.content || '');
-        let matchIndex = allMatches.findIndex(
-          m => m.match[1].toLowerCase() === match[1].toLowerCase() && 
-               (m.match[2] || '').trim() === label.trim()
-        );
-        
-        // Fallback matching
-        if (matchIndex === -1 && allMatches.length > 0) {
-          matchIndex = 0; // Use first checkbox as fallback
-        }
-        
-        const handleToggle = () => {
-          if (matchIndex === -1) return;
+        const match: RegExpMatchArray | null = findCheckboxString(children);
+        if (match) {
+          const checked = match[1].toLowerCase() === 'x';
+          const label = match[2] || '';
           
-          let count = 0;
-          let newContent = (note.content || '').replace(/^([-*]\s+\[)([ xX])(\]\s?.*)$/gm, (line) => {
-            if (count === matchIndex) {
-              count++;
-              return line.replace(/\[([ xX])\]/, checked ? '[ ]' : '[x]');
-            }
-            count++;
-            return line;
-          });
+          // Use the current render count as the checkbox index
+          const thisCheckboxIndex = renderCheckboxCount;
+          renderCheckboxCount++;
           
-          // Try standalone checkbox replacement if no changes made
-          if (newContent === (note.content || '')) {
+          const handleToggle = () => {
             let checkboxCount = 0;
-            newContent = (note.content || '').replace(/\[([ xX])\]/g, (match) => {
-              if (checkboxCount === matchIndex) {
+            let newContent = (note.content || '').replace(/^([-*]\s+\[)([ xX])(\]\s?.*)$/gm, (fullMatch, prefix, state, suffix) => {
+              if (checkboxCount === thisCheckboxIndex) {
                 checkboxCount++;
-                return checked ? '[ ]' : '[x]';
+                const newState = state.toLowerCase() === 'x' ? ' ' : 'x';
+                return prefix + newState + suffix;
               }
               checkboxCount++;
-              return match;
+              return fullMatch;
             });
+            
+            // If no replacement was made with the list item pattern, try standalone checkbox pattern
+            if (newContent === (note.content || '')) {
+              checkboxCount = 0;
+              newContent = (note.content || '').replace(/\[([ xX])\]/g, (fullMatch, state) => {
+                if (checkboxCount === thisCheckboxIndex) {
+                  checkboxCount++;
+                  return state.toLowerCase() === 'x' ? '[ ]' : '[x]';
+                }
+                checkboxCount++;
+                return fullMatch;
+              });
+            }
+            
+            if (newContent !== (note.content || '')) {
+              noteStore.updateNote(note.id, { content: newContent });
+              setCheckboxUpdateKey(prev => prev + 1);
+            }
+          };
+
+          if (isExpanded) {
+            return (
+              <TouchableOpacity
+                key={`checkbox-${thisCheckboxIndex}-${checkboxUpdateKey}`}
+                onPress={handleToggle}
+                activeOpacity={0.7}
+                style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
+              >
+                <View style={[
+                  markdownStyles.checkbox_unchecked,
+                  checked && markdownStyles.checkbox_checked,
+                  !markdownStyles.checkbox_unchecked && {
+                    width: 20,
+                    height: 20,
+                    borderWidth: 1.5,
+                    borderRadius: 5,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }
+                ]}>
+                  {checked && <Text style={[markdownStyles.checkbox_icon, { marginBottom: 2 }]}>✓</Text>}
+                </View>
+                <Text style={[
+                  markdownStyles.checkbox,
+                  checked && { textDecorationLine: 'line-through', color: '#888' },
+                  !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
+                ]}>{label}</Text>
+              </TouchableOpacity>
+            );
+          } else {
+            return (
+              <View
+                key={`checkbox-readonly-${thisCheckboxIndex}-${checkboxUpdateKey}`}
+                style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
+              >
+                <View style={[
+                  markdownStyles.checkbox_unchecked,
+                  checked && markdownStyles.checkbox_checked,
+                  !markdownStyles.checkbox_unchecked && {
+                    width: 20,
+                    height: 20,
+                    borderWidth: 1.5,
+                    borderRadius: 5,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }
+                ]}>
+                  {checked && <Text style={[markdownStyles.checkbox_icon, { marginBottom: 2 }]}>✓</Text>}
+                </View>
+                <Text style={[
+                  markdownStyles.checkbox,
+                  checked && { textDecorationLine: 'line-through', color: '#888' },
+                  !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
+                ]}>{label}</Text>
+              </View>
+            );
           }
-          
-          noteStore.updateNote(note.id, { content: newContent });
-          setCheckboxUpdateKey(prev => prev + 1);
-        };
-        if (isExpanded) {
-          return (
-            <TouchableOpacity
-              key={node.key || node.index || Math.random().toString()}
-              onPress={handleToggle}
-              activeOpacity={0.7}
-              style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
-            >
-              <View style={[
-                markdownStyles.checkbox_unchecked,
-                checked && markdownStyles.checkbox_checked,
-                !markdownStyles.checkbox_unchecked && {
-                  width: 20,
-                  height: 20,
-                  borderWidth: 1.5,
-                  borderRadius: 5,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }
-              ]}>
-                {checked && <Text style={[markdownStyles.checkbox_icon, { marginBottom: 2 }]}>✓</Text>}
-              </View>
-              <Text style={[
-                markdownStyles.checkbox,
-                checked && { textDecorationLine: 'line-through', color: '#888' },
-                !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
-              ]}>{label}</Text>
-            </TouchableOpacity>
-          );
-        } else {
-          return (
-            <View
-              key={node.key || node.index || Math.random().toString()}
-              style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 2 }}
-            >
-              <View style={[
-                markdownStyles.checkbox_unchecked,
-                checked && markdownStyles.checkbox_checked,
-                !markdownStyles.checkbox_unchecked && {
-                  width: 20,
-                  height: 20,
-                  borderWidth: 1.5,
-                  borderRadius: 5,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }
-              ]}>
-                {checked && <Text style={[markdownStyles.checkbox_icon, { marginBottom: 2 }]}>✓</Text>}
-              </View>
-              <Text style={[
-                markdownStyles.checkbox,
-                checked && { textDecorationLine: 'line-through', color: '#888' },
-                !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
-              ]}>{label}</Text>
-            </View>
-          );
         }
-      }
 
         return (
           <View
