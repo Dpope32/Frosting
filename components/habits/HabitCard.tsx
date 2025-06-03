@@ -126,8 +126,8 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   // Shared card content that will be wrapped by LongPressDelete
   const cardContent = (
     <YStack
-      p={isMobile ? 8 : 10}
-      px={isMobile ? 14 : 16}
+      p={isMobile ? 2 : 10}
+      px={isMobile ? 12 : 16}
       borderRadius={12}
       backgroundColor={isDark ? (doneToday ? '#000' : '#151515') : 'rgba(255, 255, 255, 0.7)'}
       borderWidth={1}
@@ -144,15 +144,18 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
       }}
     >
       <LinearGradient
-        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
-        start={{ x: 0, y: 0.5 }}
+        colors={isDark ? 
+          ['#171c21', '#1a1f25', '#1d2228', '#20252c'] : 
+          ['#f5f7f4', '#f0f3ee', '#ebeee9', '#e6e9e4']}
+        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
           borderRadius: 11,
-          borderWidth: isDark ? 2 : 1,
-          borderColor: isDark ? undefined : '#9c9c9c',
+          borderWidth: 1,
+          borderColor: isDark ? '#282e36' : '#dde3d8',
+          opacity: 0.98,
         }}
       />
       {doneToday && (
@@ -175,7 +178,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
         </View>
       )}
       <XStack justifyContent="space-between" alignItems="center" mt={isIpad() ? 8 : 0}>
-        <XStack alignItems="center" flex={1} gap="$2" style={{ zIndex: 2 }}>
+        <XStack alignItems="center" flex={1} gap="$1.5" style={{ zIndex: 2, paddingTop: isIpad() ? 0 : 8 }}>
           <Pressable 
             ref={statsButtonRef}
             onPress={handleStatsPress}
@@ -220,7 +223,6 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           </XStack>
         </XStack>
 
-        {/* REMOVED CHECKBOX FROM HERE - it's now positioned absolutely outside the LongPressDelete */}
         <View style={{ width: isMobile ? 28 : 32, height: isMobile ? 28 : 32 }} />
       </XStack>
       {(notificationTimeDate !== 'none' || habit.customMessage || habit.description) && (
@@ -289,7 +291,8 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           borderWidth={1}
           borderColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
           mb={6}
-          gap={6}
+          gap={5}
+          pt={isIpad() ? 0 : 4}
           maxWidth="100%"
         >
           <Text 
@@ -303,13 +306,10 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           </Text>
           <XStack gap={gap} minWidth={isMobile ? undefined : `${cellsToShow * (squareSize + gap)}px`} justifyContent="flex-start">
             {Array.from({ length: cellsToShow }).map((_, idx) => {
-              // Calculate the date for this cell (rightmost = today, going backwards)
               const daysAgo = cellsToShow - 1 - idx;
               const cellDate = new Date();
               cellDate.setDate(cellDate.getDate() - daysAgo);
               const cellDateString = cellDate.toISOString().split('T')[0];
-              
-              // Find if we have history for this specific date
               const day = history.find(h => h.date === cellDateString);
               const isToday = cellDateString === today;
               

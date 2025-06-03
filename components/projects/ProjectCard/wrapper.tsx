@@ -163,17 +163,21 @@ export const ProjectCardWrapper = ({ project, isDark, priorityColor, onEdit, chi
       )}
 
       <LinearGradient
-        colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : 
-          ['rgba(255, 255, 255, 0.27)', 'rgba(238, 238, 238, 0.27)', 'rgba(238, 238, 238, 0.57)', 'rgba(238, 238, 238, 0.77)']}
-        start={{ x: 0, y: 0.5 }}
+        colors={isDark ? 
+          ['#171c22', '#1a1f25', '#1d2228', '#20252c'] : 
+          ['#f0f2f0', '#e8eae7', '#e0e2df', '#d8dad7']}
+        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          borderWidth: 2, borderRadius: 12,
+          borderWidth: 1, 
+          borderRadius: 12,
           borderRightColor: borderColor(project, isDark),
           borderTopColor: borderColor(project, isDark),
           borderBottomColor: borderColor(project, isDark),
+          borderColor: isDark ? '#282e36' : '#c9cec5',
+          opacity: 0.98,
         }}
       />
       

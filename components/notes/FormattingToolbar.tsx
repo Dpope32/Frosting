@@ -11,6 +11,7 @@ interface FormattingToolbarProps {
   onCode: () => void;
   onCheckbox: () => void;
   onAttachImage: () => void;
+  onCloseKeyboard: () => void;
 }
 
 export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
@@ -21,11 +22,12 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onCode,
   onCheckbox,
   onAttachImage,
+  onCloseKeyboard,
 }) => {
   const iconColor = "#bbb";
 
   return (
-    <XStack width="100%" gap={isIpad() ? "$3" : "$1"} marginBottom={isIpad() ? 16 : 0} flexWrap="nowrap" alignItems="center" justifyContent="space-between" alignSelf="center">
+    <XStack width="100%" marginLeft={-8} gap={isIpad() ? "$1.5" : "$0"} marginBottom={isIpad() ? 16 : 0} flexWrap="nowrap" alignItems="center" justifyContent="space-between" alignSelf="center">
       <Button
         size="$4"
         circular
@@ -85,6 +87,15 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
         circular
         icon={<Ionicons name="checkbox-outline" size={22} color={iconColor} />}
         onPress={onCheckbox}
+        backgroundColor="transparent"
+        pressStyle={{ opacity: 0.7 }}
+      />
+      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
+      <Button
+        size="$4"
+        circular
+        icon={<Ionicons name="chevron-down" size={22} color={iconColor} />}
+        onPress={onCloseKeyboard}
         backgroundColor="transparent"
         pressStyle={{ opacity: 0.7 }}
       />

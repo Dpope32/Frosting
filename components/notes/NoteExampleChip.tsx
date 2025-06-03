@@ -34,6 +34,16 @@ export const NoteExampleChip: React.FC<NoteExampleChipProps> = ({
         backgroundColor: "rgba(239, 68, 68, 0.15)", // red
         borderColor: "rgba(239, 68, 68, 0.3)",
         textColor: "#ef4444"
+      },
+      {
+        backgroundColor: "rgba(245, 158, 11, 0.15)", // orange
+        borderColor: "rgba(245, 158, 11, 0.3)",
+        textColor: "#f59e0b"
+      },
+      {
+        backgroundColor: "rgba(236, 72, 153, 0.15)", // pink
+        borderColor: "rgba(236, 72, 153, 0.3)",
+        textColor: "#ec4899"
       }
     ];
 

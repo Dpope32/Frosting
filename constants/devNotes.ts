@@ -32,7 +32,6 @@ export const generateTestNotes = (): Note[] => {
     id: generateId(),
     title: 'Small Note',
     content: 'This is a small note with just a few lines of text. Its good for quick reminders or simple thoughts.',
-    tags: [generateRandomTag(0), generateRandomTag(1)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
     attachments: []
@@ -52,6 +51,37 @@ It has multiple paragraphs and some formatting.
 
 This note demonstrates how a note with moderate content looks in the app.`,
     tags: [generateRandomTag(2)],
+    createdAt: generateRandomDate(),
+    updatedAt: generateRandomDate(),
+    attachments: []
+  });
+  
+  // Note 2.5: Task List with Checkboxes
+  notes.push({
+    id: generateId(),
+    title: 'Weekend Todo List',
+    content: `# Weekend Plans
+
+## Groceries
+- [x] Buy milk
+- [x] Get bread
+- [ ] Pick up vegetables
+- [ ] Grab some snacks
+
+## House Tasks
+- [x] Do laundry
+- [ ] Clean kitchen
+- [ ] Vacuum living room
+- [ ] Organize closet
+
+## Personal
+- [ ] Call mom
+- [x] Finish reading book
+- [ ] Plan next week
+- [ ] Exercise for 30 min
+
+***Note: Check off items as you complete them!***`,
+    tags: [generateRandomTag(1), generateRandomTag(4)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
     attachments: []
@@ -79,10 +109,16 @@ Or unordered lists:
 - Item two
 - Item three
 
+## Interactive Checkboxes
+- [x] Completed task
+- [x] Another finished item
+- [ ] Still need to do this
+- [ ] And this one too
+
 You can use **bold text** or *italic text* or ***bold and italic***.
 
 ## Code
-> This is a codequote.
+> This is a blockquote.
 > It can span multiple lines.
 
 ## Links
@@ -95,6 +131,36 @@ You can add [links](https://example.com) to your notes.
 | Cell 3   | Cell 4   |
 `,
     tags: [generateRandomTag(3), generateRandomTag(4)],
+    createdAt: generateRandomDate(),
+    updatedAt: generateRandomDate(),
+    attachments: []
+  });
+  
+  // Note 3.5: Meeting Notes
+  notes.push({
+    id: generateId(),
+    title: 'Project Meeting Notes',
+    content: `# Team Sync - March 15th
+
+## Attendees
+- Sarah (PM)
+- Mike (Dev)
+- Lisa (Design)
+
+## Action Items
+- [x] Review wireframes - **Lisa** 
+- [x] Set up dev environment - **Mike**
+- [ ] Schedule client call - **Sarah**
+- [ ] Finalize color palette - **Lisa**
+
+## Next Meeting
+**Date:** March 22nd  
+**Time:** 2:00 PM  
+**Location:** Conference Room B
+
+## Notes
+The project is progressing well. Need to focus on user experience for the next sprint.`,
+    tags: [generateRandomTag(0), generateRandomTag(3)],
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
     attachments: []
@@ -130,12 +196,7 @@ You can add [links](https://example.com) to your notes.
   notes.push({
     id: generateId(),
     title: 'Note with a Single Image',
-    content: `This note contains a single image.
-
-![Single Image](https://picsum.photos/600/400)
-
-This demonstrates how the app handles a note with just one image attachment.`,
-    tags: [generateRandomTag(0), generateRandomTag(2)],
+    content: `![Single Image](https://picsum.photos/600/400)`,
     createdAt: generateRandomDate(),
     updatedAt: generateRandomDate(),
     attachments: (() => {

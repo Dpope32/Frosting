@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { Project } from '@/types'
@@ -40,14 +39,14 @@ export const ProjectCardMobile = ({
         >
           <XStack
             p={isIpad() ? "$3" : "$2"} 
-            px={isWeb ? "$4" : isIpad() ? "$4" : "$3"} 
-            pl={isWeb ? "$4" : isIpad() ? "$2" : "$2.5"} 
+            px={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"} 
+            pl={isWeb ? "$4" : isIpad() ? "$3" : "$3"} 
             br="$4"
             w={isIpad() ? "100%" : "100%"}
             ai="center"
             animation="quick"
-            py={isIpad() ? "$3" : "$2.5"}
-            pt={isIpad() ? "$2.5" : "$1"}
+            py={isIpad() ? "$2.5" : "$2"}
+            pt={isIpad() ? "$2" : "$1.5"}
           >
             <YStack flex={1} gap="$2"> 
               <ProjectHeader project={project} isDark={isDark} priorityColor={priorityColor} />

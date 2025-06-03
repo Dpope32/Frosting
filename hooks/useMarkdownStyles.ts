@@ -41,25 +41,24 @@ export const useMarkdownStyles = () => {
     heading1: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 21 : 19, 
-      fontWeight: '900',
-      marginBottom:4, 
-      marginTop: 16 
+      fontSize: isTablet ? 21 : 18, 
+      fontWeight: '700',
+      marginTop: 4,
     } as TextStyle,
     heading2: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 21 : 19, 
-      marginBottom: 2, 
-      fontWeight: '700',
-      marginTop: 14 
+      fontSize: isTablet ? 21 : 17, 
+      marginBottom: 1, 
+      fontWeight: '500',
+      marginTop: 6 
     } as TextStyle,
     heading3: { 
       color: colors.text, 
       fontFamily: '$heading', 
       fontSize: isTablet ? 19 : 18, 
-      marginBottom: 4, 
-      marginTop: 12 
+      marginBottom: 2, 
+      marginTop: 5 
     } as TextStyle,
     heading4: { 
       color: colors.text, 
@@ -202,6 +201,11 @@ export const useMarkdownStyles = () => {
       justifyContent: 'center',
       alignItems: 'center',
       fontWeight: 'bold',
+    } as TextStyle,
+    bullet_list_icon: {
+      color: colors.text,
+      fontSize: 16,
+      marginRight: 8,
     } as TextStyle,
   };
 

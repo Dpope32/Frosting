@@ -86,30 +86,26 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         overflow="hidden"
         mb={isIpad() ? 2 : 0}
         style={{
-          backgroundColor: isDark ? 'rgb(33, 33, 33)' : 'rgba(253, 253, 253, 0.17)',
-          borderColor: isDark ? 'rgba(39, 39, 39, 0.8)' : 'rgba(255, 255, 255, 0.1)',
-          borderWidth:  1,
-        
+          backgroundColor: isDark ? 'rgba(15, 16, 20, 0.5)' : 'rgba(35, 40, 54, 0.9)',
+          borderColor: isDark ? '#1e2229' : '#21252e',
+          borderWidth: isDark ? 1 : 1.5,
         }}
       >
         <LinearGradient
           colors={isDark ? 
-            [ 
-             'rgba(0, 0, 0, 0.9)',
-             'rgba(5, 5, 5, 0.9)',
-             'rgba(15, 14, 14, 0.8)',
-             'rgba(19, 19, 19, 0.7)', 
-             'rgba(30, 30, 30, 0.6)'
-            ] : [
-               'rgba(42, 42, 42, 0.57)',
-               'rgba(23, 23, 23, 0.66)',
-               'rgba(53, 50, 50, 0.79)',
-               'rgba(40, 38, 38, 0.57)',
-               'rgba(0, 0, 0, 0.75)',
-            ]}
-          start={{ x: 0, y: 1 }}
-          end={{ x: 1, y: 0 }}
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+            ['#121519', '#14171c', '#16191f', '#181b22'] : 
+            ['#363b47', '#2c3038', '#22252c', '#18191f']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0,
+            borderRadius: 11,
+            opacity: 1,
+          }}
         />
         <XStack
           padding={isIpad() ? 7 : 7}
@@ -127,7 +123,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               <Text
                 fontFamily="$heading"
                 fontWeight="900"
-                color={isDark ? "#dbd0c6" : "#dbd0c6"}
+                color={isDark ? "#f0f0f0" : "#ffffff"}
                 fontSize={isIpad() ? 15 : 14}
                 maxWidth={'70%'}
                 elevation={2}
@@ -149,7 +145,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                   return (
                     <XStack alignItems="center" gap="$1">
                       <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
-                      <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#dbd0c6" : "#dbd0c6"}>
+                      <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#a0a0a0" : "#e0e0e0"}>
                         {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </Text>
                     </XStack>

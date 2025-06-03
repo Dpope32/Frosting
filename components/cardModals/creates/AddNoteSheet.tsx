@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView, Dimensions } from 'react-native';
 import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { TagSelector } from '@/components/notes/TagSelector';
+import { TagSelector } from '../NewTaskModal/TagSelectorNew';
 import { FormattingToolbar } from '@/components/notes/FormattingToolbar';
 import { ContentInput } from '@/components/notes/ContentInput'; 
 import type { Note, Attachment, Tag } from '@/types';
@@ -55,6 +55,10 @@ export function AddNoteSheet({
   handleImagePick,
   onSelectionChange
 }: AddNoteSheetProps) {
+  // Safety checks to prevent iOS crashes
+  const safeTags = editTags || [];
+  const safeAttachments = editAttachments || [];
+  
   const preferences = useUserStore((state) => state.preferences);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -79,15 +83,19 @@ export function AddNoteSheet({
 
   // Focus the title input when the modal opens or when entering edit mode (after 500ms)
   useEffect(() => {
-    if (isModalOpen && isEditingTitle) {
+    if (isModalOpen && isEditingTitle && !keyboardVisible) {
       const timer = setTimeout(() => {
-        if (titleInputRef.current) {
-          titleInputRef.current.focus();
+        try {
+          if (titleInputRef.current && isModalOpen && !keyboardVisible) {
+            titleInputRef.current.focus();
+          }
+        } catch (error) {
+          console.log('Title input focus failed:', error);
         }
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [isModalOpen, isEditingTitle]);
+  }, [isModalOpen, isEditingTitle, keyboardVisible]);
 
   // Setup keyboard listeners
   useEffect(() => {
@@ -96,22 +104,26 @@ export function AddNoteSheet({
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
       (event) => {
-        setKeyboardVisible(true);
-        setKeyboardHeight(event.endCoordinates.height);
+        if (isModalOpen) {
+          setKeyboardVisible(true);
+          setKeyboardHeight(event.endCoordinates.height);
+        }
       },
     );
     
     const keyboardDidHideListener = Keyboard.addListener(
       'keyboardDidHide',
       () => {
-        setKeyboardVisible(false);
-        setKeyboardHeight(0);
-        // When keyboard hides while editing title, auto-commit after 1s
-        if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
-          if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
-          autoCommitTimer.current = setTimeout(() => {
-            if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) commitTitleChange();
-          }, 1000);
+        if (isModalOpen) {
+          setKeyboardVisible(false);
+          setKeyboardHeight(0);
+          // When keyboard hides while editing title, auto-commit after 1s
+          if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
+            if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
+            autoCommitTimer.current = setTimeout(() => {
+              if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) commitTitleChange();
+            }, 1000);
+          }
         }
       }
     );
@@ -121,7 +133,7 @@ export function AddNoteSheet({
       keyboardDidHideListener.remove();
       if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
     };
-  }, [isEditingTitle]);
+  }, [isEditingTitle, isModalOpen]);
 
   const handleSelectionChange = (event: any) => {
     const newSelection = event.nativeEvent.selection;
@@ -142,12 +154,12 @@ export function AddNoteSheet({
   };
 
   const renderAttachments = () => {
-    if (editAttachments.length === 0) return null;
+    if (safeAttachments.length === 0) return null;
     return (
       <YStack gap="$2">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <XStack gap="$2">
-            {editAttachments.map(attachment => (
+            {safeAttachments.map(attachment => (
               <XStack
                 key={attachment.id}
                 backgroundColor={isDark ? "#1c1c1e" : "#f1f1f1"}
@@ -256,11 +268,22 @@ export function AddNoteSheet({
       editContent.substring(selection.end);
     setEditContent(newContent);
     
-    // Move cursor after the inserted checkbox
+    // Move cursor after the inserted checkbox - with safety check
     const newCursorPos = selection.start + checkboxSyntax.length;
-    contentInputRef.current?.setNativeProps({
-      selection: { start: newCursorPos, end: newCursorPos }
-    });
+    try {
+      if (contentInputRef.current && contentInputRef.current.setNativeProps) {
+        contentInputRef.current.setNativeProps({
+          selection: { start: newCursorPos, end: newCursorPos }
+        });
+      }
+    } catch (error) {
+      // Ignore measurement errors when component is unmounting
+      console.log('Checkbox cursor positioning failed:', error);
+    }
+  };
+
+  const handleCloseKeyboard = () => {
+    Keyboard.dismiss();
   };
 
   return (
@@ -315,8 +338,6 @@ export function AddNoteSheet({
                   fontFamily: 'System',
                   color: isDark ? '#fff' : '#000',
                   maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 175,
-                  borderBottomWidth: 1,
-                  borderBottomColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
                 }} 
                 placeholderTextColor={isDark ? "#888" : "#999"}
               />
@@ -363,8 +384,7 @@ export function AddNoteSheet({
           />
         </XStack>
         
-        <View style={{flex: 1}}>
-          <View style={{ height: 1, marginVertical: isIpad() ? 6 : 6, marginHorizontal: -8 }} />
+        <View style={{flex: 1, marginTop: isIpad() ? 6 : 4}}>
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
@@ -374,7 +394,7 @@ export function AddNoteSheet({
                 : Platform.OS === 'ios' ? -100 : 0
             } 
           >
-            <YStack flex={1} paddingHorizontal={isIpad() ? "$2.5" : "$1.5"}>
+            <YStack flex={1} paddingHorizontal={isIpad() ? "$1" : "$0"}>
               <RNScrollView
                 ref={scrollViewRef}
                 style={{ 
@@ -392,12 +412,14 @@ export function AddNoteSheet({
                 showsVerticalScrollIndicator={false}
                 keyboardDismissMode="none"
               >
-                {!keyboardVisible && (
-                  <YStack gap={0} paddingTop={6} marginLeft={-8}>
-                    <TagSelector tags={editTags} onTagsChange={handleTagsChange} />
-                  </YStack>
-                )}
-                  <YStack gap={0} paddingTop={-4} >
+                <YStack 
+                  gap={0} 
+                  paddingTop={6}
+                  display={keyboardVisible ? "none" : "flex"}
+                >
+                  <TagSelector tags={safeTags} onTagsChange={handleTagsChange} />
+                </YStack>
+                  <YStack gap={0} paddingTop={4} >
                   <YStack>
                     <ContentInput
                       ref={contentInputRef}
@@ -414,14 +436,12 @@ export function AddNoteSheet({
 
               {keyboardVisible && (
                 <YStack 
-                  paddingHorizontal="$2"
+                  paddingHorizontal="$0"
                   paddingVertical="$1.5"
-                  borderTopWidth={1}
-                  borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}
                   alignSelf="center"
                   justifyContent="space-between"
                   alignItems="center"
-                  style={{ marginBottom: isIpad() ? keyboardHeight - 85 : keyboardHeight - 70, width: '100%'}}
+                  style={{ marginBottom: isIpad() ? keyboardHeight - 90 : keyboardHeight - 110, width: '100%'}}
                 >
                   <FormattingToolbar
                     onBold={handleBold}
@@ -431,6 +451,7 @@ export function AddNoteSheet({
                     onCode={handleCode}
                     onCheckbox={handleCheckbox}
                     onAttachImage={handleImagePick}
+                    onCloseKeyboard={handleCloseKeyboard}
                   />
                 </YStack>
               )}

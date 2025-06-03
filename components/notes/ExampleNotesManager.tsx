@@ -16,10 +16,12 @@ export const useExampleNotes = () => {
 export const getExampleNoteTitle = (index: number): string => {
   const titles = [
     "Simple Note",
+    "Todo List", 
     "Markdown",
+    "Meeting Notes",
     "Multi-Image",
     "Single Image"
   ];
   
-  return titles[index];
+  return titles[index] || `Note ${index + 1}`;
 }; 

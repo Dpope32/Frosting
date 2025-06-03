@@ -63,14 +63,18 @@ export const NoteCard = ({
 
   const hasMarkdown = useMemo(() => {
     if (!note.content) return false;
-    return Boolean(
-      note.content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- |\n- |```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[-*] |\n[-*] /)
+    const result = Boolean(
+      note.content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- (?!\[)|^- \[[xX ]\]|\n- (?!\[)|\n- \[[xX ]\]|```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[\*] |^[\*] (?!\[)|\n[\*] |\n[\*] (?!\[)/m)
     );
+    console.log('hasMarkdown check - content:', note.content, 'result:', result);
+    return result;
   }, [note.content]);
 
   const displayContent = useMemo(() => {
     if (!note.content) return '';
-    return note.content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+    const result = note.content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+    console.log('displayContent - original:', note.content, 'processed:', result);
+    return result;
   }, [note.content]);
 
   const handlePress = () => {
@@ -111,7 +115,9 @@ export const NoteCard = ({
                   return [child, checkboxMatch[1], labelMatch ? labelMatch[2] : ''];
                 }
               }
-              if (match) return match;
+              if (match) {
+                return match;
+              }
             } else if (Array.isArray(child)) {
               const match = findCheckboxString(child);
               if (match) return match;
@@ -126,6 +132,7 @@ export const NoteCard = ({
         };
 
         const match: RegExpMatchArray | null = findCheckboxString(children);
+        
         if (match) {
           const checked = match[1].toLowerCase() === 'x';
           const label = match[2] || '';
@@ -224,12 +231,15 @@ export const NoteCard = ({
           }
         }
 
+        // Regular bullet - use minimal wrapper that doesn't interfere with touch
         return (
           <View
             key={node.key || node.index || Math.random().toString()}
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={{ flexDirection: 'row', alignItems: 'flex-start' }}
+            pointerEvents="box-none"
           >
-            {children}
+            <Text style={{ marginRight: 8, fontSize: 16, color: colors.text, lineHeight: 20 }}>•</Text>
+            <View style={{ flex: 1 }} pointerEvents="box-none">{children}</View>
           </View>
         );
       };
@@ -254,15 +264,18 @@ export const NoteCard = ({
         maxWidth={isWeb ? 600 : undefined}
       >
         <LinearGradient
-          colors={isDark ? ['rgb(7, 7, 7)', 'rgb(15, 15, 15)', 'rgb(20, 19, 19)', 'rgb(25, 25, 25)'] : ['rgba(255, 255, 255, 0.7)', 'rgba(238, 238, 238, 0.7)']}
-          start={{ x: 0, y: 0.5 }}
+          colors={isDark ? 
+            ['#171c22', '#1a1f25', '#1d2228', '#20252c'] : 
+            ['#f6f8f5', '#f1f4ef', '#ecefea', '#e7eae5']}
+          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
             position: 'absolute',
             top: 0, left: 0, right: 0, bottom: 0,
             borderRadius: 9,
-            borderWidth: isDark ? 2 : 1,
-            borderColor: isDark ? '#0a0a0a' : '#9c9c9c',
+            borderWidth: 1,
+            borderColor: isDark ? '#282e36' : '#dde3d8',
+            opacity: 0.98,
           }}
         />
         <YStack gap="$0">
@@ -335,14 +348,14 @@ export const NoteCard = ({
               style={{ width: '100%' }}
             >
               <XStack
-                flexWrap="wrap"
+                flexWrap="nowrap"
                 paddingHorizontal={horizontalPadding}
                 paddingBottom="$2"
                 gap="$2"
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
+                <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
                   {note.tags?.map((tag) => (
                     <TagChip key={tag.id} tag={tag} />
                   ))}
@@ -370,8 +383,8 @@ export const NoteCard = ({
                   <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2">
                     <Markdown 
                       key={`${note.id}-${checkboxUpdateKey}`}
-                      style={markdownStyles} 
-                      rules={checkboxRule}
+                      style={markdownStyles}
+                      rules={/- \[[ xX]\]/.test(displayContent) ? checkboxRule : undefined}
                     >
                       {displayContent || ''}
                     </Markdown>
@@ -431,7 +444,7 @@ export const NoteCard = ({
                   style={{ width: '100%' }}
                 >
                   <XStack
-                    flexWrap="wrap"
+                    flexWrap="nowrap"
                     paddingHorizontal={horizontalPadding}
                     paddingTop="$1"
                     paddingBottom="$2"
@@ -439,7 +452,7 @@ export const NoteCard = ({
                     justifyContent="space-between"
                     alignItems="center"
                   >
-                    <XStack flexWrap="wrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
+                    <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
                       {note.tags?.map((tag) => (
                         <TagChip key={tag.id} tag={tag} />
                       ))}
