@@ -2,13 +2,20 @@ import { Dimensions, Platform } from 'react-native';
 import { isWeb } from 'tamagui';
 
 export const isIpad = () => {
-    const { width, height } = Dimensions.get('window');
-    return (
-      Platform.OS === 'ios' &&
-      Math.min(width, height) >= 768 &&
-      Math.max(width, height) >= 1024
-    );
-  };
+  const { width, height } = Dimensions.get('window');
+  
+  // First check - traditional iPad detection
+  const traditionalCheck = Platform.OS === 'ios' &&
+    Math.min(width, height) >= 768 &&
+    Math.max(width, height) >= 1024;
+  
+  // Second check - iPad identifier in user agent if available (for iPadOS running as mobile)
+  const userAgentCheck = Platform.OS === 'ios' && 
+    Platform.isPad;
+  
+  return traditionalCheck || userAgentCheck;
+
+};
 
 export const isMobileBrowser = isWeb && typeof window !== 'undefined' && 
 (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));

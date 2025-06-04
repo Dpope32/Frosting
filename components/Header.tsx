@@ -314,6 +314,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                   numberOfLines={1}
                   fontWeight= 'bold'
                   fontFamily="$heading"
+                  paddingBottom={isIpad() ? 12 : 0}
                 >
                   {!isHome ? title : isWeb ? '' : isIpad() ? '' : title}
                 </Text>
