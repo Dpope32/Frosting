@@ -26,7 +26,7 @@ export function BaseCardModal({
   title,
   children,
   footer,
-  snapPoints = isWeb ? [95] : [82],
+  snapPoints = isWeb ? [95] : [85],
   position = 0,
   dismissOnSnapToBottom = true,
   zIndex = 100000,

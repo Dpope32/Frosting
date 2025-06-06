@@ -22,7 +22,7 @@ interface BaseCardAnimatedProps {
   visible?: boolean
 }
 
-export function BaseCardAnimatedWS({
+export function DailyQuoteBCA({
   title,
   children,
   onClose, 
@@ -36,8 +36,8 @@ export function BaseCardAnimatedWS({
   const insets = useSafeAreaInsets()
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
   const actualWidth = Math.min(
-    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.85,
-    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.88
+    typeof modalWidth === 'number' ? modalWidth : screenWidth * 0.88,
+    typeof modalMaxWidth === 'number' ? modalMaxWidth : screenWidth * 0.92
   )
 
   if (!visible) return null;
@@ -73,16 +73,16 @@ export function BaseCardAnimatedWS({
               <Animated.View
                 entering={ZoomIn.duration(300).springify()}
                 exiting={FadeOut.duration(300)} 
-                                  style={[
-                    styles.modalContainer,
-                    {
-                      backgroundColor: isDark ? '#222' : '#fff',
-                      marginTop: insets.top + 20, 
-                      marginBottom: insets.bottom + 40,
-                      width: actualWidth,
-                      maxHeight: screenHeight * 0.9,
-                    }
-                  ]}
+                style={[
+                  styles.modalContainer,
+                  {
+                    backgroundColor: isDark ? '#222' : '#fff',
+                    marginTop: insets.top + 20, 
+                    marginBottom: insets.bottom + 40,
+                    width: actualWidth,
+                    maxHeight: screenHeight * 0.9,
+                  }
+                ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
                 <XStack justifyContent="space-between" py="$2" marginTop={isIpad() ? -8 : -8} marginBottom={isIpad() ? 8 : 8} px="$2" alignItems="center">
@@ -130,24 +130,25 @@ export function BaseCardAnimatedWS({
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingBottom: screenHeight * 0.1,
+            paddingBottom: screenHeight * 0.15,
           }}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
             <Animated.View
               entering={ZoomIn.duration(300).springify()}
               exiting={FadeOut.duration(300)} 
-                              style={[
-                  styles.modalContainer,
-                  {
-                    backgroundColor: isDark ? '#141415' : '#fff',
-                    marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom + 20,
-                    width: actualWidth,
-                    maxHeight: screenHeight,
-                    minHeight: 180,
-                  }
-                ]}
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: isDark ? '#141415' : '#fff',
+                  marginTop: insets.top + 20, 
+                  marginBottom: insets.bottom + 20,
+                  width: actualWidth,
+                  maxHeight: screenHeight,
+                  borderColor: isDark ? '#3c3c3c' : '#1c1c1c',
+                  borderWidth: 1,
+                }
+              ]}
               onTouchEnd={(e) => e.stopPropagation()}
             >
               <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={2} pl={isIpad() ? "$2" : "$3"} pr={isIpad() ? "$2" : "$2"} alignItems="center">
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 16 : 12,
+    paddingBottom: isWeb? 50 : 24,
     zIndex: 1,
   },
 })

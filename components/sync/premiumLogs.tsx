@@ -251,7 +251,7 @@ export const PremiumLogs = ({
                 const { useProjectStore: useTaskStore } = require('@/store/ToDo');
                 useTaskStore.getState().debugSyncState();
               }}
-              style={{ paddingHorizontal: 8, paddingVertical: 6, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)",  width: 80, alignItems: 'center', justifyContent: 'center' }}
+              style={{ paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)",  width: 80, alignItems: 'center', justifyContent: 'center' }}
             >
               <Text fontFamily="$body"  fontSize={wideMode ? 15 : 14} color={colors.text}>Debug</Text>
             </TouchableOpacity>

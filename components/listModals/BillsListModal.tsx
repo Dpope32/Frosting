@@ -110,7 +110,7 @@ export function BillsListModal({ open, onOpenChange, onEditBill }: BillsListModa
       >
         <>
         {bills && bills.length > 0 ? (
-          <YStack gap={Platform.OS === 'web' ? '$0' : '$3'} mt="$2"> 
+          <YStack gap={Platform.OS === 'web' ? '$0' : '$1'} mt="$2"> 
             {bills.sort((a, b) => a.dueDate - b.dueDate).map((bill) => {
               const iconData = getIconForBill(bill.name);
               const IconComponent = iconData.icon;
@@ -124,7 +124,7 @@ export function BillsListModal({ open, onOpenChange, onEditBill }: BillsListModa
                   key={bill.id}
                   backgroundColor={isDark ? "$gray2" : "$gray3"}
                   br={8}
-                  padding="$3"
+                  padding="$2"
                   alignItems="center"
                   justifyContent="space-between"
                   marginBottom={8}

@@ -156,18 +156,34 @@ export const TaskCard = React.memo<TaskCardProps>(({
   }, [onDelete, showToast, title]);
 
   const handleCheck = React.useCallback(() => {
+    const startTime = performance.now();
+    console.log('[TaskCard.handleCheck] START - Task:', title.slice(0, 20), 'at', startTime);
+    
+    // ⚡ INSTANT FEEDBACK FIRST - Don't wait for store update
+    const hapticStart = performance.now();
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
+    console.log('[TaskCard.haptics] Duration:', (performance.now() - hapticStart).toFixed(2), 'ms');
+    
     const newValue = !checked;
-    onCheck?.(newValue);
+    
+    const toastStart = performance.now();
     if (newValue) {
       const msg = variants[Math.floor(Math.random() * variants.length)];
       showToast(msg, 'success');
     } else {
       showToast("Undo successful", 'success');
     }
-  }, [checked, onCheck, showToast]);
+    console.log('[TaskCard.toast] Duration:', (performance.now() - toastStart).toFixed(2), 'ms');
+    
+    // Store update happens AFTER instant feedback
+    const storeStart = performance.now();
+    onCheck?.(newValue);
+    console.log('[TaskCard.storeUpdate] Duration:', (performance.now() - storeStart).toFixed(2), 'ms');
+    
+    console.log('[TaskCard.handleCheck] TOTAL Duration:', (performance.now() - startTime).toFixed(2), 'ms');
+  }, [checked, onCheck, showToast, title]);
   
   return (
     <LongPressDelete 

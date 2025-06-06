@@ -247,7 +247,7 @@ export default function VaultScreen() {
               </YStack>
             </XStack>
           ) : (
-            <YStack gap={isWeb ? "$4" : "$2.5"} width="100%">
+            <YStack gap={isWeb ? "$4" : "$2.5"} width="100%" paddingHorizontal={isWeb ? 0 : 16}>
               {data?.items.map((cred: VaultEntry) => (
                 <VaultCard
                   key={cred.id}

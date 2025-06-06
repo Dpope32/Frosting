@@ -90,6 +90,17 @@ export function YearCompleteSection() {
           ) : null}
         </Stack>
       </Stack>
+      {[25, 50, 75, 100].includes(percentage) && (
+        <Text
+          fontSize={12}
+          color={isDark ? '#dbd0c6' : '#555'}
+          mt="$2"
+        >
+          {percentage === 100
+            ? `🎉 Happy New Year! ${currentYear} completed!`
+            : `🎉 ${percentage}% of ${currentYear} done! 🎉`}
+        </Text>
+      )}
     </YStack>
   );
 }

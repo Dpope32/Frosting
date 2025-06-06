@@ -8,6 +8,7 @@ import { getOrdinalSuffix, useUserStore } from '@/store'
 import { useAutoFocus } from '@/hooks'
 import { Bill } from '@/types'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
+import { TaskToggle } from '@/components/shared/TaskToggle'
 
 interface EditBillModalProps {
   isVisible: boolean
@@ -43,6 +44,11 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
 
   useEffect(() => {
     if (isVisible && bill) {
+      console.log('🔍 EditBillModal: Setting up bill data', { 
+        billName: bill.name, 
+        billCreateTask: bill.createTask,
+        hasCreateTaskProperty: 'createTask' in bill 
+      });
       setName(bill.name)
       setAmount(bill.amount)
       setAmountInputValue(bill.amount.toString())
@@ -51,51 +57,40 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
       setDueDate(d)
       setSliderValue(bill.amount)
       setShowDatePicker(false)
-      setCreateTask(bill.createTask ?? false)
+      // Default to true if createTask is undefined (for older bills without this property)
+      const shouldCreateTask = bill.createTask ?? true;
+      console.log('🔍 EditBillModal: Setting createTask to', shouldCreateTask);
+      setCreateTask(shouldCreateTask)
     }
   }, [isVisible, bill])
 
   const handleSubmit = async () => {
-    console.log('🚀 EditBillModal handleSubmit called');
-    console.log('📋 Current state:', { bill, name, amount, dueDate: dueDate.getDate(), createTask });
-    console.log('✅ Validation check:', { 
-      hasBill: !!bill, 
-      hasName: !!name, 
-      hasValidAmount: amount > 0, 
-      hasDueDate: !!dueDate 
-    });
-    
     if (bill && name && amount > 0 && dueDate) {
-      console.log('✅ Validation passed, calling onSubmit with:', {
+      const submitData = {
         id: bill.id,
         name,
         amount,
         dueDate: dueDate.getDate(),
         createTask
-      });
+      };
       
       setIsUpdating(true);
       
       try {
-        await onSubmit({
-          id: bill.id,
-          name,
-          amount,
-          dueDate: dueDate.getDate(),
-          createTask
-        });
-        console.log('✅ onSubmit completed successfully');
+        await onSubmit(submitData);
+        // Only close the modal if the update was successful
+        // The onSuccess callback in handleUpdateBill will handle closing the modal
       } catch (error) {
-        console.error('❌ onSubmit failed:', error);
+        console.error('Failed to update bill:', error);
+        // Close modal on error as well
+        onClose();
       } finally {
         setIsUpdating(false);
       }
     } else {
-      console.log('❌ Validation failed, not calling onSubmit');
+      console.log('Validation failed, not calling onSubmit');
+      onClose();
     }
-    
-    console.log('🔚 Calling onClose...');
-    onClose()
   }
 
 
@@ -118,72 +113,7 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
     )
   }
 
-  const TaskToggle = () => (
-    <Animated.View entering={FadeInDown.delay(400).duration(500)}>
-      <XStack 
-        backgroundColor="$backgroundHover" 
-        borderColor="$borderColor" 
-        borderWidth={1} 
-        br={8} 
-        padding="$3" 
-        alignItems="center" 
-        justifyContent="space-between"
-        marginTop="$2"
-      >
-        <YStack flex={1} marginRight="$3">
-          <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$5" : "$4"} fontWeight="500">
-            Create Tasks
-          </Text>
-          <Text fontFamily="$body" color="$color" fontSize="$3" opacity={0.7} marginTop="$1">
-            {createTask 
-              ? "This bill will appear in your task list each month"
-              : "This bill will only display in your calendar, not as a task on the home screen"
-            }
-          </Text>
-          {bill?.createTask && !createTask && (
-            <Text fontFamily="$body" color="$red10" fontSize="$2" marginTop="$1" fontWeight="500">
-              ⚠️ Turning this off will remove existing tasks for this bill
-            </Text>
-          )}
-          {!bill?.createTask && createTask && (
-            <Text fontFamily="$body" color="$green10" fontSize="$2" marginTop="$1" fontWeight="500">
-              ✅ This will create monthly tasks for this bill
-            </Text>
-          )}
-        </YStack>
-        <TouchableOpacity
-          onPress={() => setCreateTask(!createTask)}
-          style={{
-            paddingHorizontal: 8,
-            paddingVertical: 8,
-            alignSelf: 'flex-start',
-          }}
-          hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
-          accessibilityRole="button"
-          accessibilityLabel={createTask ? "Disable task creation" : "Enable task creation"}
-        >
-          <View style={{
-            width: 20,
-            height: 20,
-            borderWidth: 1.5,
-            borderRadius: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderColor: createTask ? '#00C851' : 'rgb(52, 54, 55)',
-            backgroundColor: createTask ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
-          }}>
-            {createTask && (
-              <Ionicons 
-                name="checkmark-sharp" 
-                size={13} 
-                color="#00C851"
-              />
-            )}
-          </View>
-        </TouchableOpacity>
-      </XStack>
-    </Animated.View>
-  )
+
 
   return (
     <>
@@ -256,7 +186,13 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
                 {showDatePicker && <DatePicker />}
               </YStack>
             </Animated.View>
-            <TaskToggle />
+            <TaskToggle 
+              createTask={createTask}
+              onToggle={setCreateTask}
+              billName="bill"
+              isEdit={true}
+              hasExistingTask={bill?.createTask ?? false}
+            />
           </YStack>
         </View>
       </Animated.View>

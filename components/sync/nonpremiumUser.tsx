@@ -56,7 +56,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
         style={[
           styles.heroCard,
           {
-            backgroundColor: isWeb ? 'rgba(255, 255, 255, 0.75)' : 'rgba(86, 50, 18, 0.13)',
+            backgroundColor: isWeb ? 'rgba(255, 255, 255, 0.75)' : 'rgba(58, 86, 18, 0.13)',
             borderColor: colors.accent + '22',
             shadowColor: colors.accent + '33',
           },
@@ -95,57 +95,24 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
           marginBottom={baseSpacing}
           style={styles.heading}
         >
-          Unlock Cloud Sync
+          Premium
         </Text>
         <Text 
-          fontSize={isLarge ? 16 : 15} 
+          fontSize={isLarge ? 14 : 13} 
           color={colors.subtext} 
           fontFamily="$body"
           textAlign="center"
           marginBottom={baseSpacing / 2}
           lineHeight={isLarge ? 24 : 22}
         >
-          Effortlessly sync your data across all your devices{'\n'}with secure, premium cloud access.
+          Ready to sync your data across all your devices?
         </Text>
-        <YStack alignItems="center" marginBottom={baseSpacing * 2}>
-          <XStack alignItems="center" gap={baseSpacing / 2}>
-            <Text 
-              fontSize={isLarge ? 18 : 16} 
-              fontWeight="700" 
-              color={colors.accent} 
-              fontFamily="$body"
-            >
-              $4/month
-            </Text>
+        <XStack>
+          <Text fontSize={12} color={colors.subtext2} fontFamily="$body">
+            All data is encrypted and decrypted on your device! When syncing, multiple devices share the same key.
+          </Text>
           </XStack>
-          <XStack alignItems="center" gap={baseSpacing / 2} marginTop={4}>
-            <Text 
-              fontSize={isLarge ? 13 : 12} 
-              color={colors.subtext} 
-              fontFamily="$body"
-              fontWeight="600"
-            >
-              or
-            </Text>
-            <Text 
-              fontSize={isLarge ? 16 : 15} 
-              color={colors.accent} 
-              fontFamily="$body"
-              fontWeight="700"
-              marginLeft={4}
-            >
-              $25/year
-            </Text>
-            <Text 
-              fontSize={isLarge ? 12 : 11} 
-              color={colors.subtext} 
-              fontFamily="$body"
-              marginLeft={2}
-            >
-              (save 48%)
-            </Text>
-          </XStack>
-        </YStack>
+        <YStack alignItems="flex-start" marginVertical={baseSpacing * 2}>
         <TouchableOpacity
           onPress={handleButtonPress}
           style={styles.ctaButton}
@@ -172,6 +139,36 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp }: NonPremiumUse
             </XStack>
           </LinearGradient>
         </TouchableOpacity>
+        <XStack alignItems="center" marginTop={baseSpacing * 2} >
+          </XStack>
+          <XStack paddingHorizontal={baseSpacing} alignItems="center" gap={baseSpacing / 2} marginTop={2}>
+          <Text 
+              fontSize={isLarge ? 12 : 11} 
+              fontWeight="700" 
+              color={colors.accent} 
+              fontFamily="$body"
+            >
+              ONLY $4/month
+            </Text>
+            <Text 
+              fontSize={isLarge ? 11 : 10} 
+              color={colors.subtext} 
+              fontFamily="$body"
+              fontWeight="600"
+            >
+              or
+            </Text>
+            <Text  
+              fontSize={isLarge ? 11 : 10} 
+              color={colors.accent} 
+              fontFamily="$body"
+              fontWeight="700"
+              marginLeft={4}
+            >
+              $25/year
+            </Text>
+          </XStack>
+        </YStack>
         <XStack 
           alignItems="center" 
           justifyContent="center" 
@@ -208,7 +205,7 @@ const styles = StyleSheet.create({
     paddingVertical: isWeb ? baseSpacing * 5 : isIpad() ? baseSpacing * 4.5 : baseSpacing * 4,
     paddingHorizontal: isWeb ? baseSpacing * 4 : isIpad() ? baseSpacing * 3.5 : baseSpacing * 3,
     borderWidth: 1.5,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     minHeight: isWeb ? 700 : isIpad() ? 600 : 400,
     justifyContent: 'center',

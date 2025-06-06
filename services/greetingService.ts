@@ -37,7 +37,7 @@ const getRandomEmoji = (): string => {
   return emojis[Math.floor(Math.random() * emojis.length)];
 };
 
-export const getGreeting = (username: string, temp?: number, showUsername: boolean = true): string => {
+export const getGreeting = (username: string, temp?: number, showUsername: boolean = true, projectCount?: number, habitCount?: number): string => {
   const nowMs = Date.now();
 
   // --- Cooldown Check ---
@@ -182,8 +182,28 @@ export const getGreeting = (username: string, temp?: number, showUsername: boole
     temp >= 60 && temp < 70 ? `Nice and pleasant outside innit?` : null,
   ].filter(Boolean) as string[] : [];
 
+  // Dynamic greetings based on project and habit counts
+  const projectGreetings = projectCount !== undefined
+    ? [
+        `You've got ${projectCount} project${projectCount === 1 ? '' : 's'} in your board, ${username}!`,
+        projectCount > 0
+          ? `Time to tackle your ${projectCount} project${projectCount === 1 ? '' : 's'}, ${username}.`
+          : `No projects pending, great job, ${username}!`,
+      ]
+    : [];
+  const habitGreetings = habitCount !== undefined
+    ? [
+        `You have ${habitCount} habit${habitCount === 1 ? '' : 's'} today, ${username}!`,
+        habitCount > 0
+          ? `Keep up your ${habitCount} habit${habitCount === 1 ? '' : 's'}, ${username}.`
+          : `No habits for today, take a break, ${username}!`,
+      ]
+    : [];
+  const dynamicGreetings = [...projectGreetings, ...habitGreetings];
+
   // --- Changeup Greetings (expanded and more varied) ---
   const changeupGreetings = [
+    ...dynamicGreetings,
     ...tempGreetings,
     `${username}. ${username}, ${username}`,
     `${username} returns!`,
@@ -236,7 +256,7 @@ export const getGreeting = (username: string, temp?: number, showUsername: boole
     showUsername ? `Greetings, ${username}` : 'Greetings',
     `Hope you're having a great ${dayOfWeek}`,
     `How's your ${dayOfWeek} going`,
-    `Let's make the most of ${dayOfWeek}`,
+    `Let's make the most of ${dayOfWeek}!`,
     showUsername ? `Sending positive vibes, ${username}` : 'Sending positive vibes',
     showUsername ? `You got this, ${username}` : 'You got this',
     showUsername ? `Keep crushing it, ${username}` : 'Keep crushing it',

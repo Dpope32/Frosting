@@ -503,7 +503,7 @@ const localStyles = StyleSheet.create({
   touchableContainer: {
     width: Platform.OS === 'web' ? '100%' : '100%',
     paddingVertical: Platform.OS === 'web' ? 0 : 8,
-    paddingHorizontal: Platform.OS === 'web' ? 2 : 4,
+    paddingHorizontal: Platform.OS === 'web' ? 2 : 12,
     flexShrink: 1,
     alignSelf: 'flex-start',
     height: 'auto',

@@ -6,13 +6,9 @@ import { useUserStore } from '@/store';
 import { addSyncLog } from '@/components/sync/syncUtils';
 
 interface SnapshotSizeData {
-  bytes: number;
-  kb: number;
   mb: number;
   gb: number;
   formatted: {
-    bytes: string;
-    kb: string;
     mb: string;
     gb: string;
     auto: string; // Best unit automatically chosen
@@ -33,7 +29,6 @@ const calculateSizeFromBase64 = (base64String: string): number => {
 };
 
 const formatSizeData = (bytes: number): SnapshotSizeData => {
-  const kb = bytes / 1024;
   const mb = bytes / (1024 * 1024);
   const gb = bytes / (1024 * 1024 * 1024);
   
@@ -47,20 +42,14 @@ const formatSizeData = (bytes: number): SnapshotSizeData => {
     autoFormatted = `${gb.toFixed(2)} GB`;
   } else if (mb >= 1) {
     autoFormatted = `${mb.toFixed(2)} MB`;
-  } else if (kb >= 1) {
-    autoFormatted = `${kb.toFixed(2)} KB`;
   } else {
     autoFormatted = `${bytes} bytes`;
   }
 
   return {
-    bytes,
-    kb: Math.round(kb * 100) / 100,
     mb: Math.round(mb * 100) / 100,
     gb: Math.round(gb * 10000) / 10000,
     formatted: {
-      bytes: `${bytes.toLocaleString()} bytes`,
-      kb: `${(Math.round(kb * 100) / 100).toLocaleString()} KB`,
       mb: `${(Math.round(mb * 100) / 100).toLocaleString()} MB`,
       gb: `${(Math.round(gb * 10000) / 10000).toLocaleString()} GB`,
       auto: autoFormatted,

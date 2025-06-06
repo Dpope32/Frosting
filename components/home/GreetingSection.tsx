@@ -3,6 +3,8 @@ import { XStack, Text, isWeb } from 'tamagui'
 import { getGreeting } from '@/services'
 import { useColorScheme } from 'react-native'
 import { useWeatherStore } from '@/store'
+import { useProjectStore } from '@/store/ProjectStore'
+import { useHabitStore } from '@/store/HabitStore'
 import { isIpad } from '@/utils'
 import { Platform } from 'react-native'
 
@@ -12,7 +14,9 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
   const colorScheme = useColorScheme()
   const currentTemp = useWeatherStore(s => s.currentTemp)
   const showUsername = Platform.OS === 'web' || isIpad();
-  const fullGreeting = getGreeting(username, currentTemp ?? undefined, showUsername)
+  const projectCount = useProjectStore(s => s.projects.length)
+  const habitCount = useHabitStore(s => Object.keys(s.habits).length)
+  const fullGreeting = getGreeting(username, currentTemp ?? undefined, showUsername, projectCount, habitCount)
 
   return (
     <XStack 

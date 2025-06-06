@@ -89,6 +89,9 @@ export const TaskSection = React.memo<TaskSectionProps>(({
 //  }, [todaysTasks, todayLocalStr]);
 
   const handleToggleTask = React.useCallback((id: string) => {
+    const startTime = performance.now();
+    console.log('[TaskSection.handleToggleTask] START - Task ID:', id.slice(-6), 'at', startTime);
+    
     if (DEBUG) {
       const task = todaysTasks.find(t => t.id === id);
       if (task) {
@@ -98,7 +101,12 @@ export const TaskSection = React.memo<TaskSectionProps>(({
         log(`Task ${id} not found in todaysTasks!`);
       }
     }
+    
+    const storeCallStart = performance.now();
     toggleTaskCompletion(id);
+    console.log('[TaskSection.storeCall] Duration:', (performance.now() - storeCallStart).toFixed(2), 'ms');
+    
+    console.log('[TaskSection.handleToggleTask] TOTAL Duration:', (performance.now() - startTime).toFixed(2), 'ms');
   }, [toggleTaskCompletion, todaysTasks, todayLocalStr]);
 
   const handleDeleteTask = React.useCallback((id: string) => {

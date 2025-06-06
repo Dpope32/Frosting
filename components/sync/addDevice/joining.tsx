@@ -22,7 +22,7 @@ export function Joining({
   isDark,
 }: JoiningProps) {
   return (
-    <YStack gap={baseSpacing * 4} padding={baseSpacing} alignItems="center" justifyContent="center">
+    <YStack gap={baseSpacing *2} paddingBottom={baseSpacing * 2} alignItems="center" justifyContent="center">
       <TextInput
         style={{
           backgroundColor: colors.card,
@@ -42,9 +42,11 @@ export function Joining({
       />
       <Button
         onPress={connectToWorkspace}
-        backgroundColor={colors.accent}
+        backgroundColor={colors.accentBg}
         width={isWeb ? 400 : isIpad() ? 300 : 250}
-        height={44}
+        borderColor={colors.border}
+        borderWidth={2}
+        height={40}
         pressStyle={{ scale: 0.97 }}
         animation="quick"
         style={{ borderRadius: buttonRadius }}
@@ -53,7 +55,7 @@ export function Joining({
         {isLoading ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text color={isDark ? "#3a3a3a" : "#fff"} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
+          <Text color={colors.text} fontFamily="$body" fontSize={fontSizes.md} fontWeight="600">
             Join Workspace
           </Text>
         )}

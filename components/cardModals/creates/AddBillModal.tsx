@@ -7,11 +7,12 @@ import { Ionicons } from '@expo/vector-icons'
 import { useColorScheme } from 'react-native'
 import { BaseCardAnimated } from '@/components/baseModals/BaseCardAnimated'
 import { useAutoFocus } from '@/hooks'
+import { TaskToggle } from '@/components/shared/TaskToggle'
 
 interface AddBillModalProps {
   isVisible: boolean
   onClose: () => void
-  onSubmit: (entry: { name: string; amount: number; dueDate: number }) => void
+  onSubmit: (entry: { name: string; amount: number; dueDate: number; createTask?: boolean }) => void
 }
 
 export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps) {
@@ -20,6 +21,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
   const [amountInputValue, setAmountInputValue] = useState('')
   const [dueDate, setDueDate] = useState(new Date())
   const [showDatePicker, setShowDatePicker] = useState(isWeb)
+  const [createTask, setCreateTask] = useState(true) // Default to true for new bills
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -34,6 +36,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       setAmount(0)
       setAmountInputValue('')
       setDueDate(new Date())
+      setCreateTask(true) // Reset to default true for new bills
     }
   }, [isVisible])
 
@@ -43,12 +46,14 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
       onSubmit({
         name,
         amount,
-        dueDate: dueDate.getDate() // Get the day of the month (1-31)
+        dueDate: dueDate.getDate(), // Get the day of the month (1-31)
+        createTask
       })
       setName('')
       setAmount(0)
       setAmountInputValue('')
       setDueDate(new Date())
+      setCreateTask(true) // Reset to default
     }
     onClose()
   }
@@ -112,6 +117,8 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
     );
   };
 
+
+
   return (
     <BaseCardAnimated
       onClose={onClose}
@@ -128,9 +135,9 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
           paddingHorizontal={ isWeb ? "$4" : "$3"}
           paddingVertical={ isWeb ? "$4" : "$1"}
         >
-          <YStack gap="$4">
+          <YStack gap="$2">
             <Animated.View entering={FadeInDown.delay(100).duration(500)}>
-              <XStack gap="$4" alignItems="center">
+              <XStack gap="$2" alignItems="center">
                 <Input
                   ref={nameInputRef}
                   placeholder="Bill Name"
@@ -154,7 +161,7 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(200).duration(500)}>
-              <XStack gap="$5" alignItems="flex-start" justifyContent="flex-start"  paddingHorizontal="$1">
+              <XStack gap="$5" alignItems="flex-start" justifyContent="flex-start">
                 <XStack alignItems="flex-start" width="40%">
                   <Input
                     ref={amountInputRef}
@@ -265,8 +272,15 @@ export function AddBillModal({ isVisible, onClose, onSubmit }: AddBillModalProps
                 )}
               </YStack>
             </Animated.View>
+
+            <TaskToggle 
+              createTask={createTask}
+              onToggle={setCreateTask}
+              billName="bill"
+              isEdit={false}
+            />
             
-            <Animated.View entering={FadeInDown.delay(400).duration(500)}>
+            <Animated.View entering={FadeInDown.delay(500).duration(500)}>
               <XStack gap="$3" justifyContent="space-between" marginTop="$2">
                 <Button
                   onPress={onClose}

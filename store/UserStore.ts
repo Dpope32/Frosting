@@ -20,6 +20,7 @@ export const defaultPreferences: UserPreferences = {
   hasCompletedOnboarding: false,
   notificationsEnabled: true,
   quoteEnabled: true,
+  showQuoteOnHome: false,
   portfolioEnabled: true,
   temperatureEnabled: true,
   wifiEnabled: true,

@@ -1,9 +1,8 @@
 // components/home/InitialSyncIndicator.tsx
 
 import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { Platform, Animated, View } from 'react-native';
-import { YStack, XStack, Text, Stack, isWeb } from 'tamagui';
-import { MaterialIcons } from '@expo/vector-icons';
+import { Platform, Animated, View, Modal } from 'react-native';
+import { YStack, XStack, Text, Stack, isWeb, Spinner } from 'tamagui';
 import { useUserStore, useRegistryStore } from '@/store';
 import { isIpad } from '@/utils';
 
@@ -34,7 +33,6 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
   const isInitialSyncInProgress = useRegistryStore(s => s.isInitialSyncInProgress);
   const primaryColor = useUserStore(s => s.preferences?.primaryColor) || '#007AFF';
   
-  const rotateAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [dots, setDots] = useState('');
   const isComponentMounted = useRef(true); // For interval cleanup
@@ -52,26 +50,6 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
       isComponentMounted.current = false;
     };
   }, []);
-
-  // Rotation animation for sync icon
-  useEffect(() => {
-    if (!shouldShow) {
-      rotateAnim.stopAnimation();
-      rotateAnim.setValue(0); // Reset animation value
-      return;
-    }
-    const animation = Animated.loop(
-      Animated.timing(rotateAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      })
-    );
-    animation.start();
-    return () => {
-      animation.stop();
-    };
-  }, [rotateAnim, shouldShow]);
 
   // Fade in animation
   useEffect(() => {
@@ -107,11 +85,6 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
     return () => clearInterval(interval);
   }, [shouldShow]);
 
-  const rotation = useMemo(() => rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  }), [rotateAnim]);
-
   const animatedViewStyle = useMemo(() => ({
     opacity: fadeAnim,
     pointerEvents: shouldShow ? 'auto' : 'none' as 'auto' | 'none',
@@ -122,7 +95,7 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
     bottom: 0,
     justifyContent: 'center' as 'center',
     alignItems: 'center' as 'center',
-    zIndex: 10000,
+    zIndex: 99999,
   }), [fadeAnim, shouldShow]);
 
   // Early return if not showing - AFTER ALL HOOKS
@@ -133,35 +106,29 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
   const backgroundColor = isDark ? "rgba(14, 14, 15, 0.75)" : "rgba(0, 0, 0, 0.35)";
 
   const ContentComponent = () => {
-    const iconStyle = useMemo(() => ({
-      transform: [{ rotate: rotation }],
-    }), [rotation]);
-
     return (
       <XStack alignItems="center" justifyContent="center" gap="$3" paddingVertical="$2">
-        <Animated.View
-          style={iconStyle}
-        >
-          <MaterialIcons 
-            name="sync" 
-            size={isWeb ? 24 : isIpadDevice ? 22 : 20} 
-            color={primaryColor} 
-          />
-        </Animated.View>
+        <Spinner 
+          size="large" 
+          color={primaryColor}
+          opacity={0.9}
+        />
         
         <YStack alignItems="center" gap="$1">
           <Text 
-            color={isDark ? "white" : "black"} 
-            fontSize={isWeb ? 16 : isIpadDevice ? 15 : 14} 
-            fontWeight="600" 
             fontFamily="$body"
+            fontSize={isWeb ? 16 : 14}
+            fontWeight="600"
+            color="$color"
+            opacity={0.9}
           >
             Syncing with workspace{dots}
           </Text>
-          <Text 
-            color={isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.8)"} 
-            fontSize={isWeb ? 13 : isIpadDevice ? 12 : 11} 
+          <Text
             fontFamily="$body"
+            fontSize={isWeb ? 13 : 11}
+            color="$color"
+            opacity={0.7}
           >
             Pulling latest data from your devices
           </Text>
@@ -171,7 +138,8 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
   };
 
   return (
-    <Animated.View style={animatedViewStyle}>
+    <Modal visible={shouldShow} transparent animationType="none" statusBarTranslucent>
+      <Animated.View style={animatedViewStyle}>
       {Platform.OS === 'web' || !BlurView ? (
         <Stack
           position="absolute"
@@ -236,5 +204,6 @@ export function InitialSyncIndicator({ isDark }: InitialSyncIndicatorProps) {
         </BlurView>
       )}
     </Animated.View>
+    </Modal>
   );
 }

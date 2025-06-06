@@ -1,5 +1,24 @@
 export const CHANGELOG = [
   {
+    version: '1.1.283',
+    date: '2025-06-06',
+    notes: 'Huge Update (huge)',
+    bullets: [
+      'Added Clickable Checkboxes to Notes using Markdown',
+      'Implemented update operations for Bills to manage recurring tasks',
+      'Improved optiimistic updates for Checkboxes on home screen',
+      'Users can now display quotes on the home screen!',
+      ' Just open the Quote Modal and toggle the switch!',
+      'Fixed bug with habit cards rendering completed cells backwards',
+      'Added Skeleton Loaders to the Drawer Screens',
+      'Ironed out Sync Engine to be more reliable when offline',
+      'Added functionality to syncing to allow users to merge Portfolios!',
+      'Created new greetings to freshen up the app',
+      'Added messages under year complete section on milestone dates!',
+      'Optimized Stars Animation for Web and Native to give home screen a much smoother experience',
+    ],
+  },
+  {
     version: '1.1.241',
     date: '2025-05-22',
     notes: 'Finishing Touches',

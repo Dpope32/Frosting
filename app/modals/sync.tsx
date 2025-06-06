@@ -219,7 +219,7 @@ export default function SyncScreen() {
           <XStack alignItems="center" justifyContent="center" marginBottom={baseSpacing}>
             <NonPremiumUser
               colors={colors}
-              contentWidth={contentWidth}
+              contentWidth={width}
               onSignUp={handleSignUp}
             />
           </XStack>

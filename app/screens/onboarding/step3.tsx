@@ -445,12 +445,11 @@ useEffect(() => {
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$5">
         <YStack 
           position="absolute" 
-          top={isWeb ? "20%" : isIpad() ? "30%" : "25%"} 
+          top={isWeb ? "25%" : isIpad() ? "30%" : "32%"} 
           left={0} 
           right={0} 
           alignItems="center"
           py={isWeb ? "$4" : "$0"}
-          my={isWeb ? "$1" : 0}
         >
           <XStack alignItems="center" gap="$2" alignSelf="center" alignContent="center" justifyContent="center" >
           {formData.profilePicture && (
@@ -476,6 +475,7 @@ useEffect(() => {
           backgroundColor="$onboardingCardBackground" 
           br={24}
           borderColor={formData.primaryColor} 
+          marginBottom={-40}
           borderWidth={2}
           padding={isWeb ? "$3" : isIpad() ? "$2" : "$2"}
           maxWidth={isWeb ? 520 : isIpad() ? 520 : "100%"}
@@ -488,7 +488,8 @@ useEffect(() => {
             flexWrap="wrap" 
             justifyContent="center" 
             alignItems="center"
-            gap={isWeb ? "$3" : isIpad() ? "$3" : "$2"} 
+            rowGap={"$0"} 
+            columnGap={isWeb ? "$3" : isIpad() ? "$3" : "$2"} 
             padding={isWeb ? "$2" : isIpad() ? "$2" : "$0"}
           >
             {backgroundStyles.map((style) => {
@@ -497,7 +498,7 @@ useEffect(() => {
                 <Button
                   key={style.value}
                   px={isWeb ? "$4" : isIpad() ? "$5" : "$2"}
-                  py={isWeb ? "$3" : isIpad() ? "$2" : "$2"}
+                  py={isWeb ? "$2" : isIpad() ? "$2" : "$2"}
                   marginVertical="$3"
                   backgroundColor={
                     isSelected

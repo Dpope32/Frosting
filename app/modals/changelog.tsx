@@ -50,7 +50,7 @@ export default function ChangeLog() {
     <View style={[
       styles.container,
       {
-        paddingTop: (isIpad() ? 20 : insets.top - 14),
+        paddingTop: (isIpad() ? 20 : insets.top - 6),
         backgroundColor: isDark ? '#121212' : '#fff',
       },
     ]}>
@@ -60,7 +60,7 @@ export default function ChangeLog() {
           style={{
             position: 'absolute',
             left: isWeb ? 24 : 16,
-            top: isIpad() ? 12 : 10,
+            top: isIpad() ? 12 : 0,
             zIndex: 2,
             padding: 8,
           }}

@@ -10,7 +10,7 @@ type ChooseAddProps = {
 
 export function ChooseAdd({ colors, handleCreateWorkspace, handleJoinWorkspace }: ChooseAddProps) {
   return (
-    <YStack gap={baseSpacing * 2} paddingHorizontal={5} paddingVertical={10}>
+    <YStack gap={baseSpacing * 2} paddingHorizontal={5} paddingBottom={10}>
       <Text color={colors.subtext} fontFamily="$body" fontSize={fontSizes.md}>
         How would you like to sync your data?
       </Text>

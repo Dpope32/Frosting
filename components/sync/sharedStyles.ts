@@ -1,4 +1,4 @@
-export const baseSpacing = 8;
+export const baseSpacing = 6;
 export const fontSizes = {
   xs: 12,
   sm: 14,
@@ -18,6 +18,7 @@ export const getColors = (isDark: boolean, primaryColor: string) => ({
   border: isDark ? '#333' : '#E3E5E1',
   text: isDark ? '#fff' : '#181A20',
   subtext: isDark ? '#aaa' : '#666',
+  subtext2: isDark ? '#6f6f6f' : '#777',
   accent: isDark ? "rgb(0, 255, 255)" : primaryColor,
   accent2: isDark ? "rgb(0, 255, 255)" : primaryColor,
   accentBg: isDark ? `${primaryColor}33` : `${primaryColor}18`,

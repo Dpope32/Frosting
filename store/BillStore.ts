@@ -2,10 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
 import { Bill } from '@/types';
+import { format } from 'date-fns';
+import type { Task, WeekDay } from '@/types';
 
-export { getOrdinalSuffix };
+const getDayName = (date: Date): WeekDay => {
+  const days: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  return days[date.getDay()];
+};
 
-const getOrdinalSuffix = (day: number): string => {
+export const getOrdinalSuffix = (day: number): string => {
   if (day >= 11 && day <= 13) {
     return 'th';
   }
@@ -24,7 +29,7 @@ const getOrdinalSuffix = (day: number): string => {
 interface BillStore {
   bills: Record<string, Bill>;
   monthlyIncome: number;
-  lastIncomeUpdate: number; // ADD: Timestamp for conflict resolution
+  lastIncomeUpdate: number;
   isSyncEnabled: boolean;
   addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateBill: (id: string, updates: Partial<Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>>) => void;
@@ -44,17 +49,15 @@ export const useBillStore = create<BillStore>()(
     (set, get) => ({
       bills: {},
       monthlyIncome: 0,
-      lastIncomeUpdate: 0, // ADD: Initialize timestamp
+      lastIncomeUpdate: 0,
       isSyncEnabled: false,
 
       addBill: (billData) => {
         const id = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-        const dueDate = billData.dueDate;
         const newBill: Bill = {
           ...billData,
           id,
-          dueDate: dueDate,
-          name: billData.name,
+          createTask: billData.createTask ?? true,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -66,113 +69,167 @@ export const useBillStore = create<BillStore>()(
           },
         }));
 
+        // 🔍 DEBUG: Log what we're about to create
+        console.log('🔍 DEBUG addBill:', {
+          billName: billData.name,
+          dueDate: billData.dueDate,
+          createTask: billData.createTask,
+          shouldCreateTasks: billData.createTask,
+          tasksToCreateCount: billData.createTask ? 1 : 0,
+          todayDate: new Date().getDate(),
+          firstTaskDate: billData.createTask ? new Date(billData.dueDate).toISOString() : 'none'
+        });
+        
         return newBill;
       },
 
       updateBill: (id, updates) => {
-        console.log('🏪 BillStore.updateBill called with:', { id, updates });
-        set((state) => {
-          const existingBill = state.bills[id];
-          if (!existingBill) {
-            console.error(`❌ BillStore: Bill with id ${id} not found`);
-            return state;
-          }
+        console.log('🏪 BillStore.updateBill called with ID:', id, 'and UPDATES:', JSON.stringify(updates));
+        
+        // First, get the existing bill to check createTask change
+        const existingBill = get().bills[id];
+        if (!existingBill) {
+          console.error(`❌ BillStore: Bill with id ${id} not found`);
+          return;
+        }
 
-          console.log('📋 BillStore: Existing bill:', existingBill);
+        // Update the bill in store first
+        const updatedBill: Bill = {
+          ...existingBill,
+          ...updates,
+          updatedAt: new Date().toISOString(),
+        };
 
-          const updatedBill: Bill = {
-            ...existingBill,
-            ...updates,
-            updatedAt: new Date().toISOString(),
-          };
+        set((state) => ({
+          bills: {
+            ...state.bills,
+            [id]: updatedBill,
+          },
+        }));
 
-          console.log('🆕 BillStore: Updated bill:', updatedBill);
+        // Handle task creation/deletion AFTER store update, completely outside set()
+        const needsTaskUpdate = existingBill.createTask !== updatedBill.createTask ||
+                               (updatedBill.createTask && (
+                                 existingBill.name !== updatedBill.name ||
+                                 existingBill.amount !== updatedBill.amount ||
+                                 existingBill.dueDate !== updatedBill.dueDate
+                               ));
+        
+        if (needsTaskUpdate) {
+          setTimeout(() => {
+            try {
+              const { useProjectStore } = require('./ToDo');
+              const store = useProjectStore.getState();
 
-          // If createTask was toggled off, we should clean up existing tasks
-          if (existingBill.createTask && !updatedBill.createTask) {
-            setTimeout(() => {
-              try {
-                const { useProjectStore } = require('./ToDo');
-                const { tasks, deleteTask, recalculateTodaysTasks } = useProjectStore.getState();
+              // If tasks currently exist for this bill, delete them first
+              if (existingBill.createTask) {
+                console.log(`🗑️ UPDATING TASKS: Removing old tasks for bill "${existingBill.name}"`);
                 
-                let deletedTasksCount = 0;
-                
-                // Delete associated tasks with improved matching
-                Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
-                  if (task?.category === 'bills') {
-                    // Multiple ways to match the task name to ensure we catch all variations
+                const allTasks = store.tasks;
+                const taskIdsToDelete = Object.entries(allTasks)
+                  .filter(([_, task]: [string, any]) => {
+                    if (task?.category !== 'bills') return false;
                     const taskName = task.name || '';
-                    const billName = updatedBill.name;
+                    const billName = existingBill.name;
                     
-                    const isMatchingTask = 
-                      taskName === billName ||
-                      taskName === `${billName} Bill` ||
-                      taskName === `${billName} ($${updatedBill.amount.toFixed(0)})` ||
-                      taskName === `${billName} Bill ($${updatedBill.amount.toFixed(0)})` ||
-                      taskName === `${billName} ($${updatedBill.amount.toFixed(1)})` ||
-                      taskName === `${billName} ($${updatedBill.amount.toFixed(2)})` ||
-                      taskName.includes(billName) ||
-                      (taskName.includes('Bill') && taskName.includes(billName));
-                    
-                    if (isMatchingTask) {
-                      console.log('🗑️ Deleting task due to createTask toggle off:', {
-                        taskId,
-                        taskName,
-                        billName
-                      });
-                      deleteTask(taskId);
-                      deletedTasksCount++;
-                    }
-                  }
-                });
+                    return taskName === billName ||
+                           taskName === `${billName} Bill` ||
+                           taskName === `${billName} ($${existingBill.amount.toFixed(0)})` ||
+                           taskName === `${billName} Bill ($${existingBill.amount.toFixed(0)})` ||
+                           taskName.includes(billName);
+                  })
+                  .map(([taskId]) => taskId);
                 
-                // Force recalculation of today's tasks
-                if (typeof recalculateTodaysTasks === 'function') {
-                  recalculateTodaysTasks();
+                if (taskIdsToDelete.length > 0) {
+                  // Optimistic UI update
+                  const updatedTodaysTasks = store.todaysTasks.filter((task: Task) => !taskIdsToDelete.includes(task.id));
+                  useProjectStore.setState({ todaysTasks: updatedTodaysTasks });
+                  
+                  // Bulk delete
+                  store.bulkDeleteTasks(taskIdsToDelete);
+                  console.log(`✅ REMOVED OLD TASKS: Deleted ${taskIdsToDelete.length} old tasks for bill "${existingBill.name}"`);
+                }
+              }
+
+              // If createTask is true in the updated bill, create new tasks
+              if (updatedBill.createTask) {
+                console.log(`📋 CREATING TASKS: Creating new tasks for bill "${updatedBill.name}"`);
+                
+                // Build all tasks first, then create them in batches
+                const tasksToCreate: Array<{
+                  name: string;
+                  schedule: string[];
+                  priority: string;
+                  category: string;
+                  scheduledDate: string;
+                  dueDate: number;
+                  recurrencePattern: string;
+                }> = [];
+                const start = new Date();
+                const end = new Date(start.getFullYear() + 5, 11, 31);
+                let currentDate = new Date(start.getFullYear(), start.getMonth(), updatedBill.dueDate);
+                
+                while (currentDate <= end) {
+                  const formattedDate = format(currentDate, 'yyyy-MM-dd');
+                  const weekDay = getDayName(currentDate);
+                  
+                  tasksToCreate.push({
+                    name: `${updatedBill.name} Bill ($${updatedBill.amount.toFixed(0)})`,
+                    schedule: [weekDay],
+                    priority: 'high',
+                    category: 'bills',
+                    scheduledDate: formattedDate,
+                    dueDate: updatedBill.dueDate,
+                    recurrencePattern: 'monthly'
+                  });
+                  
+                  currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, updatedBill.dueDate);
                 }
                 
-                console.log(`✅ Task cleanup completed: ${deletedTasksCount} tasks deleted for bill "${updatedBill.name}"`);
+                // Create tasks in batches to prevent UI freezing
+                const batchSize = 10;
+                let createdCount = 0;
                 
-                // Log the cleanup for debugging
-                try {
-                  getAddSyncLog()(`Cleaned up ${deletedTasksCount} tasks for bill "${updatedBill.name}" (createTask disabled)`, 'info');
-                } catch (e) { /* ignore if logger not available */ }
+                const createBatch = async (startIndex: number) => {
+                  const batch = tasksToCreate.slice(startIndex, startIndex + batchSize);
+                  
+                  for (const taskData of batch) {
+                    store.addTask(taskData);
+                    createdCount++;
+                  }
+                  
+                  // Small delay between batches to prevent UI freezing
+                  if (startIndex + batchSize < tasksToCreate.length) {
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                    await createBatch(startIndex + batchSize);
+                  }
+                };
                 
-              } catch (error) {
-                console.error('Error cleaning up tasks:', error);
-                try {
-                  getAddSyncLog()(`Error cleaning up tasks for bill "${updatedBill.name}": ${error instanceof Error ? error.message : String(error)}`, 'error');
-                } catch (e) { /* ignore if logger not available */ }
+                createBatch(0).then(() => {
+                  console.log(`✅ CREATED NEW TASKS: Added ${createdCount} new tasks for bill "${updatedBill.name}"`);
+                });
               }
-            }, 0);
-          }
-
-          return {
-            bills: {
-              ...state.bills,
-              [id]: updatedBill,
-            },
-          };
-        });
-        console.log('✅ BillStore: Bill updated successfully');
+            } catch (error) {
+              console.error('Error handling task update:', error);
+            }
+          }, 0);
+        }
+        
+        console.log('✅ BillStore: updateBill execution completed.');
       },
 
       deleteBill: (id) => {
         set((state) => {
-          // Store the bill info before deleting
           const billToDelete = state.bills[id];
           const newBills = { ...state.bills };
           delete newBills[id];
 
-          // Use setTimeout to break the circular dependency
           if (billToDelete) {
             setTimeout(() => {
               try {
-                // Dynamic import to avoid circular dependency
                 const { useProjectStore } = require('./ToDo');
                 const { tasks, deleteTask, recalculateTodaysTasks } = useProjectStore.getState();
                 
-                // Delete associated tasks
                 Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
                   if (task?.category === 'bills' && 
                       (task?.name === billToDelete.name || 
@@ -181,7 +238,6 @@ export const useBillStore = create<BillStore>()(
                   }
                 });
 
-                // Force recalculation
                 recalculateTodaysTasks();
               } catch (error) {
                 console.error('Error cleaning up tasks:', error);
@@ -202,11 +258,10 @@ export const useBillStore = create<BillStore>()(
         set({ bills: {} });
         try {
           getAddSyncLog()('Bills cleared locally', 'info');
-        } catch (e) { /* ignore if logger not available */ }
+        } catch (e) {}
       },
 
       setMonthlyIncome: (income: number) => {
-        // Ensure income is not negative and update timestamp
         const validIncome = Math.max(0, income);
         const now = Date.now();
         set({ 
@@ -216,7 +271,7 @@ export const useBillStore = create<BillStore>()(
         
         try {
           getAddSyncLog()(`Monthly income set to ${validIncome} locally`, 'info');
-        } catch (e) { /* ignore if logger not available */ }
+        } catch (e) {}
       },
 
       toggleBillSync: () => {
@@ -224,7 +279,7 @@ export const useBillStore = create<BillStore>()(
           const newSyncState = !state.isSyncEnabled;
           try {
             getAddSyncLog()(`Bill sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
-          } catch (e) { /* ignore if logger not available */ }
+          } catch (e) {}
           return { isSyncEnabled: newSyncState };
         });
       },
@@ -249,7 +304,6 @@ export const useBillStore = create<BillStore>()(
         set((state) => {
           const newState = { ...state };
 
-          // Handle bills sync
           if (syncedData.bills && typeof syncedData.bills === 'object') {
             const existingBillsMap = new Map(Object.entries(state.bills));
             const newBillsObject = { ...state.bills };
@@ -272,36 +326,27 @@ export const useBillStore = create<BillStore>()(
             newState.bills = newBillsObject;
           }
 
-          // SMART MONTHLY INCOME CONFLICT RESOLUTION
           if (typeof syncedData.monthlyIncome === 'number') {
             const currentIncome = state.monthlyIncome;
             const incomingIncome = syncedData.monthlyIncome;
             const currentUpdate = state.lastIncomeUpdate || 0;
             const incomingUpdate = syncedData.lastIncomeUpdate || 0;
 
-            // Smart conflict resolution rules:
-            // 1. Never overwrite a non-zero value with zero unless explicitly newer by a significant margin (30+ seconds)
-            // 2. Always prefer non-zero values over zero values
-            // 3. If both are non-zero, use timestamp
-            
             let shouldUpdate = false;
             let reason = '';
 
             if (currentIncome === 0 && incomingIncome > 0) {
-              // Current is 0, incoming is positive - always update
               shouldUpdate = true;
               reason = 'current is 0, incoming is positive';
             } else if (currentIncome > 0 && incomingIncome === 0) {
-              // Current is positive, incoming is 0 - only update if incoming is significantly newer (30+ seconds)
               const timeDiff = incomingUpdate - currentUpdate;
-              if (timeDiff > 30000) { // 30 seconds
+              if (timeDiff > 30000) {
                 shouldUpdate = true;
                 reason = `incoming zero is significantly newer by ${Math.round(timeDiff/1000)}s`;
               } else {
                 reason = `keeping non-zero value, incoming zero not significantly newer (${Math.round(timeDiff/1000)}s)`;
               }
             } else if (currentIncome !== incomingIncome) {
-              // Both non-zero or both zero - use timestamp
               if (incomingUpdate > currentUpdate) {
                 shouldUpdate = true;
                 reason = 'incoming timestamp is newer';
@@ -312,7 +357,7 @@ export const useBillStore = create<BillStore>()(
 
             if (shouldUpdate) {
               addSyncLog(`Monthly income updated from ${currentIncome} to ${incomingIncome} via sync (${reason}).`, 'info');
-              newState.monthlyIncome = Math.max(0, incomingIncome); // Ensure non-negative
+              newState.monthlyIncome = Math.max(0, incomingIncome);
               newState.lastIncomeUpdate = incomingUpdate;
             } else {
               addSyncLog(`Monthly income kept at ${currentIncome}, not updating to ${incomingIncome} (${reason}).`, 'verbose');
@@ -328,6 +373,13 @@ export const useBillStore = create<BillStore>()(
     {
       name: 'bill-storage',
       storage: asyncStorage,
+      onRehydrateStorage: (state) => {
+        return (rehydratedState, error) => {
+          if (error) {
+            console.error('Error during rehydration:', error);
+          }
+        };
+      },
     }
   )
 );

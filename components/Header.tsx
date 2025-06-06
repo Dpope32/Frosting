@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
-import { Platform, Pressable } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Stack, XStack, YStack, isWeb } from 'tamagui'; 
+import React, { useState, useRef, useCallback, useMemo } from 'react';
+import { Platform, Pressable, Dimensions, useColorScheme } from 'react-native';
+import { Stack, XStack, YStack, isWeb } from 'tamagui';
 import { Text } from 'tamagui';
 // @ts-ignore - Suppressing ESM import error
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useRouter } from 'expo-router'; 
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { CardSection } from '@/components/home/CardSection';
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
-import { PortfolioModal } from '@/components/home/PortfolioModal'; 
-import { QuoteModal } from '@/components/home/QuoteModal'; 
+import { PortfolioModal } from '@/components/home/PortfolioModal';
+import { QuoteModal } from '@/components/home/QuoteModal';
 import { WifiModal } from '@/components/home/WifiModal';
 import { ArchivedProjectsModal } from '@/components/listModals/ArchivedProjectsModal';
 import { NBATeamModal } from '@/components/sports/NBATeamModal';
@@ -21,13 +20,14 @@ import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
 import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
-import { useCalendarViewStore, useCalendarStore } from '@/store'
-import { useUserStore } from '@/store'
-import { isIpad } from '@/utils'
-import { Bill, VaultEntry } from '@/types'
-import { Legend } from '@/components/calendar/Legend'
+import { useCalendarViewStore, useCalendarStore } from '@/store';
+import { useUserStore } from '@/store';
+import { isIpad } from '@/utils';
+import { Bill, VaultEntry } from '@/types';
+import { Legend } from '@/components/calendar/Legend';
 import { getUSHolidays } from '@/services';
 import { debouncedNavigate } from '@/utils/navigationUtils';
+import { useBills } from '@/hooks';
 
 interface HeaderProps {
   title: string;
@@ -41,24 +41,25 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const router = useRouter(); 
+  const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
-  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false); 
-  const [quoteModalOpen, setQuoteModalOpen] = useState(false); 
-  const [wifiModalOpen, setWifiModalOpen] = useState(false); 
+  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
+  const [wifiModalOpen, setWifiModalOpen] = useState(false);
   const [showNBATeamModal, setShowNBATeamModal] = useState(false);
   const [showBillsListModal, setShowBillsListModal] = useState(false);
   const [showVaultListModal, setShowVaultListModal] = useState(false);
   const [showPeopleListModal, setShowPeopleListModal] = useState(false);
-  const [selectedBill, setSelectedBill] = useState(null);
+  const [selectedBill, setSelectedBill] = useState<any>(null);
   const [editBillModalOpen, setEditBillModalOpen] = useState(false);
-  const [selectedVaultEntry, setSelectedVaultEntry] = useState(null);
+  const [selectedVaultEntry, setSelectedVaultEntry] = useState<any>(null);
   const [editVaultModalOpen, setEditVaultModalOpen] = useState(false);
   const [showArchivedProjectsModal, setShowArchivedProjectsModal] = useState(false);
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
   const username = useUserStore(s => s.preferences.username);
   const { events } = useCalendarStore();
-  
+  const { updateBill } = useBills();
+
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
@@ -68,20 +69,20 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isCalendarScreen = route.name === 'calendar';
   const isHabitsScreen = route.name === 'habits';
   const isProjectsScreen = route.name === 'projects';
-  
+
   // Calculate active event types for the Legend
   const [activeEventTypes, setActiveEventTypes] = React.useState<string[]>([]);
-  
+
   React.useEffect(() => {
     if (isCalendarScreen && isWeb) {
       const currentYear = new Date().getFullYear();
       const holidays = [
-        ...getUSHolidays(currentYear), 
+        ...getUSHolidays(currentYear),
         ...getUSHolidays(currentYear + 1)
       ];
-      
+
       const allEvents = [...events, ...holidays];
-      
+
       // Extract unique event types from combined events
       const types: string[] = [];
       allEvents.forEach(event => {
@@ -100,19 +101,19 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
 
   const handleTemperaturePress = () => {
     debouncedNavigate('/modals/temperature');
-    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
+    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const handlePortfolioPress = () => {
-     setPortfolioModalOpen(true)
-     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
-    }
+    setPortfolioModalOpen(true)
+    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
+  }
   const handleQuotePress = () => {
     setQuoteModalOpen(true)
-    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
+    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const handleWifiPress = () => {
     setWifiModalOpen(true)
-    if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
+    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -123,10 +124,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const getRightHeaderElement = () => {
     if (isWeb && isCalendarScreen) {
       // Get appropriate layout icon based on column count
-      const layoutIcon = 
-        webColumnCount === 1 ? "apps-outline" : 
+      const layoutIcon =
+        webColumnCount === 1 ? "apps-outline" :
         webColumnCount === 2 ? "grid-outline" : "grid";
-        
+
       return (
         <Pressable
           onPress={() => {
@@ -145,19 +146,19 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     } else if (isIpad() && isCalendarScreen) {
       // Get layout icon for iPad (3-state toggle: 1-column, 2-column, and Week view)
       const { viewMode } = useCalendarViewStore();
-      
+
       let layoutIcon: keyof typeof Ionicons.glyphMap;
       if (viewMode === 'week') {
         layoutIcon = "reorder-three";
       } else {
         layoutIcon = webColumnCount === 1 ? "apps-outline" : "grid-outline";
       }
-      
+
       return (
         <Pressable
           onPress={() => {
             Haptics.selectionAsync();
-            
+
             // 3-state toggle: 1-column → 2-column → Week view → (back to 1-column)
             if (viewMode === 'month') {
               if (webColumnCount === 1) {
@@ -181,7 +182,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       // Mobile calendar toggle between month and week views
       const { viewMode, toggleViewMode } = useCalendarViewStore();
       const viewIcon = viewMode === 'month' ? "calendar" : "reorder-three";
-      
+
       return (
         <Pressable
           onPress={() => {
@@ -220,7 +221,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   };
 
   const handleIconPress = () => {
-    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
+    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
     if (isSportsScreen) setShowNBATeamModal(true);
     else if (isBillsScreen) {
       setShowBillsListModal(true);
@@ -238,11 +239,11 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       {isWeb && (
         <YStack height={spacerHeight} />
       )}
-      <YStack 
-        position="absolute" 
-        top={0} 
-        left={0} 
-        right={0} 
+      <YStack
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
         zIndex={isWeb ? 10 : 10}
         {...(isIpad() ? {
           style: {
@@ -252,25 +253,25 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         } : {})}
         {...(isWeb ? {
           style: {
-            position: 'fixed', 
+            position: 'fixed',
           } as any
         } : {})}
       >
         <YStack
-        marginLeft={isPermanentDrawer ? drawerWidth : 0} 
-        backgroundColor={
-          isWeb 
-            ? colorScheme === 'dark' 
-              ? 'rgba(14, 14, 15, 0.9)' 
-              : 'rgba(255,255,255,0.0)'
-            : isHome
-              ? colorScheme === 'dark' 
-                ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : "rgba(14, 14, 15, 0.94)"
+          marginLeft={isPermanentDrawer ? drawerWidth : 0}
+          backgroundColor={
+            isWeb
+              ? colorScheme === 'dark'
+                ? 'rgba(14, 14, 15, 0.9)'
                 : 'rgba(255,255,255,0.0)'
-              : colorScheme === 'dark' 
-                ?  'rgba(14, 14, 15, 0.9)'
-                : 'rgba(255, 255, 255, 0.1)' 
-        }>
+              : isHome
+                ? colorScheme === 'dark'
+                  ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : "rgba(14, 14, 15, 0.94)"
+                  : 'rgba(255,255,255,0.0)'
+                : colorScheme === 'dark'
+                  ? 'rgba(14, 14, 15, 0.9)'
+                  : 'rgba(255, 255, 255, 0.1)'
+          }>
           <XStack
             alignItems="center"
             justifyContent="space-between"
@@ -307,17 +308,17 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                   />
                 </Pressable>
               )}
-                <Text
-                  fontSize={isWeb ? 18 : isIpad() ? 20 : 18}
-                  color={textColor}
-                  style={{ marginLeft: isIpad() ? 24 : 0 }}
-                  numberOfLines={1}
-                  fontWeight= 'bold'
-                  fontFamily="$heading"
-                  paddingBottom={isIpad() ? 12 : 0}
-                >
-                  {!isHome ? title : isWeb ? '' : isIpad() ? '' : title}
-                </Text>
+              <Text
+                fontSize={isWeb ? 18 : isIpad() ? 20 : 18}
+                color={textColor}
+                style={{ marginLeft: isIpad() ? 24 : 0 }}
+                numberOfLines={1}
+                fontWeight='bold'
+                fontFamily="$heading"
+                paddingBottom={isIpad() ? 12 : 0}
+              >
+                {!isHome ? title : isWeb ? '' : isIpad() ? '' : title}
+              </Text>
               {isWeb && isHome && (
                 <CardSection
                   isHome={isHome}
@@ -328,19 +329,19 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                 />
               )}
             </XStack>
-            
+
             {/* Web Calendar Legend */}
             {isWeb && isCalendarScreen && activeEventTypes.length > 0 && (
-              <XStack 
-                flex={1} 
-                justifyContent="center" 
+              <XStack
+                flex={1}
+                justifyContent="center"
                 alignItems="center"
                 style={{ marginLeft: 20, marginRight: 20 }}
               >
                 <Legend isDark={isDark} eventTypes={activeEventTypes} />
               </XStack>
             )}
-            
+
             <Stack>
               {getRightHeaderElement()}
             </Stack>
@@ -359,16 +360,30 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
               setEditBillModalOpen(true);
             }}
           />
-          <EditBillModal  
+          <EditBillModal
             isVisible={editBillModalOpen}
             onClose={() => {
               setEditBillModalOpen(false);
               setSelectedBill(null);
             }}
             bill={selectedBill}
-            onSubmit={() => {
-              setEditBillModalOpen(false);
-              setSelectedBill(null);
+            onSubmit={async (updatedBillData) => {
+              try {
+                await updateBill(updatedBillData, {
+                  onSuccess: () => {
+                    setEditBillModalOpen(false);
+                    setSelectedBill(null);
+                  },
+                  onError: () => {
+                    setEditBillModalOpen(false);
+                    setSelectedBill(null);
+                  }
+                });
+              } catch (error) {
+                console.error('Error updating bill:', error);
+                setEditBillModalOpen(false);
+                setSelectedBill(null);
+              }
             }}
           />
         </>
@@ -400,7 +415,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       {isCrmScreen && <PeopleListModal open={showPeopleListModal} onOpenChange={setShowPeopleListModal} />}
       <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
-      <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>
+      <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} />
       <ArchivedProjectsModal open={showArchivedProjectsModal} onOpenChange={setShowArchivedProjectsModal} />
     </>
   );

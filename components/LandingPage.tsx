@@ -29,12 +29,14 @@ import { CardSection } from '@/components/home/CardSection'
 import { TaskSection } from '@/components/home/TaskSection'
 import { InitialSyncIndicator } from '@/components/home/InitialSyncIndicator';
 import { AssetSection } from '@/components/home/AssetSection'
+import { DailyQuoteDisplay } from '@/components/home/DailyQuoteDisplay'
 
 import { isIpad } from '@/utils';
 import type { Attachment, Tag } from '@/types'
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services';
 import { createFormattingHandler } from '@/services';
 import { useHabits } from '@/hooks';
+import { useBills } from '@/hooks/useBills';
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
 import { useWallpaperStore } from '@/store';
 import { debouncedNavigate } from '@/utils';
@@ -47,9 +49,11 @@ export const LandingPage = React.memo(() => {
   const todaysTasks = useProjectStore(s => s.todaysTasks || [])
   const toggleTaskCompletion = useProjectStore(s => s.toggleTaskCompletion)
   const deleteTask = useProjectStore(s => s.deleteTask)
+  const { addBill } = useBills();
   const isEditModalOpen = useEditTaskStore(s => s.isOpen)
   const closeEditModal = useEditTaskStore(s => s.closeModal)
   const primaryColor = useUserStore(s => s.preferences.primaryColor)
+  const showQuoteOnHome = useUserStore(s => s.preferences.showQuoteOnHome || false)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
@@ -260,6 +264,8 @@ export const LandingPage = React.memo(() => {
             </Stack>
           )} 
         </Stack>
+
+        {showQuoteOnHome && <DailyQuoteDisplay />}
          
           {Platform.OS === 'web' ?  (
             <Stack 
@@ -350,8 +356,13 @@ export const LandingPage = React.memo(() => {
           />
           {contactModalOpen && <AddPersonForm isVisible={contactModalOpen} onClose={() => setContactModalOpen(false)} />}
           <AddBillModal 
-            isVisible={billModalOpen} onClose={() => {setBillModalOpen(false)}}
-            onSubmit={(entry: { name: string; amount: number; dueDate: number }) => { setBillModalOpen(false) }}
+            isVisible={billModalOpen} 
+            onClose={() => setBillModalOpen(false)}
+            onSubmit={(entry) => { 
+              console.log('🏠 LandingPage: onSubmit called with:', entry);
+              addBill(entry);
+              setBillModalOpen(false);
+            }}
           />
           <AddProjectModal open={projectModalOpen} onOpenChange={setProjectModalOpen} isDark={isDark} />
           <EventModal 

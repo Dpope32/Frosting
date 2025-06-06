@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ScrollView, useColorScheme, Platform, FlatList, Dimensions } from 'react-native';
 import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
 import { BillCard } from '@/components/bills/BillCard';
@@ -25,8 +25,23 @@ export default function BillsScreen() {
   const [editBillModalOpen, setEditBillModalOpen] = useState(false);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [billsListModalOpen, setBillsListModalOpen] = useState(false);
+  const [forceUpdateKey, setForceUpdateKey] = useState(0);
   
-  const { bills, addBill, addBills, deleteBill, isLoading, monthlyIncome, setMonthlyIncome, totalMonthlyAmount, monthlyBalance } = useBills();
+  const { bills, addBill, addBills, updateBill, deleteBill, isLoading, monthlyIncome, setMonthlyIncome, totalMonthlyAmount, monthlyBalance } = useBills();
+  
+  // Debug logging for bills data changes
+  useEffect(() => {
+    if (bills) {
+      console.log('🏠 Bills Screen: Bills data updated:', bills.map(b => ({
+        id: b.id,
+        name: b.name,
+        dueDate: b.dueDate,
+        amount: b.amount,
+        createTask: b.createTask
+      })));
+    }
+  }, [bills]);
+
   const screenWidth = Dimensions.get('window').width;
   const [isDeletingBill, setIsDeletingBill] = useState(false);
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
@@ -57,7 +72,10 @@ export default function BillsScreen() {
   
   const columnCount = getColumnCount();
   const columnWidth = `${100 / columnCount}%` ;
-  const handleAddBill = (billData: { name: string; amount: number; dueDate: number }) => { addBill(billData);};
+  const handleAddBill = (billData: { name: string; amount: number; dueDate: number; createTask?: boolean }) => { 
+    console.log('🔵 Bills Screen: Adding bill with data:', billData);
+    addBill(billData);
+  };
 
   const handleDeleteBill = (id: string) => {
     setIsDeletingBill(true);
@@ -98,26 +116,29 @@ export default function BillsScreen() {
     setEditBillModalOpen(true);
   };
 
-  const handleUpdateBill = (updatedBill: { id: string; name: string; amount: number; dueDate: number }) => {
-    // First delete the old bill
-    deleteBill(updatedBill.id, {
-      onSuccess: () => {
-        // Then add a new bill with the updated info but keeping the same ID
-        addBill({
-          name: updatedBill.name,
-          amount: updatedBill.amount,
-          dueDate: updatedBill.dueDate,
+  const handleUpdateBill = async (updatedBillData: { id: string; name: string; amount: number; dueDate: number; createTask?: boolean }) => {
+    if (typeof updateBill === 'function') {
+      try {
+        await updateBill(updatedBillData, {
+          onSuccess: () => {
+            setEditBillModalOpen(false);
+            setSelectedBill(null);
+          },
+          onError: () => {
+            setEditBillModalOpen(false);
+            setSelectedBill(null);
+          }
         });
+      } catch (error) {
+        console.error('Error updating bill:', error);
         setEditBillModalOpen(false);
         setSelectedBill(null);
-      },
-      onError: () => {
-        // Handle error
-        console.error("Failed to update bill");
-        setEditBillModalOpen(false);
-        setSelectedBill(null);
+        throw error;
       }
-    });
+    } else {
+      console.error('updateBill is not a function');
+      throw new Error('updateBill is not a function');
+    }
   };
 
   return (
@@ -129,7 +150,10 @@ export default function BillsScreen() {
       />
       <EditBillModal
         isVisible={editBillModalOpen}
-        onClose={() => { setEditBillModalOpen(false); setSelectedBill(null); }}
+        onClose={() => { 
+          setSelectedBill(null);
+          setEditBillModalOpen(false); 
+        }}
         bill={selectedBill}
         onSubmit={handleUpdateBill}
       />
@@ -267,8 +291,11 @@ export default function BillsScreen() {
         {isModalVisible && (
           <AddBillModal 
             isVisible={isModalVisible} 
-            onClose={() => setIsModalVisible(false)} 
-            onSubmit={handleAddBill} 
+            onClose={() => setIsModalVisible(false)}
+            onSubmit={(entry) => { 
+              addBill(entry);
+              setIsModalVisible(false);
+            }}
           />
         )}
           
@@ -280,17 +307,17 @@ export default function BillsScreen() {
           />
         )}
 
-        <Button 
-          onPress={() => setIsModalVisible(true)} 
-          position="absolute" 
-          bottom={40} 
-          right={24} 
-          zIndex={1000} 
-          size="$4" 
-          circular 
-          bg={primaryColor} 
-          pressStyle={{ scale: 0.95 }} 
-          animation="quick" 
+        <Button
+          onPress={() => setIsModalVisible(true)}
+          position="absolute"
+          bottom={40}
+          right={24}
+          zIndex={1000}
+          size="$4"
+          circular
+          bg={primaryColor}
+          pressStyle={{ scale: 0.95 }}
+          animation="quick"
           elevation={4}
         >
           <MaterialIcons name="add" color="white" size={24} />

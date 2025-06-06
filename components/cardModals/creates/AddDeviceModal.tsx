@@ -32,7 +32,8 @@ export default function AddDeviceModal({
   const [workspaceId, setWorkspaceId] = useState<string | null>(currentWorkspaceId || null);
   const [inviteCode, setInviteCode] = useState<string>('');
 
-  const actualWidth = isWeb ? Dimensions.get('window').width * 0.35 : Dimensions.get('window').width * 0.55;
+  const actualWidth = isWeb ? Dimensions.get('window').width * 0.35 : 
+    Dimensions.get('window').width * 0.8;
   const [inputInviteCode, setInputInviteCode] = useState<string>('');
   const [modalStep, setModalStep] = useState<'choose' | 'creating' | 'showCode' | 'joining' | 'connected'>(
     initialMode === 'create' ? 'creating' : 
@@ -176,12 +177,9 @@ export default function AddDeviceModal({
     >
       <YStack 
         gap={baseSpacing} 
-        paddingHorizontal={baseSpacing} 
-        paddingVertical={baseSpacing}
-        minHeight={260}
+        paddingHorizontal={baseSpacing}
         width={actualWidth}
         alignSelf="center"
-        flex={1}
       >
         {modalStep === 'choose' && (
           <ChooseAdd

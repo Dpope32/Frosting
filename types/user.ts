@@ -34,6 +34,10 @@ export interface UserPreferences {
      */
     quoteEnabled: boolean;
     /**
+     * Shows the daily quote on the home screen below tasks.
+     */
+    showQuoteOnHome?: boolean;
+    /**
      * Toggles the portfolio card on the home screen.
      */
     portfolioEnabled: boolean;
