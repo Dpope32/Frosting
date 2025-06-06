@@ -201,8 +201,11 @@ export default function CalendarScreen() {
             ))
           ) : (
             <View style={[
-              styles.webMonthsContainer,
-              webColumnCount === 2 && { justifyContent: 'center' }
+              styles.ipadMonthsContainer,
+              webColumnCount === 2 && { justifyContent: 'center' },
+              isIpadDevice && {
+                paddingHorizontal: 0,
+              }
             ]}>
               {months.map((date, index) => (
                 <View
@@ -210,7 +213,7 @@ export default function CalendarScreen() {
                   style={[
                     styles.webMonthWrapper,
                     { 
-                      width: webColumnCount === 2 ? '49%' : '94%',
+                      width: webColumnCount === 2 ? isIpad() ? '49%' : '49%' : '94%',
                       margin: webColumnCount === 2 ? '0.5%' : '3%'
                     }
                   ]}
