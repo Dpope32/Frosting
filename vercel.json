@@ -2,8 +2,8 @@
   "routes": [
     { "src": "/api/proxy/(.*)", "dest": "/api/proxy/[[...path]].ts" },
     {
-      "src": "/api/pb/:path*",
-      "dest": "https://fedora.tail557534.ts.net/:path*"
+      "src": "/api/pb/(.*)",
+      "dest": "/api/proxy/[[...path]].ts"
     }
   ]
 }

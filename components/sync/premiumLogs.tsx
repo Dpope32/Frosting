@@ -251,9 +251,9 @@ export const PremiumLogs = ({
                 const { useProjectStore: useTaskStore } = require('@/store/ToDo');
                 useTaskStore.getState().debugSyncState();
               }}
-              style={{ paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)",  width: 80, alignItems: 'center', justifyContent: 'center' }}
+              style={{ paddingHorizontal: 8, paddingVertical: 6, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)",  width: 80, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text color={colors.text}>Debug</Text>
+              <Text fontFamily="$body"  fontSize={wideMode ? 15 : 14} color={colors.text}>Debug</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={exportLogs}
@@ -383,7 +383,7 @@ export const PremiumLogs = ({
             paddingBottom: baseSpacing * 3,
             flexGrow: 1,
           }}
-          showsVerticalScrollIndicator={true}
+          showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
           keyboardShouldPersistTaps="handled"
           onScrollBeginDrag={() => setAutoScroll(false)}
@@ -490,7 +490,7 @@ export const PremiumLogs = ({
                             marginBottom: wideMode ? baseSpacing : baseSpacing / 2,
                             maxHeight: wideMode ? 400 : 300,
                           }}>
-                            <ScrollView>
+                            <ScrollView showsVerticalScrollIndicator={false}>
                               <Text 
                                 fontSize={wideMode ? fontSizes.sm : fontSizes.xs} 
                                 color={colors.subtext} 

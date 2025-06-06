@@ -97,24 +97,40 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
 
 
 // ───────────────────────── LOG EXPORT ─────────────────────────
-export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
-  if (!useUserStore.getState().preferences.premium) return
+export const exportLogsToServer = async (logs: LogEntry[], forceExport = false): Promise<void> => {
+  // Allow log export during premium verification even for non-premium users
+  const isPremium = useUserStore.getState().preferences.premium;
+  const isPremiumVerification = logs.some(log => 
+    log.message.includes('Premium') || 
+    log.message.includes('premium') ||
+    log.message.includes('DeepLink')
+  );
+  
+  if (!isPremium && !forceExport && !isPremiumVerification) {
+    addSyncLog('Skipping log export - not premium user', 'verbose');
+    return;
+  }
 
   if (!(await checkNetworkConnectivity())) {
     addSyncLog('No network – abort log export', 'warning')
     return
   }
 
-  const pb = await getPocketBase()
-  const deviceId = await generateSyncKey()
-  const username = useUserStore.getState().preferences.username ?? 'unknown'
+  try {
+    const pb = await getPocketBase()
+    const deviceId = await generateSyncKey()
+    const username = useUserStore.getState().preferences.username ?? 'unknown'
 
-  await pb.collection('debug_logs').create({
-    device_id: deviceId,
-    username,
-    timestamp: new Date().toISOString(),
-    logs: JSON.stringify(logs),
-  })
+    await pb.collection('debug_logs').create({
+      device_id: deviceId,
+      username,
+      timestamp: new Date().toISOString(),
+      logs: JSON.stringify(logs),
+      log_type: isPremiumVerification ? 'premium_debug' : 'general',
+    })
 
-  addSyncLog('Logs saved in PocketBase', 'info')
+    addSyncLog(`📤 Logs saved to PocketBase (${logs.length} entries)`, 'info')
+  } catch (error) {
+    addSyncLog(`🔥 Failed to save logs to PocketBase: ${error instanceof Error ? error.message : String(error)}`, 'error');
+  }
 }

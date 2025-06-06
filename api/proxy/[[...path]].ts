@@ -5,7 +5,7 @@ import cors from 'cors';
 // Initialize CORS middleware
 const corsMiddleware = cors({
   origin: true,
-  methods: ['GET', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
 
 // Define a common User-Agent header that mimics a regular browser
@@ -28,6 +28,12 @@ const BROWSER_HEADERS = {
   'Cache-Control': 'no-cache',
 };
 
+// PocketBase configuration
+const POCKETBASE_URLS = [
+  'https://fedora.tail557534.ts.net',
+  'http://192.168.1.32:8090'
+];
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   await new Promise((resolve, reject) => {
     corsMiddleware(req, res, (result: any) => {
@@ -42,28 +48,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET', 'OPTIONS']);
+  if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method || '')) {
+    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
   try {
     let pathSegments: string[] = [];
     let endpoint = '';
+    let isPicketbaseRequest = false;
     
     if (req.query.path) {
       const path = req.query.path;
       pathSegments = Array.isArray(path) ? path : [path];
       endpoint = pathSegments.join('/');
     } else {
-        const url = req.url || '';
+      const url = req.url || '';
       
-      const basePath = '/api/proxy/';
-      const basePathIndex = url.indexOf(basePath);
-      
-      if (basePathIndex !== -1) {
-        endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
-        pathSegments = endpoint.split('/');
+      // Check if this is a PocketBase request
+      if (url.includes('/api/pb/')) {
+        isPicketbaseRequest = true;
+        const basePath = '/api/pb/';
+        const basePathIndex = url.indexOf(basePath);
+        
+        if (basePathIndex !== -1) {
+          endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
+          pathSegments = endpoint.split('/');
+        }
+      } else {
+        const basePath = '/api/proxy/';
+        const basePathIndex = url.indexOf(basePath);
+        
+        if (basePathIndex !== -1) {
+          endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
+          pathSegments = endpoint.split('/');
+        }
       }
     }
     
@@ -72,8 +91,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Bad Request: Could not determine endpoint' });
     }
 
+    // Handle PocketBase requests
+    if (isPicketbaseRequest) {
+      return handlePocketBaseRequest(req, res, endpoint);
+    }
 
-    // Now route based on the extracted endpoint
+    // Handle other proxy requests (existing logic)
     if (endpoint.startsWith('yahoo-finance/')) {
       const symbol = pathSegments[1] || '';
       if (!symbol) {
@@ -191,4 +214,70 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
   }
+}
+
+async function handlePocketBaseRequest(req: VercelRequest, res: VercelResponse, endpoint: string) {
+  // Try each PocketBase URL until one works
+  for (const baseUrl of POCKETBASE_URLS) {
+    try {
+      const targetUrl = `${baseUrl}/api/${endpoint}`;
+      
+      // Preserve query parameters
+      const queryString = req.url?.split('?')[1];
+      const fullUrl = queryString ? `${targetUrl}?${queryString}` : targetUrl;
+      
+      console.log(`[PocketBase] Trying: ${req.method} ${fullUrl}`);
+      
+      // Forward headers, but filter out problematic ones
+      const forwardHeaders: Record<string, string> = {};
+      
+      // Copy important headers
+      if (req.headers['content-type']) {
+        forwardHeaders['content-type'] = req.headers['content-type'] as string;
+      }
+      if (req.headers['authorization']) {
+        forwardHeaders['authorization'] = req.headers['authorization'] as string;
+      }
+      if (req.headers['accept']) {
+        forwardHeaders['accept'] = req.headers['accept'] as string;
+      }
+      
+      // Add User-Agent
+      forwardHeaders['user-agent'] = BROWSER_USER_AGENT;
+      
+      const response = await axios({
+        method: req.method as any,
+        url: fullUrl,
+        headers: forwardHeaders,
+        data: req.body || undefined,
+        timeout: 30000,
+        validateStatus: () => true, // Don't throw on 4xx/5xx status codes
+      });
+      
+      console.log(`[PocketBase] Response: ${response.status} from ${baseUrl}`);
+      
+      // Forward response headers
+      Object.entries(response.headers).forEach(([key, value]) => {
+        if (typeof value === 'string' && !['content-encoding', 'transfer-encoding'].includes(key.toLowerCase())) {
+          res.setHeader(key, value);
+        }
+      });
+      
+      return res.status(response.status).json(response.data);
+      
+    } catch (error) {
+      console.error(`[PocketBase] Failed to connect to ${baseUrl}:`, error instanceof Error ? error.message : String(error));
+      
+      // If this was the last URL, throw the error
+      if (baseUrl === POCKETBASE_URLS[POCKETBASE_URLS.length - 1]) {
+        throw error;
+      }
+      
+      // Otherwise, try the next URL
+      continue;
+    }
+  }
+  
+  // If we get here, all URLs failed
+  throw new Error('All PocketBase URLs failed');
 }
