@@ -2,14 +2,13 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing, interpolate, Extrapolation } from 'react-native-reanimated';
-import { useRouter } from 'expo-router';
+import { debouncedNavigate } from '@/utils/navigationUtils';
 
 export const ChangeLogButton = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const animationProgress = useSharedValue(0);
   const scale = useSharedValue(1);
-  const router = useRouter();
 
   const handlePress = () => {
     // Apply quick scale feedback and immediately navigate
@@ -19,8 +18,8 @@ export const ChangeLogButton = () => {
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
     
-    // Navigate immediately
-    router.push('/modals/changelog');
+    // Navigate with debouncing to prevent multiple rapid opens
+    debouncedNavigate('/modals/changelog');
     
     // Reset scale after navigation starts
     setTimeout(() => {
