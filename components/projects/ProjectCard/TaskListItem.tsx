@@ -48,6 +48,9 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
         onPress={() => onToggleTaskCompleted?.(task.id, !task.completed)}
         ai="center"
         jc="center"
+        pressStyle={{
+          bg: isDark ? '#222' : '#f5f5f5',
+        }}
         style={{ width: 24, height: 24 }}
       >
         {task.completed ? '✓' : ''}
@@ -58,7 +61,8 @@ export const TaskListItem = ({ task, isDark, onToggleTaskCompleted }: TaskListIt
         fontFamily="$body"
         style={{ 
           flex: 1, 
-          marginLeft: 2, 
+          marginLeft: 6,
+          alignSelf: 'flex-start',
           textDecorationLine: task.completed ? 'line-through' : 'none', 
           whiteSpace: 'normal' 
         }}

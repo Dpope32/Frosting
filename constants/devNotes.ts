@@ -104,12 +104,12 @@ This is a large note that demonstrates various markdown features.
 2. Second item
 3. Third item
 
-Or unordered lists:
+### Or unordered lists:
 - Item one
 - Item two
 - Item three
 
-## Interactive Checkboxes
+### Interactive Checkboxes
 - [x] Completed task
 - [x] Another finished item
 - [ ] Still need to do this
@@ -148,10 +148,8 @@ You can add [links](https://example.com) to your notes.
 - Lisa (Design)
 
 ## Action Items
-- [x] Review wireframes - **Lisa** 
 - [x] Set up dev environment - **Mike**
 - [ ] Schedule client call - **Sarah**
-- [ ] Finalize color palette - **Lisa**
 
 ## Next Meeting
 **Date:** March 22nd  

@@ -81,22 +81,6 @@ export function AddNoteSheet({
     setLocalTitle(editTitle || '');
   }, [editTitle]);
 
-  // Focus the title input when the modal opens or when entering edit mode (after 500ms)
-  useEffect(() => {
-    if (isModalOpen && isEditingTitle && !keyboardVisible) {
-      const timer = setTimeout(() => {
-        try {
-          if (titleInputRef.current && isModalOpen && !keyboardVisible) {
-            titleInputRef.current.focus();
-          }
-        } catch (error) {
-          console.log('Title input focus failed:', error);
-        }
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isModalOpen, isEditingTitle, keyboardVisible]);
-
   // Setup keyboard listeners
   useEffect(() => {
     if (Platform.OS === 'web') return;

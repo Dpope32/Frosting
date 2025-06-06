@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Button, Input, Text, YStack, XStack, View, isWeb, Spinner } from 'tamagui'
+import { Button, Input, Text, YStack, XStack, View, isWeb, Spinner, Switch } from 'tamagui'
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated'
 import { TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
@@ -13,7 +13,7 @@ interface EditBillModalProps {
   isVisible: boolean
   onClose: () => void
   bill: Bill | null
-  onSubmit: (entry: { id: string; name: string; amount: number; dueDate: number }) => void
+  onSubmit: (entry: { id: string; name: string; amount: number; dueDate: number; createTask?: boolean }) => void
 }
 
 export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillModalProps): JSX.Element {
@@ -25,6 +25,7 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
   const [sliderValue, setSliderValue] = useState(0)
   const [inputError, setInputError] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [createTask, setCreateTask] = useState(false)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -50,12 +51,13 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
       setDueDate(d)
       setSliderValue(bill.amount)
       setShowDatePicker(false)
+      setCreateTask(bill.createTask ?? false)
     }
   }, [isVisible, bill])
 
   const handleSubmit = async () => {
     console.log('🚀 EditBillModal handleSubmit called');
-    console.log('📋 Current state:', { bill, name, amount, dueDate: dueDate.getDate() });
+    console.log('📋 Current state:', { bill, name, amount, dueDate: dueDate.getDate(), createTask });
     console.log('✅ Validation check:', { 
       hasBill: !!bill, 
       hasName: !!name, 
@@ -68,7 +70,8 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
         id: bill.id,
         name,
         amount,
-        dueDate: dueDate.getDate()
+        dueDate: dueDate.getDate(),
+        createTask
       });
       
       setIsUpdating(true);
@@ -78,7 +81,8 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
           id: bill.id,
           name,
           amount,
-          dueDate: dueDate.getDate()
+          dueDate: dueDate.getDate(),
+          createTask
         });
         console.log('✅ onSubmit completed successfully');
       } catch (error) {
@@ -113,6 +117,73 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
       </View>
     )
   }
+
+  const TaskToggle = () => (
+    <Animated.View entering={FadeInDown.delay(400).duration(500)}>
+      <XStack 
+        backgroundColor="$backgroundHover" 
+        borderColor="$borderColor" 
+        borderWidth={1} 
+        br={8} 
+        padding="$3" 
+        alignItems="center" 
+        justifyContent="space-between"
+        marginTop="$2"
+      >
+        <YStack flex={1} marginRight="$3">
+          <Text fontFamily="$body" color="$color" fontSize={isWeb ? "$5" : "$4"} fontWeight="500">
+            Create Tasks
+          </Text>
+          <Text fontFamily="$body" color="$color" fontSize="$3" opacity={0.7} marginTop="$1">
+            {createTask 
+              ? "This bill will appear in your task list each month"
+              : "This bill will only display in your calendar, not as a task on the home screen"
+            }
+          </Text>
+          {bill?.createTask && !createTask && (
+            <Text fontFamily="$body" color="$red10" fontSize="$2" marginTop="$1" fontWeight="500">
+              ⚠️ Turning this off will remove existing tasks for this bill
+            </Text>
+          )}
+          {!bill?.createTask && createTask && (
+            <Text fontFamily="$body" color="$green10" fontSize="$2" marginTop="$1" fontWeight="500">
+              ✅ This will create monthly tasks for this bill
+            </Text>
+          )}
+        </YStack>
+        <TouchableOpacity
+          onPress={() => setCreateTask(!createTask)}
+          style={{
+            paddingHorizontal: 8,
+            paddingVertical: 8,
+            alignSelf: 'flex-start',
+          }}
+          hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
+          accessibilityRole="button"
+          accessibilityLabel={createTask ? "Disable task creation" : "Enable task creation"}
+        >
+          <View style={{
+            width: 20,
+            height: 20,
+            borderWidth: 1.5,
+            borderRadius: 5,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderColor: createTask ? '#00C851' : 'rgb(52, 54, 55)',
+            backgroundColor: createTask ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
+          }}>
+            {createTask && (
+              <Ionicons 
+                name="checkmark-sharp" 
+                size={13} 
+                color="#00C851"
+              />
+            )}
+          </View>
+        </TouchableOpacity>
+      </XStack>
+    </Animated.View>
+  )
 
   return (
     <>
@@ -185,6 +256,7 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
                 {showDatePicker && <DatePicker />}
               </YStack>
             </Animated.View>
+            <TaskToggle />
           </YStack>
         </View>
       </Animated.View>

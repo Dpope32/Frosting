@@ -64,6 +64,7 @@ export const ArchivedProjectsModal: React.FC<ArchivedProjectsModalProps> = ({ op
                 color={isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)"} 
                 fontSize={16} 
                 textAlign="center"
+                fontFamily="$body"
               >
                 No archived projects found.
               </Text>

@@ -1,6 +1,5 @@
-// @ts-nocheck
 import React, { useState } from 'react'
-import { ScrollView, useColorScheme } from 'react-native'
+import { ScrollView, useColorScheme, Dimensions } from 'react-native'
 import { YStack, Button, XStack, isWeb } from 'tamagui'
 import { BlurView } from 'expo-blur'
 import { useUserStore } from '@/store/UserStore'
@@ -21,6 +20,8 @@ import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer'
 
 export default function ProjectsScreen() {
   const { projects, isModalOpen, handleAddProject, handleCloseModal } = useProjects()
+  const screenWidth = Dimensions.get('window').width
+  const screenHeight = Dimensions.get('window').height
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -142,53 +143,111 @@ export default function ProjectsScreen() {
   }
 
   return (
-    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : isDark? 85 : 75} bg={isDark ? '#0a0a0a' : '$backgroundLight'} px={isWeb? 24 : 0}>
-      <ScrollView
-        style={{ flex: 1 }}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          padding: isWeb ? 8 : 6,
-          paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : isIpad() ? 20 : 12,
-          paddingTop: isWeb ? 12 : 20,
-          paddingLeft: isWeb ? 0 : isIpad() ? 20 : 16,
-          display: 'flex',
-          flexDirection: isWeb ? 'row' : 'column',
-          alignItems: items.length === 0 ? 'center' : undefined,
-          justifyContent: items.length === 0 ? 'flex-start' : undefined,
-          flexWrap: isWeb && items.length > 0 ? 'wrap' : undefined,
-          alignSelf: isWeb ? 'center' : 'flex-start',
-          gap: isWeb ? 32 : isIpad() ? 16 : 16,
-          minWidth: isWeb ? 1200 : "100%",
-          maxWidth: isWeb ? 1200 : "100%",
-        }}
-      >
-        {items.length === 0 ? (
-            <ProjectEmpty
-              isDark={isDark}
-              primaryColor={primaryColor}
-              onAddExampleProject={handleAddExampleProject}
-            />
-        ) : (
-          items.map((project: Project, index) => (
-            <YStack key={project.id || `project-${index}`} width={isWeb ? 'calc(33% - 16px)' : isIpad() ? '100%' : '100%'} mb={isWeb ? 0 : isIpad() ? 24 : '$1'}>
-              <ProjectCard
-                project={project}
+    <YStack f={1} pt={isWeb ? 80 : isIpad() ? isDark? 80:  70 : isDark? 85 : 75} bg={isDark ? '#0a0a0a' : '$backgroundLight'} px={isWeb? 0 : 0}>
+      {isWeb && (
+        <YStack f={1} maxWidth={screenWidth} alignSelf="center" width="100%" px={16}>
+          <ScrollView
+            style={{ flex: 1, height: '100%' }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              padding: 0,
+              paddingBottom: 120,
+              paddingTop: 32,
+              paddingLeft: 32,
+              paddingHorizontal: 8,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: items.length === 0 ? 'center' : 'flex-start',
+              justifyContent: items.length === 0 ? 'center' : 'flex-start',
+              flexWrap: items.length > 0 ? 'wrap' : undefined,
+              gap: 40,
+              minHeight: items.length === 0 ? screenHeight - 200 : undefined,
+            }}
+          >
+            {items.length === 0 ? (
+                <ProjectEmpty
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  onAddExampleProject={handleAddExampleProject}
+                />
+            ) : (
+              items.map((project: Project, index) => (
+                <YStack 
+                  key={project.id || `project-${index}`} 
+                  width='calc(33.333% - 16px)' 
+                  minWidth='420px'
+                  maxWidth='500px'
+                  mb={20}
+                  flexShrink={0}
+                >
+                  <ProjectCard
+                    project={project}
+                    isDark={isDark}
+                    primaryColor={primaryColor}
+                    onOpenAddTaskModal={handleOpenAddTaskModal}
+                    onToggleTaskCompleted={(taskId, completed) => handleToggleTaskCompleted(project.id, taskId, completed)}
+                    onEdit={(id) => {
+                      setSelectedEditProjectId(id)
+                      setEditModalOpen(true)
+                    }}
+                    onArchive={handleArchiveProject}
+                    onImagePress={setSelectedImageUrl}
+                  />
+                </YStack>
+              ))
+            )}
+          </ScrollView>
+        </YStack>
+      )}
+      
+      {!isWeb && (
+        <ScrollView
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            padding: 6,
+            paddingBottom: 100,
+            paddingHorizontal: isIpad() ? 20 : 12,
+            paddingTop: 20,
+            paddingLeft: isIpad() ? 20 : 16,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: items.length === 0 ? 'center' : undefined,
+            justifyContent: items.length === 0 ? 'flex-start' : undefined,
+            gap: isIpad() ? 16 : 16,
+          }}
+        >
+          {items.length === 0 ? (
+              <ProjectEmpty
                 isDark={isDark}
                 primaryColor={primaryColor}
-                onOpenAddTaskModal={handleOpenAddTaskModal}
-                onToggleTaskCompleted={(taskId, completed) => handleToggleTaskCompleted(project.id, taskId, completed)}
-                onEdit={(id) => {
-                  setSelectedEditProjectId(id)
-                  setEditModalOpen(true)
-                }}
-                onArchive={handleArchiveProject}
-                onImagePress={setSelectedImageUrl}
+                onAddExampleProject={handleAddExampleProject}
               />
-            </YStack>
-          ))
-        )}
-      </ScrollView>
+          ) : (
+            items.map((project: Project, index) => (
+              <YStack 
+                key={project.id || `project-${index}`} 
+                width={isIpad() ? '100%' : '100%'}
+                mb={isIpad() ? 24 : '$1'}
+              >
+                <ProjectCard
+                  project={project}
+                  isDark={isDark}
+                  primaryColor={primaryColor}
+                  onOpenAddTaskModal={handleOpenAddTaskModal}
+                  onToggleTaskCompleted={(taskId, completed) => handleToggleTaskCompleted(project.id, taskId, completed)}
+                  onEdit={(id) => {
+                    setSelectedEditProjectId(id)
+                    setEditModalOpen(true)
+                  }}
+                  onArchive={handleArchiveProject}
+                  onImagePress={setSelectedImageUrl}
+                />
+              </YStack>
+            ))
+          )}
+        </ScrollView>
+      )}
 
       <Button
         onPress={handleAddProject}

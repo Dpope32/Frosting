@@ -197,7 +197,7 @@ export const NoteCard = ({
                 <Text style={[
                   markdownStyles.checkbox,
                   checked && { textDecorationLine: 'line-through', color: '#888' },
-                  !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
+                  !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text, fontFamily: '$body' }
                 ]}>{label}</Text>
               </TouchableOpacity>
             );
@@ -224,14 +224,13 @@ export const NoteCard = ({
                 <Text style={[
                   markdownStyles.checkbox,
                   checked && { textDecorationLine: 'line-through', color: '#888' },
-                  !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text }
+                  !markdownStyles.checkbox && { flex: 1, fontSize: 16, color: colors.text, fontFamily: '$body' }
                 ]}>{label}</Text>
               </View>
             );
           }
         }
 
-        // Regular bullet - use minimal wrapper that doesn't interfere with touch
         return (
           <View
             key={node.key || node.index || Math.random().toString()}
@@ -350,7 +349,7 @@ export const NoteCard = ({
               <XStack
                 flexWrap="nowrap"
                 paddingHorizontal={horizontalPadding}
-                paddingBottom="$2"
+                paddingBottom={isWeb ? note.tags?.length ? "$3" : "$2" : "$2"}
                 gap="$2"
                 justifyContent="space-between"
                 alignItems="center"
@@ -503,7 +502,7 @@ NoteCard.displayName = 'NoteCard';
 const localStyles = StyleSheet.create({
   touchableContainer: {
     width: Platform.OS === 'web' ? '100%' : '100%',
-    paddingVertical: Platform.OS === 'web' ? 2 : 8,
+    paddingVertical: Platform.OS === 'web' ? 0 : 8,
     paddingHorizontal: Platform.OS === 'web' ? 2 : 4,
     flexShrink: 1,
     alignSelf: 'flex-start',

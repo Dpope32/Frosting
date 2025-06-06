@@ -19,7 +19,7 @@ export const ProjectCardHeader = ({
 }: ProjectCardHeaderProps) => {
   return (
     <XStack jc="space-between" ai="center" mt={isWeb? "$5" : "$1"} ml={isWeb? 16 : 0} mb="$2">
-      <XStack ai="center" gap={isWeb? "$3" : "$2"} f={1} flexWrap="wrap">
+      <XStack ai="center" gap={isWeb? "$2" : "$2"} f={1} flexWrap="wrap">
         <Text 
           color={isDark ? '#f6f6f6' : '#222'} 
           fontSize={isWeb ? "$5" : "$5"} 
@@ -37,7 +37,7 @@ export const ProjectCardHeader = ({
           return (
             <XStack ai="center" gap="$1">
               <MaterialIcons name="event" size={isWeb ? 16 : 12} color={isDark ? '#999' : '#999'} />
-              <Text fontSize={isWeb ? 18 : '$4'} color={isDark ? '#f6f6f6' : '#222'} fontFamily="$body">
+              <Text fontSize={isWeb ? 12 : '$4'} color={isDark ? '#f6f6f6' : '#222'} fontFamily="$body">
                 {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </Text>
             </XStack>
@@ -47,10 +47,17 @@ export const ProjectCardHeader = ({
       
       <Button 
         size="$2" 
+        bg="transparent"
+        borderWidth={1}
+        marginTop={isWeb ? 0 : 0}
+        borderColor={isDark ? '#222' : '#f5f5f5'}
         circular 
         onPress={() => onOpenAddTaskModal?.(project.id)}
+        pressStyle={{
+          bg: isDark ? '#222' : '#f5f5f5',
+        }}
       >
-        <MaterialIcons name="add" size={16} />
+        <MaterialIcons name="add" size={16} color={isDark ? '#f6f6f6' : '#222'} />
       </Button>
     </XStack>
   )

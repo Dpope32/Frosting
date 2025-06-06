@@ -88,6 +88,65 @@ export const useBillStore = create<BillStore>()(
 
           console.log('🆕 BillStore: Updated bill:', updatedBill);
 
+          // If createTask was toggled off, we should clean up existing tasks
+          if (existingBill.createTask && !updatedBill.createTask) {
+            setTimeout(() => {
+              try {
+                const { useProjectStore } = require('./ToDo');
+                const { tasks, deleteTask, recalculateTodaysTasks } = useProjectStore.getState();
+                
+                let deletedTasksCount = 0;
+                
+                // Delete associated tasks with improved matching
+                Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
+                  if (task?.category === 'bills') {
+                    // Multiple ways to match the task name to ensure we catch all variations
+                    const taskName = task.name || '';
+                    const billName = updatedBill.name;
+                    
+                    const isMatchingTask = 
+                      taskName === billName ||
+                      taskName === `${billName} Bill` ||
+                      taskName === `${billName} ($${updatedBill.amount.toFixed(0)})` ||
+                      taskName === `${billName} Bill ($${updatedBill.amount.toFixed(0)})` ||
+                      taskName === `${billName} ($${updatedBill.amount.toFixed(1)})` ||
+                      taskName === `${billName} ($${updatedBill.amount.toFixed(2)})` ||
+                      taskName.includes(billName) ||
+                      (taskName.includes('Bill') && taskName.includes(billName));
+                    
+                    if (isMatchingTask) {
+                      console.log('🗑️ Deleting task due to createTask toggle off:', {
+                        taskId,
+                        taskName,
+                        billName
+                      });
+                      deleteTask(taskId);
+                      deletedTasksCount++;
+                    }
+                  }
+                });
+                
+                // Force recalculation of today's tasks
+                if (typeof recalculateTodaysTasks === 'function') {
+                  recalculateTodaysTasks();
+                }
+                
+                console.log(`✅ Task cleanup completed: ${deletedTasksCount} tasks deleted for bill "${updatedBill.name}"`);
+                
+                // Log the cleanup for debugging
+                try {
+                  getAddSyncLog()(`Cleaned up ${deletedTasksCount} tasks for bill "${updatedBill.name}" (createTask disabled)`, 'info');
+                } catch (e) { /* ignore if logger not available */ }
+                
+              } catch (error) {
+                console.error('Error cleaning up tasks:', error);
+                try {
+                  getAddSyncLog()(`Error cleaning up tasks for bill "${updatedBill.name}": ${error instanceof Error ? error.message : String(error)}`, 'error');
+                } catch (e) { /* ignore if logger not available */ }
+              }
+            }, 0);
+          }
+
           return {
             bills: {
               ...state.bills,

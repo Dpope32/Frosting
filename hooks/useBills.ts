@@ -39,6 +39,7 @@ export function useBills() {
   const {
     addBill: addBillToStore,
     deleteBill: deleteBillFromStore,
+    updateBill: updateBillInStore,
     getBills,
     monthlyIncome,
     setMonthlyIncome
@@ -112,6 +113,81 @@ export function useBills() {
     onError: (error) => {
       console.error('[Delete] Mutation error:', error);
       showToast('Failed to delete bill', 'error');
+    }
+  });
+  
+  const updateBillMutation = useMutation({
+    mutationFn: async (updates: { 
+      id: string; 
+      name: string; 
+      amount: number; 
+      dueDate: number;
+      createTask?: boolean;
+    }) => {
+      const { id, ...billUpdates } = updates;
+      const existingBill = bills?.find(b => b.id === id);
+      
+      if (!existingBill) {
+        throw new Error('Bill not found');
+      }
+      
+      // Track what changes are being made for user feedback
+      const wasCreatingTasks = existingBill.createTask;
+      const willCreateTasks = billUpdates.createTask;
+      
+      // Update the bill in the store
+      updateBillInStore(id, billUpdates);
+      
+      // If createTask is true and wasn't before, create tasks
+      if (billUpdates.createTask && !existingBill.createTask) {
+        const start = new Date();
+        const end = new Date(start.getFullYear() + 5, 11, 31);
+        const tasksToAdd: TaskToAdd[] = [];
+        
+        let currentDate = new Date(start.getFullYear(), start.getMonth(), billUpdates.dueDate);
+        while (currentDate <= end) {
+          const formattedDate = format(currentDate, 'yyyy-MM-dd');
+          const weekDay = getDayName(currentDate);
+          
+          tasksToAdd.push({
+            name: `${billUpdates.name} Bill ($${billUpdates.amount.toFixed(0)})`,
+            schedule: [weekDay],
+            priority: 'high',
+            category: 'bills',
+            scheduledDate: formattedDate,
+            dueDate: billUpdates.dueDate,
+            recurrencePattern: 'monthly'
+          });
+          
+          currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, billUpdates.dueDate);
+        }
+        
+        tasksToAdd.forEach(task => addTask(task));
+      }
+      
+      return { 
+        ...updates, 
+        wasCreatingTasks, 
+        willCreateTasks,
+        tasksEnabled: willCreateTasks && !wasCreatingTasks,
+        tasksDisabled: wasCreatingTasks && !willCreateTasks
+      };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['bills'] });
+      
+      // Provide specific feedback based on what was changed
+      if (data.tasksEnabled) {
+        showToast(`Bill updated and tasks enabled for "${data.name}"`, 'success');
+      } else if (data.tasksDisabled) {
+        showToast(`Bill updated and tasks removed for "${data.name}"`, 'success');
+      } else {
+        showToast('Bill updated successfully', 'success');
+      }
+    },
+    onError: (error) => {
+      console.error('[Update] Mutation error:', error);
+      showToast('Failed to update bill', 'error');
     }
   });
   
@@ -275,6 +351,16 @@ export function useBills() {
     isLoading,
     addBill,
     addBills,
+    updateBill: (updates: { id: string; name: string; amount: number; dueDate: number; createTask?: boolean }, options?: { onSuccess?: () => void, onError?: () => void }) => {
+      updateBillMutation.mutate(updates, {
+        onSuccess: () => {
+          if (options?.onSuccess) options.onSuccess();
+        },
+        onError: () => {
+          if (options?.onError) options.onError();
+        }
+      });
+    },
     deleteBill: (id: string, options?: { onSuccess?: () => void, onError?: () => void }) => {
       deleteBillMutation.mutate(id, {
         onSuccess: () => {

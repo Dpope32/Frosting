@@ -137,16 +137,16 @@ export default function VaultScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             padding: isWeb ? 0 : 16,
+            paddingHorizontal: isWeb ? 24 : 0,
             paddingBottom: 120,
             paddingTop: isWeb ? 10 : 20,
             display: isWeb ? 'flex' : undefined,
             flexDirection: isWeb ? 'row' : undefined,
             flexWrap: isWeb ? 'wrap' : undefined,
             justifyContent: isWeb ? 'flex-start' : undefined,
+            alignItems: isWeb ? 'flex-start' : undefined,
             rowGap: isWeb ? 12 : 16,
             columnGap: isWeb ? 12 : 16,
-            maxWidth: isWeb ? 1800 : undefined,
-            marginHorizontal: isWeb ? 'auto' : undefined,
           }}
         >
           {isLoading ? (

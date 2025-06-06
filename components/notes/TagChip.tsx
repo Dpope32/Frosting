@@ -15,13 +15,15 @@ export const TagChip = ({ tag }: { tag: { id: string, name: string, color?: stri
       borderWidth={1}
       borderColor={`${tag.color || colors.textSecondary}50`}
       alignItems="center"
-      margin={isWeb ? 2 : 2}
+      margin={isWeb ? 0 : 2}
       className={isWeb ? "note-tag" : undefined}
     >
       <Text
         fontSize={isWeb ? 12 : 11}
         color={`${tag.color}99`}
         fontWeight="500"
+        lineHeight={isWeb ? 16 : 14}
+        paddingHorizontal={isWeb ? 6 : 4}
         fontFamily="$body"
         className={isWeb ? "note-text" : undefined}
       >

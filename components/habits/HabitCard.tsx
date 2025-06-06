@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal } from 'react-native';
+import { Pressable, View, StyleSheet, Platform, Alert, findNodeHandle, Modal, Dimensions } from 'react-native';
 import { XStack, YStack, Text, isWeb } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -28,7 +28,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   const showToast = useToastStore((state) => state.showToast);
   const statsButtonRef = useRef<View>(null);
   const [statsButtonLayout, setStatsButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
-
+  const screenWidth = Dimensions.get('window').width;
   const today = new Date().toISOString().split('T')[0];
   const notificationTime = habit.notificationTimeValue;
   const notificationTimeDate = notificationTime ? notificationTime : 'none';
@@ -75,7 +75,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
 
   const squareSize = isIpad() ? 21 : 20;
   const gap = isIpad() ? 4 : isMobile ? 3 : 4;
-  const cellsToShow = isIpad() ? 21 : isMobile ? 14 : isWeb? 90 : 73;
+  const cellsToShow = isIpad() ? 21 : isMobile ? 14 : isWeb? screenWidth * 0.025 : 73;
 
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
     if (isMobile) {

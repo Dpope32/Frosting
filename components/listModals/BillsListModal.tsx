@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { YStack, XStack, Text } from 'tamagui';
+import { YStack, XStack, Text, isWeb } from 'tamagui';
 import { Pressable, Platform, useColorScheme} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useBills } from '@/hooks';
@@ -20,7 +20,6 @@ export function BillsListModal({ open, onOpenChange, onEditBill }: BillsListModa
   const { bills, deleteBill, addBill } = useBills()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const isWeb = Platform.OS === 'web';
   const [housingModalOpen, setHousingModalOpen] = useState(false);
   const [transportationModalOpen, setTransportationModalOpen] = useState(false);
   const [subscriptionsModalOpen, setSubscriptionsModalOpen] = useState(false);
@@ -128,7 +127,7 @@ export function BillsListModal({ open, onOpenChange, onEditBill }: BillsListModa
                   padding="$3"
                   alignItems="center"
                   justifyContent="space-between"
-                  marginBottom={0}
+                  marginBottom={8}
                   {...(isDueToday ? {
                     borderWidth: 1,
                     borderColor: isDark ? "$red9" : "$red10"

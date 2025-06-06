@@ -49,20 +49,19 @@ export const ProjectCardWebView = ({
       ]
     };
   });
+  
   return (
-    <XStack
+    <YStack
       bg={isDark ? '#111' : '#f5f5f5'}
       px="$4"
+      pt="$2"
+      pb="$3"
       br="$4"
-      ai="center"
       animation="quick"
-      width={1300}
-      minWidth={1300}
-      marginTop={30}
-      maxWidth={1100}
-      borderWidth={4}
+      width="100%"
+      minHeight={300}
+      borderWidth={2}
       borderColor={project.status === 'completed' ? '$green10' : project.status === 'in_progress' ? '$yellow10' : project.status === 'pending' ? '$orange10' : project.status === 'past_deadline' ? '$red10' : '$gray10'}
-      minHeight={260}
       position="relative"
       hoverStyle={{
         transform: [{ scale: 1.02 }],
@@ -116,64 +115,72 @@ export const ProjectCardWebView = ({
           </Animated.View>
         </Pressable>
       )}
-      <YStack flex={1}>
-        <ProjectCardHeader 
-          project={project}
-          isDark={isDark}
-          onOpenAddTaskModal={onOpenAddTaskModal}
-          isWeb={true}
-        />
+      
+      <ProjectCardHeader 
+        project={project}
+        isDark={isDark}
+        onOpenAddTaskModal={onOpenAddTaskModal}
+        isWeb={true}
+      />
 
-        <XStack ai="center" gap="$2" my="$2" ml={"$5"}>
-          <Text color={isDark ? '#ccc' : '#666'} fontSize="$4" w={120} fontFamily="$body">
+      <YStack gap="$2" my="$2" mx="$6">
+        <XStack ai="flex-start" gap="$2">
+          <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" fontWeight="600" fontFamily="$body" minWidth={80}>
             Description:
           </Text>
-          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$4" flex={1} fontFamily="$body">
+          <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body" lineHeight="$1">
             {project?.description || 'No description'}
           </Text>
         </XStack>
 
         {project?.deadline && (
-          <XStack ai="center" gap="$2" my="$2" ml="$5">
-            <Text color={isDark ? '#ccc' : '#666'} fontSize="$4" w={120} fontFamily="$body">
+          <XStack ai="center" gap="$2">
+            <Text color={isDark ? '#ccc' : '#666'} fontSize="$3" fontWeight="600" fontFamily="$body" minWidth={80}>
               Deadline:
             </Text>
-            <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$4" flex={1} fontFamily="$body">
+            <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
               {getDaysUntilDeadline(project.deadline)}
             </Text>
           </XStack>
         )}
-
-        {project.tasks?.length > 0 && (
-          <>
-            <YStack p="$4">
-              <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={10} />
-              {project.tasks.length > 1 && (
-                <Text fontSize={16} color={isDark ? '#aaa' : '#444'} mb={2} fontFamily="$body">
-                  {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
-                </Text>
-              )}
-              <XStack gap={12} flexWrap="wrap" mb={10} px={"$2"}>
-                {project.tasks.map((task) => (
-                  <TaskListItem
-                    key={task.id}
-                    task={task}
-                    isDark={isDark}
-                    onToggleTaskCompleted={onToggleTaskCompleted}
-                  />
-                ))}
-              </XStack>
-            </YStack>
-          </>
-        )}
-
-        {project.attachments?.length > 0 && (
-          <>
-            <XStack w="100%" h={1} bg={isDark ? '#222' : '#ccc'} opacity={0.5} mb={8} my={8} />
-            <ProjectAttachments attachments={project.attachments} isDark={isDark} onImagePress={onImagePress} />
-          </>
-        )}
       </YStack>
-    </XStack>
+
+      {project.tasks?.length > 0 && (
+        <YStack mx="$6" mt="$2">
+          <XStack w="100%" h={1} bg={isDark ? '#222' : '#ddd'} opacity={0.7} my="$2" />
+          {project.tasks.length > 1 && (
+            <Text fontSize="$3" color={isDark ? '#aaa' : '#555'} mb="$2" fontFamily="$body">
+              {project.tasks.filter(t => t.completed).length}/{project.tasks.length} completed
+            </Text>
+          )}
+          <YStack 
+            gap="$1" 
+            maxHeight={200} 
+            style={{ 
+              overflowY: 'auto',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            } as any}
+            className="hide-scrollbar"
+          >
+            {project.tasks.map((task) => (
+              <TaskListItem
+                key={task.id}
+                task={task}
+                isDark={isDark}
+                onToggleTaskCompleted={onToggleTaskCompleted}
+              />
+            ))}
+          </YStack>
+        </YStack>
+      )}
+
+      {project.attachments?.length > 0 && (
+        <YStack mx="$4" mt="$2">
+          <XStack w="100%" h={1} bg={isDark ? '#222' : '#ddd'} opacity={0.7} my="$2" />
+          <ProjectAttachments attachments={project.attachments} isDark={isDark} onImagePress={onImagePress} />
+        </YStack>
+      )}
+    </YStack>
   )
 }

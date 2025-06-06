@@ -154,7 +154,8 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       bg={isDark ? '#1e1e1e' : '$gray1'}
       br={8}
       p={isWeb ? "$4" : isIpad() ? "$3" : "$2"}
-      py={isWeb ? "$4" : "$3"}
+      pt={isWeb ? "$3" : "$3"}
+      pb={isWeb ? "$2" : "$2"}
       px={isWeb ? "$4" : "$3"}
       alignItems="center"
       justifyContent="space-between"
@@ -165,7 +166,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       <Animated.View style={deleteIndicatorStyle} />
       <YStack flex={1}>
         <Text fontSize={isWeb ? 15 : 16} fontWeight="500" fontFamily="$body" color={isDark ? '$gray12' : '$gray11'}>{task.name}</Text>
-        <XStack flexWrap="wrap" py={isWeb ? "$2" : "$1.5"} mt="$1">
+        <XStack flexWrap="wrap" py={isWeb ? "$2" : "$1.5"} mt={isWeb ? "$1" : "$1"}>
           {task.category && task.category !== 'bills' && (
             <XStack ai="center" bg={isCustom ? `${userColor}15` : `${getCategoryColor(task.category)}1A`} px={isWeb ? "$2" : "$2"} py="$1" br={12} mr="$2">
               {!isCustom && (
@@ -190,7 +191,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       <Animated.View style={deleteTextStyle}>
         <XStack gap="$2" ai="center">
           <Ionicons name="trash-outline" size={16} color="#ff3b30" />
-          <Text color="#ff3b30" fontSize={12} fontWeight="500">Delete</Text>
+          <Text color="#ff3b30" fontSize={12} fontWeight="500" fontFamily="$body">Delete</Text>
         </XStack>
       </Animated.View>
       <Animated.View style={progressStyle} />

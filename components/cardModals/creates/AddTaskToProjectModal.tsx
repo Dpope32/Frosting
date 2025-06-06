@@ -95,7 +95,7 @@ export function AddTaskToProjectModal({ open, onOpenChange, onSave, projectName 
           spellCheck
           fontSize={isIpad() ? 17 : 15}
           fontFamily="$body"
-          fontWeight="bold"
+          fontWeight="500"
           color={isDark ? '#f6f6f6' : '#111'}
           backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
           borderWidth={1}
