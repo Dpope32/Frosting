@@ -162,52 +162,6 @@ export const SnapshotSize: React.FC<SnapshotSizeProps> = ({
               </XStack>
             )}
           </XStack>
-
-          {/* Detailed breakdown */}
-          <View style={{
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingTop: baseSpacing,
-            marginTop: baseSpacing / 2,
-          }}>
-            <XStack justifyContent="space-between" flexWrap="wrap" gap={baseSpacing}>
-              <YStack alignItems="flex-start">
-                <Text fontSize={fontSizes.xs} color={colors.subtext} fontFamily="$body">
-                  Bytes
-                </Text>
-                <Text fontSize={fontSizes.xs} color={colors.text} fontFamily="$body" fontWeight="500">
-                  {data.formatted.bytes}
-                </Text>
-              </YStack>
-              
-              <YStack alignItems="center">
-                <Text fontSize={fontSizes.xs} color={colors.subtext} fontFamily="$body">
-                  KB
-                </Text>
-                <Text fontSize={fontSizes.xs} color={colors.text} fontFamily="$body" fontWeight="500">
-                  {data.formatted.kb}
-                </Text>
-              </YStack>
-              
-              <YStack alignItems="center">
-                <Text fontSize={fontSizes.xs} color={colors.subtext} fontFamily="$body">
-                  MB
-                </Text>
-                <Text fontSize={fontSizes.xs} color={colors.text} fontFamily="$body" fontWeight="500">
-                  {data.formatted.mb}
-                </Text>
-              </YStack>
-              
-              <YStack alignItems="flex-end">
-                <Text fontSize={fontSizes.xs} color={colors.subtext} fontFamily="$body">
-                  GB
-                </Text>
-                <Text fontSize={fontSizes.xs} color={colors.text} fontFamily="$body" fontWeight="500">
-                  {data.formatted.gb}
-                </Text>
-              </YStack>
-            </XStack>
-          </View>
         </YStack>
       ) : (
         <YStack alignItems="center" padding={baseSpacing * 2}>
