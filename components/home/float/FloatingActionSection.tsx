@@ -5,6 +5,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useUserStore } from '@/store';
 import { isIpad } from '@/utils';
 import { Text, YStack, XStack } from 'tamagui';
+import { Animated } from 'react-native';
+import { useRef } from 'react';
 
 interface FloatingActionSectionProps {
   onActionPress: (name: string) => void;
@@ -26,7 +28,7 @@ const ACTIONS = [
 export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ onActionPress, isDark }) => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor);
   const [open, setOpen] = useState(false);
-  
+  const pressedAnim = useRef(new Animated.Value(0)).current;
   // Memoize static values
   const textColor = useMemo(() => isDark ? '#f9f9f9' : '#fff', [isDark]);
   const iconSize = useMemo(() => isIpad() ? 26 : 20, []);
@@ -97,10 +99,24 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
                 style={styles.actionBtn}
                 activeOpacity={0.7}
                 onPress={() => handleActionPress(action.name)}
+                onPressIn={() => {
+                  Animated.timing(pressedAnim, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true
+                  }).start();
+                }}
+                onPressOut={() => {
+                  Animated.timing(pressedAnim, {
+                    toValue: 0,
+                    duration: 100,
+                    useNativeDriver: true
+                  }).start();
+                }}
               >
                 <XStack alignItems="center" gap="$2">
                   <MaterialIcons name={action.icon as any} size={iconSize} color={primaryColor} />
-                  <Text color={isDark ? '#f9f9f9' : '#222'} fontSize={16}>
+                  <Text color={isDark ? '#f9f9f9' : '#222'} fontSize={16} fontFamily="$body">
                     {action.label}
                   </Text>
                 </XStack>
@@ -147,6 +163,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
+    transform: [{ scale: 1.05 }],
   },
   overlay: {
     flex: 1,

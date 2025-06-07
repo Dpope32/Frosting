@@ -102,7 +102,7 @@ export function Base({
                 style={[
                   styles.modalContainer,
                   {
-                    backgroundColor: isDark ? '#2c2c2c' : '#fff',
+                    backgroundColor: isDark ? '#0a0a0a' : '#fff',
                     marginTop: insets.top + 20, 
                     marginBottom: insets.bottom + 20,
                     width: actualWidth,
