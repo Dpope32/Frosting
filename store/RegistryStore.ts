@@ -220,6 +220,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       people: peopleStateForSnapshot, 
       customCategory: customCategoryState, 
       tags: tagsState, 
+      portfolio: portfolioStateForSnapshot,
       projects: projectStateForSnapshot, 
       wallpaper: { sync_disabled: true, local_cache_only: true, lastUpdated: now },
     };
