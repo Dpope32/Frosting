@@ -142,74 +142,115 @@ export const StarsAnimation = () => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   if (Platform.OS === 'web') {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const starPool = useRef<Star[]>([]);
-
-    useMemo(() => {
-      starPool.current = [...Array(95)].map((_, i) => ({
-        id: i,
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 3 + 1,
-        speed: Math.random() * 0.8 + 0.2,
-        opacity: Math.random() * 0.5 + 0.3,
-        twinkleSpeed: Math.random() * 0.02 + 0.01,
-        twinklePhase: Math.random() * Math.PI * 2,
-        layer: i < 30 ? 'slow' : i < 60 ? 'medium' : 'twinkle'
-      }));
-    }, []);
-
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      let animationFrameId: number;
-      const resizeObserver = new ResizeObserver(() => {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-      });
-
-      resizeObserver.observe(canvas);
-      
-      const animate = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        starPool.current.forEach((star) => {
-          star.x = (star.x + star.speed) % canvas.width;
-          star.opacity += star.twinkleSpeed;
-          if (star.opacity > 1 || star.opacity < 0.3) star.twinkleSpeed *= -1;
-          
-          ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-          ctx.fill();
-        });
-
-        animationFrameId = requestAnimationFrame(animate);
-      };
-
-      animate();
-      return () => {
-        cancelAnimationFrame(animationFrameId);
-        resizeObserver.disconnect();
-      };
-    }, []);
-
     return (
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          zIndex: 1,
-          pointerEvents: 'none'
-        }}
-      />
-    );
+      <>
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            zIndex: 1,
+            overflow: 'hidden'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              width: '200%',
+              height: '200%',
+              animation: 'moveStarsSlow 120s linear infinite',
+              left: '-50%',
+              top: '-50%'
+            }}
+          >
+            {[...Array(30)].map((_, i) => (
+              <div
+                key={`slow-${i}`}
+                style={{
+                  position: 'absolute',
+                  width: i % 5 === 0 ? '3px' : '2px',
+                  height: i % 5 === 0 ? '3px' : '2px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  borderRadius: '50%',
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  boxShadow: i % 5 === 0 ? '0 0 3px 1px rgba(255, 255, 255, 0.3)' : 'none'
+                }}
+              />
+            ))}
+          </div>
+          
+          <div
+            style={{
+              position: 'absolute',
+              width: '200%',
+              height: '200%',
+              animation: 'moveStarsMedium 80s linear infinite',
+              left: '-50%',
+              top: '-50%'
+            }}
+          >
+            {[...Array(40)].map((_, i) => (
+              <div
+                key={`medium-${i}`}
+                style={{
+                  position: 'absolute',
+                  width: i % 7 === 0 ? '2px' : '1px',
+                  height: i % 7 === 0 ? '2px' : '1px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                  borderRadius: '50%',
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  boxShadow: i % 10 === 0 ? '0 0 2px 1px rgba(255, 255, 255, 0.2)' : 'none'
+                }}
+              />
+            ))}
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%'
+            }}
+          >
+            {[...Array(25)].map((_, i) => (
+              <div
+                key={`twinkle-${i}`}
+                style={{
+                  position: 'absolute',
+                  width: '1px',
+                  height: '1px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  borderRadius: '50%',
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animation: `twinkle ${3 + Math.random() * 5}s ease-in-out infinite`,
+                  animationDelay: `${Math.random() * 5}s`
+                }}
+              />
+            ))}
+          </div>
+        </View>
+        
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes moveStarsSlow {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-25%, -25%); }
+          }
+          
+          @keyframes moveStarsMedium {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50%, -25%); }
+          }
+          
+          @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.5); }
+          }
+        `}} />
+      </>
+    )
   }
 
   // Native performance optimization
