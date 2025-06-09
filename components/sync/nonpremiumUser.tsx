@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, TextInput, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image, TextInput } from 'react-native';
 import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useUserStore, useToastStore, useRegistryStore } from '@/store';
+import { useUserStore } from '@/store';
 import { isIpad } from '@/utils/deviceUtils';
 import { baseSpacing, cardRadius, Colors } from './sharedStyles';
 import { startPremiumPurchase } from '@/services/premiumService';
 import { addSyncLog } from './syncUtils';
-import { createOrJoinWorkspace } from '@/sync';
 
 interface NonPremiumUserProps {
   colors: Colors;
@@ -20,39 +19,9 @@ interface NonPremiumUserProps {
 export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace }: NonPremiumUserProps) {
   const isDev = __DEV__;
   const setPreferences = useUserStore(state => state.setPreferences);
-  const [inviteCode, setInviteCode] = useState('');
+  const [activeTab, setActiveTab] = useState<'premium' | 'join'>('premium');
+  const [workspaceCode, setWorkspaceCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
-  const [showInviteInput, setShowInviteInput] = useState(false);
-  
-  const handleJoinWorkspace = async () => {
-    if (!inviteCode.trim()) {
-      useToastStore.getState().showToast('Please enter an invite code', 'error');
-      return;
-    }
-
-    setIsJoining(true);
-    const code = inviteCode.trim();
-    addSyncLog(`🔌 Non-premium user attempting to join via ${code.slice(0, 8)}…`, 'info');
-
-    try {
-      const result = await createOrJoinWorkspace(undefined, code);
-      
-      // Set premium and workspace
-      setPreferences({ premium: true });
-      useRegistryStore.getState().setWorkspaceId(result.id);
-      
-      addSyncLog(`✅ Joined workspace ${result.id.slice(0, 8)} - premium activated`, 'success');
-      useToastStore.getState().showToast('Successfully joined workspace!', 'success');
-      
-    } catch (error) {
-      console.error('Failed to join workspace:', error);
-      addSyncLog('Failed to join workspace', 'error',
-        error instanceof Error ? error.message : String(error));
-      useToastStore.getState().showToast('Invalid invite code', 'error');
-    } finally {
-      setIsJoining(false);
-    }
-  };
   
   const handlePremiumPress = async () => {
     if (isDev) {
@@ -105,28 +74,14 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
   const inputBg = isWeb ? 'rgba(45, 52, 62, 0.8)' : colors.bg;
 
   return (
-    <View style={[styles.container, { width: contentWidth }]}>
-      {isJoining && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={colors.accent} />
-          <Text 
-            fontSize={16} 
-            color={colors.text} 
-            fontFamily="$body"
-            marginTop={baseSpacing}
-          >
-            Joining workspace...
-          </Text>
-        </View>
-      )}
+    <View style={[styles.container, { maxWidth: isWeb ? 600 : contentWidth }]}>
       <View
         style={[
           styles.heroCard,
           {
-            backgroundColor: isWeb ? 'rgba(255, 255, 255, 0.75)' : 'rgba(58, 86, 18, 0.13)',
-            borderColor: colors.accent + '22',
-            shadowColor: colors.accent + '33',
-            opacity: isJoining ? 0.3 : 1,
+            backgroundColor: cardBg,
+            borderColor: colors.accent + '33',
+            shadowColor: colors.accent + '44',
           },
         ]}
       >
@@ -158,201 +113,271 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
           
           <TouchableOpacity
             style={[
-              StyleSheet.absoluteFillObject,
-              { zIndex: 0 },
+              styles.tab,
+              activeTab === 'join' && { backgroundColor: colors.accent + '22' }
             ]}
-            pointerEvents="none"
-          />
-        )}
-        <View style={[styles.iconContainer, { backgroundColor: colors.accentBg, overflow: 'hidden' }]}>
-          <Image
-            source={require('../../assets/images/pog2.png')}
-            style={{
-              width: '100%',
-              height: '100%',
-              resizeMode: 'cover',
-              transform: [{ scaleX: flipped ? -1 : 1 }],
-              borderRadius: 9999,
-              borderWidth: 2,
-              borderColor: colors.accent,
-            }}
-            accessibilityLabel="Pot of Greed"
-          />
-        </View>
-        <Text 
-          fontSize={isLarge ? 28 : 24} 
-          fontWeight="800" 
-          color={colors.text} 
-          fontFamily="$body"
-          textAlign="center"
-          marginBottom={baseSpacing}
-          style={styles.heading}
-        >
-          Premium
-        </Text>
-        <Text 
-          fontSize={isLarge ? 14 : 13} 
-          color={colors.subtext} 
-          fontFamily="$body"
-          textAlign="center"
-          marginBottom={baseSpacing / 2}
-          lineHeight={isLarge ? 24 : 22}
-        >
-          Ready to sync your data across all your devices?
-        </Text>
-        <XStack>
-          <Text fontSize={12} color={colors.subtext2} fontFamily="$body">
-            All data is encrypted and decrypted on your device! When syncing, multiple devices share the same key.
-          </Text>
-          </XStack>
-        <YStack alignItems="flex-start" marginVertical={baseSpacing * 2}>
-        <TouchableOpacity
-          onPress={handleButtonPress}
-          style={styles.ctaButton}
-          activeOpacity={0.88}
-        >
-          <LinearGradient
-            colors={[colors.accent, colors.accent + 'DD']}
-            style={styles.buttonGradient}
+            onPress={() => setActiveTab('join')}
           >
-            <XStack alignItems="center" gap={baseSpacing}>
-              <Text 
-                color="#333" 
-                fontSize={isLarge ? 18 : 16} 
-                fontWeight="700" 
-                fontFamily="$body"
-              >
-                {isDev ? '🚀 Activate Premium (Dev)' : 'Get Premium Access'}
-              </Text>
-              <MaterialIcons 
-                name={isDev ? "flash-on" : "arrow-forward"} 
-                size={isLarge ? 20 : 18} 
-                color="white" 
-              />
-            </XStack>
-          </LinearGradient>
-        </TouchableOpacity>
-        <XStack alignItems="center" marginTop={baseSpacing * 2} >
-          </XStack>
-          <XStack paddingHorizontal={baseSpacing} alignItems="center" gap={baseSpacing / 2} marginTop={2}>
-          <Text 
-              fontSize={isLarge ? 12 : 11} 
-              fontWeight="700" 
-              color={colors.accent} 
-              fontFamily="$body"
-            >
-              ONLY $4/month
-            </Text>
-            <Text 
-              fontSize={isLarge ? 11 : 10} 
-              color={colors.subtext} 
-              fontFamily="$body"
-              fontWeight="600"
-            >
-              or
-            </Text>
-            <Text  
-              fontSize={isLarge ? 11 : 10} 
-              color={colors.accent} 
-              fontFamily="$body"
-              fontWeight="700"
-              marginLeft={4}
-            >
-              $25/year
-            </Text>
-          </XStack>
-        </YStack>
-        
-        {/* Subtle invite code section */}
-        <TouchableOpacity 
-          onPress={() => setShowInviteInput(!showInviteInput)}
-          style={styles.inviteToggle}
-          activeOpacity={0.7}
-        >
-          <XStack alignItems="center" gap={baseSpacing / 2}>
             <MaterialIcons 
               name="group-add" 
-              size={14} 
-              color={colors.subtext} 
+              size={16} 
+              color={activeTab === 'join' ? '#000' : colors.subtext} 
             />
             <Text 
-              fontSize={11} 
+              fontSize={14} 
+              fontWeight={activeTab === 'join' ? '700' : '500'}
+              color={activeTab === 'join' ? '#000' : colors.subtext}
+              fontFamily="$body"
+            >
+              Join Workspace
+            </Text>
+          </TouchableOpacity>
+        </XStack>
+
+        {activeTab === 'premium' ? (
+          <YStack alignItems="center" flex={1} justifyContent="center">
+            <View style={[styles.iconContainer, { backgroundColor: colors.accentBg }]}>
+              <Image
+                source={require('../../assets/images/pog2.png')}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  resizeMode: 'cover',
+                  transform: [{ scaleX: flipped ? -1 : 1 }],
+                  borderRadius: 9999,
+                  borderWidth: 2,
+                  borderColor: colors.accent,
+                }}
+                accessibilityLabel="Pot of Greed"
+              />
+            </View>
+            
+            <Text 
+              fontSize={isLarge ? 32 : 28} 
+              fontWeight="800" 
+              color={colors.text} 
+              fontFamily="$body"
+              textAlign="center"
+              marginBottom={baseSpacing}
+            >
+              Premium
+            </Text>
+            
+            <Text 
+              fontSize={isLarge ? 16 : 14} 
               color={colors.subtext} 
               fontFamily="$body"
-              fontWeight="600"
+              textAlign="center"
+              marginBottom={baseSpacing * 2}
+              lineHeight={isLarge ? 26 : 24}
+              maxWidth={isLarge ? 400 : 300}
             >
-              Have an invite code?
+              Ready to sync your data across all your devices?
             </Text>
-            <MaterialIcons 
-              name={showInviteInput ? "keyboard-arrow-up" : "keyboard-arrow-down"} 
-              size={16} 
-              color={colors.subtext} 
-            />
-          </XStack>
-        </TouchableOpacity>
 
-        {showInviteInput && (
-          <YStack gap={baseSpacing} marginTop={baseSpacing} alignItems="center">
-            <TextInput
-              style={[
-                styles.inviteInput,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: colors.border,
-                  color: colors.text,
-                }
-              ]}
-              value={inviteCode}
-              onChangeText={setInviteCode}
-              placeholder="Enter invite code"
-              placeholderTextColor={colors.subtext}
-              autoCapitalize="none"
-              editable={!isJoining}
-            />
-            <TouchableOpacity
-              onPress={handleJoinWorkspace}
-              style={[
-                styles.joinButton,
-                { 
-                  backgroundColor: colors.accentBg,
-                  borderColor: colors.accent,
-                  opacity: !inviteCode.trim() || isJoining ? 0.5 : 1,
-                }
-              ]}
-              disabled={!inviteCode.trim() || isJoining}
-              activeOpacity={0.8}
+            <YStack 
+              style={[styles.featureList, { backgroundColor: featureBg }]}
+              marginBottom={baseSpacing * 3}
             >
+              <XStack alignItems="center" gap={baseSpacing}>
+                <MaterialIcons name="sync" size={20} color={colors.accent} />
+                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
+                  Unlimited device sync
+                </Text>
+              </XStack>
+              <XStack alignItems="center" gap={baseSpacing}>
+                <MaterialIcons name="security" size={20} color={colors.accent} />
+                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
+                  End-to-end encryption
+                </Text>
+              </XStack>
+              <XStack alignItems="center" gap={baseSpacing}>
+                <MaterialIcons name="backup" size={20} color={colors.accent} />
+                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
+                  Automatic backups
+                </Text>
+              </XStack>
+            </YStack>
+            
+            <TouchableOpacity
+              onPress={handlePremiumPress}
+              style={styles.ctaButton}
+              activeOpacity={0.88}
+            >
+              <LinearGradient
+                colors={[colors.accent, colors.accent + 'DD']}
+                style={styles.buttonGradient}
+              >
+                <XStack alignItems="center" gap={baseSpacing}>
+                  <Text 
+                    color="#333" 
+                    fontSize={isLarge ? 18 : 16} 
+                    fontWeight="700" 
+                    fontFamily="$body"
+                  >
+                    {isDev ? '🚀 Activate Premium (Dev)' : 'Get Premium Access'}
+                  </Text>
+                  <MaterialIcons 
+                    name={isDev ? "flash-on" : "arrow-forward"} 
+                    size={isLarge ? 20 : 18} 
+                    color="#333" 
+                  />
+                </XStack>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <XStack alignItems="center" gap={baseSpacing} marginTop={baseSpacing * 2}>
               <Text 
-                fontSize={12} 
-                color={colors.text} 
+                fontSize={isLarge ? 14 : 12} 
+                fontWeight="700" 
+                color={colors.accent} 
+                fontFamily="$body"
+              >
+                ONLY $4/month
+              </Text>
+              <Text 
+                fontSize={isLarge ? 12 : 11} 
+                color={colors.subtext} 
                 fontFamily="$body"
                 fontWeight="600"
               >
-                Join Workspace
+                or
               </Text>
-            </TouchableOpacity>
+              <Text  
+                fontSize={isLarge ? 12 : 11} 
+                color={colors.accent} 
+                fontFamily="$body"
+                fontWeight="700"
+              >
+                $25/year
+              </Text>
+            </XStack>
+
+            <XStack 
+              alignItems="center" 
+              justifyContent="center" 
+              gap={baseSpacing * 2} 
+              marginTop={baseSpacing * 2}
+            >
+              <XStack alignItems="center" gap={baseSpacing / 2}>
+                <MaterialIcons name="cancel" size={16} color={colors.subtext} />
+                <Text fontSize={12} color={colors.subtext} fontFamily="$body">
+                  Cancel anytime
+                </Text>
+              </XStack>
+            </XStack>
+          </YStack>
+        ) : (
+          <YStack alignItems="center" flex={1} justifyContent="center">
+            <MaterialIcons 
+              name="group-add" 
+              size={isLarge ? 80 : 64} 
+              color={colors.accent} 
+              style={{ marginBottom: baseSpacing * 2 }}
+            />
+            
+            <Text 
+              fontSize={isLarge ? 28 : 24} 
+              fontWeight="800" 
+              color={colors.text} 
+              fontFamily="$body"
+              textAlign="center"
+              marginBottom={baseSpacing}
+            >
+              Join Workspace
+            </Text>
+            
+            <Text 
+              fontSize={isLarge ? 16 : 14} 
+              color={colors.subtext} 
+              fontFamily="$body"
+              textAlign="center"
+              marginBottom={baseSpacing * 3}
+              lineHeight={isLarge ? 26 : 24}
+              maxWidth={isLarge ? 400 : 300}
+            >
+              Enter the workspace code shared by a premium user to join their workspace and sync your data.
+            </Text>
+
+            <YStack width="100%" maxWidth={isLarge ? 400 : 320} gap={baseSpacing * 2}>
+              <YStack gap={baseSpacing}>
+                <Text 
+                  fontSize={14} 
+                  fontWeight="600" 
+                  color={colors.text} 
+                  fontFamily="$body"
+                >
+                  Workspace Code
+                </Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: inputBg,
+                      borderColor: workspaceCode ? colors.accent : colors.border,
+                      color: colors.text,
+                    }
+                  ]}
+                  value={workspaceCode}
+                  onChangeText={setWorkspaceCode}
+                  placeholder="Enter workspace code..."
+                  placeholderTextColor={colors.subtext}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  maxLength={20}
+                />
+              </YStack>
+
+              <TouchableOpacity
+                onPress={handleJoinWorkspace}
+                style={[
+                  styles.ctaButton2,
+                  { opacity: !workspaceCode.trim() || isJoining ? 0.5 : 1, maxWidth: undefined }
+                ]}
+                activeOpacity={0.88}
+                disabled={!workspaceCode.trim() || isJoining}
+              >
+                <LinearGradient
+                  colors={[colors.accent, colors.accent + 'DD']}
+                  style={styles.buttonGradient}
+                >
+                  <XStack alignItems="center" gap={baseSpacing}>
+                    {isJoining ? (
+                      <MaterialIcons name="hourglass-empty" size={18} color="white" />
+                    ) : (
+                      <MaterialIcons name="group-add" size={18} color="white" />
+                    )}
+                    <Text 
+                      color="white" 
+                      fontSize={isLarge ? 18 : 16} 
+                      fontWeight="700" 
+                      fontFamily="$body"
+                    >
+                      {isJoining ? 'Joining...' : 'Join Workspace'}
+                    </Text>
+                  </XStack>
+                </LinearGradient>
+              </TouchableOpacity>
+            </YStack>
+
+            <YStack 
+              style={[styles.infoBox, { backgroundColor: infoBg }]}
+              marginTop={baseSpacing * 3}
+            >
+              <XStack alignItems="flex-start" gap={baseSpacing}>
+                <MaterialIcons name="info" size={16} color={colors.accent} style={{ marginTop: 2 }} />
+                <YStack flex={1}>
+                  <Text fontSize={12} color={colors.text} fontFamily="$body" fontWeight="600" marginBottom={4}>
+                    How it works:
+                  </Text>
+                  <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
+                    Premium users can share their workspace code with you. Once you join, your data will sync with their workspace using the same encryption key.
+                  </Text>
+                </YStack>
+              </XStack>
+            </YStack>
           </YStack>
         )}
-        
-        <XStack 
-          alignItems="center" 
-          justifyContent="center" 
-          gap={baseSpacing * 2} 
-          marginTop={baseSpacing * 2}
-        >
-          <XStack alignItems="center" gap={baseSpacing / 2}>
-            <MaterialIcons name="security" size={16} color={colors.subtext} />
-            <Text fontSize={12} color={colors.subtext} fontFamily="$body">
-              Secure
-            </Text>
-          </XStack>
-          <XStack alignItems="center" gap={baseSpacing / 2}>
-            <MaterialIcons name="cancel" size={16} color={colors.subtext} />
-            <Text fontSize={12} color={colors.subtext} fontFamily="$body">
-              Cancel anytime
-            </Text>
-          </XStack>
-        </XStack>
       </View>
     </View>
   );
@@ -439,36 +464,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
-  inviteToggle: {
-    alignSelf: 'center',
-    paddingVertical: baseSpacing,
+  input: {
+    borderWidth: 2,
+    borderRadius: cardRadius,
     paddingHorizontal: baseSpacing * 1.5,
-    borderRadius: 8,
+    paddingVertical: baseSpacing * 1.25,
+    fontSize: isWeb ? 16 : 14,
+    fontFamily: 'System',
+    fontWeight: '500',
+    textAlign: 'center',
+    letterSpacing: 2,
   },
-  inviteInput: {
+  infoBox: {
+    padding: baseSpacing * 1.5,
+    borderRadius: cardRadius,
     width: '100%',
-    maxWidth: isWeb ? 280 : isIpad() ? 240 : 220,
-    paddingVertical: baseSpacing,
-    paddingHorizontal: baseSpacing * 1.5,
-    borderRadius: 8,
-    borderWidth: 1,
-    fontSize: 13,
+    maxWidth: isWeb ? 350 : 320,
   },
-  joinButton: {
-    paddingVertical: baseSpacing,
-    paddingHorizontal: baseSpacing * 2,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
+
 }); 
