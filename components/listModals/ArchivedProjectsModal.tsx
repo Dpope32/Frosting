@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal'
 import { ProjectCard } from '@/components/projects/projectCard'
+import { LongPressDelete } from '@/components/common/LongPressDelete'
 import { useProjectStore, useUserStore } from '@/store'
 import { Sheet } from 'tamagui'
 import { isIpad } from '@/utils'
@@ -21,6 +22,7 @@ interface ArchivedProjectsModalProps {
 export const ArchivedProjectsModal: React.FC<ArchivedProjectsModalProps> = ({ open, onOpenChange }) => {
   const allProjects = useProjectStore(s => s.projects)
   const updateProject = useProjectStore(s => s.updateProject)
+  const deleteProject = useProjectStore(s => s.deleteProject)
   const isDark = useColorScheme() === 'dark'
   const { preferences } = useUserStore()
   const userColor = useUserStore(s => s.preferences.primaryColor)
@@ -45,6 +47,19 @@ export const ArchivedProjectsModal: React.FC<ArchivedProjectsModalProps> = ({ op
   // Handle unarchiving a project
   const handleUnarchiveProject = (projectId: string) => {
     updateProject(projectId, { isArchived: false })
+  }
+
+  // Handle deleting a project permanently
+  const handleDeleteProject = (projectId: string) => {
+    return (onComplete: (deleted: boolean) => void) => {
+      try {
+        deleteProject(projectId)
+        onComplete(true)
+      } catch (error) {
+        console.error('Failed to delete project:', error)
+        onComplete(false)
+      }
+    }
   }
 
   return (
@@ -86,24 +101,11 @@ export const ArchivedProjectsModal: React.FC<ArchivedProjectsModalProps> = ({ op
                       width={isWeb ? "calc(50% - 8px)" : "100%"} 
                       mb="$2"
                     >
-                      <ProjectCard
-                        project={project}
+                      <LongPressDelete
+                        onDelete={handleDeleteProject(project.id)}
                         isDark={isDark}
-                        primaryColor={userColor}
-                        onToggleTaskCompleted={(taskId, completed) => 
-                          handleToggleTaskCompleted(project.id, taskId, completed)
-                        }
-                        onArchive={handleUnarchiveProject} 
-                        hideCompletedOverlay={true}
-                      />
-                    </YStack>
-                  ))}
-                </RNScrollView>
-              ) : (
-                <Sheet.ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-                  <YStack gap="$3">
-                    {archivedProjects.map((project: Project) => (
-                      <YStack key={project.id} mb="$2">
+                        longPressDuration={800}
+                      >
                         <ProjectCard
                           project={project}
                           isDark={isDark}
@@ -114,6 +116,31 @@ export const ArchivedProjectsModal: React.FC<ArchivedProjectsModalProps> = ({ op
                           onArchive={handleUnarchiveProject} 
                           hideCompletedOverlay={true}
                         />
+                      </LongPressDelete>
+                    </YStack>
+                  ))}
+                </RNScrollView>
+              ) : (
+                <Sheet.ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+                  <YStack gap="$3">
+                    {archivedProjects.map((project: Project) => (
+                      <YStack key={project.id} mb="$2">
+                        <LongPressDelete
+                          onDelete={handleDeleteProject(project.id)}
+                          isDark={isDark}
+                          longPressDuration={800}
+                        >
+                          <ProjectCard
+                            project={project}
+                            isDark={isDark}
+                            primaryColor={userColor}
+                            onToggleTaskCompleted={(taskId, completed) => 
+                              handleToggleTaskCompleted(project.id, taskId, completed)
+                            }
+                            onArchive={handleUnarchiveProject} 
+                            hideCompletedOverlay={true}
+                          />
+                        </LongPressDelete>
                       </YStack>
                     ))}
                   </YStack>
