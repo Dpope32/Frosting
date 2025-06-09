@@ -239,7 +239,7 @@ export function EditStockModalContent({ open, onOpenChange, stock }: EditStockMo
       title={modalTitle}
       showCloseButton={true}
     >
-      <YStack padding="$4" gap="$4">
+      <YStack padding="$2" gap="$3">
         <StockDisplay
           symbol={formData.ticker}
           name={formData.name}

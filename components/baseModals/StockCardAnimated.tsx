@@ -62,8 +62,8 @@ export function StockCardAnimated({
                   styles.modalContainer,
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom + 60,
+                    marginTop: insets.top, 
+                    marginBottom: insets.bottom + 80 ,
                     width: actualWidth,
                     maxHeight: screenHeight,
                   }
