@@ -29,7 +29,8 @@ export * from './stocks/calculationService';
 export * from './stocks/stockSearchService';
 
 // Sync & Premium
-export * from '../sync/premiumVerification';
+export * from './betaCodeService';
+
 
 // Services that still need dividing up
 export * from './billServices';
