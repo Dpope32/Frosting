@@ -68,25 +68,10 @@ export const useBillStore = create<BillStore>()(
             [id]: newBill,
           },
         }));
-
-        // 🔍 DEBUG: Log what we're about to create
-        console.log('🔍 DEBUG addBill:', {
-          billName: billData.name,
-          dueDate: billData.dueDate,
-          createTask: billData.createTask,
-          shouldCreateTasks: billData.createTask,
-          tasksToCreateCount: billData.createTask ? 1 : 0,
-          todayDate: new Date().getDate(),
-          firstTaskDate: billData.createTask ? new Date(billData.dueDate).toISOString() : 'none'
-        });
-        
         return newBill;
       },
 
       updateBill: (id, updates) => {
-        console.log('🏪 BillStore.updateBill called with ID:', id, 'and UPDATES:', JSON.stringify(updates));
-        
-        // First, get the existing bill to check createTask change
         const existingBill = get().bills[id];
         if (!existingBill) {
           console.error(`❌ BillStore: Bill with id ${id} not found`);
@@ -123,8 +108,6 @@ export const useBillStore = create<BillStore>()(
 
               // If tasks currently exist for this bill, delete them first
               if (existingBill.createTask) {
-                console.log(`🗑️ UPDATING TASKS: Removing old tasks for bill "${existingBill.name}"`);
-                
                 const allTasks = store.tasks;
                 const taskIdsToDelete = Object.entries(allTasks)
                   .filter(([_, task]: [string, any]) => {
@@ -147,15 +130,10 @@ export const useBillStore = create<BillStore>()(
                   
                   // Bulk delete
                   store.bulkDeleteTasks(taskIdsToDelete);
-                  console.log(`✅ REMOVED OLD TASKS: Deleted ${taskIdsToDelete.length} old tasks for bill "${existingBill.name}"`);
                 }
               }
 
-              // If createTask is true in the updated bill, create new tasks
               if (updatedBill.createTask) {
-                console.log(`📋 CREATING TASKS: Creating new tasks for bill "${updatedBill.name}"`);
-                
-                // Build all tasks first, then create them in batches
                 const tasksToCreate: Array<{
                   name: string;
                   schedule: string[];
@@ -215,7 +193,6 @@ export const useBillStore = create<BillStore>()(
           }, 0);
         }
         
-        console.log('✅ BillStore: updateBill execution completed.');
       },
 
       deleteBill: (id) => {
