@@ -108,15 +108,15 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           }}
         />
         <XStack
-          padding={isIpad() ? 7 : 6}
-          paddingBottom={isIpad() ? 5 : 3}
-          paddingTop={isIpad() ? 7 : 5}
+          padding={isIpad() ? 6 : 5}
+          paddingBottom={isIpad() ? 7 : 5}
+          paddingTop={isIpad() ? 6 : 4}
           paddingHorizontal={isIpad() ? '$3' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
           borderRadius={12}
-          minHeight={50}
-          gap={isIpad() ? '$2' : '$2'}
+          minHeight={isIpad() ? 48 : 42}
+          gap={isIpad() ? '$2' : '$1.5'}
         >
           <YStack flex={1} gap="$1">
             <XStack  jc="space-between" ai="center">
@@ -155,7 +155,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
               })()}
             </XStack>
 
-            <XStack jc="space-between" gap="$2.5" px={"$1"} ai="center">
+            <XStack jc="space-between" gap="$2" px={"$1"} ai="center">
             {project.people && project.people.length > 0 && (
               <XStack gap="$1" ai="center" mt={0}>
                 {project.people.slice(0, 3).map((person) => (

@@ -1,6 +1,6 @@
 export const CHANGELOG = [
   {
-    version: '1.1.285',
+    version: '1.1.288',
     date: '2025-06-09',
     notes: 'Improved UI',
     bullets: [
