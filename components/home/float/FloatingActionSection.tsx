@@ -89,7 +89,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
   // Enhanced animations
   const openModal = useCallback(() => {
     setOpen(true);
-    triggerHaptic();
+
     
     // Animate FAB
     Animated.parallel([
@@ -140,7 +140,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
          }),
        ]).start();
      });
-  }, [fabRotation, fabScale, backdropOpacity, actionAnimations, triggerHaptic]);
+  }, [fabRotation, fabScale, backdropOpacity, actionAnimations]);
 
   const closeModal = useCallback(() => {
     // Animate out
@@ -189,7 +189,6 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
   }, [fabRotation, fabScale, backdropOpacity, actionAnimations]);
 
   const handleActionPress = useCallback((actionName: string, index: number) => {
-    triggerHaptic();
     
     // Quick scale animation for the pressed button
     Animated.sequence([
@@ -210,7 +209,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
       onActionPress(actionName);
       closeModal();
     }, 150);
-  }, [onActionPress, closeModal, triggerHaptic, buttonPressAnimations]);
+  }, [onActionPress, closeModal, buttonPressAnimations]);
 
   // FAB press animation
   const handleFabPressIn = useCallback(() => {

@@ -56,7 +56,10 @@ export const pushSnapshot = async (): Promise<void> => {
 
     const pb = await getPocketBase();
     const workspaceId = await getCurrentWorkspaceId();
-    if (!workspaceId) throw new Error('No workspace configured');
+    if (!workspaceId) {
+      addSyncLog('No workspace configured, aborting push', 'warning');
+      return;
+    }
 
     const deviceId = await generateSyncKey();
     const now = Date.now();

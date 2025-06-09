@@ -9,7 +9,8 @@ import Animated, {
   Easing,
   runOnJS,
   useFrameCallback,
-  useDerivedValue
+  useDerivedValue,
+  SharedValue
 } from 'react-native-reanimated'
 
 interface Star {
@@ -87,17 +88,17 @@ const StarLayer = ({
   screenHeight 
 }: { 
   stars: Star[], 
-  time: Animated.SharedValue<number>,
+  time: SharedValue<number>,
   screenWidth: number,
   screenHeight: number
 }) => {
-  // Use a small number of reusable animated components
-  const maxStarsPerLayer = Math.min(stars.length, 15); // Limit animated components
+
+  const maxStarsPerLayer = Math.min(stars.length, 15); 
   
   return (
     <>
       {Array.from({ length: maxStarsPerLayer }, (_, index) => {
-        const star = stars[index % stars.length]; // Cycle through stars
+        const star = stars[index % stars.length]; 
         
         const animatedStyle = useAnimatedStyle(() => {
           const progress = (time.value * star.speed) % 10000;
@@ -269,8 +270,7 @@ export const StarsAnimation = () => {
     }));
   }, [screenWidth, screenHeight]);
 
-  console.log(`[Perf] Native: Optimized to ~15 animated components vs original 120`);
-
+ 
   return (
     <View
       pointerEvents="none"
