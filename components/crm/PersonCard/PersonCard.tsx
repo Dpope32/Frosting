@@ -6,7 +6,6 @@ import type { Person } from "@/types";
 import { styles } from "./styles";
 import { webStyles } from "./webStyles";
 import CollapsedView from './CollapsedView';
-import ExpandedView from './ExpandedView';
 import { getColorForPerson } from './utils';
 import { LongPressDelete } from "@/components/common/LongPressDelete";
 import { usePeopleStore } from "@/store/People";
@@ -20,9 +19,11 @@ export type PersonCardProps = {
   onPress?: () => void;
 };
 
-export function PersonCard({ person, onEdit, containerStyle }: PersonCardProps) {
+export function PersonCard({ person, onEdit, containerStyle, isExpanded: propsIsExpanded, onPress: propsOnPress }: PersonCardProps) {
   const { expandedPersonId, expandPersonCard, collapsePersonCard, openEditModal } = useCRMStore();
-  const isExpanded = expandedPersonId === person.id;
+  
+  // Use props if provided (from CRM screen), otherwise use CRMStore
+  const isExpanded = propsIsExpanded !== undefined ? propsIsExpanded : (expandedPersonId === person.id);
   const deletePerson = usePeopleStore(state => state.deletePerson);
   const showToast = useToastStore(state => state.showToast);
 
@@ -33,8 +34,13 @@ export function PersonCard({ person, onEdit, containerStyle }: PersonCardProps) 
   }, [isExpanded, collapsePersonCard]);
 
   const handlePress = () => {
-    if (isExpanded) collapsePersonCard();
-    else expandPersonCard(person.id!);
+    // Use props onPress if provided (from CRM screen), otherwise use CRMStore
+    if (propsOnPress) {
+      propsOnPress();
+    } else {
+      if (isExpanded) collapsePersonCard();
+      else expandPersonCard(person.id!);
+    }
   };
 
   const handleEdit = (person: Person) => {
@@ -88,17 +94,6 @@ export function PersonCard({ person, onEdit, containerStyle }: PersonCardProps) 
             isDark={isDark}
             nicknameColor={nicknameColor}
             applyWebStyle={applyWebStyle}
-          />
-          <ExpandedView
-            key={`expanded-${person.id}`}
-            isExpanded={isExpanded}
-            person={person}
-            isDark={isDark}
-            nicknameColor={nicknameColor}
-            fullAddress={fullAddress}
-            applyWebStyle={applyWebStyle}
-            onClose={handlePress}
-            onEdit={handleEdit}
           />
         </View>
       </Theme>

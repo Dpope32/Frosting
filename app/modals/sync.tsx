@@ -1,15 +1,13 @@
 // app/modals/sync.tsx
 import React, { useState } from 'react'
-import { View, StyleSheet, TouchableOpacity, useWindowDimensions, Alert, ScrollView, Linking } from 'react-native'
+import { View, StyleSheet, useWindowDimensions, Alert, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Text, YStack, XStack, isWeb } from 'tamagui'
-import { MaterialIcons } from '@expo/vector-icons'
+import { YStack, XStack, isWeb } from 'tamagui'
 import { useColorScheme } from '@/hooks'
-import { useRouter } from 'expo-router'
 import { useUserStore, useToastStore, useRegistryStore } from '@/store'
 import { isIpad } from '@/utils'
 import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal'
-import { exportLogs } from '@/sync'
+import { exportLogs, createOrJoinWorkspace } from '@/sync'
 import * as Clipboard from 'expo-clipboard'
 import { useAuthCheck, useDeviceId, useWorkspaceId, useWorkspaceDetails, useSyncStatusLogger, useLogUpdates } from '@/hooks/sync'
 import { addSyncLog, clearLogQueue, LogEntry, getColors, baseSpacing, PremiumLogs } from '@/components/sync'
@@ -18,7 +16,7 @@ import NeedsWorkspace from '@/components/sync/needsWorkspace'
 import { leaveWorkspace } from '@/sync/leaveWorkspace'
 import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
 import { SnapshotSize } from '@/components/sync/SnapshotSize'
-import { debouncedBack } from '@/utils'
+import { ModalHeader } from '@/components/shared/ModalHeader'
 
 // Prevent multiple wrappers of fetch during hot reload
 if (!(global as any)._syncFetchWrapped) {
@@ -78,7 +76,6 @@ export default function SyncScreen() {
   const insets = useSafeAreaInsets()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const router = useRouter()
   const primaryColor = useUserStore((s) => s.preferences.primaryColor)
   const [showAddDevice, setShowAddDevice] = useState(false)
   const [initialModalMode, setInitialModalMode] =useState<'create' | 'join' | undefined>(undefined)
@@ -172,6 +169,31 @@ export default function SyncScreen() {
     }
   }, []);
 
+  const handleJoinWorkspace = React.useCallback(async (code: string) => {
+    setIsLoading(true);
+    try {
+      addSyncLog(`🔌 Attempting to join workspace with code: ${code}`, 'info');
+      
+      const result = await createOrJoinWorkspace(undefined, code);
+      
+      // Set workspace ID in store
+      setWorkspaceId(result.id);
+      useRegistryStore.getState().setWorkspaceId(result.id);
+      
+      addSyncLog(`✅ Successfully joined workspace: ${result.id.slice(0, 8)}`, 'success');
+      useToastStore.getState().showToast('Successfully joined workspace!', 'success');
+      useRegistryStore.getState().setSyncStatus('idle');
+      
+    } catch (error) {
+      console.error('Failed to join workspace:', error);
+      addSyncLog('Failed to join workspace', 'error',
+        error instanceof Error ? error.message : String(error));
+      useToastStore.getState().showToast('Failed to join workspace', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setWorkspaceId]);
+
   return (
     <>
     <ScrollView
@@ -179,20 +201,7 @@ export default function SyncScreen() {
       contentContainerStyle={{ paddingTop: isIpad() ? 30 : insets.top, paddingBottom: isWeb ? 100 : isIpad() ? 50 : 25}}
     >
       <YStack gap={baseSpacing * 2} p={isWeb ? '$4' : '$2'} px={isWeb ? '$4' : '$3'} pb={baseSpacing * 6} >
-        <XStack alignItems="center" justifyContent="center" position="relative">
-          <TouchableOpacity onPress={debouncedBack} style={styles.backButton}>
-            <MaterialIcons name="arrow-back"  size={22} color={isDark ? '#fff' : '#000'} />
-          </TouchableOpacity>
-          <Text
-            fontSize={isWeb ? 24 : isIpad() ? 22 : 20}
-            fontWeight="700"
-            color={isDark ? '#fff' : '#000'}
-            style={{ textAlign: 'center', flex: 1 }}
-            fontFamily="$body"
-          >
-            Sync
-          </Text>
-        </XStack>
+        <ModalHeader title="Sync" isDark={isDark} />
 
         {shouldShowSyncTable ? (
           <XStack alignItems="center" justifyContent="center" marginBottom={premium && !workspaceId ? -baseSpacing : baseSpacing}>
@@ -221,6 +230,7 @@ export default function SyncScreen() {
               colors={colors}
               contentWidth={width}
               onSignUp={handleSignUp}
+              onJoinWorkspace={handleJoinWorkspace}
             />
           </XStack>
         )}
@@ -294,5 +304,4 @@ export default function SyncScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  backButton: { position: 'absolute', left: 0, padding: 8, zIndex: 1 },
 })

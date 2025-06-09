@@ -75,20 +75,20 @@ export const TaskCard = React.memo<TaskCardProps>(({
     if (isDark && category) {
       let categoryColor = calculatedCategoryColor;
       gradientColors = [
-        withOpacity(categoryColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(categoryColor, baseOpacity * 0.5),  // Top - darker
         withOpacity(categoryColor, baseOpacity),        // Middle
         withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
     } else if (isDark && priority) {
       const priorityColor = getPriorityColor(priority);
       gradientColors = [
-        withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(priorityColor, baseOpacity * 0.5),  // Top - darker
         withOpacity(priorityColor, baseOpacity),        // Middle
         withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
     } else if (isDark && recurrencePattern) {
       gradientColors = [
-        withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(recurrenceColor, baseOpacity * 0.5),  // Top - darker
         withOpacity(recurrenceColor, baseOpacity),        // Middle
         withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
@@ -97,20 +97,20 @@ export const TaskCard = React.memo<TaskCardProps>(({
       else if (!isDark && category) {
       let categoryColor = calculatedCategoryColor;
        gradientColors = [
-        withOpacity(categoryColor, baseOpacity * 0.9),  // Top - darker
+        withOpacity(categoryColor, baseOpacity * 0.5),  // Top - darker
         withOpacity(categoryColor, baseOpacity),        // Middle
         withOpacity(categoryColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
     } else if (!isDark && priority) {
       const priorityColor = getPriorityColor(priority);
       gradientColors = [
-        withOpacity(priorityColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(priorityColor, baseOpacity * 0.5),  // Top - darker
         withOpacity(priorityColor, baseOpacity),        // Middle
         withOpacity(priorityColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
     } else if (!isDark && recurrencePattern) {
       gradientColors = [
-        withOpacity(recurrenceColor, baseOpacity * 0.7),  // Top - darker
+        withOpacity(recurrenceColor, baseOpacity * 0.5),  // Top - darker
         withOpacity(recurrenceColor, baseOpacity),        // Middle
         withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
@@ -199,11 +199,13 @@ export const TaskCard = React.memo<TaskCardProps>(({
         br={12}
         paddingHorizontal={3}
         marginVertical={isWeb ? "$1" : "$0"}
-        borderWidth={1}
+        borderWidth={0.5}
+        overflow="hidden"
         borderColor="rgba(52, 54, 55, 0.9)"
         style={{
-          borderLeftWidth: 3,
+          borderLeftWidth: 2.5,
           borderLeftColor: calculatedCategoryColor,
+
           position: 'relative',
           overflow: 'hidden',
           ...(Platform.OS === 'web' ? {
@@ -242,51 +244,52 @@ export const TaskCard = React.memo<TaskCardProps>(({
           </View>
         )}
         <View style={styles.container}>
-          <View style={styles.contentContainer}>
-            <View style={styles.titleRow}>
-              <Text 
-                fontFamily="$body"
-                color="rgb(232, 230, 227)" 
-                fontSize={isIpad() ? 15 : 13}
-                fontWeight="500"
-                opacity={checked ? 0.6 : 1}
-                style={{
-                  flex: 1,
-                  marginVertical: -2,
-                  marginLeft: isIpad() ? 2 : 0,
-                  textDecorationLine: checked ? 'line-through' : 'none',
-                  textShadowColor: 'rgba(0, 0, 0, 0.5)',
-                  textShadowOffset: { width: 0.5, height: 0.5 },
-                  textShadowRadius: 1
-                }}
-              >
-                {title}
-              </Text>
-              <Pressable 
-                onPress={handleCheck}
-                style={styles.checkboxContainer}
-                hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
-                accessibilityRole="button"
-                accessibilityLabel={checked ? "Mark task as incomplete" : "Mark task as complete"}
-              >
-                <View style={[
-                  styles.checkbox,
-                  { 
-                    borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
-                    backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
-                    zIndex: 10
-                  }
-                ]}>
-                  {checked && (
-                    <Ionicons 
-                      name="checkmark-sharp" 
-                      size={13} 
-                      color="#00C851"
-                    />
-                  )}
-                </View>
-              </Pressable>
+          <View style={styles.textContainer}>
+            <Text 
+              fontFamily="$body"
+              color="rgb(232, 230, 227)" 
+              fontSize={isIpad() ? 15 : 13}
+              fontWeight="500"
+              opacity={checked ? 0.6 : 1}
+              style={{
+                marginVertical: -2,
+                marginLeft: isIpad() ? 2 : 0,
+                textDecorationLine: checked ? 'line-through' : 'none',
+                textShadowColor: checked ?  isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                textShadowOffset: checked ? { width: 0.5, height: 0.5 } : { width: 0, height: 0 },
+                textShadowRadius: checked ? 1 : 0,
+                lineHeight: isIpad() ? 20 : 18,
+              }}
+            >
+              {title}
+            </Text>
+          </View>
+          <Pressable 
+            onPress={handleCheck}
+            style={styles.checkboxContainer}
+            hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
+            accessibilityRole="button"
+            accessibilityLabel={checked ? "Mark task as incomplete" : "Mark task as complete"}
+          >
+            <View style={[
+              styles.checkbox,
+              { 
+                borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
+                backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
+                zIndex: 10
+              }
+            ]}>
+              {checked && (
+                <Ionicons 
+                  name="checkmark-sharp" 
+                  size={13} 
+                  color="#00C851"
+                />
+              )}
             </View>
+          </Pressable>
+        </View>
+        <View style={styles.chipsContainer}>
           <TaskChips
             category={category}
             priority={priority}
@@ -296,7 +299,6 @@ export const TaskCard = React.memo<TaskCardProps>(({
             checked={checked}
             tags={tags}
           />
-          </View>
         </View>
       </Stack>
     </LongPressDelete>
@@ -308,23 +310,28 @@ TaskCard.displayName = 'TaskCard'
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: isIpad() ? 5 : 4,
+    alignItems: 'center', // Back to center for single-line alignment
+    paddingHorizontal: isIpad() ? 7 : 6,
+    paddingTop: isIpad() ? 7 : 6,
     position: 'relative',
     zIndex: 2
   },
+  textContainer: {
+    flex: 1,
+    paddingLeft: isWeb ? 12 : isIpad() ? 0 : 0,
+    justifyContent: 'center',
+    marginBottom: -1,
+  },
   checkboxContainer: {
-    paddingHorizontal: 8,
-    paddingTop: 6,
-    paddingBottom: 2,
-    marginRight: 2,
-    alignSelf: 'flex-start',
-    zIndex: 10
+    paddingHorizontal: 3,
+    paddingTop: 2,
+    alignSelf: 'flex-start', // Align with first line of text
+    zIndex: 10,
+    marginTop: isIpad() ? 1 : 0, // Slight adjustment for better alignment
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: isIpad() ? 20 : 18,
+    height: isIpad() ? 20 : 18,
     borderWidth: 1.5,
     marginRight: -4,
     borderRadius: 5,
@@ -332,14 +339,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 10
   },
-  contentContainer: {
-    flex: 1,
-    paddingLeft: isWeb ? 12 : isIpad() ? 0 : 0
-  },
-  titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: -2,
+  chipsContainer: {
+    paddingHorizontal: 8,
+    paddingLeft: isWeb ? 20 : isIpad() ? 8 : 6,
+    paddingBottom: isIpad() ? 5 : 3,
   }
 });

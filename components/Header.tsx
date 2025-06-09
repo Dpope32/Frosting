@@ -10,7 +10,6 @@ import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
 import { CardSection } from '@/components/home/CardSection';
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
-import { PortfolioModal } from '@/components/home/PortfolioModal';
 import { QuoteModal } from '@/components/home/QuoteModal';
 import { WifiModal } from '@/components/home/WifiModal';
 import { ArchivedProjectsModal } from '@/components/listModals/ArchivedProjectsModal';
@@ -43,7 +42,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const route = useRoute();
   const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
-  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [wifiModalOpen, setWifiModalOpen] = useState(false);
   const [showNBATeamModal, setShowNBATeamModal] = useState(false);
@@ -104,7 +102,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const handlePortfolioPress = () => {
-    setPortfolioModalOpen(true)
+    router.push('/modals/portfolio')
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const handleQuotePress = () => {
@@ -413,11 +411,9 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         </>
       )}
       {isCrmScreen && <PeopleListModal open={showPeopleListModal} onOpenChange={setShowPeopleListModal} />}
-      <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
       <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} />
       <ArchivedProjectsModal open={showArchivedProjectsModal} onOpenChange={setShowArchivedProjectsModal} />
     </>
   );
 }
-

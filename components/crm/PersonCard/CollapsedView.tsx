@@ -102,13 +102,40 @@ export default function CollapsedView({
         <XStack alignItems="center" gap="$2" style={styles.cardContent as any}>
           <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
             <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
-              <Image
-                source={{ uri: person.profilePicture || 'https://via.placeholder.com/80' }}
-                width={Platform.OS === 'web' ? 80 : isIpad() ? 50 : 34}
-                height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
-                br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
-                style={styles.avatarImage as any}
-              />
+              {person.profilePicture ? (
+                <Image
+                  source={{ uri: person.profilePicture }}
+                  width={Platform.OS === 'web' ? 80 : isIpad() ? 50 : 34}
+                  height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
+                  br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
+                  style={styles.avatarImage as any}
+                />
+              ) : (
+                <View
+                  style={[
+                    styles.avatarImage as any,
+                    {
+                      backgroundColor: nicknameColor,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: Platform.OS === 'web' ? 80 : isIpad() ? 50 : 34,
+                      height: Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34,
+                      borderRadius: Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27,
+                    }
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: isDark ? '#000' : '#fff',
+                      fontSize: Platform.OS === 'web' ? 28 : isIpad() ? 20 : 14,
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {(person.nickname || person.name).charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+              )}
             </View>
             {person.priority && (
               <View style={styles.starIndicator as any}>
@@ -227,4 +254,4 @@ export default function CollapsedView({
       </Card>
     </LongPressDelete>
   );
-} 
+}

@@ -3,7 +3,7 @@ import { XStack, YStack, Text, Button, isWeb } from 'tamagui'
 import { Project } from '@/types'
 import { getPriorityColor, isIpad } from '@/utils'
 import { MaterialIcons } from '@expo/vector-icons'
-import { ProjectAttachments, ProjectCardDetails, ProjectCardWrapper, ProjectHeader, TaskList } from './ProjectCard/'
+import { ProjectCardDetails, ProjectCardWrapper, ProjectHeader, TaskList } from './ProjectCard/'
 
 interface ProjectCardMobileProps {
   project: Project
@@ -56,19 +56,6 @@ export const ProjectCardMobile = ({
                 mr={0}
               >
                 <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
-                {project.attachments?.length > 0 && (
-                  <YStack w="100%" mb={project.tasks?.length > 0 ? isIpad() ? 0 : 0 : 0} mx={isIpad() ? 16 : 10} mt={isIpad() ? 10 : 6}>
-                    <ProjectAttachments 
-                      attachments={project.attachments} 
-                      isDark={isDark} 
-                      onImagePress={(url) => {
-                        if (onImagePress) {
-                          onImagePress(url);
-                        }
-                      }}
-                    />
-                  </YStack>
-                )}
                 <YStack
                   minWidth={isIpad() ? 400 : 240}
                   px={"$1"}
@@ -85,7 +72,7 @@ export const ProjectCardMobile = ({
                   />
                 </YStack>
                 {onOpenAddTaskModal && (
-                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} pr={10} pl={16} mt={project.attachments?.length > 0 ? 8 : 10} mb={8} ai="center">
+                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} pr={10} pl={16} mt={8} mb={8} ai="center">
                     {(!project.tasks || project.tasks.length === 0) && (
                       <Text color={isDark ? '#f6f6f6' : '#666'} fontSize={isIpad() ? 15 : 13} fontFamily="$body" ml={12} mr={project.tasks?.length > 0 ? 0 : 20} opacity={0.6}>
                         Add your first task to get started
@@ -97,11 +84,11 @@ export const ProjectCardMobile = ({
                       backgroundColor="transparent"
                       onPress={() => onOpenAddTaskModal(project.id)}
                       ai="center"
-                      borderColor={isDark ? '#222' : '#9f9f9f'}
+                      borderColor={isDark ? '#222' : 'transparent'}
                       borderWidth={1}
                       jc="center"
                     >
-                      <MaterialIcons name="add" size={isIpad() ? 20 : 16} color={isDark ? '#c9c9c9' : '#555'} />
+                      <MaterialIcons name="add" size={isIpad() ? 20 : 20} color={isDark ? '#c9c9c9' : '#555'} />
                     </Button>
                   </XStack>
                 )}

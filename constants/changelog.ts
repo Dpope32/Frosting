@@ -1,5 +1,20 @@
 export const CHANGELOG = [
   {
+    version: '1.1.285',
+    date: '2025-06-09',
+    notes: 'Improved UI',
+    bullets: [
+      'Improved UI for Person Card',
+      'Removed Images from Projects following feedback',
+      'Debounced Inputs across the app to make typing feel smoother',
+      'Fixed bug with Formatting Toolbar doing nothing when nothing was selected',
+      'Swapped the Portfolio Modal for a Portfolio Screen',
+      'Fixed bug when trying to add new tag color',
+      'Improved Toast in Light Mode',
+      'Patched bug with Birthday Sync not working after adding new contacts', 
+    ],
+  },
+  {
     version: '1.1.283',
     date: '2025-06-06',
     notes: 'Huge Update (huge)',

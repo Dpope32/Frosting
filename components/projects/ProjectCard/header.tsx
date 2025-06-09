@@ -26,8 +26,8 @@ export const ProjectHeader = ({ project, isDark, priorityColor }: ProjectHeaderP
             if (!d || isNaN(d.getTime())) return null;
             return (
               <XStack ai="center" gap="$1">
-                <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
-                <Text fontSize={isIpad() ? 15 : 14} color={isDark ? '#dbd0c6' : '#dbd0c6'} fontFamily="$body">
+                <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#2c2c2c'} />
+                <Text fontSize={isIpad() ? 15 : 14} color={isDark ? '#dbd0c6' : '#2c2c2c'} fontFamily="$body">
                   {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </Text>
               </XStack>

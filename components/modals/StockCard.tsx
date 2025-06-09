@@ -30,13 +30,19 @@ export function StockCard({
 
   const styles = StyleSheet.create({
     card: {
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: isDark ? '#222' : 'rgba(0, 0, 0, 0.1)',
-      padding: 16,
+      borderRadius: 16,
+      borderWidth: isDark ? 1 : 1,
+      borderColor: isDark ? '#222' : '#ccc',
+      padding: 20,
       width: '100%',
       overflow: 'hidden',
       position: 'relative',
+      backgroundColor: isDark ? 'transparent' : '#ffffff',
+      shadowColor: isDark ? 'transparent' : '#000000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: isDark ? 0 : 0.12,
+      shadowRadius: isDark ? 0 : 12,
+      elevation: isDark ? 0 : 4,
     },
     gradient: {
       position: 'absolute',
@@ -50,12 +56,14 @@ export function StockCard({
   return (
     <YStack width="100%">
       <Animated.View entering={FadeIn.duration(600)} style={styles.card}>
-        <LinearGradient
-          colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradient}
-        />
+        {isDark && (
+          <LinearGradient
+            colors={['rgb(34, 34, 34)', 'rgb(0, 0, 0)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradient}
+          />
+        )}
         <StockMetrics
           currentTotalValue={currentTotalValue}
           principal={principal}

@@ -26,5 +26,11 @@ declare module '@/sync/registrySyncManager' {
    * @returns URI of the encrypted file
    */
   export function exportEncryptedState(allStates: Record<string, any>): Promise<string>;
-} 
-
+  
+  /**
+   * Remove old completed one-time tasks to reduce sync payload
+   * @param tasks The tasks object to prune
+   * @returns Pruned tasks object
+   */
+  export function pruneCompletedTasks(tasks: Record<string, any>): Record<string, any>;
+}

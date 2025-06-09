@@ -112,7 +112,7 @@ export const SnapshotSize: React.FC<SnapshotSizeProps> = ({
               color={colors.text}
               fontSize={isWeb ? fontSizes.sm : isIpad() ? fontSizes.sm : fontSizes.xs}
             >
-              {data.formatted.auto} of 10.00 GB used
+              {data.formatted.gb} of 10.00 GB used
             </Text>
             <Text
               fontFamily="$body"

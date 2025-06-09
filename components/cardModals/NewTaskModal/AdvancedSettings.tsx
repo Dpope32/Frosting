@@ -126,7 +126,7 @@ export function AdvancedSettings({
               height={40}
               flexDirection="row"
               alignItems="center"
-              ml={time ?  isIpad() ? -12 : -6 : isIpad() ? 0 : 0}
+              ml={time ?  isIpad() ? -12 : -6 : isIpad() ? 0 : -4}
             >
               <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isWeb ? 15 : isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">
                 {time ? `` : 'Select Time'}

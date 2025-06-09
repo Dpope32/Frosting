@@ -8,30 +8,16 @@ import { Stock } from '@/types'
 import { IndividualCard } from './individualCard'
 
 interface HoldingsCardsProps {
-  closePortfolioModal: () => void
   openEditStockModal: (stock: Stock) => void
   openAddStockModal: () => void
 }
 
-export function HoldingsCards({ closePortfolioModal, openEditStockModal, openAddStockModal }: HoldingsCardsProps) {
+export function HoldingsCards({ openEditStockModal, openAddStockModal }: HoldingsCardsProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
 
   return (
     <YStack>
-      <XStack pb={isIpad() ? '$2' : '$1'} justifyContent="space-between" alignItems="center" paddingHorizontal="$3">
-        <Text color={isDark ? '#999' : '#666'} fontFamily="$body" fontSize={14}>
-          Holdings
-        </Text>
-        <Pressable 
-          onPress={openAddStockModal}
-          style={({ pressed }) => ({
-            opacity: pressed ? 0.7 : 1,
-          })}
-        >
-          <MaterialIcons name="add" size={24} color={isDark ? '#f9f9f9' : '#000'} />
-        </Pressable>
-      </XStack>
       <ScrollView
         maxHeight={isWeb ? 600 : '100%'}
         bounces={true}
@@ -39,28 +25,34 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal, openAdd
         style={{ flexGrow: 0 }}
       >
         <YStack
-          gap={isWeb ? "$3" : "$3"}
+          gap={isWeb ? "$2" : "$2.5"}
           pt={isIpad() ? '$2' : '$1'}
           paddingBottom={isWeb ? '$4' : '$2'}
           flexDirection={isWeb ? 'row' : 'column'}
           flexWrap={isWeb ? 'wrap' : 'nowrap'}
-          justifyContent={isWeb ? 'space-between' : 'flex-start'}
+          justifyContent={isWeb ? 'space-between' : 'center'}
+          px={isWeb ? '$2' : '$1'}
         >
           {portfolioData.length === 0 ? (
             <YStack
-              height={100}
+              height={120}
               alignItems="center"
               justifyContent="center"
-              backgroundColor={isDark ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)'}
-              br={12}
-              padding="$4"
-              borderWidth={1}
-              borderColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
+              backgroundColor={isDark ? 'rgba(0, 0, 0, 0.8)' : '#ffffff'}
+              br={16}
+              padding="$5"
+              borderWidth={isDark ? 1 : 0}
+              borderColor={isDark ? 'rgba(255, 255, 255, 0.1)' : 'transparent'}
+              shadowColor={isDark ? 'transparent' : '#000000'}
+              shadowOffset={{ width: 0, height: 2 }}
+              shadowOpacity={isDark ? 0 : 0.08}
+              shadowRadius={isDark ? 0 : 8}
+              elevation={isDark ? 0 : 2}
             >
-              <Text color={isDark ? '#999' : '#666'} fontSize={14} fontFamily="$body">
+              <Text color={isDark ? '#999' : '#1a202c'} fontSize={16} fontFamily="$body" fontWeight="600">
                 No stocks added yet
               </Text>
-              <Text color={isDark ? '#666' : '#999'} fontSize={14} fontFamily="$body">
+              <Text color={isDark ? '#666' : '#4a5568'} fontSize={14} fontFamily="$body" mt="$1">
                 Tap + to add your first stock
               </Text>
             </YStack>
@@ -71,7 +63,6 @@ export function HoldingsCards({ closePortfolioModal, openEditStockModal, openAdd
                 stock={stock}
                 index={index}
                 isDark={isDark}
-                closePortfolioModal={closePortfolioModal}
                 openEditStockModal={openEditStockModal}
               />
             ))

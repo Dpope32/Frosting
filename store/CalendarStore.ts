@@ -204,22 +204,29 @@ export const useCalendarStore = create<CalendarState>()(
       },
 
       syncBirthdays: (newContactId) => {
+        const startTime = performance.now()
         addSyncLog('🔍 [CalendarStore] syncBirthdays start', 'verbose')
         
-        return set((state) => {
+        // First, do the fast synchronous work to update events immediately
+        const syncResult = set((state) => {
           try {
             const contacts = usePeopleStore.getState().contacts as Record<string, Person>
             const currentYear = new Date().getFullYear()
-            const addTask = useProjectStore.getState().addTask
-            const scheduleNotification = get().scheduleNotification
             const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
+            
+            addSyncLog(`[CalendarStore] Processing ${Object.keys(contactsToSync).length} contacts for birthday sync`, 'info')
+            
             const nonBirthdayEvents = state.events.filter(
               (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
             )
+            
             const years = Array.from({ length: 10 }, (_, i) => currentYear + i)
             const contactsWithBirthdays = Object.values(contactsToSync).filter((person: Person) => person.birthday)
             const birthdayEvents: CalendarEvent[] = []
             
+            addSyncLog(`[CalendarStore] Found ${contactsWithBirthdays.length} contacts with birthdays`, 'info')
+            
+            // Generate birthday events (this is fast)
             contactsWithBirthdays.forEach((person: Person) => {
               years.forEach((year) => {
                 const [birthYear, month, day] = person.birthday.split('-')
@@ -239,79 +246,140 @@ export const useCalendarStore = create<CalendarState>()(
                 }
                 
                 birthdayEvents.push(birthdayEvent)
-                
-                const now = new Date()
-                const birthdayDate = new Date(eventDate)
-                const twoWeeksBefore = new Date(birthdayDate)
-                twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14)
-                
-                if (birthdayDate > now) {
-                  scheduleNotification(
-                    birthdayDate,
-                    `🎂 ${person.name}'s Birthday Today!`,
-                    `Don't forget to wish ${person.name} a happy ${age}th birthday!`,
-                    `birthday-${person.id}-${year}-day`
-                  )
-                }
-                
-                if (person.priority && twoWeeksBefore > now) {
-                  scheduleNotification(
-                    twoWeeksBefore,
-                    `🎁 ${person.name}'s Birthday in 2 Weeks`,
-                    `Time to get a birthday present for ${person.name}!`,
-                    `birthday-${person.id}-${year}-reminder`
-                  )
-                  
-                  const reminderDay = twoWeeksBefore.getDay()
-                  const weekDays: WeekDay[] = [
-                    'sunday',
-                    'monday',
-                    'tuesday',
-                    'wednesday',
-                    'thursday',
-                    'friday',
-                    'saturday',
-                  ]
-                  addTask({
-                    name: `Get ${person.name}'s birthday present (birthday in 2 weeks)`,
-                    schedule: [weekDays[reminderDay]],
-                    priority: 'medium',
-                    category: 'personal',
-                    scheduledDate: twoWeeksBefore.toISOString(),
-                    recurrencePattern: 'one-time'
-                  })
-                }
-                
-                if (birthdayDate >= now) {
-                  const birthdayDay = birthdayDate.getDay()
-                  const weekDays: WeekDay[] = [
-                    'sunday',
-                    'monday',
-                    'tuesday',
-                    'wednesday',
-                    'thursday',
-                    'friday',
-                    'saturday',
-                  ]
-                  addTask({
-                    name: `Wish ${person.name} a happy birthday! 🎂`,
-                    schedule: [weekDays[birthdayDay]],
-                    priority: 'high',
-                    category: 'personal',
-                    scheduledDate: birthdayDate.toISOString(),
-                    recurrencePattern: 'one-time'
-                  })
-                }
               })
             })
             
-            addSyncLog(`[CalendarStore] syncBirthdays: ${birthdayEvents.length} birthday events generated/updated.`, 'info')
+            const eventsTime = performance.now()
+            addSyncLog(`[CalendarStore] Generated ${birthdayEvents.length} birthday events in ${(eventsTime - startTime).toFixed(2)}ms`, 'info')
+            
+            // Store contacts with birthdays for async processing
+            ;(globalThis as any).__birthdayContactsToProcess = contactsWithBirthdays
+            
             return { events: [...nonBirthdayEvents, ...birthdayEvents] }
           } catch (error) {
             addSyncLog(`🔴 [CalendarStore] Error in syncBirthdays: ${error}`, 'error')
             return state
           }
         })
+        
+        // Now do the expensive async operations (notifications and tasks) without blocking UI
+        setTimeout(async () => {
+          const asyncStartTime = performance.now()
+          let notificationCount = 0
+          let taskCount = 0
+          
+          try {
+            const contactsWithBirthdays = (globalThis as any).__birthdayContactsToProcess || []
+            delete (globalThis as any).__birthdayContactsToProcess
+            
+            if (contactsWithBirthdays.length === 0) {
+              addSyncLog('[CalendarStore] No contacts with birthdays to process async tasks', 'info')
+              return
+            }
+            
+            addSyncLog(`[CalendarStore] Starting async birthday notifications and tasks for ${contactsWithBirthdays.length} contacts`, 'info')
+            
+            const addTask = useProjectStore.getState().addTask
+            const scheduleNotification = get().scheduleNotification
+            const currentYear = new Date().getFullYear()
+            const years = Array.from({ length: 10 }, (_, i) => currentYear + i)
+            
+            for (const person of contactsWithBirthdays) {
+              for (const year of years) {
+                const [birthYear, month, day] = person.birthday.split('-')
+                const eventDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)))
+                eventDate.setUTCHours(14, 0, 0, 0)
+                const age = year - parseInt(birthYear)
+                
+                const now = new Date()
+                const birthdayDate = new Date(eventDate)
+                const twoWeeksBefore = new Date(birthdayDate)
+                twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14)
+                
+                // Schedule notifications
+                if (birthdayDate > now) {
+                  try {
+                    await scheduleNotification(
+                      birthdayDate,
+                      `🎂 ${person.name}'s Birthday Today!`,
+                      `Don't forget to wish ${person.name} a happy ${age}th birthday!`,
+                      `birthday-${person.id}-${year}-day`
+                    )
+                    notificationCount++
+                  } catch (error) {
+                    addSyncLog(`Failed to schedule birthday notification for ${person.name}`, 'error')
+                  }
+                }
+                
+                if (person.priority && twoWeeksBefore > now) {
+                  try {
+                    await scheduleNotification(
+                      twoWeeksBefore,
+                      `🎁 ${person.name}'s Birthday in 2 Weeks`,
+                      `Time to get a birthday present for ${person.name}!`,
+                      `birthday-${person.id}-${year}-reminder`
+                    )
+                    notificationCount++
+                    
+                    // Add reminder task
+                    const reminderDay = twoWeeksBefore.getDay()
+                    const weekDays: WeekDay[] = [
+                      'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+                    ]
+                    addTask({
+                      name: `Get ${person.name}'s birthday present (birthday in 2 weeks)`,
+                      schedule: [weekDays[reminderDay]],
+                      priority: 'medium',
+                      category: 'personal',
+                      scheduledDate: twoWeeksBefore.toISOString(),
+                      recurrencePattern: 'one-time'
+                    })
+                    taskCount++
+                  } catch (error) {
+                    addSyncLog(`Failed to schedule 2-week reminder for ${person.name}`, 'error')
+                  }
+                }
+                
+                if (birthdayDate >= now) {
+                  try {
+                    const birthdayDay = birthdayDate.getDay()
+                    const weekDays: WeekDay[] = [
+                      'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+                    ]
+                    addTask({
+                      name: `Wish ${person.name} a happy birthday! 🎂`,
+                      schedule: [weekDays[birthdayDay]],
+                      priority: 'high',
+                      category: 'personal',
+                      scheduledDate: birthdayDate.toISOString(),
+                      recurrencePattern: 'one-time'
+                    })
+                    taskCount++
+                  } catch (error) {
+                    addSyncLog(`Failed to add birthday task for ${person.name}`, 'error')
+                  }
+                }
+              }
+              
+              // Add small delays every few contacts to prevent overwhelming the system
+              if (contactsWithBirthdays.indexOf(person) % 3 === 2) {
+                await new Promise(resolve => setTimeout(resolve, 5))
+              }
+            }
+            
+            const asyncEndTime = performance.now()
+            const totalTime = asyncEndTime - startTime
+            const asyncTime = asyncEndTime - asyncStartTime
+            
+            addSyncLog(`[CalendarStore] ✅ Birthday sync complete: ${notificationCount} notifications, ${taskCount} tasks in ${asyncTime.toFixed(2)}ms (total: ${totalTime.toFixed(2)}ms)`, 'success')
+          } catch (error) {
+            const errorTime = performance.now()
+            addSyncLog(`🔴 [CalendarStore] Error in async birthday processing: ${error}`, 'error')
+            console.error('🔴 [CalendarStore] async birthday processing error:', error)
+          }
+        }, 10) // Small delay to let UI update first
+        
+        return syncResult
       },
 
       toggleCalendarSync: () => {

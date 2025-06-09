@@ -42,7 +42,7 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
           borderWidth={1}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
         >
-          <XStack alignItems="center" gap="$3" >
+          <XStack alignItems="center" gap="$1" >
         <Pressable 
             onPress={refreshQuote}
             style={({ pressed }) => ({
@@ -53,8 +53,8 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
           >
             <Ionicons name="refresh" size={12} color={isDark ? "#fff" : "#000"} />
           </Pressable>
-          <Text fontFamily="$body" color={isDark ? "#ccc" : "#ccc"} fontSize={16} fontWeight="500">
-            Quote of the Day
+          <Text fontFamily="$body" color={isDark ? "#ccc" : "#222"} fontSize={13} fontWeight="500">
+            Refresh
           </Text>
           </XStack>
           {isLoading ? (
@@ -110,7 +110,7 @@ export function QuoteModal({ open, onOpenChange }: QuoteModalProps) {
               size="$3"
               checked={showQuoteOnHome}
               onCheckedChange={handleToggleQuoteOnHome}
-              backgroundColor={showQuoteOnHome ? "$green10" : isDark ? "$gray6" : "$gray4"}
+              backgroundColor={showQuoteOnHome ? "rgb(6, 221, 92)" : isDark ? "$gray6" : "$gray4"}
             >
               <Switch.Thumb backgroundColor="white" />
             </Switch>

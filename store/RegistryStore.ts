@@ -18,6 +18,7 @@ import { useTagStore } from './TagStore';
 import { useProjectStore } from './ProjectStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { usePortfolioStore } from './PortfolioStore';
+import { pruneCompletedTasks } from '@/sync/registrySyncManager';
 
 interface RegistryState {
   hasCompletedOnboarding: boolean;
@@ -212,7 +213,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           addSyncLog(`[SNAPSHOT EXPORT] No tasks have completion history for ${today}`, 'warning');
         }
         
-        return { ...taskState, lastUpdated: now };
+        return { ...taskState,tasks: pruneCompletedTasks(taskState.tasks), lastUpdated: now };
       })(),
       notes: noteStateForSnapshot,
       user: { sync_disabled: true, lastUpdated: now }, 

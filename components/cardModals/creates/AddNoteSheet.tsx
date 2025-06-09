@@ -74,7 +74,7 @@ export function AddNoteSheet({
   const editingStartTimeRef = useRef<number>(0);
   const autoCommitTimer = useRef<NodeJS.Timeout | null>(null);
   
-  // IMPORTANT: Keep a local copy of the title to edit
+  // Simple local title state - no complex syncing
   const [localTitle, setLocalTitle] = useState(editTitle || '');
 
   useEffect(() => {
@@ -160,6 +160,10 @@ export function AddNoteSheet({
                     <Image 
                       source={{ uri: attachment.url }}
                       style={styles.attachmentImage}
+                      onError={(error) => {
+                        console.warn('[AddNoteSheet] Image failed to load:', attachment.url, error);
+                        // Note: We don't add sync log here since this is in edit mode and user should see the attachment slot
+                      }}
                     />
                     <View style={styles.overlay} />
                   </>
@@ -187,62 +191,136 @@ export function AddNoteSheet({
   const contentPadding = isWeb ? 20 : isIpadDevice ? 16 : keyboardVisible ? 20 : 20;
   const bottomPadding = isIpadDevice && keyboardVisible ? 70 : 0;
 
-  // Function to commit title changes to parent state
-  const commitTitleChange = () => {
-    
-    // Calculate time since editing started
-    const timeNow = Date.now();
-    const editingStartTime = editingStartTimeRef.current;
-    const timeSinceEditingStarted = timeNow - editingStartTime;
-    
-    // If we just started editing (within the last 500ms), don't exit editing mode yet
-    if (isEditingTitle && timeSinceEditingStarted < 500) {
-      return;
-    }
-    // Only commit if the title is not empty and has changed
-    if (localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
-      setEditTitle(localTitle.trim());
-      setIsEditingTitle(false);
-    } else if (!localTitle.trim()) {
-      // If title is empty, do not exit editing mode
-      return;
-    } else {
-      // If title hasn't changed, just exit editing mode
-      setIsEditingTitle(false);
-    }
-  };
-
-  // When the title input changes - ONLY update local state
+  // Simple immediate title change handler - no delays or timers
   const handleTitleChange = (text: string) => {
     setLocalTitle(text);
+    // Update parent immediately to prevent state conflicts
+    setEditTitle(text);
   };
 
-  // Add onBlur to title input to auto-commit after 1s
-  const handleTitleBlur = () => {
-    // Only auto-commit if the title is not empty and has changed
-    if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) {
-      if (autoCommitTimer.current) clearTimeout(autoCommitTimer.current);
-      autoCommitTimer.current = setTimeout(() => {
-        if (isEditingTitle && localTitle.trim() && localTitle.trim() !== editTitle.trim()) commitTitleChange();
-      }, 1000);
+  // Simple commit function for done/blur
+  const commitTitleChange = () => {
+    if (localTitle.trim()) {
+      setEditTitle(localTitle.trim());
     }
+    setIsEditingTitle(false);
   };
 
-  // Clear timer if editing resumes
-  useEffect(() => {
-    if (isEditingTitle && autoCommitTimer.current) {
-      clearTimeout(autoCommitTimer.current);
-      autoCommitTimer.current = null;
-    }
-  }, [isEditingTitle]);
-
-  // Reset local title and editing state when modal is opened
+  // Reset when modal opens
   useEffect(() => {
     if (isModalOpen) {
       setLocalTitle(editTitle || '');
       setIsEditingTitle(true);
     }
   }, [isModalOpen]);
+
+  const handleLocalBold = () => {
+    if (selection.start !== selection.end) {
+      // Text is selected, wrap it
+      const selectedText = editContent.substring(selection.start, selection.end);
+      const newContent = 
+        editContent.substring(0, selection.start) + 
+        `**${selectedText}**` + 
+        editContent.substring(selection.end);
+      setEditContent(newContent);
+    } else {
+      // No text selected, insert markdown syntax and position cursor
+      const boldSyntax = "****";
+      const newContent = 
+        editContent.substring(0, selection.start) + 
+        boldSyntax + 
+        editContent.substring(selection.end);
+      setEditContent(newContent);
+      
+      // Move cursor to the middle of the bold syntax
+      const newCursorPos = selection.start + 2; // Position between the **|**
+      
+      try {
+        setTimeout(() => {
+          if (contentInputRef.current) {
+            contentInputRef.current.focus();
+            if (contentInputRef.current.setSelection) {
+              contentInputRef.current.setSelection(newCursorPos, newCursorPos);
+            }
+          }
+        }, 10);
+      } catch (error) {
+        // Silently handle cursor positioning errors
+      }
+    }
+  };
+
+  const handleLocalItalic = () => {
+    if (selection.start !== selection.end) {
+      // Text is selected, wrap it
+      const selectedText = editContent.substring(selection.start, selection.end);
+      const newContent = 
+        editContent.substring(0, selection.start) + 
+        `*${selectedText}*` + 
+        editContent.substring(selection.end);
+      setEditContent(newContent);
+    } else {
+      // No text selected, insert markdown syntax and position cursor
+      const italicSyntax = "**";
+      const newContent = 
+        editContent.substring(0, selection.start) + 
+        italicSyntax + 
+        editContent.substring(selection.end);
+      setEditContent(newContent);
+      
+      // Move cursor to the middle of the italic syntax
+      const newCursorPos = selection.start + 1; // Position between the *|*
+      
+      try {
+        setTimeout(() => {
+          if (contentInputRef.current) {
+            contentInputRef.current.focus();
+            if (contentInputRef.current.setSelection) {
+              contentInputRef.current.setSelection(newCursorPos, newCursorPos);
+            }
+          }
+        }, 10);
+      } catch (error) {
+        // Silently handle cursor positioning errors
+      }
+    }
+  };
+
+  const handleLocalUnderline = () => {
+    if (selection.start !== selection.end) {
+      // Text is selected, wrap it
+      const selectedText = editContent.substring(selection.start, selection.end);
+      const newContent = 
+        editContent.substring(0, selection.start) + 
+        `__${selectedText}__` + 
+        editContent.substring(selection.end);
+      setEditContent(newContent);
+    } else {
+      // No text selected, insert markdown syntax and position cursor
+      const underlineSyntax = "____";
+      const newContent = 
+        editContent.substring(0, selection.start) + 
+        underlineSyntax + 
+        editContent.substring(selection.end);
+      setEditContent(newContent);
+      
+      // Move cursor to the middle of the underline syntax
+      const newCursorPos = selection.start + 2; // Position between the __|__
+      
+      try {
+        setTimeout(() => {
+          if (contentInputRef.current) {
+            contentInputRef.current.focus();
+            if (contentInputRef.current.setSelection) {
+              contentInputRef.current.setSelection(newCursorPos, newCursorPos);
+            }
+          }
+        }, 10);
+      } catch (error) {
+        // Silently handle cursor positioning errors
+      }
+    }
+  };
 
   const handleCheckbox = () => {
     const checkboxSyntax = "- [ ] ";
@@ -255,14 +333,16 @@ export function AddNoteSheet({
     // Move cursor after the inserted checkbox - with safety check
     const newCursorPos = selection.start + checkboxSyntax.length;
     try {
-      if (contentInputRef.current && contentInputRef.current.setNativeProps) {
-        contentInputRef.current.setNativeProps({
-          selection: { start: newCursorPos, end: newCursorPos }
-        });
-      }
+      setTimeout(() => {
+        if (contentInputRef.current) {
+          contentInputRef.current.focus();
+          if (contentInputRef.current.setSelection) {
+            contentInputRef.current.setSelection(newCursorPos, newCursorPos);
+          }
+        }
+      }, 10);
     } catch (error) {
-      // Ignore measurement errors when component is unmounting
-      console.log('Checkbox cursor positioning failed:', error);
+      // Silently handle cursor positioning errors
     }
   };
 
@@ -311,7 +391,6 @@ export function AddNoteSheet({
                 onChangeText={handleTitleChange}
                 returnKeyType="done" 
                 onSubmitEditing={commitTitleChange}
-                onBlur={handleTitleBlur}
                 style={{ 
                   flex: 1, 
                   paddingVertical: isIpad() ? 8 : 8,
@@ -321,7 +400,7 @@ export function AddNoteSheet({
                   borderWidth: 0,
                   fontFamily: 'System',
                   color: isDark ? '#fff' : '#000',
-                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 260 : 175,
+                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 350 : 175,
                 }} 
                 placeholderTextColor={isDark ? "#888" : "#999"}
               />
@@ -401,7 +480,6 @@ export function AddNoteSheet({
                   paddingTop={6}
                   display={keyboardVisible ? "none" : "flex"}
                 >
-                  <TagSelector tags={safeTags} onTagsChange={handleTagsChange} />
                 </YStack>
                   <YStack gap={0} paddingTop={4} >
                   <YStack>
@@ -428,9 +506,9 @@ export function AddNoteSheet({
                   style={{ marginBottom: isIpad() ? keyboardHeight - 90 : keyboardHeight - 110, width: '100%'}}
                 >
                   <FormattingToolbar
-                    onBold={handleBold}
-                    onItalic={handleItalic}
-                    onUnderline={handleUnderline}
+                    onBold={handleLocalBold}
+                    onItalic={handleLocalItalic}
+                    onUnderline={handleLocalUnderline}
                     onBullet={handleBullet}
                     onCode={handleCode}
                     onCheckbox={handleCheckbox}

@@ -6,7 +6,6 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
 import { NewTaskModal } from '@/components/cardModals/NewTaskModal/index'
-import { PortfolioModal } from '@/components/home/PortfolioModal'
 import { TaskListModal } from '@/components/taskList/TaskListModal'
 import { WatchlistModal } from '@/components/home/WatchlistModal'
 import { QuoteModal } from '@/components/home/QuoteModal'
@@ -63,7 +62,6 @@ export const LandingPage = React.memo(() => {
   )
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [portfolioModalOpen, setPortfolioModalOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
   const [watchlistModalOpen, setWatchlistModalOpen] = useState(false)
   const [quoteModalOpen, setQuoteModalOpen] = useState(false)
@@ -157,7 +155,7 @@ export const LandingPage = React.memo(() => {
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
   const handlePortfolioPress = () => { 
-     setPortfolioModalOpen(true) 
+     router.push('/modals/portfolio')
      if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
     }
   const handleQuotePress = () => { 
@@ -304,7 +302,6 @@ export const LandingPage = React.memo(() => {
       <FloatingActionSection onActionPress={handleActionPress} isDark={isDark} />
       {isMounted && (
         <>
-          <PortfolioModal open={portfolioModalOpen} onOpenChange={setPortfolioModalOpen} />
           <WatchlistModal open={watchlistModalOpen} onOpenChange={setWatchlistModalOpen} />
           <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
           <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen}/>

@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import MD5 from 'crypto-js/md5';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withRepeat } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { addSyncLog } from '@/components/sync/syncUtils';
 
 type Props = Omit<ImageProps, 'source'> & {
   uri: string;
@@ -13,6 +14,7 @@ type Props = Omit<ImageProps, 'source'> & {
 export const CachedImage: React.FC<Props> = ({ uri, style, ...rest }) => {
   const [source, setSource] = useState<{ uri: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const [layout, setLayout] = useState({ width: 0, height: 0 });
 
   const progress = useSharedValue(0);
@@ -26,6 +28,9 @@ export const CachedImage: React.FC<Props> = ({ uri, style, ...rest }) => {
   // Cache logic (skip on web)
   useEffect(() => {
     let cancelled = false;
+    setImageError(false);
+    setLoading(true);
+    
     (async () => {
       if (Platform.OS === 'web') {
         if (!cancelled) setSource({ uri });
@@ -43,6 +48,12 @@ export const CachedImage: React.FC<Props> = ({ uri, style, ...rest }) => {
         const { uri: downloadedUri } = await FileSystem.downloadAsync(uri, path);
         if (!cancelled) setSource({ uri: downloadedUri });
       } catch (e) {
+        console.warn('[CachedImage] Failed to cache image, falling back to direct URI:', uri, e);
+        addSyncLog(
+          `Failed to load image: ${uri.substring(0, 50)}...`,
+          'warning',
+          `This may be due to workspace sync not including images from other clients. Error: ${e instanceof Error ? e.message : 'Unknown error'}`
+        );
         if (!cancelled) setSource({ uri });
       }
     })();
@@ -66,6 +77,22 @@ export const CachedImage: React.FC<Props> = ({ uri, style, ...rest }) => {
     setLoading(false);
   };
 
+  const onError = (error: any) => {
+    console.warn('[CachedImage] Image failed to load:', uri, error);
+    addSyncLog(
+      `Image not found: ${uri.substring(0, 50)}...`,
+      'error',
+      'This image may be missing after workspace sync. Images from other clients are not included in sync data.'
+    );
+    setImageError(true);
+    setLoading(false);
+  };
+
+  // Don't render anything if there's an error
+  if (imageError) {
+    return null;
+  }
+
   return (
     <View style={[styles.container, style]} onLayout={handleLayout}>
       {source && (
@@ -73,6 +100,7 @@ export const CachedImage: React.FC<Props> = ({ uri, style, ...rest }) => {
           source={source}
           style={[StyleSheet.absoluteFill, { width: layout.width, height: layout.height }]}
           onLoadEnd={onLoadEnd}
+          onError={onError}
           {...rest}
         />
       )}

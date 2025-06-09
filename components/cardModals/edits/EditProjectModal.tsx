@@ -7,7 +7,6 @@ import { PeopleSelector } from '../NewTaskModal/PeopleSelector';
 import { TagSelector } from '../NewTaskModal/TagSelectorNew';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
 import { useProjectStore, useToastStore, usePeopleStore } from '@/store';
-import { AttachmentSelector } from '@/components/projects/ProjectCard/modal/attachmentSelector';
 import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer';
 import { Attachment } from '@/types';
 import type { Project, Tag, Person } from '@/types';
@@ -43,7 +42,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
   const [tags, setTags] = useState<Tag[]>(project?.tags || []);
   const [tasks, setTasks] = useState<any[]>(project?.tasks || []);
   const [status, setStatus] = useState<Project['status']>(project?.status || 'pending');
-  const [attachments, setAttachments] = useState<Attachment[]>(project?.attachments || []);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const inputRef = React.useRef<any>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -65,7 +63,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       setTasks(project.tasks || []);
       setStatus(project.status);
       setSelectedPeople(project.people || []);
-      setAttachments(project.attachments || []);
     }
     
     const keyboardDidShowListener = Keyboard.addListener(
@@ -98,11 +95,10 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
       status,
       tasks,
       people: selectedPeople,
-      attachments,
     });
     onOpenChange(false);
     showToast('Project updated successfully', 'success');
-  }, [projectId, name, description, deadline, tags, tasks, status, selectedPeople, attachments]);
+  }, [projectId, name, description, deadline, tags, tasks, status, selectedPeople]);
 
   const handleDelete = useCallback(() => {
     const deleteProject = () => {
@@ -265,7 +261,6 @@ export function EditProjectModal({ open, onOpenChange, projectId, isDark }: Edit
           borderColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}
           borderRadius={12}
         />
-        <AttachmentSelector isDark={isDark} attachments={attachments} setAttachments={setAttachments} />
         <TasksInModal tasks={tasks} isDark={isDark} onTaskDelete={handleTaskDelete} />
         <SimpleImageViewer
           imageUrl={selectedImageUrl}

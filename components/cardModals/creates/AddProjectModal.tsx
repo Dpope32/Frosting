@@ -69,7 +69,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
       tasks: [],
       people: selectedPeople,
       notes: [],
-      attachments: [],
+      isPinned: false,
     };
     addProject(newProject);
     // Optimistically add a calendar event for the project deadline
@@ -157,7 +157,6 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             borderRadius={4}
           />
         </YStack>
-        <PrioritySelector selectedPriority={priority} onPrioritySelect={setPriority} />
         <YStack gap="$1" px={isIpad() ? "$2" : "$2"}>
           {isWeb ? (
             <input
@@ -201,7 +200,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
                   <Pressable onPress={() => setShowDatePicker(true)}>
                     <MaterialIcons name="edit" size={isIpad() ? 18 : 16} color={isDark ? '#f6f6f6' : '#222'} />
                   </Pressable>
-                  <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 19 : 17} fontFamily="$body">
+                  <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 17 : 15} fontFamily="$body">
                     {new Date(deadline).toLocaleDateString('en-US', {
                       month: 'long',
                       day: 'numeric',

@@ -27,22 +27,22 @@ export function StockMetrics({
   isDark,
 }: StockMetricsProps) {
   return (
-    <YStack gap={isWeb ? '$4' : '$2'}>
+    <YStack gap={isWeb ? '$4' : '$3'}>
       <XStack justifyContent="space-between" alignItems="center">
-        <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 18 : isIpad() ? 16 : 14} fontFamily="$body">
+        <Text color={isDark ? '#999' : '#1a202c'} fontSize={isWeb ? 18 : isIpad() ? 16 : 15} fontFamily="$body" fontWeight="600">
           Value
         </Text>
         <Text
           color={getStockValueColor(currentTotalValue)}
-          fontSize={isWeb ? 18 : isIpad() ? 16 : 14}
-          fontWeight="600"
+          fontSize={isWeb ? 18 : isIpad() ? 16 : 15}
+          fontWeight="700"
           fontFamily="$body"
         >
           ${currentTotalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
         </Text>
       </XStack>
       <XStack justifyContent="space-between" alignItems="center">
-        <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 18 : isIpad() ? 16 : 14} fontFamily="$body">
+        <Text color={isDark ? '#999' : '#1a202c'} fontSize={isWeb ? 18 : isIpad() ? 16 : 15} fontFamily="$body" fontWeight="600">
           Principal
         </Text>
         {isEditingPrincipal ? (
@@ -64,9 +64,9 @@ export function StockMetrics({
           />
         ) : (
           <Text
-            fontSize={isWeb ? 18 : 14}
-            fontWeight="600"
-            color={isDark ? '#aaa' : '#b91c1c'}
+            fontSize={isWeb ? 18 : 15}
+            fontWeight="700"
+            color={isDark ? '#aaa' : '#dc2626'}
             onPress={() => {
               setIsEditingPrincipal(true)
               setPrincipalInput(principal.toString())
@@ -78,13 +78,13 @@ export function StockMetrics({
         )}
       </XStack>
       <XStack justifyContent="space-between" alignItems="center">
-        <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 16 : 14} fontFamily="$body">
+        <Text color={isDark ? '#999' : '#1a202c'} fontSize={isWeb ? 16 : 15} fontFamily="$body" fontWeight="600">
           P/L
         </Text>
         <Text
           color={getStockValueColor(currentTotalValue - principal)}
-          fontSize={isWeb ? 18 : 14}
-          fontWeight="600"
+          fontSize={isWeb ? 18 : 15}
+          fontWeight="700"
           fontFamily="$body"
         >
           ${(currentTotalValue - principal).toLocaleString('en-US', {
@@ -94,13 +94,13 @@ export function StockMetrics({
         </Text>
       </XStack>
       <XStack justifyContent="space-between" alignItems="center">
-        <Text color={isDark ? '#999' : '#666'} fontSize={isWeb ? 14 : 12} fontFamily="$body">
+        <Text color={isDark ? '#999' : '#1a202c'} fontSize={isWeb ? 14 : 13} fontFamily="$body" fontWeight="600">
           ROI
         </Text>
         <Text
           color={getStockValueColor(roi)}
-          fontSize={isWeb ? 18 : 14}
-          fontWeight="600"
+          fontSize={isWeb ? 18 : 15}
+          fontWeight="700"
           fontFamily="$body"
         >
           {roi.toFixed(1)}%

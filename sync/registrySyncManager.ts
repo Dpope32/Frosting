@@ -9,6 +9,7 @@ import { getCurrentWorkspaceId } from './getWorkspace';
 import { getWorkspaceKey } from './workspaceKey';
 import { encryptSnapshot } from '@/lib/encryption';
 import * as FileSystem from 'expo-file-system';
+import { Task } from '@/types';
 import CryptoJS from 'crypto-js';
 
 const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
@@ -151,4 +152,40 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     addSyncLog('Error in exportEncryptedState', 'error');
     throw err;
   }
+};
+
+export const pruneCompletedTasks = (tasks: Record<string, Task>): Record<string, Task> => {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+  
+  const pruned = Object.entries(tasks).reduce((acc, [id, task]) => {
+    // Keep all non-one-time tasks
+    if (task.recurrencePattern !== 'one-time') {
+      acc[id] = task;
+      return acc;
+    }
+    
+    // Keep uncompleted one-time tasks
+    if (!task.completed) {
+      acc[id] = task;
+      return acc;
+    }
+    
+    // Keep recently completed one-time tasks (within 30 days)
+    const completedDate = new Date(task.updatedAt || task.createdAt);
+    if (completedDate >= thirtyDaysAgo) {
+      acc[id] = task;
+      return acc;
+    }
+    
+    // This task gets pruned - it's completed and old
+    return acc;
+  }, {} as Record<string, Task>);
+  
+  const prunedCount = Object.keys(tasks).length - Object.keys(pruned).length;
+  if (prunedCount > 0) {
+    addSyncLog(`🗑️ Pruned ${prunedCount} old completed tasks`, 'info');
+  }
+  
+  return pruned;
 };

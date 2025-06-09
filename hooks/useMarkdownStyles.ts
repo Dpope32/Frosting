@@ -36,19 +36,19 @@ export const useMarkdownStyles = () => {
       color: colors.text, 
       fontFamily: '$body', 
       marginBottom: 0,
-      fontSize: isTablet ? 19 : 16
+      fontSize: isTablet ? 19 : 13
     } as TextStyle,
     heading1: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 21 : 18, 
+      fontSize: isTablet ? 21 : 15, 
       fontWeight: '700',
       marginTop: 4,
     } as TextStyle,
     heading2: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 21 : 17, 
+      fontSize: isTablet ? 21 : 14, 
       marginBottom: 1, 
       fontWeight: '500',
       marginTop: 6 
@@ -56,14 +56,14 @@ export const useMarkdownStyles = () => {
     heading3: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 19 : 18, 
+      fontSize: isTablet ? 19 : 14, 
       marginBottom: 2, 
       marginTop: 5 
     } as TextStyle,
     heading4: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 19 : 16, 
+      fontSize: isTablet ? 19 : 13, 
       marginBottom: 0, 
       marginTop: 10 
     } as TextStyle,
@@ -87,7 +87,7 @@ export const useMarkdownStyles = () => {
       fontFamily: 'monospace',
       marginVertical: 2,
       marginHorizontal: 10,
-      fontSize: isTablet ? 16 : 14
+      fontSize: isTablet ? 16 : 11
     } as TextStyle,
     code_block: { 
       backgroundColor: colors.codeBg, 
@@ -97,13 +97,13 @@ export const useMarkdownStyles = () => {
       fontFamily: 'monospace',
       marginVertical: 10,
       marginHorizontal: 10,
-      fontSize: isTablet ? 16 : 14
+      fontSize: isTablet ? 16 : 11
     } as TextStyle,
     list_item: { 
       color: colors.text, 
       marginBottom: 3,
       marginTop: 1,
-      fontSize: isTablet ? 18 : 16,
+      fontSize: isTablet ? 18 : 13,
       marginLeft: 10,
     } as TextStyle,
     bullet_list: { 
@@ -134,14 +134,14 @@ export const useMarkdownStyles = () => {
       borderWidth: 1, 
       borderColor: colors.tableBorder, 
       color: colors.text,
-      fontSize: isTablet ? 18 : 16
+      fontSize: isTablet ? 18 : 13
     } as TextStyle,
     td: { 
       padding: 5, 
       borderWidth: 1, 
       borderColor: colors.tableBorder, 
       color: colors.text,
-      fontSize: isTablet ? 18 : 16
+      fontSize: isTablet ? 18 : 13
     } as TextStyle,
     em: { 
       fontStyle: 'italic' as const,
@@ -168,12 +168,12 @@ export const useMarkdownStyles = () => {
       marginBottom: 4,
       marginTop: 4,
       marginHorizontal: 8,
-      fontSize: isTablet ? 18 : 16
+      fontSize: isTablet ? 18 : 13
     } as TextStyle,
     checkbox: {
       color: colors.text,
       fontFamily: '$body',
-      fontSize: isTablet ? 18 : 16,
+      fontSize: isTablet ? 18 : 13,
       marginLeft: 10,
       marginBottom: 3,
       marginTop: 1,

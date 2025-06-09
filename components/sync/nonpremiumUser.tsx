@@ -79,63 +79,16 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
         style={[
           styles.heroCard,
           {
-            backgroundColor: cardBg,
+            backgroundColor: cardBg + '99',
             borderColor: colors.accent + '33',
             shadowColor: colors.accent + '44',
           },
         ]}
       >
-        <XStack 
-          style={[styles.tabContainer, { backgroundColor: tabBg }]}
-          marginBottom={baseSpacing * 2}
-        >
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'premium' && { backgroundColor: colors.accent + '22' }
-            ]}
-            onPress={() => setActiveTab('premium')}
-          >
-            <MaterialIcons 
-              name="star" 
-              size={16} 
-              color={activeTab === 'premium' ? '#000' : colors.subtext} 
-            />
-            <Text 
-              fontSize={14} 
-              fontWeight={activeTab === 'premium' ? '700' : '500'}
-              color={activeTab === 'premium' ? '#000' : colors.subtext}
-              fontFamily="$body"
-            >
-              Get Premium
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[
-              styles.tab,
-              activeTab === 'join' && { backgroundColor: colors.accent + '22' }
-            ]}
-            onPress={() => setActiveTab('join')}
-          >
-            <MaterialIcons 
-              name="group-add" 
-              size={16} 
-              color={activeTab === 'join' ? '#000' : colors.subtext} 
-            />
-            <Text 
-              fontSize={14} 
-              fontWeight={activeTab === 'join' ? '700' : '500'}
-              color={activeTab === 'join' ? '#000' : colors.subtext}
-              fontFamily="$body"
-            >
-              Join Workspace
-            </Text>
-          </TouchableOpacity>
-        </XStack>
 
         {activeTab === 'premium' ? (
           <YStack alignItems="center" flex={1} justifyContent="center">
+            <XStack alignItems="center" justifyContent="flex-start" gap={baseSpacing} >
             <View style={[styles.iconContainer, { backgroundColor: colors.accentBg }]}>
               <Image
                 source={require('../../assets/images/pog2.png')}
@@ -152,28 +105,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
               />
             </View>
             
-            <Text 
-              fontSize={isLarge ? 32 : 28} 
-              fontWeight="800" 
-              color={colors.text} 
-              fontFamily="$body"
-              textAlign="center"
-              marginBottom={baseSpacing}
-            >
-              Premium
-            </Text>
-            
-            <Text 
-              fontSize={isLarge ? 16 : 14} 
-              color={colors.subtext} 
-              fontFamily="$body"
-              textAlign="center"
-              marginBottom={baseSpacing * 2}
-              lineHeight={isLarge ? 26 : 24}
-              maxWidth={isLarge ? 400 : 300}
-            >
-              Ready to sync your data across all your devices?
-            </Text>
+          </XStack>
 
             <YStack 
               style={[styles.featureList, { backgroundColor: featureBg }]}
@@ -182,7 +114,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
               <XStack alignItems="center" gap={baseSpacing}>
                 <MaterialIcons name="sync" size={20} color={colors.accent} />
                 <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
-                  Unlimited device sync
+                  Unlimited devices
                 </Text>
               </XStack>
               <XStack alignItems="center" gap={baseSpacing}>
@@ -197,25 +129,78 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                   Automatic backups
                 </Text>
               </XStack>
+              <XStack alignItems="center" gap={baseSpacing}>
+                <MaterialIcons name="attach-money" size={20} color={colors.accent} />
+                <XStack alignItems="center" gap={4}>
+                  <Text fontSize={14} color={colors.accent} fontFamily="$body" fontWeight="700">
+                    ONLY $4/month
+                  </Text>
+                  <Text fontSize={12} color={colors.subtext} fontFamily="$body" fontWeight="600">
+                    or $25/year
+                  </Text>
+                </XStack>
+              </XStack>
+              <XStack alignItems="center" gap={baseSpacing}>
+                <MaterialIcons name="cancel" size={20} color={colors.accent} />
+                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
+                  Cancel anytime
+                </Text>
+              </XStack>
             </YStack>
-            
+            <YStack 
+              style={[styles.infoBox, { backgroundColor: infoBg }]}
+              marginTop={baseSpacing }
+            >
+              <XStack alignItems="flex-start" gap={baseSpacing}>
+                <MaterialIcons name="info" size={16} color={colors.accent} style={{ marginTop: 2 }} />
+                <YStack flex={1} gap={6}>
+                  <Text fontSize={12} color={colors.text} fontFamily="$body" fontWeight="600">
+                    How it works:
+                  </Text>
+                  <YStack gap={4}>
+                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
+                      • Add a Note on your iPhone? See the change when you open the app on your browser
+                    </Text>
+                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
+                      • Delete a Task on your Android? See the change when you open the app on your iPad
+                    </Text>
+                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
+                      • Perfect for spouses who want to sync their Bills
+                    </Text>
+                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
+                      • Don't want a specific feature to sync? Just disable it on the Sync screen!
+                    </Text>
+                  </YStack>
+                </YStack>
+              </XStack>
+            </YStack>
+            <Text 
+              fontSize={isLarge ? 15 : 13} 
+              color={colors.subtext} 
+              fontFamily="$body"
+              textAlign="center"
+              marginVertical={baseSpacing * 2}
+              lineHeight={isLarge ? 26 : 24}
+            >
+              Ready to sync your data across all your devices?
+            </Text>
             <TouchableOpacity
               onPress={handlePremiumPress}
               style={styles.ctaButton}
               activeOpacity={0.88}
             >
               <LinearGradient
-                colors={[colors.accent, colors.accent + 'DD']}
+                colors={[colors.accent, colors.accent + 'DD', colors.accent + 'DD']}
                 style={styles.buttonGradient}
               >
                 <XStack alignItems="center" gap={baseSpacing}>
                   <Text 
                     color="#333" 
-                    fontSize={isLarge ? 18 : 16} 
-                    fontWeight="700" 
+                    fontSize={isLarge ? 16 : 14} 
+                    fontWeight="500" 
                     fontFamily="$body"
                   >
-                    {isDev ? '🚀 Activate Premium (Dev)' : 'Get Premium Access'}
+                    {isDev ? 'Activate Premium (Dev)' : 'Get Premium Access'}
                   </Text>
                   <MaterialIcons 
                     name={isDev ? "flash-on" : "arrow-forward"} 
@@ -226,49 +211,9 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
               </LinearGradient>
             </TouchableOpacity>
 
-            <XStack alignItems="center" gap={baseSpacing} marginTop={baseSpacing * 2}>
-              <Text 
-                fontSize={isLarge ? 14 : 12} 
-                fontWeight="700" 
-                color={colors.accent} 
-                fontFamily="$body"
-              >
-                ONLY $4/month
-              </Text>
-              <Text 
-                fontSize={isLarge ? 12 : 11} 
-                color={colors.subtext} 
-                fontFamily="$body"
-                fontWeight="600"
-              >
-                or
-              </Text>
-              <Text  
-                fontSize={isLarge ? 12 : 11} 
-                color={colors.accent} 
-                fontFamily="$body"
-                fontWeight="700"
-              >
-                $25/year
-              </Text>
-            </XStack>
-
-            <XStack 
-              alignItems="center" 
-              justifyContent="center" 
-              gap={baseSpacing * 2} 
-              marginTop={baseSpacing * 2}
-            >
-              <XStack alignItems="center" gap={baseSpacing / 2}>
-                <MaterialIcons name="cancel" size={16} color={colors.subtext} />
-                <Text fontSize={12} color={colors.subtext} fontFamily="$body">
-                  Cancel anytime
-                </Text>
-              </XStack>
-            </XStack>
           </YStack>
         ) : (
-          <YStack alignItems="center" flex={1} justifyContent="center">
+          <YStack alignItems="center" flex={1} justifyContent="center" marginTop={baseSpacing * 2}>
             <MaterialIcons 
               name="group-add" 
               size={isLarge ? 80 : 64} 
@@ -277,7 +222,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
             />
             
             <Text 
-              fontSize={isLarge ? 28 : 24} 
+              fontSize={isLarge ? 28 : 22} 
               fontWeight="800" 
               color={colors.text} 
               fontFamily="$body"
@@ -293,22 +238,14 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
               fontFamily="$body"
               textAlign="center"
               marginBottom={baseSpacing * 3}
-              lineHeight={isLarge ? 26 : 24}
               maxWidth={isLarge ? 400 : 300}
             >
               Enter the workspace code shared by a premium user to join their workspace and sync your data.
             </Text>
 
-            <YStack width="100%" maxWidth={isLarge ? 400 : 320} gap={baseSpacing * 2}>
+            <YStack width="100%" maxWidth={isLarge ? 400 : 250} gap={baseSpacing * 2}>
               <YStack gap={baseSpacing}>
-                <Text 
-                  fontSize={14} 
-                  fontWeight="600" 
-                  color={colors.text} 
-                  fontFamily="$body"
-                >
-                  Workspace Code
-                </Text>
+
                 <TextInput
                   style={[
                     styles.input,
@@ -348,9 +285,9 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                       <MaterialIcons name="group-add" size={18} color="white" />
                     )}
                     <Text 
-                      color="white" 
-                      fontSize={isLarge ? 18 : 16} 
-                      fontWeight="700" 
+                      color={colors.gray} 
+                      fontSize={isLarge ? 15 : 13} 
+                      fontWeight="500" 
                       fontFamily="$body"
                     >
                       {isJoining ? 'Joining...' : 'Join Workspace'}
@@ -359,25 +296,58 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                 </LinearGradient>
               </TouchableOpacity>
             </YStack>
-
-            <YStack 
-              style={[styles.infoBox, { backgroundColor: infoBg }]}
-              marginTop={baseSpacing * 3}
-            >
-              <XStack alignItems="flex-start" gap={baseSpacing}>
-                <MaterialIcons name="info" size={16} color={colors.accent} style={{ marginTop: 2 }} />
-                <YStack flex={1}>
-                  <Text fontSize={12} color={colors.text} fontFamily="$body" fontWeight="600" marginBottom={4}>
-                    How it works:
-                  </Text>
-                  <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
-                    Premium users can share their workspace code with you. Once you join, your data will sync with their workspace using the same encryption key.
-                  </Text>
-                </YStack>
-              </XStack>
-            </YStack>
           </YStack>
         )}
+        
+        <XStack 
+          style={[styles.tabContainer, { backgroundColor: tabBg }]}
+          marginTop={baseSpacing * 2}
+          marginBottom={0}
+        >
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === 'premium' && { backgroundColor: tabBg }
+            ]}
+            onPress={() => setActiveTab('premium')}
+          >
+            <MaterialIcons 
+              name="star" 
+              size={16} 
+              color={activeTab === 'premium' ? colors.accent : colors.subtext} 
+            />
+            <Text 
+              fontSize={14} 
+              fontWeight={activeTab === 'premium' ? '700' : '500'}
+              color={activeTab === 'premium' ? colors.accent : colors.subtext}
+              fontFamily="$body"
+            >
+              Get Premium
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={[
+              styles.tab,
+              activeTab === 'join' && { backgroundColor: tabBg }
+            ]}
+            onPress={() => setActiveTab('join')}
+          >
+            <MaterialIcons 
+              name="group-add" 
+              size={16} 
+              color={activeTab === 'join' ? colors.accent : colors.subtext} 
+            />
+            <Text 
+              fontSize={14} 
+              fontWeight={activeTab === 'join' ? '700' : '500'}
+              color={activeTab === 'join' ? colors.accent : colors.subtext}
+              fontFamily="$body"
+            >
+              Join Workspace
+            </Text>
+          </TouchableOpacity>
+        </XStack>
       </View>
     </View>
   );
@@ -387,14 +357,14 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     alignSelf: 'center',
-    paddingVertical: isWeb ? baseSpacing * 2 : isIpad() ? baseSpacing * 2.5 : baseSpacing * 2,
+    paddingVertical: isWeb ? baseSpacing * 2 : isIpad() ? baseSpacing * 2.5 : baseSpacing,
     paddingHorizontal: isWeb ? baseSpacing : isIpad() ? baseSpacing * 1.5 : baseSpacing,
     width: '100%',
   },
   heroCard: {
-    borderRadius: cardRadius + 4,
-    paddingVertical: isWeb ? baseSpacing * 3 : isIpad() ? baseSpacing * 3.5 : baseSpacing * 3,
-    paddingHorizontal: isWeb ? baseSpacing * 2.5 : isIpad() ? baseSpacing * 2.5 : baseSpacing * 2,
+    borderRadius: cardRadius,
+    paddingBottom: 0,
+    paddingHorizontal: isWeb ? baseSpacing * 2.5 : 0,
     borderWidth: 1,
     alignItems: 'stretch',
     width: '100%',
@@ -407,7 +377,6 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     borderRadius: cardRadius,
-    padding: 4,
   },
   tab: {
     flex: 1,
@@ -415,9 +384,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: baseSpacing,
+    paddingVertical: baseSpacing * 1.5,
     paddingHorizontal: baseSpacing * 1.5,
-    borderRadius: cardRadius - 4,
+    borderRadius: cardRadius,
+    borderBottomWidth: 0,
   },
   iconContainer: {
     width: isWeb ? 90 : isIpad() ? 90 : 80,
@@ -427,6 +397,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: baseSpacing * 2,
     shadowOffset: { width: 0, height: 2 },
+    marginTop: baseSpacing * 2,
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
@@ -446,7 +417,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
     width: '100%',
-    maxWidth: isWeb ? 350 : 320,
+    maxWidth: isWeb ? 350 : 250,
   },
   ctaButton2: {
     borderRadius: cardRadius,
@@ -467,13 +438,13 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
     borderRadius: cardRadius,
-    paddingHorizontal: baseSpacing * 1.5,
+
     paddingVertical: baseSpacing * 1.25,
     fontSize: isWeb ? 16 : 14,
     fontFamily: 'System',
     fontWeight: '500',
     textAlign: 'center',
-    letterSpacing: 2,
+
   },
   infoBox: {
     padding: baseSpacing * 1.5,

@@ -17,7 +17,7 @@ export const getColors = (isDark: boolean, primaryColor: string) => ({
   card: isDark ? '#23262F' : '#F7F8FA',
   border: isDark ? '#333' : '#E3E5E1',
   text: isDark ? '#fff' : '#181A20',
-  subtext: isDark ? '#aaa' : '#666',
+  subtext: isDark ? '#a1a1a1' : '#666',
   subtext2: isDark ? '#6f6f6f' : '#777',
   accent: isDark ? "rgb(0, 255, 255)" : primaryColor,
   accent2: isDark ? "rgb(0, 255, 255)" : primaryColor,

@@ -108,9 +108,9 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           }}
         />
         <XStack
-          padding={isIpad() ? 7 : 7}
-          paddingBottom={isIpad() ? 7 : 7}
-          paddingTop={isIpad() ? 7 : 7}
+          padding={isIpad() ? 7 : 6}
+          paddingBottom={isIpad() ? 8 : 6}
+          paddingTop={isIpad() ? 7 : 5}
           paddingHorizontal={isIpad() ? '$3' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
@@ -119,7 +119,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           gap={isIpad() ? '$2' : '$2'}
         >
           <YStack flex={1} gap="$1">
-            <XStack py={"$1"} jc="space-between" ai="center">
+            <XStack  jc="space-between" ai="center">
               <Text
                 fontFamily="$heading"
                 fontWeight="900"
@@ -163,8 +163,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                     key={person.id}
                     br={isIpad() ? 14 : 10}
                     overflow="hidden"
-                    width={isIpad() ? 22 : 20}
-                    height={isIpad() ? 22 : 20}
+                    width={isIpad() ? 22 : 18}
+                    height={isIpad() ? 22 : 18}
                     marginBottom={isIpad() ? 0 : 0}
                   >
                     {person.profilePicture ? (

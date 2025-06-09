@@ -1,12 +1,13 @@
 import React from 'react';
-import { Sheet, Image, Paragraph, XStack, YStack } from 'tamagui';
-import { TouchableOpacity, View, Platform, Linking, Alert, Text, ScrollView } from 'react-native';
+import { Image, Paragraph, XStack, YStack, Theme, Button, isWeb } from 'tamagui';
+import { TouchableOpacity, TouchableWithoutFeedback, View, Platform, Linking, Alert, Text, ScrollView, StyleSheet, Dimensions, useColorScheme } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { ZoomIn, FadeIn, FadeOut } from 'react-native-reanimated';
 import * as Clipboard from 'expo-clipboard';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import type { Person } from '@/types';
-import { styles } from './styles';
-import { webStyles } from './webStyles';
 import { formatPhoneNumber } from './utils';
+import { isIpad } from '@/utils';
 
 export type ExpandedViewProps = {
   isExpanded: boolean;
@@ -14,7 +15,7 @@ export type ExpandedViewProps = {
   isDark: boolean;
   nicknameColor: string;
   fullAddress: string;
-  applyWebStyle: (styleKey: keyof typeof webStyles) => Record<string, unknown>;
+  applyWebStyle?: (styleKey: string) => Record<string, unknown>;
   onClose: () => void;
   onEdit: (person: Person) => void;
 };
@@ -22,326 +23,505 @@ export type ExpandedViewProps = {
 export default function ExpandedView({
   isExpanded,
   person,
-  isDark,
   nicknameColor,
   fullAddress,
-  applyWebStyle,
   onClose,
   onEdit
 }: ExpandedViewProps) {
-  return (
-    <Sheet
-      modal
-      open={isExpanded}
-      onOpenChange={(open: boolean) => { if (!open) onClose(); }}
-      snapPoints={[85, 95]}
-      dismissOnSnapToBottom
-      dismissOnOverlayPress
-      animation="modal"
-      zIndex={100000}
-    >
-      <Sheet.Overlay animation="modal" style={styles.overlay as any} />
-      <Sheet.Frame
-        key="sheet-frame"
-        style={[
-          styles.modalContainer,
-          {
-            backgroundColor: isDark ? 'rgba(20,20,20,0.95)' : 'rgba(255,255,255,0.95)',
-            borderColor: isDark ? 'rgba(200,200,200,0.8)' : 'rgba(100,100,100,0.3)'
-          },
-          applyWebStyle('modalContainer')
-        ] as any}
+  // console.log('🔍 [ExpandedView] Render:', person.name, 'isExpanded:', isExpanded);
+  
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const insets = useSafeAreaInsets();
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+  const modalWidth = isWeb ? 600 : isIpad() ? 500 : 360;
+  const actualWidth = Math.min(modalWidth, screenWidth * 0.92);
+
+  if (!isExpanded) return null;
+
+  // Web implementation with position:fixed
+  if (isWeb) {
+    return (
+      <YStack
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        bottom={0}
+        width="100%"
+        height="100%"
+        backgroundColor="rgba(0, 0, 0, 0.85)"
+        alignItems="center"
+        justifyContent="center"
+        zIndex={10000}
+        enterStyle={{ opacity: 0 }}
+        animation="quick"
+        {...(isWeb ? { style: { position: 'fixed' } as any } : {})}
       >
-        <Sheet.Handle key="sheet-handle" />
-        <View key="header-icons" style={styles.modalHeaderIcons as any}>
-            <TouchableOpacity
-              key="close-icon"
-              style={[
-                styles.closeIcon,
-                { 
-                  marginTop: Platform.OS === 'web' ? 10 : 0,
-                  marginRight: Platform.OS === 'web' ? 10 : 0,
-                }
-              ] as any}
-              onPress={onClose}
-            >
-              <Ionicons key="close-outline-icon" name="close-outline" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        <ScrollView key="scroll-view" style={[styles.modalContent, { zIndex: 1 }, applyWebStyle('modalContent')] as any}>
-
-          <View key="header-row" style={[styles.headerRow, applyWebStyle('headerRow')] as any}>
-            <View key="avatar-container" style={styles.modalAvatarContainer as any}>
-              <Image
-                key="profile-image"
-                source={{ uri: person.profilePicture || 'https://via.placeholder.com/200' }}
-                style={[styles.modalAvatar, applyWebStyle('modalAvatar')] as any}
-                objectFit="cover"
-              />
-              {person.priority && (
-                <View key="star-indicator" style={styles.modalStarIndicator as any}>
-                  <Ionicons key="star-icon" name="star" size={16} color="#FFD700" />
-                </View>
-              )}
-            </View>
-            <View key="name-column" style={styles.nameColumn as any}>
-              <Paragraph
-                key="name-text"
-                color={nicknameColor}
-                style={styles.modalNameText as any}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {person.nickname || person.name}
-              </Paragraph>
-              <XStack key="occupation-row" alignItems="center" gap="$2">
-                <Paragraph key="occupation-text" fontSize={15} color={isDark ? '#999' : '#666'} numberOfLines={1}>
-                  {person.occupation}
-                </Paragraph>
-                {person.favorite && (<Ionicons key="favorite-icon" name="heart" size={15} color="#4CAF50" />)}
-              </XStack>
-            </View>
-          </View>
-
-          <XStack key="pills-container" style={styles.pillRow as any}>
-            {person.birthday && (
-              <View 
-                key="notification-pill"
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={{ 
+            flex: 1, 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            width: '100%',
+            height: '100%'
+          }}>
+            <Theme name={isDark ? 'dark' : 'light'}>
+              <Animated.View
+                entering={ZoomIn.duration(300).springify()}
+                exiting={FadeOut.duration(300)} 
                 style={[
-                  styles.statusPill,
-                ] as any}>
-                <XStack key="notification-content" alignItems="center" gap="$1">
-                  <Paragraph key="notification-label" fontSize={13} fontFamily="$body" color={isDark ? '#666' : '#555'}>Notification:</Paragraph>
-                  <Paragraph key="notification-value" fontSize={13} fontFamily="$body" color="#4CAF50">Scheduled</Paragraph>
+                  styles.modalContainer,
+                  {
+                    backgroundColor: isDark ? '#222' : '#fff',
+                    marginTop: insets.top + 20, 
+                    marginBottom: insets.bottom + 40,
+                    width: actualWidth,
+                    maxHeight: screenHeight * 0.9,
+                  }
+                ]}
+                onTouchEnd={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <XStack justifyContent="space-between" py="$2" marginTop={isIpad() ? -8 : -8} marginBottom={isIpad() ? 8 : 8} px="$2" alignItems="center">
+                  <Paragraph
+                    fontSize={24}
+                    fontWeight="700"
+                    fontFamily="$body"
+                    color={nicknameColor}
+                    marginBottom={0}
+                    numberOfLines={1}
+                  >
+                    {person.nickname || person.name}
+                  </Paragraph>
+                  <Button
+                    backgroundColor="transparent"
+                    onPress={onClose} 
+                    padding={8}
+                    pressStyle={{ opacity: 0.7 }}
+                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                  />
+                </XStack>
+                
+                {/* Content */}
+                <ScrollView style={{ position: 'relative', maxHeight: screenHeight * 0.7 }}>
+                  {renderContent(person, isDark, nicknameColor, fullAddress, onEdit)}
+                </ScrollView>
+              </Animated.View>
+            </Theme>
+          </View>
+        </TouchableWithoutFeedback>
+      </YStack>
+    )
+  }
+
+  // Native implementation
+  return (
+    <Animated.View
+      style={styles.overlay}
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(300)}
+      pointerEvents="box-none"
+    >
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingBottom: screenHeight * 0.15,
+          }}
+        >
+          <Theme name={isDark ? 'dark' : 'light'}>
+            <Animated.View
+              entering={ZoomIn.duration(300).springify()}
+              exiting={FadeOut.duration(300)} 
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: isDark ? '#141415' : '#fff',
+                  marginTop: insets.top + 10, 
+                  marginBottom: insets.bottom + 20,
+                  width: actualWidth,
+                  maxHeight: screenHeight * 0.8,
+                  borderColor: isDark ? '#3c3c3c' : '#1c1c1c',
+                  borderWidth: 1,
+                }
+              ]}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              <XStack justifyContent="space-between" py="$2" marginTop={-8}  pl={isIpad() ? "$2" : "$3"} pr={isIpad() ? "$2" : "$1"} alignItems="center">
+                <Paragraph
+                  fontSize={20}
+                  fontWeight="700"
+                  fontFamily="$body"
+                  color={nicknameColor}
+                  marginBottom={0}
+                  numberOfLines={1}
+                >
+                  {person.nickname || person.name}
+                </Paragraph>
+                <Button
+                  backgroundColor="transparent"
+                  onPress={onClose} 
+                  padding={8}
+                  pressStyle={{ opacity: 0.7 }}
+                  icon={<MaterialIcons name="close" size={24} color={isDark ? "#c9c9c9" : "#000"}/>}
+                />
+              </XStack>
+              
+              <ScrollView style={{ position: 'relative', maxHeight: screenHeight * 0.6 }}>
+                {renderContent(person, isDark, nicknameColor, fullAddress, onEdit)}
+              </ScrollView>
+            </Animated.View>
+          </Theme>
+        </View>
+      </TouchableWithoutFeedback>
+    </Animated.View>
+  )
+}
+
+// Render content helper function
+function renderContent(person: Person, isDark: boolean, nicknameColor: string, fullAddress: string, onEdit: (person: Person) => void) {
+  return (
+    <YStack gap="$3" paddingRight="$3" paddingLeft="$2">
+      <XStack gap="$3" alignItems="center">
+        <View style={styles.avatarContainer}>
+          {person.profilePicture ? (
+            <Image
+              source={{ uri: person.profilePicture }}
+              style={styles.avatar}
+              objectFit="cover"
+            />
+          ) : (
+            <View
+              style={[
+                styles.avatar,
+                {
+                  backgroundColor: nicknameColor,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }
+              ]}
+            >
+              <Text
+                style={{
+                  color: isDark ? '#000' : '#fff',
+                  fontSize: 32,
+                  fontWeight: 'bold',
+                  textAlign: 'center',
+                }}
+              >
+                {(person.nickname || person.name).charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
+          {person.priority && (
+            <View style={styles.starIndicator}>
+              <Ionicons name="star" size={16} color="#FFD700" />
+            </View>
+          )}
+        </View>
+        <YStack flex={1} gap="$1">
+          <XStack alignItems="center" gap="$2">
+            <Paragraph fontSize={15} color={isDark ? '#999' : '#666'} numberOfLines={1}>
+              {person.occupation}
+            </Paragraph>
+            {person.favorite && (<Ionicons name="heart" size={15} color="#4CAF50" />)}
+          </XStack>
+          
+          <XStack gap="$2" flexWrap="wrap">
+            {person.birthday && (
+              <View style={[styles.statusPill, { backgroundColor: isDark ? 'rgba(76, 175, 80, 0.1)' : 'rgba(76, 175, 80, 0.1)' }]}>
+                <XStack alignItems="center" gap="$1">
+                  <Paragraph fontSize={13} fontFamily="$body" color={isDark ? '#666' : '#555'}>Notification:</Paragraph>
+                  <Paragraph fontSize={13} fontFamily="$body" color="#4CAF50">Scheduled</Paragraph>
                 </XStack>
               </View>
             )}
             {person.priority && person.birthday && (
-              <View 
-                key="reminder-pill"
-                style={[
-                  styles.statusPill,
-                  styles.reminderPill,
-                ] as any}>
-                <XStack key="reminder-content" alignItems="center" gap="$1">
-                  <Paragraph key="reminder-label" fontSize={13} fontFamily="$body" color={isDark ? '#666' : '#555'}>Reminder:</Paragraph>
-                  <Paragraph key="reminder-value" fontSize={13} fontFamily="$body" color="#FFD700">Scheduled</Paragraph>
+              <View style={[styles.statusPill, { backgroundColor: isDark ? 'rgba(255, 215, 0, 0.1)' : 'rgba(255, 215, 0, 0.1)' }]}>
+                <XStack alignItems="center" gap="$1">
+                  <Paragraph fontSize={13} fontFamily="$body" color={isDark ? '#666' : '#555'}>Reminder:</Paragraph>
+                  <Paragraph fontSize={13} fontFamily="$body" color="#FFD700">Scheduled</Paragraph>
                 </XStack>
               </View>
             )}
           </XStack>
+        </YStack>
+      </XStack>
 
-          <YStack style={styles.infoSection as any}>
-            {person.birthday && (
-              <XStack key="birthday-info" gap="$3" alignItems="center">
-                <Ionicons name="gift-outline" backgroundColor={"transparent"} size={22} color={nicknameColor} />
-                <Paragraph fontSize={14} fontFamily="$body" color={isDark ? '#fff' : '#333'}>
-                  {(() => {
-                    const date = new Date(person.birthday);
-                    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-                    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-                  })()}
-                </Paragraph>
-              </XStack>
-            )}
-            
-            {person.tags && person.tags.length > 0 && (
-              <XStack key="tags-info" gap="$2" alignItems="flex-start">
-                <Ionicons name="pricetag-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <View style={styles.modalTagsContainer as any}>
-                  {person.tags.map(tag => (
-                    <View
-                      key={`tag-${tag.id}`}
-                      style={[
-                        styles.modalTag as any,
-                        {
-                          backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
-                        }
-                      ]}
-                    >
-                      <Ionicons
-                        name="pricetag-outline"
-                        size={12}
-                        color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
-                        style={{ marginRight: 4 }}
-                      />
-                      <Text
-                        style={[
-                          styles.modalTagText as any,
-                          {
-                            color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
-                          }
-                        ]}
-                      >
-                        {tag.name}
-                      </Text>
-                    </View>
-                  ))}
+      <YStack gap="$3">
+        {person.birthday && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="gift-outline" size={22} color={nicknameColor} />
+            <Paragraph fontSize={14} fontFamily="$body" color={isDark ? '#fff' : '#333'}>
+              {(() => {
+                const date = new Date(person.birthday);
+                date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+              })()}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {person.tags && person.tags.length > 0 && (
+          <XStack gap="$2" alignItems="flex-start">
+            <Ionicons name="pricetag-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <View style={styles.tagsContainer}>
+              {person.tags.map(tag => (
+                <View
+                  key={`tag-${tag.id}`}
+                  style={[
+                    styles.tag,
+                    {
+                      backgroundColor: tag.color ? `${tag.color}15` : isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)",
+                    }
+                  ]}
+                >
+                  <Ionicons
+                    name="pricetag-outline"
+                    size={12}
+                    color={tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)")}
+                    style={{ marginRight: 4 }}
+                  />
+                  <Text
+                    style={[
+                      styles.tagText,
+                      {
+                        color: tag.color || (isDark ? "rgb(180, 180, 180)" : "rgb(100, 100, 100)"),
+                      }
+                    ]}
+                  >
+                    {tag.name}
+                  </Text>
                 </View>
-              </XStack>
-            )}
+              ))}
+            </View>
+          </XStack>
+        )}
 
-            {person.occupation && (
-              <XStack key="occupation-info" gap="$3" alignItems="center">
-                <Ionicons name="briefcase-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {person.occupation}
+        {person.email && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="mail-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+              {person.email}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {person.phoneNumber && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="call-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+              {formatPhoneNumber(person.phoneNumber)}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {fullAddress && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="location-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+              {fullAddress}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {person.relationship && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="people-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+              {person.relationship}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {person.notes && (
+          <XStack gap="$3" alignItems="flex-start">
+            <Ionicons name="document-text-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'} style={{ flex: 1 }}>
+              {person.notes}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {person.lastContactDate && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="time-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+              Last Contact: {new Date(person.lastContactDate).toLocaleDateString()}
+            </Paragraph>
+          </XStack>
+        )}
+        
+        {person.importantDates && person.importantDates.length > 0 && (
+          <XStack gap="$3" alignItems="flex-start">
+            <Ionicons name="calendar-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
+            <YStack>
+              {person.importantDates.map((date, idx) => (
+                <Paragraph key={`importantDate-${idx}`} fontSize={14} color={isDark ? '#fff' : '#333'}>
+                  {date.description}: {new Date(date.date).toLocaleDateString()}
                 </Paragraph>
-              </XStack>
-            )}
-            {person.email && (
-              <XStack key="email-info" gap="$3" alignItems="center">
-                <Ionicons name="mail-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {person.email}
+              ))}
+            </YStack>
+          </XStack>
+        )}
+        
+        {person.socialMedia && person.socialMedia.length > 0 && (
+          <XStack gap="$3" alignItems="flex-start">
+            <Ionicons name="at-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
+            <YStack>
+              {person.socialMedia.map((social, idx) => (
+                <Paragraph key={`social-${idx}`} fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+                  {social.platform}: {social.username}
                 </Paragraph>
-              </XStack>
-            )}
-            {person.phoneNumber && (
-              <XStack key="phone-info" gap="$3" alignItems="center">
-                <Ionicons name="call-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {formatPhoneNumber(person.phoneNumber)}
-                </Paragraph>
-              </XStack>
-            )}
-            {fullAddress && (
-              <XStack key="address-info" gap="$3" alignItems="center">
-                <Ionicons name="location-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {fullAddress}
-                </Paragraph>
-              </XStack>
-            )}
-            {person.relationship && (
-              <XStack key="relationship-info" gap="$3" alignItems="center">
-                <Ionicons name="people-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {person.relationship}
-                </Paragraph>
-              </XStack>
-            )}
-            {person.notes && (
-              <XStack key="notes-info" gap="$3" alignItems="center">
-                <Ionicons name="document-text-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'} style={{ flex: 1 }}>
-                  {person.notes}
-                </Paragraph>
-              </XStack>
-            )}
-            {person.lastContactDate && (
-              <XStack key="lastcontact-info" gap="$3" alignItems="center">
-                <Ionicons name="time-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  Last Contact: {new Date(person.lastContactDate).toLocaleDateString()}
-                </Paragraph>
-              </XStack>
-            )}
-            {person.importantDates && person.importantDates.length > 0 && (
-              <XStack key="importantdates-info" gap="$3" alignItems="flex-start">
-                <Ionicons name="calendar-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
-                <YStack>
-                  {person.importantDates.map((date, idx) => (
-                    <Paragraph key={`importantDate-${idx}`} fontSize={14} color={isDark ? '#fff' : '#333'}>
-                      {date.description}: {new Date(date.date).toLocaleDateString()}
-                    </Paragraph>
-                  ))}
-                </YStack>
-              </XStack>
-            )}
-            {person.socialMedia && person.socialMedia.length > 0 && (
-              <XStack key="socialmedia-info" gap="$3" alignItems="flex-start">
-                <Ionicons name="cash-outline" size={22} color={isDark ? '#fff' : '#555'} style={{ marginTop: 2 }} />
-                <YStack>
-                  {person.socialMedia.map((social, idx) => (
-                    <Paragraph key={`social-${idx}`} fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                      {social.platform}: {social.username}
-                    </Paragraph>
-                  ))}
-                </YStack>
-              </XStack>
-            )}
-            {person.additionalInfo && (
-              <XStack key="additionalinfo-info" gap="$3" alignItems="center">
-                <Ionicons name="information-circle-outline" size={22} color={isDark ? '#fff' : '#555'} />
-                <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
-                  {person.additionalInfo}
-                </Paragraph>
-              </XStack>
-            )}
-          </YStack>
-        </ScrollView>
+              ))}
+            </YStack>
+          </XStack>
+        )}
+        
+        {person.additionalInfo && (
+          <XStack gap="$3" alignItems="center">
+            <Ionicons name="information-circle-outline" size={22} color={isDark ? '#fff' : '#555'} />
+            <Paragraph fontFamily="$body" fontSize={14} color={isDark ? '#fff' : '#333'}>
+              {person.additionalInfo}
+            </Paragraph>
+          </XStack>
+        )}
+      </YStack>
 
-        <View
-          key="action-bar"
-          style={[
-            styles.actionBar,
-            {
-              backgroundColor: isDark ? 'rgba(20,20,20,0.95)' : 'rgba(240,240,240,0.95)',
-              borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
-            },
-            applyWebStyle('actionBar')
-          ] as any}
-          pointerEvents="box-none"
+
+      <XStack gap="$3" justifyContent="space-around" paddingTop="$1">
+        <TouchableOpacity
+          onPress={() => {
+            const shareUrl = `kaiba-nexus://share?name=${encodeURIComponent(person.name)}` +
+              (person.nickname ? `&nickname=${encodeURIComponent(person.nickname)}` : '') +
+              (person.phoneNumber ? `&phone=${encodeURIComponent(formatPhoneNumber(person.phoneNumber))}` : '') +
+              (person.email ? `&email=${encodeURIComponent(person.email)}` : '') +
+              (person.occupation ? `&occupation=${encodeURIComponent(person.occupation)}` : '');
+            const plainText = `Contact: ${person.nickname || person.name}\n` +
+              (person.phoneNumber ? `Phone: ${formatPhoneNumber(person.phoneNumber)}\n` : '') +
+              (person.email ? `Email: ${person.email}\n` : '') +
+              (person.occupation ? `Occupation: ${person.occupation}\n` : '');
+            const clipboardContent = `${shareUrl}\n---\n${plainText}`;
+            Clipboard.setStringAsync(clipboardContent);
+            Alert.alert('Success', 'Contact info copied to clipboard!');
+          }}
+          style={styles.actionButton}
+          activeOpacity={0.6}
         >
-          <TouchableOpacity
-            key="copy-action"
-            onPress={() => {
-              const shareUrl = `kaiba-nexus://share?name=${encodeURIComponent(person.name)}` +
-                (person.nickname ? `&nickname=${encodeURIComponent(person.nickname)}` : '') +
-                (person.phoneNumber ? `&phone=${encodeURIComponent(formatPhoneNumber(person.phoneNumber))}` : '') +
-                (person.email ? `&email=${encodeURIComponent(person.email)}` : '') +
-                (person.occupation ? `&occupation=${encodeURIComponent(person.occupation)}` : '');
-              const plainText = `Contact: ${person.nickname || person.name}\n` +
-                (person.phoneNumber ? `Phone: ${formatPhoneNumber(person.phoneNumber)}\n` : '') +
-                (person.email ? `Email: ${person.email}\n` : '') +
-                (person.occupation ? `Occupation: ${person.occupation}\n` : '');
-              const clipboardContent = `${shareUrl}\n---\n${plainText}`;
-              Clipboard.setStringAsync(clipboardContent);
-              Alert.alert('Success', 'Contact info copied to clipboard!');
-            }}
-            style={styles.actionButton as any}
-            activeOpacity={0.6}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons key="copy-outline-icon" name="copy-outline" size={24} color={isDark ? '#fff' : '#555'} />
-            <Paragraph key="copy-text" fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Copy</Paragraph>
-          </TouchableOpacity>
+          <Ionicons name="copy-outline" size={24} color={isDark ? '#fff' : '#555'} />
+          <Text style={[styles.actionText, { color: isDark ? '#fff' : '#555' }]}>Copy</Text>
+        </TouchableOpacity>
 
-          {person.phoneNumber && (
-            <TouchableOpacity
-              key="call-action"
-              onPress={() => {
-                Linking.openURL(`tel:${person.phoneNumber}`).catch(err => {
-                  console.error('Could not open phone app', err);
-                  Alert.alert('Error', 'Could not open phone app');
-                });
-              }}
-              style={styles.actionButton as any}
-              activeOpacity={0.6}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons key="call-outline-icon" name="call-outline" size={24} color={isDark ? '#fff' : '#555'} />
-              <Paragraph key="call-text" fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Call</Paragraph>
-            </TouchableOpacity>
-          )}
-          
+        {person.phoneNumber && (
           <TouchableOpacity
-            key="edit-action"
-            onPress={e => {
-              if (typeof e.preventDefault === 'function') e.preventDefault();
-              if (typeof e.stopPropagation === 'function') e.stopPropagation();
-              onEdit(person);
+            onPress={() => {
+              Linking.openURL(`tel:${person.phoneNumber}`).catch(err => {
+                console.error('Could not open phone app', err);
+                Alert.alert('Error', 'Could not open phone app');
+              });
             }}
-            style={[styles.actionButton, { zIndex: 99 }] as any}
+            style={styles.actionButton}
             activeOpacity={0.6}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons key="edit-outline-icon" name="pencil-outline" size={24} color={isDark ? '#fff' : '#555'} />
-            <Paragraph key="edit-text" fontFamily="$body" style={[styles.actionText, { color: isDark ? '#fff' : '#555' }] as any}>Edit</Paragraph>
+            <Ionicons name="call-outline" size={24} color={isDark ? '#fff' : '#555'} />
+            <Text style={[styles.actionText, { color: isDark ? '#fff' : '#555' }]}>Call</Text>
           </TouchableOpacity>
-        </View>
-      </Sheet.Frame>
-    </Sheet>
+        )}
+        
+        <TouchableOpacity
+          onPress={() => onEdit(person)}
+          style={styles.actionButton}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="pencil-outline" size={24} color={isDark ? '#fff' : '#555'} />
+          <Text style={[styles.actionText, { color: isDark ? '#fff' : '#555' }]}>Edit</Text>
+        </TouchableOpacity>
+      </XStack>
+    </YStack>
   );
-} 
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000, 
+  },
+  modalContainer: {
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
+    borderRadius: 16,
+    padding: 12,
+    paddingHorizontal: isWeb ? 32 : 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1,
+  },
+  avatarContainer: {
+    position: 'relative',
+    width: 80,
+    paddingLeft: -10,
+    height: 80,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  starIndicator: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 8,
+    marginBottom: 4,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    flex: 1,
+  },
+  tag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 4,
+  },
+  tagText: {
+    fontSize: 12,
+    fontFamily: 'System',
+  },
+  actionButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    minWidth: 80,
+  },
+  actionText: {
+    fontSize: 12,
+    fontFamily: 'System',
+    marginTop: 4,
+  },
+});

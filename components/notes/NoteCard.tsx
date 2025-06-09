@@ -15,6 +15,7 @@ import { SimpleImageViewer } from './SimpleImageViewer';
 import { TagChip } from './TagChip';
 import { isIpad } from '@/utils';
 import { CachedImage } from '@/components/common/CachedImage';
+import { addSyncLog } from '@/components/sync/syncUtils';
 
 type NoteCardProps = {
   note: Note;
@@ -58,8 +59,21 @@ export const NoteCard = ({
   }, [note.content, checkboxUpdateKey]);
 
   const imageAttachments = useMemo(() => {
-    return note.attachments?.filter(att => att.type === 'image') ?? [];
-  }, [note.attachments]);
+    const allImageAttachments = note.attachments?.filter(att => att.type === 'image') ?? [];
+    const validImageAttachments = allImageAttachments.filter(att => att.url);
+    
+    // Log if we have image attachments without URLs (likely missing after sync)
+    const missingUrls = allImageAttachments.length - validImageAttachments.length;
+    if (missingUrls > 0) {
+      addSyncLog(
+        `${missingUrls} image(s) missing URLs in note: ${note.title || 'Untitled'}`,
+        'warning',
+        'Image attachments found without URLs, likely due to workspace sync not including images from other clients'
+      );
+    }
+    
+    return validImageAttachments;
+  }, [note.attachments, note.title]);
 
   const hasMarkdown = useMemo(() => {
     if (!note.content) return false;

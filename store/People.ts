@@ -7,6 +7,9 @@ import { addSyncLog } from '@/components/sync/syncUtils'
 
 const STORAGE_KEY = 'contacts-store'
 
+// Temporary flag to test if birthday sync is causing the freeze
+const SKIP_BIRTHDAY_SYNC = false // Set to true to temporarily disable birthday sync for testing
+
 type PeopleStore = {
   contacts: Record<string, Person>
   isSyncEnabled: boolean
@@ -60,15 +63,28 @@ export const usePeopleStore = create<PeopleStore>()(
                 console.error('🔴 [PeopleStore] Error saving to AsyncStorage:', error)
               })
 
-            if (personWithId.birthday) {
+            if (personWithId.birthday && !SKIP_BIRTHDAY_SYNC) {
+              addSyncLog(`[PeopleStore] Person has birthday: ${personWithId.name} (${personWithId.birthday}), scheduling birthday sync`, 'info')
+              
+              // Use longer delay to ensure UI has time to update smoothly
               setTimeout(() => {
                 try {
+                  const syncStartTime = performance.now()
+                  addSyncLog('[PeopleStore] Calling syncBirthdays from CalendarStore', 'info')
+                  
                   const { syncBirthdays } = require('./CalendarStore').useCalendarStore.getState()
                   syncBirthdays(personWithId.id)
+                  
+                  const syncEndTime = performance.now()
+                  addSyncLog(`[PeopleStore] ✅ syncBirthdays call completed in ${(syncEndTime - syncStartTime).toFixed(2)}ms`, 'success')
+                  
                 } catch (err: unknown) {
+                  addSyncLog(`🔴 [PeopleStore] birthday sync setup failed: ${err}`, 'error')
                   console.error('🔴 [PeopleStore] birthday sync setup error:', err)
                 }
-              }, 500)
+              }, 800) // Increased from 500ms to 800ms for smoother UI
+            } else if (personWithId.birthday && SKIP_BIRTHDAY_SYNC) {
+              addSyncLog(`[PeopleStore] Birthday sync skipped for ${personWithId.name} (SKIP_BIRTHDAY_SYNC=true)`, 'warning')
             }
             
             addSyncLog(`[PeopleStore] Person added locally: ${personWithId.name}`, 'info')

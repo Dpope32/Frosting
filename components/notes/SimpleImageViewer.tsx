@@ -4,6 +4,7 @@ import { Modal, StyleSheet, TouchableOpacity, View, Platform, TouchableWithoutFe
 import { MaterialIcons } from '@expo/vector-icons';
 import { useToastStore } from '@/store';
 import { PanGestureHandler, PinchGestureHandler, State, PanGestureHandlerGestureEvent, PinchGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import { addSyncLog } from '@/components/sync/syncUtils';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -86,8 +87,13 @@ export const SimpleImageViewer: React.FC<SimpleImageViewerProps> = ({ imageUrl, 
                     source={{ uri: imageUrl }}
                     style={[styles.image, animatedStyle]}
                     // Removed cachePolicy prop
-                    onError={(e: NativeSyntheticEvent<ImageErrorEventData>) => { // Corrected type for react-native Image
-                      console.error('Image loading error:', e.nativeEvent.error); // Access error from nativeEvent
+                    onError={(e: NativeSyntheticEvent<ImageErrorEventData>) => {
+                      console.error('Image loading error:', e.nativeEvent.error);
+                      addSyncLog(
+                        `Full-size image failed to load: ${imageUrl.substring(0, 50)}...`,
+                        'error',
+                        'This image may be missing after workspace sync. Images from other clients are not included in sync data.'
+                      );
                       showToast("Error loading image", "error");
                     }}
                   />

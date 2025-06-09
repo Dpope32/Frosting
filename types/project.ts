@@ -1,7 +1,7 @@
 import { Tag } from "./tag";
 import { Task } from "./task";
 import { Person } from "./people";
-import { Attachment, Note } from "./notes";
+import { Note } from "./notes";
 
 export type Project = {
     id: string;
@@ -17,5 +17,5 @@ export type Project = {
     tasks: Task[];
     people: Person[];
     notes: Note[];
-    attachments: Attachment[];
+    isPinned: boolean;
 }

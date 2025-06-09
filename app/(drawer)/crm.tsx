@@ -15,6 +15,8 @@ import { isIpad } from "@/utils";
 import { DevButtons } from "@/components/crm/devButtons";
 import { LongPressDelete } from "@/components/common/LongPressDelete";
 import { useToastStore } from "@/store";
+import ExpandedView from "@/components/crm/PersonCard/ExpandedView";
+import { getColorForPerson } from "@/components/crm/PersonCard/utils";
 const { width } = Dimensions.get("window");
 
 
@@ -29,6 +31,9 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  
+  // Debug expanded view issues
+  // console.log('🔍 [CRM] Render - expandedId:', expandedId, 'contactModalOpen:', contactModalOpen, 'isEditModalVisible:', isEditModalVisible);
   const PADDING = isWeb? 30 : isIpad() ? 24 : 16;
   const GAP = isWeb? 10 : isIpad() ? 8 : 6;
   const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 1 : 1;
@@ -152,6 +157,27 @@ export default function CRM() {
           onSave={handleSaveEdit}
         />
       )}
+      
+      {/* Expanded View Modal */}
+      {expandedId && (() => {
+        const expandedPerson = allContacts.find(person => person.id === expandedId);
+        if (!expandedPerson) return null;
+        
+        const nicknameColor = getColorForPerson(expandedPerson.id || expandedPerson.name);
+        const fullAddress = expandedPerson.address?.street || '';
+        
+        return (
+          <ExpandedView
+            isExpanded={true}
+            person={expandedPerson}
+            isDark={isDark}
+            nicknameColor={nicknameColor}
+            fullAddress={fullAddress}
+            onClose={() => setExpandedId(null)}
+            onEdit={handleEdit}
+          />
+        );
+      })()}
     </YStack>
   );
 }

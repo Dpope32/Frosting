@@ -125,18 +125,31 @@ export const generateTestContacts = () => {
     const randomIndex = Math.floor(Math.random() * testContacts.length);
     const randomContact = testContacts[randomIndex];
     
-    usePeopleStore.getState().addPerson({
-      ...randomContact,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      tags: [testTag],
-      priority: Math.random() > 0.5,
-      profilePicture: getRandomProfilePicture()
-    });
+    const addContact = async () => {
+      try {
+        await usePeopleStore.getState().addPerson({
+          ...randomContact,
+          id: generateId(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          tags: [testTag],
+          priority: Math.random() > 0.5,
+          profilePicture: getRandomProfilePicture()
+        });
+        
+        // Trigger toast manually since we're bypassing useAddPerson hook
+        const { showToast } = require('@/store/ToastStore').useToastStore.getState();
+        showToast(`${randomContact.name} added successfully`, 'success', { duration: 3000 });
+        
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } catch (error) {
+        console.error('Error adding test contact:', error);
+      } finally {
+        isGeneratingContacts = false;
+      }
+    };
     
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    isGeneratingContacts = false;
+    addContact();
   } else {
     // On web, we can add all contacts with a small delay between each
     let index = 0;

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { XStack, YStack, Text } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Project } from '@/types'
-import { ProjectAttachments, ProjectCardHeader, TaskListItem ,getDaysUntilDeadline } from './'
+import { ProjectCardHeader, TaskListItem ,getDaysUntilDeadline } from './'
 import { Pressable } from 'react-native'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 
@@ -172,13 +172,6 @@ export const ProjectCardWebView = ({
               />
             ))}
           </YStack>
-        </YStack>
-      )}
-
-      {project.attachments?.length > 0 && (
-        <YStack mx="$4" mt="$2">
-          <XStack w="100%" h={1} bg={isDark ? '#222' : '#ddd'} opacity={0.7} my="$2" />
-          <ProjectAttachments attachments={project.attachments} isDark={isDark} onImagePress={onImagePress} />
         </YStack>
       )}
     </YStack>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Platform, Keyboard, KeyboardEvent } from 'react-native'
+import { Platform, Keyboard, KeyboardEvent, TextInput, View } from 'react-native'
 import { Form, ScrollView, isWeb } from 'tamagui'
 import { format } from 'date-fns'
 import * as Haptics from 'expo-haptics'
@@ -20,7 +20,6 @@ import { PrioritySelector } from './PrioritySelector'
 import { SubmitButton } from './SubmitButton'
 import { isIpad } from '@/utils'
 import { DateSelector } from './DateSelector'
-import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { styles } from '@/components/styles'
 import { AdvancedSettings } from './AdvancedSettings'
 
@@ -31,27 +30,33 @@ interface NewTaskModalProps {
 }
 
 export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps): JSX.Element | null {
-  if (!open) {
-    return null
-  }
- 
+  if (!open) { return null}
+  
   const { addTask } = useProjectStore()
   const { preferences } = useUserStore()
   const { showToast } = useToastStore()
   const premium = useUserStore((s) => s.preferences.premium === true)
   const { deviceId } = useDeviceId(premium)
+  
+  // Separate task name state to prevent cascading re-renders
+  const [taskName, setTaskName] = useState('')
+  
   const [showTimePicker, setShowTimePicker] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [newTask, setNewTask] = useState<Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>>(getDefaultTask())
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Stabilize keyboard offset to prevent bouncing
   const [keyboardOffset, setKeyboardOffset] = useState(0)
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+  
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false)
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false)
   const [notifyOnTime, setNotifyOnTime] = useState(false)
   const [notifyBefore, setNotifyBefore] = useState(false)
   const [notifyBeforeTime, setNotifyBeforeTime] = useState<string>('1h')
   const [showNotifyTimeOptions, setShowNotifyTimeOptions] = useState(false)
-  const nameInputRef =  React.useRef<any>(null);
+  const nameInputRef = React.useRef<any>(null);
   const username = useUserStore((state) => state.preferences.username)
 
   useAutoFocus(nameInputRef, 750, open);
@@ -59,9 +64,11 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   useEffect(() => {
     if (open) {
       setShowTimePicker(false);
+      setTaskName(''); // Reset separate task name state
       setNewTask(getDefaultTask());
       setIsSubmitting(false);
       setKeyboardOffset(0);
+      setIsKeyboardVisible(false);
       setSelectedDate(new Date()); 
       setIsAdvancedSettingsOpen(false);
       setIsDatePickerVisible(false);
@@ -71,9 +78,11 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     } else {
       setTimeout(() => {
         setShowTimePicker(false);
+        setTaskName('');
         setNewTask(getDefaultTask());
         setIsSubmitting(false);
         setKeyboardOffset(0);
+        setIsKeyboardVisible(false);
         setSelectedDate(new Date());
         setIsAdvancedSettingsOpen(false);
         setIsDatePickerVisible(false);
@@ -84,9 +93,16 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }
   }, [open]);
 
+  // Stabilized keyboard listeners
   useEffect(() => {
-    const onKeyboardShow = (e: KeyboardEvent) => setKeyboardOffset(e.endCoordinates.height)
-    const onKeyboardHide = () => setKeyboardOffset(0)
+    const onKeyboardShow = (e: KeyboardEvent) => {
+      setKeyboardOffset(e.endCoordinates.height)
+      setIsKeyboardVisible(true)
+    }
+    const onKeyboardHide = () => {
+      setKeyboardOffset(0)
+      setIsKeyboardVisible(false)
+    }
 
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
@@ -223,10 +239,18 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     }
   }, []);
 
+  // Simple, immediate task name handler - no debouncing during typing
+  const handleTaskNameChange = useCallback((value: string) => {
+    setTaskName(value)
+    // Update newTask immediately to prevent state conflicts
+    setNewTask(prev => ({ ...prev, name: value }))
+  }, [])
+
   const handleAddTask = useCallback(async () => {
     if (isSubmitting) return
     try {
-      if (!newTask.name.trim()) {
+      // Use the separate taskName state for validation
+      if (!taskName.trim()) {
         if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         showToast('Please enter a task name', 'error')
         return
@@ -240,7 +264,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       setIsSubmitting(true)
       const taskToAdd = {
         ...newTask,
-        name: newTask.name.trim(),
+        name: taskName.trim(), // Use separate taskName state
         schedule:
           newTask.recurrencePattern === 'one-time'
             ? []
@@ -307,7 +331,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
     } finally {
       setIsSubmitting(false)
     }
-  }, [newTask, addTask, onOpenChange, showToast, isSubmitting, notifyOnTime, scheduleNotificationForTask])
+  }, [taskName, newTask, addTask, onOpenChange, showToast, isSubmitting, notifyOnTime, scheduleNotificationForTask])
 
   const handleTagChange = useCallback((tags: Tag[]) => {
     setNewTask(prev => ({ ...prev, tags }))
@@ -327,27 +351,52 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       }}
       title="New ToDo"
       showCloseButton={true}
-      keyboardOffset={keyboardOffset}
+      keyboardOffset={isKeyboardVisible ? keyboardOffset : 0} // Only pass offset when keyboard is visible
     >
-      <ScrollView  contentContainerStyle={{}} keyboardShouldPersistTaps="handled" >
+      <ScrollView
+        contentContainerStyle={{}}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="none" // Prevent accidental keyboard dismissal
+      >
         <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={isWeb ? 12 : 12} pt={isWeb ? 0 : isIpad() ? 0 : -4}>
-        <DebouncedInput
-            ref={nameInputRef}
-            style={[styles.input, { borderWidth: 2, borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)', backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.00)', color: isDark ? '#fff' : '#000' }]}
-            placeholder={`What do you need to do ${username}?`} 
-            placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
-            value={newTask.name}
-            fontSize={isIpad() ? 17 : 15}
-            fontFamily={isIpad() ? '$body' : '$body'}
-            width={isIpad() ? '90%' : '90%'}
-            alignSelf="center"
-            onChangeText={(value) => setNewTask(prev => ({ ...prev, name: value }))}
-            onDebouncedChange={() => {}}
-            delay={0}
-            focusStyle={{
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.2)' : '#999999',
+          <View
+            style={{
+              width: isIpad() ? '90%' : '90%',
+              alignSelf: 'center',
+              minHeight: 44,
+              borderWidth: 2,
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.00)',
+              borderRadius: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 12,
             }}
-          />
+          >
+            <TextInput
+              ref={nameInputRef}
+              placeholder={`What do you need to do ${username}?`}
+              placeholderTextColor={isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'}
+              value={taskName}
+              onChangeText={handleTaskNameChange}
+              autoCapitalize="sentences"
+              autoCorrect={true}
+              spellCheck={true}
+              style={{
+                fontSize: isIpad() ? 17 : 15,
+                fontFamily: 'System', // Use system font
+                color: isDark ? '#fff' : '#000',
+                minHeight: 20,
+                textAlignVertical: 'center',
+                padding: 0,
+                margin: 0,
+              }}
+              // Minimal props - only what's absolutely necessary
+              multiline={false}
+              textContentType="none"
+              autoComplete="off"
+            />
+          </View>
+          
           <PrioritySelector 
             selectedPriority={newTask.priority} 
             onPrioritySelect={handlePrioritySelect}

@@ -224,7 +224,7 @@ export const getStrengthColor = (
 export const getStockValueColor = (value: number, isDark: boolean): string => {
   const color = getValueColor('portfolio', value, '', isDark)
   if (!isDark) {
-    if (color === '#22c55e') return '#15803d'
+    if (color === '#22c55e') return '#166534' // Much darker green for positive values
     if (color === '#ef4444') return '#b91c1c'
   }
   return color
