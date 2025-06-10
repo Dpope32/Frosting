@@ -1,8 +1,8 @@
 // app/modals/sync.tsx
 import React, { useState } from 'react'
-import { View, StyleSheet, useWindowDimensions, Alert, ScrollView, Linking } from 'react-native'
+import { View, StyleSheet, useWindowDimensions, Alert, ScrollView, Linking, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { YStack, XStack, isWeb } from 'tamagui'
+import { YStack, XStack, isWeb, Text } from 'tamagui'
 import { useColorScheme } from '@/hooks'
 import { useUserStore, useToastStore, useRegistryStore } from '@/store'
 import { isIpad } from '@/utils'
@@ -70,6 +70,72 @@ if (!(global as any)._syncFetchWrapped) {
     }
   }
   ;(global as any)._syncFetchWrapped = true
+}
+
+// Add ManageAccount component after the fetch wrapper but before SyncScreen
+const ManageAccount = ({ colors, contentWidth, isDark, primaryColor }: {
+  colors: any
+  contentWidth: number
+  isDark: boolean
+  primaryColor: string
+}) => {
+  const handleManageAccount = React.useCallback(async () => {
+    try {
+      await Linking.openURL('https://kaiba.lemonsqueezy.com/billing')
+    } catch (error) {
+      useToastStore.getState().showToast('Failed to open billing page', 'error')
+    }
+  }, [])
+
+  return (
+    <View style={{ width: contentWidth }}>
+      <TouchableOpacity
+        onPress={handleManageAccount}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingVertical: baseSpacing,
+          paddingHorizontal: baseSpacing * 1.5,
+          backgroundColor: colors.cardBg,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+      >
+        <Text
+          style={{
+            color: colors.text,
+            fontSize: 14,
+            fontWeight: '500',
+            marginRight: 6,
+          }}
+        >
+          Manage Account
+        </Text>
+        <Text
+          style={{
+            color: colors.textSecondary,
+            fontSize: 12,
+            opacity: 0.7,
+          }}
+        >
+          ↗
+        </Text>
+      </TouchableOpacity>
+      <Text
+        style={{
+          color: colors.textSecondary,
+          fontSize: 11,
+          textAlign: 'center',
+          marginTop: 4,
+          opacity: 0.6,
+        }}
+      >
+        Opens billing portal in browser
+      </Text>
+    </View>
+  )
 }
 
 export default function SyncScreen() {
@@ -231,6 +297,17 @@ export default function SyncScreen() {
               contentWidth={width}
               onSignUp={handleSignUp}
               onJoinWorkspace={handleJoinWorkspace}
+            />
+          </XStack>
+        )}
+        
+        {shouldShowSyncTable && premium && (
+          <XStack alignItems="center" justifyContent="center" marginBottom={baseSpacing}>
+            <ManageAccount
+              colors={colors}
+              contentWidth={contentWidth}
+              isDark={isDark}
+              primaryColor={primaryColor}
             />
           </XStack>
         )}

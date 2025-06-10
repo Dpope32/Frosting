@@ -21,5 +21,6 @@ import { Tag } from './tag';
     orderIndex?: number
     archived?: boolean
     createdAt: string
+    deletedAt?: string
     updatedAt: string
   }
