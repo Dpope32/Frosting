@@ -119,7 +119,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           gap={isIpad() ? '$2' : '$1.5'}
         >
           <YStack flex={1} gap="$1">
-            <XStack  jc="space-between" ai="center">
+            <XStack  jc="space-between" ai="center" paddingBottom={isIpad() ? 3 : 2}>
               <Text
                 fontFamily="$heading"
                 fontWeight="900"
