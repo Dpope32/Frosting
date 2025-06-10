@@ -61,7 +61,6 @@ export const ProjectCardMobile = ({
                   px={"$1"}
                   ml={isIpad() ? 24 : 12}
                   mr={isIpad() ? 24 : 12}
-                  mb={isIpad() ? 10 : 6}
                 >
                   <TaskList 
                     project={project} 
@@ -72,7 +71,7 @@ export const ProjectCardMobile = ({
                   />
                 </YStack>
                 {onOpenAddTaskModal && (
-                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} pr={10} pl={16} mt={8} mb={8} ai="center">
+                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} pr={10} pl={16} mb={8} ai="center">
                     {(!project.tasks || project.tasks.length === 0) && (
                       <Text color={isDark ? '#f6f6f6' : '#666'} fontSize={isIpad() ? 15 : 13} fontFamily="$body" ml={12} mr={project.tasks?.length > 0 ? 0 : 20} opacity={0.6}>
                         Add your first task to get started
