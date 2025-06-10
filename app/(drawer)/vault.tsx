@@ -108,7 +108,7 @@ export default function VaultScreen() {
       
       <YStack 
         flex={1} 
-        paddingTop={isWeb ? 90 : isIpad() ? (isDark ? 80 : 70) : 80} 
+        paddingTop={isWeb ? 90 : isIpad() ? (isDark ? 65 : 70) : 80} 
         backgroundColor={isDark ? '#0a0a0a' : '#fafafa'}
         paddingLeft={isWeb ? 0 : isIpad() ? 4 : 0}
       >
@@ -137,7 +137,7 @@ export default function VaultScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             padding: isWeb ? 0 : 16,
-            paddingHorizontal: isWeb ? 24 : 0,
+            paddingHorizontal: isWeb ? 24 : isIpad() ? 20 : 0,
             paddingBottom: 120,
             paddingTop: isWeb ? 10 : 20,
             display: isWeb ? 'flex' : undefined,

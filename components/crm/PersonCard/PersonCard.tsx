@@ -7,7 +7,6 @@ import { styles } from "./styles";
 import { webStyles } from "./webStyles";
 import CollapsedView from './CollapsedView';
 import { getColorForPerson } from './utils';
-import { LongPressDelete } from "@/components/common/LongPressDelete";
 import { usePeopleStore } from "@/store/People";
 import { useToastStore } from "@/store";
 
@@ -19,32 +18,33 @@ export type PersonCardProps = {
   onPress?: () => void;
 };
 
-export function PersonCard({ person, onEdit, containerStyle, isExpanded: propsIsExpanded, onPress: propsOnPress }: PersonCardProps) {
+export function PersonCard({ person, onEdit, containerStyle, isExpanded, onPress: propsOnPress }: PersonCardProps) {
   const { expandedPersonId, expandPersonCard, collapsePersonCard, openEditModal } = useCRMStore();
-  
-  // Use props if provided (from CRM screen), otherwise use CRMStore
-  const isExpanded = propsIsExpanded !== undefined ? propsIsExpanded : (expandedPersonId === person.id);
+  const isExpandedFromStore = expandedPersonId === person.id;
+  const actualIsExpanded = isExpanded !== undefined ? isExpanded : isExpandedFromStore;
   const deletePerson = usePeopleStore(state => state.deletePerson);
   const showToast = useToastStore(state => state.showToast);
 
   useEffect(() => {
     return () => {
-      if (isExpanded) collapsePersonCard();
+      if (actualIsExpanded && !propsOnPress) collapsePersonCard();
     };
-  }, [isExpanded, collapsePersonCard]);
+  }, [actualIsExpanded, collapsePersonCard, propsOnPress]);
 
   const handlePress = () => {
-    // Use props onPress if provided (from CRM screen), otherwise use CRMStore
+    console.log('🔍 [PersonCard] handlePress called for:', person.name, 'isExpanded:', actualIsExpanded, 'propsOnPress:', !!propsOnPress);
     if (propsOnPress) {
+      console.log('🔍 [PersonCard] Using props onPress for:', person.name);
       propsOnPress();
     } else {
-      if (isExpanded) collapsePersonCard();
+      console.log('🔍 [PersonCard] Using CRMStore for:', person.name);
+      if (actualIsExpanded) collapsePersonCard();
       else expandPersonCard(person.id!);
     }
   };
 
   const handleEdit = (person: Person) => {
-    collapsePersonCard();
+    if (!propsOnPress) collapsePersonCard();
     openEditModal(person);
     onEdit(person);
   };
@@ -55,48 +55,21 @@ export function PersonCard({ person, onEdit, containerStyle, isExpanded: propsIs
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const applyWebStyle = (styleKey: keyof typeof webStyles) =>
-    Platform.OS === 'web' ? (webStyles[styleKey] as any) : {};
+  const applyWebStyle = (styleKey: string) =>
+    Platform.OS === 'web' ? (webStyles[styleKey as keyof typeof webStyles] as any) : {};
 
   return (
-    <LongPressDelete onDelete={(onComplete) => {
-      if (Platform.OS === 'web') {
-        if (window.confirm('Delete this contact?')) {
-          deletePerson(person.id!);
-          showToast('Contact deleted', 'success');
-          onComplete(true);
-        } else {
-          onComplete(false);
-        }
-      } else {
-        Alert.alert(
-          'Delete Contact',
-          'Are you sure you want to delete this contact?',
-          [
-            { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
-            { text: 'Delete', style: 'destructive', onPress: () => {
-                deletePerson(person.id!);
-                showToast('Contact deleted', 'success');
-                onComplete(true);
-              }
-            }
-          ],
-          { cancelable: true }
-        );
-      }
-    }}>
-      <Theme name="dark">
-        <View style={[styles.container, containerStyle]}>
-          <CollapsedView
-            key={`collapsed-${person.id}`}
-            person={person}
-            onPress={handlePress}
-            isDark={isDark}
-            nicknameColor={nicknameColor}
-            applyWebStyle={applyWebStyle}
-          />
-        </View>
-      </Theme>
-    </LongPressDelete>
+    <Theme name="dark">
+      <View style={[styles.container, containerStyle]}>
+        <CollapsedView
+          key={`collapsed-${person.id}`}
+          person={person}
+          onPress={handlePress}
+          isDark={isDark}
+          nicknameColor={nicknameColor}
+          applyWebStyle={applyWebStyle}
+        />
+      </View>
+    </Theme>
   );
 }

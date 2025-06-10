@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Platform, View, TouchableOpacity, Modal, StyleSheet, Dimensions, Vibration } from 'react-native';
 import { isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -6,7 +6,6 @@ import { useUserStore } from '@/store';
 import { isIpad } from '@/utils';
 import { Text, YStack, XStack } from 'tamagui';
 import { Animated } from 'react-native';
-import { useRef } from 'react';
 
 interface FloatingActionSectionProps {
   onActionPress: (name: string) => void;
@@ -30,52 +29,63 @@ const { width: screenWidth } = Dimensions.get('window');
 export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ onActionPress, isDark }) => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor);
   const [open, setOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   
-  // Animation refs
-  const fabRotation = useRef(new Animated.Value(0)).current;
-  const fabScale = useRef(new Animated.Value(1)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
-  const actionAnimations = useRef(ACTIONS.map(() => ({
-    scale: new Animated.Value(0),
-    opacity: new Animated.Value(0),
-    translateY: new Animated.Value(20),
-  }))).current;
-  
-  // Individual press animations for each button
-  const buttonPressAnimations = useRef(ACTIONS.map(() => new Animated.Value(1))).current;
+  // Animation refs - using useRef to prevent recreation on re-renders
+  const animationRefs = useRef({
+    fabRotation: new Animated.Value(0),
+    fabScale: new Animated.Value(1),
+    backdropOpacity: new Animated.Value(0),
+    actionAnimations: ACTIONS.map(() => ({
+      scale: new Animated.Value(0),
+      opacity: new Animated.Value(0),
+      translateY: new Animated.Value(20),
+    })),
+    buttonPressAnimations: ACTIONS.map(() => new Animated.Value(1)),
+  }).current;
 
-  // Memoize static values
-  const textColor = useMemo(() => isDark ? '#f9f9f9' : '#fff', [isDark]);
-  const iconSize = useMemo(() => isIpad() ? 20 : 16, []);
-  const fabIconSize = useMemo(() => isIpad() ? 28 : 24, []);
+  // Cleanup ref to track if component is mounted
+  const isMountedRef = useRef(true);
   
-  // Memoize FAB style with gradient-like effect
-  const fabStyle = useMemo(() => [
-    styles.fab,
-    {
-      backgroundColor: primaryColor,
-      bottom: isWeb ? 40 : isIpad() ? 50 : 30,
+  // Timeout refs for cleanup
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
+
+  // Memoize static values - only recalculate when dependencies actually change
+  const staticValues = useMemo(() => ({
+    textColor: isDark ? '#f9f9f9' : '#fff',
+    iconSize: isIpad() ? 20 : 16,
+    fabIconSize: isIpad() ? 28 : 24,
+    fabStyle: [
+      styles.fab,
+      {
+        backgroundColor: primaryColor,
+        bottom: isWeb ? 40 : isIpad() ? 50 : 30,
+        right: isWeb ? 40 : isIpad() ? 50 : 30,
+        shadowColor: primaryColor,
+        shadowOpacity: 0.4,
+        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 8 },
+        elevation: 12,
+      },
+    ],
+    modalYStackProps: {
+      position: "absolute" as const,
+      bottom: isWeb ? 120 : isIpad() ? 140 : 100,
       right: isWeb ? 40 : isIpad() ? 50 : 30,
-      shadowColor: primaryColor,
-      shadowOpacity: 0.4,
-      shadowRadius: 20,
-      shadowOffset: { width: 0, height: 8 },
-      elevation: 12,
+      gap: "$1" as const,
+      backgroundColor: 'transparent',
+      borderRadius: 20,
+      padding: "$2" as const,
+      zIndex: 100,
+      minWidth: 140,
     },
-  ], [primaryColor]);
+  }), [primaryColor, isDark]);
 
-  // Enhanced modal positioning with better backdrop
-  const modalYStackProps = useMemo(() => ({
-    position: "absolute" as const,
-    bottom: isWeb ? 120 : isIpad() ? 140 : 100,
-    right: isWeb ? 40 : isIpad() ? 50 : 30,
-    gap: "$1" as const,
-    backgroundColor: 'transparent',
-    borderRadius: 20,
-    padding: "$2" as const,
-    zIndex: 100,
-    minWidth: 140,
-  }), []);
+  // Cleanup function for timeouts
+  const clearTimeouts = useCallback(() => {
+    timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+    timeoutRefs.current = [];
+  }, []);
 
   // Haptic feedback function
   const triggerHaptic = useCallback(() => {
@@ -86,10 +96,15 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     }
   }, []);
 
-  // Enhanced animations
+  // Enhanced animations with race condition prevention
   const openModal = useCallback(() => {
+    if (isAnimating || open) return;
+    
+    setIsAnimating(true);
     setOpen(true);
+    triggerHaptic();
 
+    const { fabRotation, fabScale, backdropOpacity, actionAnimations } = animationRefs;
     
     // Animate FAB
     Animated.parallel([
@@ -110,52 +125,67 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
         duration: 200,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]).start(() => {
+      if (isMountedRef.current) {
+        setIsAnimating(false);
+      }
+    });
 
-         // Staggered action animations (bottom-up)
-     const staggerDelay = 40;
-     actionAnimations.forEach((anim, index) => {
-       // Reverse the delay so bottom items animate first
-       const reverseIndex = actionAnimations.length - 1 - index;
-       Animated.parallel([
-         Animated.spring(anim.scale, {
-           toValue: 1,
-           useNativeDriver: true,
-           delay: reverseIndex * staggerDelay,
-           tension: 300,
-           friction: 6,
-         }),
-         Animated.timing(anim.opacity, {
-           toValue: 1,
-           duration: 200,
-           delay: reverseIndex * staggerDelay,
-           useNativeDriver: true,
-         }),
-         Animated.spring(anim.translateY, {
-           toValue: 0,
-           useNativeDriver: true,
-           delay: reverseIndex * staggerDelay,
-           tension: 300,
-           friction: 8,
-         }),
-       ]).start();
-     });
-  }, [fabRotation, fabScale, backdropOpacity, actionAnimations]);
+    // Staggered action animations (bottom-up) with reduced complexity
+    const staggerDelay = 30; // Reduced delay for faster opening
+    actionAnimations.forEach((anim, index) => {
+      const reverseIndex = actionAnimations.length - 1 - index;
+      const delay = reverseIndex * staggerDelay;
+      
+      const timeout = setTimeout(() => {
+        if (!isMountedRef.current) return;
+        
+        Animated.parallel([
+          Animated.spring(anim.scale, {
+            toValue: 1,
+            useNativeDriver: true,
+            tension: 400,
+            friction: 8,
+          }),
+          Animated.timing(anim.opacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.spring(anim.translateY, {
+            toValue: 0,
+            useNativeDriver: true,
+            tension: 400,
+            friction: 10,
+          }),
+        ]).start();
+      }, delay);
+      
+      timeoutRefs.current.push(timeout);
+    });
+  }, [isAnimating, open, triggerHaptic, animationRefs]);
 
   const closeModal = useCallback(() => {
-    // Animate out
+    if (isAnimating || !open) return;
+    
+    setIsAnimating(true);
+    clearTimeouts();
+
+    const { fabRotation, fabScale, backdropOpacity, actionAnimations } = animationRefs;
+
+    // Animate out with improved timing
     Animated.parallel([
       Animated.spring(fabRotation, {
         toValue: 0,
         useNativeDriver: true,
-        tension: 200,
-        friction: 10,
+        tension: 300,
+        friction: 12,
       }),
       Animated.spring(fabScale, {
         toValue: 1,
         useNativeDriver: true,
-        tension: 300,
-        friction: 8,
+        tension: 400,
+        friction: 10,
       }),
       Animated.timing(backdropOpacity, {
         toValue: 0,
@@ -164,75 +194,110 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
       }),
     ]).start();
 
-    // Reset action animations
-    actionAnimations.forEach(anim => {
+    // Reset action animations simultaneously for faster closing
+    const resetAnimations = actionAnimations.map(anim => 
       Animated.parallel([
         Animated.timing(anim.scale, {
           toValue: 0,
-          duration: 100,
+          duration: 80,
           useNativeDriver: true,
         }),
         Animated.timing(anim.opacity, {
           toValue: 0,
-          duration: 100,
+          duration: 80,
           useNativeDriver: true,
         }),
         Animated.timing(anim.translateY, {
           toValue: 20,
-          duration: 100,
+          duration: 80,
           useNativeDriver: true,
         }),
-      ]).start();
-    });
+      ])
+    );
 
-    setTimeout(() => setOpen(false), 150);
-  }, [fabRotation, fabScale, backdropOpacity, actionAnimations]);
+    Animated.parallel(resetAnimations).start(() => {
+      if (isMountedRef.current) {
+        setOpen(false);
+        setIsAnimating(false);
+      }
+    });
+  }, [isAnimating, open, clearTimeouts, animationRefs]);
 
   const handleActionPress = useCallback((actionName: string, index: number) => {
+    if (isAnimating) return;
+    
+    triggerHaptic();
     
     // Quick scale animation for the pressed button
+    const buttonAnim = animationRefs.buttonPressAnimations[index];
     Animated.sequence([
-      Animated.timing(buttonPressAnimations[index], {
+      Animated.timing(buttonAnim, {
         toValue: 0.85,
-        duration: 100,
+        duration: 80,
         useNativeDriver: true,
       }),
-      Animated.spring(buttonPressAnimations[index], {
+      Animated.spring(buttonAnim, {
         toValue: 1,
         useNativeDriver: true,
-        tension: 300,
-        friction: 6,
+        tension: 400,
+        friction: 8,
       }),
     ]).start();
 
-    setTimeout(() => {
-      onActionPress(actionName);
-      closeModal();
-    }, 150);
-  }, [onActionPress, closeModal, buttonPressAnimations]);
+    const timeout = setTimeout(() => {
+      if (isMountedRef.current) {
+        onActionPress(actionName);
+        closeModal();
+      }
+    }, 100); // Reduced timeout for faster response
+    
+    timeoutRefs.current.push(timeout);
+  }, [isAnimating, onActionPress, closeModal, triggerHaptic, animationRefs]);
 
-  // FAB press animation
+  // FAB press animations with debouncing
+  const handleFabPress = useCallback(() => {
+    if (isAnimating) return;
+    
+    if (open) {
+      closeModal();
+    } else {
+      openModal();
+    }
+  }, [isAnimating, open, closeModal, openModal]);
+
   const handleFabPressIn = useCallback(() => {
-    Animated.spring(fabScale, {
+    if (isAnimating) return;
+    
+    Animated.spring(animationRefs.fabScale, {
       toValue: 0.9,
       useNativeDriver: true,
-      tension: 300,
-      friction: 6,
+      tension: 400,
+      friction: 8,
     }).start();
-  }, [fabScale]);
+  }, [isAnimating, animationRefs]);
 
   const handleFabPressOut = useCallback(() => {
-    Animated.spring(fabScale, {
+    if (isAnimating) return;
+    
+    Animated.spring(animationRefs.fabScale, {
       toValue: open ? 1.1 : 1,
       useNativeDriver: true,
-      tension: 300,
-      friction: 6,
+      tension: 400,
+      friction: 8,
     }).start();
-  }, [fabScale, open]);
+  }, [isAnimating, open, animationRefs]);
 
-  // Reset animations when component unmounts
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
+      isMountedRef.current = false;
+      clearTimeouts();
+      
+      // Reset all animations
+      const { fabRotation, fabScale, backdropOpacity, actionAnimations, buttonPressAnimations } = animationRefs;
+      fabRotation.setValue(0);
+      fabScale.setValue(1);
+      backdropOpacity.setValue(0);
       actionAnimations.forEach(anim => {
         anim.scale.setValue(0);
         anim.opacity.setValue(0);
@@ -240,9 +305,9 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
       });
       buttonPressAnimations.forEach(anim => anim.setValue(1));
     };
-  }, []);
+  }, [clearTimeouts, animationRefs]);
 
-  // Enhanced modal rendering with individual button animations
+  // Optimized modal rendering with fewer re-renders
   const renderModal = useMemo(() => {
     if (!open) return null;
     
@@ -252,67 +317,75 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
         animationType="none"
         transparent
         onRequestClose={closeModal}
+        statusBarTranslucent={Platform.OS === 'android'}
       >
-        <Animated.View style={[styles.overlay, { opacity: backdropOpacity }]}>
+        <Animated.View style={[styles.overlay, { opacity: animationRefs.backdropOpacity }]}>
           <TouchableOpacity
             style={styles.overlayTouch}
             activeOpacity={1}
             onPress={closeModal}
           >
-            <YStack {...modalYStackProps}>
-              {ACTIONS.map((action, index) => (
-                <Animated.View
-                  key={action.name}
-                  style={[
-                    styles.actionContainer,
-                    {
-                      transform: [
-                        { scale: Animated.multiply(actionAnimations[index].scale, buttonPressAnimations[index]) },
-                        { translateY: actionAnimations[index].translateY },
-                      ],
-                      opacity: actionAnimations[index].opacity,
+            <YStack {...staticValues.modalYStackProps}>
+              {ACTIONS.map((action, index) => {
+                const animationStyle = {
+                  transform: [
+                    { 
+                      scale: Animated.multiply(
+                        animationRefs.actionAnimations[index].scale, 
+                        animationRefs.buttonPressAnimations[index]
+                      ) 
                     },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={[
-                      styles.actionBtn,
-                      {
-                        backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
-                        shadowColor: action.gradient[0],
-                      }
-                    ]}
-                    activeOpacity={0.8}
-                    onPress={() => handleActionPress(action.name, index)}
+                    { translateY: animationRefs.actionAnimations[index].translateY },
+                  ],
+                  opacity: animationRefs.actionAnimations[index].opacity,
+                };
+
+                return (
+                  <Animated.View
+                    key={action.name}
+                    style={[styles.actionContainer, animationStyle]}
                   >
-                                         <XStack alignItems="center" gap="$2" flex={1}>
-                       <View style={[
-                         styles.iconContainer,
-                         { backgroundColor: action.gradient[0] }
-                       ]}>
-                         <MaterialIcons name={action.icon as any} size={iconSize} color="#fff" />
-                       </View>
-                       <Text 
-                         color={isDark ? '#f9f9f9' : '#222'} 
-                         fontSize={14} 
-                         fontFamily="$body"
-                         fontWeight="600"
-                         flex={1}
-                       >
-                         {action.label}
-                       </Text>
-                     </XStack>
-                  </TouchableOpacity>
-                </Animated.View>
-              ))}
+                    <TouchableOpacity
+                      style={[
+                        styles.actionBtn,
+                        {
+                          backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
+                          shadowColor: action.gradient[0],
+                        }
+                      ]}
+                      activeOpacity={0.8}
+                      onPress={() => handleActionPress(action.name, index)}
+                      disabled={isAnimating}
+                    >
+                      <XStack alignItems="center" gap="$2" flex={1}>
+                        <View style={[
+                          styles.iconContainer,
+                          { backgroundColor: action.gradient[0] }
+                        ]}>
+                          <MaterialIcons name={action.icon as any} size={staticValues.iconSize} color="#fff" />
+                        </View>
+                        <Text 
+                          color={isDark ? '#f9f9f9' : '#222'} 
+                          fontSize={14} 
+                          fontFamily="$body"
+                          fontWeight="600"
+                          flex={1}
+                        >
+                          {action.label}
+                        </Text>
+                      </XStack>
+                    </TouchableOpacity>
+                  </Animated.View>
+                );
+              })}
             </YStack>
           </TouchableOpacity>
         </Animated.View>
       </Modal>
     );
-  }, [open, modalYStackProps, actionAnimations, buttonPressAnimations, iconSize, isDark, closeModal, handleActionPress, backdropOpacity]);
+  }, [open, isDark, staticValues, isAnimating, closeModal, handleActionPress, animationRefs]);
 
-  const fabRotationInterpolate = fabRotation.interpolate({
+  const fabRotationInterpolate = animationRefs.fabRotation.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '45deg'],
   });
@@ -322,10 +395,10 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
       <View pointerEvents="box-none" style={styles.fabContainer}>
         <Animated.View
           style={[
-            fabStyle,
+            staticValues.fabStyle,
             {
               transform: [
-                { scale: fabScale },
+                { scale: animationRefs.fabScale },
                 { rotate: fabRotationInterpolate },
               ],
             },
@@ -334,11 +407,12 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
           <TouchableOpacity
             activeOpacity={1}
             style={styles.fabTouchable}
-            onPress={open ? closeModal : openModal}
+            onPress={handleFabPress}
             onPressIn={handleFabPressIn}
             onPressOut={handleFabPressOut}
+            disabled={isAnimating}
           >
-            <MaterialIcons name="add" size={fabIconSize} color={textColor} />
+            <MaterialIcons name="add" size={staticValues.fabIconSize} color={staticValues.textColor} />
           </TouchableOpacity>
         </Animated.View>
       </View>

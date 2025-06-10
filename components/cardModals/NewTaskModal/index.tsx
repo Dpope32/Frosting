@@ -351,17 +351,17 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
       }}
       title="New ToDo"
       showCloseButton={true}
-      keyboardOffset={isKeyboardVisible ? keyboardOffset : 0} // Only pass offset when keyboard is visible
+      keyboardOffset={isKeyboardVisible ? keyboardOffset : 0}
     >
       <ScrollView
         contentContainerStyle={{}}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none" // Prevent accidental keyboard dismissal
+        keyboardDismissMode="none" 
       >
-        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={isWeb ? 12 : 12} pt={isWeb ? 0 : isIpad() ? 0 : -4}>
+        <Form gap={isIpad() ? "$2.5" : "$2.5"} px={isIpad() ? 6 : 6} pb={12} pt={isWeb ? 0 : isIpad() ? 0 : -4}>
           <View
             style={{
-              width: isIpad() ? '90%' : '90%',
+              width: '98%',
               alignSelf: 'center',
               minHeight: 44,
               borderWidth: 2,
@@ -383,14 +383,13 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               spellCheck={true}
               style={{
                 fontSize: isIpad() ? 17 : 15,
-                fontFamily: 'System', // Use system font
+                fontFamily: 'System',
                 color: isDark ? '#fff' : '#000',
                 minHeight: 20,
                 textAlignVertical: 'center',
                 padding: 0,
                 margin: 0,
               }}
-              // Minimal props - only what's absolutely necessary
               multiline={false}
               textContentType="none"
               autoComplete="off"
