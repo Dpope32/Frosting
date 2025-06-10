@@ -6,6 +6,9 @@ import { useRegistryStore } from "@/store";
 import { storage } from "@/store/AsyncStorage";
 import { Platform } from "react-native";
 import { addSyncLog } from "@/components/sync/syncUtils";
+import { useUserStore } from '@/store';
+import { getOrCreateUniqueDeviceId } from "@/lib/utils/deviceUtils";
+
 export interface WorkspaceMeta {
   id: string;
   inviteCode: string;
@@ -20,8 +23,17 @@ export const createOrJoinWorkspace = async (
   workspaceId?: string,
   inviteCode?: string,
 ): Promise<WorkspaceMeta> => {
-  const pb       = await getPocketBase();
-  const deviceId = await generateSyncKey();
+  const pb = await getPocketBase();
+  
+  // ✅ FIX: Use your existing device ID function instead of generateSyncKey()
+  const deviceId = await getOrCreateUniqueDeviceId(); // ← No premium check needed
+  
+  // Only check premium when CREATING workspaces, not joining
+  if (!workspaceId && !inviteCode && !useUserStore.getState().preferences.premium) {
+    addSyncLog('Premium required to create new workspace', 'error');
+    throw new Error('Premium required to create new workspace');
+  }
+  
   if (!workspaceId && inviteCode) {
     const ws = await pb
       .collection('sync_workspaces')
@@ -66,6 +78,14 @@ export const createOrJoinWorkspace = async (
 
     await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
     await Promise.all([pushSnapshot(), pullLatestSnapshot()]);
+
+    // Auto-enable premium on successful join
+    useUserStore.setState(state => ({
+      preferences: {
+        ...state.preferences,
+        premium: true
+      }
+    }));
 
     return { id: workspaceId, inviteCode };
   }
