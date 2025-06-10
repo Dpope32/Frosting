@@ -8,7 +8,6 @@ import { Tag } from './tag';
     size?: number
   }
   
-  
   export type Note = {
     id: string
     title: string
@@ -22,4 +21,5 @@ import { Tag } from './tag';
     archived?: boolean
     createdAt: string
     updatedAt: string
+    deletedAt?: string
   }

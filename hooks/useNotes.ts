@@ -1,11 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNoteStore } from '@/store';
 import type { Note, Attachment, Tag } from '@/types';
-import { StorageUtils } from '@/store/AsyncStorage';
-
-// Storage keys for notes
-const NOTES_STORAGE_KEY = 'notes-store-data';
-const ORDER_STORAGE_KEY = 'notes-store-order';
 
 export const useNotes = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -15,15 +10,15 @@ export const useNotes = () => {
   const [editTags, setEditTags] = useState<Tag[]>([]);
   const [editAttachments, setEditAttachments] = useState<Attachment[]>([]);
 
-  // Get store actions
+  // Get store actions and active notes
   const {
-    notes,
     noteOrder,
     loadNotes,
     addNote,
     updateNote,
     deleteNote,
     updateNoteOrder,
+    getActiveNotes,
   } = useNoteStore();
 
   // Load notes on mount
@@ -31,10 +26,11 @@ export const useNotes = () => {
     loadNotes();
   }, [loadNotes]);
 
-  // Get ordered, non-archived notes
+  // Get ordered, active (non-deleted), non-archived notes
+  const activeNotes = getActiveNotes();
   const orderedNotes = noteOrder
-    .map(id => notes[id])
-    .filter(Boolean)
+    .map(id => activeNotes.find(note => note.id === id))
+    .filter((note): note is Note => Boolean(note))
     .filter(note => !note.archived);
 
   const handleAddNote = useCallback(() => {
@@ -100,37 +96,15 @@ export const useNotes = () => {
     setEditAttachments(prev => prev.filter(a => a.id !== attachmentId));
   }, []);
 
-  // Improved function to handle reordering notes
-  const handleReorderNotes = useCallback((newOrder: Note[]) => {
-    // Extract just the IDs for the store
-    const newOrderIds = newOrder.map(note => note.id);
-    // @ts-ignore - The type definition in the store might be expecting Note[], but it actually works with string[]
-    updateNoteOrder(newOrderIds);
-  }, [updateNoteOrder]);
+    const handleReorderNotes = useCallback((newOrder: Note[]) => {
+      const newOrderIds = newOrder.map(note => note.id);
+      updateNoteOrder(newOrderIds);
+    }, [updateNoteOrder]);
 
-  // Function to update notes in state and persist to storage
+  // This is the corrected function that passes IDs, not full objects.
   const updateNotes = useCallback((newNotes: Note[]) => {
-    // Create a new notes object with the updated notes
-    const updatedNotesObj: Record<string, Note> = {};
-    newNotes.forEach(note => {
-      updatedNotesObj[note.id] = note;
-    });
-    
-    // Update the notes in the store
-    // This will trigger a re-render with the new notes
-    useNoteStore.getState().updateNoteOrder(newNotes);
-    
-    // Persist the new notes to AsyncStorage
-    try {
-      // Use the StorageUtils from your AsyncStorage.ts
-      StorageUtils.set(NOTES_STORAGE_KEY, updatedNotesObj);
-      
-      // Also update the order to match the new notes array
-      const newOrderIds = newNotes.map(note => note.id);
-      StorageUtils.set(ORDER_STORAGE_KEY, newOrderIds);
-    } catch (error) {
-      console.error('Error saving reordered notes:', error);
-    }
+    const newOrderIds = newNotes.map(note => note.id);
+    useNoteStore.getState().updateNoteOrder(newOrderIds);
   }, []);
 
   return {
