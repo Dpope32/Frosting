@@ -136,7 +136,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                     ONLY $4/month
                   </Text>
                   <Text fontSize={12} color={colors.subtext} fontFamily="$body" fontWeight="600">
-                    or $25/year
+                    or $20/year (save 40%)
                   </Text>
                 </XStack>
               </XStack>
