@@ -170,7 +170,7 @@ export function Base({
               {
                 backgroundColor: isDark ? 'rgba(24, 22, 22, 0.95)' : 'rgba(255, 255, 255, 0.95)',
                 marginTop: insets.top, 
-                marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 1.2 : 80),
+                marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.8 : 80),
                 width: actualWidth,
                 maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
               }
