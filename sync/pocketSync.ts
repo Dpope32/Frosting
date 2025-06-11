@@ -12,6 +12,7 @@ import { generateSyncKey } from '@/sync/registrySyncManager'
 import { useUserStore } from '@/store'
 import * as Sentry from '@sentry/react-native'
 import { addSyncLog, LogEntry } from '@/components/sync/syncUtils'
+import { Platform } from 'react-native'
 
 // ───────────────────────── CONSTANTS ─────────────────────────
 const DEFAULT_PORT = 8090
@@ -30,6 +31,11 @@ const withPort = (raw?: string): string | undefined => {
 
 
 const CANDIDATE_URLS = [
+   // For web, use Vercel proxy
+   ...(Platform.OS === 'web' ? [
+    `${window.location.origin}/api/pb`
+  ] : []),
+  // For mobile, use direct URLs
   withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
   withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
 ].filter(Boolean) as string[];
