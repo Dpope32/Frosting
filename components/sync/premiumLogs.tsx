@@ -5,9 +5,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore } from '@/store';
 import { baseSpacing, fontSizes, cardRadius, getColors } from '@/components/sync/sharedStyles';
-import { clearLogQueue, setLogUpdateCallback } from '@/components/sync/syncUtils';
+import { addSyncLog, clearLogQueue, setLogUpdateCallback } from '@/components/sync/syncUtils';
 import { isIpad } from '@/utils';
 import { DebouncedInput } from '@/components/shared/debouncedInput';
+import { useProjectStore as useTaskStore } from '@/store/ToDo';
+import { pullLatestSnapshot } from '@/sync/snapshotPushPull';
 
 interface PremiumLogsProps {
   isLoading: boolean;
@@ -248,12 +250,38 @@ export const PremiumLogs = ({
           >
             <TouchableOpacity 
               onPress={() => {
-                const { useProjectStore: useTaskStore } = require('@/store/ToDo');
                 useTaskStore.getState().debugSyncState();
               }}
               style={{ paddingHorizontal: 8, paddingVertical: 4, backgroundColor: 'transparent', borderRadius: 12, borderWidth: 1, borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.6)",  width: 80, alignItems: 'center', justifyContent: 'center' }}
             >
               <Text fontFamily="$body"  fontSize={wideMode ? 15 : 14} color={colors.text}>Debug</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => {
+                pullLatestSnapshot().catch((err: any) => 
+                  addSyncLog('Manual pull failed', 'error', err.message)
+                );
+              }}
+              style={{ 
+                paddingHorizontal: 8, 
+                paddingVertical: 4, 
+                backgroundColor: colors.accentBg, 
+                borderRadius: 12, 
+                borderWidth: 1, 
+                borderColor: colors.accent,  
+                width: 60, 
+                alignItems: 'center', 
+                justifyContent: 'center' 
+              }}
+            >
+              <Text 
+                color={colors.accent} 
+                fontFamily="$body" 
+                fontWeight="500" 
+                fontSize={wideMode ? 15 : 14}
+              >
+                Pull
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={exportLogs}

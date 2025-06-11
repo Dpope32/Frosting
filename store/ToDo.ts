@@ -15,7 +15,6 @@ interface ProjectStore {
   todaysTasks: Task[]
   addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
   deleteTask: (id: string) => void
-  bulkDeleteTasks: (ids: string[]) => void
   toggleTaskCompletion: (id: string) => void
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
   getTodaysTasks: () => Task[]
@@ -373,9 +372,8 @@ export const useProjectStore = create<ProjectStore>()(
         console.log('[ToDo.deleteTask] Current tasks count:', Object.keys(tasks).length);
       },
       toggleTaskCompletion: (id) => {
-        const storeStart = performance.now();
-        console.log('[Store.toggleTaskCompletion] START for task:', id.slice(-6));
-        
+        // Completed tasks still display until midnight, then custom logic makes it not display the next day 
+        // if it is one-time. Otherwise, it follows the recurrence pattern.
         const tasks = { ...get().tasks }
         if (tasks[id]) {
           const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
@@ -387,12 +385,15 @@ export const useProjectStore = create<ProjectStore>()(
             .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
           
           const newCompletionStatus = !currentStatus;
+          const taskName = tasks[id].name.slice(0, 25);
+          const pattern = tasks[id].recurrencePattern;
+          const timestamp = new Date().toISOString();
           
-          // ⚡ OPTIMIZED: Minimal logging only for debug mode
-          if (__DEV__ && (tasks[id].recurrencePattern === 'tomorrow' || tasks[id].recurrencePattern === 'one-time')) {
-            const taskName = tasks[id].name.slice(0, 25);
-            console.log(`[Store.toggleTaskCompletion] "${taskName}" ${currentStatus ? 'uncompleted' : 'completed'}`);
-          }
+          addSyncLog(
+            `[TOGGLE START] "${taskName}" (${pattern}) toggle initiated`,
+            'info',
+            `Date: ${todayLocalStr} | Current status: ${currentStatus} | Will become: ${newCompletionStatus} | Current history: ${JSON.stringify(tasks[id].completionHistory)} | Device timestamp: ${timestamp} | Task ID: ${id.slice(-8)}`
+          );
 
           tasks[id] = {
             ...tasks[id],
@@ -403,20 +404,51 @@ export const useProjectStore = create<ProjectStore>()(
             },
             updatedAt: new Date().toISOString()
           }
+          // 🚨 DEBUG LOGGING: Track completion changes for tomorrow and one-time tasks
+          if (tasks[id].recurrencePattern === 'tomorrow' || tasks[id].recurrencePattern === 'one-time') {
+            const taskName = tasks[id].name.slice(0, 25);
+            const pattern = tasks[id].recurrencePattern;
+            const timestamp = new Date().toISOString();
+            
+            addSyncLog(
+              `[COMPLETION TOGGLE] "${taskName}" (${pattern}) ${currentStatus ? 'uncompleted' : 'completed'}`,
+              newCompletionStatus ? 'success' : 'info',
+              `Date: ${todayLocalStr} | Previous status: ${currentStatus} | New status: ${newCompletionStatus} | Pattern: ${pattern} | Timestamp: ${timestamp} | Task ID: ${id.slice(-8)}`
+            );
+            
+            // Special logging for one-time task completion
+            if (pattern === 'one-time' && newCompletionStatus) {
+              addSyncLog(
+                `[ONE-TIME COMPLETED] "${taskName}" marked complete - will stay completed`,
+                'success',
+                `One-time tasks remain completed permanently. Completed on: ${todayLocalStr} at ${timestamp}`
+              );
+            }
+            
+            // Special logging for tomorrow task completion
+            if (pattern === 'tomorrow') {
+              const createdDate = getLocalDateString(tasks[id].createdAt);
+              addSyncLog(
+                `[TOMORROW TASK TOGGLE] "${taskName}" completion changed`,
+                newCompletionStatus ? 'success' : 'warning',
+                `Created (local): ${createdDate} | Toggled on: ${todayLocalStr} | Status: ${newCompletionStatus ? 'completed' : 'uncompleted'} | May convert to one-time after midnight`
+              );
+            }
+          }
           
-          const filterStart = performance.now();
+          addSyncLog(
+            `[TOGGLE COMPLETE] "${taskName}" state updated`,
+            'success',
+            `Final completed: ${tasks[id].completed} | Final history: ${JSON.stringify(tasks[id].completionHistory)} | Final updatedAt: ${tasks[id].updatedAt}`
+          );
+          
           const updatedTodaysTasks = taskFilter(tasks);
-          console.log('[Store.taskFilter] Duration:', (performance.now() - filterStart).toFixed(2), 'ms');
-          
           set({ tasks, todaysTasks: updatedTodaysTasks });
+        } else {
         }
-        
-        // ❌ REMOVED: Redundant haptics (TaskCard already handles this)
-        // if (Platform.OS !== 'web') {
-        //   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
-        // }
-        
-        console.log('[Store.toggleTaskCompletion] TOTAL Duration:', (performance.now() - storeStart).toFixed(2), 'ms');
+        if (Platform.OS !== 'web') {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+        }
       },
       updateTask: (taskId, updatedData) => {
         const tasks = { ...get().tasks };
@@ -516,13 +548,6 @@ export const useProjectStore = create<ProjectStore>()(
         
         addSyncLog(`Today's filtered tasks: ${todaysTasks.length} total, ${completedToday} completed`, 'info');
         addSyncLog('=== END DEBUG REPORT ===', 'info');
-      },
-      bulkDeleteTasks: (ids: string[]) => {
-        const tasks = { ...get().tasks }
-        ids.forEach(id => {
-          delete tasks[id]
-        })
-        set({ tasks, todaysTasks: taskFilter(tasks) })
       },
       
       getTodaysTasks: () => get().todaysTasks,
