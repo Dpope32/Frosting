@@ -220,7 +220,7 @@ async function handlePocketBaseRequest(req: VercelRequest, res: VercelResponse, 
   // Try each PocketBase URL until one works
   for (const baseUrl of POCKETBASE_URLS) {
     try {
-      const targetUrl = `${baseUrl}/api/${endpoint}`;
+      const targetUrl = `${baseUrl}/${endpoint}`;
       
       // Preserve query parameters
       const queryString = req.url?.split('?')[1];

@@ -31,11 +31,6 @@ const withPort = (raw?: string): string | undefined => {
 
 
 const CANDIDATE_URLS = [
-   // For web, use Vercel proxy
-   ...(Platform.OS === 'web' ? [
-    `${window.location.origin}/api/pb`
-  ] : []),
-  // For mobile, use direct URLs
   withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
   withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
 ].filter(Boolean) as string[];
