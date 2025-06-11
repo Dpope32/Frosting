@@ -22,6 +22,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
   const [activeTab, setActiveTab] = useState<'premium' | 'join'>('premium');
   const [workspaceCode, setWorkspaceCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
+  const [devFakeJoining, setDevFakeJoining] = useState(false);
   
   const handlePremiumPress = async () => {
     if (isDev) {
@@ -58,6 +59,9 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
 
   const isLarge = isWeb || isIpad();
   const [flipped, setFlipped] = useState(false);
+  
+  // Use fake joining state in dev, real state in production
+  const effectiveIsJoining = isDev ? devFakeJoining : isJoining;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -85,6 +89,26 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
           },
         ]}
       >
+        {/* Dev-only joining toggle button */}
+        {isDev && (
+          <TouchableOpacity
+            style={[
+              styles.devToggle,
+              {
+                backgroundColor: devFakeJoining ? '#ff6b6b' : '#51cf66',
+                shadowColor: devFakeJoining ? '#ff6b6b' : '#51cf66',
+              }
+            ]}
+            onPress={() => setDevFakeJoining(!devFakeJoining)}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons 
+              name={devFakeJoining ? 'pause' : 'play-arrow'} 
+              size={16} 
+              color="white" 
+            />
+          </TouchableOpacity>
+        )}
 
         {activeTab === 'premium' ? (
           <YStack alignItems="center" flex={1} justifyContent="center">
@@ -269,17 +293,17 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                 onPress={handleJoinWorkspace}
                 style={[
                   styles.ctaButton2,
-                  { opacity: !workspaceCode.trim() || isJoining ? 0.5 : 1, maxWidth: undefined }
+                  { opacity: !workspaceCode.trim() || effectiveIsJoining ? 0.5 : 1, maxWidth: undefined }
                 ]}
                 activeOpacity={0.88}
-                disabled={!workspaceCode.trim() || isJoining}
+                disabled={!workspaceCode.trim() || effectiveIsJoining}
               >
                 <LinearGradient
                   colors={[colors.accent, colors.accent + 'DD']}
                   style={styles.buttonGradient}
                 >
                   <XStack alignItems="center" gap={baseSpacing}>
-                    {isJoining ? (
+                    {effectiveIsJoining ? (
                       <MaterialIcons name="hourglass-empty" size={18} color="white" />
                     ) : (
                       <MaterialIcons name="group-add" size={18} color="white" />
@@ -290,7 +314,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                       fontWeight="500" 
                       fontFamily="$body"
                     >
-                      {isJoining ? 'Joining...' : 'Join Workspace'}
+                      {effectiveIsJoining ? 'Joining...' : 'Join Workspace'}
                     </Text>
                   </XStack>
                 </LinearGradient>
@@ -451,6 +475,21 @@ const styles = StyleSheet.create({
     borderRadius: cardRadius,
     width: '100%',
     maxWidth: isWeb ? 350 : 320,
+  },
+  devToggle: {
+    position: 'absolute',
+    top: baseSpacing,
+    right: baseSpacing,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 1000,
   },
 
 }); 
