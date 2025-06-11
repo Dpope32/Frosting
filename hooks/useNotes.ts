@@ -11,6 +11,7 @@ export const useNotes = () => {
   const [editAttachments, setEditAttachments] = useState<Attachment[]>([]);
 
   // Get store actions and active notes
+  // Get store actions and active notes
   const {
     noteOrder,
     loadNotes,
@@ -19,6 +20,7 @@ export const useNotes = () => {
     deleteNote,
     updateNoteOrder,
     getActiveNotes,
+
   } = useNoteStore();
 
   // Load notes on mount
@@ -26,9 +28,13 @@ export const useNotes = () => {
     loadNotes();
   }, [loadNotes]);
 
+
+
   // Get ordered, active (non-deleted), non-archived notes
   const activeNotes = getActiveNotes();
   const orderedNotes = noteOrder
+
+
     .map(id => activeNotes.find(note => note.id === id))
     .filter((note): note is Note => Boolean(note))
     .filter(note => !note.archived);
@@ -42,14 +48,14 @@ export const useNotes = () => {
     setIsModalOpen(true);
   }, []);
 
-  const handleSelectNote = useCallback((note: Note) => {
-    setSelectedNote(note);
-    setEditTitle(note.title);
-    setEditContent(note.content);
-    setEditTags(note.tags || []);
-    setEditAttachments(note.attachments || []);
-    setIsModalOpen(true);
-  }, []);
+
+
+
+
+
+
+
+
 
   const handleSaveNote = useCallback(async () => {
     if (selectedNote) {
@@ -79,10 +85,10 @@ export const useNotes = () => {
     }
   }, [selectedNote, deleteNote]);
 
-  const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-    setSelectedNote(null);
-  }, []);
+
+
+
+
 
   const handleTagsChange = useCallback((tags: Tag[]) => {
     setEditTags(tags);
@@ -98,11 +104,12 @@ export const useNotes = () => {
 
     const handleReorderNotes = useCallback((newOrder: Note[]) => {
       const newOrderIds = newOrder.map(note => note.id);
-      updateNoteOrder(newOrderIds);
+      updateNoteOrder(newOrderIds); // ✅ Now type-safe
     }, [updateNoteOrder]);
 
-  // This is the corrected function that passes IDs, not full objects.
+
   const updateNotes = useCallback((newNotes: Note[]) => {
+
     const newOrderIds = newNotes.map(note => note.id);
     useNoteStore.getState().updateNoteOrder(newOrderIds);
   }, []);

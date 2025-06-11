@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { ScrollView, useColorScheme, Dimensions } from 'react-native'
 import { YStack, Button, XStack, isWeb } from 'tamagui'
 import { BlurView } from 'expo-blur'
@@ -19,7 +19,14 @@ import EditProjectModal from '@/components/cardModals/edits/EditProjectModal'
 import { SimpleImageViewer } from '@/components/notes/SimpleImageViewer'
 
 export default function ProjectsScreen() {
-  const { projects, isModalOpen, handleAddProject, handleCloseModal } = useProjects()
+  const { isModalOpen, handleAddProject, handleCloseModal } = useProjects()
+  
+  // Memoized store selectors to prevent infinite loops
+  const projects = useProjectStore((state) => state.projects)
+  const getProjectById = useProjectStore((state) => state.getProjectById)
+  const updateProject = useProjectStore((state) => state.updateProject)
+  const clearProjects = useProjectStore((state) => state.clearProjects)
+  
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
   const primaryColor = useUserStore((state) => state.preferences.primaryColor)
@@ -27,29 +34,38 @@ export default function ProjectsScreen() {
   const isDark = colorScheme === 'dark'
   const [addTaskModalOpen, setAddTaskModalOpen] = React.useState(false)
   const [selectedProjectId, setSelectedProjectId] = React.useState<string | null>(null)
-  const clearProjects = useProjectStore((state) => state.clearProjects)
-  const getProjectById = useProjectStore((state) => state.getProjectById)
-  const updateProject = useProjectStore((state) => state.updateProject)
+
+
+
   const showToast = useToastStore((state) => state.showToast)
   const [editModalOpen, setEditModalOpen] = React.useState(false)
   const [selectedEditProjectId, setSelectedEditProjectId] = React.useState<string | null>(null)
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
 
-  // Filter out any non-project items (must be objects with an id) and filter out deleted or archived projects
-  const validProjects = (projects || []).filter(project => 
-    project && typeof project === 'object' && !Array.isArray(project) && 
-    project.id && !project.isDeleted && !project.isArchived
-  )
+  // Memoize the filtering and sorting to prevent infinite re-renders
+  const items = useMemo(() => {
+    if (!projects || !Array.isArray(projects)) return []
+    
+    // Filter out any non-project items and deleted/archived projects
+    const validProjects = projects.filter(project => 
+      project && 
+      typeof project === 'object' && 
+      !Array.isArray(project) && 
+      project.id && 
+      !project.isDeleted && 
+      !project.isArchived
+    )
 
-  // Sort projects so completed ones appear at the bottom
-  const items = [...validProjects].sort((a, b) => {
-    // If a is completed and b is not, a should come after b
-    if (a.status === 'completed' && b.status !== 'completed') return 1
-    // If b is completed and a is not, b should come after a
-    if (b.status === 'completed' && a.status !== 'completed') return -1
-    // If both have the same completion status, maintain their original order
-    return 0
-  })
+    // Sort projects so completed ones appear at the bottom
+    return [...validProjects].sort((a, b) => {
+      // If a is completed and b is not, a should come after b
+      if (a.status === 'completed' && b.status !== 'completed') return 1
+      // If b is completed and a is not, b should come after a
+      if (b.status === 'completed' && a.status !== 'completed') return -1
+      // If both have the same completion status, maintain their original order
+      return 0
+    })
+  }, [projects])
 
   const deleteAllProjects = () => {
     clearProjects()
@@ -112,7 +128,7 @@ export default function ProjectsScreen() {
     const projectType = typeof projectTypeOrProject === 'string' 
       ? projectTypeOrProject 
       : 'Default';
-      
+
     // Call the appropriate function based on project type
     switch(projectType) {
       case 'Website Redesign':
@@ -199,7 +215,7 @@ export default function ProjectsScreen() {
           </ScrollView>
         </YStack>
       )}
-      
+
       {!isWeb && (
         <ScrollView
           style={{ flex: 1 }}
@@ -314,26 +330,26 @@ export default function ProjectsScreen() {
         </XStack>
       )}
 
-      <BlurView
-        intensity={20}
-        tint={isDark ? 'dark' : 'light'}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-        }}
-      />
 
-      {selectedImageUrl && (
-        <SimpleImageViewer
-          imageUrl={selectedImageUrl}
-          onClose={() => setSelectedImageUrl(null)}
-          isDark={isDark}
-        />
-      )}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </YStack>
   )
 }

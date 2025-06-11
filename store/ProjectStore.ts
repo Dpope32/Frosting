@@ -1,4 +1,4 @@
-// Enhanced ProjectStore with robust completion syncing
+// Enhanced ProjectStore with robust completion syncingMore actions
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
@@ -25,7 +25,7 @@ export const useProjectStore = create<ProjectStoreState>()(
     (set, get) => ({
       projects: [],
       isSyncEnabled: false,
-      
+
       addProject: (project: Project) => {
         // Ensure the project has proper timestamps
         const projectWithTimestamp = {
@@ -33,13 +33,13 @@ export const useProjectStore = create<ProjectStoreState>()(
           updatedAt: (project as any).updatedAt || new Date().toISOString(),
           createdAt: (project as any).createdAt || new Date().toISOString(),
         };
-        
+
         set((state: ProjectStoreState) => ({ projects: [...state.projects, projectWithTimestamp] }));
         try {
           getAddSyncLog()(`Project added locally: ${project.name}`, 'info');
         } catch (e) { /* ignore */ }
       },
-      
+
       updateProject: (id: string, updated: Partial<Project>) => {
         set((state: ProjectStoreState) => ({ 
           projects: state.projects.map((p) =>
@@ -54,24 +54,32 @@ export const useProjectStore = create<ProjectStoreState>()(
           getAddSyncLog()(`Project updated locally: ID ${id}`, 'info');
         } catch (e) { /* ignore */ }
       },
-      
+
       deleteProject: (id: string) => {
-        set((state: ProjectStoreState) => ({ projects: state.projects.filter((p) => p.id !== id) }));
+        set((state: ProjectStoreState) => ({ 
+          projects: state.projects.map((p) =>
+            p.id === id ? { 
+              ...p, 
+              isDeleted: true, 
+              updatedAt: new Date().toISOString() 
+            } : p
+          ) 
+        }));
         try {
-          getAddSyncLog()(`Project deleted locally: ID ${id}`, 'info');
+          getAddSyncLog()(`Project marked as deleted locally: ID ${id}`, 'info');
         } catch (e) { /* ignore */ }
       },
-      
-      getProjectById: (id: string) => get().projects.find((p) => p.id === id),
-      getProjects: () => get().projects,
-      
+
+      getProjectById: (id: string) => get().projects.find((p) => p.id === id && !p.isDeleted),
+      getProjects: () => get().projects.filter((p) => !p.isDeleted),
+
       clearProjects: () => {
         set({ projects: [] });
         try {
           getAddSyncLog()('Projects cleared locally', 'info');
         } catch (e) { /* ignore */ }
       },
-      
+
       toggleProjectSync: () => {
         set((state) => {
           const newSyncState = !state.isSyncEnabled;
@@ -81,11 +89,11 @@ export const useProjectStore = create<ProjectStoreState>()(
           return { isSyncEnabled: newSyncState };
         });
       },
-      
+
       hydrateFromSync: (syncedData: { projects?: Project[] }) => {
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
-        
+
         if (!currentSyncEnabledState) {
           addSyncLog('Project sync is disabled, skipping hydration for ProjectStore.', 'info');
           return;
@@ -111,18 +119,18 @@ export const useProjectStore = create<ProjectStoreState>()(
               const existingProjectIndex = newProjectsArray.findIndex(item => item.id === incomingProject.id);
               if (existingProjectIndex !== -1) {
                 const existingProject = newProjectsArray[existingProjectIndex];
-                
+
                 // Use timestamp-based merging for the base project
                 const existingTimestamp = new Date((existingProject as any).updatedAt || (existingProject as any).createdAt || Date.now()).getTime();
                 const incomingTimestamp = new Date((incomingProject as any).updatedAt || (incomingProject as any).createdAt || Date.now()).getTime();
-                
+
                 let mergedProject = { ...existingProject };
-                
+
                 // If incoming is newer, merge most fields
                 if (incomingTimestamp >= existingTimestamp) {
                   mergedProject = { ...existingProject, ...incomingProject };
                 }
-                
+
                 // SMART PROJECT STATUS RESOLUTION (always resolve conflicts regardless of timestamp)
                 const resolvedStatus = resolveProjectStatus(
                   existingProject.status,
@@ -131,7 +139,7 @@ export const useProjectStore = create<ProjectStoreState>()(
                   incomingTimestamp,
                   incomingProject.name || 'Unknown'
                 );
-                
+
                 if (existingProject.status !== incomingProject.status) {
                   addSyncLog(
                     `[Project Status] '${(incomingProject.name || 'Unknown').slice(0, 24)}': local=${existingProject.status}, sync=${incomingProject.status}, resolved=${resolvedStatus}`,
@@ -139,7 +147,7 @@ export const useProjectStore = create<ProjectStoreState>()(
                   );
                   completionConflictsResolved++;
                 }
-                
+
                 mergedProject.status = resolvedStatus as any;
 
                 // SMART TASK COMPLETION RESOLUTION
@@ -165,10 +173,10 @@ export const useProjectStore = create<ProjectStoreState>()(
               itemsAddedCount++;
             }
           }
-          
+
           const logMessage = `Projects hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${completionConflictsResolved} completion conflicts resolved. Total: ${newProjectsArray.length}`;
           addSyncLog(logMessage, 'success');
-          
+
           return { projects: newProjectsArray };
         });
       },
@@ -192,12 +200,12 @@ function resolveProjectStatus(
   if (!localStatus && syncStatus) return syncStatus;
   if (localStatus && !syncStatus) return localStatus;
   if (!localStatus && !syncStatus) return undefined;
-  
+
   // If they're the same, no conflict
   if (localStatus === syncStatus) return localStatus;
-  
+
   // Smart resolution rules for status conflicts:
-  
+
   // 1. "completed" always wins over other statuses (except when overridden by much newer timestamp)
   if (localStatus === 'completed' && syncStatus !== 'completed') {
     const timeDiff = syncTimestamp - localTimestamp;
@@ -206,7 +214,7 @@ function resolveProjectStatus(
     }
     return 'completed'; // Keep completed status
   }
-  
+
   if (syncStatus === 'completed' && localStatus !== 'completed') {
     const timeDiff = localTimestamp - syncTimestamp;
     if (timeDiff > 300000) { // 5 minutes
@@ -214,19 +222,19 @@ function resolveProjectStatus(
     }
     return 'completed'; // Prefer completed status
   }
-  
+
   // 2. "past_deadline" has priority over "in_progress" and "not_started"
   if ((localStatus === 'past_deadline' && ['in_progress', 'not_started'].includes(syncStatus!)) ||
       (syncStatus === 'past_deadline' && ['in_progress', 'not_started'].includes(localStatus!))) {
     return 'past_deadline';
   }
-  
+
   // 3. "in_progress" has priority over "not_started"
   if ((localStatus === 'in_progress' && syncStatus === 'not_started') ||
       (syncStatus === 'in_progress' && localStatus === 'not_started')) {
     return 'in_progress';
   }
-  
+
   // 4. For other conflicts, use timestamp (newer wins)
   return syncTimestamp >= localTimestamp ? syncStatus : localStatus;
 }
@@ -243,21 +251,21 @@ function mergeProjectTasks(
 
   for (const incomingTask of incomingTasks) {
     const existingTaskIndex = mergedTasks.findIndex((task: any) => task.id === incomingTask.id);
-    
+
     if (existingTaskIndex !== -1) {
       const existingTask = mergedTasks[existingTaskIndex];
-      
+
       // Use timestamp-based merging for most task fields
       const existingTimestamp = new Date((existingTask as any).updatedAt || (existingTask as any).createdAt || Date.now()).getTime();
       const incomingTimestamp = new Date((incomingTask as any).updatedAt || (incomingTask as any).createdAt || Date.now()).getTime();
-      
+
       let mergedTask = { ...existingTask };
-      
+
       // If incoming is newer, merge most fields
       if (incomingTimestamp >= existingTimestamp) {
         mergedTask = { ...existingTask, ...incomingTask };
       }
-      
+
       // SMART COMPLETION RESOLUTION (always resolve regardless of timestamp)
       if (existingTask.completionHistory && incomingTask.completionHistory) {
         // Merge completion history with conflict resolution
@@ -267,9 +275,9 @@ function mergeProjectTasks(
           addSyncLog,
           incomingTask.name || 'Unknown Task'
         );
-        
+
         mergedTask.completionHistory = mergedHistory;
-        
+
         // Resolve task completion based on today's history and overall completion state
         const resolvedCompleted = resolveTaskCompletion(
           existingTask.completed || false,
@@ -278,14 +286,14 @@ function mergeProjectTasks(
           existingTimestamp,
           incomingTimestamp
         );
-        
+
         if ((existingTask.completed || false) !== (incomingTask.completed || false)) {
           addSyncLog(
             `[Task Completion] '${(incomingTask.name || 'Unknown').slice(0, 20)}': local=${existingTask.completed}, sync=${incomingTask.completed}, resolved=${resolvedCompleted}`,
             'verbose'
           );
         }
-        
+
         mergedTask.completed = resolvedCompleted;
       } else {
         // Simple completion without history
@@ -296,24 +304,24 @@ function mergeProjectTasks(
           existingTimestamp,
           incomingTimestamp
         );
-        
+
         if ((existingTask.completed || false) !== (incomingTask.completed || false)) {
           addSyncLog(
             `[Task Completion Simple] '${(incomingTask.name || 'Unknown').slice(0, 20)}': local=${existingTask.completed}, sync=${incomingTask.completed}, resolved=${resolvedCompleted}`,
             'verbose'
           );
         }
-        
+
         mergedTask.completed = resolvedCompleted;
       }
-      
+
       mergedTasks[existingTaskIndex] = mergedTask;
     } else {
       // New task from sync
       mergedTasks.push(incomingTask);
     }
   }
-  
+
   return mergedTasks;
 }
 
@@ -325,11 +333,11 @@ function mergeCompletionHistory(
   taskName: string
 ): Record<string, boolean> {
   const mergedHistory: Record<string, boolean> = { ...localHistory };
-  
+
   Object.entries(syncHistory).forEach(([date, value]) => {
     const hasLocalEntry = localHistory[date] !== undefined;
     const localValue = localHistory[date];
-    
+
     if (!hasLocalEntry) {
       // No local entry, safe to add incoming
       mergedHistory[date] = value;
@@ -344,7 +352,7 @@ function mergeCompletionHistory(
     }
     // Otherwise keep local value (same as incoming)
   });
-  
+
   return mergedHistory;
 }
 
@@ -358,10 +366,10 @@ function resolveTaskCompletion(
 ): boolean {
   // If history says completed for today, trust that
   if (historyCompleted) return true;
-  
+
   // If no conflict, return either (they're the same)
   if (localCompleted === syncCompleted) return localCompleted;
-  
+
   // Prefer completion over non-completion, unless timestamps show clear intentional change
   if (localCompleted && !syncCompleted) {
     // Local is completed, sync is not - prefer completed unless sync is significantly newer
@@ -371,7 +379,7 @@ function resolveTaskCompletion(
     }
     return true; // Keep completed
   }
-  
+
   if (!localCompleted && syncCompleted) {
     // Sync is completed, local is not - prefer completed unless local is significantly newer
     const timeDiff = localTimestamp - syncTimestamp;
@@ -380,7 +388,7 @@ function resolveTaskCompletion(
     }
     return true; // Prefer completed
   }
-  
+
   // Fallback to timestamp-based resolution
   return syncTimestamp >= localTimestamp ? syncCompleted : localCompleted;
 }

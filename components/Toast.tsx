@@ -12,10 +12,15 @@ const { height, width } = Dimensions.get('window')
 
 const toastStyle = {
   position: 'absolute' as const,
-  top: height * 0.085,
-  left: 0,
-  right: 0,
-  alignItems: 'center' as const,
+  ...(isWeb ? {
+    bottom: 20,
+    right: 20,
+  } : {
+    top: height * 0.085,
+    left: 0,
+    right: 0,
+    alignItems: 'center' as const,
+  }),
   zIndex: 100000,
   pointerEvents: 'box-none' as const,
 }
@@ -140,10 +145,10 @@ const ToastItem: React.FC<ToastItemProps> = React.memo(({
           paddingHorizontal: isLarge ? 14 : 12,
           paddingVertical: isLarge ? 14 : 12,  
           backgroundColor: backgroundColor,
-          borderRadius: 14,
+          borderRadius: 8,
           overflow: 'hidden',
           borderBlockColor: borderColorMap[type],
-          borderWidth: 3,
+          borderWidth: 2,
           borderColor: borderColorMap[type],
         }}
       >

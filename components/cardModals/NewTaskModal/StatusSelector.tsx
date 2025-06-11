@@ -22,10 +22,10 @@ export function StatusSelector({ selectedStatus, onStatusSelect }: StatusSelecto
   const isDark = colorScheme === 'dark';
 
   return (
-    <XStack px={isIpad() ? '$3.5' : '$0.5'} gap={isIpad() ? '$2' : '$2.5'} alignItems="center" mb="$2" mt="$-3">
+    <XStack px={isIpad() ? '$3.5' : '$2'} gap={isIpad() ? '$2' : '$2.5'} alignItems="center" mb="$2" mt="$-3">
       <XStack gap={isIpad() ? '$2' : '$2'}>
-        <Text fontSize={isIpad() ? 17 : 15} fontFamily="$body" color={isDark ? '$gray9' : '$gray11'} alignSelf="center" >Status:</Text>
-        {statuses.map(({ key, label, color }) => (
+       
+        {statuses.map(({ key, label, color }: { key: ProjectStatus; label: string; color: string }    ) => (
           <Button
             height={isIpad() ? 40 : 35}
             key={key}

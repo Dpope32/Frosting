@@ -1,8 +1,8 @@
-// Fixed SyncTable - Remove duplicates and organize properly
+// Fixed SyncTable - Remove duplicates and organize properlyAdd commentMore actions
 import React from 'react';
-import { View, useWindowDimensions, TouchableOpacity, Platform } from 'react-native';
+import { View, useWindowDimensions, TouchableOpacity, Platform, Linking } from 'react-native';
 import { Text, Button, XStack, YStack, isWeb } from 'tamagui';
-import { usePortfolioStore, useUserStore } from '@/store';
+import { usePortfolioStore, useUserStore, useToastStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useBillStore } from '@/store/BillStore';
 import { useVaultStore } from '@/store/VaultStore';
@@ -54,7 +54,7 @@ export default function SyncTable({
   const { width } = useWindowDimensions();
   const colors = getColors(isDark, primaryColor);
   const contentWidth = isWeb ? width * 0.7025 : isIpad() ? Math.min(width - baseSpacing * 2, 600) : Math.min(width - baseSpacing * 2, 350);
-  
+
   // Store hooks
   const isBillSyncEnabled = useBillStore((state) => state.isSyncEnabled);
   const toggleBillSync = useBillStore((state) => state.toggleBillSync);
@@ -73,7 +73,7 @@ export default function SyncTable({
   const togglePortfolioSync = usePortfolioStore((state) => state.togglePortfolioSync);
   const isPortfolioSyncEnabled = usePortfolioStore((state) => state.isSyncEnabled);
 
-  
+
   const getConnectionStatus = (premium: boolean, syncStatus: string, currentSpaceId: string) => {
     return React.useMemo(() => {
       if (!premium) return 'Premium Required';
@@ -92,7 +92,7 @@ export default function SyncTable({
       return colors.subtext;
     }, [syncStatus, currentSpaceId, colors]);
   };
-  
+
   // FIXED: Remove duplicate entries, organize cleanly with 6 items total
   const syncSettings = [
     { key: 'bills', label: 'Bills', enabled: isBillSyncEnabled, toggle: toggleBillSync },
@@ -141,7 +141,55 @@ export default function SyncTable({
           </Text>
       </XStack>
       </XStack>
-      <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
+
+      {premium && (
+        <XStack alignItems="center" justifyContent="center" marginVertical={baseSpacing}>
+          <TouchableOpacity
+            onPress={async () => {
+              try {
+                await Linking.openURL('https://kaiba.lemonsqueezy.com/billing')
+              } catch (error) {
+                useToastStore.getState().showToast('Failed to open billing page', 'error')
+              }
+            }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingVertical: baseSpacing,
+              paddingHorizontal: baseSpacing * 1.5,
+              backgroundColor: colors.card,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: colors.border,
+              width: '100%',
+            }}
+          >
+            <Text
+              style={{
+                color: colors.text,
+                fontSize: 14,
+                fontWeight: '500',
+                marginRight: 6,
+                fontFamily: '$body',
+              }}
+            >
+              Manage Account
+            </Text>
+            <Text
+              style={{
+                color: colors.text,
+                fontSize: 14,
+                fontWeight: '500',
+                marginRight: 6,
+                fontFamily: '$body',
+              }}
+            >
+              ↗
+            </Text>
+          </TouchableOpacity>
+        </XStack>
+      )}
 
       {inviteCode && currentSpaceId && (
         <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>
@@ -189,7 +237,7 @@ export default function SyncTable({
               </Text>
               <MaterialIcons name="content-copy" size={14} color={colors.accent} />
             </TouchableOpacity>
-            
+
             {onLeaveWorkspace && (
               <TouchableOpacity 
                 onPress={onLeaveWorkspace}
@@ -220,7 +268,7 @@ export default function SyncTable({
               {devices.length} device{devices.length !== 1 ? 's' : ''}
             </Text>
           </XStack>
-          
+
           <YStack gap={baseSpacing}>
             {devices.map((device) => (
               <XStack
@@ -262,7 +310,7 @@ export default function SyncTable({
                     </Text>
                   </YStack>
                 </XStack>
-                
+
                 {!device.isCurrentDevice && onDeviceAction && (
                   <TouchableOpacity 
                     onPress={() => onDeviceAction(device.id, 'remove')}
@@ -283,7 +331,7 @@ export default function SyncTable({
             <View style={{ height: 1, backgroundColor: colors.border, marginVertical: baseSpacing * 1.5}} />
           ) : null}
           <XStack gap={baseSpacing * 4}>
-  
+
             <YStack flex={1} gap={baseSpacing}>
               {syncSettings.slice(0, 4).map((setting, index) => (
                 <React.Fragment key={setting.key}>
@@ -342,4 +390,4 @@ export default function SyncTable({
       )}
     </View>
   );
-}
+};

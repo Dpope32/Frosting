@@ -84,7 +84,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
       <YStack
         borderRadius={12}
         overflow="hidden"
-        mb={isIpad() ? 2 : 0}
+        mb={isIpad() ? 5 : 3}
         style={{
           backgroundColor: isDark ? 'rgba(15, 16, 20, 0.5)' : 'rgba(35, 40, 54, 0.9)',
           borderColor: isDark ? '#1e2229' : '#21252e',

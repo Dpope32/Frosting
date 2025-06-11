@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, Image, TextInput } from 'react-native';
-import { Text, YStack, XStack, isWeb } from 'tamagui';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { View, TouchableOpacity, StyleSheet, Image, TextInput, Platform, Animated, Modal } from 'react-native';
+import { Text, YStack, XStack, isWeb, Stack, Spinner } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useUserStore } from '@/store';
@@ -9,6 +9,16 @@ import { baseSpacing, cardRadius, Colors } from './sharedStyles';
 import { startPremiumPurchase } from '@/services/premiumService';
 import { addSyncLog } from './syncUtils';
 
+// Conditional BlurView import to prevent crashes
+let BlurView: any = null;
+try {
+  if (Platform.OS !== 'web') {
+    BlurView = require('expo-blur').BlurView;
+  }
+} catch (error) {
+  console.warn('BlurView not available:', error);
+}
+
 interface NonPremiumUserProps {
   colors: Colors;
   contentWidth: number;
@@ -16,13 +26,202 @@ interface NonPremiumUserProps {
   onJoinWorkspace?: (code: string) => void;
 }
 
+const JoiningOverlay = ({ colors, isDark, onDevToggle }: { colors: Colors; isDark: boolean; onDevToggle?: () => void }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [dots, setDots] = useState('');
+  const isComponentMounted = useRef(true);
+
+  const isIpadDevice = !!isIpad(); 
+  const safeWidth = isIpadDevice ? 400 : 350;
+  const safeMaxWidth = isIpadDevice ? 400 : 350;
+
+  useEffect(() => {
+    isComponentMounted.current = true;
+    return () => {
+      isComponentMounted.current = false;
+    };
+  }, []);
+
+  // Fade in animation
+  useEffect(() => {
+    const animation = Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => {
+      animation.stop();
+    };
+  }, [fadeAnim]);
+
+  // Animated dots
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isComponentMounted.current) return;
+      setDots(prev => {
+        if (prev === '...') return '';
+        return prev + '.';
+      });
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const animatedViewStyle = useMemo(() => ({
+    opacity: fadeAnim,
+    position: 'absolute' as 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center' as 'center',
+    alignItems: 'center' as 'center',
+    zIndex: 99999,
+  }), [fadeAnim]);
+
+  const backgroundColor = isDark ? "rgba(14, 14, 15, 0.75)" : "rgba(0, 0, 0, 0.35)";
+
+  const ContentComponent = () => {
+    return (
+      <XStack alignItems="center" justifyContent="center" gap="$3" paddingVertical="$2">
+        <Spinner 
+          size="large" 
+          color={colors.accent}
+          opacity={0.9}
+        />
+        
+        <YStack alignItems="center" gap="$1">
+          <Text 
+            fontFamily="$body"
+            fontSize={isWeb ? 16 : 14}
+            fontWeight="600"
+            color="$color"
+            opacity={0.9}
+          >
+            Joining workspace{dots}
+          </Text>
+          <Text
+            fontFamily="$body"
+            fontSize={isWeb ? 13 : 11}
+            color="$color"
+            opacity={0.7}
+          >
+            This may take up to 2 minutes to sync all your data
+          </Text>
+        </YStack>
+      </XStack>
+    );
+  };
+
+  return (
+    <Modal visible={true} transparent animationType="none" statusBarTranslucent supportedOrientations={['portrait', 'landscape']}>
+      <Animated.View style={animatedViewStyle}>
+        {onDevToggle && (
+          <TouchableOpacity
+            style={{
+              position: 'absolute',
+              top: baseSpacing * 19.5,
+              right: baseSpacing * 4.5,
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              backgroundColor: '#ff6b6b',
+              alignItems: 'center',
+              justifyContent: 'center',
+              shadowColor: '#ff6b6b',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              elevation: 4,
+              zIndex: 1000,
+            }}
+            onPress={onDevToggle}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons 
+              name="pause" 
+              size={16} 
+              color="white" 
+            />
+          </TouchableOpacity>
+        )}
+        
+        {Platform.OS === 'web' || !BlurView ? (
+          <Stack
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            justifyContent="center"
+            alignItems="center"
+            style={{ 
+              backdropFilter: 'blur(20px)', 
+              backgroundColor: backgroundColor,
+            }}
+          >
+            <Stack    
+              backgroundColor={isDark ? 'rgba(35, 38, 47, 0.95)' : 'rgba(247, 248, 250, 0.95)'} 
+              borderRadius={16} 
+              padding="$3" 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+              borderWidth={1}
+              style={{ 
+                boxShadow: isDark 
+                  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
+                  : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)',
+                width: safeWidth,
+                maxWidth: safeMaxWidth,
+              }}
+            >
+              <ContentComponent />
+            </Stack>
+          </Stack>
+        ) : (
+          <BlurView 
+            intensity={Platform.OS === 'ios' ? 80 : 120} 
+            tint={isDark ? 'dark' : 'light'} 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <View style={{
+              backgroundColor: isDark ? 'rgba(35, 38, 47, 0.95)' : 'rgba(247, 248, 250, 0.95)', 
+              padding: 12, 
+              borderRadius: 16,
+              borderColor: isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)",
+              borderWidth: 1,
+              shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
+              shadowOffset: { width: 0, height: 4 }, 
+              shadowOpacity: 0.35,  
+              shadowRadius: 12,
+              elevation: 5, 
+              width: safeWidth, 
+              maxWidth: safeMaxWidth, 
+            }}>
+              <ContentComponent />
+            </View>
+          </BlurView>
+        )}
+      </Animated.View>
+    </Modal>
+  );
+};
+
 export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace }: NonPremiumUserProps) {
   const isDev = __DEV__;
   const setPreferences = useUserStore(state => state.setPreferences);
   const [activeTab, setActiveTab] = useState<'premium' | 'join'>('premium');
   const [workspaceCode, setWorkspaceCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
-  
+  const [devFakeJoining, setDevFakeJoining] = useState(false);
+
   const handlePremiumPress = async () => {
     if (isDev) {
       setPreferences({ premium: true });
@@ -42,7 +241,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
 
   const handleJoinWorkspace = async () => {
     if (!workspaceCode.trim()) return;
-    
+
     setIsJoining(true);
     try {
       addSyncLog(`🔗 Attempting to join workspace with code: ${workspaceCode}`, 'info');
@@ -58,6 +257,9 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
 
   const isLarge = isWeb || isIpad();
   const [flipped, setFlipped] = useState(false);
+
+  // Use fake joining state in dev, real state in production
+  const effectiveIsJoining = isDev ? devFakeJoining : isJoining;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -85,6 +287,26 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
           },
         ]}
       >
+        {/* Dev-only joining toggle button */}
+        {isDev && (
+          <TouchableOpacity
+            style={[
+              styles.devToggle,
+              {
+                backgroundColor: devFakeJoining ? '#ff6b6b' : '#51cf66',
+                shadowColor: devFakeJoining ? '#ff6b6b' : '#51cf66',
+              }
+            ]}
+            onPress={() => setDevFakeJoining(!devFakeJoining)}
+            activeOpacity={0.8}
+          >
+            <MaterialIcons 
+              name={devFakeJoining ? 'pause' : 'play-arrow'} 
+              size={16} 
+              color="white" 
+            />
+          </TouchableOpacity>
+        )}
 
         {activeTab === 'premium' ? (
           <YStack alignItems="center" flex={1} justifyContent="center">
@@ -104,7 +326,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                 accessibilityLabel="Pot of Greed"
               />
             </View>
-            
+
           </XStack>
 
             <YStack 
@@ -136,7 +358,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                     ONLY $4/month
                   </Text>
                   <Text fontSize={12} color={colors.subtext} fontFamily="$body" fontWeight="600">
-                    or $25/year
+                    or $20/year (save 40%)
                   </Text>
                 </XStack>
               </XStack>
@@ -220,7 +442,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
               color={colors.accent} 
               style={{ marginBottom: baseSpacing * 2 }}
             />
-            
+
             <Text 
               fontSize={isLarge ? 28 : 22} 
               fontWeight="800" 
@@ -231,7 +453,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
             >
               Join Workspace
             </Text>
-            
+
             <Text 
               fontSize={isLarge ? 16 : 14} 
               color={colors.subtext} 
@@ -269,17 +491,17 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                 onPress={handleJoinWorkspace}
                 style={[
                   styles.ctaButton2,
-                  { opacity: !workspaceCode.trim() || isJoining ? 0.5 : 1, maxWidth: undefined }
+                  { opacity: !workspaceCode.trim() || effectiveIsJoining ? 0.5 : 1, maxWidth: undefined }
                 ]}
                 activeOpacity={0.88}
-                disabled={!workspaceCode.trim() || isJoining}
+                disabled={!workspaceCode.trim() || effectiveIsJoining}
               >
                 <LinearGradient
                   colors={[colors.accent, colors.accent + 'DD']}
                   style={styles.buttonGradient}
                 >
                   <XStack alignItems="center" gap={baseSpacing}>
-                    {isJoining ? (
+                    {effectiveIsJoining ? (
                       <MaterialIcons name="hourglass-empty" size={18} color="white" />
                     ) : (
                       <MaterialIcons name="group-add" size={18} color="white" />
@@ -290,7 +512,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
                       fontWeight="500" 
                       fontFamily="$body"
                     >
-                      {isJoining ? 'Joining...' : 'Join Workspace'}
+                      {effectiveIsJoining ? 'Joining...' : 'Join Workspace'}
                     </Text>
                   </XStack>
                 </LinearGradient>
@@ -298,16 +520,16 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
             </YStack>
           </YStack>
         )}
-        
+
         <XStack 
           style={[styles.tabContainer, { backgroundColor: tabBg }]}
-          marginTop={baseSpacing * 2}
-          marginBottom={0}
+          marginTop={baseSpacing * 3}
+          paddingBottom={8}
         >
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === 'premium' && { backgroundColor: tabBg }
+              activeTab === 'premium' && { backgroundColor: tabBg, paddingBottom: 8 }
             ]}
             onPress={() => setActiveTab('premium')}
           >
@@ -325,7 +547,7 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
               Get Premium
             </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[
               styles.tab,
@@ -349,6 +571,8 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
           </TouchableOpacity>
         </XStack>
       </View>
+      
+      {effectiveIsJoining && <JoiningOverlay colors={colors} isDark={!isWeb} onDevToggle={isDev ? () => setDevFakeJoining(false) : undefined} />}
     </View>
   );
 }
@@ -384,7 +608,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: baseSpacing * 1.5,
+    paddingVertical: baseSpacing *2,
     paddingHorizontal: baseSpacing * 1.5,
     borderRadius: cardRadius,
     borderBottomWidth: 0,
@@ -452,5 +676,19 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: isWeb ? 350 : 320,
   },
-
-}); 
+  devToggle: {
+    position: 'absolute',
+    top: baseSpacing,
+    right: baseSpacing,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 1000,
+  },
+  });

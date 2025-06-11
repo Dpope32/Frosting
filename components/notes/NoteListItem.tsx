@@ -52,8 +52,8 @@ export const NoteListItem = forwardRef<any, NoteListItemProps>(({
     measureCard: (cb?: () => void) => {
       if (cardRef.current) {
         cardRef.current.measureInWindow((x, y, width, height) => {
-          const bottomY = y + height;
-          if (draggedCardBottomYRef) draggedCardBottomYRef.current = bottomY;
+          const centerY = y + (height / 2);
+          if (draggedCardBottomYRef) draggedCardBottomYRef.current = centerY;
           if (cb) cb();
         });
       }
@@ -64,8 +64,8 @@ export const NoteListItem = forwardRef<any, NoteListItemProps>(({
     if (isActive && cardRef.current) {
       setTimeout(() => {
         cardRef.current?.measureInWindow((x, y, width, height) => {
-          const bottomY = y + height;
-          if (draggedCardBottomYRef) draggedCardBottomYRef.current = bottomY;
+          const centerY = y + (height / 2);
+          if (draggedCardBottomYRef) draggedCardBottomYRef.current = centerY;
         });
       }, 16);
     }
@@ -122,5 +122,3 @@ export const NoteListItem = forwardRef<any, NoteListItemProps>(({
     </ScaleDecorator>
   );
 });
-
-NoteListItem.displayName = 'NoteListItem'; 

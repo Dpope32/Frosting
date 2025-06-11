@@ -1,4 +1,4 @@
-// TODO: fix the type errors
+// TODO: fix the type errorsMore actions
 // TODO: add a check for the note content to be empty
 //@ts-nocheck
 import React, { useMemo, useState, useEffect } from 'react';
@@ -42,8 +42,8 @@ export const NoteCard = ({
   const isDark = colorScheme === 'dark';
   const { colors, markdownStyles } = useMarkdownStyles();
   const noTagSpacerHeight = isWeb ? 40 : 6;
-  const horizontalPadding = isWeb ? 20 : isIpad() ? 12 : 12;
-  const verticalPadding = isWeb ? 6 : isIpad() ? 8 : 10;
+  const horizontalPadding = isWeb ? 20 : isIpad() ? 12 : 10;
+  const verticalPadding = isWeb ? 6 : isIpad() ? 8 : 6;
   const attachmentWidth = isWeb ? 150 : 120;
   const attachmentHeight = isWeb ? 120 : 96;
 
@@ -61,7 +61,7 @@ export const NoteCard = ({
   const imageAttachments = useMemo(() => {
     const allImageAttachments = note.attachments?.filter(att => att.type === 'image') ?? [];
     const validImageAttachments = allImageAttachments.filter(att => att.url);
-    
+
     // Log if we have image attachments without URLs (likely missing after sync)
     const missingUrls = allImageAttachments.length - validImageAttachments.length;
     if (missingUrls > 0) {
@@ -71,7 +71,7 @@ export const NoteCard = ({
         'Image attachments found without URLs, likely due to workspace sync not including images from other clients'
       );
     }
-    
+
     return validImageAttachments;
   }, [note.attachments, note.title]);
 
@@ -112,7 +112,7 @@ export const NoteCard = ({
   const checkboxRule: RenderRules = {
     list_item: (() => {
       let renderCheckboxCount = 0; // Track checkbox count during this render cycle
-      
+
       return (node, children, parent, styles) => {
         const findCheckboxString = (childrenArr: any[]): RegExpMatchArray | null => {
           for (const child of childrenArr) {
@@ -146,15 +146,15 @@ export const NoteCard = ({
         };
 
         const match: RegExpMatchArray | null = findCheckboxString(children);
-        
+
         if (match) {
           const checked = match[1].toLowerCase() === 'x';
           const label = match[2] || '';
-          
+
           // Use the current render count as the checkbox index
           const thisCheckboxIndex = renderCheckboxCount;
           renderCheckboxCount++;
-          
+
           const handleToggle = () => {
             let checkboxCount = 0;
             let newContent = (note.content || '').replace(/^([-*]\s+\[)([ xX])(\]\s?.*)$/gm, (fullMatch, prefix, state, suffix) => {
@@ -166,7 +166,7 @@ export const NoteCard = ({
               checkboxCount++;
               return fullMatch;
             });
-            
+
             // If no replacement was made with the list item pattern, try standalone checkbox pattern
             if (newContent === (note.content || '')) {
               checkboxCount = 0;
@@ -179,7 +179,7 @@ export const NoteCard = ({
                 return fullMatch;
               });
             }
-            
+
             if (newContent !== (note.content || '')) {
               noteStore.updateNote(note.id, { content: newContent });
               setCheckboxUpdateKey(prev => prev + 1);
@@ -267,7 +267,7 @@ export const NoteCard = ({
         animation="bouncy"
         scale={isDragging ? 0.9 : 1}
         opacity={isDragging ? 0.9 : 1}
-        paddingBottom="$2"
+
         shadowOffset={{ width: 0, height: 1 }}
         shadowOpacity={0.1}
         shadowRadius={2}
@@ -311,13 +311,13 @@ export const NoteCard = ({
             <XStack
               paddingHorizontal={horizontalPadding}
               paddingTop={isWeb ? "$3" : "$2"}
-              paddingBottom={isExpanded ? "$2" : (note.tags?.length ? "$3" : "$2")} 
+              paddingBottom={isExpanded ? "$2" : (note.tags?.length ? "$2" : "$1.5")} 
               justifyContent="space-between"
               alignItems="flex-start"
             >
               <Text
                 flex={1}
-                fontSize={isWeb ? "$5" : isIpad() ? 20 : 19}
+                fontSize={isWeb ? "$5" : isIpad() ? 18 : 17}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"
@@ -363,12 +363,12 @@ export const NoteCard = ({
               <XStack
                 flexWrap="nowrap"
                 paddingHorizontal={horizontalPadding}
-                paddingBottom={isWeb ? note.tags?.length ? "$3" : "$2" : "$2"}
+                paddingBottom={isWeb ? note.tags?.length ? "$2" : "$1.5" : "$1.5"}
                 gap="$2"
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
+                <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center" mt={note.tags?.length ? -4 : 0}>
                   {note.tags?.map((tag) => (
                     <TagChip key={tag.id} tag={tag} />
                   ))}
@@ -378,7 +378,7 @@ export const NoteCard = ({
                 </XStack>
                 <XStack alignItems="center" gap="$2">
                   <Text
-                    fontSize={isWeb ? 13 : isIpad() ? 14 : 12}
+                    fontSize={isWeb ? 13 : isIpad() ? 12 : 11}
                     color={colors.textSecondary}
                     fontFamily="$body"
                     flexShrink={0}
@@ -516,7 +516,7 @@ NoteCard.displayName = 'NoteCard';
 const localStyles = StyleSheet.create({
   touchableContainer: {
     width: Platform.OS === 'web' ? '100%' : '100%',
-    paddingVertical: Platform.OS === 'web' ? 0 : 8,
+    paddingVertical: Platform.OS === 'web' ? 0 : 4,
     paddingHorizontal: Platform.OS === 'web' ? 2 : 12,
     flexShrink: 1,
     alignSelf: 'flex-start',

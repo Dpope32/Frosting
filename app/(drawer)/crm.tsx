@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FlatList, View, Dimensions, Alert, Platform, TouchableOpacity, Text } from "react-native";
+
 import { YStack, Button, isWeb } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
 import { MaterialIcons } from '@expo/vector-icons';
@@ -30,7 +31,7 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-  
+
   // Debug expanded view issues
   // console.log('🔍 [CRM] Render - expandedId:', expandedId, 'contactModalOpen:', contactModalOpen, 'isEditModalVisible:', isEditModalVisible);
   const PADDING = isWeb? 30 : isIpad() ? 24 : 16;
@@ -58,7 +59,7 @@ export default function CRM() {
   const renderItem = ({ item, index }: { item: Person; index: number }) => {
     const isFirstInRow = index % NUM_COLUMNS === 0;
     const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS - 1;
-    
+
     return (
       <View
         style={{
@@ -81,6 +82,27 @@ export default function CRM() {
           }}
         />
       </View>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     );
   };
 
@@ -110,21 +132,6 @@ export default function CRM() {
           />
         }
       />
-      {/* <Button
-        onPress={() => setContactModalOpen(true)}
-        position="absolute"
-        bottom={40}
-        right={24}
-        zIndex={1000}
-        size="$4"
-        circular
-        bg={primaryColor}
-        pressStyle={{ scale: 0.95 }}
-        animation="quick"
-        elevation={4}
-      >
-        <MaterialIcons name="add" size={24} color="white" />
-      </Button> */}
       <AddPersonForm isVisible={contactModalOpen} onClose={() => setContactModalOpen(false)} />
       {selectedPerson && (
         <EditPersonForm
@@ -134,15 +141,14 @@ export default function CRM() {
           onSave={handleSaveEdit}
         />
       )}
-      
-      {/* Expanded View Modal */}
+
       {expandedId && (() => {
         const expandedPerson = allContacts.find(person => person.id === expandedId);
         if (!expandedPerson) return null;
-        
+
         const nicknameColor = getColorForPerson(expandedPerson.id || expandedPerson.name);
         const fullAddress = expandedPerson.address?.street || '';
-        
+
         return (
           <ExpandedView
             isExpanded={true}

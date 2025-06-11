@@ -1,4 +1,4 @@
-// components/cardModals/ArchivedProjectsModal.tsx
+// components/cardModals/ArchivedProjectsModal.tsxMore actions
 import React from 'react'
 import { YStack, isWeb, Text } from 'tamagui' 
 import { Platform } from 'react-native'
@@ -52,12 +52,43 @@ export const ArchivedProjectsModal: React.FC<ArchivedProjectsModalProps> = ({ op
   // Handle deleting a project permanently
   const handleDeleteProject = (projectId: string) => {
     return (onComplete: (deleted: boolean) => void) => {
-      try {
-        deleteProject(projectId)
-        onComplete(true)
-      } catch (error) {
-        console.error('Failed to delete project:', error)
-        onComplete(false)
+      const project = archivedProjects.find(p => p.id === projectId)
+      const projectName = project?.name || 'this project'
+      
+      if (Platform.OS === 'web') {
+        if (window.confirm(`Are you sure you want to permanently delete "${projectName}"?\n\nThis action cannot be undone and the project will be removed from all synced devices.`)) {
+          try {
+            deleteProject(projectId)
+            onComplete(true)
+          } catch (error) {
+            console.error('Failed to delete project:', error)
+            onComplete(false)
+          }
+        } else {
+          onComplete(false)
+        }
+      } else {
+        const Alert = require('react-native').Alert
+        Alert.alert(
+          'Delete Project Permanently',
+          `Are you sure you want to permanently delete "${projectName}"?\n\nThis action cannot be undone and the project will be removed from all synced devices.`,
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
+            { 
+              text: 'Delete', 
+              style: 'destructive', 
+              onPress: () => {
+                try {
+                  deleteProject(projectId)
+                  onComplete(true)
+                } catch (error) {
+                  console.error('Failed to delete project:', error)
+                  onComplete(false)
+                }
+              }
+            }
+          ]
+        )
       }
     }
   }

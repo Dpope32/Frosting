@@ -102,7 +102,6 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     
     setIsAnimating(true);
     setOpen(true);
-    triggerHaptic();
 
     const { fabRotation, fabScale, backdropOpacity, actionAnimations } = animationRefs;
     
@@ -163,7 +162,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
       
       timeoutRefs.current.push(timeout);
     });
-  }, [isAnimating, open, triggerHaptic, animationRefs]);
+  }, [isAnimating, open, animationRefs]);
 
   const closeModal = useCallback(() => {
     if (isAnimating || !open) return;

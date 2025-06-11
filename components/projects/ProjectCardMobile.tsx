@@ -27,7 +27,8 @@ export const ProjectCardMobile = ({
   hideCompletedOverlay = false
 }: ProjectCardMobileProps) => {
     const priorityColor = getPriorityColor(project.priority);
-    
+    const hasNoTasks = !project.tasks || project.tasks.length === 0;
+
     return (
         <ProjectCardWrapper 
           project={project} 
@@ -37,63 +38,89 @@ export const ProjectCardMobile = ({
           onArchive={onArchive}
           hideCompletedOverlay={hideCompletedOverlay}
         >
-          <XStack
-            p={isIpad() ? "$3" : "$2"} 
-            px={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"} 
-            pl={isWeb ? "$4" : isIpad() ? "$3" : "$3"} 
-            br="$4"
-            w={isIpad() ? "100%" : "100%"}
-            ai="center"
-            animation="quick"
-            py={isIpad() ? "$2.5" : "$2"}
-            pt={isIpad() ? "$2" : "$1.5"}
+          <YStack 
+            p={isIpad() ? "$3" : "$2.5"} 
+            px={isIpad() ? "$4" : "$3.5"} 
+            gap="$3"
+            w="100%"
+
+
+
+
+
           >
-            <YStack flex={1} gap="$2"> 
-              <ProjectHeader project={project} isDark={isDark} priorityColor={priorityColor} />
-              <YStack
-                minWidth={isIpad() ? 420 : 240}
-                pt={isIpad() ? '$1.5' : '$1'}
-                mr={0}
-              >
-                <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
-                <YStack
-                  minWidth={isIpad() ? 400 : 240}
-                  px={"$1"}
-                  ml={isIpad() ? 24 : 12}
-                  mr={isIpad() ? 24 : 12}
+            <ProjectHeader project={project} isDark={isDark} priorityColor={priorityColor} />
+            
+            <YStack px={isIpad() ? "$1" : "$0.5"}>
+              <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
+            </YStack>
+            
+            <YStack 
+              px={isIpad() ? "$2" : "$1"}
+              gap="$2"
+            >
+              <TaskList 
+                project={project} 
+                isDark={isDark} 
+                isIpad={isIpad} 
+                isWeb={isWeb} 
+                onToggleTaskCompleted={onToggleTaskCompleted} 
+              />
+
+              {onOpenAddTaskModal && (
+                <YStack 
+                  gap="$2" 
+                  pt={hasNoTasks ? "$3" : "$2"}
+                  pb="$1"
                 >
-                  <TaskList 
-                    project={project} 
-                    isDark={isDark} 
-                    isIpad={isIpad} 
-                    isWeb={isWeb} 
-                    onToggleTaskCompleted={onToggleTaskCompleted} 
-                  />
-                </YStack>
-                {onOpenAddTaskModal && (
-                  <XStack w="100%" flexBasis="100%" jc={(!project.tasks || project.tasks.length === 0) ? "center" : "flex-end"} pr={10} pl={16} mb={8} ai="center">
-                    {(!project.tasks || project.tasks.length === 0) && (
-                      <Text color={isDark ? '#f6f6f6' : '#666'} fontSize={isIpad() ? 15 : 13} fontFamily="$body" ml={12} mr={project.tasks?.length > 0 ? 0 : 20} opacity={0.6}>
+                  {hasNoTasks && (
+                    <XStack jc="center" ai="center">
+                      <Text 
+                        color={isDark ? 'rgba(246, 246, 246, 0.6)' : 'rgba(102, 102, 102, 0.8)'} 
+                        fontSize={isIpad() ? 15 : 13} 
+                        fontFamily="$body" 
+                        textAlign="center"
+                      >
+
+
+
+
                         Add your first task to get started
                       </Text>
-                    )}
+                    </XStack>
+                  )}
+                  
+                  <XStack jc="center" ai="center">
                     <Button
-                      size={isIpad() ? "$2" : 24}
+                      size={isIpad() ? "$3" : "$2.5"}
                       circular
-                      backgroundColor="transparent"
-                      onPress={() => onOpenAddTaskModal(project.id)}
-                      ai="center"
-                      borderColor={isDark ? '#222' : 'transparent'}
+                      backgroundColor={isDark ? 'rgba(34, 34, 34, 0.8)' : 'rgba(245, 245, 245, 0.9)'}
+                      borderColor={isDark ? 'rgba(60, 60, 60, 0.6)' : 'rgba(200, 200, 200, 0.6)'}
+
+
                       borderWidth={1}
-                      jc="center"
+                      onPress={() => onOpenAddTaskModal(project.id)}
+                      pressStyle={{
+                        backgroundColor: isDark ? 'rgba(50, 50, 50, 1)' : 'rgba(230, 230, 230, 1)',
+                        borderColor: priorityColor,
+                        scale: 0.95,
+                      }}
+                      hoverStyle={{
+                        backgroundColor: isDark ? 'rgba(40, 40, 40, 1)' : 'rgba(240, 240, 240, 1)',
+                        borderColor: priorityColor,
+                      }}
                     >
-                      <MaterialIcons name="add" size={isIpad() ? 20 : 20} color={isDark ? '#c9c9c9' : '#555'} />
+                      <MaterialIcons 
+                        name="add" 
+                        size={isIpad() ? 22 : 18} 
+                        color={isDark ? '#d0d0d0' : '#555'} 
+                      />
                     </Button>
                   </XStack>
-                )}
-              </YStack>
+                </YStack>
+              )}
             </YStack>
-          </XStack>
+          </YStack>
         </ProjectCardWrapper>
     )
 }

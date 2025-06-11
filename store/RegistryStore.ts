@@ -142,8 +142,10 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const projectStoreFullState = useProjectStore.getState();
       let projectStateForSnapshot: any = { isSyncEnabled: projectStoreFullState.isSyncEnabled };
       if (projectStoreFullState.isSyncEnabled) {
-        projectStateForSnapshot.projects = projectStoreFullState.projects;
+        const activeProjects = projectStoreFullState.projects.filter(project => !project.isDeleted);
+        projectStateForSnapshot.projects = activeProjects;
         projectStateForSnapshot.lastUpdated = now;
+        addSyncLog(`[Snapshot] Projects sync ON: Including ${activeProjects.length} active projects (filtered out ${projectStoreFullState.projects.length - activeProjects.length} deleted).`, 'info');
      //   addSyncLog(`[Snapshot] Projects sync ON: Including ${projectStoreFullState.projects?.length || 0} projects.`, 'info');
       } else {
         addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
@@ -266,11 +268,11 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       // So any store with images or user-specific data should not be hydrated from sync (user, wallpaper, notes)
       // Project store holds images as well, this will be the next starting point for when I work on image sync. 
       if (data.user) {
-        //addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
+       addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
         delete data.user;
       }
       if (data.wallpaper) {
-        //addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
+        addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
         delete data.wallpaper;
       }
   
@@ -322,6 +324,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       tryHydrateStore('customCategory', useCustomCategoryStore, 'Custom Categories', true);
       tryHydrateStore('tags', useTagStore, 'Tags', true);
       tryHydrateStore('notes', useNoteStore, 'Notes');
+      tryHydrateStore('portfolio', usePortfolioStore, 'Portfolio', true);
       // TaskStore has its own complex hydration, called separately for now
       // It will also need an isSyncEnabled flag and to be integrated into tryHydrateStore
       if (data.tasks) { 

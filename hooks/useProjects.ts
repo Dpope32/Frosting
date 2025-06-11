@@ -4,8 +4,8 @@ import type { Project, Tag } from '@/types';
 
 // Hook to manage project list and add/edit modal state
 export function useProjects() {
-  // Store actions
-  const projects = useProjectStore((state) => state.getProjects());
+  // Store actions only - no state subscriptions to prevent infinite loops
+
   const addProject = useProjectStore((state) => state.addProject);
   const updateProject = useProjectStore((state) => state.updateProject);
   const deleteProject = useProjectStore((state) => state.deleteProject);
@@ -67,10 +67,11 @@ export function useProjects() {
         tags: editTags,
         isArchived: false,
         isDeleted: false,
+        isPinned: false,
         tasks: [],
         people: [],
         notes: [],
-        attachments: [],
+
       };
       addProject(newProject);
     }
@@ -101,7 +102,7 @@ export function useProjects() {
   }, []);
 
   return {
-    projects,
+    // Removed projects from return - ProjectsScreen gets them directly
     selectedProject,
     isModalOpen,
     editName,
@@ -121,4 +122,4 @@ export function useProjects() {
     handleCloseModal,
     handleTagsChange,
   };
-} 
+}
