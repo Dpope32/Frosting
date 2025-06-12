@@ -16,13 +16,15 @@ docs/
 
 # Exclude source maps
 *.map
+*.hbc.map
+**/*.map
 
 # Exclude build artifacts
 android/app/build/
 ios/build/
 
 # Exclude large assets not needed for build
-assets/wallpapers/
+assets/videos/
 
 # Exclude backup files
 *.bak

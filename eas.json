@@ -41,7 +41,10 @@
         "key": "production-v1"
       },
       "node": "20.18.1",
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_NO_SOURCE_MAP": "true"
+      }
     }
   },
   "submit": {
