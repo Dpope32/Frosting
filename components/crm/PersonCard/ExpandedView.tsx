@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Paragraph, XStack, YStack, Theme, Button, isWeb } from 'tamagui';
 import { TouchableOpacity, TouchableWithoutFeedback, View, Platform, Linking, Alert, Text, ScrollView, StyleSheet, Dimensions, useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -183,15 +183,21 @@ export default function ExpandedView({
 
 // Render content helper function
 function renderContent(person: Person, isDark: boolean, nicknameColor: string, fullAddress: string, onEdit: (person: Person) => void) {
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+
   return (
     <YStack gap="$3" paddingRight="$3" paddingLeft="$2">
       <XStack gap="$3" alignItems="center">
         <View style={styles.avatarContainer}>
-          {person.profilePicture ? (
+          {person.profilePicture && !imageLoadFailed ? (
             <Image
               source={{ uri: person.profilePicture }}
               style={styles.avatar}
               objectFit="cover"
+              onError={() => {
+                console.log('Failed to load profile picture for:', person.name, '- falling back to letter avatar');
+                setImageLoadFailed(true);
+              }}
             />
           ) : (
             <View

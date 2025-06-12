@@ -184,8 +184,19 @@ export const usePeopleStore = create<PeopleStore>()(
               const incomingUpdatedAt = new Date(incomingContact.updatedAt || 0).getTime()
 
               if (incomingUpdatedAt > localUpdatedAt) {
-                currentContacts[id] = incomingContact
+                // 🔧 SELECTIVE MERGE: Preserve local profilePicture if incoming doesn't have one
+                const mergedContact = {
+                  ...incomingContact,
+                  // Preserve local profilePicture if it exists and incoming doesn't have one
+                  profilePicture: incomingContact.profilePicture || localContact.profilePicture
+                }
+                currentContacts[id] = mergedContact
                 itemsMergedCount++
+                
+                // Log when we preserve an image
+                if (localContact.profilePicture && !incomingContact.profilePicture) {
+                  addSyncLog(`[PeopleStore] Preserved local profile picture for ${localContact.name} during sync merge`, 'info')
+                }
               }
             } else {
               // New contact, add it

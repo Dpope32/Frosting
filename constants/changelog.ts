@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.2.16',
+    date: '2025-06-12',
+    notes: 'Nightmare on Dev Street',
+    bullets: [
+      'Accidentally pushed a faulty background listener which broke all updates for 4 continuous days. ',
+      'Added guardrails to prevent this from happening again',
+      'Lost composure for 96 hours straight',
+      'Decidided to incriment the middle build digit to 2 to signify the nightmare',
+    ],
+  },
+  {
     version: '1.1.288',
     date: '2025-06-09',
     notes: 'Improved UI',

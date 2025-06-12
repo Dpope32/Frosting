@@ -15,6 +15,7 @@ import { isIpad } from '@/utils'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { EasterEgg } from '../shared/EasterEgg'
 import { ProjectSection } from '@/components/home/ProjectSection'
+import { TaskProgressBar } from '@/components/home/TaskProgressBar'
 
 const DEBUG = true;
 
@@ -159,6 +160,11 @@ export const TaskSection = React.memo<TaskSectionProps>(({
     };
   }, []);
 
+  // Calculate completed tasks count for progress bar
+  const completedTasksCount = React.useMemo(() => {
+    return uniqueTasks.filter(task => task.completionHistory[todayLocalStr] || false).length;
+  }, [uniqueTasks, todayLocalStr]);
+
   // Memoize recommendation chips to prevent unnecessary re-renders
   const recommendationChips = React.useMemo(() => (
     <Stack 
@@ -256,6 +262,12 @@ export const TaskSection = React.memo<TaskSectionProps>(({
           )}
         </XStack>
       </XStack>
+
+      {/* Task Progress Bar */}
+      <TaskProgressBar 
+        completedTasks={completedTasksCount} 
+        totalTasks={uniqueTasks.length} 
+      />
       
       <Stack
         flex={1}

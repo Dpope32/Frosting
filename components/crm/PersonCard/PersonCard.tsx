@@ -22,8 +22,6 @@ export function PersonCard({ person, onEdit, containerStyle, isExpanded, onPress
   const { expandedPersonId, expandPersonCard, collapsePersonCard, openEditModal } = useCRMStore();
   const isExpandedFromStore = expandedPersonId === person.id;
   const actualIsExpanded = isExpanded !== undefined ? isExpanded : isExpandedFromStore;
-  const deletePerson = usePeopleStore(state => state.deletePerson);
-  const showToast = useToastStore(state => state.showToast);
 
   useEffect(() => {
     return () => {
@@ -43,15 +41,7 @@ export function PersonCard({ person, onEdit, containerStyle, isExpanded, onPress
     }
   };
 
-  const handleEdit = (person: Person) => {
-    if (!propsOnPress) collapsePersonCard();
-    openEditModal(person);
-    onEdit(person);
-  };
-
   const nicknameColor = getColorForPerson(person.id || person.name);
-  const fullAddress = useMemo(() => person.address?.street || '', [person.address]);
-
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 

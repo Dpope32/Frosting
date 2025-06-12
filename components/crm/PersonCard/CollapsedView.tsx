@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Image, Paragraph, XStack, isWeb } from 'tamagui';
 import { TouchableOpacity, View, Platform, Text, Alert } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -28,6 +28,7 @@ export default function CollapsedView({
 }: CollapsedViewProps) {
   const deletePerson = usePeopleStore(state => state.deletePerson);
   const showToast = useToastStore(state => state.showToast);
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
 
   // Format last contacted date if available
   const getLastContactedText = () => {
@@ -103,16 +104,45 @@ export default function CollapsedView({
           ] as any}
         >
           <XStack alignItems="center" gap="$3" style={styles.cardContent as any}>
-            <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
-              <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
-                <Image
-                  source={{ uri: person.profilePicture || 'https://via.placeholder.com/80' }}
-                  width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34}
-                  height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
-                  br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
-                  style={styles.avatarImage as any}
-                />
-              </View>
+                          <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
+                <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
+                  {person.profilePicture && !imageLoadFailed ? (
+                    <Image
+                      source={{ uri: person.profilePicture }}
+                      width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34}
+                      height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
+                      br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
+                      style={styles.avatarImage as any}
+                      onError={() => {
+                        // Handle image load errors by falling back to letter avatar
+                        console.log('Failed to load profile picture for:', person.name, '- falling back to letter avatar');
+                        setImageLoadFailed(true);
+                      }}
+                    />
+                  ) : (
+                    <View
+                      style={{
+                        width: Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34,
+                        height: Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34,
+                        borderRadius: Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27,
+                        backgroundColor: nicknameColor,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: isDark ? '#000' : '#fff',
+                          fontSize: Platform.OS === 'web' ? 32 : isIpad() ? 24 : 16,
+                          fontWeight: 'bold',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {(person.nickname || person.name).charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               {person.priority && (
                 <View style={styles.starIndicator as any}>
                   <Ionicons name="star" size={12} color="#FFD700" />

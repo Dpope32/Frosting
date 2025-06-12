@@ -241,7 +241,6 @@ export const LandingPage = React.memo(() => {
           padding="$3" 
           borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
           borderWidth={1}
-          marginBottom="$2" 
           style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
                 boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
             : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 

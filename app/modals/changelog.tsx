@@ -70,9 +70,10 @@ export default function ChangeLog() {
         </TouchableOpacity>
         <Text
           style={{
-            ...markdownStyles.heading2 as TextStyle,
+            ...markdownStyles.heading1 as TextStyle,
             flex: 1,
             textAlign: 'center',
+            fontSize: isWeb ? 24 : isIpad() ? 20 : 18,
             justifyContent: 'center',
             alignItems: 'center',
           } as TextStyle}
@@ -89,7 +90,6 @@ export default function ChangeLog() {
             const CardTouchable = hasBullets ? TouchableOpacity : View;
             const accentColor = primaryColor || (isDark ? '#00f0ff' : '#1e4fa3');
             const cardBg = 'transparent';
-            // Use reanimated for scale
             const { animatedStyle, handlePressIn, handlePressOut } = useCardScale();
             const cardTouchableStyle: any = {
               flexDirection: 'row',

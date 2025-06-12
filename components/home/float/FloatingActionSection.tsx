@@ -131,7 +131,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     });
 
     // Staggered action animations (bottom-up) with reduced complexity
-    const staggerDelay = 30; // Reduced delay for faster opening
+    const staggerDelay = 15; // Reduced delay for faster opening
     actionAnimations.forEach((anim, index) => {
       const reverseIndex = actionAnimations.length - 1 - index;
       const delay = reverseIndex * staggerDelay;

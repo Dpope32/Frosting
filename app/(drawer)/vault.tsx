@@ -168,7 +168,7 @@ export default function VaultScreen() {
                 </YStack>
               </XStack>
             ) : (
-              <YStack gap={isWeb ? "$4" : "$2.5"} width="100%">
+              <YStack gap={isWeb ? "$4" : "$2.5"} width="100%" px="$4">
                 {Array.from({ length: 5 }).map((_, idx) => (
                   <VaultCardSkeleton key={idx} isWeb={false} isDark={isDark} />
                 ))}
