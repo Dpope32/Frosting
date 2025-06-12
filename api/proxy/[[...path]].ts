@@ -65,17 +65,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       const url = req.url || '';
       
-      // Check if this is a PocketBase request
-      if (url.includes('/api/pb/')) {
-        isPicketbaseRequest = true;
-        const basePath = '/api/pb/';
-        const basePathIndex = url.indexOf(basePath);
-        
-        if (basePathIndex !== -1) {
-          endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
-          pathSegments = endpoint.split('/');
-        }
-      } else {
         const basePath = '/api/proxy/';
         const basePathIndex = url.indexOf(basePath);
         
@@ -83,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
           pathSegments = endpoint.split('/');
         }
-      }
+      
     }
     
     if (!endpoint) {
@@ -217,10 +206,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handlePocketBaseRequest(req: VercelRequest, res: VercelResponse, endpoint: string) {
-  // Try each PocketBase URL until one works
+console.log('handlePocketBaseRequest and endpoint details:', endpoint, '', req.url, '',req.method, '', req.body);
   for (const baseUrl of POCKETBASE_URLS) {
     try {
-      const targetUrl = `${baseUrl}/${endpoint}`;
+      const targetUrl = `${baseUrl}/api/${endpoint}`;
       
       // Preserve query parameters
       const queryString = req.url?.split('?')[1];
