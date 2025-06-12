@@ -682,16 +682,6 @@ export const useProjectStore = create<ProjectStore>()(
             // RECURRING TASKS: Completion is date-specific, check today's merged history first
             const todayHistory = mergedHistory[today];
             const resolved = todayHistory !== undefined ? todayHistory : (curr.completed || inc.completed);
-            
-            // Enhanced logging for recurring task resolution
-            if (curr.completed !== inc.completed || todayHistory === undefined) {
-              addSyncLog(
-                `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved}`,
-                'info', 
-                `Local completed: ${curr.completed} | Sync completed: ${inc.completed} | Today history: ${todayHistory} | Final: ${resolved} | Pattern: ${inc.recurrencePattern}`
-              );
-            }
-            
             return resolved;
           })();
           
