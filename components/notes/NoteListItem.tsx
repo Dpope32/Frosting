@@ -23,7 +23,7 @@ interface NoteListItemProps {
   setDraggingNoteId: (id: string | null) => void;
   originalIndexRef: React.MutableRefObject<number | null>;
   preventReorder: React.MutableRefObject<boolean>;
-  isTrashVisible: { value: boolean };
+
   setCardRef?: (ref: any) => void;
 }
 
@@ -43,7 +43,7 @@ export const NoteListItem = forwardRef<any, NoteListItemProps>(({
   setDraggingNoteId,
   originalIndexRef,
   preventReorder,
-  isTrashVisible,
+
   setCardRef
 }, ref) => {
   const cardRef = useRef<View>(null);
@@ -88,13 +88,20 @@ export const NoteListItem = forwardRef<any, NoteListItemProps>(({
   if (!renderData) return null;
 
   return (
-    <ScaleDecorator>
-      <View ref={node => {
-        if (node) {
-          (cardRef as any).current = node;
-          if (setCardRef) setCardRef(node);
-        }
-      }} collapsable={false}>
+    <ScaleDecorator activeScale={0.95}>
+      <View 
+        ref={node => {
+          if (node) {
+            (cardRef as any).current = node;
+            if (setCardRef) setCardRef(node);
+          }
+        }} 
+        collapsable={false}
+        style={{
+          transform: isActive ? [{ scale: 0.98 }] : [{ scale: 1 }],
+          zIndex: isActive ? 1000 : 1,
+        }}
+      >
         <NoteCard
           note={renderData.note}
           onPress={() => {}}
@@ -113,7 +120,6 @@ export const NoteListItem = forwardRef<any, NoteListItemProps>(({
             setDraggingNoteId(renderData.note.id);
             originalIndexRef.current = renderData.itemIndex;
             preventReorder.current = false;
-            isTrashVisible.value = true;
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             drag();
           }}

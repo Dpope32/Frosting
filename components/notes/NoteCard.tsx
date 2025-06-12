@@ -80,14 +80,12 @@ export const NoteCard = ({
     const result = Boolean(
       note.content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- (?!\[)|^- \[[xX ]\]|\n- (?!\[)|\n- \[[xX ]\]|```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[\*] |^[\*] (?!\[)|\n[\*] |\n[\*] (?!\[)/m)
     );
-    console.log('hasMarkdown check - content:', note.content, 'result:', result);
     return result;
   }, [note.content]);
 
   const displayContent = useMemo(() => {
     if (!note.content) return '';
     const result = note.content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
-    console.log('displayContent - original:', note.content, 'processed:', result);
     return result;
   }, [note.content]);
 
@@ -264,13 +262,12 @@ export const NoteCard = ({
       <Card
         elevate
         bordered
-        animation="bouncy"
-        scale={isDragging ? 0.9 : 1}
-        opacity={isDragging ? 0.9 : 1}
-
-        shadowOffset={{ width: 0, height: 1 }}
-        shadowOpacity={0.1}
-        shadowRadius={2}
+        animation={isDragging ? "quick" : "bouncy"}
+        scale={isDragging ? 0.95 : 1}
+        opacity={isDragging ? 0.8 : 1}
+        shadowOffset={{ width: 0, height: isDragging ? 4 : 1 }}
+        shadowOpacity={isDragging ? 0.2 : 0.1}
+        shadowRadius={isDragging ? 6 : 2}
         borderRadius={10}
         style={cardSpecificStyle}
         minWidth={isWeb ? 250 : undefined}
@@ -279,7 +276,7 @@ export const NoteCard = ({
         <LinearGradient
           colors={isDark ? 
             ['#171c22', '#1a1f25', '#1d2228', '#20252c'] : 
-            ['#f6f8f5', '#f1f4ef', '#ecefea', '#e7eae5']}
+            ['#e8eae7', '#e8eae7', '#e0e2df', '#d8dad7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
@@ -287,7 +284,7 @@ export const NoteCard = ({
             top: 0, left: 0, right: 0, bottom: 0,
             borderRadius: 9,
             borderWidth: 1,
-            borderColor: isDark ? '#282e36' : '#dde3d8',
+            borderColor: isDark ? '#282e36' : '#c9cec5',
             opacity: 0.98,
           }}
         />

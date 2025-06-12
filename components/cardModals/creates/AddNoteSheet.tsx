@@ -55,9 +55,9 @@ export function AddNoteSheet({
   handleImagePick,
   onSelectionChange
 }: AddNoteSheetProps) {
-  // Safety checks to prevent iOS crashes
-  const safeTags = editTags || [];
-  const safeAttachments = editAttachments || [];
+  // Enhanced safety checks to prevent iOS crashes
+  const safeTags = (editTags || []).filter(tag => tag != null);
+  const safeAttachments = (editAttachments || []).filter(attachment => attachment != null);
   
   const preferences = useUserStore((state) => state.preferences);
   const colorScheme = useColorScheme();
@@ -70,7 +70,7 @@ export function AddNoteSheet({
   const scrollViewRef = useRef<RNScrollView>(null);
   const titleInputRef = useRef<TextInput>(null);
   const isIpadDevice = isIpad();
-  const [isEditingTitle, setIsEditingTitle] = useState(true);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const editingStartTimeRef = useRef<number>(0);
   const autoCommitTimer = useRef<NodeJS.Timeout | null>(null);
   
@@ -162,7 +162,6 @@ export function AddNoteSheet({
                       style={styles.attachmentImage}
                       onError={(error) => {
                         console.warn('[AddNoteSheet] Image failed to load:', attachment.url, error);
-                        // Note: We don't add sync log here since this is in edit mode and user should see the attachment slot
                       }}
                     />
                     <View style={styles.overlay} />
@@ -210,7 +209,7 @@ export function AddNoteSheet({
   useEffect(() => {
     if (isModalOpen) {
       setLocalTitle(editTitle || '');
-      setIsEditingTitle(true);
+      setIsEditingTitle(false);
     }
   }, [isModalOpen]);
 
@@ -363,7 +362,7 @@ export function AddNoteSheet({
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
         opacity={0.5}
-        backgroundColor={isDark ? "rgba(0,0,0,0.95)" : "rgba(0,0,0,0.5)"}
+        backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.5)"}
       />
       <Sheet.Frame
         paddingHorizontal={isIpad() ? "$4" : "$3.5"}
@@ -380,9 +379,10 @@ export function AddNoteSheet({
           alignItems="center"
           marginBottom={0}
           paddingTop="$1"
+          paddingHorizontal="$1"
         >
           {isEditingTitle ? (
-            <XStack alignItems="center" flex={1} gap="$2" paddingHorizontal={12}>
+            <XStack alignItems="center" flex={1} gap="$2" paddingHorizontal={8} maxWidth="85%">
               <TextInput
                 ref={titleInputRef}
                 placeholder="Enter title"
@@ -400,7 +400,6 @@ export function AddNoteSheet({
                   borderWidth: 0,
                   fontFamily: 'System',
                   color: isDark ? '#fff' : '#000',
-                  maxWidth: Platform.OS === 'web' ? 210 : isIpad() ? 350 : 175,
                 }} 
                 placeholderTextColor={isDark ? "#888" : "#999"}
               />
@@ -415,13 +414,17 @@ export function AddNoteSheet({
               />
             </XStack>
           ) : (
-            <XStack alignItems="center" px="$2" gap={0} minHeight={44}>
+            <XStack alignItems="center" px="$1" gap={0} minHeight={44} flex={1} maxWidth="85%">
               <Text
                 fontSize={isIpad() ? "$5" : 18}
                 fontWeight="600"
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={{ flex: 1, paddingHorizontal: 6, paddingVertical: isIpad() ? 8 : 8, maxWidth: Platform.OS === 'web' ? 250 : isIpad() ? 300 : 150 }} 
+                style={{ 
+                  flex: 1, 
+                  paddingHorizontal: 6, 
+                  paddingVertical: isIpad() ? 8 : 8,
+                }} 
               >
                 {localTitle || editTitle || 'Untitled'}
               </Text>
@@ -429,7 +432,15 @@ export function AddNoteSheet({
                 size={Platform.OS === 'web' ? "$1.5" : "$1"} 
                 circular
                 icon={<MaterialIcons name="edit" size={Platform.OS === 'web' ? 16 : 18} />} 
-                onPress={() => { setIsEditingTitle(true) }}
+                onPress={() => { 
+                  setIsEditingTitle(true);
+                  // Auto-focus the title input after state update
+                  setTimeout(() => {
+                    if (titleInputRef.current) {
+                      titleInputRef.current.focus();
+                    }
+                  }, 100);
+                }}
                 backgroundColor="transparent"
                 pressStyle={{ opacity: 0.7 }}
                 color={isDark ? "#555555" : "#ccc"}
@@ -444,6 +455,8 @@ export function AddNoteSheet({
             onPress={handleCloseModal}
             backgroundColor="transparent"
             pressStyle={{ opacity: 0.7 }}
+            flexShrink={0}
+            marginLeft="$2"
           />
         </XStack>
         
@@ -462,6 +475,7 @@ export function AddNoteSheet({
                 ref={scrollViewRef}
                 style={{ 
                   flex: 1, 
+                  marginHorizontal: -16,
                   maxHeight: keyboardVisible
                     ? isIpadDevice
                       ? Dimensions.get('window').height * 0.495 
@@ -481,7 +495,7 @@ export function AddNoteSheet({
                   display={keyboardVisible ? "none" : "flex"}
                 >
                 </YStack>
-                  <YStack gap={0} paddingTop={4} >
+                  <YStack gap={0} paddingTop={4}  >
                   <YStack>
                     <ContentInput
                       ref={contentInputRef}
@@ -522,11 +536,12 @@ export function AddNoteSheet({
                 style={{
                   paddingTop: Platform.OS === 'web' ? 12 : 4,
                   paddingBottom: Platform.OS === 'web' ? 0 : 4,
+                  paddingHorizontal: 6,
                 }}
               >
                 {!keyboardVisible &&
                 <XStack 
-                  gap="$4" 
+                  gap="$10" 
                   justifyContent="space-between" 
                   marginTop={8}
                   paddingBottom={0}
@@ -541,14 +556,16 @@ export function AddNoteSheet({
                         br={12}
                         py={Platform.OS === 'web' ? "$1" : "$1.5"}
                         flex={1}
+                        borderWidth={2}
+                        borderColor={isDark ? "$red10" : "$red8"}
                       >
-                        <Text color={isDark ? "$red10" : "$red8"} fontFamily="$body" fontSize={13} fontWeight="600">
+                        <Text color={isDark ? "$red10" : "$red10"} fontFamily="$body" fontSize={13} fontWeight="600">
                           Delete
                         </Text>
                       </Button>
                       
                       <Button
-                        backgroundColor={isDark ? `${preferences.primaryColor}40` : `${adjustColor(preferences.primaryColor, 20)}80`}
+                        backgroundColor={isDark ? "$blue9" :"$blue9"}
                         br={12}
                         py={Platform.OS === 'web' ? "$1" : "$1.5"}
                         onPress={() => {
@@ -559,11 +576,11 @@ export function AddNoteSheet({
                       }}
                         pressStyle={{ opacity: 0.7 }}
                         borderWidth={2}
-                        borderColor={preferences.primaryColor}
+                        borderColor={isDark ? "$blue10" : "$blue8"}
                         flex={1}
                       >
                         <Text
-                          color={isDark ? "#f9f9f9" : `${adjustColor(preferences.primaryColor, -100)}80`}
+                          color={isDark ? "white" : "white"}
                           fontFamily="$body"
                           fontSize={13}
                           fontWeight="600"

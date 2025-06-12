@@ -107,10 +107,11 @@ export const setupEditNote = ({
 }: SetupEditArgs) => {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedNote(note);
-    setEditTitle(note.title);
-    setEditContent(note.content);
-    setEditTags(note.tags || []);
-    setEditAttachments(note.attachments || []);
+    setEditTitle(note.title || '');
+    setEditContent(note.content || '');
+    // Filter out null/undefined values to prevent iOS crashes
+    setEditTags((note.tags || []).filter(tag => tag != null));
+    setEditAttachments((note.attachments || []).filter(attachment => attachment != null));
     setIsModalOpen(true);
 };
 

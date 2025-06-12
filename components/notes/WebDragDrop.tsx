@@ -72,14 +72,21 @@ const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNot
         return;
       }
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+      
+      // Add threshold to prevent excessive hover triggers
+      const threshold = 5;
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY - threshold) {
         return;
       }
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY + threshold) {
         return;
       }
-      moveNote(dragIndex, hoverIndex);
-      item.index = hoverIndex;
+      
+      // Throttle the move operations to prevent excessive updates
+      requestAnimationFrame(() => {
+        moveNote(dragIndex, hoverIndex);
+        item.index = hoverIndex;
+      });
     },
   }) : [{}, null]; 
 

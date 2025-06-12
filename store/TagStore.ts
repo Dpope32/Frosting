@@ -61,45 +61,42 @@ export const useTagStore = create<TagStoreState>()(
           return;
         }
 
-        addSyncLog('🔄 Hydrating TagStore from sync...', 'info');
+        addSyncLog(`🔄 Hydrating TagStore from sync... Found ${syncedData.tags.length} tags in sync data`, 'info');
         
         const { tags: localTags } = get();
         const incomingTags = syncedData.tags;
         
-        // Create a map of existing tags by name for efficient lookup
-        const localTagsByName = new Map(localTags.map(tag => [tag.name.toLowerCase(), tag]));
-        const mergedTags: Tag[] = [...localTags];
+        addSyncLog(`Local tags: ${localTags.length}, Incoming tags: ${incomingTags.length}`, 'verbose');
+        
+        // Simple merge strategy: combine all tags and deduplicate by name
+        const allTags: Tag[] = [...localTags];
+        const existingNames = new Set(localTags.map(tag => tag.name.toLowerCase()));
         
         let addedCount = 0;
         let updatedCount = 0;
         
-        // Process incoming tags
+        // Add any new tags from sync that don't exist locally
         for (const incomingTag of incomingTags) {
           const normalizedName = incomingTag.name.toLowerCase();
-          const existingTag = localTagsByName.get(normalizedName);
           
-          if (existingTag) {
-            // Tag exists locally, update it if incoming has newer/better data
-            const existingIndex = mergedTags.findIndex(tag => tag.id === existingTag.id);
-            if (existingIndex !== -1) {
-              // Merge the tags, preferring incoming data for color if it exists
-              mergedTags[existingIndex] = {
-                ...existingTag,
-                color: incomingTag.color || existingTag.color,
-                // Keep the original local ID to maintain consistency
-              };
-              updatedCount++;
-            }
-          } else {
-            // New tag from sync, add it
-            mergedTags.push(incomingTag);
-            localTagsByName.set(normalizedName, incomingTag);
+          if (!existingNames.has(normalizedName)) {
+            allTags.push(incomingTag);
+            existingNames.add(normalizedName);
             addedCount++;
+            addSyncLog(`Adding new tag from sync: ${incomingTag.name}`, 'verbose');
+          } else {
+            // Tag exists - check if we should update color
+            const localTagIndex = allTags.findIndex(tag => tag.name.toLowerCase() === normalizedName);
+            if (localTagIndex !== -1 && incomingTag.color && !allTags[localTagIndex].color) {
+              allTags[localTagIndex] = { ...allTags[localTagIndex], color: incomingTag.color };
+              updatedCount++;
+              addSyncLog(`Updated tag color: ${incomingTag.name}`, 'verbose');
+            }
           }
         }
         
-        set({ tags: mergedTags });
-        addSyncLog(`Tags hydrated: ${addedCount} added, ${updatedCount} updated. Total tags: ${mergedTags.length}`, 'success');
+        set({ tags: allTags });
+        addSyncLog(`Tags hydrated: ${addedCount} added, ${updatedCount} updated. Total tags: ${allTags.length}`, 'success');
       },
     }),
     {

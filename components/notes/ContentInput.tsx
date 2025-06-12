@@ -122,7 +122,13 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[
+      styles.container,
+      {
+        backgroundColor: isDark ? '#1c1c1c' : '#ffffff',
+        borderColor: isDark ? '#3a3a3c' : '#d1d1d6',
+      }
+    ]}>
       <TextInput
         ref={ref}
         value={localValue}
@@ -188,11 +194,9 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     position: 'relative',
-    backgroundColor: '#1c1c1c',
     paddingHorizontal: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#3a3a3c',
   },
   input: {
     width: '100%',

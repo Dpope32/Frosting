@@ -15,7 +15,7 @@ import { useNotes } from '@/hooks/useNotes';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 
-import TrashcanArea from '@/components/notes/TrashcanArea';
+
 import WebDragDrop from '@/components/notes/WebDragDrop';
 
 import { NotesEmpty } from '@/components/notes/NotesEmpty';
@@ -33,10 +33,7 @@ import { handleAddExampleNote } from '@/services/dev/devNotes';
 export const draggedCardBottomYRef = { current: 0 };
 
 export default function NotesScreen() {
-  // Dynamic trash area threshold that updates with scroll
   const scrollOffsetRef = useRef<number>(0);
-  const trashLayoutRef = useRef<{ y: number; height: number }>({ y: 0, height: 0 });
-  const trashAreaViewRef = useRef<View>(null);
   const noteListItemRef = useRef<any>(null);
   const flatListRef = useRef<any>(null);
   const activeNoteListItemRef = useRef<any>(null);
@@ -58,17 +55,12 @@ export default function NotesScreen() {
   const { notes } = useNotes();
   const [numColumns, setNumColumns] = useState(1);
   const [draggingNoteId, setDraggingNoteId] = useState<string | null>(null);
-  const isTrashVisible = useSharedValue(false);
   const noteToDeleteRef = useRef<string | null>(null);
-  const [isHoveringTrash, setIsHoveringTrash] = useState(false);
   const [isPendingDelete, setIsPendingDelete] = useState(false);
   const [pendingDeleteNote, setPendingDeleteNote] = useState<Note | null>(null);
   const [pendingDeletePosition, setPendingDeletePosition] = useState({ x: 0, y: 0 });
   const originalIndexRef = useRef<number | null>(null);
   const preventReorder = useRef(false);
-  const lastDragPosition = useRef({ x: 0, y: 0 });
-  const lastInTrashState = useRef(false); // Store the last known trash state
-  const trashAnimatedStyle = createTrashAnimatedStyle(isTrashVisible);
 
 
 
@@ -90,183 +82,46 @@ export default function NotesScreen() {
   const localHandleCode = createFormattingHandler(formatCode, selection, setEditContent);
   const localHandleBullet = createFormattingHandler(formatBullet, selection, setEditContent);
 
-  // Update trash area position using measureInWindow
-  const updateTrashAreaPosition = useCallback(() => {
-    if (trashAreaViewRef.current) {
-      trashAreaViewRef.current.measureInWindow((x, y, width, height) => {
-        trashLayoutRef.current = { y, height };
-      });
-    }
-  }, []);
 
-  // Check if drag position is in trash area using actual component bounds
-  const isYInTrashArea = useCallback(() => {
-    const pointerY = lastDragPosition.current.y;
-    const trashBounds = trashLayoutRef.current;
 
-    // If we don't have trash bounds yet, use fallback detection
-    if (!trashBounds || trashBounds.y === 0) {
-      const windowHeight = Dimensions.get('window').height;
-      const fallbackThreshold = windowHeight - 200; // More conservative threshold
-      const result = pointerY >= fallbackThreshold;
-      return result;
-    }
 
-    // Use actual trash area bounds with some padding for easier targeting
-    const padding = 120; // Increased padding for better UX
-    const threshold = trashBounds.y - padding;
-    const isInTrash = pointerY >= threshold;
 
-    return isInTrash;
-  }, []);
-
-  // Simplified drag handling with reliable coordinate tracking using active item position
-  const trackActiveItemPosition = useCallback(() => {
-    if (!draggingNoteId || isPendingDelete || !activeNoteListItemRef.current) return;
-
-    // Measure the active dragging item's position
-    activeNoteListItemRef.current.measureCard(() => {
-      const draggedY = draggedCardBottomYRef.current;
-      if (draggedY > 0) {
-        lastDragPosition.current = { x: 0, y: draggedY };
-        
-        // Update trash area bounds
-        updateTrashAreaPosition();
-        
-        const inTrash = isYInTrashArea();
-        lastInTrashState.current = inTrash; // Store the trash state
-        
-        if (inTrash !== isHoveringTrash) {
-          try {
-            triggerHaptic();
-            setIsHoveringTrash(inTrash);
-            isTrashVisible.value = inTrash;
-          } catch (error) {
-            console.error('Error in drag handling:', error);
-            setIsHoveringTrash(inTrash);
-            isTrashVisible.value = inTrash;
-          }
-        }
-      }
-    });
-  }, [draggingNoteId, isPendingDelete, isHoveringTrash, isYInTrashArea, updateTrashAreaPosition]);
-
-  // Start tracking position when drag begins
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined;
-    
-    if (draggingNoteId && !isPendingDelete) {
-      // Track position every 100ms while dragging
-      intervalId = setInterval(trackActiveItemPosition, 100);
-    }
-    
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [draggingNoteId, isPendingDelete, trackActiveItemPosition]);
-
-  const patchedHandleDragEnd = useCallback((args: any) => {
+    const patchedHandleDragEnd = useCallback((args: any) => {
     if (preventReorder.current || !draggingNoteId) {
       // Clean up and exit early
       setDraggingNoteId(null);
-      isTrashVisible.value = false;
-      setIsHoveringTrash(false);
       preventReorder.current = false;
-      lastInTrashState.current = false;
       return;
     }
 
-    // Use the stored trash state instead of recalculating
-    const inTrash = lastInTrashState.current;
-
-    if (inTrash) {
-      // Prevent reordering when deleting
-      preventReorder.current = true;
-
-      const noteToDelete = notes.find(n => n.id === draggingNoteId);
-      if (noteToDelete) {
-        setIsPendingDelete(true);
-        setPendingDeleteNote(noteToDelete);
-        setPendingDeletePosition({ x: lastDragPosition.current.x, y: lastDragPosition.current.y });
-        noteToDeleteRef.current = draggingNoteId;
-
-        // Attempt to delete the note
-        attemptDeleteNote({
-          noteId: draggingNoteId,
-          notes,
-          noteStore,
-          showToast,
-          selectedNote,
-          setIsModalOpen,
-          setSelectedNote,
-          setIsPendingDelete,
-          setPendingDeleteNote,
-          setDraggingNoteId,
-          setIsHoveringTrash,
-          noteToDeleteRef,
-          preventReorderRef: preventReorder,
-          originalIndexRef,
-          isTrashVisibleValue: isTrashVisible
-        }).catch((error) => {
-          console.error('Delete note failed:', error);
-          // Reset all states on failure
-          setIsPendingDelete(false);
-          setPendingDeleteNote(null);
-          setDraggingNoteId(null);
-          isTrashVisible.value = false;
-          setIsHoveringTrash(false);
-          preventReorder.current = false;
-          lastInTrashState.current = false;
-        });
+    // Use requestAnimationFrame to ensure smooth UI updates
+    requestAnimationFrame(() => {
+      // Just reorder the notes - no trash logic
+      if (!preventReorder.current && args.data) {
+        noteStore.updateNoteOrder(args.data);
       }
-    } else if (!preventReorder.current && args.data) {
-      // Only reorder if we're not preventing it and have valid data
-      noteStore.updateNoteOrder(args.data);
-    }
 
-    // Clean up drag state (but keep delete states if deleting)
-    if (!inTrash) {
-      setDraggingNoteId(null);
-      isTrashVisible.value = false;
-      setIsHoveringTrash(false);
-      preventReorder.current = false;
-      lastInTrashState.current = false;
-    }
+      // Clean up drag state after a brief delay to prevent flicker
+      setTimeout(() => {
+        setDraggingNoteId(null);
+        preventReorder.current = false;
+      }, 50);
 
-    triggerHaptic();
-  }, [draggingNoteId, notes, noteStore, showToast, selectedNote]);
+      triggerHaptic();
+    });
+  }, [draggingNoteId, noteStore]);
 
-  // Update trash area position when layout changes
-  useEffect(() => {
-    updateTrashAreaPosition();
-  }, [updateTrashAreaPosition]);
 
-  // Handle drag start with proper initialization
+
+  // Handle drag start
   const handleDragBegin = (index: number) => {
     const note = notes[index];
     if (isPendingDelete || !note) return;
 
-    // Reset all drag-related state
+    // Reset drag-related state
     setDraggingNoteId(note.id);
     originalIndexRef.current = index;
     preventReorder.current = false;
-    setIsHoveringTrash(false);
-    lastInTrashState.current = false; // Reset trash state
-
-    // Show trash area
-    isTrashVisible.value = true;
-
-    // Update trash area position for reliable detection
-    updateTrashAreaPosition();
-
-    // Start tracking position immediately
-    setTimeout(() => {
-      if (activeNoteListItemRef.current) {
-        trackActiveItemPosition();
-      }
-    }, 50);
     
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
   };
@@ -367,10 +222,11 @@ export default function NotesScreen() {
                   setDraggingNoteId={setDraggingNoteId}
                   originalIndexRef={originalIndexRef}
                   preventReorder={preventReorder}
-                  isTrashVisible={isTrashVisible}
+
                 />
               )}
               onDragEnd={patchedHandleDragEnd}
+              extraData={notes.length} 
               numColumns={1}
               onDragBegin={handleDragBegin}
               contentContainerStyle={{ 
@@ -387,32 +243,18 @@ export default function NotesScreen() {
                 /> 
               }
               dragHitSlop={{ top: -20, bottom: -20, left: 0, right: 0 }}
-              activationDistance={10}
+              activationDistance={15}
+              animationConfig={{
+                damping: 20,
+                mass: 0.2,
+                stiffness: 100,
+                restSpeedThreshold: 0.2,
+                restDisplacementThreshold: 0.2,
+              }}
             />
           </View>
 
-          <Animated.View
-            style={[
-              noteStyles.trashOverlay,
-              trashAnimatedStyle,
-              {
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                zIndex: 1000, 
-                pointerEvents: 'box-none',
-              },
-            ]}
-          >
-            <TrashcanArea
-              ref={trashAreaViewRef}
-              isVisible={true}
-              isHovering={isHoveringTrash || isPendingDelete}
-              height={isIpad() ? 120 : 100}
-              onLayout={updateTrashAreaPosition}
-            />
-          </Animated.View>
+
         </GestureHandlerRootView>
       )}
       <AddNoteButton
@@ -446,13 +288,10 @@ export default function NotesScreen() {
         })}
         handleDeleteNote={() => {
           if (selectedNote) {
-            attemptDeleteNote({
-              noteId: selectedNote.id, notes, noteStore, selectedNote,
-              showToast, setIsModalOpen, setSelectedNote, setIsPendingDelete,
-              setPendingDeleteNote, setDraggingNoteId, setIsHoveringTrash,
-              noteToDeleteRef, preventReorderRef: preventReorder,
-              originalIndexRef, isTrashVisibleValue: isTrashVisible
-            });
+            noteStore.deleteNote(selectedNote.id);
+            setIsModalOpen(false);
+            setSelectedNote(null);
+            showToast('Note deleted', 'success');
           }
         }}
         handleRemoveAttachment={handleRemoveAttachment}

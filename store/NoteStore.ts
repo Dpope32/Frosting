@@ -198,8 +198,12 @@ export const useNoteStore = create<NoteStore>()(
         const newNotes = { ...currentNotes, [newId]: newNote }
         const newOrder = [newId, ...currentOrder]
 
-        await StorageUtils.set(NOTES_STORAGE_KEY, get().notes)
-        await StorageUtils.set(ORDER_STORAGE_KEY, get().noteOrder)
+        // Update state first
+        set({ notes: newNotes, noteOrder: newOrder })
+
+        // Then save to storage
+        await StorageUtils.set(NOTES_STORAGE_KEY, newNotes)
+        await StorageUtils.set(ORDER_STORAGE_KEY, newOrder)
 
         if (get().isSyncEnabled) {
           addSyncLog(`Note added locally: "${noteData.title || 'Untitled'}"`, 'info');

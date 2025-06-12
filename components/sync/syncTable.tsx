@@ -155,13 +155,11 @@ export default function SyncTable({
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'center',
+              justifyContent: 'flex-start',
               paddingVertical: baseSpacing,
               paddingHorizontal: baseSpacing * 1.5,
               backgroundColor: colors.card,
               borderRadius: 12,
-              borderWidth: 1,
-              borderColor: colors.border,
               width: '100%',
             }}
           >

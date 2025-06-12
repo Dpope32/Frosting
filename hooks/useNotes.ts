@@ -20,7 +20,6 @@ export const useNotes = () => {
     deleteNote,
     updateNoteOrder,
     getActiveNotes,
-
   } = useNoteStore();
 
   // Load notes on mount

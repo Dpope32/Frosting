@@ -239,7 +239,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
         toValue: 1,
         useNativeDriver: true,
         tension: 400,
-        friction: 8,
+        friction: 25,
       }),
     ]).start();
 
