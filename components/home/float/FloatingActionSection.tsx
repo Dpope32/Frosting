@@ -319,66 +319,73 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
         statusBarTranslucent={Platform.OS === 'android'}
       >
         <Animated.View style={[styles.overlay, { opacity: animationRefs.backdropOpacity }]}>
+          {/* Backdrop TouchableOpacity - only covers empty areas */}
           <TouchableOpacity
-            style={styles.overlayTouch}
+            style={styles.backdropTouch}
             activeOpacity={1}
             onPress={closeModal}
-          >
-            <YStack {...staticValues.modalYStackProps}>
-              {ACTIONS.map((action, index) => {
-                const animationStyle = {
-                  transform: [
-                    { 
-                      scale: Animated.multiply(
-                        animationRefs.actionAnimations[index].scale, 
-                        animationRefs.buttonPressAnimations[index]
-                      ) 
-                    },
-                    { translateY: animationRefs.actionAnimations[index].translateY },
-                  ],
-                  opacity: animationRefs.actionAnimations[index].opacity,
-                };
+          />
+          
+          {/* Action buttons container - separate from backdrop */}
+          <YStack {...staticValues.modalYStackProps} pointerEvents="box-none">
+            {ACTIONS.map((action, index) => {
+              const animationStyle = {
+                transform: [
+                  { 
+                    scale: Animated.multiply(
+                      animationRefs.actionAnimations[index].scale, 
+                      animationRefs.buttonPressAnimations[index]
+                    ) 
+                  },
+                  { translateY: animationRefs.actionAnimations[index].translateY },
+                ],
+                opacity: animationRefs.actionAnimations[index].opacity,
+              };
 
-                return (
-                  <Animated.View
-                    key={action.name}
-                    style={[styles.actionContainer, animationStyle]}
+              return (
+                <Animated.View
+                  key={action.name}
+                  style={[styles.actionContainer, animationStyle]}
+                  pointerEvents="box-none"
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.actionBtn,
+                      {
+                        backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
+                        shadowColor: action.gradient[0],
+                      }
+                    ]}
+                    activeOpacity={0.8}
+                    onPress={(e) => {
+                      e.stopPropagation(); // Prevent event bubbling
+                      handleActionPress(action.name, index);
+                    }}
+                    disabled={isAnimating}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} // Increase touch target
                   >
-                    <TouchableOpacity
-                      style={[
-                        styles.actionBtn,
-                        {
-                          backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
-                          shadowColor: action.gradient[0],
-                        }
-                      ]}
-                      activeOpacity={0.8}
-                      onPress={() => handleActionPress(action.name, index)}
-                      disabled={isAnimating}
-                    >
-                      <XStack alignItems="center" gap="$2" flex={1}>
-                        <View style={[
-                          styles.iconContainer,
-                          { backgroundColor: action.gradient[0] }
-                        ]}>
-                          <MaterialIcons name={action.icon as any} size={staticValues.iconSize} color="#fff" />
-                        </View>
-                        <Text 
-                          color={isDark ? '#f9f9f9' : '#222'} 
-                          fontSize={14} 
-                          fontFamily="$body"
-                          fontWeight="600"
-                          flex={1}
-                        >
-                          {action.label}
-                        </Text>
-                      </XStack>
-                    </TouchableOpacity>
-                  </Animated.View>
-                );
-              })}
-            </YStack>
-          </TouchableOpacity>
+                    <XStack alignItems="center" gap="$2" flex={1}>
+                      <View style={[
+                        styles.iconContainer,
+                        { backgroundColor: action.gradient[0] }
+                      ]}>
+                        <MaterialIcons name={action.icon as any} size={staticValues.iconSize} color="#fff" />
+                      </View>
+                      <Text 
+                        color={isDark ? '#f9f9f9' : '#222'} 
+                        fontSize={14} 
+                        fontFamily="$body"
+                        fontWeight="600"
+                        flex={1}
+                      >
+                        {action.label}
+                      </Text>
+                    </XStack>
+                  </TouchableOpacity>
+                </Animated.View>
+              );
+            })}
+          </YStack>
         </Animated.View>
       </Modal>
     );
@@ -447,15 +454,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
-  overlayTouch: {
-    flex: 1,
+  backdropTouch: {
+    ...StyleSheet.absoluteFillObject,
   },
   actionContainer: {
     marginBottom: 4,
   },
   actionBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderRadius: 14,
     shadowOpacity: 0.15,
     shadowRadius: 6,
@@ -463,6 +470,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 0.5,
     borderColor: 'rgba(255,255,255,0.1)',
+    minHeight: 48,
   },
   iconContainer: {
     width: 28,
