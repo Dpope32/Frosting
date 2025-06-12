@@ -664,22 +664,31 @@ export const useProjectStore = create<ProjectStore>()(
                 if (syncCompleted) sources.push('sync=true');
                 if (historyCompleted) sources.push('history=true');
                 
+                addSyncLog(
+                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=true (${sources.join(', ')})`,
+                  'info',
+                  `Task will remain completed. Sources: ${sources.join(' | ')} | Task ID: ${id.slice(-8)}`
+                );
               } else {
+                addSyncLog(
+                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=false (local=false, sync=false, history=false)`,
+                  'verbose'
+                );
               }
+              
               return resolved;
             }
 
-            // RECURRING TASKS: Completion is date-specific
-            // For recurring tasks, the completion state should be based on today's history
-            const todayHistoryValue = mergedHistory[today];
-            const resolved = !!(todayHistoryValue);
+            // RECURRING TASKS: Completion is date-specific, check today's merged history first
+            const todayHistory = mergedHistory[today];
+            const resolved = todayHistory !== undefined ? todayHistory : (curr.completed || inc.completed);
             
             // Enhanced logging for recurring task resolution
-            if (curr.completed !== inc.completed || todayHistoryValue !== undefined) {
+            if (curr.completed !== inc.completed || todayHistory === undefined) {
               addSyncLog(
                 `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved}`,
                 'info', 
-                `Local completed: ${curr.completed} | Sync completed: ${inc.completed} | Today history: ${todayHistoryValue} | Final: ${resolved} | Pattern: ${inc.recurrencePattern}`
+                `Local completed: ${curr.completed} | Sync completed: ${inc.completed} | Today history: ${todayHistory} | Final: ${resolved} | Pattern: ${inc.recurrencePattern}`
               );
             }
             
