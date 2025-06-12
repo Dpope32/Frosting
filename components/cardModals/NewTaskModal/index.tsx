@@ -424,7 +424,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               onDatePickerVisibilityChange={handleDatePickerVisibilityChange}
             />
           )}
-          
+          <View style={{ marginBottom: 10 }}>
           <AdvancedSettings
             category={newTask.category}
             onCategorySelect={handleCategorySelect}
@@ -452,7 +452,7 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
             showNotifyTimeOptions={showNotifyTimeOptions}
             onShowNotifyTimeOptionsChange={setShowNotifyTimeOptions}
           />
-
+        </View>
           {!shouldHideSubmitButton && (
             <Form.Trigger asChild>
               <SubmitButton 

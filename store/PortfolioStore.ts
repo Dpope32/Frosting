@@ -68,6 +68,7 @@ export const usePortfolioStore = create<PortfolioState>()(
         prices?: Record<string, number>;
         principal?: number;
         portfolioHoldings?: Stock[];
+        lastUpdated?: number; // Add timestamp for sync decisions
       }) => {
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
@@ -76,99 +77,123 @@ export const usePortfolioStore = create<PortfolioState>()(
           addSyncLog('Portfolio sync is disabled, skipping hydration for PortfolioStore.', 'info');
           return;
         }
-
+      
         addSyncLog('🔄 Hydrating PortfolioStore from sync...', 'info');
-
+      
         try {
           // Get current local portfolio data
           const currentPortfolioData = [...portfolioData];
+          const currentState = get();
+          
+          // Determine sync strategy based on timestamps
+          const syncTimestamp = syncedData.lastUpdated || 0;
+          const localTimestamp = currentState.lastUpdate?.getTime() || 0;
+          
           let mergedPortfolioData = [...currentPortfolioData];
           let holdingsMerged = 0;
           let holdingsAdded = 0;
-
+      
           // Merge portfolio holdings if provided
           if (syncedData.portfolioHoldings && Array.isArray(syncedData.portfolioHoldings)) {
             addSyncLog(`Merging ${syncedData.portfolioHoldings.length} portfolio holdings from sync`, 'info');
             
-            syncedData.portfolioHoldings.forEach(syncedHolding => {
-              const existingIndex = mergedPortfolioData.findIndex(
-                local => local.symbol === syncedHolding.symbol
-              );
+            // If sync data is newer, use it as source of truth for holdings
+            if (syncTimestamp > localTimestamp) {
+              addSyncLog(`Sync data is newer (${new Date(syncTimestamp).toISOString()} vs ${new Date(localTimestamp).toISOString()}), using as source of truth`, 'info');
               
-              if (existingIndex !== -1) {
-                // Combine quantities for existing holdings
-                const oldQuantity = mergedPortfolioData[existingIndex].quantity;
-                mergedPortfolioData[existingIndex].quantity += syncedHolding.quantity;
+              // Replace strategy: Use synced holdings as the new state
+              mergedPortfolioData = [...syncedData.portfolioHoldings];
+              holdingsMerged = syncedData.portfolioHoldings.length;
+              
+              addSyncLog(`Portfolio replaced with ${mergedPortfolioData.length} holdings from sync`, 'info');
+            } else if (syncTimestamp < localTimestamp) {
+              addSyncLog(`Local data is newer, keeping local portfolio unchanged`, 'info');
+              // Keep local data unchanged
+            } else {
+              // Same timestamp or no timestamp - merge intelligently without duplicating
+              addSyncLog(`Same timestamp or no timestamp, performing smart merge`, 'info');
+              
+              const existingSymbols = new Set(currentPortfolioData.map(h => h.symbol));
+              
+              syncedData.portfolioHoldings.forEach(syncedHolding => {
+                const existingIndex = mergedPortfolioData.findIndex(
+                  local => local.symbol === syncedHolding.symbol
+                );
                 
-                // Update purchase price if synced data has it and local doesn't, or use weighted average
-                if (syncedHolding.purchasePrice !== undefined) {
-                  const localPrice = mergedPortfolioData[existingIndex].purchasePrice;
-                  if (localPrice === undefined) {
-                    mergedPortfolioData[existingIndex].purchasePrice = syncedHolding.purchasePrice;
+                if (existingIndex !== -1) {
+                  // For same-timestamp merges, use the larger quantity (assumes user wants max)
+                  const localQuantity = mergedPortfolioData[existingIndex].quantity;
+                  const syncedQuantity = syncedHolding.quantity;
+                  
+                  if (syncedQuantity > localQuantity) {
+                    mergedPortfolioData[existingIndex].quantity = syncedQuantity;
+                    addSyncLog(`Updated ${syncedHolding.symbol}: kept larger quantity ${syncedQuantity} (was ${localQuantity})`, 'verbose');
+                    holdingsMerged++;
                   } else {
-                    // Calculate weighted average purchase price
-                    const totalShares = mergedPortfolioData[existingIndex].quantity;
-                    const weightedPrice = ((localPrice * oldQuantity) + (syncedHolding.purchasePrice * syncedHolding.quantity)) / totalShares;
+                    addSyncLog(`Kept ${syncedHolding.symbol}: local quantity ${localQuantity} >= sync quantity ${syncedQuantity}`, 'verbose');
+                  }
+                  
+                  // Update purchase price with weighted average if both exist
+                  if (syncedHolding.purchasePrice !== undefined && mergedPortfolioData[existingIndex].purchasePrice !== undefined) {
+                    const localPrice = mergedPortfolioData[existingIndex].purchasePrice;
+                    const syncedPrice = syncedHolding.purchasePrice;
+                    const finalQuantity = mergedPortfolioData[existingIndex].quantity;
+                    
+                    // Use weighted average based on quantities
+                    const weightedPrice = ((localPrice * localQuantity) + (syncedPrice * syncedQuantity)) / (localQuantity + syncedQuantity);
                     mergedPortfolioData[existingIndex].purchasePrice = weightedPrice;
                   }
+                } else if (!existingSymbols.has(syncedHolding.symbol)) {
+                  // Add truly new holdings
+                  mergedPortfolioData.push({
+                    symbol: syncedHolding.symbol,
+                    quantity: syncedHolding.quantity,
+                    name: syncedHolding.name,
+                    purchasePrice: syncedHolding.purchasePrice
+                  });
+                  addSyncLog(`Added new holding: ${syncedHolding.symbol} (${syncedHolding.quantity} shares)`, 'verbose');
+                  holdingsAdded++;
                 }
-                
-                addSyncLog(
-                  `Combined ${syncedHolding.symbol}: ${oldQuantity} + ${syncedHolding.quantity} = ${mergedPortfolioData[existingIndex].quantity}`, 
-                  'verbose'
-                );
-                holdingsMerged++;
-              } else {
-                // Add new holding with all required fields
-                mergedPortfolioData.push({
-                  symbol: syncedHolding.symbol,
-                  quantity: syncedHolding.quantity,
-                  name: syncedHolding.name,
-                  purchasePrice: syncedHolding.purchasePrice
-                });
-                addSyncLog(`Added new holding: ${syncedHolding.symbol} (${syncedHolding.quantity} shares)`, 'verbose');
-                holdingsAdded++;
-              }
-            });
-
+              });
+            }
+      
             // Update the portfolio data if there were changes
-            if (holdingsMerged > 0 || holdingsAdded > 0) {
+            if (holdingsMerged > 0 || holdingsAdded > 0 || syncTimestamp > localTimestamp) {
               await updatePortfolioData(mergedPortfolioData);
               addSyncLog(`Portfolio holdings updated: ${holdingsAdded} added, ${holdingsMerged} merged`, 'success');
             }
           }
-
+      
           // Merge other portfolio data
-          const currentState = get();
           const newState: Partial<PortfolioState> = {};
-
+      
           // Merge watchlist (combine and deduplicate)
           if (syncedData.watchlist && Array.isArray(syncedData.watchlist)) {
             const combinedWatchlist = [...new Set([...currentState.watchlist, ...syncedData.watchlist])];
             newState.watchlist = combinedWatchlist;
             addSyncLog(`Watchlist merged: ${combinedWatchlist.length} total symbols`, 'verbose');
           }
-
+      
           // Use synced historical data if available and newer
           if (syncedData.historicalData) {
             newState.historicalData = { ...currentState.historicalData, ...syncedData.historicalData };
             addSyncLog('Historical data merged from sync', 'verbose');
           }
-
+      
           // Use synced prices if available
           if (syncedData.prices) {
             newState.prices = { ...currentState.prices, ...syncedData.prices };
             addSyncLog(`Prices merged: ${Object.keys(syncedData.prices).length} symbols`, 'verbose');
           }
-
+      
           // Use higher principal value (assumes user wants to keep the higher amount)
           if (syncedData.principal !== undefined && syncedData.principal > currentState.principal) {
             newState.principal = syncedData.principal;
             addSyncLog(`Principal updated: $${currentState.principal} → $${syncedData.principal}`, 'info');
           }
-
+      
           // Recalculate total value with merged data
-          if (newState.prices || holdingsMerged > 0 || holdingsAdded > 0) {
+          if (newState.prices || holdingsMerged > 0 || holdingsAdded > 0 || syncTimestamp > localTimestamp) {
             const finalPrices = newState.prices || currentState.prices;
             let newTotal = 0;
             mergedPortfolioData.forEach((stock) => {
@@ -176,24 +201,25 @@ export const usePortfolioStore = create<PortfolioState>()(
               newTotal += price * stock.quantity;
             });
             newState.totalValue = newTotal;
+            newState.lastUpdate = new Date(); // Update local timestamp
             addSyncLog(`Portfolio total value recalculated: $${newTotal.toFixed(2)}`, 'info');
           }
-
+      
           // Update the store with merged data
           set(newState);
-
+      
           addSyncLog(
             `✅ Portfolio hydrated successfully: ${holdingsAdded + holdingsMerged} holdings processed, ${(newState.watchlist || currentState.watchlist).length} watchlist items`,
             'success'
           );
-
+      
         } catch (error) {
           addSyncLog(
             `❌ Error hydrating PortfolioStore: ${error instanceof Error ? error.message : String(error)}`,
             'error'
           );
         }
-      }
+      } 
     }),
     {
       name: 'portfolio-store',

@@ -21,11 +21,6 @@ const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
  * Throws an error if premium is not enabled.
  */
 export const generateSyncKey = async (): Promise<string> => {
-  // Check if premium is enabled
-  if (!useUserStore.getState().preferences.premium) {
-    addSyncLog('Premium sync is not enabled. Cannot generate/retrieve device-specific sync key.', 'error');
-    throw new Error('Premium sync is not enabled. Cannot generate/retrieve device-specific sync key.');
-  }
 
   // Check for stored unique device ID first
   const deviceIdKey = 'app_unique_device_id';

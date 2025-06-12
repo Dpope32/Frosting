@@ -115,12 +115,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       portfolioStateForSnapshot.totalValue = portfolioStoreFullState.totalValue;
       portfolioStateForSnapshot.prices = portfolioStoreFullState.prices;
       portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
-      // Include actual portfolio holdings (stocks with quantities)
-      portfolioStateForSnapshot.portfolioHoldings = portfolioData.map(stock => ({
-        symbol: stock.symbol,
-        quantity: stock.quantity
-      }));
-      portfolioStateForSnapshot.lastUpdated = now;
+      portfolioStateForSnapshot.portfolioHoldings = portfolioData; // Current holdings
+      portfolioStateForSnapshot.lastUpdated = Date.now(); // Add timestamp!
       addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
     } else {
       addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');

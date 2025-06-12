@@ -82,7 +82,6 @@ export function PortfolioModal({ open, onOpenChange }: PortfolioModalProps) {
           roi={roi}
         />
         <HoldingsCards 
-          closePortfolioModal={closePortfolioModal} 
           openEditStockModal={openEditStockModal}
           openAddStockModal={openAddStockModal}
         />
