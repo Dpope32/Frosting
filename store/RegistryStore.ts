@@ -107,20 +107,20 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       }
 
     // Portfolio store
-    const portfolioStoreFullState = usePortfolioStore.getState();
-    let portfolioStateForSnapshot: any = { isSyncEnabled: portfolioStoreFullState.isSyncEnabled };
-    if (portfolioStoreFullState.isSyncEnabled) {
-      portfolioStateForSnapshot.watchlist = portfolioStoreFullState.watchlist;
-      portfolioStateForSnapshot.historicalData = portfolioStoreFullState.historicalData;
-      portfolioStateForSnapshot.totalValue = portfolioStoreFullState.totalValue;
-      portfolioStateForSnapshot.prices = portfolioStoreFullState.prices;
-      portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
-      portfolioStateForSnapshot.portfolioHoldings = portfolioData; // Current holdings
-      portfolioStateForSnapshot.lastUpdated = Date.now(); // Add timestamp!
-      addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
-    } else {
-      addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
-    }
+const portfolioStoreFullState = usePortfolioStore.getState();
+let portfolioStateForSnapshot: any = { isSyncEnabled: portfolioStoreFullState.isSyncEnabled };
+if (portfolioStoreFullState.isSyncEnabled) {
+  portfolioStateForSnapshot.watchlist = portfolioStoreFullState.watchlist;
+  portfolioStateForSnapshot.historicalData = portfolioStoreFullState.historicalData;
+  portfolioStateForSnapshot.totalValue = portfolioStoreFullState.totalValue;
+  portfolioStateForSnapshot.prices = portfolioStoreFullState.prices;
+  portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
+  portfolioStateForSnapshot.portfolioHoldings = portfolioData; // Current holdings
+  portfolioStateForSnapshot.lastUpdated = Date.now(); // Add timestamp!
+  addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
+} else {
+  addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
+}
       const billStoreFullState = useBillStore.getState();
       let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
       if (billStoreFullState.isSyncEnabled) {
@@ -211,7 +211,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           addSyncLog(`[SNAPSHOT EXPORT] No tasks have completion history for ${today}`, 'warning');
         }
         
-        return { ...taskState,tasks: pruneCompletedTasks(taskState.tasks), lastUpdated: now };
+        return { ...taskState, lastUpdated: now };
       })(),
       notes: noteStateForSnapshot,
       user: { sync_disabled: true, lastUpdated: now }, 

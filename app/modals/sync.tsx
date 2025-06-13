@@ -17,6 +17,7 @@ import { leaveWorkspace } from '@/sync/leaveWorkspace'
 import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
 import { SnapshotSize } from '@/components/sync/SnapshotSize'
 import { ModalHeader } from '@/components/shared/ModalHeader'
+import { premiumService } from '@/services/premiumService'
 
 // Prevent multiple wrappers of fetch during hot reload
 if (!(global as any)._syncFetchWrapped) {
@@ -179,6 +180,18 @@ export default function SyncScreen() {
       // Set workspace ID in store
       setWorkspaceId(result.id);
       useRegistryStore.getState().setWorkspaceId(result.id);
+      
+      // Grant premium access when joining a workspace
+      const userStore = useUserStore.getState();
+      const wasPremium = userStore.preferences.premium === true;
+      userStore.setPreferences({ premium: true });
+      
+      // If user wasn't premium before, trigger initial sync operations
+      if (!wasPremium) {
+        addSyncLog('🔄 First-time premium activation - initializing sync', 'info');
+        // Mark purchase as successful to trigger sync operations
+        await premiumService.markPurchaseSuccessful();
+      }
       
       addSyncLog(`✅ Successfully joined workspace: ${result.id.slice(0, 8)}`, 'success');
       useToastStore.getState().showToast('Successfully joined workspace!', 'success');
