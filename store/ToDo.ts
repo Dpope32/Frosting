@@ -594,9 +594,14 @@ export const useProjectStore = create<ProjectStore>()(
           addSyncLog('[Tasks] No tasks field – skip', 'warning');
           return;
         }
-        addSyncLog(`[Tasks] incoming tasks from the db: ${Object.keys(syncedData.tasks).length} tasks`, 'info');
+        
         const incoming = syncedData.tasks as Record<string, Task>;
         const existing = get().tasks;
+        
+        // STRATEGIC LOG 1: Task Count Tracking
+        addSyncLog(`[SYNC COUNT AUDIT] Local: ${Object.keys(existing).length} | Incoming: ${Object.keys(incoming).length}`, 'info');
+        
+        addSyncLog(`[Tasks] incoming tasks from the db: ${Object.keys(syncedData.tasks).length} tasks`, 'info');
         addSyncLog(`[Tasks] existing tasks in the store: ${Object.keys(existing).length} tasks`, 'info');
         const merged: Record<string, Task> = {};
         
@@ -612,6 +617,14 @@ export const useProjectStore = create<ProjectStore>()(
         Object.entries(incoming).forEach(([id, inc]) => {
           const curr = existing[id];
           const isBillTask = inc.name.includes('($') || inc.name.toLowerCase().includes('pay ');
+          
+          // STRATEGIC LOG 2: Laundry Task Specific Tracking
+          if (inc.name === 'Laundry' || curr?.name === 'Laundry') {
+            const today = format(new Date(), 'yyyy-MM-dd');
+            addSyncLog(`[LAUNDRY SYNC] Processing Laundry task`, 'info', 
+              `Local: completed=${curr?.completed}, history[${today}]=${curr?.completionHistory?.[today]} | ` +
+              `Sync: completed=${inc.completed}, history[${today}]=${inc.completionHistory?.[today]}`);
+          }
           
           // 🚨 DEBUG LOGGING: Track tomorrow/one-time tasks during sync
           if ((inc.recurrencePattern === 'tomorrow' || inc.recurrencePattern === 'one-time') && !isBillTask) {
@@ -663,6 +676,12 @@ export const useProjectStore = create<ProjectStore>()(
               addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': newer timestamp on ${date} (${value})`, 'verbose');
             }
             // Otherwise keep local value (it's newer or same)
+            
+            // STRATEGIC LOG 3: History Merge Failure Detection
+            if (date === today && mergedHistory[today] === undefined && (curr.completionHistory[today] !== undefined || value !== undefined)) {
+              addSyncLog(`[HISTORY CORRUPTION] Today's history became undefined during merge`, 'error',
+                `Task: ${inc.name.slice(0, 20)} | Date: ${today} | Local had: ${curr.completionHistory[today]} | Sync had: ${value} | Result: ${mergedHistory[today]}`);
+            }
           });
           
           // CRITICAL SYNC LOGIC: Resolve completion status when merging local and incoming tasks
@@ -700,6 +719,12 @@ export const useProjectStore = create<ProjectStore>()(
             const todayHistoryEntry = mergedHistory[today];
             const resolved = todayHistoryEntry === true;
             
+            // STRATEGIC LOG 4: Recurring Task Resolution Audit
+            if (todayHistoryEntry === undefined && (curr.completed === true || inc.completed === true)) {
+              addSyncLog(`[RECURRING TASK PROBLEM] History undefined but task was completed somewhere`, 'error',
+                `Task: ${inc.name.slice(0, 20)} | Local completed: ${curr.completed} | Sync completed: ${inc.completed} | Today history: ${todayHistoryEntry} | Resolved to: ${resolved}`);
+            }
+            
             // Log recurring task resolution if there's a conflict
             if (curr.completed !== inc.completed) {
               completionConflicts++;
@@ -724,6 +749,14 @@ export const useProjectStore = create<ProjectStore>()(
             completed: resolvedCompleted,
             updatedAt: curr.updatedAt > inc.updatedAt ? curr.updatedAt : inc.updatedAt // Keep latest timestamp
           };
+          
+          // STRATEGIC LOG 2 continued: Laundry Task Result
+          if (merged[id]?.name === 'Laundry') {
+            addSyncLog(`[LAUNDRY RESULT] Final state after merge`, 'info',
+              `Completed: ${merged[id].completed} | History today: ${merged[id].completionHistory[today]} | ` +
+              `Full history: ${JSON.stringify(merged[id].completionHistory)}`);
+          }
+          
           mergedCount++;
         });
 
@@ -734,6 +767,16 @@ export const useProjectStore = create<ProjectStore>()(
             keptLocalCount++;
           }
         });
+
+        // STRATEGIC LOG 1 continued: Local-only tasks detection
+        const localOnlyTasks = Object.keys(existing).filter(id => !incoming[id]);
+        if (localOnlyTasks.length > 0) {
+          addSyncLog(`[LOCAL-ONLY TASKS] ${localOnlyTasks.length} tasks exist locally but not in sync:`, 'warning',
+            localOnlyTasks.slice(0, 3).map(id => `${existing[id].name.slice(0, 20)}(${id.slice(-6)})`).join(', '));
+        }
+
+        // STRATEGIC LOG 1 continued: Final count result
+        addSyncLog(`[SYNC COUNT RESULT] Final merged: ${Object.keys(merged).length} | Added: ${addedCount} | Kept: ${keptLocalCount}`, 'info');
 
         set({ tasks: merged, hydrated: true });
 
