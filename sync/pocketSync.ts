@@ -44,11 +44,18 @@ export type PocketBaseType = import('pocketbase', {
 // ───────────────────────── NETWORK UTILS ─────────────────────────
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
   Sentry.addBreadcrumb({ category: 'pocketSync', message: 'checkNetworkConnectivity()', level: 'info' })
+  
+  // Add this debug log
+  addSyncLog(`🔍 checkNetworkConnectivity called - Platform.OS: ${Platform.OS}`, 'verbose');
+  
   try {
     // Skip network check on web - assume connection is available
     if (Platform.OS === 'web') {
+      addSyncLog(`🌐 Web platform detected - skipping Google connectivity check`, 'info');
       return true;
     }
+    
+    addSyncLog(`📱 Non-web platform (${Platform.OS}) - checking Google connectivity`, 'verbose');
     
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 3_000)
@@ -62,6 +69,7 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
     Sentry.captureException(err)
     // On web, if we can't check connectivity, assume we're connected
     if (Platform.OS === 'web') {
+      addSyncLog(`🌐 Web platform error fallback - assuming connected`, 'info');
       return true;
     }
     return false

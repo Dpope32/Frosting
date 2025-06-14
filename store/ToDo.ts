@@ -54,17 +54,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       return false;
     }
     
-    // Special handling for games
-    //if ((task.name.includes(' vs ') || task.name.includes(' @ ')) && task.scheduledDate) {
-      // Check user preference first
-     // const gameDate = new Date(task.scheduledDate)
-     // const localGameDate = new Date(gameDate.getTime() - (gameDate.getTimezoneOffset() * 60000))
-    //  const localGameDateStr = format(localGameDate, 'yyyy-MM-dd')
-      // Only show game if it's scheduled for today
-      //const isGameDay = localGameDateStr === currentDateStrLocal;
-      //return isGameDay;
-    //}
-    
     // Special handling for birthdays
     if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
       
@@ -108,7 +97,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = format(yesterday, 'yyyy-MM-dd');
       const result = createdDateStr === yesterdayStr;
-      
 
       if (result === true) {
         // If the task is due today (creation date was yesterday),
@@ -220,8 +208,7 @@ const createTaskFilter = () => {
         const oldCompletedState = task.completed;
         
         if (newCompletedState !== oldCompletedState) {
-          const updateMsg = `${task.name.slice(0, 20)}(${task.id.slice(-6)}): ${oldCompletedState}→${newCompletedState}`;
-          completionUpdates.push(updateMsg);
+          completionUpdates.push(`${task.name.slice(0, 20)}: ${oldCompletedState}→${newCompletedState}`);
           tasksNeedUpdate = true;
           
           // Update the task in our copy
@@ -229,20 +216,12 @@ const createTaskFilter = () => {
             ...task,
             completed: newCompletedState
           };
-          
-          if (!task.name.includes('$') && !task.name.includes('"')) {
-            addSyncLog(
-              `[Filter Update] '${task.name.slice(0, 20)}': completion=${oldCompletedState}→${newCompletedState} based on today's history`,
-              'info',
-              `Date: ${currentDateStrLocal} | History entry: ${task.completionHistory[currentDateStrLocal]} | Pattern: ${task.recurrencePattern} | Task ID: ${task.id.slice(-8)}`
-            );
-          }
         } else {
           // No change needed, keep original
           updatedTasks[id] = task;
         }
         
-        // ENHANCED LOGGING: Check for potential completion conflicts
+        // Check for potential completion conflicts
         if (task.completed !== newCompletedState && task.completionHistory[currentDateStrLocal] !== undefined) {
           completionConflicts.push(`${task.name.slice(0, 20)}: stored=${task.completed} vs history=${newCompletedState}`);
         }
@@ -266,27 +245,15 @@ const createTaskFilter = () => {
       // Use setTimeout to avoid updating during the filter operation
       setTimeout(() => {
         const currentState = useProjectStore.getState();
-        // Only update if the tasks haven't changed since we started
-        if (currentState.tasks === tasks) {
+        // More robust check - update if our changes are still relevant
+        if (Object.keys(currentState.tasks).length === Object.keys(updatedTasks).length) {
           useProjectStore.setState({ tasks: updatedTasks });
-          addSyncLog(
-            `[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states in store`,
-            'info',
-            `Tasks updated: ${completionUpdates.slice(0, 3).join(', ')}${completionUpdates.length > 3 ? '...' : ''}`
-          );
+          addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
         }
       }, 0);
     }
     
-    // Log completion update summary
-    if (completionUpdates.length > 0) {
-      addSyncLog(
-        `[FILTER COMPLETION UPDATES] ${completionUpdates.length} tasks updated completion state`,
-        'info',
-        completionUpdates.slice(0, 3).join(', ') + (completionUpdates.length > 3 ? '...' : '')
-      );
-    }
-    
+    // Log completion conflicts only if they exist
     if (completionConflicts.length > 0) {
       addSyncLog(
         `[FILTER COMPLETION CONFLICTS] ${completionConflicts.length} tasks have conflicting completion states`,
@@ -297,26 +264,8 @@ const createTaskFilter = () => {
     
     // Filter tasks that are due today using the updated tasks
     const filtered = Object.values(updatedTasks).filter(task => {
-      const isDue = isTaskDue(task, currentDate);
-      
-      // Log completion state for due tasks
-      if (isDue && (task.completionHistory[currentDateStrLocal] !== undefined || task.completed)) {
-        // uncomment this to enable logging of due tasks to debug sync issues
-        // addSyncLog(
-        //   `[DUE TASK COMPLETION] "${task.name.slice(0, 20)}" due today with completion data`,
-        //   'verbose',
-        //   `Completed: ${task.completed} | History[${currentDateStrLocal}]: ${task.completionHistory[currentDateStrLocal]} | Pattern: ${task.recurrencePattern}`
-        // );
-      }
-      
-      return isDue;
+      return isTaskDue(task, currentDate);
     });
-    
-    addSyncLog(
-      `[POST-FILTER] ${filtered.length} tasks after filtering`,
-      'verbose', 
-      `Date: ${currentDateStrLocal} | Completed tasks: ${filtered.filter(t => t.completed).length} | Tasks with today's history: ${filtered.filter(t => t.completionHistory[currentDateStrLocal]).length}`
-    );
     
     // Sort tasks - completed tasks go to the bottom
     const sorted = [...filtered].sort((a, b) => {
@@ -335,19 +284,6 @@ const createTaskFilter = () => {
       const bPriority = priorityOrder[b.priority] ?? 99;
       return aPriority - bPriority;
     });
-    
-    // Final result logging
-    const completedInResult = sorted.filter(t => t.completed || t.completionHistory[currentDateStrLocal]).length;
-    if (completedInResult > 0) {
-      addSyncLog(
-        `[FILTER RESULT] ${completedInResult} completed tasks in final result of ${sorted.length}`,
-        'info',
-        sorted.filter(t => t.completed || t.completionHistory[currentDateStrLocal])
-          .slice(0, 3)
-          .map(t => `"${t.name.slice(0, 15)}"(${t.completed ? 'C' : ''}${t.completionHistory[currentDateStrLocal] ? 'H' : ''})`)
-          .join(', ')
-      );
-    }
     
     lastResult = sorted;
     return sorted;
@@ -409,15 +345,6 @@ export const useProjectStore = create<ProjectStore>()(
             .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
           
           const newCompletionStatus = !currentStatus;
-          const taskName = tasks[id].name.slice(0, 25);
-          const pattern = tasks[id].recurrencePattern;
-          const timestamp = new Date().toISOString();
-          
-          addSyncLog(
-            `[TOGGLE START] "${taskName}" (${pattern}) toggle initiated`,
-            'info',
-            `Date: ${todayLocalStr} | Current status: ${currentStatus} | Will become: ${newCompletionStatus} | Current history: ${JSON.stringify(tasks[id].completionHistory)} | Device timestamp: ${timestamp} | Task ID: ${id.slice(-8)}`
-          );
 
           tasks[id] = {
             ...tasks[id],
@@ -428,47 +355,18 @@ export const useProjectStore = create<ProjectStore>()(
             },
             updatedAt: new Date().toISOString()
           }
-          // 🚨 DEBUG LOGGING: Track completion changes for tomorrow and one-time tasks
-          if (tasks[id].recurrencePattern === 'tomorrow' || tasks[id].recurrencePattern === 'one-time') {
-            const taskName = tasks[id].name.slice(0, 25);
-            const pattern = tasks[id].recurrencePattern;
-            const timestamp = new Date().toISOString();
-            
-            addSyncLog(
-              `[COMPLETION TOGGLE] "${taskName}" (${pattern}) ${currentStatus ? 'uncompleted' : 'completed'}`,
-              newCompletionStatus ? 'success' : 'info',
-              `Date: ${todayLocalStr} | Previous status: ${currentStatus} | New status: ${newCompletionStatus} | Pattern: ${pattern} | Timestamp: ${timestamp} | Task ID: ${id.slice(-8)}`
-            );
-            
-            // Special logging for one-time task completion
-            if (pattern === 'one-time' && newCompletionStatus) {
-              addSyncLog(
-                `[ONE-TIME COMPLETED] "${taskName}" marked complete - will stay completed`,
-                'success',
-                `One-time tasks remain completed permanently. Completed on: ${todayLocalStr} at ${timestamp}`
-              );
-            }
-            
-            // Special logging for tomorrow task completion
-            if (pattern === 'tomorrow') {
-              const createdDate = getLocalDateString(tasks[id].createdAt);
-              addSyncLog(
-                `[TOMORROW TASK TOGGLE] "${taskName}" completion changed`,
-                newCompletionStatus ? 'success' : 'warning',
-                `Created (local): ${createdDate} | Toggled on: ${todayLocalStr} | Status: ${newCompletionStatus ? 'completed' : 'uncompleted'} | May convert to one-time after midnight`
-              );
-            }
-          }
           
-          addSyncLog(
-            `[TOGGLE COMPLETE] "${taskName}" state updated`,
-            'success',
-            `Final completed: ${tasks[id].completed} | Final history: ${JSON.stringify(tasks[id].completionHistory)} | Final updatedAt: ${tasks[id].updatedAt}`
-          );
+          // Log only significant completion changes
+          if (tasks[id].recurrencePattern === 'one-time' && newCompletionStatus) {
+            addSyncLog(
+              `[ONE-TIME COMPLETED] "${tasks[id].name.slice(0, 25)}" marked complete - will stay completed`,
+              'success',
+              `One-time tasks remain completed permanently. Completed on: ${todayLocalStr}`
+            );
+          }
           
           const updatedTodaysTasks = taskFilter(tasks);
           set({ tasks, todaysTasks: updatedTodaysTasks });
-        } else {
         }
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
@@ -603,144 +501,119 @@ export const useProjectStore = create<ProjectStore>()(
         let mergedCount = 0;
         let keptLocalCount = 0;
         let billTasksProcessed = 0;
-        let importantMerges: string[] = [];
-
+        let errorCount = 0;
+        let skippedTasks: string[] = [];
+      
         // Process incoming tasks
         Object.entries(incoming).forEach(([id, inc]) => {
-          const curr = existing[id];
-          const isBillTask = inc.name.includes('($') || inc.name.toLowerCase().includes('pay ');
-          
-          // 🚨 DEBUG LOGGING: Track tomorrow/one-time tasks during sync
-          if ((inc.recurrencePattern === 'tomorrow' || inc.recurrencePattern === 'one-time') && !isBillTask) {
-            if (!curr) {
+          try {
+            const curr = existing[id];
+            const isBillTask = inc.name.includes('($') || inc.name.toLowerCase().includes('pay ');
+            
+            // Only log new tasks (not bill tasks unless first few)
+            if (!curr && (!isBillTask || addedCount < 2)) {
               addSyncLog(
                 `[SYNC NEW] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) from sync`,
                 'info',
-                `New ${inc.recurrencePattern} task from sync | Created: ${inc.createdAt} | Updated: ${inc.updatedAt} | Task ID: ${id.slice(-8)}`
-              );
-            } else {
-              addSyncLog(
-                `[SYNC MERGE] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) merging`,
-                'verbose',
-                `Local pattern: ${curr.recurrencePattern} | Sync pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
+                `New task | ID: ${id.slice(-8)}`
               );
             }
-          }
-
-          if (!curr) {
-            // Only log non-bill additions or first few bill tasks
-            if (!isBillTask || addedCount < 2) {
-              addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
+      
+            if (!curr) {
+              if (isBillTask) billTasksProcessed++;
+              merged[id] = inc;
+              addedCount++;
+              return;
             }
-            if (isBillTask) billTasksProcessed++;
-            merged[id] = inc;
-            addedCount++;
-            return;
-          }
-
-          // Merge logic - FIX THE COMPLETION RESOLUTION
-          // 🚨 CRITICAL BUG FIX: Don't let stale incoming data overwrite newer local data
-          // Only overwrite if incoming has more recent timestamp OR if it's an untoggle (false value)
-          const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
-          
-          // Merge incoming history, but respect timestamps and untoggle operations
-          Object.entries(inc.completionHistory || {}).forEach(([date, value]) => {
-            const hasLocalEntry = curr.completionHistory[date] !== undefined;
-            const localValue = curr.completionHistory[date];
+      
+            // Merge logic with error handling
+            const mergedHistory: Record<string, boolean> = { ...curr.completionHistory };
             
-            if (!hasLocalEntry) {
-              // No local entry, safe to add incoming
-              mergedHistory[date] = value;
-            } else if (value === false && localValue === true) {
-              // Incoming is an untoggle (false), always respect this
-              mergedHistory[date] = false;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': untoggle on ${date} (local=true, inc=false)`, 'info');
-            } else if (inc.updatedAt > curr.updatedAt) {
-              // Incoming is newer, use its value
-              mergedHistory[date] = value;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': newer timestamp on ${date} (${value})`, 'verbose');
-            }
-            // Otherwise keep local value (it's newer or same)
-          });
-          
-          const today = format(new Date(), 'yyyy-MM-dd');
-          // CRITICAL SYNC LOGIC: Resolve completion status when merging local and incoming tasks
-          // This handles the complex case where both devices may have different completion states
-          const resolvedCompleted = (() => {
-            if (inc.recurrencePattern === 'one-time') {
-              // ONE-TIME TASKS: Once completed anywhere, stay completed everywhere
-              const localCompleted = curr.completed;
-              const syncCompleted = inc.completed;
-              const historyCompleted = mergedHistory[today] || false;
-              const resolved = localCompleted || syncCompleted || historyCompleted;
+            // Merge incoming history, but respect timestamps and untoggle operations
+            Object.entries(inc.completionHistory || {}).forEach(([date, value]) => {
+              const hasLocalEntry = curr.completionHistory[date] !== undefined;
+              const localValue = curr.completionHistory[date];
               
-              // Log the resolution decision with source tracking
-              if (resolved) {
-                const sources = [];
-                if (localCompleted) sources.push('local=true');
-                if (syncCompleted) sources.push('sync=true');
-                if (historyCompleted) sources.push('history=true');
+              if (!hasLocalEntry) {
+                // No local entry, safe to add incoming
+                mergedHistory[date] = value;
+              } else if (value === false && localValue === true) {
+                // Incoming is an untoggle (false), always respect this
+                mergedHistory[date] = false;
+                addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': untoggle on ${date}`, 'info');
+              } else if (inc.updatedAt > curr.updatedAt) {
+                // Incoming is newer, use its value
+                mergedHistory[date] = value;
+              }
+            });
+            
+            const today = format(new Date(), 'yyyy-MM-dd');
+            
+            // CRITICAL SYNC LOGIC: Resolve completion status when merging local and incoming tasks
+            const resolvedCompleted = (() => {
+              if (inc.recurrencePattern === 'one-time') {
+                // ONE-TIME TASKS: Once completed anywhere, stay completed everywhere
+                const localCompleted = curr.completed;
+                const syncCompleted = inc.completed;
+                const historyCompleted = mergedHistory[today] || false;
+                return localCompleted || syncCompleted || historyCompleted;
+              }
+          
+              // RECURRING TASKS completion resolution
+              const resolved = !!(mergedHistory[today] || curr.completed || inc.completed);
+              
+              // Log recurring task resolution only if there's a conflict
+              if (curr.completed !== inc.completed) {
+                addSyncLog(
+                  `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (L=${curr.completed}, S=${inc.completed})`,
+                  'info'
+                );
                 
-                addSyncLog(
-                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=true (${sources.join(', ')})`,
-                  'info',
-                  `Task will remain completed. Sources: ${sources.join(' | ')} | Task ID: ${id.slice(-8)}`
-                );
-              } else {
-                addSyncLog(
-                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=false (local=false, sync=false, history=false)`,
-                  'verbose'
-                );
+                // If sync shows completed but local doesn't, and no explicit history, 
+                // we should still resolve to true and SET the history entry
+                if (!curr.completed && inc.completed && !mergedHistory[today]) {
+                  mergedHistory[today] = true;
+                  addSyncLog(
+                    `[History Fix] '${inc.name.slice(0, 24)}': Adding today's completion from sync`,
+                    'info'
+                  );
+                }
               }
               
               return resolved;
-            }
-        
-            // 🚨 FIXED: RECURRING TASKS completion resolution
-            // OLD BROKEN CODE: const resolved = !!(mergedHistory[today] || curr.completed);
-            // NEW FIXED CODE: Include sync data (inc.completed) in the resolution
-            const resolved = !!(mergedHistory[today] || curr.completed || inc.completed);
+            })();
             
-            // Log recurring task resolution if there's a conflict
-            if (curr.completed !== inc.completed) {
-              addSyncLog(
-                `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (local=${curr.completed}, sync=${inc.completed}, today_history=${!!mergedHistory[today]})`,
-                'verbose'
-              );
-              
-              // 🚨 FIXED: If sync shows completed but local doesn't, and no explicit history, 
-              // we should still resolve to true and SET the history entry
-              if (!curr.completed && inc.completed && !mergedHistory[today]) {
-                mergedHistory[today] = true;
-                addSyncLog(
-                  `[History Fix] '${inc.name.slice(0, 24)}': Adding today's completion from sync data`,
-                  'info',
-                  `Sync showed completed but local didn't. Setting history[${today}]=true`
-                );
-              }
-            }
+            merged[id] = { 
+              ...inc, 
+              completionHistory: mergedHistory, 
+              completed: resolvedCompleted,
+              updatedAt: curr.updatedAt > inc.updatedAt ? curr.updatedAt : inc.updatedAt
+            };
+            mergedCount++;
             
-            return resolved;
-          })();
-          
-          // SYNC DEBUGGING: Log completion state changes for troubleshooting sync conflicts
-          // This tracks when completion states differ between devices or when our merge logic changes the final state
-          // Triggers when: local ≠ incoming OR local ≠ final resolved state (indicating merge logic intervention)
-          if (curr.completed !== inc.completed || curr.completed !== resolvedCompleted) {
-            addSyncLog(`[Completion Merge] '${inc.name.slice(0, 24)}': local=${curr.completed}, sync=${inc.completed}, resolved=${resolvedCompleted}`, 'info');
+          } catch (error) {
+            // Catch and log individual task processing errors
+            errorCount++;
+            const taskName = inc?.name || 'Unknown';
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            
+            addSyncLog(
+              `❌ TASK PROCESSING ERROR: "${taskName.slice(0, 25)}" (${id.slice(-8)})`,
+              'error',
+              `Error: ${errorMsg} | This task was SKIPPED during sync`
+            );
+            
+            skippedTasks.push(`${taskName}(${id.slice(-8)})`);
+            
+            // Still try to preserve the task if it exists locally
+            if (existing[id]) {
+              merged[id] = existing[id];
+              addSyncLog(`[ERROR RECOVERY] Preserved local version of "${taskName.slice(0, 25)}"`, 'warning');
+            }
           }
-          
-          merged[id] = { 
-            ...inc, 
-            completionHistory: mergedHistory, 
-            completed: resolvedCompleted,
-            updatedAt: curr.updatedAt > inc.updatedAt ? curr.updatedAt : inc.updatedAt // Keep latest timestamp
-          };
-          mergedCount++;
         });
-
-        // 🚨 FIXED: Handle local-only tasks more aggressively
-        // These tasks exist locally but not in sync - they need to be pushed to server
+      
+        // Handle local-only tasks
         const localOnlyTasks: string[] = [];
         Object.entries(existing).forEach(([id, task]) => {
           if (!incoming[id]) {
@@ -749,44 +622,48 @@ export const useProjectStore = create<ProjectStore>()(
             localOnlyTasks.push(`${task.name}(${id.slice(-6)})`);
           }
         });
-
-        // 🚨 FIXED: Log local-only tasks and trigger a push
+      
+        // Log local-only tasks and trigger a push
         if (localOnlyTasks.length > 0) {
           addSyncLog(
-            `[LOCAL-ONLY TASKS] ${localOnlyTasks.length} tasks exist locally but not in sync - WILL PUSH TO SERVER:`,
-            'warning',
-            localOnlyTasks.slice(0, 3).join(', ') + (localOnlyTasks.length > 3 ? '...' : '')
+            `[LOCAL-ONLY] ${localOnlyTasks.length} tasks missing from sync - will auto-push`,
+            'warning'
           );
           
-          // 🚨 FIXED: Trigger a push after a delay to sync these local-only tasks
+          // Trigger a push after a delay to sync these local-only tasks
           setTimeout(async () => {
             try {
-              addSyncLog(`[AUTO-PUSH] Pushing ${localOnlyTasks.length} local-only tasks to server`, 'info');
               const { pushSnapshot } = await import('@/sync/snapshotPushPull');
               await pushSnapshot();
-              addSyncLog(`[AUTO-PUSH] Successfully synced local-only tasks`, 'success');
+              addSyncLog(`[AUTO-PUSH] Synced ${localOnlyTasks.length} local-only tasks`, 'success');
             } catch (error) {
               addSyncLog(`[AUTO-PUSH] Failed to push local-only tasks`, 'error', error instanceof Error ? error.message : String(error));
             }
-          }, 5000); // 5 second delay to avoid interference with current sync
+          }, 5000);
         }
-
+      
         set({ tasks: merged, hydrated: true });
-
-        // Summary log instead of thousands of individual ones
-        if (billTasksProcessed > 10) {
-          addSyncLog(`[Tasks] Processed ${billTasksProcessed} bill tasks (showing first 2 + last 2 only)`, 'info');
+      
+        // Include error summary in final stats
+        if (errorCount > 0) {
+          addSyncLog(
+            `⚠️ SYNC ERRORS: ${errorCount} tasks failed to process`,
+            'error',
+            `Skipped: ${skippedTasks.slice(0, 3).join(', ')}${skippedTasks.length > 3 ? '...' : ''}`
+          );
         }
-        
-        if (importantMerges.length > 0) {
-          addSyncLog(`[Tasks] Key merges: ${importantMerges.slice(0, 3).join(', ')}${importantMerges.length > 3 ? '...' : ''}`, 'info');
-        }
-
+      
         setTimeout(() => {
           const final = taskFilter(get().tasks);
           set({ todaysTasks: final });
-          addSyncLog(`[Tasks] hydrate done → ${Object.keys(merged).length} total, ${final.length} today`, 'info');
-          addSyncLog(`[Tasks] Stats when it was all said and done: +${addedCount} new, ~${mergedCount} merged, ${keptLocalCount} kept local`, 'info');
+          addSyncLog(`[Tasks] Sync complete: ${Object.keys(merged).length} total, ${final.length} today`, 'info');
+          
+          // Enhanced stats with error reporting
+          const statsDetails = errorCount > 0 
+            ? `+${addedCount} new, ~${mergedCount} merged, ${keptLocalCount} local, ${errorCount} errors`
+            : `+${addedCount} new, ~${mergedCount} merged, ${keptLocalCount} local`;
+            
+          addSyncLog(`[Tasks] Stats: ${statsDetails}`, 'info');
         }, 0);
       }
     }),
