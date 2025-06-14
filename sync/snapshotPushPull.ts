@@ -37,8 +37,8 @@ export const pushSnapshot = async (): Promise<void> => {
 
   // we're the primary push now
   useRegistryStore.getState().setSyncStatus('syncing');
-//  const runId = Date.now().toString(36);
-//  addSyncLog(`🛰️  ${runId} – push`, 'info');
+  const runId = Date.now().toString(36);
+  addSyncLog(`🛰️  ${runId} – push`, 'info');
 
   try {
     addSyncLog('Pushing snapshot to PocketBase', 'info');
@@ -102,7 +102,7 @@ export const pushSnapshot = async (): Promise<void> => {
       snapshot_blob: cipher,
     });
 
-  //  addSyncLog(`Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
+  addSyncLog(`Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(

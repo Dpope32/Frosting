@@ -187,6 +187,7 @@ useEffect(() => {
   if (!loaded) return;
 
   const handleAppStateChange = async (nextAppState: string) => {
+    addSyncLog(`🔄 AppState changed to: ${nextAppState}`, 'info');
     const currentSyncStatus = useRegistryStore.getState().syncStatus;
     const isPremium = useUserStore.getState().preferences.premium === true;
     
@@ -207,21 +208,31 @@ useEffect(() => {
         }, 500);
         
         addSyncLog('✅ Resume pull completed', 'success');
-      } else if (nextAppState === 'background' || nextAppState === 'inactive') {
+      } else if (nextAppState === 'background') {
         addSyncLog('📤 App backgrounded – pushing snapshot in app/_layout.tsx', 'info');
-        
-        // 🚨 KEY IMPROVEMENTS:
-        // 1. Small delay to capture final state changes
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // 2. Explicitly export current state before pushing
-        const state = useRegistryStore.getState().getAllStoreStates();
-        await exportEncryptedState(state);
-        
-        // 3. Then push
         await pushSnapshot();
-        
         addSyncLog('✅ Background push completed', 'success');
+      } else if (nextAppState === 'inactive') {
+        addSyncLog('📤 App became inactive – scheduling push with delay', 'info');
+        
+        // Handle iOS device switching scenario where app stays inactive
+        setTimeout(async () => {
+          if (AppState.currentState === 'inactive') {
+            addSyncLog('📤 Still inactive after delay – pushing snapshot', 'info');
+            
+            try {
+              await pushSnapshot();
+              addSyncLog('✅ Inactive push completed', 'success');
+            } catch (e: any) {
+              useRegistryStore.getState().setSyncStatus('error');
+              addSyncLog('❌ Inactive push failed', 'error', e.message);
+            } finally {
+              useRegistryStore.getState().setSyncStatus('idle');
+            }
+          } else {
+            addSyncLog('📱 App state changed from inactive, skipping delayed push', 'verbose');
+          }
+        }, 1000);
       }
     } catch (e: any) {
       useRegistryStore.getState().setSyncStatus('error');
