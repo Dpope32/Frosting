@@ -31,8 +31,7 @@ if (!(global as any)._syncFetchWrapped) {
     const shouldSkipLogging = 
     url.toLowerCase().includes('yahoo') || url.toLowerCase().includes('geocoding') || 
     url.toLowerCase().includes('weather') || url.toLowerCase().includes('stoic' ) || 
-    url.toLowerCase().includes('google') || url.toLowerCase().includes('cloudflare') ||
-    url.toLowerCase().includes('health-check') || url.toLowerCase().includes('fedora')
+    url.toLowerCase().includes('google') || url.toLowerCase().includes('cloudflare')
     
     if (isPremium && !shouldSkipLogging) {
       let bodyString = ''

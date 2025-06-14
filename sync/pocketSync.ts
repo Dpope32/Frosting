@@ -29,7 +29,6 @@ const withPort = (raw?: string): string | undefined => {
   return hasPort || !isPlainHttp ? url : `${url}:${DEFAULT_PORT}`;
 };
 
-
 const CANDIDATE_URLS = [
   withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
   withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
@@ -46,6 +45,11 @@ export type PocketBaseType = import('pocketbase', {
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
   Sentry.addBreadcrumb({ category: 'pocketSync', message: 'checkNetworkConnectivity()', level: 'info' })
   try {
+    // Skip network check on web - assume connection is available
+    if (Platform.OS === 'web') {
+      return true;
+    }
+    
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 3_000)
     await fetch('https://clients3.google.com/generate_204', {
@@ -56,6 +60,10 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
     return true
   } catch (err) {
     Sentry.captureException(err)
+    // On web, if we can't check connectivity, assume we're connected
+    if (Platform.OS === 'web') {
+      return true;
+    }
     return false
   }
 }
@@ -96,42 +104,25 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   return new PocketBase(selected);
 };
 
-
 // ───────────────────────── LOG EXPORT ─────────────────────────
-export const exportLogsToServer = async (logs: LogEntry[], forceExport = false): Promise<void> => {
-  // Allow log export during premium verification even for non-premium users
-  const isPremium = useUserStore.getState().preferences.premium;
-  const isPremiumVerification = logs.some(log => 
-    log.message.includes('Premium') || 
-    log.message.includes('premium') ||
-    log.message.includes('DeepLink')
-  );
-  
-  if (!isPremium && !forceExport && !isPremiumVerification) {
-    addSyncLog('Skipping log export - not premium user', 'verbose');
-    return;
-  }
+export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
+  if (!useUserStore.getState().preferences.premium) return
 
   if (!(await checkNetworkConnectivity())) {
     addSyncLog('No network – abort log export', 'warning')
     return
   }
 
-  try {
-    const pb = await getPocketBase()
-    const deviceId = await generateSyncKey()
-    const username = useUserStore.getState().preferences.username ?? 'unknown'
+  const pb = await getPocketBase()
+  const deviceId = await generateSyncKey()
+  const username = useUserStore.getState().preferences.username ?? 'unknown'
 
-    await pb.collection('debug_logs').create({
-      device_id: deviceId,
-      username,
-      timestamp: new Date().toISOString(),
-      logs: JSON.stringify(logs),
-      log_type: isPremiumVerification ? 'premium_debug' : 'general',
-    })
+  await pb.collection('debug_logs').create({
+    device_id: deviceId,
+    username,
+    timestamp: new Date().toISOString(),
+    logs: JSON.stringify(logs),
+  })
 
-    addSyncLog(`📤 Logs saved to PocketBase (${logs.length} entries)`, 'info')
-  } catch (error) {
-    addSyncLog(`🔥 Failed to save logs to PocketBase: ${error instanceof Error ? error.message : String(error)}`, 'error');
-  }
+  addSyncLog('Logs saved in PocketBase', 'info')
 }
