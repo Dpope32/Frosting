@@ -100,6 +100,14 @@ export default function Index() {
       addSyncLog(`💾 Export phase completed in ${exportDuration}ms (${(exportDuration/1000).toFixed(1)}s)`, 'info');
   
       if (finishedOnboarding) {
+        // Push phase timing - PUSH THE EXPORTED DATA BEFORE PULLING
+        const pushStartTime = Date.now();
+        const { pushSnapshot } = await import('@/sync/snapshotPushPull');
+        await pushSnapshot();
+        const pushEndTime = Date.now();
+        const pushDuration = pushEndTime - pushStartTime;
+        addSyncLog(`📤 Push phase completed in ${pushDuration}ms (${(pushDuration/1000).toFixed(1)}s)`, 'success');
+        
         // Pull phase timing
         const pullStartTime = Date.now();
         await pullLatestSnapshot();
