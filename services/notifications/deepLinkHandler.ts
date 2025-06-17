@@ -10,6 +10,13 @@ import { exportLogsToServer } from '@/sync/pocketSync';
 // Duplicate URL guard to prevent iOS double-firing
 let lastUrlSeen: string | null = null;
 
+// Add this helper function for web compatibility
+const isWeb = () => {
+  // Check if we're running on web platform
+  return typeof window !== 'undefined' && 
+         !window.navigator.userAgent.includes('Expo');
+};
+
 // Helper function to export debug logs for deep link issues
 const exportDeepLinkDebugLogs = async (context: string): Promise<void> => {
   try {
@@ -95,7 +102,13 @@ export async function handleDeepLink(event: { url: string | NotificationResponse
           addSyncLog(`🧪 [DEV] Development mode - activating premium without PocketBase`, 'warning');
           useUserStore.getState().setPreferences({ premium: true });
           useToastStore.getState().showToast('🧪 DEV: Premium activated!', 'success');
-          router.replace('/modals/sync');
+          
+          // Use push instead of replace on web to ensure navigation works
+          if (isWeb()) {
+            router.push('/modals/sync');
+          } else {
+            router.replace('/modals/sync');
+          }
           return;
         }
         
@@ -109,7 +122,12 @@ export async function handleDeepLink(event: { url: string | NotificationResponse
           throw error;
         }
         
-        router.replace('/modals/sync');
+        // Use push instead of replace on web
+        if (isWeb()) {
+          router.push('/modals/sync');
+        } else {
+          router.replace('/modals/sync');
+        }
         return;
       }
       

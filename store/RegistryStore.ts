@@ -18,7 +18,6 @@ import { useTagStore } from './TagStore';
 import { useProjectStore } from './ProjectStore';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { usePortfolioStore } from './PortfolioStore';
-import { pruneCompletedTasks } from '@/sync/registrySyncManager';
 
 interface RegistryState {
   hasCompletedOnboarding: boolean;

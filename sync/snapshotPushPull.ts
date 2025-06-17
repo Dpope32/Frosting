@@ -134,13 +134,50 @@ export const pushSnapshot = async (): Promise<void> => {
       );
     }
 
-    await pb.collection('registry_snapshots').create({
-      workspace_id: workspaceId,
-      device_id: deviceId,
-      snapshot_blob: cipher,
-    });
+    // Update existing record or create if none exists
+    try {
+      const { items } = await pb.collection('registry_snapshots')
+        .getList(1, 1, { filter: `workspace_id="${workspaceId}"` });
+      
+      if (items.length > 0) {
+        // Update existing record
+        await pb.collection('registry_snapshots').update(items[0].id, {
+          device_id: deviceId,
+          snapshot_blob: cipher,
+          timestamp: new Date().toISOString(),
+        });
+        addSyncLog(`📝 Updated existing snapshot (record: ${items[0].id})`, 'verbose');
+      } else {
+        // Create first record for this workspace
+        await pb.collection('registry_snapshots').create({
+          workspace_id: workspaceId,
+          device_id: deviceId,
+          snapshot_blob: cipher,
+        });
+        addSyncLog('✨ Created first snapshot for workspace', 'verbose');
+      }
+    } catch (createErr) {
+      // Handle unique constraint errors gracefully
+      if (createErr instanceof Error && createErr.message.includes('unique')) {
+        const { items } = await pb.collection('registry_snapshots')
+          .getList(1, 1, { filter: `workspace_id="${workspaceId}"` });
+        
+        if (items.length > 0) {
+          await pb.collection('registry_snapshots').update(items[0].id, {
+            device_id: deviceId,
+            snapshot_blob: cipher,
+            timestamp: new Date().toISOString(),
+          });
+          addSyncLog('📝 Updated after unique constraint error', 'verbose');
+        } else {
+          throw createErr;
+        }
+      } else {
+        throw createErr;
+      }
+    }
 
-  addSyncLog(`Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
+    addSyncLog(`Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
   } catch (err) {
     Sentry.captureException(err);
     addSyncLog(

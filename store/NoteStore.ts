@@ -260,12 +260,14 @@ export const useNoteStore = create<NoteStore>()(
       updateNoteOrder: async (orderedData: Note[] | string[]) => {
         let newOrder: string[];
 
-        if (typeof orderedData[0] === 'string') {
+        if (orderedData.length === 0) {
+          newOrder = [];
+        } else if (typeof orderedData[0] === 'string') {
           // Array of IDs
           newOrder = orderedData as string[];
         } else {
           // Array of Note objects - only include active (non-deleted) notes in order
-          const activeOrderedNotes = (orderedData as Note[]).filter(note => !note.deletedAt);
+          const activeOrderedNotes = (orderedData as Note[]).filter(note => note && !note.deletedAt);
           newOrder = activeOrderedNotes.map(note => note.id);
         }
 

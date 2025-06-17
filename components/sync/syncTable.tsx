@@ -162,23 +162,19 @@ export default function SyncTable({
             }}
           >
             <Text
-              style={{
-                color: colors.accent,
-                fontSize: 14,
-                fontWeight: "500",
-                marginRight: 4,
-                fontFamily: "$body",
-              }}
+              color={colors.accent}
+              fontSize={14}
+              fontWeight="500"
+              marginRight={4}
+              fontFamily="$body"
             >
               Account
             </Text>
             <Text
-              style={{
-                color: colors.accent,
-                fontSize: 14,
-                fontWeight: "500",
-                fontFamily: "$body",
-              }}
+              color={colors.accent}
+              fontSize={14}
+              fontWeight="500"
+              fontFamily="$body"
             >
               ↗
             </Text>
