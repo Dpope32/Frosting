@@ -30,6 +30,7 @@ const exportDeepLinkDebugLogs = async (context: string): Promise<void> => {
  * Processes notification links, LemonSqueezy redirects, custom schemes, share links, and habits navigation
  */
 export async function handleDeepLink(event: { url: string | NotificationResponse }) {  
+  console.log('🔗 [DeepLink] Received deep link event:', JSON.stringify(event));
   addSyncLog(`🔗 [DeepLink] Received deep link event: ${JSON.stringify(event)}`, 'verbose');
   
   // Early-exit for duplicate deep links (iOS sometimes fires twice)
@@ -60,14 +61,55 @@ export async function handleDeepLink(event: { url: string | NotificationResponse
       handleLemonSqueezyReturn(event.url);
       return;
     }
-
+    
     // Handle custom app scheme URLs
     if (event.url.startsWith('kaiba-nexus://')) {
       // Unified premium activation route for one-tap lifetime tier
       if (event.url.startsWith('kaiba-nexus://activate-premium')) {
         addSyncLog(`🎉 [DeepLink] Premium activation URL detected`, 'info');
-        const { username } = useUserStore.getState().preferences;
-        await verifyAndActivatePremium(username);
+        
+        // Wait for user store to be hydrated before accessing username
+        const userStore = useUserStore.getState();
+        if (!userStore.hydrated) {
+          addSyncLog(`⏳ [DeepLink] User store not hydrated yet, waiting...`, 'info');
+          // Wait for hydration with a timeout
+          await new Promise<void>((resolve) => {
+            const checkHydration = () => {
+              if (useUserStore.getState().hydrated) {
+                resolve();
+              } else {
+                setTimeout(checkHydration, 100);
+              }
+            };
+            checkHydration();
+            // Timeout after 5 seconds
+            setTimeout(() => resolve(), 5000);
+          });
+        }
+        
+                const { username } = useUserStore.getState().preferences;
+        
+        // In development mode, skip PocketBase entirely and just activate premium
+        if (__DEV__) {
+          console.log('🧪 [DEV] Development mode detected, activating premium directly');
+          addSyncLog(`🧪 [DEV] Development mode - activating premium without PocketBase`, 'warning');
+          useUserStore.getState().setPreferences({ premium: true });
+          useToastStore.getState().showToast('🧪 DEV: Premium activated!', 'success');
+          router.replace('/modals/sync');
+          return;
+        }
+        
+        // Production mode - use PocketBase verification
+        try {
+          await verifyAndActivatePremium(username);
+          await exportDeepLinkDebugLogs(`Premium activation URL detected: ${event.url}`);
+        } catch (error) {
+          addSyncLog(`❌ [PROD] Premium verification failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
+          useToastStore.getState().showToast('Premium verification failed', 'error');
+          throw error;
+        }
+        
+        router.replace('/modals/sync');
         return;
       }
       
@@ -147,6 +189,25 @@ async function handleLemonSqueezyReturn(url: string) {
  */
 async function verifyPremiumStatus(params: Record<string, string>) {
   try {
+    // Wait for user store to be hydrated before accessing username
+    const userStore = useUserStore.getState();
+    if (!userStore.hydrated) {
+      addSyncLog(`⏳ [DeepLink] User store not hydrated yet, waiting for premium verification...`, 'info');
+      // Wait for hydration with a timeout
+      await new Promise<void>((resolve) => {
+        const checkHydration = () => {
+          if (useUserStore.getState().hydrated) {
+            resolve();
+          } else {
+            setTimeout(checkHydration, 100);
+          }
+        };
+        checkHydration();
+        // Timeout after 5 seconds
+        setTimeout(() => resolve(), 5000);
+      });
+    }
+    
     const { username } = useUserStore.getState().preferences;
     
     addSyncLog(`🎯 [DeepLink] Starting premium verification for user: ${username || 'UNKNOWN'}`, 'info');

@@ -42,6 +42,10 @@ export const useUserStore = create<UserStore>()(
       preferences: defaultPreferences,
       hydrated: false,
       setPreferences: (newPrefs) => {
+        console.log('🗄️ [UserStore] Setting preferences:', newPrefs);
+        if (newPrefs.premium !== undefined) {
+          console.log('🗄️ [UserStore] Premium flag being set to:', newPrefs.premium);
+        }
         set((state) => ({
           preferences: {
             ...state.preferences,
@@ -66,10 +70,13 @@ export const useUserStore = create<UserStore>()(
       storage: createPersistStorage<UserStore>(),
       onRehydrateStorage: () => (state) => {
         if (state) {
+          console.log('🗄️ [UserStore] Hydrating from storage, premium:', state.preferences.premium);
           state.hydrated = true;
           if (!state.preferences.profilePicture) {
             Sentry.captureException(new Error('User profile picture missing after store hydration'));
           }
+        } else {
+          console.log('🗄️ [UserStore] No state to hydrate from storage');
         }
       },
     }

@@ -32,6 +32,7 @@ const withPort = (raw?: string): string | undefined => {
 const CANDIDATE_URLS = [
   withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
   withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
+  withPort(process.env.EXPO_PUBLIC_PB_URL),         // Alternative LAN fallback
 ].filter(Boolean) as string[];
 
 const HEALTH_TIMEOUT = 8000  // Increased for international connections
@@ -154,6 +155,7 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
 
 // ───────────────────────── ROBUST PB FACTORY ─────────────────────────
 export const getPocketBase = async (): Promise<PocketBaseType> => {
+  console.log('🌐 [PocketBase] Candidate URLs:', CANDIDATE_URLS);
   addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
@@ -179,8 +181,15 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 
-  const { default: PocketBase } = await import('pocketbase');
-  const pb = new PocketBase(selected);
+  let pb;
+  try {
+    const { default: PocketBase } = await import('pocketbase');
+    pb = new PocketBase(selected);
+  } catch (importError) {
+    addSyncLog(`❌ Failed to import PocketBase: ${importError instanceof Error ? importError.message : String(importError)}`, 'error');
+    console.error('PocketBase import failed:', importError);
+    throw new Error('SKIP_SYNC_SILENTLY');
+  }
   
   // Set longer default timeout for all PB operations
   pb.beforeSend = function (url, options) {

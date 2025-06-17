@@ -115,18 +115,19 @@ export default function SyncTable({
       width: contentWidth,
       alignSelf: 'center',
     }}>
-      <XStack alignItems="center" justifyContent="space-between">
+      <XStack alignItems="center" justifyContent="space-between" marginBottom={baseSpacing * 2} paddingBottom={baseSpacing} borderBottomWidth={1} borderColor={colors.border}>
         <Button
           size="$2"
-          backgroundColor={premium ? colors.success : colors.error}
+          backgroundColor={premium ? isDark ? colors.successBgDark : colors.successBgLight : colors.error}
           onPress={() => setPreferences({ premium: !premium })}
           borderRadius={buttonRadius}
-          paddingHorizontal={baseSpacing * 2}
+          borderColor={premium ? isDark ? colors.successBorder : colors.successBorder : colors.error}
+          paddingHorizontal={baseSpacing * 1.5}
           pressStyle={{ scale: 0.97 }}
           animation="quick"
         >
-          <Text color="#fff" fontWeight="700" fontFamily="$body">
-            {premium ? 'Enabled' : 'Disabled'}
+          <Text color={premium ? colors.successText : colors.error} fontWeight="700" fontFamily="$body" fontSize={fontSizes.sm}>
+            {premium ? 'Premium ✓' : 'Disabled ✗'}
           </Text>
         </Button>
         
@@ -155,7 +156,7 @@ export default function SyncTable({
               flexDirection: 'row',
               alignItems: 'center',
               paddingVertical: baseSpacing / 2,
-              paddingHorizontal: baseSpacing,
+              paddingHorizontal: baseSpacing * 1.5,
               backgroundColor: colors.accentBg,
               borderRadius: 8,
             }}
