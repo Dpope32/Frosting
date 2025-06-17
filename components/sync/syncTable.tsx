@@ -1,6 +1,6 @@
 // Fixed SyncTable - Remove duplicates and organize properlyAdd commentMore actions
 import React from 'react';
-import { View, useWindowDimensions, TouchableOpacity, Platform, Linking } from 'react-native';
+import { View, useWindowDimensions, TouchableOpacity, Linking } from 'react-native';
 import { Text, Button, XStack, YStack, isWeb } from 'tamagui';
 import { usePortfolioStore, useUserStore, useToastStore } from '@/store';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -116,7 +116,7 @@ export default function SyncTable({
       alignSelf: 'center',
     }}>
       <XStack alignItems="center" justifyContent="space-between">
-       <Button
+        <Button
           size="$2"
           backgroundColor={premium ? colors.success : colors.error}
           onPress={() => setPreferences({ premium: !premium })}
@@ -129,7 +129,8 @@ export default function SyncTable({
             {premium ? 'Enabled' : 'Disabled'}
           </Text>
         </Button>
-        <XStack alignItems="center" gap={6}>
+        
+        <XStack alignItems="center" gap={6} flex={1} justifyContent="center">
           <View style={{
             width: 8,
             height: 8,
@@ -139,11 +140,9 @@ export default function SyncTable({
           <Text fontSize={fontSizes.sm} fontFamily="$body" color={getStatusColor()} fontWeight="500">
             {getConnectionStatus(premium, syncStatus, currentSpaceId)}
           </Text>
-      </XStack>
-      </XStack>
+        </XStack>
 
-      {premium && (
-        <XStack alignItems="center" justifyContent="center" marginVertical={baseSpacing}>
+        {premium && (
           <TouchableOpacity
             onPress={async () => {
               try {
@@ -155,39 +154,36 @@ export default function SyncTable({
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'flex-start',
-              paddingVertical: baseSpacing,
-              paddingHorizontal: baseSpacing * 1.5,
-              backgroundColor: colors.card,
-              borderRadius: 12,
-              width: '100%',
+              paddingVertical: baseSpacing / 2,
+              paddingHorizontal: baseSpacing,
+              backgroundColor: colors.accentBg,
+              borderRadius: 8,
             }}
           >
             <Text
               style={{
-                color: colors.text,
+                color: colors.accent,
                 fontSize: 14,
-                fontWeight: '500',
-                marginRight: 6,
-                fontFamily: '$body',
+                fontWeight: "500",
+                marginRight: 4,
+                fontFamily: "$body",
               }}
             >
-              Manage Account
+              Account
             </Text>
             <Text
               style={{
-                color: colors.text,
+                color: colors.accent,
                 fontSize: 14,
-                fontWeight: '500',
-                marginRight: 6,
-                fontFamily: '$body',
+                fontWeight: "500",
+                fontFamily: "$body",
               }}
             >
               ↗
             </Text>
           </TouchableOpacity>
-        </XStack>
-      )}
+        )}
+      </XStack>
 
       {inviteCode && currentSpaceId && (
         <XStack alignItems="center" justifyContent="space-between" marginTop={baseSpacing}>

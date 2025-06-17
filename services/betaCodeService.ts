@@ -79,7 +79,7 @@ class BetaCodeService {
     try {
       const pb = await getPocketBase();
       
-      // Get the beta code record
+      addSyncLog('🔍 GET request source: services/betaCodeService.ts - getBetaCode()', 'verbose');
       const records = await pb.collection('beta_codes').getList(1, 1, {
         filter: `code="${code}" && active=true && uses_remaining>0`
       });
@@ -91,7 +91,7 @@ class BetaCodeService {
 
       const betaCode = records.items[0] as unknown as BetaCode;
       
-      // Check if user already used this code
+      addSyncLog('🔍 GET request source: services/betaCodeService.ts - checkExistingUse()', 'verbose');
       const existingUse = await pb.collection('beta_code_uses').getList(1, 1, {
         filter: `code_id="${betaCode.id}" && username="${username}"`
       });

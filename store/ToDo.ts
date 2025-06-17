@@ -225,6 +225,11 @@ const createTaskFilter = () => {
         if (task.completed !== newCompletedState && task.completionHistory[currentDateStrLocal] !== undefined) {
           completionConflicts.push(`${task.name.slice(0, 20)}: stored=${task.completed} vs history=${newCompletedState}`);
         }
+        if (completionUpdates.length === 0) {
+          addSyncLog(`THE BUG IS NOT FUCKING FIXED STILL. No task completion states to update`, 'info');
+        } else {
+          addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
+        }
       } else {
         // For one-time tasks, log if there's a completion history entry for today but completed is false
         const historyToday = task.completionHistory[currentDateStrLocal];
@@ -384,6 +389,13 @@ export const useProjectStore = create<ProjectStore>()(
           
           const updatedTodaysTasks = taskFilter(tasks);
           set({ tasks, todaysTasks: updatedTodaysTasks });
+
+          // mark registry dirty so pushSnapshot can see it
+          addSyncLog(
+            'SYNC_DIRTY',
+            'info',
+            `id=${id.slice(-8)} ts=${Date.now()} completed=${newCompletionStatus}`
+          );
         }
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
@@ -526,23 +538,6 @@ export const useProjectStore = create<ProjectStore>()(
         const curr = existing[id];
         const isBillTask = inc.name.includes('($') || inc.name.toLowerCase().includes('pay ');
         
-        // 🚨 DEBUG LOGGING: Track tomorrow/one-time tasks during sync
-        if ((inc.recurrencePattern === 'tomorrow' || inc.recurrencePattern === 'one-time') && !isBillTask) {
-          if (!curr) {
-            addSyncLog(
-              `[SYNC NEW] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) from sync`,
-              'info',
-              `New ${inc.recurrencePattern} task from sync | Created: ${inc.createdAt} | Updated: ${inc.updatedAt} | Task ID: ${id.slice(-8)}`
-            );
-          } else {
-            addSyncLog(
-              `[SYNC MERGE] "${inc.name.slice(0, 25)}" (${inc.recurrencePattern}) merging`,
-              'verbose',
-              `Local pattern: ${curr.recurrencePattern} | Sync pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
-            );
-          }
-        }
-
         if (!curr) {
           // Only log non-bill additions or first few bill tasks
           if (!isBillTask || addedCount < 2) {

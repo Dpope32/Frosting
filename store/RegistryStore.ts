@@ -33,6 +33,19 @@ interface RegistryState {
   isInitialSyncInProgress: boolean;
   initialSyncStartTime: number | null;
 
+  // Sync-related state
+  snapshotSizeCache: {
+    mb: number;
+    gb: number;
+    formatted: {
+      mb: string;
+      gb: string;
+      auto: string;
+    };
+    progressPercentage: number;
+    lastUpdated: number;
+  } | null;
+
   setHasCompletedOnboarding: (value: boolean) => void;
   setIsFirstLaunch: (value: boolean) => void;
   setSyncStatus: (status: 'idle' | 'syncing' | 'error') => void;
@@ -47,6 +60,15 @@ interface RegistryState {
   // NEW: Initial sync methods
   startInitialSync: () => void;
   completeInitialSync: () => void;
+
+  // Sync-related methods
+  setSnapshotSizeCache: (sizeData: {
+    mb: number;
+    gb: number;
+    formatted: { mb: string; gb: string; auto: string };
+    progressPercentage: number;
+    lastUpdated: number;
+  } | null) => void;
 }
 
 
@@ -71,6 +93,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     initialSyncStartTime: null,
     stocksLastUpdated: 0,
     workspaceId: null,
+    snapshotSizeCache: null,
     setHasCompletedOnboarding: (value) => set({ hasCompletedOnboarding: value }),
     setIsFirstLaunch: (value) => set({ isFirstLaunch: value }),
     setSyncStatus: (status) => set({ syncStatus: status }),
@@ -351,6 +374,15 @@ if (portfolioStoreFullState.isSyncEnabled) {
       get().syncOnboardingWithUser();
       addSyncLog(`✨ Hydration complete: ${successCount} stores updated, ${errorCount} errors.`, 'success');
     },    
+    setSnapshotSizeCache: (sizeData: {
+      mb: number;
+      gb: number;
+      formatted: { mb: string; gb: string; auto: string };
+      progressPercentage: number;
+      lastUpdated: number;
+    } | null) => {
+      set({ snapshotSizeCache: sizeData });
+    },
   };
 });
 

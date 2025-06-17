@@ -38,8 +38,7 @@ export const checkPremiumStatus = async (username: string, deviceId?: string): P
       filter += ` && device_id = "${deviceId}"`;
     }
     
-    addSyncLog(`🔍 Querying premium_users with filter: ${filter}`, 'verbose');
-    
+    addSyncLog(`🔍 Querying premium_users with filter: ${filter} in sync/premiumVerification.ts`, 'verbose');
     const record = await pb.collection('premium_users').getFirstListItem(filter);
     
     if (record) {
@@ -122,6 +121,7 @@ export const getAllPremiumUsers = async (): Promise<PremiumUser[]> => {
     
     const pb = await getPocketBase();
     
+    addSyncLog('🔍 GET request source: sync/premiumVerification.ts - getAllPremiumUsers()', 'verbose');
     const records = await pb.collection('premium_users').getFullList({
       sort: '-created',
       filter: 'is_active = true'

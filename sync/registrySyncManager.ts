@@ -3,7 +3,6 @@ import { addSyncLog } from '@/components/sync/syncUtils';
 import { generateRandomKey } from './randomKey';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { useUserStore } from '@/store';
 import * as Sentry from '@sentry/react-native';
 import { getCurrentWorkspaceId } from './getWorkspace';
 import { getWorkspaceKey } from './workspaceKey';

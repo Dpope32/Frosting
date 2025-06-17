@@ -200,7 +200,7 @@ useEffect(() => {
     
     try {
       if (nextAppState === 'active') {
-        addSyncLog('📥 App resumed – pulling latest snapshot', 'info');
+        addSyncLog('📥 App resumed – pulling latest snapshot GET request source: app/_layout.tsx ', 'info');
         await pullLatestSnapshot();
         
         setTimeout(() => {

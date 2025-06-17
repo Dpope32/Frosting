@@ -18,6 +18,44 @@ import { getCurrentWorkspaceId } from "./getWorkspace";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { getWorkspaceKey } from "./workspaceKey";
 import { Platform } from 'react-native';
+
+// Helper functions for snapshot size calculation
+const calculateSizeFromBase64 = (base64String: string): number => {
+  // Base64 encoding ratio is approximately 4:3 (4 characters for every 3 bytes)
+  return Math.floor(base64String.length * 3 / 4);
+};
+
+const formatSizeData = (bytes: number) => {
+  const mb = bytes / (1024 * 1024);
+  const gb = bytes / (1024 * 1024 * 1024);
+  
+  // 10GB max for progress bar
+  const maxBytes = 10 * 1024 * 1024 * 1024;
+  const progressPercentage = Math.min((bytes / maxBytes) * 100, 100);
+  
+  // Auto format to best unit
+  let autoFormatted: string;
+  if (gb >= 1) {
+    autoFormatted = `${gb.toFixed(2)} GB`;
+  } else if (mb >= 1) {
+    autoFormatted = `${mb.toFixed(2)} MB`;
+  } else {
+    autoFormatted = `${bytes} bytes`;
+  }
+
+  return {
+    mb: Math.round(mb * 100) / 100,
+    gb: Math.round(gb * 10000) / 10000,
+    formatted: {
+      mb: `${(Math.round(mb * 100) / 100).toLocaleString()} MB`,
+      gb: `${(Math.round(gb * 10000) / 10000).toLocaleString()} GB`,
+      auto: autoFormatted,
+    },
+    progressPercentage,
+    lastUpdated: Date.now(),
+  };
+};
+
 let lastExport = 0;
 let dirtyAfterPush = false;           // <— new flag
 
@@ -128,6 +166,7 @@ export const pushSnapshot = async (): Promise<void> => {
 export const pullLatestSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
 
+  addSyncLog('📥 pullLatestSnapshot() called - will make GET request to registry_snapshots', 'verbose');
  // const runId = Date.now().toString(36);
 //  addSyncLog(`🛰️  ${runId} – pull`, 'info');
   useRegistryStore.getState().setSyncStatus('syncing');
@@ -149,6 +188,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
 
     const pb = await getPocketBase();
+    addSyncLog('🔍 GET request source: sync/snapshotPushPull.ts - pullLatestSnapshot()', 'verbose');
     const { items } = await pb.collection('registry_snapshots').getList(1, 1, {
       filter: `workspace_id="${workspaceId}"`,
       sort: '-created',
@@ -160,6 +200,18 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
 
     const cipher = items[0].snapshot_blob as string;
+    
+    // Calculate and cache the snapshot size to avoid redundant GET requests
+    const bytes = calculateSizeFromBase64(cipher);
+    const sizeData = formatSizeData(bytes);
+    useRegistryStore.getState().setSnapshotSizeCache(sizeData);
+    
+    addSyncLog(
+      `📏 Cached snapshot size: ${sizeData.formatted.auto}`, 
+      'success',
+      `Progress: ${sizeData.progressPercentage.toFixed(1)}% of 10GB limit`
+    );
+    
     const key = await getWorkspaceKey();
 
     let plain: Record<string, unknown>;

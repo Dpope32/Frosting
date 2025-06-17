@@ -23,6 +23,7 @@ export const createOrJoinWorkspace = async (
   const pb       = await getPocketBase();
   const deviceId = await generateSyncKey();
   if (!workspaceId && inviteCode) {
+    addSyncLog('🔍 GET request source: sync/workspace.ts - lookup workspace by invite code', 'verbose');
     const ws = await pb
       .collection('sync_workspaces')
       .getFirstListItem(`invite_code="${inviteCode}"`);   // ← indexed column
@@ -65,6 +66,7 @@ export const createOrJoinWorkspace = async (
     }
 
     await exportEncryptedState(useRegistryStore.getState().getAllStoreStates());
+    addSyncLog('🔍 GET request source: sync/workspace.ts - Workspace join/create sync', 'verbose');
     await Promise.all([pushSnapshot(), pullLatestSnapshot()]);
 
     return { id: workspaceId, inviteCode };
