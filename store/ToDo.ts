@@ -7,6 +7,7 @@ import { Task, WeekDay } from '@/types'
 import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils';
 import { addSyncLog } from '@/components/sync/syncUtils'
+import { useUserStore } from '@/store/UserStore'
 
 
 interface ProjectStore {
@@ -395,6 +396,19 @@ export const useProjectStore = create<ProjectStore>()(
             'info',
             `id=${id.slice(-8)} ts=${Date.now()} completed=${newCompletionStatus}`
           );
+
+          // 🚨 ADD THIS: Trigger sync after toggle
+          if (useUserStore.getState().preferences.premium) {
+            setTimeout(async () => {
+              try {
+                const { pushSnapshot } = await import('@/sync/snapshotPushPull');
+                await pushSnapshot();
+                addSyncLog('📤 Auto-sync after task toggle', 'verbose');
+              } catch (err) {
+                addSyncLog('❌ Auto-sync failed after toggle', 'error', err instanceof Error ? err.message : String(err));
+              }
+            }, 1000); // 1 second delay to batch multiple toggles
+          }
         }
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
