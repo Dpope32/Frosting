@@ -7,6 +7,9 @@ import { addSyncLog, getLogQueue } from '@/components/sync/syncUtils';
 import { completePremiumPurchase } from '@/services/premiumService';
 import { exportLogsToServer } from '@/sync/pocketSync';
 
+// Duplicate URL guard to prevent iOS double-firing
+let lastUrlSeen: string | null = null;
+
 // Helper function to export debug logs for deep link issues
 const exportDeepLinkDebugLogs = async (context: string): Promise<void> => {
   try {
@@ -22,8 +25,22 @@ const exportDeepLinkDebugLogs = async (context: string): Promise<void> => {
   }
 };
 
-export function handleDeepLink(event: { url: string | NotificationResponse }) {  
+/**
+ * Handle deep links for the one-tap lifetime premium tier system
+ * Processes notification links, LemonSqueezy redirects, custom schemes, share links, and habits navigation
+ */
+export async function handleDeepLink(event: { url: string | NotificationResponse }) {  
   addSyncLog(`🔗 [DeepLink] Received deep link event: ${JSON.stringify(event)}`, 'verbose');
+  
+  // Early-exit for duplicate deep links (iOS sometimes fires twice)
+  const currentUrl = typeof event.url === 'string' ? event.url : JSON.stringify(event.url);
+  if (lastUrlSeen === currentUrl) {
+    addSyncLog(`🔄 [DeepLink] Duplicate URL detected, skipping: ${currentUrl}`, 'verbose');
+    return;
+  }
+  lastUrlSeen = currentUrl;
+  // Clear guard after 2s to allow repeat taps if needed
+  setTimeout(() => { lastUrlSeen = null }, 2000);
   
   if (typeof event.url === 'object' && 'notification' in event.url) {
     const url = event.url.notification.request.content.data?.url;
@@ -37,7 +54,7 @@ export function handleDeepLink(event: { url: string | NotificationResponse }) {
   if (typeof event.url === 'string') {
     addSyncLog(`🔗 [DeepLink] Processing string URL: ${event.url}`, 'info');
     
-    // Handle LemonSqueezy success return URLs
+    // Handle LemonSqueezy success return URLs for one-tap lifetime premium
     if (event.url.includes('lemonsqueezy.com') || event.url.includes('success') || event.url.includes('checkout')) {
       addSyncLog(`🍋 [DeepLink] LemonSqueezy URL detected, processing...`, 'info');
       handleLemonSqueezyReturn(event.url);
@@ -46,9 +63,11 @@ export function handleDeepLink(event: { url: string | NotificationResponse }) {
 
     // Handle custom app scheme URLs
     if (event.url.startsWith('kaiba-nexus://')) {
-      if (event.url.startsWith('kaiba-nexus://premium-success')) {
-        addSyncLog(`🎉 [DeepLink] Premium success URL detected`, 'info');
-        handlePremiumSuccess(event.url);
+      // Unified premium activation route for one-tap lifetime tier
+      if (event.url.startsWith('kaiba-nexus://activate-premium')) {
+        addSyncLog(`🎉 [DeepLink] Premium activation URL detected`, 'info');
+        const { username } = useUserStore.getState().preferences;
+        await verifyAndActivatePremium(username);
         return;
       }
       
@@ -79,7 +98,7 @@ export function handleDeepLink(event: { url: string | NotificationResponse }) {
 }
 
 /**
- * Handle LemonSqueezy return URLs (success, cancelled, etc.)
+ * Handle LemonSqueezy return URLs for one-tap lifetime premium tier
  * This is crucial for webhook functionality!
  */
 async function handleLemonSqueezyReturn(url: string) {
@@ -95,10 +114,9 @@ async function handleLemonSqueezyReturn(url: string) {
     
     // Check for success indicators in URL
     const isSuccess = 
-      url.includes('success') || 
+      urlObj.pathname.endsWith('/success') || 
       params.status === 'success' || 
-      params.payment_status === 'paid' ||
-      urlObj.pathname.includes('success');
+      params.payment_status === 'paid';
     
     addSyncLog(`🎯 [DeepLink] LemonSqueezy success check: ${isSuccess}`, 'info');
     
@@ -124,33 +142,7 @@ async function handleLemonSqueezyReturn(url: string) {
 }
 
 /**
- * Handle custom premium success deep link (kaiba-nexus://premium-success)
- */
-async function handlePremiumSuccess(url: string) {
-  try {
-    addSyncLog(`🎉 [DeepLink] Premium success deep link detected: ${url}`, 'info');
-    await exportDeepLinkDebugLogs(`Premium success deep link processing: ${url}`);
-    
-    const urlObj = new URL(url);
-    const params = Object.fromEntries(urlObj.searchParams.entries());
-    
-    addSyncLog(`🔍 [DeepLink] Premium success params: ${JSON.stringify(params)}`, 'verbose');
-    
-    await verifyPremiumStatus(params);
-    
-    // Navigate to sync page
-    addSyncLog(`🧭 [DeepLink] Navigating to sync modal after premium success`, 'info');
-    router.push('/modals/sync');
-    
-  } catch (error) {
-    addSyncLog(`🔥 [DeepLink] Error handling premium success: ${error instanceof Error ? error.message : String(error)}`, 'error');
-    await exportDeepLinkDebugLogs(`Premium success ERROR: ${error instanceof Error ? error.message : String(error)}`);
-    useToastStore.getState().showToast('Error activating premium', 'error');
-  }
-}
-
-/**
- * Verify premium status with PocketBase and activate if valid
+ * Verify premium status with PocketBase and activate one-tap lifetime tier if valid
  * This function is KEY for webhook functionality!
  */
 async function verifyPremiumStatus(params: Record<string, string>) {
@@ -189,6 +181,9 @@ async function verifyPremiumStatus(params: Record<string, string>) {
       )
     ]);
     
+    // Log which branch won the race
+    addSyncLog(`🏁 [DeepLink] Premium check resolved via ${success ? 'PocketBase' : 'timeout'}`, 'verbose');
+    
     if (success) {
       addSyncLog(`🎉 [DeepLink] Premium successfully activated for ${username}!`, 'success');
       useToastStore.getState().showToast('Premium activated successfully! 🎉', 'success');
@@ -202,11 +197,13 @@ async function verifyPremiumStatus(params: Record<string, string>) {
       addSyncLog(`❌ [DeepLink] Premium verification failed for ${username}`, 'error');
       useToastStore.getState().showToast('Premium verification failed. Please contact support if you completed purchase.', 'error');
       await exportDeepLinkDebugLogs(`Premium verification FAILED for ${username}`);
+      return; // Don't continue to navigation when verification failed
     }
     
   } catch (error) {
     addSyncLog(`🔥 [DeepLink] Error during premium verification: ${error instanceof Error ? error.message : String(error)}`, 'error');
     await exportDeepLinkDebugLogs(`Premium verification ERROR: ${error instanceof Error ? error.message : String(error)}`);
     useToastStore.getState().showToast('Error verifying premium status - app continues normally', 'error');
+    return; // Don't continue to navigation when there's an error
   }
 }

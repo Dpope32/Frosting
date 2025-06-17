@@ -18,7 +18,7 @@ interface PremiumUser {
 /**
  * Check if a user has premium access using existing PocketBase infrastructure
  */
-export const checkPremiumStatus = async (username: string, deviceId?: string): Promise<{ isPremium: boolean; user?: PremiumUser }> => {
+export const checkPremiumStatus = async (username: string): Promise<{ isPremium: boolean; user?: PremiumUser }> => {
   try {
     addSyncLog(`🔍 Checking premium status for user: ${username}`, 'info');
     
@@ -34,9 +34,6 @@ export const checkPremiumStatus = async (username: string, deviceId?: string): P
     
     // Build filter query
     let filter = `username = "${username}" && is_active = true`;
-    if (deviceId) {
-      filter += ` && device_id = "${deviceId}"`;
-    }
     
     addSyncLog(`🔍 Querying premium_users with filter: ${filter} in sync/premiumVerification.ts`, 'verbose');
     const record = await pb.collection('premium_users').getFirstListItem(filter);
@@ -87,7 +84,7 @@ export const checkPremiumStatus = async (username: string, deviceId?: string): P
 export const verifyAndActivatePremium = async (username: string, deviceId?: string): Promise<boolean> => {
   try {
     addSyncLog(`🎯 Starting premium activation for ${username}`, 'info');
-    const { isPremium, user } = await checkPremiumStatus(username, deviceId);
+    const { isPremium, user } = await checkPremiumStatus(username);
     
     if (isPremium && user) {
       // Update local user store
