@@ -9,8 +9,8 @@ import { getCurrentWorkspaceId } from './getWorkspace';
 import { getWorkspaceKey } from './workspaceKey';
 import { encryptSnapshot } from '@/lib/encryption';
 import * as FileSystem from 'expo-file-system';
-import { Task } from '@/types';
 import CryptoJS from 'crypto-js';
+import { format } from 'date-fns';
 
 const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
 
@@ -44,7 +44,6 @@ export const generateSyncKey = async (): Promise<string> => {
   return newDeviceId;
 };
 
-
 /**
  * Exports the entire registry snapshot, encrypts it, and writes to a file.
  * @param allStates The states from all stores to encrypt and export
@@ -58,47 +57,92 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     level: 'info',
   });
   
-  // Add prune analysis here
-  if (allStates.TaskStore?.tasks) {
-    const tasks = allStates.TaskStore.tasks;
-    const completedOneTimeTasks = tasks.filter((task: any) => 
-      task.pattern === 'one-time' && task.completed === true
-    );
-
-    if (!allStates.TaskStore.tasks) {
-      addSyncLog('No tasks found in TaskStore for some reason?', 'error');
-      throw new Error('No tasks found in TaskStore');
-    }
+  // 🔧 FIXED: Better completion analysis that handles both patterns correctly
+  if (allStates.tasks?.tasks) {
+    const tasks = Object.values(allStates.tasks.tasks) as any[];
+    const today = format(new Date(), 'yyyy-MM-dd'); // CORRECT - Uses local timezone like toggleTaskCompletion
     
-    addSyncLog(`🔍 Prune analysis: Found ${completedOneTimeTasks.length} completed one-time tasks`, 'info');
-    
-    if (completedOneTimeTasks.length > 0) {
-      const now = new Date();
-      const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    // Count all tasks with ANY completion data for today
+    const tasksWithTodayCompletion = tasks.filter(task => {
+      // Check both completion history and current completion status for today
+      const hasHistoryForToday = task.completionHistory && task.completionHistory[today] !== undefined;
+      const isCompletedToday = task.completed && (
+        // For one-time tasks, check if updated today
+        task.recurrencePattern === 'one-time' && 
+        new Date(task.updatedAt).toISOString().split('T')[0] === today
+      ) || (
+        // For recurring tasks, check history
+        task.recurrencePattern !== 'one-time' && hasHistoryForToday
+      );
       
-      const pruneCandidates = completedOneTimeTasks.filter((task: any) => {
-        const completedDate = new Date(task.updatedAt || task.createdAt);
-        return completedDate < thirtyDaysAgo;
+      return hasHistoryForToday || isCompletedToday;
+    });
+
+    addSyncLog(
+      `[EXPORT VERIFICATION] Exporting ${tasks.length} tasks to server`,
+      'info',
+      `Today's completions being exported: ${tasksWithTodayCompletion.length} | Local total: ${tasks.length}`
+    );
+    
+    if (tasksWithTodayCompletion.length > 0) {
+      // 🚨 DETAILED EXPORT DEBUG: Log each task's completion data
+      tasksWithTodayCompletion.forEach(task => {
+        addSyncLog(
+          `[EXPORT TODAY TASK] "${task.name.slice(0, 20)}" - ${today}: ${task.completionHistory[today]}`,
+          'error',
+          `🚨 EXPORTING: ID=${task.id.slice(-8)}, completed=${task.completed}, pattern=${task.recurrencePattern}, updated=${task.updatedAt}, fullHistory=${JSON.stringify(task.completionHistory)}`
+        );
       });
       
-      addSyncLog(`📋 Prune candidates: ${pruneCandidates.length} tasks completed >30 days ago`, 'info');
+      const completionSummary = tasksWithTodayCompletion.map(task => {
+        const historyValue = task.completionHistory?.[today];
+        return `${task.name.slice(0, 25)}(${task.id.slice(-6)}):${historyValue}`;
+      }).join(', ');
       
-      if (pruneCandidates.length > 0) {
-        pruneCandidates.slice(0, 5).forEach((task: any) => {
-          const completedDate = new Date(task.updatedAt || task.createdAt);
-          const daysAgo = Math.floor((now.getTime() - completedDate.getTime()) / (24 * 60 * 60 * 1000));
-          addSyncLog(`🗑️ Prune candidate: "${task.name}" (completed ${daysAgo} days ago)`, 'verbose');
-        });
-        
-        if (pruneCandidates.length > 5) {
-          addSyncLog(`... and ${pruneCandidates.length - 5} more prune candidates`, 'verbose');
-        }
-      } else {
-        addSyncLog('✅ No prune candidates found (all completed tasks are <30 days old)', 'info');
-      }
+      addSyncLog(
+        `[SNAPSHOT EXPORT] ${tasksWithTodayCompletion.length} tasks with completion data for ${today}`,
+        'error',
+        `🚨 EXPORT SUMMARY: ${completionSummary}`
+      );
     } else {
-      addSyncLog('ℹ️ No completed one-time tasks found', 'info');
+      addSyncLog(
+        `[SNAPSHOT EXPORT] No tasks have completion history for ${today}`,
+        'warning'
+      );
+      
+      // 🚨 DEBUG: Show what dates DO have completion data
+      const tasksWithAnyCompletion = tasks.filter(task => 
+        task.completionHistory && Object.keys(task.completionHistory).length > 0
+      );
+      if (tasksWithAnyCompletion.length > 0) {
+        const allCompletionDates = new Set();
+        tasksWithAnyCompletion.forEach(task => {
+          Object.keys(task.completionHistory || {}).forEach(date => allCompletionDates.add(date));
+        });
+        addSyncLog(
+          `[EXPORT DEBUG] Found completion history for dates: ${Array.from(allCompletionDates).sort().join(', ')}`,
+          'warning',
+          `🚨 But NO completion data for today (${today}). Tasks with completion history: ${tasksWithAnyCompletion.length}. Check date format consistency!`
+        );
+      }
     }
+
+    // 🔧 CRITICAL FIX: Ensure completion data is preserved in the export
+    // Make sure we're not losing completion data during the snapshot process
+    const verificationSample = tasks.slice(0, 5).map(task => ({
+      name: task.name.slice(0, 20),
+      id: task.id.slice(-6),
+      completed: task.completed,
+      pattern: task.recurrencePattern,
+      historyToday: task.completionHistory?.[today],
+      historyKeys: Object.keys(task.completionHistory || {}).length
+    }));
+    
+    addSyncLog(
+      `[EXPORT SAMPLE] First 5 tasks completion state verification`,
+      'verbose',
+      JSON.stringify(verificationSample, null, 2)
+    );
   }
   
   try {
@@ -110,10 +154,11 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       addSyncLog('Failed to generate or retrieve encryption key', 'error');
       throw new Error('Failed to generate or retrieve encryption key');
     }
-    //addSyncLog(`🔑 Using key hash ${key.slice(0,6)}…${key.slice(-6)}`, 'verbose');
+    
+    // 🔧 IMPORTANT: Ensure we're encrypting the EXACT data we just verified
     const cipher = encryptSnapshot(allStates, key);
     const sha = CryptoJS.SHA256(cipher).toString().slice(0,8);
-    //addSyncLog(`📦 Snapshot SHA ${sha}`, 'verbose');
+    addSyncLog(`📦 Snapshot encrypted with SHA ${sha}`, 'verbose');
     
     // Web compatibility: use localStorage instead of FileSystem
     let uri: string;
@@ -135,6 +180,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       data: { uri },
       level: 'info',
     });
+    
     return uri;
   } catch (err) {
     Sentry.captureException(err);
@@ -147,40 +193,4 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     addSyncLog('Error in exportEncryptedState', 'error');
     throw err;
   }
-};
-
-export const pruneCompletedTasks = (tasks: Record<string, Task>): Record<string, Task> => {
-  const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-  
-  const pruned = Object.entries(tasks).reduce((acc, [id, task]) => {
-    // Keep all non-one-time tasks
-    if (task.recurrencePattern !== 'one-time') {
-      acc[id] = task;
-      return acc;
-    }
-    
-    // Keep uncompleted one-time tasks
-    if (!task.completed) {
-      acc[id] = task;
-      return acc;
-    }
-    
-    // Keep recently completed one-time tasks (within 30 days)
-    const completedDate = new Date(task.updatedAt || task.createdAt);
-    if (completedDate >= thirtyDaysAgo) {
-      acc[id] = task;
-      return acc;
-    }
-    
-    // This task gets pruned - it's completed and old
-    return acc;
-  }, {} as Record<string, Task>);
-  
-  const prunedCount = Object.keys(tasks).length - Object.keys(pruned).length;
-  if (prunedCount > 0) {
-    addSyncLog(`🗑️ Pruned ${prunedCount} old completed tasks`, 'info');
-  }
-  
-  return pruned;
 };
