@@ -225,11 +225,10 @@ const createTaskFilter = () => {
         if (task.completed !== newCompletedState && task.completionHistory[currentDateStrLocal] !== undefined) {
           completionConflicts.push(`${task.name.slice(0, 20)}: stored=${task.completed} vs history=${newCompletedState}`);
         }
-        if (completionUpdates.length === 0) {
-          addSyncLog(`THE BUG IS NOT FUCKING FIXED STILL. No task completion states to update`, 'info');
-        } else {
+        if (completionUpdates.length > 0) {
           addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
         }
+
       } else {
         // For one-time tasks, log if there's a completion history entry for today but completed is false
         const historyToday = task.completionHistory[currentDateStrLocal];
