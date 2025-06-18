@@ -203,7 +203,7 @@ export const pushSnapshot = async (): Promise<void> => {
 export const pullLatestSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
 
-  addSyncLog('📥 pullLatestSnapshot() called - will make GET request to registry_snapshots', 'verbose');
+ // addSyncLog('📥 pullLatestSnapshot() called - will make GET request to registry_snapshots', 'verbose');
  // const runId = Date.now().toString(36);
 //  addSyncLog(`🛰️  ${runId} – pull`, 'info');
   useRegistryStore.getState().setSyncStatus('syncing');

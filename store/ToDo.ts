@@ -568,18 +568,6 @@ export const useProjectStore = create<ProjectStore>()(
         const mergedHistory: Record<string, boolean> = { ...currHistory };
         const today = format(new Date(), 'yyyy-MM-dd');
         
-        // 🚨 COMPLETION DEBUG: Log incoming completion data for this task
-        const incHistoryKeys = Object.keys(incHistory);
-        const currHistoryKeys = Object.keys(currHistory);
-        
-        if (incHistoryKeys.length > 0 || currHistoryKeys.length > 0) {
-          addSyncLog(
-            `[COMPLETION MERGE] "${inc.name.slice(0, 20)}" - Incoming: ${incHistoryKeys.length} dates, Local: ${currHistoryKeys.length} dates`,
-            'info',
-            `Incoming history: ${JSON.stringify(incHistory)} | Local history: ${JSON.stringify(currHistory)}`
-          );
-        }
-        
         // Special tracking for today's completion data
         const incTodayValue = incHistory[today];
         const currTodayValue = currHistory[today];
@@ -780,10 +768,7 @@ export const useProjectStore = create<ProjectStore>()(
       if (tasksWithTodayCompletion.length > 0) {
         addSyncLog(
           `[PRE-STORE VERIFICATION] About to store ${tasksWithTodayCompletion.length} tasks with today's completion data`,
-          'error',
-          `🚨 Tasks: ${tasksWithTodayCompletion.map(([id, task]) => 
-            `${task.name.slice(0, 15)}[${today}]=${task.completionHistory[today]}`
-          ).join(', ')}`
+          'error'
         );
       }
 

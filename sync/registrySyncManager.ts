@@ -128,7 +128,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
 
     // 🔧 CRITICAL FIX: Ensure completion data is preserved in the export
     // Make sure we're not losing completion data during the snapshot process
-    const verificationSample = tasks.slice(0, 5).map(task => ({
+    const verificationSample = tasks.slice(0, 10).map(task => ({
       name: task.name.slice(0, 20),
       id: task.id.slice(-6),
       completed: task.completed,
@@ -138,7 +138,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     }));
     
     addSyncLog(
-      `[EXPORT SAMPLE] First 5 tasks completion state verification`,
+      `[EXPORT SAMPLE] First 10 tasks completion state verification`,
       'verbose',
       JSON.stringify(verificationSample, null, 2)
     );

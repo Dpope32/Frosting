@@ -200,7 +200,7 @@ useEffect(() => {
     
     try {
       if (nextAppState === 'active') {
-        addSyncLog('📥 App resumed – pulling latest snapshot GET request source: app/_layout.tsx ', 'info');
+        addSyncLog('📥 App resumed – pulling latest snapshot to merge remote changes', 'info');
         await pullLatestSnapshot();
         
         setTimeout(() => {
@@ -209,7 +209,7 @@ useEffect(() => {
         
         addSyncLog('✅ Resume pull completed', 'success');
       } else if (nextAppState === 'background') {
-        addSyncLog('📤 App backgrounded – pushing snapshot in app/_layout.tsx', 'info');
+        addSyncLog('📤 App backgrounded – pushing merged snapshot', 'info');
         await pushSnapshot();
         addSyncLog('✅ Background push completed', 'success');
       } else if (nextAppState === 'inactive') {

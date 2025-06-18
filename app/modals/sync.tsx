@@ -43,7 +43,7 @@ if (!(global as any)._syncFetchWrapped) {
           else { bodyString = JSON.stringify(init.body).substring(0, 500) }
         } catch { bodyString = '[Unstringifiable body]' }
       }
-      addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', init?.body ? `Body: ${bodyString}` : undefined)
+     // addSyncLog(`🌐 Request: ${init?.method || 'GET'} ${url}`, 'info', init?.body ? `Body: ${bodyString}` : undefined)
     }
     try {
       const response = await originalFetch(input, init)
@@ -54,10 +54,10 @@ if (!(global as any)._syncFetchWrapped) {
         if (contentType.includes('application/json')) {
           const data = await cloned.json()
           const s = JSON.stringify(data)
-          details =  s.length > 500  ? s.substring(0, 500) + '...' : s
+          details =  s.length > 500  ? s.substring(0, 300) + '...' : s
         } else if (contentType.includes('text')) {
           const t = await cloned.text()
-          details = t.length > 500  ? t.substring(0, 500) + '...'  : t
+          details = t.length > 500  ? t.substring(0, 300) + '...'  : t
         }
         addSyncLog(`📥 Response: ${response.status} from ${url}`, response.ok ? 'success' : 'error', details)
       }

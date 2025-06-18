@@ -77,14 +77,14 @@ export default function Index() {
       const hydrationTime = Date.now();
       const hydrationDuration = hydrationTime - overallStartTime;
       
-      addSyncLog(`📚 All stores hydrated in ${hydrationDuration}ms (${(hydrationDuration/1000).toFixed(1)}s)`, 'verbose');
+      addSyncLog(`📚 All stores hydrated in ${(hydrationDuration/1000).toFixed(1)}s`, 'verbose');
       if (Platform.OS === 'android') {
         addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
       }
   
       if (!premium) {
         const totalTime = Date.now() - overallStartTime;
-        addSyncLog(`⚡ App ready for non-premium user in ${totalTime}ms (${(totalTime/1000).toFixed(1)}s)`, 'info');
+        addSyncLog(`⚡ App ready for non-premium user in ${(totalTime/1000).toFixed(1)}s`, 'info');
         return;
       }                                       
       
@@ -97,29 +97,33 @@ export default function Index() {
       await exportEncryptedState(state);
       const exportEndTime = Date.now();
       const exportDuration = exportEndTime - exportStartTime;
-      addSyncLog(`💾 Export phase completed in ${exportDuration}ms (${(exportDuration/1000).toFixed(1)}s)`, 'info');
+              addSyncLog(`💾 Export phase completed in ${(exportDuration/1000).toFixed(1)}s`, 'info');
   
       if (finishedOnboarding) {
-        // Push phase timing - PUSH THE EXPORTED DATA BEFORE PULLING
-        const pushStartTime = Date.now();
-        const { pushSnapshot } = await import('@/sync/snapshotPushPull');
-        await pushSnapshot();
-        const pushEndTime = Date.now();
-        const pushDuration = pushEndTime - pushStartTime;
-        addSyncLog(`📤 Push phase completed in ${pushDuration}ms (${(pushDuration/1000).toFixed(1)}s) source: app/index.tsx`, 'success');
-        // Pull phase timing
+        // CRITICAL FIX: Pull first to get other devices' data, then push merged result
+        // This fixes the circular self-sync bug where each device was only syncing with itself
+        
+        // Pull phase timing - GET OTHER DEVICES' DATA FIRST
         const pullStartTime = Date.now();
         await pullLatestSnapshot();
         const pullEndTime = Date.now();
         const pullDuration = pullEndTime - pullStartTime;
         
         const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
-        addSyncLog(`📥 ${platformEmoji} Pull phase completed in ${pullDuration}ms (${(pullDuration/1000).toFixed(1)}s)`, 'success');
+        addSyncLog(`📥 ${platformEmoji} Pull phase completed in ${(pullDuration/1000).toFixed(1)}s - got remote data first`, 'success');
+        
+        // Push phase timing - PUSH MERGED DATA (local + remote)
+        const pushStartTime = Date.now();
+        const { pushSnapshot } = await import('@/sync/snapshotPushPull');
+        await pushSnapshot();
+        const pushEndTime = Date.now();
+        const pushDuration = pushEndTime - pushStartTime;
+        addSyncLog(`📤 Push phase completed in ${(pushDuration/1000).toFixed(1)}s source: app/index.tsx - pushed merged data`, 'success');
         
         // Total timing breakdown
         const totalTime = Date.now() - overallStartTime;
         const syncTime = totalTime - hydrationDuration;
-        addSyncLog(`⚡ App startup breakdown: Hydration=${hydrationDuration}ms, Sync=${syncTime}ms, Total=${totalTime}ms`, 'info');
+        addSyncLog(`⚡ App startup breakdown: Hydration=${(hydrationDuration/1000).toFixed(1)}s, Sync=${(syncTime/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
         
         // Complete initial sync tracking and show toast
         completeInitialSync();
@@ -128,13 +132,13 @@ export default function Index() {
         // Complete initial sync even if onboarding not finished
         completeInitialSync();
         const totalTime = Date.now() - overallStartTime;
-        addSyncLog(`⚡ App ready (onboarding pending) in ${totalTime}ms (${(totalTime/1000).toFixed(1)}s)`, 'info');
+        addSyncLog(`⚡ App ready (onboarding pending) in ${(totalTime/1000).toFixed(1)}s`, 'info');
       }
     })().catch(e => {
       // Make sure to complete sync tracking even on error
       completeInitialSync();
       const totalTime = Date.now() - overallStartTime;
-      addSyncLog(`🔥 Startup sync failed after ${totalTime}ms: ${e?.message || String(e)}`, 'error');
+      addSyncLog(`🔥 Startup sync failed after ${(totalTime/1000).toFixed(1)}s: ${e?.message || String(e)}`, 'error');
     });
   }, [premium, finishedOnboarding]);
 

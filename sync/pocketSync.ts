@@ -90,7 +90,7 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
   const timer = setTimeout(() => ctrl.abort(), timeout);
 
   try {
-    addSyncLog(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
+    //addSyncLog(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
     
     let res = await fetch(url, { 
       method: 'GET', 
@@ -103,7 +103,7 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     });
     
     if (res.status === 405) {
-      addSyncLog(`GET 405 — retrying HEAD for ${url}`, 'verbose');
+   //   addSyncLog(`GET 405 — retrying HEAD for ${url}`, 'verbose');
       res = await fetch(url, { 
         method: 'HEAD', 
         signal: ctrl.signal,
@@ -118,7 +118,7 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
 
     // Accept 200, 401, or 404 as "alive" (different PB versions)
     if (res.status === 200 || res.status === 401 || res.status === 404) {
-      addSyncLog(`✅ ${url} -> ${res.status} (success)`, 'info');
+    //  addSyncLog(`✅ ${url} -> ${res.status} (success)`, 'info');
       return true;
     }
     
@@ -128,7 +128,7 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
   } catch (e: any) {
     clearTimeout(timer);
     const errorMsg = e.name === 'AbortError' ? 'timeout' : e.message || 'unknown error';
-    addSyncLog(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
+   // addSyncLog(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
     return false;
   }
 };
@@ -149,24 +149,24 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
     }
   }
   
-  addSyncLog(`❌ ${baseUrl} failed after ${MAX_RETRIES + 1} attempts`, 'error');
+ // addSyncLog(`❌ ${baseUrl} failed after ${MAX_RETRIES + 1} attempts`, 'error');
   return false;
 };
 
 // ───────────────────────── ROBUST PB FACTORY ─────────────────────────
 export const getPocketBase = async (): Promise<PocketBaseType> => {
   console.log('🌐 [PocketBase] Candidate URLs:', CANDIDATE_URLS);
-  addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
+ // addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
 
   // Test each URL with full retry logic
   for (const baseUrl of CANDIDATE_URLS) {
-    addSyncLog(`🌐 Testing base URL: ${baseUrl}`, 'info');
+ //   addSyncLog(`🌐 Testing base URL: ${baseUrl}`, 'info');
     
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
-      addSyncLog(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
+   //   addSyncLog(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
       break;
     }
   }

@@ -360,7 +360,6 @@ if (portfolioStoreFullState.isSyncEnabled) {
         try {
           taskStore.hydrateFromSync(data.tasks); 
           successCount++;
-          addSyncLog(`✅ Tasks hydrated with completion priority logic (pending toggle integration)`, 'success');
         } catch (err) {
           errorCount++;
           addSyncLog(`❌ Error hydrating tasks: ${(err as Error).message}`, 'error');
