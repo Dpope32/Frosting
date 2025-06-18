@@ -191,7 +191,7 @@ export default function CollapsedView({
                   {person.occupation && (
                     <Text
                       style={{
-                        fontSize: isWeb ? 16 : isIpad() ? 14 : 12,
+                        fontSize: isWeb ? 12 : isIpad() ? 14 : 12,
                         color: isDark ? '#999' : '#555',
                         marginLeft: person.birthday ? (isWeb || isIpad() ? 8 : 4) : 0,
                         flexShrink: 0,

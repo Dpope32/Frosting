@@ -34,12 +34,27 @@ export default function CRM() {
 
   // Debug expanded view issues
   // console.log('🔍 [CRM] Render - expandedId:', expandedId, 'contactModalOpen:', contactModalOpen, 'isEditModalVisible:', isEditModalVisible);
-  const PADDING = isWeb? 30 : isIpad() ? 24 : 16;
-  const GAP = isWeb? 10 : isIpad() ? 8 : 6;
-  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 1 : 1;
-  const CARD_WIDTH = isIpad() ? 380 : isWeb ?  (width - (12 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS
-   : (width - (2 * PADDING) - ((NUM_COLUMNS - 1) * GAP)) / NUM_COLUMNS;
-  const CARD_WIDTH_MOBILE = isIpad() ? "92%" : "92%";
+  
+  // Fixed responsive layout calculations
+  const PADDING = isWeb ? 32 : isIpad() ? 24 : 16;
+  const GAP = isWeb ? 14 : isIpad() ? 12 : 8; // Slightly reduced gap for web
+  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 1 : 1; // Back to 4 columns on web
+  
+  // Completely redone width calculations for proper responsive design
+  const getCardWidth = () => {
+    if (isWeb) {
+      const availableWidth = width - (2 * PADDING);
+      const totalGapWidth = (NUM_COLUMNS - 1) * GAP;
+      return Math.min(380, (availableWidth - totalGapWidth) / NUM_COLUMNS); // Reduced max width to 380px
+    }
+    if (isIpad()) {
+      return "92%";
+    }
+    return "92%";
+  };
+  
+  const CARD_WIDTH = getCardWidth();
+
   const handleEdit = (person: Person) => {
     setSelectedPerson(person);
     setEditModalVisible(true);
@@ -63,11 +78,12 @@ export default function CRM() {
     return (
       <View
         style={{
-          width: isWeb ? CARD_WIDTH : CARD_WIDTH_MOBILE,
-          marginLeft: isFirstInRow ? isIpad() ? 8 : PADDING : GAP / 2,
-          marginRight: isLastInRow ? isIpad() ? PADDING : PADDING : GAP / 2,
+          width: isWeb ? CARD_WIDTH : CARD_WIDTH,
+          marginLeft: isFirstInRow ? (isWeb ? GAP : 8) : GAP / 2,
+          marginRight: isLastInRow ? (isWeb ? GAP : 8) : GAP / 2,
           marginBottom: GAP,
           alignSelf: NUM_COLUMNS === 1 ? "center" : "flex-start",
+          maxWidth: isWeb ? 400 : undefined, // Prevent cards from getting too wide
         }}
       >
         <PersonCard
@@ -82,27 +98,6 @@ export default function CRM() {
           }}
         />
       </View>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     );
   };
 
@@ -118,11 +113,15 @@ export default function CRM() {
         keyExtractor={(item) => item.id}
         numColumns={NUM_COLUMNS}
         contentContainerStyle={{
-          paddingTop: 4,
+          paddingTop: 8,
           paddingBottom: 100,
-          paddingHorizontal: isWeb ? 0 : isIpad() ? 12 : 8,
-          paddingLeft: isWeb ? 0 : isIpad() ? 12 : 4,
+          paddingHorizontal: isWeb ? PADDING : isIpad() ? 12 : 8,
+          justifyContent: isWeb ? 'flex-start' : 'center', // Better alignment for web
         }}
+        columnWrapperStyle={isWeb && NUM_COLUMNS > 1 ? {
+          justifyContent: 'flex-start',
+          paddingHorizontal: 0,
+        } : undefined}
         ListEmptyComponent={
           <PersonEmpty 
             isDark={isDark}
