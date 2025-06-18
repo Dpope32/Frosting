@@ -339,7 +339,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
               <>
                 <Pressable
                   delayLongPress={1000} 
-                  hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} 
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
                   android_disableSound={true}
                   onLongPress={handleEasterEgg}
                   onPressIn={() => {
@@ -356,11 +356,9 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                     }
                   }}
                   style={({ pressed }) => ({ 
-                    width: '100%', 
+                    alignSelf: 'center',
                     paddingTop: 8, 
                     paddingBottom: 8, 
-                    zIndex: 20, 
-                    position: 'relative',
                     marginTop: 4, 
                     marginBottom: 4,
                     transform: [{ scale: isLongPressing ? 0.98 : 1 }],

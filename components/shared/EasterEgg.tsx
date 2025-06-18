@@ -99,7 +99,7 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
 
   return (
     <Animated.View style={styles.container} pointerEvents="none">
-      <Animated.View style={[styles.imageContainer, animatedStyle]}>
+      <Animated.View style={[styles.imageContainer, animatedStyle]} pointerEvents="none">
         <Image
           source={EASTER_EGG_IMAGES[imageCounter]}
           style={styles.image}
@@ -129,6 +129,7 @@ const styles = StyleSheet.create({
     height: IMAGE_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
+    pointerEvents: 'none',
   },
   image: {
     width: IMAGE_SIZE,
