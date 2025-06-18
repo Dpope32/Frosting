@@ -6,11 +6,11 @@ import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
 import { QuoteCard } from '@/components/home/cards/QuoteCard'
 import { SettingsCard } from '@/components/home/cards/SettingsCard'
-import { ClockCard } from '@/components/home/cards/ClockCard'
 import { useUserStore } from '@/store'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { isIpad } from '@/utils'
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal'
+import { ClockCard } from '@/components/home/cards/ClockCard'
 
 interface CardSectionProps {
   onPortfolioPress?: () => void
@@ -74,14 +74,7 @@ export function CardSection({
           </Pressable>
         )}
         {temperatureEnabled && (
-          <Pressable
-            onPress={onTemperaturePress}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
-            })}
-          >
-            <TemperatureCard isHome={isHome} isDark={isDark} />
-          </Pressable>
+          <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
         )}
         {isWeb && (
           <XStack>
@@ -119,9 +112,9 @@ export function CardSection({
         )}
         {isIpad() && (
           <>
-            <ClockCard isHome={isHome} isDark={isDark} />
             <SettingsCard isHome={isHome} isDark={isDark} onPress={() => setSettingsOpen(true)} />
             <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+            <ClockCard isHome={isHome} isDark={isDark} />
           </>
         )}
       </XStack>

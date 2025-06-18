@@ -19,6 +19,9 @@ import { TaskProgressBar } from '@/components/home/TaskProgressBar'
 
 const DEBUG = true;
 
+function log(...args: any[]) {
+  if (DEBUG) { console.log('[TaskSection]', ...args)}
+}
 
 interface TaskSectionProps {
   todaysTasks: Task[]
@@ -40,7 +43,6 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   const todayLocalStr = React.useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
   const username = useUserStore(s => s.preferences.username);
   const [easterEggVisible, setEasterEggVisible] = useState(false);
-  const [isLongPressing, setIsLongPressing] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
   
   // Filter out duplicate task titles, but prioritize completed tasks or keep track of original IDs
@@ -88,12 +90,44 @@ export const TaskSection = React.memo<TaskSectionProps>(({
 //  }, [todaysTasks, todayLocalStr]);
 
   const handleToggleTask = React.useCallback((id: string) => {
+    const startTime = performance.now();
+    console.log('[TaskSection.handleToggleTask] START - Task ID:', id.slice(-6), 'at', startTime);
+    
+    if (DEBUG) {
+      const task = todaysTasks.find(t => t.id === id);
+      if (task) {
+        log(`Toggling task: ${task.name} (${id})`);
+        log(`Current completion status: ${task.completionHistory[todayLocalStr] || false}`);
+      } else {
+        log(`Task ${id} not found in todaysTasks!`);
+      }
+    }
+    
+    const storeCallStart = performance.now();
     toggleTaskCompletion(id);
+    console.log('[TaskSection.storeCall] Duration:', (performance.now() - storeCallStart).toFixed(2), 'ms');
+    
+    console.log('[TaskSection.handleToggleTask] TOTAL Duration:', (performance.now() - startTime).toFixed(2), 'ms');
   }, [toggleTaskCompletion, todaysTasks, todayLocalStr]);
 
   const handleDeleteTask = React.useCallback((id: string) => {
     const task = todaysTasks.find(t => t.id === id);
+    if (DEBUG) {
+      log('Attempting to delete task:', id, task ? `Name: ${task.name}` : 'Task not found in todaysTasks');
+      log('Current todaysTasks count:', todaysTasks.length);
+      if (task) {
+        log('Task details:', JSON.stringify(task, null, 2));
+      }
+    }
     deleteTask(id);
+    if (DEBUG) {
+      setTimeout(() => {
+        log('After deleteTask call. Checking if task still exists in todaysTasks:', id);
+        const stillExists = todaysTasks.some(t => t.id === id);
+        log('Task still exists after delete?', stillExists);
+        log('todaysTasks count after delete:', todaysTasks.length);
+      }, 500);
+    }
   }, [deleteTask, todaysTasks]);
 
   const handleTaskListPress = React.useCallback(() => {
@@ -229,7 +263,6 @@ export const TaskSection = React.memo<TaskSectionProps>(({
         </XStack>
       </XStack>
 
-      {/* Task Progress Bar */}
       <TaskProgressBar 
         completedTasks={completedTasksCount} 
         totalTasks={uniqueTasks.length} 
@@ -261,6 +294,13 @@ export const TaskSection = React.memo<TaskSectionProps>(({
             }}>
               {uniqueTasks.map((task: Task) => {
                 const isCompleted = task.completionHistory[todayLocalStr] || false;
+                
+                if (DEBUG && (task.name.includes("Test") || task.name.includes("Pay"))) {
+                  log(`Rendering task: ${task.name} (${task.id})`);
+                  log(`Completed status: ${isCompleted}`);
+                  log(`CompletionHistory keys: ${Object.keys(task.completionHistory)}`);
+                }
+                
                 return (
                   <div key={task.id} style={{ 
                     marginBottom: 0,
@@ -338,32 +378,30 @@ export const TaskSection = React.memo<TaskSectionProps>(({
             {!isWeb ? (
               <>
                 <Pressable
-                  delayLongPress={1000} 
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} 
+                  delayLongPress={1500} 
+                  hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} 
                   android_disableSound={true}
                   onLongPress={handleEasterEgg}
                   onPressIn={() => {
-                    setIsLongPressing(true);
-                    if (!isWeb) {
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    if (DEBUG) {
+                      log('Press started on YearCompleteSection');
                     }
                   }}
                   onPressOut={() => {
-                    setIsLongPressing(false);
                     if (easterEggTimeout.current) {
                       clearTimeout(easterEggTimeout.current);
                       easterEggTimeout.current = null;
                     }
                   }}
-                  style={({ pressed }) => ({ 
-                    alignSelf: 'center',
+                  style={{ 
+                    width: '100%', 
                     paddingTop: 8, 
                     paddingBottom: 8, 
+                    zIndex: 20, 
+                    position: 'relative',
                     marginTop: 4, 
-                    marginBottom: 4,
-                    transform: [{ scale: isLongPressing ? 0.98 : 1 }],
-                    opacity: isLongPressing ? 0.8 : 1
-                  })}
+                    marginBottom: 4 
+                  }}
                 >
                   <YearCompleteSection />
                 </Pressable>

@@ -25,19 +25,9 @@ const SCALE_DURATION = 300;
 const SPIN_DURATION = 900;
 const DELAY_BEFORE_EXIT = 700;
 
-// Array of images to cycle through
-const EASTER_EGG_IMAGES = [
-  require('../../assets/images/pog2.png'),
-  require('../../assets/images/bewd.png'),
-  require('../../assets/images/dm.png'),
-];
-
-// Module-level counter to persist across component re-renders
-let imageCounter = 0;
-
 export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd }) => {
   // 1% down from the top
-  const targetY = -SCREEN_HEIGHT * 0.2;
+  const targetY = SCREEN_HEIGHT * 0.01;
   const translateY = useSharedValue(OFFSCREEN_Y); // Start far above the screen
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0);
@@ -45,15 +35,12 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
 
   useEffect(() => {
     if (visible) {
-      // Cycle to next image each time easter egg is triggered
-      imageCounter = (imageCounter + 1) % EASTER_EGG_IMAGES.length;
-      
       // Sequence: fade in + slide down, pulse, wait, then spin+slide up and fade out
       opacity.value = withTiming(1, { duration: 300 });
       translateY.value = withSequence(
         withTiming(targetY, { duration: ANIMATION_DURATION }), // Slide down to center
         withDelay(
-          DELAY_BEFORE_EXIT + SCALE_DURATION * 1.25,
+          DELAY_BEFORE_EXIT + SCALE_DURATION * 2,
           withTiming(OFFSCREEN_Y, { duration: ANIMATION_DURATION }, (finished) => {
             if (finished && onAnimationEnd) runOnJS(onAnimationEnd)();
           })
@@ -71,7 +58,7 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
           ANIMATION_DURATION + SCALE_DURATION * 2 + DELAY_BEFORE_EXIT / 2,
           withTiming(720, { duration: SPIN_DURATION })
         ),
-        withTiming(0, { duration: 0 })
+        withTiming(0, { duration: 0 }) // Reset for next time
       );
     } else {
       // Reset
@@ -99,9 +86,9 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
 
   return (
     <Animated.View style={styles.container} pointerEvents="none">
-      <Animated.View style={[styles.imageContainer, animatedStyle]} pointerEvents="none">
+      <Animated.View style={[styles.imageContainer, animatedStyle]}>
         <Image
-          source={EASTER_EGG_IMAGES[imageCounter]}
+          source={require('../../assets/images/pog2.png')}
           style={styles.image}
           resizeMode="contain"
         />
@@ -129,7 +116,6 @@ const styles = StyleSheet.create({
     height: IMAGE_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    pointerEvents: 'none',
   },
   image: {
     width: IMAGE_SIZE,
