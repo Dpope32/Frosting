@@ -56,11 +56,11 @@ export const SettingsModalFooter = ({
                 useNoteStore.getState().clearNotes();
                 await StorageUtils.clear();
                 setTimeout(() => {
-                if (isWeb) {
-                    window.location.href = '/screens/onboarding';
-                } else {
-                    router.replace('/screens/onboarding');
-                }
+                  if (isWeb) {
+                    window.location.href = '/';
+                  } else {
+                    router.replace('/onboarding');
+                  }
                 }, 300);
             } catch (error) {
                 console.error("[SignOut] Error during sign out:", error);

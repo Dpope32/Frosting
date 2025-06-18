@@ -6,6 +6,7 @@ import { TemperatureCard } from '@/components/home/cards/TemperatureCard'
 import { WifiCard } from '@/components/home/cards/WifiCard'
 import { QuoteCard } from '@/components/home/cards/QuoteCard'
 import { SettingsCard } from '@/components/home/cards/SettingsCard'
+import { ClockCard } from '@/components/home/cards/ClockCard'
 import { useUserStore } from '@/store'
 import { GreetingSection } from '@/components/home/GreetingSection'
 import { isIpad } from '@/utils'
@@ -118,6 +119,7 @@ export function CardSection({
         )}
         {isIpad() && (
           <>
+            <ClockCard isHome={isHome} isDark={isDark} />
             <SettingsCard isHome={isHome} isDark={isDark} onPress={() => setSettingsOpen(true)} />
             <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
           </>
