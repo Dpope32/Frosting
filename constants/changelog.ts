@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.2.31',
+    date: '2025-06-18',
+    notes: 'Improved UI',
+    bullets: [
+      'Added more easter egg Cards',
+      'Added Clock Card to Home Screen on iPad',
+      'Finished Web Sync with Workspace',
+      'Built Android APK',
+    ],
+  },
+  {
     version: '1.2.16',
     date: '2025-06-12',
     notes: 'Nightmare on Dev Street',

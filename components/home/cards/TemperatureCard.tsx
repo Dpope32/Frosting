@@ -39,7 +39,7 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
   return (
     <Stack
       onPress={handlePress}
-      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.3)"}
+      backgroundColor={isHome ? 'transparent' : isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.3)"}
       br={isIpad() ? 18 : 12}
       padding="$3"
       borderWidth={isHome ? 0 : 1}

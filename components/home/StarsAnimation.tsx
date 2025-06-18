@@ -93,14 +93,26 @@ const StarLayer = ({
   screenHeight: number
 }) => {
 
-  const maxStarsPerLayer = Math.min(stars.length, 15); 
+  // Use a fixed maximum to ensure consistent hook calls
+  const FIXED_MAX_STARS = 15;
   
   return (
     <>
-      {Array.from({ length: maxStarsPerLayer }, (_, index) => {
-        const star = stars[index % stars.length]; 
+      {Array.from({ length: FIXED_MAX_STARS }, (_, index) => {
+        // Only render if we have a star for this index
+        const star = index < stars.length ? stars[index] : null;
         
         const animatedStyle = useAnimatedStyle(() => {
+          if (!star) {
+            return {
+              opacity: 0,
+              transform: [
+                { translateX: 0 },
+                { scale: 0 }
+              ]
+            };
+          }
+          
           const progress = (time.value * star.speed) % 10000;
           const twinkle = Math.sin(time.value * star.twinkleSpeed + star.twinklePhase) * 0.3 + 0.7;
           
@@ -116,6 +128,23 @@ const StarLayer = ({
             opacity: star.opacity * twinkle,
           };
         }, [star, screenWidth]);
+
+        // Don't render anything if no star for this index
+        if (!star) {
+          return (
+            <Animated.View
+              key={`empty-${index}`}
+              style={[
+                {
+                  position: 'absolute',
+                  width: 0,
+                  height: 0,
+                },
+                animatedStyle
+              ]}
+            />
+          );
+        }
 
         return (
           <Animated.View

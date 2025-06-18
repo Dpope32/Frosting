@@ -87,14 +87,14 @@ const ToastItem: React.FC<ToastItemProps> = React.memo(({
   }, [fadeAnim, duration, id, onRemove])
 
   const colorMap: Record<ToastType, string> = React.useMemo(() => ({
-    success: isDark ? '#22c55e' : 'rrgba(6, 136, 39, 0.86)',
+    success: isDark ? '#22c55e' : 'rgba(2, 255, 65, 0.86)',
     error: '#ef4444',
     info: '#3b82f6',
     warning: '#f59e0b',
   }), [])
 
   const backgroundMap: Record<ToastType, string> = React.useMemo(() => ({
-    success: isDark ? 'rgba(6, 26, 15, 0.95)' : 'rgba(174, 219, 191, 0.52)',
+    success: isDark ? 'rgba(6, 26, 15, 0.95)' : 'rgba(44, 94, 57, 0.52)',
     error: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(18,18,20,0.95)' : 'rgba(245,158,11,0.15)',
@@ -108,7 +108,7 @@ const ToastItem: React.FC<ToastItemProps> = React.memo(({
   }), [])
    
   const borderColorMap: Record<ToastType, string> = React.useMemo(() => ({
-    success: isDark ? 'rgba(34,197,94,0.3)' : 'rgba(190, 255, 214, 0.86)',
+    success: isDark ? 'rgba(34,197,94,0.3)' : 'rgba(0, 255, 94, 0.86)',
     error: isDark ? 'rgba(239,68,68,0.07)' : 'rgba(239,68,68,0.15)',
     info: isDark ? 'rgba(59,130,246,0.07)' : 'rgba(59,130,246,0.15)',
     warning: isDark ? 'rgba(245,158,11,0.07)' : 'rgba(245,158,11,0.15)',
@@ -145,7 +145,7 @@ const ToastItem: React.FC<ToastItemProps> = React.memo(({
           paddingHorizontal: isLarge ? 14 : 12,
           paddingVertical: isLarge ? 14 : 12,  
           backgroundColor: backgroundColor,
-          borderRadius: 8,
+          borderRadius: 10,
           overflow: 'hidden',
           borderBlockColor: borderColorMap[type],
           borderWidth: 2,

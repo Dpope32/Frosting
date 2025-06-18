@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack, Text } from 'tamagui';
-import { View, StyleSheet, Pressable, Platform, Alert } from 'react-native';
+import { View, StyleSheet, Pressable, Platform, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -49,6 +49,11 @@ export const TaskCard = React.memo<TaskCardProps>(({
   }
   const showToast = useToastStore(s => s.showToast);
   const isDark = useColorScheme() === 'dark';
+
+  // Debouncing and animation refs
+  const isProcessingRef = React.useRef(false);
+  const animatedScale = React.useRef(new Animated.Value(1)).current;
+  const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const mapStatusToRecurrencePattern = React.useCallback((status: string): RecurrencePattern | undefined => {
     const lowerStatus = status.toLowerCase();
@@ -156,9 +161,36 @@ export const TaskCard = React.memo<TaskCardProps>(({
   }, [onDelete, showToast, title]);
 
   const handleCheck = React.useCallback(() => {
+    // Prevent multiple rapid taps
+    if (isProcessingRef.current) {
+      return;
+    }
+
+    // Clear any existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    // Set processing flag
+    isProcessingRef.current = true;
+
     const startTime = performance.now();
     console.log('[TaskCard.handleCheck] START - Task:', title.slice(0, 20), 'at', startTime);
     
+    // Animate checkbox press
+    Animated.sequence([
+      Animated.timing(animatedScale, {
+        toValue: 0.85,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(animatedScale, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      })
+    ]).start();
+
     // ⚡ INSTANT FEEDBACK FIRST - Don't wait for store update
     const hapticStart = performance.now();
     if (Platform.OS !== 'web') {
@@ -168,22 +200,41 @@ export const TaskCard = React.memo<TaskCardProps>(({
     
     const newValue = !checked;
     
-    const toastStart = performance.now();
-    if (newValue) {
-      const msg = variants[Math.floor(Math.random() * variants.length)];
-      showToast(msg, 'success');
-    } else {
-      showToast("Undo successful", 'success');
-    }
-    console.log('[TaskCard.toast] Duration:', (performance.now() - toastStart).toFixed(2), 'ms');
+    // Debounce the actual processing
+    debounceTimeoutRef.current = setTimeout(() => {
+      const toastStart = performance.now();
+      if (newValue) {
+        const msg = variants[Math.floor(Math.random() * variants.length)];
+        showToast(msg, 'success');
+      } else {
+        showToast("Undo successful", 'success');
+      }
+      console.log('[TaskCard.toast] Duration:', (performance.now() - toastStart).toFixed(2), 'ms');
+      
+      // Store update happens AFTER instant feedback
+      const storeStart = performance.now();
+      onCheck?.(newValue);
+      console.log('[TaskCard.storeUpdate] Duration:', (performance.now() - storeStart).toFixed(2), 'ms');
+      
+      console.log('[TaskCard.handleCheck] TOTAL Duration:', (performance.now() - startTime).toFixed(2), 'ms');
+      
+      // Reset processing flag after a short delay
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 300);
+      
+    }, 100); // 100ms debounce
     
-    // Store update happens AFTER instant feedback
-    const storeStart = performance.now();
-    onCheck?.(newValue);
-    console.log('[TaskCard.storeUpdate] Duration:', (performance.now() - storeStart).toFixed(2), 'ms');
-    
-    console.log('[TaskCard.handleCheck] TOTAL Duration:', (performance.now() - startTime).toFixed(2), 'ms');
-  }, [checked, onCheck, showToast, title]);
+  }, [checked, onCheck, showToast, title, animatedScale]);
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
   
   return (
     <LongPressDelete 
@@ -271,12 +322,13 @@ export const TaskCard = React.memo<TaskCardProps>(({
             accessibilityRole="button"
             accessibilityLabel={checked ? "Mark task as incomplete" : "Mark task as complete"}
           >
-            <View style={[
+            <Animated.View style={[
               styles.checkbox,
               { 
                 borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
                 backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
-                zIndex: 10
+                zIndex: 10,
+                transform: [{ scale: animatedScale }]
               }
             ]}>
               {checked && (
@@ -286,7 +338,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
                   color="#00C851"
                 />
               )}
-            </View>
+            </Animated.View>
           </Pressable>
         </View>
         <View style={styles.chipsContainer}>
