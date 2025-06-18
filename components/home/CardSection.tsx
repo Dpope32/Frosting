@@ -63,18 +63,10 @@ export function CardSection({
           <GreetingSection username={username} />
         )}
         {portfolioEnabled && (
-          <Pressable
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
-              ...(isWeb ? { marginRight: temperatureEnabled || wifiEnabled || quoteEnabled ? 32 : 0 } : {})
-            })}
-            onPress={onPortfolioPress}
-          >
-            <PortfolioCard isHome={isHome} isDark={isDark} />
-          </Pressable>
+          <PortfolioCard isHome={isHome} isDark={isDark} onPress={onPortfolioPress} />
         )}
         {temperatureEnabled && (
-          <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
+          <TemperatureCard isHome={isHome} isDark={isDark} onPress={onTemperaturePress} />
         )}
         {isWeb && (
           <XStack>
@@ -90,25 +82,10 @@ export function CardSection({
           </XStack>
         )}
         {wifiEnabled && (
-          <Pressable
-            onPress={onWifiPress}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1,
-              ...(isWeb ? { marginRight: quoteEnabled ? 32 : 0 } : {})
-            })}
-          >
-            <WifiCard isHome={isHome} />
-          </Pressable>
+          <WifiCard isHome={isHome} isDark={isDark} onPress={onWifiPress} />
         )}
         {quoteEnabled && (
-          <Pressable
-            onPress={onQuotePress}
-            style={({ pressed }) => ({
-              opacity: pressed ? 0.7 : 1
-            })}
-          >
-            <QuoteCard isHome={isHome} />
-          </Pressable>
+          <QuoteCard isHome={isHome} isDark={isDark} onPress={onQuotePress} />
         )}
         {isIpad() && (
           <>

@@ -9,9 +9,10 @@ interface PortfolioCardProps {
   roundToWholeNumber?: boolean;
   isHome?: boolean;
   isDark?: boolean;
+  onPress?: () => void;
 }
 
-export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark }: PortfolioCardProps) {
+export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark, onPress }: PortfolioCardProps) {
   const { isLoading, refetch } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
@@ -64,6 +65,7 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark }: Po
 
   return (
     <Stack
+      onPress={onPress}
       backgroundColor={isHome ? 'transparent' : isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.3)"}
       br={isIpad() ? 18 : 12}
       padding="$3"
@@ -74,14 +76,16 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark }: Po
       alignItems="center"
       justifyContent="center"
       gap="$0.5"
-      hoverStyle={{ 
-        backgroundColor: "rgba(0, 0, 0, 0.4)",
-        transform: [{ scale: 1.02 }],
-        shadowColor: "#dbd0c6",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-      }}
+      {...(isWeb && {
+        hoverStyle: { 
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          transform: [{ scale: 1.02 }],
+          shadowColor: "#dbd0c6",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+        }
+      })}
       pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
       <Text

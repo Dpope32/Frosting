@@ -8,9 +8,10 @@ import { isIpad } from '@/utils';
 interface WifiCardProps {
   isHome?: boolean;
   isDark?: boolean;
+  onPress?: () => void;
 }
 
-export function WifiCard({ isHome, isDark }: WifiCardProps) {
+export function WifiCard({ isHome, isDark, onPress }: WifiCardProps) {
   const { speed, isLoading, isConnected  } = useNetworkSpeed();
   const [signalStrength, setSignalStrength] = useState<number>(0);
 
@@ -63,6 +64,7 @@ export function WifiCard({ isHome, isDark }: WifiCardProps) {
 
   return (
     <Stack
+      onPress={onPress}
       backgroundColor={isHome ? 'transparent' : isDark ? "rgba(198, 198, 198, 0.05)" : "rgba(0, 0, 0, 0.3)"}
       br={isIpad() ? 18 : 12}
       padding="$2" 
@@ -73,14 +75,16 @@ export function WifiCard({ isHome, isDark }: WifiCardProps) {
       alignItems="center"
       justifyContent="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
-      hoverStyle={{ 
-        backgroundColor: "rgba(0, 0, 0, 0.4)",
-        transform: [{ scale: 1.02 }],
-        shadowColor: "#dbd0c6",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-      }}
+      {...(isWeb && {
+        hoverStyle: { 
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          transform: [{ scale: 1.02 }],
+          shadowColor: "#dbd0c6",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+        }
+      })}
       pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
       {isLoading ? (

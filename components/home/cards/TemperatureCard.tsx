@@ -48,7 +48,9 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
       height={isWeb ? 60 : isIpad() ? 60 : 48} 
       alignItems="center"
       justifyContent="center"
-      hoverStyle={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
+      {...(isWeb && {
+        hoverStyle: { backgroundColor: "rgba(0, 0, 0, 0.4)" }
+      })}
       pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
     >
