@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { FlatList, View, Dimensions, Alert, Platform, TouchableOpacity, Text } from "react-native";
-
-import { YStack, Button, isWeb } from "tamagui";
+import { FlatList, View, Dimensions } from "react-native";
+import { YStack, isWeb } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
-import { MaterialIcons } from '@expo/vector-icons';
 import { usePeopleStore } from "@/store/People";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
 import { AddPersonForm } from "@/components/crm/Forms/AddPersonForm";
@@ -21,8 +19,7 @@ const { width } = Dimensions.get("window");
 
 
 export default function CRM() {
-  const { contacts, updatePerson, deletePerson } = usePeopleStore();
-  const showToast = useToastStore(state => state.showToast);
+  const { contacts, updatePerson } = usePeopleStore();
   const allContacts = Object.values(contacts);
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
@@ -31,14 +28,9 @@ export default function CRM() {
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
-
-  // Debug expanded view issues
-  // console.log('🔍 [CRM] Render - expandedId:', expandedId, 'contactModalOpen:', contactModalOpen, 'isEditModalVisible:', isEditModalVisible);
-  
-  // Fixed responsive layout calculations
   const PADDING = isWeb ? 32 : isIpad() ? 24 : 16;
-  const GAP = isWeb ? 14 : isIpad() ? 12 : 8; // Slightly reduced gap for web
-  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 1 : 1; // Back to 4 columns on web
+  const GAP = isWeb ? 14 : isIpad() ? 12 : 8; 
+  const NUM_COLUMNS = isWeb ? 4 : isIpad() ? 1 : 1; 
   
   // Completely redone width calculations for proper responsive design
   const getCardWidth = () => {
@@ -83,7 +75,7 @@ export default function CRM() {
           marginRight: isLastInRow ? (isWeb ? GAP : 8) : GAP / 2,
           marginBottom: GAP,
           alignSelf: NUM_COLUMNS === 1 ? "center" : "flex-start",
-          maxWidth: isWeb ? 400 : undefined, // Prevent cards from getting too wide
+          maxWidth: isWeb ? 400 : undefined,
         }}
       >
         <PersonCard
@@ -116,7 +108,7 @@ export default function CRM() {
           paddingTop: 8,
           paddingBottom: 100,
           paddingHorizontal: isWeb ? PADDING : isIpad() ? 12 : 8,
-          justifyContent: isWeb ? 'flex-start' : 'center', // Better alignment for web
+          justifyContent: isWeb ? 'flex-start' : 'center',
         }}
         columnWrapperStyle={isWeb && NUM_COLUMNS > 1 ? {
           justifyContent: 'flex-start',

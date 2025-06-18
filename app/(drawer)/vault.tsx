@@ -112,7 +112,7 @@ export default function VaultScreen() {
         backgroundColor={isDark ? '#0a0a0a' : '#fafafa'}
         paddingLeft={isWeb ? 0 : isIpad() ? 4 : 0}
       >
-        {isWeb && data?.items.length && data?.items.length > 0 && (
+        {isWeb && data?.items && data.items.length > 0 && (
           <XStack 
             paddingHorizontal="$6" 
             paddingBottom="$2"
@@ -126,7 +126,7 @@ export default function VaultScreen() {
                 fontFamily="$body"
                 marginTop="$1"
               >
-                {data?.items.length || ''} saved passwords
+                {data?.items.length ? `${data.items.length} saved passwords` : ''}
               </Text>
             </YStack>
             

@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useUserStore, useWeatherQuery, useWeatherStore } from '@/store';
 import { getValueColor } from '@/constants';    
 import { isIpad } from '@/utils';
+import { Platform } from 'react-native';
 
 const ONE_HOUR = 1000 * 60 * 60;
 
@@ -49,6 +50,7 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
       justifyContent="center"
       hoverStyle={{ backgroundColor: "rgba(0, 0, 0, 0.4)" }}
       pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
     >
       {isLoading ? (
         <Spinner

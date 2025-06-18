@@ -40,7 +40,7 @@ Kaiba - Nexus is a free, feature-rich personal management app built with to orga
 - **🎨Customization**: Choose your favorite wallpaper and color scheme
 
 **Premium**: 
-- Coming soon for $4/month (or $24.99 year)
+- Coming soon for $4/month (or $20 year)
 1. Cross-Device Sync (all encrypted with AES-256 of course)
 2. Unlimited Devices 
 3. Choose what you want to sync (Notes, Todos, Calendar, CRM, Password Vault, Stocks, Habits, Projects)

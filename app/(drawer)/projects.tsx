@@ -173,11 +173,10 @@ export default function ProjectsScreen() {
               paddingHorizontal: 8,
               display: 'flex',
               flexDirection: 'row',
-              alignItems: items.length === 0 ? 'center' : 'flex-start',
-              justifyContent: items.length === 0 ? 'center' : 'flex-start',
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start',
               flexWrap: items.length > 0 ? 'wrap' : undefined,
               gap: 40,
-              minHeight: items.length === 0 ? screenHeight - 200 : undefined,
             }}
           >
             {items.length === 0 ? (

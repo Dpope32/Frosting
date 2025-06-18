@@ -35,15 +35,15 @@ export const ProjectEmpty = ({
     <XStack 
       p={isWeb ? "$6" : "$4"} 
       br="$4" 
-      ai="flex-start"
+      ai="flex-start" 
       jc="center"
       borderWidth={1} 
       borderColor={isDark ? "#333" : "#e0e0e0"} 
-      width={isWeb ? "50%" : "90%"} 
-      maxWidth={isWeb ? 600 : "100%"} 
-      mx={isWeb ? "auto" : "$2"}
-      marginTop={isWeb ? 10 : 10}
-      overflow="hidden"
+      width={isWeb ? "80%" : "90%"} 
+      maxWidth={isWeb ? 800 : "100%"} 
+      mx="auto" 
+      my="$4" 
+      overflow="hidden" 
     >
       <LinearGradient
         colors={isDark ? ['rgb(34, 34, 34)', 'rgb(0, 0, 0)'] : ['#ffffff', '#eeeeee']}

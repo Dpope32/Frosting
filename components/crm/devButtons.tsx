@@ -30,6 +30,7 @@ export const DevButtons = () => {
         onPress={generateTestContacts}
         icon={<FontAwesome5 name="database" size={20} color="white" />}
         />
+        
         <Button
         size="$4"
         circular

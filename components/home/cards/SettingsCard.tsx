@@ -31,6 +31,15 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
       backgroundColor={bg}
       borderWidth={2}
       borderColor={isWeb ? "transparent" : isDark ? "rgba(255, 255, 255, 0.175)" : "rgba(200, 200, 200, 0.3)"}
+      hoverStyle={{ 
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        transform: [{ scale: 1.02 }],
+        shadowColor: "#dbd0c6",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+      }}
+      pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
       <Pressable
         onPress={() => {

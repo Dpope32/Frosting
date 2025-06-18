@@ -73,7 +73,14 @@ export function CardSection({
           </Pressable>
         )}
         {temperatureEnabled && (
-          <TemperatureCard isHome={isHome} onPress={onTemperaturePress} />
+          <Pressable
+            onPress={onTemperaturePress}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <TemperatureCard isHome={isHome} isDark={isDark} />
+          </Pressable>
         )}
         {isWeb && (
           <XStack>

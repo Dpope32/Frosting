@@ -33,6 +33,15 @@ export function QuoteCard({ isHome, isDark }: QuoteCardProps) {
       alignItems="center"
       jc="center"
       style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
+      hoverStyle={{ 
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        transform: [{ scale: 1.02 }],
+        shadowColor: "#dbd0c6",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+      }}
+      pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
         {isLoading ? (
           <Spinner size="small" color="#dbd0c6" />
