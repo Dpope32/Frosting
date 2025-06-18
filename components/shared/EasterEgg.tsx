@@ -12,7 +12,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const OFFSCREEN_Y = -SCREEN_HEIGHT - 250;
+const OFFSCREEN_Y = -SCREEN_HEIGHT - 500;
 
 interface EasterEggProps {
   visible: boolean;
