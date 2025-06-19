@@ -95,7 +95,7 @@ return (
 
         // Parse wind speed (mph)
         let windMph = 0;
-        const windMatch = dayPeriod.windSpeed.match(/(\d+)/);
+        const windMatch = dayPeriod.windSpeed?.match(/(\d+)/);
         if (windMatch) windMph = parseInt(windMatch[1], 10);
         // Wind Chill formula only applies if temp <= 50°F and wind >= 3 mph
         let feelsLike = highTemp;

@@ -1,7 +1,7 @@
 // Lightweight project preview card used on the LandingPage mobile view
 import React from 'react'
 import { Pressable, Platform, useColorScheme } from 'react-native'
-import { XStack, YStack, Text, Image } from 'tamagui'
+import { XStack, YStack, Text, Image, AnimatePresence } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Haptics from 'expo-haptics'
@@ -74,12 +74,14 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         }
         onPress()
       }}
-      style={{
+      style={({ pressed }) => ({
         width: isIpad() ? "84%" : '100%',
         justifyContent: 'center',
         alignSelf: 'center',
         paddingHorizontal: isIpad() ? 26 : 18,
-      }}
+        transform: [{ scale: pressed ? 0.98 : 1 }],
+        opacity: pressed ? 0.9 : 1,
+      })}
     >
       <YStack
         borderRadius={12}
@@ -110,12 +112,12 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         <XStack
           padding={isIpad() ? 6 : 5}
           paddingBottom={isIpad() ? 7 : 5}
-          paddingTop={isIpad() ? 6 : 4}
+          paddingTop={isIpad() ? 7 : 5}
           paddingHorizontal={isIpad() ? '$3' : '$3'}
           borderLeftWidth={3}
           borderLeftColor={priorityColor}
           borderRadius={12}
-          minHeight={isIpad() ? 48 : 42}
+          minHeight={isIpad() ? 48 : 43}
           gap={isIpad() ? '$2' : '$1.5'}
         >
           <YStack flex={1} gap="$1">
