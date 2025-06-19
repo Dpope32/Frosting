@@ -56,7 +56,7 @@ const todayDateString = new Date().toDateString();
           lowTemp,
         });
 
-        if (processed.length >= 7) {
+        if (processed.length >= 5) {
           break;
         }
       }
