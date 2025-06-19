@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Pressable } from 'react-native'
 import { XStack, YStack, isWeb, Text } from 'tamagui'
 import { PortfolioCard } from '@/components/home/cards/PortfolioCard'
 import { TemperatureCard } from '@/components/home/cards/TemperatureCard'

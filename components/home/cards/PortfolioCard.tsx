@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Platform } from 'react-native';
 import { isWeb, Stack, Text } from 'tamagui';
 import { getValueColor } from '@/constants';
 import { usePortfolioQuery, usePortfolioStore } from '@/store';
@@ -95,16 +96,10 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark, onPr
       justifyContent="center"
       gap="$0.5"
       {...(isWeb && {
-        hoverStyle: { 
-          backgroundColor: "rgba(0, 0, 0, 0.4)",
-          transform: [{ scale: 1.02 }],
-          shadowColor: "#dbd0c6",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-        }
+        hoverStyle: { backgroundColor: "rgba(0, 0, 0, 0.4)" }
       })}
       pressStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      style={Platform.OS === 'web' ? { cursor: 'pointer' } : undefined}
     >
       <Text
         color={valueColor}

@@ -25,7 +25,6 @@ export const HabitCardContent = ({ habit, doneToday }: HabitCardContentProps) =>
   const [showStats, setShowStats] = useState(false);
   const statsButtonRef = useRef<View>(null);
   const [statsButtonLayout, setStatsButtonLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
-  const screenWidth = Dimensions.get('window').width;
   const todayDate = new Date();
   const today = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
   const notificationTime = habit.notificationTimeValue;

@@ -40,14 +40,14 @@ export const RecentGithubCells = ({ history, today, showTitle = true, compact = 
   const isMobile = Platform.OS !== 'web';
   const screenWidth = Dimensions.get('window').width;
  
-  const squareSize = compact ? (isIpad() ? 14 : 12) : (isIpad() ? 21 : 20);
-  const gap = compact ? (isIpad() ? 3 : 3) : (isIpad() ? 4 : isMobile ? 3 : 4);
+  const squareSize = compact ? (isWeb? 16 : isIpad() ? 14 : 12) : (isWeb? 22 : isIpad() ? 21 : 20);
+  const gap = compact ? (isWeb? 4 : isIpad() ? 3 : 3) : (isWeb? 5 : isIpad() ? 4 : isMobile ? 3 : 4);
   
   // For multi-row, calculate cells per row and number of rows to fit drawer width
   const cellsPerRow = multiRow ? (compact ? (isIpad() ? 10 : 8) : 7) : null;
   const numberOfRows = multiRow ? 3 : 1;
   const totalCells = multiRow ? cellsPerRow! * numberOfRows : 
-    (compact ? (isIpad() ? 30 : isMobile ? 24 : 50) : (isIpad() ? 21 : isMobile ? 14 : isWeb ? screenWidth * 0.025 : 73));
+    (compact ? (isWeb? 40 : isIpad() ? 30 : isMobile ? 24 : 50) : (isIpad() ? 21 : isMobile ? 14 : isWeb ? screenWidth * 0.025 : 73));
 
   const timeRangeText = compact 
     ? (isIpad() ? 'Last month' : isMobile ? 'Last 3 weeks' : 'Last 50 days')
@@ -66,7 +66,7 @@ export const RecentGithubCells = ({ history, today, showTitle = true, compact = 
       gap={compact ? 4 : 5}
       pt={compact ? (isIpad() ? 6 : 4) : (isIpad() ? 0 : 4)}
       maxWidth="100%"
-      alignItems="center"
+      alignItems="flex-start"
     >
       {showTitle && (
         <Text 
