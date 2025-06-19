@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from 'react'
-import { YStack, Input, Label, isWeb } from 'tamagui'
+import React, { useRef, useEffect, useState } from 'react'
+import { YStack, Input, Label, isWeb, Button, Spinner } from 'tamagui'
 import { Platform, View, Text, Animated, Easing, useColorScheme } from 'react-native'
 import { FormData } from '@/types'
 import { isIpad } from '@/utils'
 import Svg, { Defs, ClipPath, Rect, Text as SvgText, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg'
+import { skipOnboardingInDev } from '@/services/dev/skipOnboarding'
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect)
 
@@ -17,6 +18,7 @@ export default function Step0({
   const translateX = useRef(new Animated.Value(0)).current
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const [isSkipping, setIsSkipping] = useState(false)
 
   useEffect(() => {
     Animated.loop(
@@ -48,6 +50,23 @@ export default function Step0({
     '#a2cffe',
     '#00f0ff'
   ]
+
+  const handleDevSkip = async () => {
+    if (!__DEV__) return
+    
+    console.log('🔘 Dev skip button pressed')
+    setIsSkipping(true)
+    
+    try {
+      // Add a small delay to show the spinner
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await skipOnboardingInDev()
+      // Navigation is now handled inside skipOnboardingInDev
+    } catch (error) {
+      console.error('❌ Failed to skip onboarding:', error)
+      setIsSkipping(false)
+    }
+  }
 
   return (
     <YStack gap="$2" flex={1} padding={isWeb ? "$4" : "$3"} marginBottom={isWeb ? "$15" : "$14"} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
@@ -168,6 +187,33 @@ export default function Step0({
         }}
         style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 43}}
       />
+      
+      {/* Dev Skip Button - Only shows in development */}
+      {__DEV__ && (
+        <Button
+          onPress={handleDevSkip}
+          disabled={isSkipping}
+          size="$3"
+          variant="outlined"
+          borderColor="$orange8"
+          backgroundColor="transparent"
+          color="$orange9"
+          marginTop="$4"
+          fontFamily="$body"
+          fontSize="$3"
+          fontWeight="600"
+          alignSelf="center"
+          opacity={0.7}
+        >
+          {isSkipping ? (
+            <>
+              <Spinner size="small" color="$orange9" />
+            </>
+          ) : (
+            'skip →'
+          )}
+        </Button>
+      )}
     </YStack>
   )
 }

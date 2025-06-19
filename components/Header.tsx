@@ -102,7 +102,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const handlePortfolioPress = () => {
-    router.push('/modals/portfolio')
+    debouncedNavigate('/modals/portfolio');
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
   const handleQuotePress = () => {

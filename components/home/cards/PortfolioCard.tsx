@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { isWeb, Stack, Text } from 'tamagui';
 import { getValueColor } from '@/constants';
 import { usePortfolioQuery, usePortfolioStore } from '@/store';
 import { StorageUtils } from '@/store/AsyncStorage';
 import { isIpad } from '@/utils';
+import { debounce } from 'lodash';
 
 interface PortfolioCardProps {
   roundToWholeNumber?: boolean;
@@ -63,9 +64,26 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark, onPr
 
   const valueColor = getValueColor('portfolio', totalValue ?? 0, '', isDark ?? false);
 
+  const debouncedPress = useCallback(
+    debounce(() => {
+      console.log(`💰 PORTFOLIO CARD: onPress called at ${Date.now()}`);
+      if (onPress) {
+        onPress();
+      }
+    }, 300, {
+      leading: true,
+      trailing: false
+    }),
+    [onPress]
+  );
+
+  const handlePress = () => {
+    debouncedPress();
+  };
+
   return (
     <Stack
-      onPress={onPress}
+      onPress={handlePress}
       backgroundColor={isHome ? 'transparent' : isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.3)"}
       br={isIpad() ? 18 : 12}
       padding="$3"

@@ -193,7 +193,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   ), [openRecommendationModal, isDark]);
 
   return (
-    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={isIpad() ? "$3" : "$2"}>
+    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={"$0"}>
       <XStack
         alignItems="center"
         width="100%" 
@@ -343,7 +343,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                   px={isIpad() ? "$4" : "$3"}
                   paddingLeft={isIpad() ? "$4" : "$4"}
                   paddingVertical="$1"
-                  paddingBottom={isIpad() ? "$4" : "$3"}
+                  paddingBottom={isIpad() ? "$3" : "$2"}
                   justifyContent={isIpad() ? "center" : "flex-start"}
                   borderBottomWidth={1}
                   borderColor={isDark ? "rgba(29, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.1)"}
@@ -379,7 +379,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
               <>
                 <Pressable
                   delayLongPress={1500} 
-                  hitSlop={{ top: 40, bottom: 40, left: 40, right: 40 }} 
+                  hitSlop={{ top: 20, bottom: 40, left: 40, right: 40 }} 
                   android_disableSound={true}
                   onLongPress={handleEasterEgg}
                   onPressIn={() => {
@@ -400,7 +400,6 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                     zIndex: 20, 
                     position: 'relative',
                     marginTop: 4, 
-                    marginBottom: 4 
                   }}
                 >
                   <YearCompleteSection />

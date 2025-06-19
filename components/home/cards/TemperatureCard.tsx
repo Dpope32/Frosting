@@ -1,10 +1,11 @@
 // src/components/TemperatureCard.tsx
 import { Stack, Text, Spinner, isWeb } from 'tamagui';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useUserStore, useWeatherQuery, useWeatherStore } from '@/store';
 import { getValueColor } from '@/constants';    
 import { isIpad } from '@/utils';
 import { Platform } from 'react-native';
+import { debounce } from 'lodash';
 
 const ONE_HOUR = 1000 * 60 * 60;
 
@@ -29,11 +30,21 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
     }
   }, [zipCode, refetch]);
 
+  const debouncedPress = useCallback(
+    debounce(() => {
+      console.log(`🌡️ TEMPERATURE CARD: onPress called at ${Date.now()}`);
+      if (onPress) {
+        onPress();
+      }
+    }, 300, {
+      leading: true,
+      trailing: false
+    }),
+    [onPress]
+  );
+
   const handlePress = () => {
-    console.log(`🌡️ TEMPERATURE CARD: onPress called at ${Date.now()}`);
-    if (onPress) {
-      onPress();
-    }
+    debouncedPress();
   };
 
   return (

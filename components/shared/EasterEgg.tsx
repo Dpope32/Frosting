@@ -10,6 +10,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useEasterEggStore } from '../../store';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const OFFSCREEN_Y = -SCREEN_HEIGHT - 500;
@@ -26,8 +27,10 @@ const SPIN_DURATION = 900;
 const DELAY_BEFORE_EXIT = 700;
 
 export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd }) => {
-  // 1% down from the top
-  const targetY = SCREEN_HEIGHT * 0.01;
+  const { getCurrentImage, cycleToNextImage } = useEasterEggStore();
+  
+  // Move to top center of screen (40% up from center)
+  const targetY = -SCREEN_HEIGHT * 0.1;
   const translateY = useSharedValue(OFFSCREEN_Y); // Start far above the screen
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0);
@@ -35,6 +38,9 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
 
   useEffect(() => {
     if (visible) {
+      // Cycle to next image when animation starts
+      cycleToNextImage();
+      
       // Sequence: fade in + slide down, pulse, wait, then spin+slide up and fade out
       opacity.value = withTiming(1, { duration: 300 });
       translateY.value = withSequence(
@@ -70,7 +76,7 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       }
     }
-  }, [visible]);
+  }, [visible, cycleToNextImage]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -85,10 +91,10 @@ export const EasterEgg: React.FC<EasterEggProps> = ({ visible, onAnimationEnd })
   if (!visible) return null;
 
   return (
-    <Animated.View style={styles.container} pointerEvents="none">
+    <Animated.View style={styles.container} pointerEvents="box-none">
       <Animated.View style={[styles.imageContainer, animatedStyle]}>
         <Image
-          source={require('../../assets/images/pog2.png')}
+          source={getCurrentImage()}
           style={styles.image}
           resizeMode="contain"
         />

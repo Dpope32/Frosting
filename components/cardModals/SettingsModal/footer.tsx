@@ -59,7 +59,7 @@ export const SettingsModalFooter = ({
                   if (isWeb) {
                     window.location.href = '/';
                   } else {
-                    router.replace('/onboarding');
+                    router.replace('/screens/onboarding');
                   }
                 }, 300);
             } catch (error) {

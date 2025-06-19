@@ -28,6 +28,9 @@ export const ProjectCardMobile = ({
 }: ProjectCardMobileProps) => {
     const priorityColor = getPriorityColor(project.priority);
     const hasNoTasks = !project.tasks || project.tasks.length === 0;
+    const hasDescription = project?.description && project.description.trim() !== '';
+    const hasPeople = project.people && project.people.length > 0;
+    const hasContent = hasDescription || hasPeople;
 
     return (
         <ProjectCardWrapper 
@@ -39,65 +42,54 @@ export const ProjectCardMobile = ({
           hideCompletedOverlay={hideCompletedOverlay}
         >
           <YStack 
-            p={isIpad() ? "$3" : "$2.5"} 
+            p={isIpad() ? "$2.5" : "$2.5"} 
             px={isIpad() ? "$4" : "$3.5"} 
-            gap="$3"
+            pb={isIpad() ? hasContent ? "$4" : "$2.5" : "$2.5"}
+            gap={hasContent || !hasNoTasks ? "$2" : "$1.5"}
             w="100%"
-
-
-
-
-
           >
             <ProjectHeader project={project} isDark={isDark} priorityColor={priorityColor} />
             
-            <YStack px={isIpad() ? "$1" : "$0.5"}>
-              <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
-            </YStack>
+            {hasContent && (
+              <YStack px={isIpad() ? "$1" : "$0.5"}>
+                <ProjectCardDetails project={project} isDark={isDark} onEdit={onEdit} />
+              </YStack>
+            )}
             
             <YStack 
               px={isIpad() ? "$2" : "$1"}
               gap="$2"
+              mt={hasContent ? "$0" : "$-1"}
             >
               <TaskList 
                 project={project} 
                 isDark={isDark} 
                 isIpad={isIpad} 
                 isWeb={isWeb} 
-                onToggleTaskCompleted={onToggleTaskCompleted} 
+                onToggleTaskCompleted={onToggleTaskCompleted}
+                onOpenAddTaskModal={onOpenAddTaskModal}
+                priorityColor={priorityColor}
               />
 
-              {onOpenAddTaskModal && (
+              {onOpenAddTaskModal && hasNoTasks && (
                 <YStack 
-                  gap="$2" 
-                  pt={hasNoTasks ? "$3" : "$2"}
-                  pb="$1"
+                  pt={hasContent ? "$2" : "$1"}
+                  pb="$1.5"
                 >
-                  {hasNoTasks && (
-                    <XStack jc="center" ai="center">
-                      <Text 
-                        color={isDark ? 'rgba(246, 246, 246, 0.6)' : 'rgba(102, 102, 102, 0.8)'} 
-                        fontSize={isIpad() ? 15 : 13} 
-                        fontFamily="$body" 
-                        textAlign="center"
-                      >
-
-
-
-
-                        Add your first task to get started
-                      </Text>
-                    </XStack>
-                  )}
-                  
-                  <XStack jc="center" ai="center">
+                  <XStack ai="center" px="$2" gap="$2">
+                    <Text 
+                      color={isDark ? 'rgba(246, 246, 246, 0.6)' : 'rgba(102, 102, 102, 0.8)'} 
+                      fontSize={isIpad() ? 15 : 13} 
+                      fontFamily="$body"
+                    >
+                      Add your first task to get started
+                    </Text>
+                    
                     <Button
                       size={isIpad() ? "$3" : "$2.5"}
                       circular
                       backgroundColor={isDark ? 'rgba(34, 34, 34, 0.8)' : 'rgba(245, 245, 245, 0.9)'}
                       borderColor={isDark ? 'rgba(60, 60, 60, 0.6)' : 'rgba(200, 200, 200, 0.6)'}
-
-
                       borderWidth={1}
                       onPress={() => onOpenAddTaskModal(project.id)}
                       pressStyle={{

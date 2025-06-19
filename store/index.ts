@@ -3,6 +3,7 @@ export * from './CalendarStore';
 export * from './CalendarViewStore';
 export * from './CRMStore';
 export * from './CustomCategoryStore';
+export * from './EasterEggStore';
 export * from './EditStockStore';
 export * from './EditTaskStore';
 export * from './HabitStore';

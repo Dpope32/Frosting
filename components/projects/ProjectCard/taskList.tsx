@@ -11,32 +11,55 @@ interface TaskListProps {
   isIpad: () => boolean
   isWeb: boolean
   onToggleTaskCompleted?: (taskId: string, completed: boolean) => void
+  onOpenAddTaskModal?: (projectId: string) => void
+  priorityColor?: string
 }
 
-export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted }: TaskListProps) => {
+export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted, onOpenAddTaskModal, priorityColor }: TaskListProps) => {
   if (!project.tasks || project.tasks.length === 0) {
     return null
   }
 
   return (
     <YStack gap="$2.5">
-      <XStack 
-        w="100%" 
-        h={1} 
-        bg={isDark ? 'rgba(85, 85, 85, 0.4)' : 'rgba(204, 204, 204, 0.5)'} 
-        my="$1" 
-      />
-      
-      {/* Task count */}
+      {/* Task count with add button */}
       {project.tasks.length > 1 && (
-        <Text 
-          fontSize={isIpad() ? 13 : 12} 
-          color={isDark ? 'rgba(170, 170, 170, 0.8)' : 'rgba(85, 85, 85, 0.8)'} 
-          fontFamily="$body"
-          px="$0.5"
-        >
-          {project.tasks.filter(t => t.completed).length} of {project.tasks.length} completed
-        </Text>
+        <XStack jc="space-between" ai="center">
+          <Text 
+            fontSize={isIpad() ? 13 : 12} 
+            color={isDark ? 'rgba(170, 170, 170, 0.8)' : 'rgba(85, 85, 85, 0.8)'} 
+            fontFamily="$body"
+            px="$0.5"
+          >
+            {project.tasks.filter(t => t.completed).length} of {project.tasks.length} completed
+          </Text>
+          
+          {onOpenAddTaskModal && (
+            <Button
+              size={isIpad() ? "$2.5" : "$2"}
+              circular
+              backgroundColor={isDark ? 'rgba(34, 34, 34, 0.8)' : 'rgba(245, 245, 245, 0.9)'}
+              borderColor={isDark ? 'rgba(60, 60, 60, 0.6)' : 'rgba(200, 200, 200, 0.6)'}
+              borderWidth={1}
+              onPress={() => onOpenAddTaskModal(project.id)}
+              pressStyle={{
+                backgroundColor: isDark ? 'rgba(50, 50, 50, 1)' : 'rgba(230, 230, 230, 1)',
+                borderColor: priorityColor || (isDark ? '#666' : '#ccc'),
+                scale: 0.95,
+              }}
+              hoverStyle={{
+                backgroundColor: isDark ? 'rgba(40, 40, 40, 1)' : 'rgba(240, 240, 240, 1)',
+                borderColor: priorityColor || (isDark ? '#666' : '#ccc'),
+              }}
+            >
+              <MaterialIcons 
+                name="add" 
+                size={isIpad() ? 18 : 16} 
+                color={isDark ? '#d0d0d0' : '#555'} 
+              />
+            </Button>
+          )}
+        </XStack>
       )}
       
       {/* Tasks - Simple vertical stack */}
@@ -46,13 +69,13 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
             key={task.id}
             ai="center"
             px={isIpad() ? "$3" : "$2.5"}
-            py={isIpad() ? "$2" : "$1.5"}
+            py={isIpad() ? "$1.5" : "$1.5"}
             br={isIpad() ? 14 : 12}
             bg={getTaskBackgroundColor(task.priority as TaskPriority, task.completed, isDark)}
             borderWidth={1}
             borderColor={isDark ? 'rgba(60, 60, 60, 0.6)' : 'rgba(200, 200, 200, 0.7)'}
             w="100%"
-            minHeight={isIpad() ? 50 : 44}
+            minHeight={isIpad() ? 40 : 36}
             position="relative"
             pressStyle={{
               scale: 0.98,
@@ -97,11 +120,6 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
             
             {/* Task text */}
             <YStack flex={1}>
-
-
-
-
-
               <Text
                 fontSize={isIpad() ? 15 : 13}
                 color={isDark ? '#f6f6f6' : '#1f1f1f'}
@@ -117,7 +135,7 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
             </YStack>
             
             {/* Priority dot */}
-            <XStack ai="center" ml="$2">
+            <XStack ai="center" ml="$2" mr={isIpad() ? "$1.5" : "$0"}>
               <Text 
                 style={{ 
                   fontSize: isIpad() ? 24 : 22, 
@@ -127,9 +145,6 @@ export const TaskList = ({ project, isDark, isIpad, isWeb, onToggleTaskCompleted
               >
                 •
               </Text>
-
-
-
             </XStack>
             
             {/* Completed overlay - subtle */}

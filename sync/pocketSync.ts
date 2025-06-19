@@ -6,6 +6,7 @@
 // • Accepts 200, 401, or 404 from /api/health as "alive" (older PB builds).
 // • Falls back to LAN IP if Tailscale URL fails.
 // • All changes JS-only, no native rebuild required.
+// • Gracefully handles simulator/dev mode PocketBase import failures
 // ===============================================
 
 import { generateSyncKey } from '@/sync/registrySyncManager'
@@ -16,6 +17,27 @@ import { Platform } from 'react-native'
 
 // ───────────────────────── CONSTANTS ─────────────────────────
 const DEFAULT_PORT = 8090
+
+/**
+ * Detects if we're running on a simulator/emulator where PocketBase might not work
+ */
+const isSimulatorOrDev = (): boolean => {
+  // Always skip PocketBase in development mode
+  if (__DEV__) {
+    return true;
+  }
+  
+  // Check for simulator/emulator on iOS/Android
+  // This is a basic check - more sophisticated detection could be added
+  if (Platform.OS === 'ios' || Platform.OS === 'android') {
+    // In production builds on real devices, we assume PocketBase should work
+    // The import error will be caught and handled gracefully anyway
+    return false;
+  }
+  
+  // On web, PocketBase should work fine
+  return false;
+};
 
 /**
  * Ensures the provided base URL includes a port.
@@ -155,6 +177,13 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
 
 // ───────────────────────── ROBUST PB FACTORY ─────────────────────────
 export const getPocketBase = async (): Promise<PocketBaseType> => {
+  // Early detection for simulator/dev mode
+  if (isSimulatorOrDev()) {
+    addSyncLog(`🧪 [DEV/SIM] Development mode or simulator detected - skipping PocketBase`, 'warning');
+    console.log('🧪 [DEV/SIM] Skipping PocketBase due to simulator/dev environment');
+    throw new Error('SKIP_SYNC_SILENTLY');
+  }
+
   console.log('🌐 [PocketBase] Candidate URLs:', CANDIDATE_URLS);
  // addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
@@ -186,8 +215,19 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     const { default: PocketBase } = await import('pocketbase');
     pb = new PocketBase(selected);
   } catch (importError) {
-    addSyncLog(`❌ Failed to import PocketBase: ${importError instanceof Error ? importError.message : String(importError)}`, 'error');
-    console.error('PocketBase import failed:', importError);
+    const errorMessage = importError instanceof Error ? importError.message : String(importError);
+    
+    // Check for the specific simulator import error
+    if (errorMessage.includes('Requiring unknown module') || 
+        errorMessage.includes('importedAll') ||
+        errorMessage.includes('Cannot set property')) {
+      addSyncLog(`🧪 [SIM] PocketBase import failed (likely simulator) - skipping sync silently`, 'warning');
+      console.log('🧪 [SIM] PocketBase simulator import issue detected, skipping sync');
+    } else {
+      addSyncLog(`❌ Failed to import PocketBase: ${errorMessage}`, 'error');
+      console.error('PocketBase import failed:', importError);
+    }
+    
     throw new Error('SKIP_SYNC_SILENTLY');
   }
   

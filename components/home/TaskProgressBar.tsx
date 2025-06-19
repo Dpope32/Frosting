@@ -87,12 +87,12 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
             <LinearGradient 
               colors={
                 percentage === 100 
-                  ? ['#4ade80', '#22c55e', '#16a34a'] // Green when complete
+                  ? ['#4ade80', '#22c55e', '#16a34a'] 
                   : percentage >= 75 
-                  ? ['#3b82f6', '#1d4ed8', '#1e40af'] // Blue when mostly done
+                  ? ['#3b82f6', '#1d4ed8', '#1e40af'] 
                   : percentage >= 50
-                  ? ['#f59e0b', '#d97706', '#b45309'] // Orange when halfway
-                  : ['#6366f1', '#4f46e5', '#4338ca'] // Purple when starting
+                  ? ['#f59e0b', '#d97706', '#b45309'] 
+                  : ['#6366f1', '#4f46e5', '#4338ca']
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
