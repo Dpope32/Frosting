@@ -15,6 +15,7 @@ import SyncTable from '@/components/sync/syncTable'
 import NeedsWorkspace from '@/components/sync/needsWorkspace'
 import { leaveWorkspace } from '@/sync/leaveWorkspace'
 import { NonPremiumUser } from '@/components/sync/nonpremiumUser'
+import { BetaCodeInput } from '@/components/sync/betaCodeInput'
 import { SnapshotSize } from '@/components/sync/SnapshotSize'
 import { ModalHeader } from '@/components/shared/ModalHeader'
 import { premiumService } from '@/services/premiumService'
@@ -237,14 +238,27 @@ export default function SyncScreen() {
             />
           </XStack>
         ) : (
-          <XStack alignItems="center" justifyContent="center" marginBottom={baseSpacing}>
-            <NonPremiumUser
-              colors={colors}
-              contentWidth={width}
-              onSignUp={handleSignUp}
-              onJoinWorkspace={handleJoinWorkspace}
-            />
-          </XStack>
+          <>
+            <XStack alignItems="center" justifyContent="center" marginBottom={baseSpacing}>
+              <NonPremiumUser
+                colors={colors}
+                contentWidth={width}
+                onSignUp={handleSignUp}
+                onJoinWorkspace={handleJoinWorkspace}
+              />
+            </XStack>
+            
+            <XStack alignItems="center" justifyContent="center">
+              <BetaCodeInput
+                colors={colors}
+                contentWidth={contentWidth}
+                onPremiumActivated={() => {
+                  // Refresh the component to show premium features
+                  useToastStore.getState().showToast('Premium activated!', 'success');
+                }}
+              />
+            </XStack>
+          </>
         )}
         
         {shouldShowSyncTable && premium && workspaceId && (

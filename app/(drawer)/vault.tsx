@@ -266,8 +266,6 @@ export default function VaultScreen() {
             </YStack>
           )}
         </ScrollView>
-
-        {!isWeb && (
           <Button
             onPress={() => setIsModalVisible(true)}
             position="absolute"
@@ -287,7 +285,6 @@ export default function VaultScreen() {
           >
             <MaterialIcons name="add" color="white" size={28} />
           </Button>
-        )}
 
         {__DEV__ && (
           <XStack position='absolute' bottom={32} left={24} gap='$3' zIndex={1000}>

@@ -161,7 +161,7 @@ const JoiningOverlay = ({ colors, isDark, onDevToggle }: { colors: Colors; isDar
             }}
           >
             <Stack    
-              backgroundColor={isDark ? 'rgba(35, 38, 47, 0.95)' : 'rgba(247, 248, 250, 0.95)'} 
+              backgroundColor={backgroundColor} 
               borderRadius={16} 
               padding="$3" 
               borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
@@ -192,8 +192,8 @@ const JoiningOverlay = ({ colors, isDark, onDevToggle }: { colors: Colors; isDar
             }}
           >
             <View style={{
-              backgroundColor: isDark ? 'rgba(35, 38, 47, 0.95)' : 'rgba(247, 248, 250, 0.95)', 
-              padding: 12, 
+                backgroundColor: backgroundColor,
+                padding: 12, 
               borderRadius: 16,
               borderColor: isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)",
               borderWidth: 1,
@@ -256,34 +256,31 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
   };
 
   const isLarge = isWeb || isIpad();
-  const [flipped, setFlipped] = useState(false);
+  const isDark = colors.bg === '#000000' || colors.bg === '#1a1a1a' || colors.bg.includes('rgba(0, 0, 0');
 
   // Use fake joining state in dev, real state in production
   const effectiveIsJoining = isDev ? devFakeJoining : isJoining;
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlipped(f => !f);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Better color scheme
-  const cardBg = isWeb ? 'rgba(30, 35, 42, 0.95)' : colors.card;
-  const tabBg = isWeb ? 'rgba(45, 52, 62, 0.8)' : colors.bg + '88';
-  const featureBg = isWeb ? 'rgba(45, 52, 62, 0.6)' : colors.bg + '44';
-  const infoBg = isWeb ? 'rgba(45, 52, 62, 0.6)' : colors.bg + '66';
-  const inputBg = isWeb ? 'rgba(45, 52, 62, 0.8)' : colors.bg;
+  // Modern color scheme that works well on all platforms
+  const modernColors = {
+    cardBg: colors.card,
+    cardBorder: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+    tabBg: colors.bg,
+    tabActiveBg: colors.card,
+    featureBg: colors.bg,
+    inputBg: colors.bg,
+    shadow: isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.08)',
+  };
 
   return (
-    <View style={[styles.container, { maxWidth: isWeb ? 600 : contentWidth }]}>
+    <View style={[styles.container, { maxWidth: isWeb ? 520 : contentWidth }]}>
       <View
         style={[
           styles.heroCard,
           {
-            backgroundColor: cardBg + '99',
-            borderColor: colors.accent + '33',
-            shadowColor: colors.accent + '44',
+            backgroundColor: modernColors.cardBg,
+            borderColor: modernColors.cardBorder,
+            shadowColor: modernColors.shadow,
           },
         ]}
       >
@@ -308,239 +305,27 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
           </TouchableOpacity>
         )}
 
-        {activeTab === 'premium' ? (
-          <YStack alignItems="center" flex={1} justifyContent="center">
-            <XStack alignItems="center" justifyContent="flex-start" gap={baseSpacing} >
-            <View style={[styles.iconContainer, { backgroundColor: colors.accentBg }]}>
-              <Image
-                source={require('../../assets/images/pog2.png')}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  resizeMode: 'cover',
-                  transform: [{ scaleX: flipped ? -1 : 1 }],
-                  borderRadius: 9999,
-                  borderWidth: 2,
-                  borderColor: colors.accent,
-                }}
-                accessibilityLabel="Pot of Greed"
-              />
-            </View>
-
-          </XStack>
-
-            <YStack 
-              style={[styles.featureList, { backgroundColor: featureBg }]}
-              marginBottom={baseSpacing * 3}
-            >
-              <XStack alignItems="center" gap={baseSpacing}>
-                <MaterialIcons name="sync" size={20} color={colors.accent} />
-                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
-                  Unlimited devices
-                </Text>
-              </XStack>
-              <XStack alignItems="center" gap={baseSpacing}>
-                <MaterialIcons name="security" size={20} color={colors.accent} />
-                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
-                  End-to-end encryption
-                </Text>
-              </XStack>
-              <XStack alignItems="center" gap={baseSpacing}>
-                <MaterialIcons name="backup" size={20} color={colors.accent} />
-                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
-                  Automatic backups
-                </Text>
-              </XStack>
-              <XStack alignItems="center" gap={baseSpacing}>
-                <MaterialIcons name="attach-money" size={20} color={colors.accent} />
-                <XStack alignItems="center" gap={4}>
-                  <Text fontSize={14} color={colors.accent} fontFamily="$body" fontWeight="700">
-                    ONLY $4/month
-                  </Text>
-                  <Text fontSize={12} color={colors.subtext} fontFamily="$body" fontWeight="600">
-                    or $20/year (save 40%)
-                  </Text>
-                </XStack>
-              </XStack>
-              <XStack alignItems="center" gap={baseSpacing}>
-                <MaterialIcons name="cancel" size={20} color={colors.accent} />
-                <Text fontSize={14} color={colors.text} fontFamily="$body" fontWeight="600">
-                  Cancel anytime
-                </Text>
-              </XStack>
-            </YStack>
-            <YStack 
-              style={[styles.infoBox, { backgroundColor: infoBg }]}
-              marginTop={baseSpacing }
-            >
-              <XStack alignItems="flex-start" gap={baseSpacing}>
-                <MaterialIcons name="info" size={16} color={colors.accent} style={{ marginTop: 2 }} />
-                <YStack flex={1} gap={6}>
-                  <Text fontSize={12} color={colors.text} fontFamily="$body" fontWeight="600">
-                    How it works:
-                  </Text>
-                  <YStack gap={4}>
-                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
-                      • Add a Note on your iPhone? See the change when you open the app on your browser
-                    </Text>
-                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
-                      • Delete a Task on your Android? See the change when you open the app on your iPad
-                    </Text>
-                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
-                      • Perfect for spouses who want to sync their Bills
-                    </Text>
-                    <Text fontSize={11} color={colors.subtext} fontFamily="$body" lineHeight={16}>
-                      • Don't want a specific feature to sync? Just disable it on the Sync screen!
-                    </Text>
-                  </YStack>
-                </YStack>
-              </XStack>
-            </YStack>
-            <Text 
-              fontSize={isLarge ? 15 : 13} 
-              color={colors.subtext} 
-              fontFamily="$body"
-              textAlign="center"
-              marginVertical={baseSpacing * 2}
-              lineHeight={isLarge ? 26 : 24}
-            >
-              Ready to sync your data across all your devices?
-            </Text>
-            <TouchableOpacity
-              onPress={handlePremiumPress}
-              style={styles.ctaButton}
-              activeOpacity={0.88}
-            >
-              <LinearGradient
-                colors={[colors.accent, colors.accent + 'DD', colors.accent + 'DD']}
-                style={styles.buttonGradient}
-              >
-                <XStack alignItems="center" gap={baseSpacing}>
-                  <Text 
-                    color="#333" 
-                    fontSize={isLarge ? 16 : 14} 
-                    fontWeight="500" 
-                    fontFamily="$body"
-                  >
-                    {isDev ? 'Activate Premium (Dev)' : 'Get Premium Access'}
-                  </Text>
-                  <MaterialIcons 
-                    name={isDev ? "flash-on" : "arrow-forward"} 
-                    size={isLarge ? 20 : 18} 
-                    color="#333" 
-                  />
-                </XStack>
-              </LinearGradient>
-            </TouchableOpacity>
-
-          </YStack>
-        ) : (
-          <YStack alignItems="center" flex={1} justifyContent="center" marginTop={baseSpacing * 2}>
-            <MaterialIcons 
-              name="group-add" 
-              size={isLarge ? 80 : 64} 
-              color={colors.accent} 
-              style={{ marginBottom: baseSpacing * 2 }}
-            />
-
-            <Text 
-              fontSize={isLarge ? 28 : 22} 
-              fontWeight="800" 
-              color={colors.text} 
-              fontFamily="$body"
-              textAlign="center"
-              marginBottom={baseSpacing}
-            >
-              Join Workspace
-            </Text>
-
-            <Text 
-              fontSize={isLarge ? 16 : 14} 
-              color={colors.subtext} 
-              fontFamily="$body"
-              textAlign="center"
-              marginBottom={baseSpacing * 3}
-              maxWidth={isLarge ? 400 : 300}
-            >
-              Enter the workspace code shared by a premium user to join their workspace and sync your data.
-            </Text>
-
-            <YStack width="100%" maxWidth={isLarge ? 400 : 250} gap={baseSpacing * 2}>
-              <YStack gap={baseSpacing}>
-
-                <TextInput
-                  style={[
-                    styles.input,
-                    {
-                      backgroundColor: inputBg,
-                      borderColor: workspaceCode ? colors.accent : colors.border,
-                      color: colors.text,
-                    }
-                  ]}
-                  value={workspaceCode}
-                  onChangeText={setWorkspaceCode}
-                  placeholder="Enter workspace code..."
-                  placeholderTextColor={colors.subtext}
-                  autoCapitalize="characters"
-                  autoCorrect={false}
-                  maxLength={20}
-                />
-              </YStack>
-
-              <TouchableOpacity
-                onPress={handleJoinWorkspace}
-                style={[
-                  styles.ctaButton2,
-                  { opacity: !workspaceCode.trim() || effectiveIsJoining ? 0.5 : 1, maxWidth: undefined }
-                ]}
-                activeOpacity={0.88}
-                disabled={!workspaceCode.trim() || effectiveIsJoining}
-              >
-                <LinearGradient
-                  colors={[colors.accent, colors.accent + 'DD']}
-                  style={styles.buttonGradient}
-                >
-                  <XStack alignItems="center" gap={baseSpacing}>
-                    {effectiveIsJoining ? (
-                      <MaterialIcons name="hourglass-empty" size={18} color="white" />
-                    ) : (
-                      <MaterialIcons name="group-add" size={18} color="white" />
-                    )}
-                    <Text 
-                      color={colors.gray} 
-                      fontSize={isLarge ? 15 : 13} 
-                      fontWeight="500" 
-                      fontFamily="$body"
-                    >
-                      {effectiveIsJoining ? 'Joining...' : 'Join Workspace'}
-                    </Text>
-                  </XStack>
-                </LinearGradient>
-              </TouchableOpacity>
-            </YStack>
-          </YStack>
-        )}
-
+        {/* Tab Navigation */}
         <XStack 
-          style={[styles.tabContainer, { backgroundColor: tabBg }]}
-          marginTop={baseSpacing * 3}
-          paddingBottom={8}
+          style={[styles.tabContainer, { backgroundColor: modernColors.tabBg }]}
+          marginBottom={baseSpacing * 2}
         >
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === 'premium' && { backgroundColor: tabBg, paddingBottom: 8 }
+              activeTab === 'premium' && { backgroundColor: modernColors.tabActiveBg }
             ]}
             onPress={() => setActiveTab('premium')}
+            activeOpacity={0.7}
           >
             <MaterialIcons 
               name="star" 
-              size={16} 
+              size={18} 
               color={activeTab === 'premium' ? colors.accent : colors.subtext} 
             />
             <Text 
-              fontSize={14} 
-              fontWeight={activeTab === 'premium' ? '700' : '500'}
+              fontSize={isLarge ? 15 : 14} 
+              fontWeight={activeTab === 'premium' ? '600' : '500'}
               color={activeTab === 'premium' ? colors.accent : colors.subtext}
               fontFamily="$body"
             >
@@ -551,18 +336,19 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
           <TouchableOpacity
             style={[
               styles.tab,
-              activeTab === 'join' && { backgroundColor: tabBg }
+              activeTab === 'join' && { backgroundColor: modernColors.tabActiveBg }
             ]}
             onPress={() => setActiveTab('join')}
+            activeOpacity={0.7}
           >
             <MaterialIcons 
               name="group-add" 
-              size={16} 
+              size={18} 
               color={activeTab === 'join' ? colors.accent : colors.subtext} 
             />
             <Text 
-              fontSize={14} 
-              fontWeight={activeTab === 'join' ? '700' : '500'}
+              fontSize={isLarge ? 15 : 14} 
+              fontWeight={activeTab === 'join' ? '600' : '500'}
               color={activeTab === 'join' ? colors.accent : colors.subtext}
               fontFamily="$body"
             >
@@ -570,9 +356,220 @@ export function NonPremiumUser({ colors, contentWidth, onSignUp, onJoinWorkspace
             </Text>
           </TouchableOpacity>
         </XStack>
+
+        {activeTab === 'premium' ? (
+          <YStack flex={1} paddingHorizontal={baseSpacing * 1.5}>
+            {/* Hero Section */}
+            <YStack alignItems="center" marginBottom={baseSpacing * 3}>
+              <View style={[styles.iconContainer, { backgroundColor: colors.accent + '20' }]}>
+                <MaterialIcons name="sync" size={isLarge ? 42 : 36} color={colors.accent} />
+              </View>
+              
+              <Text 
+                fontSize={isLarge ? 28 : 24} 
+                fontWeight="700" 
+                color={colors.text} 
+                fontFamily="$body"
+                textAlign="center"
+                marginBottom={baseSpacing}
+              >
+                Sync Everywhere
+              </Text>
+              
+              <Text 
+                fontSize={isLarge ? 16 : 15} 
+                color={colors.subtext} 
+                fontFamily="$body"
+                textAlign="center"
+                lineHeight={isLarge ? 24 : 22}
+                maxWidth={isLarge ? 380 : 300}
+              >
+                Keep your notes, tasks, and data perfectly synchronized across all your devices
+              </Text>
+            </YStack>
+
+            {/* Features Grid */}
+            <YStack 
+              style={[styles.featuresContainer, { backgroundColor: modernColors.featureBg }]}
+              marginBottom={baseSpacing * 3}
+            >
+              <XStack style={styles.featureRow}>
+                <YStack style={styles.feature}>
+                  <MaterialIcons name="devices" size={24} color={colors.accent} />
+                  <Text fontSize={13} color={colors.text} fontFamily="$body" fontWeight="600" textAlign="center">
+                    Unlimited Devices
+                  </Text>
+                </YStack>
+                <YStack style={styles.feature}>
+                  <MaterialIcons name="security" size={24} color={colors.accent} />
+                  <Text fontSize={13} color={colors.text} fontFamily="$body" fontWeight="600" textAlign="center">
+                    E2E Encryption
+                  </Text>
+                </YStack>
+              </XStack>
+              
+              <XStack style={styles.featureRow}>
+                <YStack style={styles.feature}>
+                  <MaterialIcons name="backup" size={24} color={colors.accent} />
+                  <Text fontSize={13} color={colors.text} fontFamily="$body" fontWeight="600" textAlign="center">
+                    Auto Backup
+                  </Text>
+                </YStack>
+                <YStack style={styles.feature}>
+                  <MaterialIcons name="cancel" size={24} color={colors.accent} />
+                  <Text fontSize={13} color={colors.text} fontFamily="$body" fontWeight="600" textAlign="center">
+                    Cancel Anytime
+                  </Text>
+                </YStack>
+              </XStack>
+            </YStack>
+
+            {/* Pricing */}
+            <YStack alignItems="center" marginBottom={baseSpacing * 3}>
+              <XStack alignItems="baseline" gap={8} marginBottom={baseSpacing}>
+                <Text 
+                  fontSize={isLarge ? 32 : 28} 
+                  fontWeight="800" 
+                  color={colors.accent} 
+                  fontFamily="$body"
+                >
+                  $4
+                </Text>
+                <Text 
+                  fontSize={isLarge ? 18 : 16} 
+                  color={colors.subtext} 
+                  fontFamily="$body"
+                  fontWeight="500"
+                >
+                  /month
+                </Text>
+              </XStack>
+              
+              <Text 
+                fontSize={isLarge ? 15 : 14} 
+                color={colors.accent} 
+                fontFamily="$body"
+                fontWeight="600"
+                textAlign="center"
+              >
+                or $20/year (save 40%)
+              </Text>
+            </YStack>
+
+            {/* CTA Button */}
+            <TouchableOpacity
+              onPress={handlePremiumPress}
+              style={[styles.ctaButton, { shadowColor: colors.accent + '40' }]}
+              activeOpacity={0.85}
+            >
+              <LinearGradient
+                colors={[colors.accent, colors.accent + 'E6']}
+                style={styles.buttonGradient}
+              >
+                <XStack alignItems="center" gap={baseSpacing}>
+                  <Text 
+                    color="white" 
+                    fontSize={isLarge ? 17 : 16} 
+                    fontWeight="600" 
+                    fontFamily="$body"
+                  >
+                    {isDev ? 'Activate Premium (Dev)' : 'Start Free Trial'}
+                  </Text>
+                  <MaterialIcons 
+                    name={isDev ? "flash-on" : "arrow-forward"} 
+                    size={isLarge ? 20 : 18} 
+                    color="white" 
+                  />
+                </XStack>
+              </LinearGradient>
+            </TouchableOpacity>
+          </YStack>
+        ) : (
+          <YStack flex={1} paddingHorizontal={baseSpacing * 2}>
+            {/* Join Workspace Content */}
+            <YStack alignItems="center" marginBottom={baseSpacing * 3}>
+              <View style={[styles.iconContainer, { backgroundColor: colors.accent + '20' }]}>
+                <MaterialIcons name="group-add" size={isLarge ? 42 : 36} color={colors.accent} />
+              </View>
+              
+              <Text 
+                fontSize={isLarge ? 26 : 22} 
+                fontWeight="700" 
+                color={colors.text} 
+                fontFamily="$body"
+                textAlign="center"
+                marginBottom={baseSpacing}
+              >
+                Join Workspace
+              </Text>
+              
+              <Text 
+                fontSize={isLarge ? 16 : 15} 
+                color={colors.subtext} 
+                fontFamily="$body"
+                textAlign="center"
+                lineHeight={isLarge ? 24 : 22}
+                maxWidth={isLarge ? 360 : 280}
+              >
+                Enter a workspace code from a premium user to sync your data together
+              </Text>
+            </YStack>
+
+            {/* Input Section */}
+            <YStack gap={baseSpacing * 2} marginBottom={baseSpacing * 3}>
+              <TextInput
+                style={[
+                  styles.workspaceInput,
+                  {
+                    backgroundColor: modernColors.inputBg,
+                    borderColor: workspaceCode ? colors.accent : modernColors.cardBorder,
+                    color: colors.text,
+                  }
+                ]}
+                value={workspaceCode}
+                onChangeText={setWorkspaceCode}
+                placeholder="Enter workspace code..."
+                placeholderTextColor={colors.subtext}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                maxLength={20}
+              />
+
+              <TouchableOpacity
+                onPress={handleJoinWorkspace}
+                style={[
+                  styles.joinButton,
+                  { 
+                    backgroundColor: workspaceCode.trim() && !effectiveIsJoining ? colors.accent : modernColors.inputBg,
+                    opacity: !workspaceCode.trim() || effectiveIsJoining ? 0.6 : 1,
+                    shadowColor: colors.accent + '40',
+                  }
+                ]}
+                activeOpacity={0.85}
+                disabled={!workspaceCode.trim() || effectiveIsJoining}
+              >
+                <XStack alignItems="center" gap={baseSpacing}>
+                  {effectiveIsJoining ? (
+                    <MaterialIcons name="hourglass-empty" size={20} color="white" />
+                  ) : (
+                    <MaterialIcons name="group-add" size={20} color={workspaceCode.trim() ? "white" : colors.subtext} />
+                  )}
+                  <Text 
+                    color={workspaceCode.trim() && !effectiveIsJoining ? "white" : colors.subtext} 
+                    fontSize={isLarge ? 17 : 16} 
+                    fontWeight="600" 
+                    fontFamily="$body"
+                  >
+                    {effectiveIsJoining ? 'Joining...' : 'Join Workspace'}
+                  </Text>
+                </XStack>
+              </TouchableOpacity>
+            </YStack>
+          </YStack>
+        )}
       </View>
       
-      {effectiveIsJoining && <JoiningOverlay colors={colors} isDark={!isWeb} onDevToggle={isDev ? () => setDevFakeJoining(false) : undefined} />}
+      {effectiveIsJoining && <JoiningOverlay colors={colors} isDark={isDark} onDevToggle={isDev ? () => setDevFakeJoining(false) : undefined} />}
     </View>
   );
 }
@@ -581,26 +578,26 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     alignSelf: 'center',
-    paddingVertical: isWeb ? baseSpacing * 2 : isIpad() ? baseSpacing * 2.5 : baseSpacing,
-    paddingHorizontal: isWeb ? baseSpacing : isIpad() ? baseSpacing * 1.5 : baseSpacing,
+    paddingVertical: isWeb ? baseSpacing * 1.5 : baseSpacing,
+    paddingHorizontal: isWeb ? baseSpacing : baseSpacing,
     width: '100%',
   },
   heroCard: {
-    borderRadius: cardRadius,
-    paddingBottom: 0,
-    paddingHorizontal: isWeb ? baseSpacing * 2.5 : 0,
+    borderRadius: isWeb ? 20 : 16,
+    padding: baseSpacing * 2,
     borderWidth: 1,
     alignItems: 'stretch',
     width: '100%',
-    minHeight: isWeb ? 500 : isIpad() ? 500 : 450,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
+    minHeight: isWeb ? 480 : isIpad() ? 460 : 420,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
   },
   tabContainer: {
     flexDirection: 'row',
-    borderRadius: cardRadius,
+    borderRadius: 12,
+    padding: 4,
   },
   tab: {
     flex: 1,
@@ -608,73 +605,66 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: baseSpacing *2,
-    paddingHorizontal: baseSpacing * 1.5,
-    borderRadius: cardRadius,
-    borderBottomWidth: 0,
+    paddingVertical: baseSpacing * 1.2,
+    paddingHorizontal: baseSpacing,
+    borderRadius: 8,
   },
   iconContainer: {
-    width: isWeb ? 90 : isIpad() ? 90 : 80,
-    height: isWeb ? 90 : isIpad() ? 90 : 80,
-    borderRadius: isWeb ? 45 : isIpad() ? 45 : 40,
+    width: isWeb ? 80 : 72,
+    height: isWeb ? 80 : 72,
+    borderRadius: isWeb ? 40 : 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: baseSpacing * 2,
-    shadowOffset: { width: 0, height: 2 },
-    marginTop: baseSpacing * 2,
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    overflow: 'hidden',
+    marginBottom: baseSpacing * 1.5,
   },
-  featureList: {
-    padding: baseSpacing * 1.5,
-    borderRadius: cardRadius,
-    gap: baseSpacing,
-    width: '100%',
-    maxWidth: isWeb ? 350 : 320,
+  featuresContainer: {
+    padding: baseSpacing * 2,
+    borderRadius: 16,
+    gap: baseSpacing * 1.5,
+  },
+  featureRow: {
+    justifyContent: 'space-around',
+    gap: baseSpacing * 2,
+  },
+  feature: {
+    alignItems: 'center',
+    gap: baseSpacing * 0.8,
+    flex: 1,
   },
   ctaButton: {
-    borderRadius: cardRadius,
-    shadowOffset: { width: 0, height: 2 },
+    borderRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    width: '100%',
-    maxWidth: isWeb ? 350 : 250,
-  },
-  ctaButton2: {
-    borderRadius: cardRadius,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    width: '100%',
-    maxWidth: isWeb ? 400 : 320,
+    shadowRadius: 12,
+    elevation: 6,
   },
   buttonGradient: {
     paddingHorizontal: baseSpacing * 2,
-    paddingVertical: baseSpacing * 1.5,
-    borderRadius: cardRadius,
+    paddingVertical: baseSpacing * 1.8,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  input: {
+  workspaceInput: {
     borderWidth: 2,
-    borderRadius: cardRadius,
-
-    paddingVertical: baseSpacing * 1.25,
-    fontSize: isWeb ? 16 : 14,
+    borderRadius: 12,
+    paddingVertical: baseSpacing * 1.5,
+    paddingHorizontal: baseSpacing * 1.5,
+    fontSize: isWeb ? 16 : 15,
     fontFamily: 'System',
     fontWeight: '500',
     textAlign: 'center',
-
   },
-  infoBox: {
-    padding: baseSpacing * 1.5,
-    borderRadius: cardRadius,
-    width: '100%',
-    maxWidth: isWeb ? 350 : 320,
+  joinButton: {
+    paddingVertical: baseSpacing * 1.8,
+    paddingHorizontal: baseSpacing * 2,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   devToggle: {
     position: 'absolute',
@@ -691,4 +681,4 @@ const styles = StyleSheet.create({
     elevation: 4,
     zIndex: 1000,
   },
-  });
+});

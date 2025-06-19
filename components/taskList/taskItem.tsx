@@ -31,8 +31,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const progress = useSharedValue(0)
   const isDeleting = useSharedValue(false)
   const screen = Platform.OS
-  const LONG_PRESS_DURATION = 1000 // 1 second
-
+  const LONG_PRESS_DURATION = 1000
   const customCategories = useCustomCategoryStore((s) => s.categories)
   const userColor = useUserStore(s => s.preferences.primaryColor)
   const isCustom = task.category && customCategories.some(catObj => catObj.name === task.category)
@@ -61,8 +60,6 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       runOnJS(handleNotificationFeedback)();
       runOnJS(onLongPress)(task, (deleted: boolean) => {
         'worklet';
-        // The reset logic is now handled in onFinalize/onTouchesMove
-        // This callback can be used for other logic if needed after alert dismissal
       });
     }
   };
@@ -80,25 +77,22 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       }, (finished) => {
         if (finished) {
           runOnJS(handleReadyHaptic)();
-          // Automatically trigger delete when progress completes
           runOnJS(triggerDeleteAction)();
         }
       });
     })
     .onFinalize(() => {
       'worklet';
-      // Always reset visuals and deleting state on finalize
       scale.value = withSpring(1, { damping: 15, stiffness: 100 });
       progress.value = withTiming(0, { duration: 200 });
-      isDeleting.value = false; // Reset deleting state
+      isDeleting.value = false; 
     })
     .onTouchesMove(() => {
       'worklet';
-      // Always cancel animation and reset visuals/deleting state on touches move
       cancelAnimation(progress);
       progress.value = withTiming(0, { duration: 200 });
       scale.value = withSpring(1, { damping: 15, stiffness: 100 });
-      isDeleting.value = false; // Reset deleting state
+      isDeleting.value = false; 
     });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -132,23 +126,18 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     opacity: progress.value,
   }));
 
-  const pattern: RecurrencePattern = task.category === 'bills'
-    ? 'monthly'
-    : (task.recurrencePattern || 'one-time') as RecurrencePattern
+  const pattern: RecurrencePattern = task.category === 'bills' ? 'monthly' : (task.recurrencePattern || 'one-time') as RecurrencePattern
   const recColor = getRecurrenceColor(pattern)
   const recIcon = getRecurrenceIcon(pattern)
   const priColor = task.priority ? getPriorityColor(task.priority) : null
   const priIcon = task.priority ? getPriorityIonIcon(task.priority) : null
 
-  // Handle edit button press
   const handleEditPress = (e: any) => {
-    // Stop propagation to prevent the long press gesture from activating
     e?.stopPropagation?.();
     onPressEdit(task);
-    return false; // Prevent event bubbling
+    return false;
   };
 
-  // Main content of the task item
   const mainContent = (
     <XStack
       bg={isDark ? '#1e1e1e' : '$gray1'}
@@ -198,7 +187,6 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     </XStack>
   );
 
-  // Edit button component
   const editButton = (
     <Pressable
       onPress={handleEditPress}
@@ -217,8 +205,8 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const handlePressIn = () => {
     if (screen === 'web') {
       webTimer.current = setTimeout(() => {
-        isDeleting.value = true; // Set deleting state for web
-        onLongPress(task, (deleted) => { // Pass callback for web
+        isDeleting.value = true;
+        onLongPress(task, (deleted) => {
           if (!deleted) {
             scale.value = withSpring(1, { damping: 15, stiffness: 100 });
             progress.value = withTiming(0, { duration: 200 });
@@ -232,7 +220,6 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
   const handlePressOut = () => {
     if (screen === 'web') {
       clearTimeout(webTimer.current);
-      // Reset visuals on web if not deleting
       if (!isDeleting.value) {
         scale.value = withSpring(1, { damping: 15, stiffness: 100 });
         progress.value = withTiming(0, { duration: 200 });
@@ -253,7 +240,6 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
     );
   }
 
-  // For mobile, use a combination of gesture detector for long press but allow direct interaction with edit button
   return (
     <XStack width="100%" position="relative">
       <View style={{ flex: 1 }}>

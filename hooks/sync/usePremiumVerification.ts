@@ -37,12 +37,9 @@ export const usePremiumVerification = () => {
       
       // If user is already premium locally, skip verification
       if (premium === true) {
-        console.log('🗄️ [usePremiumVerification] User already has premium locally:', premium);
         addSyncLog(`✅ User ${trimmedUsername} already has premium locally`, 'info');
         return;
       }
-      
-      console.log('🗄️ [usePremiumVerification] Premium is false/undefined, will verify:', premium);
       
       // Prevent multiple verification attempts
       if (hasVerified.current) {

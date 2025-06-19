@@ -179,15 +179,6 @@ export function BetaCodeInput({ colors, contentWidth, onPremiumActivated }: Beta
             )}
           </TouchableOpacity>
         </XStack>
-
-        <Text 
-          fontSize={fontSizes.xs} 
-          color={colors.subtext} 
-          textAlign="center"
-          fontFamily="$body"
-        >
-          Beta codes provide full premium access during the beta period
-        </Text>
       </YStack>
     </View>
   );

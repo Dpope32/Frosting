@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FlatList, View, Dimensions } from "react-native";
-import { YStack, isWeb } from "tamagui";
+import { YStack, isWeb, Button } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
 import { usePeopleStore } from "@/store/People";
 import { PersonCard } from "@/components/crm/PersonCard/PersonCard";
@@ -12,7 +12,7 @@ import { useUserStore } from "@/store/UserStore";
 import { handleImportContacts } from "@/services";
 import { isIpad } from "@/utils";
 import { DevButtons } from "@/components/crm/devButtons";
-import { useToastStore } from "@/store";
+import { MaterialIcons } from "@expo/vector-icons";
 import ExpandedView from "@/components/crm/PersonCard/ExpandedView";
 import { getColorForPerson } from "@/components/crm/PersonCard/utils";
 const { width } = Dimensions.get("window");
@@ -123,6 +123,22 @@ export default function CRM() {
           />
         }
       />
+    <Button
+        onPress={() => setContactModalOpen(true)}
+        position="absolute"
+        bottom={40}
+        right={24}
+        zIndex={1000}
+        size="$4"
+        circular
+        bg={primaryColor}
+        pressStyle={{ scale: 0.95 }}
+        animation="quick"
+        elevation={4}
+      >
+        <MaterialIcons name="add" size={24} color="white" />
+      </Button> 
+
       <AddPersonForm isVisible={contactModalOpen} onClose={() => setContactModalOpen(false)} />
       {selectedPerson && (
         <EditPersonForm

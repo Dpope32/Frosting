@@ -179,12 +179,9 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
 export const getPocketBase = async (): Promise<PocketBaseType> => {
   // Early detection for simulator/dev mode
   if (isSimulatorOrDev()) {
-    addSyncLog(`🧪 [DEV/SIM] Development mode or simulator detected - skipping PocketBase`, 'warning');
-    console.log('🧪 [DEV/SIM] Skipping PocketBase due to simulator/dev environment');
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 
-  console.log('🌐 [PocketBase] Candidate URLs:', CANDIDATE_URLS);
  // addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
@@ -203,10 +200,6 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   if (!selected) {
     const errorMsg = `All PocketBase URLs failed after ${MAX_RETRIES + 1} attempts each`;
     addSyncLog(`❌ ${errorMsg}`, 'error');
-    
-    // Add platform info for debugging
-    addSyncLog(`📱 Platform: ${Platform.OS}, URLs tested: ${CANDIDATE_URLS.join(', ')}`, 'error');
-    
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 
@@ -217,15 +210,12 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   } catch (importError) {
     const errorMessage = importError instanceof Error ? importError.message : String(importError);
     
-    // Check for the specific simulator import error
     if (errorMessage.includes('Requiring unknown module') || 
         errorMessage.includes('importedAll') ||
         errorMessage.includes('Cannot set property')) {
       addSyncLog(`🧪 [SIM] PocketBase import failed (likely simulator) - skipping sync silently`, 'warning');
-      console.log('🧪 [SIM] PocketBase simulator import issue detected, skipping sync');
     } else {
       addSyncLog(`❌ Failed to import PocketBase: ${errorMessage}`, 'error');
-      console.error('PocketBase import failed:', importError);
     }
     
     throw new Error('SKIP_SYNC_SILENTLY');
