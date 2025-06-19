@@ -1,6 +1,6 @@
 import React from 'react'
 import { useColorScheme, Platform } from 'react-native'
-import { YStack, Text, Spinner, isWeb } from 'tamagui'
+import { YStack, Text, Spinner, isWeb, XStack } from 'tamagui'
 import { useStoicQuote } from '@/hooks/useStoicQuote'
 import Animated, { FadeIn } from 'react-native-reanimated'
 import { isIpad } from '@/utils'
@@ -99,28 +99,57 @@ export function DailyQuoteDisplay() {
         }}
       >
         
-        <YStack gap="$2">
-          <Text 
-            fontFamily="$body" 
-            color={isDark ? "#fff" : "#fff"} 
-            fontSize={isWeb ? 16 : isIpad() ? 15 : 14} 
-            fontWeight="500"
-            lineHeight={22}
-            textAlign="center"
-          >
-            "{data.data.quote}"
-          </Text>
-          <Text 
-            fontFamily="$body" 
-            color={isDark ? "#a0a0a0" : "#d0d0d0"} 
-            fontSize={isWeb ? 14 : isIpad() ? 13 : 12} 
-            fontWeight="500"
-            textAlign="center"
-            mt="$2"
-          >
-            — {data.data.author}
-          </Text>
-        </YStack>
+        {/* Web layout: Quote and author on same line */}
+        {isWeb ? (
+          <XStack gap="$2" alignItems="flex-end" justifyContent="space-between" flexWrap="wrap">
+            <Text 
+              fontFamily="$body" 
+              color={isDark ? "#fff" : "#fff"} 
+              fontSize={16} 
+              fontWeight="500"
+              lineHeight={22}
+              textAlign="left"
+              flex={1}
+              minWidth={200}
+            >
+              "{data.data.quote}"
+            </Text>
+            <Text 
+              fontFamily="$body" 
+              color={isDark ? "#a0a0a0" : "#d0d0d0"} 
+              fontSize={14} 
+              fontWeight="500"
+              textAlign="right"
+              flexShrink={0}
+            >
+              — {data.data.author}
+            </Text>
+          </XStack>
+        ) : (
+          /* Mobile/iPad layout: Author below quote */
+          <YStack gap="$2" alignItems="center">
+            <Text 
+              fontFamily="$body" 
+              color={isDark ? "#fff" : "#fff"} 
+              fontSize={isIpad() ? 15 : 14} 
+              fontWeight="500"
+              lineHeight={22}
+              textAlign="center"
+            >
+              "{data.data.quote}"
+            </Text>
+            <Text 
+              fontFamily="$body" 
+              color={isDark ? "#a0a0a0" : "#d0d0d0"} 
+              fontSize={isIpad() ? 13 : 12} 
+              fontWeight="500"
+              textAlign="center"
+              mt="$2"
+            >
+              — {data.data.author}
+            </Text>
+          </YStack>
+        )}
       </YStack>
     </Animated.View>
   )

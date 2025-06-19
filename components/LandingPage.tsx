@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { YStack, Text, Stack, ScrollView, XStack, isWeb } from 'tamagui'
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import Animated, { FadeIn } from 'react-native-reanimated'
 
 import { NewTaskModal } from '@/components/cardModals/NewTaskModal/index'
 import { TaskListModal } from '@/components/taskList/TaskListModal'
@@ -265,30 +266,32 @@ export const LandingPage = React.memo(() => {
         {showQuoteOnHome && <DailyQuoteDisplay />}
          
           {Platform.OS === 'web' ?  (
-            <Stack 
-              backgroundColor={backgroundColor} 
-              borderRadius={16} 
-              padding="$4" 
-              marginTop="$2" 
-              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
-              borderWidth={1} 
-              minWidth={300}
-              style={{
-                backdropFilter: 'blur(12px)',
-                boxShadow: isDark 
-                  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
-                  : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
-              }}
-            >
-              <XStack justifyContent="space-between" alignItems="center">
-                <Text fontFamily="$body" color="#dbd0c6" fontSize={20} fontWeight="bold" marginBottom="$2" paddingLeft="$4" style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
-                  Asset Tracker
-                </Text>
-              </XStack>
-              <Stack padding="$2" minHeight={100}>
-                <AssetSection onAddToWatchlist={() => setWatchlistModalOpen(true)} />
+            <Animated.View entering={FadeIn.duration(600)}>
+              <Stack 
+                backgroundColor={backgroundColor} 
+                borderRadius={16} 
+                padding="$4" 
+                marginTop="$2" 
+                borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+                borderWidth={1} 
+                minWidth={300}
+                style={{
+                  backdropFilter: 'blur(12px)',
+                  boxShadow: isDark 
+                    ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)' 
+                    : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                <XStack justifyContent="space-between" alignItems="center">
+                  <Text fontFamily="$body" color="#dbd0c6" fontSize={20} fontWeight="bold" marginBottom="$2" paddingLeft="$4" style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
+                    Asset Tracker
+                  </Text>
+                </XStack>
+                <Stack padding="$2" minHeight={100}>
+                  <AssetSection onAddToWatchlist={() => setWatchlistModalOpen(true)} />
+                </Stack>
               </Stack>
-            </Stack>
+            </Animated.View>
           ) : (
             <Stack position="absolute" bottom={0} left={0} right={0} padding="$4"  >
               <Text color="#dbd0c6" fontSize={12} fontFamily="$body" marginTop="$2" textAlign="center" opacity={0}>Version 1.1.70</Text>
