@@ -48,8 +48,33 @@ export const useStoicQuote = () => {
           throw new Error(`Expected JSON response, but received content type: ${contentType}`);
         }
 
-        // If response is OK and content type is JSON, parse it
-        return response.json();
+        // Parse the JSON response
+        const rawData = await response.json();
+        
+        // Transform the response to match expected format
+        // Handle both response formats: { text: "...", author: "..." } and { data: { quote: "...", author: "..." } }
+        if (rawData.data) {
+          // Already in expected format
+          return rawData;
+        } else if (rawData.text && rawData.author) {
+          // Transform tekloon.net format to expected format
+          return {
+            data: {
+              quote: rawData.text,
+              author: rawData.author
+            }
+          };
+        } else if (rawData.quote && rawData.author) {
+          // Transform stoic-quotes.com format to expected format
+          return {
+            data: {
+              quote: rawData.quote,
+              author: rawData.author
+            }
+          };
+        } else {
+          throw new Error('Unexpected quote API response format');
+        }
 
       } catch (error) {
         // Log the specific error and re-throw for React Query
