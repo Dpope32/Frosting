@@ -40,7 +40,7 @@ export const NoteCard = ({
   const noteStore = useNoteStore();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const { colors, markdownStyles } = useMarkdownStyles();
+  const { colors, markdownStyles, processTallyMarks } = useMarkdownStyles();
   const noTagSpacerHeight = isWeb ? 40 : 6;
   const horizontalPadding = isWeb ? 20 : isIpad() ? 12 : 10;
   const verticalPadding = isWeb ? 6 : isIpad() ? 8 : 6;
@@ -77,17 +77,50 @@ export const NoteCard = ({
 
   const hasMarkdown = useMemo(() => {
     if (!note.content) return false;
-    const result = Boolean(
-      note.content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- (?!\[)|^- \[[xX ]\]|\n- (?!\[)|\n- \[[xX ]\]|```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[\*] |^[\*] (?!\[)|\n[\*] |\n[\*] (?!\[)/m)
-    );
-    return result;
+    
+    // Use the same improved markdown detection logic
+    const markdownPatterns = [
+      /\*\*.*?\*\*/,                    // Bold **text**
+      /\*.*?\*/,                       // Italic *text*
+      /^#{1,6}\s/m,                    // Headers
+      /!\[.*?\]\(.*?\)/,               // Images
+      /\[.*?\]\(.*?\)/,                // Links
+      /```[\s\S]*?```/,                // Code blocks
+      /`[^`\n]+`/,                     // Inline code
+      /^>\s/m,                         // Blockquotes
+      /~~.*?~~/,                       // Strikethrough
+      /__.*?__/,                       // Underline
+      /^[-*+]\s\[[ xX]\]\s/m,          // Checkboxes
+      /^(\s*[-*+]\s.+\n){2,}/m,        // Multiple bullet points
+      /^\d+\.\s/m,                     // Numbered lists
+      /^---+$/m,                       // Horizontal rules
+      /^\|.*\|.*$/m,                   // Tables
+      /(\W|^)(I{3,})(\W|$)/,           // Tally marks - 3+ I's
+    ];
+
+    const matchCount = markdownPatterns.reduce((count, pattern) => {
+      return count + (pattern.test(note.content) ? 1 : 0);
+    }, 0);
+
+    return matchCount >= 2 || 
+           /^#{1,6}\s/m.test(note.content) ||
+           /```[\s\S]*?```/.test(note.content) ||
+           /^>\s/m.test(note.content) ||
+           /^\|.*\|.*$/m.test(note.content) ||
+           /(\W|^)(I{3,})(\W|$)/.test(note.content);
   }, [note.content]);
 
   const displayContent = useMemo(() => {
     if (!note.content) return '';
-    const result = note.content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+    let result = note.content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
+    
+    // Process tally marks
+    if (processTallyMarks) {
+      result = processTallyMarks(result);
+    }
+    
     return result;
-  }, [note.content]);
+  }, [note.content, processTallyMarks]);
 
   const handlePress = () => {
     const newExpandedState = !isExpanded;
@@ -257,6 +290,74 @@ export const NoteCard = ({
     })()
   };
 
+  // Custom rule for tally marks
+  const tallyRule: RenderRules = {
+    text: (node, children, parent, styles) => {
+      if (typeof node.content === 'string') {
+        const content = node.content;
+        
+        // Check if this text contains tally marks
+        if (content.includes('[TALLY:')) {
+          const parts = content.split(/(\[TALLY:\d+\])/);
+          
+          return (
+            <Text key={node.key || Math.random().toString()} style={{ textAlignVertical: 'center'}}>
+              {parts.map((part, index) => {
+                const tallyMatch = part.match(/\[TALLY:(\d+)\]/);
+                if (tallyMatch) {
+                  const count = parseInt(tallyMatch[1]);
+                  const isFiveBundle = count === 5;
+                  
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        display: 'inline-flex',
+                        position: 'relative',
+                        transform: [{ translateY: 2 }],
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontFamily: 'monospace',
+                          fontSize: isIpad() ? 14 : 12,
+                          fontWeight: '500',
+                          letterSpacing: 0.5,
+                          color: colors.text,
+                          lineHeight: isIpad() ? 14 : 12,
+                        }}
+                      >
+                        {'I'.repeat(count)}
+                      </Text>
+                      {isFiveBundle && (
+                        <View
+                          style={{
+                            position: 'absolute',
+                            width: '100%',
+                            height: 1,
+                            backgroundColor: colors.text,
+                            top: '50%',
+                            left: '-2.5%',
+                            transform: [{ rotate: '155deg' }],
+                            zIndex: 1,
+                          }}
+                        />
+                      )}
+                    </View>
+                  );
+                }
+                return part;
+              })}
+            </Text>
+          );
+        }
+      }
+      
+      // Default text rendering
+      return <Text key={node.key || Math.random().toString()} style={styles.text}>{node.content}</Text>;
+    }
+  };
+
   return (
     <View style={localStyles.touchableContainer}>
       <Card
@@ -394,7 +495,10 @@ export const NoteCard = ({
                     <Markdown 
                       key={`${note.id}-${checkboxUpdateKey}`}
                       style={markdownStyles}
-                      rules={/- \[[ xX]\]/.test(displayContent) ? checkboxRule : undefined}
+                      rules={{
+                        ...((/- \[[ xX]\]/.test(displayContent)) ? checkboxRule : {}),
+                        ...(displayContent.includes('[TALLY:') ? tallyRule : {})
+                      }}
                     >
                       {displayContent || ''}
                     </Markdown>

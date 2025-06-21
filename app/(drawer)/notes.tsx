@@ -1,31 +1,27 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as Haptics from 'expo-haptics';
 import { isWeb } from 'tamagui';
-import { View, ScrollView, Dimensions } from 'react-native';
-import Animated, { useSharedValue } from 'react-native-reanimated';
+import { View, ScrollView } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { YStack, XStack } from 'tamagui';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 
 import type { Note, Attachment, Tag } from '@/types';
-import { useUserStore, useToastStore, ToastType, useNoteStore } from '@/store';
+import { useUserStore, useToastStore, useNoteStore } from '@/store';
 
 import { useNotes } from '@/hooks/useNotes';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useImagePicker } from '@/hooks/useImagePicker';
 
-
 import WebDragDrop from '@/components/notes/WebDragDrop';
-
 import { NotesEmpty } from '@/components/notes/NotesEmpty';
 import { AddNoteSheet } from '@/components/cardModals/creates/AddNoteSheet';
 import { NoteListItem } from '@/components/notes/NoteListItem';
 import { AddNoteButton } from '@/components/notes/AddNoteButton';
 import { DevToolsButton } from '@/components/notes/DevToolsButton';
-
-import { createTrashAnimatedStyle, noteStyles, isIpad } from '@/utils';
-import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, attemptDeleteNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/notes/noteService';
+import { isIpad } from '@/utils';
+import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet, saveNote, handleImagePick as serviceHandleImagePick, triggerHaptic } from '@/services/notes/noteService';
 import { setupColumnCalculation, createFormattingHandler, handleMoveNote, handleSelectNote } from '@/services/notes/noteService2';
 import { createNoteHandlers } from '@/services';
 import { handleAddExampleNote } from '@/services/dev/devNotes';
@@ -34,10 +30,8 @@ export const draggedCardBottomYRef = { current: 0 };
 
 export default function NotesScreen() {
   const scrollOffsetRef = useRef<number>(0);
-  const noteListItemRef = useRef<any>(null);
   const flatListRef = useRef<any>(null);
   const activeNoteListItemRef = useRef<any>(null);
-
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
   const { pickImage, isLoading: isImagePickerLoading } = useImagePicker();
@@ -55,21 +49,10 @@ export default function NotesScreen() {
   const { notes } = useNotes();
   const [numColumns, setNumColumns] = useState(1);
   const [draggingNoteId, setDraggingNoteId] = useState<string | null>(null);
-  const noteToDeleteRef = useRef<string | null>(null);
   const [isPendingDelete, setIsPendingDelete] = useState(false);
   const [pendingDeleteNote, setPendingDeleteNote] = useState<Note | null>(null);
-  const [pendingDeletePosition, setPendingDeletePosition] = useState({ x: 0, y: 0 });
   const originalIndexRef = useRef<number | null>(null);
   const preventReorder = useRef(false);
-
-
-
-
-
-
-
-
-
 
   useEffect(() => {return setupColumnCalculation(isWeb, setNumColumns)}, [isWeb]);
 
@@ -81,10 +64,6 @@ export default function NotesScreen() {
   const localHandleUnderline = createFormattingHandler(formatUnderline, selection, setEditContent);
   const localHandleCode = createFormattingHandler(formatCode, selection, setEditContent);
   const localHandleBullet = createFormattingHandler(formatBullet, selection, setEditContent);
-
-
-
-
 
     const patchedHandleDragEnd = useCallback((args: any) => {
     if (preventReorder.current || !draggingNoteId) {

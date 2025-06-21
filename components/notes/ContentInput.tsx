@@ -1,4 +1,4 @@
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { forwardRef, useState, useEffect, useRef } from 'react';
 import { TextInput, Platform, StyleSheet, NativeSyntheticEvent, TextInputSelectionChangeEventData, View, Keyboard } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isIpad } from '@/utils';
@@ -89,6 +89,14 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
     setLocalValue(text);
     onChangeText(text);
   };
+
+  const handleSelectionChange = (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
+    const newSelection = event.nativeEvent.selection;
+    
+    if (onSelectionChange) {
+      onSelectionChange(event);
+    }
+  };
   
   const handleContentSizeChange = (event: any) => {
     const { height } = event.nativeEvent.contentSize;
@@ -125,7 +133,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
     <View style={[
       styles.container,
       {
-        backgroundColor: isDark ? '#1c1c1c' : '#ffffff',
+        backgroundColor: isDark ? '#000' : '#ffffff',
         borderColor: isDark ? '#3a3a3c' : '#d1d1d6',
       }
     ]}>
@@ -152,7 +160,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
         )}
         enablesReturnKeyAutomatically={false}
         onSubmitEditing={handleSubmitEditing}
-        onSelectionChange={onSelectionChange}
+        onSelectionChange={handleSelectionChange}
         onContentSizeChange={handleContentSizeChange}
         onKeyPress={handleKeyPress}
         style={[
@@ -166,7 +174,8 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
             minHeight: minHeight,
             fontSize: isWeb ? isIpad() ? 20 : 19 : 15,
             fontFamily: "$body",
-            marginVertical: isIpad() ? 4 : 1,
+            marginVertical: isIpad() ? 0 : 1,
+            padding: isIpad() ? 4 : 8,
           }
         ]}
         {...(isIOS ? {
@@ -195,6 +204,7 @@ const styles = StyleSheet.create({
     width: '100%',
     position: 'relative',
     paddingHorizontal: 4,
+    paddingTop: 4,
     borderRadius: 8,
     borderWidth: 1,
   },

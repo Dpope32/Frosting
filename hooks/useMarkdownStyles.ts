@@ -36,19 +36,20 @@ export const useMarkdownStyles = () => {
       color: colors.text, 
       fontFamily: '$body', 
       marginBottom: 0,
-      fontSize: isTablet ? 19 : 13
+      fontSize: isTablet ? 16 : 13
     } as TextStyle,
     heading1: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 21 : 15, 
+      fontSize: isTablet ? 18 : 15, 
       fontWeight: '700',
       marginTop: 4,
     } as TextStyle,
     heading2: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 21 : 14, 
+      fontSize: isTablet ? 18 : 14, 
+      marginLeft: isTablet ? 4 : 3,
       marginBottom: 1, 
       fontWeight: '500',
       marginTop: 6 
@@ -56,14 +57,16 @@ export const useMarkdownStyles = () => {
     heading3: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 19 : 14, 
+      fontSize: isTablet ? 17 : 14, 
+      marginLeft: isTablet ? 5 : 4,
       marginBottom: 2, 
       marginTop: 5 
     } as TextStyle,
     heading4: { 
       color: colors.text, 
       fontFamily: '$heading', 
-      fontSize: isTablet ? 19 : 13, 
+      fontSize: isTablet ? 16 : 13, 
+      marginLeft: isTablet ? 6 : 5,
       marginBottom: 0, 
       marginTop: 10 
     } as TextStyle,
@@ -73,6 +76,7 @@ export const useMarkdownStyles = () => {
     blockquote: { 
       backgroundColor: colors.blockquoteBg, 
       padding: 8, 
+      marginLeft: isTablet ? 7 : 6,
       borderRadius: 4, 
       borderLeftWidth: 0, 
       borderLeftColor: colors.blockquoteBorder,
@@ -81,6 +85,7 @@ export const useMarkdownStyles = () => {
     } as ViewStyle,
     code_inline: { 
       backgroundColor: colors.codeBg, 
+      marginLeft: isTablet ? 7 : 6,
       paddingVertical: 4,
       paddingHorizontal: 6,
       borderRadius: 4, 
@@ -94,6 +99,7 @@ export const useMarkdownStyles = () => {
       paddingVertical: 8,
       paddingHorizontal: 10,
       borderRadius: 4, 
+      marginLeft: isTablet ? 7 : 6,
       fontFamily: 'monospace',
       marginVertical: 10,
       marginHorizontal: 10,
@@ -103,13 +109,16 @@ export const useMarkdownStyles = () => {
       color: colors.text, 
       marginBottom: 3,
       marginTop: 1,
-      fontSize: isTablet ? 18 : 13,
+      fontSize: isTablet ? 16 : 13,
       marginLeft: 10,
     } as TextStyle,
     bullet_list: { 
       color: colors.text,
       marginTop: 1,
       marginBottom: 4
+    } as TextStyle,
+    list_item_bullet: {
+      marginLeft: isTablet ? 7 : 6,
     } as TextStyle,
     ordered_list: { 
       color: colors.text,
@@ -119,29 +128,33 @@ export const useMarkdownStyles = () => {
     hr: { 
       backgroundColor: colors.hr, 
       height: 1, 
-      marginVertical: 16 
+      marginVertical: 16,
+      marginLeft: isTablet ? 7 : 6,
     } as ViewStyle,
     table: { 
       borderWidth: 1, 
       borderColor: colors.tableBorder, 
+      marginLeft: isTablet ? 7 : 6,
       marginVertical: 12 
     } as ViewStyle,
     thead: { 
-      backgroundColor: colors.cardBorder 
+      backgroundColor: colors.cardBorder,
+      marginLeft: isTablet ? 7 : 6,
     } as ViewStyle,
     th: { 
       padding: 4, 
       borderWidth: 1, 
       borderColor: colors.tableBorder, 
       color: colors.text,
-      fontSize: isTablet ? 18 : 13
+      fontSize: isTablet ? 16 : 13,
+      marginLeft: isTablet ? 7 : 6,
     } as TextStyle,
     td: { 
       padding: 5, 
       borderWidth: 1, 
       borderColor: colors.tableBorder, 
       color: colors.text,
-      fontSize: isTablet ? 18 : 13
+      fontSize: isTablet ? 16 : 13
     } as TextStyle,
     em: { 
       fontStyle: 'italic' as const,
@@ -168,22 +181,23 @@ export const useMarkdownStyles = () => {
       marginBottom: 4,
       marginTop: 4,
       marginHorizontal: 8,
-      fontSize: isTablet ? 18 : 13
+      fontSize: isTablet ? 16 : 13
     } as TextStyle,
     checkbox: {
       color: colors.text,
       fontFamily: '$body',
-      fontSize: isTablet ? 18 : 13,
-      marginLeft: 10,
+      fontSize: isTablet ? 16 : 13,
+      marginLeft: isTablet ? 10 : 9,
       marginBottom: 3,
       marginTop: 1,
       position: 'relative',
       paddingLeft: 8,
     } as TextStyle,
     checkbox_unchecked: {
-      width: 16,
-      height: 16,
+      width: 15,
+      height: 15,
       borderWidth: 1.5,
+      marginLeft: isTablet ? 10 : 9,
       borderRadius: 3,
       marginRight: -8,
       borderColor: colors.textSecondary,
@@ -191,7 +205,9 @@ export const useMarkdownStyles = () => {
     checkbox_checked: {
       backgroundColor: 'rgba(0, 200, 81, 0.1)',
       borderColor: '#00C851',
-      width: 16,
+      marginLeft: isTablet ? 10 : 9,
+      width: 15,
+      height: 15,
       marginRight: -8,
     } as ViewStyle,
     checkbox_icon: {
@@ -207,21 +223,64 @@ export const useMarkdownStyles = () => {
       fontSize: 16,
       marginRight: 8,
     } as TextStyle,
+    tally: {
+      fontFamily: 'monospace',
+      fontSize: isTablet ? 14 : 12,
+      color: colors.text,
+      fontWeight: '500',
+      letterSpacing: 0.5,
+      position: 'relative',
+      textDecorationLine: 'line-through',
+      textDecorationColor: colors.text,
+    } as TextStyle,
   };
 
   /**
    * Detects if text contains markdown formatting
+   * Simple and non-aggressive to avoid cursor positioning issues
    */
   const detectMarkdown = (content: string): boolean => {
     if (!content) return false;
+    
+    // Only detect obvious markdown - be very conservative
     return Boolean(
-      content.match(/(\*\*.*?\*\*)|(\*.*?\*)|^#+ |!\[.*?\]\(.*?\)|^- |\n- |```.*?```|> |\[.*?\]\(.*?\)|~~.*?~~|^[-*] |\n[-*] |- \[[ xX]?\]/)
+      content.match(/(\*\*.*?\*\*)|(`.*?`)|^#{1,6}\s|```|!\[.*?\]\(.*?\)|\[.*?\]\(.*?\)|^>\s|(\W|^)(I{3,})(\W|$)/m)
     );
+  };
+
+  /**
+   * Converts sequences of "I" characters into proper tally mark bundles
+   * Groups of 5 get the classic diagonal slash: ||||/
+   */
+  const processTallyMarks = (content: string): string => {
+    return content.replace(/(\W|^)(I{3,})(\W|$)/g, (match, before, tallies, after) => {
+      const count = tallies.length;
+      let result = '';
+      
+      // Create bundles of 5 with diagonal slash
+      const fullBundles = Math.floor(count / 5);
+      const remainder = count % 5;
+      
+      // Add full bundles (groups of 5 with special markdown)
+      for (let i = 0; i < fullBundles; i++) {
+        result += i > 0 ? ' ' : '';
+        result += '[TALLY:5]';
+      }
+      
+      // Add remainder tallies
+      if (remainder > 0) {
+        if (fullBundles > 0) result += ' ';
+        result += `[TALLY:${remainder}]`;
+      }
+      
+      return before + result + after;
+    });
   };
 
   return {
     colors,
     markdownStyles,
-    detectMarkdown
+    detectMarkdown,
+    processTallyMarks
   };
 };

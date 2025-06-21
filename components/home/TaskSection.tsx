@@ -37,7 +37,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   const openRecommendationModal = useRecommendationStore(s => s.openModal)
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const todayLocalStr = React.useMemo(() => format(new Date(), 'yyyy-MM-dd'), [])
+  const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
   const username = useUserStore(s => s.preferences.username);
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -258,6 +258,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
             }}>
               {uniqueTasks.map((task: Task) => {
                 const isCompleted = task.completionHistory[todayLocalStr] || false;
+                
                 return (
                   <div key={task.id} style={{ 
                     marginBottom: 0,
@@ -307,6 +308,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                 >
                   {uniqueTasks.map((task: Task) => {
                     const isCompleted = task.completionHistory[todayLocalStr] || false;
+                    
                     return (
                       <Stack 
                         key={task.id} 

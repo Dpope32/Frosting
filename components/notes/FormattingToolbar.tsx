@@ -2,6 +2,7 @@ import React from 'react';
 import { XStack, Button, Text, isWeb, View } from 'tamagui';
 import { Ionicons } from '@expo/vector-icons';
 import { isIpad } from '@/utils';
+import { useWindowDimensions } from 'react-native';
 
 interface FormattingToolbarProps {
   onBold: () => void;
@@ -25,9 +26,11 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onCloseKeyboard,
 }) => {
   const iconColor = "#bbb";
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const isLandscape = windowWidth > windowHeight;
 
   return (
-    <XStack width="100%" marginLeft={isIpad() ? -2 : -8} gap={isIpad() ? "$1.5" : "$0"} marginBottom={isIpad() ? 16 : 0} flexWrap="nowrap" alignItems="center" justifyContent="space-between" alignSelf="center">
+    <XStack width="100%" marginLeft={isIpad() ? -2 : -8} gap={isIpad() ? "$1.5" : "$0"} marginBottom={0} marginTop={isIpad() ? (isLandscape ? 0 : -30) : 0} flexWrap="nowrap" alignItems="center" justifyContent="space-between" alignSelf="center">
       <Button
         size="$4"
         circular
