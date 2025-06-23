@@ -221,16 +221,21 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           paddingBottom={bottomPadding}
           paddingTop={10}
           alignItems="flex-start"
-          gap={12}
+          columnGap={16}
           paddingHorizontal={0}
         >
           {notes.map((note) => (
-            <NoteCard
+            <Stack
               key={note.id}
-              note={note}
-              onPress={() => onSelectNote(note)}
-              onEdit={onEditNote ? () => onEditNote(note) : undefined}
-            />
+              flexBasis={`${98 / numColumns}%`}
+              marginBottom={16}
+            >
+              <NoteCard
+                note={note}
+                onPress={() => onSelectNote(note)}
+                onEdit={onEditNote ? () => onEditNote(note) : undefined}
+              />
+            </Stack>
           ))}
         </XStack>
       </ContentWrapper>
