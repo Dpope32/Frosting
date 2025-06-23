@@ -35,7 +35,7 @@ export const useDrawerStyles = () => {
       height: isWeb ? 40 : 40,
       borderRadius: isWeb ?  20 : 20,
       borderWidth: 1,
-      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.5)",
+      borderColor: isDark ? "rgba(255, 255, 255, 0.29)" : "rgba(0,0,0,0.5)",
       marginRight: 12
     },
     username: {

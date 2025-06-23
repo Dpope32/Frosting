@@ -57,6 +57,12 @@ export function useHabits() {
     }
   };
 
+  const isHabitDoneToday = (habitId: string) => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const habit = habits[habitId];
+    return habit ? habit.completionHistory[today] || false : false;
+  };
+
   return {
     habits: habitsList,
     addHabit: handleAddHabit as (
@@ -70,6 +76,7 @@ export function useHabits() {
     deleteHabit,
     editHabit,
     getRecentHistory,
+    isHabitDoneToday,
     completedToday: getCompletedToday(),
     progressPercentage: getProgressPercentage()
   };

@@ -389,10 +389,12 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                 textAlignVertical: 'center',
                 padding: 0,
                 margin: 0,
+                outline: 'none',
               }}
               multiline={false}
               textContentType="none"
               autoComplete="off"
+              selectionColor={isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'}
             />
           </View>
           

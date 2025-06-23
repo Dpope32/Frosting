@@ -27,17 +27,17 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
-    const { habits, getRecentHistory } = useHabits();
-    
-    // Get today's date
+    const { habits, getRecentHistory, toggleHabit, isHabitDoneToday } = useHabits();
     const todayDate = new Date();
     const today = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+    const imageSource = profilePicture ? { uri: profilePicture } : require('@/assets/images/adaptive-icon.png');
     
-
-    
-    const imageSource = profilePicture
-      ? { uri: profilePicture }
-      : require('@/assets/images/adaptive-icon.png');
+    const handleHabitToggle = (habitId: string) => {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+      toggleHabit(habitId);
+    };
     
       return (
         <View style={styles.container}>
@@ -97,7 +97,7 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
               {habits.length > 0 && (isWeb || isIpadDevice) && (
                 <YStack marginHorizontal={-16} paddingVertical={16} gap={12}>
                   {habits.slice(0, 3).map((habit, index) => (
-                    <YStack key={habit.id} paddingHorizontal={8}>
+                    <YStack key={habit.id} paddingHorizontal={isWeb ? 0 : 8}>
                       <Text 
                         numberOfLines={1}
                         style={{
@@ -118,6 +118,8 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
                         compact={true}
                         showTitle={false}
                         multiRow={true}
+                        onTodayClick={() => handleHabitToggle(habit.id)}
+                        todayCompleted={isHabitDoneToday(habit.id)}
                       />
                     </YStack>
                   ))}

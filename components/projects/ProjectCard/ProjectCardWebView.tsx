@@ -64,7 +64,7 @@ export const ProjectCardWebView = ({
       br="$4"
       animation="quick"
       width="100%"
-      minHeight={hasContent || hasTasks ? 300 : 200}
+      minHeight={hasTasks && project.tasks.length > 4 ? 380 : hasContent || hasTasks ? 320 : 220}
       borderWidth={2}
       borderColor={project.status === 'completed' ? '$green10' : project.status === 'in_progress' ? '$yellow10' : project.status === 'pending' ? '$orange10' : project.status === 'past_deadline' ? '$red10' : '$gray10'}
       position="relative"
@@ -186,8 +186,7 @@ export const ProjectCardWebView = ({
             </Text>
           )}
           <YStack 
-            gap="$1" 
-            maxHeight={200} 
+            maxHeight={300} 
             style={{ 
               overflowY: 'auto',
               scrollbarWidth: 'none',
@@ -195,14 +194,44 @@ export const ProjectCardWebView = ({
             } as any}
             className="hide-scrollbar"
           >
-            {project.tasks.map((task) => (
-              <TaskListItem
-                key={task.id}
-                task={task}
-                isDark={isDark}
-                onToggleTaskCompleted={onToggleTaskCompleted}
-              />
-            ))}
+            {project.tasks.length > 4 ? (
+              // Multi-column layout for many tasks using flexbox
+              <XStack 
+                gap="$2" 
+                ai="flex-start" 
+                jc="flex-start"
+                flexWrap="wrap"
+                width="100%"
+              >
+                {project.tasks.map((task, index) => (
+                  <YStack 
+                    key={task.id} 
+                    width="calc(50% - 4px)" 
+                    minWidth="240px"
+                    maxWidth="calc(50% - 4px)"
+                    mb="$1"
+                  >
+                    <TaskListItem
+                      task={task}
+                      isDark={isDark}
+                      onToggleTaskCompleted={onToggleTaskCompleted}
+                    />
+                  </YStack>
+                ))}
+              </XStack>
+            ) : (
+              // Single column layout for fewer tasks
+              <YStack gap="$1">
+                {project.tasks.map((task) => (
+                  <TaskListItem
+                    key={task.id}
+                    task={task}
+                    isDark={isDark}
+                    onToggleTaskCompleted={onToggleTaskCompleted}
+                  />
+                ))}
+              </YStack>
+            )}
           </YStack>
         </YStack>
       )}

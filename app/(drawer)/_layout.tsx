@@ -75,8 +75,8 @@ export default function DrawerLayout() {
       drawerItemStyle: {
         paddingVertical: 0,
         paddingLeft: 0,
-        marginBottom: 10,
-        borderRadius: 30,
+        marginBottom: 8,
+        borderRadius: 24,
       },
       drawerLabelStyle: {
         fontSize: isIpadDevice ? 18 : 16,

@@ -169,14 +169,14 @@ export default function ProjectsScreen() {
               padding: 0,
               paddingBottom: 120,
               paddingTop: 32,
-              paddingLeft: 32,
-              paddingHorizontal: 8,
+              paddingLeft: 24,
+              paddingHorizontal: 24,
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'flex-start',
               justifyContent: 'flex-start',
               flexWrap: items.length > 0 ? 'wrap' : undefined,
-              gap: 40,
+              gap: 24,
             }}
           >
             {items.length === 0 ? (
@@ -189,10 +189,10 @@ export default function ProjectsScreen() {
               items.map((project: Project, index) => (
                 <YStack 
                   key={project.id || `project-${index}`} 
-                  width='calc(33.333% - 16px)' 
-                  minWidth='420px'
-                  maxWidth='500px'
-                  mb={20}
+                  width={screenWidth > 1800 ? 'calc(33.333% - 16px)' : screenWidth > 1400 ? 'calc(50% - 12px)' : screenWidth > 1200 ? 'calc(50% - 12px)' : '100%'}
+                  minWidth='500px'
+                  maxWidth='700px'
+                  mb={24}
                   flexShrink={0}
                 >
                   <ProjectCard
