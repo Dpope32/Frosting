@@ -209,7 +209,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
     );
   };
   const itemStackProps: StackProps = {
-    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '33%',
+    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%',
     marginBottom: 16,
     flexShrink: 0,
   };
