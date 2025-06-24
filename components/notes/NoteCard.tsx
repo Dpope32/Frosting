@@ -371,8 +371,8 @@ export const NoteCard = ({
         shadowRadius={isDragging ? 6 : 2}
         borderRadius={10}
         style={cardSpecificStyle}
-        minWidth={isWeb ? 250 : undefined}
-        maxWidth={isWeb ? 600 : undefined}
+        minWidth={isWeb ? 300 : undefined}
+        maxWidth={isWeb ? 450 : undefined}
       >
         <LinearGradient
           colors={isDark ? 
