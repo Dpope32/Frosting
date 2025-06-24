@@ -10,13 +10,16 @@ import type { NoteStore } from '@/store';
 import { setupEditNote } from './noteService';
 
 export const calculateColumns = (screenWidth: number): number => {
+  let columns;
   if (screenWidth > 1200) {
-    return 3;
+    columns = 3;
   } else if (screenWidth > 768) {
-    return 2;
+    columns = 2;
   } else {
-    return 1;
+    columns = 1;
   }
+  console.log(`Screen width: ${screenWidth}, Columns: ${columns}`);
+  return columns;
 };
 
 export const setupColumnCalculation = (

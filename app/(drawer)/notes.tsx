@@ -122,20 +122,12 @@ export default function NotesScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            padding: 8,
             paddingBottom: 100,
-            paddingHorizontal: 0,
-            paddingTop: 0,
-            paddingLeft: 8,
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'flex-start',
-            gap: 0,
-            maxWidth: 1800,
+            paddingTop: 8,
+            paddingHorizontal: 16,
+            maxWidth: 1600,
             marginHorizontal: 'auto',
-            marginLeft: 16,
-            marginRight: 0,
+            width: '100%',
           }}
         >
           {notes.length === 0 ? (

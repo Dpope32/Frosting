@@ -133,6 +133,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   bottomPadding
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  console.log(`WebDragDrop received numColumns: ${numColumns}`);
 
   useEffect(() => {
     if (Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop) {
@@ -207,10 +208,10 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
       </ScrollView>
     );
   };
-
   const itemStackProps: StackProps = {
-    flexBasis: `${98 / numColumns}%`,
+    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%',
     marginBottom: 16,
+    flexShrink: 0,
   };
 
   if (!isLoaded || Platform.OS !== 'web' || !DndProvider || !HTML5Backend) {
@@ -227,8 +228,9 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           {notes.map((note) => (
             <Stack
               key={note.id}
-              flexBasis={`${98 / numColumns}%`}
+              flexBasis={numColumns === 1 ? '100%' : numColumns === 2 ? 'calc(50% - 8px)' : 'calc(33.333% - 12px)'}
               marginBottom={16}
+              flexShrink={0}
             >
               <NoteCard
                 note={note}
