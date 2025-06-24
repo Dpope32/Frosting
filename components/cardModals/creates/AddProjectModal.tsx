@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BaseCardModal } from '@/components/baseModals/BaseCardModal';
 import { YStack, XStack, Text, Button, isWeb } from 'tamagui';
+import { FlashList } from '@shopify/flash-list';
 import { PrioritySelector } from '@/components/cardModals/NewTaskModal/PrioritySelector';
 import { PeopleSelector } from '@/components/cardModals/NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
