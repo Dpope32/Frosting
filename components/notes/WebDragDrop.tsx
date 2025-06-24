@@ -228,7 +228,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           {notes.map((note) => (
             <Stack
               key={note.id}
-              flexBasis={numColumns === 1 ? '100%' : numColumns === 2 ? 'calc(50% - 8px)' : 'calc(33.333% - 12px)'}
+              flexBasis={numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%'}
               marginBottom={16}
               flexShrink={0}
             >
