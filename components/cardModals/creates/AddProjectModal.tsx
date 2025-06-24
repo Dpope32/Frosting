@@ -211,13 +211,25 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               onChange={e => setDeadline(e.currentTarget.value)}
               style={{
                 width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #3B82F6',
-                borderRadius: 4,
-                backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
-                color: isDark ? '#FFFFFF' : '#000000',
-                fontSize: 16,
-                outline: 'none'
+                padding: '12px 16px',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}`,
+                borderRadius: '8px',
+                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
+                color: isDark ? '#f6f6f6' : '#111',
+                fontSize: '15px',
+                fontFamily: 'inherit',
+                fontWeight: '500',
+                outline: 'none',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#4F8EF7';
+                e.target.style.boxShadow = `0 0 0 3px ${isDark ? 'rgba(79,142,247,0.1)' : 'rgba(79,142,247,0.1)'}`;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
+                e.target.style.boxShadow = 'none';
               }}
             />
           ) : ( 
@@ -395,7 +407,21 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
 
           {/* Task List */}
           {tasks.length > 0 && (
-            <YStack gap="$2" maxHeight={200} overflow="scroll">
+            <YStack 
+              gap="$2" 
+              maxHeight={200} 
+              overflow="scroll"
+              style={{
+                scrollbarWidth: 'none', // Firefox
+                msOverflowStyle: 'none', // IE/Edge
+                WebkitScrollbar: { display: 'none' } // Webkit browsers
+              }}
+              sx={{
+                '&::-webkit-scrollbar': {
+                  display: 'none'
+                }
+              }}
+            >
               {tasks.map((task) => (
                 <XStack
                   key={task.id}
@@ -447,9 +473,26 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             </YStack>
           )}
         </YStack>
-        <YStack gap="$1" mt={12} mx={-4} >
-          <TagSelector tags={tags} onTagsChange={setTags} />
+        <YStack gap="$1" px={isIpad() ? "$2" : "$2"}>
+          <Text
+            fontSize={isIpad() ? 17 : 15}
+            fontFamily="$body"
+            fontWeight="bold"
+            color={isDark ? '#f6f6f6' : '#111'}
+            mb="$2"
+          >
+            Tags
+          </Text>
+          <YStack 
+            backgroundColor={isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)'}
+            borderRadius={12}
+            borderWidth={1}
+            borderColor={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
+            padding="$3"
+          >
+            <TagSelector tags={tags} onTagsChange={setTags} />
           </YStack>
+        </YStack>
       </YStack>
     </BaseCardModal>
   );
