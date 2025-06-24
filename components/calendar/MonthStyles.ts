@@ -2,7 +2,6 @@ import { isIpad } from '@/utils';
 import { Platform, StyleSheet } from 'react-native';
 import { isWeb } from 'tamagui';
 
-
 export const getMonthStyles = (webColumnCount: number, isDark: boolean) => StyleSheet.create({
   calendar: {
     borderRadius: Platform.OS === 'web' ? 16 : isIpad() ? 14 : 12,
@@ -102,7 +101,6 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   holidayText: {
     fontSize: webColumnCount === 3 ? 8 : webColumnCount === 1 ? (isWeb ? 13 : 7) : (webColumnCount === 2 ? (isWeb ? 10 : 6) : 8),
-    color: isDark ? '#FFFFFF' : '#006400',
     textAlign: 'center',
     fontWeight: '500',
     lineHeight: webColumnCount === 3 ? 8 : webColumnCount === 2 ? 10 : undefined,

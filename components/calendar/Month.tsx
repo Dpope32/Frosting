@@ -4,14 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { CalendarEvent, useUserStore } from '@/store';
 import { nbaTeams } from '@/constants';
 import { getMonthStyles } from './MonthStyles';
-
-// List of holidays to exclude from display
-const EXCLUDED_HOLIDAYS = [
-  'Columbus Day',
-  'Juneteenth',
-  'Indigenous Peoples\' Day'
-];
-
+import { EXCLUDED_HOLIDAYS } from '@/constants/excludedHolidays';
 
 interface MonthProps {
   date: Date;
@@ -74,7 +67,17 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     const start = new Date(y, m, 1).toISOString().split('T')[0];
     const end = new Date(y, m + 1, 0).toISOString().split('T')[0];
     const filteredEvents = dedupeHolidays(events.filter(e => e.date >= start && e.date <= end));
-    return filteredEvents
+    
+    // Deduplicate all events by type + title + date
+    const deduplicatedEvents = filteredEvents.reduce((acc, event) => {
+      const key = `${event.date}-${event.type}-${event.title}`;
+      if (!acc.has(key)) {
+        acc.set(key, event);
+      }
+      return acc;
+    }, new Map<string, CalendarEvent>());
+    
+    return Array.from(deduplicatedEvents.values())
       // Filter out excluded holidays
       .filter(e => !(e.type === 'holiday' && EXCLUDED_HOLIDAYS.includes(e.title)))
       .reduce((acc, e) => {
@@ -119,7 +122,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
             acc[e.date].holidayColor = e.holidayColor || '#E53935';
             acc[e.date].holidayIcon = e.holidayIcon || '🎉';
           }
-        // Triple check excluded holidays, if ANY holidays found containing same text as excluded holidays, set to excluded holiday
         if (EXCLUDED_HOLIDAYS.some(excluded => e.title.includes(excluded))) {
           acc[e.date].holiday = true;
           acc[e.date].holidayName = e.title || 'Holiday';
@@ -235,7 +237,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
 
                   {dayEvents.holiday && (
                     <View style={styles.holidayCell}>
-                      <Text style={styles.holidayText} numberOfLines={1} ellipsizeMode="tail">
+                      <Text style={[styles.holidayText, { color: dayEvents.holidayColor }]} numberOfLines={1} ellipsizeMode="tail">
                         {dayEvents.holidayName}
                       </Text>
                     </View>

@@ -163,6 +163,7 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BaseCardWithRecommendationsModal
         open={open}
+        hideHandle={true}
         onOpenChange={o => { if(!o) setFilter(null); onOpenChange(o) }}
         title="All Tasks"
         recommendationChips={Object.keys(tasksByRec).length < 2 ? taskRecommendations : null}
