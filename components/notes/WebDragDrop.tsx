@@ -133,7 +133,6 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   bottomPadding
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  console.log(`WebDragDrop received numColumns: ${numColumns}`);
 
   useEffect(() => {
     if (Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop) {
@@ -208,8 +207,9 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
       </ScrollView>
     );
   };
+
   const itemStackProps: StackProps = {
-    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%',
+    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '33.333%',
     marginBottom: 16,
     flexShrink: 0,
   };
@@ -222,13 +222,13 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           paddingBottom={bottomPadding}
           paddingTop={10}
           alignItems="flex-start"
-          columnGap={16}
+          columnGap={numColumns === 1 ? 0 : numColumns === 2 ? 16 : 12}
           paddingHorizontal={0}
         >
           {notes.map((note) => (
             <Stack
               key={note.id}
-              flexBasis={numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%'}
+              flexBasis={numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '33.333%'}
               marginBottom={16}
               flexShrink={0}
             >
@@ -252,7 +252,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           paddingBottom={bottomPadding}
           paddingTop={10}
           alignItems="flex-start"
-          columnGap={16}
+          columnGap={numColumns === 1 ? 0 : numColumns === 2 ? 16 : 12}
           paddingHorizontal={0}
         >
           {notes.map((note, index) => (

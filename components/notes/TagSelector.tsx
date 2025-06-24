@@ -216,40 +216,26 @@ export function TagSelector({
               </Button>
             )
           })}
+          
           {!isAdding && (
-            keyboardVisible ? (
-              <Button
-                key="confirm-new-tag"
-                size="$2"
-                circular
-                icon={<MaterialIcons name="check" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
-                onPress={handleAddTag}
-                backgroundColor={isDark ? "$gray2" : "white"}
-                borderWidth={1}
-                borderColor={NEUTRAL_BORDER}
-                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
-                pressStyle={{ opacity: 0.7 }}
-                marginLeft={tagStoreTags.length ? 4 : 0}
-              />
-            ) : (
-              <Button
-                key="start-add-tag"
-                size="$2"
-                circular
-                icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
-                onPress={() => setIsAdding(true)}
-                backgroundColor={isDark ? "$gray2" : "white"}
-                borderWidth={1}
-                borderColor={NEUTRAL_BORDER}
-                hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
-                pressStyle={{ opacity: 0.7 }}
-                marginLeft={tagStoreTags.length ? 4 : 0}
-              />
-            )
+            <Button
+              key="start-add-tag"
+              size="$2"
+              circular
+              icon={<MaterialIcons name="add" size={isWeb ? 16 : 14} color={isDark ? "#6c6c6c" : "#9c9c9c"} />}
+              onPress={() => setIsAdding(true)}
+              backgroundColor={isDark ? "$gray2" : "white"}
+              borderWidth={1}
+              borderColor={NEUTRAL_BORDER}
+              hoverStyle={{ backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)" }}
+              pressStyle={{ opacity: 0.7 }}
+              marginLeft={tagStoreTags.length ? 4 : 0}
+            />
           )}
         </XStack>
-          {isAdding && (
-            <YStack gap={isWeb ? "$3" : "$1"} marginLeft={-10} width="100%">
+        
+        {isAdding && (
+          <YStack gap={isWeb ? "$3" : "$1"} marginLeft={-10} width="100%">
             <XStack position="relative" width="100%" maxWidth={isIpad() ? 200 : 120}>
               <DebouncedTagInput
                 width="100%"
@@ -284,7 +270,9 @@ export function TagSelector({
                 right="$2"
                 top={isWeb ? 0 : 6}
               />
-             <XStack gap={isWeb ? "$3" : "$2"} alignItems="center" mt="$2" ml={4}>
+            </XStack>
+            
+            <XStack gap={isWeb ? "$3" : "$2"} alignItems="center" mt="$2" ml={4}>
               {TAG_COLORS.map(color => (
                 <Button
                   key={color}
@@ -296,19 +284,7 @@ export function TagSelector({
                   borderColor={selectedColor === color ? 'white' : 'transparent'}
                 />
               ))}
-              
-              <Button
-                size="$2"
-                circular
-                icon={<MaterialIcons name="check" size={isWeb ? 24 : 18} />}
-                onPress={handleAddTag}
-                backgroundColor="transparent"
-                color="#1E40AF"
-                ml="auto"
-              />
             </XStack>
-            </XStack>
-            
           </YStack>
         )}
       </XStack>
