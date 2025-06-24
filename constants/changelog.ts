@@ -1,5 +1,16 @@
 export const CHANGELOG = [
   {
+    version: '1.2.40',
+    date: '2025-06-24',
+    notes: 'Improved UI',
+    bullets: [
+      'Completely Refactored Web Styles',
+      'Fixed bug with duplicate tasks displaying in the Calendar',
+      'Fixed issue with notes on Web only rendering one column',
+      'Improved visibility issue with FilterChips in the Task List Modal',
+    ],
+  },
+  {
     version: '1.2.31',
     date: '2025-06-18',
     notes: 'Improved UI',
