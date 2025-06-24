@@ -5,7 +5,7 @@ import { PrioritySelector } from '@/components/cardModals/NewTaskModal/PriorityS
 import { PeopleSelector } from '@/components/cardModals/NewTaskModal/PeopleSelector';
 import { TagSelector } from '@/components/notes/TagSelector';
 import { useProjectStore, usePeopleStore, useTagStore, useToastStore, useCalendarStore } from '@/store';
-import type { Project, Person, Tag, TaskPriority } from '@/types';
+import type { Project, Person, Tag, TaskPriority, Task, TaskCategory, RecurrencePattern } from '@/types';
 import { DebouncedInput } from '@/components/shared/debouncedInput'
 import { isIpad } from '@/utils';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -30,7 +30,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   const [tags, setTags] = useState<Tag[]>([]);
   
   // Task management state
-  const [tasks, setTasks] = useState<Array<{ id: string; name: string; completed: boolean; priority: TaskPriority }>>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [currentTaskName, setCurrentTaskName] = useState('');
   const [currentTaskPriority, setCurrentTaskPriority] = useState<TaskPriority>('medium');
   const [showAddTask, setShowAddTask] = useState(false);
@@ -47,13 +47,22 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
   // Task management functions
   const handleAddTask = useCallback(() => {
     if (currentTaskName.trim()) {
-      const newTask = {
+      const now = new Date().toISOString();
+      const newTask: Task = {
         id: typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : Math.random().toString(36).substring(2, 9),
         name: currentTaskName.trim(),
-        completed: false,
+        schedule: [],
         priority: currentTaskPriority,
+        category: 'task' as TaskCategory,
+        completed: false,
+        completionHistory: {},
+        createdAt: now,
+        updatedAt: now,
+        recurrencePattern: 'one-time' as RecurrencePattern,
+        showInCalendar: false,
+        tags: [],
       };
       setTasks(prev => [...prev, newTask]);
       setCurrentTaskName('');
