@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Platform, TextInput, Keyboard, View, Image, StyleSheet, ScrollView as RNScrollView, KeyboardAvoidingView, Dimensions, useWindowDimensions } from 'react-native';
 import { YStack, Button, XStack, Sheet, H3, Text, ScrollView } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
-import { TagSelector } from '../NewTaskModal/TagSelectorNew';
 import { FormattingToolbar } from '@/components/notes/FormattingToolbar';
 import { ContentInput } from '@/components/notes/ContentInput'; 
 import type { Note, Attachment, Tag } from '@/types';
@@ -451,7 +450,7 @@ export function AddNoteSheet({
                   paddingVertical: isIpad() ? 8 : 8,
                 }} 
               >
-                {localTitle || editTitle || 'Untitled Note'}
+                {localTitle || editTitle || 'New Note'}
               </Text>
               <Button
                 size={Platform.OS === 'web' ? "$1.5" : "$1"} 
@@ -459,7 +458,6 @@ export function AddNoteSheet({
                 icon={<MaterialIcons name="edit" size={Platform.OS === 'web' ? 16 : 18} />} 
                 onPress={() => { 
                   setIsEditingTitle(true);
-                  // Auto-focus the title input after state update
                   setTimeout(() => {
                     if (titleInputRef.current) {
                       titleInputRef.current.focus();

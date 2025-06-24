@@ -389,7 +389,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
                 textAlignVertical: 'center',
                 padding: 0,
                 margin: 0,
-                outline: 'none',
               }}
               multiline={false}
               textContentType="none"

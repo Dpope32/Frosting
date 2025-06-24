@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Platform, Switch, Dimensions, Modal } from 'react-native'
-import { isWeb, XStack } from 'tamagui'
+import { View, TouchableOpacity, ScrollView, Platform, Switch, Dimensions, Modal } from 'react-native'
+import { isWeb, XStack, Input, Button, YStack, Text } from 'tamagui'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { format } from 'date-fns'
 import { getCategoryColor, isIpad, withOpacity } from '@/utils';
@@ -135,92 +135,84 @@ export const EventModal: React.FC<EventModalProps> = ({
         >
           <View style={{...noScrollbar }}>
             <ScrollView style={[styles.formContainer, noScrollbar]} showsVerticalScrollIndicator={!isWeb}>
-              <TextInput
+              <Input
                 ref={eventTitleInputRef}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: isDark ? '#121212' : '#f5f5f5',
-                    color: textColor,
-                    borderColor: isDark ? '#444444' : '#dddddd'
-                  }
-                ]}
                 placeholder="Event Title"
-                placeholderTextColor={isDark ? '#888888' : '#666666'}
                 value={newEventTitle}
                 onChangeText={setNewEventTitle}
+                autoCapitalize="sentences"
+                backgroundColor="$backgroundHover"
+                borderColor="$borderColor"
+                placeholderTextColor="$placeholderColor"
+                color="$color"
+                fontFamily="$body"
+                fontSize={isWeb ? "$5" : "$4"}
+                borderRadius={12}
               />
 
-              <TouchableOpacity
-                style={[
-                  {
-                    backgroundColor: 'transparent',
-                    borderRadius: 8,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingVertical: 8,
-                    paddingHorizontal: 10,
-                  }
-                ]}
-                onPress={() => setShowTimePicker(true)}
-              >
-                <Text style={{ color: newEventTime ? textColor : isDark ? '#888888' : '#666666', fontSize: 16 }}>
-                  {newEventTime || 'Event Time (optional)'}
-                </Text>
-                <Ionicons name="time-outline" size={20} color={primaryColor} />
+              <TouchableOpacity onPress={() => setShowTimePicker(true)} activeOpacity={0.7}>
+                <XStack
+                  backgroundColor="$backgroundHover"
+                  borderColor="$borderColor"
+                  borderWidth={1}
+                  borderRadius={12}
+                  padding="$3"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  marginTop="$2"
+                >
+                  <Text 
+                    fontFamily="$body" 
+                    color={newEventTime ? "$color" : "$placeholderColor"} 
+                    fontSize={isWeb ? "$5" : "$4"}
+                  >
+                    {newEventTime || 'Event Time (optional)'}
+                  </Text>
+                  <Ionicons name="time-outline" size={isWeb ? 24 : 20} color={primaryColor} />
+                </XStack>
               </TouchableOpacity>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingTop: 16 }}>
                 <XStack gap={isIpad() ? "$2" : "$1"}>
                   {['personal', 'work', 'family', 'task', 'health'].map((type) => {
                     const color = getCategoryColor(type as TaskCategory);
                     return (
-                      <TouchableOpacity
+                      <Button
                         key={type}
-                        style={[
-                          styles.typeButton,
-                          {
-                            backgroundColor:
-                              type === selectedType 
-                                ? withOpacity(color, 0.15)
-                                : isDark ? '#1f1f1f' : '#ffffff',
-                            borderWidth: 1,
-                            borderColor: type === selectedType 
-                              ? 'transparent'
-                              : isDark ? '#444444' : '#dddddd',
-                            borderRadius: 20,
-                            paddingHorizontal: 12,
-                            paddingVertical: 12
-                          }
-                        ]}
                         onPress={() => setSelectedType(type as CalendarEvent['type'])}
+                        backgroundColor={
+                          type === selectedType 
+                            ? withOpacity(color, isDark ? 0.2 : 0.1)
+                            : "$backgroundHover"
+                        }
+                        borderWidth={1}
+                        borderColor={
+                          type === selectedType 
+                            ? withOpacity(color, isDark ? 0.4 : 0.3)
+                            : "$borderColor"
+                        }
+                        borderRadius={16}
+                        paddingHorizontal="$3"
+                        paddingVertical="$2"
+                        fontFamily="$body"
+                        fontSize={isWeb ? "$4" : "$3"}
+                        color={type === selectedType ? color : "$color"}
+                        fontWeight={type === selectedType ? "600" : "500"}
                       >
-                        <Text
-                          style={[
-                            styles.typeButtonText,
-                            {
-                              color: type === selectedType ? color : textColor,
-                              fontWeight: type === selectedType ? '600' : '500'
-                            }
-                          ]}
-                        >
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </Text>
-                      </TouchableOpacity>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Button>
                     );
                   })}
                 </XStack>
               </ScrollView>
 
-              <Text style={[styles.sectionTitle, { color: textColor }]}></Text>
-              <View
-                style={[
-                  styles.notificationContainer,
-                  {
-                    backgroundColor: isDark ? 'transparent' : '#f5f5f5',
-                    borderColor: isDark ? '#444444' : '#dddddd'
-                  }
-                ]}
+              <YStack
+                backgroundColor="$backgroundHover"
+                borderColor="$borderColor"
+                borderWidth={1}
+                borderRadius={12}
+                padding="$4"
+                marginTop="$4"
+                gap="$3"
               >
                 <View style={styles.switchRow}>
                   <Text style={[styles.switchLabel, { color: textColor }]}>Notify on day of event</Text>
@@ -243,16 +235,26 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </View>
 
                 {notifyBefore && (
-                  <TouchableOpacity
-                    style={[
-                      styles.dropdownButton,
-                      {
-                        backgroundColor: isDark ? '#444444' : '#e0e0e0',
-                        borderColor: isDark ? '#555555' : '#cccccc'
-                      }
-                    ]}
-                    onPress={() => setShowTimeOptions(!showTimeOptions)}
-                  >
+                                      <TouchableOpacity
+                      style={[
+                        styles.dropdownButton,
+                        {
+                          backgroundColor: isDark ? '#222222' : '#ffffff',
+                          borderColor: isDark ? '#333333' : '#e1e1e1',
+                          borderWidth: 1,
+                          borderRadius: 8,
+                          paddingHorizontal: 12,
+                          paddingVertical: 10,
+                          marginTop: 8,
+                          shadowColor: 'transparent',
+                          shadowOffset: { width: 0, height: 0 },
+                          shadowOpacity: 0,
+                          shadowRadius: 0,
+                          elevation: 0,
+                        }
+                      ]}
+                      onPress={() => setShowTimeOptions(!showTimeOptions)}
+                    >
                     <Text style={{ color: textColor }}>
                       {NOTIFICATION_TIME_OPTIONS.find((option) => option.value === notifyBeforeTime)?.label ||
                         'Select time'}
@@ -270,8 +272,16 @@ export const EventModal: React.FC<EventModalProps> = ({
                     style={[
                       styles.dropdown,
                       {
-                        backgroundColor: isDark ? '#222222' : '#ffffff',
-                        borderColor: isDark ? '#444444' : '#dddddd'
+                        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+                        borderColor: isDark ? '#333333' : '#e1e1e1',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        marginTop: 4,
+                        shadowColor: 'transparent',
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowOpacity: 0,
+                        shadowRadius: 0,
+                        elevation: 0,
                       }
                     ]}
                   >
@@ -302,32 +312,35 @@ export const EventModal: React.FC<EventModalProps> = ({
                     ))}
                   </View>
                 )}
-              </View>
+              </YStack>
             </ScrollView>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.button,
-                  styles.cancelButton,
-                  { backgroundColor: isDark ? '#444444' : '#e0e0e0' }
-                ]}
+            <XStack gap="$3" justifyContent="space-between" marginTop="$4" paddingHorizontal="$4">
+              <Button
                 onPress={closeEventModals}
+                backgroundColor="rgba(255, 4, 4, 0.1)"
+                borderColor="$borderColor"
+                fontFamily="$body"
+                fontSize={isWeb ? "$5" : "$4"}
+                paddingHorizontal="$4"
+                color={isDark ? "$red10" : "$red10"}
+                flex={1}
               >
-                <Text style={[styles.buttonText, { color: isDark ? '#ffffff' : '#000000' }]}>
-                  Cancel
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: primaryColor }]}
+                Cancel
+              </Button>
+              <Button
                 onPress={handleAddEventWithNotifications}
+                backgroundColor={primaryColor}
+                disabled={!newEventTitle}
+                fontFamily="$body"
+                fontSize={isWeb ? "$5" : "$4"}
+                paddingHorizontal="$4"
+                color={isDark ? "$white" : "#fff"}
+                flex={1}
               >
-                <Text style={[styles.buttonText, { color: '#f1f1f1' }]}>
-                  {editingEvent ? 'Update' : 'Save'}
-                </Text>
-              </TouchableOpacity>
-            </View>
+                {editingEvent ? 'Update' : 'Save'}
+              </Button>
+            </XStack>
           </View>
         </BaseCardAnimated>
       )}
@@ -344,8 +357,16 @@ export const EventModal: React.FC<EventModalProps> = ({
               style={[
                 styles.timePickerContainer,
                 {
-                  backgroundColor: isDark ? '#1e1e1e' : '#fffbf7',
-                  width: modalWidth
+                  backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+                  width: modalWidth,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: isDark ? '#333333' : '#e1e1e1',
+                  shadowColor: 'transparent',
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0,
+                  shadowRadius: 0,
+                  elevation: 0,
                 }
               ]}
             >
@@ -369,7 +390,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                       fontSize: 14,
                       borderRadius: 8,
                       border: `1px solid ${isDark ? '#444' : '#ddd'}`,
-                      backgroundColor: isDark ? '#222' : '#fffbf7',
+                      backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
                       color: isDark ? '#fff' : '#000',
                       width: '100%'
                     }}

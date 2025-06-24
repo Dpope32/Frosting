@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import { ScrollView, useColorScheme, Dimensions } from 'react-native'
 import { YStack, Button, XStack, isWeb } from 'tamagui'
-import { BlurView } from 'expo-blur'
+
 import { useUserStore } from '@/store/UserStore'
 import { useProjects } from '@/hooks/useProjects'
 import { MaterialIcons } from '@expo/vector-icons'

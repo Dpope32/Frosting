@@ -140,7 +140,7 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
 
   const mainContent = (
     <XStack
-      bg={isDark ? '#1e1e1e' : '$gray1'}
+      bg={isDark ? '#1e1e1e' : '$gray2'}
       br={8}
       p={isWeb ? "$4" : isIpad() ? "$3" : "$2"}
       pt={isWeb ? "$3" : "$3"}
@@ -151,6 +151,13 @@ export const TaskItem: React.FC<TaskCardItemProps> = ({ task, onLongPress, onPre
       width="100%"
       position="relative"
       overflow="hidden"
+      borderWidth={1}
+      borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}
+      shadowColor="transparent"
+      shadowOffset={{ width: 0, height: 0 }}
+      shadowOpacity={0}
+      shadowRadius={0}
+      elevation={0}
     >
       <Animated.View style={deleteIndicatorStyle} />
       <YStack flex={1}>

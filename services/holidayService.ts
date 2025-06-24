@@ -15,30 +15,30 @@ export const getUSHolidays = (year: number): CalendarEvent[] => {
   const holidayData = holidays.getHolidays(year);
   // Custom holidays not included in the library
   const customHolidays = [
-    { date: new Date(year, 1, 14), name: 'Valentine\'s Day', color: '#FF69B4', icon: '💖' },
-    { date: new Date(year, 2, 17), name: 'St. Patrick\'s Day', color: '#008000', icon: '☘️' },
-    { date: new Date(year, 9, 31), name: 'Halloween', color: '#FF7518', icon: '🎃' },
+    { date: new Date(year, 1, 14), name: 'Valentine\'s Day', color: '#E91E63', icon: '💖' },
+    { date: new Date(year, 2, 17), name: 'St. Patrick\'s Day', color: '#388E3C', icon: '☘️' },
+    { date: new Date(year, 9, 31), name: 'Halloween', color: '#FF8F00', icon: '🎃' },
   ];
   
-  // Map colors and icons to specific holidays
+  // Map colors and icons to specific holidays with themed colors
   const holidayAttributes: Record<string, { color: string, icon: string }> = {
-    'New Year\'s Day': { color: '#FF5252', icon: '🎆' },
-    'Martin Luther King Jr. Day': { color: '#8D6E63', icon: '✊🏽' },
-    'Presidents\' Day': { color: '#3F51B5', icon: '🏛️' },
-    'Washington\'s Birthday': { color: '#3F51B5', icon: '🏛️' },
+    'New Year\'s Day': { color: '#FFB300', icon: '🎆' },
+    'Martin Luther King Jr. Day': { color: '#424242', icon: '✊🏽' },
+    'Presidents\' Day': { color: '#1976D2', icon: '🏛️' },
+    'Washington\'s Birthday': { color: '#1976D2', icon: '🏛️' },
     'Good Friday': { color: '#795548', icon: '✝️' },
-    'Easter Sunday': { color: '#FF9800', icon: '🐣' },
-    'Memorial Day': { color: '#7E57C2', icon: '🎖️' },
+    'Easter Sunday': { color: '#7B1FA2', icon: '🐣' },
+    'Memorial Day': { color: '#C62828', icon: '🎖️' },
     'Independence Day': { color: '#1976D2', icon: '🎆' },
-    'Labor Day': { color: '#00ACC1', icon: '👷' },
+    'Labor Day': { color: '#1976D2', icon: '👷' },
     'Columbus Day': { color: '#FF5722', icon: '🧭' },
     'Indigenous Peoples\' Day': { color: '#FF5722', icon: '🧭' },
-    'Veterans Day': { color: '#7E57C2', icon: '🎖️' },
-    'Thanksgiving Day': { color: '#FF8F00', icon: '🦃' },
-    'Christmas Day': { color: '#D32F2F', icon: '🎄' },
-    'Valentine\'s Day': { color: '#FF69B4', icon: '💖' },
-    'St. Patrick\'s Day': { color: '#008000', icon: '☘️' },
-    'Halloween': { color: '#FF7518', icon: '🎃' },
+    'Veterans Day': { color: '#C62828', icon: '🎖️' },
+    'Thanksgiving Day': { color: '#F57C00', icon: '🦃' },
+    'Christmas Day': { color: '#C62828', icon: '🎄' },
+    'Valentine\'s Day': { color: '#E91E63', icon: '💖' },
+    'St. Patrick\'s Day': { color: '#388E3C', icon: '☘️' },
+    'Halloween': { color: '#FF8F00', icon: '🎃' },
   };
   
   const currentDate = new Date().toISOString();

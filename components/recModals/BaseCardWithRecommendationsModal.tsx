@@ -58,24 +58,30 @@ export function BaseCardWithRecommendationsModal({
           animation="quick"
           enterStyle={{ opacity: 0 }}
           exitStyle={{ opacity: 0 }}
-          backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(26, 26, 26, 0.32)"}
+          backgroundColor={isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.15)"}
         />
         <Sheet.Frame
           py={Platform.OS === 'web' ? "$2" : "$0"}
           paddingHorizontal={Platform.OS === 'web' ? "$6" : "$3.5"}
-          backgroundColor={isDark ? "rgb(20, 20, 20)" : "rgb(224, 224, 224)"}
+          backgroundColor={isDark ? "rgb(18, 18, 18)" : "rgb(255, 255, 255)"}
           borderTopLeftRadius={20}
           paddingBottom={32}
           borderTopRightRadius={20}
           borderWidth={1}
-          borderColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"}
+          borderColor={isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}
           gap={Platform.OS === 'web' ? "$1" : "$0"}
+          shadowColor="transparent"
+          shadowOffset={{ width: 0, height: 0 }}
+          shadowOpacity={0}
+          shadowRadius={0}
+          elevation={0}
           {...(Platform.OS === 'web' ?
             {
               maxWidth: 1000,
               marginHorizontal: 'auto',
               minHeight: 500,
               maxHeight: 'calc(100vh)',
+              boxShadow: 'none',
             } : {}
           )}
         >

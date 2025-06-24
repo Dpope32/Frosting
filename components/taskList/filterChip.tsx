@@ -17,21 +17,25 @@ export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelect
   const isDark = useColorScheme() === 'dark'
   const recurrenceColor = pattern && pattern !== 'all' ? getRecurrenceColor(pattern) : null
   const chipColor = color || recurrenceColor
+  
+  // Improved styling for better light mode appearance
   const bgColor = isSelected
     ? chipColor
-      ? withOpacity(chipColor, isDark ? 0.4 : 0.8)
-      : isDark ? '$blue7' : '$blue8'
-    : isDark ? '$gray4' : '$gray6'
+      ? withOpacity(chipColor, isDark ? 0.4 : 0.12)
+      : isDark ? '$blue7' : '$blue2'
+    : isDark ? '$gray4' : '$gray2'
+    
   const borderColor = isSelected
     ? chipColor
-      ? withOpacity(chipColor, isDark ? 0.6 : 1.0)
-      : isDark ? '$blue8' : '$blue9'
-    : isDark ? '$gray5' : '$gray7'
+      ? withOpacity(chipColor, isDark ? 0.6 : 0.3)
+      : isDark ? '$blue8' : '$blue6'
+    : isDark ? '$gray5' : '$gray4'
+    
   const textColor = isSelected
     ? chipColor
-      ? isDark ? '#FFFFFF' : '#000000'
-      : isDark ? '$blue12' : '$blue1'
-    : isDark ? '$gray12' : '$gray1'
+      ? isDark ? '#FFFFFF' : chipColor
+      : isDark ? '$blue12' : '$blue11'
+    : isDark ? '$gray12' : '$gray11'
 
   return (
     <Button
@@ -39,18 +43,31 @@ export const FilterChip: React.FC<FilterChipProps> = ({ label, onPress, isSelect
       theme={isDark ? 'dark' : 'light'}
       onPress={onPress}
       backgroundColor={bgColor}
-      pressStyle={{ opacity: 0.7 }}
+      pressStyle={{ 
+        opacity: 0.8,
+        transform: [{ scale: 0.98 }]
+      }}
       borderColor={borderColor}
       borderWidth={1}
-      borderRadius="$4"
-      paddingHorizontal="$2"
-      height="$3"
+      borderRadius="$3"
+      paddingHorizontal="$3"
+      height="$3.5"
       unstyled
       marginRight="$2"
       justifyContent="center"
       alignItems="center"
+      shadowColor="transparent"
+      shadowOffset={{ width: 0, height: 0 }}
+      shadowOpacity={0}
+      shadowRadius={0}
+      elevation={0}
     >
-      <Text fontSize={12} color={textColor} fontFamily="$body">
+      <Text 
+        fontSize={13} 
+        color={textColor} 
+        fontFamily="$body"
+        fontWeight={isSelected ? "600" : "500"}
+      >
         {label}
       </Text>
     </Button>
