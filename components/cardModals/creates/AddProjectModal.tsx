@@ -465,26 +465,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             </YStack>
           )}
         </YStack>
-        <YStack gap="$1" px={isIpad() ? "$2" : "$2"}>
-          <Text
-            fontSize={isIpad() ? 17 : 15}
-            fontFamily="$body"
-            fontWeight="bold"
-            color={isDark ? '#f6f6f6' : '#111'}
-            mb="$2"
-          >
-            Tags
-          </Text>
-          <YStack 
-            backgroundColor={isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)'}
-            borderRadius={12}
-            borderWidth={1}
-            borderColor={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
-            padding="$3"
-          >
-            <TagSelector tags={tags} onTagsChange={setTags} />
-          </YStack>
-        </YStack>
+        <TagSelector tags={tags} onTagsChange={setTags} />
       </YStack>
     </BaseCardModal>
   );
