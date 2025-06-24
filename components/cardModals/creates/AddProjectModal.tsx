@@ -408,69 +408,60 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
 
           {/* Task List */}
           {tasks.length > 0 && (
-            <YStack 
-              gap="$2" 
-              maxHeight={200} 
-              overflow="scroll"
-              style={{
-                scrollbarWidth: 'none', // Firefox
-                msOverflowStyle: 'none', // IE/Edge
-                WebkitScrollbar: { display: 'none' } // Webkit browsers
-              }}
-              sx={{
-                '&::-webkit-scrollbar': {
-                  display: 'none'
-                }
-              }}
-            >
-              {tasks.map((task) => (
-                <XStack
-                  key={task.id}
-                  alignItems="center"
-                  justifyContent="space-between"
-                  padding="$2.5"
-                  backgroundColor={isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'}
-                  borderRadius={8}
-                  borderWidth={1}
-                  borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'}
-                >
-                  <XStack alignItems="center" gap="$2" flex={1}>
-                    <YStack
-                      backgroundColor={
-                        task.priority === 'high' 
-                          ? '#ef4444' 
-                          : task.priority === 'medium' 
-                          ? '#f59e0b' 
-                          : '#10b981'
-                      }
-                      width={3}
-                      height={20}
-                      borderRadius={2}
-                    />
-                    <Text
-                      fontSize={isIpad() ? 15 : 13}
-                      fontFamily="$body"
-                      fontWeight="500"
-                      color={isDark ? '#f6f6f6' : '#111'}
-                      flex={1}
-                    >
-                      {task.name}
-                    </Text>
-                  </XStack>
-                  <Button
-                    size="$1"
-                    backgroundColor="transparent"
-                    onPress={() => handleRemoveTask(task.id)}
-                    pressStyle={{ opacity: 0.6 }}
+            <YStack height={200}>
+              <FlashList
+                data={tasks}
+                showsVerticalScrollIndicator={false}
+                estimatedItemSize={50}
+                renderItem={({ item: task }) => (
+                  <XStack
+                    alignItems="center"
+                    justifyContent="space-between"
+                    padding="$2.5"
+                    marginBottom="$2"
+                    backgroundColor={isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'}
+                    borderRadius={8}
+                    borderWidth={1}
+                    borderColor={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'}
                   >
-                    <MaterialIcons 
-                      name="close" 
-                      size={16} 
-                      color={isDark ? '#ff6b6b' : '#dc2626'} 
-                    />
-                  </Button>
-                </XStack>
-              ))}
+                    <XStack alignItems="center" gap="$2" flex={1}>
+                      <YStack
+                        backgroundColor={
+                          task.priority === 'high' 
+                            ? '#ef4444' 
+                            : task.priority === 'medium' 
+                            ? '#f59e0b' 
+                            : '#10b981'
+                        }
+                        width={3}
+                        height={20}
+                        borderRadius={2}
+                      />
+                      <Text
+                        fontSize={isIpad() ? 15 : 13}
+                        fontFamily="$body"
+                        fontWeight="500"
+                        color={isDark ? '#f6f6f6' : '#111'}
+                        flex={1}
+                      >
+                        {task.name}
+                      </Text>
+                    </XStack>
+                    <Button
+                      size="$1"
+                      backgroundColor="transparent"
+                      onPress={() => handleRemoveTask(task.id)}
+                      pressStyle={{ opacity: 0.6 }}
+                    >
+                      <MaterialIcons 
+                        name="close" 
+                        size={16} 
+                        color={isDark ? '#ff6b6b' : '#dc2626'} 
+                      />
+                    </Button>
+                  </XStack>
+                )}
+              />
             </YStack>
           )}
         </YStack>
