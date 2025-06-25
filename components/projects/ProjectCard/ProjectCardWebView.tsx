@@ -147,6 +147,29 @@ export const ProjectCardWebView = ({
             );
           })()}
         </XStack>
+        
+        {/* Edit button */}
+        {onEdit && (
+          <Button
+            size="$2"
+            circular
+            backgroundColor="transparent"
+            onPress={() => onEdit(project.id)}
+            pressStyle={{
+              backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+              scale: 0.95,
+            }}
+            hoverStyle={{
+              backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+            }}
+          >
+            <MaterialIcons 
+              name="edit" 
+              size={18} 
+              color={isDark ? '#d0d0d0' : '#666'} 
+            />
+          </Button>
+        )}
       </XStack>
 
       {/* Description and Deadline - only show if they exist */}
@@ -194,8 +217,8 @@ export const ProjectCardWebView = ({
             } as any}
             className="hide-scrollbar"
           >
-            {project.tasks.length > 4 ? (
-              // Multi-column layout for many tasks using flexbox
+            {project.tasks.length > 1 ? (
+              // Multi-column layout for 2 or more tasks using flexbox
               <XStack 
                 gap="$2" 
                 ai="flex-start" 
@@ -220,7 +243,7 @@ export const ProjectCardWebView = ({
                 ))}
               </XStack>
             ) : (
-              // Single column layout for fewer tasks
+              // Single column layout for single task
               <YStack gap="$1">
                 {project.tasks.map((task) => (
                   <TaskListItem
