@@ -6,4 +6,5 @@ export interface Bill {
   createTask?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  deletedAt?: string;
 }

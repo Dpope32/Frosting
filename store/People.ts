@@ -19,6 +19,7 @@ type PeopleStore = {
   clearContacts: () => void
   togglePeopleSync: () => void
   hydrateFromSync?: (syncedData: { contacts?: Record<string, Person>, isSyncEnabled?: boolean }) => void
+  getActiveContacts: () => Person[]
 }
 
 export const usePeopleStore = create<PeopleStore>()(
@@ -121,15 +122,28 @@ export const usePeopleStore = create<PeopleStore>()(
         
         deletePerson: async (id) => {
           const contacts = { ...get().contacts }
-          const personName = contacts[id]?.name || 'Unknown'
-          delete contacts[id]
-          set({ contacts })
-          StorageUtils.set(STORAGE_KEY, contacts)
-            .catch((error: Error) => {
-              console.error('🔴 [PeopleStore] Error deleting contact from storage:', error)
-            })
+          const personToDelete = contacts[id]
+          if (!personToDelete) {
+            console.error(`❌ PeopleStore: Person with id ${id} not found`);
+            return;
+          }
 
-          addSyncLog(`[PeopleStore] Person deleted locally: ${personName} (ID ${id})`, 'info')
+          // Soft delete by setting deletedAt timestamp
+          const deletedPerson = {
+            ...personToDelete,
+            deletedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          const newContacts = { ...contacts, [id]: deletedPerson };
+          set({ contacts: newContacts });
+          
+          StorageUtils.set(STORAGE_KEY, newContacts)
+            .catch((error: Error) => {
+              console.error('🔴 [PeopleStore] Error saving deleted contact:', error);
+            });
+
+          addSyncLog(`[PeopleStore] Person soft deleted locally: ${personToDelete.name} (ID ${id})`, 'info');
         },
         
         clearContacts: async () => {
@@ -170,6 +184,7 @@ export const usePeopleStore = create<PeopleStore>()(
           addSyncLog('[PeopleStore] 🔄 Hydrating contacts from sync...', 'info')
           let itemsMergedCount = 0
           let itemsAddedCount = 0
+          let deletionsAppliedCount = 0
 
           const currentContacts = { ...localStore.contacts } // Work with a copy
           const incomingContacts = syncedData.contacts
@@ -179,31 +194,39 @@ export const usePeopleStore = create<PeopleStore>()(
             const localContact = currentContacts[id]
 
             if (localContact) {
-              // Contact exists, check updatedAt for merge strategy (last write wins)
               const localUpdatedAt = new Date(localContact.updatedAt || 0).getTime()
               const incomingUpdatedAt = new Date(incomingContact.updatedAt || 0).getTime()
 
-              if (incomingUpdatedAt > localUpdatedAt) {
-                // 🔧 SELECTIVE MERGE: Preserve local profilePicture if incoming doesn't have one
+              if (incomingUpdatedAt >= localUpdatedAt) {
+                // Check if this is a deletion being applied
+                if (incomingContact.deletedAt && !localContact.deletedAt) {
+                  deletionsAppliedCount++;
+                  addSyncLog(`[PeopleStore] Person "${incomingContact.name}" marked as deleted from sync`, 'info');
+                }
+
                 const mergedContact = {
                   ...incomingContact,
-                  // Preserve local profilePicture if it exists and incoming doesn't have one
                   profilePicture: incomingContact.profilePicture || localContact.profilePicture
                 }
                 currentContacts[id] = mergedContact
                 itemsMergedCount++
-                
-                // Log when we preserve an image
-                if (localContact.profilePicture && !incomingContact.profilePicture) {
-                  addSyncLog(`[PeopleStore] Preserved local profile picture for ${localContact.name} during sync merge`, 'info')
-                }
               }
             } else {
-              // New contact, add it
               currentContacts[id] = incomingContact
               itemsAddedCount++
+              
+              if (incomingContact.deletedAt) {
+                addSyncLog(`[PeopleStore] Adding already-deleted person "${incomingContact.name}" from sync`, 'verbose');
+              }
             }
           }
+          
+          if (deletionsAppliedCount > 0) {
+            addSyncLog(`[PeopleStore] Applied ${deletionsAppliedCount} person deletions from sync`, 'success');
+          }
+
+          const activeContacts = Object.values(currentContacts).filter(person => !person.deletedAt);
+          addSyncLog(`[PeopleStore] Contacts hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total: ${Object.keys(currentContacts).length} (${activeContacts.length} active)`, 'success');
           
           set({ contacts: currentContacts })
           StorageUtils.set(STORAGE_KEY, currentContacts)
@@ -211,8 +234,11 @@ export const usePeopleStore = create<PeopleStore>()(
               console.error('🔴 [PeopleStore] Error saving hydrated contacts to AsyncStorage:', error)
             })
 
-          addSyncLog(`[PeopleStore] Contacts hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total contacts: ${Object.keys(currentContacts).length}.`, 'success')
           addSyncLog('[PeopleStore] ✅ Contacts hydration complete.', 'success')
+        },
+
+        getActiveContacts: () => {
+          return Object.values(get().contacts).filter(person => !person.deletedAt);
         },
       }
     },

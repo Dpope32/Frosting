@@ -7,6 +7,9 @@ interface VaultEntry {
   name: string;
   username: string;
   password: string;
+  deletedAt?: string;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 interface VaultData {
@@ -28,6 +31,7 @@ interface VaultStore {
   addEntry: (entry: Omit<VaultEntry, 'id'>) => Promise<VaultEntry>;
   deleteEntry: (id: string) => Promise<void>;
   getEntries: () => VaultEntry[];
+  getActiveEntries: () => VaultEntry[];
   toggleVaultSync: () => void;
   hydrateFromSync?: (syncedData: { vaultData?: VaultData }) => void;
 }
@@ -64,19 +68,34 @@ export const useVaultStore = create<VaultStore>()(
       
       deleteEntry: async (id) => {
         set((state) => {
-          const items = state.vaultData.items.filter(item => item.id !== id);
+          const items = state.vaultData.items.map(item => 
+            item.id === id 
+              ? { ...item, deletedAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+              : item
+          );
+          
+          const activeItems = items.filter(item => !item.deletedAt);
+          
           return {
             vaultData: {
               ...state.vaultData,
               items,
-              totalItems: items.length
+              totalItems: activeItems.length
             }
           };
         });
+        
+        try {
+          getAddSyncLog()(`Vault entry soft deleted locally`, 'info');
+        } catch (e) {}
       },
       
       getEntries: () => {
-        return get().vaultData.items;
+        return get().vaultData.items.filter(item => !item.deletedAt);
+      },
+
+      getActiveEntries: () => {
+        return get().vaultData.items.filter(item => !item.deletedAt);
       },
 
       toggleVaultSync: () => {
@@ -105,6 +124,7 @@ export const useVaultStore = create<VaultStore>()(
 
         let itemsMergedCount = 0;
         let itemsAddedCount = 0;
+        let deletionsAppliedCount = 0;
 
         set((state) => {
           const existingItemsMap = new Map(state.vaultData.items.map(item => [item.id, item]));
@@ -114,21 +134,43 @@ export const useVaultStore = create<VaultStore>()(
             if (existingItemsMap.has(incomingItem.id)) {
               const existingItemIndex = newItemsArray.findIndex(item => item.id === incomingItem.id);
               if (existingItemIndex !== -1) {
-                newItemsArray[existingItemIndex] = incomingItem;
-                itemsMergedCount++;
+                const existingItem = newItemsArray[existingItemIndex];
+                
+                const incomingTimestamp = new Date(incomingItem.updatedAt || incomingItem.createdAt || Date.now()).getTime();
+                const existingTimestamp = new Date(existingItem.updatedAt || existingItem.createdAt || Date.now()).getTime();
+                
+                if (incomingTimestamp >= existingTimestamp) {
+                  if (incomingItem.deletedAt && !existingItem.deletedAt) {
+                    deletionsAppliedCount++;
+                    addSyncLog(`Vault entry "${incomingItem.name}" marked as deleted from sync`, 'info');
+                  }
+                  
+                  newItemsArray[existingItemIndex] = incomingItem;
+                  itemsMergedCount++;
+                }
               }
             } else {
               newItemsArray.push(incomingItem);
               itemsAddedCount++;
+              
+              if (incomingItem.deletedAt) {
+                addSyncLog(`Adding already-deleted vault entry "${incomingItem.name}" from sync`, 'verbose');
+              }
             }
           }
           
-          //addSyncLog(`Vault items hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total items: ${newItemsArray.length}`, 'success');
+          if (deletionsAppliedCount > 0) {
+            addSyncLog(`Applied ${deletionsAppliedCount} vault entry deletions from sync`, 'success');
+          }
+          
+          const activeItems = newItemsArray.filter(item => !item.deletedAt);
+          addSyncLog(`Vault items hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total items: ${newItemsArray.length} (${activeItems.length} active)`, 'success');
+          
           return {
             vaultData: {
               ...state.vaultData,
               items: newItemsArray,
-              totalItems: newItemsArray.length,
+              totalItems: activeItems.length,
             },
           };
         });

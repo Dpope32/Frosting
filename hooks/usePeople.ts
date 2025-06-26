@@ -11,7 +11,16 @@ export const useContacts = () => {
     queryKey: ['contacts'],
     queryFn: async () => {
       const contacts = await StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {})
-      return contacts || {}
+      
+      // Filter out deleted contacts
+      const activeContacts: Record<string, Person> = {};
+      Object.entries(contacts || {}).forEach(([id, contact]) => {
+        if (!contact.deletedAt) {
+          activeContacts[id] = contact;
+        }
+      });
+      
+      return activeContacts;
     },
     initialData: {},
   })
@@ -19,10 +28,14 @@ export const useContacts = () => {
 
 export const useContactById = (id: string) => {
   const { data, ...rest } = useContacts()
-  return {
-    ...rest,
-    data: data ? data[id] : undefined,
+  const contact = data ? data[id] : undefined;
+  
+  // Double-check that we're not returning a deleted contact
+  if (contact && contact.deletedAt) {
+    return { ...rest, data: undefined };
   }
+  
+  return { ...rest, data: contact };
 }
 
 export const useAddPerson = () => {

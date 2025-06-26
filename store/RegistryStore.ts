@@ -4,7 +4,6 @@ import { debounce } from 'lodash';
 import { format } from 'date-fns';
 import { portfolioData } from '@/utils';
 
-// Import all stores
 import { useHabitStore } from './HabitStore';
 import { useBillStore } from './BillStore';
 import { useCalendarStore } from './CalendarStore';
@@ -27,12 +26,8 @@ interface RegistryState {
   notificationStatus: 'granted' | 'denied' | 'unavailable';
   stocksLastUpdated: number;
   workspaceId?: string | null;
-  
-  // NEW: Initial sync tracking
   isInitialSyncInProgress: boolean;
   initialSyncStartTime: number | null;
-
-  // Sync-related state
   snapshotSizeCache: {
     mb: number;
     gb: number;
@@ -55,12 +50,8 @@ interface RegistryState {
   hydrateAll: (data: Record<string, any>) => void;
   syncOnboardingWithUser: () => void;
   setWorkspaceId: (id: string | null) => void;
-  
-  // NEW: Initial sync methods
   startInitialSync: () => void;
   completeInitialSync: () => void;
-
-  // Sync-related methods
   setSnapshotSizeCache: (sizeData: {
     mb: number;
     gb: number;
@@ -72,7 +63,6 @@ interface RegistryState {
 
 
 export const useRegistryStore = create<RegistryState>((set, get) => {
-  // Create the debounced notification check function outside the store properties
   const debouncedCheck = debounce(async () => {
     try {
       const { status } = await Notifications.getPermissionsAsync();
@@ -111,7 +101,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       }, 50);
     },
 
-    // Fixed debounced notification check
     checkNotificationStatus: () => {
       debouncedCheck();
     },
@@ -121,38 +110,56 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const vaultStoreFullState = useVaultStore.getState();
       let vaultStateForSnapshot: any = { isSyncEnabled: vaultStoreFullState.isSyncEnabled };
       if (vaultStoreFullState.isSyncEnabled) {
+        // Include ALL vault items (including deleted ones) so deletions can be synced
         vaultStateForSnapshot.vaultData = vaultStoreFullState.vaultData;
         vaultStateForSnapshot.lastUpdated = now;
-    //    addSyncLog(`[Snapshot] Passwords (Vault) sync ON: Including ${vaultStoreFullState.vaultData?.items?.length || 0} items.`, 'info');
+        
+        const totalItems = vaultStoreFullState.vaultData?.items?.length || 0;
+        const activeItems = vaultStoreFullState.vaultData?.items?.filter((item: any) => !item.deletedAt).length || 0;
+        const deletedItems = totalItems - activeItems;
+        
+        if (deletedItems > 0) {
+          addSyncLog(`[Snapshot] Vault sync ON: Including ${totalItems} items (${activeItems} active, ${deletedItems} deleted).`, 'info');
+        } else {
+          addSyncLog(`[Snapshot] Vault sync ON: Including ${activeItems} vault items.`, 'info');
+        }
       } else {
-        addSyncLog('[Snapshot] Passwords (Vault) sync OFF: Excluding vault items.', 'info');
+        addSyncLog('[Snapshot] Vault sync OFF: Excluding vault items.', 'info');
       }
 
-    // Portfolio store
-const portfolioStoreFullState = usePortfolioStore.getState();
-let portfolioStateForSnapshot: any = { isSyncEnabled: portfolioStoreFullState.isSyncEnabled };
-if (portfolioStoreFullState.isSyncEnabled) {
-  portfolioStateForSnapshot.watchlist = portfolioStoreFullState.watchlist;
-  portfolioStateForSnapshot.historicalData = portfolioStoreFullState.historicalData;
-  portfolioStateForSnapshot.totalValue = portfolioStoreFullState.totalValue;
-  portfolioStateForSnapshot.prices = portfolioStoreFullState.prices;
-  portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
-  portfolioStateForSnapshot.portfolioHoldings = portfolioData; // Current holdings
-  portfolioStateForSnapshot.lastUpdated = Date.now(); // Add timestamp!
-  addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
-} else {
-  addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
-}
+          // Portfolio store
+      const portfolioStoreFullState = usePortfolioStore.getState();
+      let portfolioStateForSnapshot: any = { isSyncEnabled: portfolioStoreFullState.isSyncEnabled };
+      if (portfolioStoreFullState.isSyncEnabled) {
+        portfolioStateForSnapshot.watchlist = portfolioStoreFullState.watchlist;
+        portfolioStateForSnapshot.historicalData = portfolioStoreFullState.historicalData;
+        portfolioStateForSnapshot.totalValue = portfolioStoreFullState.totalValue;
+        portfolioStateForSnapshot.prices = portfolioStoreFullState.prices;
+        portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
+        portfolioStateForSnapshot.portfolioHoldings = portfolioData; // Current holdings
+        portfolioStateForSnapshot.lastUpdated = Date.now(); // Add timestamp!
+        addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
+      } else {
+        addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
+      }
+      // Bills store
       const billStoreFullState = useBillStore.getState();
       let billStateForSnapshot: any = { isSyncEnabled: billStoreFullState.isSyncEnabled };
       if (billStoreFullState.isSyncEnabled) {
+        // Include ALL bills (including deleted ones) so deletions can be synced
         billStateForSnapshot.bills = billStoreFullState.bills;
         billStateForSnapshot.monthlyIncome = billStoreFullState.monthlyIncome;
-        billStateForSnapshot.lastIncomeUpdate = billStoreFullState.lastIncomeUpdate; // ADD THIS LINE
+        billStateForSnapshot.lastIncomeUpdate = billStoreFullState.lastIncomeUpdate;
         billStateForSnapshot.lastUpdated = now;
-        // Optionally log income value for debugging
-        if (billStoreFullState.monthlyIncome > 0) {
-          addSyncLog(`[Snapshot] Bills sync ON: Including ${Object.keys(billStoreFullState.bills || {}).length} bills, income $${billStoreFullState.monthlyIncome}.`, 'info');
+        
+        const totalBills = Object.keys(billStoreFullState.bills || {}).length;
+        const activeBills = Object.values(billStoreFullState.bills || {}).filter((bill: any) => !bill.deletedAt).length;
+        const deletedBills = totalBills - activeBills;
+        
+        if (deletedBills > 0) {
+          addSyncLog(`[Snapshot] Bills sync ON: Including ${totalBills} bills (${activeBills} active, ${deletedBills} deleted), income $${billStoreFullState.monthlyIncome}.`, 'info');
+        } else if (billStoreFullState.monthlyIncome > 0) {
+          addSyncLog(`[Snapshot] Bills sync ON: Including ${activeBills} bills, income $${billStoreFullState.monthlyIncome}.`, 'info');
         }
       } else {
         addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
@@ -168,7 +175,7 @@ if (portfolioStoreFullState.isSyncEnabled) {
       } else {
         addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
       }
-        // ADD NOTES SYNC LOGIC:
+        //Notes store
         const noteStoreFullState = useNoteStore.getState();
         let noteStateForSnapshot: any = { isSyncEnabled: noteStoreFullState.isSyncEnabled };
         if (noteStoreFullState.isSyncEnabled) {
@@ -182,12 +189,23 @@ if (portfolioStoreFullState.isSyncEnabled) {
       const peopleStoreFullState = usePeopleStore.getState();
       let peopleStateForSnapshot: any = { isSyncEnabled: peopleStoreFullState.isSyncEnabled };
       if (peopleStoreFullState.isSyncEnabled) {
+        // Include ALL contacts (including deleted ones) so deletions can be synced
         peopleStateForSnapshot.contacts = peopleStoreFullState.contacts;
         peopleStateForSnapshot.lastUpdated = now;
-   //     addSyncLog(`[Snapshot] People (Contacts) sync ON: Including ${Object.keys(peopleStoreFullState.contacts || {}).length} contacts.`, 'info');
+        
+        const totalContacts = Object.keys(peopleStoreFullState.contacts || {}).length;
+        const activeContacts = Object.values(peopleStoreFullState.contacts || {}).filter((person: any) => !person.deletedAt).length;
+        const deletedContacts = totalContacts - activeContacts;
+        
+        if (deletedContacts > 0) {
+          addSyncLog(`[Snapshot] People sync ON: Including ${totalContacts} contacts (${activeContacts} active, ${deletedContacts} deleted).`, 'info');
+        } else {
+          addSyncLog(`[Snapshot] People sync ON: Including ${activeContacts} contacts.`, 'info');
+        }
       } else {
-        addSyncLog('[Snapshot] People (Contacts) sync OFF: Excluding contacts.', 'info');
+        addSyncLog('[Snapshot] People sync OFF: Excluding contacts.', 'info');
       }
+      // Habits store
       const habitStoreFullState = useHabitStore.getState();
       let habitStateForSnapshot: any = { isSyncEnabled: habitStoreFullState.isSyncEnabled };
       if (habitStoreFullState.isSyncEnabled) {
@@ -197,6 +215,7 @@ if (portfolioStoreFullState.isSyncEnabled) {
       } else {
         addSyncLog('[Snapshot] Habits sync OFF: Excluding habits.', 'info');
       }
+      // Calendar store
       const calendarStoreFullState = useCalendarStore.getState();
       let calendarStateForSnapshot: any = { isSyncEnabled: calendarStoreFullState.isSyncEnabled };
       if (calendarStoreFullState.isSyncEnabled) {
@@ -207,7 +226,7 @@ if (portfolioStoreFullState.isSyncEnabled) {
         addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
       }
 
-      // For stores that sync automatically (like CustomCategory and Tags as per user request)
+      // CustomCategory and Tags stores (always sync)
       const customCategoryState = { ...useCustomCategoryStore.getState(), lastUpdated: now };
       const tagsState = { ...useTagStore.getState(), lastUpdated: now };
       // For ToDos in the Task store, we handle this in the Task store hydrateFromSync function
@@ -394,9 +413,9 @@ if (userOnboarding) {
   // if we get here, either the user has not completed onboarding or the user is not premium so we need to seperate the logic
   if (useUserStore.getState().preferences.premium) {
     // user is premium, so we need to show a message that sync is disabled until onboarding completes
-    console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
+   // console.log('⚙️ Registry store initialized (sync disabled until onboarding completes)');
   } else {
     // user is not premium, so we need to show a message that sync is disabled because user is not premium
-    console.log('⚙️ Registry store initialized (sync disabled because user is not premium)');
+   // console.log('⚙️ Registry store initialized (sync disabl ed because user is not premium)');
   }
 }

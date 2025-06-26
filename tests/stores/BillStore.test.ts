@@ -54,7 +54,7 @@ describe('BillStore', () => {
     expect(bills.map(b => b.name)).toEqual(['A', 'B']);
   });
 
-  test('deleteBill removes the bill', () => {
+  test('deleteBill soft deletes the bill', () => {
     // add a bill and capture its id
     useBillStore.getState().addBill({ name: 'Removable', amount: 50, dueDate: 10 } as any);
     const state1 = useBillStore.getState();
@@ -62,9 +62,14 @@ describe('BillStore', () => {
     expect(keys1).toHaveLength(1);
     const id = keys1[0];
     expect(state1.bills[id]).toBeDefined();
-    // delete and verify removal
+    expect(state1.bills[id].deletedAt).toBeUndefined();
+    
+    // delete and verify soft deletion
     useBillStore.getState().deleteBill(id);
-    expect(useBillStore.getState().bills[id]).toBeUndefined();
+    const deletedBill = useBillStore.getState().bills[id];
+    expect(deletedBill).toBeDefined(); // Bill still exists in store
+    expect(deletedBill.deletedAt).toBeDefined(); // But has deletedAt timestamp
+    expect(deletedBill.updatedAt).toBeDefined(); // And updated timestamp
   });
 
   test('clearBills empties all bills', () => {
@@ -79,6 +84,76 @@ describe('BillStore', () => {
     expect(useBillStore.getState().monthlyIncome).toBe(500);
     useBillStore.getState().setMonthlyIncome(-200);
     expect(useBillStore.getState().monthlyIncome).toBe(0);
+  });
+
+  test('getBills filters out deleted bills', () => {
+    // Add some bills
+    useBillStore.getState().addBill({ name: 'Active', amount: 100, dueDate: 15 } as any);
+    useBillStore.getState().addBill({ name: 'ToDelete', amount: 200, dueDate: 10 } as any);
+    
+    // Get the bill to delete
+    const initialBills = useBillStore.getState().getBills();
+    expect(initialBills).toHaveLength(2);
+    
+    const billToDelete = initialBills.find(b => b.name === 'ToDelete');
+    expect(billToDelete).toBeDefined();
+    
+    // Delete one bill
+    useBillStore.getState().deleteBill(billToDelete!.id);
+    
+    // getBills should only return active bills
+    const activeBills = useBillStore.getState().getBills();
+    expect(activeBills).toHaveLength(1);
+    expect(activeBills[0].name).toBe('Active');
+  });
+
+  test('getActiveBills filters out deleted bills', () => {
+    // Add some bills and capture their IDs
+    useBillStore.getState().addBill({ name: 'Active', amount: 100, dueDate: 15 } as any);
+    useBillStore.getState().addBill({ name: 'ToDelete', amount: 200, dueDate: 10 } as any);
+    
+    const initialBills = useBillStore.getState().getActiveBills();
+    expect(initialBills).toHaveLength(2);
+    
+    // Find the ID of the bill to delete by accessing the store directly
+    const allBills = Object.values(useBillStore.getState().bills);
+    const billToDeleteId = allBills.find(b => b.name === 'ToDelete')?.id;
+    expect(billToDeleteId).toBeDefined();
+    
+    useBillStore.getState().deleteBill(billToDeleteId as string);
+    
+    const activeBills = useBillStore.getState().getActiveBills();
+    expect(activeBills).toHaveLength(1);
+    expect(activeBills[0].name).toBe('Active');
+  });
+
+  test('hydrateFromSync handles bill deletions', () => {
+    // Enable sync
+    useBillStore.setState({ isSyncEnabled: true });
+    
+    // Add a local bill
+    useBillStore.getState().addBill({ name: 'Local', amount: 100, dueDate: 15 } as any);
+    const localBill = useBillStore.getState().getBills()[0];
+    
+    // Simulate incoming deletion from sync with a future timestamp
+    const futureDate = new Date(Date.now() + 10000).toISOString(); // 10 seconds in future
+    const deletedBill = {
+      ...localBill,
+      deletedAt: futureDate,
+      updatedAt: futureDate
+    };
+    
+    useBillStore.getState()?.hydrateFromSync?.({    
+      bills: { [localBill.id]: deletedBill }
+    } as any);
+    
+    // Bill should be marked as deleted
+    const updatedBill = useBillStore.getState().bills[localBill.id];
+    expect(updatedBill.deletedAt).toBeDefined();
+    
+    // getBills should not include deleted bill
+    const activeBills = useBillStore.getState().getBills();
+    expect(activeBills).toHaveLength(0);
   });
 
   test('getOrdinalSuffix generates correct suffixes', () => {

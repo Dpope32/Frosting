@@ -35,6 +35,7 @@ interface BillStore {
   updateBill: (id: string, updates: Partial<Omit<Bill, 'id' | 'createdAt' | 'updatedAt'>>) => void;
   deleteBill: (id: string) => void;
   getBills: () => Bill[];
+  getActiveBills: () => Bill[];
   clearBills: () => void;
   setMonthlyIncome: (income: number) => void;
   toggleBillSync: () => void;
@@ -196,39 +197,61 @@ export const useBillStore = create<BillStore>()(
       },
 
       deleteBill: (id) => {
-        set((state) => {
-          const billToDelete = state.bills[id];
-          const newBills = { ...state.bills };
-          delete newBills[id];
+        const existingBill = get().bills[id];
+        if (!existingBill) {
+          console.error(`❌ BillStore: Bill with id ${id} not found`);
+          return;
+        }
 
-          if (billToDelete) {
-            setTimeout(() => {
-              try {
-                const { useProjectStore } = require('./ToDo');
-                const { tasks, deleteTask, recalculateTodaysTasks } = useProjectStore.getState();
-                
-                Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
-                  if (task?.category === 'bills' && 
-                      (task?.name === billToDelete.name || 
-                       task?.name === `${billToDelete.name} Bill ($${billToDelete.amount.toFixed(0)})`)) {
-                    deleteTask(taskId);
-                  }
-                });
+        // Soft delete by setting deletedAt timestamp
+        const deletedBill: Bill = {
+          ...existingBill,
+          deletedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
-                recalculateTodaysTasks();
-              } catch (error) {
-                console.error('Error cleaning up tasks:', error);
+        set((state) => ({
+          bills: {
+            ...state.bills,
+            [id]: deletedBill,
+          },
+        }));
+
+        // Clean up associated tasks
+        setTimeout(() => {
+          try {
+            const { useProjectStore } = require('./ToDo');
+            const { tasks, deleteTask, recalculateTodaysTasks } = useProjectStore.getState();
+            
+            Object.entries(tasks).forEach(([taskId, task]: [string, any]) => {
+              if (task?.category === 'bills' && 
+                  (task?.name === existingBill.name || 
+                   task?.name === `${existingBill.name} Bill ($${existingBill.amount.toFixed(0)})`)) {
+                deleteTask(taskId);
               }
-            }, 0);
-          }
+            });
 
-          return { bills: newBills };
-        });
+            recalculateTodaysTasks();
+          } catch (error) {
+            console.error('Error cleaning up tasks:', error);
+          }
+        }, 0);
+
+        try {
+          getAddSyncLog()(`Bill "${existingBill.name}" soft deleted locally`, 'info');
+        } catch (e) {}
       },
 
       getBills: () => {
         const state = get();
-        return Object.values(state.bills).sort((a, b) => a.dueDate - b.dueDate);
+        return Object.values(state.bills)
+          .filter(bill => !bill.deletedAt)
+          .sort((a, b) => a.dueDate - b.dueDate);
+      },
+
+      getActiveBills: () => {
+        const state = get();
+        return Object.values(state.bills).filter(bill => !bill.deletedAt);
       },
 
       clearBills: () => {
@@ -284,6 +307,7 @@ export const useBillStore = create<BillStore>()(
           if (syncedData.bills && typeof syncedData.bills === 'object') {
             const existingBillsMap = new Map(Object.entries(state.bills));
             const newBillsObject = { ...state.bills };
+            let deletionsAppliedCount = 0;
 
             for (const [billId, incomingBill] of Object.entries(syncedData.bills)) {
               if (existingBillsMap.has(billId)) {
@@ -294,13 +318,28 @@ export const useBillStore = create<BillStore>()(
                 if (incomingTimestamp >= existingTimestamp) {
                   newBillsObject[billId] = { ...existingBill, ...incomingBill };
                   billsMergedCount++;
+                  
+                  // Check if this is a deletion being applied
+                  if (incomingBill.deletedAt && !existingBill.deletedAt) {
+                    deletionsAppliedCount++;
+                    addSyncLog(`Bill "${incomingBill.name}" marked as deleted from sync`, 'info');
+                  }
                 }
               } else {
                 newBillsObject[billId] = incomingBill;
                 billsAddedCount++;
+                
+                // Log if we're adding a deleted bill
+                if (incomingBill.deletedAt) {
+                  addSyncLog(`Adding already-deleted bill "${incomingBill.name}" from sync`, 'verbose');
+                }
               }
             }
             newState.bills = newBillsObject;
+            
+            if (deletionsAppliedCount > 0) {
+              addSyncLog(`Applied ${deletionsAppliedCount} bill deletions from sync`, 'success');
+            }
           }
 
           if (typeof syncedData.monthlyIncome === 'number') {
@@ -344,7 +383,9 @@ export const useBillStore = create<BillStore>()(
           return newState;
         });
 
-        addSyncLog(`Bills hydrated: ${billsAddedCount} added, ${billsMergedCount} merged. Total bills: ${Object.keys(get().bills).length}`, 'success');
+        const totalBills = Object.keys(get().bills).length;
+        const activeBills = Object.values(get().bills).filter(bill => !bill.deletedAt).length;
+        addSyncLog(`Bills hydrated: ${billsAddedCount} added, ${billsMergedCount} merged. Total bills: ${totalBills} (${activeBills} active)`, 'success');
       },
     }),
     {

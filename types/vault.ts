@@ -3,4 +3,7 @@ export interface VaultEntry {
     name: string
     username: string
     password: string
-  }
+    deletedAt?: string
+    updatedAt?: string
+    createdAt?: string
+}

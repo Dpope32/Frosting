@@ -13,7 +13,7 @@ export const portfolioData: Stock[] = [...defaultPortfolio];
 
 StorageUtils.get<Stock[]>('portfolio_data', defaultPortfolio)
   .then(storedPortfolio => {
-    if (storedPortfolio) {
+    if (Array.isArray(storedPortfolio)) {
       portfolioData.length = 0;
       portfolioData.push(...storedPortfolio);
     } else {

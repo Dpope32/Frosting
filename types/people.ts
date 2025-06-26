@@ -44,4 +44,5 @@ export type Person = {
   priority?: boolean
   createdAt: string
   updatedAt: string
+  deletedAt?: string
 }
