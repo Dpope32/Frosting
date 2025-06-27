@@ -10,6 +10,21 @@ import type { FormContentProps } from './types'
 import type { Tag } from '@/types'
 import { useAutoFocus } from '@/hooks/useAutoFocus'
 
+// Helper function to convert yyyy-MM-dd to MM/DD/YYYY for display
+const formatBirthdayForDisplay = (birthday: string): string => {
+  if (!birthday) return '';
+  try {
+    // Parse yyyy-MM-dd format
+    const [year, month, day] = birthday.split('-');
+    if (year && month && day) {
+      return `${month}/${day}/${year}`;
+    }
+  } catch (error) {
+    console.error('Error formatting birthday for display:', error);
+  }
+  return birthday; // Return original if parsing fails
+}
+
 export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((props, ref) => { // Use forwardRef
   const {
     isVisible,
@@ -90,7 +105,7 @@ export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((
             <DateDebouncedInput
               key={`birthday-${inputResetKey}`}
               ref={birthdayRef}
-              value={formData.birthday || ''}
+              value={formData.birthday ? formatBirthdayForDisplay(formData.birthday) : ''}
               onDebouncedChange={handleBirthdayChange}
               placeholder="Birthday (MM/DD/YYYY) *"
               returnKeyType="next"

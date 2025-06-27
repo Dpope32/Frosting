@@ -40,11 +40,30 @@ export function EditPersonForm({
     }
   };
 
-  const handleDateChange = (event: any, date?: Date) => {
-    if (Platform.OS === "android") setShowDatePicker(false);
-    if (date) {
-      setSelectedDate(date);
-      updateFormField("birthday", format(date, "yyyy-MM-dd"));
+  const handleDateChange = (input: string | Date) => {
+    if (typeof input === 'string') {
+      // Handle string input from DateDebouncedInput (MM/DD/YYYY format)
+      if (input.length === 10 && input.includes('/')) {
+        try {
+          // Parse MM/DD/YYYY format
+          const [month, day, year] = input.split('/');
+          const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+          if (!isNaN(date.getTime())) {
+            setSelectedDate(date);
+            updateFormField("birthday", format(date, "yyyy-MM-dd"));
+          }
+        } catch (error) {
+          console.error('Error parsing date:', error);
+        }
+      } else if (input === '') {
+        // Handle empty string
+        updateFormField("birthday", '');
+      }
+    } else if (input instanceof Date) {
+      // Handle Date object input (from date picker)
+      if (Platform.OS === "android") setShowDatePicker(false);
+      setSelectedDate(input);
+      updateFormField("birthday", format(input, "yyyy-MM-dd"));
     }
   };
 

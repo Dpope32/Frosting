@@ -107,16 +107,20 @@ export const usePeopleStore = create<PeopleStore>()(
             // Create a new contacts object to ensure state update
             const newContacts = { ...contacts, [id]: updatedContact }
             
-            // Optimistic update
+            // Optimistic update - immediately update the UI
             set({ contacts: newContacts })
             
-            // Save to AsyncStorage in background
-            StorageUtils.set(STORAGE_KEY, newContacts)
-              .catch((error: Error) => {
-                console.error('🔴 [PeopleStore] Error saving updated contact:', error)
-              })
-
-            addSyncLog(`[PeopleStore] Person updated locally: ID ${id}`, 'info')
+            try {
+              // Save to AsyncStorage
+              await StorageUtils.set(STORAGE_KEY, newContacts)
+              addSyncLog(`[PeopleStore] Person updated successfully: ID ${id}`, 'success')
+            } catch (error) {
+              console.error('🔴 [PeopleStore] Error saving updated contact:', error)
+              addSyncLog(`[PeopleStore] Error saving updated contact: ${error}`, 'error')
+            }
+          } else {
+            console.error(`🔴 [PeopleStore] Person with ID ${id} not found for update`)
+            addSyncLog(`[PeopleStore] Person with ID ${id} not found for update`, 'error')
           }
         },
         

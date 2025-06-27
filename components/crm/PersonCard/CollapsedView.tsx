@@ -84,7 +84,6 @@ export default function CollapsedView({
     }}>
       <TouchableOpacity 
         onPress={() => {
-          console.log('🔍 [CollapsedView] TouchableOpacity pressed for:', person.name);
           onPress();
         }}
         activeOpacity={0.8}
@@ -114,8 +113,6 @@ export default function CollapsedView({
                       br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
                       style={styles.avatarImage as any}
                       onError={() => {
-                        // Handle image load errors by falling back to letter avatar
-                        console.log('Failed to load profile picture for:', person.name, '- falling back to letter avatar');
                         setImageLoadFailed(true);
                       }}
                     />

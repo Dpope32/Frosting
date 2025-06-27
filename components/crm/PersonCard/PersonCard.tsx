@@ -30,12 +30,9 @@ export function PersonCard({ person, onEdit, containerStyle, isExpanded, onPress
   }, [actualIsExpanded, collapsePersonCard, propsOnPress]);
 
   const handlePress = () => {
-    console.log('🔍 [PersonCard] handlePress called for:', person.name, 'isExpanded:', actualIsExpanded, 'propsOnPress:', !!propsOnPress);
     if (propsOnPress) {
-      console.log('🔍 [PersonCard] Using props onPress for:', person.name);
       propsOnPress();
     } else {
-      console.log('🔍 [PersonCard] Using CRMStore for:', person.name);
       if (actualIsExpanded) collapsePersonCard();
       else expandPersonCard(person.id!);
     }

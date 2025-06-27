@@ -52,8 +52,19 @@ export default function CRM() {
     setEditModalVisible(true);
   };
 
-  const handleSaveEdit = (updatedPerson: Person) => {
-    updatePerson(updatedPerson.id, updatedPerson);
+  const handleSaveEdit = async (updatedPerson: Person) => {
+    if (selectedPerson) {
+      // Only pass the fields that have actually changed
+      const changes: Partial<Person> = {};
+      Object.keys(updatedPerson).forEach((key) => {
+        const typedKey = key as keyof Person;
+        if (updatedPerson[typedKey] !== selectedPerson[typedKey]) {
+          (changes as any)[typedKey] = updatedPerson[typedKey];
+        }
+      });
+      
+      await updatePerson(updatedPerson.id, changes);
+    }
     handleCloseEdit();
   };
 
