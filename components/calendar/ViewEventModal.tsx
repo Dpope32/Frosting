@@ -84,6 +84,13 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
             >
                 {selectedEvents
                   ?.slice()
+                  .filter((event, index, array) => {
+                    return array.findIndex(e => 
+                      e.title === event.title && 
+                      e.date === event.date && 
+                      e.time === event.time
+                    ) === index;
+                  })
                   .sort((a, b) => {
                     if (!a.time && !b.time) return 0;
                     if (!a.time) return 1; 
