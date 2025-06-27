@@ -55,10 +55,17 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       return false;
     }
     
+    // Check if completed on ANY previous day by looking at completion history
+    const hasBeenCompleted = Object.entries(task.completionHistory || {}).some(([date, completed]) => {
+      return completed === true && date !== currentDateStrLocal;
+    });
+    
+    if (hasBeenCompleted) {
+      return false;
+    }
+    
     // Special handling for birthdays
     if ((task.name.includes('birthday') || task.name.includes('🎂') || task.name.includes('🎁')) && task.scheduledDate) {
-      
-      // Compare year, month, and day for birthdays
       const [bYear, bMonth, bDay] = task.scheduledDate.split('-').map(Number);
       const bdayDate = new Date(bYear, bMonth - 1, bDay);
       const isBirthdayToday = 
@@ -66,7 +73,6 @@ const isTaskDue = (task: Task, date: Date): boolean => {
         date.getMonth() === bdayDate.getMonth() &&
         date.getFullYear() === bdayDate.getFullYear();
 
-      // Fallback: compare month and day only
       const isBirthdayTodayAlt = 
         date.getDate() === bdayDate.getDate() &&
         date.getMonth() === bdayDate.getMonth();
@@ -74,6 +80,8 @@ const isTaskDue = (task: Task, date: Date): boolean => {
       const shouldShowBirthday = isBirthdayToday || isBirthdayTodayAlt;
       return shouldShowBirthday;
     }
+    
+    // Only show uncompleted one-time tasks
     return true;
   }
 
