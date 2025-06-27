@@ -14,6 +14,7 @@ import { isIpad } from '@/utils';
 import { EditBillModal } from '@/components/cardModals/edits/EditBillModal';
 import { Bill } from '@/types';
 import { BillsListModal } from '@/components/listModals/BillsListModal';
+import { billTypes } from '@/constants/billTypes';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -69,13 +70,8 @@ export default function BillsScreen() {
     if (windowWidth < 1600) return 3;
     return 4;
   };
-  
   const columnCount = getColumnCount();
   const columnWidth = `${100 / columnCount}%` ;
-  const handleAddBill = (billData: { name: string; amount: number; dueDate: number; createTask?: boolean }) => { 
-    console.log('🔵 Bills Screen: Adding bill with data:', billData);
-    addBill(billData);
-  };
 
   const handleDeleteBill = (id: string) => {
     setIsDeletingBill(true);
@@ -91,18 +87,32 @@ export default function BillsScreen() {
     }, 0);
   };
 
-  // Dev functions to load and clear sample bills
   const loadDevBills = () => {
-    const sampleBills = [
-      { name: 'Rent', amount: 1200, dueDate: 1 },
-      { name: 'Internet', amount: 60, dueDate: 15 },
-      { name: 'Electricity', amount: 90, dueDate: 20 },
-    ];
-    // Batch-add bills without generating tasks to avoid performance bottleneck
-    addBills(
-      sampleBills.map((bill) => ({ ...bill, createTask: false })),
-      { batchCategory: 'dev' }
-    );
+    const numBills = Math.floor(Math.random() * 3) + 3;
+    const selectedBills = [];
+    const usedIndices = new Set();
+    
+    for (let i = 0; i < numBills; i++) {
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * billTypes.length);
+      } while (usedIndices.has(randomIndex));
+      
+      usedIndices.add(randomIndex);
+      const bill = billTypes[randomIndex];
+      const randomDueDate = Math.floor(Math.random() * 28) + 1;
+      const amountVariation = (Math.random() - 0.5) * 0.4;
+      const adjustedAmount = Math.round(bill.amount * (1 + amountVariation));
+      
+      selectedBills.push({
+        name: bill.name,
+        amount: adjustedAmount,
+        dueDate: randomDueDate,
+        createTask: false
+      });
+    }
+    selectedBills.sort((a, b) => a.dueDate - b.dueDate);
+    addBills(selectedBills, { batchCategory: 'dev' });
   };
 
   const deleteAllBills = () => {
@@ -172,11 +182,11 @@ export default function BillsScreen() {
             top={0}
             left={0}
             right={0}
-            bottom={screenWidth * 0.5}
+            bottom={0}
             zIndex={1000}
             alignItems={isWeb ? "flex-start" : isIpad() ? "flex-start" : "center"}
             justifyContent={isWeb ? "flex-start" : isIpad() ? "flex-start" : "center"}
-            backgroundColor={isDark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)"}
+            backgroundColor={isDark ? "rgba(0, 0, 0, 0.87)" : "rgba(0, 0, 0, 0.6)"}
           >
             <XStack
               backgroundColor={isDark ? "#222" : "white"}

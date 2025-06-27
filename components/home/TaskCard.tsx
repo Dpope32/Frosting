@@ -174,9 +174,6 @@ export const TaskCard = React.memo<TaskCardProps>(({
     // Set processing flag
     isProcessingRef.current = true;
 
-    const startTime = performance.now();
-    console.log('[TaskCard.handleCheck] START - Task:', title.slice(0, 20), 'at', startTime);
-    
     // Animate checkbox press
     Animated.sequence([
       Animated.timing(animatedScale, {
@@ -196,8 +193,6 @@ export const TaskCard = React.memo<TaskCardProps>(({
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    console.log('[TaskCard.haptics] Duration:', (performance.now() - hapticStart).toFixed(2), 'ms');
-    
     const newValue = !checked;
     
     // Debounce the actual processing
@@ -209,21 +204,14 @@ export const TaskCard = React.memo<TaskCardProps>(({
       } else {
         showToast("Undo successful", 'success');
       }
-      console.log('[TaskCard.toast] Duration:', (performance.now() - toastStart).toFixed(2), 'ms');
       
-      // Store update happens AFTER instant feedback
-      const storeStart = performance.now();
       onCheck?.(newValue);
-      console.log('[TaskCard.storeUpdate] Duration:', (performance.now() - storeStart).toFixed(2), 'ms');
       
-      console.log('[TaskCard.handleCheck] TOTAL Duration:', (performance.now() - startTime).toFixed(2), 'ms');
-      
-      // Reset processing flag after a short delay
       setTimeout(() => {
         isProcessingRef.current = false;
       }, 300);
       
-    }, 100); // 100ms debounce
+    }, 100);
     
   }, [checked, onCheck, showToast, title, animatedScale]);
 
@@ -362,7 +350,7 @@ TaskCard.displayName = 'TaskCard'
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'center', // Back to center for single-line alignment
+    alignItems: 'center',
     paddingHorizontal: isIpad() ? 7 : 6,
     paddingTop: isIpad() ? 7 : 6,
     position: 'relative',
@@ -377,9 +365,9 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     paddingHorizontal: 3,
     paddingTop: 2,
-    alignSelf: 'flex-start', // Align with first line of text
+    alignSelf: 'flex-start',
     zIndex: 10,
-    marginTop: isIpad() ? 1 : 0, // Slight adjustment for better alignment
+    marginTop: isIpad() ? 1 : 0,
   },
   checkbox: {
     width: isIpad() ? 20 : 18,

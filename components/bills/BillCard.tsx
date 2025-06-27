@@ -26,7 +26,7 @@ export const BillCard = ({
   const iconData = getIconForBill(bill.name)
   const Icon = iconData.icon
   const iconName = iconData.name
-  const amountColor = getAmountColor(bill.amount)
+  const amountColor = '#FF4444' 
   const isPast = bill.dueDate < currentDay
   const isToday = bill.dueDate === currentDay
   const confirmDelete = () => onDelete(bill.id)
@@ -85,7 +85,7 @@ export const BillCard = ({
             right={0}
             bottom={0}
             br="$4"
-            bg={isDark ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.7)'}
+            bg={isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0,0,0,0.7)'}
             ai="center"
             jc="center"
             zIndex={5}
@@ -109,7 +109,7 @@ export const BillCard = ({
               fontFamily="$body"
               numberOfLines={1}
             >
-              {bill.name}{isToday && ' (today!)'}
+              {bill.name}{isToday && ' (today)'}
             </Text>
           </XStack>
           <XStack ai="center" space="$3">
