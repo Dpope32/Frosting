@@ -47,7 +47,8 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
         return;
       }
 
-      if (task.name.includes('🏀') && !preferences.showNBAGameTasks) {
+      // Filter out ALL NBA tasks (regardless of preferences)
+      if (task.name.includes('🏀')) {
         return;
       }
 
@@ -55,13 +56,6 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
         const m = task.name.match(/^Pay\s+(.+?)\s+/)
         const name = m?.[1]
         if (name && bills[name] && !seenBills.has(name)) { seenBills.add(name); groups.monthly.push(task) }
-        return
-      }
-      if (task.name.includes('🏀')) {
-        if (!seenNbaGame) {
-          groups['one-time'].push(task);
-          seenNbaGame = true;
-        }
         return
       }
       const pat = task.recurrencePattern || 'one-time'
@@ -73,7 +67,7 @@ export const TaskListModal: React.FC<TaskListModalProps> = ({ open, onOpenChange
       else groups[pat]?.push(task)
     })
     return groups
-  }, [tasks, bills, preferences.showNBAGameTasks])
+  }, [tasks, bills])
 
   const taskRecommendationCategories: RecommendationCategory[] = ['Cleaning', 'Wealth', 'Gym', 'Self-Care'];
   const taskRecommendations = React.useMemo(() => (

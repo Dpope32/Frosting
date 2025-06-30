@@ -719,12 +719,12 @@ export const useProjectStore = create<ProjectStore>()(
           const resolved = !!(mergedHistory[today]);
           
           // Log recurring task resolution if there's a conflict
-          if (curr.completed !== inc.completed) {
-            addSyncLog(
-              `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (local=${curr.completed}, sync=${inc.completed}, today_history=${!!mergedHistory[today]})`,
-              'verbose'
-            );
-          }
+          //if (curr.completed !== inc.completed) {
+          //  addSyncLog(
+          //    `[Recurring Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (local=${curr.completed}, sync=${inc.completed}, today_history=${!!mergedHistory[today]})`,
+          //    'verbose'
+          //  );
+          //}
           
           return resolved;
         })();

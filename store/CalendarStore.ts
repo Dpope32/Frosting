@@ -413,7 +413,12 @@ export const useCalendarStore = create<CalendarState>()(
           let mergedEventsArray = [...state.events] // Start with all local events
 
           for (const incomingEvent of syncedData.events!) {
-            // Skip device-specific events if they come from snapshot to avoid conflicts with local device sync
+            // Skip birthday events - they're generated locally
+            if (incomingEvent.type === 'birthday') {
+              continue;
+            }
+            
+            // Skip device-specific events if they come from snapshot
             if (incomingEvent.id.startsWith('device-')) {
               itemsSkippedDevice++
               continue

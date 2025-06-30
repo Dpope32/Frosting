@@ -219,9 +219,12 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const calendarStoreFullState = useCalendarStore.getState();
       let calendarStateForSnapshot: any = { isSyncEnabled: calendarStoreFullState.isSyncEnabled };
       if (calendarStoreFullState.isSyncEnabled) {
-        calendarStateForSnapshot.events = calendarStoreFullState.events;
+        // Filter out birthday events from sync - they're generated locally
+        const eventsToSync = calendarStoreFullState.events.filter(event => 
+          event.type !== 'birthday'
+        );
+        calendarStateForSnapshot.events = eventsToSync;
         calendarStateForSnapshot.lastUpdated = now;
-      //  addSyncLog(`[Snapshot] Calendar sync ON: Including ${calendarStoreFullState.events?.length || 0} events.`, 'info');
       } else {
         addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
       }
@@ -385,6 +388,32 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         }
       } else {
         addSyncLog(`ℹ️ No data for tasks in snapshot, skipping hydration.`, 'info');
+      }
+      
+      if (data.people && data.people.contacts) {
+        try {
+          const currentContacts = usePeopleStore.getState().contacts;
+          const incomingContacts = data.people.contacts;
+          
+          // Find truly new contacts (not just updated ones)
+          const newContactIds = Object.keys(incomingContacts).filter(id => 
+            !currentContacts[id] && incomingContacts[id].birthday
+          );
+          
+          if (newContactIds.length > 0) {
+            addSyncLog(`♻️ Found ${newContactIds.length} new contacts with birthdays, regenerating events`, 'info');
+            
+            // Only sync birthdays for new contacts after People store hydration completes
+            setTimeout(() => {
+              newContactIds.forEach(contactId => {
+                useCalendarStore.getState().syncBirthdays(contactId);
+              });
+            }, 100); // Small delay to ensure People store is fully hydrated
+            
+          }
+        } catch (err) {
+          addSyncLog(`Error checking for new birthday contacts: ${err}`, 'error');
+        }
       }
       
       set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
