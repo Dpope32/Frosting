@@ -44,8 +44,10 @@ export default function CollapsedView({
   const formatBirthday = () => {
     if (!person.birthday) return null;
     try {
-      // Just format the month and day (not the year) to keep it compact
-      return format(new Date(person.birthday), 'MMM d');
+      // Fix timezone issue by adjusting for local timezone offset
+      const date = new Date(person.birthday);
+      date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+      return format(date, 'MMM d');
     } catch (e) {
       return null;
     }
@@ -56,39 +58,43 @@ export default function CollapsedView({
   const hasTags = person.tags && person.tags.length > 0;
 
   return (
-    <LongPressDelete onDelete={(onComplete) => {
-      if (Platform.OS === 'web') {
-        if (window.confirm('Delete this contact?')) {
-          deletePerson(person.id!);
-          showToast('Contact deleted', 'success');
-          onComplete(true);
+    <LongPressDelete 
+      onDelete={(onComplete) => {
+        if (Platform.OS === 'web') {
+          if (window.confirm('Delete this contact?')) {
+            deletePerson(person.id!);
+            showToast('Contact deleted', 'success');
+            onComplete(true);
+          } else {
+            onComplete(false);
+          }
         } else {
-          onComplete(false);
-        }
-      } else {
-        Alert.alert(
-          'Delete Contact',
-          'Are you sure you want to delete this contact?',
-          [
-            { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
-            { text: 'Delete', style: 'destructive', onPress: () => {
-                deletePerson(person.id!);
-                showToast('Contact deleted', 'success');
-                onComplete(true);
+          Alert.alert(
+            'Delete Contact',
+            'Are you sure you want to delete this contact?',
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => onComplete(false) },
+              { text: 'Delete', style: 'destructive', onPress: () => {
+                  deletePerson(person.id!);
+                  showToast('Contact deleted', 'success');
+                  onComplete(true);
+                }
               }
-            }
-          ],
-          { cancelable: true }
-        );
-      }
-    }}>
+            ],
+            { cancelable: true }
+          );
+        }
+      }}
+      longPressDuration={1000}
+      isDark={isDark}
+    >
       <TouchableOpacity 
-        onPress={() => {
-          onPress();
-        }}
-        activeOpacity={0.8}
+        onPress={onPress}
+        activeOpacity={0.7}
         style={{ width: '100%' }}
-        hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
+        hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+        delayPressIn={0}
+        delayPressOut={50}
       >
         <View
           style={[

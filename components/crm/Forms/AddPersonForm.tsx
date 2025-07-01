@@ -53,12 +53,19 @@ export function AddPersonForm({ isVisible, onClose }: AddPersonFormProps): JSX.E
       const normalizedText = text.replace(/-/g, '/')
       
       if (normalizedText.length >= 8) {
-        const parsedDate = parse(normalizedText, 'MM/dd/yyyy', new Date())
-        if (isValid(parsedDate)) {
-          setFormData((prev) => ({
-            ...prev,
-            birthday: format(parsedDate, 'yyyy-MM-dd'),
-          }))
+        const [month, day, year] = normalizedText.split('/');
+        if (month && day && year && month.length <= 2 && day.length <= 2 && year.length === 4) {
+          const monthNum = parseInt(month, 10);
+          const dayNum = parseInt(day, 10);
+          const yearNum = parseInt(year, 10);
+          
+          if (monthNum >= 1 && monthNum <= 12 && dayNum >= 1 && dayNum <= 31 && yearNum > 1900) {
+            const formattedDate = `${yearNum}-${monthNum.toString().padStart(2, '0')}-${dayNum.toString().padStart(2, '0')}`;
+            setFormData((prev) => ({
+              ...prev,
+              birthday: formattedDate,
+            }));
+          }
         }
       }
     } catch (error) {

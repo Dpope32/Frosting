@@ -1,14 +1,11 @@
-import React, { useMemo, useEffect } from "react";
-import { useCRMStore } from "@/store/CRMStore";
+import React from "react";
 import { Theme } from "tamagui";
-import { View, StyleProp, ViewStyle, Platform, useColorScheme, Alert } from "react-native";
+import { View, StyleProp, ViewStyle, Platform, useColorScheme } from "react-native";
 import type { Person } from "@/types";
 import { styles } from "./styles";
 import { webStyles } from "./webStyles";
 import CollapsedView from './CollapsedView';
 import { getColorForPerson } from './utils';
-import { usePeopleStore } from "@/store/People";
-import { useToastStore } from "@/store";
 
 export type PersonCardProps = {
   person: Person;
@@ -18,26 +15,7 @@ export type PersonCardProps = {
   onPress?: () => void;
 };
 
-export function PersonCard({ person, onEdit, containerStyle, isExpanded, onPress: propsOnPress }: PersonCardProps) {
-  const { expandedPersonId, expandPersonCard, collapsePersonCard, openEditModal } = useCRMStore();
-  const isExpandedFromStore = expandedPersonId === person.id;
-  const actualIsExpanded = isExpanded !== undefined ? isExpanded : isExpandedFromStore;
-
-  useEffect(() => {
-    return () => {
-      if (actualIsExpanded && !propsOnPress) collapsePersonCard();
-    };
-  }, [actualIsExpanded, collapsePersonCard, propsOnPress]);
-
-  const handlePress = () => {
-    if (propsOnPress) {
-      propsOnPress();
-    } else {
-      if (actualIsExpanded) collapsePersonCard();
-      else expandPersonCard(person.id!);
-    }
-  };
-
+export function PersonCard({ person, onEdit, containerStyle, isExpanded = false, onPress }: PersonCardProps) {
   const nicknameColor = getColorForPerson(person.id || person.name);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -51,7 +29,7 @@ export function PersonCard({ person, onEdit, containerStyle, isExpanded, onPress
         <CollapsedView
           key={`collapsed-${person.id}`}
           person={person}
-          onPress={handlePress}
+          onPress={onPress || (() => {})}
           isDark={isDark}
           nicknameColor={nicknameColor}
           applyWebStyle={applyWebStyle}

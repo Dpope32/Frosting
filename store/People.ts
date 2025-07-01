@@ -32,7 +32,7 @@ export const usePeopleStore = create<PeopleStore>()(
       StorageUtils.get<Record<string, Person>>(STORAGE_KEY, {})
         .then(storedContacts => {
           if (storedContacts && Object.keys(storedContacts).length > 0) {
-            set({ contacts: storedContacts })
+            set((state) => ({ ...state, contacts: storedContacts }))
           }
         })
         .catch(error => {

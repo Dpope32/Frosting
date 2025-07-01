@@ -45,12 +45,18 @@ export function EditPersonForm({
       // Handle string input from DateDebouncedInput (MM/DD/YYYY format)
       if (input.length === 10 && input.includes('/')) {
         try {
-          // Parse MM/DD/YYYY format
+          // Parse MM/DD/YYYY format manually to avoid timezone issues
           const [month, day, year] = input.split('/');
-          const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-          if (!isNaN(date.getTime())) {
-            setSelectedDate(date);
-            updateFormField("birthday", format(date, "yyyy-MM-dd"));
+          const monthNum = parseInt(month, 10);
+          const dayNum = parseInt(day, 10);
+          const yearNum = parseInt(year, 10);
+          
+          // Validate the date components
+          if (monthNum >= 1 && monthNum <= 12 && dayNum >= 1 && dayNum <= 31 && yearNum > 1900) {
+            // Format directly as yyyy-MM-dd to avoid timezone conversion
+            const formattedDate = `${yearNum}-${monthNum.toString().padStart(2, '0')}-${dayNum.toString().padStart(2, '0')}`;
+            setSelectedDate(new Date(yearNum, monthNum - 1, dayNum));
+            updateFormField("birthday", formattedDate);
           }
         } catch (error) {
           console.error('Error parsing date:', error);
