@@ -9,8 +9,12 @@ export function useVault() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['vault-credentials'],
     queryFn: () => {
-      // Return the current vault data from the store
-      return vaultStore.vaultData;
+      // Return only active (non-deleted) vault entries
+      const activeEntries = vaultStore.getActiveEntries();
+      return {
+        items: activeEntries,
+        totalItems: activeEntries.length
+      };
     },
     // Ensure fresh data on each screen visit
     staleTime: 0,

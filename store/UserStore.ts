@@ -127,7 +127,7 @@ export const useUserStore = create<UserStore>()(
           if (state.preferences.profilePicture) {
             const profilePicture = state.preferences.profilePicture;
             addSyncLog(
-              `👤 [UserStore] Profile picture found during hydration: "${profilePicture}"`,
+              `👤 [UserStore] Profile picture found during hydration`,
               'info',
               `Type: ${typeof profilePicture} | Length: ${profilePicture.length} chars`
             );

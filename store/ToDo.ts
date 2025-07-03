@@ -854,9 +854,9 @@ export const useProjectStore = create<ProjectStore>()(
                 .reduce((acc, [date, value]) => ({ ...acc, [date]: value }), {})
               const newHistorySize = Object.keys(tasks[id].completionHistory).length;
             
-              if (oldHistorySize !== newHistorySize) {
-                addSyncLog(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`, 'info');
-              }
+             // if (oldHistorySize !== newHistorySize) {
+             //   addSyncLog(`Cleaned completion history for task ${id}, removed ${oldHistorySize - newHistorySize} old entries`, 'info');
+             // }
             }
             
             // Update completion status based on local date string
