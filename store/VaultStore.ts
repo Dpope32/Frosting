@@ -52,7 +52,9 @@ export const useVaultStore = create<VaultStore>()(
         
         const newEntry: VaultEntry = {
           id: newId,
-          ...entry
+          ...entry,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
         
         set((state) => ({
@@ -63,18 +65,37 @@ export const useVaultStore = create<VaultStore>()(
           }
         }));
         
+        try {
+          getAddSyncLog()(`🔐 [VaultStore] New entry added: "${entry.name}"`, 'info');
+        } catch (e) {}
+        
         return newEntry;
       },
       
       deleteEntry: async (id) => {
+        const deletionTimestamp = new Date().toISOString();
+        
         set((state) => {
+          const existingItem = state.vaultData.items.find(item => item.id === id);
+          
+          if (!existingItem) {
+            try {
+              getAddSyncLog()(`⚠️ [VaultStore] Attempted to delete non-existent entry: ${id}`, 'warning');
+            } catch (e) {}
+            return state;
+          }
+          
           const items = state.vaultData.items.map(item => 
             item.id === id 
-              ? { ...item, deletedAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+              ? { ...item, deletedAt: deletionTimestamp, updatedAt: deletionTimestamp }
               : item
           );
           
           const activeItems = items.filter(item => !item.deletedAt);
+          
+          try {
+            getAddSyncLog()(`🗑️ [VaultStore] Entry "${existingItem.name}" soft deleted locally`, 'info', `Deletion timestamp: ${deletionTimestamp}`);
+          } catch (e) {}
           
           return {
             vaultData: {
@@ -84,10 +105,6 @@ export const useVaultStore = create<VaultStore>()(
             }
           };
         });
-        
-        try {
-          getAddSyncLog()(`Vault entry soft deleted locally`, 'info');
-        } catch (e) {}
       },
       
       getEntries: () => {
@@ -102,7 +119,7 @@ export const useVaultStore = create<VaultStore>()(
         set((state) => {
           const newSyncState = !state.isSyncEnabled;
           try {
-            getAddSyncLog()(`Vault sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
+            getAddSyncLog()(`🔐 [VaultStore] Vault sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
           } catch (e) { /* ignore */ }
           return { isSyncEnabled: newSyncState };
         });
@@ -112,19 +129,22 @@ export const useVaultStore = create<VaultStore>()(
         const addSyncLog = getAddSyncLog();
         const currentSyncEnabledState = get().isSyncEnabled;
         if (!currentSyncEnabledState) {
-          addSyncLog('Vault sync is disabled, skipping hydration for VaultStore.', 'info');
+          addSyncLog('🔐 [VaultStore] Vault sync is disabled, skipping hydration', 'info');
           return;
         }
 
         const itemsToSync = syncedData.vaultData?.items;
         if (!itemsToSync || !Array.isArray(itemsToSync)) {
-          addSyncLog('No vault items data in snapshot for VaultStore, or items are not an array.', 'info');
+          addSyncLog('🔐 [VaultStore] No vault items data in snapshot, or items are not an array', 'info');
           return;
         }
+
+        addSyncLog(`🔐 [VaultStore] Starting vault hydration with ${itemsToSync.length} incoming items`, 'info');
 
         let itemsMergedCount = 0;
         let itemsAddedCount = 0;
         let deletionsAppliedCount = 0;
+        let deletionsPreservedCount = 0;
 
         set((state) => {
           const existingItemsMap = new Map(state.vaultData.items.map(item => [item.id, item]));
@@ -136,35 +156,76 @@ export const useVaultStore = create<VaultStore>()(
               if (existingItemIndex !== -1) {
                 const existingItem = newItemsArray[existingItemIndex];
                 
+                // CRITICAL FIX: Handle deletions with priority logic
+                const incomingDeleted = !!incomingItem.deletedAt;
+                const existingDeleted = !!existingItem.deletedAt;
+                
+                // Rule 1: Once deleted, always deleted (deletions have priority)
+                if (existingDeleted && !incomingDeleted) {
+                  addSyncLog(
+                    `🛡️ [VaultStore] Preserving local deletion of "${existingItem.name}" over incoming non-deleted version`,
+                    'warning',
+                    `Local deletedAt: ${existingItem.deletedAt} | Incoming has no deletedAt`
+                  );
+                  deletionsPreservedCount++;
+                  // Keep existing deleted version, don't overwrite
+                  continue;
+                }
+                
+                // Rule 2: Apply incoming deletions
+                if (incomingDeleted && !existingDeleted) {
+                  addSyncLog(
+                    `🗑️ [VaultStore] Applying incoming deletion for "${incomingItem.name}"`,
+                    'success',
+                    `Incoming deletedAt: ${incomingItem.deletedAt}`
+                  );
+                  deletionsAppliedCount++;
+                  newItemsArray[existingItemIndex] = incomingItem;
+                  itemsMergedCount++;
+                  continue;
+                }
+                
+                // Rule 3: For non-deletion updates, use timestamp comparison
                 const incomingTimestamp = new Date(incomingItem.updatedAt || incomingItem.createdAt || Date.now()).getTime();
                 const existingTimestamp = new Date(existingItem.updatedAt || existingItem.createdAt || Date.now()).getTime();
                 
-                if (incomingTimestamp >= existingTimestamp) {
-                  if (incomingItem.deletedAt && !existingItem.deletedAt) {
-                    deletionsAppliedCount++;
-                    addSyncLog(`Vault entry "${incomingItem.name}" marked as deleted from sync`, 'info');
-                  }
-                  
+                if (incomingTimestamp > existingTimestamp) {
+                  addSyncLog(
+                    `🔄 [VaultStore] Updating "${incomingItem.name}" with newer incoming version`,
+                    'verbose',
+                    `Incoming: ${incomingItem.updatedAt} > Existing: ${existingItem.updatedAt}`
+                  );
                   newItemsArray[existingItemIndex] = incomingItem;
                   itemsMergedCount++;
+                } else {
+                  addSyncLog(
+                    `⏭️ [VaultStore] Keeping existing version of "${existingItem.name}" (newer or equal)`,
+                    'verbose',
+                    `Existing: ${existingItem.updatedAt} >= Incoming: ${incomingItem.updatedAt}`
+                  );
                 }
               }
             } else {
+              // New item from sync
               newItemsArray.push(incomingItem);
               itemsAddedCount++;
               
               if (incomingItem.deletedAt) {
-                addSyncLog(`Adding already-deleted vault entry "${incomingItem.name}" from sync`, 'verbose');
+                addSyncLog(`🗑️ [VaultStore] Adding already-deleted vault entry "${incomingItem.name}" from sync`, 'verbose');
+              } else {
+                addSyncLog(`➕ [VaultStore] Adding new vault entry "${incomingItem.name}" from sync`, 'info');
               }
             }
           }
           
-          if (deletionsAppliedCount > 0) {
-            addSyncLog(`Applied ${deletionsAppliedCount} vault entry deletions from sync`, 'success');
-          }
-          
           const activeItems = newItemsArray.filter(item => !item.deletedAt);
-          addSyncLog(`Vault items hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total items: ${newItemsArray.length} (${activeItems.length} active)`, 'success');
+          const totalDeletedItems = newItemsArray.filter(item => !!item.deletedAt).length;
+          
+          addSyncLog(
+            `✅ [VaultStore] Vault hydration complete`,
+            'success',
+            `Added: ${itemsAddedCount} | Merged: ${itemsMergedCount} | Deletions applied: ${deletionsAppliedCount} | Deletions preserved: ${deletionsPreservedCount} | Total: ${newItemsArray.length} (${activeItems.length} active, ${totalDeletedItems} deleted)`
+          );
           
           return {
             vaultData: {
@@ -182,6 +243,14 @@ export const useVaultStore = create<VaultStore>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.isLoaded = true;
+          const addSyncLog = getAddSyncLog();
+          const activeItems = state.vaultData.items.filter(item => !item.deletedAt);
+          const deletedItems = state.vaultData.items.filter(item => !!item.deletedAt);
+          addSyncLog(
+            `🔐 [VaultStore] Rehydrated vault storage`,
+            'info',
+            `Total: ${state.vaultData.items.length} items (${activeItems.length} active, ${deletedItems.length} deleted)`
+          );
         }
       },
     }

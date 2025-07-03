@@ -582,7 +582,7 @@ export const useProjectStore = create<ProjectStore>()(
         if (incTodayValue !== undefined || currTodayValue !== undefined) {
           addSyncLog(
             `[TODAY COMPLETION] "${inc.name.slice(0, 20)}" - Incoming[${today}]: ${incTodayValue}, Local[${today}]: ${currTodayValue}`,
-            'error',
+            'info',
             `🚨 CRITICAL: This task has completion data for today - tracking merge result`
           );
         }
@@ -599,7 +599,7 @@ export const useProjectStore = create<ProjectStore>()(
           if (date === today) {
             addSyncLog(
               `[TODAY MERGE DECISION] "${inc.name.slice(0, 20)}" - Processing ${date}`,
-              'error',
+              'info',
               `🚨 Incoming: ${value}, Local: ${localValue}, HasLocal: ${hasLocalEntry} | Task ID: ${id.slice(-8)}`
             );
           }
@@ -610,7 +610,7 @@ export const useProjectStore = create<ProjectStore>()(
             if (date === today) {
               addSyncLog(
                 `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Added incoming: ${value}`,
-                'error',
+                'info',
                 `🚨 No local entry for ${date}, took incoming value`
               );
             }
@@ -622,14 +622,14 @@ export const useProjectStore = create<ProjectStore>()(
               if (date === today) {
                 addSyncLog(
                   `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Untoggled: true → false`,
-                  'error',
+                  'info',
                   `🚨 Incoming untoggle took precedence for ${date}`
                 );
               }
             } else if (date === today) {
               addSyncLog(
                 `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Kept local: ${localValue}`,
-                'error',
+                'info',
                 `🚨 Local timestamp newer, kept local value for ${date}`
               );
             }
@@ -643,14 +643,14 @@ export const useProjectStore = create<ProjectStore>()(
               if (date === today) {
                 addSyncLog(
                   `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Completed: false → true`,
-                  'error',
+                  'info',
                   `🚨 Incoming completion took precedence for ${date} (timeDiff: ${timeDiff}ms)`
                 );
               }
             } else if (date === today) {
               addSyncLog(
                 `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Kept local: ${localValue}`,
-                'error',
+                'info',
                 `🚨 Local timestamp newer, kept local value for ${date}`
               );
             }
@@ -660,14 +660,14 @@ export const useProjectStore = create<ProjectStore>()(
             if (date === today) {
               addSyncLog(
                 `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Timestamp win: ${localValue} → ${value}`,
-                'error',
+                'info',
                 `🚨 Newer timestamp, took incoming value for ${date}`
               );
             }
           } else if (date === today) {
             addSyncLog(
               `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - No change: ${localValue}`,
-              'error',
+              'info',
               `🚨 Same values or local newer, kept existing for ${date}`
             );
           }
@@ -678,7 +678,7 @@ export const useProjectStore = create<ProjectStore>()(
         if (incTodayValue !== undefined || currTodayValue !== undefined) {
           addSyncLog(
             `[MERGE COMPLETE] "${inc.name.slice(0, 20)}" - Final[${today}]: ${finalTodayValue}`,
-            'error',
+            'info',
             `🚨 FINAL RESULT: Started with Incoming=${incTodayValue}, Local=${currTodayValue}, Final=${finalTodayValue}`
           );
         }
@@ -750,7 +750,7 @@ export const useProjectStore = create<ProjectStore>()(
         if (finalTask.completionHistory[today] !== undefined || resolvedCompleted !== curr.completed) {
           addSyncLog(
             `[FINAL TASK STATE] "${inc.name.slice(0, 20)}" stored in merge`,
-            'error',
+            'info',
             `🚨 STORED: completed=${finalTask.completed}, history[${today}]=${finalTask.completionHistory[today]}, pattern=${finalTask.recurrencePattern}`
           );
         }
@@ -776,7 +776,7 @@ export const useProjectStore = create<ProjectStore>()(
       if (tasksWithTodayCompletion.length > 0) {
         addSyncLog(
           `[PRE-STORE VERIFICATION] About to store ${tasksWithTodayCompletion.length} tasks with today's completion data`,
-          'error'
+          'info'
         );
       }
 
@@ -792,7 +792,7 @@ export const useProjectStore = create<ProjectStore>()(
         if (tasksWithTodayCompletion.length !== storedTasksWithTodayCompletion.length) {
           addSyncLog(
             `[STORE VERIFICATION FAILED] Completion data lost during store!`,
-            'error',
+            'info',
             `🚨 Before store: ${tasksWithTodayCompletion.length} tasks, After store: ${storedTasksWithTodayCompletion.length} tasks`
           );
         } else if (storedTasksWithTodayCompletion.length > 0) {

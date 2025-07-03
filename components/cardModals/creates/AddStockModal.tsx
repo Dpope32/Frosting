@@ -58,7 +58,7 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
   const tickerInputRef = useRef<DebouncedInputHandle>(null)
   const quantityInputRef = useRef<TextInput>(null)
   const queryClient = useQueryClient()
-  useAutoFocus(quantityInputRef, 750, open && isQuantityEditMode)
+  useAutoFocus(tickerInputRef, 750, open)
   
   const styles = useStockStyles(primaryColor, isQuantityFocused)
 
@@ -75,7 +75,6 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
     }
     if (open) {
       initStocks()
-      setIsQuantityEditMode(true)
     }
   }, [open, stocksInitialized])
 
@@ -86,7 +85,7 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
       setError('')
       setSearchResults([])
       setDropdownActive(false)
-      setIsQuantityEditMode(true)
+      setIsQuantityEditMode(false)
     }
   }, [open])
 
