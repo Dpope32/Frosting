@@ -45,6 +45,56 @@ export const useUserStore = create<UserStore>()(
         if (newPrefs.premium !== undefined) {
           addSyncLog(`🗄️ [UserStore] Premium flag being set to: ${newPrefs.premium}`, 'info');
         }
+        
+        // Enhanced sync logging for profile picture changes
+        if (newPrefs.profilePicture !== undefined) {
+          const currentProfilePicture = get().preferences.profilePicture;
+          
+          // Log profile picture changes with detailed info
+          if (currentProfilePicture !== newPrefs.profilePicture) {
+            addSyncLog(
+              `👤 [UserStore] Profile picture changing from "${currentProfilePicture || 'none'}" to "${newPrefs.profilePicture || 'none'}"`,
+              'info',
+              `Previous: ${currentProfilePicture || 'null'} | New: ${newPrefs.profilePicture || 'null'} | Type: ${typeof newPrefs.profilePicture}`
+            );
+            
+            // Check if the new profile picture is a file:// URI that might be in cache
+            if (newPrefs.profilePicture && typeof newPrefs.profilePicture === 'string') {
+              if (newPrefs.profilePicture.includes('/cache/') || newPrefs.profilePicture.includes('cacheDirectory')) {
+                addSyncLog(
+                  `⚠️ [UserStore] WARNING: Profile picture uses cache directory - this may cause disappearing images!`,
+                  'warning',
+                  `URI: ${newPrefs.profilePicture} | Consider migrating to documentDirectory for persistence`
+                );
+              } else if (newPrefs.profilePicture.includes('/Documents/') || newPrefs.profilePicture.includes('documentDirectory')) {
+                addSyncLog(
+                  `✅ [UserStore] Profile picture uses persistent document directory`,
+                  'success',
+                  `URI: ${newPrefs.profilePicture}`
+                );
+              } else if (newPrefs.profilePicture.startsWith('http')) {
+                addSyncLog(
+                  `🌐 [UserStore] Profile picture is remote URL`,
+                  'info',
+                  `URL: ${newPrefs.profilePicture}`
+                );
+              } else if (newPrefs.profilePicture.startsWith('file://')) {
+                addSyncLog(
+                  `📁 [UserStore] Profile picture is local file URI`,
+                  'info',
+                  `URI: ${newPrefs.profilePicture}`
+                );
+              }
+            } else if (newPrefs.profilePicture === null || newPrefs.profilePicture === '') {
+              addSyncLog(
+                `🗑️ [UserStore] Profile picture being cleared/removed`,
+                'info',
+                `New value: ${newPrefs.profilePicture}`
+              );
+            }
+          }
+        }
+        
         set((state) => ({
           preferences: {
             ...state.preferences,
@@ -52,10 +102,12 @@ export const useUserStore = create<UserStore>()(
           },
         }));
       },
-      clearPreferences: () =>
+      clearPreferences: () => {
+        addSyncLog('🗄️ [UserStore] Clearing all preferences including profile picture', 'warning');
         set({
           preferences: defaultPreferences,
-        }),
+        });
+      },
       get syncAccess() {
         const state = get();
         const premium = state.preferences.premium === true;
@@ -70,11 +122,34 @@ export const useUserStore = create<UserStore>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.hydrated = true;
-          if (!state.preferences.profilePicture) {
-            Sentry.captureException(new Error('User profile picture missing after store hydration'));
+          
+          // Enhanced profile picture hydration logging
+          if (state.preferences.profilePicture) {
+            const profilePicture = state.preferences.profilePicture;
+            addSyncLog(
+              `👤 [UserStore] Profile picture found during hydration: "${profilePicture}"`,
+              'info',
+              `Type: ${typeof profilePicture} | Length: ${profilePicture.length} chars`
+            );
+            
+            // Check for potential cache directory issues during hydration
+            if (profilePicture.includes('/cache/') || profilePicture.includes('cacheDirectory')) {
+              addSyncLog(
+                `⚠️ [UserStore] Profile picture uses cache directory - may disappear after iOS cache clearing!`,
+                'warning',
+                `URI: ${profilePicture}`
+              );
+              Sentry.captureException(new Error('User profile picture stored in volatile cache directory'));
+            }
+          } else {
+            addSyncLog(
+              `👤 [UserStore] No profile picture found during hydration`,
+              'verbose',
+              `Profile picture value: ${state.preferences.profilePicture}`
+            );
           }
         } else {
-          console.log('🗄️ [UserStore] No state to hydrate from storage');
+          addSyncLog('🗄️ [UserStore] No state to hydrate from storage', 'warning');
         }
       },
     }
