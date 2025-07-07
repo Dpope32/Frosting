@@ -279,13 +279,15 @@ export const NoteCard = ({
     })()
   };
 
-  // Custom rule for tally marks
-  const tallyRule: RenderRules = {
+
+
+  // Combined rule for italic, underline, and tally formatting (to avoid conflicts)
+  const formattingRule: RenderRules = {
     text: (node, children, parent, styles) => {
       if (typeof node.content === 'string') {
         const content = node.content;
         
-        // Check if this text contains tally marks
+        // Check for tally marks first
         if (content.includes('[TALLY:')) {
           const parts = content.split(/(\[TALLY:\d+\])/);
           
@@ -297,27 +299,29 @@ export const NoteCard = ({
                   const count = parseInt(tallyMatch[1]);
                   const isFiveBundle = count === 5;
                   
-                  return (
-                    <View
-                      key={index}
-                      style={{
-                        display: 'inline-flex',
-                        position: 'relative',
-                        transform: [{ translateY: 2 }],
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontFamily: 'monospace',
-                          fontSize: isIpad() ? 14 : 12,
-                          fontWeight: '500',
-                          letterSpacing: 0.5,
-                          color: colors.text,
-                          lineHeight: isIpad() ? 14 : 12,
-                        }}
-                      >
-                        {'I'.repeat(count)}
-                      </Text>
+                                     return (
+                     <View
+                       key={index}
+                       style={{
+                         display: 'inline-flex',
+                         position: 'relative',
+                         alignItems: 'baseline',
+                         justifyContent: 'center',
+                         transform: [{ translateY: -1 }],
+                       }}
+                     >
+                       <Text
+                         style={{
+                           fontFamily: 'monospace',
+                           fontSize: isIpad() ? 14 : 12,
+                           fontWeight: '500',
+                           letterSpacing: 0.5,
+                           color: colors.text,
+                           lineHeight: isIpad() ? 16 : 14,
+                         }}
+                       >
+                         {'I'.repeat(count)}
+                       </Text>
                       {isFiveBundle && (
                         <View
                           style={{
@@ -340,20 +344,8 @@ export const NoteCard = ({
             </Text>
           );
         }
-      }
-      
-      // Default text rendering
-      return <Text key={node.key || Math.random().toString()} style={styles.text}>{node.content}</Text>;
-    }
-  };
-
-  // Custom rule for italic and underline formatting (combined to avoid conflicts)
-  const formattingRule: RenderRules = {
-    text: (node, children, parent, styles) => {
-      if (typeof node.content === 'string') {
-        const content = node.content;
         
-        // Check if this text contains our formatting markers
+        // Check for italic/underline formatting
         const hasItalic = content.includes('〔ITALIC:');
         const hasUnderline = content.includes('〔UNDERLINE:');
         
@@ -584,8 +576,7 @@ export const NoteCard = ({
                       const hasFormattingOverrides = /〔ITALIC:[^〕]*〕/.test(preprocessedContent) || /〔UNDERLINE:[^〕]*〕/.test(preprocessedContent);
                       const rules = {
                         ...(hasCheckboxes && checkboxRule),
-                        ...(hasTally && tallyRule),
-                        ...(hasFormattingOverrides && formattingRule),
+                        ...((hasTally || hasFormattingOverrides) && formattingRule),
                       };
                       return (
                         <Markdown
