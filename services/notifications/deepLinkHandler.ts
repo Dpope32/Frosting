@@ -37,7 +37,6 @@ const exportDeepLinkDebugLogs = async (context: string): Promise<void> => {
  * Processes notification links, LemonSqueezy redirects, custom schemes, share links, and habits navigation
  */
 export async function handleDeepLink(event: { url: string | NotificationResponse }) {  
-  console.log('🔗 [DeepLink] Received deep link event:', JSON.stringify(event));
   addSyncLog(`🔗 [DeepLink] Received deep link event: ${JSON.stringify(event)}`, 'verbose');
   
   // Early-exit for duplicate deep links (iOS sometimes fires twice)

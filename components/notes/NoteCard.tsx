@@ -81,7 +81,7 @@ export const NoteCard = ({
     // Use the same improved markdown detection logic
     const markdownPatterns = [
       /\*\*.*?\*\*/,                    // Bold **text**
-      /\*.*?\*/,                       // Italic *text*
+      /(?<!\*)\*([^*\n]+)\*(?!\*)/,    // Italic *text* (but not **text**)
       /^#{1,6}\s/m,                    // Headers
       /!\[.*?\]\(.*?\)/,               // Images
       /\[.*?\]\(.*?\)/,                // Links
@@ -89,31 +89,20 @@ export const NoteCard = ({
       /`[^`\n]+`/,                     // Inline code
       /^>\s/m,                         // Blockquotes
       /~~.*?~~/,                       // Strikethrough
-      /__.*?__/,                       // Underline
-      /^[-*+]\s\[[ xX]\]\s/m,          // Checkboxes
-      /^(\s*[-*+]\s.+\n){2,}/m,        // Multiple bullet points
+      /__([^_\n]+)__/,                 // Underline __text__
+      /^[-*+]\s\[[ xX]\]\s/m,         // Checkboxes
+      /\[TALLY:\d+\]/,                 // Tally marks
+      /^[-*+]\s/m,                     // Bullet lists
       /^\d+\.\s/m,                     // Numbered lists
-      /^---+$/m,                       // Horizontal rules
-      /^\|.*\|.*$/m,                   // Tables
-      /(\W|^)(I{3,})(\W|$)/,           // Tally marks - 3+ I's
     ];
-
-    const matchCount = markdownPatterns.reduce((count, pattern) => {
-      return count + (pattern.test(note.content) ? 1 : 0);
-    }, 0);
-
-    return matchCount >= 2 || 
-           /^#{1,6}\s/m.test(note.content) ||
-           /```[\s\S]*?```/.test(note.content) ||
-           /^>\s/m.test(note.content) ||
-           /^\|.*\|.*$/m.test(note.content) ||
-           /(\W|^)(I{3,})(\W|$)/.test(note.content);
+    
+    return markdownPatterns.some(pattern => pattern.test(note.content));
   }, [note.content]);
 
   const displayContent = useMemo(() => {
     if (!note.content) return '';
     let result = note.content.replace(/!\[.*?\]\(.*?\)/g, '').trim();
-    
+
     // Process tally marks
     if (processTallyMarks) {
       result = processTallyMarks(result);
@@ -358,6 +347,103 @@ export const NoteCard = ({
     }
   };
 
+  // Custom rule for italic and underline formatting (combined to avoid conflicts)
+  const formattingRule: RenderRules = {
+    text: (node, children, parent, styles) => {
+      if (typeof node.content === 'string') {
+        const content = node.content;
+        
+        // Check if this text contains our formatting markers
+        const hasItalic = content.includes('〔ITALIC:');
+        const hasUnderline = content.includes('〔UNDERLINE:');
+        
+        if (hasItalic || hasUnderline) {
+          // Split content by both italic and underline patterns
+          const parts = content.split(/(〔ITALIC:[^〕]*〕|〔UNDERLINE:[^〕]*〕)/);
+          
+          return (
+            <Text key={node.key || Math.random().toString()} style={styles.text}>
+              {parts.map((part, index) => {
+                // Check for italic pattern
+                const italicMatch = part.match(/〔ITALIC:([^〕]*)〕/);
+                if (italicMatch) {
+                  return (
+                    <Text key={index} style={{ fontStyle: 'italic' }}>
+                      {italicMatch[1]}
+                    </Text>
+                  );
+                }
+                
+                // Check for underline pattern
+                const underlineMatch = part.match(/〔UNDERLINE:([^〕]*)〕/);
+                if (underlineMatch) {
+                  return (
+                    <Text key={index} style={{ textDecorationLine: 'underline' }}>
+                      {underlineMatch[1]}
+                    </Text>
+                  );
+                }
+                
+                // Regular text part
+                return part;
+              })}
+            </Text>
+          );
+        }
+      }
+      
+      // Default text rendering
+      return <Text key={node.key || Math.random().toString()} style={styles.text}>{node.content}</Text>;
+    },
+  };
+
+  // Custom rule for code blocks with proper spacing
+  const codeBlockRule: RenderRules = {
+    code_block: (node, children, parent, styles) => {
+      return (
+        <View
+          key={node.key || Math.random().toString()}
+          style={{
+            backgroundColor: colors.codeBg,
+            marginVertical: isIpad() ? 20 : 16,
+            marginHorizontal: isIpad() ? -12 : -16,
+            paddingVertical: isIpad() ? 16 : 14,
+            paddingHorizontal: isIpad() ? 16 : 14,
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: 'monospace',
+              fontSize: isIpad() ? 15 : 14,
+              color: colors.text,
+              lineHeight: isIpad() ? 22 : 20,
+              fontWeight: '500',
+            }}
+          >
+            {node.content}
+          </Text>
+        </View>
+      );
+    },
+  };
+
+  // Preprocess content to convert __text__ and *text* to custom syntax
+  const preprocessedContent = useMemo(() => {
+    if (!displayContent) return displayContent;
+    
+    // Convert __text__ to custom underline syntax before markdown parsing
+    let processed = displayContent.replace(/__([^_\n]+)__/g, '〔UNDERLINE:$1〕');
+    
+    // Convert *text* to custom italic syntax (but not **text**)
+    processed = processed.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '〔ITALIC:$1〕');
+    
+    
+    return processed;
+  }, [displayContent]);
+
   return (
     <View style={localStyles.touchableContainer}>
       <Card
@@ -492,16 +578,24 @@ export const NoteCard = ({
               <View style={{ flex: 1 }}>
                 {hasMarkdown ? (
                   <YStack paddingHorizontal={horizontalPadding} paddingBottom="$2">
-                    <Markdown 
-                      key={`${note.id}-${checkboxUpdateKey}`}
-                      style={markdownStyles}
-                      rules={{
-                        ...((/- \[[ xX]\]/.test(displayContent)) ? checkboxRule : {}),
-                        ...(displayContent.includes('[TALLY:') ? tallyRule : {})
-                      }}
-                    >
-                      {displayContent || ''}
-                    </Markdown>
+                    {(() => {
+                      const hasCheckboxes = /- \[[ xX]\]/.test(preprocessedContent);
+                      const hasTally = preprocessedContent.includes('[TALLY:');
+                      const hasFormattingOverrides = /〔ITALIC:[^〕]*〕/.test(preprocessedContent) || /〔UNDERLINE:[^〕]*〕/.test(preprocessedContent);
+                      const rules = {
+                        ...(hasCheckboxes && checkboxRule),
+                        ...(hasTally && tallyRule),
+                        ...(hasFormattingOverrides && formattingRule),
+                      };
+                      return (
+                        <Markdown
+                          style={markdownStyles}
+                          rules={rules}
+                        >
+                          {preprocessedContent}
+                        </Markdown>
+                      );
+                    })()}
                   </YStack>
                 ) : (
                   <Paragraph
@@ -513,7 +607,7 @@ export const NoteCard = ({
                     className={isWeb ? "note-text" : undefined}
                     fontSize={isWeb ? 16 : isIpad() ? 15 : 15}
                   >
-                    {displayContent || ''}
+                    {preprocessedContent || ''}
                   </Paragraph>
                 )}
 

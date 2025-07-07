@@ -64,7 +64,8 @@ export default function ExpandedView({
             justifyContent: 'center', 
             alignItems: 'center',
             width: '100%',
-            height: '100%'
+            height: '100%',
+            paddingTop: 80
           }}>
             <Theme name={isDark ? 'dark' : 'light'}>
               <Animated.View
@@ -74,7 +75,7 @@ export default function ExpandedView({
                   styles.modalContainer,
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top + 20, 
+                    marginTop: insets.top + 60, 
                     marginBottom: insets.bottom + 40,
                     width: actualWidth,
                     maxHeight: screenHeight * 0.9,
@@ -82,26 +83,18 @@ export default function ExpandedView({
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
-                {/* Header */}
-                <XStack justifyContent="space-between" py="$2" marginTop={isIpad() ? -8 : -8} marginBottom={isIpad() ? 8 : 8} px="$2" alignItems="center">
-                  <Paragraph
-                    fontSize={24}
-                    fontWeight="700"
-                    fontFamily="$body"
-                    color={nicknameColor}
-                    marginBottom={0}
-                    numberOfLines={1}
-                  >
-                    {person.nickname || person.name}
-                  </Paragraph>
-                  <Button
-                    backgroundColor="transparent"
-                    onPress={onClose} 
-                    padding={8}
-                    pressStyle={{ opacity: 0.7 }}
-                    icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
-                  />
-                </XStack>
+                {/* Close button - positioned absolutely */}
+                <Button
+                  backgroundColor="transparent"
+                  onPress={onClose} 
+                  padding={8}
+                  pressStyle={{ opacity: 0.7 }}
+                  icon={<MaterialIcons name="close" size={22} color={isDark ? "#999" : "#666"}/>}
+                  position="absolute"
+                  top={12}
+                  right={12}
+                  zIndex={10}
+                />
                 
                 {/* Content */}
                 <ScrollView style={{ position: 'relative', maxHeight: screenHeight * 0.7 }}>
@@ -130,6 +123,7 @@ export default function ExpandedView({
             justifyContent: 'center',
             alignItems: 'center',
             paddingBottom: screenHeight * 0.15,
+            paddingTop: 60,
           }}
         >
           <Theme name={isDark ? 'dark' : 'light'}>
@@ -140,35 +134,28 @@ export default function ExpandedView({
                 styles.modalContainer,
                 {
                   backgroundColor: isDark ? '#141415' : '#fff',
-                  marginTop: insets.top + 10, 
+                  marginTop: insets.top + 40, 
                   marginBottom: insets.bottom + 20,
                   width: actualWidth,
                   maxHeight: screenHeight * 0.8,
-                  borderColor: isDark ? '#3c3c3c' : '#1c1c1c',
+                  borderColor: isDark ? '#3c3c3c' : '#e0e0e0',
                   borderWidth: 1,
                 }
               ]}
               onTouchEnd={(e) => e.stopPropagation()}
             >
-              <XStack justifyContent="space-between" py="$2" marginTop={-8}  pl={isIpad() ? "$2" : "$3"} pr={isIpad() ? "$2" : "$1"} alignItems="center">
-                <Paragraph
-                  fontSize={20}
-                  fontWeight="700"
-                  fontFamily="$body"
-                  color={nicknameColor}
-                  marginBottom={0}
-                  numberOfLines={1}
-                >
-                  {person.nickname || person.name}
-                </Paragraph>
-                <Button
-                  backgroundColor="transparent"
-                  onPress={onClose} 
-                  padding={8}
-                  pressStyle={{ opacity: 0.7 }}
-                  icon={<MaterialIcons name="close" size={24} color={isDark ? "#c9c9c9" : "#000"}/>}
-                />
-              </XStack>
+              {/* Close button - positioned absolutely */}
+              <Button
+                backgroundColor="transparent"
+                onPress={onClose} 
+                padding={8}
+                pressStyle={{ opacity: 0.7 }}
+                icon={<MaterialIcons name="close" size={22} color={isDark ? "#999" : "#666"}/>}
+                position="absolute"
+                top={12}
+                right={8}
+                zIndex={10}
+              />
               
               <ScrollView style={{ position: 'relative', maxHeight: screenHeight * 0.6 }}>
                 {renderContent(person, isDark, nicknameColor, fullAddress, onEdit)}
@@ -186,8 +173,9 @@ function renderContent(person: Person, isDark: boolean, nicknameColor: string, f
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
 
   return (
-    <YStack gap="$3" paddingRight="$3" paddingLeft="$2">
-      <XStack gap="$3" alignItems="center">
+    <YStack gap="$4" paddingRight="$4" paddingLeft="$4" paddingTop="$4" paddingBottom="$3">
+      {/* Main profile section */}
+      <XStack gap="$4" alignItems="flex-start">
         <View style={styles.avatarContainer}>
           {person.profilePicture && !imageLoadFailed ? (
             <Image
@@ -228,35 +216,52 @@ function renderContent(person: Person, isDark: boolean, nicknameColor: string, f
             </View>
           )}
         </View>
-        <YStack flex={1} gap="$1">
+        
+        <YStack flex={1} gap="$2" paddingTop="$1">
+          {/* Name - integrated into content, not as title */}
+          <Paragraph
+            fontSize={22}
+            fontWeight="600"
+            fontFamily="$body"
+            color={isDark ? '#fff' : '#000'}
+            marginBottom="$1"
+            numberOfLines={2}
+          >
+            {person.nickname || person.name}
+          </Paragraph>
+          
           <XStack alignItems="center" gap="$2">
             <Paragraph fontSize={15} color={isDark ? '#999' : '#666'} numberOfLines={1}>
               {person.occupation}
             </Paragraph>
             {person.favorite && (<Ionicons name="heart" size={15} color="#4CAF50" />)}
           </XStack>
-          
-          <XStack gap="$2" flexWrap="wrap">
-            {person.birthday && (
-              <View style={[styles.statusPill, { backgroundColor: isDark ? 'rgba(76, 175, 80, 0.1)' : 'rgba(76, 175, 80, 0.1)' }]}>
-                <XStack alignItems="center" gap="$1">
-                  <Paragraph fontSize={13} fontFamily="$body" color={isDark ? '#666' : '#555'}>Notification:</Paragraph>
-                  <Paragraph fontSize={13} fontFamily="$body" color="#4CAF50">Scheduled</Paragraph>
-                </XStack>
-              </View>
-            )}
-            {person.priority && person.birthday && (
-              <View style={[styles.statusPill, { backgroundColor: isDark ? 'rgba(255, 215, 0, 0.1)' : 'rgba(255, 215, 0, 0.1)' }]}>
-                <XStack alignItems="center" gap="$1">
-                  <Paragraph fontSize={13} fontFamily="$body" color={isDark ? '#666' : '#555'}>Reminder:</Paragraph>
-                  <Paragraph fontSize={13} fontFamily="$body" color="#FFD700">Scheduled</Paragraph>
-                </XStack>
-              </View>
-            )}
-          </XStack>
         </YStack>
       </XStack>
 
+      {/* Status pills section */}
+      {(person.birthday || (person.priority && person.birthday)) && (
+        <XStack gap="$2" justifyContent="flex-start" flexWrap="wrap">
+          {person.birthday && (
+            <View style={[styles.statusPill, { backgroundColor: isDark ? 'rgba(76, 175, 80, 0.15)' : 'rgba(76, 175, 80, 0.1)' }]}>
+              <XStack alignItems="center" gap="$1">
+                <Paragraph fontSize={12} fontFamily="$body" color={isDark ? '#999' : '#666'}>Notification:</Paragraph>
+                <Paragraph fontSize={12} fontFamily="$body" color="#4CAF50" fontWeight="500">Scheduled</Paragraph>
+              </XStack>
+            </View>
+          )}
+          {person.priority && person.birthday && (
+            <View style={[styles.statusPill, { backgroundColor: isDark ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255, 215, 0, 0.1)' }]}>
+              <XStack alignItems="center" gap="$1">
+                <Paragraph fontSize={12} fontFamily="$body" color={isDark ? '#999' : '#666'}>Reminder:</Paragraph>
+                <Paragraph fontSize={12} fontFamily="$body" color="#FFD700" fontWeight="500">Scheduled</Paragraph>
+              </XStack>
+            </View>
+          )}
+        </XStack>
+      )}
+
+      {/* Details section */}
       <YStack gap="$3">
         {person.birthday && (
           <XStack gap="$3" alignItems="center">
@@ -397,8 +402,8 @@ function renderContent(person: Person, isDark: boolean, nicknameColor: string, f
         )}
       </YStack>
 
-
-      <XStack gap="$3" justifyContent="space-around" paddingTop="$1">
+      {/* Action buttons */}
+      <XStack gap="$3" justifyContent="space-around" paddingTop="$2">
         <TouchableOpacity
           onPress={() => {
             const shareUrl = `kaiba-nexus://share?name=${encodeURIComponent(person.name)}` +
@@ -461,20 +466,18 @@ const styles = StyleSheet.create({
   modalContainer: {
     alignSelf: 'center',
     justifyContent: 'flex-start',
-    borderRadius: 16,
-    padding: 12,
-    paddingHorizontal: isWeb ? 32 : 16,
+    borderRadius: 20,
+    padding: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
     zIndex: 1,
   },
   avatarContainer: {
     position: 'relative',
     width: 80,
-    paddingLeft: -10,
     height: 80,
   },
   avatar: {
@@ -494,9 +497,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
     marginRight: 8,
     marginBottom: 4,
   },

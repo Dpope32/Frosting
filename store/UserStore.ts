@@ -126,11 +126,6 @@ export const useUserStore = create<UserStore>()(
           // Enhanced profile picture hydration logging
           if (state.preferences.profilePicture) {
             const profilePicture = state.preferences.profilePicture;
-            addSyncLog(
-              `👤 [UserStore] Profile picture found during hydration`,
-              'info',
-              `Type: ${typeof profilePicture} | Length: ${profilePicture.length} chars`
-            );
             
             // Check for potential cache directory issues during hydration
             if (profilePicture.includes('/cache/') || profilePicture.includes('cacheDirectory')) {

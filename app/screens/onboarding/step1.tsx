@@ -20,7 +20,7 @@ export default function Step1({
   const defaultIcon = { icon: '👤', label: 'Default User' };
 
   return (
-    <YStack marginTop={isIpad() ? 0 : -40} gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
+    <YStack marginTop={0} gap="$4" flex={1} justifyContent="center" padding="$4" alignItems="center">
       <Text 
         color="$onboardingLabel" 
         fontFamily="$heading" 

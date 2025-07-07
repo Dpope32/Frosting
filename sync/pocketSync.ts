@@ -71,8 +71,6 @@ export type PocketBaseType = import('pocketbase', {
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
   Sentry.addBreadcrumb({ category: 'pocketSync', message: 'checkNetworkConnectivity()', level: 'info' })
   
-  // Add this debug log
-  addSyncLog(`🔍 checkNetworkConnectivity called - Platform.OS: ${Platform.OS}`, 'verbose');
   
   try {
     // Skip network check on web - assume connection is available

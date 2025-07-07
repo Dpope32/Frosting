@@ -2,10 +2,13 @@ import { StyleSheet, Platform } from 'react-native';
 import { isIpad } from '@/utils';
 import { isWeb } from 'tamagui';
 
-export const getCalendarStyles = (webColumnCount: number) => StyleSheet.create({
+export const getCalendarStyles = (webColumnCount: number, activeEventTypes: string[]) => StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: webColumnCount === 1 ? isWeb? 90 : 85 : webColumnCount === 2 ? isWeb ? 100 : 80 : webColumnCount === 3 ? isWeb ? 90 : 80 : 85,
+    paddingTop: webColumnCount === 1 ? isWeb? 90 : 85 :
+     webColumnCount === 2 ? isWeb ? 100 : 80 :
+      webColumnCount === 3 ? isWeb ? 90 :
+      (activeEventTypes?.length || 0) > 0 ? 75 : 95 : 85,
     backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
     ...(Platform.OS === 'web' ? {
       backgroundColor: '#f0f2f5',

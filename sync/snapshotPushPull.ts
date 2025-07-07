@@ -91,7 +91,8 @@ export const pushSnapshot = async (): Promise<void> => {
       addSyncLog('Skipping push – no network connection', 'warning');
       return;
     }
-
+    addSyncLog(`🔍 checkNetworkConnectivity called from snapshotPushPull.ts pushSnapshot() - Platform.OS: ${Platform.OS}`, 'verbose');
+  
     const pb = await getPocketBase();
     const workspaceId = await getCurrentWorkspaceId();
     if (!workspaceId) {
@@ -108,7 +109,7 @@ export const pushSnapshot = async (): Promise<void> => {
       await exportEncryptedState(state);
       lastExport = now;
       addSyncLog(
-        `💾 snapshot encrypted → stateSnapshot.enc  (${new Date(now).toISOString()})`,
+        `💾 snapshot encrypted → stateSnapshot.enc from snapshotPushPull.ts  (${new Date(now).toISOString()})`,
         'info'
       );
     } else {
@@ -217,7 +218,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       addSyncLog('Skipping pull – no network connection', 'warning');
       return;
     }
-
+    addSyncLog(`🔍 checkNetworkConnectivity called from snapshotPushPull.ts pullLatestSnapshot() - Platform.OS: ${Platform.OS}`, 'verbose');
     const workspaceId = await getCurrentWorkspaceId();
     if (!workspaceId) {
       addSyncLog('No workspace configured, aborting pull', 'warning');

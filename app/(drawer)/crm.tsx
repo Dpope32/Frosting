@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { FlatList, View, Dimensions } from "react-native";
 import { YStack, isWeb, Button } from "tamagui";
 import { PersonEmpty } from "@/components/crm/PersonEmpty";
@@ -15,6 +15,7 @@ import { DevButtons } from "@/components/crm/devButtons";
 import { MaterialIcons } from "@expo/vector-icons";
 import ExpandedView from "@/components/crm/PersonCard/ExpandedView";
 import { getColorForPerson } from "@/components/crm/PersonCard/utils";
+import { addSyncLog } from '@/components/sync/syncUtils';
 const { width } = Dimensions.get("window");
 
 
@@ -74,9 +75,27 @@ export default function CRM() {
     setExpandedId(null);
   };
 
-  const renderItem = ({ item, index }: { item: Person; index: number }) => {
+  // Fix: Use useCallback to prevent function recreation on every render
+  const handlePersonPress = useCallback((person: Person) => {
+    // Debug logging for problematic contacts
+    if (!person.id) {
+      console.warn('⚠️ PersonCard: Contact has no ID:', person.name);
+      return;
+    }
+    
+      addSyncLog(`👆 PersonCard tap: ${person.name} ID: ${person.id}`, 'verbose');
+    
+    const newExpandedId = expandedId === person.id ? null : person.id;
+    setExpandedId(newExpandedId);
+  }, [expandedId]);
+
+  const renderItem = useCallback(({ item, index }: { item: Person; index: number }) => {
     const isFirstInRow = index % NUM_COLUMNS === 0;
     const isLastInRow = index % NUM_COLUMNS === NUM_COLUMNS - 1;
+
+    // Generate a fallback ID if missing (common issue with synced contacts)
+    const personId = item.id || `fallback-${item.name}-${index}`;
+    const personWithId = { ...item, id: personId };
 
     return (
       <View
@@ -90,19 +109,14 @@ export default function CRM() {
         }}
       >
         <PersonCard
-          person={item}
+          person={personWithId}
           onEdit={handleEdit}
-          isExpanded={expandedId === item.id}
-          onPress={() => {
-            console.log('🔍 [CRM] PersonCard onPress for:', item.name, 'current expandedId:', expandedId, 'item.id:', item.id);
-            const newExpandedId = expandedId === item.id ? null : item.id;
-            console.log('🔍 [CRM] Setting expandedId to:', newExpandedId);
-            setExpandedId(newExpandedId);
-          }}
+          isExpanded={expandedId === personId}
+          onPress={() => handlePersonPress(personWithId)}
         />
       </View>
     );
-  };
+  }, [NUM_COLUMNS, CARD_WIDTH, GAP, isWeb, expandedId, handlePersonPress, handleEdit]);
 
   return (
     <YStack flex={1} paddingTop={isWeb ? 90 : isIpad() ? 85 : 95} bg={isDark ? '#0a0a0a' : '$backgroundLight'}>
@@ -113,7 +127,7 @@ export default function CRM() {
         key={`crm-${NUM_COLUMNS}`}
         data={allContacts}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => item.id || `fallback-${item.name}-${index}`}
         numColumns={NUM_COLUMNS}
         contentContainerStyle={{
           paddingTop: 8,
@@ -161,7 +175,7 @@ export default function CRM() {
       )}
 
       {expandedId && (() => {
-        const expandedPerson = allContacts.find(person => person.id === expandedId);
+        const expandedPerson = allContacts.find(person => (person.id || `fallback-${person.name}`) === expandedId);
         if (!expandedPerson) return null;
 
         const nicknameColor = getColorForPerson(expandedPerson.id || expandedPerson.name);

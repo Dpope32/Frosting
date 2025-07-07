@@ -10,6 +10,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { LongPressDelete } from "@/components/common/LongPressDelete";
 import { usePeopleStore } from "@/store/People";
 import { useToastStore } from "@/store";
+import { addSyncLog } from '@/components/sync/syncUtils';
 
 type CollapsedViewProps = {
   person: Person;
@@ -29,6 +30,18 @@ export default function CollapsedView({
   const deletePerson = usePeopleStore(state => state.deletePerson);
   const showToast = useToastStore(state => state.showToast);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
+
+  // Debug function to track problematic touches
+  const handlePress = () => {
+    if (__DEV__) {
+      console.log('🔥 TouchableOpacity pressed:', person.name, 'ID:', person.id);
+    }
+    
+    // Add small delay to ensure this doesn't conflict with gesture detection
+    setTimeout(() => {
+      onPress();
+    }, 10);
+  };
 
   // Format last contacted date if available
   const getLastContactedText = () => {
@@ -85,16 +98,24 @@ export default function CollapsedView({
           );
         }
       }}
-      longPressDuration={1000}
+      longPressDuration={1200}
       isDark={isDark}
     >
       <TouchableOpacity 
-        onPress={onPress}
+        onPress={handlePress}
         activeOpacity={0.7}
         style={{ width: '100%' }}
-        hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         delayPressIn={0}
-        delayPressOut={50}
+        delayPressOut={100}
+        onPressIn={() => {
+
+           addSyncLog(`👇 Touch started: ${person.name}`, 'verbose');
+
+        }}
+        onPressOut={() => {
+          addSyncLog(`👆 Touch ended: ${person.name}`, 'verbose');
+        }}
       >
         <View
           style={[
@@ -109,43 +130,43 @@ export default function CollapsedView({
           ] as any}
         >
           <XStack alignItems="center" gap="$3" style={styles.cardContent as any}>
-                          <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
-                <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
-                  {person.profilePicture && !imageLoadFailed ? (
-                    <Image
-                      source={{ uri: person.profilePicture }}
-                      width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34}
-                      height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
-                      br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
-                      style={styles.avatarImage as any}
-                      onError={() => {
-                        setImageLoadFailed(true);
-                      }}
-                    />
-                  ) : (
-                    <View
+            <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
+              <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
+                {person.profilePicture && !imageLoadFailed ? (
+                  <Image
+                    source={{ uri: person.profilePicture }}
+                    width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34}
+                    height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
+                    br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
+                    style={styles.avatarImage as any}
+                    onError={() => {
+                      setImageLoadFailed(true);
+                    }}
+                  />
+                ) : (
+                  <View
+                    style={{
+                      width: Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34,
+                      height: Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34,
+                      borderRadius: Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27,
+                      backgroundColor: nicknameColor,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
                       style={{
-                        width: Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34,
-                        height: Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34,
-                        borderRadius: Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27,
-                        backgroundColor: nicknameColor,
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        color: isDark ? '#000' : '#fff',
+                        fontSize: Platform.OS === 'web' ? 32 : isIpad() ? 24 : 16,
+                        fontWeight: 'bold',
+                        textAlign: 'center',
                       }}
                     >
-                      <Text
-                        style={{
-                          color: isDark ? '#000' : '#fff',
-                          fontSize: Platform.OS === 'web' ? 32 : isIpad() ? 24 : 16,
-                          fontWeight: 'bold',
-                          textAlign: 'center',
-                        }}
-                      >
-                        {(person.nickname || person.name).charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                  )}
-                </View>
+                      {(person.nickname || person.name).charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                )}
+              </View>
               {person.priority && (
                 <View style={styles.starIndicator as any}>
                   <Ionicons name="star" size={12} color="#FFD700" />

@@ -77,11 +77,11 @@ export default function Step2({
   }
 
   return (
-    <YStack gap="$1.5" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? isIpad() ? "$4" : "$20" : 230} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
+    <YStack gap="$1.5" flex={1} padding={isWeb ? "$4" : "$2"} marginBottom={isWeb ? isIpad() ? "$4" : "$20" : 250} justifyContent="center" alignItems="center" maxWidth={500} alignSelf="center" width="100%">
         <XStack 
           position="relative"
           alignSelf="center"
-          gap="$2" 
+          gap="$1" 
           justifyContent="center"
           alignItems="center"
         >
@@ -107,7 +107,7 @@ export default function Step2({
           Select your theme
         </Label>
       </XStack>
-      <YStack width="100%" alignItems="center" marginTop={0}>
+      <YStack width="100%" alignItems="center" marginTop={-10}>
         {Platform.OS === 'web' ? (
           <WebColorPicker />
         ) : (

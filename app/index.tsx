@@ -77,24 +77,24 @@ export default function Index() {
       const hydrationTime = Date.now();
       const hydrationDuration = hydrationTime - overallStartTime;
       
-      addSyncLog(`📚 All stores hydrated in ${(hydrationDuration/1000).toFixed(1)}s`, 'verbose');
+      addSyncLog(`📚 All local stores hydrated in ${(hydrationDuration/1000).toFixed(1)}s`, 'verbose');
       if (Platform.OS === 'android') {
         addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
       }
-  
+
       if (!premium) {
         const totalTime = Date.now() - overallStartTime;
         addSyncLog(`⚡ App ready for non-premium user in ${(totalTime/1000).toFixed(1)}s`, 'info');
         return;
-      }                                       
-      
-      // Start tracking initial sync for premium users
+      }                                      
       startInitialSync();
-      
-      // Export phase timing
       const exportStartTime = Date.now();
       const state = getAllStoreStates();
+      const getAllStoreStatesTime = Date.now();
+      addSyncLog(`💾 getAllStoreStates took ${(getAllStoreStatesTime - exportStartTime)/1000}s`, 'info');
       await exportEncryptedState(state);
+       // this is where i will add the option for users to skip the sync on the sync rendering screen
+  
       const exportEndTime = Date.now();
       const exportDuration = exportEndTime - exportStartTime;
               addSyncLog(`💾 Export phase completed in ${(exportDuration/1000).toFixed(1)}s`, 'info');

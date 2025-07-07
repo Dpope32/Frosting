@@ -40,7 +40,7 @@ export default function Step4({
 
 
   return (
-    <YStack flex={1} backgroundColor={formData.backgroundStyle} justifyContent="center" alignItems="center" marginBottom={isWeb ? 75 : 100}>
+    <YStack flex={1} backgroundColor={formData.backgroundStyle} justifyContent="center" alignItems="center" marginBottom={isWeb ? 75 : 20}>
 
       <YStack alignItems="center" gap="$1" marginBottom={isWeb ? "$3" : "$2"}>
         <Label

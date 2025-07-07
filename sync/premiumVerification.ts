@@ -1,19 +1,7 @@
 import { getPocketBase, checkNetworkConnectivity, exportLogsToServer } from './pocketSync';
 import { useUserStore } from '@/store';
 import { addSyncLog, getLogQueue } from '@/components/sync/syncUtils';
-
-interface PremiumUser {
-  id: string;
-  username: string;
-  device_id: string;
-  purchase_date: string;
-  is_active: boolean;
-  user_email: string;
-  plan_id: string;
-  ls_subscription_id: string;
-  created: string;
-  updated: string;
-}
+import { PremiumUser } from '@/types/premiumUser';
 
 /**
  * Check if a user has premium access using existing PocketBase infrastructure
@@ -103,31 +91,6 @@ export const verifyAndActivatePremium = async (username: string, deviceId?: stri
     addSyncLog(`🔥 Error verifying premium status: ${error instanceof Error ? error.message : String(error)}`, 'error');
     await exportDebugLogs(`Premium activation ERROR for ${username}: ${error instanceof Error ? error.message : String(error)}`);
     return false; // Fail safely
-  }
-};
-
-/**
- * Get all premium users (for admin purposes)
- */
-export const getAllPremiumUsers = async (): Promise<PremiumUser[]> => {
-  try {
-    if (!(await checkNetworkConnectivity())) {
-      addSyncLog(`🌐 No network connectivity for fetching premium users`, 'warning');
-      return [];
-    }
-    
-    const pb = await getPocketBase();
-    
-    addSyncLog('🔍 GET request source: sync/premiumVerification.ts - getAllPremiumUsers()', 'verbose');
-    const records = await pb.collection('premium_users').getFullList({
-      sort: '-created',
-      filter: 'is_active = true'
-    });
-    
-    return records as unknown as PremiumUser[];
-  } catch (error) {
-    addSyncLog(`🔥 Error fetching premium users: ${error instanceof Error ? error.message : String(error)}`, 'error');
-    return []; // Return empty array instead of throwing
   }
 };
 

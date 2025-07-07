@@ -25,7 +25,7 @@ export const useMarkdownStyles = () => {
     cardBorder: isDark ? '#444444' : '#DDDDDD',
     blockquoteBg: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
     blockquoteBorder: isDark ? '#555' : '#DDD',
-    codeBg: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)',
+    codeBg: isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)', // Back to original colors
     hr: isDark ? '#444' : '#CCC',
     tableBorder: isDark ? '#555' : '#DDD',
   };
@@ -84,26 +84,22 @@ export const useMarkdownStyles = () => {
       marginHorizontal: 10,
     } as ViewStyle,
     code_inline: { 
-      backgroundColor: colors.codeBg, 
-      marginLeft: isTablet ? 7 : 6,
-      paddingVertical: 4,
-      paddingHorizontal: 6,
-      borderRadius: 4, 
+      backgroundColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.08)', 
       fontFamily: 'monospace',
-      marginVertical: 2,
-      marginHorizontal: 10,
-      fontSize: isTablet ? 16 : 11
+      fontSize: isTablet ? 15 : 14,
+      color: colors.text, 
+      fontWeight: '500',
+      lineHeight: isTablet ? 28 : 24, // This works for vertical!
+      letterSpacing: 1,
+      borderRadius: 4,
+      marginHorizontal: isTablet ? 8 : 6, // Try margin for horizontal spacing
     } as TextStyle,
     code_block: { 
-      backgroundColor: colors.codeBg, 
-      paddingVertical: 8,
-      paddingHorizontal: 10,
-      borderRadius: 4, 
-      marginLeft: isTablet ? 7 : 6,
+      // Using custom rule now, this style is just a fallback
+      backgroundColor: 'transparent',
+      color: colors.text,
       fontFamily: 'monospace',
-      marginVertical: 10,
-      marginHorizontal: 10,
-      fontSize: isTablet ? 16 : 11
+      fontSize: isTablet ? 15 : 14,
     } as TextStyle,
     list_item: { 
       color: colors.text, 

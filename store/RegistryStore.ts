@@ -242,13 +242,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         const taskState = useTaskStore.getState();
         const today = format(new Date(), 'yyyy-MM-dd');
         
-        // STRATEGIC LOG 5: Export Snapshot Verification
-        const tasksBeingExported = Object.keys(taskState.tasks).length;
-        const completionHistoryToday = Object.values(taskState.tasks).filter(t => t.completionHistory[today]).length;
-        
-        addSyncLog(`[EXPORT VERIFICATION] Exporting ${tasksBeingExported} tasks to server`, 'info',
-          `Today's completions being exported: ${completionHistoryToday} | Local total: ${tasksBeingExported}`);
-        
         const tasksWithCompletion = Object.entries(taskState.tasks)
           .filter(([_, task]) => task.completionHistory[today])
           .map(([id, task]) => `${task.name.slice(0, 20)}(${id.slice(-6)}):${task.completionHistory[today]}`);

@@ -76,39 +76,8 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       
       return hasHistoryForToday || isCompletedToday;
     });
+   {
 
-    addSyncLog(
-      `[EXPORT VERIFICATION] Exporting ${tasks.length} tasks to server`,
-      'info',
-      `Today's completions being exported: ${tasksWithTodayCompletion.length} | Local total: ${tasks.length}`
-    );
-    
-    if (tasksWithTodayCompletion.length > 0) {
-      // 🚨 DETAILED EXPORT DEBUG: Log each task's completion data
-      tasksWithTodayCompletion.forEach(task => {
-        addSyncLog(
-          `[EXPORT TODAY TASK] "${task.name.slice(0, 20)}" - ${today}: ${task.completionHistory[today]}`,
-          'error',
-          `🚨 EXPORTING: ID=${task.id.slice(-8)}, completed=${task.completed}, pattern=${task.recurrencePattern}, updated=${task.updatedAt}, fullHistory=${JSON.stringify(task.completionHistory)}`
-        );
-      });
-      
-      const completionSummary = tasksWithTodayCompletion.map(task => {
-        const historyValue = task.completionHistory?.[today];
-        return `${task.name.slice(0, 25)}(${task.id.slice(-6)}):${historyValue}`;
-      }).join(', ');
-      
-      addSyncLog(
-        `[SNAPSHOT EXPORT] ${tasksWithTodayCompletion.length} tasks with completion data for ${today}`,
-        'error',
-        `🚨 EXPORT SUMMARY: ${completionSummary}`
-      );
-    } else {
-      addSyncLog(
-        `[SNAPSHOT EXPORT] No tasks have completion history for ${today}`,
-        'warning'
-      );
-      
       // 🚨 DEBUG: Show what dates DO have completion data
       const tasksWithAnyCompletion = tasks.filter(task => 
         task.completionHistory && Object.keys(task.completionHistory).length > 0
@@ -118,11 +87,11 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
         tasksWithAnyCompletion.forEach(task => {
           Object.keys(task.completionHistory || {}).forEach(date => allCompletionDates.add(date));
         });
-        addSyncLog(
-          `[EXPORT DEBUG] Found completion history for dates: ${Array.from(allCompletionDates).sort().join(', ')}`,
-          'warning',
-          `🚨 But NO completion data for today (${today}). Tasks with completion history: ${tasksWithAnyCompletion.length}. Check date format consistency!`
-        );
+       // addSyncLog(
+       //   `[EXPORT DEBUG] Found completion history for dates: ${Array.from(allCompletionDates).sort().join(', ')}`,
+       //   'warning',
+       //   `🚨 But NO completion data for today (${today}). Tasks with completion history: ${tasksWithAnyCompletion.length}. Check date format consistency!`
+       // );
       }
     }
 
@@ -137,11 +106,11 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       historyKeys: Object.keys(task.completionHistory || {}).length
     }));
     
-    addSyncLog(
-      `[EXPORT SAMPLE] First 10 tasks completion state verification`,
-      'verbose',
-      JSON.stringify(verificationSample, null, 2)
-    );
+   // addSyncLog(
+   //   `[EXPORT SAMPLE] First 10 tasks completion state verification`,
+   //   'verbose',
+   //   JSON.stringify(verificationSample, null, 2)
+   // );
   }
   
   try {
@@ -157,7 +126,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     // 🔧 IMPORTANT: Ensure we're encrypting the EXACT data we just verified
     const cipher = encryptSnapshot(allStates, key);
     const sha = CryptoJS.SHA256(cipher).toString().slice(0,8);
-    addSyncLog(`📦 Snapshot encrypted with SHA ${sha}`, 'verbose');
+   // addSyncLog(`📦 Snapshot encrypted with SHA ${sha}`, 'verbose');
     
     // Web compatibility: use localStorage instead of FileSystem
     let uri: string;

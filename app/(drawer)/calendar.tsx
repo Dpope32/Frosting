@@ -95,8 +95,7 @@ export default function CalendarScreen() {
   useEffect(() => {
     const today = new Date();
     today.setDate(1);
-    
-    // Set up months - now showing 6 months instead of 12
+
     const monthArr = [];
     for (let i = 0; i < 6; i++) {
       const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
@@ -104,10 +103,9 @@ export default function CalendarScreen() {
     }
     setMonths(monthArr);
     
-    // Set up weeks - starting from current week
     const weekArr = [];
     const currentWeekStart = startOfWeek(new Date());
-    for (let i = 0; i < 8; i++) { // Show current week + 7 future weeks
+    for (let i = 0; i < 8; i++) { 
       weekArr.push(addWeeks(currentWeekStart, i));
     }
     setWeeks(weekArr);
@@ -140,7 +138,7 @@ export default function CalendarScreen() {
     }
   }, [webColumnCount, viewMode]);
 
-  const styles = getCalendarStyles(webColumnCount);
+  const styles = getCalendarStyles(webColumnCount, activeEventTypes);
 
   return (
     <View style={[

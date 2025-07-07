@@ -6,7 +6,7 @@ import { router } from 'expo-router'
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useUserStore, useToastStore } from '@/store'
 import { colorOptions } from '@/constants' 
-import { backgroundStyles, getWallpaperPath } from '@/constants'
+import { backgroundStyles } from '@/constants'
 import { FormData } from '@/types/onboarding'
 import { preloadWallpapers } from '../../../components/wpPreload'
 import { requestPermissionsWithDelay, markPermissionsAsExplained } from '@/services'
@@ -31,13 +31,12 @@ export default function Onboarding() {
     username: '',
     profilePicture: '',
     primaryColor: isDark ? '$gray5' : '$blue9',  
-    backgroundStyle: 'gradient',
+    backgroundStyle: 'wallpaper-Abstract',
     zipCode: '',
   })
   const [wallpapersPreloaded, setWallpapersPreloaded] = useState(false);
   const setPreferences = useUserStore((state) => state.setPreferences)
 
-  // Check if device is a mobile browser
   const isMobileBrowser = isWeb && typeof window !== 'undefined' && 
     (window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
 
@@ -65,7 +64,7 @@ export default function Onboarding() {
   const handleNext = async () => {
     try {
       if (step === -2) { 
-        setStep(isWeb ? 0 : -1); // Skip permissions screen on web
+        setStep(isWeb ? 0 : -1); 
       } else if (step === -1) { 
         setStep(0);
         await markPermissionsAsExplained();
@@ -103,7 +102,7 @@ export default function Onboarding() {
 
   const handleBack = () => {
     if (isWeb && step === 0) {
-      setStep(-2); // Skip permissions screen on web
+      setStep(-2); 
     } else {
       setStep((prev) => prev - 1)
     }
@@ -177,7 +176,6 @@ export default function Onboarding() {
             formData={formData}
             setFormData={setFormData}
             backgroundStyles={[...backgroundStyles]}
-            getWallpaperPath={getWallpaperPath}
           />
         )
       case 4:
@@ -215,7 +213,7 @@ export default function Onboarding() {
 
   const getBottomPadding = () => {
     if (Platform.OS === 'ios') {
-      return keyboardVisible ? 16 : 40;
+      return keyboardVisible ? 16 : 30;
     }
     return 24;
   }

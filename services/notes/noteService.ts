@@ -73,7 +73,7 @@ export const formatCode = ({ content, selection }: FormatArgs): string => {
     const before = content.substring(0, selection.start);
     const selected = content.substring(selection.start, selection.end);
     const after = content.substring(selection.end);
-    return `${before}\`\`\`${selected}\`\`\`${after}`;
+    return `${before}\`${selected}\`${after}`;
 };
 
 export const formatBullet = ({ content, selection }: FormatArgs): string => {
