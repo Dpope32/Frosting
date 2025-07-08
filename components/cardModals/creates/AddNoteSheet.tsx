@@ -195,6 +195,12 @@ export function AddNoteSheet({
   const contentPadding = isWeb ? 20 : isIpadDevice ? 16 :  20;
   const bottomPadding = isIpadDevice && keyboardVisible ? 0 : 0;
 
+  // Enhanced responsive styling
+  const webMaxWidth = 700;
+  const webPadding = 32;
+  const mobilePadding = 16;
+  const contentHorizontalPadding = isWeb ? 24 : isIpadDevice ? 20 : 16;
+
   // Simple immediate title change handler - no delays or timers
   const handleTitleChange = (text: string) => {
     setLocalTitle(text);
@@ -370,31 +376,31 @@ export function AddNoteSheet({
         backgroundColor={isDark ? "rgba(0,0,0,0.7)" : "rgba(15,15,15,0.3)"}
       />
       <Sheet.Frame
-        paddingHorizontal={isIpad() ? "$4" : "$3.5"}
-        paddingBottom="$8"
-        paddingTop={Platform.OS === 'web' ? "$2" : isIpad() ? 20 : 18} 
+        paddingHorizontal={isWeb ? 0 : isIpad() ? "$4" : "$3.5"}
+        paddingBottom={isWeb ? "$4" : "$8"}
+        paddingTop={isWeb ? "$3" : Platform.OS === 'web' ? "$2" : isIpad() ? 20 : 18} 
         backgroundColor={isDark ? "rgb(15, 14, 14)" : "rgba(255,255,255,0.98)"}
-        maxWidth={Platform.OS === 'web' ? 600 : "100%"} 
-        width={Platform.OS === 'web' ? 600 : "100%"} 
+        maxWidth={isWeb ? webMaxWidth : "100%"} 
+        width={isWeb ? webMaxWidth : "100%"} 
         alignSelf="center"
-        borderTopLeftRadius={20}
-        borderTopRightRadius={20}
+        borderTopLeftRadius={isWeb ? 24 : 20}
+        borderTopRightRadius={isWeb ? 24 : 20}
         shadowColor={isDark ? "#000" : "#000"}
-        shadowOffset={{ width: 0, height: -2 }}
-        shadowOpacity={isDark ? 0.4 : 0.08}
-        shadowRadius={12}
-        elevation={isDark ? 8 : 3}
+        shadowOffset={{ width: 0, height: isWeb ? -4 : -2 }}
+        shadowOpacity={isDark ? 0.4 : (isWeb ? 0.12 : 0.08)}
+        shadowRadius={isWeb ? 16 : 12}
+        elevation={isDark ? 8 : (isWeb ? 5 : 3)}
       >
 
         <XStack
           justifyContent="space-between"
           alignItems="center"
-          marginBottom={0}
+          marginBottom={isWeb ? 16 : 12}
           paddingTop="$1"
-          paddingHorizontal="$1"
+          paddingHorizontal={isWeb ? "$2" : "$1"}
         >
           {isEditingTitle ? (
-            <XStack alignItems="center" flex={1} gap="$2" paddingHorizontal={8} maxWidth="85%">
+            <XStack alignItems="center" flex={1} gap="$2" paddingHorizontal={isWeb ? 0 : 8} maxWidth="85%">
               <TextInput
                 ref={titleInputRef}
                 placeholder="Enter note title..."
@@ -405,23 +411,24 @@ export function AddNoteSheet({
                 onSubmitEditing={commitTitleChange}
                 style={{ 
                   flex: 1, 
-                  paddingVertical: isIpad() ? 12 : 10,
-                  fontSize: isIpad() ? 24 : 20,
+                  paddingVertical: isWeb ? 16 : isIpad() ? 12 : 10,
+                  fontSize: isWeb ? 28 : isIpad() ? 24 : 20,
                   fontWeight: '600',
-                  backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
                   borderWidth: isDark ? 1 : 1.5,
-                  borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-                  borderRadius: 12,
-                  paddingHorizontal: 16,
+                  borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
+                  borderRadius: isWeb ? 16 : 12,
+                  paddingHorizontal: isWeb ? 20 : 16,
                   fontFamily: 'System',
                   color: isDark ? '#fff' : '#1f2937',
+                  outline: 'none',
                 }} 
                 placeholderTextColor={isDark ? "#888" : "#9ca3af"}
               />
               <Button
-                size={Platform.OS === 'web' ? "$1.5" : "$2"} 
+                size={isWeb ? "$2.5" : Platform.OS === 'web' ? "$1.5" : "$2"} 
                 circular
-                icon={<MaterialIcons name="check" size={Platform.OS === 'web' ? 16 : 18} color="white" />} 
+                icon={<MaterialIcons name="check" size={isWeb ? 20 : Platform.OS === 'web' ? 16 : 18} color="white" />} 
                 onPress={commitTitleChange}
                 backgroundColor={preferences.primaryColor}
                 pressStyle={{ 
@@ -429,33 +436,34 @@ export function AddNoteSheet({
                   backgroundColor: adjustColor(preferences.primaryColor, -20)
                 }}
                 shadowColor={isDark ? "transparent" : `${preferences.primaryColor}40`}
-                shadowOffset={{ width: 0, height: 2 }}
+                shadowOffset={{ width: 0, height: isWeb ? 3 : 2 }}
                 shadowOpacity={isDark ? 0 : 0.3}
-                shadowRadius={4}
+                shadowRadius={isWeb ? 6 : 4}
                 elevation={isDark ? 0 : 2}
                 aria-label="Save title"
               />
             </XStack>
           ) : (
-            <XStack alignItems="center" px="$1" gap={0} minHeight={44} flex={1} maxWidth="85%">
+            <XStack alignItems="center" px={isWeb ? "$2" : "$1"} gap={0} minHeight={isWeb ? 52 : 44} flex={1} maxWidth="85%">
               <Text
-                fontSize={isIpad() ? "$5" : 20}
+                fontSize={isWeb ? 28 : isIpad() ? "$5" : 20}
                 fontWeight="600"
                 numberOfLines={1}
+                fontFamily="$body"  
                 ellipsizeMode="tail"
                 color={isDark ? "#fff" : "#1f2937"}
                 style={{ 
                   flex: 1, 
-                  paddingHorizontal: 6, 
-                  paddingVertical: isIpad() ? 8 : 8,
+                  paddingHorizontal: isWeb ? 8 : 6, 
+                  paddingVertical: isWeb ? 12 : isIpad() ? 8 : 8,
                 }} 
               >
                 {localTitle || editTitle || 'New Note'}
               </Text>
               <Button
-                size={Platform.OS === 'web' ? "$1.5" : "$1"} 
+                size={isWeb ? "$2" : Platform.OS === 'web' ? "$1.5" : "$1"} 
                 circular
-                icon={<MaterialIcons name="edit" size={Platform.OS === 'web' ? 16 : 18} />} 
+                icon={<MaterialIcons name="edit" size={isWeb ? 20 : Platform.OS === 'web' ? 16 : 18} />} 
                 onPress={() => { 
                   setIsEditingTitle(true);
                   setTimeout(() => {
@@ -464,36 +472,36 @@ export function AddNoteSheet({
                     }
                   }, 100);
                 }}
-                backgroundColor={isDark ? "transparent" : "rgba(0,0,0,0.04)"}
+                backgroundColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"}
                 pressStyle={{ 
                   opacity: 0.7,
-                  backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"
+                  backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"
                 }}
-                color={isDark ? "#555555" : "#6b7280"}
+                color={isDark ? "#666666" : "#6b7280"}
                 borderWidth={isDark ? 0 : 1}
-                borderColor={isDark ? "transparent" : "rgba(0,0,0,0.06)"}
+                borderColor={isDark ? "transparent" : "rgba(0,0,0,0.08)"}
                 aria-label="Edit title"
               />
             </XStack>
           )}
           <Button
-            size={Platform.OS === 'web' ? "$2" : "$2"} 
+            size={isWeb ? "$2.5" : Platform.OS === 'web' ? "$2" : "$2"} 
             circular
-            icon={<MaterialIcons name="close" size={Platform.OS === 'web' ? 18 : 22} color={isDark ? "#fff" : "#374151"} />}
+            icon={<MaterialIcons name="close" size={isWeb ? 22 : Platform.OS === 'web' ? 18 : 22} color={isDark ? "#fff" : "#374151"} />}
             onPress={handleCloseModal}
-            backgroundColor={isDark ? "transparent" : "rgba(0,0,0,0.04)"}
+            backgroundColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)"}
             pressStyle={{ 
               opacity: 0.7,
-              backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"
+              backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"
             }}
             borderWidth={isDark ? 0 : 1}
-            borderColor={isDark ? "transparent" : "rgba(0,0,0,0.06)"}
+            borderColor={isDark ? "transparent" : "rgba(0,0,0,0.08)"}
             flexShrink={0}
             marginLeft="$2"
           />
         </XStack>
         
-        <View style={{flex: 1, marginTop: isIpad() ? 6 : 4}}>
+        <View style={{flex: 1, marginTop: isWeb ? 8 : isIpad() ? 6 : 4}}>
           <KeyboardAvoidingView 
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ flex: 1 }}
@@ -503,12 +511,12 @@ export function AddNoteSheet({
                 : Platform.OS === 'ios' ? -100 : 0
             }
           >
-            <YStack flex={1} paddingHorizontal={isIpad() ? "$1" : "$0"}>
+            <YStack flex={1} paddingHorizontal={isWeb ? 0 : isIpad() ? "$1" : "$0"}>
               <RNScrollView
                 ref={scrollViewRef}
                 style={{ 
                   flex: 1, 
-                  marginHorizontal: -16,
+                  marginHorizontal: isWeb ? 0 : -16,
                   maxHeight: keyboardVisible
                     ? isIpadDevice
                       ? Dimensions.get('window').height * 0.65 
@@ -516,27 +524,27 @@ export function AddNoteSheet({
                     : '100%'
                 }}
                 contentContainerStyle={{ 
-                  paddingBottom: keyboardVisible ? bottomPadding : contentPadding
+                  paddingBottom: keyboardVisible ? bottomPadding : (isWeb ? 16 : 12),
+                  paddingHorizontal: isWeb ? webPadding : 0
                 }}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
+                showsHorizontalScrollIndicator={false}
                 keyboardDismissMode="none"
               >
-                <YStack 
-                  gap={0} 
-                  paddingTop={6}
-                  display={keyboardVisible ? "none" : "flex"}
-                >
-                </YStack>
-                  <YStack gap={0} px={isIpad() ? 8 : 4} >
+                  <YStack 
+                    gap={isWeb ? 8 : 4} 
+                    paddingHorizontal={isWeb ? 0 : (isIpad() ? 8 : 4)}
+                    paddingTop={isWeb ? 4 : 0}
+                  >
                   <YStack>
                     <ContentInput
                       ref={contentInputRef}
                       value={editContent}
                       onChangeText={setEditContent}
                       onSelectionChange={handleSelectionChange}
-                      numberOfLines={keyboardVisible ? isIpad() ? 10 : 5 : isIpadDevice ? 10 : 12}
-                      minHeight={keyboardVisible ? isIpad() ? 500 : 300 : isIpadDevice ? 600 : 450}
+                      numberOfLines={keyboardVisible ? (isIpad() ? 12 : 8) : (isWeb ? 20 : isIpadDevice ? 15 : 16)}
+                      minHeight={keyboardVisible ? (isIpad() ? 500 : 350) : (isWeb ? 500 : isIpadDevice ? 700 : 550)}
                     />
                   </YStack>
                   {renderAttachments()}
@@ -545,14 +553,14 @@ export function AddNoteSheet({
 
               {keyboardVisible && (
                 <YStack 
-                  paddingHorizontal="$0"
+                  paddingHorizontal={isWeb ? webPadding : "$0"}
                   paddingVertical={isIpadDevice ? "$1.5" : "$2"}
                   alignSelf="center"
                   justifyContent="center"
                   alignItems="center"
-                  backgroundColor={isDark ? "transparent" : "rgba(255,255,255,0.95)"}
-                  borderTopWidth={isDark ? 0 : 1}
-                  borderTopColor={isDark ? "transparent" : "rgba(0,0,0,0.05)"}
+                  backgroundColor={isDark ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.98)"}
+                  borderTopWidth={isDark ? 1 : 1}
+                  borderTopColor={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}
                   style={{ 
                     marginBottom: isIpadDevice 
                       ? (windowWidth > windowHeight
@@ -576,77 +584,84 @@ export function AddNoteSheet({
               )}
               
               <YStack 
+                backgroundColor={isDark ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.95)"}
+                borderTopWidth={isDark ? 1 : 1}
+                borderTopColor={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}
                 style={{
-                  paddingTop: Platform.OS === 'web' ? 12 : 4,
-                  paddingBottom: Platform.OS === 'web' ? 0 : 4,
-                  paddingHorizontal: 6,
+                  paddingTop: isWeb ? 20 : 16,
+                  paddingBottom: isWeb ? 16 : 20,
+                  paddingHorizontal: isWeb ? webPadding : 16,
+                  marginTop: 'auto',
+                  marginHorizontal: isWeb ? 0 : -16,
                 }}
               >
                 {!keyboardVisible &&
                 <XStack 
-                  gap="$10" 
+                  gap={isWeb ? 16 : 12} 
                   justifyContent="space-between" 
-                  marginTop={8}
-                  paddingBottom={0}
-                  marginBottom={0}
+                  alignItems="center"
+                  paddingHorizontal={isWeb ? 10 : 20}
+                  marginHorizontal={isWeb ? 10 : 12}
                 >
                   {selectedNote ? (
                     <>
                       <Button
-                        backgroundColor={isDark ? "rgba(255, 0, 0, 0.2)" : "rgba(255, 240, 240, 0.9)"}
+                        backgroundColor={"transparent"}
                         pressStyle={{ 
-                          opacity: 0.8,
-                          backgroundColor: isDark ? "rgba(255, 0, 0, 0.3)" : "rgba(255, 220, 220, 0.95)"
+                          opacity: 0.85,
+                          backgroundColor: isDark ? "rgba(255, 69, 58, 0.18)" : "rgba(254, 226, 226, 1)",
+                          transform: [{ scale: 0.98 }]
                         }}
                         onPress={handleDeleteNote}
-                        br={16}
-                        py={Platform.OS === 'web' ? "$2" : "$2.5"}
-                        flex={1}
-                        borderWidth={isDark ? 2 : 1.5}
-                        borderColor={isDark ? "$red10" : "rgba(220, 38, 38, 0.4)"}
-                        shadowColor={isDark ? "transparent" : "rgba(220, 38, 38, 0.2)"}
-                        shadowOffset={{ width: 0, height: 2 }}
-                        shadowOpacity={isDark ? 0 : 0.3}
-                        shadowRadius={6}
+                        borderRadius={isWeb ? 12 : 10}
+                        paddingVertical={isWeb ? 14 : 12}
+                        paddingHorizontal={isWeb ? 20 : 16}
+                        minWidth={isWeb ? 100 : 80}
+                        shadowColor={isDark ? "transparent" : "rgba(220, 38, 38, 0.15)"}
+                        shadowOffset={{ width: 0, height: isWeb ? 2 : 1 }}
+                        shadowOpacity={isDark ? 0 : 0.25}
+                        shadowRadius={isWeb ? 6 : 4}
                         elevation={isDark ? 0 : 2}
                       >
                         <Text 
-                          color={isDark ? "$red10" : "rgb(185, 28, 28)"} 
+                          color={isDark ? "rgb(255, 69, 58)" : "rgb(220, 38, 38)"} 
                           fontFamily="$body" 
-                          fontSize={14} 
+                          fontSize={isWeb ? 16 : 15} 
                           fontWeight="600"
                         >
-                          Delete
+                          Delete Note
                         </Text>
                       </Button>
                       
                       <Button
-                        backgroundColor={isDark ? "$blue9" : "rgba(59, 130, 246, 0.95)"}
-                        br={16}
-                        py={Platform.OS === 'web' ? "$2" : "$2.5"}
+                        backgroundColor={isDark ? "rgba(10, 132, 255, 0.15)" : "rgba(59, 130, 246, 1)"}
+                        borderRadius={isWeb ? 16 : 14}
+                        paddingVertical={isWeb ? 18 : 16}
+                        paddingHorizontal={isWeb ? 24 : 20}
                         onPress={() => {
-                        if (localTitle.trim()) {
-                          setEditTitle(localTitle.trim());
-                        }
-                        handleSaveNote();
-                      }}
+                          if (localTitle.trim()) {
+                            setEditTitle(localTitle.trim());
+                          }
+                          handleSaveNote();
+                        }}
                         pressStyle={{ 
                           opacity: 0.9,
-                          backgroundColor: isDark ? "$blue10" : "rgba(37, 99, 235, 0.98)"
+                          backgroundColor: isDark ? "rgba(10, 132, 255, 0.22)" : "rgba(37, 99, 235, 1)",
+                          transform: [{ scale: 0.98 }]
                         }}
-                        borderWidth={isDark ? 2 : 0}
-                        borderColor={isDark ? "$blue10" : "transparent"}
+                        borderWidth={isDark ? 1 : 0}
+                        borderColor={isDark ? "rgba(10, 132, 255, 0.3)" : "transparent"}
                         flex={1}
-                        shadowColor={isDark ? "transparent" : "rgba(59, 130, 246, 0.3)"}
-                        shadowOffset={{ width: 0, height: 3 }}
-                        shadowOpacity={isDark ? 0 : 0.4}
-                        shadowRadius={8}
+                        shadowColor={isDark ? "transparent" : "rgba(59, 130, 246, 0.25)"}
+                        shadowOffset={{ width: 0, height: isWeb ? 3 : 2 }}
+                        shadowOpacity={isDark ? 0 : 0.35}
+                        shadowRadius={isWeb ? 8 : 6}
                         elevation={isDark ? 0 : 3}
                       >
                         <Text
-                          color="white"
+                          color={isDark ? "rgb(10, 132, 255)" : "white"}
                           fontFamily="$body"
-                          fontSize={14}
+                          fontSize={isWeb ? 16 : 15}
                           fontWeight="600"
                         >
                           Save Changes
@@ -655,9 +670,10 @@ export function AddNoteSheet({
                     </>
                   ) : (
                       <Button
-                        backgroundColor={isDark ? `${preferences.primaryColor}40` : `${preferences.primaryColor}95`}
-                        br={16}
-                        py={Platform.OS === 'web' ? "$2" : "$2.5"}
+                        backgroundColor={isDark ? `${preferences.primaryColor}20` : preferences.primaryColor}
+                        borderRadius={isWeb ? 16 : 14}
+                        paddingVertical={isWeb ? 18 : 16}
+                        paddingHorizontal={isWeb ? 24 : 20}
                         onPress={() => {
                            if (localTitle.trim()) {
                              setEditTitle(localTitle.trim());
@@ -666,21 +682,22 @@ export function AddNoteSheet({
                          }}
                         pressStyle={{ 
                           opacity: 0.9,
-                          backgroundColor: isDark ? `${preferences.primaryColor}60` : `${adjustColor(preferences.primaryColor, -20)}`
+                          backgroundColor: isDark ? `${preferences.primaryColor}30` : `${adjustColor(preferences.primaryColor, -20)}`,
+                          transform: [{ scale: 0.98 }]
                         }}
-                        borderWidth={isDark ? 2 : 0}
-                        borderColor={isDark ? preferences.primaryColor : "transparent"}
+                        borderWidth={isDark ? 1 : 0}
+                        borderColor={isDark ? `${preferences.primaryColor}40` : "transparent"}
                         flex={1}
-                        shadowColor={isDark ? "transparent" : `${preferences.primaryColor}40`}
-                        shadowOffset={{ width: 0, height: 3 }}
-                        shadowOpacity={isDark ? 0 : 0.4}
-                        shadowRadius={8}
+                        shadowColor={isDark ? "transparent" : `${preferences.primaryColor}30`}
+                        shadowOffset={{ width: 0, height: isWeb ? 3 : 2 }}
+                        shadowOpacity={isDark ? 0 : 0.35}
+                        shadowRadius={isWeb ? 8 : 6}
                         elevation={isDark ? 0 : 3}
                     >
                       <Text
-                        color={isDark ? "#f9f9f9" : "white"}
+                        color={isDark ? preferences.primaryColor : "white"}
                         fontFamily="$body"
-                        fontSize={14}
+                        fontSize={isWeb ? 16 : 15}
                         fontWeight="600"
                       >
                         Create Note

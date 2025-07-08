@@ -60,10 +60,10 @@ export const HeroSection = ({ scrollOffset, onComplete }: HeroSectionProps) => {
           </>
         )}
 
-<H1
+        <H1
               color="$onboardingLabel"
               fontFamily="$heading"
-              fontSize={isWeb ? (isMobileBrowser ? "$9" : screenWidth * 0.07) : "$8"}
+              fontSize={isWeb ? (isMobileBrowser ? "$9" : Math.min(screenWidth * 0.06, 120)) : "$8"}
               fontWeight="500"
               textAlign="center"
               style={{
@@ -75,8 +75,8 @@ export const HeroSection = ({ scrollOffset, onComplete }: HeroSectionProps) => {
                 letterSpacing: '-0.02em',
                 maxWidth: '100%',
                 overflow: 'visible',
-                lineHeight: 1.2,
-                minHeight: 100,
+                lineHeight: 1.4,
+                minHeight: 120,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
