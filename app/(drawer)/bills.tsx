@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ScrollView, useColorScheme, Platform, FlatList, Dimensions } from 'react-native';
-import { Button, XStack, YStack, Text, Spinner } from 'tamagui';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, useColorScheme, Platform, FlatList } from 'react-native';
+import { Button, XStack, YStack, Text, Spinner, isWeb } from 'tamagui';
 import { BillCard } from '@/components/bills/BillCard';
 import { BillEmpty } from '@/components/bills/BillEmpty';
 import { BillSummary } from '@/components/bills/BillSummary';
@@ -14,7 +14,11 @@ import { isIpad } from '@/utils';
 import { EditBillModal } from '@/components/cardModals/edits/EditBillModal';
 import { Bill } from '@/types';
 import { BillsListModal } from '@/components/listModals/BillsListModal';
-import { billTypes } from '@/constants/billTypes';
+import { loadDevBills, deleteAllBills } from '@/services/dev/devBills';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCalendarStore, useToastStore } from '@/store';
+import { useProjectStore } from '@/store/ToDo';
+import { useBillStore } from '@/store/BillStore';
 
 export default function BillsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -26,40 +30,24 @@ export default function BillsScreen() {
   const [editBillModalOpen, setEditBillModalOpen] = useState(false);
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
   const [billsListModalOpen, setBillsListModalOpen] = useState(false);
-  const [forceUpdateKey, setForceUpdateKey] = useState(0);
-  
-  const { bills, addBill, addBills, updateBill, deleteBill, isLoading, monthlyIncome, setMonthlyIncome, totalMonthlyAmount, monthlyBalance } = useBills();
-  
-  // Debug logging for bills data changes
-  useEffect(() => {
-    if (bills) {
-      console.log('🏠 Bills Screen: Bills data updated:', bills.map(b => ({
-        id: b.id,
-        name: b.name,
-        dueDate: b.dueDate,
-        amount: b.amount,
-        createTask: b.createTask
-      })));
-    }
-  }, [bills]);
-
-  const screenWidth = Dimensions.get('window').width;
+  const { bills, addBill, updateBill, deleteBill, isLoading, monthlyIncome, setMonthlyIncome, totalMonthlyAmount, monthlyBalance } = useBills();
   const [isDeletingBill, setIsDeletingBill] = useState(false);
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const currentDay = new Date().getDate();
-  const isWeb = Platform.OS === 'web';
-
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  
+  // Get additional hooks needed for dev functions
+  const queryClient = useQueryClient();
+  const { addEvents } = useCalendarStore();
+  const { addTask } = useProjectStore();
+  const { showToast } = useToastStore();
+  const { getBills } = useBillStore();
   
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
+    const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -85,40 +73,6 @@ export default function BillsScreen() {
         }
       });
     }, 0);
-  };
-
-  const loadDevBills = () => {
-    const numBills = Math.floor(Math.random() * 3) + 3;
-    const selectedBills = [];
-    const usedIndices = new Set();
-    
-    for (let i = 0; i < numBills; i++) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * billTypes.length);
-      } while (usedIndices.has(randomIndex));
-      
-      usedIndices.add(randomIndex);
-      const bill = billTypes[randomIndex];
-      const randomDueDate = Math.floor(Math.random() * 28) + 1;
-      const amountVariation = (Math.random() - 0.5) * 0.4;
-      const adjustedAmount = Math.round(bill.amount * (1 + amountVariation));
-      
-      selectedBills.push({
-        name: bill.name,
-        amount: adjustedAmount,
-        dueDate: randomDueDate,
-        createTask: false
-      });
-    }
-    selectedBills.sort((a, b) => a.dueDate - b.dueDate);
-    addBills(selectedBills, { batchCategory: 'dev' });
-  };
-
-  const deleteAllBills = () => {
-    bills?.forEach((bill, index) => {
-      setTimeout(() => deleteBill(bill.id), index * 200);
-    });
   };
 
   const handleEditBill = (bill: Bill) => {
@@ -149,6 +103,24 @@ export default function BillsScreen() {
       console.error('updateBill is not a function');
       throw new Error('updateBill is not a function');
     }
+  };
+
+  const handleLoadDevBills = () => {
+    loadDevBills({
+      addBill,
+      addEvents,
+      addTask,
+      showToast,
+      invalidateQueries: () => queryClient.invalidateQueries({ queryKey: ['bills'] }),
+      refetchQueries: () => queryClient.refetchQueries({ queryKey: ['bills'] })
+    });
+  };
+
+  const handleDeleteAllBills = () => {
+    deleteAllBills({
+      getBills,
+      deleteBill: (id: string) => deleteBill(id)
+    });
   };
 
   return (
@@ -342,7 +314,7 @@ export default function BillsScreen() {
               pressStyle={{ scale: 0.95 }}
               animation="quick"
               elevation={4}
-              onPress={loadDevBills}
+              onPress={handleLoadDevBills}
               icon={<MaterialIcons name="storage" color="#FFF" size={20} />}
             />
             <Button
@@ -352,7 +324,7 @@ export default function BillsScreen() {
               pressStyle={{ scale: 0.95 }}
               animation="quick"
               elevation={4}
-              onPress={deleteAllBills}
+              onPress={handleDeleteAllBills}
               icon={<MaterialIcons name="delete" color="#FFF" size={20} />}
             />
           </XStack>

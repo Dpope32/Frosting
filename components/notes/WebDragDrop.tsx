@@ -11,16 +11,18 @@ let useDrag: ((spec: any) => [{ isDragging: boolean }, any, any]) | null = null;
 let useDrop: ((spec: any) => [any, any]) | null = null;
 let HTML5Backend: any = null;
 
+// Synchronous imports for better production support
 if (Platform.OS === 'web') {
-  Promise.all([
-    import('react-dnd'),
-    import('react-dnd-html5-backend')
-  ]).then(([dndModule, backendModule]) => {
+  try {
+    const dndModule = require('react-dnd');
+    const backendModule = require('react-dnd-html5-backend');
     DndProvider = dndModule.DndProvider;
     useDrag = dndModule.useDrag;
     useDrop = dndModule.useDrop;
     HTML5Backend = backendModule.HTML5Backend;
-  });
+  } catch (error) {
+    console.log('Drag and drop libraries not available:', error);
+  }
 }
 
 const ITEM_TYPE = 'note';
@@ -72,8 +74,6 @@ const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNot
         return;
       }
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-      
-      // Add threshold to prevent excessive hover triggers
       const threshold = 5;
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY - threshold) {
         return;
@@ -82,7 +82,6 @@ const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNot
         return;
       }
       
-      // Throttle the move operations to prevent excessive updates
       requestAnimationFrame(() => {
         moveNote(dragIndex, hoverIndex);
         item.index = hoverIndex;
@@ -97,6 +96,13 @@ const DraggableNote: React.FC<DraggableNoteProps> = memo(({ note, index, moveNot
   };
 
   const opacity = isDragging ? 0.5 : 1;
+
+  console.log(`DraggableNote ${index} received props:`, {
+    flexBasis: rest.flexBasis,
+    flexShrink: rest.flexShrink,
+    marginBottom: rest.marginBottom,
+    opacity
+  });
 
   return (
     <Stack
@@ -132,16 +138,6 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   numColumns,
   bottomPadding
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    if (Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop) {
-      setIsLoaded(true);
-    } else if (Platform.OS !== 'web') {
-      setIsLoaded(true);
-    }
-  }, []);
-
   useEffect(() => {
     if (Platform.OS === 'web') {
       const styleTag = document.createElement('style');
@@ -173,7 +169,7 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           border-radius: 12px;
           padding: 4px 2px;
           margin-right: 6px;
-          margin-bottom: 6px;
+          margin-bottom: 0px;
           font-size: 12px;
           font-weight: 600;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
@@ -188,7 +184,6 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
       };
     }
   }, []);
-
 
   const ContentWrapper = ({ children }: { children: React.ReactNode }) => {
       if (Platform.OS === 'web') {
@@ -209,12 +204,25 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
   };
 
   const itemStackProps: StackProps = {
-    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '33.333%',
+    flexBasis: numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%',
     marginBottom: 16,
     flexShrink: 0,
   };
 
-  if (!isLoaded || Platform.OS !== 'web' || !DndProvider || !HTML5Backend) {
+  // Add debugging logs
+  console.log('WebDragDrop Debug:', {
+    numColumns,
+    flexBasis: itemStackProps.flexBasis,
+    columnGap: numColumns === 1 ? 0 : numColumns === 2 ? 16 : 8,
+    notesCount: notes.length,
+    hasDragAndDrop: Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop
+  });
+
+  // Check if drag and drop is available
+  const hasDragAndDrop = Platform.OS === 'web' && DndProvider && HTML5Backend && useDrag && useDrop;
+
+  if (!hasDragAndDrop) {
+    console.log('Using non-drag version');
     return (
       <ContentWrapper>
         <XStack
@@ -222,53 +230,84 @@ const WebDragDrop: React.FC<WebDragDropProps> = ({
           paddingBottom={bottomPadding}
           paddingTop={10}
           alignItems="flex-start"
-          columnGap={numColumns === 1 ? 0 : numColumns === 2 ? 16 : 12}
+          columnGap={numColumns === 1 ? 0 : numColumns === 2 ? 16 : 4}
           paddingHorizontal={0}
         >
-          {notes.map((note) => (
-            <Stack
-              key={note.id}
-              flexBasis={numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '33.333%'}
-              marginBottom={16}
-              flexShrink={0}
-            >
-              <NoteCard
-                note={note}
-                onPress={() => onSelectNote(note)}
-                onEdit={onEditNote ? () => onEditNote(note) : undefined}
-              />
-            </Stack>
-          ))}
+          {notes.map((note, index) => {
+            const stackProps: StackProps = {
+              flexBasis: (numColumns === 1 ? '100%' : numColumns === 2 ? '50%' : '32%') as any,
+              marginBottom: 16,
+              flexShrink: 0,
+            };
+            console.log(`Note ${index} props:`, stackProps);
+            const stackRef = React.useRef<HTMLDivElement>(null);
+            React.useEffect(() => {
+              if (stackRef.current) {
+                const rect = stackRef.current.getBoundingClientRect();
+                console.log(`Note ${index} actual width:`, rect.width, 'flexBasis:', stackProps.flexBasis);
+              }
+            });
+            
+            return (
+              <Stack
+                key={note.id}
+                {...stackProps}
+                ref={stackRef}
+              >
+                <NoteCard
+                  note={note}
+                  onPress={() => onSelectNote(note)}
+                  onEdit={onEditNote ? () => onEditNote(note) : undefined}
+                />
+              </Stack>
+            );
+          })}
         </XStack>
       </ContentWrapper>
     );
   }
 
+  console.log('Using drag and drop version');
+  const Provider = DndProvider as React.ComponentType<{backend: any; children: React.ReactNode}>;
+  
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      console.log('XStack container actual width:', rect.width);
+    }
+  });
+  
   return (
-    <DndProvider backend={HTML5Backend}>
+    <Provider backend={HTML5Backend!}>
       <ContentWrapper>
         <XStack
+          ref={containerRef}
           flexWrap="wrap"
           paddingBottom={bottomPadding}
           paddingTop={10}
           alignItems="flex-start"
-          columnGap={numColumns === 1 ? 0 : numColumns === 2 ? 16 : 12}
+          columnGap={numColumns === 1 ? 0 : numColumns === 2 ? 16 : 16}
           paddingHorizontal={0}
         >
-          {notes.map((note, index) => (
-            <DraggableNote
-              key={note.id}
-              note={note}
-              index={index}
-              moveNote={onMoveNote}
-              onCardPress={() => onSelectNote(note)}
-              onEdit={onEditNote ? () => onEditNote(note) : undefined}
-              {...itemStackProps} 
-            />
-          ))}
+          {notes.map((note, index) => {
+            console.log(`Draggable Note ${index} props:`, itemStackProps);
+            
+            return (
+              <DraggableNote
+                key={note.id}
+                note={note}
+                index={index}
+                moveNote={onMoveNote}
+                onCardPress={() => onSelectNote(note)}
+                onEdit={onEditNote ? () => onEditNote(note) : undefined}
+                {...itemStackProps} 
+              />
+            );
+          })}
         </XStack>
       </ContentWrapper>
-    </DndProvider>
+    </Provider>
   );
 };
 

@@ -40,7 +40,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const router = useRouter();
   const [showSettings, setShowSettings] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [wifiModalOpen, setWifiModalOpen] = useState(false);
@@ -54,7 +53,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const [editVaultModalOpen, setEditVaultModalOpen] = useState(false);
   const [showArchivedProjectsModal, setShowArchivedProjectsModal] = useState(false);
   const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
-  const username = useUserStore(s => s.preferences.username);
   const { events } = useCalendarStore();
   const { updateBill } = useBills();
 
@@ -67,8 +65,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isCalendarScreen = route.name === 'calendar';
   const isHabitsScreen = route.name === 'habits';
   const isProjectsScreen = route.name === 'projects';
-
-  // Calculate active event types for the Legend
   const [activeEventTypes, setActiveEventTypes] = React.useState<string[]>([]);
 
   React.useEffect(() => {
@@ -80,8 +76,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       ];
 
       const allEvents = [...events, ...holidays];
-
-      // Extract unique event types from combined events
       const types: string[] = [];
       allEvents.forEach(event => {
         if (event.type && !types.includes(event.type)) {
@@ -121,7 +115,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
 
   const getRightHeaderElement = () => {
     if (isWeb && isCalendarScreen) {
-      // Get appropriate layout icon based on column count
       const layoutIcon =
         webColumnCount === 1 ? "apps-outline" :
         webColumnCount === 2 ? "grid-outline" : "grid";
@@ -142,7 +135,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         </Pressable>
       );
     } else if (isIpad() && isCalendarScreen) {
-      // Get layout icon for iPad (3-state toggle: 1-column, 2-column, and Week view)
       const { viewMode } = useCalendarViewStore();
 
       let layoutIcon: keyof typeof Ionicons.glyphMap;
@@ -157,13 +149,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
           onPress={() => {
             Haptics.selectionAsync();
 
-            // 3-state toggle: 1-column → 2-column → Week view → (back to 1-column)
             if (viewMode === 'month') {
               if (webColumnCount === 1) {
-                // Change to 2-column Month view
                 useCalendarViewStore.setState({ webColumnCount: 2 });
               } else {
-                // Change to Week view
                 useCalendarViewStore.setState({ viewMode: 'week' });
               }
             } else {
@@ -177,7 +166,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         </Pressable>
       );
     } else if (!isWeb && !isIpad() && isCalendarScreen) {
-      // Mobile calendar toggle between month and week views
       const { viewMode, toggleViewMode } = useCalendarViewStore();
       const viewIcon = viewMode === 'month' ? "calendar" : "reorder-three";
 
@@ -234,9 +222,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
 
   return (
     <>
-      {isWeb && (
-        <YStack height={spacerHeight} />
-      )}
+      {isWeb && (<YStack height={spacerHeight} /> )}
       <YStack
         position="absolute"
         top={0}
@@ -257,6 +243,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       >
         <YStack
           marginLeft={isPermanentDrawer ? drawerWidth : 0}
+          borderBottomWidth={2}
+          borderColor={isDark ? "rgba(255, 255, 255, 0.75)" : "rgba(0,0,0,0.03)"}
           backgroundColor={
             isWeb
               ? colorScheme === 'dark'

@@ -9,11 +9,7 @@ export const skipOnboardingInDev = async (): Promise<void> => {
   }
 
   try {
-    console.log('🚀 Starting dev onboarding skip...')
-    
     const setPreferences = useUserStore.getState().setPreferences
-
-    // Set all the required onboarding data with sensible defaults
     setPreferences({
       username: 'DevUser',
       profilePicture: 'https://picsum.photos/200',
@@ -32,21 +28,9 @@ export const skipOnboardingInDev = async (): Promise<void> => {
       permissionsExplained: true,
       calendarPermission: false,
     })
-
-    console.log('✅ User preferences set')
-
-    // Add some dev tasks to make the home screen more interesting
     addDevTasks()
-    console.log('✅ Dev tasks added')
-
-    // Small delay to ensure store updates are processed
     await new Promise(resolve => setTimeout(resolve, 100))
-
-    // Force navigation to the main app
-    console.log('🔄 Navigating to main app...')
     router.replace('/(drawer)/(tabs)')
-    
-    console.log('🚀 Onboarding skipped in dev mode!')
   } catch (error) {
     console.error('❌ Error skipping onboarding:', error)
     throw error

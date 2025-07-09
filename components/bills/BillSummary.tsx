@@ -5,6 +5,8 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { isIpad } from '@/utils';
+import { usePortfolioQuery, usePortfolioStore } from '@/store';
+import { getValueColor } from '@/constants';
 
 interface BillSummaryProps {
   monthlyIncome: number;
@@ -23,58 +25,53 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const maxValue = Math.max(monthlyIncome, totalMonthlyAmount);
-  const incomeHeightPercent = maxValue > 0 ? (monthlyIncome / maxValue) * 100 : 0;
-  const billsHeightPercent = maxValue > 0 ? (totalMonthlyAmount / maxValue) * 100 : 0;
+  
+  // Portfolio data
+  const { isLoading } = usePortfolioQuery();
+  const totalValue = usePortfolioStore((state) => state.totalValue);
+  
+  const portfolioDisplayValue = isLoading ? '...'
+    : totalValue !== null ? `$${totalValue.toLocaleString('en-US', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0
+      })}`
+    : '$0';
+
+  const portfolioValueColor = getValueColor('portfolio', totalValue ?? 0, '', isDark);
+  
+  // Calculate bar heights - when no income, show bills at 50% to make it visible
+  let incomeHeightPercent = 0;
+  let billsHeightPercent = 0;
+  
+  if (monthlyIncome === 0 && totalMonthlyAmount > 0) {
+    // No income case: show bills at 50% height (negative max)
+    billsHeightPercent = 50;
+    incomeHeightPercent = 0;
+  } else {
+    // Normal case: calculate based on max value
+    const maxValue = Math.max(monthlyIncome, totalMonthlyAmount);
+    incomeHeightPercent = maxValue > 0 ? (monthlyIncome / maxValue) * 100 : 0;
+    billsHeightPercent = maxValue > 0 ? (totalMonthlyAmount / maxValue) * 100 : 0;
+  }
   
   if (isWeb) {
     return (
-      <XStack 
-        width="100%" 
-        mx="$1" 
-        p="$3" 
-        my="$3"
-        ml="$-5"
-        ai="center"
-        jc="flex-start"
-        gap="$6"
-        br="$4"
-        position="relative"
-      >
+      <XStack  w="100%"   p="$3"  my="$3" ai="center" jc="flex-start" gap="$6" position="relative"  borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"} >
         <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
-          <XStack 
-            width={20}
-            height="100%"
-            ai="flex-start"
-            jc="flex-start"
-            mr={16}
-          >
-            <XStack 
-              height="100%" 
-              ai="flex-end" 
-              gap={2}
-            >
-              {monthlyIncome > 0 && (
-                <XStack 
-                  width={4} 
-                  height={`${incomeHeightPercent}%`} 
-                  bg="#4CAF50" 
-                  borderRadius={2}
+          <XStack  w={24} h={60} ai="center" jc="center"  mr="$3">
+            <XStack  h={60}  ai="flex-end"  gap={3} jc="center">
+              {incomeHeightPercent > 0 && (
+                <XStack w={6}  h={`${incomeHeightPercent}%`}  bg="#4CAF50" borderRadius={3} opacity={0.9}
                 />
               )}
-              {totalMonthlyAmount > 0 && (
-                <XStack 
-                  width={4} 
-                  height={`${billsHeightPercent}%`} 
-                  bg="#FF5252" 
-                  borderRadius={2}
-                />
+              {billsHeightPercent > 0 && (
+                <XStack width={6}  height={`${billsHeightPercent}%`}  bg="#FF5252" borderRadius={3} opacity={0.9} />
               )}
             </XStack>
           </XStack>
           
           <XStack gap="$4" ai="center" flex={1} jc="flex-start">
-            <XStack width={isIpad() ? 180 : 150} ai="center" py="$3" px="$3" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+            <XStack width={isIpad() ? 180 : 150} ai="center" borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"} py="$3" px="$3" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"}>
               <YStack>
                 <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
                 <XStack ai="center" gap="$2">
@@ -96,7 +93,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             </XStack>
             
             {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.53)" : "rgba(0,0,0,0.03)"} borderWidth={1} borderColor={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.03)"}>
                 <YStack>
                   <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
                   <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
@@ -107,7 +104,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             )}
             
             {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"}>
+              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.53)" : "rgba(0,0,0,0.03)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"}>
                 <YStack>
                   <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
                   <Text fontSize="$4" fontWeight="bold" color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'} fontFamily="$body">
@@ -116,6 +113,15 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 </YStack>
               </XStack>
             )}
+            
+            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.53)" : "rgba(0,0,0,0.03)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"}>
+              <YStack>
+                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Portfolio</Text>
+                <Text fontSize="$4" fontWeight="bold" color={portfolioValueColor} fontFamily="$body">
+                  {portfolioDisplayValue}
+                </Text>
+              </YStack>
+            </XStack>
           </XStack>
         </XStack>
       </XStack>
@@ -128,12 +134,13 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
       style={{
         width: isIpad() ? '90%' : '90%',
         marginHorizontal: 'auto',
-        borderRadius: 12,
         marginBottom: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.5,
         shadowRadius: 8,
+        borderBottomWidth: 1,
+        borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)",  
         elevation: 10,
         overflow: 'hidden',
         padding: 16,
@@ -152,17 +159,17 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
           left={0} 
           bottom={0} 
           width={20}
-          height="100%" 
+          height={60} 
           ai="flex-end"
           jc="flex-end"
           mr={16}
         >
           <XStack 
-            height="100%" 
+            height={60} 
             ai="flex-end" 
             gap={2}
           >
-            {monthlyIncome > 0 && (
+            {incomeHeightPercent > 0 && (
               <XStack 
                 width={4} 
                 height={`${incomeHeightPercent}%`} 
@@ -170,7 +177,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 borderRadius={2}
               />
             )}
-            {totalMonthlyAmount > 0 && (
+            {billsHeightPercent > 0 && (
               <XStack 
                 width={4} 
                 height={`${billsHeightPercent}%`} 
@@ -233,6 +240,20 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
               </Text>
             </XStack>
           )}
+          
+          <XStack ai="center" jc="space-between">
+            <Text color={isDark ? '#999' : '#666'} fontSize={16} fontFamily="$body">
+              Portfolio
+            </Text>
+            <Text 
+              fontSize={16}
+              fontWeight="600"
+              color={portfolioValueColor}
+              fontFamily="$body"
+            >
+              {portfolioDisplayValue}
+            </Text>
+          </XStack>
         </YStack>
       </YStack>
     </Animated.View>

@@ -123,10 +123,9 @@ export default function NotesScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingBottom: 100,
-            paddingTop: 8,
-            paddingHorizontal: 16,
+            paddingHorizontal: 0,
             maxWidth: 1600,
-            marginHorizontal: 'auto',
+            marginHorizontal: 20,
             width: '100%',
           }}
         >

@@ -66,23 +66,14 @@ export default function DrawerLayout() {
         backgroundColor,
         width: drawerWidth,
         borderRightWidth: 1,
-        borderColor,
+        borderColor: isDark ? "rgba(255, 255, 255, 0.61)" : "rgba(0,0,0,0.03)",
         ...(isPermanentDrawer ? { zIndex: 20 } : {})
       },
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
       drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
-      drawerItemStyle: {
-        paddingVertical: 0,
-        paddingLeft: 0,
-        marginBottom: 8,
-        borderRadius: 24,
-      },
-      drawerLabelStyle: {
-        fontSize: isIpadDevice ? 18 : 16,
-        fontWeight: "600" as const,
-        marginLeft: -8,
-      },
+      drawerItemStyle: { paddingVertical: 0, paddingLeft: 0, marginBottom: 8, borderRadius: 20 },
+      drawerLabelStyle: { fontSize: isIpadDevice ? 18 : 16, fontWeight: "600" as const, marginLeft: -8 },
       drawerContentStyle: { backgroundColor },
       drawerType: isPermanentDrawer ? 'permanent' as const : 'back' as const,
       defaultStatus: isPermanentDrawer ? 'open' : 'closed',
@@ -95,16 +86,8 @@ export default function DrawerLayout() {
       freezeOnBlur: isWeb ? true : false,
     };
     if (!isPermanentDrawer) {
-      options.gestureHandlerProps = {
-        enabled: true,
-        activeOffsetX: [-15, 15], 
-        failOffsetY: [-50, 50],  
-        velocityThreshold: 0.3,  
-      };
-      options.sceneContainerStyle = {
-        transform: [{ translateX: 0 }],
-      };
-      
+      options.gestureHandlerProps = { enabled: true, activeOffsetX: [-15, 15], failOffsetY: [-50, 50], velocityThreshold: 0.3 };
+      options.sceneContainerStyle = { transform: [{ translateX: 0 }] };
       options.minSwipeDistance = 5;
     }
     options.drawerOpeningAnimation = {

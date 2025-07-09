@@ -449,8 +449,7 @@ export const NoteCard = ({
         shadowRadius={isDragging ? 6 : 2}
         borderRadius={10}
         style={cardSpecificStyle}
-        minWidth={isWeb ? 300 : undefined}
-        maxWidth={isWeb ? 450 : undefined}
+        width="100%"
       >
         <LinearGradient
           colors={isDark ? 
@@ -486,14 +485,14 @@ export const NoteCard = ({
           >
             <XStack
               paddingHorizontal={horizontalPadding}
-              paddingTop={isWeb ? "$3" : "$2"}
+              paddingTop={"$2"}
               paddingBottom={isExpanded ? "$2" : (note.tags?.length ? "$2" : "$1.5")} 
               justifyContent="space-between"
               alignItems="flex-start"
             >
               <Text
                 flex={1}
-                fontSize={isWeb ? "$5" : isIpad() ? 18 : 17}
+                fontSize={isWeb ? "$4" : isIpad() ? 18 : 17}
                 fontWeight="bold"
                 numberOfLines={1}
                 fontFamily="$heading"
@@ -536,34 +535,51 @@ export const NoteCard = ({
               activeOpacity={0.7}
               style={{ width: '100%' }}
             >
-              <XStack
-                flexWrap="nowrap"
-                paddingHorizontal={horizontalPadding}
-                paddingBottom={isWeb ? note.tags?.length ? "$2" : "$1.5" : "$1.5"}
-                gap="$2"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center" mt={note.tags?.length ? -4 : 0}>
-                  {note.tags?.map((tag) => (
-                    <TagChip key={tag.id} tag={tag} />
-                  ))}
-                  {(!note.tags || note.tags.length === 0) && (
-                    <View style={{ height: noTagSpacerHeight, width: 1 }} />
-                  )}
+              {(!note.tags || note.tags.length === 0) ? (
+                <YStack
+                  paddingHorizontal={horizontalPadding}
+                  paddingBottom={isWeb ? "$1.5" : "$1"}
+                  gap="$2"
+                  paddingTop={isWeb ? "$2.5" : "$2"}
+                >
+                  <XStack alignItems="center" mt={-1} mb={4}>
+                    <Text
+                      fontSize={isWeb ? 13 : isIpad() ? 12 : 11}
+                      color={colors.textSecondary}
+                      fontFamily="$body"
+                      className={isWeb ? "note-text" : undefined}
+                    >
+                      {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                    </Text>
+                  </XStack>
+                </YStack>
+              ) : (
+                <XStack
+                  flexWrap="nowrap"
+                  paddingHorizontal={horizontalPadding}
+                  paddingBottom={isWeb ? "$1" : "$0.5"}
+                  gap="$2"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center" mt={-1} mb={4}>
+                    {note.tags?.map((tag) => (
+                      <TagChip key={tag.id} tag={tag} />
+                    ))}
+                  </XStack>
+                  <XStack alignItems="center" gap="$2">
+                    <Text
+                      fontSize={isWeb ? 13 : isIpad() ? 12 : 11}
+                      color={colors.textSecondary}
+                      fontFamily="$body"
+                      flexShrink={0}
+                      className={isWeb ? "note-text" : undefined}
+                    >
+                      {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                    </Text>
+                  </XStack>
                 </XStack>
-                <XStack alignItems="center" gap="$2">
-                  <Text
-                    fontSize={isWeb ? 13 : isIpad() ? 12 : 11}
-                    color={colors.textSecondary}
-                    fontFamily="$body"
-                    flexShrink={0}
-                    className={isWeb ? "note-text" : undefined}
-                  >
-                    {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
-                  </Text>
-                </XStack>
-              </XStack>
+              )}
             </TouchableOpacity>
           ) : (
             <YStack>
@@ -642,46 +658,75 @@ export const NoteCard = ({
                   activeOpacity={0.7}
                   style={{ width: '100%' }}
                 >
-                  <XStack
-                    flexWrap="nowrap"
-                    paddingHorizontal={horizontalPadding}
-                    paddingTop="$1"
-                    paddingBottom="$2"
-                    gap="$1.5"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
-                      {note.tags?.map((tag) => (
-                        <TagChip key={tag.id} tag={tag} />
-                      ))}
-                      {(!note.tags || note.tags.length === 0) && (
-                        <View style={{ height: noTagSpacerHeight, width: 1 }} />
-                      )}
-                    </XStack>
-                    <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
-                      <Text
-                        fontSize={isWeb? 13 : 11}
-                        color={colors.textSecondary}
-                        fontFamily="$body"
-                        flexShrink={0}
-                        className={isWeb ? "note-text" : undefined}
-                      >
-                        {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
-                      </Text>
-                      {onEdit && (
-                        <TouchableOpacity
-                          onPress={(e) => {
-                            e.stopPropagation();
-                            onEdit(note);
-                          }}
-                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  {(!note.tags || note.tags.length === 0) ? (
+                    <YStack
+                      paddingHorizontal={horizontalPadding}
+                      marginTop="$1.5"
+                      paddingBottom="$2.5"
+                      gap="$1.5"
+                    >
+                      <XStack alignItems="center" gap="$2">
+                        <Text
+                          fontSize={isWeb? 13 : 11}
+                          color={colors.textSecondary}
+                          fontFamily="$body"
+                          flexShrink={0}
+                          className={isWeb ? "note-text" : undefined}
                         >
-                          <MaterialIcons name="edit" size={isWeb ? 18 : 16} color={colors.textSecondary} />
-                        </TouchableOpacity>
-                      )}
+                          {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                        </Text>
+                        {onEdit && (
+                          <TouchableOpacity
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              onEdit(note);
+                            }}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          >
+                            <MaterialIcons name="edit" size={isWeb ? 18 : 16} color={colors.textSecondary} />
+                          </TouchableOpacity>
+                        )}
+                      </XStack>
+                    </YStack>
+                  ) : (
+                    <XStack
+                      flexWrap="nowrap"
+                      paddingHorizontal={horizontalPadding}
+                      paddingTop="$1"
+                      paddingBottom="$1.5"
+                      gap="$1.5"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <XStack flexWrap="nowrap" gap="$1.5" flexShrink={1} mr="$2" alignItems="center">
+                        {note.tags?.map((tag) => (
+                          <TagChip key={tag.id} tag={tag} />
+                        ))}
+                      </XStack>
+                      <XStack paddingBottom={isWeb? 0 : 2} alignItems="center" gap="$2">
+                        <Text
+                          fontSize={isWeb? 13 : 11}
+                          color={colors.textSecondary}
+                          fontFamily="$body"
+                          flexShrink={0}
+                          className={isWeb ? "note-text" : undefined}
+                        >
+                          {new Date(note.updatedAt || Date.now()).toLocaleDateString()}
+                        </Text>
+                        {onEdit && (
+                          <TouchableOpacity
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              onEdit(note);
+                            }}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          >
+                            <MaterialIcons name="edit" size={isWeb ? 18 : 16} color={colors.textSecondary} />
+                          </TouchableOpacity>
+                        )}
+                      </XStack>
                     </XStack>
-                  </XStack>
+                  )}
                 </TouchableOpacity>
               </View>
             </YStack>
@@ -703,8 +748,8 @@ const localStyles = StyleSheet.create({
   touchableContainer: {
     width: Platform.OS === 'web' ? '100%' : '100%',
     paddingVertical: Platform.OS === 'web' ? 0 : 4,
-    paddingHorizontal: Platform.OS === 'web' ? 2 : 12,
-    flexShrink: 1,
+    paddingHorizontal: Platform.OS === 'web' ? 0 : 12,
+    flexShrink: 0,
     alignSelf: 'flex-start',
     height: 'auto',
   },

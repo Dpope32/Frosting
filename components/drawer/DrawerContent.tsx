@@ -91,6 +91,8 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
               {...props}
               contentContainerStyle={styles.scrollViewContent}
               style={styles.scrollView}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
             >
               <DrawerItemList {...props} />
               
