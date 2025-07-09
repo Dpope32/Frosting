@@ -103,55 +103,6 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
 // ───────────────────────── ROBUST CONNECTION HELPERS ─────────────────────────
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boolean> => {
-  const isRetry = retryCount > 0;
-  const timeout = isRetry ? HEALTH_TIMEOUT_RETRY : HEALTH_TIMEOUT;
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeout);
-
-  try {
-    //addSyncLog(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
-    
-    let res = await fetch(url, { 
-      method: 'GET', 
-      signal: ctrl.signal,
-      // Platform-specific headers for better iOS compatibility
-      headers: Platform.OS === 'ios' ? {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      } : {}
-    });
-    
-    if (res.status === 405) {
-   //   addSyncLog(`GET 405 — retrying HEAD for ${url}`, 'verbose');
-      res = await fetch(url, { 
-        method: 'HEAD', 
-        signal: ctrl.signal,
-        headers: Platform.OS === 'ios' ? {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        } : {}
-      });
-    }
-    
-    clearTimeout(timer);
-
-    // Accept 200, 401, or 404 as "alive" (different PB versions)
-    if (res.status === 200 || res.status === 401 || res.status === 404) {
-    //  addSyncLog(`✅ ${url} -> ${res.status} (success)`, 'info');
-      return true;
-    }
-    
-    addSyncLog(`⚠️ ${url} -> ${res.status} (unexpected status)`, 'warning');
-    return false;
-    
-  } catch (e: any) {
-    clearTimeout(timer);
-    const errorMsg = e.name === 'AbortError' ? 'timeout' : e.message || 'unknown error';
-   // addSyncLog(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
-    return false;
-  }
-};
 
 const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
   const url = `${baseUrl}${HEALTH_PATH}`;
@@ -169,35 +120,122 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
     }
   }
   
- // addSyncLog(`❌ ${baseUrl} failed after ${MAX_RETRIES + 1} attempts`, 'error');
+  addSyncLog(`❌ ${baseUrl} failed after ${MAX_RETRIES + 1} attempts`, 'error');
   return false;
 };
 
 // ───────────────────────── ROBUST PB FACTORY ─────────────────────────
+
+const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boolean> => {
+  const isRetry = retryCount > 0;
+  const timeout = isRetry ? HEALTH_TIMEOUT_RETRY : HEALTH_TIMEOUT;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeout);
+
+  try {
+    addSyncLog(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
+    
+    // iPhone-specific debugging
+    if (Platform.OS === 'ios') {
+      addSyncLog(`📱 iOS fetch with cache headers to ${url}`, 'verbose');
+    }
+    
+    let res = await fetch(url, { 
+      method: 'GET', 
+      signal: ctrl.signal,
+      // Platform-specific headers for better iOS compatibility
+      headers: Platform.OS === 'ios' ? {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'User-Agent': 'KaibaApp/1.0 iOS'
+      } : {}
+    });
+    
+    if (res.status === 405) {
+      addSyncLog(`GET 405 — retrying HEAD for ${url}`, 'verbose');
+      res = await fetch(url, { 
+        method: 'HEAD', 
+        signal: ctrl.signal,
+        headers: Platform.OS === 'ios' ? {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'User-Agent': 'KaibaApp/1.0 iOS'
+        } : {}
+      });
+    }
+    
+    clearTimeout(timer);
+
+    // Enhanced logging for debugging
+    addSyncLog(`📊 ${url} response: ${res.status} ${res.statusText}`, 'verbose');
+    
+    // Accept 200, 401, or 404 as "alive" (different PB versions)
+    if (res.status === 200 || res.status === 401 || res.status === 404) {
+      addSyncLog(`✅ ${url} -> ${res.status} (success)`, 'info');
+      return true;
+    }
+    
+    addSyncLog(`⚠️ ${url} -> ${res.status} (unexpected status)`, 'warning');
+    return false;
+    
+  } catch (e: any) {
+    clearTimeout(timer);
+    const errorMsg = e.name === 'AbortError' ? 'timeout' : e.message || 'unknown error';
+    
+    // Enhanced iPhone error debugging
+    if (Platform.OS === 'ios') {
+      addSyncLog(`📱 iOS error for ${url}: ${e.name} - ${errorMsg}`, 'warning');
+      if (e.stack) {
+        addSyncLog(`📱 iOS error stack: ${e.stack.split('\n')[0]}`, 'verbose');
+      }
+    } else {
+      addSyncLog(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
+    }
+    return false;
+  }
+};
+
 export const getPocketBase = async (): Promise<PocketBaseType> => {
   // Early detection for simulator/dev mode
   if (isSimulatorOrDev()) {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 
- // addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
+  // Enhanced iPhone debugging
+  if (Platform.OS === 'ios') {
+    addSyncLog(`📱 iPhone PocketBase connection attempt`, 'info');
+    addSyncLog(`📱 Available URLs: ${CANDIDATE_URLS.length}`, 'info');
+    CANDIDATE_URLS.forEach((url, index) => {
+      addSyncLog(`📱 URL ${index + 1}: ${url}`, 'verbose');
+    });
+  }
+
+  addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
 
   // Test each URL with full retry logic
   for (const baseUrl of CANDIDATE_URLS) {
- //   addSyncLog(`🌐 Testing base URL: ${baseUrl}`, 'info');
+    addSyncLog(`🌐 Testing base URL: ${baseUrl}`, 'info');
     
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
-   //   addSyncLog(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
+      addSyncLog(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
       break;
     }
   }
 
   if (!selected) {
     const errorMsg = `All PocketBase URLs failed after ${MAX_RETRIES + 1} attempts each`;
-    addSyncLog(`❌ ${errorMsg}`, 'error');
+    
+    // Enhanced iPhone failure logging
+    if (Platform.OS === 'ios') {
+      addSyncLog(`📱 iPhone total failure: ${errorMsg}`, 'error');
+      addSyncLog(`📱 This suggests iPhone-specific network issues`, 'error');
+    } else {
+      addSyncLog(`❌ ${errorMsg}`, 'error');
+    }
+    
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 
