@@ -243,8 +243,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       >
         <YStack
           marginLeft={isPermanentDrawer ? drawerWidth : 0}
-          borderBottomWidth={2}
-          borderColor={isDark ? "rgba(255, 255, 255, 0.75)" : "rgba(0,0,0,0.03)"}
+          borderBottomWidth={1}
+          borderColor={isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0,0,0,0.03)"}
           backgroundColor={
             isWeb
               ? colorScheme === 'dark'
