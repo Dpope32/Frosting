@@ -9,7 +9,7 @@ import { isIpad } from '@/utils'
 import AddDeviceModal from '@/components/cardModals/creates/AddDeviceModal'
 import { exportLogs, createOrJoinWorkspace } from '@/sync'
 import * as Clipboard from 'expo-clipboard'
-import { useAuthCheck, useDeviceId, useWorkspaceId, useWorkspaceDetails, useSyncStatusLogger, useLogUpdates } from '@/hooks/sync'
+import { useAuthCheck, useDeviceId, useWorkspaceId, useWorkspaceDetails, useLogUpdates } from '@/hooks/sync'
 import { addSyncLog, clearLogQueue, LogEntry, getColors, baseSpacing, PremiumLogs } from '@/components/sync'
 import SyncTable from '@/components/sync/syncTable'
 import NeedsWorkspace from '@/components/sync/needsWorkspace'
@@ -104,8 +104,6 @@ export default function SyncScreen() {
     }, 100) // Small delay to ensure store is hydrated
     return () => clearTimeout(timer)
   }, [])
-
-  useSyncStatusLogger(syncStatus, isLoading)
   useAuthCheck()
   useLogUpdates(premium, setSyncLogs)  
 

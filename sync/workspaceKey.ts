@@ -11,7 +11,6 @@ export const getWorkspaceKey = async (): Promise<string> => {
   }
 
   const pb = await getPocketBase();
-  addSyncLog('🔍 GET request source: sync/workspaceKey.ts - getWorkspaceKey()', 'verbose');
   const { shared_key } = await pb.collection('sync_workspaces').getOne(wsId);
   if (!shared_key) {
     addSyncLog('❌ No shared key in workspace record', 'error');
@@ -29,9 +28,6 @@ export const getWorkspaceKey = async (): Promise<string> => {
 export const ensureWorkspaceKey = async (workspaceId: string): Promise<boolean> => {
   try {
     const pb = await getPocketBase();
-    
-    addSyncLog('🔍 GET request source: sync/workspaceKey.ts - ensureWorkspaceKey()', 'verbose');
-    // Get the workspace record
     const workspace = await pb.collection('sync_workspaces').getOne(workspaceId);
     const remoteKey = workspace.shared_key;
     

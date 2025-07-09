@@ -20,8 +20,8 @@ const { width } = Dimensions.get("window");
 
 
 export default function CRM() {
-  const { contacts, updatePerson } = usePeopleStore();
-  const allContacts = Object.values(contacts);
+  const { contacts, updatePerson, getActiveContacts } = usePeopleStore();
+  const allContacts = getActiveContacts(); // Use getActiveContacts instead of Object.values(contacts)
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';

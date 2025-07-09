@@ -43,7 +43,14 @@ interface BillStore {
 }
 
 const asyncStorage = createPersistStorage<BillStore>();
-const getAddSyncLog = () => require('@/components/sync/syncUtils').addSyncLog;
+
+let debug = false;
+const getAddSyncLog = () => {
+  if (debug) {
+    return require('@/components/sync/syncUtils').addSyncLog;
+  }
+  return () => {};
+}
 
 export const useBillStore = create<BillStore>()(
   persist(

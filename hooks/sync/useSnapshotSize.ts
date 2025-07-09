@@ -82,10 +82,6 @@ export const useSnapshotSize = (workspaceId?: string): UseSnapshotSizeReturn => 
         setIsLoading(false);
         return;
       }
-
-      addSyncLog('📏 Cache miss - fetching snapshot size from server', 'verbose');
-      addSyncLog('🔍 GET request source: hooks/sync/useSnapshotSize.ts - fetchSnapshotSize() CACHE MISS', 'verbose');
-      
       const pb = await getPocketBase();
       const response = await pb.collection('registry_snapshots').getList(1, 1, {
         filter: `workspace_id="${wsId}"`,

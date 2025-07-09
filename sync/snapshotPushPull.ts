@@ -19,6 +19,8 @@ import { addSyncLog } from "@/components/sync/syncUtils";
 import { getWorkspaceKey } from "./workspaceKey";
 import { Platform } from 'react-native';
 
+let debug = false;
+
 // Helper functions for snapshot size calculation
 const calculateSizeFromBase64 = (base64String: string): number => {
   // Base64 encoding ratio is approximately 4:3 (4 characters for every 3 bytes)
@@ -69,21 +71,29 @@ export const pushSnapshot = async (): Promise<void> => {
   // if a push is already running, mark dirty and bail
   if (useRegistryStore.getState().syncStatus === 'syncing') {
     dirtyAfterPush = true;
-    addSyncLog('🔄 Push queued while another push in progress', 'verbose');
+    if (debug) {
+      addSyncLog('🔄 Push queued while another push in progress', 'verbose');
+    }
     return;
   }
 
   // we're the primary push now
   useRegistryStore.getState().setSyncStatus('syncing');
   const runId = Date.now().toString(36);
-  addSyncLog(`🛰️  ${runId} – push`, 'info');
+  if (debug) {
+    addSyncLog(`🛰️  ${runId} – push`, 'info');
+  }
 
   try {
-    addSyncLog('Pushing snapshot to PocketBase', 'info');
+    if (debug) {
+      addSyncLog('Pushing snapshot to PocketBase', 'info');
+    }
 
     // guards
     if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
-      addSyncLog('Skipping push – onboarding not completed', 'warning');
+      if (debug) {
+        addSyncLog('Skipping push – onboarding not completed', 'warning');
+      }
       return;
     }
 
@@ -91,12 +101,16 @@ export const pushSnapshot = async (): Promise<void> => {
       addSyncLog('Skipping push – no network connection', 'warning');
       return;
     }
-    addSyncLog(`🔍 checkNetworkConnectivity called from snapshotPushPull.ts pushSnapshot() - Platform.OS: ${Platform.OS}`, 'verbose');
-  
+    if (debug) {
+      addSyncLog(`🔍 checkNetworkConnectivity called from snapshotPushPull.ts pushSnapshot() - Platform.OS: ${Platform.OS}`, 'verbose');
+    }
+    
     const pb = await getPocketBase();
     const workspaceId = await getCurrentWorkspaceId();
     if (!workspaceId) {
-      addSyncLog('No workspace configured, aborting push', 'warning');
+      if (debug) {
+        addSyncLog('No workspace configured, aborting push', 'warning');
+      }
       return;
     }
 
@@ -108,10 +122,12 @@ export const pushSnapshot = async (): Promise<void> => {
     if (now - lastExport >= 10_000) {
       await exportEncryptedState(state);
       lastExport = now;
-      addSyncLog(
-        `💾 snapshot encrypted → stateSnapshot.enc from snapshotPushPull.ts  (${new Date(now).toISOString()})`,
-        'info'
-      );
+      if (debug) {
+        addSyncLog(
+          `💾 snapshot encrypted → stateSnapshot.enc from snapshotPushPull.ts  (${new Date(now).toISOString()})`,
+          'info'
+        );
+      }
     } else {
       addSyncLog('⏸️  export skipped – <10 s since last', 'verbose');
     }
@@ -122,11 +138,15 @@ export const pushSnapshot = async (): Promise<void> => {
       if (typeof window !== 'undefined' && window.localStorage) {
         cipher = window.localStorage.getItem(WEB_SNAPSHOT_KEY) || '';
         if (!cipher) {
-          addSyncLog('No snapshot found in localStorage', 'warning');
+          if (debug) {
+            addSyncLog('No snapshot found in localStorage', 'warning');
+          }
           return;
         }
       } else {
-        addSyncLog('localStorage not available on web', 'error');
+        if (debug) {
+          addSyncLog('localStorage not available on web', 'error');
+        }
         return;
       }
     } else {
@@ -147,7 +167,9 @@ export const pushSnapshot = async (): Promise<void> => {
           snapshot_blob: cipher,
           timestamp: new Date().toISOString(),
         });
-        addSyncLog(`📝 Updated existing snapshot (record: ${items[0].id})`, 'verbose');
+        if (debug) {
+          addSyncLog(`📝 Updated existing snapshot (record: ${items[0].id})`, 'verbose');
+        }
       } else {
         // Create first record for this workspace
         await pb.collection('registry_snapshots').create({
@@ -155,7 +177,9 @@ export const pushSnapshot = async (): Promise<void> => {
           device_id: deviceId,
           snapshot_blob: cipher,
         });
-        addSyncLog('✨ Created first snapshot for workspace', 'verbose');
+        if (debug) {
+          addSyncLog('✨ Created first snapshot for workspace', 'verbose');
+        }
       }
     } catch (createErr) {
       // Handle unique constraint errors gracefully
@@ -169,7 +193,9 @@ export const pushSnapshot = async (): Promise<void> => {
             snapshot_blob: cipher,
             timestamp: new Date().toISOString(),
           });
-          addSyncLog('📝 Updated after unique constraint error', 'verbose');
+          if (debug) {
+            addSyncLog('📝 Updated after unique constraint error', 'verbose');
+          }
         } else {
           throw createErr;
         }
@@ -178,14 +204,18 @@ export const pushSnapshot = async (): Promise<void> => {
       }
     }
 
-    addSyncLog(`Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
+    if (debug) {
+      addSyncLog(`Successfully pushed data to PocketBase 🛰️  ${runId} – push done`, 'success');
+    }
   } catch (err) {
     Sentry.captureException(err);
-    addSyncLog(
-      'Error pushing to PocketBase',
-      'error',
-      err instanceof Error ? err.message : String(err)
-    );
+    if (debug) {
+      addSyncLog(
+        'Error pushing to PocketBase',
+        'error',
+        err instanceof Error ? err.message : String(err)
+      );
+    }
     useRegistryStore.getState().setSyncStatus('error');
     throw err;
   } finally {
@@ -194,7 +224,9 @@ export const pushSnapshot = async (): Promise<void> => {
     // if something changed while we were busy, run again
     if (dirtyAfterPush) {
       dirtyAfterPush = false;
-      addSyncLog('🔁 Running queued push after previous push finished', 'info');
+      if (debug) {
+        addSyncLog('🔁 Running queued push after previous push finished', 'info');
+      }
       await pushSnapshot();
     }
   }
@@ -204,36 +236,47 @@ export const pushSnapshot = async (): Promise<void> => {
 export const pullLatestSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
 
- // addSyncLog('📥 pullLatestSnapshot() called - will make GET request to registry_snapshots', 'verbose');
- // const runId = Date.now().toString(36);
-//  addSyncLog(`🛰️  ${runId} – pull`, 'info');
+  if (debug) {
+    addSyncLog('📥 pullLatestSnapshot() called - will make GET request to registry_snapshots', 'verbose');
+    const runId = Date.now().toString(36);
+    addSyncLog(`🛰️  ${runId} – pull`, 'info');
+  }
   useRegistryStore.getState().setSyncStatus('syncing');
 
   try {
     if (!useUserStore.getState().preferences.hasCompletedOnboarding) {
-      addSyncLog('Skipping pull – onboarding not completed', 'warning');
+      if (debug) {
+        addSyncLog('Skipping pull – onboarding not completed', 'warning');
+      }
       return;
     }
     if (!(await checkNetworkConnectivity())) {
-      addSyncLog('Skipping pull – no network connection', 'warning');
+      if (debug) {
+        addSyncLog('Skipping pull – no network connection', 'warning');
+      }
       return;
     }
-    addSyncLog(`🔍 checkNetworkConnectivity called from snapshotPushPull.ts pullLatestSnapshot() - Platform.OS: ${Platform.OS}`, 'verbose');
+    if (debug) {
+      addSyncLog(`🔍 checkNetworkConnectivity called from snapshotPushPull.ts pullLatestSnapshot() - Platform.OS: ${Platform.OS}`, 'verbose');
+    }
     const workspaceId = await getCurrentWorkspaceId();
     if (!workspaceId) {
-      addSyncLog('No workspace configured, aborting pull', 'warning');
+      if (debug) {
+        addSyncLog('No workspace configured, aborting pull', 'warning');
+      }
       return;
     }
 
     const pb = await getPocketBase();
-    addSyncLog('🔍 GET request source: sync/snapshotPushPull.ts - pullLatestSnapshot()', 'verbose');
     const { items } = await pb.collection('registry_snapshots').getList(1, 1, {
       filter: `workspace_id="${workspaceId}"`,
       sort: '-created',
     });
 
     if (items.length === 0) {
-      addSyncLog('📭 No snapshots found on server yet', 'info');
+      if (debug) {
+        addSyncLog('📭 No snapshots found on server yet', 'info');
+      }
       return;
     }
 
@@ -256,7 +299,9 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     try {
       plain = decryptSnapshot(cipher, key);
     } catch (err) {
-      addSyncLog('❌ Decrypt failed – key mismatch or old format', 'error');
+      if (debug) {
+        addSyncLog('❌ Decrypt failed – key mismatch or old format', 'error');
+      }
       return;
     }
 
@@ -274,14 +319,19 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
 
     useRegistryStore.getState().hydrateAll(plain);
- //   addSyncLog(`✅ Snapshot pulled & stores hydrated  ${runId} – pull done`, 'success');
+    if (debug) {
+      const runId = Date.now().toString(36);
+      addSyncLog(`✅ Snapshot pulled & stores hydrated  ${runId} – pull done`, 'success');
+    }
   } catch (err) {
     Sentry.captureException(err);
-    addSyncLog(
-      'Error pulling from PocketBase',
-      'error',
-      err instanceof Error ? err.message : String(err)
-    );
+    if (debug) {
+      addSyncLog(
+        'Error pulling from PocketBase',
+        'error',
+        err instanceof Error ? err.message : String(err)
+      );
+    }
     useRegistryStore.getState().setSyncStatus('error');
     throw err;
   } finally {

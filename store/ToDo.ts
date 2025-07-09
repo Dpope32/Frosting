@@ -9,6 +9,8 @@ import { generateUniqueId } from '@/utils';
 import { addSyncLog } from '@/components/sync/syncUtils'
 import { useUserStore } from '@/store/UserStore'
 
+let debug = false;
+
 
 interface ProjectStore {
   tasks: Record<string, Task>
@@ -127,11 +129,13 @@ const isTaskDue = (task: Task, date: Date): boolean => {
             storeUpdate.tasks = tasks;
             useProjectStore.setState({ tasks });
 
-            addSyncLog(
-              `[CONVERSION COMPLETE] "${task.name.slice(0, 25)}" is now one-time`,
-              'success',
-              `Task will now behave as one-time task. Completion will be permanent. Updated at: ${newTimestamp}`
-            );
+            if (debug) {
+              addSyncLog(
+                `[CONVERSION COMPLETE] "${task.name.slice(0, 25)}" is now one-time`,
+                'success',
+                `Task will now behave as one-time task. Completion will be permanent. Updated at: ${newTimestamp}`
+              );
+            }
           }
         }, 0);
       }
@@ -235,7 +239,9 @@ const createTaskFilter = () => {
           completionConflicts.push(`${task.name.slice(0, 20)}: stored=${task.completed} vs history=${newCompletedState}`);
         }
         if (completionUpdates.length > 0) {
-          addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
+          if (debug) {
+            addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
+          }
         }
 
       } else {
@@ -255,24 +261,28 @@ const createTaskFilter = () => {
 
     // CRITICAL: If tasks need updates, persist them back to the store
     if (tasksNeedUpdate) {
-      // Use setTimeout to avoid updating during the filter operation
-      setTimeout(() => {
-        const currentState = useProjectStore.getState();
-        // More robust check - update if our changes are still relevant
-        if (Object.keys(currentState.tasks).length === Object.keys(updatedTasks).length) {
-          useProjectStore.setState({ tasks: updatedTasks });
-          addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
-        }
-      }, 0);
+              // Use setTimeout to avoid updating during the filter operation
+        setTimeout(() => {
+          const currentState = useProjectStore.getState();
+          // More robust check - update if our changes are still relevant
+          if (Object.keys(currentState.tasks).length === Object.keys(updatedTasks).length) {
+            useProjectStore.setState({ tasks: updatedTasks });
+            if (debug) {
+              addSyncLog(`[COMPLETION SYNC] Updated ${completionUpdates.length} task completion states`, 'info');
+            }
+          }
+        }, 0);
     }
     
     // Log completion conflicts only if they exist
     if (completionConflicts.length > 0) {
-      addSyncLog(
-        `[FILTER COMPLETION CONFLICTS] ${completionConflicts.length} tasks have conflicting completion states`,
-        'warning',
-        completionConflicts.slice(0, 3).join(', ') + (completionConflicts.length > 3 ? '...' : '')
-      );
+      if (debug) {
+        addSyncLog(
+          `[FILTER COMPLETION CONFLICTS] ${completionConflicts.length} tasks have conflicting completion states`,
+          'warning',
+          completionConflicts.slice(0, 3).join(', ') + (completionConflicts.length > 3 ? '...' : '')
+        );
+      }
     }
     
     // Filter tasks that are due today using the updated tasks
@@ -370,40 +380,48 @@ export const useProjectStore = create<ProjectStore>()(
           }
           
           // 🚨 COMPLETION TRACKING: Log every completion/toggle for sync debugging
-          addSyncLog(
-            `[TASK TOGGLE] "${tasks[id].name.slice(0, 20)}" ${currentStatus ? 'UN' : ''}COMPLETED`,
-            'error',
-            `🚨 TOGGLE: ${currentStatus} → ${newCompletionStatus} on ${todayLocalStr} | Pattern: ${tasks[id].recurrencePattern} | ID: ${id.slice(-8)}`
-          );
+          if (debug) {
+            addSyncLog(
+              `[TASK TOGGLE] "${tasks[id].name.slice(0, 20)}" ${currentStatus ? 'UN' : ''}COMPLETED`,
+              'error',
+              `🚨 TOGGLE: ${currentStatus} → ${newCompletionStatus} on ${todayLocalStr} | Pattern: ${tasks[id].recurrencePattern} | ID: ${id.slice(-8)}`
+            );
+          }
           
           // Verify the completion history was set correctly
           const actualHistoryValue = tasks[id].completionHistory[todayLocalStr];
           if (actualHistoryValue !== newCompletionStatus) {
-            addSyncLog(
-              `[TOGGLE VERIFICATION FAILED] Completion history mismatch!`,
-              'error',
-              `🚨 Expected: ${newCompletionStatus}, Actual: ${actualHistoryValue} for ${todayLocalStr}`
-            );
+            if (debug) {
+              addSyncLog(
+                `[TOGGLE VERIFICATION FAILED] Completion history mismatch!`,
+                'error',
+                `🚨 Expected: ${newCompletionStatus}, Actual: ${actualHistoryValue} for ${todayLocalStr}`
+              );
+            }
           }
           
           // Log only significant completion changes
           if (tasks[id].recurrencePattern === 'one-time' && newCompletionStatus) {
-            addSyncLog(
-              `[ONE-TIME COMPLETED] "${tasks[id].name.slice(0, 25)}" marked complete - will stay completed`,
-              'success',
-              `One-time tasks remain completed permanently. Completed on: ${todayLocalStr}`
-            );
+            if (debug) {
+              addSyncLog(
+                `[ONE-TIME COMPLETED] "${tasks[id].name.slice(0, 25)}" marked complete - will stay completed`,
+                'success',
+                `One-time tasks remain completed permanently. Completed on: ${todayLocalStr}`
+              );
+            }
           }
           
           const updatedTodaysTasks = taskFilter(tasks);
           set({ tasks, todaysTasks: updatedTodaysTasks });
 
           // mark registry dirty so pushSnapshot can see it
-          addSyncLog(
-            'SYNC_DIRTY',
-            'info',
-            `id=${id.slice(-8)} ts=${Date.now()} completed=${newCompletionStatus}`
-          );
+          if (debug) {
+            addSyncLog(
+              'SYNC_DIRTY',
+              'info',
+              `id=${id.slice(-8)} ts=${Date.now()} completed=${newCompletionStatus}`
+            );
+          }
 
           // 🚨 ADD THIS: Trigger sync after toggle
           if (useUserStore.getState().preferences.premium) {
@@ -411,9 +429,13 @@ export const useProjectStore = create<ProjectStore>()(
               try {
                 const { pushSnapshot } = await import('@/sync/snapshotPushPull');
                 await pushSnapshot();
-                addSyncLog('📤 Auto-sync after task toggle', 'verbose');
+                if (debug) {
+                  addSyncLog('📤 Auto-sync after task toggle', 'verbose');
+                }
               } catch (err) {
-                addSyncLog('❌ Auto-sync failed after toggle', 'error', err instanceof Error ? err.message : String(err));
+                if (debug) {
+                  addSyncLog('❌ Auto-sync failed after toggle', 'error', err instanceof Error ? err.message : String(err));
+                }
               }
             }, 1000); // 1 second delay to batch multiple toggles
           }
@@ -458,8 +480,10 @@ export const useProjectStore = create<ProjectStore>()(
         const tasks = get().tasks;
         const today = format(new Date(), 'yyyy-MM-dd');
         
-        addSyncLog('=== SYNC STATE DEBUG REPORT ===', 'info');
-        addSyncLog(`Total tasks in store: ${Object.keys(tasks).length}`, 'info');
+        if (debug) {
+          addSyncLog('=== SYNC STATE DEBUG REPORT ===', 'info');
+          addSyncLog(`Total tasks in store: ${Object.keys(tasks).length}`, 'info');
+        }
         
         // Check for completion conflicts
         const completionConflicts: string[] = [];
@@ -493,33 +517,37 @@ export const useProjectStore = create<ProjectStore>()(
           
           // Log detailed state for tasks with completion data
           if (historyToday !== undefined || isCompleted) {
-            addSyncLog(
-              `[TASK STATE] "${task.name.slice(0, 25)}"`,
-              'verbose',
-              `ID: ${id.slice(-8)} | Pattern: ${task.recurrencePattern} | Completed: ${isCompleted} | History[${today}]: ${historyToday} | UpdatedAt: ${task.updatedAt} | Full history: ${JSON.stringify(task.completionHistory)}`
-            );
+            if (debug) {
+              addSyncLog(
+                `[TASK STATE] "${task.name.slice(0, 25)}"`,
+                'verbose',
+                `ID: ${id.slice(-8)} | Pattern: ${task.recurrencePattern} | Completed: ${isCompleted} | History[${today}]: ${historyToday} | UpdatedAt: ${task.updatedAt} | Full history: ${JSON.stringify(task.completionHistory)}`
+              );
+            }
           }
         });
         
-        addSyncLog(`Tasks with today's history (${today}): ${tasksWithTodayHistory.length}`, 'info', 
-          tasksWithTodayHistory.slice(0, 5).join(', ') + (tasksWithTodayHistory.length > 5 ? '...' : ''));
-        
-        addSyncLog(`Completed tasks: ${completedTasks.length}`, 'info',
-          completedTasks.slice(0, 5).join(', ') + (completedTasks.length > 5 ? '...' : ''));
-        
-        if (completionConflicts.length > 0) {
-          addSyncLog(`COMPLETION CONFLICTS FOUND: ${completionConflicts.length}`, 'error',
-            completionConflicts.slice(0, 3).join(' | ') + (completionConflicts.length > 3 ? '...' : ''));
-        } else {
-          addSyncLog('No completion conflicts detected', 'success');
+        if (debug) {
+          addSyncLog(`Tasks with today's history (${today}): ${tasksWithTodayHistory.length}`, 'info', 
+            tasksWithTodayHistory.slice(0, 5).join(', ') + (tasksWithTodayHistory.length > 5 ? '...' : ''));
+          
+          addSyncLog(`Completed tasks: ${completedTasks.length}`, 'info',
+            completedTasks.slice(0, 5).join(', ') + (completedTasks.length > 5 ? '...' : ''));
+          
+          if (completionConflicts.length > 0) {
+            addSyncLog(`COMPLETION CONFLICTS FOUND: ${completionConflicts.length}`, 'error',
+              completionConflicts.slice(0, 3).join(' | ') + (completionConflicts.length > 3 ? '...' : ''));
+          } else {
+            addSyncLog('No completion conflicts detected', 'success');
+          }
+          
+          // Check today's filtered tasks
+          const todaysTasks = get().todaysTasks;
+          const completedToday = todaysTasks.filter(t => t.completed || t.completionHistory[today]).length;
+          
+          addSyncLog(`Today's filtered tasks: ${todaysTasks.length} total, ${completedToday} completed`, 'info');
+          addSyncLog('=== END DEBUG REPORT ===', 'info');
         }
-        
-        // Check today's filtered tasks
-        const todaysTasks = get().todaysTasks;
-        const completedToday = todaysTasks.filter(t => t.completed || t.completionHistory[today]).length;
-        
-        addSyncLog(`Today's filtered tasks: ${todaysTasks.length} total, ${completedToday} completed`, 'info');
-        addSyncLog('=== END DEBUG REPORT ===', 'info');
       },
       
       getTodaysTasks: () => get().todaysTasks,
@@ -531,20 +559,28 @@ export const useProjectStore = create<ProjectStore>()(
         const before = Object.keys(tasks).length;
         const todaysTasks = taskFilter(tasks);
         const after = todaysTasks.length;
-        addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
+        if (debug) {
+          addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
+        }
         set({ todaysTasks });
       },
       
     // Key section from store/ToDo.ts - hydrateFromSync method fix
     hydrateFromSync: (syncedData?: { tasks?: Record<string, Task> }) => {
       if (!syncedData?.tasks) {
-        addSyncLog('[Tasks] No tasks field – skip', 'warning');
+        if (debug) {
+          addSyncLog('[Tasks] No tasks field – skip', 'warning');
+        }
         return;
       }
-      addSyncLog(`[Tasks] incoming tasks from the db: ${Object.keys(syncedData.tasks).length} tasks`, 'info');
+      if (debug) {
+        addSyncLog(`[Tasks] incoming tasks from the db: ${Object.keys(syncedData.tasks).length} tasks`, 'info');
+      }
       const incoming = syncedData.tasks as Record<string, Task>;
       const existing = get().tasks;
-      addSyncLog(`[Tasks] existing tasks in the store: ${Object.keys(existing).length} tasks`, 'info');
+      if (debug) {
+        addSyncLog(`[Tasks] existing tasks in the store: ${Object.keys(existing).length} tasks`, 'info');
+      }
       const merged: Record<string, Task> = {};
       
       // Counters for surgical logging
@@ -562,7 +598,9 @@ export const useProjectStore = create<ProjectStore>()(
         if (!curr) {
           // Only log non-bill additions or first few bill tasks
           if (!isBillTask || addedCount < 2) {
-            addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
+            if (debug) {
+              addSyncLog(`[Tasks] +${inc.name}`, 'verbose');
+            }
           }
           if (isBillTask) billTasksProcessed++;
           merged[id] = inc;
@@ -580,11 +618,13 @@ export const useProjectStore = create<ProjectStore>()(
         const incTodayValue = incHistory[today];
         const currTodayValue = currHistory[today];
         if (incTodayValue !== undefined || currTodayValue !== undefined) {
-          addSyncLog(
-            `[TODAY COMPLETION] "${inc.name.slice(0, 20)}" - Incoming[${today}]: ${incTodayValue}, Local[${today}]: ${currTodayValue}`,
-            'info',
-            `🚨 CRITICAL: This task has completion data for today - tracking merge result`
-          );
+          if (debug) {
+            addSyncLog(
+              `[TODAY COMPLETION] "${inc.name.slice(0, 20)}" - Incoming[${today}]: ${incTodayValue}, Local[${today}]: ${currTodayValue}`,
+              'info',
+              `🚨 CRITICAL: This task has completion data for today - tracking merge result`
+            );
+          }
         }
         
         // Priority-based merging: 
@@ -597,41 +637,51 @@ export const useProjectStore = create<ProjectStore>()(
           
           // 🚨 DEBUG: Track every merge decision
           if (date === today) {
-            addSyncLog(
-              `[TODAY MERGE DECISION] "${inc.name.slice(0, 20)}" - Processing ${date}`,
-              'info',
-              `🚨 Incoming: ${value}, Local: ${localValue}, HasLocal: ${hasLocalEntry} | Task ID: ${id.slice(-8)}`
-            );
+            if (debug) {
+              addSyncLog(
+                `[TODAY MERGE DECISION] "${inc.name.slice(0, 20)}" - Processing ${date}`,
+                'info',
+                `🚨 Incoming: ${value}, Local: ${localValue}, HasLocal: ${hasLocalEntry} | Task ID: ${id.slice(-8)}`
+              );
+            }
           }
           
           if (!hasLocalEntry) {
             // No local entry, safe to add incoming
             mergedHistory[date] = value;
             if (date === today) {
-              addSyncLog(
-                `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Added incoming: ${value}`,
-                'info',
-                `🚨 No local entry for ${date}, took incoming value`
-              );
+              if (debug) {
+                addSyncLog(
+                  `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Added incoming: ${value}`,
+                  'info',
+                  `🚨 No local entry for ${date}, took incoming value`
+                );
+              }
             }
           } else if (value === false && localValue === true) {
             // Incoming is an untoggle (false), check timestamps
             if (inc.updatedAt >= curr.updatedAt) {
               mergedHistory[date] = false;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': untoggle on ${date} (newer device)`, 'info');
+              if (debug) {
+                addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': untoggle on ${date} (newer device)`, 'info');
+              }
               if (date === today) {
-                addSyncLog(
-                  `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Untoggled: true → false`,
-                  'info',
-                  `🚨 Incoming untoggle took precedence for ${date}`
-                );
+                if (debug) {
+                  addSyncLog(
+                    `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Untoggled: true → false`,
+                    'info',
+                    `🚨 Incoming untoggle took precedence for ${date}`
+                  );
+                }
               }
             } else if (date === today) {
-              addSyncLog(
-                `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Kept local: ${localValue}`,
-                'info',
-                `🚨 Local timestamp newer, kept local value for ${date}`
-              );
+              if (debug) {
+                addSyncLog(
+                  `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Kept local: ${localValue}`,
+                  'info',
+                  `🚨 Local timestamp newer, kept local value for ${date}`
+                );
+              }
             }
           } else if (value === true && localValue === false) {
             // Incoming is a completion (true), check timestamps with bias toward completion
@@ -639,48 +689,60 @@ export const useProjectStore = create<ProjectStore>()(
             // If incoming is newer OR within 10 seconds and is a completion, take it
             if (inc.updatedAt > curr.updatedAt || (Math.abs(timeDiff) < 10000 && value === true)) {
               mergedHistory[date] = true;
-              addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': completion on ${date} (completion priority)`, 'info');
+              if (debug) {
+                addSyncLog(`[History Merge] '${inc.name.slice(0, 20)}': completion on ${date} (completion priority)`, 'info');
+              }
               if (date === today) {
-                addSyncLog(
-                  `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Completed: false → true`,
-                  'info',
-                  `🚨 Incoming completion took precedence for ${date} (timeDiff: ${timeDiff}ms)`
-                );
+                if (debug) {
+                  addSyncLog(
+                    `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Completed: false → true`,
+                    'info',
+                    `🚨 Incoming completion took precedence for ${date} (timeDiff: ${timeDiff}ms)`
+                  );
+                }
               }
             } else if (date === today) {
-              addSyncLog(
-                `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Kept local: ${localValue}`,
-                'info',
-                `🚨 Local timestamp newer, kept local value for ${date}`
-              );
+              if (debug) {
+                addSyncLog(
+                  `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Kept local: ${localValue}`,
+                  'info',
+                  `🚨 Local timestamp newer, kept local value for ${date}`
+                );
+              }
             }
           } else if (inc.updatedAt > curr.updatedAt) {
             // For same values or other cases, newer timestamp wins
             mergedHistory[date] = value;
             if (date === today) {
-              addSyncLog(
-                `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Timestamp win: ${localValue} → ${value}`,
-                'info',
-                `🚨 Newer timestamp, took incoming value for ${date}`
-              );
+              if (debug) {
+                addSyncLog(
+                  `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - Timestamp win: ${localValue} → ${value}`,
+                  'info',
+                  `🚨 Newer timestamp, took incoming value for ${date}`
+                );
+              }
             }
           } else if (date === today) {
-            addSyncLog(
-              `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - No change: ${localValue}`,
-              'info',
-              `🚨 Same values or local newer, kept existing for ${date}`
-            );
+            if (debug) {
+              addSyncLog(
+                `[TODAY MERGE RESULT] "${inc.name.slice(0, 20)}" - No change: ${localValue}`,
+                'info',
+                `🚨 Same values or local newer, kept existing for ${date}`
+              );
+            }
           }
         });
         
         // 🚨 FINAL MERGE VERIFICATION: Log the final merged history
         const finalTodayValue = mergedHistory[today];
         if (incTodayValue !== undefined || currTodayValue !== undefined) {
-          addSyncLog(
-            `[MERGE COMPLETE] "${inc.name.slice(0, 20)}" - Final[${today}]: ${finalTodayValue}`,
-            'info',
-            `🚨 FINAL RESULT: Started with Incoming=${incTodayValue}, Local=${currTodayValue}, Final=${finalTodayValue}`
-          );
+          if (debug) {
+            addSyncLog(
+              `[MERGE COMPLETE] "${inc.name.slice(0, 20)}" - Final[${today}]: ${finalTodayValue}`,
+              'info',
+              `🚨 FINAL RESULT: Started with Incoming=${incTodayValue}, Local=${currTodayValue}, Final=${finalTodayValue}`
+            );
+          }
         }
         
         // 🔧 CRITICAL FIX: Better completion status resolution
@@ -695,22 +757,26 @@ export const useProjectStore = create<ProjectStore>()(
             // If there's explicit history for today, use that
             if (mergedHistory[today] !== undefined) {
               const resolved = mergedHistory[today];
-              addSyncLog(
-                `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (from today's history)`,
-                resolved ? 'info' : 'warning',
-                `Using explicit history value for ${today}`
-              );
+              if (debug) {
+                addSyncLog(
+                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (from today's history)`,
+                  resolved ? 'info' : 'warning',
+                  `Using explicit history value for ${today}`
+                );
+              }
               return resolved;
             }
             
             // Otherwise, bias toward completion unless there's a clear untoggle
             const resolved = localCompleted || syncCompleted;
             if (resolved !== localCompleted || resolved !== syncCompleted) {
-              addSyncLog(
-                `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (local=${localCompleted}, sync=${syncCompleted})`,
-                'info',
-                `Biased toward completion | Task ID: ${id.slice(-8)}`
-              );
+              if (debug) {
+                addSyncLog(
+                  `[One-time Resolution] '${inc.name.slice(0, 24)}': resolved=${resolved} (local=${localCompleted}, sync=${syncCompleted})`,
+                  'info',
+                  `Biased toward completion | Task ID: ${id.slice(-8)}`
+                );
+              }
             }
             return resolved;
           }
@@ -731,11 +797,13 @@ export const useProjectStore = create<ProjectStore>()(
         
         // Log significant completion changes for debugging
         if (curr.completed !== resolvedCompleted && !isBillTask) {
-          addSyncLog(
-            `[Completion Change] '${inc.name.slice(0, 24)}': ${curr.completed}→${resolvedCompleted}`,
-            resolvedCompleted ? 'success' : 'warning',
-            `Pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
-          );
+          if (debug) {
+            addSyncLog(
+              `[Completion Change] '${inc.name.slice(0, 24)}': ${curr.completed}→${resolvedCompleted}`,
+              resolvedCompleted ? 'success' : 'warning',
+              `Pattern: ${inc.recurrencePattern} | Local updated: ${curr.updatedAt} | Sync updated: ${inc.updatedAt}`
+            );
+          }
         }
         
         // 🚨 FINAL TASK STATE LOGGING: Track the exact task that gets stored
@@ -748,11 +816,13 @@ export const useProjectStore = create<ProjectStore>()(
         
         // Log final task state for debugging if it has today's completion data
         if (finalTask.completionHistory[today] !== undefined || resolvedCompleted !== curr.completed) {
-          addSyncLog(
-            `[FINAL TASK STATE] "${inc.name.slice(0, 20)}" stored in merge`,
-            'info',
-            `🚨 STORED: completed=${finalTask.completed}, history[${today}]=${finalTask.completionHistory[today]}, pattern=${finalTask.recurrencePattern}`
-          );
+          if (debug) {
+            addSyncLog(
+              `[FINAL TASK STATE] "${inc.name.slice(0, 20)}" stored in merge`,
+              'info',
+              `🚨 STORED: completed=${finalTask.completed}, history[${today}]=${finalTask.completionHistory[today]}, pattern=${finalTask.recurrencePattern}`
+            );
+          }
         }
         
         merged[id] = finalTask;
@@ -774,10 +844,12 @@ export const useProjectStore = create<ProjectStore>()(
       );
       
       if (tasksWithTodayCompletion.length > 0) {
-        addSyncLog(
-          `[PRE-STORE VERIFICATION] About to store ${tasksWithTodayCompletion.length} tasks with today's completion data`,
-          'info'
-        );
+        if (debug) {
+          addSyncLog(
+            `[PRE-STORE VERIFICATION] About to store ${tasksWithTodayCompletion.length} tasks with today's completion data`,
+            'info'
+          );
+        }
       }
 
       set({ tasks: merged, hydrated: true });
@@ -790,34 +862,44 @@ export const useProjectStore = create<ProjectStore>()(
         );
         
         if (tasksWithTodayCompletion.length !== storedTasksWithTodayCompletion.length) {
-          addSyncLog(
-            `[STORE VERIFICATION FAILED] Completion data lost during store!`,
-            'info',
-            `🚨 Before store: ${tasksWithTodayCompletion.length} tasks, After store: ${storedTasksWithTodayCompletion.length} tasks`
-          );
+          if (debug) {
+            addSyncLog(
+              `[STORE VERIFICATION FAILED] Completion data lost during store!`,
+              'info',
+              `🚨 Before store: ${tasksWithTodayCompletion.length} tasks, After store: ${storedTasksWithTodayCompletion.length} tasks`
+            );
+          }
         } else if (storedTasksWithTodayCompletion.length > 0) {
-          addSyncLog(
-            `[STORE VERIFICATION PASSED] ${storedTasksWithTodayCompletion.length} tasks with today's completion data successfully stored`,
-            'success',
-            `🎯 Tasks: ${storedTasksWithTodayCompletion.map(([id, task]) => 
-              `${task.name.slice(0, 15)}[${today}]=${task.completionHistory[today]}`
-            ).join(', ')}`
-          );
+          if (debug) {
+            addSyncLog(
+              `[STORE VERIFICATION PASSED] ${storedTasksWithTodayCompletion.length} tasks with today's completion data successfully stored`,
+              'success',
+              `🎯 Tasks: ${storedTasksWithTodayCompletion.map(([id, task]) => 
+                `${task.name.slice(0, 15)}[${today}]=${task.completionHistory[today]}`
+              ).join(', ')}`
+            );
+          }
         }
         
         const final = taskFilter(storedTasks);
         set({ todaysTasks: final });
-        addSyncLog(`[Tasks] hydrate done → ${Object.keys(merged).length} total, ${final.length} today`, 'info');
-        addSyncLog(`[Tasks] Stats when it was all said and done: +${addedCount} new, ~${mergedCount} merged, ${keptLocalCount} kept local`, 'info');
+        if (debug) {
+          addSyncLog(`[Tasks] hydrate done → ${Object.keys(merged).length} total, ${final.length} today`, 'info');
+          addSyncLog(`[Tasks] Stats when it was all said and done: +${addedCount} new, ~${mergedCount} merged, ${keptLocalCount} kept local`, 'info');
+        }
       }, 0);
 
       // Summary log instead of thousands of individual ones
       if (billTasksProcessed > 10) {
-        addSyncLog(`[Tasks] Processed ${billTasksProcessed} bill tasks (showing first 2 + last 2 only)`, 'info');
+        if (debug) {
+          addSyncLog(`[Tasks] Processed ${billTasksProcessed} bill tasks (showing first 2 + last 2 only)`, 'info');
+        }
       }
       
       if (importantMerges.length > 0) {
-        addSyncLog(`[Tasks] Key merges: ${importantMerges.slice(0, 3).join(', ')}${importantMerges.length > 3 ? '...' : ''}`, 'info');
+        if (debug) {
+          addSyncLog(`[Tasks] Key merges: ${importantMerges.slice(0, 3).join(', ')}${importantMerges.length > 3 ? '...' : ''}`, 'info');
+        }
       }
     },
     }),
@@ -831,7 +913,9 @@ export const useProjectStore = create<ProjectStore>()(
           const thirtyDaysAgo = new Date()
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
           const todayLocalStr = format(new Date(), 'yyyy-MM-dd')
-          addSyncLog(`Total tasks in storage before migration: ${Object.keys(tasks).length}`, 'info');
+          if (debug) {
+            addSyncLog(`Total tasks in storage before migration: ${Object.keys(tasks).length}`, 'info');
+          }
           Object.keys(tasks).forEach(id => {
             if (!tasks[id].recurrencePattern) {
               tasks[id].recurrencePattern = 'weekly' 
@@ -874,13 +958,17 @@ export const useProjectStore = create<ProjectStore>()(
           if (needsMigration) {
             state.tasks = tasks
           }
-          addSyncLog(`Rehydrated tasks store after migration`, 'info', Object.keys(state.tasks).length.toString());
+          if (debug) {
+            addSyncLog(`Rehydrated tasks store after migration`, 'info', Object.keys(state.tasks).length.toString());
+          }
           state.hydrated = true
           const todaysTasks = taskFilter(state.tasks)
           state.todaysTasks = todaysTasks
         } else {
           useProjectStore.setState({ hydrated: true })
-          addSyncLog(`Rehydrated tasks store`, 'info', '0');
+          if (debug) {
+            addSyncLog(`Rehydrated tasks store`, 'info', '0');
+          }
         }
       }
     }

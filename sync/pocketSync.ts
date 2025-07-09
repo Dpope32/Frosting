@@ -12,9 +12,16 @@
 import { generateSyncKey } from '@/sync/registrySyncManager'
 import { useUserStore } from '@/store'
 import * as Sentry from '@sentry/react-native'
-import { addSyncLog, LogEntry } from '@/components/sync/syncUtils'
+import { LogEntry } from '@/components/sync/syncUtils'
 import { Platform } from 'react-native'
 
+let debug = true;
+const getAddSyncLog = () => {
+  if (debug) {
+    return require('@/components/sync/syncUtils').addSyncLog;
+  }
+  return () => {};
+}
 // ───────────────────────── CONSTANTS ─────────────────────────
 const DEFAULT_PORT = 8090
 
@@ -75,11 +82,11 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
   try {
     // Skip network check on web - assume connection is available
     if (Platform.OS === 'web') {
-      addSyncLog(`🌐 Web platform detected - skipping Google connectivity check`, 'info');
+      getAddSyncLog()(`🌐 Web platform detected - skipping Google connectivity check`, 'info');
       return true;
     }
     
-    addSyncLog(`📱 Non-web platform (${Platform.OS}) - checking Google connectivity`, 'verbose');
+    getAddSyncLog()(`📱 Non-web platform (${Platform.OS}) - checking Google connectivity`, 'verbose');
     
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 3_000)
@@ -93,7 +100,7 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
     Sentry.captureException(err)
     // On web, if we can't check connectivity, assume we're connected
     if (Platform.OS === 'web') {
-      addSyncLog(`🌐 Web platform error fallback - assuming connected`, 'info');
+      getAddSyncLog()(`🌐 Web platform error fallback - assuming connected`, 'info');
       return true;
     }
     return false
@@ -115,12 +122,12 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
     // Don't sleep after the last attempt
     if (attempt < MAX_RETRIES) {
       const delay = RETRY_DELAY_BASE * Math.pow(2, attempt); // Exponential backoff
-      addSyncLog(`⏳ Waiting ${delay}ms before retry ${attempt + 2}`, 'verbose');
+      getAddSyncLog()(`⏳ Waiting ${delay}ms before retry ${attempt + 2}`, 'verbose');
       await sleep(delay);
     }
   }
   
-  addSyncLog(`❌ ${baseUrl} failed after ${MAX_RETRIES + 1} attempts`, 'error');
+  getAddSyncLog()(`❌ ${baseUrl} failed after ${MAX_RETRIES + 1} attempts`, 'error');
   return false;
 };
 
@@ -133,11 +140,11 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
   const timer = setTimeout(() => ctrl.abort(), timeout);
 
   try {
-    addSyncLog(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
+    getAddSyncLog()(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
     
     // iPhone-specific debugging
     if (Platform.OS === 'ios') {
-      addSyncLog(`📱 iOS fetch with cache headers to ${url}`, 'verbose');
+      getAddSyncLog()(`📱 iOS fetch with cache headers to ${url}`, 'verbose');
     }
     
     let res = await fetch(url, { 
@@ -152,7 +159,7 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     });
     
     if (res.status === 405) {
-      addSyncLog(`GET 405 — retrying HEAD for ${url}`, 'verbose');
+      getAddSyncLog()(`GET 405 — retrying HEAD for ${url}`, 'verbose');
       res = await fetch(url, { 
         method: 'HEAD', 
         signal: ctrl.signal,
@@ -167,15 +174,15 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     clearTimeout(timer);
 
     // Enhanced logging for debugging
-    addSyncLog(`📊 ${url} response: ${res.status} ${res.statusText}`, 'verbose');
+    getAddSyncLog()(`📊 ${url} response: ${res.status} ${res.statusText}`, 'verbose');
     
     // Accept 200, 401, or 404 as "alive" (different PB versions)
     if (res.status === 200 || res.status === 401 || res.status === 404) {
-      addSyncLog(`✅ ${url} -> ${res.status} (success)`, 'info');
+      getAddSyncLog()(`✅ ${url} -> ${res.status} (success)`, 'info');
       return true;
     }
     
-    addSyncLog(`⚠️ ${url} -> ${res.status} (unexpected status)`, 'warning');
+    getAddSyncLog()(`⚠️ ${url} -> ${res.status} (unexpected status)`, 'warning');
     return false;
     
   } catch (e: any) {
@@ -184,12 +191,12 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     
     // Enhanced iPhone error debugging
     if (Platform.OS === 'ios') {
-      addSyncLog(`📱 iOS error for ${url}: ${e.name} - ${errorMsg}`, 'warning');
+      getAddSyncLog()(`📱 iOS error for ${url}: ${e.name} - ${errorMsg}`, 'warning');
       if (e.stack) {
-        addSyncLog(`📱 iOS error stack: ${e.stack.split('\n')[0]}`, 'verbose');
+        getAddSyncLog()(`📱 iOS error stack: ${e.stack.split('\n')[0]}`, 'verbose');
       }
     } else {
-      addSyncLog(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
+      getAddSyncLog()(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
     }
     return false;
   }
@@ -203,24 +210,23 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
 
   // Enhanced iPhone debugging
   if (Platform.OS === 'ios') {
-    addSyncLog(`📱 iPhone PocketBase connection attempt`, 'info');
-    addSyncLog(`📱 Available URLs: ${CANDIDATE_URLS.length}`, 'info');
+    getAddSyncLog()(`📱 iPhone PocketBase connection attempt`, 'info');
+    getAddSyncLog()(`📱 Available URLs: ${CANDIDATE_URLS.length}`, 'info');
     CANDIDATE_URLS.forEach((url, index) => {
-      addSyncLog(`📱 URL ${index + 1}: ${url}`, 'verbose');
+      getAddSyncLog()(`📱 URL ${index + 1}: ${url}`, 'verbose');
     });
   }
-
-  addSyncLog(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
+  getAddSyncLog()(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
 
   // Test each URL with full retry logic
   for (const baseUrl of CANDIDATE_URLS) {
-    addSyncLog(`🌐 Testing base URL: ${baseUrl}`, 'info');
+    getAddSyncLog()(`🌐 Testing base URL: ${baseUrl}`, 'info');
     
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
-      addSyncLog(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
+      getAddSyncLog()(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
       break;
     }
   }
@@ -230,10 +236,10 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     
     // Enhanced iPhone failure logging
     if (Platform.OS === 'ios') {
-      addSyncLog(`📱 iPhone total failure: ${errorMsg}`, 'error');
-      addSyncLog(`📱 This suggests iPhone-specific network issues`, 'error');
+      getAddSyncLog()(`📱 iPhone total failure: ${errorMsg}`, 'error');
+      getAddSyncLog()(`📱 This suggests iPhone-specific network issues`, 'error');
     } else {
-      addSyncLog(`❌ ${errorMsg}`, 'error');
+      getAddSyncLog()(`❌ ${errorMsg}`, 'error');
     }
     
     throw new Error('SKIP_SYNC_SILENTLY');
@@ -249,9 +255,9 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     if (errorMessage.includes('Requiring unknown module') || 
         errorMessage.includes('importedAll') ||
         errorMessage.includes('Cannot set property')) {
-      addSyncLog(`🧪 [SIM] PocketBase import failed (likely simulator) - skipping sync silently`, 'warning');
+      getAddSyncLog()(`🧪 [SIM] PocketBase import failed (likely simulator) - skipping sync silently`, 'warning');
     } else {
-      addSyncLog(`❌ Failed to import PocketBase: ${errorMessage}`, 'error');
+      getAddSyncLog()(`❌ Failed to import PocketBase: ${errorMessage}`, 'error');
     }
     
     throw new Error('SKIP_SYNC_SILENTLY');
@@ -280,7 +286,7 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return
 
   if (!(await checkNetworkConnectivity())) {
-    addSyncLog('No network – abort log export', 'warning')
+    getAddSyncLog()('No network – abort log export', 'warning')
     return
   }
 
@@ -295,5 +301,5 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
     logs: JSON.stringify(logs),
   })
 
-  addSyncLog('Logs saved in PocketBase', 'info')
+  getAddSyncLog()('Logs saved in PocketBase', 'info')
 }

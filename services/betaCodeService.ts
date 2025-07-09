@@ -78,8 +78,6 @@ class BetaCodeService {
   private async validateCodeWithPocketBase(code: string, username: string): Promise<boolean> {
     try {
       const pb = await getPocketBase();
-      
-      addSyncLog('🔍 GET request source: services/betaCodeService.ts - getBetaCode()', 'verbose');
       const records = await pb.collection('beta_codes').getList(1, 1, {
         filter: `code="${code}" && active=true && uses_remaining>0`
       });

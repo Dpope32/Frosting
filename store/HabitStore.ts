@@ -3,7 +3,14 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { TaskCategory, Habit as HabitType } from '@/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cancelHabitNotification } from '@/services';
-import { addSyncLog } from '@/components/sync/syncUtils';
+
+let debug = false;
+const getAddSyncLog = () => {
+  if (debug) {
+    return require('@/components/sync/syncUtils').addSyncLog;
+  }
+  return () => {};
+}
 
 export interface Habit extends HabitType {
   updatedAt?: string;
@@ -44,7 +51,7 @@ export const useHabitStore = create<HabitStore>()(
           description,
           updatedAt: now,
         };
-        addSyncLog(`[HabitStore] Habit added locally: ${title}`, 'info');
+        getAddSyncLog()(`[HabitStore] Habit added locally: ${title}`, 'info');
         return {
           habits: {
             ...state.habits,
@@ -58,7 +65,7 @@ export const useHabitStore = create<HabitStore>()(
         if (!habit) return state;
 
         const newCompletionStatus = !habit.completionHistory[date];
-        addSyncLog(`[HabitStore] Habit completion toggled: ${habit.title}, Date: ${date}, Status: ${newCompletionStatus}`, 'info');
+        getAddSyncLog()(`[HabitStore] Habit completion toggled: ${habit.title}, Date: ${date}, Status: ${newCompletionStatus}`, 'info');
         return {
           habits: {
             ...state.habits,
@@ -80,7 +87,7 @@ export const useHabitStore = create<HabitStore>()(
           const identifier = `${habit.title}-${habit.notificationTimeValue}`;
           cancelHabitNotification(identifier);
           cancelHabitNotification(habit.title);
-          addSyncLog(`[HabitStore] Habit deleted locally: ${habit.title}`, 'info');
+          getAddSyncLog()(`[HabitStore] Habit deleted locally: ${habit.title}`, 'info');
         }
         const { [habitId]: _, ...rest } = state.habits;
         return { habits: rest };
@@ -89,7 +96,7 @@ export const useHabitStore = create<HabitStore>()(
       editHabit: (habitId: string, updates: Partial<Habit>) => set((state) => {
         const habit = state.habits[habitId];
         if (!habit) return state;
-        addSyncLog(`[HabitStore] Habit edited locally: ${habit.title}`, 'info');
+        getAddSyncLog()(`[HabitStore] Habit edited locally: ${habit.title}`, 'info');
         return {
           habits: {
             ...state.habits,
@@ -105,7 +112,7 @@ export const useHabitStore = create<HabitStore>()(
       toggleHabitSync: () => {
         set((state) => {
           const newSyncState = !state.isSyncEnabled;
-          addSyncLog(`[HabitStore] Habits sync ${newSyncState ? 'enabled' : 'disabled'}.`, 'info');
+          getAddSyncLog()(`[HabitStore] Habits sync ${newSyncState ? 'enabled' : 'disabled'}.`, 'info');
           return { isSyncEnabled: newSyncState };
         });
       },
@@ -113,21 +120,21 @@ export const useHabitStore = create<HabitStore>()(
       hydrateFromSync: (syncedData: { habits?: Record<string, Habit>, isSyncEnabled?: boolean }) => {
         const localStore = get();
         if (!localStore.isSyncEnabled) {
-          addSyncLog('[HabitStore] Local habits sync is OFF. Skipping hydration.', 'info');
+          getAddSyncLog()('[HabitStore] Local habits sync is OFF. Skipping hydration.', 'info');
           return;
         }
 
         if (syncedData.isSyncEnabled === false) {
-          addSyncLog('[HabitStore] Incoming snapshot for habits has sync turned OFF. Skipping hydration.', 'warning');
+          getAddSyncLog()('[HabitStore] Incoming snapshot for habits has sync turned OFF. Skipping hydration.', 'warning');
           return;
         }
 
         if (!syncedData.habits || typeof syncedData.habits !== 'object') {
-          addSyncLog('[HabitStore] No habits data in snapshot or data is malformed. Skipping hydration.', 'info');
+          getAddSyncLog()('[HabitStore] No habits data in snapshot or data is malformed. Skipping hydration.', 'info');
           return;
         }
 
-        addSyncLog('[HabitStore] 🔄 Hydrating habits from sync...', 'info');
+        getAddSyncLog()('[HabitStore] 🔄 Hydrating habits from sync...', 'info');
         let itemsMergedCount = 0;
         let itemsAddedCount = 0;
 
@@ -165,7 +172,7 @@ export const useHabitStore = create<HabitStore>()(
         }
         
         set({ habits: currentHabits });
-        addSyncLog(`[HabitStore] Habits hydrated: ${itemsAddedCount} added, ${itemsMergedCount} updated based on timestamp. Total habits: ${Object.keys(currentHabits).length}.`, 'success');
+          getAddSyncLog()(`[HabitStore] Habits hydrated: ${itemsAddedCount} added, ${itemsMergedCount} updated based on timestamp. Total habits: ${Object.keys(currentHabits).length}.`, 'success');
       },
     }),
     {

@@ -258,7 +258,6 @@ export const PremiumLogs = ({
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={() => {
-                addSyncLog('🔍 GET request source: components/sync/premiumLogs.tsx - Manual pull button', 'verbose');
                 pullLatestSnapshot().catch((err: any) => 
                   addSyncLog('Manual pull failed', 'error', err.message)
                 );

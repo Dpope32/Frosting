@@ -11,6 +11,14 @@ import type { Person, WeekDay } from '@/types'
 import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services'
 import { addSyncLog } from '@/components/sync'
 import * as Notifications from 'expo-notifications'
+
+let debug = true; // Enable debug logging
+const getAddSyncLog = () => {
+  if (debug) {
+    return require('@/components/sync/syncUtils').addSyncLog;
+  }
+  return () => {};
+}
 export interface CalendarEvent {
   id: string
   date: string
@@ -63,7 +71,7 @@ export const useCalendarStore = create<CalendarState>()(
         }
         set((state) => ({ events: [...state.events, newEvent] }))
         try {
-          addSyncLog(`Calendar event added locally: ${newEvent.title}`, 'info')
+          getAddSyncLog()(`Calendar event added locally: ${newEvent.title}`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -76,7 +84,7 @@ export const useCalendarStore = create<CalendarState>()(
         }))
         set((state) => ({ events: [...state.events, ...newEvents] }))
         try {
-          addSyncLog(`Added ${newEvents.length} calendar events locally.`, 'info')
+          getAddSyncLog()(`Added ${newEvents.length} calendar events locally.`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -87,7 +95,7 @@ export const useCalendarStore = create<CalendarState>()(
           ),
         }))
         try {
-          addSyncLog(`Calendar event updated locally: ID ${id}`, 'info')
+          getAddSyncLog()(`Calendar event updated locally: ID ${id}`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -96,7 +104,7 @@ export const useCalendarStore = create<CalendarState>()(
           events: state.events.filter((event) => event.id !== id),
         }))
         try {
-          addSyncLog(`Calendar event deleted locally: ID ${id}`, 'info')
+          getAddSyncLog()(`Calendar event deleted locally: ID ${id}`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -116,7 +124,7 @@ export const useCalendarStore = create<CalendarState>()(
       clearAllEvents: () => {
         set({ events: [] })
         try {
-          addSyncLog('All calendar events cleared locally', 'info')
+          getAddSyncLog()('All calendar events cleared locally', 'info')
         } catch(e) {/* ignore */}
       },
       
@@ -130,14 +138,14 @@ export const useCalendarStore = create<CalendarState>()(
             const nonDeviceEvents = state.events.filter(
               (event) => !event.id.startsWith('device-')
             )
-            addSyncLog(`Synced ${appEvents.length} device calendar events.`, 'info')
+            getAddSyncLog()(`Synced ${appEvents.length} device calendar events.`, 'info')
             return {
               events: [...nonDeviceEvents, ...appEvents],
             }
           })
         } catch (error) {
           console.error('Failed to sync device calendar events:', error)
-            addSyncLog('Failed to sync device calendar events', 'error')
+            getAddSyncLog()('Failed to sync device calendar events', 'error')
         }
       },
 
@@ -206,7 +214,7 @@ export const useCalendarStore = create<CalendarState>()(
 
       syncBirthdays: (newContactId) => {
         const startTime = performance.now()
-        addSyncLog('🔍 [CalendarStore] syncBirthdays start', 'verbose')
+        getAddSyncLog()('🔍 [CalendarStore] syncBirthdays start', 'verbose')
         
         // First, do the fast synchronous work to update events immediately
         const syncResult = set((state) => {
@@ -215,7 +223,7 @@ export const useCalendarStore = create<CalendarState>()(
             const currentYear = new Date().getFullYear()
             const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
             
-            addSyncLog(`[CalendarStore] Processing ${Object.keys(contactsToSync).length} contacts for birthday sync`, 'info')
+            getAddSyncLog()(`[CalendarStore] Processing ${Object.keys(contactsToSync).length} contacts for birthday sync`, 'info')
             
             const nonBirthdayEvents = state.events.filter(
               (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
@@ -225,7 +233,7 @@ export const useCalendarStore = create<CalendarState>()(
             const contactsWithBirthdays = Object.values(contactsToSync).filter((person: Person) => person.birthday)
             const birthdayEvents: CalendarEvent[] = []
             
-            addSyncLog(`[CalendarStore] Found ${contactsWithBirthdays.length} contacts with birthdays`, 'info')
+            getAddSyncLog()(`[CalendarStore] Found ${contactsWithBirthdays.length} contacts with birthdays`, 'info')
             
             // Generate birthday events (this is fast)
             contactsWithBirthdays.forEach((person: Person) => {
@@ -251,14 +259,14 @@ export const useCalendarStore = create<CalendarState>()(
             })
             
             const eventsTime = performance.now()
-            addSyncLog(`[CalendarStore] Generated ${birthdayEvents.length} birthday events in ${(eventsTime - startTime).toFixed(2)}ms`, 'info')
+            getAddSyncLog()(`[CalendarStore] Generated ${birthdayEvents.length} birthday events in ${(eventsTime - startTime).toFixed(2)}ms`, 'info')
             
             // Store contacts with birthdays for async processing
             ;(globalThis as any).__birthdayContactsToProcess = contactsWithBirthdays
             
             return { events: [...nonBirthdayEvents, ...birthdayEvents] }
           } catch (error) {
-            addSyncLog(`🔴 [CalendarStore] Error in syncBirthdays: ${error}`, 'error')
+            getAddSyncLog()(`🔴 [CalendarStore] Error in syncBirthdays: ${error}`, 'error')
             return state
           }
         })
@@ -274,11 +282,11 @@ export const useCalendarStore = create<CalendarState>()(
             delete (globalThis as any).__birthdayContactsToProcess
             
             if (contactsWithBirthdays.length === 0) {
-              addSyncLog('[CalendarStore] No contacts with birthdays to process async tasks', 'info')
+              getAddSyncLog()('[CalendarStore] No contacts with birthdays to process async tasks', 'info')
               return
             }
             
-            addSyncLog(`[CalendarStore] Starting async birthday notifications and tasks for ${contactsWithBirthdays.length} contacts`, 'info')
+            getAddSyncLog()(`[CalendarStore] Starting async birthday notifications and tasks for ${contactsWithBirthdays.length} contacts`, 'info')
             
             const addTask = useProjectStore.getState().addTask
             const scheduleNotification = get().scheduleNotification
@@ -308,7 +316,7 @@ export const useCalendarStore = create<CalendarState>()(
                     )
                     notificationCount++
                   } catch (error) {
-                    addSyncLog(`Failed to schedule birthday notification for ${person.name}`, 'error')
+                    getAddSyncLog()(`Failed to schedule birthday notification for ${person.name}`, 'error')
                   }
                 }
                 
@@ -337,7 +345,7 @@ export const useCalendarStore = create<CalendarState>()(
                     })
                     taskCount++
                   } catch (error) {
-                    addSyncLog(`Failed to schedule 2-week reminder for ${person.name}`, 'error')
+                    getAddSyncLog()(`Failed to schedule 2-week reminder for ${person.name}`, 'error')
                   }
                 }
                 
@@ -357,7 +365,7 @@ export const useCalendarStore = create<CalendarState>()(
                     })
                     taskCount++
                   } catch (error) {
-                    addSyncLog(`Failed to add birthday task for ${person.name}`, 'error')
+                    getAddSyncLog()(`Failed to add birthday task for ${person.name}`, 'error')
                   }
                 }
               }
@@ -372,7 +380,7 @@ export const useCalendarStore = create<CalendarState>()(
             const totalTime = asyncEndTime - startTime
             const asyncTime = asyncEndTime - asyncStartTime
             
-            addSyncLog(`[CalendarStore] ✅ Birthday sync complete: ${notificationCount} notifications, ${taskCount} tasks in ${asyncTime.toFixed(2)}ms (total: ${totalTime.toFixed(2)}ms)`, 'success')
+            getAddSyncLog()(`[CalendarStore] ✅ Birthday sync complete: ${notificationCount} notifications, ${taskCount} tasks in ${asyncTime.toFixed(2)}ms (total: ${totalTime.toFixed(2)}ms)`, 'success')
             
             // STRATEGIC DEBUG LOGGING: Show ALL scheduled notifications
             try {
@@ -382,27 +390,37 @@ export const useCalendarStore = create<CalendarState>()(
                   n.identifier && n.identifier.includes('birthday')
                 )
                 
-                addSyncLog(`🔍 [DEBUG] Total scheduled notifications: ${allScheduledNotifications.length}`, 'info')
-                addSyncLog(`🎂 [DEBUG] Birthday notifications scheduled: ${birthdayNotifications.length}`, 'info')
+                getAddSyncLog()(`🔍 [DEBUG] Total scheduled notifications: ${allScheduledNotifications.length}`, 'info')
+                getAddSyncLog()(`🎂 [DEBUG] Birthday notifications scheduled: ${birthdayNotifications.length}`, 'info')
                 
                 if (birthdayNotifications.length > 0) {
                   const birthdayDetails = birthdayNotifications
                     .sort((a, b) => {
-                      const aDate = a.trigger && 'date' in a.trigger ? new Date(a.trigger.date).getTime() : 0
-                      const bDate = b.trigger && 'date' in b.trigger ? new Date(b.trigger.date).getTime() : 0
+                      const aDate = a.trigger && (a.trigger as any).date ? new Date((a.trigger as any).date).getTime() : 0
+                      const bDate = b.trigger && (b.trigger as any).date ? new Date((b.trigger as any).date).getTime() : 0
                       return aDate - bDate
                     })
                     .slice(0, 10) // Show first 10 upcoming
                     .map(n => {
-                      const triggerDate = n.trigger && 'date' in n.trigger ? new Date(n.trigger.date) : null
-                      const dateStr = triggerDate ? format(triggerDate, 'MMM dd, yyyy HH:mm') : 'Unknown'
+                      let dateStr = 'Unknown'
+                      try {
+                        if (n.trigger && (n.trigger as any).date) {
+                          const triggerDate = new Date((n.trigger as any).date)
+                          dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
+                        } else {
+                          // Debug the actual trigger structure
+                          getAddSyncLog()(`🔍 [DEBUG] Trigger structure for ${n.identifier}: ${JSON.stringify(n.trigger)}`, 'verbose')
+                        }
+                      } catch (error) {
+                        getAddSyncLog()(`🔴 [DEBUG] Date parsing error for ${n.identifier}: ${error}`, 'error')
+                      }
                       return `${n.identifier}: "${n.content.title}" at ${dateStr}`
                     })
                     .join('\n  • ')
                   
-                  addSyncLog(`🎂 [DEBUG] Next 10 birthday notifications:\n  • ${birthdayDetails}`, 'info')
+                  getAddSyncLog()(`🎂 [DEBUG] Next 10 birthday notifications:\n  • ${birthdayDetails}`, 'info')
                 } else {
-                  addSyncLog(`⚠️ [DEBUG] No birthday notifications found! This may indicate a scheduling issue.`, 'warning')
+                  getAddSyncLog()(`⚠️ [DEBUG] No birthday notifications found! This may indicate a scheduling issue.`, 'warning')
                 }
                 
                 // Show all notification types for broader debugging
@@ -421,15 +439,15 @@ export const useCalendarStore = create<CalendarState>()(
                   .map(([type, count]) => `${type}: ${count}`)
                   .join(', ')
                 
-                addSyncLog(`📊 [DEBUG] Notification types breakdown: ${typesSummary}`, 'info')
+                getAddSyncLog()(`📊 [DEBUG] Notification types breakdown: ${typesSummary}`, 'info')
               }
             } catch (debugError) {
-              addSyncLog(`🔴 [DEBUG] Error fetching scheduled notifications: ${debugError}`, 'error')
+              getAddSyncLog()(`🔴 [DEBUG] Error fetching scheduled notifications: ${debugError}`, 'error')
             }
             
           } catch (error) {
             const errorTime = performance.now()
-            addSyncLog(`🔴 [CalendarStore] Error in async birthday processing: ${error}`, 'error')
+            getAddSyncLog()(`🔴 [CalendarStore] Error in async birthday processing: ${error}`, 'error')
             console.error('🔴 [CalendarStore] async birthday processing error:', error)
           }
         }, 10) // Small delay to let UI update first
@@ -441,7 +459,7 @@ export const useCalendarStore = create<CalendarState>()(
         set((state) => {
           const newSyncState = !state.isSyncEnabled
           try {
-            addSyncLog(`Calendar sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info')
+            getAddSyncLog()(`Calendar sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info')
           } catch (e) {/* ignore */}
           return { isSyncEnabled: newSyncState }
         })
@@ -450,12 +468,12 @@ export const useCalendarStore = create<CalendarState>()(
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
         const currentSyncEnabledState = get().isSyncEnabled
         if (!currentSyncEnabledState) {
-          addSyncLog('Calendar sync is disabled, skipping hydration for CalendarStore.', 'info')
+          getAddSyncLog()('Calendar sync is disabled, skipping hydration for CalendarStore.', 'info')
           return
         }
 
         if (!syncedData.events || !Array.isArray(syncedData.events)) {
-          addSyncLog('No events data in snapshot for CalendarStore, or events are not an array.', 'info')
+          getAddSyncLog()('No events data in snapshot for CalendarStore, or events are not an array.', 'info')
           return
         }
 
@@ -501,7 +519,7 @@ export const useCalendarStore = create<CalendarState>()(
             }
           }
           
-          addSyncLog(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
+          getAddSyncLog()(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
           return { events: mergedEventsArray }
         })
       },

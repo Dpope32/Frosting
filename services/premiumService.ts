@@ -138,8 +138,6 @@ class PremiumService {
    */
   private async handleFirstTimePremiumActivation() {
     try {
-      // First, try to pull any existing data from workspace
-      addSyncLog('🔍 GET request source: services/premiumService.ts - Premium verification success', 'verbose');
       await pullLatestSnapshot();
       
       // Small delay to ensure pull is complete

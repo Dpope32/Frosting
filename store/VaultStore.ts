@@ -36,7 +36,13 @@ interface VaultStore {
   hydrateFromSync?: (syncedData: { vaultData?: VaultData }) => void;
 }
 
-const getAddSyncLog = () => require('@/components/sync/syncUtils').addSyncLog;
+let debug = false;  
+const getAddSyncLog = ( ) => {
+  if (debug) {
+    return require('@/components/sync/syncUtils').addSyncLog;
+  }
+  return () => {};
+}
 
 export const useVaultStore = create<VaultStore>()(
   persist(
