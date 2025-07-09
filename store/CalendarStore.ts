@@ -10,6 +10,7 @@ import { usePeopleStore } from './People'
 import type { Person, WeekDay } from '@/types'
 import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services'
 import { addSyncLog } from '@/components/sync'
+import * as Notifications from 'expo-notifications'
 export interface CalendarEvent {
   id: string
   date: string
@@ -372,6 +373,60 @@ export const useCalendarStore = create<CalendarState>()(
             const asyncTime = asyncEndTime - asyncStartTime
             
             addSyncLog(`[CalendarStore] ✅ Birthday sync complete: ${notificationCount} notifications, ${taskCount} tasks in ${asyncTime.toFixed(2)}ms (total: ${totalTime.toFixed(2)}ms)`, 'success')
+            
+            // STRATEGIC DEBUG LOGGING: Show ALL scheduled notifications
+            try {
+              if (Platform.OS !== 'web' && Platform.OS !== 'windows' && Platform.OS !== 'macos') {
+                const allScheduledNotifications = await Notifications.getAllScheduledNotificationsAsync()
+                const birthdayNotifications = allScheduledNotifications.filter(n => 
+                  n.identifier && n.identifier.includes('birthday')
+                )
+                
+                addSyncLog(`🔍 [DEBUG] Total scheduled notifications: ${allScheduledNotifications.length}`, 'info')
+                addSyncLog(`🎂 [DEBUG] Birthday notifications scheduled: ${birthdayNotifications.length}`, 'info')
+                
+                if (birthdayNotifications.length > 0) {
+                  const birthdayDetails = birthdayNotifications
+                    .sort((a, b) => {
+                      const aDate = a.trigger && 'date' in a.trigger ? new Date(a.trigger.date).getTime() : 0
+                      const bDate = b.trigger && 'date' in b.trigger ? new Date(b.trigger.date).getTime() : 0
+                      return aDate - bDate
+                    })
+                    .slice(0, 10) // Show first 10 upcoming
+                    .map(n => {
+                      const triggerDate = n.trigger && 'date' in n.trigger ? new Date(n.trigger.date) : null
+                      const dateStr = triggerDate ? format(triggerDate, 'MMM dd, yyyy HH:mm') : 'Unknown'
+                      return `${n.identifier}: "${n.content.title}" at ${dateStr}`
+                    })
+                    .join('\n  • ')
+                  
+                  addSyncLog(`🎂 [DEBUG] Next 10 birthday notifications:\n  • ${birthdayDetails}`, 'info')
+                } else {
+                  addSyncLog(`⚠️ [DEBUG] No birthday notifications found! This may indicate a scheduling issue.`, 'warning')
+                }
+                
+                // Show all notification types for broader debugging
+                const notificationTypes = allScheduledNotifications.reduce((types, n) => {
+                  if (n.identifier) {
+                    const type = n.identifier.includes('birthday') ? 'birthday' : 
+                                n.identifier.includes('habit') ? 'habit' : 
+                                n.identifier.includes('task') ? 'task' : 
+                                n.identifier.includes('event') ? 'event' : 'other'
+                    types[type] = (types[type] || 0) + 1
+                  }
+                  return types
+                }, {} as Record<string, number>)
+                
+                const typesSummary = Object.entries(notificationTypes)
+                  .map(([type, count]) => `${type}: ${count}`)
+                  .join(', ')
+                
+                addSyncLog(`📊 [DEBUG] Notification types breakdown: ${typesSummary}`, 'info')
+              }
+            } catch (debugError) {
+              addSyncLog(`🔴 [DEBUG] Error fetching scheduled notifications: ${debugError}`, 'error')
+            }
+            
           } catch (error) {
             const errorTime = performance.now()
             addSyncLog(`🔴 [CalendarStore] Error in async birthday processing: ${error}`, 'error')
