@@ -210,16 +210,34 @@ describe('PeopleStore', () => {
     expect(usePeopleStore.getState().contacts).toEqual({});
   });
 
-  test('hydrateFromSync skips when incoming sync is disabled', () => {
+  test('hydrateFromSync ignores incoming sync state when local sync is enabled', () => {
     usePeopleStore.setState({ isSyncEnabled: true });
     
     const person = createTestPerson();
     usePeopleStore.getState().hydrateFromSync?.({
       contacts: { [person.id]: person },
-      isSyncEnabled: false
+      isSyncEnabled: false  // This should be ignored now
     });
     
+    // Should hydrate contacts because LOCAL sync is enabled, regardless of incoming sync state
+    expect(usePeopleStore.getState().contacts).toEqual({ [person.id]: person });
+    // Should preserve local sync preference
+    expect(usePeopleStore.getState().isSyncEnabled).toBe(true);
+  });
+
+  test('hydrateFromSync skips when local sync is disabled regardless of incoming sync state', () => {
+    usePeopleStore.setState({ isSyncEnabled: false });
+    
+    const person = createTestPerson();
+    usePeopleStore.getState().hydrateFromSync?.({
+      contacts: { [person.id]: person },
+      isSyncEnabled: true  // This should be ignored when local sync is OFF
+    });
+    
+    // Should NOT hydrate contacts because LOCAL sync is disabled
     expect(usePeopleStore.getState().contacts).toEqual({});
+    // Should preserve local sync preference
+    expect(usePeopleStore.getState().isSyncEnabled).toBe(false);
   });
 
   test('hydrateFromSync handles person deletions', () => {
