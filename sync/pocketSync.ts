@@ -62,6 +62,8 @@ const CANDIDATE_URLS = [
   withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
   withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
   withPort(process.env.EXPO_PUBLIC_PB_URL),         // Alternative LAN fallback
+  // Add Vercel proxy as fallback for VPN users
+  Platform.OS === 'web' ? 'https://kaiba.vercel.app/api/proxy/pb' : null,
 ].filter(Boolean) as string[];
 
 const HEALTH_TIMEOUT = 8000  // Increased for international connections
@@ -142,12 +144,16 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
   try {
     getAddSyncLog()(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
     
+    // Special handling for proxy URLs
+    const isProxyUrl = url.includes('/api/proxy/pb');
+    const testUrl = isProxyUrl ? `${url}/health` : url;
+    
     // iPhone-specific debugging
     if (Platform.OS === 'ios') {
-      getAddSyncLog()(`📱 iOS fetch with cache headers to ${url}`, 'verbose');
+      getAddSyncLog()(`📱 iOS fetch with cache headers to ${testUrl}`, 'verbose');
     }
     
-    let res = await fetch(url, { 
+    let res = await fetch(testUrl, { 
       method: 'GET', 
       signal: ctrl.signal,
       // Platform-specific headers for better iOS compatibility
@@ -159,8 +165,8 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     });
     
     if (res.status === 405) {
-      getAddSyncLog()(`GET 405 — retrying HEAD for ${url}`, 'verbose');
-      res = await fetch(url, { 
+      getAddSyncLog()(`GET 405 — retrying HEAD for ${testUrl}`, 'verbose');
+      res = await fetch(testUrl, { 
         method: 'HEAD', 
         signal: ctrl.signal,
         headers: Platform.OS === 'ios' ? {
@@ -174,29 +180,29 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     clearTimeout(timer);
 
     // Enhanced logging for debugging
-    getAddSyncLog()(`📊 ${url} response: ${res.status} ${res.statusText}`, 'verbose');
+    getAddSyncLog()(`📊 ${testUrl} response: ${res.status} ${res.statusText}`, 'verbose');
     
     // Accept 200, 401, or 404 as "alive" (different PB versions)
     if (res.status === 200 || res.status === 401 || res.status === 404) {
-      getAddSyncLog()(`✅ ${url} -> ${res.status} (success)`, 'info');
+      getAddSyncLog()(`✅ ${testUrl} -> ${res.status} (success)`, 'info');
       return true;
     }
     
-    getAddSyncLog()(`⚠️ ${url} -> ${res.status} (unexpected status)`, 'warning');
+    getAddSyncLog()(`⚠️ ${testUrl} -> ${res.status} (unexpected status)`, 'warning');
     return false;
     
   } catch (e: any) {
     clearTimeout(timer);
     const errorMsg = e.name === 'AbortError' ? 'timeout' : e.message || 'unknown error';
     
-    // Enhanced iPhone error debugging
+    // Enhanced error debugging
     if (Platform.OS === 'ios') {
       getAddSyncLog()(`📱 iOS error for ${url}: ${e.name} - ${errorMsg}`, 'warning');
       if (e.stack) {
         getAddSyncLog()(`📱 iOS error stack: ${e.stack.split('\n')[0]}`, 'verbose');
       }
     } else {
-      getAddSyncLog()(`❌ ${url} -> ${errorMsg} (attempt ${retryCount + 1})`, 'warning');
+      getAddSyncLog()(`❌ Network error with ${url}`, 'error', errorMsg);
     }
     return false;
   }
@@ -263,14 +269,25 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
   
+  // Check if we're using the proxy
+  const isProxyUrl = selected.includes('/api/proxy/pb');
+  
   // Set longer default timeout for all PB operations
   pb.beforeSend = function (url, options) {
     // Increase timeout for all PocketBase requests
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 15000); // 15 second timeout
     
+    // Handle proxy URL rewriting
+    let finalUrl = url;
+    if (isProxyUrl) {
+      // Remove /api from PocketBase's generated URLs when using proxy
+      finalUrl = url.replace('/api/', '/');
+      getAddSyncLog()(`🔄 Proxy URL rewrite: ${url} -> ${finalUrl}`, 'verbose');
+    }
+    
     return {
-      url,
+      url: finalUrl,
       options: {
         ...options,
         signal: controller.signal,

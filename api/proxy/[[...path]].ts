@@ -64,15 +64,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       endpoint = pathSegments.join('/');
     } else {
       const url = req.url || '';
+      const basePath = '/api/proxy/';
+      const basePathIndex = url.indexOf(basePath);
       
-        const basePath = '/api/proxy/';
-        const basePathIndex = url.indexOf(basePath);
-        
-        if (basePathIndex !== -1) {
-          endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
-          pathSegments = endpoint.split('/');
-        }
-      
+      if (basePathIndex !== -1) {
+        endpoint = url.substring(basePathIndex + basePath.length).split('?')[0];
+        pathSegments = endpoint.split('/');
+      }
+    }
+    
+    // FIX: Actually detect PocketBase requests
+    if (endpoint.startsWith('pocketbase/')) {
+      isPicketbaseRequest = true;
+      // Remove 'pocketbase/' prefix for the actual API call
+      endpoint = endpoint.substring('pocketbase/'.length);
+    } else if (endpoint.startsWith('pb/')) {
+      isPicketbaseRequest = true;
+      // Remove 'pb/' prefix for the actual API call
+      endpoint = endpoint.substring('pb/'.length);
+    } else if (endpoint.startsWith('collections/') || 
+               endpoint.startsWith('realtime/') || 
+               endpoint === 'health' ||
+               endpoint.startsWith('files/') ||
+               endpoint.startsWith('admins/') ||
+               endpoint.startsWith('users/') ||
+               endpoint.startsWith('auth/') ||
+               endpoint.startsWith('api/')) {
+      isPicketbaseRequest = true;
     }
     
     if (!endpoint) {
@@ -172,6 +190,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         timestamp: new Date().toISOString(),
         message: 'Proxy is functioning properly'
       });
+      
+    } else if (endpoint === 'test-pb-detection') {
+      return res.status(200).json({
+        status: 'ok',
+        message: 'PocketBase detection test endpoint',
+        detectedAsPb: isPicketbaseRequest,
+        originalEndpoint: endpoint,
+        timestamp: new Date().toISOString()
+      });
+      
+    } else if (endpoint === 'test-pb-health') {
+      // Direct test of PocketBase health through proxy
+      return handlePocketBaseRequest(req, res, 'health');
       
     } else {
       return res.status(404).json({ error: 'Endpoint not found' });
