@@ -58,19 +58,27 @@ const withPort = (raw?: string): string | undefined => {
   return hasPort || !isPlainHttp ? url : `${url}:${DEFAULT_PORT}`;
 };
 
-const CANDIDATE_URLS = [
-  withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), // https first
-  withPort(process.env.EXPO_PUBLIC_PB_LAN),         // LAN fallback
-  withPort(process.env.EXPO_PUBLIC_PB_URL),         // Alternative LAN fallback
-  // Add Vercel proxy as fallback for VPN users
-  Platform.OS === 'web' ? 'https://kaiba.vercel.app/api/proxy/pb' : null,
-].filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
+const CANDIDATE_URLS = (Platform.OS === 'web' 
+  ? [
+      // Prioritize proxy for web (VPNs commonly block Tailscale)
+      'https://kaiba.vercel.app/api/proxy/pb',
+      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL),
+      withPort(process.env.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env.EXPO_PUBLIC_PB_URL),
+    ]
+  : [
+      // Direct connections first for mobile
+      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), 
+      withPort(process.env.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env.EXPO_PUBLIC_PB_URL),
+    ]
+).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
 
-const HEALTH_TIMEOUT = 8000  // Increased for international connections
-const HEALTH_TIMEOUT_RETRY = 12000  // Even longer for retries
+const HEALTH_TIMEOUT = Platform.OS === 'web' ? 3000 : 8000  // Shorter timeout on web for VPN detection
+const HEALTH_TIMEOUT_RETRY = Platform.OS === 'web' ? 4000 : 12000  // Shorter retry timeout on web
 const HEALTH_PATH = '/api/health'
-const MAX_RETRIES = 3
-const RETRY_DELAY_BASE = 1000  // Base delay for exponential backoff
+const MAX_RETRIES = Platform.OS === 'web' ? 1 : 3  // Reduce retries on web (VPN context)
+const RETRY_DELAY_BASE = 500  // Faster retry for web
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export type PocketBaseType = import('pocketbase', {
   with: { 'resolution-mode': 'import' }
