@@ -23,6 +23,7 @@ import { premiumService } from '@/services/premiumService'
 // Prevent multiple wrappers of fetch during hot reload
 if (!(global as any)._syncFetchWrapped) {
   const originalFetch = global.fetch
+  let debugSync = false;
 
   global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const isPremium = useUserStore.getState().preferences.premium === true
@@ -60,7 +61,16 @@ if (!(global as any)._syncFetchWrapped) {
           const t = await cloned.text()
           details = t.length > 500  ? t.substring(0, 300) + '...'  : t
         }
-        addSyncLog(`📥 Response: ${response.status} from ${url}`, response.ok ? 'success' : 'error', details)
+        if (response.status === 200) {
+          // Only log if we are debugging sync 
+          if (debugSync) {
+            addSyncLog(`Response: ${response.status} from ${url}`, 'success', details)
+          }
+        } else {
+          if (debugSync) {
+            addSyncLog(`Response: ${response.status} from ${url}`, 'error', details)
+          }
+        }
       }
       return response
     } catch (err) {
@@ -84,10 +94,7 @@ export default function SyncScreen() {
   const [syncLogs, setSyncLogs] = useState<LogEntry[]>([])
   const [showDetails, setShowDetails] = useState<Record<string, boolean>>({})
   const premium = useUserStore((s) => s.preferences.premium === true)
-  
-  // Simplified: only premium users get sync access
   const shouldShowSyncTable = premium;
-
   const [premiumLoaded, setPremiumLoaded] = useState(false)
   const { width } = useWindowDimensions()
   const colors = getColors(isDark, primaryColor)
@@ -97,7 +104,6 @@ export default function SyncScreen() {
   const { workspaceId, setWorkspaceId } = useWorkspaceId(premium)
   const { inviteCode } = useWorkspaceDetails(premium, workspaceId, deviceId)
   
-  // Track when premium status has been determined
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setPremiumLoaded(true)
@@ -172,14 +178,9 @@ export default function SyncScreen() {
     setIsLoading(true);
     try {
       addSyncLog(`🔌 Attempting to join workspace with code: ${code}`, 'info');
-      
       const result = await createOrJoinWorkspace(undefined, code);
-      
-      // Set workspace ID in store
       setWorkspaceId(result.id);
       useRegistryStore.getState().setWorkspaceId(result.id);
-      
-      // Grant premium access when joining a workspace
       const userStore = useUserStore.getState();
       const wasPremium = userStore.preferences.premium === true;
       userStore.setPreferences({ premium: true });
