@@ -228,13 +228,13 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
       getAddSyncLog()(`📱 URL ${index + 1}: ${url}`, 'verbose');
     });
   }
-  getAddSyncLog()(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
+  //getAddSyncLog()(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
 
   // Test each URL with full retry logic
   for (const baseUrl of CANDIDATE_URLS) {
-    getAddSyncLog()(`🌐 Testing base URL: ${baseUrl}`, 'info');
+   // getAddSyncLog()(`🌐 Testing base URL: ${baseUrl}`, 'info');
     
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
@@ -291,7 +291,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
       // PocketBase creates: https://kaiba.vercel.app/api/proxy/pb/api/collections/...
       // We want: https://kaiba.vercel.app/api/proxy/pb/collections/...
       finalUrl = url.replace('/api/proxy/pb/api/', '/api/proxy/pb/');
-      getAddSyncLog()(`🔄 Proxy URL rewrite: ${url} -> ${finalUrl}`, 'verbose');
+    //  getAddSyncLog()(`🔄 Proxy URL rewrite: ${url} -> ${finalUrl}`, 'verbose');
     }
     
     return {

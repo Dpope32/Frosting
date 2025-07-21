@@ -2,7 +2,10 @@ export interface Stock {
   symbol: string;
   quantity: number;
   name: string;
-  purchasePrice?: number; 
+  purchasePrice?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  addedAt?: string; 
 }
 
 export interface PortfolioQueryData {
@@ -22,3 +25,4 @@ export interface PortfolioQueryData {
       'earliest': number | null;
     }>;
   }
+  

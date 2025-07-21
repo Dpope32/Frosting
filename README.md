@@ -47,7 +47,7 @@ Kaiba - Nexus is a free, feature-rich personal management app built with to orga
 
 ![Home Screen Preview](assets/screenshots/web/loaded.png)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 

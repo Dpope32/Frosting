@@ -239,8 +239,9 @@ export const useCalendarStore = create<CalendarState>()(
             contactsWithBirthdays.forEach((person: Person) => {
               years.forEach((year) => {
                 const [birthYear, month, day] = person.birthday.split('-')
-                const eventDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)))
-                eventDate.setUTCHours(14, 0, 0, 0)
+                // Use local timezone consistently (same as notification scheduling)
+                const eventDate = new Date(year, parseInt(month) - 1, parseInt(day))
+                eventDate.setHours(10, 0, 0, 0) // 10 AM local time
                 const age = year - parseInt(birthYear)
                 const birthdayEvent: CalendarEvent = {
                   id: `birthday-${person.id}-${year}`,
@@ -296,18 +297,24 @@ export const useCalendarStore = create<CalendarState>()(
             for (const person of contactsWithBirthdays) {
               for (const year of years) {
                 const [birthYear, month, day] = person.birthday.split('-')
-                const eventDate = new Date(Date.UTC(year, parseInt(month) - 1, parseInt(day)))
-                eventDate.setUTCHours(14, 0, 0, 0)
-                const age = year - parseInt(birthYear)
                 
+                // Create birthday date in local timezone to avoid timezone conversion issues
+                const birthdayDate = new Date(year, parseInt(month) - 1, parseInt(day))
+                birthdayDate.setHours(10, 0, 0, 0) // 10 AM local time
+                
+                const age = year - parseInt(birthYear)
                 const now = new Date()
-                const birthdayDate = new Date(eventDate)
                 const twoWeeksBefore = new Date(birthdayDate)
                 twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14)
+                twoWeeksBefore.setHours(10, 0, 0, 0) // 10 AM local time
+                
+                // Debug logging
+                getAddSyncLog()(`🎂 [DEBUG] Scheduling for ${person.name}: birthday=${format(birthdayDate, 'yyyy-MM-dd HH:mm')}, 2weeks=${format(twoWeeksBefore, 'yyyy-MM-dd HH:mm')}`, 'verbose')
                 
                 // Schedule notifications
                 if (birthdayDate > now) {
                   try {
+                    getAddSyncLog()(`📅 [DEBUG] Scheduling birthday notification for ${person.name} on ${format(birthdayDate, 'yyyy-MM-dd HH:mm')}`, 'verbose')
                     await scheduleNotification(
                       birthdayDate,
                       `🎂 ${person.name}'s Birthday Today!`,
@@ -322,6 +329,7 @@ export const useCalendarStore = create<CalendarState>()(
                 
                 if (person.priority && twoWeeksBefore > now) {
                   try {
+                    getAddSyncLog()(`📅 [DEBUG] Scheduling 2-week reminder for ${person.name} on ${format(twoWeeksBefore, 'yyyy-MM-dd HH:mm')}`, 'verbose')
                     await scheduleNotification(
                       twoWeeksBefore,
                       `🎁 ${person.name}'s Birthday in 2 Weeks`,
@@ -404,12 +412,20 @@ export const useCalendarStore = create<CalendarState>()(
                     .map(n => {
                       let dateStr = 'Unknown'
                       try {
+                        // Always debug the trigger structure to understand the format
+                        getAddSyncLog()(`🔍 [DEBUG] Trigger structure for ${n.identifier}: ${JSON.stringify(n.trigger)}`, 'verbose')
+                        
                         if (n.trigger && (n.trigger as any).date) {
                           const triggerDate = new Date((n.trigger as any).date)
                           dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
-                        } else {
-                          // Debug the actual trigger structure
-                          getAddSyncLog()(`🔍 [DEBUG] Trigger structure for ${n.identifier}: ${JSON.stringify(n.trigger)}`, 'verbose')
+                        } else if (n.trigger && (n.trigger as any).dateInput) {
+                          // Try dateInput instead of date
+                          const triggerDate = new Date((n.trigger as any).dateInput)
+                          dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
+                        } else if (n.trigger && (n.trigger as any).timestamp) {
+                          // Try timestamp
+                          const triggerDate = new Date((n.trigger as any).timestamp)
+                          dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
                         }
                       } catch (error) {
                         getAddSyncLog()(`🔴 [DEBUG] Date parsing error for ${n.identifier}: ${error}`, 'error')

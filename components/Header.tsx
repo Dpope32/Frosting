@@ -92,12 +92,12 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isDark = colorScheme === 'dark';
 
   const handleTemperaturePress = () => {
-    debouncedNavigate('/modals/temperature');
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
+    debouncedNavigate('/modals/temperature');
   }
   const handlePortfolioPress = () => {
-    debouncedNavigate('/modals/portfolio');
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
+    debouncedNavigate('/modals/portfolio');
   }
   const handleQuotePress = () => {
     setQuoteModalOpen(true)
@@ -243,8 +243,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       >
         <YStack
           marginLeft={isPermanentDrawer ? drawerWidth : 0}
-          borderBottomWidth={1}
-          borderColor={isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0,0,0,0.03)"}
+          borderBottomWidth={0.5}
+          borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.01)"}
           backgroundColor={
             isWeb
               ? colorScheme === 'dark'

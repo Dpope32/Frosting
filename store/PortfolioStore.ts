@@ -40,6 +40,12 @@ interface PortfolioState {
     }) => void;
 }
 
+// Add timestamp support to Stock interface (we'll need this)
+interface TimestampedStock extends Stock {
+  addedAt?: string;
+  updatedAt?: string;
+}
+
 // Initialize with default values using Zustand persist
 export const usePortfolioStore = create<PortfolioState>()(
   persist(
@@ -67,7 +73,7 @@ export const usePortfolioStore = create<PortfolioState>()(
         totalValue?: number | null;
         prices?: Record<string, number>;
         principal?: number;
-        portfolioHoldings?: Stock[];
+        portfolioHoldings?: Stock[]; // Now Stock has the timestamp fields
         lastUpdated?: number;
       }) => {
         const addSyncLog = getAddSyncLog();
@@ -86,18 +92,67 @@ export const usePortfolioStore = create<PortfolioState>()(
           
           let mergedPortfolioData = [...currentPortfolioData];
           let holdingsUpdated = 0;
+          let holdingsAdded = 0;
       
-          // SIMPLIFIED: Always use synced portfolio holdings if provided
+          // IMPROVED: Proper merging strategy instead of simple replacement
           if (syncedData.portfolioHoldings && Array.isArray(syncedData.portfolioHoldings)) {
-            addSyncLog(`Replacing portfolio with ${syncedData.portfolioHoldings.length} holdings from sync`, 'info');
+            addSyncLog(`Merging ${syncedData.portfolioHoldings.length} holdings from sync with ${currentPortfolioData.length} local holdings`, 'info');
             
-            // Simple replacement strategy - trust the sync data
-            mergedPortfolioData = [...syncedData.portfolioHoldings];
-            holdingsUpdated = syncedData.portfolioHoldings.length;
+            // Create a map of current holdings by symbol for quick lookup
+            const currentHoldingsMap = new Map(
+              currentPortfolioData.map(stock => [stock.symbol, stock])
+            );
+            
+            // Start with current portfolio data
+            const mergedHoldingsMap = new Map(currentHoldingsMap);
+            
+            // Process incoming holdings
+            for (const incomingStock of syncedData.portfolioHoldings) {
+              const existingStock = currentHoldingsMap.get(incomingStock.symbol);
+              
+              if (existingStock) {
+                // Stock exists locally - compare timestamps if available
+                const localTimestamp = existingStock.updatedAt ? new Date(existingStock.updatedAt).getTime() : 0;
+                const incomingTimestamp = incomingStock.updatedAt ? new Date(incomingStock.updatedAt).getTime() : 0;
+                
+                if (incomingTimestamp > localTimestamp) {
+                  // Incoming is newer, use it
+                  mergedHoldingsMap.set(incomingStock.symbol, {
+                    ...existingStock,
+                    ...incomingStock,
+                    updatedAt: incomingStock.updatedAt || new Date().toISOString()
+                  });
+                  holdingsUpdated++;
+                  addSyncLog(`Updated ${incomingStock.symbol}: ${existingStock.quantity} → ${incomingStock.quantity} shares`, 'info');
+                } else if (incomingTimestamp === localTimestamp || !existingStock.updatedAt || !incomingStock.updatedAt) {
+                  // Same timestamp or no timestamps - merge conservatively (prefer higher quantity)
+                  const mergedStock: Stock = {
+                    ...existingStock,
+                    quantity: Math.max(existingStock.quantity, incomingStock.quantity),
+                    updatedAt: new Date().toISOString()
+                  };
+                  mergedHoldingsMap.set(incomingStock.symbol, mergedStock);
+                }
+                // If local is newer, keep local version (no action needed)
+              } else {
+                // New stock from sync - add it
+                const newStock: Stock = {
+                  ...incomingStock,
+                  addedAt: incomingStock.addedAt || new Date().toISOString(),
+                  updatedAt: incomingStock.updatedAt || new Date().toISOString()
+                };
+                mergedHoldingsMap.set(incomingStock.symbol, newStock);
+                holdingsAdded++;
+                addSyncLog(`Added new stock from sync: ${incomingStock.symbol} (${incomingStock.quantity} shares)`, 'info');
+              }
+            }
+            
+            // Convert back to array
+            mergedPortfolioData = Array.from(mergedHoldingsMap.values());
             
             // Update the portfolio data
             await updatePortfolioData(mergedPortfolioData);
-            addSyncLog(`Portfolio holdings updated: ${mergedPortfolioData.length} holdings from sync`, 'success');
+            addSyncLog(`Portfolio merged: ${holdingsAdded} added, ${holdingsUpdated} updated. Total: ${mergedPortfolioData.length} holdings`, 'success');
           }
       
           // Merge other portfolio data
@@ -127,7 +182,7 @@ export const usePortfolioStore = create<PortfolioState>()(
           }
       
           // Always recalculate total value if we updated holdings
-          if (holdingsUpdated > 0) {
+          if (holdingsAdded > 0 || holdingsUpdated > 0) {
             const finalPrices = newState.prices || currentState.prices;
             let newTotal = 0;
             mergedPortfolioData.forEach((stock) => {
@@ -143,7 +198,7 @@ export const usePortfolioStore = create<PortfolioState>()(
           set(newState);
       
           addSyncLog(
-            `✅ Portfolio hydrated successfully: ${holdingsUpdated} holdings updated, ${(newState.watchlist || currentState.watchlist).length} watchlist items`,
+            `✅ Portfolio hydrated successfully: ${holdingsAdded} added, ${holdingsUpdated} updated, ${(newState.watchlist || currentState.watchlist).length} watchlist items`,
             'success'
           );
       
@@ -186,7 +241,49 @@ export const removeFromWatchlist = async (symbol: string) => {
   usePortfolioStore.setState({ watchlist: updatedWatchlist });
 };
 
-// Function to remove a stock from the portfolio
+// Add function to add stock with timestamp
+export const addToPortfolio = async (stock: Omit<Stock, 'addedAt' | 'updatedAt' | 'createdAt'>) => {
+  try {
+    const timestampedStock: Stock = {
+      ...stock,
+      addedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString()
+    };
+    
+    // Add to existing portfolio
+    const updatedPortfolio = [...portfolioData, timestampedStock];
+    
+    // Update the portfolio data
+    await updatePortfolioData(updatedPortfolio);
+    
+    // Recalculate total value
+    const prices = usePortfolioStore.getState().prices;
+    let newTotal = 0;
+    updatedPortfolio.forEach((s) => {
+      const price = prices[s.symbol] || 0;
+      newTotal += price * s.quantity;
+    });
+    
+    // Update the store state
+    usePortfolioStore.setState({ 
+      totalValue: newTotal,
+      lastUpdate: new Date()
+    });
+    
+    // Log the addition for sync
+    const addSyncLog = getAddSyncLog();
+    addSyncLog(`Stock added to portfolio: ${stock.symbol} (${stock.quantity} shares)`, 'info');
+    
+    return timestampedStock;
+    
+  } catch (error) {
+    console.error('Error adding stock to portfolio:', error);
+    throw error;
+  }
+};
+
+// Also update the removeFromPortfolio to handle timestamps
 export const removeFromPortfolio = async (symbol: string) => {
   try {
     // Filter out the stock with the given symbol
@@ -208,6 +305,10 @@ export const removeFromPortfolio = async (symbol: string) => {
       totalValue: newTotal,
       lastUpdate: new Date()
     });
+    
+    // Log the removal for sync
+    const addSyncLog = getAddSyncLog();
+    addSyncLog(`Stock removed from portfolio: ${symbol}`, 'info');
     
   } catch (error) {
     console.error('Error removing stock from portfolio:', error);

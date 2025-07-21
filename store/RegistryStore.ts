@@ -61,6 +61,7 @@ interface RegistryState {
   } | null) => void;
 }
 
+let snaptshotDebug = false;
 
 export const useRegistryStore = create<RegistryState>((set, get) => {
   const debouncedCheck = debounce(async () => {
@@ -119,12 +120,18 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         const deletedItems = totalItems - activeItems;
         
         if (deletedItems > 0) {
-          addSyncLog(`[Snapshot] Vault sync ON: Including ${totalItems} items (${activeItems} active, ${deletedItems} deleted).`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Vault sync ON: Including ${totalItems} items (${activeItems} active, ${deletedItems} deleted).`, 'info');
+          }
         } else {
-          addSyncLog(`[Snapshot] Vault sync ON: Including ${activeItems} vault items.`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Vault sync ON: Including ${activeItems} vault items.`, 'info');
+          }
         }
       } else {
-        addSyncLog('[Snapshot] Vault sync OFF: Excluding vault items.', 'info');
+        if (snaptshotDebug) {
+          addSyncLog('[Snapshot] Vault sync OFF: Excluding vault items.', 'info');
+        }
       }
 
           // Portfolio store
@@ -138,9 +145,13 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         portfolioStateForSnapshot.principal = portfolioStoreFullState.principal;
         portfolioStateForSnapshot.portfolioHoldings = portfolioData; // Current holdings
         portfolioStateForSnapshot.lastUpdated = Date.now(); // Add timestamp!
-        addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
+        if (snaptshotDebug) {
+          addSyncLog(`[Snapshot] Portfolio sync ON: Including ${portfolioData.length} holdings, ${portfolioStoreFullState.watchlist.length} watchlist items.`, 'info');
+        }
       } else {
-        addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
+        if (snaptshotDebug) {
+          addSyncLog('[Snapshot] Portfolio sync OFF: Excluding portfolio data.', 'info');
+        }
       }
       // Bills store
       const billStoreFullState = useBillStore.getState();
@@ -157,12 +168,18 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         const deletedBills = totalBills - activeBills;
         
         if (deletedBills > 0) {
-          addSyncLog(`[Snapshot] Bills sync ON: Including ${totalBills} bills (${activeBills} active, ${deletedBills} deleted), income $${billStoreFullState.monthlyIncome}.`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Bills sync ON: Including ${totalBills} bills (${activeBills} active, ${deletedBills} deleted), income $${billStoreFullState.monthlyIncome}.`, 'info');
+          }
         } else if (billStoreFullState.monthlyIncome > 0) {
-          addSyncLog(`[Snapshot] Bills sync ON: Including ${activeBills} bills, income $${billStoreFullState.monthlyIncome}.`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Bills sync ON: Including ${activeBills} bills, income $${billStoreFullState.monthlyIncome}.`, 'info');
+          }
         }
       } else {
-        addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
+        if (snaptshotDebug) {
+          addSyncLog('[Snapshot] Bills sync OFF: Excluding bills and income.', 'info');
+        }
       }
       const projectStoreFullState = useProjectStore.getState();
       let projectStateForSnapshot: any = { isSyncEnabled: projectStoreFullState.isSyncEnabled };
@@ -170,10 +187,13 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         const activeProjects = projectStoreFullState.projects.filter(project => !project.isDeleted);
         projectStateForSnapshot.projects = activeProjects;
         projectStateForSnapshot.lastUpdated = now;
-        addSyncLog(`[Snapshot] Projects sync ON: Including ${activeProjects.length} active projects (filtered out ${projectStoreFullState.projects.length - activeProjects.length} deleted).`, 'info');
-     //   addSyncLog(`[Snapshot] Projects sync ON: Including ${projectStoreFullState.projects?.length || 0} projects.`, 'info');
+        if (snaptshotDebug) {
+          addSyncLog(`[Snapshot] Projects sync ON: Including ${activeProjects.length} active projects (filtered out ${projectStoreFullState.projects.length - activeProjects.length} deleted).`, 'info');
+        }
       } else {
-        addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
+        if (snaptshotDebug) {
+          addSyncLog('[Snapshot] Projects sync OFF: Excluding projects.', 'info');
+        }
       }
         //Notes store
         const noteStoreFullState = useNoteStore.getState();
@@ -182,9 +202,13 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           noteStateForSnapshot.notes = noteStoreFullState.notes;
           noteStateForSnapshot.noteOrder = noteStoreFullState.noteOrder;
           noteStateForSnapshot.lastUpdated = now;
-          addSyncLog(`[Snapshot] Notes sync ON: Including ${Object.keys(noteStoreFullState.notes || {}).length} notes.`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Notes sync ON: Including ${Object.keys(noteStoreFullState.notes || {}).length} notes.`, 'info');
+          }
         } else {
-          addSyncLog('[Snapshot] Notes sync OFF: Excluding notes.', 'info');
+          if (snaptshotDebug) {
+            addSyncLog('[Snapshot] Notes sync OFF: Excluding notes.', 'info');
+          }
         }
       const peopleStoreFullState = usePeopleStore.getState();
       let peopleStateForSnapshot: any = { isSyncEnabled: peopleStoreFullState.isSyncEnabled };
@@ -198,20 +222,41 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         const deletedContacts = totalContacts - activeContacts;
         
         if (deletedContacts > 0) {
-          addSyncLog(`[Snapshot] People sync ON: Including ${totalContacts} contacts (${activeContacts} active, ${deletedContacts} deleted).`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] People sync ON: Including ${totalContacts} contacts (${activeContacts} active, ${deletedContacts} deleted).`, 'info');
+          }
         } else {
-          addSyncLog(`[Snapshot] People sync ON: Including ${activeContacts} contacts.`, 'info');
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] People sync ON: Including ${activeContacts} contacts.`, 'info');
+          }
         }
-      } else {
-        addSyncLog('[Snapshot] People sync OFF: Excluding contacts.', 'info');
+      } else 
+      {
+        if (snaptshotDebug) {
+          addSyncLog('[Snapshot] People sync OFF: Excluding contacts.', 'info');  
+        }
       }
       // Habits store
       const habitStoreFullState = useHabitStore.getState();
       let habitStateForSnapshot: any = { isSyncEnabled: habitStoreFullState.isSyncEnabled };
       if (habitStoreFullState.isSyncEnabled) {
+        // Include ALL habits (including deleted ones) so deletions can be synced
         habitStateForSnapshot.habits = habitStoreFullState.habits;
         habitStateForSnapshot.lastUpdated = now;
-     //   addSyncLog(`[Snapshot] Habits sync ON: Including ${Object.keys(habitStoreFullState.habits || {}).length} habits.`, 'info');
+        
+        const totalHabits = Object.keys(habitStoreFullState.habits || {}).length;
+        const activeHabits = Object.values(habitStoreFullState.habits || {}).filter((habit: any) => !habit.deletedAt).length;
+        const deletedHabits = totalHabits - activeHabits;
+        
+        if (deletedHabits > 0) {
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Habits sync ON: Including ${totalHabits} habits (${activeHabits} active, ${deletedHabits} deleted).`, 'info');
+          }
+        } else {
+          if (snaptshotDebug) {
+            addSyncLog(`[Snapshot] Habits sync ON: Including ${activeHabits} habits.`, 'info');
+          }
+        }
       } else {
         addSyncLog('[Snapshot] Habits sync OFF: Excluding habits.', 'info');
       }
@@ -226,7 +271,9 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         calendarStateForSnapshot.events = eventsToSync;
         calendarStateForSnapshot.lastUpdated = now;
       } else {
-        addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
+        if (snaptshotDebug) {
+          addSyncLog('[Snapshot] Calendar sync OFF: Excluding calendar events.', 'info');
+        }
       }
 
       // CustomCategory and Tags stores (always sync)

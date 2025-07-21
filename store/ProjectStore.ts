@@ -104,7 +104,7 @@ export const useProjectStore = create<ProjectStoreState>()(
           return;
         }
 
-        addSyncLog('🔄 Hydrating ProjectStore from sync...', 'info');
+       // addSyncLog('🔄 Hydrating ProjectStore from sync...', 'info');
         let itemsMergedCount = 0;
         let itemsAddedCount = 0;
         let completionConflictsResolved = 0;

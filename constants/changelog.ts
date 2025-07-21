@@ -1,5 +1,15 @@
 export const CHANGELOG = [
   {
+    version: '1.2.54',
+    date: '2025-07-21',
+    notes: 'Bug Fixes',
+    bullets: [
+      'Fixed bug with notifications not being sent for contacts',
+      'Pushed update for filtering issue in the main ToDo list (thanks useMemo)',
+      'Patched bug with habits not staying deleted after sync',
+    ],
+  },
+  {
     version: '1.2.40',
     date: '2025-06-24',
     notes: 'Improved UI',

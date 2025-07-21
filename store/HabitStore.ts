@@ -14,6 +14,7 @@ const getAddSyncLog = () => {
 
 export interface Habit extends HabitType {
   updatedAt?: string;
+  deletedAt?: string; // Add deletedAt field for soft deletion
 }
 
 interface HabitStore {
@@ -25,6 +26,7 @@ interface HabitStore {
   deleteHabit: (habitId: string) => void;
   editHabit: (habitId: string, updates: Partial<Habit>) => void;
   toggleHabitSync: () => void;
+  getActiveHabits: () => Habit[]; // Add helper to get active habits
   hydrateFromSync?: (syncedData: { habits?: Record<string, Habit>, isSyncEnabled?: boolean }) => void;
 }
 
@@ -88,9 +90,20 @@ export const useHabitStore = create<HabitStore>()(
           cancelHabitNotification(identifier);
           cancelHabitNotification(habit.title);
           getAddSyncLog()(`[HabitStore] Habit deleted locally: ${habit.title}`, 'info');
+          
+          // Soft delete with timestamp instead of removing
+          return {
+            habits: {
+              ...state.habits,
+              [habitId]: {
+                ...habit,
+                deletedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              }
+            }
+          };
         }
-        const { [habitId]: _, ...rest } = state.habits;
-        return { habits: rest };
+        return state;
       }),
 
       editHabit: (habitId: string, updates: Partial<Habit>) => set((state) => {
@@ -117,6 +130,11 @@ export const useHabitStore = create<HabitStore>()(
         });
       },
 
+      // Add helper function to get only active habits
+      getActiveHabits: () => {
+        return Object.values(get().habits).filter(habit => !habit.deletedAt);
+      },
+
       hydrateFromSync: (syncedData: { habits?: Record<string, Habit>, isSyncEnabled?: boolean }) => {
         const localStore = get();
         if (!localStore.isSyncEnabled) {
@@ -137,6 +155,7 @@ export const useHabitStore = create<HabitStore>()(
         getAddSyncLog()('[HabitStore] 🔄 Hydrating habits from sync...', 'info');
         let itemsMergedCount = 0;
         let itemsAddedCount = 0;
+        let itemsDeletedCount = 0;
 
         const currentHabits = { ...localStore.habits }; 
         const incomingHabits = syncedData.habits;
@@ -149,7 +168,20 @@ export const useHabitStore = create<HabitStore>()(
             const localUpdatedAt = new Date(localHabit.updatedAt || localHabit.createdAt || 0).getTime();
             const incomingUpdatedAt = new Date(incomingHabit.updatedAt || incomingHabit.createdAt || 0).getTime();
 
-            if (incomingUpdatedAt > localUpdatedAt) {
+            // Handle deletion sync - if incoming is deleted and local is not
+            if (incomingHabit.deletedAt && !localHabit.deletedAt) {
+              // Cancel notifications for deleted habit
+              const identifier = `${localHabit.title}-${localHabit.notificationTimeValue}`;
+              cancelHabitNotification(identifier);
+              cancelHabitNotification(localHabit.title);
+              
+              currentHabits[id] = { ...localHabit, ...incomingHabit };
+              itemsDeletedCount++;  
+              getAddSyncLog()(
+                `[HabitStore] Habit marked as deleted from sync: ${localHabit.title}`, 
+                'info'
+              );
+            } else if (incomingUpdatedAt > localUpdatedAt) {
               const mergedCompletionHistory = { ...localHabit.completionHistory, ...incomingHabit.completionHistory }; 
               currentHabits[id] = { 
                 ...localHabit,
@@ -167,12 +199,23 @@ export const useHabitStore = create<HabitStore>()(
             }
           } else {
             currentHabits[id] = incomingHabit;
-            itemsAddedCount++;
+            if (incomingHabit.deletedAt) {
+              itemsDeletedCount++;
+            } else {
+              itemsAddedCount++;
+            }
           }
         }
         
         set({ habits: currentHabits });
-          getAddSyncLog()(`[HabitStore] Habits hydrated: ${itemsAddedCount} added, ${itemsMergedCount} updated based on timestamp. Total habits: ${Object.keys(currentHabits).length}.`, 'success');
+        
+        const activeHabits = Object.values(currentHabits).filter(habit => !habit.deletedAt).length;
+        const totalHabits = Object.keys(currentHabits).length;
+        
+        getAddSyncLog()(
+          `[HabitStore] Habits hydrated: ${itemsAddedCount} added, ${itemsMergedCount} updated, ${itemsDeletedCount} deleted. Active: ${activeHabits}/${totalHabits}.`, 
+          'info'
+        );
       },
     }),
     {

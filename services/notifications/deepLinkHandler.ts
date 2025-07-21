@@ -37,12 +37,12 @@ const exportDeepLinkDebugLogs = async (context: string): Promise<void> => {
  * Processes notification links, LemonSqueezy redirects, custom schemes, share links, and habits navigation
  */
 export async function handleDeepLink(event: { url: string | NotificationResponse }) {  
-  addSyncLog(`🔗 [DeepLink] Received deep link event: ${JSON.stringify(event)}`, 'verbose');
+  //addSyncLog(`🔗 [DeepLink] Received deep link event: ${JSON.stringify(event)}`, 'verbose');
   
   // Early-exit for duplicate deep links (iOS sometimes fires twice)
   const currentUrl = typeof event.url === 'string' ? event.url : JSON.stringify(event.url);
   if (lastUrlSeen === currentUrl) {
-    addSyncLog(`🔄 [DeepLink] Duplicate URL detected, skipping: ${currentUrl}`, 'verbose');
+    //addSyncLog(`🔄 [DeepLink] Duplicate URL detected, skipping: ${currentUrl}`, 'verbose');
     return;
   }
   lastUrlSeen = currentUrl;
@@ -150,6 +150,10 @@ export async function handleDeepLink(event: { url: string | NotificationResponse
         router.push('/(drawer)/habits');
         return;
       }
+    }
+    if (event.url.includes('vercel.app')) {
+     // addSyncLog(`🔗 [DeepLink] Vercel URL detected`, 'info');
+      return;
     }
     
     addSyncLog(`⚠️ [DeepLink] Unhandled URL: ${event.url}`, 'warning');

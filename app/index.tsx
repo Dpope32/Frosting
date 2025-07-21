@@ -75,9 +75,9 @@ export default function Index() {
       await useNoteStore.getState().loadNotes();
   
       const hydrationTime = Date.now();
-      const hydrationDuration = hydrationTime - overallStartTime;
+      const hydrationDuration = hydrationTime - overallStartTime; 
       
-      addSyncLog(`📚 All local stores hydrated in ${(hydrationDuration/1000).toFixed(1)}s`, 'verbose');
+      addSyncLog(` All local stores hydrated in ${(hydrationDuration/1000).toFixed(1)}s`, 'verbose');
       if (Platform.OS === 'android') {
         addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
       }
