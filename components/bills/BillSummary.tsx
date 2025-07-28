@@ -29,7 +29,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
   const borderWidth = isWeb? 1 : 0;
   const { isLoading } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
-  
   const portfolioDisplayValue = isLoading ? '...'
     : totalValue !== null ? `$${totalValue.toLocaleString('en-US', { 
         minimumFractionDigits: 0, 
@@ -139,8 +138,8 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.5,
         shadowRadius: 8,
-        borderBottomWidth: 1,
-        borderColor: isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)",  
+        borderBottomWidth: borderWidth,
+        borderColor: borderColor,  
         elevation: 10,
         overflow: 'hidden',
         padding: 16,

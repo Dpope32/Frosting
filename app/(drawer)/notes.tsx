@@ -223,8 +223,6 @@ export default function NotesScreen() {
               }}
             />
           </View>
-
-
         </GestureHandlerRootView>
       )}
       <AddNoteButton

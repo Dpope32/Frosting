@@ -29,8 +29,6 @@ export const HabitCardContent = ({ habit, doneToday }: HabitCardContentProps) =>
   const today = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
   const notificationTime = habit.notificationTimeValue;
   const notificationTimeDate = notificationTime ? notificationTime : 'none';
-
-  
   const history = getRecentHistory(habit);
 
   const { currentStreak, longestStreak, totalCompletions, percentComplete } = React.useMemo(() => {
@@ -54,8 +52,6 @@ export const HabitCardContent = ({ habit, doneToday }: HabitCardContentProps) =>
     
     return { currentStreak: curr, longestStreak: max, totalCompletions: total, percentComplete: percent };
   }, [history]);
-
-
 
   const handleStatsPress = () => {
     if (statsButtonRef.current && Platform.OS === 'web') {
@@ -91,8 +87,8 @@ export const HabitCardContent = ({ habit, doneToday }: HabitCardContentProps) =>
     >
       <LinearGradient
         colors={isDark ? 
-          ['#171c21', '#1a1f25', '#1d2228', '#20252c'] : 
-          ['#f5f7f4', '#f0f3ee', '#ebeee9', '#e6e9e4']}
+          ['#1a1a1a', '#1c1c1c', '#1e1e1e', '#202020'] : 
+          ['#e0e2df', '#e8eae7', '#e0e2df', '#d8dad7']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{

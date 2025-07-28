@@ -42,8 +42,8 @@ export const NoteCard = ({
   const isDark = colorScheme === 'dark';
   const { colors, markdownStyles, processTallyMarks } = useMarkdownStyles();
   const noTagSpacerHeight = isWeb ? 40 : 6;
-  const horizontalPadding = isWeb ? 20 : isIpad() ? 12 : 10;
-  const verticalPadding = isWeb ? 6 : isIpad() ? 8 : 6;
+  const horizontalPadding = isWeb ? 24 : isIpad() ? 16 : 14;
+  const verticalPadding = isWeb ? 8 : isIpad() ? 10 : 8;
   const attachmentWidth = isWeb ? 150 : 120;
   const attachmentHeight = isWeb ? 120 : 96;
 
@@ -119,9 +119,6 @@ export const NoteCard = ({
 
   const cardSpecificStyle = useMemo(() => ({
     shadowColor: isDragging ? colors.accent : colors.shadow,
-    shadowOffset: { width: 0, height: isDragging ? 4 : 2 },
-    shadowOpacity: isDragging ? 0.3 : 0.1,
-    shadowRadius: isDragging ? 6 : 2,
     elevation: isDragging ? 8 : 2,
     padding: verticalPadding,
     overflow: 'hidden' as 'hidden',
@@ -186,8 +183,6 @@ export const NoteCard = ({
               checkboxCount++;
               return fullMatch;
             });
-
-            // If no replacement was made with the list item pattern, try standalone checkbox pattern
             if (newContent === (note.content || '')) {
               checkboxCount = 0;
               newContent = (note.content || '').replace(/\[([ xX])\]/g, (fullMatch, state) => {
@@ -279,9 +274,6 @@ export const NoteCard = ({
     })()
   };
 
-
-
-  // Combined rule for italic, underline, and tally formatting (to avoid conflicts)
   const formattingRule: RenderRules = {
     text: (node, children, parent, styles) => {
       if (typeof node.content === 'string') {
@@ -298,8 +290,7 @@ export const NoteCard = ({
                 if (tallyMatch) {
                   const count = parseInt(tallyMatch[1]);
                   const isFiveBundle = count === 5;
-                  
-                                     return (
+                   return (
                      <View
                        key={index}
                        style={{
@@ -312,7 +303,7 @@ export const NoteCard = ({
                      >
                        <Text
                          style={{
-                           fontFamily: 'monospace',
+                           fontFamily: '$body',
                            fontSize: isIpad() ? 14 : 12,
                            fontWeight: '500',
                            letterSpacing: 0.5,
@@ -345,12 +336,10 @@ export const NoteCard = ({
           );
         }
         
-        // Check for italic/underline formatting
         const hasItalic = content.includes('〔ITALIC:');
         const hasUnderline = content.includes('〔UNDERLINE:');
         
         if (hasItalic || hasUnderline) {
-          // Split content by both italic and underline patterns
           const parts = content.split(/(〔ITALIC:[^〕]*〕|〔UNDERLINE:[^〕]*〕)/);
           
           return (
@@ -453,7 +442,7 @@ export const NoteCard = ({
       >
         <LinearGradient
           colors={isDark ? 
-            ['#171c22', '#1a1f25', '#1d2228', '#20252c'] : 
+            ['#1a1a1a', '#1c1c1c', '#1e1e1e', '#202020'] : 
             ['#e8eae7', '#e8eae7', '#e0e2df', '#d8dad7']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -462,7 +451,7 @@ export const NoteCard = ({
             top: 0, left: 0, right: 0, bottom: 0,
             borderRadius: 9,
             borderWidth: 1,
-            borderColor: isDark ? '#282e36' : '#c9cec5',
+            borderColor: isDark ? '#2a2a2a' : '#c9cec5',
             opacity: 0.98,
           }}
         />

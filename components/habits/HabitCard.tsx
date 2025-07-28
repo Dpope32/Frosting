@@ -87,7 +87,7 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
                 backgroundColor: doneToday
                   ? 'rgba(0, 200, 81, 0.1)'
                   : isDark
-                  ? 'rgba(110, 110, 110, 0.65)'
+                  ? 'rgba(179, 178, 178, 0.65)'
                   : 'rgba(255,255,255,0.65)',
                 width: isMobile ? 20 : 24,
                 height: isMobile ? 20 : 24,
