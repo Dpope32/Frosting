@@ -1,6 +1,8 @@
 import { Dimensions, Platform } from 'react-native';
 import { isWeb } from 'tamagui';
 
+export const isDev = process.env.NODE_ENV === 'development';
+
 export const isIpad = () => {
   const { width, height } = Dimensions.get('window');
   

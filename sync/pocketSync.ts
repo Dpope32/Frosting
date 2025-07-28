@@ -14,6 +14,7 @@ import { useUserStore } from '@/store'
 import * as Sentry from '@sentry/react-native'
 import { LogEntry } from '@/components/sync/syncUtils'
 import { Platform } from 'react-native'
+import Constants from 'expo-constants'
 
 let debug = true;
 const getAddSyncLog = () => {
@@ -62,15 +63,15 @@ const CANDIDATE_URLS = (Platform.OS === 'web'
   ? [
       // Prioritize proxy for web (VPNs commonly block Tailscale)
       'https://kaiba.vercel.app/api/proxy/pb',
-      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL),
-      withPort(process.env.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env.EXPO_PUBLIC_PB_URL),
+      withPort(Constants.expoConfig?.extra?.pocketbaseUrl),
+      withPort(Constants.expoConfig?.extra?.pbLanUrl),
+      withPort(Constants.expoConfig?.extra?.pbUrl),
     ]
   : [
       // Direct connections first for mobile
-      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), 
-      withPort(process.env.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env.EXPO_PUBLIC_PB_URL),
+      withPort(Constants.expoConfig?.extra?.pocketbaseUrl), 
+      withPort(Constants.expoConfig?.extra?.pbLanUrl),
+      withPort(Constants.expoConfig?.extra?.pbUrl),
     ]
 ).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
 

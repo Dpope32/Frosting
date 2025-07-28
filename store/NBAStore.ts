@@ -2,11 +2,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createPersistStorage } from './AsyncStorage';
-import { useProjectStore } from './ToDo';
-import { useUserStore } from './UserStore';
-import { nbaTeams } from '@/constants';
 import { useCalendarStore } from './CalendarStore';
-import { format } from 'date-fns';
+import { useProjectStore } from './ToDo';
 
 export interface Game {
   id: number;
@@ -17,7 +14,7 @@ export interface Game {
   awayScore?: number;
   status: 'scheduled' | 'live' | 'finished';
   season: number;
-  teamCode: string; 
+  teamCode: string;
 }
 
 interface CachedSchedule {
@@ -29,7 +26,7 @@ interface NBAStore {
   games: Game[];
   isLoading: boolean;
   error: string | null;
-  teamCode: string; 
+  teamCode: string;
   teamName: string;
   gameScheduleCache: Record<string, CachedSchedule>;
   setGames: (games: Game[]) => void;
@@ -39,6 +36,7 @@ interface NBAStore {
   syncGameTasks: () => void;
   deleteAllGameTasks: () => void;
   syncNBAGames: () => void;
+  clearAllNBAData: () => void;
   clearNBACalendarEvents: () => void;
   cacheSchedule: (teamCode: string, season: number, data: Game[]) => void;
   getCachedSchedule: (teamCode: string, season: number) => Game[] | null;
@@ -50,16 +48,16 @@ export const useNBAStore = create<NBAStore>()(
       games: [],
       isLoading: false,
       error: null,
-      teamCode: 'OKC', 
+      teamCode: 'OKC',
       teamName: 'Oklahoma City Thunder',
       gameScheduleCache: {},
-      
+
       // Existing methods
       setGames: (games) => set({ games }),
       setTeamInfo: (code, name) => set({ teamCode: code, teamName: name }),
       setLoading: (loading) => set({ isLoading: loading }),
       setError: (error) => set({ error }),
-      
+
       // New caching methods
       cacheSchedule: (teamCode, season, data) => {
         const cacheKey = `${teamCode}-${season}`;
@@ -82,48 +80,31 @@ export const useNBAStore = create<NBAStore>()(
         }
         return null;
       },
-      
+
       // Existing methods
       deleteAllGameTasks: () => {
         const { tasks, deleteTask } = useProjectStore.getState();
         Object.entries(tasks).forEach(([id, task]) => {
-          if (task.name.startsWith('🏀')) {
+          if (task.name.startsWith('🏀') || task.name.includes('🏀')) {
             deleteTask(id);
           }
         });
       },
-      syncGameTasks: () => {
-        get().deleteAllGameTasks();
-        const { addTask } = useProjectStore.getState();
-        const state = get();
-        const now = new Date();
-
-        // Sync NBA games
-        state.games.forEach((game: Game) => {
-          const gameDate = new Date(game.date);
-          if (gameDate >= now) {
-            const teamName = state.teamName.replace('Oklahoma City ', '');
-            const isHome = game.homeTeam.includes(state.teamName);
-            const opponent = (isHome ? game.awayTeam : game.homeTeam).replace(`${state.teamName} `, '');
-            const location = isHome ? 'vs ' : '@ ';
-            const taskName = `🏀 ${teamName} ${location}${opponent}`;
-            
-            const gameTime = new Date(game.date).toLocaleTimeString('en-US', { 
-              hour: 'numeric', 
-              minute: '2-digit'
-            });
-
-            addTask({
-              name: taskName,
-              schedule: [],
-              priority: 'medium',
-              category: 'personal',
-              scheduledDate: game.date,
-              time: gameTime,
-              recurrencePattern: 'one-time'
-            });
-          }
+      clearAllNBAData: () => {
+        // Clear all NBA games and cache
+        set({
+          games: [],
+          gameScheduleCache: {},
+          error: null
         });
+        // Also delete any NBA tasks
+        get().deleteAllGameTasks();
+      },
+      syncGameTasks: () => {
+        // NBA season ended - don't create new tasks
+        console.log('[NBA] syncGameTasks called but NBA season has ended, skipping task creation');
+        get().deleteAllGameTasks();
+        return;
       },
       clearNBACalendarEvents: () => {
         const { events } = useCalendarStore.getState();
@@ -136,42 +117,11 @@ export const useNBAStore = create<NBAStore>()(
         });
       },
       syncNBAGames: () => {
+        // NBA season ended - clear any existing calendar events and don't create new ones
         get().clearNBACalendarEvents();
-        
-        const userPreferences = useUserStore.getState().preferences;
-        if (!userPreferences.showNBAGamesInCalendar) {
-          return; 
-        }
-        
-        const state = get();
-        const calendarStore = useCalendarStore.getState();
-        const now = new Date();
-        const team = nbaTeams.find(t => t.code === state.teamCode);
-        
-        if (!team) return;
-        
-        state.games.forEach((game: Game) => {
-          const gameDate = new Date(game.date);
-          if (gameDate >= now) {
-            const isHome = game.homeTeam.includes(state.teamName);
-            const opponent = (isHome ? game.awayTeam : game.homeTeam).replace(`${state.teamName} `, '');
-            const location = isHome ? 'vs ' : '@ ';
-            const gameTime = new Date(game.date).toLocaleTimeString('en-US', { 
-              hour: 'numeric', 
-              minute: '2-digit'
-            });
-            
-            calendarStore.addEvent({
-              date: format(gameDate, 'yyyy-MM-dd'),
-              time: gameTime,
-              title: `${state.teamName} ${location}${opponent}`,
-              description: `${state.teamName} ${location}${opponent}`,
-              type: 'nba',
-              teamCode: state.teamCode
-            });
-          }
-        });
-      }
+        console.log('[NBA] syncNBAGames called but NBA season has ended, skipping calendar sync');
+        return;
+      },
     }),
     {
       name: 'nba-store',

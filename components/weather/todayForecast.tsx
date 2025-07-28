@@ -19,7 +19,6 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   const forecastPeriods = useWeatherStore((s) => s.forecast);
   const todayForecast = forecastPeriods && forecastPeriods.length > 0 ? forecastPeriods[0] : null;
 
-  // Night detection: between 8 PM and 4 AM
   const isNight = useMemo(() => {
     const hour = new Date().getHours();
     return hour >= 20 || hour < 4;
@@ -48,7 +47,6 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   const currentHour = new Date().getHours();
   const isLateNightOrEarlyMorning = currentHour >= 22 || currentHour < 5;
 
-  // Calculate dynamic background and text colors
   let cardBg = getCardBackground(
     todayForecast.shortForecast,
     isDark,
@@ -57,13 +55,12 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   );
   let textColor = getTextColorForBackground(cardBg);
 
-  // Override for late night/early morning
   if (isLateNightOrEarlyMorning) {
-    cardBg = isDark ? '#181926' : '#2c3e50'; // Deep night colors
-    textColor = '#f5f6fa'; // Ensure text is light
+    cardBg = isDark ? '#181926' : '#2c3e50'; 
+    textColor = '#f5f6fa'; 
   }
   
-  const shadowColor = isDark ? '#000' : '#b0b0b0'; // Keep existing shadow for simplicity
+  const shadowColor = isDark ? '#000' : '#b0b0b0'; 
 
   return (
     <Animated.View entering={FadeIn.duration(500)}>
@@ -77,10 +74,10 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
         shadowOpacity={isDark ? 0.45 : 0.18}
         shadowRadius={12}
         elevation={6}
-        maxWidth={isWeb ? "85%" : (isIpad() ? 800 : 400)}
-        paddingHorizontal={0}
+        maxWidth={isWeb ? "100%" : (isIpad() ? 800 : 400)}
+        paddingHorizontal={isWeb ? 0 : 0}
         minWidth={isWeb ? "40%" : (isIpad() ? 600 : "90%")}
-        width={isWeb ? "81.5%" : "auto"}
+        width={isWeb ? "79.5%" : "auto"}
         alignSelf="center"
         pt={isIpad() ? 0 : 0}
         mb={isIpad() ? 2 : 0}

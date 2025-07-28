@@ -381,15 +381,21 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               autoCapitalize="sentences"
               autoCorrect={true}
               spellCheck={true}
-              style={{
-                fontSize: isIpad() ? 17 : 15,
-                fontFamily: 'System',
-                color: isDark ? '#fff' : '#000',
-                minHeight: 20,
-                textAlignVertical: 'center',
-                padding: 0,
-                margin: 0,
-              }}
+                             style={{
+                 fontSize: isIpad() ? 17 : 15,
+                 fontFamily: 'System',
+                 color: isDark ? '#fff' : '#000',
+                 minHeight: 20,
+                 textAlignVertical: 'center',
+                 padding: 0,
+                 margin: 0,
+                 ...(isWeb && { 
+                   outline: 'none',
+                   border: 'none',
+                   boxShadow: 'none',
+                   backgroundColor: 'transparent'
+                 }),
+               }}
               multiline={false}
               textContentType="none"
               autoComplete="off"

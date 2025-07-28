@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils';
 import { addSyncLog } from '@/components/sync/syncUtils'
 import { useUserStore } from '@/store/UserStore'
+import { dayNames, getLocalDateString } from '@/services/tasks/taskHelpers'
 
 let debug = false;
 
@@ -26,16 +27,6 @@ interface ProjectStore {
   hydrateFromSync: (syncedData: {tasks?: Record<string, Task>}) => void
   debugSyncState: () => void;
 }
-
-const dayNames: WeekDay[] = [
-  'sunday','monday','tuesday','wednesday','thursday','friday','saturday'
-]
-
-// Helper function to extract local date string from any timestamp
-const getLocalDateString = (timestamp: string): string => {
-  // Parse the timestamp and format it in local timezone
-  return format(new Date(timestamp), 'yyyy-MM-dd');
-};
 
 // This is the function that determines whether a task should be shown or not
 const isTaskDue = (task: Task, date: Date): boolean => {

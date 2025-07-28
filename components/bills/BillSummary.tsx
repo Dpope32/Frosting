@@ -25,8 +25,8 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  
-  // Portfolio data
+  const borderColor = isWeb? isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)" : "transparent";
+  const borderWidth = isWeb? 1 : 0;
   const { isLoading } = usePortfolioQuery();
   const totalValue = usePortfolioStore((state) => state.totalValue);
   
@@ -56,7 +56,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
   
   if (isWeb) {
     return (
-      <XStack  w="100%"   p="$3"  my="$3" ai="center" jc="flex-start" gap="$6" position="relative"  borderBottomWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"} >
+      <XStack  w="100%"   p="$3"  my="$3" ai="center" jc="flex-start" gap="$6" position="relative"  borderBottomWidth={borderWidth} borderColor={borderColor} >
         <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
           <XStack  w={24} h={60} ai="center" jc="center"  mr="$3">
             <XStack  h={60}  ai="flex-end"  gap={3} jc="center">

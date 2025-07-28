@@ -1,6 +1,8 @@
 import { Platform } from "react-native";
-
-const S3_URL = process.env.EXPO_PUBLIC_S3_BUCKET_URL;
+import Constants from "expo-constants";
+import { isDev } from "@/utils/deviceUtils";
+// Use Constants.expoConfig for web-compatible environment variable access
+const S3_URL = isDev ? Constants.expoConfig?.extra?.s3BucketUrl : process.env.EXPO_PUBLIC_S3_BUCKET_URL;
 
 export interface S3Wallpaper { 
   name: string; 

@@ -3,7 +3,7 @@
     "name": "Kaiba",
     "slug": "frosting",
     "scheme": "kaiba-nexus",
-    "version": "1.2.54",
+    "version": "1.2.55",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
@@ -22,7 +22,7 @@
     "ios": {
       "supportsTablet": true,
       "icon": "./assets/images/icon.png",
-      "buildNumber": "1.2.54",
+      "buildNumber": "1.2.55",
       "bundleIdentifier": "com.deedaw22.kaibanexus",
       "infoPlist": {
         "LSApplicationQueriesSchemes": [
@@ -109,13 +109,13 @@
         }
       ]
     ],
-    "extra": {
-      "router": {
-        "origin": false
-      },
-      "eas": {
-        "projectId": "22727130-682f-425f-bedd-d8fd9ab0b3e0"
-      }
+          "extra": {
+        "router": {
+          "origin": false
+        },
+        "eas": {
+          "projectId": "22727130-682f-425f-bedd-d8fd9ab0b3e0"
+        }    
     },
     "owner": "deedaw22",
     "runtimeVersion": "1.0.0"
