@@ -62,15 +62,15 @@ const CANDIDATE_URLS = (Platform.OS === 'web'
   ? [
       // Prioritize proxy for web (VPNs commonly block Tailscale)
       'https://kaiba.vercel.app/api/proxy/pb',
-      withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL),
-      withPort(process.env?.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env?.EXPO_PUBLIC_PB_URL),
+      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL),
+      withPort(process.env.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env.EXPO_PUBLIC_PB_URL),
     ]
   : [
       // Direct connections first for mobile
-      withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL), 
-      withPort(process.env?.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env?.EXPO_PUBLIC_PB_URL),
+      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), 
+      withPort(process.env.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env.EXPO_PUBLIC_PB_URL),
     ]
 ).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
 
