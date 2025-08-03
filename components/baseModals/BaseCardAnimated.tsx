@@ -4,11 +4,7 @@ import { StyleSheet, TouchableWithoutFeedback, View, Dimensions } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useColorScheme } from 'react-native'
 import { Text, Theme, XStack, Button, isWeb, YStack } from 'tamagui'
-import Animated, {
-  ZoomIn,
-  FadeIn, 
-  FadeOut,
-} from 'react-native-reanimated'
+import Animated, { ZoomIn, FadeIn,  FadeOut } from 'react-native-reanimated'
 import { MaterialIcons } from '@expo/vector-icons'
 import { isIpad } from '@/utils'
 interface BaseCardAnimatedProps {
@@ -42,7 +38,6 @@ export function BaseCardAnimated({
 
   if (!visible) return null;
 
-  // Web implementation with position:fixed uses a Portal or YStack with absolute positioning + custom styling
   if (isWeb) {
     return (
       <YStack
@@ -78,14 +73,14 @@ export function BaseCardAnimated({
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
                     marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom + 40,
+                    marginBottom: insets.bottom + 60,
                     width: actualWidth,
                     maxHeight: screenHeight * 0.9,
                   }
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={isIpad() ? -8 : -8} marginBottom={isIpad() ? 8 : 8} px="$2" alignItems="center">
+                <XStack justifyContent="space-between" pt="$2" marginTop={isIpad() ? -8 : -8} marginBottom={12} px="$2" alignItems="center">
                   <Text
                     fontSize={24}
                     fontWeight="700"

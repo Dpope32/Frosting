@@ -55,7 +55,8 @@ export const OptimizedVideo = ({ src, style, className, delay = 0 }: OptimizedVi
           style={{ 
             width: '100%', 
             height: '100%', 
-            objectFit: 'cover',
+            objectFit: 'contain',
+            borderRadius: 24,
             opacity: isInView ? 1 : 0.7,
             transition: 'opacity 0.3s ease'
           }}

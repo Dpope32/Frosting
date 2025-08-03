@@ -1,55 +1,93 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { TouchableOpacity, StyleSheet, useColorScheme, Platform, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing, interpolate, Extrapolation } from 'react-native-reanimated';
+
+// Conditionally import Reanimated functions
+let Animated: any = null;
+let useSharedValue: any = null;
+let useAnimatedStyle: any = null;
+let withSpring: any = null;
+let withTiming: any = null;
+let Easing: any = null;
+let interpolate: any = null;
+let Extrapolation: any = null;
+
+if (Platform.OS === 'ios' || Platform.OS === 'android') {
+  try {
+    const Reanimated = require('react-native-reanimated');
+    Animated = Reanimated.default;
+    useSharedValue = Reanimated.useSharedValue;
+    useAnimatedStyle = Reanimated.useAnimatedStyle;
+    withSpring = Reanimated.withSpring;
+    withTiming = Reanimated.withTiming;
+    Easing = Reanimated.Easing;
+    interpolate = Reanimated.interpolate;
+    Extrapolation = Reanimated.Extrapolation;
+  } catch (error) {
+    console.warn('Reanimated could not be loaded:', error);
+  }
+}
+
 import { debouncedNavigate } from '@/utils/navigationUtils';
 
 export const ChangeLogButton = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const animationProgress = useSharedValue(0);
-  const scale = useSharedValue(1);
+  
+  // Only create animated values if not on web and Reanimated is available
+  const animationProgress = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+  const scale = Platform.OS !== 'web' && useSharedValue ? useSharedValue(1) : null;
 
   const handlePress = () => {
-    // Apply quick scale feedback and immediately navigate
-    scale.value = withSpring(0.9, { damping: 15, stiffness: 150 });
-    animationProgress.value = withTiming(1, {
-      duration: 300,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-    });
+    if (Platform.OS !== 'web' && scale && animationProgress && withSpring && withTiming && Easing) {
+      // Apply quick scale feedback and immediately navigate
+      scale.value = withSpring(0.9, { damping: 15, stiffness: 150 });
+      animationProgress.value = withTiming(1, {
+        duration: 300,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      });
+    }
     
     // Navigate with debouncing to prevent multiple rapid opens
     debouncedNavigate('/modals/changelog');
     
     // Reset scale after navigation starts
-    setTimeout(() => {
-      scale.value = withSpring(1, { damping: 15, stiffness: 150 });
-    }, 50);
+    if (Platform.OS !== 'web' && scale && withSpring) {
+      setTimeout(() => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 150 });
+      }, 50);
+    }
   };
 
-  const buttonStyle = useAnimatedStyle(() => { return { transform: [{ scale: scale.value }] } });
+  const buttonStyle = Platform.OS !== 'web' && useAnimatedStyle && scale
+    ? useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }))
+    : { transform: [{ scale: 1 }] };
 
-  const rippleStyle = useAnimatedStyle(() => {
-    const rippleScale = interpolate(
-      animationProgress.value,
-      [0, 1],
-      [0, 4],
-      Extrapolation.CLAMP
-    );
-    const opacity = interpolate(
-      animationProgress.value,
-      [0, 0.5, 1],
-      [0, 0.3, 0],
-      Extrapolation.CLAMP
-    );
-    return {
-      transform: [{ scale: rippleScale }],
-      opacity,
-    };
-  });
+  const rippleStyle = Platform.OS !== 'web' && useAnimatedStyle && animationProgress && interpolate && Extrapolation
+    ? useAnimatedStyle(() => {
+        const rippleScale = interpolate(
+          animationProgress.value,
+          [0, 1],
+          [0, 4],
+          Extrapolation.CLAMP
+        );
+        const opacity = interpolate(
+          animationProgress.value,
+          [0, 0.5, 1],
+          [0, 0.3, 0],
+          Extrapolation.CLAMP
+        );
+        return {
+          transform: [{ scale: rippleScale }],
+          opacity,
+        };
+      })
+    : { transform: [{ scale: 0 }], opacity: 0 };
+
+  const AnimatedView = Platform.OS !== 'web' && Animated ? Animated.View : View;
 
   return (
-    <Animated.View style={[styles.circle, buttonStyle]}>
+    <AnimatedView style={[styles.circle, buttonStyle]}>
       <TouchableOpacity
         style={styles.touchable}
         onPress={handlePress}
@@ -60,7 +98,7 @@ export const ChangeLogButton = () => {
           size={24} 
           color={isDark ? '#708090' : '#708090'} 
         />
-        <Animated.View 
+        <AnimatedView 
           style={[
             styles.ripple, 
             { backgroundColor: isDark ? '#708090' : '#708090' },
@@ -68,7 +106,7 @@ export const ChangeLogButton = () => {
           ]} 
         />
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 };
 

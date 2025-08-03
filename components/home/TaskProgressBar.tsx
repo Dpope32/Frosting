@@ -1,13 +1,28 @@
 import React, { useEffect } from 'react';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform, useColorScheme, View } from 'react-native';
 import { YStack, Stack, Text, isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-} from 'react-native-reanimated';
+
+// Conditionally import Reanimated functions
+let Animated: any = null;
+let useSharedValue: any = null;
+let useAnimatedStyle: any = null;
+let withTiming: any = null;
+let withSpring: any = null;
+
+if (Platform.OS === 'ios' || Platform.OS === 'android') {
+  try {
+    const Reanimated = require('react-native-reanimated');
+    Animated = Reanimated.default;
+    useSharedValue = Reanimated.useSharedValue;
+    useAnimatedStyle = Reanimated.useAnimatedStyle;
+    withTiming = Reanimated.withTiming;
+    withSpring = Reanimated.withSpring;
+  } catch (error) {
+    console.warn('Reanimated could not be loaded:', error);
+  }
+}
+
 import { isIpad } from '@/utils';
 
 interface TaskProgressBarProps {
@@ -22,40 +37,48 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
   // Calculate percentage
   const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   
-  // Animated values
-  const progress = useSharedValue(0);
-  const scale = useSharedValue(0.8);
-  const opacity = useSharedValue(0);
+  // Animated values - only create if not on web and Reanimated is available
+  const progress = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
+  const scale = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0.8) : null;
+  const opacity = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
 
   // Animation when percentage changes
   useEffect(() => {
-    // Entry animation
-    opacity.value = withTiming(1, { duration: 200 });
-    scale.value = withSpring(1, { damping: 20, stiffness: 300 });
-    
-    // Progress animation - much faster for immediate feedback
-    progress.value = withTiming(percentage / 100, { 
-      duration: 350 
-    });
-  }, [percentage]);
+    if (Platform.OS !== 'web' && opacity && scale && progress && withTiming && withSpring) {
+      // Entry animation
+      opacity.value = withTiming(1, { duration: 200 });
+      scale.value = withSpring(1, { damping: 20, stiffness: 300 });
+      
+      // Progress animation - much faster for immediate feedback
+      progress.value = withTiming(percentage / 100, { 
+        duration: 350 
+      });
+    }
+  }, [percentage, opacity, scale, progress, withTiming, withSpring]);
 
-  // Animated styles
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
-  }));
+  // Animated styles - only create if not on web and Reanimated is available
+  const containerStyle = Platform.OS !== 'web' && useAnimatedStyle && opacity && scale
+    ? useAnimatedStyle(() => ({
+        opacity: opacity.value,
+        transform: [{ scale: scale.value }],
+      }))
+    : { opacity: 1, transform: [{ scale: 1 }] };
 
-  const progressStyle = useAnimatedStyle(() => ({
-    width: `${progress.value * 100}%`,
-  }));
+  const progressStyle = Platform.OS !== 'web' && useAnimatedStyle && progress
+    ? useAnimatedStyle(() => ({
+        width: `${progress.value * 100}%`,
+      }))
+    : { width: `${percentage}%` };
 
   // Don't render if no tasks or only 1 task
   if (totalTasks <= 1) {
     return null;
   }
 
+  const AnimatedView = Platform.OS !== 'web' && Animated ? Animated.View : View;
+
   return (
-    <Animated.View style={containerStyle}>
+    <AnimatedView style={containerStyle}>
       <YStack 
         width={isWeb ? "95%" : isIpad() ? "80%" : "99%"}
         alignSelf="center"
@@ -76,7 +99,7 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
           position="relative"
           backgroundColor={isDark ? "rgba(0, 0, 0, 0.3)" : "rgba(255, 255, 255, 0.1)"}
         >
-          <Animated.View style={[{ 
+          <AnimatedView style={[{ 
             position: "absolute", 
             left: 0, 
             top: 0, 
@@ -101,9 +124,9 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
                 height: "100%",
               }}
             />
-          </Animated.View>
+          </AnimatedView>
         </Stack>
       </YStack>
-    </Animated.View>
+    </AnimatedView>
   );
 } 

@@ -260,7 +260,7 @@ export const DebugTools: React.FC<DebugToolsProps> = ({ openDebugModal, isDev, w
     }
   };
 
-  const styles = getCalendarStyles(webColumnCount);
+  const styles = getCalendarStyles(webColumnCount, []);
 
   return (
     <View style={{ position: 'absolute', bottom: 32, left: 24, zIndex: 1000, flexDirection: 'row', gap: 12 }}>

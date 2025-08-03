@@ -24,11 +24,10 @@ export const getCategoryColor = (category?: TaskCategory): string => {
     bills: '#4CAF50',    // Same green as wealth for bills
     task: '#FF9800', // Brown
   };
-  return colors[category as string] || getCustomCategoryColor(category as string); // Use custom colors for custom categories
+  return colors[category as string] || getCustomCategoryColor(category as string);
 };
 
-// Custom category colors
-export const customCategoryColors = [
+  export const customCategoryColors = [
   '#1abc9c', // Turquoise
   '#3498db', // Peter River
   '#9b59b6', // Amethyst
@@ -36,9 +35,7 @@ export const customCategoryColors = [
   '#e74c3c', // Alizarin
 ];
 
-// Function to get a custom category color based on the category name (for consistent color assignment)
 export const getCustomCategoryColor = (categoryName: string): string => {
-  // Simple hash function to get an index based on the category name
   let hash = 0;
   for (let i = 0; i < categoryName.length; i++) {
     const char = categoryName.charCodeAt(i);
@@ -49,14 +46,12 @@ export const getCustomCategoryColor = (categoryName: string): string => {
   return customCategoryColors[index];
 };
 
-// Function to get a darker version of a color
 export const getDarkerColor = (color: string, percent: number): string => {
   let f = parseInt(color.slice(1), 16), t = percent < 0 ? 0 : 255, p = percent < 0 ? percent * -1 : percent, R = f >> 16, G = f >> 8 & 0x00FF, B = f & 0x0000FF;
   return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
 };
 
 
-// Priority colors and icons
 export const getPriorityColor = (priority?: TaskPriority): string => {
   if (!priority) return '#607d8b'; // Default gray
   const colors: Record<TaskPriority, string> = {
@@ -119,7 +114,6 @@ export const dayColors = {
   sun: '#FFC107'
 };
 
-// Tag colors
 export const tagColors = [
   '#2196F3', // Blue
   '#F44336', // Red
@@ -160,7 +154,6 @@ export const getHabitColor = (category?: string): string => {
     fitness: '#F44336',   // Red
     reading: '#795548',   // Brown
     hydration: '#00BCD4', // Cyan
-    // Add more as needed
   };
   return habitColors[category.toLowerCase()] || getCategoryColor(category as any) || tagColors[0];
 };
@@ -230,7 +223,6 @@ export const getStockValueColor = (value: number, isDark: boolean): string => {
   return color
 }
 
-// Bank of 20 icons for custom categories (Ionicons names for example)
 export const customCategoryIcons = [
   'star', 'planet', 'leaf', 'flame', 'bulb', 'rocket', 'paw', 'bicycle', 'cafe', 'camera',
   'car', 'cloud', 'gift', 'golf', 'ice-cream', 'musical-notes', 'pizza', 'rose', 'tennisball', 'wine'
@@ -252,8 +244,6 @@ export const getCategoryIcon = (category?: TaskCategory): string => {
     bills: 'card',
     task: 'checkmark-done',
   };
-  // If it's a known category, return its icon
   if (icons[category]) return icons[category];
-  // Otherwise, treat as custom: return a random icon (or you could store the icon in the custom category object)
   return getRandomCustomCategoryIcon();
 };

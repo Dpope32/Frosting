@@ -48,7 +48,7 @@ class ProxyServerManagerClass {
     }
 
     // Use Vercel API route in production
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env?.NODE_ENV === 'production') {
       // Change this to use the proper URL format for all endpoints
       // Instead of query parameters, use path segments
       return `/api/proxy/${endpoint}`;
@@ -65,7 +65,7 @@ class ProxyServerManagerClass {
 
   private async checkServerStatus(): Promise<boolean> {
     try {
-      const url = process.env.NODE_ENV === 'production'
+      const url = process.env?.NODE_ENV === 'production'
         ? '/api/proxy/ping'
         : 'http://localhost:3000/api/ping';
       

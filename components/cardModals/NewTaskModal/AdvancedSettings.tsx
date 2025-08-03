@@ -67,7 +67,6 @@ export function AdvancedSettings({
 }: AdvancedSettingsProps) {
   const colorScheme = useColorScheme()
   
-  // Handle button press without conditional rendering that causes remounts
   const handleButtonPress = () => {
     if (showTimePicker && !time) {
       setShowTimePicker(false);

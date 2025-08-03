@@ -1,52 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { YStack, isWeb, ScrollView } from 'tamagui';
+import { YStack, isWeb, ScrollView, XStack } from 'tamagui';
 import { Animated } from 'react-native';
 import { Marquee, MarqueeStyles } from '@/components/welcome/marquee';
 import { SyncSection } from '@/components/welcome/syncSection';
-import { ParticleBackground } from '@/components/welcome/ParticleBackground';
 import { HeroSection } from '@/components/welcome/HeroSection';
 import { MobileVideosSection } from '@/components/welcome/MobileVideosSection';
 import { DesktopVideosSection } from '@/components/welcome/DesktopVideosSection';
 import { FloatingContinueButton } from '@/components/welcome/FloatingContinueButton';
 import { MobileFeaturesSection } from '@/components/welcome/MobileFeaturesSection';
+import { IPad } from '@/components/welcome/iPad';
 
 export default function WelcomeScreen({ onComplete }: { onComplete: () => void }) {
   const [scrollOffset, setScrollOffset] = useState(0);
   const scrollY = useRef(new Animated.Value(0)).current;
   const [showContinueButton, setShowContinueButton] = useState(false);
-  
-  // Animation refs for sections
-  const descriptionOpacity = useRef(new Animated.Value(0)).current;
   const descriptionTranslateY = useRef(new Animated.Value(50)).current;
-  const syncSectionOpacity = useRef(new Animated.Value(0)).current;
   const syncSectionTranslateY = useRef(new Animated.Value(50)).current;
+  const animationStates = useRef({ description: false, sync: false });
 
-  // Track animation states to prevent re-triggering
-  const animationStates = useRef({
-    description: false,
-    sync: false
-  });
-
-  // Scroll-reactive background
   const getDynamicBackground = (scrollY: number) => {
     const progress = Math.min(scrollY / 2000, 1);
-    const hue1 = 220 + (progress * 80); // Blue to purple
-    const hue2 = 180 + (progress * 120); // Cyan to magenta
     
     return {
       backgroundImage: [
-        `radial-gradient(circle at ${20 + progress * 30}% ${30 + progress * 20}%, hsla(${hue1}, 70%, 60%, ${0.15 + progress * 0.1}) 0%, transparent 40%)`,
-        `radial-gradient(circle at ${80 - progress * 20}% ${70 - progress * 10}%, hsla(${hue2}, 60%, 70%, ${0.1 + progress * 0.05}) 0%, transparent 35%)`,
-        `radial-gradient(circle at 50% 50%, hsla(${200 + progress * 40}, 50%, 65%, ${0.08 + progress * 0.04}) 0%, transparent 30%)`,
-        `linear-gradient(${135 + progress * 90}deg, #0E1120 0%, hsl(${220 + progress * 20}, 30%, 25%) 50%, #030308 100%)`
+        `radial-gradient(circle at ${20 + progress * 30}% ${30 + progress * 20}%, hsla(220, 70%, 60%, ${0.15 + progress * 0.1}) 0%, transparent 40%)`,
+        `radial-gradient(circle at ${80 - progress * 20}% ${70 - progress * 10}%, hsla(210, 60%, 50%, ${0.1 + progress * 0.05}) 0%, transparent 35%)`,
+        `radial-gradient(circle at 50% 50%, hsla(215, 50%, 45%, ${0.08 + progress * 0.04}) 0%, transparent 30%)`,
+        `linear-gradient(${135 + progress * 90}deg,rgb(6, 16, 22) 0%, rgb(15, 25, 35) 50%,rgb(10, 20, 30) 100%)`
       ].join(', '),
       backgroundSize: `${100 + progress * 20}% ${100 + progress * 20}%`,
       backgroundPosition: `${progress * 20}% ${progress * 15}%`,
-      backgroundAttachment: 'fixed',
+      backgroundAttachment: 'fixed',  
     };
   };
 
-  // Optimized scroll listener
   useEffect(() => {
     if (!isWeb) return;
 
@@ -54,62 +41,41 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
       setScrollOffset(value);
       setShowContinueButton(value > 300);
       
-      // Animate mobile videos section
       if (value > 600 && !animationStates.current.description) {
         animationStates.current.description = true;
-        Animated.parallel([
-          Animated.timing(descriptionOpacity, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-          Animated.timing(descriptionTranslateY, {
-            toValue: 0,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-        ]).start();
+        Animated.timing(descriptionTranslateY, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }).start();
       }
       
-      // Animate desktop videos section
       if (value > 1400 && !animationStates.current.sync) {
         animationStates.current.sync = true;
-        Animated.parallel([
-          Animated.timing(syncSectionOpacity, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-          Animated.timing(syncSectionTranslateY, {
-            toValue: 0,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-        ]).start();
+        Animated.timing(syncSectionTranslateY, {
+          toValue: 0,
+          duration: 600,
+          useNativeDriver: true,
+        }).start();
       }
     });
 
     return () => {
       scrollY.removeListener(listener);
     };
-  }, [scrollY, descriptionOpacity, descriptionTranslateY, syncSectionOpacity, syncSectionTranslateY]);
+  }, [scrollY, descriptionTranslateY, syncSectionTranslateY]);
 
   const combinedContentContainerStyle = {
     flexGrow: 1,
-    paddingVertical: isWeb ? 80 : 0, 
+    paddingVertical: isWeb ? 40 : 40, 
+    paddingHorizontal: 20,
     ...(isWeb ? getDynamicBackground(scrollOffset) : {})
   };
 
   return (
     <>
-      <ParticleBackground scrollY={scrollOffset} />
-      
       <ScrollView 
-        contentContainerStyle={{
-          ...combinedContentContainerStyle,
-          paddingVertical: isWeb ? 80 : 80, 
-          paddingLeft: 20,
-        }}
+        contentContainerStyle={combinedContentContainerStyle}
         onScroll={isWeb ? Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: false }
@@ -121,15 +87,14 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
         
         <YStack
           flex={1}
-          paddingHorizontal="$4"
-          paddingTop="$12"
-          gap="$8"
+          gap="$2"
           width="100%"
           position="relative"
           zi={1} 
           minHeight="100vh"
           justifyContent="flex-start"
           alignItems="center"
+          paddingTop="$20"
         >
           <HeroSection 
             scrollOffset={scrollOffset} 
@@ -137,31 +102,18 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
           />
           
           {isWeb && (
-            <YStack width="100%" alignItems="center" paddingTop="$8">
+            <YStack width="100%" alignItems="center" paddingTop="$3">
               <Marquee/>
             </YStack>
           )}
 
-          <MobileVideosSection
-            scrollOffset={scrollOffset}
-            descriptionOpacity={descriptionOpacity}
-            descriptionTranslateY={descriptionTranslateY}
-          />
-
-          <DesktopVideosSection
-            scrollOffset={scrollOffset}
-            syncSectionOpacity={syncSectionOpacity}
-            syncSectionTranslateY={syncSectionTranslateY}
-          />
-
           {isWeb ? (
             <Animated.View
               style={{
-                opacity: syncSectionOpacity,
                 transform: [{ translateY: syncSectionTranslateY }],
                 width: '100%',
                 paddingTop: 40,
-                paddingBottom: 120,
+                paddingBottom: 40,
               }}
             >
               <YStack alignItems="center" width="100%">
@@ -171,8 +123,38 @@ export default function WelcomeScreen({ onComplete }: { onComplete: () => void }
           ) : (
             <MobileFeaturesSection />
           )}
+
+     {isWeb && (
+            <XStack 
+              width="100%" 
+              alignItems="flex-start" 
+              justifyContent="space-between"
+              gap="$4"
+              paddingTop="$2"
+              paddingBottom="$8"
+            >
+              <YStack flex={1} alignItems="center">
+                <DesktopVideosSection
+                  scrollOffset={scrollOffset}
+                  syncSectionTranslateY={syncSectionTranslateY}
+                />
+              </YStack>
+              <YStack flex={1} alignItems="center">
+                <MobileVideosSection
+                  scrollOffset={scrollOffset}
+                  descriptionTranslateY={descriptionTranslateY}
+                />
+              </YStack>
+              <YStack flex={1} alignItems="center">
+                <IPad 
+                  scrollOffset={scrollOffset}
+                  syncSectionTranslateY={syncSectionTranslateY}
+                />
+              </YStack>
+            </XStack>
+          )}
         </YStack>
-      </ScrollView> 
+      </ScrollView>   
 
       <FloatingContinueButton
         showContinueButton={showContinueButton}

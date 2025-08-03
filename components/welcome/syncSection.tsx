@@ -35,7 +35,7 @@ export const SyncSection = () => {
             fontFamily="$body"
             fontSize={"$9"}
             fontWeight="800"
-            color="white"
+            color="#f7f7f7"
             style={{
               marginBottom: 0,
               textShadow: isWeb ? '0 2px 4px rgba(0,0,0,0.5)' : undefined,
@@ -50,16 +50,16 @@ export const SyncSection = () => {
                 <View
                   width={36}
                   height={36}
-                  backgroundColor="rgba(192, 128, 255, 0.2)"
+                  backgroundColor="rgba(5, 3, 7, 0.2)"
                   br={18}
                   justifyContent="center"
                   alignItems="center"
                 >
-                  <Ionicons name="shield-checkmark" size={20} color="#C080FF" />
+                  <Ionicons name="shield-checkmark" size={20} color="rgb(250, 192, 3)" />
                 </View>
-                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="white">End-to-End Encryption</Text>
+                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="rgb(250, 192, 3)">End-to-End Encryption</Text>
               </XStack>
-              <Text fontSize="$4" fontFamily="$body" color="white"  ml="$6" style={{ textShadow: isWeb ? '0 1px 2px rgba(0,0,0,0.5)' : undefined }}>
+              <Text fontSize="$4" fontFamily="$body" color="#f7f7f7"  ml="$6" style={{ textShadow: isWeb ? '0 1px 2px rgba(0,0,0,0.5)' : undefined }}>
                 Your data is always protected with military-grade encryption, ensuring only your authorized devices can access your information.
               </Text>
             </YStack>
@@ -76,7 +76,7 @@ export const SyncSection = () => {
                 >
                   <Ionicons name="flash" size={20} color="#4ADECD" />
                 </View>
-                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="white">Real-Time Updates</Text>
+                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="#4ADECD">Real-Time Updates</Text>
               </XStack>
               <Text fontSize="$4" fontFamily="$body" color="white" ml="$6" style={{ textShadow: isWeb ? '0 1px 2px rgba(0,0,0,0.5)' : undefined }}>
                 Changes made on one device instantly sync to all others, ensuring your data is always current no matter where you access it from.
@@ -88,17 +88,35 @@ export const SyncSection = () => {
                 <View
                   width={36}
                   height={36}
-                  backgroundColor="rgba(255, 157, 92, 0.2)"
+                  backgroundColor="rgba(43, 27, 17, 0.2)"
                   br={18}
                   justifyContent="center"
                   alignItems="center"
                 >
-                  <Ionicons name="people" size={20} color="#FF9D5C" />
+                  <Ionicons name="people" size={20} color="rgb(3, 250, 147)" />
                 </View>
-                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="white">Workspace Sharing</Text>
+                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="rgb(3, 250, 147)">Workspace Sharing</Text>
               </XStack>
               <Text fontSize="$4" fontFamily="$body" color="white" ml="$6" style={{ textShadow: isWeb ? '0 1px 2px rgba(0,0,0,0.5)' : undefined }}>
                 Create secure workspaces and share selected data with trusted devices through simple invite codes.
+              </Text>
+            </YStack>
+            <YStack>  
+              <XStack alignItems="center" gap="$3" mb="$2">
+                <View
+                  width={36}
+                  height={36}
+                  backgroundColor="rgba(192, 128, 255, 0.2)"
+                  br={18}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Ionicons name="sync" size={20} color="#C080FF" />
+                </View>
+                <Text fontSize="$5" fontWeight="700" fontFamily="$body" color="#C080FF">Multi-Device Sync</Text>
+              </XStack>
+              <Text fontSize="$4" fontFamily="$body" color="white" ml="$6" style={{ textShadow: isWeb ? '0 1px 2px rgba(0,0,0,0.5)' : undefined }}>
+                Sync your data across all your devices with ease, ensuring you never lose your work.
               </Text>
             </YStack>
           </YStack>
@@ -130,20 +148,31 @@ export const SyncSection = () => {
             <Text fontFamily="$body" color="rgba(255,255,255,0.6)" fontSize="$3" marginLeft="auto">Secure Workspace</Text>
           </XStack>
           <YStack padding="$4" gap="$4">
-            <XStack justifyContent="space-between">
-              <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">Device Sync Status</Text>
-              <Text color="#C080FF" fontSize="$4" fontFamily="$body" fontWeight="bold">ACTIVE</Text>
-            </XStack>
             <XStack paddingVertical="$2" borderBottomColor="rgba(255,255,255,0.1)" borderBottomWidth={1}>
               <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>iPhone 15 Pro</Text>
               <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">CONNECTED</Text>
             </XStack>
             <XStack paddingVertical="$2" borderBottomColor="rgba(255,255,255,0.1)" borderBottomWidth={1}>
               <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>MacBook Pro</Text>
-              <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">CONNECTED</Text>
+              <Text color="#FF5F57" fontSize="$4" fontFamily="$body" fontWeight="bold">ERROR</Text>
             </XStack>
             <XStack paddingVertical="$2" borderBottomColor="rgba(255,255,255,0.1)" borderBottomWidth={1}>
-              <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>iPad Pro</Text>
+              <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>iPad Air</Text>
+              <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">CONNECTED</Text>
+            </XStack>
+ 
+            <XStack paddingVertical="$2" borderBottomColor="rgba(255,255,255,0.1)" borderBottomWidth={1}>
+              <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>Windows PC</Text>
+              <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">CONNECTED</Text>
+            </XStack>
+
+            <XStack paddingVertical="$2" borderBottomColor="rgba(255,255,255,0.1)" borderBottomWidth={1}>
+              <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>Google Pixel 8</Text>
+              <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">CONNECTED</Text>
+            </XStack> 
+            
+            <XStack paddingVertical="$2" borderBottomColor="rgba(255,255,255,0.1)" borderBottomWidth={1}> 
+              <Text color="rgba(255,255,255,0.7)" fontSize="$4" fontFamily="$body" flex={1}>Kindle Paperwhite</Text>
               <Text color="#4ADECD" fontSize="$4" fontFamily="$body" fontWeight="bold">CONNECTED</Text>
             </XStack>
             <YStack backgroundColor="rgba(0,0,0,0.3)" padding="$3" borderRadius={12} marginTop="$2">
@@ -155,33 +184,39 @@ export const SyncSection = () => {
       </XStack>
       
       <XStack justifyContent="flex-start" marginTop="$4">
-        <TouchableOpacity onPress={handleSignUp}>
+        <TouchableOpacity activeOpacity={0.8} onPress={handleSignUp}>
           <YStack 
-            backgroundColor="rgba(192, 128, 255, 0.07)"
+            backgroundColor="rgba(42, 51, 75, 0.75)"
             paddingHorizontal="$6"
             paddingVertical="$3"
             borderRadius={20}
             alignItems="center"
             justifyContent="center"
+            width={1500}
             style={{
               backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(192, 128, 255, 0.4)',
+              border: '1px solid rgba(128, 251, 255, 0.4)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
             }}
           >
             <XStack alignItems="center" gap="$3">
-              <Text color="#C080FF" fontSize="$3">⭐</Text>
+              <Text  
+              color="rgba(0, 245, 224, 0.84)" fontSize="$3">
+                <Ionicons name="star" size={20} color="rgba(0, 245, 224, 0.84)" />
+              </Text>
               <Text 
-                color="#C080FF" 
+                color="rgba(0, 245, 224, 0.84)" 
                 fontSize="$4" 
                 fontWeight="600"
                 fontFamily="$body"
               >
-                Available with Premium Subscription 
+               Get Premium 
               </Text>
-              <Text color="#C080FF" fontSize="$3">→</Text>
+              <Text color="rgba(0, 245, 224, 0.84)" fontSize="$3">
+                <Ionicons name="arrow-forward" size={20} color="rgba(0, 245, 224, 0.84)" />
+              </Text>
             </XStack>
           </YStack>
         </TouchableOpacity>

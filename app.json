@@ -115,7 +115,8 @@
         },
         "eas": {
           "projectId": "22727130-682f-425f-bedd-d8fd9ab0b3e0"
-        }    
+        },
+        "s3BucketUrl": "https://kaiba-wallpapers.s3.amazonaws.com"
     },
     "owner": "deedaw22",
     "runtimeVersion": "1.0.0"

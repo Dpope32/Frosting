@@ -38,7 +38,15 @@ export const usePeopleStore = create<PeopleStore>()(
         .catch(error => {
           console.error('Error loading contacts:', error)
         })
-
+        StorageUtils.get<boolean>('people-sync-enabled', false)
+        .then(savedSyncState => {
+          set((state) => ({ ...state, isSyncEnabled: savedSyncState }))
+          addSyncLog(`[PeopleStore] Loaded sync state from storage: ${savedSyncState ? 'ON' : 'OFF'}`, 'info')
+        })
+        .catch(error => {
+          console.error('Error loading sync state:', error)
+          addSyncLog('[PeopleStore] Error loading sync state, defaulting to OFF', 'error')
+        })
       return {
         contacts: initialContacts,
         isSyncEnabled: false,
@@ -164,6 +172,13 @@ export const usePeopleStore = create<PeopleStore>()(
           set((state) => {
             const newSyncState = !state.isSyncEnabled
             addSyncLog(`[PeopleStore] Contacts sync ${newSyncState ? 'enabled' : 'disabled'}.`, 'info')
+            
+            // Explicitly save the sync state to AsyncStorage as well
+            StorageUtils.set('people-sync-enabled', newSyncState)
+              .catch((error) => {
+                console.error('🔴 [PeopleStore] Error saving sync state:', error)
+              })
+            
             return { isSyncEnabled: newSyncState }
           })
         },

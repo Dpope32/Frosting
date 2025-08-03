@@ -63,7 +63,7 @@ export const EventModal: React.FC<EventModalProps> = ({
 
   const handleAddEventWithNotifications = async () => {
     try {
-      await handleAddEvent()
+      handleAddEvent()
       if (selectedDate) {
         const eventToSchedule: CalendarEvent = {
           id: Math.random().toString(36).substring(2, 11),
@@ -156,7 +156,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                   borderColor="$borderColor"
                   borderWidth={1}
                   borderRadius={12}
-                  padding="$3"
+                  padding="$2"
                   alignItems="center"
                   justifyContent="space-between"
                   marginTop="$2"
@@ -172,7 +172,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </XStack>
               </TouchableOpacity>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingTop: 16 }}>
-                <XStack gap={isIpad() ? "$2" : "$1"}>
+                <XStack gap={isWeb ? "$2.5" : isIpad() ? "$2" : "$1"}>
                   {['personal', 'work', 'family', 'task', 'health'].map((type) => {
                     const color = getCategoryColor(type as TaskCategory);
                     return (
@@ -215,7 +215,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 gap="$3"
               >
                 <View style={styles.switchRow}>
-                  <Text style={[styles.switchLabel, { color: textColor }]}>Notify on day of event</Text>
+                  <Text style={[styles.switchLabel, { color: textColor, fontFamily: '$body', fontSize: isWeb ? "$4" : "$3" }]}>Notify on day of event</Text>
                   <Switch
                     value={notifyOnDay}
                     onValueChange={setNotifyOnDay}
@@ -225,7 +225,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </View>
 
                 <View style={styles.switchRow}>
-                  <Text style={[styles.switchLabel, { color: textColor }]}>Notify before event</Text>
+                  <Text style={[styles.switchLabel, { color: textColor, fontFamily: '$body', fontSize: isWeb ? "$4" : "$3" }]}>Notify before event</Text>
                   <Switch
                     value={notifyBefore}
                     onValueChange={setNotifyBefore}

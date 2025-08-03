@@ -30,7 +30,7 @@ export function PrioritySelector({
   }
 
   return (
-    <XStack px={isWeb? "$1.5" : isIpad() ? "$2.5" : "$2"} my={6} ml={0} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
+    <XStack px={isWeb? "$1.5" : isIpad() ? "$2.5" : "$2"} my={6} ml={isWeb? 2 : 0} gap={isIpad() ? "$1.5" : "$0"} alignItems="center" justifyContent="flex-start">
       <Text color={isDark ? '#6c6c6c' : '#9c9c9c'} fontSize={isIpad() ? 17 : 15} fontFamily="$body" fontWeight="500">Priority:</Text>
       <XStack gap={isIpad() ? "$2" : "$1.5"} ml={isIpad() ? "$2.5" : "$2.5"}>
         {['high', 'medium', 'low'].map(priority => {
@@ -41,7 +41,7 @@ export function PrioritySelector({
           let currentIconSize: number;
 
           if (Platform.OS === 'web') {
-            currentButtonSize = 45;
+            currentButtonSize = 35;
             currentIconSize = 16;
           } else if (isIpad()) {
             currentButtonSize = 42;

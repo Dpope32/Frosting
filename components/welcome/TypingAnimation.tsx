@@ -52,7 +52,7 @@ export const TypingAnimation = ({ texts, speed = 100, deleteSpeed = 50, pauseTim
         textAlign="center"
         opacity={0.8}
       >
-        Manage your
+        Your
       </Text>
       <Text
         color="$onboardingLabel"
@@ -61,7 +61,6 @@ export const TypingAnimation = ({ texts, speed = 100, deleteSpeed = 50, pauseTim
         textAlign="center"
         opacity={0.8}
         style={{
-          minWidth: isMobileBrowser ? 100 : 120,
           letterSpacing: '0.01em',
         }}
       >

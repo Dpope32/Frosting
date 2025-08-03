@@ -337,9 +337,6 @@ export const useProjectStore = create<ProjectStore>()(
         const tasks = { ...get().tasks }
         const existed = !!tasks[id];
         console.log('[ToDo.deleteTask] Attempting to delete task:', id, 'Existed:', existed);
-        if (existed) {
-          console.log('[ToDo.deleteTask] Task details:', JSON.stringify(tasks[id], null, 2));
-        }
         delete tasks[id]
         set({ tasks, todaysTasks: taskFilter(tasks) })
         console.log('[ToDo.deleteTask] After deletion, task exists?', !!tasks[id]);

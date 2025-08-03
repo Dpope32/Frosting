@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, YStack, XStack, Button, isWeb } from 'tamagui';
+import { Text, YStack, XStack, isWeb } from 'tamagui';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRouter } from 'expo-router';
@@ -10,7 +10,27 @@ import type { TextStyle } from 'react-native';
 import { CHANGELOG } from '@/constants';
 import { useUserStore } from '@/store';
 import { isIpad } from '@/utils';
-import Animated, { FadeIn, FadeInDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+
+let Animated: any = null;
+let useSharedValue: any = null;
+let useAnimatedStyle: any = null;
+let withSpring: any = null;
+let FadeIn: any = null;
+let FadeInDown: any = null;
+
+if (Platform.OS === 'ios' || Platform.OS === 'android') {
+  try {
+    const Reanimated = require('react-native-reanimated');
+    Animated = Reanimated.default;
+    useSharedValue = Reanimated.useSharedValue;
+    useAnimatedStyle = Reanimated.useAnimatedStyle;
+    withSpring = Reanimated.withSpring;
+    FadeIn = Reanimated.FadeIn;
+    FadeInDown = Reanimated.FadeInDown;
+  } catch (error) {
+    console.warn('Reanimated could not be loaded:', error);
+  }
+}
 
 export default function ChangeLog() {
   const insets = useSafeAreaInsets();
@@ -18,10 +38,7 @@ export default function ChangeLog() {
   const isDark = colorScheme === 'dark';
   const router = useRouter();
   const { markdownStyles } = useMarkdownStyles();
-
-  // Get user's primary color from UserStore
   const primaryColor = useUserStore((state) => state.preferences.primaryColor);
-
   const [expandedBullets, setExpandedBullets] = React.useState<Record<string, boolean>>({});
 
   const toggleBullets = (version: string) => {
@@ -31,17 +48,23 @@ export default function ChangeLog() {
     });
   };
 
-  // Card press-in/press-out scale animation with reanimated
   function useCardScale() {
-    const scale = useSharedValue(1);
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ scale: scale.value }],
-    }), []);
+    const scale = Platform.OS !== 'web' && useSharedValue ? useSharedValue(1) : null;
+    const animatedStyle = Platform.OS !== 'web' && useAnimatedStyle && scale
+      ? useAnimatedStyle(() => ({
+          transform: [{ scale: scale.value }],
+        }), [])
+      : { transform: [{ scale: 1 }] };
+    
     const handlePressIn = () => {
-      scale.value = withSpring(0.97);
+      if (Platform.OS !== 'web' && scale && withSpring) {
+        scale.value = withSpring(0.97);
+      }
     };
     const handlePressOut = () => {
-      scale.value = withSpring(1);
+      if (Platform.OS !== 'web' && scale && withSpring) {
+        scale.value = withSpring(1);
+      }
     };
     return { animatedStyle, handlePressIn, handlePressOut };
   }
@@ -50,11 +73,11 @@ export default function ChangeLog() {
     <View style={[
       styles.container,
       {
-        paddingTop: (isIpad() ? 20 : insets.top - 6),
+        paddingTop: (isWeb? 20: isIpad() ? 20 : insets.top - 6),
         backgroundColor: isDark ? '#121212' : '#fff',
       },
     ]}>
-      <XStack alignItems="center" justifyContent="center" position="relative">
+      <XStack alignItems="center" justifyContent="center" position="relative" paddingBottom="$1">
         <TouchableOpacity
           onPress={() => router.back()}
           style={{
@@ -74,8 +97,11 @@ export default function ChangeLog() {
             flex: 1,
             textAlign: 'center',
             fontSize: isWeb ? 24 : isIpad() ? 20 : 18,
+            fontWeight: '700',
             justifyContent: 'center',
             alignItems: 'center',
+            paddingVertical: isWeb ? 16 : 12,
+            fontFamily: "$body",
           } as TextStyle}
         >
           Update Log
@@ -99,9 +125,14 @@ export default function ChangeLog() {
               overflow: 'visible',
               minHeight: 64,
             };
+            
+            const AnimatedView = Platform.OS !== 'web' && Animated ? Animated.View : View;
+            const AnimatedFadeIn = Platform.OS !== 'web' && FadeIn ? FadeIn : null;
+            const AnimatedFadeInDown = Platform.OS !== 'web' && FadeInDown ? FadeInDown : null;
+            
             return (
               <React.Fragment key={entry.version}>
-                <Animated.View style={animatedStyle}>
+                <AnimatedView style={animatedStyle}>
                   <CardTouchable
                     activeOpacity={0.92}
                     onPress={hasBullets ? () => toggleBullets(entry.version) : undefined}
@@ -144,7 +175,8 @@ export default function ChangeLog() {
                           marginBottom: 2,
                           marginTop: 0,
                           fontWeight: '700',
-                          fontSize: 18
+                          fontSize: 18,
+                          fontFamily: "$body",
                         } as TextStyle}>
                           Version{' '}
                           <Text style={{ color: accentColor, display: 'inline' }}>
@@ -188,7 +220,7 @@ export default function ChangeLog() {
                         )}
                       </XStack>
                       {hasBullets && isExpanded && (
-                        <Animated.View
+                        <AnimatedView
                           style={{
                             overflow: 'hidden',
                             marginTop: 4,
@@ -199,12 +231,12 @@ export default function ChangeLog() {
                             borderRadius: 8,
                             backgroundColor: isDark ? '#1c1c1c' : '#f0f5ff',
                           }}
-                          entering={FadeIn.duration(250)}
+                          entering={AnimatedFadeIn ? AnimatedFadeIn.duration(250) : undefined}
                         >
                           {entry.bullets.map((bullet, idx2) => (
-                            <Animated.View
+                            <AnimatedView
                               key={idx2}
-                              entering={FadeInDown.delay(idx2 * 60).duration(350)}
+                              entering={AnimatedFadeInDown ? AnimatedFadeInDown.delay(idx2 * 60).duration(350) : undefined}
                               style={{ width: '100%' }}
                             >
                               <XStack alignItems="flex-start" marginBottom={idx2 === entry.bullets.length - 1 ? 0 : 4}>
@@ -221,13 +253,13 @@ export default function ChangeLog() {
                                   fontSize: 15
                                 } as TextStyle}>{bullet}</Text>
                               </XStack>
-                            </Animated.View>
+                            </AnimatedView>
                           ))}
-                        </Animated.View>
+                        </AnimatedView>
                       )}
                     </YStack>
                   </CardTouchable>
-                </Animated.View>
+                </AnimatedView>
               </React.Fragment>
             );
           })}
