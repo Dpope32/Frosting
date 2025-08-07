@@ -193,7 +193,6 @@ export const LandingPage = React.memo(() => {
         setContactModalOpen(true);
         break;
       case 'bt_stock':
-        console.log('FAB: Opening ADD stock modal');
         useEditStockStore.getState().openModal(undefined, true);
         break;
       case 'bt_project':
@@ -358,7 +357,6 @@ export const LandingPage = React.memo(() => {
             isVisible={billModalOpen} 
             onClose={() => setBillModalOpen(false)}
             onSubmit={(entry) => { 
-              console.log('🏠 LandingPage: onSubmit called with:', entry);
               addBill(entry);
               setBillModalOpen(false);
             }}

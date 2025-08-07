@@ -67,7 +67,6 @@ export function PortfolioCard({ roundToWholeNumber = false, isHome, isDark, onPr
 
   const debouncedPress = useCallback(
     debounce(() => {
-      console.log(`💰 PORTFOLIO CARD: onPress called at ${Date.now()}`);
       if (onPress) {
         onPress();
       }

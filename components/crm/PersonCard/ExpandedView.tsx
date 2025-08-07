@@ -28,7 +28,6 @@ export default function ExpandedView({
   onClose,
   onEdit
 }: ExpandedViewProps) {
-  // console.log('🔍 [ExpandedView] Render:', person.name, 'isExpanded:', isExpanded);
   
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -174,7 +173,6 @@ function renderContent(person: Person, isDark: boolean, nicknameColor: string, f
 
   return (
     <YStack gap="$4" paddingRight="$4" paddingLeft="$4" paddingTop="$4" paddingBottom="$3">
-      {/* Main profile section */}
       <XStack gap="$4" alignItems="flex-start">
         <View style={styles.avatarContainer}>
           {person.profilePicture && !imageLoadFailed ? (
@@ -183,7 +181,6 @@ function renderContent(person: Person, isDark: boolean, nicknameColor: string, f
               style={styles.avatar}
               objectFit="cover"
               onError={() => {
-                console.log('Failed to load profile picture for:', person.name, '- falling back to letter avatar');
                 setImageLoadFailed(true);
               }}
             />

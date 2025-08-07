@@ -365,11 +365,8 @@ export const useProjectStore = create<ProjectStore>()(
       deleteTask: (id) => {
         const tasks = { ...get().tasks }
         const existed = !!tasks[id];
-        console.log('[ToDo.deleteTask] Attempting to delete task:', id, 'Existed:', existed);
         delete tasks[id]
         set({ tasks, todaysTasks: taskFilter(tasks) })
-        console.log('[ToDo.deleteTask] After deletion, task exists?', !!tasks[id]);
-        console.log('[ToDo.deleteTask] Current tasks count:', Object.keys(tasks).length);
       },
       toggleTaskCompletion: (id, _options) => {
         // Completed tasks still display until midnight, then custom logic makes it not display the next day 

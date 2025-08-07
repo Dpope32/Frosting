@@ -97,7 +97,6 @@ export async function handleDeepLink(event: { url: string | NotificationResponse
         
         // In development mode, skip PocketBase entirely and just activate premium
         if (__DEV__) {
-          console.log('🧪 [DEV] Development mode detected, activating premium directly');
           addSyncLog(`🧪 [DEV] Development mode - activating premium without PocketBase`, 'warning');
           useUserStore.getState().setPreferences({ premium: true });
           useToastStore.getState().showToast('🧪 DEV: Premium activated!', 'success');

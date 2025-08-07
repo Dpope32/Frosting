@@ -101,8 +101,6 @@ export const useNBAStore = create<NBAStore>()(
         get().deleteAllGameTasks();
       },
       syncGameTasks: () => {
-        // NBA season ended - don't create new tasks
-        console.log('[NBA] syncGameTasks called but NBA season has ended, skipping task creation');
         get().deleteAllGameTasks();
         return;
       },

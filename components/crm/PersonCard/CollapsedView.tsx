@@ -31,13 +31,7 @@ export default function CollapsedView({
   const showToast = useToastStore(state => state.showToast);
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
 
-  // Debug function to track problematic touches
   const handlePress = () => {
-    if (__DEV__) {
-      console.log('🔥 TouchableOpacity pressed:', person.name, 'ID:', person.id);
-    }
-    
-    // Add small delay to ensure this doesn't conflict with gesture detection
     setTimeout(() => {
       onPress();
     }, 10);

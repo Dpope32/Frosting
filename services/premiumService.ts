@@ -92,7 +92,6 @@ class PremiumService {
         // Could implement additional checks here like:
         // - API call to verify purchase status
         // - Deep link parameter checking
-        console.log('Pending purchase detected, but no success confirmation yet');
       }
     } catch (error) {
       console.error('Error checking for successful purchase:', error);

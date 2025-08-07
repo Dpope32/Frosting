@@ -35,13 +35,6 @@ export function EditBillModal({ isVisible, onClose, bill, onSubmit }: EditBillMo
   useAutoFocus(nameInputRef, 1000, isVisible)
   const MAX_AMOUNT = 1000
   
-  // Debug: Log the onSubmit function only once when modal opens
-  useEffect(() => {
-    if (isVisible) {
-      console.log('🔗 EditBillModal onSubmit function:', onSubmit?.name || 'anonymous function')
-    }
-  }, [isVisible])
-
   useEffect(() => {
     if (isVisible && bill) {
       console.log('🔍 EditBillModal: Setting up bill data', { 

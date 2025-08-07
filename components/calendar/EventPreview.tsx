@@ -155,12 +155,6 @@ export const EventPreview: React.FC<{
        {!isBirthday && !isDeviceEvent && event.type !== 'bill' && (
           <TouchableOpacity 
             onPress={() => {
-              console.log('Edit icon clicked for event:', {
-                id: event.id,
-                title: event.title,
-                type: event.type,
-                isDeviceEvent,
-              });
               onEdit();
             }} 
             style={styles.editIconButton}

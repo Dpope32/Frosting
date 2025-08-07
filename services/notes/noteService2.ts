@@ -18,7 +18,6 @@ export const calculateColumns = (screenWidth: number): number => {
   } else {
     columns = 1;
   }
-  console.log(`Screen width: ${screenWidth}, Columns: ${columns}`);
   return columns;
 };
 

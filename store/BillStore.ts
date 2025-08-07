@@ -192,7 +192,6 @@ export const useBillStore = create<BillStore>()(
                 };
                 
                 createBatch(0).then(() => {
-                  console.log(`✅ CREATED NEW TASKS: Added ${createdCount} new tasks for bill "${updatedBill.name}"`);
                 });
               }
             } catch (error) {
