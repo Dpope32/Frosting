@@ -114,7 +114,7 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         height: height,
         width: width,
         backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)",
-        opacity: 0.08 + (Math.random() * 0.12), // Much more subtle
+        opacity: Platform.OS === 'web' ? 0.06 + (Math.random() * 0.06) : 0.08 + (Math.random() * 0.12),
         transform: [{ translateX: initialX.value }],
       };
     });
@@ -160,8 +160,8 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         height: size,
         width: size,
         borderRadius: size / 2,
-        backgroundColor: isDark ? "rgba(210,180,140,0.4)" : "rgba(139,69,19,0.35)",
-        opacity: 0.4,
+        backgroundColor: isDark ? "rgba(210,180,140,0.35)" : "rgba(139,69,19,0.28)",
+        opacity: Platform.OS === 'web' ? 0.25 : 0.4,
         transform: [
           { translateX: initialX.value },
           { rotate: `${initialRotate.value}deg` }
@@ -176,7 +176,7 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
   React.useEffect(() => {
     if (Platform.OS === 'web') {
       // Calculate rain animation duration based on precipitation
-      const rainDuration = (2.0 - (precipitation / 100) * 1.2).toFixed(1); // Faster, more realistic
+      const rainDuration = (2.2 - (precipitation / 100) * 1.0).toFixed(1); // Slightly slower on web for calmness
       
       // Create or update the style element
       const styleId = 'dynamic-weather-animations';
@@ -197,14 +197,19 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
         
         .rain-drop {
           animation: rain ${rainDuration}s linear infinite;
+          will-change: transform, opacity;
         }
       `;
     }
   }, [precipitation]);
 
   // Determine number of raindrops and opacity based on precipitation
-  const numRaindrops = Math.min(20, Math.max(3, Math.floor(precipitation / 4))); // Reduced count for performance
-  const rainOpacity = 0.3 + Math.min(0.6, precipitation / 120); // More subtle opacity
+  const numRaindrops = Platform.OS === 'web' 
+    ? Math.min(14, Math.max(2, Math.floor(precipitation / 6))) 
+    : Math.min(20, Math.max(3, Math.floor(precipitation / 4))); // Reduced count for performance
+  const rainOpacity = Platform.OS === 'web' 
+    ? 0.22 + Math.min(0.45, precipitation / 180)
+    : 0.3 + Math.min(0.6, precipitation / 120); // More subtle opacity
   const rainColor = isDark
     ? `rgba(147, 197, 253, ${0.4 + precipitation / 250})`
     : `rgba(59, 130, 246, ${0.3 + precipitation / 200})`;
@@ -229,7 +234,7 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
               backgroundColor: rainColor,
               borderRadius: 1,
               opacity: rainOpacity,
-              animation: `rain ${(2.0 - (precipitation / 100) * 1.2).toFixed(1)}s linear infinite`,
+              animation: `rain ${(2.2 - (precipitation / 100) * 1.0).toFixed(1)}s linear infinite`,
               animationDelay: randomDelay
             }}
             className="rain-drop"
@@ -376,7 +381,7 @@ const WeatherCardAnimations: React.FC<WeatherCardAnimationsProps> = ({
       {hasHighWind && [...Array(hasVeryHighWind ? 6 : 4)].map((_, i) => (
         <WindStreak key={`wind-${i}`} index={i} />
       ))}
-      {hasVeryHighWind && [...Array(3)].map((_, i) => (
+      {Platform.OS !== 'web' && hasVeryHighWind && [...Array(3)].map((_, i) => (
         <WindDebris key={`debris-${i}`} index={i} />
       ))}
       {renderLightning()}

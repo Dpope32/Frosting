@@ -65,7 +65,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
   return (
     <Animated.View entering={FadeIn.duration(500)}>
       <YStack
-        marginHorizontal={isWeb ? 12 : (isIpad() ? 16 : 16)}
+        marginHorizontal={isWeb ? 0 : (isIpad() ? 16 : 16)}
         borderRadius={16}
         backgroundColor={cardBg}
         overflow="hidden"
@@ -76,15 +76,15 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
         elevation={6}
         maxWidth={isWeb ? "100%" : (isIpad() ? 800 : 400)}
         paddingHorizontal={isWeb ? 0 : 0}
-        minWidth={isWeb ? "40%" : (isIpad() ? 600 : "90%")}
-        width={isWeb ? "79.5%" : "auto"}
+        minWidth={isWeb ? "100%" : (isIpad() ? 600 : "90%")}
+        width={isWeb ? "100%" : "auto"}
         alignSelf="center"
         pt={isIpad() ? 0 : 0}
         mb={isIpad() ? 2 : 0}
         gap={0}
       >
         <YStack 
-          paddingHorizontal={isWeb ? 16 : isIpad() ? 32 : 16}
+          paddingHorizontal={isWeb ? 20 : isIpad() ? 32 : 16}
           pt={isIpad() ? 10 : 16}>
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <WeatherCardAnimations shortForecast={todayForecast.shortForecast} precipitation={todayPrecipitation} windValue={todayWindValue} isDark={isDark} />
@@ -104,7 +104,7 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
                 </Text>
               </XStack>
             </YStack>
-            <XStack paddingHorizontal={isWeb ? 10 : 5} alignItems="center" gap={4} style={{ backgroundColor: isDark ? 'rgba(40,40,60,0.7)' : 'rgba(255,255,255,0.7)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 2, marginLeft: 8 }}>
+            <XStack paddingHorizontal={isWeb ? 12 : 5} alignItems="center" gap={4} style={{ backgroundColor: isDark ? 'rgba(40,40,60,0.7)' : 'rgba(255,255,255,0.7)', borderRadius: 12, paddingVertical: 2, marginLeft: 8 }}>
               <Text fontSize={isWeb ? 15 : isIpad() ? 15 : 13} color={textColor} fontWeight="500" style={{ marginRight: 2 }} fontFamily="$body">
                 Now
               </Text>

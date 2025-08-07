@@ -13,7 +13,6 @@ export const debouncedNavigate = (path: string) => {
   if (!debouncedNavigationMap.has(path)) {
     // Create a new debounced function for this specific path
     const debouncedFn = debounce(() => {
-      console.log(`📱 DEBOUNCED NAVIGATE: Navigating to ${path} at ${Date.now()}`);
       router.push(path as any);
     }, 300, {
       leading: true,
@@ -29,7 +28,6 @@ export const debouncedNavigate = (path: string) => {
 
 // Let's also create a wrapper to log when the function is called
 export const debouncedNavigateWithLogs = (path: string) => {
-  console.log(`📱 DEBOUNCED NAVIGATE: Called with path ${path} at ${Date.now()}`);
   return debouncedNavigate(path);
 };
 

@@ -32,7 +32,6 @@ export function TemperatureCard({ onPress, isHome, isDark }: TemperatureCardProp
 
   const debouncedPress = useCallback(
     debounce(() => {
-      console.log(`🌡️ TEMPERATURE CARD: onPress called at ${Date.now()}`);
       if (onPress) {
         onPress();
       }

@@ -42,12 +42,12 @@ const HourlyCarousel: React.FC = () => {
         ...(isWeb ? { width: '100%' } : {})
       }} 
       contentContainerStyle={{ 
-        paddingLeft: isWeb ? 0 : isIpad() ? 0 : 10, 
-        paddingRight: isWeb ? 0 : isIpad() ? 0 : 10,
+        paddingLeft: isWeb ? 8 : isIpad() ? 0 : 10, 
+        paddingRight: isWeb ? 8 : isIpad() ? 0 : 10,
         ...(isWeb ? {
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'space-around',
+          gap: 8,
           width: '100%'
         } : {})
       }}
@@ -57,6 +57,7 @@ const HourlyCarousel: React.FC = () => {
         const hour = date.getHours();
         const label = `${hour % 12 || 12}${hour < 12 ? 'AM' : 'PM'}`;
         const isNightHour = hour >= 20 || hour < 4;
+        const isCurrentHour = date.getTime() === startOfHour.getTime();
         let icon;
         if (isNightHour) {
           icon = getRandomIcon(moonIcons, hour);
@@ -68,6 +69,7 @@ const HourlyCarousel: React.FC = () => {
         const temp = period.temperature;
         const tempColor = getTemperatureColor(temp, isDark);
         const iconColor = isNightHour ? (isDark ? '#FFD700' : '#8B5CF6') : undefined;
+        const precip = period.probabilityOfPrecipitation?.value ?? 0;
 
         return (
           <YStack
@@ -76,11 +78,19 @@ const HourlyCarousel: React.FC = () => {
             justifyContent="center"
             px={isIpad() ? 10 : 7}
             py={isIpad() ? 8 : 4}
-            mx={isWeb ? (isIpad() ? 6 : 4) : (isIpad() ? 4 : 2)}
+            mx={isWeb ? 0 : (isIpad() ? 4 : 2)}
             borderRadius={14}
-            backgroundColor={isDark ? 'rgba(40,40,60,0.55)' : 'rgba(255,255,255,0.75)'}
-            minWidth={isWeb ? (isIpad() ? 64 : 52) : (isIpad() ? 54 : 44)}
-            style={{ shadowColor: isDark ? '#000' : '#bbb', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.13, shadowRadius: 3, elevation: 2 }}
+            backgroundColor={isDark ? (isCurrentHour ? 'rgba(70,80,140,0.7)' : 'rgba(40,40,60,0.55)') : (isCurrentHour ? 'rgba(235,244,255,0.95)' : 'rgba(255,255,255,0.75)')}
+            minWidth={isWeb ? 56 : (isIpad() ? 54 : 44)}
+            style={{ 
+              shadowColor: isDark ? '#000' : '#bbb', 
+              shadowOffset: { width: 0, height: 2 }, 
+              shadowOpacity: 0.13, 
+              shadowRadius: 3, 
+              elevation: 2,
+              ...(isWeb ? { transition: 'transform 120ms ease, background-color 120ms ease' } : {}),
+            }}
+            {...(isWeb ? { onMouseEnter: (e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }, onMouseLeave: (e: any) => { e.currentTarget.style.transform = 'translateY(0)'; } } : {})}
           >
             <Text color={isDark ? '#e0e6f7' : '#23243a'} my={1} fontSize={isWeb ? 15 : isIpad() ? 15 : 13} fontWeight="600" fontFamily="$body">
               {label}
@@ -91,6 +101,11 @@ const HourlyCarousel: React.FC = () => {
             <Text mt={1} color={tempColor} fontSize={isIpad() ? 19 : 16} fontWeight="800" style={{ marginBottom: 2, letterSpacing: -0.5 }} fontFamily="$body">
               {`${temp}°`}
             </Text>
+            {precip > 0 && (
+              <Text color={isDark ? '#97b6ff' : '#3366cc'} fontSize={11} fontFamily="$body" style={{ opacity: 0.85 }}>
+                {precip}%
+              </Text>
+            )}
           </YStack>
         );
       })}

@@ -149,6 +149,8 @@ return (
             shadowOpacity={isDark ? 0.3 : 0.1}
             shadowRadius={2}
             elevation={3}
+            {...(typeof window !== 'undefined' ? { style: { transition: 'transform 140ms ease, box-shadow 140ms ease' } } : {})}
+            {...(typeof window !== 'undefined' ? { onMouseEnter: (e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = isDark ? '0 8px 18px rgba(0,0,0,0.35)' : '0 8px 18px rgba(30,42,90,0.18)'; }, onMouseLeave: (e: any) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; } } : {})}
             >
                 
             <View style={StyleSheet.absoluteFill} pointerEvents="none">
