@@ -55,6 +55,12 @@ export const TaskCard = React.memo<TaskCardProps>(({
   const animatedScale = React.useRef(new Animated.Value(1)).current;
   const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
+  // Optimistic UI for instant visual feedback
+  const [optimisticChecked, setOptimisticChecked] = React.useState<boolean>(checked);
+  React.useEffect(() => {
+    setOptimisticChecked(checked);
+  }, [checked]);
+
   const mapStatusToRecurrencePattern = React.useCallback((status: string): RecurrencePattern | undefined => {
     const lowerStatus = status.toLowerCase();
     if (lowerStatus === 'one-time') return 'one-time';
@@ -189,11 +195,11 @@ export const TaskCard = React.memo<TaskCardProps>(({
     ]).start();
 
     // ⚡ INSTANT FEEDBACK FIRST - Don't wait for store update
-    const hapticStart = performance.now();
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    const newValue = !checked;
+    const newValue = !optimisticChecked;
+    setOptimisticChecked(newValue);
     
     // Debounce the actual processing
     debounceTimeoutRef.current = setTimeout(() => {
@@ -213,7 +219,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
       
     }, 100);
     
-  }, [checked, onCheck, showToast, title, animatedScale]);
+  }, [optimisticChecked, onCheck, showToast, title, animatedScale]);
 
   // Cleanup timeout on unmount
   React.useEffect(() => {
@@ -265,7 +271,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
             style={StyleSheet.absoluteFill}
           />
         )}
-        {checked && (
+        {optimisticChecked && (
           <View style={{
             position: 'absolute',
             top: 0,
@@ -289,14 +295,14 @@ export const TaskCard = React.memo<TaskCardProps>(({
               color="rgb(232, 230, 227)" 
               fontSize={isIpad() ? 15 : 13}
               fontWeight="500"
-              opacity={checked ? 0.6 : 1}
+              opacity={optimisticChecked ? 0.6 : 1}
               style={{
                 marginVertical: -2,
                 marginLeft: isIpad() ? 2 : 0,
-                textDecorationLine: checked ? 'line-through' : 'none',
-                textShadowColor: checked ?  isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
-                textShadowOffset: checked ? { width: 0.5, height: 0.5 } : { width: 0, height: 0 },
-                textShadowRadius: checked ? 1 : 0,
+                textDecorationLine: optimisticChecked ? 'line-through' : 'none',
+                textShadowColor: optimisticChecked ?  isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
+                textShadowOffset: optimisticChecked ? { width: 0.5, height: 0.5 } : { width: 0, height: 0 },
+                textShadowRadius: optimisticChecked ? 1 : 0,
                 lineHeight: isIpad() ? 20 : 18,
               }}
             >
@@ -308,18 +314,18 @@ export const TaskCard = React.memo<TaskCardProps>(({
             style={styles.checkboxContainer}
             hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
             accessibilityRole="button"
-            accessibilityLabel={checked ? "Mark task as incomplete" : "Mark task as complete"}
+            accessibilityLabel={optimisticChecked ? "Mark task as incomplete" : "Mark task as complete"}
           >
             <Animated.View style={[
               styles.checkbox,
               { 
-                borderColor: checked ? '#00C851' : 'rgb(52, 54, 55)',
-                backgroundColor: checked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
+                borderColor: optimisticChecked ? '#00C851' : 'rgb(52, 54, 55)',
+                backgroundColor: optimisticChecked ? 'rgba(0, 200, 81, 0.1)' : 'rgba(255, 255, 255, 0.65)',
                 zIndex: 10,
                 transform: [{ scale: animatedScale }]
               }
             ]}>
-              {checked && (
+              {optimisticChecked && (
                 <Ionicons 
                   name="checkmark-sharp" 
                   size={13} 
@@ -336,7 +342,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
             recurrencePattern={recurrencePattern}
             status={status}
             time={time}
-            checked={checked}
+            checked={optimisticChecked}
             tags={tags}
           />
         </View>

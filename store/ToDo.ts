@@ -1,8 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import * as Haptics from 'expo-haptics'
 import { createPersistStorage } from './AsyncStorage'
-import { Platform } from 'react-native'
+import { Platform, InteractionManager } from 'react-native'
 import { Task, WeekDay } from '@/types'
 import { format } from 'date-fns'
 import { generateUniqueId } from '@/utils';
@@ -19,7 +18,7 @@ interface ProjectStore {
   todaysTasks: Task[]
   addTask: (data: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => void
   deleteTask: (id: string) => void
-  toggleTaskCompletion: (id: string) => void
+  toggleTaskCompletion: (id: string, options?: { silent?: boolean }) => void
   updateTask: (taskId: string, updatedData: Partial<Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completed' | 'completionHistory'>>) => void
   getTodaysTasks: () => Task[]
   clearTasks: () => void
@@ -306,6 +305,36 @@ const createTaskFilter = () => {
 
 const taskFilter = createTaskFilter()
 
+// Debounced, idle-time snapshot push to avoid blocking UI interactions
+let scheduledPushTimer: ReturnType<typeof setTimeout> | null = null;
+const scheduleSnapshotPush = () => {
+  if (!useUserStore.getState().preferences.premium) return;
+  if (scheduledPushTimer) {
+    clearTimeout(scheduledPushTimer);
+  }
+  // Wait for user to pause interactions, then push during idle time
+  scheduledPushTimer = setTimeout(() => {
+    const runPush = async () => {
+      try {
+        const { pushSnapshot } = await import('@/sync/snapshotPushPull');
+        await pushSnapshot();
+      } catch (err) {
+        // Swallow errors here; sync logs/Sentry handle details inside pushSnapshot
+      }
+    };
+    if (Platform.OS !== 'web') {
+      InteractionManager.runAfterInteractions(() => {
+        // Small delay to ensure animations/haptics complete
+        setTimeout(runPush, 150);
+      });
+    } else if (typeof (globalThis as any).requestIdleCallback === 'function') {
+      (globalThis as any).requestIdleCallback(() => runPush());
+    } else {
+      setTimeout(runPush, 0);
+    }
+  }, 1500); // debounce multiple rapid toggles into a single push
+};
+
 export const useProjectStore = create<ProjectStore>()(
   persist(
     (set, get) => ({ 
@@ -342,7 +371,7 @@ export const useProjectStore = create<ProjectStore>()(
         console.log('[ToDo.deleteTask] After deletion, task exists?', !!tasks[id]);
         console.log('[ToDo.deleteTask] Current tasks count:', Object.keys(tasks).length);
       },
-      toggleTaskCompletion: (id) => {
+      toggleTaskCompletion: (id, _options) => {
         // Completed tasks still display until midnight, then custom logic makes it not display the next day 
         // if it is one-time. Otherwise, it follows the recurrence pattern.
         const tasks = { ...get().tasks }
@@ -411,25 +440,8 @@ export const useProjectStore = create<ProjectStore>()(
             );
           }
 
-          // 🚨 ADD THIS: Trigger sync after toggle
-          if (useUserStore.getState().preferences.premium) {
-            setTimeout(async () => {
-              try {
-                const { pushSnapshot } = await import('@/sync/snapshotPushPull');
-                await pushSnapshot();
-                if (debug) {
-                  addSyncLog('📤 Auto-sync after task toggle', 'verbose');
-                }
-              } catch (err) {
-                if (debug) {
-                  addSyncLog('❌ Auto-sync failed after toggle', 'error', err instanceof Error ? err.message : String(err));
-                }
-              }
-            }, 1000); // 1 second delay to batch multiple toggles
-          }
-        }
-        if (Platform.OS !== 'web') {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+          // Schedule a debounced, idle-time sync push so UI stays snappy during rapid taps
+          scheduleSnapshotPush();
         }
       },
       updateTask: (taskId, updatedData) => {

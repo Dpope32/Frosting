@@ -87,7 +87,10 @@ export const TaskSection = React.memo<TaskSectionProps>(({
 //  }, [todaysTasks, todayLocalStr]);
 
   const handleToggleTask = React.useCallback((id: string) => {
-    toggleTaskCompletion(id);
+    // silent to avoid double haptics (TaskCard already provides instant haptic)
+    // also allows the store to schedule sync without blocking UI
+    // @ts-ignore - older signature remains compatible
+    toggleTaskCompletion(id, { silent: true });
   }, [toggleTaskCompletion, todaysTasks, todayLocalStr]);
 
   const handleDeleteTask = React.useCallback((id: string) => {
