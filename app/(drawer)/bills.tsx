@@ -38,7 +38,6 @@ export default function BillsScreen() {
   const currentDay = new Date().getDate();
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
-  // Get additional hooks needed for dev functions
   const queryClient = useQueryClient();
   const { addEvents } = useCalendarStore();
   const { addTask } = useProjectStore();
@@ -139,7 +138,7 @@ export default function BillsScreen() {
         bill={selectedBill}
         onSubmit={handleUpdateBill}
       />
-      <YStack f={1} paddingTop={isWeb ? 65 : isIpad() ? (isDark ? 90 : 80) : 100} pb={isIpad() ? "$2" : "$2"} backgroundColor={isDark ? '#0a0a0a' : '#fafafa'} px={isIpad() ? "$1" : "$0"}>
+      <YStack f={1} paddingTop={isWeb ? 65 : isIpad() ? (isDark ? 90 : 80) : 105} pb={isIpad() ? "$2" : "$2"} backgroundColor={isDark ? '#0a0a0a' : '#fafafa'} px={isIpad() ? "$1" : "$0"}>
         <BillSummary 
           monthlyIncome={monthlyIncome}
           totalMonthlyAmount={totalMonthlyAmount}

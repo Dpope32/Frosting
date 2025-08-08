@@ -44,7 +44,7 @@ export const ProjectCardMobile = ({
           <YStack 
             p={isIpad() ? "$2.5" : "$2.5"} 
             px={isIpad() ? "$4" : "$3.5"} 
-            pb={isIpad() ? hasContent ? "$4" : "$2.5" : "$2.5"}
+            pb={isIpad() ? (hasContent ? "$5" : "$4") : "$4"}
             gap={hasContent || !hasNoTasks ? "$2" : "$1.5"}
             w="100%"
           >
@@ -60,6 +60,7 @@ export const ProjectCardMobile = ({
               px={isIpad() ? "$2" : "$1"}
               gap="$2"
               mt={hasContent ? "$0" : "$-1"}
+              pb={isIpad() ? "$4" : "$3.5"}
             >
               <TaskList 
                 project={project} 

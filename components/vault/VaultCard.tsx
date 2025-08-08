@@ -110,7 +110,7 @@ export const VaultCard = ({
 
             </XStack>
 
-            <XStack ai="center" gap="$2" >
+            <XStack ai="center" gap="$2">
               {!isIpad() && (
                 <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                   Username:
@@ -192,7 +192,7 @@ export const VaultCard = ({
 
             </XStack>
 
-            <XStack ai="center" gap={isIpad() ? "$3" : "$1"} ml="$3" mb={isIpad() ? "$0" : 0}>
+            <XStack ai="center" gap={isIpad() ? "$3" : "$1"}  mt="$1.5" ml="$3" mb={isIpad() ? "$0" : "$-0.5"}>
               {!isIpad() && (
                 <Text color={isDark ? '#666' : '#666'} fontSize={isIpad() ? 14 : 14} w={isIpad() ? 80 : 70} fontFamily="$body">
                   Username:
@@ -208,11 +208,12 @@ export const VaultCard = ({
                 Password:
               </Text>
               <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
-                {visiblePasswords[cred.id] ? cred.password : '••••••••'}
+                {visiblePasswords[cred.id] ? cred.password : '••••••••••••••••'}
               </Text>
               <Button
                 size="$2"
                 bg="transparent"
+                mr="$-3"
                 pressStyle={{ scale: 0.9 }}
                 onPress={() => togglePasswordVisibility(cred.id)}
                 icon={

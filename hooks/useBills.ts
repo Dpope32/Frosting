@@ -121,13 +121,6 @@ export function useBills() {
       tasksToAdd.map(task => addTask(task));
     }
     
-    if (showToastNotification) {
-      if (isBatchOperation && batchCount > 1) {
-        showToast(`${batchCount} ${batchCategory} bill${batchCount > 1 ? 's' : ''} added successfully`, "success");
-      } else {
-        showToast("Bill added successfully", "success");
-      }
-    }
     queryClient.invalidateQueries({ queryKey: ['bills'] });
     queryClient.refetchQueries({ queryKey: ['bills'] });
     return newBill;

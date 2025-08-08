@@ -24,14 +24,12 @@ const ACTIONS = [
   { name: 'bt_todo', label: 'ToDo', icon: 'check-box', gradient: ['#a18cd1', '#fbc2eb'] },
 ];
 
-const { width: screenWidth } = Dimensions.get('window');
 
 export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ onActionPress, isDark }) => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor);
   const [open, setOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  
-  // Animation refs - using useRef to prevent recreation on re-renders
+
   const animationRefs = useRef({
     fabRotation: new Animated.Value(0),
     fabScale: new Animated.Value(1),
@@ -44,13 +42,9 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     buttonPressAnimations: ACTIONS.map(() => new Animated.Value(1)),
   }).current;
 
-  // Cleanup ref to track if component is mounted
   const isMountedRef = useRef(true);
-  
-  // Timeout refs for cleanup
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
-  // Memoize static values - only recalculate when dependencies actually change
   const staticValues = useMemo(() => ({
     textColor: isDark ? '#f9f9f9' : '#fff',
     iconSize: isIpad() ? 20 : 16,
@@ -81,13 +75,11 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     },
   }), [primaryColor, isDark]);
 
-  // Cleanup function for timeouts
   const clearTimeouts = useCallback(() => {
     timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
     timeoutRefs.current = [];
   }, []);
 
-  // Haptic feedback function
   const triggerHaptic = useCallback(() => {
     if (Platform.OS === 'ios') {
       Vibration.vibrate([1]);
@@ -96,7 +88,6 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     }
   }, []);
 
-  // Enhanced animations with race condition prevention
   const openModal = useCallback(() => {
     if (isAnimating || open) return;
     
@@ -104,8 +95,7 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     setOpen(true);
 
     const { fabRotation, fabScale, backdropOpacity, actionAnimations } = animationRefs;
-    
-    // Animate FAB
+
     Animated.parallel([
       Animated.spring(fabRotation, {
         toValue: 1,
@@ -130,8 +120,8 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
       }
     });
 
-    // Staggered action animations (bottom-up) with reduced complexity
-    const staggerDelay = 15; // Reduced delay for faster opening
+
+    const staggerDelay = 10; 
     actionAnimations.forEach((anim, index) => {
       const reverseIndex = actionAnimations.length - 1 - index;
       const delay = reverseIndex * staggerDelay;
@@ -319,14 +309,12 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
         statusBarTranslucent={Platform.OS === 'android'}
       >
         <Animated.View style={[styles.overlay, { opacity: animationRefs.backdropOpacity }]}>
-          {/* Backdrop TouchableOpacity - only covers empty areas */}
           <TouchableOpacity
             style={styles.backdropTouch}
             activeOpacity={1}
             onPress={closeModal}
           />
           
-          {/* Action buttons container - separate from backdrop */}
           <YStack {...staticValues.modalYStackProps} pointerEvents="box-none">
             {ACTIONS.map((action, index) => {
               const animationStyle = {
@@ -354,22 +342,23 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
                       {
                         backgroundColor: isDark ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
                         shadowColor: action.gradient[0],
+                        borderColor: action.gradient[0],
                       }
                     ]}
                     activeOpacity={0.8}
                     onPress={(e) => {
-                      e.stopPropagation(); // Prevent event bubbling
+                      e.stopPropagation(); 
                       handleActionPress(action.name, index);
                     }}
                     disabled={isAnimating}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} // Increase touch target
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={action.label}
+                    testID={`action-${action.name}`}
                   >
                     <XStack alignItems="center" gap="$2" flex={1}>
-                      <View style={[
-                        styles.iconContainer,
-                        { backgroundColor: action.gradient[0] }
-                      ]}>
-                        <MaterialIcons name={action.icon as any} size={staticValues.iconSize} color="#fff" />
+                      <View style={styles.iconContainer}>
+                        <MaterialIcons name={action.icon as any} size={staticValues.iconSize} color={action.gradient[0]} />
                       </View>
                       <Text 
                         color={isDark ? '#f9f9f9' : '#222'} 
@@ -417,6 +406,8 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
             onPressIn={handleFabPressIn}
             onPressOut={handleFabPressOut}
             disabled={isAnimating}
+            accessibilityRole="button"
+            accessibilityLabel={open ? 'Close actions' : 'Open actions'}
           >
             <MaterialIcons name="add" size={staticValues.fabIconSize} color={staticValues.textColor} />
           </TouchableOpacity>
@@ -452,7 +443,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   backdropTouch: {
     ...StyleSheet.absoluteFillObject,
@@ -461,26 +452,24 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   actionBtn: {
-    paddingVertical: 12,
+    paddingVertical: 9,
     paddingHorizontal: 12,
     borderRadius: 14,
     shadowOpacity: 0.15,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
     elevation: 4,
-    borderWidth: 0.5,
-    borderColor: 'rgba(255,255,255,0.1)',
-    minHeight: 48,
+    borderWidth: 0.75,
+    minHeight: 44,
   },
   iconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    backgroundColor: 'transparent',
+    shadowOpacity: 0,
+    elevation: 0,
   },
 });

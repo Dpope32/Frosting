@@ -25,10 +25,7 @@ export class CustomWallpaperService {
         addSyncLog(`✅ [CustomWallpaperService] Web platform - cached custom wallpaper: ${wallpaperKey}`, 'success');
         return { wallpaperKey, uri };
       }
-
       const localUri = `${WALLPAPER_DIR}${wallpaperKey}.jpg`;
-      
-      addSyncLog(`📁 [CustomWallpaperService] Copying custom wallpaper to: ${localUri}`, 'verbose');
       
       await FileSystem.copyAsync({
         from: uri,
@@ -37,7 +34,6 @@ export class CustomWallpaperService {
 
       await wallpaperStore.cacheWallpaper(wallpaperKey, localUri);
       
-      addSyncLog(`✅ [CustomWallpaperService] Successfully uploaded custom wallpaper: ${wallpaperKey}`, 'success');
       return { wallpaperKey, uri: localUri };
 
     } catch (error) {
