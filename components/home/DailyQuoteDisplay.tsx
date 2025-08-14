@@ -9,7 +9,7 @@ export function DailyQuoteDisplay() {
   const { data, isLoading, isError } = useStoicQuote()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const backgroundColor = React.useMemo(() => isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.1)", [isDark])
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.1)", [isDark])
 
   if (isLoading) {
     return (

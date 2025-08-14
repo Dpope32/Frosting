@@ -71,10 +71,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12
   },
   switchLabel: {
-    fontSize: 16
+    fontSize: 17
   },
   dropdownButton: {
     flexDirection: 'row',
@@ -115,16 +114,17 @@ export const styles = StyleSheet.create({
   buttonEvent: {
     paddingVertical: 0,
     paddingHorizontal: 0,
-    borderRadius: 20,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    right: 8,
+    right: 4,
     bottom: 0,
-    width: 36,
-    height: 36,
+    width: 50,
+    height: 50,
     zIndex: 10,
     elevation: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   cancelButton: {
     marginRight: 8

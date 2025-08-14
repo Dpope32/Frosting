@@ -32,7 +32,7 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
     paddingTop: webColumnCount === 1 ? isWeb? 90 : 85 :
      webColumnCount === 2 ? isWeb ? 100 : 80 :
       webColumnCount === 3 ? isWeb ? 90 :
-      (activeEventTypes?.length || 0) > 0 ? 100 : 95 : 85,
+      (activeEventTypes?.length || 0) > 0 ? 90 : 95 : 85,
     backgroundColor: 'transparent',
     ...(Platform.OS === 'web' ? {
       backgroundColor: 'transparent',

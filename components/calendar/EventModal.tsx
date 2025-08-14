@@ -159,12 +159,15 @@ export const EventModal: React.FC<EventModalProps> = ({
                   padding="$2"
                   alignItems="center"
                   justifyContent="space-between"
+                  height={isWeb ? 45 : 42}
                   marginTop="$2"
                 >
                   <Text 
                     fontFamily="$body" 
                     color={newEventTime ? "$color" : "$placeholderColor"} 
                     fontSize={isWeb ? "$5" : "$4"}
+                    fontWeight="500"
+                    paddingLeft={isWeb ? "$3" : "$2"}
                   >
                     {newEventTime || 'Event Time (optional)'}
                   </Text>
@@ -218,7 +221,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                   <Text 
                     fontFamily="$body" 
                     color={textColor} 
-                    fontSize={isWeb ? "$4" : "$3"}
+                    fontSize={isWeb ? "$4" : 15}
+                    fontWeight="500"
                   >
                     Notify on day of event
                   </Text>
@@ -227,6 +231,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     onValueChange={setNotifyOnDay}
                     trackColor={{ false: '#767577', true: primaryColor }}
                     thumbColor="#f4f3f4"
+                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                   />
                 </View>
 
@@ -234,7 +239,8 @@ export const EventModal: React.FC<EventModalProps> = ({
                   <Text 
                     fontFamily="$body" 
                     color={textColor} 
-                    fontSize={isWeb ? "$4" : "$3"}
+                    fontSize={isWeb ? "$4" : 15}
+                    fontWeight="500"
                   >
                     Notify before event
                   </Text>
@@ -243,6 +249,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                     onValueChange={setNotifyBefore}
                     trackColor={{ false: '#767577', true: primaryColor }}
                     thumbColor="#f4f3f4"
+                    style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
                   />
                 </View>
 
@@ -327,28 +334,30 @@ export const EventModal: React.FC<EventModalProps> = ({
               </YStack>
             </ScrollView>
 
-            <XStack gap="$3" justifyContent="space-between" marginTop="$4" paddingHorizontal="$4">
+            <XStack gap="$2" justifyContent="space-between" marginTop="$4" paddingHorizontal="$1" height={isWeb ? 45 : 38}>
               <Button
                 onPress={closeEventModals}
                 backgroundColor="rgba(255, 4, 4, 0.1)"
                 borderColor="$borderColor"
                 fontFamily="$body"
                 fontSize={isWeb ? "$5" : "$4"}
-                paddingHorizontal="$4"
+                paddingHorizontal="$2"
                 color={isDark ? "$red10" : "$red10"}
                 flex={1}
+                height={isWeb ? 45 : 38}
               >
                 Cancel
               </Button>
               <Button
                 onPress={handleAddEventWithNotifications}
-                backgroundColor={primaryColor}
+                backgroundColor={"$blue10"}
                 disabled={!newEventTitle}
                 fontFamily="$body"
                 fontSize={isWeb ? "$5" : "$4"}
-                paddingHorizontal="$4"
-                color={isDark ? "$white" : "#fff"}
+                paddingHorizontal="$2"
+                color={isDark ? "$white" : "#fff"}  
                 flex={1}
+                height={isWeb ? 45 : 38}
               >
                 {editingEvent ? 'Update' : 'Save'}
               </Button>

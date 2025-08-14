@@ -43,8 +43,21 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
       toggleHabit(habitId);
     };
 
-    const inactiveColor = isDark ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
-    const drawerActiveBackgroundColor = isDark ? `${primaryColor}5` : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`;
+    const inactiveColor = isDark ? Platform.OS === 'web' ? '#444' : '#555' : '#333';
+    const adjustColor = (hex: string, percent: number): string => {
+      const p = Math.max(-1, Math.min(1, percent));
+      const cleanHex = hex.replace('#', '');
+      const num = parseInt(cleanHex.length === 3 ? cleanHex.split('').map(c => c + c).join('') : cleanHex, 16);
+      let r = (num >> 16) & 0xff;
+      let g = (num >> 8) & 0xff;
+      let b = num & 0xff;
+      r = Math.round(r + (p < 0 ? r * p : (255 - r) * p));
+      g = Math.round(g + (p < 0 ? g * p : (255 - g) * p));
+      b = Math.round(b + (p < 0 ? b * p : (255 - b) * p));
+      const toHex = (v: number) => v.toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    };
+    const drawerActiveBackgroundColor = adjustColor(primaryColor, -0.8);
 
     const renderIcon = (route: string, color: string) => {
       const icon = DRAWER_ICONS[route];

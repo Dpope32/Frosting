@@ -154,7 +154,7 @@ export default function CalendarScreen() {
     ]}>
       {!isWeb && activeEventTypes.length > 0 && (
         <BlurView 
-          intensity={isWeb? 2 : isDark ? 15 : 30}
+          intensity={isWeb ? 2 : isDark ? 15 : 30}
           tint={isDark ? 'dark' : 'light'}
         >
           <Legend isDark={isDark} eventTypes={activeEventTypes} />
@@ -262,7 +262,6 @@ export default function CalendarScreen() {
           )
         )}
       </ScrollView>
-
       <CalendarAnalytics visible={debugModalVisible}  onClose={closeDebugModal} debugData={debugData} isDark={isDark}/>
       <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} webColumnCount={webColumnCount} />
     </View>

@@ -38,6 +38,7 @@ import { EventModal } from '@/components/calendar/EventModal';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarModals } from '@/hooks/useCalendarModals';
 import { useCalendarViewStore } from '@/store';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -324,32 +325,42 @@ function CalendarModalContainer() {
   const { primaryColor } = useUserStore(s => s.preferences);
 
   return (
-    <EventModal
-      isEventModalVisible={isEventModalVisible}
-      isViewEventModalVisible={isViewEventModalVisible}
-      selectedDate={selectedDate}
-      selectedEvents={selectedEvents}
-      newEventTitle={newEventTitle}
-      setNewEventTitle={setNewEventTitle}
-      newEventTime={newEventTime}
-      setNewEventTime={setNewEventTime}
-      selectedType={selectedType}
-      setSelectedType={setSelectedType}
-      notifyOnDay={notifyOnDay}
-      setNotifyOnDay={setNotifyOnDay}
-      notifyBefore={notifyBefore}
-      setNotifyBefore={setNotifyBefore}
-      notifyBeforeTime={notifyBeforeTime}
-      setNotifyBeforeTime={setNotifyBeforeTime}
-      editingEvent={editingEvent}
-      handleAddEvent={handleAddEvent}
-      handleEditEvent={handleEditEvent}
-      handleDeleteEvent={handleDeleteEvent}
-      resetForm={resetForm}
-      closeEventModals={closeEventModals}
-      openEventModal={openEventModal}
-      isDark={isDark}
-      primaryColor={primaryColor}
-    />
+    <GestureHandlerRootView style={{ 
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      pointerEvents: 'box-none',
+      zIndex: 9999
+    }}>
+      <EventModal
+        isEventModalVisible={isEventModalVisible}
+        isViewEventModalVisible={isViewEventModalVisible}
+        selectedDate={selectedDate}
+        selectedEvents={selectedEvents}
+        newEventTitle={newEventTitle}
+        setNewEventTitle={setNewEventTitle}
+        newEventTime={newEventTime}
+        setNewEventTime={setNewEventTime}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        notifyOnDay={notifyOnDay}
+        setNotifyOnDay={setNotifyOnDay}
+        notifyBefore={notifyBefore}
+        setNotifyBefore={setNotifyBefore}
+        notifyBeforeTime={notifyBeforeTime}
+        setNotifyBeforeTime={setNotifyBeforeTime}
+        editingEvent={editingEvent}
+        handleAddEvent={handleAddEvent}
+        handleEditEvent={handleEditEvent}
+        handleDeleteEvent={handleDeleteEvent}
+        resetForm={resetForm}
+        closeEventModals={closeEventModals}
+        openEventModal={openEventModal}
+        isDark={isDark}
+        primaryColor={primaryColor}
+      />
+    </GestureHandlerRootView>
   );
 }
