@@ -9,27 +9,29 @@ export function DailyQuoteDisplay() {
   const { data, isLoading, isError } = useStoicQuote()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const backgroundColor = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)", [isDark])
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.1)", [isDark])
 
   if (isLoading) {
     return (
       <YStack
         backgroundColor={backgroundColor}
-        borderRadius={16}
-        padding="$3"
-        borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
+        borderRadius={24}
+        padding={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"}
+        borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"} 
         borderWidth={1}
         marginBottom="$2"
         style={Platform.OS === 'web' ? {
-          backdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(20px) saturate(1.3)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.3)',
           boxShadow: isDark 
-            ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   
-            : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+            ? '0px 8px 32px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.15)'   
+            : '0px 8px 32px rgba(0, 0, 0, 0.25), inset 0px 1px 0px rgba(255, 255, 255, 0.3)'
         } : {
-          shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.35,
-          shadowRadius: 12
+          shadowColor: isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.2)",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.4,
+          shadowRadius: 16,
+          elevation: 8
         }}
         alignItems="center"
         justifyContent="center"
@@ -49,19 +51,21 @@ export function DailyQuoteDisplay() {
         backgroundColor={backgroundColor}
         borderRadius={16}
         padding="$3"
-        borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"}
+        borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
         borderWidth={1}
         marginBottom="$2"
         style={Platform.OS === 'web' ? {
-          backdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(20px) saturate(1.3)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.3)',
           boxShadow: isDark 
-            ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   
-            : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+            ? '0px 8px 32px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.15)'   
+            : '0px 8px 32px rgba(0, 0, 0, 0.25), inset 0px 1px 0px rgba(255, 255, 255, 0.3)'
         } : {
-          shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.35,
-          shadowRadius: 12
+          shadowColor: isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.2)",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.4,
+          shadowRadius: 16,
+          elevation: 8
         }}
         alignItems="center"
         justifyContent="center"
@@ -80,19 +84,21 @@ export function DailyQuoteDisplay() {
         backgroundColor={backgroundColor}
         borderRadius={24}
         padding={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"}
-        borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"}
+        borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
         borderWidth={1}
         marginBottom="$2"
         style={Platform.OS === 'web' ? {
-          backdropFilter: 'blur(12px)',
+          backdropFilter: 'blur(20px) saturate(1.3)',
+          WebkitBackdropFilter: 'blur(20px) saturate(1.3)',
           boxShadow: isDark 
-            ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   
-            : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)'
+            ? '0px 8px 32px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.15)'   
+            : '0px 8px 32px rgba(0, 0, 0, 0.25), inset 0px 1px 0px rgba(255, 255, 255, 0.3)'
         } : {
-          shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.35,
-          shadowRadius: 12
+          shadowColor: isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.2)",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.4,
+          shadowRadius: 16,
+          elevation: 8
         }}
       >
 
