@@ -171,7 +171,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
               fontFamily="$body"
               color={isDark ? "#dbd0c6" : "#dbd0c6"}
               fontSize={RNPlatform.OS === 'web' ? 23 : isIpad() ? 21 : 18}
-              fontWeight="900"
+              fontWeight={isWeb ? "600" : "900"}
               marginRight={RNPlatform.OS === 'web' ? 20 : 10}
               marginLeft={RNPlatform.OS === 'web' ? 20 : isIpad() ? -30 : -24}
             >

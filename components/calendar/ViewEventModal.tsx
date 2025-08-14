@@ -1,8 +1,9 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, ScrollView, Dimensions, Alert } from 'react-native'
+import { View, TouchableOpacity, ScrollView, Dimensions, Alert } from 'react-native'
 import { isWeb } from 'tamagui'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 import { parse } from 'date-fns'
+import { MaterialIcons } from '@expo/vector-icons'
 import { CalendarEvent, useToastStore } from '@/store'
 import { EventPreview } from './EventPreview'
 import { BaseCardAnimated } from '../baseModals/BaseCardAnimated'
@@ -34,7 +35,7 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
   const { showToast } = useToastStore()
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
-  const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 700) : Math.min(screenWidth * 0.85, 400)}
+  const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 800) : Math.min(screenWidth * 0.85, 400)}
   const noScrollbar = isWeb ? { overflow: 'hidden' as const } : {}
 
   const handleDeleteEventWithConfirmation = (eventId: string) => {
@@ -75,11 +76,12 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
           modalMaxWidth={getViewModalMaxWidth()}
           visible={isViewEventModalVisible}
         >
-          <View style={{ paddingBottom: 50, ...noScrollbar }}>
+          <View style={{ paddingBottom: 30, ...noScrollbar }}>
             <ScrollView
               style={{
-                maxHeight: screenHeight * 0.77
+                maxHeight: isWeb ? screenHeight * 0.57 : screenHeight * 0.77
               }}
+              contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={!isWeb}
             >
                 {selectedEvents
@@ -118,20 +120,13 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
             </ScrollView>
             <TouchableOpacity
               onPress={onAddNewEvent}
-              style={[styles.buttonEvent]}
+              style={[styles.buttonEvent, { backgroundColor: 'transparent' }]}
             >
-              <Text style={{ 
-                position: 'absolute',
-                color: '#ffffff', 
-                fontSize: 32,
-                top: '50%',
-                left: '50%',
-                transform: [
-                  { translateX: -8 },
-                  { translateY: -10 }
-                ],
-                fontWeight: '300'
-              }}>+</Text>
+              <MaterialIcons 
+                name="add" 
+                size={24} 
+                color={isDark ? "#fff" : "#000"} 
+              />
             </TouchableOpacity>
           </View>
         </BaseCardAnimated>

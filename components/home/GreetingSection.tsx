@@ -33,7 +33,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
           fontFamily="$heading"
           fontSize={isWeb ? 23 : isIpad() ? 21 : 18}
           color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
-          fontWeight="900"
+          fontWeight={isWeb ? "600" : "900"}
           numberOfLines={1}
           ellipsizeMode="tail"
         >

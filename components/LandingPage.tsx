@@ -21,7 +21,7 @@ import { AddPersonForm } from '@/components/crm/Forms/AddPersonForm';
 import { EventModal } from './calendar/EventModal'
 import { AddProjectModal } from './cardModals/creates/AddProjectModal'
 
-import { useUserStore, useProjectStore as useProjectsStore, useEditTaskStore, CalendarEvent, useEditStockStore } from '@/store'
+import { useUserStore, useProjectStore as useProjectsStore, useEditTaskStore, CalendarEvent, useEditStockStore, useCalendarStore } from '@/store'
 import { useProjectStore, useStoreHydrated } from '@/store/ToDo'
 import { BackgroundSection } from '@/components/home/BackgroundSection'
 import { StarsAnimation } from '@/components/home/StarsAnimation'
@@ -58,7 +58,7 @@ export const LandingPage = React.memo(() => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
-  const backgroundColor = React.useMemo(() => isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.1)",[isDark])
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.1)",[isDark])
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
@@ -200,8 +200,6 @@ export const LandingPage = React.memo(() => {
           borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"} 
           borderWidth={1}
           style={Platform.OS === 'web'  ? { 
-                backdropFilter: 'blur(20px) saturate(1.3)',
-                WebkitBackdropFilter: 'blur(20px) saturate(1.3)',
                 boxShadow: isDark  
                   ? '0px 8px 32px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.15)'   
                   : '0px 8px 32px rgba(0, 0, 0, 0.25), inset 0px 1px 0px rgba(255, 255, 255, 0.3)' 
@@ -347,7 +345,10 @@ export const LandingPage = React.memo(() => {
             editingEvent={editingEvent}
             handleAddEvent={() => { setEventModalOpen(false)}}
             handleEditEvent={() => {}}
-            handleDeleteEvent={() => {}}
+            handleDeleteEvent={(eventId: string) => {
+              const { deleteEvent } = useCalendarStore.getState();
+              deleteEvent(eventId);
+            }}
             resetForm={() => {
               setNewEventTitle('');
               setNewEventTime('');

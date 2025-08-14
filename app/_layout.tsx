@@ -34,6 +34,10 @@ import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { handleDeepLink } from '@/services/notifications/deepLinkHandler';  
 import { initializePremiumService } from '@/services';
 import { usePremiumVerification } from '@/hooks/sync/usePremiumVerification';
+import { EventModal } from '@/components/calendar/EventModal';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useCalendarModals } from '@/hooks/useCalendarModals';
+import { useCalendarViewStore } from '@/store';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
@@ -255,11 +259,8 @@ useEffect(() => {
 }, [loaded]);
   
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
   
-
   return (
     <QueryClientProvider client={queryClient}>
       <TamaguiProvider config={config} defaultTheme={colorScheme ?? 'dark'}>
@@ -268,14 +269,17 @@ useEffect(() => {
             <>
               <Stack screenOptions={{ headerShown: false }}>
                 {!hasCompletedOnboarding ? (
-                  <Stack.Screen  name="screens/onboarding/index" options= {{ gestureEnabled: false }}/>) : (
-                <Stack.Screen  name="(drawer)" />)}
-            </Stack>
-            <Toast/>
-            <StatusBar style="auto" />
+                  <Stack.Screen  name="screens/onboarding/index" options= {{ gestureEnabled: false }}/>
+                ) : (
+                  <Stack.Screen  name="(drawer)" />
+                )}
+              </Stack>
+              <Toast/>
+              <StatusBar style="auto" />
               <TaskRecommendationModal />
               <EditStockModal />
               <AddStockModal />
+              <CalendarModalContainer />
             </>
           </ErrorBoundary>
         </NavigationThemeProvider>
@@ -283,3 +287,69 @@ useEffect(() => {
     </QueryClientProvider>
   );
 });
+
+function CalendarModalContainer() {
+  const { 
+    isEventModalVisible, 
+    isViewEventModalVisible,
+    closeEventModals,
+    openEventModal
+  } = useCalendarModals();
+
+  const selectedDate = useCalendarViewStore(state => state.selectedDate);
+  const selectedEvents = useCalendarViewStore(state => state.selectedEvents);
+
+  const {
+    newEventTitle,
+    setNewEventTitle,
+    newEventTime,
+    setNewEventTime,
+    selectedType,
+    setSelectedType,
+    notifyOnDay,
+    setNotifyOnDay,
+    notifyBefore,
+    setNotifyBefore,
+    notifyBeforeTime,
+    setNotifyBeforeTime,
+    editingEvent,
+    handleAddEvent,
+    handleEditEvent,
+    handleDeleteEvent,
+    resetForm,
+  } = useCalendarEvents(selectedDate);
+
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const { primaryColor } = useUserStore(s => s.preferences);
+
+  return (
+    <EventModal
+      isEventModalVisible={isEventModalVisible}
+      isViewEventModalVisible={isViewEventModalVisible}
+      selectedDate={selectedDate}
+      selectedEvents={selectedEvents}
+      newEventTitle={newEventTitle}
+      setNewEventTitle={setNewEventTitle}
+      newEventTime={newEventTime}
+      setNewEventTime={setNewEventTime}
+      selectedType={selectedType}
+      setSelectedType={setSelectedType}
+      notifyOnDay={notifyOnDay}
+      setNotifyOnDay={setNotifyOnDay}
+      notifyBefore={notifyBefore}
+      setNotifyBefore={setNotifyBefore}
+      notifyBeforeTime={notifyBeforeTime}
+      setNotifyBeforeTime={setNotifyBeforeTime}
+      editingEvent={editingEvent}
+      handleAddEvent={handleAddEvent}
+      handleEditEvent={handleEditEvent}
+      handleDeleteEvent={handleDeleteEvent}
+      resetForm={resetForm}
+      closeEventModals={closeEventModals}
+      openEventModal={openEventModal}
+      isDark={isDark}
+      primaryColor={primaryColor}
+    />
+  );
+}

@@ -4,14 +4,14 @@ import { isWeb } from 'tamagui';
 
 export const getMonthStyles = (webColumnCount: number, isDark: boolean) => StyleSheet.create({
   calendar: {
-    borderRadius: Platform.OS === 'web' ? 16 : isIpad() ? 14 : 12,
+    borderRadius: Platform.OS === 'web' ? 24 : isIpad() ? 14 : 12,
     elevation: isWeb? 0 : 3,
+    overflow: 'hidden',
     padding: 0,
     margin: isWeb ? 8 : 4,
     backgroundColor: isDark ? '#121212' : '#FFFFFF',
-    overflow: 'hidden',
     borderWidth: isDark ? 2 : 1,
-    borderColor: isDark ? '#1c1c1c' : '#E0E0E0',
+    borderColor: isDark ? '#333' : '#E0E0E0',
     ...(Platform.OS === 'web' ? { 
       boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.08)',
       margin: 0
@@ -33,15 +33,15 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   },
   weekDays: {
     flexDirection: 'row',
-    marginVertical: 6,
+    paddingVertical: 6,
     borderBottomWidth: 0,
-    backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
+    backgroundColor: isDark ? '#0b0b0b' : '#f7f7f7',
   },
   weekDayContainer: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: 0,
-    backgroundColor: isDark ? '#111' : '#f7f7f7',
+    backgroundColor: isDark ? '#0b0b0b' : '#f7f7f7',
   },
   weekDay: {
     fontSize: webColumnCount === 1 ? isWeb? 18 : isIpad() ? 14 : 10 : (webColumnCount === 2 ? isWeb? 16 : isIpad() ? 13  : 14 : 11),
@@ -74,7 +74,7 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
     borderColor: isDark ? '#555' : '#E8E8E8',
   },
   weekendDayCell: {
-    backgroundColor: isDark ? '#212121' : '#f0f0f0',
+    backgroundColor: isDark ? '#0f0f0f' : '#f7f7f7',
     borderRadius:isWeb? 0: 6,
   },
   currentDateCell: {
@@ -83,9 +83,10 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   pastDateCell: {
     borderBottomWidth: 0,
     position: 'relative',
+    backgroundColor: isDark ? '#121212' : '#f7f7f7',
   },
   lastRowCell: {
-    borderBottomWidth: 0
+    borderBottomWidth: 0,
   },
   holidayCell: {
     backgroundColor: isDark ? '#1E1E1E' : '#F5F5F5',
@@ -218,13 +219,19 @@ export const getMonthStyles = (webColumnCount: number, isDark: boolean) => Style
   trailingBlankCell: {
     width: '14.28%',
     aspectRatio: 1,
-    backgroundColor: isDark ? '#121212' : '#f9f9f9',
+    backgroundColor: isDark ? '#0a0a0a' : '#f7f7f7',
     borderRightWidth: 0,
     borderLeftWidth: 0,
     borderTopWidth: 0,
+    borderBottomWidth: 0,
     overflow: 'hidden',
-    borderBottomWidth: 0.25,
-    borderColor: isDark ? '#555' : '#E8E8E8',
+  },
+  blankCell: {
+    backgroundColor: isDark ? '#0a0a0a' : '#f7f7f7',
+    borderRightWidth: 0,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    borderBottomWidth: 0,
   },
   trailingBlankCellLast: {
     borderRightWidth: 1

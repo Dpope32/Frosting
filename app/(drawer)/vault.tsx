@@ -112,27 +112,6 @@ export default function VaultScreen() {
         backgroundColor={isDark ? '#0a0a0a' : '#fafafa'}
         paddingLeft={isWeb ? 0 : isIpad() ? 4 : 0}
       >
-        {isWeb && data?.items && data.items.length > 0 && (
-          <XStack 
-            paddingHorizontal="$6" 
-            paddingBottom="$2"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <YStack>
-              <Text 
-                color={isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'} 
-                fontSize="$4" 
-                fontFamily="$body"
-                marginTop="$1"
-              >
-                {data?.items.length ? `${data.items.length} saved passwords` : ''}
-              </Text>
-            </YStack>
-            
-          </XStack>
-        )}
-
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{

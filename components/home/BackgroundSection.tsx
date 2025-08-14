@@ -88,7 +88,7 @@ export const BackgroundSection = () => {
     switch (selectedStyle) {
       case 'gradient': {
         const baseColor = primaryColor;
-        const accentColor = adjustColor(baseColor, isDark ? -40 : 60);
+        const accentColor = adjustColor(baseColor, isDark ? -200 : 60);
         const highlightColor = adjustColor(baseColor, isDark ? 80 : 120);
         const shadowColor = adjustColor(baseColor, isDark ? -120 : -80);
         const deepShadow = adjustColor(baseColor, isDark ? -180 : -140);
@@ -104,7 +104,7 @@ export const BackgroundSection = () => {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{ position: 'absolute', width: '100%', height: '100%' }}
-              locations={[0, 0.5, 1]}
+              locations={[0, 0.2, 0.9, 1]}
             />
             
             <LinearGradient

@@ -138,14 +138,16 @@ export default function BillsScreen() {
         bill={selectedBill}
         onSubmit={handleUpdateBill}
       />
-      <YStack f={1} paddingTop={isWeb ? 65 : isIpad() ? (isDark ? 90 : 80) : 105} pb={isIpad() ? "$2" : "$2"} backgroundColor={isDark ? '#0a0a0a' : '#fafafa'} px={isIpad() ? "$1" : "$0"}>
-        <BillSummary 
-          monthlyIncome={monthlyIncome}
-          totalMonthlyAmount={totalMonthlyAmount}
-          monthlyBalance={monthlyBalance}
-          bills={bills}
-          onEditIncome={() => setIsIncomeModalVisible(true)}
-        />
+      <YStack f={1} paddingTop={isWeb ? 100 : isIpad() ? (isDark ? 90 : 80) : 105} pb={isIpad() ? "$2" : "$2"} backgroundColor={isDark ? '#0a0a0a' : '#fafafa'} px={isIpad() ? "$1" : "$0"}>
+        {!isWeb && (
+          <BillSummary 
+            monthlyIncome={monthlyIncome}
+            totalMonthlyAmount={totalMonthlyAmount}
+            monthlyBalance={monthlyBalance}
+            bills={bills}
+            onEditIncome={() => setIsIncomeModalVisible(true)}
+          />
+        )}
         
         {isDeletingBill && (
           <YStack

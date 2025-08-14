@@ -5,15 +5,18 @@ import { useRouter } from 'expo-router';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { View, TouchableOpacity, Image, Platform, Pressable, Text } from 'react-native';
 import { XStack, YStack } from 'tamagui';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
 import { ChangeLogButton } from './changeLogButton';
 import { LegalButton } from './LegalButton';
 // @ts-ignore
-import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import * as Haptics from 'expo-haptics';
 import { debouncedNavigate } from '@/utils';
 import { useHabits } from '@/hooks/useHabits';
 import { RecentGithubCells } from '@/components/habits/RecentGithubCells';
+import { useUserStore } from '@/store';
+import { DRAWER_ICONS } from '@/constants';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const DrawerContent = memo(({ props, username, profilePicture, styles, isWeb, isIpadDevice, premium }: { 
     props: DrawerContentComponentProps; 
@@ -27,6 +30,7 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const { primaryColor } = useUserStore(s => s.preferences);
     const { habits, getRecentHistory, toggleHabit, isHabitDoneToday } = useHabits();
     const todayDate = new Date();
     const today = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
@@ -38,6 +42,28 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
       }
       toggleHabit(habitId);
     };
+
+    const inactiveColor = isDark ? Platform.OS === 'web' ? '#444' : '#777' : '#999';
+    const drawerActiveBackgroundColor = isDark ? `${primaryColor}5` : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`;
+
+    const renderIcon = (route: string, color: string) => {
+      const icon = DRAWER_ICONS[route];
+      if (icon.type === 'material') {
+        return <MaterialIcons name={icon.name as any} size={24} color={color} style={{ marginRight: 4 }} />;
+      }
+      return <MaterialCommunityIcons name={icon.name as any} size={24} color={color} style={{ marginRight: 4 }} />;
+    };
+
+    const drawerRoutes = [
+      { name: '(tabs)/index', label: 'Home', route: '(tabs)/index' },
+      { name: 'calendar', label: 'Calendar', route: 'calendar' },
+      { name: 'crm', label: 'CRM', route: 'crm' },
+      { name: 'vault', label: 'Vault', route: 'vault' },
+      { name: 'bills', label: 'Bills', route: 'bills' },
+      { name: 'notes', label: 'Notes', route: 'notes' },
+      { name: 'habits', label: 'Habits', route: 'habits' },
+      { name: 'projects', label: 'Projects', route: 'projects' },
+    ];
     
       return (
         <View style={styles.container}>
@@ -94,7 +120,37 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
             >
-              <DrawerItemList {...props} />
+              {drawerRoutes.map((route) => {
+                const currentRoute = props.state.routes[props.state.index];
+                const isActive = currentRoute.name === route.name;
+                return (
+                  <DrawerItem
+                    key={route.name}
+                    label={route.label}
+                    onPress={() => props.navigation.navigate(route.name)}
+                    icon={({ color }: { color: string }) => renderIcon(route.route, isActive ? '#fff' : color)}
+                    activeTintColor="#fff"
+                    inactiveTintColor={inactiveColor}
+                    activeBackgroundColor={drawerActiveBackgroundColor}
+                    focused={isActive}
+                    style={{
+                      paddingVertical: 0,
+                      paddingLeft: 0,
+                      marginBottom: 8,
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      borderColor: isActive ? '#fff' : 'transparent',
+                      backgroundColor: isActive ? drawerActiveBackgroundColor : 'transparent',
+                    }}
+                    labelStyle={{
+                      fontSize: isIpadDevice ? 20 : 18,
+                      fontWeight: '700',
+                      marginLeft: -8,
+                      color: isActive ? '#fff' : inactiveColor,
+                    }}
+                  />
+                );
+              })}
               
               {habits.length > 0 && (isWeb || isIpadDevice) && (
                 <YStack marginHorizontal={-16} paddingVertical={16} gap={12}>
@@ -136,4 +192,3 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
       </View>
     );
   });
-  

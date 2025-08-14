@@ -19,6 +19,7 @@ import { VaultListModal } from './listModals/VaultListModal';
 import { PeopleListModal } from './listModals/PeopleListModal';
 import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
+import { IncomeModal } from './cardModals/edits/IncomeModal';
 import { useCalendarViewStore, useCalendarStore } from '@/store';
 import { useUserStore } from '@/store';
 import { isIpad } from '@/utils';
@@ -27,6 +28,7 @@ import { Legend } from '@/components/calendar/Legend';
 import { getUSHolidays } from '@/services';
 import { debouncedNavigate } from '@/utils/navigationUtils';
 import { useBills } from '@/hooks';
+import { BillSummary } from './bills/BillSummary';
 
 interface HeaderProps {
   title: string;
@@ -52,9 +54,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const [selectedVaultEntry, setSelectedVaultEntry] = useState<any>(null);
   const [editVaultModalOpen, setEditVaultModalOpen] = useState(false);
   const [showArchivedProjectsModal, setShowArchivedProjectsModal] = useState(false);
-  const { webColumnCount, toggleWebColumnCount } = useCalendarViewStore();
+  const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
+  const { webColumnCount, toggleWebColumnCount, isAnyModalOpen } = useCalendarViewStore();
   const { events } = useCalendarStore();
-  const { updateBill } = useBills();
+  const { updateBill, bills, monthlyIncome, totalMonthlyAmount, monthlyBalance, setMonthlyIncome } = useBills();
 
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
@@ -316,6 +319,24 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
               )}
             </XStack>
 
+            {/* Web Bills Summary */}
+            {isWeb && isBillsScreen && (
+              <XStack
+                flex={1}
+                justifyContent="center"
+                alignItems="center"
+                style={{ marginLeft: 20, marginRight: 20 }}
+              >
+                <BillSummary 
+                  monthlyIncome={monthlyIncome}
+                  totalMonthlyAmount={totalMonthlyAmount}
+                  monthlyBalance={monthlyBalance}
+                  bills={bills}
+                  onEditIncome={() => setIsIncomeModalVisible(true)}
+                />
+              </XStack>
+            )}
+
             {/* Web Calendar Legend */}
             {isWeb && isCalendarScreen && activeEventTypes.length > 0 && (
               <XStack
@@ -402,6 +423,13 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       <QuoteModal open={quoteModalOpen} onOpenChange={setQuoteModalOpen} />
       <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} />
       <ArchivedProjectsModal open={showArchivedProjectsModal} onOpenChange={setShowArchivedProjectsModal} />
-    </>
+      {isIncomeModalVisible && (
+        <IncomeModal 
+          onClose={() => setIsIncomeModalVisible(false)} 
+          currentIncome={monthlyIncome}
+          onSubmit={setMonthlyIncome}
+        />
+      )}
+    </> 
   );
 }

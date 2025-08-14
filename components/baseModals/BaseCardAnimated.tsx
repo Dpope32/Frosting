@@ -73,14 +73,14 @@ export function BaseCardAnimated({
                   {
                     backgroundColor: isDark ? '#222' : '#fff',
                     marginTop: insets.top + 20, 
-                    marginBottom: insets.bottom + 60,
+                    marginBottom: insets.bottom + 40,
                     width: actualWidth,
                     maxHeight: screenHeight * 0.9,
                   }
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
-                <XStack justifyContent="space-between" pt="$2" marginTop={isIpad() ? -8 : -8} marginBottom={12} px="$2" alignItems="center">
+                <XStack justifyContent="space-between" pt="$2" marginTop={isIpad() ? 4 : 4} marginBottom={12} px="$2" alignItems="center">
                   <Text
                     fontSize={24}
                     fontWeight="700"
@@ -100,7 +100,7 @@ export function BaseCardAnimated({
                     />
                   )}
                 </XStack>
-                <View style={{ position: 'relative' }}>
+                <View style={{ position: 'relative', paddingTop: 8 }}>
                   {children}
                 </View>
               </Animated.View>
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 50 : 24,
+    paddingBottom: isWeb? 28 : 16,
     zIndex: 1,
   },
 })

@@ -55,24 +55,24 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
   
   if (isWeb) {
     return (
-      <XStack  w="100%"   p="$3"  my="$3" ai="center" jc="flex-start" gap="$6" position="relative"  borderBottomWidth={borderWidth} borderColor={borderColor} >
-        <XStack gap="$4" ai="center" flex={1} jc="flex-start"> 
-          <XStack  w={24} h={60} ai="center" jc="center"  mr="$3">
-            <XStack  h={60}  ai="flex-end"  gap={3} jc="center">
+      <XStack w="100%" ai="center" jc="center" gap="$3" position="relative">
+        <XStack gap="$3" ai="center" jc="center"> 
+          <XStack w={24} h={50} ai="center" jc="center" mr="$3">
+            <XStack h={50} ai="flex-end" gap={3} jc="center">
               {incomeHeightPercent > 0 && (
-                <XStack w={6}  h={`${incomeHeightPercent}%`}  bg="#4CAF50" borderRadius={3} opacity={0.9}
+                <XStack w={5} h={`${incomeHeightPercent}%`} bg="#4CAF50" borderRadius={3} opacity={0.9}
                 />
               )}
               {billsHeightPercent > 0 && (
-                <XStack width={6}  height={`${billsHeightPercent}%`}  bg="#FF5252" borderRadius={3} opacity={0.9} />
+                <XStack width={5} height={`${billsHeightPercent}%`} bg="#FF5252" borderRadius={3} opacity={0.9} />
               )}
             </XStack>
           </XStack>
           
-          <XStack gap="$4" ai="center" flex={1} jc="flex-start">
-            <XStack width={isIpad() ? 180 : 150} ai="center" borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"} py="$3" px="$3" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.03)"}>
+          <XStack gap="$3" ai="center" jc="center">
+            <XStack width={160} ai="center" borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0,0,0,0.1)"} py="$3" px="$3" br="$4" bg={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255,255,255,0.8)"}>
               <YStack>
-                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Income</Text>
+                <Text fontSize="$3" color={isDark ? "#bbb" : "#666"} fontFamily="$body">Income</Text>
                 <XStack ai="center" gap="$2">
                   <Text fontSize="$4" fontWeight="bold" color="#4CAF50" fontFamily="$body">
                     ${monthlyIncome.toFixed(0)}
@@ -92,9 +92,9 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             </XStack>
             
             {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.03)"} borderWidth={1} borderColor={isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.03)"}>
+              <XStack width={160} ai="center" py="$3" px="$3" br="$4" bg={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255,255,255,0.8)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0,0,0,0.1)"}>
                 <YStack>
-                  <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Bills</Text>
+                  <Text fontSize="$3" color={isDark ? "#bbb" : "#666"} fontFamily="$body">Bills</Text>
                   <Text fontSize="$4" fontWeight="bold" color="#FF5252" fontFamily="$body">
                     ${totalMonthlyAmount.toFixed(0)}
                   </Text>
@@ -103,9 +103,9 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             )}
             
             {bills && bills.length > 0 && (
-              <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.09)" : "rgba(0,0,0,0.03)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"}>
+              <XStack width={160} ai="center" py="$3" px="$3" br="$4" bg={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255,255,255,0.8)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0,0,0,0.1)"}>
                 <YStack>
-                  <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Monthly P/L</Text>
+                  <Text fontSize="$3" color={isDark ? "#bbb" : "#666"} fontFamily="$body">Monthly P/L</Text>
                   <Text fontSize="$4" fontWeight="bold" color={monthlyBalance >= 0 ? '#4CAF50' : '#FF5252'} fontFamily="$body">
                     ${monthlyBalance.toFixed(0)}
                   </Text>
@@ -113,9 +113,9 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
               </XStack>
             )}
             
-            <XStack width={180} ai="center" py="$3" px="$5" br="$5" bg={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.03)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0,0,0,0.03)"}>
+            <XStack width={160} ai="center" py="$3" px="$3" br="$4" bg={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255,255,255,0.8)"} borderWidth={1} borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0,0,0,0.1)"}>
               <YStack>
-                <Text fontSize="$3" color={isDark ? "#999" : "#666"} fontFamily="$body">Portfolio</Text>
+                <Text fontSize="$3" color={isDark ? "#bbb" : "#666"} fontFamily="$body">Portfolio</Text>
                 <Text fontSize="$4" fontWeight="bold" color={portfolioValueColor} fontFamily="$body">
                   {portfolioDisplayValue}
                 </Text>
@@ -245,7 +245,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
               Portfolio
             </Text>
             <Text 
-              fontSize={16}
+              fontSize={isWeb ? 18 : isIpad() ? 16 : 14}
               fontWeight="600"
               color={portfolioValueColor}
               fontFamily="$body"

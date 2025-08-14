@@ -2,23 +2,47 @@ import { StyleSheet, Platform } from 'react-native';
 import { isIpad } from '@/utils';
 import { isWeb } from 'tamagui';
 
-export const getCalendarStyles = (webColumnCount: number, activeEventTypes: string[]) => StyleSheet.create({
+// ===== CONSISTENT GRAY SYSTEM =====
+// Matching the clean 3-gray system from MonthStyles
+const COLORS = {
+  light: {
+    background: '#FFFFFF',
+    surface: '#F8F8F8', 
+    surfaceSecondary: '#F0F0F0',
+    border: '#E0E0E0',
+    text: '#000000',
+    textSecondary: '#666666',
+  },
+  dark: {
+    background: '#1A1A1A',     // Main dark background
+    surface: '#2A2A2A',        // Calendar cells  
+    surfaceSecondary: '#333333', // Events/holidays
+    border: '#404040',         // Subtle borders
+    text: '#FFFFFF',           // Primary text
+    textSecondary: '#CCCCCC',  // Secondary text
+  },
+};
+
+export const getCalendarStyles = (webColumnCount: number, activeEventTypes: string[], isDark: boolean = true) => {
+  const colors = isDark ? COLORS.dark : COLORS.light;
+  
+  return StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: webColumnCount === 1 ? isWeb? 90 : 85 :
      webColumnCount === 2 ? isWeb ? 100 : 80 :
       webColumnCount === 3 ? isWeb ? 90 :
       (activeEventTypes?.length || 0) > 0 ? 100 : 95 : 85,
-    backgroundColor: Platform.OS === 'web' ? '#f0f2f5' : undefined,
+    backgroundColor: 'transparent',
     ...(Platform.OS === 'web' ? {
-      backgroundColor: '#f0f2f5',
+      backgroundColor: 'transparent',
     } as any : {}),
     ...(isIpad() ? {
       paddingTop: 70,
       paddingHorizontal: webColumnCount === 1 ? 0 : 10,
       borderRadius: 0,
       overflow: 'hidden',
-      backgroundColor: '#f0f2f5',
+      backgroundColor: 'transparent',
     } as any : {}),
   },
   ipadMonthsContainer: {
@@ -42,9 +66,9 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     ...(Platform.OS === 'web' ? {
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      boxShadow: isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
     } : {})
   },
   webMonthsContainer: {
@@ -56,7 +80,7 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
       justifyContent: 'center',
       borderRadius: 12,
       borderWidth: 1,
-      borderColor: '#1c1c1c',
+      borderColor: colors.border,
       overflow: 'hidden',
     } as any : {}),
   },
@@ -125,24 +149,25 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     padding: 16,
   },
   modalContent: {
     width: '90%',
     minHeight: Platform.OS === 'web' ? '87.5%' : '72%',
     maxHeight: Platform.OS === 'web' ? '95%' : '100%',
-    borderRadius: isWeb ? 12 : 16,
+    borderRadius: isWeb ? 16 : 16,
     elevation: 5,
     overflow: 'hidden',
     padding: 8,
     flexDirection: 'column',
+    backgroundColor: colors.background,
   },
   modalHeader: {
     padding: 12,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: colors.border,
   },
   headerRow: {
     flexDirection: 'row',
@@ -152,6 +177,7 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
   modalTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.text,
   },
   eventsScrollView: {
     flex: 1,
@@ -165,18 +191,20 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
   },
   input: {
     borderWidth: 1,
-    borderColor: '#444',
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 12,
     marginBottom: Platform.OS === 'web' ? 16 : 8,
     fontSize: 16,
+    backgroundColor: colors.surface,
+    color: colors.text,
   },
   bottomButtonContainer: {
     width: '100%',
     padding: 12,
     backgroundColor: 'transparent',
     borderTopWidth: 1,
-    borderTopColor: '#333',
+    borderTopColor: colors.border,
     alignItems: 'flex-end',
   },
   modalButtons: {
@@ -186,14 +214,14 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
   bigCloseButton: {
     paddingVertical: 12,
     borderRadius: 8,
-    borderColor: 'rgba(200,200,200,1)',
+    borderColor: colors.border,
     width: '50%',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bigCloseButtonText: {
-    color: 'rgba(255,255,255,1)',
+    color: colors.text,
     fontSize: 14,
     fontWeight: 'bold',
     letterSpacing: 1,
@@ -214,6 +242,7 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
   typeButtonText: {
     fontSize: 14,
     fontWeight: '500',
+    color: colors.text,
   },
   bigActionButton: {
     flex: 1,
@@ -228,7 +257,7 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
     fontWeight: 'bold',
   },
   cancelButton: {
-    backgroundColor: '#666666',
+    backgroundColor: colors.textSecondary,
   },
   addEventButton: {
     width: 40,
@@ -238,3 +267,4 @@ export const getCalendarStyles = (webColumnCount: number, activeEventTypes: stri
     alignItems: 'center',
   },
 });
+};

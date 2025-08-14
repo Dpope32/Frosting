@@ -118,9 +118,16 @@ export default function CalendarScreen() {
       showToast("You cant add events in the past silly!", "error");
       return;
     }
-    setSelectedDate(date);
+    
+    // Set the selected date in the store instead of local state
+    useCalendarViewStore.getState().setSelectedDate(date);
+    
     const dateKey = date.toISOString().split("T")[0];
     const dayEvents = events.filter((event) => event.date === dateKey);
+    
+    // Set selected events in the store
+    useCalendarViewStore.getState().setSelectedEvents(dayEvents);
+    
     if (dayEvents.length > 0) {
       openViewEventModal();
     } else {
@@ -256,33 +263,6 @@ export default function CalendarScreen() {
         )}
       </ScrollView>
 
-      <EventModal
-        isEventModalVisible={isEventModalVisible}
-        isViewEventModalVisible={isViewEventModalVisible}
-        selectedDate={selectedDate}
-        selectedEvents={selectedEvents}
-        newEventTitle={newEventTitle}
-        setNewEventTitle={setNewEventTitle}
-        newEventTime={newEventTime}
-        setNewEventTime={setNewEventTime}
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        notifyOnDay={notifyOnDay}
-        setNotifyOnDay={setNotifyOnDay}
-        notifyBefore={notifyBefore}
-        setNotifyBefore={setNotifyBefore}
-        notifyBeforeTime={notifyBeforeTime}
-        setNotifyBeforeTime={setNotifyBeforeTime}
-        editingEvent={editingEvent}
-        handleAddEvent={handleAddEvent}
-        handleEditEvent={handleEditEvent} 
-        handleDeleteEvent={handleDeleteEvent}
-        resetForm={resetForm}  
-        closeEventModals={closeEventModals}
-        openEventModal={openEventModal}
-        isDark={isDark}
-        primaryColor={primaryColor}
-      />
       <CalendarAnalytics visible={debugModalVisible}  onClose={closeDebugModal} debugData={debugData} isDark={isDark}/>
       <DebugTools openDebugModal={openDebugModal} isDev={__DEV__} webColumnCount={webColumnCount} />
     </View>

@@ -120,7 +120,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'absolute',
     right: 8,
-    bottom: 8,
+    bottom: 0,
     width: 36,
     height: 36,
     zIndex: 10,

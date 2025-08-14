@@ -28,7 +28,6 @@ const dedupeHolidays = (events: CalendarEvent[]): CalendarEvent[] => {
     const native = byDate[date].find(ev => ev.id.startsWith('device-'));
     deduped[date] = native || byDate[date][0];
   }
-  // Return all non-holiday events, plus only the deduped holidays
   return [
     ...events.filter(e => e.type !== 'holiday'),
     ...Object.values(deduped)
@@ -52,7 +51,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const blanks = Array.from({ length: firstDayOfMonth }, (_, i) => i);
 
-  // Calculate trailing blanks (empty cells after the last day of the month)
   const totalCells = daysInMonth + firstDayOfMonth;
   const trailingBlanksCount = (7 - (totalCells % 7)) % 7;
   const trailingBlanks = Array.from({ length: trailingBlanksCount }, (_, i) => i);
@@ -68,7 +66,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     const end = new Date(y, m + 1, 0).toISOString().split('T')[0];
     const filteredEvents = dedupeHolidays(events.filter(e => e.date >= start && e.date <= end));
     
-    // Deduplicate all events by type + title + date
     const deduplicatedEvents = filteredEvents.reduce((acc, event) => {
       const key = `${event.date}-${event.type}-${event.title}`;
       if (!acc.has(key)) {
@@ -78,7 +75,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
     }, new Map<string, CalendarEvent>());
     
     return Array.from(deduplicatedEvents.values())
-      // Filter out excluded holidays
       .filter(e => !(e.type === 'holiday' && EXCLUDED_HOLIDAYS.includes(e.title)))
       .reduce((acc, e) => {
         if (!acc[e.date]) {
@@ -115,7 +111,6 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           acc[e.date].nba = true;
           acc[e.date].teamCode = e.teamCode || null;
         } else if (e.type === 'holiday') {
-          // Double-check that this isn't an excluded holiday
           if (!EXCLUDED_HOLIDAYS.includes(e.title)) {
             acc[e.date].holiday = true;
             acc[e.date].holidayName = e.title || 'Holiday';
@@ -177,7 +172,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
           const rowIndex = Math.floor(blank / 7);
           const totalRows = Math.ceil((daysInMonth + firstDayOfMonth) / 7);
           const isLastRow = rowIndex === totalRows - 1;
-          return <View key={`blank-${blank}`} style={[styles.dayCell, isLastRow && styles.lastRowCell]} />;
+          return <View key={`blank-${blank}`} style={[styles.dayCell, styles.blankCell, isLastRow && styles.lastRowCell]} />;
         })}
 
         {days.map(day => {

@@ -87,41 +87,25 @@ export const VaultCard = ({
             right={0} 
             bottom={0}
           />
-          <YStack flex={1}>
-            <XStack jc="space-between" ai="center" mb="$1">
+          <YStack flex={1} rowGap={isWeb ? "$0" : "$1"}>
+            <XStack jc="space-between" ai="center">
               <Text color={isDark ? '#f6f6f6' : '#222'} fontSize={isIpad() ? 24 : 20} fontWeight="bold" fontFamily="$body">
                 {cred.name}
               </Text>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             </XStack>
 
-            <XStack ai="center" gap="$2">
+            <XStack ai="center" gap="$2" y={isWeb ? 6 : 0}>
               {!isIpad() && (
-                <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
+                <Text color={isDark ? '#666' : '#666'} fontSize="$3" lh={isWeb ? 16 : undefined} w={70} fontFamily="$body">
                   Username:
                 </Text>
               )}
-              <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" flex={1} fontFamily="$body">
+              <Text color={isDark ? '#f6f6f6' : '#000'} fontSize="$3" lh={isWeb ? 16 : undefined} flex={1} fontFamily="$body">
                 {cred.username}
               </Text>
             </XStack>
 
-            <XStack ai="center" gap="$2">
+            <XStack ai="center" gap="$2" y={isWeb ? 3 : 0}>
               <Text color={isDark ? '#666' : '#666'} fontSize="$3" w={70} fontFamily="$body">
                 Password:
               </Text>

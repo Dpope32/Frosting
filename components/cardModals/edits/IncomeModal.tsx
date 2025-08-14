@@ -96,6 +96,13 @@ export function IncomeModal({ onClose, currentIncome, onSubmit }: IncomeModalPro
             fontSize="$5"
             fontWeight="500"
             placeholderTextColor={isDark ? '$color9' : '$color8'}
+            focusStyle={{
+              boxShadow: 'none',
+              outlineWidth: 0,
+              outlineColor: 'transparent',
+              borderWidth: 0,
+            }}
+            style={isWeb ? ({ WebkitAppearance: 'none', outline: 'none' } as any) : undefined}
           />
         </XStack>
 

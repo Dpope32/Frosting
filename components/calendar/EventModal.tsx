@@ -215,7 +215,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                 gap="$3"
               >
                 <View style={styles.switchRow}>
-                  <Text style={[styles.switchLabel, { color: textColor, fontFamily: '$body', fontSize: isWeb ? "$4" : "$3" }]}>Notify on day of event</Text>
+                  <Text 
+                    fontFamily="$body" 
+                    color={textColor} 
+                    fontSize={isWeb ? "$4" : "$3"}
+                  >
+                    Notify on day of event
+                  </Text>
                   <Switch
                     value={notifyOnDay}
                     onValueChange={setNotifyOnDay}
@@ -225,7 +231,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                 </View>
 
                 <View style={styles.switchRow}>
-                  <Text style={[styles.switchLabel, { color: textColor, fontFamily: '$body', fontSize: isWeb ? "$4" : "$3" }]}>Notify before event</Text>
+                  <Text 
+                    fontFamily="$body" 
+                    color={textColor} 
+                    fontSize={isWeb ? "$4" : "$3"}
+                  >
+                    Notify before event
+                  </Text>
                   <Switch
                     value={notifyBefore}
                     onValueChange={setNotifyBefore}

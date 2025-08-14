@@ -71,8 +71,15 @@ export default function DrawerLayout() {
       },
       drawerActiveTintColor: '#fff',
       drawerInactiveTintColor: inactiveColor,
-      drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
-      drawerItemStyle: { paddingVertical: 0, paddingLeft: 0, marginBottom: 8, borderRadius: 20 },
+      drawerActiveBackgroundColor: isDark  ? `${primaryColor}5`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
+      drawerItemStyle: { 
+        paddingVertical: 0, 
+        paddingLeft: 0, 
+        marginBottom: 8, 
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'transparent'
+      },
       drawerLabelStyle: { fontSize: isIpadDevice ? 20 : 18, fontWeight: "700" as const, marginLeft: -8 },
       drawerContentStyle: { backgroundColor },
       drawerType: isPermanentDrawer ? 'permanent' as const : 'back' as const,
