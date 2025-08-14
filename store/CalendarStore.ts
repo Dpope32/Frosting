@@ -300,21 +300,17 @@ export const useCalendarStore = create<CalendarState>()(
                 
                 // Create birthday date in local timezone to avoid timezone conversion issues
                 const birthdayDate = new Date(year, parseInt(month) - 1, parseInt(day))
-                birthdayDate.setHours(10, 0, 0, 0) // 10 AM local time
+                birthdayDate.setHours(9, 0, 0, 0) // 9 AM local time
                 
                 const age = year - parseInt(birthYear)
                 const now = new Date()
                 const twoWeeksBefore = new Date(birthdayDate)
                 twoWeeksBefore.setDate(twoWeeksBefore.getDate() - 14)
-                twoWeeksBefore.setHours(10, 0, 0, 0) // 10 AM local time
-                
-                // Debug logging
-                getAddSyncLog()(`🎂 [DEBUG] Scheduling for ${person.name}: birthday=${format(birthdayDate, 'yyyy-MM-dd HH:mm')}, 2weeks=${format(twoWeeksBefore, 'yyyy-MM-dd HH:mm')}`, 'verbose')
+                twoWeeksBefore.setHours(9, 0, 0, 0) // 9 AM local time
                 
                 // Schedule notifications
                 if (birthdayDate > now) {
                   try {
-                    getAddSyncLog()(`📅 [DEBUG] Scheduling birthday notification for ${person.name} on ${format(birthdayDate, 'yyyy-MM-dd HH:mm')}`, 'verbose')
                     await scheduleNotification(
                       birthdayDate,
                       `🎂 ${person.name}'s Birthday Today!`,
@@ -415,7 +411,11 @@ export const useCalendarStore = create<CalendarState>()(
                         // Always debug the trigger structure to understand the format
                         getAddSyncLog()(`🔍 [DEBUG] Trigger structure for ${n.identifier}: ${JSON.stringify(n.trigger)}`, 'verbose')
                         
-                        if (n.trigger && (n.trigger as any).date) {
+                        if (n.trigger && (n.trigger as any).seconds) {
+                          // Handle iOS timeInterval triggers - convert seconds to actual date
+                          const triggerDate = new Date(Date.now() + (n.trigger as any).seconds * 1000)
+                          dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
+                        } else if (n.trigger && (n.trigger as any).date) {
                           const triggerDate = new Date((n.trigger as any).date)
                           dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
                         } else if (n.trigger && (n.trigger as any).dateInput) {

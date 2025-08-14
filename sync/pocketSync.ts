@@ -58,19 +58,32 @@ const withPort = (raw?: string): string | undefined => {
   return hasPort || !isPlainHttp ? url : `${url}:${DEFAULT_PORT}`;
 };
 
+// Helper function to safely get environment variables during testing
+const getEnvVar = (key: string): string | undefined => {
+  try {
+    return process.env[key];
+  } catch (error) {
+    // During Jest testing, environment variables might not be available
+    if (process.env.NODE_ENV === 'test') {
+      return undefined;
+    }
+    throw error;
+  }
+};
+
 const CANDIDATE_URLS = (Platform.OS === 'web' 
   ? [
       // Prioritize proxy for web (VPNs commonly block Tailscale)
       'https://kaiba.vercel.app/api/proxy/pb',
-      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL),
-      withPort(process.env.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env.EXPO_PUBLIC_PB_URL),
+      withPort(getEnvVar('EXPO_PUBLIC_POCKETBASE_URL')),
+      withPort(getEnvVar('EXPO_PUBLIC_PB_LAN')),
+      withPort(getEnvVar('EXPO_PUBLIC_PB_URL')),
     ]
   : [
       // Direct connections first for mobile
-      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), 
-      withPort(process.env.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env.EXPO_PUBLIC_PB_URL),
+      withPort(getEnvVar('EXPO_PUBLIC_POCKETBASE_URL')), 
+      withPort(getEnvVar('EXPO_PUBLIC_PB_LAN')),
+      withPort(getEnvVar('EXPO_PUBLIC_PB_URL')), 
     ]
 ).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
 
@@ -219,26 +232,14 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   if (isSimulatorOrDev()) {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
-
-  // Enhanced iPhone debugging
-  if (Platform.OS === 'ios') {
-    getAddSyncLog()(`📱 iPhone PocketBase connection attempt`, 'info');
-    getAddSyncLog()(`📱 Available URLs: ${CANDIDATE_URLS.length}`, 'info');
-    CANDIDATE_URLS.forEach((url, index) => {
-      getAddSyncLog()(`📱 URL ${index + 1}: ${url}`, 'verbose');
-    });
-  }
-  //getAddSyncLog()(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
   
   let selected: string | undefined;
 
   // Test each URL with full retry logic
   for (const baseUrl of CANDIDATE_URLS) {
-   // getAddSyncLog()(`🌐 Testing base URL: ${baseUrl}`, 'info');
-    
+
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
-      getAddSyncLog()(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
       break;
     }
   }
@@ -326,5 +327,4 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
     logs: JSON.stringify(logs),
   })
 
-  getAddSyncLog()('Logs saved in PocketBase', 'info')
 }

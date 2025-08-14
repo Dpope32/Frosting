@@ -318,7 +318,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
   },
     startInitialSync: () => {
       const startTime = Date.now();
-      addSyncLog('🚀 Starting initial sync for premium user', 'info');
       set({ 
         isInitialSyncInProgress: true, 
         initialSyncStartTime: startTime 
@@ -378,7 +377,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
             const storeState = store.getState();
             if (storeState.hydrateFromSync && typeof storeState.hydrateFromSync === 'function') {
               if (!isAlwaysSynced && typeof storeState.isSyncEnabled === 'boolean' && !storeState.isSyncEnabled) {
-             //   addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
+                addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
+                return; // Add this line to actually skip when LOCAL sync is OFF
               } else {
                 storeState.hydrateFromSync(storeDataFromSnapshot);
               }

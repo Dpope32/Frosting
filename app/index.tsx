@@ -33,17 +33,9 @@ export default function Index() {
   const premium = preferences.premium === true;
   const colorScheme = useColorScheme();
   
-  // Hide navigation bar on Android only - run immediately
-  if (Platform.OS === 'android') {
-    NavigationBar.setVisibilityAsync("hidden");
-  }
-
-  // Set system UI background colors to match Header (Android only)
+  if (Platform.OS === 'android') NavigationBar.setVisibilityAsync("hidden");
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      const backgroundColor = colorScheme === 'dark' ? '#0e0e0f' : '#ffffff';
-      SystemUI.setBackgroundColorAsync(backgroundColor);
-    }
+    if (Platform.OS === 'android') SystemUI.setBackgroundColorAsync(colorScheme === 'dark' ? '#0e0e0f' : '#ffffff');
   }, [colorScheme]);
 
   const { getAllStoreStates, startInitialSync, completeInitialSync } = useRegistryStore.getState();
@@ -76,22 +68,11 @@ export default function Index() {
   
       const hydrationTime = Date.now();
       const hydrationDuration = hydrationTime - overallStartTime; 
-      
-      addSyncLog(` All local stores hydrated in ${(hydrationDuration/1000).toFixed(1)}s`, 'verbose');
-      if (Platform.OS === 'android') {
-        addSyncLog(`🤖 Android navigation bar hidden + system UI background set btw`, 'verbose');
-      }
 
-      if (!premium) {
-        const totalTime = Date.now() - overallStartTime;
-        addSyncLog(`⚡ App ready for non-premium user in ${(totalTime/1000).toFixed(1)}s`, 'info');
-        return;
-      }                                      
+      if (!premium) return;                                      
       startInitialSync();
       const exportStartTime = Date.now();
       const state = getAllStoreStates();
-      const getAllStoreStatesTime = Date.now();
-      addSyncLog(`💾 getAllStoreStates took ${(getAllStoreStatesTime - exportStartTime)/1000}s`, 'info');
       await exportEncryptedState(state);
        // this is where i will add the option for users to skip the sync on the sync rendering screen
   
@@ -110,7 +91,7 @@ export default function Index() {
         const pullDuration = pullEndTime - pullStartTime;
         
         const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
-        addSyncLog(`📥 ${platformEmoji} Pull phase completed in ${(pullDuration/1000).toFixed(1)}s - got remote data first`, 'success');
+        addSyncLog(`📥 ${platformEmoji} Pull phase completed in ${(pullDuration/1000).toFixed(1)}s - got remote data first`, 'info');
         
         // Push phase timing - PUSH MERGED DATA (local + remote)
         const pushStartTime = Date.now();
@@ -118,24 +99,17 @@ export default function Index() {
         await pushSnapshot();
         const pushEndTime = Date.now();
         const pushDuration = pushEndTime - pushStartTime;
-        addSyncLog(`📤 Push phase completed in ${(pushDuration/1000).toFixed(1)}s source: app/index.tsx - pushed merged data`, 'success');
-        
-        // Total timing breakdown
         const totalTime = Date.now() - overallStartTime;
         const syncTime = totalTime - hydrationDuration;
-        addSyncLog(`⚡ App startup breakdown: Hydration=${(hydrationDuration/1000).toFixed(1)}s, Sync=${(syncTime/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
-        
-        // Complete initial sync tracking and show toast
+        addSyncLog(` App startup breakdown: Push time = ${(pushDuration/1000).toFixed(1)}s, Hydration=${(hydrationDuration/1000).toFixed(1)}s, Sync=${(syncTime/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
+
         completeInitialSync();
         useToastStore.getState().showToast('Synced with workspace', 'success');
       } else {
-        // Complete initial sync even if onboarding not finished
+
         completeInitialSync();
-        const totalTime = Date.now() - overallStartTime;
-        addSyncLog(`⚡ App ready (onboarding pending) in ${(totalTime/1000).toFixed(1)}s`, 'info');
       }
     })().catch(e => {
-      // Make sure to complete sync tracking even on error
       completeInitialSync();
       const totalTime = Date.now() - overallStartTime;
       addSyncLog(`🔥 Startup sync failed after ${(totalTime/1000).toFixed(1)}s: ${e?.message || String(e)}`, 'error');
