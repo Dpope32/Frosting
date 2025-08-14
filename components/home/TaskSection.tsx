@@ -17,9 +17,6 @@ import { EasterEgg } from '../shared/EasterEgg'
 import { ProjectSection } from '@/components/home/ProjectSection'
 import { TaskProgressBar } from '@/components/home/TaskProgressBar'
 
-const DEBUG = true;
-
-
 interface TaskSectionProps {
   todaysTasks: Task[]
   toggleTaskCompletion: (id: string) => void
@@ -42,11 +39,9 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
   
-  // Filter out duplicate task titles, but prioritize completed tasks or keep track of original IDs
   const uniqueTasks = useMemo(() => {
     const taskGroups: Record<string, Task[]> = {};
     
-    // Group tasks by name
     todaysTasks.forEach(task => {
       if (!taskGroups[task.name]) {
         taskGroups[task.name] = [];
@@ -54,48 +49,24 @@ export const TaskSection = React.memo<TaskSectionProps>(({
       taskGroups[task.name].push(task);
     });
     
-    // For each group, select the best task to display
     return Object.values(taskGroups).map(tasks => {
       if (tasks.length === 1) return tasks[0];
       
-      // If there are completed tasks, prioritize the first completed one
       const completedTask = tasks.find(task => task.completionHistory[todayLocalStr]);
       if (completedTask) return completedTask;
       
-      // Otherwise return the first task
       return tasks[0];
     });
   }, [todaysTasks, todayLocalStr]);
   
-  // useEffect(() => {
- //   if (DEBUG) {
- //     log(`todaysTasks updated - count: ${todaysTasks.length}`);
-      
- //     if (todaysTasks.length > 0) {
- //       log('First 3 tasks:');
- //       todaysTasks.slice(0, 3).forEach(task => {
- //         const isCompletedToday = task.completionHistory[todayLocalStr] || false;
- //         log(`- ${task.name} (${task.id}): ${task.recurrencePattern}, completed: ${isCompletedToday}`);
- //       });
- //       const completedTasks = todaysTasks.filter(task => task.completionHistory[todayLocalStr]);
- //       log(`Completed tasks: ${completedTasks.length}`);
- //       completedTasks.forEach(task => {
- //         log(`- ${task.name} (${task.id}): ${task.recurrencePattern}`);
- //       });
- //     }
- //   }
-//  }, [todaysTasks, todayLocalStr]);
 
   const handleToggleTask = React.useCallback((id: string) => {
-    // silent to avoid double haptics (TaskCard already provides instant haptic)
-    // also allows the store to schedule sync without blocking UI
-    // @ts-ignore - older signature remains compatible
-    toggleTaskCompletion(id, { silent: true });
-  }, [toggleTaskCompletion, todaysTasks, todayLocalStr]);
+    toggleTaskCompletion(id);
+  }, [toggleTaskCompletion]);
 
   const handleDeleteTask = React.useCallback((id: string) => {
     deleteTask(id);
-  }, [deleteTask, todaysTasks]);
+  }, [deleteTask]);
 
   const handleTaskListPress = React.useCallback(() => {
     if (RNPlatform.OS !== 'web') {
@@ -118,7 +89,6 @@ export const TaskSection = React.memo<TaskSectionProps>(({
     }, 100); 
   }, []);
 
-  // Clean up timeout on unmount
   React.useEffect(() => {
     return () => {
       if (easterEggTimeout.current) {
@@ -127,12 +97,10 @@ export const TaskSection = React.memo<TaskSectionProps>(({
     };
   }, []);
 
-  // Calculate completed tasks count for progress bar
   const completedTasksCount = React.useMemo(() => {
     return uniqueTasks.filter(task => task.completionHistory[todayLocalStr] || false).length;
   }, [uniqueTasks, todayLocalStr]);
 
-  // Memoize recommendation chips to prevent unnecessary re-renders
   const recommendationChips = React.useMemo(() => (
     <Stack 
       p="$2"
@@ -184,7 +152,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
         >
           <Ionicons
             name="reorder-three-outline"
-            size={isWeb ? 22 : 21}
+            size={isWeb ? 23 : 22}
             color="#dbd0c6"
             style={{
               textShadowColor: 'rgba(219, 208, 198, 0.15)',
@@ -202,8 +170,8 @@ export const TaskSection = React.memo<TaskSectionProps>(({
             <Text
               fontFamily="$body"
               color={isDark ? "#dbd0c6" : "#dbd0c6"}
-              fontSize={RNPlatform.OS === 'web' ? 22 : isIpad() ? 20 : 18}
-              fontWeight="bold"
+              fontSize={RNPlatform.OS === 'web' ? 23 : isIpad() ? 21 : 18}
+              fontWeight="900"
               marginRight={RNPlatform.OS === 'web' ? 20 : 10}
               marginLeft={RNPlatform.OS === 'web' ? 20 : isIpad() ? -30 : -24}
             >
@@ -234,7 +202,6 @@ export const TaskSection = React.memo<TaskSectionProps>(({
         completedTasks={completedTasksCount} 
         totalTasks={uniqueTasks.length} 
       />
-      
       <Stack
         flex={1}
         position="relative"
@@ -307,11 +274,10 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                   paddingBottom={isIpad() ? "$3" : "$2"}
                   justifyContent={isIpad() ? "center" : "flex-start"}
                   borderBottomWidth={1}
-                  borderColor={isDark ? "rgba(29, 29, 29, 0.65)" : "rgba(0, 0, 0, 0.1)"}
+                  borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
                 >
                   {uniqueTasks.map((task: Task) => {
                     const isCompleted = task.completionHistory[todayLocalStr] || false;
-                    
                     return (
                       <Stack 
                         key={task.id} 
@@ -355,7 +321,6 @@ export const TaskSection = React.memo<TaskSectionProps>(({
                   style={{ 
                     width: '100%', 
                     paddingTop: 8, 
-                    paddingBottom: 8, 
                     zIndex: 20, 
                     position: 'relative',
                     marginTop: 4, 

@@ -37,7 +37,6 @@ export const TaskCard = React.memo<TaskCardProps>(({
   onCheck,
   onDelete
 }) => {
-  // Subscribe to primaryColor for reactivity
   const userColor = useUserStore(s => s.preferences.primaryColor);
   const customCategories = useCustomCategoryStore((s) => s.categories);
   let calculatedCategoryColor = category ? getCategoryColor(category as TaskCategory) : '#2196F3';
@@ -49,13 +48,10 @@ export const TaskCard = React.memo<TaskCardProps>(({
   }
   const showToast = useToastStore(s => s.showToast);
   const isDark = useColorScheme() === 'dark';
-
-  // Debouncing and animation refs
   const isProcessingRef = React.useRef(false);
   const animatedScale = React.useRef(new Animated.Value(1)).current;
   const debounceTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  // Optimistic UI for instant visual feedback
   const [optimisticChecked, setOptimisticChecked] = React.useState<boolean>(checked);
   React.useEffect(() => {
     setOptimisticChecked(checked);
@@ -75,14 +71,12 @@ export const TaskCard = React.memo<TaskCardProps>(({
 
   const recurrencePattern = React.useMemo(() => mapStatusToRecurrencePattern(status), [mapStatusToRecurrencePattern, status]);
   const recurrenceColor = React.useMemo(() => getRecurrenceColor(recurrencePattern), [recurrencePattern]);
-
   const baseOpacity = 0.075; 
   
   const { cardBgColor, gradientColors } = React.useMemo(() => {
     let cardBgColor = isDark ? "rgba(22, 22, 22, 0.3)" : "rgba(25, 25, 25, 0.7)"; 
     let gradientColors: readonly [string, string, string] | undefined;
     
-    // Dark mode
     if (isDark && category) {
       let categoryColor = calculatedCategoryColor;
       gradientColors = [
@@ -104,7 +98,6 @@ export const TaskCard = React.memo<TaskCardProps>(({
         withOpacity(recurrenceColor, baseOpacity * 1.3)   // Bottom - brighter
       ] as const;
     } 
-    // Light mode
       else if (!isDark && category) {
       let categoryColor = calculatedCategoryColor;
        gradientColors = [
@@ -167,20 +160,16 @@ export const TaskCard = React.memo<TaskCardProps>(({
   }, [onDelete, showToast, title]);
 
   const handleCheck = React.useCallback(() => {
-    // Prevent multiple rapid taps
     if (isProcessingRef.current) {
       return;
     }
 
-    // Clear any existing timeout
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Set processing flag
     isProcessingRef.current = true;
 
-    // Animate checkbox press
     Animated.sequence([
       Animated.timing(animatedScale, {
         toValue: 0.85,
@@ -194,14 +183,12 @@ export const TaskCard = React.memo<TaskCardProps>(({
       })
     ]).start();
 
-    // ⚡ INSTANT FEEDBACK FIRST - Don't wait for store update
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     const newValue = !optimisticChecked;
     setOptimisticChecked(newValue);
     
-    // Debounce the actual processing
     debounceTimeoutRef.current = setTimeout(() => {
       const toastStart = performance.now();
       if (newValue) {
@@ -210,18 +197,14 @@ export const TaskCard = React.memo<TaskCardProps>(({
       } else {
         showToast("Undo successful", 'success');
       }
-      
       onCheck?.(newValue);
-      
       setTimeout(() => {
         isProcessingRef.current = false;
       }, 300);
-      
     }, 100);
     
   }, [optimisticChecked, onCheck, showToast, title, animatedScale]);
 
-  // Cleanup timeout on unmount
   React.useEffect(() => {
     return () => {
       if (debounceTimeoutRef.current) {
@@ -233,9 +216,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
   return (
     <LongPressDelete 
       onDelete={handleDelete}
-      progressBarStyle={{
-        paddingHorizontal: 8
-      }}
+      progressBarStyle={{paddingHorizontal: isIpad() ? 10 : 8}}
       longPressDuration={800}
       isDark={isDark}
     >
@@ -250,7 +231,6 @@ export const TaskCard = React.memo<TaskCardProps>(({
         style={{
           borderLeftWidth: 2.5,
           borderLeftColor: calculatedCategoryColor,
-
           position: 'relative',
           overflow: 'hidden',
           ...(Platform.OS === 'web' ? {
@@ -293,7 +273,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
             <Text 
               fontFamily="$body"
               color="rgb(232, 230, 227)" 
-              fontSize={isIpad() ? 15 : 13}
+              fontSize={isIpad() ? 16 : 14}
               fontWeight="500"
               opacity={optimisticChecked ? 0.6 : 1}
               style={{

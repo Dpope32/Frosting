@@ -35,6 +35,7 @@ import { isIpad } from '@/utils';
 import type { Attachment, Tag } from '@/types'
 import { formatBold, formatItalic, formatUnderline, formatCode, formatBullet } from '@/services';
 import { createFormattingHandler } from '@/services';
+import { createActionHandler } from '@/services/tasks/taskPress';
 import { useHabits } from '@/hooks';
 import { useBills } from '@/hooks/useBills';
 import { SettingsModal } from '@/components/cardModals/SettingsModal/SettingsModal';
@@ -57,10 +58,7 @@ export const LandingPage = React.memo(() => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
-  const backgroundColor = React.useMemo(() => 
-    isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)", 
-    [isDark]
-  )
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.1)",[isDark])
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
@@ -92,13 +90,10 @@ export const LandingPage = React.memo(() => {
   const handleUnderline = createFormattingHandler(formatUnderline, selection, setNoteContent);
   const handleCode = createFormattingHandler(formatCode, selection, setNoteContent);
   const handleBullet = createFormattingHandler(formatBullet, selection, setNoteContent);
-  const openStockModal = useEditStockStore(s => s.openModal)
   const { addHabit } = useHabits();
-  const projects = useProjectsStore(s => s.projects);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [wallpaperErrorChecked, setWallpaperErrorChecked] = useState(false);
 
-  // Effect hooks
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsMounted(true)
@@ -168,63 +163,26 @@ export const LandingPage = React.memo(() => {
     if (Platform.OS !== 'web') {Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
   }
 
-  const handleActionPress = useCallback((action: string) => {
-    switch (action) {
-      case 'bt_password':
-        setVaultModalOpen(true);
-        break;
-      case 'bt_habit':
-        setHabitModalOpen(true);
-        break;
-      case 'bt_note':
-        setNoteModalOpen(true);
-        break;
-      case 'bt_bill':
-        setBillModalOpen(true);
-        break;
-      case 'bt_event':
-        setSelectedDate(new Date());
-        setEventModalOpen(true);
-        break;
-      case 'bt_todo':
-        setSheetOpen(true);
-        break;
-      case 'bt_contact':
-        setContactModalOpen(true);
-        break;
-      case 'bt_stock':
-        useEditStockStore.getState().openModal(undefined, true);
-        break;
-      case 'bt_project':
-        setProjectModalOpen(true);
-        break;
-    }
-  }, []);
+  const handleActionPress = useCallback(
+    createActionHandler({ setVaultModalOpen, setHabitModalOpen, setNoteModalOpen, setBillModalOpen, setSelectedDate, setEventModalOpen, setSheetOpen, setContactModalOpen, setProjectModalOpen }),
+    []
+  );
 
-  // Calculate YStack padding top in a readable way
   let ptop: number;
-  if (isIpad()) {
-    // ipad
-    ptop = isDark ? 30 : 30;
-  } else if (isWeb) {
-    // web
-    ptop = 100;
-  } else {
-    // mobile
-    ptop = isDark ? 100 : 90;
-  }
-  const filteredProjects = projects.filter((project) => project.status !== 'completed')
+  if (isIpad()) ptop = isDark ? 30 : 30;
+  else if (isWeb) ptop = 100;
+  else ptop = isDark ? 110 : 100;
 
   return (
     <Stack flex={1} backgroundColor="black">
       <BackgroundSection />
       <StarsAnimation />
-      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$2"} paddingBottom={120} showsVerticalScrollIndicator={false} >
+      <ScrollView flex={1} paddingHorizontal={isWeb ? "$4" : isIpad() ? "$4" : "$3"} paddingBottom={120} showsVerticalScrollIndicator={false} >
         <YStack pt={ptop} gap="$3" >
           {!isWeb && (
             <Stack 
-              borderRadius={16} p="$3" width="100%" backgroundColor={backgroundColor} 
-              borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"}  borderWidth={1}
+              borderRadius={24} p={isWeb ? "$4" : isIpad() ? "$4" : "$3"} width="100%" backgroundColor={backgroundColor} 
+              borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}  borderWidth={1}
             >
               <CardSection 
                 onPortfolioPress={handlePortfolioPress} 
@@ -237,14 +195,24 @@ export const LandingPage = React.memo(() => {
           )}
         <Stack 
           backgroundColor={backgroundColor} 
-          borderRadius={16} 
-          padding="$3" 
-          borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"} 
+          borderRadius={24} 
+          padding={isIpad() ? "$3" : "$2"} 
+          borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"} 
           borderWidth={1}
-          style={Platform.OS === 'web'  ? { backdropFilter: 'blur(12px)',
-                boxShadow: isDark  ? '0px 4px 24px rgba(0, 0, 0, 0.45), inset 0px 0px 1px rgba(255, 255, 255, 0.12)'   : '0px 4px 24px rgba(0, 0, 0, 0.15), inset 0px 0px 1px rgba(255, 255, 255, 0.2)' } 
-            : {  shadowColor: isDark ? "#000" : "rgba(0, 0, 0, 0.15)", 
-                shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35,  shadowRadius: 12  }
+          style={Platform.OS === 'web'  ? { 
+                backdropFilter: 'blur(20px) saturate(1.3)',
+                WebkitBackdropFilter: 'blur(20px) saturate(1.3)',
+                boxShadow: isDark  
+                  ? '0px 8px 32px rgba(0, 0, 0, 0.6), inset 0px 1px 0px rgba(255, 255, 255, 0.15)'   
+                  : '0px 8px 32px rgba(0, 0, 0, 0.25), inset 0px 1px 0px rgba(255, 255, 255, 0.3)' 
+              } 
+            : {  
+                shadowColor: isDark ? "rgba(0, 0, 0, 0.8)" : "rgba(0, 0, 0, 0.2)", 
+                shadowOffset: { width: 0, height: 8 }, 
+                shadowOpacity: 0.4,  
+                shadowRadius: 16,
+                elevation: 8
+              }
           }
         >
           {projectHydrated ? (
@@ -261,9 +229,7 @@ export const LandingPage = React.memo(() => {
             </Stack>
           )} 
         </Stack>
-
         {showQuoteOnHome && <DailyQuoteDisplay />}
-         
           {Platform.OS === 'web' ?  (
             <Animated.View entering={FadeIn.duration(600)}>
               <Stack 
@@ -271,7 +237,7 @@ export const LandingPage = React.memo(() => {
                 borderRadius={16} 
                 padding="$4" 
                 marginTop="$2" 
-                borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.1)"} 
+                borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"} 
                 borderWidth={1} 
                 minWidth={300}
                 style={{

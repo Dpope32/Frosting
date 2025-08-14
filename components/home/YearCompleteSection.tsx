@@ -15,12 +15,8 @@ export function YearCompleteSection() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [showEasterEgg, setShowEasterEgg] = useState(false);
-  
-  // Animation values for press effect
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
-  
-  // Timer ref for 3-second delay
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
   
   const { percentage, currentYear } = useMemo(() => {
@@ -50,10 +46,8 @@ export function YearCompleteSection() {
     scale.value = withSpring(0.98, { damping: 15, stiffness: 300 });
     opacity.value = withTiming(0.8, { duration: 150 });
     
-    // Start 3-second timer
     timerRef.current = setTimeout(() => {
       setShowEasterEgg(true);
-      // Clear timer ref after it fires
       timerRef.current = null;
     }, 3000);
   };
@@ -62,7 +56,6 @@ export function YearCompleteSection() {
     scale.value = withSpring(1, { damping: 15, stiffness: 300 });
     opacity.value = withTiming(1, { duration: 150 });
     
-    // Clear timer if press is released before 3 seconds
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -75,14 +68,12 @@ export function YearCompleteSection() {
 
   const handleEasterEggEnd = () => {
     setShowEasterEgg(false);
-    // Ensure timer is cleared when easter egg ends
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
   };
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -91,9 +82,7 @@ export function YearCompleteSection() {
     };
   }, []);
 
-  if (Platform.OS === 'web') {
-    return null;
-  }
+  if (Platform.OS === 'web') return null;
 
   return (
     <>
@@ -104,7 +93,7 @@ export function YearCompleteSection() {
         justifyContent="flex-end"
         br={16}
         px="$3"
-        pb="$4"
+        pb={isIpad() ? "$4" : "$2"}
         pt={isIpad() ? "$3.5" : "$3"}
       >
         <Pressable
@@ -128,7 +117,18 @@ export function YearCompleteSection() {
               position="relative"
             >
               <LinearGradient 
-                colors={['#2193b0', '#6dd5ed', '#56ab2f', '#ff8c00', '#c53935', '#2193b0',]}
+                colors={[
+                  '#4a90e2', 
+                  '#87ceeb', 
+                  '#98d982', 
+                  '#66bb6a',  
+                  '#ffeb3b',  
+                  '#ff9800', 
+                  '#f4511e', 
+                  '#d32f2f',  
+                  '#8e24aa',  
+                  '#4a90e2'  
+                ]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%" }}
@@ -155,7 +155,7 @@ export function YearCompleteSection() {
                 {percentage < 100 ? (
                   <Text
                     color="#dbd0c6"
-                    fontSize={14}
+                    fontSize={15}
                     fontWeight="bold"
                     style={{
                       textShadowColor: 'rgba(0, 0, 0, 0.7)',

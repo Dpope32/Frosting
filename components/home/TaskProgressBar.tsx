@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Platform, useColorScheme, View } from 'react-native';
-import { YStack, Stack, Text, isWeb } from 'tamagui';
+import { YStack, Stack, isWeb } from 'tamagui';
 import { LinearGradient } from 'expo-linear-gradient';
+import { isIpad } from '@/utils';
 
-// Conditionally import Reanimated functions
 let Animated: any = null;
 let useSharedValue: any = null;
 let useAnimatedStyle: any = null;
@@ -23,8 +23,6 @@ if (Platform.OS === 'ios' || Platform.OS === 'android') {
   }
 }
 
-import { isIpad } from '@/utils';
-
 interface TaskProgressBarProps {
   completedTasks: number;
   totalTasks: number;
@@ -33,19 +31,13 @@ interface TaskProgressBarProps {
 export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  
-  // Calculate percentage
   const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-  
-  // Animated values - only create if not on web and Reanimated is available
   const progress = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
   const scale = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0.8) : null;
   const opacity = Platform.OS !== 'web' && useSharedValue ? useSharedValue(0) : null;
 
-  // Animation when percentage changes
   useEffect(() => {
     if (Platform.OS !== 'web' && opacity && scale && progress && withTiming && withSpring) {
-      // Entry animation
       opacity.value = withTiming(1, { duration: 200 });
       scale.value = withSpring(1, { damping: 20, stiffness: 300 });
       
@@ -56,7 +48,6 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
     }
   }, [percentage, opacity, scale, progress, withTiming, withSpring]);
 
-  // Animated styles - only create if not on web and Reanimated is available
   const containerStyle = Platform.OS !== 'web' && useAnimatedStyle && opacity && scale
     ? useAnimatedStyle(() => ({
         opacity: opacity.value,
@@ -70,7 +61,6 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
       }))
     : { width: `${percentage}%` };
 
-  // Don't render if no tasks or only 1 task
   if (totalTasks <= 1) {
     return null;
   }
@@ -91,7 +81,7 @@ export function TaskProgressBar({ completedTasks, totalTasks }: TaskProgressBarP
       >
         <Stack
           width="100%"
-          height={isWeb ? 18 : isIpad() ? 16 : 12}
+          height={isWeb ? 20 : isIpad() ? 18 : 14}
           br={12}
           overflow="hidden"
           borderWidth={1}

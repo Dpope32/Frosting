@@ -9,10 +9,7 @@ export function DailyQuoteDisplay() {
   const { data, isLoading, isError } = useStoicQuote()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const backgroundColor = React.useMemo(() => 
-    isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)", 
-    [isDark]
-  )
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.95)" : "rgba(0, 0, 0, 0.45)", [isDark])
 
   if (isLoading) {
     return (
@@ -20,7 +17,7 @@ export function DailyQuoteDisplay() {
         backgroundColor={backgroundColor}
         borderRadius={16}
         padding="$3"
-        borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"}
+        borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
         borderWidth={1}
         marginBottom="$2"
         style={Platform.OS === 'web' ? {
@@ -81,8 +78,8 @@ export function DailyQuoteDisplay() {
     <Animated.View entering={FadeIn.duration(600)}>
       <YStack
         backgroundColor={backgroundColor}
-        borderRadius={16}
-        padding="$4"
+        borderRadius={24}
+        padding={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"}
         borderColor={isDark ? "rgba(255, 255, 255, 0.06)" : "rgba(255, 255, 255, 0.0)"}
         borderWidth={1}
         marginBottom="$2"
@@ -98,8 +95,7 @@ export function DailyQuoteDisplay() {
           shadowRadius: 12
         }}
       >
-        
-        {/* Web layout: Quote and author on same line */}
+
         {isWeb ? (
           <XStack gap="$2" alignItems="flex-end" justifyContent="space-between" flexWrap="wrap">
             <Text 
@@ -126,12 +122,11 @@ export function DailyQuoteDisplay() {
             </Text>
           </XStack>
         ) : (
-          /* Mobile/iPad layout: Author below quote */
           <YStack gap="$2" alignItems="center">
             <Text 
               fontFamily="$body" 
               color={isDark ? "#fff" : "#fff"} 
-              fontSize={isIpad() ? 15 : 14} 
+              fontSize={isIpad() ? 16 : 15} 
               fontWeight="500"
               lineHeight={22}
               textAlign="center"
@@ -141,12 +136,12 @@ export function DailyQuoteDisplay() {
             <Text 
               fontFamily="$body" 
               color={isDark ? "#a0a0a0" : "#d0d0d0"} 
-              fontSize={isIpad() ? 13 : 12} 
+              fontSize={isIpad() ? 14 : 13} 
               fontWeight="500"
               textAlign="center"
               mt="$2"
             >
-              — {data.data.author}
+              — {data.data.author?.length > 20 ? data.data.author?.slice(0, 20) + '...' : data.data.author}
             </Text>
           </YStack>
         )}

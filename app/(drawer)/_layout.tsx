@@ -73,7 +73,7 @@ export default function DrawerLayout() {
       drawerInactiveTintColor: inactiveColor,
       drawerActiveBackgroundColor: isDark  ? `${primaryColor}99`  : Platform.OS === 'web' ? primaryColor : `${primaryColor}ee`,
       drawerItemStyle: { paddingVertical: 0, paddingLeft: 0, marginBottom: 8, borderRadius: 20 },
-      drawerLabelStyle: { fontSize: isIpadDevice ? 18 : 16, fontWeight: "600" as const, marginLeft: -8 },
+      drawerLabelStyle: { fontSize: isIpadDevice ? 20 : 18, fontWeight: "700" as const, marginLeft: -8 },
       drawerContentStyle: { backgroundColor },
       drawerType: isPermanentDrawer ? 'permanent' as const : 'back' as const,
       defaultStatus: isPermanentDrawer ? 'open' : 'closed',
