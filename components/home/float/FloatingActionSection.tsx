@@ -6,24 +6,12 @@ import { useUserStore } from '@/store';
 import { isIpad } from '@/utils';
 import { Text, YStack, XStack } from 'tamagui';
 import { Animated } from 'react-native';
+import { ACTIONS } from '@/constants/actions';
 
 interface FloatingActionSectionProps {
   onActionPress: (name: string) => void;
   isDark: boolean;
 }
-
-const ACTIONS = [
-  { name: 'bt_contact', label: 'Contact', icon: 'contact-page', gradient: ['#667eea', '#764ba2'] },
-  { name: 'bt_password', label: 'Password', icon: 'lock', gradient: ['#f093fb', '#f5576c'] },
-  { name: 'bt_stock', label: 'Stock', icon: 'show-chart', gradient: ['#4facfe', '#00f2fe'] },
-  { name: 'bt_habit', label: 'Habit', icon: 'repeat', gradient: ['#43e97b', '#38f9d7'] },
-  { name: 'bt_note', label: 'Note', icon: 'sticky-note-2', gradient: ['#fa709a', '#fee140'] },
-  { name: 'bt_project', label: 'Project', icon: 'folder', gradient: ['#a8edea', '#fed6e3'] },
-  { name: 'bt_bill', label: 'Bill', icon: 'currency-exchange', gradient: ['#ffecd2', '#fcb69f'] },
-  { name: 'bt_event', label: 'Event', icon: 'calendar-month', gradient: ['#667eea', '#764ba2'] },
-  { name: 'bt_todo', label: 'ToDo', icon: 'check-box', gradient: ['#a18cd1', '#fbc2eb'] },
-];
-
 
 export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ onActionPress, isDark }) => {
   const primaryColor = useUserStore(s => s.preferences.primaryColor);
@@ -296,7 +284,6 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
     };
   }, [clearTimeouts, animationRefs]);
 
-  // Optimized modal rendering with fewer re-renders
   const renderModal = useMemo(() => {
     if (!open) return null;
     
@@ -356,13 +343,13 @@ export const FloatingActionSection = React.memo<FloatingActionSectionProps>(({ o
                     accessibilityLabel={action.label}
                     testID={`action-${action.name}`}
                   >
-                    <XStack alignItems="center" gap="$2" flex={1}>
+                    <XStack alignItems="center" gap="$1" flex={1}>
                       <View style={styles.iconContainer}>
                         <MaterialIcons name={action.icon as any} size={staticValues.iconSize} color={action.gradient[0]} />
                       </View>
                       <Text 
                         color={isDark ? '#f9f9f9' : '#222'} 
-                        fontSize={14} 
+                        fontSize={isWeb ? isIpad() ? 17 : 16 : 15} 
                         fontFamily="$body"
                         fontWeight="600"
                         flex={1}
