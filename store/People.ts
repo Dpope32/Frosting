@@ -89,9 +89,8 @@ export const usePeopleStore = create<PeopleStore>()(
                   
                 } catch (err: unknown) {
                   addSyncLog(`🔴 [PeopleStore] birthday sync setup failed: ${err}`, 'error')
-                  console.error('🔴 [PeopleStore] birthday sync setup error:', err)
                 }
-              }, 800) // Increased from 500ms to 800ms for smoother UI
+              }, 200) 
             } else if (personWithId.birthday && SKIP_BIRTHDAY_SYNC) {
               addSyncLog(`[PeopleStore] Birthday sync skipped for ${personWithId.name} (SKIP_BIRTHDAY_SYNC=true)`, 'warning')
             }
