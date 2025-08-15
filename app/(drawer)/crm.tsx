@@ -55,16 +55,9 @@ export default function CRM() {
 
   const handleSaveEdit = async (updatedPerson: Person) => {
     if (selectedPerson) {
-      // Only pass the fields that have actually changed
-      const changes: Partial<Person> = {};
-      Object.keys(updatedPerson).forEach((key) => {
-        const typedKey = key as keyof Person;
-        if (updatedPerson[typedKey] !== selectedPerson[typedKey]) {
-          (changes as any)[typedKey] = updatedPerson[typedKey];
-        }
-      });
-      
-      await updatePerson(updatedPerson.id, changes);
+      // Pass all the updated person data to ensure profile picture and other changes are applied
+      const { id, createdAt, ...updates } = updatedPerson;
+      await updatePerson(updatedPerson.id, updates);
     }
     handleCloseEdit();
   };

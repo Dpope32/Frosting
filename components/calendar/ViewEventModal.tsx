@@ -9,6 +9,7 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { CalendarEvent, useToastStore } from '@/store'
 import { EventPreview } from './EventPreview'
 import { styles } from './EventStyles'
+import { isIpad } from '@/utils'
 
 interface ViewEventModalProps {
   isViewEventModalVisible: boolean;
@@ -41,6 +42,82 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
   const screenHeight = Dimensions.get('window').height
   const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 800) : Math.min(screenWidth * 0.9, 400)}
 
+  // Calculate dynamic height based on number of events
+  const calculateDynamicHeight = () => {
+    if (!selectedEvents || selectedEvents.length === 0) {
+      // Empty state: minimal height
+      return Math.min(screenHeight * 0.35, 280)
+    }
+
+    // Filter unique events first
+    const uniqueEvents = selectedEvents
+      .slice()
+      .filter((event, index, array) => {
+        return array.findIndex(e => 
+          e.title === event.title && 
+          e.date === event.date && 
+          e.time === event.time
+        ) === index;
+      })
+
+    // Estimate height per event card more accurately
+    const estimateEventHeight = (event: CalendarEvent) => {
+      let baseHeight = 75 // More precise base height for title and padding
+      
+      // Add height for description if present
+      if (event.description) {
+        const descriptionLines = Math.ceil(event.description.length / 40)
+        baseHeight += Math.min(descriptionLines * 18, 36) // Max 2 lines
+      }
+      
+      // Add height for chips (time, type, priority) - they're in the same row
+      if ((event.time && event.type !== 'birthday') || 
+          (event.type && event.type !== 'birthday') || 
+          (event.priority && event.type !== 'birthday')) {
+        baseHeight += 30 // Height for chip row
+      }
+      
+      return baseHeight + 10 // Margin between events
+    }
+
+    const totalEventsHeight = uniqueEvents.reduce((total, event) => {
+      return total + estimateEventHeight(event)
+    }, 0)
+
+    // Fixed heights - more precise measurements
+    const headerHeight = 50  // Reduced header space
+    const paddingAndMargins = 24  // Reduced padding
+    const floatingButtonSpace = 50  // Reduced button space
+    const baseModalPadding = 16  // Base modal padding
+
+    const calculatedHeight = headerHeight + totalEventsHeight + paddingAndMargins + floatingButtonSpace + baseModalPadding
+
+    // More nuanced constraints based on event count
+    let minHeight, maxHeight
+    
+    if (uniqueEvents.length === 1) {
+      minHeight = 200  // Much smaller for single events
+      maxHeight = Math.min(screenHeight * 0.5, 400)
+    } else if (uniqueEvents.length <= 3) {
+      minHeight = 250
+      maxHeight = Math.min(screenHeight * 0.6, 500)
+    } else if (uniqueEvents.length <= 6) {
+      // For 4-6 events, use calculated height more directly with tighter constraints
+      minHeight = Math.min(calculatedHeight, 350)
+      maxHeight = Math.min(screenHeight * 0.7, 600)
+    } else {
+      minHeight = 400
+      maxHeight = screenHeight * 0.85
+    }
+
+    // For medium event counts, prefer calculated height over minHeight if it's reasonable
+    if (uniqueEvents.length >= 4 && uniqueEvents.length <= 6) {
+      return Math.min(Math.max(calculatedHeight, 300), maxHeight)
+    }
+
+    return Math.max(minHeight, Math.min(calculatedHeight, maxHeight))
+  }
+
   const handleDeleteEventWithConfirmation = (eventId: string) => {
     if (isWeb) {
       if (window.confirm('Are you sure you want to remove this event?')) {
@@ -72,6 +149,7 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
   if (!isViewEventModalVisible) return null
 
   const modalWidth = getViewModalMaxWidth()
+  const dynamicHeight = calculateDynamicHeight()
   
   return (
     <Animated.View 
@@ -93,17 +171,18 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
               backgroundColor: isDarkMode ? '#141415' : '#fff',
               borderColor: isDarkMode ? '#3c3c3c' : '#1c1c1c',
               width: modalWidth,
-              height: screenHeight * 0.8,
+              height: dynamicHeight,
               paddingHorizontal: 16,
               paddingVertical: 8,
             }
           ]}
         >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 6, alignItems: 'center', marginBottom: 12, paddingLeft: 6 }}>
                   <Text
-                    fontSize={20}
+                    fontSize={isIpad() ? 22 : 20}
                     fontWeight="700"
                     color={isDarkMode ? "#fffaef" : "black"}
+                    fontFamily="$body"
                   >
                     {`Events for ${selectedDate?.toLocaleDateString() || ''}`}
                   </Text>
@@ -112,50 +191,83 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
                   </TouchableOpacity>
                 </View>
 
-                {/* Content */}
+
                 <View style={{ flex: 1 }}>
                   <ScrollView
                     style={{ flex: 1 }}
                     contentContainerStyle={{ 
-                      paddingBottom: 60,  // Space for + button
-                      flexGrow: 1,
+                      paddingBottom: selectedEvents && selectedEvents.length === 1 ? 20 : 
+                                    selectedEvents && selectedEvents.length <= 6 ? 25 : 30,
+                      paddingTop: selectedEvents && selectedEvents.length === 1 ? 8 : 0,
+                      flexGrow: selectedEvents && selectedEvents.length > 0 ? 0 : 1, // Only grow when empty
                     }}
-                    showsVerticalScrollIndicator={true}
-                    bounces={true}
+                    showsVerticalScrollIndicator={selectedEvents && selectedEvents.length > 3} // Show scrollbar only when needed
+                    bounces={selectedEvents && selectedEvents.length > 1}
                   >
-                    {selectedEvents
-                      ?.slice()
-                      .filter((event, index, array) => {
-                        return array.findIndex(e => 
-                          e.title === event.title && 
-                          e.date === event.date && 
-                          e.time === event.time
-                        ) === index;
-                      })
-                      .sort((a, b) => {
-                        if (!a.time && !b.time) return 0;
-                        if (!a.time) return 1; 
-                        if (!b.time) return -1; 
-                        const timeA = parse(a.time, 'h:mm a', selectedDate || new Date());
-                        const timeB = parse(b.time, 'h:mm a', selectedDate || new Date());
-                        return timeB.getTime() - timeA.getTime(); 
-                      })
-                      .map((event) => (
-                        <Animated.View
-                          key={event.id}
-                          entering={FadeIn.duration(300).delay(100)}
-                          exiting={FadeOut.duration(300).delay(100)}
-                          style={{ marginBottom: 10 }}
+                    {selectedEvents && selectedEvents.length > 0 ? (
+                      selectedEvents
+                        .slice()
+                        .filter((event, index, array) => {
+                          return array.findIndex(e => 
+                            e.title === event.title && 
+                            e.date === event.date && 
+                            e.time === event.time
+                          ) === index;
+                        })
+                        .sort((a, b) => {
+                          if (!a.time && !b.time) return 0;
+                          if (!a.time) return 1; 
+                          if (!b.time) return -1; 
+                          const timeA = parse(a.time, 'h:mm a', selectedDate || new Date());
+                          const timeB = parse(b.time, 'h:mm a', selectedDate || new Date());
+                          return timeB.getTime() - timeA.getTime(); 
+                        })
+                        .map((event) => (
+                          <Animated.View
+                            key={event.id}
+                            entering={FadeIn.duration(300).delay(100)}
+                            exiting={FadeOut.duration(300).delay(100)}
+                            style={{ marginBottom: 10 }}
+                          >
+                            <EventPreview
+                              event={event}
+                              onEdit={() => onEdit(event)}
+                              onDelete={() => handleDeleteEventWithConfirmation(event.id)}
+                              isDark={isDark}
+                              primaryColor={primaryColor}
+                            />
+                          </Animated.View>
+                        ))
+                    ) : (
+                      <View style={{ 
+                        flex: 1, 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        paddingVertical: 40
+                      }}>
+                        <MaterialIcons 
+                          name="event-note" 
+                          size={48} 
+                          color={isDarkMode ? '#666' : '#ccc'} 
+                          style={{ marginBottom: 16 }}
+                        />
+                        <Text 
+                          fontSize={16} 
+                          color={isDarkMode ? '#999' : '#666'}
+                          textAlign="center"
                         >
-                          <EventPreview
-                            event={event}
-                            onEdit={() => onEdit(event)}
-                            onDelete={() => handleDeleteEventWithConfirmation(event.id)}
-                            isDark={isDark}
-                            primaryColor={primaryColor}
-                          />
-                        </Animated.View>
-                      ))}
+                          No events for this date
+                        </Text>
+                        <Text 
+                          fontSize={14} 
+                          color={isDarkMode ? '#666' : '#999'}
+                          textAlign="center"
+                          marginTop={8}
+                        >
+                          Tap the + button to add your first event
+                        </Text>
+                      </View>
+                    )}
                   </ScrollView>
                   
                   <TouchableOpacity

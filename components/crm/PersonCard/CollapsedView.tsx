@@ -118,21 +118,32 @@ export default function CollapsedView({
               borderColor: nicknameColor,
               backgroundColor: isDark
                 ? getDarkerHslColor(nicknameColor)
-                :  getLighterHslColor(nicknameColor)
+                :  getLighterHslColor(nicknameColor),
+              position: 'relative'
             },
             applyWebStyle('card')
           ] as any}
         >
-          <XStack alignItems="center" gap="$3" style={styles.cardContent as any}>
+          {person.favorite && (
+            <View style={styles.heartIndicator as any}>
+              <Ionicons
+                name="heart"
+                size={16}
+                color="#4CAF50"
+              />
+            </View>
+          )}
+          <XStack alignItems="center" gap="$1" style={styles.cardContent as any}>
             <View style={[styles.avatarContainer, applyWebStyle('avatarContainer')] as any}>
               <View style={[styles.avatarWrapper, applyWebStyle('avatarWrapper')] as any}>
                 {person.profilePicture && !imageLoadFailed ? (
                   <Image
                     source={{ uri: person.profilePicture }}
-                    width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34}
-                    height={Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34}
-                    br={Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27}
+                    width={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 40}
+                    height={Platform.OS === 'web' ? 80 : isIpad() ? 60 : 40}
+                    br={Platform.OS === 'web' ? 40 : isIpad() ? 30 : 20}
                     style={styles.avatarImage as any}
+                    key={`avatar-${person.id}-${person.updatedAt || 'initial'}`}
                     onError={() => {
                       setImageLoadFailed(true);
                     }}
@@ -140,9 +151,9 @@ export default function CollapsedView({
                 ) : (
                   <View
                     style={{
-                      width: Platform.OS === 'web' ? 80 : isIpad() ? 60 : 34,
-                      height: Platform.OS === 'web' ? 60 : isIpad() ? 40 : 34,
-                      borderRadius: Platform.OS === 'web' ? 30 : isIpad() ? 30 : 27,
+                      width: Platform.OS === 'web' ? 80 : isIpad() ? 60 : 40,
+                      height: Platform.OS === 'web' ? 80 : isIpad() ? 60 : 40,
+                      borderRadius: Platform.OS === 'web' ? 40 : isIpad() ? 30 : 20,
                       backgroundColor: nicknameColor,
                       justifyContent: 'center',
                       alignItems: 'center',
@@ -151,7 +162,7 @@ export default function CollapsedView({
                     <Text
                       style={{
                         color: isDark ? '#000' : '#fff',
-                        fontSize: Platform.OS === 'web' ? 32 : isIpad() ? 24 : 16,
+                        fontSize: Platform.OS === 'web' ? 34 : isIpad() ? 26 : 18,
                         fontWeight: 'bold',
                         textAlign: 'center',
                       }}
@@ -169,17 +180,9 @@ export default function CollapsedView({
             </View>
             <View style={styles.textContainer as any}>
               <XStack key="name-row" alignItems="center" gap="$1">
-                {person.favorite && (
-                  <Ionicons
-                    name="heart"
-                    size={14}
-                    color="#4CAF50"
-                    style={styles.checkmark as any}
-                  />
-                )}
                 <Paragraph
                   fontWeight="600"
-                  fontSize={isWeb ? 18 : isIpad() ? 18 : 16}
+                  fontSize={isWeb ? 19 : isIpad() ? 19 : 17}
                   color={isDark ? adjustColor(nicknameColor, 250) : adjustColor(nicknameColor, -40)}
                   numberOfLines={1}
                   ellipsizeMode="tail"

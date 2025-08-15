@@ -25,7 +25,7 @@ const webSpecificStyles = Platform.OS === 'web' ? {
 // Create the styles with platform-specific overrides
 export const styles = StyleSheet.create({
   container: {
-    marginVertical: Platform.OS === 'web' ? 6 : 4,
+    marginVertical: Platform.OS === 'web' ? 4 : 2,
     marginHorizontal: Platform.OS === 'web' ? 0 : 0,
     ...(Platform.OS === 'web' ? { 
       maxWidth: '100%' as any, // Changed back to 100% since we're handling columns in the parent component
@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: Platform.OS === 'web' ? 'auto' as any : 'auto',
     justifyContent: 'center',
-    marginLeft: Platform.OS === 'web' ? 12 : isIpad() ? 8 : 2,
+    marginLeft: Platform.OS === 'web' ? 8 : isIpad() ? 6 : 4,
   },
   nameText: {
     flexShrink: 1,
@@ -195,15 +195,14 @@ export const styles = StyleSheet.create({
     borderColor: "#FFD700"
   },
   checkmark: {
-    marginRight: 0, // Restored from 0 to -4 as requested
+    marginRight: 0,
     marginLeft: -20,
-    backgroundColor: 'rgba(111, 255, 44, 0.1)',
-    borderRadius: 12,
-    shadowColor: 'rgba(111, 255, 44, 0.1)',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  },
+  heartIndicator: {
+    position: "absolute",
+    top: Platform.OS === 'web' ? 8 : 6,
+    right: Platform.OS === 'web' ? 8 : 6,
+    zIndex: 10,
   },
   overlay: {
     backgroundColor: "rgba(0,0,0,0.3)"

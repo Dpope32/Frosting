@@ -8,7 +8,6 @@ import { PaymentMethodSection } from './PaymentMethodSection'
 import { TagSelector } from '@/components/notes/TagSelector'
 import type { FormContentProps } from './types'
 import type { Tag } from '@/types'
-import { useAutoFocus } from '@/hooks/useAutoFocus'
 
 // Helper function to convert yyyy-MM-dd to MM/DD/YYYY for display
 const formatBirthdayForDisplay = (birthday: string): string => {
@@ -45,7 +44,6 @@ export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const nameRef = useRef<DebouncedInputHandle>(null)
-  useAutoFocus(nameRef, 1000, isVisible)
   const birthdayRef = useRef<TextInput>(null)
   const phoneRef = useRef<DebouncedInputHandle>(null)
   const emailRef = useRef<DebouncedInputHandle>(null)
@@ -66,7 +64,7 @@ export const FormContent = React.memo(forwardRef<ScrollView, FormContentProps>((
     >
       <YStack 
         gap="$4" 
-        p="$4"
+        p={isWeb ? "$3" : "$2"}
         pt="$3"
         width={isWeb ? (isSmallScreen ? '100%' : '600px') : '100%'}
       >
