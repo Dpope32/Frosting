@@ -32,7 +32,7 @@ export function ProfileSection({
         <Pressable onPress={onPickImage}>
           <Image
             source={{ uri: profilePicture }}
-            style={{ width: 90, height: 90, borderRadius: 45 }}
+            style={{ width: 90, height: 90, borderRadius: 45, borderWidth: 1, borderColor: "white" }}
           />
         </Pressable>
       ) : (
@@ -41,6 +41,7 @@ export function ProfileSection({
           backgroundColor={isDark ? "#333333" : "#E0E0E0"}
           pressStyle={{ backgroundColor: isDark ? "#444444" : "#D0D0D0" }}
           onPress={onPickImage}
+          style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 45 }}  
         >
           <Text fontSize={24} color={isDark ? "#888888" : "#666666"} fontFamily="$body">+</Text>
         </Circle>

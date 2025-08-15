@@ -180,6 +180,7 @@ function renderContent(person: Person, isDark: boolean, nicknameColor: string, f
               source={{ uri: person.profilePicture }}
               style={styles.avatar}
               objectFit="cover"
+              key={`expanded-avatar-${person.id}-${person.updatedAt || 'initial'}`}
               onError={() => {
                 setImageLoadFailed(true);
               }}

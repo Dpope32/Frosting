@@ -21,7 +21,7 @@ import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
 import { IncomeModal } from './cardModals/edits/IncomeModal';
 import { useCalendarViewStore, useCalendarStore } from '@/store';
-import { useUserStore } from '@/store';
+
 import { isIpad } from '@/utils';
 import { Bill, VaultEntry } from '@/types';
 import { Legend } from '@/components/calendar/Legend';

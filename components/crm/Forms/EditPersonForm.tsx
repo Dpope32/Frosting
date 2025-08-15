@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Button, Text } from "tamagui";
+import { Button, Text, isWeb } from "tamagui";
 import { useImagePicker } from "@/hooks";
 import { BaseCardModal } from "@/components/baseModals/BaseCardModal";
 import { Platform, useColorScheme } from "react-native";
@@ -73,9 +73,7 @@ export function EditPersonForm({
     }
   };
 
-  const handleClose = () => {
-    onClose();
-  };
+  const handleClose = () => { onClose()};
 
   const updatePaymentUsername = useCallback((text: string): void => {
     setPaymentUsername(text);
@@ -100,6 +98,7 @@ export function EditPersonForm({
       title="Edit Person"
       onOpenChange={onClose}
       open={visible}
+      snapPoints={isWeb ? [85] : [79]}
       showCloseButton={true}
       hideHandle={true}
         footer={

@@ -1,8 +1,10 @@
 import React from 'react';
-import { XStack, Button, Text, isWeb, View } from 'tamagui';
+import { XStack, Button, Text, isWeb } from 'tamagui';
+import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { isIpad } from '@/utils';
 import { useWindowDimensions } from 'react-native';
+import { useColorScheme } from '@/hooks';
 
 interface FormattingToolbarProps {
   onBold: () => void;
@@ -25,83 +27,123 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   onAttachImage,
   onCloseKeyboard,
 }) => {
-  const iconColor = "#bbb";
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const isLandscape = windowWidth > windowHeight;
 
+  const iconColor = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.8)";
+  const toolbarBg = isDark 
+    ? "rgba(20, 20, 20, 0.8)" 
+    : "rgba(255, 255, 255, 0.9)";
+  const buttonBg = isDark 
+    ? "rgba(255, 255, 255, 0.1)" 
+    : "rgba(0, 0, 0, 0.05)";
+  const buttonBorder = isDark 
+    ? "rgba(255, 255, 255, 0.2)" 
+    : "rgba(0, 0, 0, 0.1)";
+  const buttonPressedBg = isDark 
+    ? "rgba(255, 255, 255, 0.2)" 
+    : "rgba(0, 0, 0, 0.1)";
+
   return (
-    <XStack width="100%" marginLeft={isIpad() ? -2 : -8} gap={isIpad() ? "$1.5" : "$0"} marginBottom={0} marginTop={isIpad() ? (isLandscape ? 0 : -30) : 0} flexWrap="nowrap" alignItems="center" justifyContent="space-between" alignSelf="center">
+    <>
       <Button
         size="$4"
         circular
         icon={<Text style={{ fontWeight: 'bold', color: iconColor, fontSize: 18 }}>B</Text>} 
         onPress={onBold}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
         icon={<Text style={{ fontStyle: 'italic', color: iconColor, fontSize: 18 }}>I</Text>} 
         onPress={onItalic}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
         icon={<Text style={{ textDecorationLine: 'underline', color: iconColor, fontSize: 18 }}>U</Text>} 
         onPress={onUnderline} 
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
-        icon={<Ionicons name="list" size={22} color={iconColor} />}
+        icon={<Ionicons name="list" size={20} color={iconColor} />}
         onPress={onBullet}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
-        icon={<Ionicons name="attach" size={22} color={iconColor} />}
+        icon={<Ionicons name="attach" size={20} color={iconColor} />}
         onPress={onAttachImage}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
         icon={<Text style={{ fontFamily: '$body', color: iconColor, fontSize: 16 }}>{'<>'}</Text>}
         onPress={onCode}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
-        icon={<Ionicons name="checkbox-outline" size={22} color={iconColor} />}
+        icon={<Ionicons name="checkbox-outline" size={20} color={iconColor} />}
         onPress={onCheckbox}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-      <View style={{ width: 1, height: 24, backgroundColor: '#222', opacity: 0.4, marginHorizontal: 1 }} />
       <Button
         size="$4"
         circular
-        icon={<Ionicons name="chevron-down" size={22} color={iconColor} />}
+        icon={<Ionicons name="chevron-down" size={20} color={iconColor} />}
         onPress={onCloseKeyboard}
         backgroundColor="transparent"
-        pressStyle={{ opacity: 0.7 }}
+        pressStyle={{ 
+          opacity: 0.6,
+          transform: [{ scale: 0.9 }]
+        }}
+        borderWidth={0}
       />
-    </XStack>
+    </>
   );
 };

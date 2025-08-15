@@ -1,7 +1,7 @@
 // Lightweight project preview card used on the LandingPage mobile view
 import React from 'react'
 import { Pressable, Platform, useColorScheme } from 'react-native'
-import { XStack, YStack, Text, Image, AnimatePresence } from 'tamagui'
+import { XStack, YStack, Text, Image, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 import * as Haptics from 'expo-haptics'
@@ -17,10 +17,8 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const priorityColor = getPriorityColor(project.priority)
-  
   const hasTasks = project.tasks && project.tasks.length > 0
 
-  // Status component that can be reused
   const statusComponent = project.status ? (
     <XStack
       bg={
@@ -36,7 +34,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
           ? 'rgba(113, 148, 255, 0.1)'
           : 'rgba(0, 0, 0, 0.1)'
       }
-      py="$0.5"
+      py="$1"
       px="$1"
       br={12}
       opacity={0.9}
@@ -44,7 +42,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
     >
       <Text
         fontFamily="$body"
-        fontSize={isIpad() ? 12 : 11}
+        fontSize={isWeb ? 13 : isIpad() ? 12 : 11}
         py="$0.5"
         px="$1"
         color={
@@ -111,7 +109,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
         />
         <XStack
           padding={isIpad() ? 6 : 5}
-          paddingBottom={isIpad() ? 7 : 5}
+          paddingBottom={isIpad() ? 8 : 6}
           paddingTop={isIpad() ? 7 : 5}
           paddingHorizontal={isIpad() ? '$3' : '$3'}
           borderLeftWidth={3}
@@ -126,7 +124,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                 fontFamily="$heading"
                 fontWeight="900"
                 color={isDark ? "#f0f0f0" : "#ffffff"}
-                fontSize={isIpad() ? 14 : 13}
+                fontSize={isWeb ? 17 : isIpad() ? 15 : 14}
                 maxWidth={'70%'}
                 elevation={2}
                 shadowColor="#000"
@@ -147,7 +145,7 @@ export function ProjectPreviewCard({ project, onPress }: ProjectPreviewCardProps
                   return (
                     <XStack alignItems="center" gap="$1">
                       <MaterialIcons name="event" size={isIpad() ? 14 : 10} color={isDark ? '#999' : '#999'} />
-                      <Text fontSize={isIpad() ? 13 : 11} color={isDark ? "#a0a0a0" : "#e0e0e0"}>
+                      <Text fontSize={isWeb ? 13 : isIpad() ? 12 : 11} color={isDark ? "#a0a0a0" : "#e0e0e0"}>
                         {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </Text>
                     </XStack>

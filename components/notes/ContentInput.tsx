@@ -133,7 +133,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
     <View style={[
       styles.container,
       {
-        backgroundColor: isDark ? '#000' : '#ffffff',
+        backgroundColor: isDark ? '#050505' : '#ffffff',
         borderColor: isDark ? '#3a3a3c' : '#d1d1d6',
       }
     ]}>

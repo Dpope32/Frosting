@@ -38,10 +38,7 @@ export const Legend: React.FC<LegendProps> = ({ isDark, eventTypes = [] }) => {
 
   const isWebOrIpad = Platform.OS === 'web' || isIpad();
   
-  // Don't render FFD700anything if there are no items to show
-  if (items.length === 0) {
-    return null;
-  }
+  if (items.length === 0) return null;
   
   return (
     <View 
@@ -49,8 +46,8 @@ export const Legend: React.FC<LegendProps> = ({ isDark, eventTypes = [] }) => {
         styles.container, 
         isWebOrIpad && styles.containerWebIpad,
         { 
-          paddingTop: 25,
-          paddingBottom: 15,
+          paddingTop: 16,
+          paddingBottom: 10,
           backgroundColor: 'transparent',
           ...Platform.select({
             web: {

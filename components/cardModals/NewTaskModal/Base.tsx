@@ -14,13 +14,14 @@ import { BlurView } from 'expo-blur'
 
 interface BaseProps {
   onClose: () => void 
-  title: string
+  title?: string
   children: React.ReactNode
   modalWidth?: number
   modalMaxWidth?: number
   showCloseButton?: boolean
   titleProps?: any 
   keyboardOffset?: number
+  titleContent?: React.ReactNode
 }
 
 export function Base({
@@ -31,6 +32,7 @@ export function Base({
   modalMaxWidth = isWeb ? 750 : isIpad() ? 500 : 500,
   showCloseButton = true,
   keyboardOffset = 0,
+  titleContent,
 }: BaseProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
@@ -66,7 +68,7 @@ export function Base({
       paddingBottom: isWeb? 30 : 16,
       paddingTop: isWeb? 24 : 12,
       zIndex: 1,
-      maxHeight: screenHeight * 0.8,
+      maxHeight: screenHeight * 0.82,
     },
   })
 
@@ -113,16 +115,22 @@ export function Base({
                 ]}
                 onTouchEnd={(e) => e.stopPropagation()}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={-8} marginBottom={8} px="$2" alignItems="center">
-                  <Text
-                    fontSize={24}
-                    fontWeight="700"
-                    fontFamily="$body"
-                    color={isDark ? "#fffaef" : "black"}
-                    marginBottom={0}
-                  >
-                    {title}
-                  </Text>
+                <XStack justifyContent="space-between" py="$2" marginTop={titleContent ? -8 : -8} marginBottom={titleContent ? -4 : 8} px="$2" alignItems="center">
+                  {titleContent ? (
+                    <View style={{ flex: 1, marginRight: showCloseButton ? 12 : 0 }}>
+                      {titleContent}
+                    </View>
+                  ) : title ? (
+                    <Text
+                      fontSize={24}
+                      fontWeight="700"
+                      fontFamily="$body"
+                      color={isDark ? "#fffaef" : "black"}
+                      marginBottom={0}
+                    >
+                      {title}
+                    </Text>
+                  ) : null}
                   {showCloseButton && (
                     <Button
                       backgroundColor="transparent"
@@ -130,6 +138,7 @@ export function Base({
                       padding={8}
                       pressStyle={{ opacity: 0.7 }}
                       icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                      flexShrink={0}
                     />
                   )}
                 </XStack>
@@ -160,40 +169,47 @@ export function Base({
         </BlurView>
       </TouchableWithoutFeedback>
       
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: keyboardOffset ? 'flex-start' : 'center', alignItems: 'center' }}>
         <Theme name={isDark ? 'dark' : 'light'}>
           <Animated.View
             entering={ZoomIn.duration(300).springify()}
             exiting={FadeOut.duration(300)} 
-            style={[
-              styles.modalContainer,
-              {
-                backgroundColor: isDark ? 'rgba(24, 22, 22, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                marginTop: insets.top, 
-                marginBottom: insets.bottom + (keyboardOffset ? keyboardOffset * 0.8 : 80),
-                width: actualWidth,
-                maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
-              }
-            ]}
+                style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: isDark ? 'rgba(24, 22, 22, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                  marginTop: keyboardOffset ? Math.max(insets.top + 100, 120) : insets.top, 
+                  marginBottom: insets.bottom + (keyboardOffset ? Math.max(keyboardOffset * 0.1, 20) : 80),
+                  width: actualWidth,
+                  maxHeight: screenHeight * (keyboardOffset ? 0.6 : 0.8),
+                }
+              ]}
             onTouchEnd={(e) => e.stopPropagation()}
           >
-            <XStack justifyContent="space-between" py="$2" marginTop={-5} marginBottom={2} px="$2" alignItems="center">
-              <Text
-                fontSize={20}
-                fontWeight="700"
-                fontFamily="$body"
-                color={isDark ? "#fffaef" : "black"}
-                marginBottom={0}
-              >
-                {title}
-              </Text>
+            <XStack justifyContent="space-between" py="$2" marginTop={titleContent ? -5 : -5} marginBottom={titleContent ? 0 : 2} pl="$2" pr="$1.5" alignItems="center">
+              {titleContent ? (
+                <View style={{ flex: 1, marginRight: showCloseButton ? 16 : 0 }}>
+                  {titleContent}
+                </View>
+              ) : title ? (
+                <Text
+                  fontSize={20}
+                  fontWeight="700"
+                  fontFamily="$body"
+                  color={isDark ? "#fffaef" : "black"}
+                  marginBottom={0}
+                >
+                  {title}
+                </Text>
+              ) : null}
               {showCloseButton && (
                 <Button
                   backgroundColor="transparent"
                   onPress={onClose} 
-                  padding={0}
+                  padding={2}
                   pressStyle={{ opacity: 0.7 }}
-                  icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                  icon={<MaterialIcons name="close" size={22} color={isDark ? "#fff" : "#000"}/>}
+                  flexShrink={0}
                 />
               )}
             </XStack>

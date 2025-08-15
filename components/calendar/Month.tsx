@@ -262,7 +262,7 @@ export const Month: React.FC<MonthProps> = ({ date, events, onDayPress, isDark, 
                     <View style={styles.eventIconContainer}>
                       <Text style={[styles.eventIconText, {
                         color: isDark ? '#81C784' : '#2E7D32'
-                      }]} numberOfLines={1}>
+                      }]} numberOfLines={1} ellipsizeMode="tail">
                         {dayEvents.personalName ? dayEvents.personalName : 'Personal Event'}
                       </Text>
                     </View>
