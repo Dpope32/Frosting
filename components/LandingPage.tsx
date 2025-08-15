@@ -246,7 +246,7 @@ export const LandingPage = React.memo(() => {
                 }}
               >
                 <XStack justifyContent="space-between" alignItems="center">
-                  <Text fontFamily="$body" color="#dbd0c6" fontSize={20} fontWeight="bold" marginBottom="$2" paddingLeft="$4" style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
+                  <Text fontFamily="$body" color="#dbd0c6" fontSize={22} fontWeight="bold" marginBottom="$2" paddingLeft="$4" style={{ textShadowColor: 'rgba(219, 208, 198, 0.15)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 4 }}>
                     Asset Tracker
                   </Text>
                 </XStack>

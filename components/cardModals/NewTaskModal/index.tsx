@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Platform, Keyboard, KeyboardEvent, TextInput, View } from 'react-native'
+import { Platform, Keyboard, KeyboardEvent, TextInput, View, InteractionManager } from 'react-native'
 import { Form, ScrollView, isWeb } from 'tamagui'
 import { format } from 'date-fns'
 import * as Haptics from 'expo-haptics'
@@ -249,7 +249,6 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
   const handleAddTask = useCallback(async () => {
     if (isSubmitting) return
     try {
-      // Use the separate taskName state for validation
       if (!taskName.trim()) {
         if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         showToast('Please enter a task name', 'error')
@@ -261,10 +260,12 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
         showToast(`Please select at least one day for ${newTask.recurrencePattern} tasks`, 'error')
         return
       }
+
       setIsSubmitting(true)
+
       const taskToAdd = {
         ...newTask,
-        name: taskName.trim(), // Use separate taskName state
+        name: taskName.trim(),
         schedule:
           newTask.recurrencePattern === 'one-time'
             ? []
@@ -273,63 +274,63 @@ export function NewTaskModal({ open, onOpenChange, isDark }: NewTaskModalProps):
               : [],
         recurrenceDate: newTask.recurrenceDate
       }
-      try {
-        // 🚨 DEBUG LOGGING: Track tomorrow and one-time task creation
-        if (taskToAdd.recurrencePattern === 'tomorrow' || taskToAdd.recurrencePattern === 'one-time') {
-          const timestamp = new Date().toISOString()
-          const deviceInfo = deviceId || 'unknown-device'
-          const taskName = taskToAdd.name.slice(0, 30) // Truncate for readability
-          const pattern = taskToAdd.recurrencePattern
-          
-          addSyncLog(
-            `[NEW TASK] "${taskName}" created with pattern: ${pattern}`,
-            'info',
-            `Device: ${deviceInfo} | Timestamp: ${timestamp} | Full name: "${taskToAdd.name}" | Category: ${taskToAdd.category || 'none'} | Priority: ${taskToAdd.priority} | Time: ${taskToAdd.time || 'none'} | Schedule: [${taskToAdd.schedule.join(', ')}] | RecurrenceDate: ${taskToAdd.recurrenceDate || 'none'}`
-          )
-          
-          // Special logging for tomorrow tasks to track conversion behavior
-          if (pattern === 'tomorrow') {
-            const createdDate = new Date().toISOString().split('T')[0]
-            addSyncLog(
-              `[TOMORROW TASK] "${taskName}" created on ${createdDate} - will be due tomorrow`,
-              'info',
-              `This task should convert to one-time after midnight. Created at: ${timestamp} on device: ${deviceInfo}`
-            )
+
+      // Close optimistically immediately
+      onOpenChange(false)
+      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+
+      // Defer heavy work until after interactions/animations
+      InteractionManager.runAfterInteractions(() => {
+        (async () => {
+          try {
+            if (taskToAdd.recurrencePattern === 'tomorrow' || taskToAdd.recurrencePattern === 'one-time') {
+              const timestamp = new Date().toISOString()
+              const deviceInfo = deviceId || 'unknown-device'
+              const tn = taskToAdd.name.slice(0, 30)
+              const pattern = taskToAdd.recurrencePattern
+
+              addSyncLog(
+                `[NEW TASK] "${tn}" created with pattern: ${pattern}`,
+                'info',
+                `Device: ${deviceInfo} | Timestamp: ${timestamp} | Full name: "${taskToAdd.name}" | Category: ${taskToAdd.category || 'none'} | Priority: ${taskToAdd.priority} | Time: ${taskToAdd.time || 'none'} | Schedule: [${taskToAdd.schedule.join(', ')}] | RecurrenceDate: ${taskToAdd.recurrenceDate || 'none'}`
+              )
+
+              if (pattern === 'tomorrow') {
+                const createdDate = new Date().toISOString().split('T')[0]
+                addSyncLog(
+                  `[TOMORROW TASK] "${tn}" created on ${createdDate} - will be due tomorrow`,
+                  'info',
+                  `This task should convert to one-time after midnight. Created at: ${timestamp} on device: ${deviceInfo}`
+                )
+              }
+
+              if (pattern === 'one-time') {
+                addSyncLog(
+                  `[ONE-TIME TASK] "${tn}" created - completion will be permanent`,
+                  'info',
+                  `One-time tasks stay completed once marked done. Created at: ${timestamp} on device: ${deviceInfo}`
+                )
+              }
+            }
+
+            addTask(taskToAdd)
+            if (taskToAdd.showInCalendar) {
+              syncTasksToCalendar()
+            }
+            if (notifyOnTime && taskToAdd.time) {
+              // Fire-and-forget; internal try/catch already handles errors
+              scheduleNotificationForTask(taskToAdd.name, taskToAdd.time)
+            }
+
+            showToast('Task added successfully', 'success')
+          } catch {
+            showToast('Failed to add task. Please try again.', 'error')
           }
-          
-          // Special logging for one-time tasks to track completion behavior
-          if (pattern === 'one-time') {
-            addSyncLog(
-              `[ONE-TIME TASK] "${taskName}" created - completion will be permanent`,
-              'info',
-              `One-time tasks stay completed once marked done. Created at: ${timestamp} on device: ${deviceInfo}`
-            )
-          }
-        }
-        
-        addTask(taskToAdd)
-        if (taskToAdd.showInCalendar) {
-          syncTasksToCalendar()
-        }
-        
-        // Schedule notification if notifyOnTime is true and time is set
-        if (notifyOnTime && taskToAdd.time) {
-          await scheduleNotificationForTask(taskToAdd.name, taskToAdd.time);
-        }
-        
-        setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 200)
-        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        showToast('Task added successfully', 'success')
-      } catch {
-        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-        showToast('Failed to add task. Please try again.', 'error')
-        setTimeout(() => onOpenChange(false), Platform.OS === 'web' ? 300 : 100)
-      }
+        })()
+      })
     } catch {
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
       showToast('An error occurred. Please try again.', 'error')
-    } finally {
-      setIsSubmitting(false)
     }
   }, [taskName, newTask, addTask, onOpenChange, showToast, isSubmitting, notifyOnTime, scheduleNotificationForTask])
 

@@ -50,9 +50,7 @@ export default function DrawerLayout() {
   }, []);
 
   const drawerScreenOptions = useMemo(() => {
-    const darkerPrimaryColor = adjustColor(primaryColor, -0.8); // -0.8 makes it much darker, almost black
-    console.log('primaryColor before adjusting it', primaryColor);
-    console.log('primaryColor after adjusting it (darker)', darkerPrimaryColor);
+    const darkerPrimaryColor = adjustColor(primaryColor, -0.8); 
 
     const options: any = {
       header: ({ route, options }: { route: any; options: any }) => {

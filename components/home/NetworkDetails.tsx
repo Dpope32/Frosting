@@ -24,15 +24,16 @@ export function NetworkDetails({
   };
 
   return (
-    <YStack
-      backgroundColor={
-        isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"
-      }
-      br={12}
-      padding="$4"
-      borderWidth={1}
-      borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"}
-    >
+    <Animated.View entering={SlideInDown.delay(400).duration(600)}>
+      <YStack
+        backgroundColor={
+          isDark ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.8)"
+        }
+        br={12}
+        padding="$4"
+        borderWidth={1}
+        borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.1)"}
+      >
       <Text
         fontFamily="$body"
         color={isDark ? "#fff" : "#000"}
@@ -153,6 +154,7 @@ export function NetworkDetails({
           No network connection
         </Text>
       )}
-    </YStack>
+      </YStack>
+    </Animated.View>
   );
 }

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { Platform, Pressable, Dimensions, useColorScheme } from 'react-native';
+// Header.tsx
+import React, { useState } from 'react';
+import { Platform, Pressable, useColorScheme } from 'react-native';
 import { Stack, XStack, YStack, isWeb } from 'tamagui';
 import { Text } from 'tamagui';
 // @ts-ignore - Suppressing ESM import error
 import { DrawerActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from 'react-native-reanimated';
@@ -21,7 +21,7 @@ import { EditBillModal } from './cardModals/edits/EditBillModal';
 import { EditVaultModal } from './cardModals/edits/EditVaultModal';
 import { IncomeModal } from './cardModals/edits/IncomeModal';
 import { useCalendarViewStore, useCalendarStore } from '@/store';
-import { useUserStore } from '@/store';
+
 import { isIpad } from '@/utils';
 import { Bill, VaultEntry } from '@/types';
 import { Legend } from '@/components/calendar/Legend';
@@ -62,28 +62,23 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const isSportsScreen = route.name === 'nba';
   const isBillsScreen = route.name === 'bills';
   const isVaultScreen = route.name === 'vault';
+  // todo: create notes and habits modals
   const isNotesScreen = route.name === 'notes';
-  const isNBAScreen = route.name === 'nba';
+  const isHabitsScreen = route.name === 'habits';
+  //const isNBAScreen = route.name === 'nba';
   const isCrmScreen = route.name === 'crm';
   const isCalendarScreen = route.name === 'calendar';
-  const isHabitsScreen = route.name === 'habits';
   const isProjectsScreen = route.name === 'projects';
   const [activeEventTypes, setActiveEventTypes] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     if (isCalendarScreen && isWeb) {
       const currentYear = new Date().getFullYear();
-      const holidays = [
-        ...getUSHolidays(currentYear),
-        ...getUSHolidays(currentYear + 1)
-      ];
-
+      const holidays = [...getUSHolidays(currentYear), ...getUSHolidays(currentYear + 1)];
       const allEvents = [...events, ...holidays];
       const types: string[] = [];
       allEvents.forEach(event => {
-        if (event.type && !types.includes(event.type)) {
-          types.push(event.type);
-        }
+        if (event.type && !types.includes(event.type)) { types.push(event.type)}
       });
       setActiveEventTypes(types);
     }
@@ -93,6 +88,9 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
   const scale = useSharedValue(1);
   const isDark = colorScheme === 'dark';
+  const backgroundColor = isWeb ? colorScheme === 'dark' ? 'rgba(14, 14, 15, 0.9)' : 'rgba(255,255,255,0.0)'
+    : isHome ? colorScheme === 'dark' ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : "rgba(14, 14, 15, 0.94)" : 'rgba(255,255,255,0.0)'
+      : colorScheme === 'dark'  ? 'rgba(14, 14, 15, 0.9)' : 'rgba(255, 255, 255, 0.1)';
 
   const handleTemperaturePress = () => {
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
@@ -110,18 +108,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     setWifiModalOpen(true)
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
   }
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => { return { transform: [{ scale: scale.value }]}});
 
   const getRightHeaderElement = () => {
-    if (isWeb && isCalendarScreen) {
-      const layoutIcon =
-        webColumnCount === 1 ? "apps-outline" :
-        webColumnCount === 2 ? "grid-outline" : "grid";
-
+    if (isWeb && isCalendarScreen) { const layoutIcon = webColumnCount === 1 ? "apps-outline" : webColumnCount === 2 ? "grid-outline" : "grid";
       return (
         <Pressable
           onPress={() => {
@@ -151,17 +141,11 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         <Pressable
           onPress={() => {
             Haptics.selectionAsync();
-
             if (viewMode === 'month') {
               if (webColumnCount === 1) {
                 useCalendarViewStore.setState({ webColumnCount: 2 });
-              } else {
-                useCalendarViewStore.setState({ viewMode: 'week' });
-              }
-            } else {
-              // Change back to 1-column Month view
-              useCalendarViewStore.setState({ viewMode: 'month', webColumnCount: 1 });
-            }
+              } else { useCalendarViewStore.setState({ viewMode: 'week' })}
+            } else { useCalendarViewStore.setState({ viewMode: 'month', webColumnCount: 1 })}
           }}
           style={{ padding: 6, marginRight: -8, marginTop: 0, marginLeft: -40 }}
         >
@@ -173,15 +157,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       const viewIcon = viewMode === 'month' ? "calendar" : "reorder-three";
 
       return (
-        <Pressable
-          onPress={() => {
-            if (Platform.OS !== 'web') {
-              Haptics.selectionAsync();
-            }
-            toggleViewMode();
-          }}
-          style={{ padding: 8, marginRight: -8 }}
-        >
+        <Pressable onPress={() => { if (Platform.OS !== 'web') {Haptics.selectionAsync()} toggleViewMode()}} style={{ padding: 8, marginRight: -8 }}>
           <Ionicons name={viewIcon} size={22} color={textColor} />
         </Pressable>
       );
@@ -200,10 +176,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     }
 
     return (
-      <Pressable
-        onPress={handleIconPress}
-        style={{ padding: 8, marginRight: -8, ...(isWeb ? { mt: -5, marginLeft: -40 } as any : {}) }}
-      >
+      <Pressable onPress={handleIconPress} style={{ padding: 8, marginRight: -8, ...(isWeb ? { mt: -5, marginLeft: -40 } as any : {})}}>
         <Ionicons name={iconName} size={isWeb ? 20 : 20} color={textColor} />
       </Pressable>
     );
@@ -212,12 +185,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
   const handleIconPress = () => {
     if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success) }
     if (isSportsScreen) setShowNBATeamModal(true);
-    else if (isBillsScreen) {
-      setShowBillsListModal(true);
-    }
-    else if (isVaultScreen) {
-      setShowVaultListModal(true);
-    }
+    else if (isBillsScreen) setShowBillsListModal(true);
+    else if (isVaultScreen) setShowVaultListModal(true);
     else if (isCrmScreen) setShowPeopleListModal(true);
     else if (isProjectsScreen) setShowArchivedProjectsModal(true);
     else setShowSettings(true);
@@ -228,39 +197,16 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       {isWeb && (<YStack height={spacerHeight} /> )}
       <YStack
         position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        zIndex={isWeb ? 10 : 10}
+        top={0} left={0} right={0} zIndex={isWeb ? 10 : 10}
         {...(isIpad() ? {
-          style: {
-            position: 'fixed',
-            marginLeft: isPermanentDrawer ? -(drawerWidth ?? 0) : 0,
-          } as any
+          style: { position: 'fixed', marginLeft: isPermanentDrawer ? -(drawerWidth ?? 0) : 0 } as any
         } : {})}
-        {...(isWeb ? {
-          style: {
-            position: 'fixed',
-          } as any
-        } : {})}
-      >
+        {...(isWeb ? {style: { position: 'fixed' } as any} : {})}>
         <YStack
           marginLeft={isPermanentDrawer ? drawerWidth : 0}
           borderBottomWidth={0.5}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.01)"}
-          backgroundColor={
-            isWeb
-              ? colorScheme === 'dark'
-                ? 'rgba(14, 14, 15, 0.9)'
-                : 'rgba(255,255,255,0.0)'
-              : isHome
-                ? colorScheme === 'dark'
-                  ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : "rgba(14, 14, 15, 0.94)"
-                  : 'rgba(255,255,255,0.0)'
-                : colorScheme === 'dark'
-                  ? 'rgba(14, 14, 15, 0.9)'
-                  : 'rgba(255, 255, 255, 0.1)'
-          }>
+          backgroundColor={backgroundColor}>
           <XStack
             alignItems="center"
             justifyContent="space-between"
@@ -278,33 +224,19 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                     navigation.dispatch(DrawerActions.toggleDrawer());
                   }}
                   style={{
-                    padding: isIpad() ? 8 : 8,
-                    marginLeft: -8,
-                    ...(isWeb ? {
-                      cursor: 'pointer',
-                      borderRadius: 8,
-                      transition: 'all 0.2s ease',
-                      ':hover': {
-                        backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
-                      }
-                    } as any : {})
+                    padding: isIpad() ? 8 : 8, marginLeft: -8, cursor: 'pointer', borderRadius: 8, transition: 'all 0.2s ease',
+                    ...(isWeb ? { cursor: 'pointer', borderRadius: 8, transition: 'all 0.2s ease', ':hover': { backgroundColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }} as any 
+                      : {})
                   }}
                 >
-                  <Ionicons
-                    name="menu"
-                    size={isWeb ? 24 : 20}
-                    color={textColor}
-                  />
+                  <Ionicons name="menu" size={isWeb ? 24 : 20} color={textColor}/>
                 </Pressable>
               )}
               <Text
                 fontSize={isWeb ? 22 : isIpad() ? 24 : 20}
                 color={textColor}
                 style={{ marginLeft: isIpad() ? 24 : 0 }}
-                numberOfLines={1}
-                fontWeight='800'
-                fontFamily="$heading"
-                paddingBottom={isIpad() ? 12 : 0}
+                numberOfLines={1} fontWeight='800' fontFamily="$heading" paddingBottom={isIpad() ? 12 : 0}
               >
                 {!isHome ? title : isWeb ? '' : isIpad() ? '' : title}
               </Text>
@@ -319,7 +251,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
               )}
             </XStack>
 
-            {/* Web Bills Summary */}
             {isWeb && isBillsScreen && (
               <XStack
                 flex={1}
@@ -337,7 +268,6 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
               </XStack>
             )}
 
-            {/* Web Calendar Legend */}
             {isWeb && isCalendarScreen && activeEventTypes.length > 0 && (
               <XStack
                 flex={1}
@@ -377,14 +307,8 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
             onSubmit={async (updatedBillData) => {
               try {
                 await updateBill(updatedBillData, {
-                  onSuccess: () => {
-                    setEditBillModalOpen(false);
-                    setSelectedBill(null);
-                  },
-                  onError: () => {
-                    setEditBillModalOpen(false);
-                    setSelectedBill(null);
-                  }
+                  onSuccess: () => { setEditBillModalOpen(false);setSelectedBill(null);},
+                  onError: () => { setEditBillModalOpen(false);setSelectedBill(null);}
                 });
               } catch (error) {
                 console.error('Error updating bill:', error);
@@ -407,15 +331,9 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
           />
           <EditVaultModal
             isVisible={editVaultModalOpen}
-            onClose={() => {
-              setEditVaultModalOpen(false);
-              setSelectedVaultEntry(null);
-            }}
+            onClose={() => {setEditVaultModalOpen(false);setSelectedVaultEntry(null)}}
             vaultEntry={selectedVaultEntry}
-            onSubmit={() => {
-              setEditVaultModalOpen(false);
-              setSelectedVaultEntry(null);
-            }}
+            onSubmit={() => {setEditVaultModalOpen(false);setSelectedVaultEntry(null)}}
           />
         </>
       )}
@@ -424,10 +342,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
       <WifiModal open={wifiModalOpen} onOpenChange={setWifiModalOpen} />
       <ArchivedProjectsModal open={showArchivedProjectsModal} onOpenChange={setShowArchivedProjectsModal} />
       {isIncomeModalVisible && (
-        <IncomeModal 
-          onClose={() => setIsIncomeModalVisible(false)} 
-          currentIncome={monthlyIncome}
-          onSubmit={setMonthlyIncome}
+        <IncomeModal onClose={() => setIsIncomeModalVisible(false)} currentIncome={monthlyIncome} onSubmit={setMonthlyIncome}
         />
       )}
     </> 
