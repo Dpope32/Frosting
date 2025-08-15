@@ -89,20 +89,29 @@ export const useHabitStore = create<HabitStore>()(
           const identifier = `${habit.title}-${habit.notificationTimeValue}`;
           cancelHabitNotification(identifier);
           cancelHabitNotification(habit.title);
-          getAddSyncLog()(`[HabitStore] Habit deleted locally: ${habit.title}`, 'info');
           
-          // Soft delete with timestamp instead of removing
-          return {
+          getAddSyncLog()(`[HabitStore] 🗑️ Starting deletion process for habit: ${habit.title} (ID: ${habitId})`, 'info');
+          getAddSyncLog()(`[HabitStore] Habit before deletion - deletedAt: ${habit.deletedAt || 'null'}`, 'verbose');
+          
+          const updatedHabit = {
+            ...habit,
+            deletedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
+          
+          const newState = {
             habits: {
               ...state.habits,
-              [habitId]: {
-                ...habit,
-                deletedAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              }
+              [habitId]: updatedHabit
             }
           };
+          
+          getAddSyncLog()(`[HabitStore] ✅ Habit soft-deleted: ${habit.title} - deletedAt: ${updatedHabit.deletedAt}`, 'info');
+          getAddSyncLog()(`[HabitStore] Active habits after deletion: ${Object.values(newState.habits).filter(h => !h.deletedAt).length}`, 'info');
+          
+          return newState;
         }
+        getAddSyncLog()(`[HabitStore] ⚠️ Attempted to delete non-existent habit with ID: ${habitId}`, 'warning');
         return state;
       }),
 

@@ -7,8 +7,8 @@ import { triggerHaptic } from '@/services';
 import { ImpactFeedbackStyle } from 'expo-haptics';
 
 export function useHabits() {
-  const { habits, addHabit, toggleHabitCompletion, deleteHabit, editHabit } = useHabitStore();
-  const habitsList = useMemo(() => Object.values(habits), [habits]);
+  const { habits, addHabit, toggleHabitCompletion, deleteHabit, editHabit, getActiveHabits } = useHabitStore();
+  const habitsList = useMemo(() => getActiveHabits(), [habits]);
 
   const getCompletedToday = () => {
     const today = format(new Date(), 'yyyy-MM-dd');

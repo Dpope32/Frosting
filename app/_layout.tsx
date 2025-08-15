@@ -34,23 +34,13 @@ import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { handleDeepLink } from '@/services/notifications/deepLinkHandler';  
 import { initializePremiumService } from '@/services';
 import { usePremiumVerification } from '@/hooks/sync/usePremiumVerification';
-import { EventModal } from '@/components/calendar/EventModal';
-import { useCalendarEvents } from '@/hooks/useCalendarEvents';
-import { useCalendarModals } from '@/hooks/useCalendarModals';
-import { useCalendarViewStore } from '@/store';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 Sentry.init({
   dsn: 'https://fc15d194ba82cd269fad099757600f7e@o4509079625662464.ingest.us.sentry.io/4509079639621632',
   tracesSampleRate: 1.0,
   sendDefaultPii: true,
   profilesSampleRate: 1.0,
-  environment: 'production',
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  integrations: [
-    Sentry.mobileReplayIntegration(),
-  ],
+  environment: 'production'
 });
 
 const queryClient = new QueryClient({
@@ -280,7 +270,6 @@ useEffect(() => {
               <TaskRecommendationModal />
               <EditStockModal />
               <AddStockModal />
-              <CalendarModalContainer />
             </>
           </ErrorBoundary>
         </NavigationThemeProvider>
@@ -289,78 +278,4 @@ useEffect(() => {
   );
 });
 
-function CalendarModalContainer() {
-  const { 
-    isEventModalVisible, 
-    isViewEventModalVisible,
-    closeEventModals,
-    openEventModal
-  } = useCalendarModals();
 
-  const selectedDate = useCalendarViewStore(state => state.selectedDate);
-  const selectedEvents = useCalendarViewStore(state => state.selectedEvents);
-
-  const {
-    newEventTitle,
-    setNewEventTitle,
-    newEventTime,
-    setNewEventTime,
-    selectedType,
-    setSelectedType,
-    notifyOnDay,
-    setNotifyOnDay,
-    notifyBefore,
-    setNotifyBefore,
-    notifyBeforeTime,
-    setNotifyBeforeTime,
-    editingEvent,
-    handleAddEvent,
-    handleEditEvent,
-    handleDeleteEvent,
-    resetForm,
-  } = useCalendarEvents(selectedDate);
-
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const { primaryColor } = useUserStore(s => s.preferences);
-
-  return (
-    <GestureHandlerRootView style={{ 
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'box-none',
-      zIndex: 9999
-    }}>
-      <EventModal
-        isEventModalVisible={isEventModalVisible}
-        isViewEventModalVisible={isViewEventModalVisible}
-        selectedDate={selectedDate}
-        selectedEvents={selectedEvents}
-        newEventTitle={newEventTitle}
-        setNewEventTitle={setNewEventTitle}
-        newEventTime={newEventTime}
-        setNewEventTime={setNewEventTime}
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        notifyOnDay={notifyOnDay}
-        setNotifyOnDay={setNotifyOnDay}
-        notifyBefore={notifyBefore}
-        setNotifyBefore={setNotifyBefore}
-        notifyBeforeTime={notifyBeforeTime}
-        setNotifyBeforeTime={setNotifyBeforeTime}
-        editingEvent={editingEvent}
-        handleAddEvent={handleAddEvent}
-        handleEditEvent={handleEditEvent}
-        handleDeleteEvent={handleDeleteEvent}
-        resetForm={resetForm}
-        closeEventModals={closeEventModals}
-        openEventModal={openEventModal}
-        isDark={isDark}
-        primaryColor={primaryColor}
-      />
-    </GestureHandlerRootView>
-  );
-}

@@ -97,7 +97,10 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
     
     if (uniqueEvents.length === 1) {
       minHeight = 200  // Much smaller for single events
-      maxHeight = Math.min(screenHeight * 0.5, 400)
+      maxHeight = Math.min(screenHeight * 0.5, 320)
+    } else if (uniqueEvents.length === 2) {
+      minHeight = 220  // Smaller for 2 events
+      maxHeight = Math.min(screenHeight * 0.5, 360)
     } else if (uniqueEvents.length <= 3) {
       minHeight = 250
       maxHeight = Math.min(screenHeight * 0.6, 500)
@@ -197,11 +200,12 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
                     style={{ flex: 1 }}
                     contentContainerStyle={{ 
                       paddingBottom: selectedEvents && selectedEvents.length === 1 ? 20 : 
+                                    selectedEvents && selectedEvents.length === 2 ? 10 :
                                     selectedEvents && selectedEvents.length <= 6 ? 25 : 30,
                       paddingTop: selectedEvents && selectedEvents.length === 1 ? 8 : 0,
-                      flexGrow: selectedEvents && selectedEvents.length > 0 ? 0 : 1, // Only grow when empty
+                      flexGrow: selectedEvents && selectedEvents.length > 0 ? 0 : 1,
                     }}
-                    showsVerticalScrollIndicator={selectedEvents && selectedEvents.length > 3} // Show scrollbar only when needed
+                    showsVerticalScrollIndicator={selectedEvents && selectedEvents.length > 3}
                     bounces={selectedEvents && selectedEvents.length > 1}
                   >
                     {selectedEvents && selectedEvents.length > 0 ? (

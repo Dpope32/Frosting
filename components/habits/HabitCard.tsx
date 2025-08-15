@@ -22,6 +22,16 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
   const showToast = useToastStore((state) => state.showToast);
   
   const handleDelete = (onComplete: (deleted: boolean) => void) => {
+    const getAddSyncLog = () => {
+      try {
+        return require('@/components/sync/syncUtils').addSyncLog;
+      } catch {
+        return () => {};
+      }
+    };
+
+    getAddSyncLog()(`[HabitCard] 🗑️ Delete requested for habit: ${habit.title} (ID: ${habit.id})`, 'info');
+
     if (isMobile) {
       Alert.alert(
         'Delete Habit',
@@ -30,12 +40,16 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
           {
             text: 'Cancel',
             style: 'cancel',
-            onPress: () => onComplete(false),
+            onPress: () => {
+              getAddSyncLog()(`[HabitCard] Delete cancelled for habit: ${habit.title}`, 'info');
+              onComplete(false);
+            },
           },
           {
             text: 'Delete',
             style: 'destructive',
             onPress: () => {
+              getAddSyncLog()(`[HabitCard] Delete confirmed for habit: ${habit.title} - calling onDelete()`, 'info');
               onDelete();
               showToast('Habit deleted successfully', 'success');
               onComplete(true);
@@ -45,10 +59,12 @@ export function HabitCard({ habit, onToggle, onDelete, doneToday }: HabitCardPro
       );
     } else {
       if (window.confirm('Are you sure you want to delete this habit?')) {
+        getAddSyncLog()(`[HabitCard] Delete confirmed (web) for habit: ${habit.title} - calling onDelete()`, 'info');
         onDelete();
         showToast('Habit deleted successfully', 'success');
         onComplete(true);
       } else {
+        getAddSyncLog()(`[HabitCard] Delete cancelled (web) for habit: ${habit.title}`, 'info');
         onComplete(false);
       }
     }

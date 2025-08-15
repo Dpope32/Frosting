@@ -1,6 +1,7 @@
 
 import { debounce } from 'lodash';
 import { router } from 'expo-router';
+import { isWeb } from 'tamagui';
 
 // Create a map to store path-specific debounced functions
 const debouncedNavigationMap = new Map<string, ReturnType<typeof debounce>>();
@@ -45,7 +46,14 @@ export const debouncedDismiss = debounce(() => {
  * Debounced router back to prevent multiple rapid back navigations
  */
 export const debouncedBack = debounce(() => {
-  router.back();
+  if (isWeb && window.history.length > 1) {
+    window.history.back();
+  } else if (isWeb) {
+    // If no history, try to go to the main app
+    router.replace('/(drawer)/(tabs)');
+  } else {
+    router.back();
+  }
 }, 300, {
   leading: true,
   trailing: false

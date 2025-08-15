@@ -154,16 +154,37 @@ export function EditStockModalContent({ open, onOpenChange, stock }: EditStockMo
   const handleDelete = useCallback(() => {
     if (!stock || loading) return
 
+    const getAddSyncLog = () => {
+      try {
+        return require('@/components/sync/syncUtils').addSyncLog;
+      } catch {
+        return () => {};
+      }
+    };
+
+    getAddSyncLog()(`[EditStockModal] 🗑️ Delete requested for stock: ${stock.symbol} (${stock.quantity} shares)`, 'info');
+
     const deleteStock = () => {
       setLoading(true)
       try {
+        getAddSyncLog()(`[EditStockModal] Starting deletion process for ${stock.symbol}`, 'info');
+        getAddSyncLog()(`[EditStockModal] Current portfolio size: ${portfolioData.length} stocks`, 'info');
+        
         const updatedPortfolio = portfolioData.filter(s => s.symbol !== stock.symbol)
+        getAddSyncLog()(`[EditStockModal] Portfolio after filtering: ${updatedPortfolio.length} stocks (removed: ${portfolioData.length - updatedPortfolio.length})`, 'info');
+        
         updatePortfolioData(updatedPortfolio)
+        getAddSyncLog()(`[EditStockModal] Portfolio data updated, invalidating queries...`, 'info');
+        
         queryClient.invalidateQueries({ queryKey: ['stock-prices'] })
+        getAddSyncLog()(`[EditStockModal] Queries invalidated, closing modal...`, 'info');
+        
         onOpenChange(false)
         showToast(`${stock.symbol} removed from portfolio`, 'success')
+        getAddSyncLog()(`[EditStockModal] ✅ Stock ${stock.symbol} deletion completed successfully`, 'info');
       } catch (err) {
         console.error('Error deleting stock:', err)
+        getAddSyncLog()(`[EditStockModal] ❌ Error deleting stock ${stock.symbol}: ${err}`, 'error');
         showToast('Failed to remove stock. Please try again.', 'error')
       } finally {
         setLoading(false)

@@ -221,7 +221,7 @@ export function AddStockModalContent({ open, onOpenChange }: AddStockModalConten
       title="Add Stock"
       showCloseButton={true}
     >
-      <YStack gap="$4" px="$3" pb="$2">
+      <YStack gap="$3" px="$3" pb="$2">
       <YStack gap="$2">
           <Text fontSize={14} fontWeight="600" color={isDark ? "$color11" : "$color10"} fontFamily="$body">
             Select Stock

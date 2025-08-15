@@ -28,4 +28,27 @@ export const updatePortfolioData = async (newPortfolio: Stock[]) => {
   await StorageUtils.set('portfolio_data', newPortfolio);
   portfolioData.length = 0;
   portfolioData.push(...newPortfolio);
+  
+  // Only sync store holdings if user is premium and has portfolio sync enabled
+  try {
+    const { usePortfolioStore } = require('../store/PortfolioStore');
+    const { useUserStore } = require('../store/UserStore');
+    
+    const portfolioStore = usePortfolioStore.getState();
+    const userStore = useUserStore.getState();
+    
+    const isPremium = userStore.preferences.premium === true;
+    const isSyncEnabled = portfolioStore.isSyncEnabled;
+    
+    if (isPremium && isSyncEnabled) {
+      const syncHoldingsWithPortfolioData = portfolioStore.syncHoldingsWithPortfolioData;
+      syncHoldingsWithPortfolioData();
+      console.log('Portfolio store holdings synced for premium user');
+    } else {
+      console.log(`Portfolio store sync skipped - Premium: ${isPremium}, Sync enabled: ${isSyncEnabled}`);
+    }
+  } catch (e) {
+    // Store might not be available during initialization
+    console.log('Portfolio store not yet available for sync');
+  }
 };

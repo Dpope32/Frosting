@@ -1,37 +1,43 @@
 // StockCardAnimated.tsx
-import React from 'react'
-import { StyleSheet, TouchableWithoutFeedback, View, Dimensions, Platform } from 'react-native' 
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useColorScheme } from 'react-native'
-import { Text, Theme, XStack, Button, isWeb } from 'tamagui'
-import Animated, { ZoomIn, FadeIn, FadeOut } from 'react-native-reanimated'
-import { MaterialIcons } from '@expo/vector-icons'
+import React from "react";
+import {
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+  Dimensions,
+  Platform,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useColorScheme } from "react-native";
+import { Text, Theme, XStack, Button, isWeb } from "tamagui";
+import Animated, { ZoomIn, FadeIn, FadeOut } from "react-native-reanimated";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface StockCardAnimatedProps {
-  open: boolean
-  onClose: () => void 
-  title: string
-  children: React.ReactNode
-  modalWidth?: number
-  modalMaxWidth?: number
-  showCloseButton?: boolean
-  titleProps?: any 
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  modalWidth?: number;
+  modalMaxWidth?: number;
+  showCloseButton?: boolean;
+  titleProps?: any;
 }
 
 export function StockCardAnimated({
   open,
   title,
   children,
-  onClose, 
+  onClose,
   showCloseButton = true,
 }: StockCardAnimatedProps) {
-  const colorScheme = useColorScheme()
-  const isDark = colorScheme === 'dark'
-  const insets = useSafeAreaInsets()
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
-  const actualWidth = isWeb ? 440 : Dimensions.get('window').width * 0.9
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+  const insets = useSafeAreaInsets();
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+  const actualWidth = isWeb ? 440 : Dimensions.get("window").width * 0.9;
 
-  if (!open) return null
+  if (!open) return null;
 
   return (
     <Animated.View
@@ -40,38 +46,45 @@ export function StockCardAnimated({
       exiting={FadeOut.duration(300)}
       pointerEvents="box-none"
     >
-      <TouchableWithoutFeedback 
+      <TouchableWithoutFeedback
         onPress={(e) => {
-          if (Platform.OS === 'web' && e.target === e.currentTarget) {
+          if (Platform.OS === "web" && e.target === e.currentTarget) {
             onClose();
-          } else if (Platform.OS !== 'web') {
+          } else if (Platform.OS !== "web") {
             onClose();
           }
         }}
       >
-        <View 
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center' }} 
-          pointerEvents={Platform.OS === 'web' ? 'auto' : 'box-none'}
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          pointerEvents={Platform.OS === "web" ? "auto" : "box-none"}
         >
-       <View onStartShouldSetResponder={() => true}> 
-            <Theme name={isDark ? 'dark' : 'light'}>
-                <Animated.View
-                  entering={ZoomIn.duration(300).springify()}
-                  exiting={FadeOut.duration(300)} 
+          <View onStartShouldSetResponder={() => true}>
+            <Theme name={isDark ? "dark" : "light"}>
+              <Animated.View
+                entering={ZoomIn.duration(300).springify()}
+                exiting={FadeOut.duration(300)}
                 style={[
                   styles.modalContainer,
                   {
-                    backgroundColor: isDark ? '#222' : '#fff',
-                    marginTop: insets.top, 
-                    marginBottom: insets.bottom + 80 ,
+                    backgroundColor: isDark ? "#222" : "#fff",
+                    marginTop: insets.top,
+                    marginBottom: insets.bottom + 60,
                     width: actualWidth,
                     maxHeight: screenHeight,
-                  }
+                  },
                 ]}
               >
-                <XStack justifyContent="space-between" py="$2" marginTop={isWeb ? -8 : -8} marginBottom={isWeb ? 8 : 2} px="$2" alignItems="center">
-                <Text
-                    fontSize={isWeb? 24 : 20}
+                <XStack
+                  justifyContent="space-between"
+                  pt="$1.5"
+                  pb="$1"
+                  marginTop={isWeb ? -8 : -8}
+                  marginBottom={isWeb ? 8 : 2}
+                  alignItems="center"
+                >
+                  <Text
+                    fontSize={isWeb ? 24 : 20}
                     fontWeight="700"
                     fontFamily="$body"
                     color={isDark ? "#fffaef" : "black"}
@@ -82,45 +95,49 @@ export function StockCardAnimated({
                   {showCloseButton && (
                     <Button
                       backgroundColor="transparent"
-                      onPress={onClose} 
+                      onPress={onClose}
                       padding={8}
                       pressStyle={{ opacity: 0.7 }}
-                      icon={<MaterialIcons name="close" size={24} color={isDark ? "#fff" : "#000"}/>}
+                      icon={
+                        <MaterialIcons
+                          name="close"
+                          size={24}
+                          color={isDark ? "#fff" : "#000"}
+                        />
+                      }
                     />
                   )}
                 </XStack>
-                <View style={{ position: 'relative' }}>
-                    {children}
-                    </View>
-                  </Animated.View>
-                  </Theme>
-            </View> 
+                <View style={{ position: "relative" }}>{children}</View>
+              </Animated.View>
+            </Theme>
           </View>
-        </TouchableWithoutFeedback>
-      </Animated.View>
-  )
+        </View>
+      </TouchableWithoutFeedback>
+    </Animated.View>
+  );
 }
 
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000, 
+    backgroundColor: "rgba(0, 0, 0, 0.85)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
   },
   modalContainer: {
-    alignSelf: 'center',
-    justifyContent: 'flex-start',
+    alignSelf: "center",
+    justifyContent: "flex-start",
     borderRadius: 16,
     padding: 20,
-    paddingHorizontal: isWeb? 32 : 16,
-    shadowColor: '#000',
+    paddingHorizontal: isWeb ? 32 : 16,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    paddingBottom: isWeb? 50 : 24,
+    paddingBottom: isWeb ? 30 : 24,
     zIndex: 1,
   },
-})
+});

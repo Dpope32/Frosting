@@ -13,6 +13,10 @@ import { isIpad } from '@/utils';
 import { DRAWER_ICONS } from '@/constants';
 import { DrawerContent } from '@/components/drawer/DrawerContent';
 import { adjustColor } from '@/components/weather/styleUtils';
+import { EventModal } from '@/components/calendar/EventModal';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useCalendarModals } from '@/hooks/useCalendarModals';
+import { useCalendarViewStore } from '@/store';
 
 type MaterialIconName = keyof typeof MaterialIcons.glyphMap;
 type MaterialCommunityIconName = keyof typeof MaterialCommunityIcons.glyphMap;
@@ -182,6 +186,73 @@ export default function DrawerLayout() {
         }}
       />
       </Drawer>
+      <CalendarModalContainer />
     </View>
+  );
+}
+
+function CalendarModalContainer() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const { primaryColor } = useUserStore(s => s.preferences);
+  
+  const { 
+    isEventModalVisible, 
+    isViewEventModalVisible,
+    closeEventModals,
+    openEventModal
+  } = useCalendarModals();
+
+  const selectedDate = useCalendarViewStore(state => state.selectedDate);
+  const selectedEvents = useCalendarViewStore(state => state.selectedEvents);
+
+  const {
+    newEventTitle,
+    setNewEventTitle,
+    newEventTime,
+    setNewEventTime,
+    selectedType,
+    setSelectedType,
+    notifyOnDay,
+    setNotifyOnDay,
+    notifyBefore,
+    setNotifyBefore,
+    notifyBeforeTime,
+    setNotifyBeforeTime,
+    editingEvent,
+    handleAddEvent,
+    handleEditEvent,
+    handleDeleteEvent,
+    resetForm,
+  } = useCalendarEvents(selectedDate);
+
+  return (
+    <EventModal
+      isEventModalVisible={isEventModalVisible}
+      isViewEventModalVisible={isViewEventModalVisible}
+      selectedDate={selectedDate}
+      selectedEvents={selectedEvents}
+      newEventTitle={newEventTitle}
+      setNewEventTitle={setNewEventTitle}
+      newEventTime={newEventTime}
+      setNewEventTime={setNewEventTime}
+      selectedType={selectedType}
+      setSelectedType={setSelectedType}
+      notifyOnDay={notifyOnDay}
+      setNotifyOnDay={setNotifyOnDay}
+      notifyBefore={notifyBefore}
+      setNotifyBefore={setNotifyBefore}
+      notifyBeforeTime={notifyBeforeTime}
+      setNotifyBeforeTime={setNotifyBeforeTime}
+      editingEvent={editingEvent}
+      handleAddEvent={handleAddEvent}
+      handleEditEvent={handleEditEvent}
+      handleDeleteEvent={handleDeleteEvent}
+      resetForm={resetForm}
+      closeEventModals={closeEventModals}
+      openEventModal={openEventModal}
+      isDark={isDark}
+      primaryColor={primaryColor}
+    />
   );
 }

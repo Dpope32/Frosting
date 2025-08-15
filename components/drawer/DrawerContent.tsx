@@ -191,6 +191,7 @@ export const DrawerContent = memo(({ props, username, profilePicture, styles, is
                         multiRow={true}
                         onTodayClick={() => handleHabitToggle(habit.id)}
                         todayCompleted={isHabitDoneToday(habit.id)}
+                        uniqueId={habit.id}
                       />
                     </YStack>
                   ))}

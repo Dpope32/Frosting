@@ -59,6 +59,7 @@ export const LandingPage = React.memo(() => {
   const isDark = colorScheme === 'dark'
   const router = useRouter()
   const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.1)",[isDark])
+  const backgroundColorWeb = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(255, 255, 255, 0.0)",[isDark])
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [taskListModalOpen, setTaskListModalOpen] = useState(false)
@@ -194,7 +195,7 @@ export const LandingPage = React.memo(() => {
             </Stack>
           )}
         <Stack 
-          backgroundColor={backgroundColor} 
+          backgroundColor={isWeb ? backgroundColorWeb : backgroundColor} 
           borderRadius={24} 
           padding={isIpad() ? "$3" : "$2"} 
           borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"} 
@@ -231,7 +232,7 @@ export const LandingPage = React.memo(() => {
           {Platform.OS === 'web' ?  (
             <Animated.View entering={FadeIn.duration(600)}>
               <Stack 
-                backgroundColor={backgroundColor} 
+                backgroundColor={backgroundColorWeb} 
                 borderRadius={16} 
                 padding="$4" 
                 marginTop="$2" 

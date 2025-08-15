@@ -176,7 +176,7 @@ export const HabitCardContent = ({ habit, doneToday }: HabitCardContentProps) =>
           )}
       </XStack>
       <XStack alignItems="center" style={{ zIndex: 2 }}>
-        <RecentGithubCells history={history} today={today} />
+        <RecentGithubCells history={history} today={today} uniqueId={habit.id} />
       </XStack>
 
       <Modal

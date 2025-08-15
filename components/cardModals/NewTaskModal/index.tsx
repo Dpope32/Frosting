@@ -290,7 +290,7 @@ export function NewTaskModal({
         return;
       }
 
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
       const taskToAdd = {
         ...newTask,
@@ -298,68 +298,82 @@ export function NewTaskModal({
         schedule:
           newTask.recurrencePattern === "one-time"
             ? []
-            : (newTask.recurrencePattern === 'weekly' || newTask.recurrencePattern === 'biweekly')
-              ? newTask.schedule
-              : [],
-        recurrenceDate: newTask.recurrenceDate
-      }
+            : newTask.recurrencePattern === "weekly" ||
+              newTask.recurrencePattern === "biweekly"
+            ? newTask.schedule
+            : [],
+        recurrenceDate: newTask.recurrenceDate,
+      };
 
       // Close optimistically immediately
-      onOpenChange(false)
-      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      onOpenChange(false);
+      if (Platform.OS !== "web")
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       // Defer heavy work until after interactions/animations
       InteractionManager.runAfterInteractions(() => {
         (async () => {
           try {
-            if (taskToAdd.recurrencePattern === 'tomorrow' || taskToAdd.recurrencePattern === 'one-time') {
-              const timestamp = new Date().toISOString()
-              const deviceInfo = deviceId || 'unknown-device'
-              const tn = taskToAdd.name.slice(0, 30)
-              const pattern = taskToAdd.recurrencePattern
+            if (
+              taskToAdd.recurrencePattern === "tomorrow" ||
+              taskToAdd.recurrencePattern === "one-time"
+            ) {
+              const timestamp = new Date().toISOString();
+              const deviceInfo = deviceId || "unknown-device";
+              const tn = taskToAdd.name.slice(0, 30);
+              const pattern = taskToAdd.recurrencePattern;
 
               addSyncLog(
                 `[NEW TASK] "${tn}" created with pattern: ${pattern}`,
-                'info',
-                `Device: ${deviceInfo} | Timestamp: ${timestamp} | Full name: "${taskToAdd.name}" | Category: ${taskToAdd.category || 'none'} | Priority: ${taskToAdd.priority} | Time: ${taskToAdd.time || 'none'} | Schedule: [${taskToAdd.schedule.join(', ')}] | RecurrenceDate: ${taskToAdd.recurrenceDate || 'none'}`
-              )
+                "info",
+                `Device: ${deviceInfo} | Timestamp: ${timestamp} | Full name: "${
+                  taskToAdd.name
+                }" | Category: ${taskToAdd.category || "none"} | Priority: ${
+                  taskToAdd.priority
+                } | Time: ${
+                  taskToAdd.time || "none"
+                } | Schedule: [${taskToAdd.schedule.join(
+                  ", "
+                )}] | RecurrenceDate: ${taskToAdd.recurrenceDate || "none"}`
+              );
 
-              if (pattern === 'tomorrow') {
-                const createdDate = new Date().toISOString().split('T')[0]
+              if (pattern === "tomorrow") {
+                const createdDate = new Date().toISOString().split("T")[0];
                 addSyncLog(
                   `[TOMORROW TASK] "${tn}" created on ${createdDate} - will be due tomorrow`,
-                  'info',
+                  "info",
                   `This task should convert to one-time after midnight. Created at: ${timestamp} on device: ${deviceInfo}`
-                )
+                );
               }
 
-              if (pattern === 'one-time') {
+              if (pattern === "one-time") {
                 addSyncLog(
                   `[ONE-TIME TASK] "${tn}" created - completion will be permanent`,
-                  'info',
+                  "info",
                   `One-time tasks stay completed once marked done. Created at: ${timestamp} on device: ${deviceInfo}`
-                )
+                );
               }
             }
 
-            addTask(taskToAdd)
+            addTask(taskToAdd);
             if (taskToAdd.showInCalendar) {
-              syncTasksToCalendar()
+              syncTasksToCalendar();
             }
             if (notifyOnTime && taskToAdd.time) {
               // Fire-and-forget; internal try/catch already handles errors
-              scheduleNotificationForTask(taskToAdd.name, taskToAdd.time)
+              scheduleNotificationForTask(taskToAdd.name, taskToAdd.time);
             }
 
-            showToast('Task added successfully', 'success')
+            showToast("Task added successfully", "success");
           } catch {
-            showToast('Failed to add task. Please try again.', 'error')
+            showToast("Failed to add task. Please try again.", "error");
           }
-        })()
-      })
+        })();
+      });
     } catch {
-      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
-      showToast('An error occurred. Please try again.', 'error')
+      if (Platform.OS !== "web")
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      showToast("An error occurred. Please try again.", "error");
     }
   }, [
     taskName,

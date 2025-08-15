@@ -1,6 +1,14 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, Text, StyleSheet, Button, Alert, ScrollView, Platform } from 'react-native';
-import * as Updates from 'expo-updates';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  Alert,
+  ScrollView,
+  Platform,
+} from "react-native";
+import * as Updates from "expo-updates";
 
 interface Props {
   children: ReactNode;
@@ -18,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
-    errorInfo: undefined
+    errorInfo: undefined,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -29,10 +37,10 @@ class ErrorBoundary extends Component<Props, State> {
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Catch errors in any components below and re-render with error message
     this.setState({ errorInfo });
-    
+
     // Log error to console
     console.error("Uncaught error:", error);
-    
+
     // Call optional error handler
     if (this.props.onError) {
       try {
@@ -48,11 +56,11 @@ class ErrorBoundary extends Component<Props, State> {
     }
   }
 
-  private handleReload = async () => {
+  private handleReload = async () => {  
     try {
       // Check if we're in an emergency launch situation
       const isEmergencyLaunch = Updates.isEmergencyLaunch;
-      
+
       if (isEmergencyLaunch) {
         // In emergency launch, we should be more careful about reloading
         // as we're already in a fallback state
@@ -61,21 +69,24 @@ class ErrorBoundary extends Component<Props, State> {
           "The app is currently running in emergency recovery mode. Would you still like to attempt to reload?",
           [
             { text: "Cancel", style: "cancel" },
-            { 
-              text: "Reload Anyway", 
+            {
+              text: "Reload Anyway",
               onPress: async () => {
                 try {
                   await Updates.reloadAsync();
                 } catch (reloadErr) {
-                  console.error("Failed to reload in emergency mode:", reloadErr);
+                  console.error(
+                    "Failed to reload in emergency mode:",
+                    reloadErr
+                  );
                   Alert.alert(
                     "Reload Failed",
                     "Could not reload the app. Please close and restart the application manually."
                   );
                 }
               },
-              style: "destructive"
-            }
+              style: "destructive",
+            },
           ]
         );
       } else {
@@ -84,9 +95,9 @@ class ErrorBoundary extends Component<Props, State> {
       }
     } catch (err) {
       console.error("Failed to reload app via Updates:", err);
-      
+
       // Try to restart the JS engine if reload fails
-      if (Platform.OS === 'web') {
+      if (Platform.OS === "web") {
         window.location.reload();
       } else {
         Alert.alert(
@@ -100,42 +111,49 @@ class ErrorBoundary extends Component<Props, State> {
   private getErrorDetails = (): string => {
     // Check for emergency launch situation
     const isEmergencyLaunch = Updates.isEmergencyLaunch;
-    let emergencyInfo = '';
-    
+    let emergencyInfo = "";
+
     if (isEmergencyLaunch) {
-      emergencyInfo = '[EMERGENCY LAUNCH MODE: App is running from embedded update] ';
+      emergencyInfo =
+        "[EMERGENCY LAUNCH MODE: App is running from embedded update] ";
     }
     try {
       const { error, errorInfo } = this.state;
-      
+
       if (!error) return `${emergencyInfo}Unknown error occurred`;
-      
-      let details = '';
-      
+
+      let details = "";
+
       // Safely extract error message
-      const errorMessage = typeof error.message === 'string' ? error.message : 
-                          (error.toString && typeof error.toString === 'function') ? 
-                          error.toString() : 'Error object could not be converted to string';
-      
+      const errorMessage =
+        typeof error.message === "string"
+          ? error.message
+          : error.toString && typeof error.toString === "function"
+          ? error.toString()
+          : "Error object could not be converted to string";
+
       details += emergencyInfo + errorMessage;
-      
+
       // Add stack trace if available
-      if (error.stack && typeof error.stack === 'string') {
-        details += `\n\nStack: ${error.stack.split('\n').slice(0, 3).join('\n')}`;
+      if (error.stack && typeof error.stack === "string") {
+        details += `\n\nStack: ${error.stack
+          .split("\n")
+          .slice(0, 3)
+          .join("\n")}`;
       }
-      
+
       // Add component stack if available
       if (errorInfo?.componentStack) {
         const componentLines = errorInfo.componentStack
-          .split('\n')
-          .filter(line => line.trim())
+          .split("\n")
+          .filter((line) => line.trim())
           .slice(0, 3);
-        
+
         if (componentLines.length > 0) {
-          details += `\n\nComponent: ${componentLines.join('\n')}`;
+          details += `\n\nComponent: ${componentLines.join("\n")}`;
         }
       }
-      
+
       return details;
     } catch (detailsError) {
       console.error("Error generating error details:", detailsError);
@@ -186,43 +204,43 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#f8d7da',
-    minHeight: '100%',
+    backgroundColor: "#f8d7da",
+    minHeight: "100%",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#721c24',
+    fontWeight: "bold",
+    color: "#721c24",
     marginBottom: 10,
   },
   message: {
     fontSize: 16,
-    color: '#721c24',
-    textAlign: 'center',
+    color: "#721c24",
+    textAlign: "center",
     marginBottom: 20,
   },
   errorContainer: {
-    width: '100%',
+    width: "100%",
     padding: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     borderRadius: 8,
     marginBottom: 20,
     maxHeight: 300,
   },
   errorDetails: {
     fontSize: 12,
-    color: '#721c24',
-    fontFamily: Platform.OS === 'web' ? 'monospace' : 'System',
+    color: "#721c24",
+    fontFamily: Platform.OS === "web" ? "monospace" : "System",
     letterSpacing: -0.5,
   },
   buttonContainer: {
-    width: '100%',
+    width: "100%",
     maxWidth: 250,
     marginTop: 20,
-  }
+  },
 });
 
 export default ErrorBoundary;

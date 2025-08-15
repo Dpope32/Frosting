@@ -20,6 +20,8 @@ interface RecentGithubCellsProps {
   onTodayClick?: () => void;
   /** Whether today is completed (for clickable today cells) */
   todayCompleted?: boolean;
+  /** Unique identifier to prevent key collisions when multiple instances are rendered */
+  uniqueId?: string;
 }
 
 /**
@@ -55,9 +57,10 @@ export const RecentGithubCells = ({
   today, 
   showTitle = true, 
   compact = false, 
-  multiRow = false, 
+  multiRow = false,
   onTodayClick,
-  todayCompleted 
+  todayCompleted,
+  uniqueId
 }: RecentGithubCellsProps) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -80,7 +83,6 @@ export const RecentGithubCells = ({
     
     const cellContent = (
       <YStack
-        key={`cell-${cellDateString}`}
         width={squareSize}
         height={squareSize}
         borderRadius={compact ? (multiRow ? 2 : 3) : 4}
@@ -111,7 +113,7 @@ export const RecentGithubCells = ({
 
     if (isClickableToday) {
       return (
-        <View key={`cell-${cellDateString}`} style={{ position: 'relative' }}>
+        <View key={`cell-clickable-${uniqueId || 'default'}-${cellDateString}`} style={{ position: 'relative' }}>
           {cellContent}
           <View
             style={{
@@ -167,7 +169,11 @@ export const RecentGithubCells = ({
       );
     }
 
-    return cellContent;
+    return (
+      <View key={`cell-${uniqueId || 'default'}-${cellDateString}`}>
+        {cellContent}
+      </View>
+    );
   };
 
   return (

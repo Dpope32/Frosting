@@ -6,29 +6,38 @@ import { Platform } from 'react-native';
 import { portfolioData, updatePortfolioData } from '../utils/Portfolio';
 import { StorageUtils, createPersistStorage } from '../store/AsyncStorage';
 import ProxyServerManager from '../utils/ProxyServerManager';
-import { Stock } from '@/types/stocks'; // Import Stock interface
+import { Stock } from '@/types/stocks'; 
 
-// Add sync log import
 const getAddSyncLog = () => require('@/components/sync/syncUtils').addSyncLog;
 
-interface PortfolioState {
-    totalValue: number | null;
-    prices: Record<string, number>;
+// Separate interface for persisted data (only data, no methods)
+interface PortfolioPersistedState {
+  totalValue: number | null;
+  prices: Record<string, number>;
+  principal: number;
+  watchlist: string[];
+  holdings: Stock[];
+  historicalData: Record<string, {
+    '1d': number | null;
+    '1w': number | null;
+    '1m': number | null;
+    '3m': number | null;
+    '6m': number | null;
+    '1y': number | null;
+    'ytd': number | null;
+    'earliest': number | null; 
+  }>;
+  isSyncEnabled: boolean;
+}
+
+interface PortfolioState extends PortfolioPersistedState {
     lastUpdate?: Date;
-    principal: number;
-    isSyncEnabled: boolean;
     togglePortfolioSync: () => void;
-    watchlist: string[];
-    historicalData: Record<string, {
-      '1d': number | null;
-      '1w': number | null;
-      '1m': number | null;
-      '3m': number | null;
-      '6m': number | null;
-      '1y': number | null;
-      'ytd': number | null;
-      'earliest': number | null; 
-    }>;
+    // Add methods to manage holdings
+    addHolding: (stock: Stock) => void;
+    removeHolding: (symbol: string) => void;
+    updateHolding: (symbol: string, updates: Partial<Stock>) => void;
+    syncHoldingsWithPortfolioData: () => void;
     // Add sync method
     hydrateFromSync?: (syncedData: { 
       watchlist?: string[];
@@ -54,6 +63,7 @@ export const usePortfolioStore = create<PortfolioState>()(
       prices: {},
       principal: 1000,
       watchlist: [],
+      holdings: [], // Initialize empty holdings array
       historicalData: {},
       isSyncEnabled: false,
       
@@ -67,13 +77,43 @@ export const usePortfolioStore = create<PortfolioState>()(
         });
       },
 
+      addHolding: (stock: Stock) => set((state) => {
+        const addSyncLog = getAddSyncLog();
+        const newHoldings = [...state.holdings, stock];
+        addSyncLog(`[PortfolioStore] Adding holding: ${stock.symbol} (${stock.quantity} shares)`, 'info');
+        return { holdings: newHoldings };
+      }),
+
+      removeHolding: (symbol: string) => set((state) => {
+        const addSyncLog = getAddSyncLog();
+        const newHoldings = state.holdings.filter(stock => stock.symbol !== symbol);
+        addSyncLog(`[PortfolioStore] 🗑️ Removing holding: ${symbol}. Holdings count: ${state.holdings.length} → ${newHoldings.length}`, 'info');
+        return { holdings: newHoldings };
+      }),
+
+      updateHolding: (symbol: string, updates: Partial<Stock>) => set((state) => {
+        const addSyncLog = getAddSyncLog();
+        const newHoldings = state.holdings.map(stock => 
+          stock.symbol === symbol ? { ...stock, ...updates } : stock
+        );
+        addSyncLog(`[PortfolioStore] Updating holding: ${symbol}`, 'info');
+        return { holdings: newHoldings };
+      }),
+
+      syncHoldingsWithPortfolioData: () => set((state) => {
+        const addSyncLog = getAddSyncLog();
+        const currentPortfolioData = [...portfolioData];
+        addSyncLog(`[PortfolioStore] Syncing holdings with portfolioData: ${currentPortfolioData.length} items`, 'info');
+        return { holdings: currentPortfolioData };
+      }),
+
       hydrateFromSync: async (syncedData: { 
         watchlist?: string[];
         historicalData?: Record<string, any>;
         totalValue?: number | null;
         prices?: Record<string, number>;
         principal?: number;
-        portfolioHoldings?: Stock[]; // Now Stock has the timestamp fields
+        portfolioHoldings?: Stock[]; 
         lastUpdated?: number;
       }) => {
         const addSyncLog = getAddSyncLog();
@@ -93,20 +133,24 @@ export const usePortfolioStore = create<PortfolioState>()(
           let mergedPortfolioData = [...currentPortfolioData];
           let holdingsUpdated = 0;
           let holdingsAdded = 0;
+          let holdingsDeleted = 0;
       
-          // IMPROVED: Proper merging strategy instead of simple replacement
+          // FIXED: Proper sync with deletion support
           if (syncedData.portfolioHoldings && Array.isArray(syncedData.portfolioHoldings)) {
-            addSyncLog(`Merging ${syncedData.portfolioHoldings.length} holdings from sync with ${currentPortfolioData.length} local holdings`, 'info');
+            addSyncLog(`Syncing ${syncedData.portfolioHoldings.length} holdings from sync with ${currentPortfolioData.length} local holdings`, 'info');
             
-            // Create a map of current holdings by symbol for quick lookup
+            // Create maps for easy lookup
             const currentHoldingsMap = new Map(
               currentPortfolioData.map(stock => [stock.symbol, stock])
             );
+            const incomingHoldingsMap = new Map(
+              syncedData.portfolioHoldings.map(stock => [stock.symbol, stock])
+            );
             
-            // Start with current portfolio data
-            const mergedHoldingsMap = new Map(currentHoldingsMap);
+            // Start with empty map and build the final result
+            const finalHoldingsMap = new Map<string, Stock>();
             
-            // Process incoming holdings
+            // Process ALL incoming holdings (this is the source of truth)
             for (const incomingStock of syncedData.portfolioHoldings) {
               const existingStock = currentHoldingsMap.get(incomingStock.symbol);
               
@@ -117,7 +161,7 @@ export const usePortfolioStore = create<PortfolioState>()(
                 
                 if (incomingTimestamp > localTimestamp) {
                   // Incoming is newer, use it
-                  mergedHoldingsMap.set(incomingStock.symbol, {
+                  finalHoldingsMap.set(incomingStock.symbol, {
                     ...existingStock,
                     ...incomingStock,
                     updatedAt: incomingStock.updatedAt || new Date().toISOString()
@@ -131,9 +175,11 @@ export const usePortfolioStore = create<PortfolioState>()(
                     quantity: Math.max(existingStock.quantity, incomingStock.quantity),
                     updatedAt: new Date().toISOString()
                   };
-                  mergedHoldingsMap.set(incomingStock.symbol, mergedStock);
+                  finalHoldingsMap.set(incomingStock.symbol, mergedStock);
+                } else {
+                  // Local is newer, but still include it in final result
+                  finalHoldingsMap.set(incomingStock.symbol, existingStock);
                 }
-                // If local is newer, keep local version (no action needed)
               } else {
                 // New stock from sync - add it
                 const newStock: Stock = {
@@ -141,18 +187,26 @@ export const usePortfolioStore = create<PortfolioState>()(
                   addedAt: incomingStock.addedAt || new Date().toISOString(),
                   updatedAt: incomingStock.updatedAt || new Date().toISOString()
                 };
-                mergedHoldingsMap.set(incomingStock.symbol, newStock);
+                finalHoldingsMap.set(incomingStock.symbol, newStock);
                 holdingsAdded++;
                 addSyncLog(`Added new stock from sync: ${incomingStock.symbol} (${incomingStock.quantity} shares)`, 'info');
               }
             }
             
+            // Check for deletions (stocks that exist locally but not in incoming data)
+            for (const [symbol, localStock] of currentHoldingsMap) {
+              if (!incomingHoldingsMap.has(symbol)) {
+                holdingsDeleted++;
+                addSyncLog(`🗑️ Stock deleted via sync: ${symbol} (${localStock.quantity} shares)`, 'info');
+              }
+            }
+            
             // Convert back to array
-            mergedPortfolioData = Array.from(mergedHoldingsMap.values());
+            mergedPortfolioData = Array.from(finalHoldingsMap.values());
             
             // Update the portfolio data
             await updatePortfolioData(mergedPortfolioData);
-            addSyncLog(`Portfolio merged: ${holdingsAdded} added, ${holdingsUpdated} updated. Total: ${mergedPortfolioData.length} holdings`, 'success');
+            addSyncLog(`Portfolio synced: ${holdingsAdded} added, ${holdingsUpdated} updated, ${holdingsDeleted} deleted. Total: ${mergedPortfolioData.length} holdings`, 'success');
           }
       
           // Merge other portfolio data
@@ -198,7 +252,7 @@ export const usePortfolioStore = create<PortfolioState>()(
           set(newState);
       
           addSyncLog(
-            `✅ Portfolio hydrated successfully: ${holdingsAdded} added, ${holdingsUpdated} updated, ${(newState.watchlist || currentState.watchlist).length} watchlist items`,
+            `✅ Portfolio hydrated successfully: ${holdingsAdded} added, ${holdingsUpdated} updated, ${holdingsDeleted} deleted, ${(newState.watchlist || currentState.watchlist).length} watchlist items`,
             'success'
           );
       
@@ -212,7 +266,28 @@ export const usePortfolioStore = create<PortfolioState>()(
     }),
     {
       name: 'portfolio-store',
-      storage: createPersistStorage<PortfolioState>(),
+      storage: createPersistStorage<PortfolioPersistedState>(),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Sync holdings with portfolioData on hydration
+          const currentPortfolioData = [...portfolioData];
+          if (state.holdings.length === 0 && currentPortfolioData.length > 0) {
+            state.holdings = currentPortfolioData;
+            try {
+              getAddSyncLog()(`[PortfolioStore] Initialized holdings from portfolioData: ${currentPortfolioData.length} items`, 'info');
+            } catch (e) { /* ignore */ }
+          }
+        }
+      },
+      partialize: (state) => ({
+        totalValue: state.totalValue,
+        prices: state.prices,
+        principal: state.principal,
+        watchlist: state.watchlist,
+        holdings: state.holdings, // Include holdings in persistence
+        historicalData: state.historicalData,
+        isSyncEnabled: state.isSyncEnabled
+      }),
     }
   )
 );
@@ -257,6 +332,21 @@ export const addToPortfolio = async (stock: Omit<Stock, 'addedAt' | 'updatedAt' 
     // Update the portfolio data
     await updatePortfolioData(updatedPortfolio);
     
+    // Update the store holdings (only for premium users with sync enabled)
+    const portfolioStore = usePortfolioStore.getState();
+    if (portfolioStore.isSyncEnabled) {
+      try {
+        const { useUserStore } = require('./UserStore');
+        const isPremium = useUserStore.getState().preferences.premium === true;
+        if (isPremium) {
+          portfolioStore.addHolding(timestampedStock);
+        }
+      } catch (e) {
+        // UserStore might not be available during initialization
+        console.log('UserStore not available for premium check');
+      }
+    }
+    
     // Recalculate total value
     const prices = usePortfolioStore.getState().prices;
     let newTotal = 0;
@@ -291,6 +381,9 @@ export const removeFromPortfolio = async (symbol: string) => {
     
     // Update the portfolio data
     await updatePortfolioData(updatedPortfolio);
+    
+    // Update the store holdings
+    usePortfolioStore.getState().removeHolding(symbol);
     
     // Recalculate total value
     const prices = usePortfolioStore.getState().prices;

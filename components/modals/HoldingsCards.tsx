@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useColorScheme } from 'react-native'
 import { YStack, Text, XStack, ScrollView, isWeb } from 'tamagui'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -6,6 +6,7 @@ import { portfolioData, isIpad } from '@/utils'
 import { Pressable } from 'react-native'
 import { Stock } from '@/types'
 import { IndividualCard } from './individualCard'
+import { usePortfolioStore, useUserStore } from '@/store'
 
 interface HoldingsCardsProps {
   openEditStockModal: (stock: Stock) => void
@@ -15,6 +16,19 @@ interface HoldingsCardsProps {
 export function HoldingsCards({ openEditStockModal, openAddStockModal }: HoldingsCardsProps) {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const { holdings, syncHoldingsWithPortfolioData, isSyncEnabled } = usePortfolioStore()
+  const isPremium = useUserStore((state) => state.preferences.premium)
+
+  // Only use store holdings for premium users with sync enabled, otherwise use portfolioData
+  const shouldUseStoreHoldings = isPremium && isSyncEnabled
+  const displayHoldings = shouldUseStoreHoldings ? holdings : portfolioData
+
+  // Sync holdings with portfolioData on mount (only for premium users with sync enabled)
+  useEffect(() => {
+    if (shouldUseStoreHoldings && holdings.length === 0 && portfolioData.length > 0) {
+      syncHoldingsWithPortfolioData()
+    }
+  }, [holdings.length, syncHoldingsWithPortfolioData, shouldUseStoreHoldings])
 
   return (
     <YStack>
@@ -33,7 +47,7 @@ export function HoldingsCards({ openEditStockModal, openAddStockModal }: Holding
           justifyContent={isWeb ? 'space-between' : 'center'}
           px={isWeb ? '$2' : '$1'}
         >
-          {portfolioData.length === 0 ? (
+          {displayHoldings.length === 0 ? (
             <YStack
               height={120}
               alignItems="center"
@@ -57,7 +71,7 @@ export function HoldingsCards({ openEditStockModal, openAddStockModal }: Holding
               </Text>
             </YStack>
           ) : (
-            portfolioData.map((stock, index) => (
+            displayHoldings.map((stock, index) => (
               <IndividualCard
                 key={stock.symbol}
                 stock={stock}
