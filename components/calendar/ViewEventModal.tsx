@@ -103,6 +103,9 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
     } else if (uniqueEvents.length <= 3) {
       minHeight = 250
       maxHeight = Math.min(screenHeight * 0.525, 500)
+    } else if (uniqueEvents.length === 5) {
+      minHeight = 250
+      maxHeight = Math.min(screenHeight * 0.725, 670)
     } else if (uniqueEvents.length <= 6) {
       // For 4-6 events, use calculated height more directly with tighter constraints
       minHeight = Math.min(calculatedHeight, 350)
@@ -192,7 +195,6 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
                     <MaterialIcons name="close" size={24} color={isDarkMode ? "#c9c9c9" : "#000"}/>
                   </TouchableOpacity>
                 </View>
-
 
                 <View style={{ flex: 1 }}>
                   <ScrollView
