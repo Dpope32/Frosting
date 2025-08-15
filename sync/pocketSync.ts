@@ -62,15 +62,15 @@ const CANDIDATE_URLS = (Platform.OS === 'web'
   ? [
       // Prioritize proxy for web (VPNs commonly block Tailscale)
       'https://kaiba.vercel.app/api/proxy/pb',
-      withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL),
-      withPort(process.env?.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env?.EXPO_PUBLIC_PB_URL),
+      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL),
+      withPort(process.env.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env.EXPO_PUBLIC_PB_URL),
     ]
   : [
       // Direct connections first for mobile
-      withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL), 
-      withPort(process.env?.EXPO_PUBLIC_PB_LAN),
-      withPort(process.env?.EXPO_PUBLIC_PB_URL),
+      withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), 
+      withPort(process.env.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env.EXPO_PUBLIC_PB_URL),
     ]
 ).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
 
@@ -95,8 +95,6 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
       getAddSyncLog()(`🌐 Web platform detected - skipping Google connectivity check`, 'info');
       return true;
     }
-    
-    getAddSyncLog()(`📱 Non-web platform (${Platform.OS}) - checking Google connectivity`, 'verbose');
     
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 3_000)
@@ -134,7 +132,6 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
     // Don't sleep after the last attempt
     if (attempt < MAX_RETRIES) {
       const delay = RETRY_DELAY_BASE * Math.pow(2, attempt); // Exponential backoff
-      getAddSyncLog()(`⏳ Waiting ${delay}ms before retry ${attempt + 2}`, 'verbose');
       await sleep(delay);
     }
   }
@@ -152,12 +149,6 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
   const timer = setTimeout(() => ctrl.abort(), timeout);
 
   try {
-    getAddSyncLog()(`🔍 Testing ${url} (attempt ${retryCount + 1}/${MAX_RETRIES + 1})`, 'verbose');
-    
-    // iPhone-specific debugging
-    if (Platform.OS === 'ios') {
-      getAddSyncLog()(`📱 iOS fetch with cache headers to ${url}`, 'verbose');
-    }
     
     let res = await fetch(url, { 
       method: 'GET', 
@@ -171,7 +162,6 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     });
     
     if (res.status === 405) {
-      getAddSyncLog()(`GET 405 — retrying HEAD for ${url}`, 'verbose');
       res = await fetch(url, { 
         method: 'HEAD', 
         signal: ctrl.signal,
@@ -185,9 +175,6 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     
     clearTimeout(timer);
 
-    // Enhanced logging for debugging
-    getAddSyncLog()(`📊 ${url} response: ${res.status} ${res.statusText}`, 'verbose');
-    
     // Accept 200, 401, or 404 as "alive" (different PB versions)
     if (res.status === 200 || res.status === 401 || res.status === 404) {
       getAddSyncLog()(`✅ ${url} -> ${res.status} (success)`, 'info');
@@ -220,25 +207,15 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 
-  // Enhanced iPhone debugging
-  if (Platform.OS === 'ios') {
-    getAddSyncLog()(`📱 iPhone PocketBase connection attempt`, 'info');
-    getAddSyncLog()(`📱 Available URLs: ${CANDIDATE_URLS.length}`, 'info');
-    CANDIDATE_URLS.forEach((url, index) => {
-      getAddSyncLog()(`📱 URL ${index + 1}: ${url}`, 'verbose');
-    });
-  }
-  //getAddSyncLog()(`🔄 Testing PocketBase connectivity (${CANDIDATE_URLS.length} URLs)`, 'info');
+  
   
   let selected: string | undefined;
 
   // Test each URL with full retry logic
   for (const baseUrl of CANDIDATE_URLS) {
-   // getAddSyncLog()(`🌐 Testing base URL: ${baseUrl}`, 'info');
-    
+
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
-      getAddSyncLog()(`✅ Selected PocketBase URL: ${baseUrl}`, 'success');
       break;
     }
   }
@@ -246,13 +223,9 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   if (!selected) {
     const errorMsg = `All PocketBase URLs failed after ${MAX_RETRIES + 1} attempts each`;
     
-    // Enhanced iPhone failure logging
-    if (Platform.OS === 'ios') {
-      getAddSyncLog()(`📱 iPhone total failure: ${errorMsg}`, 'error');
-      getAddSyncLog()(`📱 This suggests iPhone-specific network issues`, 'error');
-    } else {
+
       getAddSyncLog()(`❌ ${errorMsg}`, 'error');
-    }
+
     
     throw new Error('SKIP_SYNC_SILENTLY');
   }
