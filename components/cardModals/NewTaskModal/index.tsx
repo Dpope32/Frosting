@@ -26,8 +26,8 @@ import { PrioritySelector } from "./PrioritySelector";
 import { SubmitButton } from "./SubmitButton";
 import { isIpad } from "@/utils";
 import { DateSelector } from "./DateSelector";
-import { styles } from "@/components/styles";
 import { AdvancedSettings } from "./AdvancedSettings";
+import { TitleContent } from "./titleContent";
 
 interface NewTaskModalProps {
   open: boolean;
@@ -40,9 +40,7 @@ export function NewTaskModal({
   onOpenChange,
   isDark,
 }: NewTaskModalProps): JSX.Element | null {
-  if (!open) {
-    return null;
-  }
+  if (!open) return null;
 
   const { addTask } = useProjectStore();
   const { preferences } = useUserStore();
@@ -53,17 +51,10 @@ export function NewTaskModal({
   const [taskName, setTaskName] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [newTask, setNewTask] = useState<
-    Omit<
-      Task,
-      "id" | "completed" | "completionHistory" | "createdAt" | "updatedAt"
-    >
-  >(getDefaultTask());
+  const [newTask, setNewTask] = useState< Omit<Task, "id" | "completed" | "completionHistory" | "createdAt" | "updatedAt">>(getDefaultTask());
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-
   const [isAdvancedSettingsOpen, setIsAdvancedSettingsOpen] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
   const [notifyOnTime, setNotifyOnTime] = useState(false);
@@ -211,8 +202,7 @@ export function NewTaskModal({
   }, []);
 
   const handleDatePickerVisibilityChange = useCallback((visible: boolean) => {
-    setIsDatePickerVisible(visible);
-    // Don't close advanced settings when the date picker is shown
+    setIsDatePickerVisible(visible);    
   }, []);
 
   const scheduleNotificationForTask = useCallback(
@@ -225,7 +215,6 @@ export function NewTaskModal({
         return;
 
       try {
-        // Parse the time string and set it on today's date
         const [hourStr, minuteStr] = time.split(":");
         const [minutes, period] = minuteStr.split(" ");
 
@@ -241,12 +230,10 @@ export function NewTaskModal({
         notificationDate.setMinutes(parseInt(minutes));
         notificationDate.setSeconds(0);
 
-        // If the time is in the past for today, schedule for tomorrow
         if (notificationDate.getTime() < Date.now()) {
           notificationDate.setDate(notificationDate.getDate() + 1);
         }
 
-        // Schedule the notification
         await scheduleEventNotification(
           notificationDate,
           "Task Reminder",
@@ -260,10 +247,8 @@ export function NewTaskModal({
     []
   );
 
-  // Simple, immediate task name handler - no debouncing during typing
   const handleTaskNameChange = useCallback((value: string) => {
     setTaskName(value);
-    // Update newTask immediately to prevent state conflicts
     setNewTask((prev) => ({ ...prev, name: value }));
   }, []);
 
@@ -305,12 +290,10 @@ export function NewTaskModal({
         recurrenceDate: newTask.recurrenceDate,
       };
 
-      // Close optimistically immediately
       onOpenChange(false);
       if (Platform.OS !== "web")
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-      // Defer heavy work until after interactions/animations
       InteractionManager.runAfterInteractions(() => {
         (async () => {
           try {
@@ -360,7 +343,6 @@ export function NewTaskModal({
               syncTasksToCalendar();
             }
             if (notifyOnTime && taskToAdd.time) {
-              // Fire-and-forget; internal try/catch already handles errors
               scheduleNotificationForTask(taskToAdd.name, taskToAdd.time);
             }
 
@@ -390,79 +372,8 @@ export function NewTaskModal({
     setNewTask((prev) => ({ ...prev, tags }));
   }, []);
 
-  // Determine if submit button should be hidden
   const shouldHideSubmitButton = isDatePickerVisible || showNotifyTimeOptions;
 
-  const titleContent = (
-    <View
-      style={{
-        width: "100%",
-        alignSelf: "center",
-        paddingTop: isWeb ? 20 : 18,
-        paddingBottom: isWeb ? 8 : 6,
-        paddingHorizontal: isWeb ? -8 : -4,
-      }}
-    >
-      <View
-        style={{
-          width: "108%",
-          alignSelf: "center",
-          minHeight: isWeb ? 52 : 48,
-          borderWidth: isDark ? 1 : 1.5,
-          borderColor: isDark
-            ? "rgba(255, 255, 255, 0.2)"
-            : "rgba(0, 0, 0, 0.12)",
-          backgroundColor: isDark
-            ? "rgba(0, 0, 0, 0.4)"
-            : "rgba(248, 250, 252, 0.9)",
-          borderRadius: isWeb ? 14 : 12,
-          paddingHorizontal: isWeb ? 20 : 18,
-          paddingVertical: isWeb ? 16 : 14,
-          shadowColor: isDark ? "transparent" : "rgba(0, 0, 0, 0.08)",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: isDark ? 0 : 0.1,
-          shadowRadius: 4,
-          elevation: isDark ? 0 : 2,
-        }}
-      >
-        <TextInput
-          ref={nameInputRef}
-          placeholder={`What do you need to do ${username}?`}
-          placeholderTextColor={
-            isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.45)"
-          }
-          value={taskName}
-          onChangeText={handleTaskNameChange}
-          autoCapitalize="sentences"
-          autoCorrect={true}
-          spellCheck={true}
-          style={{
-            fontSize: isWeb ? 16 : isIpad() ? 15 : 14,
-            fontFamily: "System",
-            fontWeight: "400",
-            color: isDark ? "#fff" : "#1f2937",
-            minHeight: isWeb ? 20 : 18,
-            textAlignVertical: "center",
-            padding: 0,
-            margin: 0,
-            lineHeight: isWeb ? 24 : 20,
-            ...(isWeb && {
-              outline: "none",
-              border: "none",
-              boxShadow: "none",
-              backgroundColor: "transparent",
-            }),
-          }}
-          multiline={false}
-          textContentType="none"
-          autoComplete="off"
-          selectionColor={
-            isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(59, 130, 246, 0.4)"
-          }
-        />
-      </View>
-    </View>
-  );
 
   return (
     <Base
@@ -475,7 +386,7 @@ export function NewTaskModal({
       }}
       showCloseButton={true}
       keyboardOffset={isKeyboardVisible ? keyboardOffset : 0}
-      titleContent={titleContent}
+      titleContent={<TitleContent isDark={isDark} nameInputRef={nameInputRef} taskName={taskName} handleTaskNameChange={handleTaskNameChange} />}
     >
       <ScrollView
         contentContainerStyle={{}}

@@ -1,8 +1,8 @@
 import React from 'react'
 import { View, TouchableOpacity, ScrollView, Dimensions, Alert, StyleSheet, TouchableWithoutFeedback } from 'react-native'
-import { isWeb, Text, XStack, Button, Theme } from 'tamagui'
+import { isWeb, Text, Theme } from 'tamagui'
 import { useColorScheme } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated'
 import { parse } from 'date-fns'
 import { MaterialIcons } from '@expo/vector-icons'
@@ -37,7 +37,6 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
   const { showToast } = useToastStore()
   const colorScheme = useColorScheme()
   const isDarkMode = colorScheme === 'dark'
-  const insets = useSafeAreaInsets()
   const screenWidth = Dimensions.get('window').width
   const screenHeight = Dimensions.get('window').height
   const getViewModalMaxWidth = () => { return isWeb ? Math.min(screenWidth * 0.9, 800) : Math.min(screenWidth * 0.9, 400)}
@@ -100,10 +99,13 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
       maxHeight = Math.min(screenHeight * 0.5, 320)
     } else if (uniqueEvents.length === 2) {
       minHeight = 220  // Smaller for 2 events
-      maxHeight = Math.min(screenHeight * 0.5, 360)
+      maxHeight = Math.min(screenHeight * 0.485, 350)
     } else if (uniqueEvents.length <= 3) {
       minHeight = 250
-      maxHeight = Math.min(screenHeight * 0.6, 500)
+      maxHeight = Math.min(screenHeight * 0.525, 500)
+    } else if (uniqueEvents.length === 5) {
+      minHeight = 250
+      maxHeight = Math.min(screenHeight * 0.725, 670)
     } else if (uniqueEvents.length <= 6) {
       // For 4-6 events, use calculated height more directly with tighter constraints
       minHeight = Math.min(calculatedHeight, 350)
@@ -154,7 +156,7 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
   const modalWidth = getViewModalMaxWidth()
   const dynamicHeight = calculateDynamicHeight()
   
-  return (
+  const modalContent = (
     <Animated.View 
       style={modalStyles.overlay}
       entering={FadeIn.duration(200)}
@@ -193,7 +195,6 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
                     <MaterialIcons name="close" size={24} color={isDarkMode ? "#c9c9c9" : "#000"}/>
                   </TouchableOpacity>
                 </View>
-
 
                 <View style={{ flex: 1 }}>
                   <ScrollView
@@ -303,9 +304,18 @@ export const ViewEventModal: React.FC<ViewEventModalProps> = ({
       </Theme>
     </Animated.View>   
   )
+
+  return isWeb ? modalContent : (
+    <GestureHandlerRootView style={modalStyles.gestureRootView}>
+      {modalContent}
+    </GestureHandlerRootView>
+  )
 }
 
 const modalStyles = StyleSheet.create({
+  gestureRootView: {
+    ...StyleSheet.absoluteFillObject,
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
