@@ -10,11 +10,13 @@ export function DailyQuoteDisplay() {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.1)", [isDark])
+  const backgroundColorWeb = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(255, 255, 255, 0.0)", [isDark])
+  const finalBackgroundColor = isWeb ? backgroundColorWeb : backgroundColor
 
   if (isLoading) {
     return (
       <YStack
-        backgroundColor={backgroundColor}
+        backgroundColor={finalBackgroundColor}
         borderRadius={24}
         padding={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"}
         borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"} 
@@ -48,7 +50,7 @@ export function DailyQuoteDisplay() {
   if (isError || !data || !data.data) {
     return (
       <YStack
-        backgroundColor={backgroundColor}
+        backgroundColor={finalBackgroundColor}
         borderRadius={16}
         padding="$3"
         borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
@@ -81,7 +83,7 @@ export function DailyQuoteDisplay() {
   return (
     <Animated.View entering={FadeIn.duration(600)}>
       <YStack
-        backgroundColor={backgroundColor}
+        backgroundColor={finalBackgroundColor}
         borderRadius={24}
         padding={isWeb ? "$4" : isIpad() ? "$4" : "$3.5"}
         borderColor={isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.2)"}
