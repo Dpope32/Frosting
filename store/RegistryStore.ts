@@ -299,10 +299,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
             'info',
             tasksWithCompletion.slice(0, 5).join(', ') + (tasksWithCompletion.length > 5 ? '...' : '')
           );
-        } else {
-          addSyncLog(`[SNAPSHOT EXPORT] No tasks have completion history for ${today}`, 'warning');
         }
-        
         return { ...taskState, lastUpdated: now };
       })(),
       notes: noteStateForSnapshot,
@@ -328,8 +325,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       const { initialSyncStartTime } = get();
       const endTime = Date.now();
       const duration = initialSyncStartTime ? endTime - initialSyncStartTime : 0;
-      
-      addSyncLog(`✅ Initial sync completed in ${duration}ms (${(duration/1000).toFixed(1)}s)`, 'success');
       set({ 
         isInitialSyncInProgress: false, 
         initialSyncStartTime: null 
@@ -344,24 +339,14 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
     hydrateAll: (data: Record<string, any>) => {
       const isPremium = useUserStore.getState().preferences.premium === true;
       if (!isPremium) return;
-      addSyncLog('🔄 Hydrating stores', 'info');
-      if (!data || typeof data !== 'object') {
-        addSyncLog('❌ Invalid data for hydration', 'error');
-        return;
-      }
+      if (!data || typeof data !== 'object') return;
 
       // Explicitly delete data for stores that should NEVER be hydrated from sync
       // User store holds the username, pfp, and other user-specific data that should not be synced. Encryption and decryption does not currently work with images
       // So any store with images or user-specific data should not be hydrated from sync (user, wallpaper, notes)
       // Project store holds images as well, this will be the next starting point for when I work on image sync. 
-      if (data.user) {
-      // We dont hydrate user store since it contains device specific data & images 
-        delete data.user;
-      }
-      if (data.wallpaper) {
-        // We dont hydrate wallpaper store in order to not have to deal with wallpaper CRDT
-        delete data.wallpaper;
-      }
+      if (data.user) delete data.user;
+      if (data.wallpaper) delete data.wallpaper;
   
       let successCount = 0;
       let errorCount = 0;
@@ -371,14 +356,13 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         if (storeDataFromSnapshot) {
           try {
             if (!isAlwaysSynced && typeof storeDataFromSnapshot.isSyncEnabled === 'boolean' && !storeDataFromSnapshot.isSyncEnabled) {
-              addSyncLog(`[Hydrate] ${storeKeyForLog}: Incoming snapshot data for this store has sync OFF by sender. Skipping hydration.`, 'warning');
               return; 
             }
             const storeState = store.getState();
             if (storeState.hydrateFromSync && typeof storeState.hydrateFromSync === 'function') {
+              // if the store has a hydrateFromSync function, and the store is not always synced, and the store is not sync enabled, skip hydration
               if (!isAlwaysSynced && typeof storeState.isSyncEnabled === 'boolean' && !storeState.isSyncEnabled) {
-                addSyncLog(`[Hydrate] ${storeKeyForLog}: Local sync is OFF. Skipping hydration.`, 'info');
-                return; // Add this line to actually skip when LOCAL sync is OFF
+                return; 
               } else {
                 storeState.hydrateFromSync(storeDataFromSnapshot);
               }
@@ -455,10 +439,8 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           addSyncLog(`Error checking for new birthday contacts: ${err}`, 'error');
         }
       }
-      
       set({ lastSyncAttempt: Date.now(), syncStatus: 'idle' });
       get().syncOnboardingWithUser();
-      addSyncLog(`✨ Hydration complete: ${successCount} stores updated, ${errorCount} errors.`, 'success');
     },    
     setSnapshotSizeCache: (sizeData: {
       mb: number;

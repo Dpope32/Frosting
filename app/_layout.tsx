@@ -201,8 +201,6 @@ useEffect(() => {
         setTimeout(() => {
           useTaskStore.getState().recalculateTodaysTasks();
         }, 500);
-        
-        addSyncLog('✅ Resume pull completed', 'success');
       } else if (nextAppState === 'background') {
         addSyncLog('📤 App backgrounded – pushing merged snapshot', 'info');
         await pushSnapshot();

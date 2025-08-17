@@ -15,7 +15,6 @@ type NoteStoreState = {
   noteOrder: string[]
   isLoaded: boolean
   isSyncEnabled: boolean
-
 }
 
 type NoteStoreActions = {
@@ -28,8 +27,8 @@ type NoteStoreActions = {
   loadNotes: () => Promise<void>
   toggleNoteSync: () => void
   hydrateFromSync: (syncedData: { notes?: Record<string, Note>; noteOrder?: string[] }) => void
-  getActiveNotes: () => Note[] // NEW: Helper to get non-deleted notes
-  cleanupOldDeletions: () => Promise<void> // NEW: Cleanup old tombstones
+  getActiveNotes: () => Note[]
+  cleanupOldDeletions: () => Promise<void>
 }
 
 export type NoteStore = NoteStoreState & NoteStoreActions
@@ -42,11 +41,9 @@ export const useNoteStore = create<NoteStore>()(
       isLoaded: false,
       isSyncEnabled: false,
 
-
       toggleNoteSync: () => {
         set((state) => {
           const newSyncState = !state.isSyncEnabled;
-          addSyncLog(`Note sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
           return { isSyncEnabled: newSyncState };
         });
       },
@@ -56,24 +53,11 @@ export const useNoteStore = create<NoteStore>()(
         return Object.values(notes).filter(note => !note.deletedAt);
       },
 
-
-
-
-
-
       hydrateFromSync: (syncedData: { notes?: Record<string, Note>; noteOrder?: string[] }) => {
         const currentSyncEnabledState = get().isSyncEnabled;
-        if (!currentSyncEnabledState) {
-          addSyncLog('Note sync is disabled, skipping hydration for NoteStore.', 'info');
-          return;
-        }
 
-        if (!syncedData.notes) {
-          addSyncLog('No notes data in snapshot for NoteStore.', 'info');
-          return;
-        }
-
-        addSyncLog('🔄 Hydrating NoteStore from sync...', 'info');
+        if (!currentSyncEnabledState) return;
+        if (!syncedData.notes) return;
 
         const currentNotes = get().notes;
         const currentOrder = get().noteOrder;
@@ -144,8 +128,6 @@ export const useNoteStore = create<NoteStore>()(
         StorageUtils.set(ORDER_STORAGE_KEY, mergedOrder);
 
         const activeCount = activeNotes.length;
-        addSyncLog(`Notes hydrated: ${notesAddedCount} added, ${notesMergedCount} merged, ${deletionsAppliedCount} deletions applied. Active notes: ${activeCount}`, 'success');
-
         // Clean up old deletions periodically
         setTimeout(() => get().cleanupOldDeletions(), 1000);
       },
@@ -204,10 +186,6 @@ export const useNoteStore = create<NoteStore>()(
         // Then save to storage
         await StorageUtils.set(NOTES_STORAGE_KEY, newNotes)
         await StorageUtils.set(ORDER_STORAGE_KEY, newOrder)
-
-        if (get().isSyncEnabled) {
-          addSyncLog(`Note added locally: "${noteData.title || 'Untitled'}"`, 'info');
-        }
       },
 
       updateNote: async (id, updates) => {
@@ -222,17 +200,13 @@ export const useNoteStore = create<NoteStore>()(
 
           await StorageUtils.set(NOTES_STORAGE_KEY, newNotes)
           set({ notes: newNotes })
-
-          if (get().isSyncEnabled) {
-            addSyncLog(`Note updated locally: "${updatedNote.title || 'Untitled'}"`, 'info');
-          }
         }
       },
 
       deleteNote: async (id) => {
         const notes = get().notes
         const order = get().noteOrder
-        if (notes[id] && !notes[id].deletedAt) { // Only delete if not already deleted
+        if (notes[id] && !notes[id].deletedAt) { 
           const noteTitle = notes[id].title || 'Untitled';
           const now = new Date().toISOString();
 
@@ -244,16 +218,12 @@ export const useNoteStore = create<NoteStore>()(
           };
 
           const newNotes = { ...notes, [id]: deletedNote };
-          const newOrder = order.filter(noteId => noteId !== id); // Remove from order
+          const newOrder = order.filter(noteId => noteId !== id); 
 
           await StorageUtils.set(NOTES_STORAGE_KEY, newNotes)
           await StorageUtils.set(ORDER_STORAGE_KEY, newOrder)
 
           set({ notes: newNotes, noteOrder: newOrder })
-
-          if (get().isSyncEnabled) {
-            addSyncLog(`Note deleted locally: "${noteTitle}"`, 'info');
-          }
         }
       },
 
@@ -302,8 +272,6 @@ export const useNoteStore = create<NoteStore>()(
         await StorageUtils.set(NOTES_STORAGE_KEY, deletedNotes)
         await StorageUtils.set(ORDER_STORAGE_KEY, [])
         set({ notes: deletedNotes, noteOrder: [] })
-
-        addSyncLog('All notes marked as deleted locally', 'info');
       },
 
       cleanupOldDeletions: async () => {
@@ -329,7 +297,6 @@ export const useNoteStore = create<NoteStore>()(
         if (cleanedCount > 0) {
           await StorageUtils.set(NOTES_STORAGE_KEY, cleanedNotes);
           set({ notes: cleanedNotes });
-          addSyncLog(`Cleaned up ${cleanedCount} old deleted notes (>30 days)`, 'info');
         }
       },
     }),

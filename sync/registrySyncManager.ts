@@ -58,16 +58,13 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     totalSize += size;
     
     if (size > 50000) { // > 50KB
-      addSyncLog(`🚨 LARGE STORE: ${storeKey}: ${sizeKB}KB`, 'warning');
-    } else {
-      addSyncLog(`📊 ${storeKey}: ${sizeKB}KB`, 'verbose');
-    }
+      addSyncLog(`big ass store: ${storeKey}: ${sizeKB}KB`, 'warning');
+    } 
   });
   
   const totalMB = (totalSize / 1024 / 1024).toFixed(2);
-  addSyncLog(`📦 Total snapshot size: ${totalMB}MB`, 'info');
+  addSyncLog(`Total snapshot size: ${totalMB}MB`, 'info');
 
-  // 🔧 FIXED: Better completion analysis that handles both patterns correctly
   if (allStates.tasks?.tasks) {
     const tasks = Object.values(allStates.tasks.tasks) as any[];
     const today = format(new Date(), 'yyyy-MM-dd'); 

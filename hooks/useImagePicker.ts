@@ -139,8 +139,6 @@ export function useImagePicker(
         return null; // Don't proceed if permission denied
       }
       
-      addSyncLog('✅ [ImagePicker] Media library permission granted', 'verbose');
-      
       // Permissions granted, proceed with picking
       const mergedOptions: ImagePickerOptions = {
         mediaTypes: 'images',
@@ -157,52 +155,18 @@ export function useImagePicker(
       if (!result.canceled && result.assets && result.assets[0]) {
         const tempUri = result.assets[0].uri;
         
-        addSyncLog(
-          '📸 [ImagePicker] Image selected from library',
-          'info',
-          `Temp URI: ${tempUri} | Size: ${result.assets[0].width}x${result.assets[0].height}`
-        );
-        
-        // Check if the URI is in volatile cache (ImagePicker cache)
         if (tempUri.includes('/cache/') || tempUri.includes('/Caches/')) {
-          addSyncLog(
-            '⚠️ [ImagePicker] Image is in volatile cache - copying to persistent storage',
-            'warning',
-            `Volatile URI: ${tempUri}`
-          );
-          
-          // Copy to persistent storage
           const persistentUri = await copyImageToPersistentStorage(tempUri);
-          
-          addSyncLog(
-            '✅ [ImagePicker] Image successfully moved to persistent storage',
-            'success',
-            `Persistent URI: ${persistentUri}`
-          );
-          
           return persistentUri;
         } else {
-          addSyncLog(
-            '✅ [ImagePicker] Image already in persistent storage',
-            'info',
-            `URI: ${tempUri}`
-          );
           return tempUri;
         }
       }
       
-      addSyncLog('📸 [ImagePicker] Image selection cancelled by user', 'info');
       return null;
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Failed to pick image');
       setError(error);
-      
-      addSyncLog(
-        '❌ [ImagePicker] Error picking image',
-        'error',
-        `Error: ${error.message} | Stack: ${error.stack}`
-      );
-      
       console.error('Error picking image:', error);
       return null;
     } finally {

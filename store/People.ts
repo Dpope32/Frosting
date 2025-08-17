@@ -95,7 +95,7 @@ export const usePeopleStore = create<PeopleStore>()(
               addSyncLog(`[PeopleStore] Birthday sync skipped for ${personWithId.name} (SKIP_BIRTHDAY_SYNC=true)`, 'warning')
             }
             
-            addSyncLog(`[PeopleStore] Person added locally: ${personWithId.name}`, 'info')
+            addSyncLog(`${personWithId.name} Person added locally and it only took: ${(performance.now() - startTime).toFixed(2)}ms`, 'info')
             return personWithId
           } catch (error) {
             console.error('🔴 [PeopleStore] Error in addPerson:', error)
@@ -119,8 +119,7 @@ export const usePeopleStore = create<PeopleStore>()(
             
             try {
               // Save to AsyncStorage
-              await StorageUtils.set(STORAGE_KEY, newContacts)
-              addSyncLog(`[PeopleStore] Person updated successfully: ID ${id}`, 'success')
+               await StorageUtils.set(STORAGE_KEY, newContacts)
             } catch (error) {
               console.error('🔴 [PeopleStore] Error saving updated contact:', error)
               addSyncLog(`[PeopleStore] Error saving updated contact: ${error}`, 'error')
@@ -153,8 +152,6 @@ export const usePeopleStore = create<PeopleStore>()(
             .catch((error: Error) => {
               console.error('🔴 [PeopleStore] Error saving deleted contact:', error);
             });
-
-          addSyncLog(`[PeopleStore] Person soft deleted locally: ${personToDelete.name} (ID ${id})`, 'info');
         },
         
         clearContacts: async () => {
@@ -163,16 +160,11 @@ export const usePeopleStore = create<PeopleStore>()(
             .catch((error: Error) => {
               console.error('🔴 [PeopleStore] Error clearing contacts from storage:', error)
             })
-
-          addSyncLog('[PeopleStore] All contacts cleared locally.', 'info')
         },
 
         togglePeopleSync: () => {
           set((state) => {
             const newSyncState = !state.isSyncEnabled
-            addSyncLog(`[PeopleStore] Contacts sync ${newSyncState ? 'enabled' : 'disabled'}.`, 'info')
-            
-            // Explicitly save the sync state to AsyncStorage as well
             StorageUtils.set('people-sync-enabled', newSyncState)
               .catch((error) => {
                 console.error('🔴 [PeopleStore] Error saving sync state:', error)
@@ -184,28 +176,18 @@ export const usePeopleStore = create<PeopleStore>()(
 
         hydrateFromSync: (syncedData: { contacts?: Record<string, Person>, isSyncEnabled?: boolean }) => {
           const localStore = get()
-          
-          // 🔒 PRESERVE LOCAL SYNC PREFERENCE - Never let other devices override this
+          // Never let other devices override this
           const localSyncEnabled = localStore.isSyncEnabled
           
-          if (!localSyncEnabled) {
-            addSyncLog('[PeopleStore] Local contacts sync is OFF. Skipping hydration.', 'info')
-            return
-          }
+          if (!localSyncEnabled) return;
+          if (!syncedData.contacts || typeof syncedData.contacts !== 'object') return;
 
-          if (!syncedData.contacts || typeof syncedData.contacts !== 'object') {
-            addSyncLog('[PeopleStore] No contacts data in snapshot or data is malformed. Skipping hydration.', 'info')
-            return
-          }
-
-          addSyncLog('[PeopleStore] 🔄 Hydrating contacts from sync...', 'info')
-          addSyncLog(`[PeopleStore] 🔒 Preserving local sync preference: ${localSyncEnabled ? 'ON' : 'OFF'}`, 'info')
           
           let itemsMergedCount = 0
           let itemsAddedCount = 0
           let deletionsAppliedCount = 0
 
-          const currentContacts = { ...localStore.contacts } // Work with a copy
+          const currentContacts = { ...localStore.contacts } 
           const incomingContacts = syncedData.contacts
 
           for (const id in incomingContacts) {
@@ -217,11 +199,7 @@ export const usePeopleStore = create<PeopleStore>()(
               const incomingUpdatedAt = new Date(incomingContact.updatedAt || 0).getTime()
 
               if (incomingUpdatedAt >= localUpdatedAt) {
-                // Check if this is a deletion being applied
-                if (incomingContact.deletedAt && !localContact.deletedAt) {
-                  deletionsAppliedCount++;
-                  addSyncLog(`[PeopleStore] Person "${incomingContact.name}" marked as deleted from sync`, 'info');
-                }
+                if (incomingContact.deletedAt && !localContact.deletedAt) deletionsAppliedCount++;
 
                 const mergedContact = {
                   ...incomingContact,
@@ -233,38 +211,26 @@ export const usePeopleStore = create<PeopleStore>()(
             } else {
               currentContacts[id] = incomingContact
               itemsAddedCount++
-              
-              if (incomingContact.deletedAt) {
-                addSyncLog(`[PeopleStore] Adding already-deleted person "${incomingContact.name}" from sync`, 'verbose');
-              }
             }
-          }
-          
-          if (deletionsAppliedCount > 0) {
-            addSyncLog(`[PeopleStore] Applied ${deletionsAppliedCount} person deletions from sync`, 'success');
           }
 
           const activeContacts = Object.values(currentContacts).filter(person => !person.deletedAt);
-          addSyncLog(`[PeopleStore] Contacts hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged. Total: ${Object.keys(currentContacts).length} (${activeContacts.length} active)`, 'success');
           
-          // 🔒 CRITICAL: Only update contacts, preserve local isSyncEnabled setting
+          // Only update contacts, preserve local isSyncEnabled setting
           set({ 
             contacts: currentContacts,
-            isSyncEnabled: localSyncEnabled  // Force preserve local preference
+            isSyncEnabled: localSyncEnabled
           })
           
           StorageUtils.set(STORAGE_KEY, currentContacts)
             .catch((error: Error) => {
               console.error('🔴 [PeopleStore] Error saving hydrated contacts to AsyncStorage:', error)
             })
-
-          addSyncLog('[PeopleStore] ✅ Contacts hydration complete. Local sync preference preserved.', 'success')
         },
 
         getActiveContacts: () => {
           const allContacts = Object.values(get().contacts);
           const activeContacts = allContacts.filter(person => !person.deletedAt);
-          addSyncLog(`[PeopleStore] getActiveContacts: ${activeContacts.length} active out of ${allContacts.length} total contacts`, 'verbose');
           return activeContacts;
         },
       }

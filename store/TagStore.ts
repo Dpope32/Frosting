@@ -60,13 +60,8 @@ export const useTagStore = create<TagStoreState>()(
           addSyncLog('No tags data in snapshot for TagStore, or tags are not an array.', 'info');
           return;
         }
-
-        addSyncLog(`🔄 Hydrating TagStore from sync... Found ${syncedData.tags.length} tags in sync data`, 'info');
-        
         const { tags: localTags } = get();
         const incomingTags = syncedData.tags;
-        
-        addSyncLog(`Local tags: ${localTags.length}, Incoming tags: ${incomingTags.length}`, 'verbose');
         
         // Simple merge strategy: combine all tags and deduplicate by name
         const allTags: Tag[] = [...localTags];
@@ -83,20 +78,16 @@ export const useTagStore = create<TagStoreState>()(
             allTags.push(incomingTag);
             existingNames.add(normalizedName);
             addedCount++;
-            addSyncLog(`Adding new tag from sync: ${incomingTag.name}`, 'verbose');
           } else {
             // Tag exists - check if we should update color
             const localTagIndex = allTags.findIndex(tag => tag.name.toLowerCase() === normalizedName);
             if (localTagIndex !== -1 && incomingTag.color && !allTags[localTagIndex].color) {
               allTags[localTagIndex] = { ...allTags[localTagIndex], color: incomingTag.color };
               updatedCount++;
-              addSyncLog(`Updated tag color: ${incomingTag.name}`, 'verbose');
             }
           }
         }
-        
         set({ tags: allTags });
-        addSyncLog(`Tags hydrated: ${addedCount} added, ${updatedCount} updated. Total tags: ${allTags.length}`, 'success');
       },
     }),
     {

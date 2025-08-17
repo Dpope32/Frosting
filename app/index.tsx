@@ -100,13 +100,14 @@ export default function Index() {
         const pushEndTime = Date.now();
         const pushDuration = pushEndTime - pushStartTime;
         const totalTime = Date.now() - overallStartTime;
-        const syncTime = totalTime - hydrationDuration;
-        addSyncLog(` App startup breakdown: Push time = ${(pushDuration/1000).toFixed(1)}s, Hydration=${(hydrationDuration/1000).toFixed(1)}s, Sync=${(syncTime/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
-
+        const timeOnPocketbase = pullDuration + pushDuration;
+        addSyncLog(` App startup breakdown: Push time = ${(pushDuration/1000).toFixed(1)}s, Hydration=${(hydrationDuration/1000).toFixed(1)}s, Pull=${(pullDuration/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
+        if(timeOnPocketbase > 20000) {
+          addSyncLog(`shits slow asf yo`, 'warning');
+        }
         completeInitialSync();
         useToastStore.getState().showToast('Synced with workspace', 'success');
       } else {
-
         completeInitialSync();
       }
     })().catch(e => {

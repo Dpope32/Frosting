@@ -177,11 +177,9 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
 
     // Accept 200, 401, or 404 as "alive" (different PB versions)
     if (res.status === 200 || res.status === 401 || res.status === 404) {
-      getAddSyncLog()(`✅ ${url} -> ${res.status} (success)`, 'info');
       return true;
     }
-    
-    getAddSyncLog()(`⚠️ ${url} -> ${res.status} (unexpected status)`, 'warning');
+    getAddSyncLog()(`....uhoh.....${url} -> ${res.status} (unexpected status)`, 'warning');
     return false;
     
   } catch (e: any) {
