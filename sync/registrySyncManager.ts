@@ -97,14 +97,23 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       throw new Error('Failed to generate or retrieve encryption key');
     }
     
-    // 🔧 IMPORTANT: Ensure we're encrypting the EXACT data we just verified
-    const jsonString = JSON.stringify(allStates);
-    const compressed = pako.deflate(jsonString);
-    const compressedString = btoa(String.fromCharCode(...compressed));
-    const cipher = encryptSnapshot(compressedString, key);    
-    
-    // Compare original vs actual compressed size (before base64)
-    addSyncLog(`📦 Compression: ${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
+      // 🔧 IMPORTANT: Ensure we're encrypting the EXACT data we just verified
+      const uint8ArrayToBase64 = (bytes: Uint8Array): string => {
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      };
+      
+      // In exportEncryptedState:
+      const jsonString = JSON.stringify(allStates);
+      const compressed = pako.deflate(jsonString); // Returns Uint8Array
+      const compressedString = uint8ArrayToBase64(compressed);
+      const cipher = encryptSnapshot(compressedString, key);
+      
+      addSyncLog(`Compression: ${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
+          
     let uri: string;  
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {

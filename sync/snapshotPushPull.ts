@@ -302,11 +302,15 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       const decryptStartTime = Date.now();
       const compressedString = decryptSnapshot(cipher, key); 
       const decryptTime = Date.now() - decryptStartTime;
-      
       const decompressStartTime = Date.now();
-      const compressed = Uint8Array.from(atob(compressedString), c => c.charCodeAt(0));
-      const decompressed = pako.inflate(compressed, { to: 'string' });  
-      plain = JSON.parse(decompressed); // Fix: use decompressed, not compressedString
+      const binaryString = atob(compressedString);
+      const compressed = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        compressed[i] = binaryString.charCodeAt(i);
+      }
+      
+      const decompressed = pako.inflate(compressed, { to: 'string' });
+      plain = JSON.parse(decompressed);
       const decompressTime = Date.now() - decompressStartTime;
       
       addSyncLog(`🔍 Decrypt took: ${decryptTime}ms, Decompress took: ${decompressTime}ms`, 'info');
