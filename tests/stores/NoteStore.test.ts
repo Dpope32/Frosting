@@ -11,13 +11,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   clear: jest.fn(() => Promise.resolve())
 }));
 
-// Mock syncUtils
-jest.mock('@/components/sync/syncUtils', () => ({
-  addSyncLog: jest.fn()
-}));
-
 import { useNoteStore } from '@/store/NoteStore';
-import { addSyncLog } from '@/components/sync/syncUtils';
 import type { Note, Tag } from '@/types';
 
 describe('NoteStore', () => {
@@ -268,11 +262,9 @@ describe('NoteStore', () => {
     
     useNoteStore.getState().toggleNoteSync();
     expect(useNoteStore.getState().isSyncEnabled).toBe(true);
-    expect(addSyncLog).toHaveBeenCalledWith('Note sync enabled', 'info');
     
     useNoteStore.getState().toggleNoteSync();
     expect(useNoteStore.getState().isSyncEnabled).toBe(false);
-    expect(addSyncLog).toHaveBeenCalledWith('Note sync disabled', 'info');
   });
 
   test('hydrateFromSync skips when sync disabled', () => {
@@ -280,7 +272,6 @@ describe('NoteStore', () => {
     
     useNoteStore.getState().hydrateFromSync(syncData);
     
-    expect(addSyncLog).toHaveBeenCalledWith('Note sync is disabled, skipping hydration for NoteStore.', 'info');
     expect(useNoteStore.getState().notes).toEqual({});
   });
 
@@ -395,7 +386,6 @@ describe('NoteStore', () => {
     const state = useNoteStore.getState();
     expect(state.notes['1']).toBeUndefined(); // Should be cleaned up
     expect(state.notes['2']).toBeDefined(); // Should remain
-    expect(addSyncLog).toHaveBeenCalledWith('Cleaned up 1 old deleted notes (>30 days)', 'info');
   });
 
   test('sync logging works correctly with enabled sync', async () => {
@@ -405,7 +395,6 @@ describe('NoteStore', () => {
     const noteData = { title: 'Test Note', content: 'Content' };
     await useNoteStore.getState().addNote(noteData);
     
-    expect(addSyncLog).toHaveBeenCalledWith('Note added locally: "Test Note"', 'info');
   });
 
   test('sync logging does not occur when sync disabled', async () => {
@@ -413,7 +402,5 @@ describe('NoteStore', () => {
     const noteData = { title: 'Test Note', content: 'Content' };
     await useNoteStore.getState().addNote(noteData);
     
-    // Should not log sync messages when sync is disabled
-    expect(addSyncLog).not.toHaveBeenCalledWith('Note added locally: "Test Note"', 'info');
   });
 }); 

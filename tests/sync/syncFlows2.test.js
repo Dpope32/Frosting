@@ -1,7 +1,7 @@
 
 
 // Mock the encryption module entirely
-jest.mock('@/lib/encryption', () => {
+jest.mock('@/utils/encryption', () => {
   
   // Create a custom error class
   class DecryptionError extends Error {
@@ -134,7 +134,7 @@ let pushSnapshot, pullLatestSnapshot;
 let generateRandomKey;
 
 try {
-  const encryptionModule = require('@/lib/encryption');
+  const encryptionModule = require('@/utils/encryption');
   decryptSnapshot = encryptionModule.decryptSnapshot;
   encryptSnapshot = encryptionModule.encryptSnapshot;
   DecryptionError = encryptionModule.DecryptionError;

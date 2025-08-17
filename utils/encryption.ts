@@ -1,5 +1,5 @@
 // ===============================================
-// File: lib/encryption.ts
+// File: utils/encryption.ts
 // Purpose: Typed AES encrypt/decrypt helpers for Registry snapshots.
 // ===============================================
 
