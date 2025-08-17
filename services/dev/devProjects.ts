@@ -138,7 +138,7 @@ export const addWebsiteRedesignProject = () => {
         }
       ]
     };
-  
+    
     // Add project to the store
     setTimeout(() => useProjectStore.getState().addProject(websiteProject as Project), 100);
   };

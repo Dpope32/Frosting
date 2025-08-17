@@ -23,9 +23,9 @@ export const useDrawerStyles = () => {
       marginTop: !!isIpad() ? -12 : 0,
     },
     header: {
-      paddingTop: isWeb ? (!!isIpad() ? 20 : 24) : 50,
-      paddingBottom: isWeb ? (!!isIpad() ? 10 : 15) : 15,
-      paddingHorizontal: isWeb ? (!!isIpad() ? 20 : 18) : 24,
+      paddingTop: isWeb ? (!!isIpad() ? 20 : 16) : 50,
+      paddingBottom: isWeb ? (!!isIpad() ? 10 : 0) : 15,
+      paddingHorizontal: isWeb ? (!!isIpad() ? 20 : 16) : 24,
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor
@@ -49,6 +49,7 @@ export const useDrawerStyles = () => {
     },
     scrollView: {
       overflow: 'hidden',
+      paddingTop: 6
     },
     scrollViewContent: {
       paddingTop: 6

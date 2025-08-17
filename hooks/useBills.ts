@@ -134,10 +134,84 @@ export function useBills() {
   const monthlyBalance = useMemo(() => {
     return monthlyIncome - totalMonthlyAmount;
   }, [monthlyIncome, totalMonthlyAmount]);
+
+  
+  // Add a new function for batch operations, now accepting the full Bill type (including optional createTask)
+  const addBills = (billsData: (Omit<Bill, 'id' | 'createdAt' | 'updatedAt'> & { createTask?: boolean })[], options: {
+    showToastNotification?: boolean,
+    batchCategory?: string
+  } = {}) => {
+    
+    const {
+      showToastNotification = true,
+      batchCategory = ''
+    } = options;
+    billsData.forEach(billData => addBillToStore(billData));
+    
+    // Collect all events and tasks to add
+    const eventsToAdd: EventToAdd[] = [];
+    const tasksToAdd: TaskToAdd[] = []; // Initialize tasksToAdd array
+
+    // For each bill, generate events and conditionally generate tasks
+    billsData.forEach(billData => {
+      const shouldCreateTask = billData.createTask || false; // Check the flag
+
+      // Generate events for the next 10 years (always)
+      const start = new Date();
+      const end = new Date(start.getFullYear() + 10, 11, 31); 
+      
+      // Create an event for each month from start to end
+      let currentDate = new Date(start.getFullYear(), start.getMonth(), billData.dueDate);
+      while (currentDate <= end) {
+        const formattedDate = format(currentDate, 'yyyy-MM-dd');
+        const weekDay = getDayName(currentDate);
+        
+        // Collect event for this month
+        eventsToAdd.push({
+          date: formattedDate,
+          title: `Bill Due: ${billData.name}`,
+          description: `$${billData.amount.toFixed(2)} due`,
+          type: 'bill'
+        });
+
+        // Conditionally collect task for this month
+        if (shouldCreateTask) {
+          tasksToAdd.push({
+            name: `${billData.name} Bill ($${billData.amount.toFixed(0)})`,
+            schedule: [weekDay], // Note: schedule might need adjustment based on task system logic
+            priority: 'high',
+            category: 'bills',
+            scheduledDate: formattedDate, // Task scheduled for the due date
+            dueDate: billData.dueDate, // Store original due day if needed
+            recurrencePattern: 'monthly' // Assuming monthly recurrence matches bill cycle
+          });
+        }
+        
+        // Move to next month
+        currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, billData.dueDate);
+      }
+    });
+
+    // Add collected events and tasks to their respective stores
+    addEvents(eventsToAdd); // Add all generated calendar events
+    if (tasksToAdd.length > 0) {
+      tasksToAdd.map(task => addTask(task)); // Add tasks only if any were generated
+    }
+    
+    // Show success toast
+    if (showToastNotification) {
+      showToast(`${billsData.length} ${batchCategory} bill${billsData.length > 1 ? 's' : ''} added successfully`, "success");
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['bills'] });
+    queryClient.refetchQueries({ queryKey: ['bills'] });
+  };
+  
   
   return {
     bills,
     isLoading,
+    addBills,
     addBill,
     updateBill: (updates: { id: string; name: string; amount: number; dueDate: number; createTask?: boolean }, options?: { onSuccess?: () => void, onError?: () => void }) => {
       return new Promise<void>((resolve, reject) => {

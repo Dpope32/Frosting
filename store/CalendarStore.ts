@@ -482,16 +482,78 @@ export const useCalendarStore = create<CalendarState>()(
       },
 
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
-        // ADD THIS DEBUG BLOCK
+
         if (syncedData.events) {
           addSyncLog(`🔍 [CalendarStore] Total events in sync: ${syncedData.events.length}`, 'info');
           
-          const eventTypes = syncedData.events.reduce((acc, event) => {
-            acc[event.type || 'unknown'] = (acc[event.type || 'unknown'] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>);
+          // Date distribution analysis
+          const today = new Date();
+          const currentMonth = today.getFullYear() * 12 + today.getMonth();
+          const dateRanges = {
+            past: 0, current: 0, future12: 0, farFuture: 0
+          };
           
-          addSyncLog(`🔍 [CalendarStore] Event types: ${JSON.stringify(eventTypes)}`, 'info');
+          const eventTypes: Record<string, number> = {};
+          const eventSources = { device: 0, app: 0, unknown: 0 };
+          const eventStatus = { deleted: 0, active: 0 };
+          
+          const unknownEvents: Array<{id: string, title: string, date: string}> = [];
+          const largeEvents: Array<{id: string, size: string, title: string}> = [];
+          
+          syncedData.events.forEach(event => {
+            // Date analysis
+            const eventDate = new Date(event.date);
+            const eventMonth = eventDate.getFullYear() * 12 + eventDate.getMonth();
+            
+            if (eventMonth < currentMonth) dateRanges.past++;
+            else if (eventMonth === currentMonth) dateRanges.current++;
+            else if (eventMonth <= currentMonth + 11) dateRanges.future12++;
+            else dateRanges.farFuture++;
+            
+            // Type analysis
+            const type = event.type || 'unknown';
+            eventTypes[type] = (eventTypes[type] || 0) + 1;
+            
+            // Source analysis
+            if (event.id.startsWith('device-')) eventSources.device++;
+            else if (event.id.startsWith('birthday-')) eventSources.app++;
+            else eventSources.unknown++;
+            
+            // Status analysis (check if event might be soft-deleted)
+            if ((event as any).deleted) eventStatus.deleted++;
+            else eventStatus.active++;
+            
+            // Unknown events detail
+            if (type === 'unknown') {
+              unknownEvents.push({
+                id: event.id.substring(0, 20),
+                title: event.title?.substring(0, 30) || 'No title',
+                date: event.date
+              });
+            }
+            
+            // Large events (>1KB each)
+            const eventSize = JSON.stringify(event).length;
+            if (eventSize > 1000) {
+              largeEvents.push({
+                id: event.id.substring(0, 20),
+                size: Math.round(eventSize/1024*10)/10 + 'KB',
+                title: event.title?.substring(0, 30) || 'No title'
+              });
+            }
+          });
+          
+          addSyncLog(`📅 Date ranges: Past=${dateRanges.past}, Current=${dateRanges.current}, Next12=${dateRanges.future12}, Far=${dateRanges.farFuture}`, 'warning');
+          addSyncLog(`🎯 Event sources: Device=${eventSources.device}, App=${eventSources.app}, Unknown=${eventSources.unknown}`, 'info');
+          addSyncLog(`💀 Event status: Active=${eventStatus.active}, Deleted=${eventStatus.deleted}`, 'info');
+          
+          if (unknownEvents.length > 0) {
+            addSyncLog(`❓ First 10 unknown events: ${JSON.stringify(unknownEvents.slice(0, 10))}`, 'warning');
+          }
+          
+          if (largeEvents.length > 0) {
+            addSyncLog(`📏 Large events (>1KB): ${JSON.stringify(largeEvents.slice(0, 5))}`, 'warning');
+          }
           
           const eventsSize = JSON.stringify(syncedData.events).length;
           addSyncLog(`🔍 [CalendarStore] Events data size: ${(eventsSize/1024).toFixed(1)}KB`, 'warning');

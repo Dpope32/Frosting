@@ -74,15 +74,52 @@ const CANDIDATE_URLS = (Platform.OS === 'web'
     ]
 ).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
 
+
+const CANDIDATE_URLS_DEV = (Platform.OS === 'web' 
+  ? [
+      // Prioritize proxy for web (VPNs commonly block Tailscale)
+      'https://kaiba.vercel.app/api/proxy/pb',
+      withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL),
+      withPort(process.env?.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env?.EXPO_PUBLIC_PB_URL),
+    ]
+  : [
+      // Direct connections first for mobile
+      withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL), 
+      withPort(process.env?.EXPO_PUBLIC_PB_LAN),
+      withPort(process.env?.EXPO_PUBLIC_PB_URL),
+    ]
+).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
+
+// ───────────────────────── DEV SWITCH ─────────────────────────
+// Default to using normal URLs. Can be flipped at runtime or via env var.
+const parseBooleanEnv = (val?: string): boolean => val === '1' || val === 'true' || val === 'TRUE';
+let USE_DEV_PB_CANDIDATES = false;
+try {
+  // Guarded for web environments without Node's process
+  // Prefer EXPO_PUBLIC_ so Expo inlines it for web builds
+  // Example flip: set EXPO_PUBLIC_PB_USE_DEV_URLS=1 before starting web
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const envVal = typeof process !== 'undefined' && process?.env?.EXPO_PUBLIC_PB_USE_DEV_URLS;
+  if (typeof envVal === 'string') {
+    USE_DEV_PB_CANDIDATES = parseBooleanEnv(envVal);
+  }
+} catch {}
+
+export const setUseDevPocketSync = (enabled: boolean) => {
+  USE_DEV_PB_CANDIDATES = enabled;
+};
+
+const ACTIVE_CANDIDATE_URLS = USE_DEV_PB_CANDIDATES ? CANDIDATE_URLS_DEV : CANDIDATE_URLS;
+
 const HEALTH_TIMEOUT = Platform.OS === 'web' ? 3000 : 8000  // Shorter timeout on web for VPN detection
 const HEALTH_TIMEOUT_RETRY = Platform.OS === 'web' ? 4000 : 12000  // Shorter retry timeout on web
 const HEALTH_PATH = '/api/health'
 const MAX_RETRIES = Platform.OS === 'web' ? 1 : 3  // Reduce retries on web (VPN context)
 const RETRY_DELAY_BASE = 500  // Faster retry for web
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-export type PocketBaseType = import('pocketbase', {
-  with: { 'resolution-mode': 'import' }
-}).default
+export type PocketBaseType = import('pocketbase').default
 
 // ───────────────────────── NETWORK UTILS ─────────────────────────
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
@@ -210,7 +247,7 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   let selected: string | undefined;
 
   // Test each URL with full retry logic
-  for (const baseUrl of CANDIDATE_URLS) {
+  for (const baseUrl of ACTIVE_CANDIDATE_URLS) {
 
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;

@@ -3,7 +3,7 @@ import { GetThemeValueForKey } from 'tamagui'
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
-export type ToastPosition = 'top-center'
+export type ToastPosition = 'top-center' | 'top-right'
 
 export interface ToastOptions {
   duration?: number

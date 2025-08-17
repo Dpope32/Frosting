@@ -1,5 +1,3 @@
-import fetch from 'node-fetch';
-
 describe('DiceBear Avatar API', () => {
   const avatarUrl = 'https://api.dicebear.com/6.x/adventurer/svg?seed=TestUser';
 

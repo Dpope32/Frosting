@@ -1,11 +1,8 @@
-import fetch from 'node-fetch';
-
 describe('CORS Proxy API', () => {
   const stoicApi = 'https://stoic.tekloon.net/stoic-quote';
   
   test('fetching directly from Stoic Quote API should have correct structure', async () => {
-    // In Node, fetch will succeed, but in browser this would fail due to CORS.
-    // We can only check for a valid response here, but document the CORS expectation.
+    // In Node/Jest, fetch will succeed; in a browser this could fail due to CORS.
     const response = await fetch(stoicApi);
     expect(response.ok).toBe(true);
     const data = await response.json();

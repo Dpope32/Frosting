@@ -58,7 +58,7 @@ export const deleteAllBills = (hooks: {
     });
   }; 
     
-  const addBills = (billsData: (Omit<Bill, 'id' | 'createdAt' | 'updatedAt'> & { createTask?: boolean })[], options: {
+ export const addBills = (billsData: (Omit<Bill, 'id' | 'createdAt' | 'updatedAt'> & { createTask?: boolean })[], options: {
     showToastNotification?: boolean,
     batchCategory?: string
   } = {}, hooks: {

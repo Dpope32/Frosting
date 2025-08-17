@@ -27,7 +27,9 @@ export default function DrawerLayout() {
   const isDark = colorScheme === 'dark';
   const backgroundColor = isDark ? 'rgba(14, 14, 15, 1)' : 'rgb(225, 225, 225)';
   const borderColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.1)';
-  const inactiveColor = isDark  ? Platform.OS === 'web' ? '#444' : '#555' : '#333';
+  const inactiveColor = isWeb
+    ? (isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)')
+    : (isDark ? '#555' : '#333');
   const isIpadDevice = isIpad();
   const isPermanentDrawer = isWeb || isIpadDevice;
   const styles = useDrawerStyles();
@@ -84,12 +86,13 @@ export default function DrawerLayout() {
       drawerItemStyle: { 
         paddingVertical: 0, 
         paddingLeft: 0, 
-        marginBottom: 8, 
+        marginBottom: isWeb ? 4 : 6, 
         borderRadius: 12,
         borderWidth: 0.5,
-        borderColor: 'rgba(255, 255, 255, 0.15)'
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        minHeight: isWeb ? 36 : 40,
       },
-      drawerLabelStyle: { fontSize: isIpadDevice ? 20 : 18, fontWeight: "500" as const, marginLeft: -8 },
+      drawerLabelStyle: { fontSize: isIpadDevice ? 20 : 18, fontWeight: (isWeb ? '400' : '500'), marginLeft: isWeb ? -8 : 0, lineHeight: isIpadDevice ? 22 : 20 },
       drawerContentStyle: { backgroundColor },
       drawerType: isPermanentDrawer ? 'permanent' as const : 'back' as const,
       defaultStatus: isPermanentDrawer ? 'open' : 'closed',

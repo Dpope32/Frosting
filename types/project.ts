@@ -17,5 +17,5 @@ export type Project = {
     tasks: Task[];
     people: Person[];
     notes: Note[];
-    isPinned: boolean;
+    isPinned?: boolean;
 }

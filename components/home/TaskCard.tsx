@@ -145,7 +145,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
               onPress: () => {
                 onDelete();
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                showToast('Task deleted successfully', 'success');
+                showToast('Task deleted successfully', 'success', { position: isWeb ? 'top-right' : 'top-center' });
                 onComplete(true);
               }, 
               style: 'destructive' 
@@ -160,13 +160,8 @@ export const TaskCard = React.memo<TaskCardProps>(({
   }, [onDelete, showToast, title]);
 
   const handleCheck = React.useCallback(() => {
-    if (isProcessingRef.current) {
-      return;
-    }
-
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
+    if (isProcessingRef.current) { return }
+    if (debounceTimeoutRef.current) { clearTimeout(debounceTimeoutRef.current)}
 
     isProcessingRef.current = true;
 
@@ -183,19 +178,16 @@ export const TaskCard = React.memo<TaskCardProps>(({
       })
     ]).start();
 
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
+    if (Platform.OS !== 'web') { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)}
     const newValue = !optimisticChecked;
     setOptimisticChecked(newValue);
     
     debounceTimeoutRef.current = setTimeout(() => {
-      const toastStart = performance.now();
       if (newValue) {
         const msg = variants[Math.floor(Math.random() * variants.length)];
-        showToast(msg, 'success');
+        showToast(msg, 'success', { position: isWeb ? 'top-right' : 'top-center' });
       } else {
-        showToast("Undo successful", 'success');
+        showToast("Undo successful", 'success', { position: isWeb ? 'top-right' : 'top-center' });
       }
       onCheck?.(newValue);
       setTimeout(() => {
@@ -278,7 +270,7 @@ export const TaskCard = React.memo<TaskCardProps>(({
               opacity={optimisticChecked ? 0.6 : 1}
               style={{
                 marginVertical: -2,
-                marginLeft: isIpad() ? 2 : 0,
+                marginLeft: isWeb ? -8 : isIpad() ? 2 : 0,
                 textDecorationLine: optimisticChecked ? 'line-through' : 'none',
                 textShadowColor: optimisticChecked ?  isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)',
                 textShadowOffset: optimisticChecked ? { width: 0.5, height: 0.5 } : { width: 0, height: 0 },
