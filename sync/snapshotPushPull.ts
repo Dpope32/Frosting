@@ -8,7 +8,7 @@
 // ===============================================
 
 import * as FileSystem from "expo-file-system";
-import { decryptSnapshot } from "@/lib/encryption";
+import { decryptSnapshot } from "@/utils/encryption";
 import { generateSyncKey, exportEncryptedState } from "@/sync/registrySyncManager";
 import { useRegistryStore } from "@/store/RegistryStore";
 import { useUserStore } from "@/store/UserStore";

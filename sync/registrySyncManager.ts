@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { getCurrentWorkspaceId } from './getWorkspace';
 import { getWorkspaceKey } from './workspaceKey';
-import { encryptSnapshot } from '@/lib/encryption';
+import { encryptSnapshot } from '@/utils/encryption';
 import * as FileSystem from 'expo-file-system';
 import { format } from 'date-fns';
 import pako from 'pako';

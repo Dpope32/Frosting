@@ -1,7 +1,7 @@
 
   import pako from 'pako';
   import CryptoJS from 'crypto-js';
-  import { encryptSnapshot, decryptSnapshot } from '@/lib/encryption';
+  import { encryptSnapshot, decryptSnapshot } from '@/utils/encryption';
   import { exportEncryptedState } from '@/sync/registrySyncManager';
   import { useRegistryStore } from '@/store/RegistryStore';
   import { useCalendarStore } from '@/store/CalendarStore';
