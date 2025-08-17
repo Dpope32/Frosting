@@ -237,31 +237,20 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
 };
 
 export const getPocketBase = async (): Promise<PocketBaseType> => {
-  // Early detection for simulator/dev mode
   if (isSimulatorOrDev()) {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
-
-  
-  
   let selected: string | undefined;
-
   // Test each URL with full retry logic
   for (const baseUrl of ACTIVE_CANDIDATE_URLS) {
-
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
       break;
     }
   }
-
   if (!selected) {
     const errorMsg = `All PocketBase URLs failed after ${MAX_RETRIES + 1} attempts each`;
-    
-
       getAddSyncLog()(`❌ ${errorMsg}`, 'error');
-
-    
     throw new Error('SKIP_SYNC_SILENTLY');
   }
 

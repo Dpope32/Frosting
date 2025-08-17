@@ -275,6 +275,17 @@ export function NewTaskModal({
         return;
       }
 
+      // Prevent adding one-time tasks to calendar since they don't have a scheduled day
+      if (newTask.showInCalendar && newTask.recurrencePattern === "one-time") {
+        if (Platform.OS !== "web")
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        showToast(
+          "Schedule on a day to add to calendar",
+          "error"
+        );
+        return;
+      }
+
       setIsSubmitting(true);
 
       const taskToAdd = {

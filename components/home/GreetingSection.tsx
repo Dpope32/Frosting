@@ -34,7 +34,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
           <Text
             fontFamily="$body"
             fontSize={23}
-            color={colorScheme === 'dark' ? "#dbd0c6" : "#111"}
+            color={colorScheme === 'dark' ? "#f9f9f9" : "#111"}
             fontWeight="700"
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -46,7 +46,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
             style={{
               fontFamily: 'System',
               fontSize:   isIpad() ? 21 : 19,
-              color: colorScheme === 'dark' ? "#dbd0c6" : "#f1f1f1",
+              color: colorScheme === 'dark' ? "#f9f9f9" : "#f1f1f1",
               fontWeight: isWeb ? "600" : "bold",
               }}
             numberOfLines={1}

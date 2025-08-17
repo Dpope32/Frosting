@@ -85,10 +85,63 @@ export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'crea
       priority: task.priority, 
       updatedAt: new Date().toISOString()
     });
-  } else {
+  } else if (task.recurrencePattern === 'tomorrow') {
+    // Handle tomorrow tasks efficiently - only create one event for tomorrow
+    if (!task.createdAt) {
+      // If task doesn't have createdAt yet (newly created), use current date
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      events.push({
+        date: tomorrow.toISOString().split('T')[0],
+        time: task.time,
+        title: task.name,
+        type: task.category as CalendarEvent['type'],
+        taskId: task.id,
+        priority: task.priority, 
+        updatedAt: new Date().toISOString()
+      });
+    } else {
+      // Use existing logic for tasks that have been created
+      const creationDate = new Date(task.createdAt);
+      const nextDay = new Date(creationDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      
+      events.push({
+        date: nextDay.toISOString().split('T')[0],
+        time: task.time,
+        title: task.name,
+        type: task.category as CalendarEvent['type'],
+        taskId: task.id,
+        priority: task.priority, 
+        updatedAt: new Date().toISOString()
+      });
+    }
+  } else if (task.recurrencePattern === 'everyday') {
+    // Generate events for everyday tasks more efficiently
     let currentDate = new Date(start);
+    const maxDays = 365; // Limit to 1 year for performance
+    let dayCount = 0;
     
-    while (currentDate <= end) {
+    while (currentDate <= end && dayCount < maxDays) {
+      events.push({
+        date: currentDate.toISOString().split('T')[0],
+        time: task.time,
+        title: task.name,
+        type: task.category as CalendarEvent['type'],
+        taskId: task.id,
+        priority: task.priority, 
+        updatedAt: new Date().toISOString()
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
+      dayCount++;
+    }
+  } else {
+    // For other recurring patterns, use the existing logic but with performance limits
+    let currentDate = new Date(start);
+    const maxDays = 730; // Limit to 2 years for performance
+    let dayCount = 0;
+    
+    while (currentDate <= end && dayCount < maxDays) {
       if (isTaskDueOnDate(task, currentDate)) {
         events.push({
           date: currentDate.toISOString().split('T')[0],
@@ -101,6 +154,7 @@ export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'crea
         });
       }
       currentDate.setDate(currentDate.getDate() + 1);
+      dayCount++;
     }
   }
   
@@ -108,14 +162,38 @@ export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'crea
 };
 
 export const syncTasksToCalendar = () => {
-  const { tasks } = useProjectStore.getState();
-  const { events, addEvent, deleteEvent } = useCalendarStore.getState();
-  const taskEvents = events.filter(event => event.type === 'task' as CalendarEvent['type']);
-  taskEvents.forEach(event => deleteEvent(event.id));
-  Object.values(tasks)
-    .filter(task => task.showInCalendar)
-    .forEach(task => {
-      const taskEvents = generateTaskEvents(task);
-      taskEvents.forEach(event => addEvent(event));
+  try {
+    const { tasks } = useProjectStore.getState();
+    const { events, addEvent, deleteEvent } = useCalendarStore.getState();
+    
+    // Clear existing task events
+    const taskEvents = events.filter(event => event.type === 'task' as CalendarEvent['type']);
+    taskEvents.forEach(event => {
+      try {
+        deleteEvent(event.id);
+      } catch (error) {
+        console.warn('Error deleting event:', error);
+      }
     });
+    
+    // Add new task events
+    Object.values(tasks)
+      .filter(task => task.showInCalendar)
+      .forEach(task => {
+        try {
+          const taskEvents = generateTaskEvents(task);
+          taskEvents.forEach(event => {
+            try {
+              addEvent(event);
+            } catch (error) {
+              console.warn('Error adding event:', error);
+            }
+          });
+        } catch (error) {
+          console.warn('Error generating events for task:', task.name, error);
+        }
+      });
+  } catch (error) {
+    console.error('Error syncing tasks to calendar:', error);
+  }
 };

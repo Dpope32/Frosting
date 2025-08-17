@@ -3,7 +3,7 @@ import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isWeb } from 'tamagui';
 import { Header } from '@/components/Header';
-import { View, Platform } from 'react-native'; 
+import { View } from 'react-native'; 
 // @ts-ignore
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
