@@ -70,40 +70,29 @@ export const usePortfolioStore = create<PortfolioState>()(
       togglePortfolioSync: () => {
         set((state) => {
           const newSyncState = !state.isSyncEnabled;
-          try {
-            getAddSyncLog()(`Portfolio sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info');
-          } catch (e) { /* ignore */ }
-          return { isSyncEnabled: newSyncState };
+            return { isSyncEnabled: newSyncState };
         });
       },
 
       addHolding: (stock: Stock) => set((state) => {
-        const addSyncLog = getAddSyncLog();
         const newHoldings = [...state.holdings, stock];
-        addSyncLog(`[PortfolioStore] Adding holding: ${stock.symbol} (${stock.quantity} shares)`, 'info');
         return { holdings: newHoldings };
       }),
 
       removeHolding: (symbol: string) => set((state) => {
-        const addSyncLog = getAddSyncLog();
         const newHoldings = state.holdings.filter(stock => stock.symbol !== symbol);
-        addSyncLog(`[PortfolioStore] 🗑️ Removing holding: ${symbol}. Holdings count: ${state.holdings.length} → ${newHoldings.length}`, 'info');
         return { holdings: newHoldings };
       }),
 
       updateHolding: (symbol: string, updates: Partial<Stock>) => set((state) => {
-        const addSyncLog = getAddSyncLog();
         const newHoldings = state.holdings.map(stock => 
           stock.symbol === symbol ? { ...stock, ...updates } : stock
         );
-        addSyncLog(`[PortfolioStore] Updating holding: ${symbol}`, 'info');
         return { holdings: newHoldings };
       }),
 
       syncHoldingsWithPortfolioData: () => set((state) => {
-        const addSyncLog = getAddSyncLog();
         const currentPortfolioData = [...portfolioData];
-        addSyncLog(`[PortfolioStore] Syncing holdings with portfolioData: ${currentPortfolioData.length} items`, 'info');
         return { holdings: currentPortfolioData };
       }),
 
@@ -123,8 +112,6 @@ export const usePortfolioStore = create<PortfolioState>()(
           addSyncLog('Portfolio sync is disabled, skipping hydration for PortfolioStore.', 'info');
           return;
         }
-      
-        addSyncLog('🔄 Hydrating PortfolioStore from sync...', 'info');
       
         try {
           const currentPortfolioData = [...portfolioData];
@@ -167,7 +154,6 @@ export const usePortfolioStore = create<PortfolioState>()(
                     updatedAt: incomingStock.updatedAt || new Date().toISOString()
                   });
                   holdingsUpdated++;
-                  addSyncLog(`Updated ${incomingStock.symbol}: ${existingStock.quantity} → ${incomingStock.quantity} shares`, 'info');
                 } else if (incomingTimestamp === localTimestamp || !existingStock.updatedAt || !incomingStock.updatedAt) {
                   // Same timestamp or no timestamps - merge conservatively (prefer higher quantity)
                   const mergedStock: Stock = {
@@ -189,7 +175,6 @@ export const usePortfolioStore = create<PortfolioState>()(
                 };
                 finalHoldingsMap.set(incomingStock.symbol, newStock);
                 holdingsAdded++;
-                addSyncLog(`Added new stock from sync: ${incomingStock.symbol} (${incomingStock.quantity} shares)`, 'info');
               }
             }
             
@@ -197,7 +182,6 @@ export const usePortfolioStore = create<PortfolioState>()(
             for (const [symbol, localStock] of currentHoldingsMap) {
               if (!incomingHoldingsMap.has(symbol)) {
                 holdingsDeleted++;
-                addSyncLog(`🗑️ Stock deleted via sync: ${symbol} (${localStock.quantity} shares)`, 'info');
               }
             }
             
@@ -206,7 +190,6 @@ export const usePortfolioStore = create<PortfolioState>()(
             
             // Update the portfolio data
             await updatePortfolioData(mergedPortfolioData);
-            addSyncLog(`Portfolio synced: ${holdingsAdded} added, ${holdingsUpdated} updated, ${holdingsDeleted} deleted. Total: ${mergedPortfolioData.length} holdings`, 'success');
           }
       
           // Merge other portfolio data
@@ -216,7 +199,6 @@ export const usePortfolioStore = create<PortfolioState>()(
           if (syncedData.watchlist && Array.isArray(syncedData.watchlist)) {
             const combinedWatchlist = [...new Set([...currentState.watchlist, ...syncedData.watchlist])];
             newState.watchlist = combinedWatchlist;
-            addSyncLog(`Watchlist merged: ${combinedWatchlist.length} total symbols`, 'verbose');
           }
       
           // Use synced historical data if available
@@ -232,7 +214,6 @@ export const usePortfolioStore = create<PortfolioState>()(
           // Use higher principal value (assumes user wants to keep the higher amount)
           if (syncedData.principal !== undefined && syncedData.principal > currentState.principal) {
             newState.principal = syncedData.principal;
-            addSyncLog(`Principal updated: $${currentState.principal} → $${syncedData.principal}`, 'info');
           }
       
           // Always recalculate total value if we updated holdings
@@ -245,22 +226,13 @@ export const usePortfolioStore = create<PortfolioState>()(
             });
             newState.totalValue = newTotal;
             newState.lastUpdate = new Date();
-            addSyncLog(`Portfolio total value recalculated: $${newTotal.toFixed(2)}`, 'info');
           }
       
           // Update the store with merged data
           set(newState);
       
-          addSyncLog(
-            `✅ Portfolio hydrated successfully: ${holdingsAdded} added, ${holdingsUpdated} updated, ${holdingsDeleted} deleted, ${(newState.watchlist || currentState.watchlist).length} watchlist items`,
-            'success'
-          );
-      
         } catch (error) {
-          addSyncLog(
-            `❌ Error hydrating PortfolioStore: ${error instanceof Error ? error.message : String(error)}`,
-            'error'
-          );
+          console.error('Error hydrating PortfolioStore:', error);
         }
       } 
     }),
@@ -605,9 +577,9 @@ export const usePortfolioQuery = () => {
     staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 60, // 1 hour
     retry: 2,
-    retryDelay: attempt => Math.min(1000 * 2 ** attempt, 30000),
+    retryDelay: (attempt: number) => Math.min(1000 * 2 ** attempt, 30000),
     refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: false,  
   });
 };
 
