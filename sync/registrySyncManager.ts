@@ -48,6 +48,23 @@ export const generateSyncKey = async (): Promise<string> => {
  * @returns URI of the encrypted file.
  */
 export const exportEncryptedState = async (allStates: Record<string, any>): Promise<string> => {
+  
+  // 🚨 DEBUG: Check size of each store
+  let totalSize = 0;
+  Object.keys(allStates).forEach(storeKey => {
+    const size = JSON.stringify(allStates[storeKey]).length;
+    const sizeKB = (size / 1024).toFixed(1);
+    totalSize += size;
+    
+    if (size > 50000) { // > 50KB
+      addSyncLog(`🚨 LARGE STORE: ${storeKey}: ${sizeKB}KB`, 'warning');
+    } else {
+      addSyncLog(`📊 ${storeKey}: ${sizeKB}KB`, 'verbose');
+    }
+  });
+  
+  const totalMB = (totalSize / 1024 / 1024).toFixed(2);
+  addSyncLog(`📦 Total snapshot size: ${totalMB}MB`, 'info');
 
   // 🔧 FIXED: Better completion analysis that handles both patterns correctly
   if (allStates.tasks?.tasks) {
