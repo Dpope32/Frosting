@@ -9,8 +9,8 @@ export function DailyQuoteDisplay() {
   const { data, isLoading, isError } = useStoicQuote()
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
-  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.1)", [isDark])
-  const backgroundColorWeb = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(255, 255, 255, 0.0)", [isDark])
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.1)", [isDark])
+  const backgroundColorWeb = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(0, 0, 0, 0.05)", [isDark])
   const finalBackgroundColor = isWeb ? backgroundColorWeb : backgroundColor
 
   if (isLoading) {
@@ -123,12 +123,12 @@ export function DailyQuoteDisplay() {
               color={isDark ? "#a0a0a0" : "#d0d0d0"} 
               fontSize={14} 
               fontWeight="500"
-              textAlign="right"
+              textAlign="right" 
               flexShrink={0}
             >
               — {data.data.author}
             </Text>
-          </XStack>
+          </XStack> 
         ) : (
           <YStack gap="$2" alignItems="center">
             <Text 

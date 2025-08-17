@@ -58,7 +58,7 @@ export const LandingPage = React.memo(() => {
   const colorScheme = useColorScheme()
   const isDark = colorScheme === 'dark'
   const router = useRouter()
-  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(255, 255, 255, 0.1)",[isDark])
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.1)",[isDark])
   const backgroundColorWeb = React.useMemo(() => isDark ? "rgba(14, 14, 15, 0.9)" : "rgba(255, 255, 255, 0.0)",[isDark])
   const [isMounted, setIsMounted] = useState(false)
   const [sheetOpen, setSheetOpen] = useState(false)

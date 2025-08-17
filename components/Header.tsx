@@ -1,6 +1,6 @@
 // Header.tsx
 import React, { useState } from 'react';
-import { Platform, Pressable, useColorScheme } from 'react-native';
+import { Platform, Pressable, useColorScheme, Text as RNText } from 'react-native';
 import { Stack, XStack, YStack, isWeb } from 'tamagui';
 import { Text } from 'tamagui';
 // @ts-ignore - Suppressing ESM import error
@@ -232,14 +232,33 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                   <Ionicons name="menu" size={isWeb ? 24 : 20} color={textColor}/>
                 </Pressable>
               )}
-              <Text
-                fontSize={isWeb ? 21 : isIpad() ? 24 : 20}
-                color={textColor}
-                style={{ marginLeft: isIpad() ? 24 : 0 }}
-                numberOfLines={1} fontWeight='600' fontFamily="$heading" paddingBottom={isIpad() ? 12 : 0}
-              >
-                {!isHome ? title : isWeb ? '' : isIpad() ? '' : title}
-              </Text>
+{isWeb ? (
+                <Text
+                  fontSize={21}
+                  color={textColor}
+                  style={{ marginLeft: isIpad() ? 24 : 0 }}
+                  numberOfLines={1} 
+                  fontWeight='600' 
+                  fontFamily="$heading" 
+                  paddingBottom={isIpad() ? 12 : 0}
+                >
+                  {!isHome ? title : ''}
+                </Text>
+              ) : (
+                <RNText
+                  style={{
+                    fontSize: isIpad() ? 24 : 20,
+                    color: textColor,
+                    marginLeft: isIpad() ? 24 : 0,
+                    fontWeight: 'bold',
+                    fontFamily: 'System',
+                    paddingBottom: isIpad() ? 12 : 0,
+                  }}
+                  numberOfLines={1}
+                >
+                  {!isHome ? title : isIpad() ? '' : title}
+                </RNText>
+              )}
               {isWeb && isHome && (
                 <CardSection
                   isHome={isHome}
