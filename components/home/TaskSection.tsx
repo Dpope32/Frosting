@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react'
-import { Pressable, Platform as RNPlatform, useColorScheme } from 'react-native'
+import { Pressable, Platform as RNPlatform, useColorScheme, Text as RNText } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
@@ -167,16 +167,21 @@ export const TaskSection = React.memo<TaskSectionProps>(({
           {isIpad() ? (
             <GreetingSection username={username} />
           ) : (
-            <Text
-              fontFamily="$body"
-              color={isDark ? "#dbd0c6" : "#dbd0c6"}
-              fontSize={RNPlatform.OS === 'web' ? 23 : isIpad() ? 21 : 19}
-              fontWeight={isWeb ? "600" : "900"}
-              marginRight={RNPlatform.OS === 'web' ? 20 : 10}
-              marginLeft={RNPlatform.OS === 'web' ? 20 : isIpad() ? -30 : -24}
-            >
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-            </Text>
+            <RNText
+            style={{
+              fontFamily: 'System',
+              color: colorScheme === 'dark' ? "#dbd0c6" : "#f1f1f1",
+              fontSize: RNPlatform.OS === 'web' ? 23 : isIpad() ? 21 : 19,
+              fontWeight: isWeb ? "600" : "bold",
+              marginRight: RNPlatform.OS === 'web' ? 20 : 10,
+              marginLeft: RNPlatform.OS === 'web' ? 20 : isIpad() ? -30 : -24
+            }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+           
+          >
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </RNText>
           )}
           {__DEV__ && (
             <Button

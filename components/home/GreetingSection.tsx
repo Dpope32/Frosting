@@ -1,5 +1,6 @@
 import React from 'react'
 import { XStack, Text, isWeb } from 'tamagui'
+import { Text as RNText } from 'react-native'
 import { getGreeting } from '@/services'
 import { useColorScheme } from 'react-native'
 import { useWeatherStore } from '@/store'
@@ -29,16 +30,31 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       maxWidth={isWeb ? 600 : isIpad() ? 500 : 320}
     >
       <XStack alignItems="center" paddingRight={isWeb ? "$7" : "$0"} justifyContent="center"> 
-        <Text
-          fontFamily="$heading"
-          fontSize={isWeb ? 23 : isIpad() ? 21 : 19}
-          color={colorScheme === 'dark' ? "#dbd0c6" : "#dbd0c6"}
-          fontWeight={isWeb ? "600" : "900"}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {fullGreeting}
-        </Text>
+{isWeb ? (
+          <Text
+            fontFamily="$body"
+            fontSize={23}
+            color={colorScheme === 'dark' ? "#dbd0c6" : "#111"}
+            fontWeight="700"
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {fullGreeting}
+          </Text>
+        ) : (
+          <RNText
+            style={{
+              fontFamily: 'System',
+              fontSize:   isIpad() ? 21 : 19,
+              color: colorScheme === 'dark' ? "#dbd0c6" : "#f1f1f1",
+              fontWeight: isWeb ? "600" : "bold",
+              }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {fullGreeting}
+          </RNText>
+        )}
       </XStack>
     </XStack>
   )
