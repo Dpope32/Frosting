@@ -84,11 +84,11 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
     }
   }, [events, isCalendarScreen]);
 
-  const textColor = isHome ? colorScheme === 'dark' ? '#FCF5E5' : '#fcf5e5' : colorScheme === 'dark' ? '#FCF5E5' : '#000000';
+  const textColor = isHome ? colorScheme === 'dark' ? '#f9f9f9' : '#f9f9f9' : colorScheme === 'dark' ? '#f9f9f9' : '#000000';
   const spacerHeight = isWeb ? 60 : Platform.OS === 'ios' ? 90 : 90;
   const scale = useSharedValue(1);
   const isDark = colorScheme === 'dark';
-  const backgroundColor = isWeb ? colorScheme === 'dark' ? 'rgba(14, 14, 15, 0.9)' : 'rgba(255,255,255,0.0)'
+  const backgroundColor = isWeb ? colorScheme === 'dark' ? 'rgba(15, 15, 15, 0.9)' : 'rgba(255,255,255,0.0)'
     : isHome ? colorScheme === 'dark' ? isIpad() ? 'rgba(14, 14, 15, 0.0)' : "rgba(14, 14, 15, 0.94)" : 'rgba(255,255,255,0.0)'
       : colorScheme === 'dark'  ? 'rgba(14, 14, 15, 0.9)' : 'rgba(255, 255, 255, 0.1)';
 
@@ -233,10 +233,10 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
                 </Pressable>
               )}
               <Text
-                fontSize={isWeb ? 22 : isIpad() ? 24 : 20}
+                fontSize={isWeb ? 21 : isIpad() ? 24 : 20}
                 color={textColor}
                 style={{ marginLeft: isIpad() ? 24 : 0 }}
-                numberOfLines={1} fontWeight='800' fontFamily="$heading" paddingBottom={isIpad() ? 12 : 0}
+                numberOfLines={1} fontWeight='600' fontFamily="$heading" paddingBottom={isIpad() ? 12 : 0}
               >
                 {!isHome ? title : isWeb ? '' : isIpad() ? '' : title}
               </Text>
