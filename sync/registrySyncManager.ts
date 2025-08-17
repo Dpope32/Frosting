@@ -69,7 +69,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
   // 🔧 FIXED: Better completion analysis that handles both patterns correctly
   if (allStates.tasks?.tasks) {
     const tasks = Object.values(allStates.tasks.tasks) as any[];
-    const today = format(new Date(), 'yyyy-MM-dd'); // CORRECT - Uses local timezone like toggleTaskCompletion
+    const today = format(new Date(), 'yyyy-MM-dd'); 
     
 
       // 🚨 DEBUG: Show what dates DO have completion data
