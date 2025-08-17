@@ -482,6 +482,21 @@ export const useCalendarStore = create<CalendarState>()(
       },
 
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
+        // ADD THIS DEBUG BLOCK
+        if (syncedData.events) {
+          addSyncLog(`🔍 [CalendarStore] Total events in sync: ${syncedData.events.length}`, 'info');
+          
+          const eventTypes = syncedData.events.reduce((acc, event) => {
+            acc[event.type || 'unknown'] = (acc[event.type || 'unknown'] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>);
+          
+          addSyncLog(`🔍 [CalendarStore] Event types: ${JSON.stringify(eventTypes)}`, 'info');
+          
+          const eventsSize = JSON.stringify(syncedData.events).length;
+          addSyncLog(`🔍 [CalendarStore] Events data size: ${(eventsSize/1024).toFixed(1)}KB`, 'warning');
+        }
+        
         const currentSyncEnabledState = get().isSyncEnabled
         if (!currentSyncEnabledState) {
           getAddSyncLog()('Calendar sync is disabled, skipping hydration for CalendarStore.', 'info')

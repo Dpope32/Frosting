@@ -9,6 +9,7 @@ import { getWorkspaceKey } from './workspaceKey';
 import { encryptSnapshot } from '@/lib/encryption';
 import * as FileSystem from 'expo-file-system';
 import { format } from 'date-fns';
+import pako from 'pako';
 
 const WEB_SNAPSHOT_KEY = 'encrypted_state_snapshot';
 
@@ -87,9 +88,6 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
        //   `🚨 But NO completion data for today (${today}). Tasks with completion history: ${tasksWithAnyCompletion.length}. Check date format consistency!`
        // );
       }
-
-
-
   }
   
   try {
@@ -103,9 +101,14 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     }
     
     // 🔧 IMPORTANT: Ensure we're encrypting the EXACT data we just verified
-    const cipher = encryptSnapshot(allStates, key);
-
-    let uri: string;
+    const jsonString = JSON.stringify(allStates);
+    const compressed = pako.deflate(jsonString);
+    const compressedString = btoa(String.fromCharCode(...compressed));
+    const cipher = encryptSnapshot(compressedString, key);    
+    
+    // Compare original vs actual compressed size (before base64)
+    addSyncLog(`📦 Compression: ${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
+    let uri: string;  
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {
         window.localStorage.setItem(WEB_SNAPSHOT_KEY, cipher);

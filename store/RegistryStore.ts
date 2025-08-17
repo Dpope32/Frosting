@@ -355,11 +355,11 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       // So any store with images or user-specific data should not be hydrated from sync (user, wallpaper, notes)
       // Project store holds images as well, this will be the next starting point for when I work on image sync. 
       if (data.user) {
-       addSyncLog('[Hydrate] UserStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration.', 'warning');
+      // We dont hydrate user store since it contains device specific data & images 
         delete data.user;
       }
       if (data.wallpaper) {
-        addSyncLog('[Hydrate] WallpaperStore: Data found in snapshot, explicitly DELETING and SKIPPING hydration (local-cache-only store).', 'warning');
+        // We dont hydrate wallpaper store in order to not have to deal with wallpaper CRDT
         delete data.wallpaper;
       }
   

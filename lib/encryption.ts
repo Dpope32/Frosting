@@ -15,13 +15,14 @@ try {
  * (first 16 bytes of the key).
  */
 export const encryptSnapshot = (
-  data: Record<string, unknown>,
+  data: string,
   keyHex: string,
 ): string => {
   try {
     const key = CryptoJS.enc.Hex.parse(keyHex);
     const iv = CryptoJS.enc.Hex.parse(keyHex.slice(0, 32));
-    const encrypted = CryptoJS.AES.encrypt(JSON.stringify(data), key, { iv });
+    // Remove JSON.stringify since data is already a string
+    const encrypted = CryptoJS.AES.encrypt(data, key, { iv });
     return encrypted.toString();
   } catch (err) {
     console.error('[encryption] Failed to encrypt snapshot:', err);
@@ -33,15 +34,16 @@ export const encryptSnapshot = (
 /**
  * Decrypts previously encrypted snapshot back into its original object.
  */
-export const decryptSnapshot = <T extends Record<string, unknown>>(
+export const decryptSnapshot = (
   cipherText: string,
   keyHex: string,
-): T => {
+): string => { // Return string, not object
   try {
     const key = CryptoJS.enc.Hex.parse(keyHex);
     const iv = CryptoJS.enc.Hex.parse(keyHex.slice(0, 32));
     const decrypted = CryptoJS.AES.decrypt(cipherText, key, { iv });
-    return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8)) as T;
+    // Return the string directly, don't JSON.parse
+    return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (err) {
     console.error('[encryption] Failed to decrypt snapshot:', err);
     if (Sentry?.captureException) Sentry.captureException(err);

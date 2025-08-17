@@ -18,6 +18,7 @@ import { getCurrentWorkspaceId } from "./getWorkspace";
 import { addSyncLog } from "@/components/sync/syncUtils";
 import { getWorkspaceKey } from "./workspaceKey";
 import { Platform } from 'react-native';
+import pako from 'pako';
 
 let debug = false;
 
@@ -235,6 +236,7 @@ export const pushSnapshot = async (): Promise<void> => {
 // ————————————————————— PULL ——————————————————————
 export const pullLatestSnapshot = async (): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return;
+  const pullStartTime = Date.now();
 
   if (debug) {
     addSyncLog('📥 pullLatestSnapshot() called - will make GET request to registry_snapshots', 'verbose');
@@ -297,7 +299,18 @@ export const pullLatestSnapshot = async (): Promise<void> => {
 
     let plain: Record<string, unknown>;
     try {
-      plain = decryptSnapshot(cipher, key);
+      const decryptStartTime = Date.now();
+      const compressedString = decryptSnapshot(cipher, key); 
+      const decryptTime = Date.now() - decryptStartTime;
+      
+      const decompressStartTime = Date.now();
+      const compressed = Uint8Array.from(atob(compressedString), c => c.charCodeAt(0));
+      const decompressed = pako.inflate(compressed, { to: 'string' });  
+      plain = JSON.parse(decompressed); // Fix: use decompressed, not compressedString
+      const decompressTime = Date.now() - decompressStartTime;
+      
+      addSyncLog(`🔍 Decrypt took: ${decryptTime}ms, Decompress took: ${decompressTime}ms`, 'info');
+      
     } catch (err) {
       if (debug) {
         addSyncLog('❌ Decrypt failed – key mismatch or old format', 'error');
@@ -317,8 +330,14 @@ export const pullLatestSnapshot = async (): Promise<void> => {
         { encoding: FileSystem.EncodingType.UTF8 }
       );
     }
-
+    const pullEndTime = Date.now();
+    addSyncLog(`📥 Pull phase took: ${pullEndTime - pullStartTime}ms`, 'info');
+    const hydrateStartTime = Date.now();
     useRegistryStore.getState().hydrateAll(plain);
+    const hydrateEndTime = Date.now();
+    addSyncLog(`💧 Hydration took: ${hydrateEndTime - hydrateStartTime}ms`, 'info');
+    const totalTime = pullEndTime - pullStartTime;
+    addSyncLog(`📥 Total pull & hydration took: ${totalTime}ms`, 'info');
     if (debug) {
       const runId = Date.now().toString(36);
       addSyncLog(`✅ Snapshot pulled & stores hydrated  ${runId} – pull done`, 'success');

@@ -10,6 +10,10 @@ import Constants from 'expo-constants';
 import { WALLPAPER_DIR, LAST_APP_VERSION_KEY } from '@/constants';
 import { addSyncLog } from '@/components/sync/syncUtils';
 
+const IS_TEST = typeof (globalThis as any).jest !== 'undefined' || 
+                process.env.NODE_ENV === 'test' || 
+                typeof jest !== 'undefined';
+
 interface WallpaperCache {
   [key: string]: string; 
 }
@@ -36,7 +40,7 @@ export const useWallpaperStore = create<WallpaperStore>()(
       currentWallpaper: null,
       
       initializeCache: async () => {
-        if (Platform.OS === 'web') return;
+        if (IS_TEST || Platform.OS === 'web') return;
 
         try {
           const dirInfo = await FileSystem.getInfoAsync(WALLPAPER_DIR);
@@ -49,13 +53,13 @@ export const useWallpaperStore = create<WallpaperStore>()(
           }
         } catch (error) {
           addSyncLog('❌ [WallpaperStore] Error initializing cache directory', 'error', error instanceof Error ? error.message : String(error));
-          console.error('[WallpaperStore] Error initializing cache directory:', error);
+          if (!IS_TEST) console.error('[WallpaperStore] Error initializing cache directory:', error);
           throw error;
         }
       },
 
       migrateFromCacheToDocuments: async () => {
-        if (Platform.OS === 'web') return;
+        if (IS_TEST || Platform.OS === 'web') return;
 
         try {
           
@@ -122,7 +126,7 @@ export const useWallpaperStore = create<WallpaperStore>()(
           
         } catch (error) {
           addSyncLog('❌ [WallpaperStore] Migration failed', 'error', error instanceof Error ? error.message : String(error));
-          console.error('[WallpaperStore] Migration failed:', error);
+          if (!IS_TEST) console.error('[WallpaperStore] Migration failed:', error);
         }
       },
       
@@ -289,12 +293,12 @@ export const useWallpaperStore = create<WallpaperStore>()(
           }));
           
         } catch (error) {
-          console.error('[WallpaperStore] Error clearing unused wallpapers:', error);
+          if (!IS_TEST) console.error('[WallpaperStore] Error clearing unused wallpapers:', error);
         }
       },
       
       checkAndRedownloadWallpapers: async () => {
-        if (Platform.OS === 'web') return;
+        if (IS_TEST || Platform.OS === 'web') return;
         
         try {
           
@@ -409,18 +413,15 @@ export const useWallpaperStore = create<WallpaperStore>()(
         };
       },
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          
-          // Run migration from cache to documents directory
-          setTimeout(() => {
-            state.migrateFromCacheToDocuments();
-          }, 1000);
-          
-          // Run the wallpaper check after migration
-          setTimeout(() => {
-            state.checkAndRedownloadWallpapers();
-          }, 2000);
-        }
+        if (!state || IS_TEST) return;
+        
+        setTimeout(() => {
+          state.migrateFromCacheToDocuments();
+        }, 1000);
+        
+        setTimeout(() => {
+          state.checkAndRedownloadWallpapers();
+        }, 2000);
       }
     }
   )
