@@ -70,6 +70,14 @@ export const isTaskDueOnDate = (task: Task, date: Date): boolean => {
 };
 
 export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>[] => {
+  // EMERGENCY BRAKE: Stop "Appt" task from generating events
+  if (task.name === 'Appt' || task.name.toLowerCase().includes('appt')) {
+    // Assuming addSyncLog is available from useCalendarStore or a global context
+    // For now, we'll just log a warning to the console.
+    console.warn(`🚨 BLOCKING TASK: "${task.name}" prevented from generating calendar events`);
+    return []; // Return empty array - no events generated
+  }
+
   const events = [];
   const start = new Date();
   const end = new Date(start.getFullYear() + 2, 11, 31);
@@ -159,6 +167,36 @@ export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'crea
   }
   
   return events;
+};
+
+// Sync a single task to calendar (for new task creation)
+export const syncSingleTaskToCalendar = (taskData: Omit<Task, 'id' | 'completed' | 'completionHistory' | 'createdAt' | 'updatedAt'>) => {
+  if (!taskData.showInCalendar) return;
+  
+  const { addEvent } = useCalendarStore.getState();
+  
+  try {
+    // Create a minimal task object with required fields for generateTaskEvents
+    const taskForEvents: Task = {
+      ...taskData,
+      id: Math.random().toString(36).substring(2, 11), // Temporary ID for event generation
+      completed: false,
+      completionHistory: {},
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    const taskEvents = generateTaskEvents(taskForEvents);
+    taskEvents.forEach(event => {
+      const eventWithId = {
+        ...event,
+        id: `task-${taskForEvents.id}-${event.date}`,
+      };
+      addEvent(eventWithId);
+    });
+  } catch (error) {
+    console.warn('Error syncing single task to calendar:', error);
+  }
 };
 
 export const syncTasksToCalendar = () => {

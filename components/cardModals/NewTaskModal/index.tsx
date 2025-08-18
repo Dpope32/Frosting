@@ -14,7 +14,7 @@ import {
 import { Tag } from "@/types";
 import { useProjectStore } from "@/store/ToDo";
 import { useUserStore, useToastStore } from "@/store";
-import { syncTasksToCalendar, getDefaultTask, WEEKDAYS } from "@/services";
+import { syncTasksToCalendar, syncSingleTaskToCalendar, getDefaultTask, WEEKDAYS } from "@/services";
 import { scheduleEventNotification } from "@/services/notificationServices";
 import { useDeviceId } from "@/hooks/sync/useDeviceId";
 import { addSyncLog } from "@/components/sync/syncUtils";
@@ -351,7 +351,8 @@ export function NewTaskModal({
 
             addTask(taskToAdd);
             if (taskToAdd.showInCalendar) {
-              syncTasksToCalendar();
+              // Only generate events for THIS task, not all tasks
+              syncSingleTaskToCalendar(taskToAdd);
             }
             if (notifyOnTime && taskToAdd.time) {
               scheduleNotificationForTask(taskToAdd.name, taskToAdd.time);
