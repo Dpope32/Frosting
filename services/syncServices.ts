@@ -184,7 +184,11 @@ export const syncTasksToCalendar = () => {
           const taskEvents = generateTaskEvents(task);
           taskEvents.forEach(event => {
             try {
-              addEvent(event);
+              const eventWithId = {
+                ...event,
+                id: `task-${task.id}-${event.date}`, // Prefix with 'task-' for source identification
+              };
+              addEvent(eventWithId);
             } catch (error) {
               console.warn('Error adding event:', error);
             }

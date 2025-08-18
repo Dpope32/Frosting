@@ -484,6 +484,37 @@ export const useCalendarStore = create<CalendarState>()(
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
 
         if (syncedData.events) {
+          // Add your requested logging code here - FIXED VERSION
+          addSyncLog(`🔍 [CalendarStore] Incoming events breakdown:`, 'info', 
+            `Total: ${syncedData.events?.length || 0}, ` +
+            `Sources: ${Object.entries(
+              (syncedData.events || []).reduce((acc, e) => {
+                // Derive source from ID prefix (same logic as existing code)
+                let source = 'unknown';
+                if (e.id.startsWith('device-')) source = 'device';
+                else if (e.id.startsWith('birthday-')) source = 'app';
+                // Add task- prefix check for when we fix the task events
+                else if (e.id.startsWith('task-')) source = 'app';
+                
+                acc[source] = (acc[source] || 0) + 1;
+                return acc;
+              }, {} as Record<string, number>)
+            ).map(([k,v]) => `${k}=${v}`).join(', ')}`
+          );
+
+          // Log events with same title
+          const titleCounts = (syncedData.events || []).reduce((acc, e) => {
+            acc[e.title] = (acc[e.title] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>);
+
+          const duplicateTitles = Object.entries(titleCounts).filter(([_, count]) => count > 10);
+          if (duplicateTitles.length > 0) {
+            addSyncLog(`🚨 [CalendarStore] Duplicate title detected:`, 'warning',
+              duplicateTitles.map(([title, count]) => `"${title}": ${count} events`).join(', ')
+            );
+          }
+
           addSyncLog(`🔍 [CalendarStore] Total events in sync: ${syncedData.events.length}`, 'info');
           
           // Date distribution analysis
@@ -516,7 +547,7 @@ export const useCalendarStore = create<CalendarState>()(
             
             // Source analysis
             if (event.id.startsWith('device-')) eventSources.device++;
-            else if (event.id.startsWith('birthday-')) eventSources.app++;
+            else if (event.id.startsWith('birthday-') || event.id.startsWith('task-') || event.id.startsWith('bill-')) eventSources.app++;
             else eventSources.unknown++;
             
             // Status analysis (check if event might be soft-deleted)
