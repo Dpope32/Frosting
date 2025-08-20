@@ -41,7 +41,6 @@ export const usePeopleStore = create<PeopleStore>()(
         StorageUtils.get<boolean>('people-sync-enabled', false)
         .then(savedSyncState => {
           set((state) => ({ ...state, isSyncEnabled: savedSyncState }))
-          addSyncLog(`[PeopleStore] Loaded sync state from storage: ${savedSyncState ? 'ON' : 'OFF'}`, 'info')
         })
         .catch(error => {
           console.error('Error loading sync state:', error)

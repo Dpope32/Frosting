@@ -38,6 +38,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   const username = useUserStore(s => s.preferences.username);
   const [easterEggVisible, setEasterEggVisible] = useState(false);
   const easterEggTimeout = useRef<NodeJS.Timeout | null>(null);
+  const backgroundColor = React.useMemo(() => isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.1)",[isDark])
   
   const uniqueTasks = useMemo(() => {
     const taskGroups: Record<string, Task[]> = {};
@@ -128,7 +129,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   ), [openRecommendationModal, isDark]);
 
   return (
-    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={"$0"}>
+    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={"$0"} backgroundColor={backgroundColor}>
       <XStack
         alignItems="center"
         width="100%" 
@@ -183,7 +184,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </RNText>
           )}
-          {__DEV__ && (
+          {__DEV__ && RNPlatform.OS !== 'android' && (
             <Button
               size="$2"
               circular

@@ -97,7 +97,7 @@ useEffect(() => {
             />
           )}
           <Label 
-            pl={isWeb ? 0 : 10}
+            ml={isWeb ? 0 : formData.profilePicture ? -50 : 10}
             fontFamily="$heading" 
             fontWeight={isWeb ? "500" : "800"} 
             fontSize={isWeb ? "$9" : "$7"} 

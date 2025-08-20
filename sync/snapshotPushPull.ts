@@ -283,18 +283,6 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
 
     const cipher = items[0].snapshot_blob as string;
-    
-    // Calculate and cache the snapshot size to avoid redundant GET requests
-    const bytes = calculateSizeFromBase64(cipher);
-    const sizeData = formatSizeData(bytes);
-    useRegistryStore.getState().setSnapshotSizeCache(sizeData);
-    
-    addSyncLog(
-      `📏 Cached snapshot size: ${sizeData.formatted.auto}`, 
-      'success',
-      `Progress: ${sizeData.progressPercentage.toFixed(1)}% of 10GB limit`
-    );
-    
     const key = await getWorkspaceKey();
 
     let plain: Record<string, unknown>;

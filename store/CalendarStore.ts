@@ -48,6 +48,7 @@ interface CalendarState {
   deleteEvent: (id: string) => void
   getEventsForDate: (date: string) => CalendarEvent[]
   clearAllEvents: () => void
+  cleanupApptEvents: () => void
   syncBirthdays: (newContactId?: string) => void
   syncDeviceCalendarEvents: (startDate: Date, endDate: Date) => Promise<void>
   scheduleNotification: (date: Date, title: string, body: string, identifier?: string) => Promise<string>
@@ -126,6 +127,44 @@ export const useCalendarStore = create<CalendarState>()(
         try {
           getAddSyncLog()('All calendar events cleared locally', 'info')
         } catch(e) {/* ignore */}
+      },
+
+      // ONE-TIME CLEANUP FUNCTION: Remove all "Appt" events
+      cleanupApptEvents: () => {
+        set((state) => {
+          const originalLength = state.events.length;
+          const apptEvents = state.events.filter(event => 
+            event.title === 'Appt' || event.title.toLowerCase().includes('appt')
+          );
+          const cleanedEvents = state.events.filter(event => 
+            event.title !== 'Appt' && !event.title.toLowerCase().includes('appt')
+          );
+          const removedCount = originalLength - cleanedEvents.length;
+          
+          if (removedCount > 0) {
+            // Log details about what we're removing
+            const sampleApptEvents = apptEvents.slice(0, 5);
+            try {
+              getAddSyncLog()(`🧹 LOCAL CLEANUP: Found ${removedCount} "Appt" events to remove`, 'info', 
+                `Sample events: ${sampleApptEvents.map(e => `"${e.title}" on ${e.date} (ID: ${e.id})`).join(', ')}`
+              );
+              getAddSyncLog()(`🧹 LOCAL CLEANUP: Removed ${removedCount} "Appt" events locally`, 'success');
+              getAddSyncLog()(`📉 Local calendar reduced from ${originalLength} to ${cleanedEvents.length} events`, 'info');
+              
+              // Calculate size savings
+              const originalSize = JSON.stringify(state.events).length;
+              const newSize = JSON.stringify(cleanedEvents).length;
+              const savedKB = ((originalSize - newSize) / 1024).toFixed(1);
+              getAddSyncLog()(`💾 Storage saved: ${savedKB}KB`, 'success');
+            } catch(e) {/* ignore */}
+          } else {
+            try {
+              getAddSyncLog()(`✅ No "Appt" events found - calendar is clean`, 'info');
+            } catch(e) {/* ignore */}
+          }
+          
+          return { events: cleanedEvents };
+        });
       },
       
       syncDeviceCalendarEvents: async (startDate: Date, endDate: Date) => {
@@ -484,6 +523,18 @@ export const useCalendarStore = create<CalendarState>()(
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
 
         if (syncedData.events) {
+          // ONE-TIME CLEANUP: Remove all "Appt" events that are causing the bloat
+          const originalLength = syncedData.events.length;
+          syncedData.events = syncedData.events.filter(event => 
+            event.title !== 'Appt' && !event.title.toLowerCase().includes('appt')
+          );
+          const cleanedLength = syncedData.events.length;
+          const removedCount = originalLength - cleanedLength;
+          
+          if (removedCount > 0) {
+            addSyncLog(`🧹 CLEANUP: Removed ${removedCount} "Appt" events from sync data`, 'success');
+            addSyncLog(`📉 Calendar size reduced from ${originalLength} to ${cleanedLength} events`, 'info');
+          }
           // Add your requested logging code here - FIXED VERSION
           addSyncLog(`🔍 [CalendarStore] Incoming events breakdown:`, 'info', 
             `Total: ${syncedData.events?.length || 0}, ` +
@@ -580,6 +631,7 @@ export const useCalendarStore = create<CalendarState>()(
           
           if (unknownEvents.length > 0) {
             addSyncLog(`❓ First 10 unknown events: ${JSON.stringify(unknownEvents.slice(0, 10))}`, 'warning');
+            addSyncLog(`❓ Last 10 unknown events: ${JSON.stringify(unknownEvents.slice(-10))}`, 'warning');
           }
           
           if (largeEvents.length > 0) {
@@ -646,6 +698,15 @@ export const useCalendarStore = create<CalendarState>()(
           getAddSyncLog()(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
           return { events: mergedEventsArray }
         })
+        
+        // AUTO-CLEANUP: Remove any local "Appt" events that survived sync
+        setTimeout(() => {
+          try {
+            get().cleanupApptEvents();
+          } catch (error) {
+            getAddSyncLog()('Error during auto-cleanup of Appt events', 'error');
+          }
+        }, 100);
       },
     }),
     {

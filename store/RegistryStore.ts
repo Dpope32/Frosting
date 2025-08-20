@@ -293,13 +293,6 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
           .filter(([_, task]) => task.completionHistory[today])
           .map(([id, task]) => `${task.name.slice(0, 20)}(${id.slice(-6)}):${task.completionHistory[today]}`);
         
-        if (tasksWithCompletion.length > 0) {
-          addSyncLog(
-            `[SNAPSHOT EXPORT] ${tasksWithCompletion.length} tasks with completion history for ${today}`,
-            'info',
-            tasksWithCompletion.slice(0, 5).join(', ') + (tasksWithCompletion.length > 5 ? '...' : '')
-          );
-        }
         return { ...taskState, lastUpdated: now };
       })(),
       notes: noteStateForSnapshot,

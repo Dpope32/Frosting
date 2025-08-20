@@ -166,14 +166,10 @@ export const useProjectStore = create<ProjectStoreState>()(
                 itemsMergedCount++;
               }
             } else {
-              // New project from sync
               newProjectsArray.push(incomingProject);
               itemsAddedCount++;
             }
           }
-
-          const logMessage = `Projects hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${completionConflictsResolved} completion conflicts resolved. Total: ${newProjectsArray.length}`;
-          addSyncLog(logMessage, 'success');
 
           return { projects: newProjectsArray };
         });

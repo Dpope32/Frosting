@@ -54,12 +54,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
   let totalSize = 0;
   Object.keys(allStates).forEach(storeKey => {
     const size = JSON.stringify(allStates[storeKey]).length;
-    const sizeKB = (size / 1024).toFixed(1);
     totalSize += size;
-    
-    if (size > 50000) { // > 50KB
-      addSyncLog(`big ass store: ${storeKey}: ${sizeKB}KB`, 'warning');
-    } 
   });
   
   const totalMB = (totalSize / 1024 / 1024).toFixed(2);

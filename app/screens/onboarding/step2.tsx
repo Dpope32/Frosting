@@ -22,9 +22,34 @@ export default function Step2({
   const colorScheme = useColorScheme() 
   const isDark = colorScheme === 'dark' 
   const textColor = isDark ? '#fff' : '#000'
-  const currentColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : '#010101')
+  const defaultColor = isDark ? '#ffffff' : '#1976D2' // Light text for dark mode, dark blue for light mode
+  
+  // Ensure we always use hex colors for the ColorPicker, convert Tamagui tokens if needed
+  const getHexColor = (color: string) => {
+    if (color?.startsWith('$')) {
+      // Convert common Tamagui tokens to hex values
+      const tokenToHex: { [key: string]: string } = {
+        '$blue9': '#1976D2',
+        '$red9': '#DC2626',
+        '$green9': '#16A34A',
+        '$purple9': '#9333EA',
+        '$orange9': '#EA580C',
+        '$pink9': '#DB2777',
+        '$yellow9': '#CA8A04',
+        '$gray9': '#6B7280',
+      };
+      return tokenToHex[color] || defaultColor;
+    }
+    return color;
+  };
+  
+  const baseColor = formData.primaryColor || (colorOptions.length > 0 ? colorOptions[0].value : defaultColor);
+  const currentColor = getHexColor(baseColor);
   const insets = useSafeAreaInsets();
-  const handleColorChange = (color: string) => { setFormData((prev) => ({ ...prev, primaryColor: color }))}
+  
+  const handleColorChange = (color: string) => { 
+    setFormData((prev) => ({ ...prev, primaryColor: color }))
+  }
 
   const WebColorPicker = () => {
     const colorPalette = [
@@ -86,7 +111,7 @@ export default function Step2({
           alignItems="center"
         >
         <Text 
-          color={formData.primaryColor || "#000"}
+          color={currentColor}
           fontFamily="$heading" 
           fontWeight="700" 
           fontSize={isWeb ? "$8" : "$6"}
@@ -118,11 +143,11 @@ export default function Step2({
               thumbSize={18}
               sliderSize={20}
               shadeWheelThumb={true}
-              noSnap={true}
+              noSnap={false}
               row={false}
               swatches={false}
               sliderHidden={true}
-              discrete={true}
+              discrete={false}
             />
           </View>
         )}
