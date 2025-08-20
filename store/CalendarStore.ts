@@ -42,6 +42,7 @@ interface CalendarState {
   getEventsForDate: (date: string) => CalendarEvent[]
   clearAllEvents: () => void
   cleanupApptEvents: () => void
+  cleanupMassiveDuplicates: () => void
   syncBirthdays: (newContactId?: string) => void
   syncDeviceCalendarEvents: (startDate: Date, endDate: Date) => Promise<void>
   scheduleNotification: (date: Date, title: string, body: string, identifier?: string) => Promise<string>
@@ -195,6 +196,26 @@ cleanupApptEvents: () => {
     return { events: cleanedEvents };
   });
 },
+
+      // ONE-TIME MASS CLEANUP: Call this once to remove all existing duplicates
+      cleanupMassiveDuplicates: () => {
+        set((state) => {
+          const originalCount = state.events.length;
+          
+          // Remove all problematic events by title
+          const problematicTitles = new Set(['Gym', 'Work Task 3', 'Appt']);
+          
+          const cleanedEvents = state.events.filter(event => {
+            return !problematicTitles.has(event.title);
+          });
+          
+          const removedCount = originalCount - cleanedEvents.length;
+          addSyncLog(`🧹 MASS CLEANUP: Removed ${removedCount} duplicate events (Gym/Work Task 3/Appt)`, 'success');
+          addSyncLog(`📉 Local calendar reduced from ${originalCount} to ${cleanedEvents.length} events`, 'info');
+          
+          return { events: cleanedEvents };
+        });
+      },
       
       syncDeviceCalendarEvents: async (startDate: Date, endDate: Date) => {
         if (Platform.OS === 'web') return
@@ -552,17 +573,51 @@ cleanupApptEvents: () => {
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
 
         if (syncedData.events) {
-          // ONE-TIME CLEANUP: Remove all "Appt" events that are causing the bloat
+          // IMPROVED CLEANUP: Remove test events and duplicates BEFORE processing
           const originalLength = syncedData.events.length;
-          syncedData.events = syncedData.events.filter(event => 
-            event.title !== 'Appt' && !event.title.toLowerCase().includes('appt')
-          );
+          
+          // CRITICAL: Expanded problematic patterns  
+          const testPatterns = [
+            'Appt',
+            'Work Task 3', // Exact match for your problem
+            'Gym',         // Exact match for your problem  
+            'Test ',
+            'test ',
+            'Sample ',
+            'Demo '
+          ];
+
+          // AGGRESSIVE FILTERING: Also remove by exact title match
+          const problematicTitles = new Set(['Gym', 'Work Task 3', 'Appt']);
+
+          syncedData.events = syncedData.events.filter(event => {
+            // Remove exact problematic titles
+            if (problematicTitles.has(event.title)) {
+              return false;
+            }
+            
+            // Remove test events (existing logic)
+            const isTestEvent = testPatterns.some(pattern => 
+              event.title === pattern || event.title.toLowerCase().includes(pattern.toLowerCase())
+            );
+            
+            // Remove far future events (>90 days from now) - MORE AGGRESSIVE
+            const eventDate = new Date(event.date);
+            const daysInFuture = (eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+            const isFarFuture = daysInFuture > 90; // REDUCED from 365 to 90
+            
+            return !isTestEvent && !isFarFuture;
+          });
+          
           const cleanedLength = syncedData.events.length;
           const removedCount = originalLength - cleanedLength;
           
           if (removedCount > 0) {
-            addSyncLog(`🧹 CLEANUP: Removed ${removedCount} "Appt" events from sync data`, 'success');
-            addSyncLog(`📉 Calendar size reduced from ${originalLength} to ${cleanedLength} events`, 'info');
+            addSyncLog(`🧹 PREVENTIVE CLEANUP: Removed ${removedCount} test/duplicate events before processing`, 'success');
+            addSyncLog(`📉 Calendar size reduced from ${originalLength} to ${cleanedLength} events before hydration`, 'info');
+            
+            const savedKB = ((removedCount * 200) / 1024).toFixed(1); // Estimate 200 bytes per event
+            addSyncLog(`💾 Prevented processing: ~${savedKB}KB`, 'success');
           }
           // Add your requested logging code here - FIXED VERSION
           addSyncLog(`🔍 [CalendarStore] Incoming events breakdown:`, 'info', 

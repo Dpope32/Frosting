@@ -86,9 +86,9 @@ export const deleteAllBills = (hooks: {
     billsData.forEach(billData => {
       const shouldCreateTask = billData.createTask || false; // Check the flag
 
-      // Generate events for the next 10 years (always)
+      // PERFORMANCE FIX: Reduce from 10 years to 2 years maximum
       const start = new Date();
-      const end = new Date(start.getFullYear() + 10, 11, 31); 
+      const end = new Date(start.getFullYear() + 2, 11, 31); 
       
       // Create an event for each month from start to end
       let currentDate = new Date(start.getFullYear(), start.getMonth(), billData.dueDate);

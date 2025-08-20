@@ -81,8 +81,9 @@ export function useBills() {
     } = options;
     
     const newBill = addBillToStore(billData);
+    // PERFORMANCE FIX: Reduce from 5 years to 2 years maximum
     const start = new Date();
-    const end = new Date(start.getFullYear() + 5, 11, 31);
+    const end = new Date(start.getFullYear() + 2, 11, 31);
     
     const eventsToAdd: EventToAdd[] = [];
     const tasksToAdd: TaskToAdd[] = [];

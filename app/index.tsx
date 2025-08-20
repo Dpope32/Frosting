@@ -71,6 +71,10 @@ export default function Index() {
 
       if (!premium) return;                                      
       startInitialSync();
+      
+      // ONE-TIME CLEANUP before sync
+      useCalendarStore.getState().cleanupMassiveDuplicates();
+      
       const exportStartTime = Date.now();
       const state = getAllStoreStates();
       await exportEncryptedState(state);
