@@ -21,44 +21,6 @@ import { Platform } from 'react-native';
 import pako from 'pako';
 
 let debug = false;
-
-// Helper functions for snapshot size calculation
-const calculateSizeFromBase64 = (base64String: string): number => {
-  // Base64 encoding ratio is approximately 4:3 (4 characters for every 3 bytes)
-  return Math.floor(base64String.length * 3 / 4);
-};
-
-const formatSizeData = (bytes: number) => {
-  const mb = bytes / (1024 * 1024);
-  const gb = bytes / (1024 * 1024 * 1024);
-  
-  // 10GB max for progress bar
-  const maxBytes = 10 * 1024 * 1024 * 1024;
-  const progressPercentage = Math.min((bytes / maxBytes) * 100, 100);
-  
-  // Auto format to best unit
-  let autoFormatted: string;
-  if (gb >= 1) {
-    autoFormatted = `${gb.toFixed(2)} GB`;
-  } else if (mb >= 1) {
-    autoFormatted = `${mb.toFixed(2)} MB`;
-  } else {
-    autoFormatted = `${bytes} bytes`;
-  }
-
-  return {
-    mb: Math.round(mb * 100) / 100,
-    gb: Math.round(gb * 10000) / 10000,
-    formatted: {
-      mb: `${(Math.round(mb * 100) / 100).toLocaleString()} MB`,
-      gb: `${(Math.round(gb * 10000) / 10000).toLocaleString()} GB`,
-      auto: autoFormatted,
-    },
-    progressPercentage,
-    lastUpdated: Date.now(),
-  };
-};
-
 let lastExport = 0;
 let dirtyAfterPush = false;           // <— new flag
 

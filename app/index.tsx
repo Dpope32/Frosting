@@ -25,6 +25,7 @@ import { pullLatestSnapshot } from '@/sync/snapshotPushPull';
 import { exportEncryptedState } from '@/sync/registrySyncManager';
 import { addSyncLog } from '@/components/sync/syncUtils';
 import { useAppInitialization } from '@/hooks/useAppInitialization';
+import { checkIfAlreadyUpToDate } from '@/services/syncServices';
 
 export default function Index() {
   const [intro, setIntro] = useState(true);
@@ -72,9 +73,6 @@ export default function Index() {
       if (!premium) return;                                      
       startInitialSync();
       
-      // ONE-TIME CLEANUP before sync
-      useCalendarStore.getState().cleanupMassiveDuplicates();
-      
       const exportStartTime = Date.now();
       const state = getAllStoreStates();
       await exportEncryptedState(state);
@@ -85,8 +83,22 @@ export default function Index() {
               addSyncLog(`💾 Export phase completed in ${(exportDuration/1000).toFixed(1)}s`, 'info');
   
       if (finishedOnboarding) {
-        // CRITICAL FIX: Pull first to get other devices' data, then push merged result
-        // This fixes the circular self-sync bug where each device was only syncing with itself
+        // 🚀 GIT-LIKE CHECK: Skip entire sync if this device was the last to update
+        const checkStartTime = Date.now();
+        const isAlreadyUpToDate = await checkIfAlreadyUpToDate();
+        const checkDuration = Date.now() - checkStartTime;
+        
+        if (isAlreadyUpToDate) {
+          // Skip all network operations - this device already has the latest data
+          const totalTime = Date.now() - overallStartTime;
+          addSyncLog(`⚡ Quick startup (already up to date): ${(totalTime/1000).toFixed(1)}s (${checkDuration}ms check)`, 'success');
+          completeInitialSync();
+          useToastStore.getState().showToast('Already up to date', 'success');
+          return; // Exit early, skip pull/push entirely
+        }
+        
+        // DIFFERENT DEVICE: Full sync required
+        addSyncLog(`🔄 Running full sync (different device)`, 'info');
         
         // Pull phase timing - GET OTHER DEVICES' DATA FIRST
         const pullStartTime = Date.now();

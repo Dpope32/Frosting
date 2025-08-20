@@ -3,6 +3,8 @@ import { useProjectStore} from "@/store/ToDo";
 import { Task, WeekDay } from "@/types"
 import { useCalendarStore, CalendarEvent } from "@/store";
 import { format } from "date-fns";
+import { addSyncLog } from "@/components/sync/syncUtils";
+import { getCurrentWorkspaceId, generateSyncKey, getPocketBase } from "@/sync";
 
 // This function determines if a task should be shown on a specific date
 export const isTaskDueOnDate = (task: Task, date: Date): boolean => {
@@ -242,5 +244,33 @@ export const syncTasksToCalendar = () => {
       });
   } catch (error) {
     console.error('Error syncing tasks to calendar:', error);
+  }
+};
+
+export const checkIfAlreadyUpToDate = async (): Promise<boolean> => {
+  try {
+
+    
+    const wsId = await getCurrentWorkspaceId();
+    const currentDeviceId = await generateSyncKey(); // This is actually the device ID
+    
+    if (!wsId || !currentDeviceId) return false;
+    
+    const pb = await getPocketBase();
+    const latestSnapshot = await pb.collection('registry_snapshots')
+      .getFirstListItem(`workspace_id="${wsId}"`, { sort: '-updated' });
+    
+    const isCurrentDevice = latestSnapshot.device_id === currentDeviceId;
+    
+    if (isCurrentDevice) {
+      addSyncLog('📱 Same device as last push - skipping sync (already up to date)', 'success');
+      return true;
+    }
+    
+    addSyncLog(`🔄 Different device detected (last: ${latestSnapshot.device_id.substring(0,8)}..., current: ${currentDeviceId.substring(0,8)}...) - syncing`, 'info');
+    return false;
+  } catch (error) {
+    addSyncLog('Error checking sync status, proceeding with full sync', 'warning');
+    return false; // Always sync on error
   }
 };

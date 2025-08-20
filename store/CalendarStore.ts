@@ -42,7 +42,6 @@ interface CalendarState {
   getEventsForDate: (date: string) => CalendarEvent[]
   clearAllEvents: () => void
   cleanupApptEvents: () => void
-  cleanupMassiveDuplicates: () => void
   syncBirthdays: (newContactId?: string) => void
   syncDeviceCalendarEvents: (startDate: Date, endDate: Date) => Promise<void>
   scheduleNotification: (date: Date, title: string, body: string, identifier?: string) => Promise<string>
@@ -196,26 +195,6 @@ cleanupApptEvents: () => {
     return { events: cleanedEvents };
   });
 },
-
-      // ONE-TIME MASS CLEANUP: Call this once to remove all existing duplicates
-      cleanupMassiveDuplicates: () => {
-        set((state) => {
-          const originalCount = state.events.length;
-          
-          // Remove all problematic events by title
-          const problematicTitles = new Set(['Gym', 'Work Task 3', 'Appt']);
-          
-          const cleanedEvents = state.events.filter(event => {
-            return !problematicTitles.has(event.title);
-          });
-          
-          const removedCount = originalCount - cleanedEvents.length;
-          addSyncLog(`🧹 MASS CLEANUP: Removed ${removedCount} duplicate events (Gym/Work Task 3/Appt)`, 'success');
-          addSyncLog(`📉 Local calendar reduced from ${originalCount} to ${cleanedEvents.length} events`, 'info');
-          
-          return { events: cleanedEvents };
-        });
-      },
       
       syncDeviceCalendarEvents: async (startDate: Date, endDate: Date) => {
         if (Platform.OS === 'web') return
