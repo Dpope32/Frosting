@@ -112,6 +112,7 @@ export default function Index() {
         // Push phase timing - PUSH MERGED DATA (local + remote)
         const pushStartTime = Date.now();
         const { pushSnapshot } = await import('@/sync/snapshotPushPull');
+        await useCalendarStore.getState().cleanupServerSnapshot();
         await pushSnapshot();
         const pushEndTime = Date.now();
         const pushDuration = pushEndTime - pushStartTime;

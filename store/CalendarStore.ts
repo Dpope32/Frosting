@@ -48,6 +48,7 @@ interface CalendarState {
   scheduleEventNotifications: (event: CalendarEvent) => Promise<void>
   toggleCalendarSync: () => void
   hydrateFromSync?: (syncedData: { events?: CalendarEvent[] }) => void
+  cleanupServerSnapshot: () => Promise<{ events: CalendarEvent[] }>
 }
 
 export const useCalendarStore = create<CalendarState>()(
@@ -536,6 +537,27 @@ cleanupApptEvents: () => {
           return { isSyncEnabled: newSyncState }
         })
       },
+
+    cleanupServerSnapshot: async () => {
+      const { events } = get();
+      const originalCount = events.length;
+      
+      // Apply the same filtering logic as hydrateFromSync
+      const problematicTitles = new Set(['Gym', 'Work Task 3', 'Appt']);
+      
+      const cleanedEvents = events.filter(event => {
+        if (problematicTitles.has(event.title)) return false;
+        
+        const eventDate = new Date(event.date);
+        const daysInFuture = (eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+        return daysInFuture <= 90; // Keep only next 90 days
+      });
+      
+      const removedCount = originalCount - cleanedEvents.length;
+      addSyncLog(`🧹 SERVER CLEANUP: Removed ${removedCount} events from local store`, 'success');
+      
+      return { events: cleanedEvents };
+    },
 
       hydrateFromSync: (syncedData: { events?: CalendarEvent[] }) => {
 
