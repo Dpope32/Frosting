@@ -234,8 +234,7 @@ export const useUserStore = create<UserStore>()(
 		}),
 		{
 			name: 'user-preferences',
-			// bump storage version to trigger future migrations if needed
-			storage: createPersistStorage<UserStore>(2),
+			storage: createPersistStorage<UserStore>(),
 			onRehydrateStorage: () => (state) => {
 				if (state) {
 					state.hydrated = true;
